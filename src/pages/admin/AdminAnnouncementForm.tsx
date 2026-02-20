@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -33,6 +33,7 @@ export function AnnouncementForm() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const isEdit = !!id;
+  const [loading, setLoading] = useState(false);
 
   const { data: item } = useQuery({
     queryKey: ['announcement-item', id],
@@ -43,7 +44,7 @@ export function AnnouncementForm() {
     enabled: isEdit,
   });
 
-  const { register, handleSubmit, setValue, watch, reset, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { is_pinned: false, is_published: true },
   });
@@ -62,25 +63,35 @@ export function AnnouncementForm() {
   }, [item, reset]);
 
   const onSubmit = async (data: FormData) => {
-    if (!currentOrg || !user) return;
-    const payload = {
-      ...data,
-      organization_id: currentOrg.id,
-      created_by: user.id,
-      image_url: data.image_url || null,
-      expires_at: data.expires_at ? new Date(data.expires_at).toISOString() : null,
-    };
-    let error;
-    if (isEdit) {
-      ({ error } = await db.from('announcements').update(payload).eq('id', id));
-    } else {
-      ({ error } = await db.from('announcements').insert(payload));
+    if (!currentOrg || !user) {
+      toast({ title: 'Error', description: 'No organization selected.', variant: 'destructive' });
+      return;
     }
-    if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    } else {
-      toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
-      navigate('/admin/announcements');
+    setLoading(true);
+    try {
+      const payload = {
+        ...data,
+        organization_id: currentOrg.id,
+        created_by: user.id,
+        image_url: data.image_url || null,
+        expires_at: data.expires_at ? new Date(data.expires_at).toISOString() : null,
+      };
+      let error;
+      if (isEdit) {
+        ({ error } = await db.from('announcements').update(payload).eq('id', id));
+      } else {
+        ({ error } = await db.from('announcements').insert(payload));
+      }
+      if (error) {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      } else {
+        toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
+        navigate('/admin/announcements');
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -118,8 +129,8 @@ export function AnnouncementForm() {
         </div>
         <div className="flex gap-3 pt-2">
           <Button type="button" variant="outline" onClick={() => navigate('/admin/announcements')}>Cancel</Button>
-          <Button type="submit" className="gold-gradient text-primary-foreground border-0 shadow-gold" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+          <Button type="submit" className="gold-gradient text-primary-foreground border-0 shadow-gold" disabled={loading}>
+            {loading ? 'Saving...' : isEdit ? 'Update' : 'Create'}
           </Button>
         </div>
       </form>
