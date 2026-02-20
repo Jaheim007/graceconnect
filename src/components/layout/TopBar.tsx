@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Bell, Sun, Moon, Menu, LogOut, User, Settings, LayoutDashboard, Shield, ChevronDown } from 'lucide-react';
-import { useTheme } from 'next-themes';
+import { Bell, Sun, Moon, LogOut, User, Settings, LayoutDashboard, Shield, ChevronDown, Plus } from 'lucide-react';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -15,7 +15,7 @@ import { useUnreadCount } from '@/hooks/useNotifications';
 import { cn } from '@/lib/utils';
 
 export function TopBar() {
-  const { theme, setTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const { user, profile, isSuperadmin, signOut } = useAuth();
   const { userOrgs, currentOrg, setCurrentOrg } = useOrg();
   const { data: unread = 0 } = useUnreadCount(user?.id);
@@ -61,14 +61,8 @@ export function TopBar() {
       )}
 
       {/* Theme toggle */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8"
-        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-      >
-        <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-        <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
+        {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
       </Button>
 
       {/* Notifications */}
@@ -88,9 +82,7 @@ export function TopBar() {
             <button className="h-8 w-8 rounded-full gold-gradient flex items-center justify-center text-xs font-bold text-primary-foreground hover:opacity-90 transition-opacity shrink-0">
               {profile?.avatar_url ? (
                 <img src={profile.avatar_url} alt={initials} className="h-full w-full rounded-full object-cover" />
-              ) : (
-                initials
-              )}
+              ) : initials}
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-52">
@@ -104,6 +96,9 @@ export function TopBar() {
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/dashboard')}>
               <LayoutDashboard className="h-3.5 w-3.5 mr-2" /> My Dashboard
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/create-org')}>
+              <Plus className="h-3.5 w-3.5 mr-2" /> Create Org
             </DropdownMenuItem>
             {currentOrg && (
               <DropdownMenuItem onClick={() => navigate('/admin')}>

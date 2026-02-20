@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,11 +23,16 @@ import { useToast } from '@/hooks/use-toast';
 export default function OrgPublicPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { user } = useAuth();
   const { joinOrg, leaveOrg, isMemberOf } = useOrg();
   const { toast } = useToast();
   const [joining, setJoining] = useState(false);
   const [donateCampaign, setDonateCampaign] = useState<DonationCampaign | null>(null);
+
+  // Derive active tab from pathname segment
+  const pathTab = pathname.split('/').pop();
+  const activeTab = ['content', 'events', 'store', 'donate'].includes(pathTab || '') ? pathTab! : 'home';
 
   const { data: org, isLoading: orgLoading } = useOrgBySlug(slug);
   const { data: media = [] } = useOrgMedia(org?.id);
@@ -119,7 +124,7 @@ export default function OrgPublicPage() {
               {org.whatsapp && (
                 <a
                   href={`https://wa.me/${org.whatsapp.replace(/\D/g, '')}`}
-                  className="flex items-center gap-1 text-xs text-green-500"
+                  className="flex items-center gap-1 text-xs text-primary"
                   target="_blank" rel="noreferrer"
                 >
                   <MessageCircle className="h-3 w-3" /> WhatsApp
@@ -173,7 +178,7 @@ export default function OrgPublicPage() {
         )}
 
         {/* Tabs */}
-        <Tabs defaultValue="home" className="w-full">
+        <Tabs value={activeTab} onValueChange={(tab) => navigate(tab === 'home' ? `/org/${slug}` : `/org/${slug}/${tab}`)} className="w-full">
           <TabsList className="w-full justify-start overflow-x-auto scrollbar-hide mb-6 bg-muted/60 h-10">
             <TabsTrigger value="home" className="text-xs">Home</TabsTrigger>
             <TabsTrigger value="content" className="text-xs">Content ({media.length})</TabsTrigger>
