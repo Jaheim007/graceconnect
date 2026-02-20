@@ -14,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { ImageUploader } from '@/components/ui/ImageUploader';
 import { useToast } from '@/hooks/use-toast';
 
 const schema = z.object({
@@ -21,7 +22,7 @@ const schema = z.object({
   description: z.string().optional(),
   product_type: z.enum(['pdf', 'ebook', 'video', 'audio', 'course', 'other']),
   price: z.coerce.number().min(0),
-  cover_image_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  cover_image_url: z.string().optional(),
   file_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   external_link: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   is_free: z.boolean().default(false),
@@ -100,12 +101,9 @@ export function ProductForm() {
       } else {
         ({ error } = await db.from('digital_products').insert(payload));
       }
-      if (error) {
-        toast({ title: 'Error', description: error.message, variant: 'destructive' });
-      } else {
-        toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
-        navigate('/admin/products');
-      }
+      if (error) throw error;
+      toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
+      navigate('/admin/products');
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     } finally {
@@ -116,7 +114,7 @@ export function ProductForm() {
   return (
     <AdminPageShell title={isEdit ? 'Edit Product' : 'New Digital Product'} backRoute="/admin/products">
       {!currentOrg?.monetization_enabled && (
-      <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/30 text-xs text-destructive mb-4">
+        <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/30 text-xs text-destructive mb-4">
           ⚠️ Paid products require monetization. You can still create free products.
         </div>
       )}
@@ -150,14 +148,20 @@ export function ProductForm() {
             <Input type="number" {...register('price')} disabled={isFree} placeholder="e.g. 5000" />
           </div>
         </div>
-        <div className="space-y-1.5">
-          <Label>Cover Image URL</Label>
-          <Input {...register('cover_image_url')} placeholder="https://..." />
-          {errors.cover_image_url && <p className="text-xs text-destructive">{errors.cover_image_url.message}</p>}
-        </div>
+
+        {/* Cover image upload */}
+        <ImageUploader
+          value={watch('cover_image_url') || ''}
+          onChange={(url) => setValue('cover_image_url', url)}
+          folder="products"
+          label="Cover Image"
+          hint="Recommended: 800×800px square. JPG/PNG/WEBP · Max 10MB"
+          aspectRatio="square"
+        />
+
         <div className="space-y-1.5">
           <Label>File URL (hosted content)</Label>
-          <Input {...register('file_url')} placeholder="https://..." />
+          <Input {...register('file_url')} placeholder="https://drive.google.com/... or direct link" />
           {errors.file_url && <p className="text-xs text-destructive">{errors.file_url.message}</p>}
         </div>
         <div className="space-y-1.5">

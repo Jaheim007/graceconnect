@@ -13,12 +13,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { ImageUploader } from '@/components/ui/ImageUploader';
 import { useToast } from '@/hooks/use-toast';
 
 const schema = z.object({
   title: z.string().min(2, 'Required'),
   description: z.string().optional(),
-  image_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  image_url: z.string().optional(),
   video_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   location: z.string().optional(),
   event_date: z.string().optional(),
@@ -87,12 +88,9 @@ export function EventForm() {
       } else {
         ({ error } = await db.from('events').insert(payload));
       }
-      if (error) {
-        toast({ title: 'Error', description: error.message, variant: 'destructive' });
-      } else {
-        toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
-        navigate('/admin/events');
-      }
+      if (error) throw error;
+      toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
+      navigate('/admin/events');
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     } finally {
@@ -122,14 +120,20 @@ export function EventForm() {
             <Input {...register('location')} placeholder="City or address..." />
           </div>
         </div>
-        <div className="space-y-1.5">
-          <Label>Banner Image URL</Label>
-          <Input {...register('image_url')} placeholder="https://..." />
-          {errors.image_url && <p className="text-xs text-destructive">{errors.image_url.message}</p>}
-        </div>
+
+        {/* Image upload */}
+        <ImageUploader
+          value={watch('image_url') || ''}
+          onChange={(url) => setValue('image_url', url)}
+          folder="events"
+          label="Banner Image"
+          hint="Recommended: 1200×400px or wider. JPG/PNG/WEBP · Max 10MB"
+          aspectRatio="banner"
+        />
+
         <div className="space-y-1.5">
           <Label>Video URL (optional)</Label>
-          <Input {...register('video_url')} placeholder="https://..." />
+          <Input {...register('video_url')} placeholder="https://youtube.com/... or direct .mp4 link" />
           {errors.video_url && <p className="text-xs text-destructive">{errors.video_url.message}</p>}
         </div>
         <div className="flex items-center gap-6">

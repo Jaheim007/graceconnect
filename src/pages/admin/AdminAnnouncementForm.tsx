@@ -13,12 +13,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { ImageUploader } from '@/components/ui/ImageUploader';
 import { useToast } from '@/hooks/use-toast';
 
 const schema = z.object({
   title: z.string().min(2, 'Required'),
   body: z.string().min(5, 'Required'),
-  image_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  image_url: z.string().optional(),
   is_pinned: z.boolean().default(false),
   is_published: z.boolean().default(true),
   expires_at: z.string().optional(),
@@ -82,12 +83,9 @@ export function AnnouncementForm() {
       } else {
         ({ error } = await db.from('announcements').insert(payload));
       }
-      if (error) {
-        toast({ title: 'Error', description: error.message, variant: 'destructive' });
-      } else {
-        toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
-        navigate('/admin/announcements');
-      }
+      if (error) throw error;
+      toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
+      navigate('/admin/announcements');
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     } finally {
@@ -108,11 +106,17 @@ export function AnnouncementForm() {
           <Textarea {...register('body')} rows={5} placeholder="Announcement content..." />
           {errors.body && <p className="text-xs text-destructive">{errors.body.message}</p>}
         </div>
-        <div className="space-y-1.5">
-          <Label>Image URL (optional)</Label>
-          <Input {...register('image_url')} placeholder="https://..." />
-          {errors.image_url && <p className="text-xs text-destructive">{errors.image_url.message}</p>}
-        </div>
+
+        {/* Image upload */}
+        <ImageUploader
+          value={watch('image_url') || ''}
+          onChange={(url) => setValue('image_url', url)}
+          folder="announcements"
+          label="Image (optional)"
+          hint="Recommended: 1200×630px. JPG/PNG/WEBP · Max 10MB"
+          aspectRatio="video"
+        />
+
         <div className="space-y-1.5">
           <Label>Expires At (optional)</Label>
           <Input type="date" {...register('expires_at')} />
