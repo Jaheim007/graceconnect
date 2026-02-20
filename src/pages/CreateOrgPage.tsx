@@ -72,7 +72,7 @@ export default function CreateOrgPage() {
       });
       if (error) throw error;
 
-      // Fetch the newly created org directly so we can set it as current
+      // Fetch the newly created org so we can set it immediately
       const { data: newOrg, error: fetchError } = await db
         .from('organizations')
         .select('*')
@@ -81,21 +81,28 @@ export default function CreateOrgPage() {
 
       if (fetchError) throw fetchError;
 
-      // Refetch memberships to update context
-      refetchOrgs();
-
-      // Immediately set the new org as current so AdminLayout doesn't show empty state
+      // Set as current org BEFORE navigating so AdminLayout doesn't redirect
       if (newOrg) setCurrentOrg(newOrg);
+
+      // Trigger background refetch (non-blocking)
+      refetchOrgs();
 
       toast({ title: '🎉 Organization created!', description: data.name });
       navigate('/admin');
     } catch (err: any) {
-      // Make slug uniqueness errors user-friendly
-      const msg = err.message || '';
+      const msg = err?.message || String(err);
       if (msg.includes('duplicate') || msg.includes('unique') || msg.includes('slug')) {
-        toast({ title: 'Slug already taken', description: 'Please choose a different URL handle.', variant: 'destructive' });
+        toast({
+          title: 'Slug already taken',
+          description: 'Choose a different URL handle on the previous step.',
+          variant: 'destructive',
+        });
       } else {
-        toast({ title: 'Error creating organization', description: msg, variant: 'destructive' });
+        toast({
+          title: 'Error creating organization',
+          description: msg,
+          variant: 'destructive',
+        });
       }
     } finally {
       setLoading(false);

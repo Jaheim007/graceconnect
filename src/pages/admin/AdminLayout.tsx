@@ -26,7 +26,8 @@ export default function AdminLayout() {
   const { currentOrg, userOrgs, setCurrentOrg, isLoadingOrgs } = useOrg();
   const navigate = useNavigate();
 
-  // Still loading memberships — show spinner instead of empty state
+  // Show spinner only while loading AND we have no org yet to show
+  // If currentOrg is already set (e.g. just created), render immediately
   if (isLoadingOrgs && !currentOrg) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -39,7 +40,7 @@ export default function AdminLayout() {
     return (
       <EmptyState
         title="No organization selected"
-        description="Select or create an organization to access the admin panel."
+        description="Create or select an organization to access the admin panel."
         action={{ label: 'Create organization', onClick: () => navigate('/create-org') }}
         className="min-h-screen"
       />
