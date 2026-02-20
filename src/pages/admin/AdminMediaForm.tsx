@@ -12,16 +12,49 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { ImageUploader } from '@/components/ui/ImageUploader';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
+import { Film, Mic, Play, Radio } from 'lucide-react';
+
+const MEDIA_TYPES = [
+  {
+    value: 'video',
+    label: 'Video',
+    icon: Play,
+    desc: 'Full-length sermon, teaching or event. Shown in Watch section.',
+    specs: 'Any aspect ratio · Recommend 16:9 (1920×1080)',
+  },
+  {
+    value: 'reel',
+    label: 'Reel',
+    icon: Film,
+    desc: 'Short vertical clip (30s–3min). Shown in Reels feed.',
+    specs: 'Vertical 9:16 · Recommend 1080×1920',
+  },
+  {
+    value: 'audio',
+    label: 'Audio',
+    icon: Mic,
+    desc: 'Podcast or sermon audio only.',
+    specs: 'MP3/AAC · Add a cover art thumbnail',
+  },
+  {
+    value: 'live_replay',
+    label: 'Live Replay',
+    icon: Radio,
+    desc: 'Archived livestream replay.',
+    specs: '16:9 · Same as Video',
+  },
+] as const;
 
 const schema = z.object({
   title: z.string().min(2, 'Required'),
   description: z.string().optional(),
   media_type: z.enum(['video', 'audio', 'reel', 'live_replay']),
   media_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
-  thumbnail_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  thumbnail_url: z.string().optional(),
   speaker: z.string().optional(),
   series: z.string().optional(),
   is_premium: z.boolean().default(false),
@@ -71,6 +104,9 @@ export function MediaForm() {
     }
   }, [item, reset]);
 
+  const selectedType = watch('media_type');
+  const selectedTypeMeta = MEDIA_TYPES.find(t => t.value === selectedType);
+
   const onSubmit = async (data: FormData) => {
     if (!currentOrg || !user) {
       toast({ title: 'Error', description: 'No organization selected.', variant: 'destructive' });
@@ -92,12 +128,9 @@ export function MediaForm() {
       } else {
         ({ error } = await db.from('media_content').insert(payload));
       }
-      if (error) {
-        toast({ title: 'Error', description: error.message, variant: 'destructive' });
-      } else {
-        toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
-        navigate('/admin/media');
-      }
+      if (error) throw error;
+      toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
+      navigate('/admin/media');
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     } finally {
@@ -107,10 +140,42 @@ export function MediaForm() {
 
   return (
     <AdminPageShell title={isEdit ? 'Edit Media' : 'New Media'} backRoute="/admin/media">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 max-w-xl">
+
+        {/* Media Type Picker */}
+        <div className="space-y-2">
+          <Label>Content Type *</Label>
+          <div className="grid grid-cols-2 gap-2">
+            {MEDIA_TYPES.map(({ value, label, icon: Icon, desc, specs }) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setValue('media_type', value)}
+                className={cn(
+                  'p-3 rounded-xl border-2 text-left transition-all',
+                  selectedType === value
+                    ? 'border-primary bg-primary/10'
+                    : 'border-border bg-card hover:border-muted-foreground/40'
+                )}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <Icon className={cn('h-3.5 w-3.5', selectedType === value ? 'text-primary' : 'text-muted-foreground')} />
+                  <span className="text-sm font-semibold">{label}</span>
+                </div>
+                <p className="text-[10px] text-muted-foreground leading-snug">{desc}</p>
+              </button>
+            ))}
+          </div>
+          {selectedTypeMeta && (
+            <p className="text-[11px] text-primary bg-primary/8 border border-primary/20 rounded-lg px-3 py-1.5">
+              📐 <strong>Specs:</strong> {selectedTypeMeta.specs}
+            </p>
+          )}
+        </div>
+
         <div className="space-y-1.5">
           <Label>Title *</Label>
-          <Input {...register('title')} placeholder="Sermon title..." />
+          <Input {...register('title')} placeholder="Sermon or content title..." />
           {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
         </div>
         <div className="space-y-1.5">
@@ -119,36 +184,37 @@ export function MediaForm() {
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label>Media Type</Label>
-            <Select value={watch('media_type')} onValueChange={v => setValue('media_type', v as any)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="video">Video</SelectItem>
-                <SelectItem value="audio">Audio</SelectItem>
-                <SelectItem value="reel">Reel</SelectItem>
-                <SelectItem value="live_replay">Live Replay</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-1.5">
             <Label>Speaker</Label>
             <Input {...register('speaker')} placeholder="Pastor Name..." />
           </div>
+          <div className="space-y-1.5">
+            <Label>Series</Label>
+            <Input {...register('series')} placeholder="Series name..." />
+          </div>
         </div>
         <div className="space-y-1.5">
-          <Label>Media URL</Label>
-          <Input {...register('media_url')} placeholder="https://..." />
+          <Label>Media URL *</Label>
+          <Input {...register('media_url')} placeholder="https://youtube.com/... or direct .mp4 / .mp3" />
+          <p className="text-[11px] text-muted-foreground">
+            Paste a YouTube, Vimeo, or direct file link. Reels should use direct .mp4 links for best playback.
+          </p>
           {errors.media_url && <p className="text-xs text-destructive">{errors.media_url.message}</p>}
         </div>
-        <div className="space-y-1.5">
-          <Label>Thumbnail URL</Label>
-          <Input {...register('thumbnail_url')} placeholder="https://..." />
-          {errors.thumbnail_url && <p className="text-xs text-destructive">{errors.thumbnail_url.message}</p>}
-        </div>
-        <div className="space-y-1.5">
-          <Label>Series</Label>
-          <Input {...register('series')} placeholder="Series name..." />
-        </div>
+
+        {/* Thumbnail upload */}
+        <ImageUploader
+          value={watch('thumbnail_url') || ''}
+          onChange={(url) => setValue('thumbnail_url', url)}
+          folder="thumbnails"
+          label="Thumbnail Image"
+          hint={
+            selectedType === 'reel'
+              ? 'Vertical 9:16 · 1080×1920px recommended'
+              : 'Horizontal 16:9 · 1280×720px recommended · JPG/PNG/WEBP'
+          }
+          aspectRatio={selectedType === 'reel' ? 'square' : 'video'}
+        />
+
         <div className="space-y-1.5">
           <Label>Tags (comma separated)</Label>
           <Input {...register('tags')} placeholder="faith, prayer, youth..." />

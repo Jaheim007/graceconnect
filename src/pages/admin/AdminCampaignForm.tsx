@@ -13,12 +13,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { ImageUploader } from '@/components/ui/ImageUploader';
 import { useToast } from '@/hooks/use-toast';
 
 const schema = z.object({
   title: z.string().min(2, 'Required'),
   description: z.string().optional(),
-  image_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  image_url: z.string().optional(),
   goal_amount: z.coerce.number().min(0).optional(),
   end_date: z.string().optional(),
   is_featured: z.boolean().default(false),
@@ -92,12 +93,9 @@ export function CampaignForm() {
       } else {
         ({ error } = await db.from('donation_campaigns').insert(payload));
       }
-      if (error) {
-        toast({ title: 'Error', description: error.message, variant: 'destructive' });
-      } else {
-        toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
-        navigate('/admin/campaigns');
-      }
+      if (error) throw error;
+      toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
+      navigate('/admin/campaigns');
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
     } finally {
@@ -108,7 +106,7 @@ export function CampaignForm() {
   return (
     <AdminPageShell title={isEdit ? 'Edit Campaign' : 'New Donation Campaign'} backRoute="/admin/campaigns">
       {!currentOrg?.monetization_enabled && (
-      <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/30 text-xs text-destructive mb-4">
+        <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/30 text-xs text-destructive mb-4">
           ⚠️ Monetization is not enabled. Submit KYC first.
         </div>
       )}
@@ -133,11 +131,17 @@ export function CampaignForm() {
             <Input type="date" {...register('end_date')} />
           </div>
         </div>
-        <div className="space-y-1.5">
-          <Label>Cover Image URL</Label>
-          <Input {...register('image_url')} placeholder="https://..." />
-          {errors.image_url && <p className="text-xs text-destructive">{errors.image_url.message}</p>}
-        </div>
+
+        {/* Image upload */}
+        <ImageUploader
+          value={watch('image_url') || ''}
+          onChange={(url) => setValue('image_url', url)}
+          folder="campaigns"
+          label="Cover Image"
+          hint="Recommended: 1200×630px. JPG/PNG/WEBP · Max 10MB"
+          aspectRatio="video"
+        />
+
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <Switch checked={watch('is_featured')} onCheckedChange={v => setValue('is_featured', v)} />
