@@ -1,16 +1,12 @@
-import { ReactNode } from 'react';
+import { Outlet } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
 
-interface AppLayoutProps {
-  children: ReactNode;
-}
-
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
 
-export function AppLayout({ children }: AppLayoutProps) {
+export function AppLayout() {
   const location = useLocation();
   const hideNav = HIDE_NAV_ROUTES.some((r) => location.pathname.startsWith(r));
 
@@ -27,7 +23,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <div className="flex flex-col flex-1 min-w-0">
         {!hideNav && <TopBar />}
         <main className={`flex-1 ${!hideNav ? 'pb-20 lg:pb-0' : ''}`}>
-          {children}
+          <Outlet />
         </main>
       </div>
 
@@ -40,3 +36,4 @@ export function AppLayout({ children }: AppLayoutProps) {
     </div>
   );
 }
+
