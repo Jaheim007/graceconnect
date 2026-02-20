@@ -15,7 +15,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { ImageUploader } from '@/components/ui/ImageUploader';
+import { FileUploader } from '@/components/ui/FileUploader';
 import { useToast } from '@/hooks/use-toast';
+
 
 const schema = z.object({
   title: z.string().min(2, 'Required'),
@@ -23,12 +25,13 @@ const schema = z.object({
   product_type: z.enum(['pdf', 'ebook', 'video', 'audio', 'course', 'other']),
   price: z.coerce.number().min(0),
   cover_image_url: z.string().optional(),
-  file_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  file_url: z.string().optional(),
   external_link: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   is_free: z.boolean().default(false),
   is_featured: z.boolean().default(false),
   is_published: z.boolean().default(false),
 });
+
 
 type FormData = z.infer<typeof schema>;
 
@@ -159,11 +162,15 @@ export function ProductForm() {
           aspectRatio="square"
         />
 
-        <div className="space-y-1.5">
-          <Label>File URL (hosted content)</Label>
-          <Input {...register('file_url')} placeholder="https://drive.google.com/... or direct link" />
-          {errors.file_url && <p className="text-xs text-destructive">{errors.file_url.message}</p>}
-        </div>
+        <FileUploader
+          value={watch('file_url') || ''}
+          onChange={(url) => setValue('file_url', url)}
+          folder="products"
+          label="Product File"
+          hint="Upload a PDF, audio, or video file directly (max 100MB), or switch to URL mode to paste a hosted link."
+          accept=".pdf,.mp3,.mp4,.wav,.aac,.m4a,.epub,.zip,.docx,audio/*,video/*,application/pdf"
+        />
+
         <div className="space-y-1.5">
           <Label>External Link (optional)</Label>
           <Input {...register('external_link')} placeholder="https://..." />
