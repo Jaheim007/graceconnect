@@ -1,1 +1,16 @@
 project_id = "xzgpzbrgsxtcsktiprik"
+
+[functions.verify-payment]
+verify_jwt = false
+
+[functions.create-paystack-subaccount]
+verify_jwt = false
+
+[functions.request-affiliate-payout]
+verify_jwt = false
+
+[functions.process-payout]
+verify_jwt = false
+
+[functions.send-email]
+verify_jwt = false

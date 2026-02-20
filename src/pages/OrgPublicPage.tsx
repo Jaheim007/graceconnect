@@ -19,8 +19,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Globe, MessageCircle, CheckCircle2, Users, CalendarDays, Share2 } from 'lucide-react';
 import { DonationCampaign } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
+import { useAffiliateCapture } from '@/hooks/useAffiliateCapture';
 
 export default function OrgPublicPage() {
+  useAffiliateCapture(); // capture ?ref=CODE from URL into sessionStorage
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -302,6 +304,7 @@ export default function OrgPublicPage() {
 
       <DonateModal
         campaign={donateCampaign}
+        organizationId={org?.id ?? ''}
         open={!!donateCampaign}
         onClose={() => setDonateCampaign(null)}
       />
