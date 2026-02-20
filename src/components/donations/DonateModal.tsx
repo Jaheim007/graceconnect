@@ -57,42 +57,48 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
 
     const affiliateCode = getAffiliateCode();
 
-    openPayment({
-      email: resolvedEmail,
-      amount: Number(amount),
-      currency: campaign.currency || 'XOF',
-      metadata: {
-        type: 'donation',
-        campaign_id: campaign.id,
-        organization_id: organizationId,
-        donor_name: resolvedName,
-      },
-      onClose: () => {
-        // User closed the Paystack popup without paying
-      },
-      onSuccess: async (reference) => {
-        setStep('processing');
-        try {
-          const verifyResult = await verifyPayment({
-            reference,
-            type: 'donation',
-            organization_id: organizationId,
-            campaign_id: campaign.id,
-            affiliate_code: affiliateCode,
-            donor_name: resolvedName || undefined,
-            donor_email: resolvedEmail || undefined,
-          });
-          clearAffiliateCode();
-          setResult(verifyResult);
-          setStep('success');
-          onSuccess?.(verifyResult);
-        } catch (err: unknown) {
-          const message = err instanceof Error ? err.message : 'Une erreur est survenue. Contactez le support avec votre référence.';
-          setErrorMsg(message);
-          setStep('error');
-        }
-      },
-    });
+    try {
+      await openPayment({
+        email: resolvedEmail,
+        amount: Number(amount),
+        currency: campaign.currency || 'XOF',
+        metadata: {
+          type: 'donation',
+          campaign_id: campaign.id,
+          organization_id: organizationId,
+          donor_name: resolvedName,
+        },
+        onClose: () => {
+          // User closed the Paystack popup without paying — stay on form
+        },
+        onSuccess: async (reference) => {
+          setStep('processing');
+          try {
+            const verifyResult = await verifyPayment({
+              reference,
+              type: 'donation',
+              organization_id: organizationId,
+              campaign_id: campaign.id,
+              affiliate_code: affiliateCode,
+              donor_name: resolvedName || undefined,
+              donor_email: resolvedEmail || undefined,
+            });
+            clearAffiliateCode();
+            setResult(verifyResult);
+            setStep('success');
+            onSuccess?.(verifyResult);
+          } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Une erreur est survenue. Contactez le support avec votre référence.';
+            setErrorMsg(message);
+            setStep('error');
+          }
+        },
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Impossible d\'ouvrir le paiement.';
+      console.error('[DonateModal] openPayment error:', err);
+      toast({ title: 'Erreur de paiement', description: message, variant: 'destructive' });
+    }
   };
 
   const handleClose = () => {
