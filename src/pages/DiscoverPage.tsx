@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { Search, Filter, ChevronDown } from 'lucide-react';
+import { Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { OrgCard } from '@/components/org/OrgCard';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -10,6 +9,7 @@ import { usePublicOrgs } from '@/hooks/useOrganizations';
 import { OrgCategory } from '@/types/database';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useOrg } from '@/contexts/OrgContext';
 
 const CATEGORIES: { value: OrgCategory | ''; label: string }[] = [
   { value: '', label: 'All' },
@@ -27,11 +27,15 @@ export default function DiscoverPage() {
   const [page, setPage] = useState(0);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { userOrgs } = useOrg();
 
   const { data, isLoading } = usePublicOrgs({ search, category, page });
   const orgs = data?.orgs || [];
   const total = data?.total || 0;
   const pageSize = 12;
+
+  // Only show "Create org" CTA if user is logged in AND doesn't already own/manage an org
+  const userOwnsOrg = userOrgs.length > 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -75,8 +79,8 @@ export default function DiscoverPage() {
           ))}
         </div>
 
-        {/* Create org CTA */}
-        {user && (
+        {/* Create org CTA — only show if user is logged in but has no org yet */}
+        {user && !userOwnsOrg && (
           <div className="mb-6 p-4 rounded-2xl bg-primary/5 border border-primary/20 flex items-center justify-between gap-4">
             <div>
               <p className="font-medium text-sm">Create your organization</p>
@@ -85,7 +89,7 @@ export default function DiscoverPage() {
             <Button
               size="sm"
               className="gold-gradient text-primary-foreground border-0 shadow-gold shrink-0"
-              onClick={() => navigate('/admin/settings')}
+              onClick={() => navigate('/create-org')}
             >
               + Create
             </Button>
