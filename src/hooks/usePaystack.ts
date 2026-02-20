@@ -20,10 +20,14 @@ interface PaystackConfig {
   metadata?: Record<string, unknown>;
 }
 
-const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY as string | undefined;
+// Automatically select test or live key based on VITE_PAYSTACK_MODE env var
+const PAYSTACK_MODE = (import.meta.env.VITE_PAYSTACK_MODE as string) || 'live';
+const PAYSTACK_PUBLIC_KEY = PAYSTACK_MODE === 'test'
+  ? (import.meta.env.VITE_PAYSTACK_PUBLIC_KEY_TEST as string | undefined)
+  : (import.meta.env.VITE_PAYSTACK_PUBLIC_KEY as string | undefined);
 
 if (!PAYSTACK_PUBLIC_KEY) {
-  console.warn('[usePaystack] VITE_PAYSTACK_PUBLIC_KEY is not set. Payments will fail.');
+  console.warn(`[usePaystack] No Paystack key found for mode "${PAYSTACK_MODE}". Payments will fail.`);
 }
 
 function loadPaystackScript(): Promise<void> {
