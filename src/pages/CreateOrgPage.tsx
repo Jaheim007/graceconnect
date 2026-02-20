@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -39,10 +39,22 @@ const slugify = (name: string) =>
 export default function CreateOrgPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { refetchOrgs, setCurrentOrg } = useOrg();
+  const { refetchOrgs, setCurrentOrg, userOrgs, isLoadingOrgs } = useOrg();
   const { toast } = useToast();
   const [step, setStep] = useState(0);
+  const [direction, setDirection] = useState(1);
   const [loading, setLoading] = useState(false);
+
+  // Redirect away if user already has an org — prevents the "create org" flash on refresh
+  useEffect(() => {
+    if (!isLoadingOrgs && userOrgs.length > 0) {
+      navigate('/admin', { replace: true });
+    }
+  }, [isLoadingOrgs, userOrgs.length, navigate]);
+
+  // Show nothing while checking orgs
+  if (isLoadingOrgs) return null;
+  if (userOrgs.length > 0) return null;
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -123,7 +135,6 @@ export default function CreateOrgPage() {
     exit: (d: number) => ({ x: d > 0 ? -60 : 60, opacity: 0 }),
   };
 
-  const [direction, setDirection] = useState(1);
   const goNext = () => { setDirection(1); nextStep(); };
   const goBack = () => { setDirection(-1); setStep(s => s - 1); };
 
