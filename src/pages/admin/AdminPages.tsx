@@ -10,11 +10,15 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2, Link2, Copy, CheckCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { db } from '@/lib/db';
+import { supabase } from '@/integrations/supabase/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
@@ -231,30 +235,66 @@ export function AdminProducts() {
 export function AdminMembers() {
   const { currentOrg } = useOrg();
   const { data: members = [], isLoading } = useOrgMembers(currentOrg?.id);
+  const { toast } = useToast();
+  const [copiedInvite, setCopiedInvite] = useState(false);
+
+  const inviteUrl = currentOrg ? `${window.location.origin}/org/${currentOrg.slug}` : '';
+
+  const handleCopyInvite = async () => {
+    await navigator.clipboard.writeText(inviteUrl);
+    setCopiedInvite(true);
+    toast({ title: 'Invite link copied!' });
+    setTimeout(() => setCopiedInvite(false), 2000);
+  };
+
   return (
     <AdminPageShell title="Members" backRoute="/admin">
-      {isLoading ? <SkeletonRow /> : members.length === 0 ? (
-        <EmptyState variant="members" />
-      ) : (
-        <div className="space-y-2">
-          {members.map((m: any) => (
-            <div key={m.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:border-border/80 transition-colors">
-              <div className="h-9 w-9 rounded-full gold-gradient flex items-center justify-center shrink-0">
-                <span className="text-xs font-bold text-primary-foreground">
-                  {(m.profiles?.display_name || 'U')[0].toUpperCase()}
-                </span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{m.profiles?.display_name || 'User'}</p>
-                <p className="text-xs text-muted-foreground">
-                  Joined {new Date(m.joined_at).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })}
-                </p>
-              </div>
-              <Badge variant="secondary" className="text-[10px] capitalize">{m.role}</Badge>
+      <div className="space-y-4">
+        {/* How members join explanation */}
+        <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
+          <div className="flex items-start gap-3">
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <UserPlus className="h-4 w-4 text-primary" />
             </div>
-          ))}
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm">How members join</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Share your organization's public page link. Users who visit and click "Join" will appear here automatically.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
+            <p className="text-xs font-mono text-muted-foreground flex-1 truncate">{inviteUrl}</p>
+            <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={handleCopyInvite}>
+              {copiedInvite ? <CheckCircle className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
+            </Button>
+          </div>
         </div>
-      )}
+
+        {/* Members list */}
+        {isLoading ? <SkeletonRow /> : members.length === 0 ? (
+          <EmptyState variant="members" title="No members yet" description="Share your invite link above to grow your community." />
+        ) : (
+          <div className="space-y-2">
+            {(members as any[]).map((m) => (
+              <div key={m.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:border-border/80 transition-colors">
+                <div className="h-9 w-9 rounded-full gold-gradient flex items-center justify-center shrink-0">
+                  <span className="text-xs font-bold text-primary-foreground">
+                    {(m.profiles?.display_name || 'U')[0].toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{m.profiles?.display_name || 'User'}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Joined {new Date(m.joined_at).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })}
+                  </p>
+                </div>
+                <Badge variant="secondary" className="text-[10px] capitalize">{m.role}</Badge>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </AdminPageShell>
   );
 }
@@ -513,10 +553,42 @@ export function AdminKYC() {
 }
 
 export function AdminSettings() {
-  const { currentOrg } = useOrg();
+  const { currentOrg, refetchOrgs } = useOrg();
+  const { toast } = useToast();
+  const qc = useQueryClient();
+
+  const [affiliationEnabled, setAffiliationEnabled] = useState(currentOrg?.affiliation_enabled ?? false);
+  const [commissionPercent, setCommissionPercent] = useState(
+    String(currentOrg?.affiliation_commission_percent ?? 10)
+  );
+  const [saving, setSaving] = useState(false);
+
+  const handleSaveAffiliation = async () => {
+    if (!currentOrg) return;
+    const pct = parseFloat(commissionPercent);
+    if (isNaN(pct) || pct < 1 || pct > 80) {
+      toast({ title: 'Invalid commission', description: 'Enter a value between 1 and 80.', variant: 'destructive' });
+      return;
+    }
+    setSaving(true);
+    const { error } = await supabase
+      .from('organizations')
+      .update({ affiliation_enabled: affiliationEnabled, affiliation_commission_percent: pct })
+      .eq('id', currentOrg.id);
+    setSaving(false);
+    if (error) {
+      toast({ title: 'Error saving', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: '✅ Affiliation settings saved' });
+      refetchOrgs();
+      qc.invalidateQueries({ queryKey: ['user-memberships'] });
+    }
+  };
+
   return (
     <AdminPageShell title="Organization Settings" backRoute="/admin">
       <div className="space-y-4">
+        {/* General info */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
           <h2 className="font-semibold text-sm">General Information</h2>
           <div className="grid gap-2.5 text-sm">
@@ -532,22 +604,60 @@ export function AdminSettings() {
                 <span className={cn('font-medium text-xs', capitalize && 'capitalize')}>{value || '—'}</span>
               </div>
             ))}
-            <div className="flex justify-between items-center py-1.5 border-b border-border/60">
-              <span className="text-muted-foreground text-xs">Monetization</span>
-              <span className={cn('text-xs font-medium', currentOrg?.monetization_enabled ? 'text-accent' : 'text-muted-foreground')}>
-                {currentOrg?.monetization_enabled ? '✅ Enabled' : 'Active (KYC needed for payouts)'}
-              </span>
-            </div>
-            <div className="flex justify-between items-center py-1.5">
-              <span className="text-muted-foreground text-xs">Affiliation</span>
-              <span className="text-xs font-medium">
-                {currentOrg?.affiliation_enabled ? `✅ ${currentOrg.affiliation_commission_percent}% commission` : '—'}
-              </span>
-            </div>
           </div>
         </div>
-        <p className="text-xs text-muted-foreground text-center">Contact support to update plan or organization details.</p>
+
+        {/* Affiliation settings — editable */}
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+          <div>
+            <h2 className="font-semibold text-sm">Affiliation Program</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Allow members to earn commissions by sharing referral links for products and campaigns.
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <Label htmlFor="affiliation-toggle" className="text-xs font-medium">Enable Affiliation</Label>
+            <Switch
+              id="affiliation-toggle"
+              checked={affiliationEnabled}
+              onCheckedChange={setAffiliationEnabled}
+            />
+          </div>
+
+          {affiliationEnabled && (
+            <div className="space-y-2">
+              <Label htmlFor="commission-pct" className="text-xs font-medium">
+                Commission Rate (%)
+              </Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="commission-pct"
+                  type="number"
+                  min={1}
+                  max={80}
+                  value={commissionPercent}
+                  onChange={(e) => setCommissionPercent(e.target.value)}
+                  className="h-8 text-xs w-24"
+                />
+                <span className="text-xs text-muted-foreground">% per sale/donation via affiliate link</span>
+              </div>
+            </div>
+          )}
+
+          <Button
+            size="sm"
+            className="gold-gradient text-primary-foreground border-0 shadow-gold"
+            onClick={handleSaveAffiliation}
+            disabled={saving}
+          >
+            {saving ? 'Saving…' : 'Save Affiliation Settings'}
+          </Button>
+        </div>
+
+        <p className="text-xs text-muted-foreground text-center">Contact support to update plan or other organization details.</p>
       </div>
     </AdminPageShell>
   );
 }
+
