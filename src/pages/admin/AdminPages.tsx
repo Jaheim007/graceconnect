@@ -632,11 +632,54 @@ export function AdminSettings() {
   const { toast } = useToast();
   const qc = useQueryClient();
 
+  // Profile fields
+  const [orgName, setOrgName] = useState(currentOrg?.name ?? '');
+  const [description, setDescription] = useState(currentOrg?.description ?? '');
+  const [website, setWebsite] = useState(currentOrg?.website ?? '');
+  const [whatsapp, setWhatsapp] = useState(currentOrg?.whatsapp ?? '');
+  const [logoUrl, setLogoUrl] = useState(currentOrg?.logo_url ?? '');
+  const [bannerUrl, setBannerUrl] = useState(currentOrg?.banner_url ?? '');
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  // Affiliation fields
   const [affiliationEnabled, setAffiliationEnabled] = useState(currentOrg?.affiliation_enabled ?? false);
   const [commissionPercent, setCommissionPercent] = useState(
     String(currentOrg?.affiliation_commission_percent ?? 10)
   );
-  const [saving, setSaving] = useState(false);
+  const [savingAffiliation, setSavingAffiliation] = useState(false);
+
+  // Paystack mode — read from env, managed here as display only with instructions
+  const paystackMode = (import.meta.env.VITE_PAYSTACK_MODE as string) || 'live';
+  const isTestMode = paystackMode === 'test';
+
+  const handleSaveProfile = async () => {
+    if (!currentOrg) return;
+    if (!orgName.trim()) {
+      toast({ title: 'Name is required', variant: 'destructive' });
+      return;
+    }
+    setSavingProfile(true);
+    const { error } = await supabase
+      .from('organizations')
+      .update({
+        name: orgName.trim(),
+        description: description.trim() || null,
+        website: website.trim() || null,
+        whatsapp: whatsapp.trim() || null,
+        logo_url: logoUrl || null,
+        banner_url: bannerUrl || null,
+      })
+      .eq('id', currentOrg.id);
+    setSavingProfile(false);
+    if (error) {
+      toast({ title: 'Error saving', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: '✅ Profile saved' });
+      refetchOrgs();
+      qc.invalidateQueries({ queryKey: ['org-by-slug'] });
+      qc.invalidateQueries({ queryKey: ['org-by-id'] });
+    }
+  };
 
   const handleSaveAffiliation = async () => {
     if (!currentOrg) return;
@@ -645,12 +688,12 @@ export function AdminSettings() {
       toast({ title: 'Invalid commission', description: 'Enter a value between 1 and 80.', variant: 'destructive' });
       return;
     }
-    setSaving(true);
+    setSavingAffiliation(true);
     const { error } = await supabase
       .from('organizations')
       .update({ affiliation_enabled: affiliationEnabled, affiliation_commission_percent: pct })
       .eq('id', currentOrg.id);
-    setSaving(false);
+    setSavingAffiliation(false);
     if (error) {
       toast({ title: 'Error saving', description: error.message, variant: 'destructive' });
     } else {
@@ -660,29 +703,123 @@ export function AdminSettings() {
     }
   };
 
+  const handleUploadImage = async (file: File, type: 'logo' | 'banner') => {
+    if (!currentOrg) return;
+    if (!file.type.startsWith('image/')) { toast({ title: 'Please select an image file', variant: 'destructive' }); return; }
+    if (file.size > 10 * 1024 * 1024) { toast({ title: 'Image must be under 10MB', variant: 'destructive' }); return; }
+    const ext = file.name.split('.').pop();
+    const path = `${currentOrg.id}/${type}-${Date.now()}.${ext}`;
+    const { data, error } = await supabase.storage.from('org-uploads').upload(path, file, { upsert: true });
+    if (error) { toast({ title: 'Upload failed', description: error.message, variant: 'destructive' }); return; }
+    const { data: { publicUrl } } = supabase.storage.from('org-uploads').getPublicUrl(data.path);
+    if (type === 'logo') setLogoUrl(publicUrl);
+    else setBannerUrl(publicUrl);
+  };
+
   return (
     <AdminPageShell title="Organization Settings" backRoute="/admin">
       <div className="space-y-4">
-        {/* General info */}
-        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-          <h2 className="font-semibold text-sm">General Information</h2>
-          <div className="grid gap-2.5 text-sm">
+
+        {/* ── PROFILE ── */}
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+          <h2 className="font-semibold text-sm">Organization Profile</h2>
+
+          {/* Banner upload */}
+          <div className="space-y-2">
+            <Label className="text-xs font-medium">Banner Image</Label>
+            <div
+              className="relative h-32 rounded-xl overflow-hidden border-2 border-dashed border-border bg-muted/40 cursor-pointer group"
+              onClick={() => document.getElementById('banner-upload')?.click()}
+            >
+              {bannerUrl
+                ? <img src={bannerUrl} alt="Banner" className="w-full h-full object-cover" />
+                : <div className="w-full h-full flex flex-col items-center justify-center gap-1">
+                    <span className="text-2xl">🖼️</span>
+                    <span className="text-xs text-muted-foreground">Click to upload banner (16:9 recommended)</span>
+                  </div>
+              }
+              <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <span className="text-white text-xs font-medium">Change Banner</span>
+              </div>
+              <input id="banner-upload" type="file" accept="image/*" className="hidden"
+                onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadImage(f, 'banner'); }} />
+            </div>
+          </div>
+
+          {/* Logo upload */}
+          <div className="space-y-2">
+            <Label className="text-xs font-medium">Logo / Profile Picture</Label>
+            <div className="flex items-center gap-4">
+              <div
+                className="h-16 w-16 rounded-2xl overflow-hidden border-2 border-dashed border-border bg-muted/40 cursor-pointer flex items-center justify-center group shrink-0"
+                onClick={() => document.getElementById('logo-upload')?.click()}
+              >
+                {logoUrl
+                  ? <img src={logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                  : <span className="text-xl">🏛️</span>
+                }
+                <input id="logo-upload" type="file" accept="image/*" className="hidden"
+                  onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadImage(f, 'logo'); }} />
+              </div>
+              <p className="text-xs text-muted-foreground">Square image recommended. Will appear as your org avatar across the platform.</p>
+            </div>
+          </div>
+
+          {/* Text fields */}
+          <div className="grid gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="org-name" className="text-xs font-medium">Organization Name</Label>
+              <Input id="org-name" value={orgName} onChange={e => setOrgName(e.target.value)} className="h-8 text-xs" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="org-desc" className="text-xs font-medium">Description</Label>
+              <textarea
+                id="org-desc"
+                rows={3}
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+                placeholder="Tell people what your organization is about…"
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="org-website" className="text-xs font-medium">Website URL</Label>
+                <Input id="org-website" value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://yourchurch.com" className="h-8 text-xs" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="org-whatsapp" className="text-xs font-medium">WhatsApp Number</Label>
+                <Input id="org-whatsapp" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="+225 07 00 00 00 00" className="h-8 text-xs" />
+              </div>
+            </div>
+          </div>
+
+          {/* Read-only info */}
+          <div className="grid gap-1.5 text-xs border-t border-border/60 pt-3">
             {[
-              { label: 'Name', value: currentOrg?.name },
-              { label: 'Slug', value: currentOrg?.slug },
-              { label: 'Plan', value: currentOrg?.plan_type, capitalize: true },
+              { label: 'Slug (URL)', value: currentOrg?.slug },
+              { label: 'Plan', value: currentOrg?.plan_type },
               { label: 'Country', value: currentOrg?.country },
               { label: 'Currency', value: currentOrg?.currency },
-            ].map(({ label, value, capitalize }) => (
-              <div key={label} className="flex justify-between items-center py-1.5 border-b border-border/60 last:border-0">
-                <span className="text-muted-foreground text-xs">{label}</span>
-                <span className={cn('font-medium text-xs', capitalize && 'capitalize')}>{value || '—'}</span>
+            ].map(({ label, value }) => (
+              <div key={label} className="flex justify-between">
+                <span className="text-muted-foreground">{label}</span>
+                <span className="font-medium capitalize">{value || '—'}</span>
               </div>
             ))}
           </div>
+
+          <Button
+            size="sm"
+            className="gold-gradient text-primary-foreground border-0 shadow-gold"
+            onClick={handleSaveProfile}
+            disabled={savingProfile}
+          >
+            {savingProfile ? 'Saving…' : 'Save Profile'}
+          </Button>
         </div>
 
-        {/* Affiliation settings — editable */}
+        {/* ── AFFILIATION ── */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
           <div>
             <h2 className="font-semibold text-sm">Affiliation Program</h2>
@@ -693,18 +830,12 @@ export function AdminSettings() {
 
           <div className="flex items-center justify-between">
             <Label htmlFor="affiliation-toggle" className="text-xs font-medium">Enable Affiliation</Label>
-            <Switch
-              id="affiliation-toggle"
-              checked={affiliationEnabled}
-              onCheckedChange={setAffiliationEnabled}
-            />
+            <Switch id="affiliation-toggle" checked={affiliationEnabled} onCheckedChange={setAffiliationEnabled} />
           </div>
 
           {affiliationEnabled && (
             <div className="space-y-2">
-              <Label htmlFor="commission-pct" className="text-xs font-medium">
-                Commission Rate (%)
-              </Label>
+              <Label htmlFor="commission-pct" className="text-xs font-medium">Commission Rate (%)</Label>
               <div className="flex items-center gap-2">
                 <Input
                   id="commission-pct"
@@ -712,7 +843,7 @@ export function AdminSettings() {
                   min={1}
                   max={80}
                   value={commissionPercent}
-                  onChange={(e) => setCommissionPercent(e.target.value)}
+                  onChange={e => setCommissionPercent(e.target.value)}
                   className="h-8 text-xs w-24"
                 />
                 <span className="text-xs text-muted-foreground">% per sale/donation via affiliate link</span>
@@ -724,15 +855,57 @@ export function AdminSettings() {
             size="sm"
             className="gold-gradient text-primary-foreground border-0 shadow-gold"
             onClick={handleSaveAffiliation}
-            disabled={saving}
+            disabled={savingAffiliation}
           >
-            {saving ? 'Saving…' : 'Save Affiliation Settings'}
+            {savingAffiliation ? 'Saving…' : 'Save Affiliation Settings'}
           </Button>
         </div>
 
-        <p className="text-xs text-muted-foreground text-center">Contact support to update plan or other organization details.</p>
+        {/* ── PAYSTACK MODE ── */}
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+          <div>
+            <h2 className="font-semibold text-sm">Paystack Payment Mode</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Switch between Test and Live mode for payments. Use Test mode during development.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/30">
+            <div className={cn(
+              'h-3 w-3 rounded-full shrink-0',
+              isTestMode ? 'bg-amber-500' : 'bg-green-500'
+            )} />
+            <div className="flex-1">
+              <p className="text-xs font-semibold">{isTestMode ? 'Test Mode' : 'Live Mode'}</p>
+              <p className="text-[10px] text-muted-foreground">
+                {isTestMode
+                  ? 'Payments are simulated — no real money is charged.'
+                  : 'Real payments are active. Customers are charged.'}
+              </p>
+            </div>
+            <Badge variant="outline" className={cn(
+              'text-[10px] border-0',
+              isTestMode ? 'bg-amber-500/10 text-amber-600' : 'bg-green-500/10 text-green-600 dark:text-green-400'
+            )}>
+              {isTestMode ? 'TEST' : 'LIVE'}
+            </Badge>
+          </div>
+
+          <div className="p-3 rounded-xl bg-muted/50 space-y-2">
+            <p className="text-xs font-medium">How to switch mode:</p>
+            <ol className="text-[11px] text-muted-foreground space-y-1 list-decimal list-inside">
+              <li>Go to your Supabase project settings → Environment Variables</li>
+              <li>Set <code className="bg-muted px-1 rounded text-[10px]">VITE_PAYSTACK_MODE</code> to <code className="bg-muted px-1 rounded text-[10px]">test</code> or <code className="bg-muted px-1 rounded text-[10px]">live</code></li>
+              <li>Ensure <code className="bg-muted px-1 rounded text-[10px]">VITE_PAYSTACK_PUBLIC_KEY</code> holds your <strong>live</strong> key and <code className="bg-muted px-1 rounded text-[10px]">VITE_PAYSTACK_PUBLIC_KEY_TEST</code> holds your <strong>test</strong> key</li>
+              <li>Redeploy the app for the change to take effect</li>
+            </ol>
+          </div>
+        </div>
+
+        <p className="text-xs text-muted-foreground text-center">Contact support to update plan, country, or currency.</p>
       </div>
     </AdminPageShell>
   );
 }
+
 
