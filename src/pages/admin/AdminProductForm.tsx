@@ -82,10 +82,8 @@ export function ProductForm() {
       toast({ title: 'Error', description: 'No organization selected.', variant: 'destructive' });
       return;
     }
-    if (!currentOrg.monetization_enabled && !data.is_free) {
-      toast({ title: 'KYC required', description: 'Monetization must be enabled for paid products.', variant: 'destructive' });
-      return;
-    }
+
+
     setLoading(true);
     try {
       const payload = {
@@ -116,11 +114,8 @@ export function ProductForm() {
 
   return (
     <AdminPageShell title={isEdit ? 'Edit Product' : 'New Digital Product'} backRoute="/admin/products">
-      {!currentOrg?.monetization_enabled && (
-        <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/30 text-xs text-destructive mb-4">
-          ⚠️ Paid products require monetization. You can still create free products.
-        </div>
-      )}
+
+
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
           <Label>Product Title *</Label>
