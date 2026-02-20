@@ -17,7 +17,8 @@ import { cn } from '@/lib/utils';
 export function TopBar() {
   const { theme, toggleTheme } = useTheme();
   const { user, profile, isSuperadmin, signOut } = useAuth();
-  const { userOrgs, currentOrg, setCurrentOrg } = useOrg();
+  const { userOrgs, currentOrg, setCurrentOrg, canManage } = useOrg();
+  const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const navigate = useNavigate();
 
@@ -100,7 +101,8 @@ export function TopBar() {
             <DropdownMenuItem onClick={() => navigate('/create-org')}>
               <Plus className="h-3.5 w-3.5 mr-2" /> Create Org
             </DropdownMenuItem>
-            {currentOrg && (
+            {/* Only show Manage Org to owner/admin/editor — not plain members */}
+            {canManageCurrentOrg && (
               <DropdownMenuItem onClick={() => navigate('/admin')}>
                 <Settings className="h-3.5 w-3.5 mr-2" /> Manage Org
               </DropdownMenuItem>

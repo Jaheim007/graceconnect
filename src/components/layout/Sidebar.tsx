@@ -44,17 +44,22 @@ const superadminNav = [
 
 export function Sidebar() {
   const location = useLocation();
+  
   const [collapsed, setCollapsed] = useState(false);
   const { user, isSuperadmin } = useAuth();
-  const { currentOrg } = useOrg();
+  // canManage checks if user has owner/admin/editor role for the given org
+  const { currentOrg, canManage } = useOrg();
   const { data: unread = 0 } = useUnreadCount(user?.id);
 
   const isAdmin = location.pathname.startsWith('/admin');
   const isSA = location.pathname.startsWith('/superadmin');
   const items = isSA ? superadminNav : isAdmin ? adminNav : mainNav;
 
-  const isActive = (to: string, exact = false) =>
-    exact ? location.pathname === to : location.pathname.startsWith(to);
+  // Only show "Manage Org" to users with a management role (owner/admin/editor).
+  // A plain "member" who joined a church must NOT see or be able to access /admin.
+  const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
+
+  const isActive = (to: string) => location.pathname.startsWith(to);
 
   return (
     <aside
@@ -125,19 +130,31 @@ export function Sidebar() {
       {!collapsed && (
         <div className="px-3 py-2 border-t border-border/60 space-y-0.5">
           {!isAdmin && !isSA && isSuperadmin && (
-            <Link to="/superadmin" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors">
+            <Link
+              to="/superadmin"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
+            >
               <Shield className="h-3.5 w-3.5" />
               Superadmin
             </Link>
           )}
-          {!isAdmin && !isSA && currentOrg && (
-            <Link to="/admin" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors">
+
+          {/* Only show "Manage Org" if the user has owner/admin/editor role */}
+          {!isAdmin && !isSA && canManageCurrentOrg && (
+            <Link
+              to="/admin"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
+            >
               <Settings className="h-3.5 w-3.5" />
               Manage Org
             </Link>
           )}
+
           {(isAdmin || isSA) && (
-            <Link to="/feed" className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors">
+            <Link
+              to="/feed"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
+            >
               <Home className="h-3.5 w-3.5" />
               Back to App
             </Link>
