@@ -1,6 +1,7 @@
 // Generic stub for remaining admin pages
 import { AdminPageShell } from './AdminPageShell';
 import { useOrg } from '@/contexts/OrgContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useOrgAnnouncements, useDeleteAnnouncement } from '@/hooks/useAnnouncements';
 import { useOrgEvents, useDeleteEvent } from '@/hooks/useEvents';
 import { useOrgCampaigns, useOrgProducts } from '@/hooks/useMonetization';
@@ -9,10 +10,29 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Link2, Copy, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { db } from '@/lib/db';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+
+function useOrgAffiliateLinks(orgId: string | undefined) {
+  return useQuery({
+    queryKey: ['org-affiliate-links', orgId],
+    queryFn: async () => {
+      if (!orgId) return [];
+      const { data } = await db
+        .from('affiliate_links')
+        .select('*')
+        .eq('organization_id', orgId)
+        .order('created_at', { ascending: false });
+      return data || [];
+    },
+    enabled: !!orgId,
+  });
+}
 
 export function AdminAnnouncements() {
   const { currentOrg } = useOrg();
@@ -120,10 +140,10 @@ export function AdminCampaigns() {
   const navigate = useNavigate();
   return (
     <AdminPageShell title="Donation Campaigns" newRoute="/admin/campaigns/new" backRoute="/admin">
-      {!currentOrg?.monetization_enabled && (
+      {currentOrg?.kyc_status === 'none' && (
         <div className="p-3 rounded-xl bg-primary/8 border border-primary/20 text-xs text-foreground mb-3 flex items-center gap-2">
-          <span>⚠️</span>
-          <span className="text-muted-foreground">Monetization requires KYC approval.</span>
+          <span>💡</span>
+          <span className="text-muted-foreground">Submit KYC before requesting a payout. Accepting donations is available now.</span>
           <Button size="sm" variant="ghost" className="h-6 text-xs ml-auto text-primary" onClick={() => navigate('/admin/kyc')}>
             Submit KYC →
           </Button>
@@ -239,32 +259,184 @@ export function AdminMembers() {
   );
 }
 
+function AffiliateCopyButton({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    toast({ title: 'Link copied!' });
+    setTimeout(() => setCopied(false), 2000);
+  };
+  return (
+    <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={handleCopy}>
+      {copied ? <CheckCircle className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
+    </Button>
+  );
+}
+
 export function AdminAffiliation() {
   const { currentOrg } = useOrg();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  return (
-    <AdminPageShell title="Affiliation Program" backRoute="/admin">
-      {!currentOrg?.affiliation_enabled ? (
+  const { toast } = useToast();
+  const qc = useQueryClient();
+  const { data: members = [], isLoading } = useOrgMembers(currentOrg?.id);
+
+  // Fetch existing affiliate links for this org
+  const { data: existingLinks = [] } = useOrgAffiliateLinks(currentOrg?.id);
+
+  const assignAffiliate = useMutation({
+    mutationFn: async ({ memberId, memberUserId }: { memberId: string; memberUserId: string }) => {
+      // 1. Update role to affiliate
+      const { error: roleErr } = await db
+        .from('organization_members')
+        .update({ role: 'affiliate' })
+        .eq('id', memberId);
+      if (roleErr) throw roleErr;
+
+      // 2. Check if link already exists
+      const { data: existing } = await db
+        .from('affiliate_links')
+        .select('id')
+        .eq('user_id', memberUserId)
+        .eq('organization_id', currentOrg!.id)
+        .maybeSingle();
+      if (existing) return; // already has a link
+
+      // 3. Generate unique affiliate code
+      const code = `${currentOrg!.slug.slice(0, 4).toUpperCase()}-${memberUserId.slice(0, 6).toUpperCase()}`;
+      const { error: linkErr } = await db.from('affiliate_links').insert({
+        user_id: memberUserId,
+        organization_id: currentOrg!.id,
+        code,
+        link_type: 'org',
+      });
+      if (linkErr) throw linkErr;
+    },
+    onSuccess: () => {
+      toast({ title: '✅ Affiliate role assigned & link generated' });
+      qc.invalidateQueries({ queryKey: ['org-members', currentOrg?.id] });
+      qc.invalidateQueries({ queryKey: ['org-affiliate-links', currentOrg?.id] });
+    },
+    onError: (err: Error) => {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    },
+  });
+
+  const revokeAffiliate = useMutation({
+    mutationFn: async ({ memberId, memberUserId }: { memberId: string; memberUserId: string }) => {
+      await db.from('organization_members').update({ role: 'member' }).eq('id', memberId);
+      await db.from('affiliate_links')
+        .update({ is_active: false })
+        .eq('user_id', memberUserId)
+        .eq('organization_id', currentOrg!.id);
+    },
+    onSuccess: () => {
+      toast({ title: 'Affiliate role revoked' });
+      qc.invalidateQueries({ queryKey: ['org-members', currentOrg?.id] });
+      qc.invalidateQueries({ queryKey: ['org-affiliate-links', currentOrg?.id] });
+    },
+  });
+
+  const baseUrl = window.location.origin;
+
+  if (!currentOrg?.affiliation_enabled) {
+    return (
+      <AdminPageShell title="Affiliation Program" backRoute="/admin">
         <div className="p-8 rounded-2xl border border-border bg-card text-center space-y-3">
           <div className="h-12 w-12 rounded-2xl bg-muted flex items-center justify-center mx-auto">
-            <span className="text-2xl">🔗</span>
+            <Link2 className="h-6 w-6 text-muted-foreground" />
           </div>
           <p className="font-semibold">Affiliation not enabled</p>
           <p className="text-sm text-muted-foreground">Enable affiliation in Settings to allow members to earn commissions.</p>
           <Button size="sm" variant="outline" onClick={() => navigate('/admin/settings')}>Go to Settings</Button>
         </div>
-      ) : (
-        <div className="space-y-4">
-          <div className="bg-card border border-border rounded-2xl p-5">
-            <p className="font-semibold text-sm mb-1">Commission Rate</p>
-            <p className="text-3xl font-bold text-primary">{currentOrg.affiliation_commission_percent}%</p>
-            <p className="text-xs text-muted-foreground mt-1">per sale attributed to an affiliate link</p>
-          </div>
-          <div className="bg-card border border-border rounded-2xl p-5">
-            <p className="text-sm text-muted-foreground">Members can generate affiliate links from their dashboard after joining this organization.</p>
-          </div>
+      </AdminPageShell>
+    );
+  }
+
+  return (
+    <AdminPageShell title="Affiliation Program" backRoute="/admin">
+      <div className="space-y-4">
+        {/* Rate card */}
+        <div className="bg-card border border-border rounded-2xl p-5">
+          <p className="font-semibold text-sm mb-1">Commission Rate</p>
+          <p className="text-3xl font-bold text-primary">{currentOrg.affiliation_commission_percent}%</p>
+          <p className="text-xs text-muted-foreground mt-1">per sale attributed to an affiliate link</p>
         </div>
-      )}
+
+        {/* Members table with affiliate assignment */}
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+          <div>
+            <h2 className="font-semibold text-sm">Manage Affiliates</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">Assign the affiliate role to members to generate their unique referral link.</p>
+          </div>
+
+          {isLoading ? <SkeletonRow count={3} /> : members.length === 0 ? (
+            <p className="text-xs text-muted-foreground py-4 text-center">No members yet.</p>
+          ) : (
+            <div className="space-y-2">
+              {(members as any[]).map((m) => {
+                const isAffiliate = m.role === 'affiliate';
+                const existingLink = (existingLinks as any[]).find(l => l.user_id === m.user_id);
+                const shareUrl = existingLink ? `${baseUrl}/org/${currentOrg.slug}?ref=${existingLink.code}` : null;
+                return (
+                  <div key={m.id} className="border border-border rounded-xl p-3 space-y-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold shrink-0">
+                          {(m.profiles?.display_name || 'U')[0].toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">{m.profiles?.display_name || 'User'}</p>
+                          <Badge variant="secondary" className="text-[10px] capitalize">{m.role}</Badge>
+                        </div>
+                      </div>
+                      {m.user_id !== user?.id && (
+                        isAffiliate ? (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="h-7 text-xs text-destructive border-destructive/30"
+                            disabled={revokeAffiliate.isPending}
+                            onClick={() => revokeAffiliate.mutate({ memberId: m.id, memberUserId: m.user_id })}
+                          >
+                            Revoke
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            className="h-7 text-xs gold-gradient text-primary-foreground border-0"
+                            disabled={assignAffiliate.isPending}
+                            onClick={() => assignAffiliate.mutate({ memberId: m.id, memberUserId: m.user_id })}
+                          >
+                            Make Affiliate
+                          </Button>
+                        )
+                      )}
+                    </div>
+                    {/* Show their affiliate link if assigned */}
+                    {isAffiliate && shareUrl && (
+                      <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-2.5 py-1.5">
+                        <p className="text-[10px] font-mono text-muted-foreground flex-1 truncate">{shareUrl}</p>
+                        <AffiliateCopyButton text={shareUrl} />
+                      </div>
+                    )}
+                    {isAffiliate && existingLink && (
+                      <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
+                        <span>{existingLink.clicks || 0} clicks</span>
+                        <span>{existingLink.conversions || 0} conversions</span>
+                        <span className="text-primary font-semibold">{(existingLink.total_earned || 0).toLocaleString('fr-FR')} {currentOrg.currency} earned</span>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
     </AdminPageShell>
   );
 }
@@ -292,9 +464,18 @@ export function AdminKYC() {
   return (
     <AdminPageShell title="KYC Verification" backRoute="/admin">
       <div className="space-y-4">
+        {/* Info banner */}
+        <div className="p-4 rounded-2xl border border-primary/20 bg-primary/8">
+          <p className="font-semibold text-sm mb-1">💡 KYC is only required for payouts</p>
+          <p className="text-xs text-muted-foreground">
+            You can accept donations, sell products, and run affiliate programs without completing KYC.
+            KYC verification is only needed when you want to withdraw your earnings.
+          </p>
+        </div>
+
         <div className={cn(
           'p-4 rounded-2xl border',
-          isApproved ? 'border-green-500/30 bg-green-500/8' : isPending ? 'border-primary/20 bg-primary/8' : 'border-border bg-muted/40'
+          isApproved ? 'border-accent/30 bg-accent/8' : isPending ? 'border-primary/20 bg-primary/8' : 'border-border bg-muted/40'
         )}>
           <div className="flex items-center gap-2 mb-1">
             <span>{isApproved ? '✅' : isPending ? '⏳' : '📋'}</span>
@@ -302,16 +483,16 @@ export function AdminKYC() {
           </div>
           <p className="text-xs text-muted-foreground">
             {isApproved
-              ? 'Monetization features are enabled. You can collect donations and sell products.'
+              ? 'KYC approved. You can now request payouts to your bank account.'
               : isPending
               ? 'Your submission is under review. We typically respond within 48 hours.'
-              : 'Submit your KYC documents to unlock donations, store, and affiliates.'}
+              : 'Submit your KYC documents to enable payout withdrawals.'}
           </p>
         </div>
 
         {!isApproved && (
           <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-            <h2 className="font-semibold text-sm">Required Documents</h2>
+            <h2 className="font-semibold text-sm">Required Documents for Payout</h2>
             <ul className="space-y-2 text-xs text-muted-foreground">
               <li className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold shrink-0">1</span> Government-issued ID (passport, national card)</li>
               <li className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold shrink-0">2</span> Organization registration certificate</li>
@@ -353,8 +534,8 @@ export function AdminSettings() {
             ))}
             <div className="flex justify-between items-center py-1.5 border-b border-border/60">
               <span className="text-muted-foreground text-xs">Monetization</span>
-              <span className={cn('text-xs font-medium', currentOrg?.monetization_enabled ? 'text-green-500' : 'text-primary')}>
-                {currentOrg?.monetization_enabled ? '✅ Enabled' : '⚠️ Pending KYC'}
+              <span className={cn('text-xs font-medium', currentOrg?.monetization_enabled ? 'text-accent' : 'text-muted-foreground')}>
+                {currentOrg?.monetization_enabled ? '✅ Enabled' : 'Active (KYC needed for payouts)'}
               </span>
             </div>
             <div className="flex justify-between items-center py-1.5">
