@@ -1,8 +1,8 @@
 import { useAuth } from '@/contexts/AuthContext';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Donation, ProductPurchase, AffiliateLink } from '@/types/database';
-import { ArrowLeft, Heart, ShoppingBag, Link2, TrendingUp, Copy, ExternalLink, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Heart, ShoppingBag, Link2, TrendingUp, Copy, ExternalLink, CheckCircle, AlertTriangle, DollarSign } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
@@ -10,6 +10,8 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { requestAffiliatePayout } from '@/lib/api';
+import { useOrg } from '@/contexts/OrgContext';
 
 const fmt = (n: number, currency = 'XOF') =>
   new Intl.NumberFormat('fr-FR', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
@@ -48,6 +50,10 @@ function CopyButton({ text }: { text: string }) {
 export default function UserDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const { userOrgs } = useOrg();
+  const qc = useQueryClient();
+  const [requestingPayout, setRequestingPayout] = useState<string | null>(null);
 
   const { data: donations = [], isLoading: dLoading } = useQuery({
     queryKey: ['user-donations', user?.id],
@@ -98,11 +104,72 @@ export default function UserDashboard() {
     enabled: !!user,
   });
 
+  // KYC status for each org the user belongs to
+  const { data: kycStatuses = {} } = useQuery({
+    queryKey: ['user-kyc-statuses', user?.id],
+    queryFn: async () => {
+      if (!user || !userOrgs.length) return {};
+      const map: Record<string, string> = {};
+      for (const org of userOrgs) {
+        map[org.id] = org.kyc_status || 'none';
+      }
+      return map;
+    },
+    enabled: !!user && userOrgs.length > 0,
+  });
+
   const totalDonated = donations.filter(d => d.status === 'completed').reduce((s, d) => s + d.amount, 0);
   const totalEarned = affiliateLinks.reduce((s, l) => s + (l.total_earned || 0), 0);
-  const pendingCommission = affiliateSales.filter((s: { status: string }) => s.status === 'pending').reduce((sum: number, s: { commission_amount: number }) => sum + s.commission_amount, 0);
+  const payableCommission = affiliateSales
+    .filter((s: { status: string }) => s.status === 'payable')
+    .reduce((sum: number, s: { commission_amount: number }) => sum + s.commission_amount, 0);
+  const pendingCommission = affiliateSales
+    .filter((s: { status: string }) => s.status === 'pending')
+    .reduce((sum: number, s: { commission_amount: number }) => sum + s.commission_amount, 0);
 
   const baseUrl = window.location.origin;
+
+  const handleRequestPayout = async (orgId: string, orgKycStatus: string) => {
+    // KYC gate at payout time
+    if (orgKycStatus === 'none' || orgKycStatus === 'pending') {
+      toast({
+        title: 'KYC Required for Payout',
+        description: 'Please complete KYC verification for your organization before requesting a payout. You can keep earning commissions in the meantime!',
+      });
+      navigate('/admin/kyc');
+      return;
+    }
+
+    setRequestingPayout(orgId);
+    try {
+      const result = await requestAffiliatePayout(orgId);
+      toast({
+        title: '✅ Payout Requested',
+        description: `${result.amount?.toLocaleString()} XOF payout request submitted. You'll be notified when processed.`,
+      });
+      qc.invalidateQueries({ queryKey: ['user-affiliate-sales', user?.id] });
+    } catch (err: unknown) {
+      toast({
+        title: 'Payout Request Failed',
+        description: err instanceof Error ? err.message : 'Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setRequestingPayout(null);
+    }
+  };
+
+  // Group payable sales by org
+  const payableByOrg: Record<string, { orgId: string; amount: number; currency: string }> = {};
+  for (const s of affiliateSales) {
+    const sale = s as { status: string; organization_id: string; commission_amount: number; currency?: string };
+    if (sale.status === 'payable') {
+      if (!payableByOrg[sale.organization_id]) {
+        payableByOrg[sale.organization_id] = { orgId: sale.organization_id, amount: 0, currency: sale.currency || 'XOF' };
+      }
+      payableByOrg[sale.organization_id].amount += sale.commission_amount;
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -133,7 +200,7 @@ export default function UserDashboard() {
           ))}
         </div>
 
-        {/* Affiliate Links Section — always shown */}
+        {/* Affiliate Links Section */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
           <div className="flex items-center justify-between">
             <div>
@@ -145,11 +212,18 @@ export default function UserDashboard() {
                 Share these links to earn commissions on donations and product sales.
               </p>
             </div>
-            {pendingCommission > 0 && (
-              <Badge variant="outline" className="bg-primary/10 text-primary border-0 text-xs shrink-0">
-                {fmt(pendingCommission)} pending
-              </Badge>
-            )}
+            <div className="flex flex-col items-end gap-1">
+            {payableCommission > 0 && (
+                <Badge variant="outline" className="bg-accent/10 text-accent-foreground border-0 text-xs">
+                  {fmt(payableCommission)} payable
+                </Badge>
+              )}
+              {pendingCommission > 0 && (
+                <Badge variant="outline" className="bg-primary/10 text-primary border-0 text-xs">
+                  {fmt(pendingCommission)} pending
+                </Badge>
+              )}
+            </div>
           </div>
 
           {aLoading ? (
@@ -159,15 +233,13 @@ export default function UserDashboard() {
               <Link2 className="h-8 w-8 text-muted-foreground/40 mx-auto" />
               <p className="text-sm text-muted-foreground">No affiliate links yet.</p>
               <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                Join an organization that has affiliate programs enabled. Once approved as an affiliate, your links will appear here.
+                Join an organization that has affiliate programs enabled. Once an admin assigns you the affiliate role, your links will appear here.
               </p>
             </div>
           ) : (
             <div className="space-y-3">
               {affiliateLinks.map((l) => {
-                const shareUrl = l.link_type === 'product'
-                  ? `${baseUrl}/org/${l.organizations?.slug}?ref=${l.code}`
-                  : `${baseUrl}/org/${l.organizations?.slug}?ref=${l.code}`;
+                const shareUrl = `${baseUrl}/org/${l.organizations?.slug}?ref=${l.code}`;
                 return (
                   <div key={l.id} className="border border-border rounded-xl p-3 space-y-2">
                     {/* Org name + type */}
@@ -198,7 +270,7 @@ export default function UserDashboard() {
                         variant="ghost"
                         size="icon"
                         className="h-7 w-7 shrink-0"
-                        onClick={() => window.open(`/org/${l.organizations?.slug}?ref=${l.code}`, '_blank')}
+                        onClick={() => window.open(shareUrl, '_blank')}
                       >
                         <ExternalLink className="h-3.5 w-3.5" />
                       </Button>
@@ -209,6 +281,46 @@ export default function UserDashboard() {
             </div>
           )}
         </div>
+
+        {/* Payout Section */}
+        {Object.keys(payableByOrg).length > 0 && (
+          <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+            <h2 className="font-semibold text-sm flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-primary" />
+              Request Payout
+            </h2>
+            <p className="text-xs text-muted-foreground">KYC verification is required before requesting a payout.</p>
+            <div className="space-y-2">
+              {Object.values(payableByOrg).map(({ orgId, amount, currency }) => {
+                const org = userOrgs.find(o => o.id === orgId);
+                const kycStatus = kycStatuses[orgId] || 'none';
+                const kycApproved = kycStatus === 'level1' || kycStatus === 'level2';
+                return (
+                  <div key={orgId} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/30">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium">{org?.name || orgId}</p>
+                      <p className="text-xs text-primary font-semibold">{fmt(amount, currency)} payable</p>
+                    </div>
+                    {!kycApproved && (
+                      <div className="flex items-center gap-1 text-[10px] text-primary">
+                        <AlertTriangle className="h-3 w-3" />
+                        <span>KYC required</span>
+                      </div>
+                    )}
+                    <Button
+                      size="sm"
+                      className="h-7 text-xs gold-gradient text-primary-foreground border-0 shadow-gold"
+                      disabled={requestingPayout === orgId}
+                      onClick={() => handleRequestPayout(orgId, kycStatus)}
+                    >
+                      {requestingPayout === orgId ? 'Requesting...' : kycApproved ? 'Request Payout' : 'Submit KYC First'}
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Affiliate Sales / Commission history */}
         {affiliateSales.length > 0 && (

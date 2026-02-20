@@ -53,15 +53,15 @@ export default function AdminDashboard() {
         </Button>
       </div>
 
-      {/* KYC banner */}
-      {!currentOrg?.monetization_enabled && (
+      {/* KYC banner — only for payout readiness */}
+      {currentOrg?.kyc_status === 'none' && (
         <div className="flex items-start gap-3 p-4 rounded-2xl bg-primary/8 border border-primary/20">
           <div className="h-8 w-8 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
             <AlertTriangle className="h-4 w-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm">Monetization not enabled</p>
-            <p className="text-xs text-muted-foreground mt-0.5">Complete KYC verification to enable donations, products &amp; affiliate programs.</p>
+            <p className="font-semibold text-sm">Submit KYC to enable payouts</p>
+            <p className="text-xs text-muted-foreground mt-0.5">You can accept payments &amp; run affiliate programs right away. KYC is only required when requesting a payout.</p>
           </div>
           <Button size="sm" variant="outline" onClick={() => navigate('/admin/kyc')} className="h-7 text-xs shrink-0">
             Submit KYC
