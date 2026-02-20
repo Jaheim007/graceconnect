@@ -1,0 +1,156 @@
+import { useRef, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { Upload, X, File as FileIcon, Loader2, Link as LinkIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+
+interface FileUploaderProps {
+  value: string;
+  onChange: (url: string) => void;
+  folder?: string;
+  label?: string;
+  hint?: string;
+  accept?: string;
+}
+
+export function FileUploader({
+  value,
+  onChange,
+  folder = 'products',
+  label = 'File',
+  hint,
+  accept = '*/*',
+}: FileUploaderProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<'upload' | 'url'>(value && value.startsWith('http') ? 'url' : 'upload');
+  const [urlInput, setUrlInput] = useState(value || '');
+
+  const handleFile = async (file: File) => {
+    if (!file) return;
+    const MAX = 100 * 1024 * 1024; // 100 MB
+    if (file.size > MAX) {
+      setError('File too large. Max 100MB.');
+      return;
+    }
+    setError(null);
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+      const fileName = `${folder}/${Date.now()}-${safeName}`;
+      const { error: uploadError } = await supabase.storage
+        .from('org-uploads')
+        .upload(fileName, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data } = supabase.storage.from('org-uploads').getPublicUrl(fileName);
+      onChange(data.publicUrl);
+      setUrlInput(data.publicUrl);
+    } catch (err: any) {
+      setError(err.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const fileName = value
+    ? value.split('/').pop()?.split('?')[0] || 'File uploaded'
+    : null;
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium leading-none">{label}</p>
+        <div className="flex gap-1">
+          <Button
+            type="button"
+            variant={mode === 'upload' ? 'secondary' : 'ghost'}
+            size="sm"
+            className="h-6 text-xs px-2"
+            onClick={() => setMode('upload')}
+          >
+            <Upload className="h-3 w-3 mr-1" /> Upload
+          </Button>
+          <Button
+            type="button"
+            variant={mode === 'url' ? 'secondary' : 'ghost'}
+            size="sm"
+            className="h-6 text-xs px-2"
+            onClick={() => setMode('url')}
+          >
+            <LinkIcon className="h-3 w-3 mr-1" /> URL
+          </Button>
+        </div>
+      </div>
+      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+
+      {mode === 'upload' ? (
+        <div
+          className={cn(
+            'relative w-full rounded-xl border-2 border-dashed border-border bg-muted/30 overflow-hidden transition-colors hover:border-primary/50 cursor-pointer flex flex-col items-center justify-center gap-2 py-6',
+            uploading && 'pointer-events-none opacity-70'
+          )}
+          onClick={() => !uploading && inputRef.current?.click()}
+        >
+          {uploading ? (
+            <>
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <p className="text-xs text-muted-foreground">Uploading...</p>
+            </>
+          ) : value ? (
+            <>
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <FileIcon className="h-5 w-5 text-primary" />
+              </div>
+              <p className="text-xs font-medium text-center px-4 truncate max-w-xs">{fileName}</p>
+              <button
+                type="button"
+                className="absolute top-2 right-2 h-6 w-6 rounded-full bg-background/80 backdrop-blur flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                onClick={(e) => { e.stopPropagation(); onChange(''); setUrlInput(''); }}
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center">
+                <Upload className="h-5 w-5" />
+              </div>
+              <p className="text-xs font-medium">Click to upload file</p>
+              <p className="text-[10px] text-muted-foreground">PDF, Audio, Video · Max 100MB</p>
+            </>
+          )}
+        </div>
+      ) : (
+        <div className="flex gap-2">
+          <Input
+            value={urlInput}
+            onChange={(e) => setUrlInput(e.target.value)}
+            placeholder="https://drive.google.com/... or direct link"
+            className="flex-1"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => { onChange(urlInput); }}
+            disabled={!urlInput}
+          >
+            Set
+          </Button>
+        </div>
+      )}
+
+      {error && <p className="text-xs text-destructive">{error}</p>}
+      <input
+        ref={inputRef}
+        type="file"
+        accept={accept}
+        className="hidden"
+        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ''; }}
+      />
+    </div>
+  );
+}
