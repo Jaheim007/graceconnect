@@ -103,7 +103,7 @@ export function ProductForm() {
   };
 
   return (
-    <AdminPageShell title={isEdit ? 'Edit Product' : 'New Digital Product'}>
+    <AdminPageShell title={isEdit ? 'Edit Product' : 'New Digital Product'} backRoute="/admin/products">
       {!currentOrg?.monetization_enabled && (
       <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/30 text-xs text-destructive mb-4">
           ⚠️ Paid products require monetization. You can still create free products.

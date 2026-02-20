@@ -64,18 +64,21 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <Routes>
-                {/* Public */}
+                {/* Public routes (no auth required, no app shell) */}
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/auth" element={<AuthPage />} />
-                <Route path="/discover" element={<DiscoverPage />} />
-                <Route path="/org/:slug" element={<OrgPublicPage />} />
-                <Route path="/org/:slug/content" element={<OrgPublicPage />} />
-                <Route path="/org/:slug/events" element={<OrgPublicPage />} />
-                <Route path="/org/:slug/store" element={<OrgPublicPage />} />
-                <Route path="/org/:slug/donate" element={<OrgPublicPage />} />
 
-                {/* Authenticated — inside app shell */}
+                {/* Routes inside AppLayout shell (sidebar + topbar) */}
                 <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
+                  {/* Public org pages — accessible when logged in */}
+                  <Route path="/discover" element={<DiscoverPage />} />
+                  <Route path="/org/:slug" element={<OrgPublicPage />} />
+                  <Route path="/org/:slug/content" element={<OrgPublicPage />} />
+                  <Route path="/org/:slug/events" element={<OrgPublicPage />} />
+                  <Route path="/org/:slug/store" element={<OrgPublicPage />} />
+                  <Route path="/org/:slug/donate" element={<OrgPublicPage />} />
+
+                  {/* Authenticated pages */}
                   <Route path="/feed" element={<FeedPage />} />
                   <Route path="/reels" element={<ReelsPage />} />
                   <Route path="/watch/:id" element={<WatchPage />} />
@@ -84,6 +87,14 @@ const App = () => (
                   <Route path="/dashboard" element={<UserDashboard />} />
                   <Route path="/create-org" element={<CreateOrgPage />} />
                 </Route>
+
+                {/* Public org pages — fallback for unauthenticated */}
+                <Route path="/discover" element={<DiscoverPage />} />
+                <Route path="/org/:slug" element={<OrgPublicPage />} />
+                <Route path="/org/:slug/content" element={<OrgPublicPage />} />
+                <Route path="/org/:slug/events" element={<OrgPublicPage />} />
+                <Route path="/org/:slug/store" element={<OrgPublicPage />} />
+                <Route path="/org/:slug/donate" element={<OrgPublicPage />} />
 
                 {/* Admin (org-scoped) */}
                 <Route path="/admin" element={<RequireOrgManage><AdminLayout /></RequireOrgManage>}>

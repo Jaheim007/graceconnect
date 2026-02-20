@@ -90,7 +90,7 @@ export function EventForm() {
   };
 
   return (
-    <AdminPageShell title={isEdit ? 'Edit Event' : 'New Event'}>
+    <AdminPageShell title={isEdit ? 'Edit Event' : 'New Event'} backRoute="/admin/events">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
           <Label>Title *</Label>
