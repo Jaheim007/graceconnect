@@ -4,7 +4,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/button';
 import {
   BarChart3, Play, Megaphone, CalendarDays, Heart, ShoppingBag,
-  Users, Link2, FileCheck, Settings, ChevronDown, ArrowLeft
+  Users, Link2, FileCheck, Settings, ChevronDown, ArrowLeft, Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -23,15 +23,24 @@ const adminLinks = [
 ];
 
 export default function AdminLayout() {
-  const { currentOrg, userOrgs, setCurrentOrg } = useOrg();
+  const { currentOrg, userOrgs, setCurrentOrg, isLoadingOrgs } = useOrg();
   const navigate = useNavigate();
+
+  // Still loading memberships — show spinner instead of empty state
+  if (isLoadingOrgs && !currentOrg) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   if (!currentOrg) {
     return (
       <EmptyState
         title="No organization selected"
         description="Select or create an organization to access the admin panel."
-        action={{ label: 'Discover orgs', onClick: () => navigate('/discover') }}
+        action={{ label: 'Create organization', onClick: () => navigate('/create-org') }}
         className="min-h-screen"
       />
     );
