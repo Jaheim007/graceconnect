@@ -2,7 +2,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Donation, ProductPurchase, AffiliateLink } from '@/types/database';
-import { ArrowLeft, Heart, ShoppingBag, Link2, TrendingUp, Copy, ExternalLink, CheckCircle, AlertTriangle, DollarSign } from 'lucide-react';
+import { ArrowLeft, Heart, ShoppingBag, Link2, TrendingUp, Copy, ExternalLink, CheckCircle, AlertTriangle, DollarSign, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
@@ -54,6 +54,7 @@ export default function UserDashboard() {
   const { userOrgs } = useOrg();
   const qc = useQueryClient();
   const [requestingPayout, setRequestingPayout] = useState<string | null>(null);
+  const [requestingAffiliate, setRequestingAffiliate] = useState<string | null>(null);
 
   const { data: donations = [], isLoading: dLoading } = useQuery({
     queryKey: ['user-donations', user?.id],
@@ -159,6 +160,60 @@ export default function UserDashboard() {
     }
   };
 
+  // Self-service: request affiliate role for an org
+  const requestAffiliateRole = useMutation({
+    mutationFn: async ({ orgId, orgSlug }: { orgId: string; orgSlug: string }) => {
+      if (!user) throw new Error('Not authenticated');
+      // Find the member row for this user + org
+      const { data: memberRow } = await db
+        .from('organization_members')
+        .select('id, role')
+        .eq('user_id', user.id)
+        .eq('organization_id', orgId)
+        .single();
+      if (!memberRow) throw new Error('You must be a member of this organization first.');
+      if (memberRow.role === 'affiliate') throw new Error('Already an affiliate');
+
+      // Update role
+      const { error: roleErr } = await db
+        .from('organization_members')
+        .update({ role: 'affiliate' })
+        .eq('id', memberRow.id);
+      if (roleErr) throw roleErr;
+
+      // Create affiliate link
+      const code = `${orgSlug.slice(0, 6).toUpperCase()}-${user.id.slice(0, 6).toUpperCase()}`;
+      const { data: existingLink } = await db
+        .from('affiliate_links')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('organization_id', orgId)
+        .maybeSingle();
+      if (!existingLink) {
+        await db.from('affiliate_links').insert({
+          user_id: user.id,
+          organization_id: orgId,
+          code,
+          link_type: 'org',
+        });
+      }
+    },
+    onSuccess: () => {
+      toast({ title: '🎉 You\'re now an affiliate!', description: 'Your referral link is ready. Share it to start earning.' });
+      qc.invalidateQueries({ queryKey: ['user-affiliate-links', user?.id] });
+      qc.invalidateQueries({ queryKey: ['user-memberships', user?.id] });
+    },
+    onError: (err: Error) => {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    },
+  });
+
+  // Orgs with affiliation enabled where user is a member but NOT yet an affiliate
+  const affiliateLinkOrgIds = new Set(affiliateLinks.map(l => l.organization_id));
+  const orgsEligibleForAffiliate = userOrgs.filter(
+    o => o.affiliation_enabled && !affiliateLinkOrgIds.has(o.id)
+  );
+
   // Group payable sales by org
   const payableByOrg: Record<string, { orgId: string; amount: number; currency: string }> = {};
   for (const s of affiliateSales) {
@@ -233,7 +288,7 @@ export default function UserDashboard() {
               <Link2 className="h-8 w-8 text-muted-foreground/40 mx-auto" />
               <p className="text-sm text-muted-foreground">No affiliate links yet.</p>
               <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                Join an organization that has affiliate programs enabled. Once an admin assigns you the affiliate role, your links will appear here.
+                Join an organization that has the affiliate program enabled, then click "Become Affiliate" below.
               </p>
             </div>
           ) : (
@@ -281,6 +336,53 @@ export default function UserDashboard() {
             </div>
           )}
         </div>
+
+        {/* Self-service: Become an Affiliate */}
+        {orgsEligibleForAffiliate.length > 0 && (
+          <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+            <div>
+              <h2 className="font-semibold text-sm flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                Become an Affiliate
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                These organizations have affiliate programs open to members. Join to earn commissions on every sale or donation.
+              </p>
+            </div>
+            <div className="space-y-2">
+              {orgsEligibleForAffiliate.map((org) => (
+                <div key={org.id} className="border border-primary/20 bg-primary/5 rounded-xl p-3 flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-lg gold-gradient flex items-center justify-center shrink-0">
+                    {org.logo_url ? (
+                      <img src={org.logo_url} alt={org.name} className="w-full h-full object-cover rounded-lg" />
+                    ) : (
+                      <span className="text-xs font-bold text-primary-foreground">{org.name.slice(0, 2).toUpperCase()}</span>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{org.name}</p>
+                    <p className="text-xs text-primary font-semibold">
+                      Earn {org.affiliation_commission_percent}% commission per referral
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    className="h-7 text-xs gold-gradient text-primary-foreground border-0 shadow-gold shrink-0"
+                    disabled={requestingAffiliate === org.id || requestAffiliateRole.isPending}
+                    onClick={async () => {
+                      setRequestingAffiliate(org.id);
+                      await requestAffiliateRole.mutateAsync({ orgId: org.id, orgSlug: org.slug });
+                      setRequestingAffiliate(null);
+                    }}
+                  >
+                    {requestingAffiliate === org.id ? 'Joining...' : 'Become Affiliate'}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
 
         {/* Payout Section */}
         {Object.keys(payableByOrg).length > 0 && (
