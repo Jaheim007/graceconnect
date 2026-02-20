@@ -71,7 +71,20 @@ export default function CreateOrgPage() {
         _description: data.description || null,
       });
       if (error) throw error;
-      await refetchOrgs();
+
+      // Fetch the newly created org directly so we can set it as current
+      const { data: newOrg } = await db
+        .from('organizations')
+        .select('*')
+        .eq('id', orgId)
+        .single();
+
+      // Refetch memberships to update context
+      refetchOrgs();
+
+      // Immediately set the new org as current so AdminLayout doesn't show empty state
+      if (newOrg) setCurrentOrg(newOrg);
+
       toast({ title: '🎉 Organization created!', description: data.name });
       navigate('/admin');
     } catch (err: any) {
