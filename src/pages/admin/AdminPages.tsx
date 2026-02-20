@@ -327,7 +327,7 @@ export function AdminAffiliation() {
   const { data: existingLinks = [] } = useOrgAffiliateLinks(currentOrg?.id);
 
   const assignAffiliate = useMutation({
-    mutationFn: async ({ memberId, memberUserId }: { memberId: string; memberUserId: string }) => {
+    mutationFn: async ({ memberId, memberUserId, memberName }: { memberId: string; memberUserId: string; memberName: string }) => {
       // 1. Update role to affiliate
       const { error: roleErr } = await db
         .from('organization_members')
@@ -342,9 +342,9 @@ export function AdminAffiliation() {
         .eq('user_id', memberUserId)
         .eq('organization_id', currentOrg!.id)
         .maybeSingle();
-      if (existing) return; // already has a link
+      if (existing) return;
 
-      // 3. Generate unique affiliate code: SLUG-USERID6CHARS
+      // 3. Generate unique affiliate code: SLUG6-USERID6
       const code = `${currentOrg!.slug.slice(0, 6).toUpperCase()}-${memberUserId.slice(0, 6).toUpperCase()}`;
       const { error: linkErr } = await db.from('affiliate_links').insert({
         user_id: memberUserId,
@@ -354,8 +354,8 @@ export function AdminAffiliation() {
       });
       if (linkErr) throw linkErr;
     },
-    onSuccess: () => {
-      toast({ title: '✅ Affiliate assigned', description: 'A unique referral link has been generated for this member.' });
+    onSuccess: (_, variables) => {
+      toast({ title: '✅ Affiliate assigned', description: `${variables.memberName} now has a unique referral link.` });
       qc.invalidateQueries({ queryKey: ['org-members', currentOrg?.id] });
       qc.invalidateQueries({ queryKey: ['org-affiliate-links', currentOrg?.id] });
     },
@@ -400,9 +400,14 @@ export function AdminAffiliation() {
     );
   }
 
-  // Separate owner/admins from assignable members
-  const assignableMembers = (members as any[]).filter(m => m.user_id !== user?.id);
-  const onlyOwnerPresent = assignableMembers.length === 0;
+  // All members except the current admin/owner
+  const allOtherMembers = (members as any[]).filter(m => m.user_id !== user?.id);
+  const activeAffiliates = allOtherMembers.filter(m => m.role === 'affiliate');
+  const regularMembers = allOtherMembers.filter(m => m.role !== 'affiliate');
+
+  // Helper: get member display name with fallback
+  const getMemberName = (m: any) =>
+    m.profiles?.display_name?.trim() || `Member ${m.user_id.slice(0, 6).toUpperCase()}`;
 
   return (
     <AdminPageShell title="Affiliation Program" backRoute="/admin">
@@ -410,106 +415,63 @@ export function AdminAffiliation() {
         {/* How it works */}
         <div className="bg-primary/8 border border-primary/20 rounded-2xl p-4 space-y-2">
           <p className="font-semibold text-sm">💡 How the Affiliation System Works</p>
-          <ol className="space-y-1 text-xs text-muted-foreground list-none">
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">1.</span> Members join your org via the public page invite link</li>
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">2.</span> You assign them the <strong>Affiliate</strong> role here — they get a unique referral link</li>
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">3.</span> They share their link — when someone donates or buys through it, they earn <strong>{currentOrg.affiliation_commission_percent}%</strong></li>
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">4.</span> After 72h, commissions become payable. They request payout from their dashboard (KYC required to withdraw)</li>
+          <ol className="space-y-1.5 text-xs text-muted-foreground list-none">
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">1.</span>Members join via the public page. They can also <strong>self-request</strong> the affiliate role from their dashboard.</li>
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">2.</span>You approve them here — they instantly get a unique referral link.</li>
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">3.</span>They share their link. When someone donates or buys through it, they earn <strong>{currentOrg.affiliation_commission_percent}%</strong>.</li>
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">4.</span>After 72h commissions become payable. They withdraw from their dashboard (KYC required).</li>
           </ol>
         </div>
 
-        {/* Commission rate card */}
+        {/* Commission rate + stats bar */}
         <div className="bg-card border border-border rounded-2xl p-4 flex items-center justify-between">
           <div>
             <p className="text-xs text-muted-foreground">Commission Rate</p>
             <p className="text-2xl font-bold text-primary">{currentOrg.affiliation_commission_percent}%</p>
             <p className="text-xs text-muted-foreground">per sale/donation via affiliate link</p>
           </div>
-          <Button size="sm" variant="outline" className="text-xs" onClick={() => navigate('/admin/settings')}>
-            Change Rate
-          </Button>
+          <div className="flex flex-col items-end gap-2">
+            <Badge variant="secondary" className="text-[10px]">{activeAffiliates.length} active affiliate{activeAffiliates.length !== 1 ? 's' : ''}</Badge>
+            <Button size="sm" variant="outline" className="text-xs" onClick={() => navigate('/admin/settings')}>
+              Change Rate
+            </Button>
+          </div>
         </div>
 
-        {/* Members management */}
-        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-semibold text-sm">Assign Affiliates</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Click "Make Affiliate" to generate a unique referral link for a member.</p>
-            </div>
-          </div>
-
-          {isLoading ? (
-            <SkeletonRow count={3} />
-          ) : onlyOwnerPresent ? (
-            <div className="py-6 text-center space-y-2">
-              <UserPlus className="h-8 w-8 text-muted-foreground/40 mx-auto" />
-              <p className="text-sm font-medium text-muted-foreground">No other members yet</p>
-              <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                Share your organization's public link so people can join. Once they join, you can assign them the affiliate role here.
-              </p>
-              <Button size="sm" variant="outline" className="text-xs mt-2" onClick={() => navigate('/admin/members')}>
-                Go to Members →
-              </Button>
-            </div>
-          ) : (
+        {/* Active affiliates */}
+        {activeAffiliates.length > 0 && (
+          <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+            <h2 className="font-semibold text-sm">Active Affiliates ({activeAffiliates.length})</h2>
             <div className="space-y-2">
-              {assignableMembers.map((m) => {
-                const isAffiliate = m.role === 'affiliate';
-                const existingLink = (existingLinks as any[]).find(l => l.user_id === m.user_id);
+              {activeAffiliates.map((m) => {
+                const existingLink = (existingLinks as any[]).find(l => l.user_id === m.user_id && l.is_active !== false);
                 const shareUrl = existingLink
                   ? `${baseUrl}/org/${currentOrg.slug}?ref=${existingLink.code}`
                   : null;
+                const name = getMemberName(m);
                 return (
-                  <div key={m.id} className={cn(
-                    'border rounded-xl p-3 space-y-2 transition-colors',
-                    isAffiliate ? 'border-primary/30 bg-primary/5' : 'border-border'
-                  )}>
+                  <div key={m.id} className="border border-primary/30 bg-primary/5 rounded-xl p-3 space-y-2">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2.5">
-                        <div className={cn(
-                          'h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0',
-                          isAffiliate ? 'gold-gradient text-primary-foreground' : 'bg-muted'
-                        )}>
-                          {(m.profiles?.display_name || 'U')[0].toUpperCase()}
+                        <div className="h-8 w-8 rounded-full gold-gradient flex items-center justify-center text-xs font-bold shrink-0 text-primary-foreground">
+                          {name[0].toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-sm font-medium leading-tight">{m.profiles?.display_name || 'Member'}</p>
-                          <Badge
-                            variant="secondary"
-                            className={cn(
-                              'text-[10px] capitalize mt-0.5',
-                              isAffiliate && 'bg-primary/15 text-primary'
-                            )}
-                          >
-                            {m.role}
-                          </Badge>
+                          <p className="text-sm font-medium leading-tight">{name}</p>
+                          <Badge variant="secondary" className="text-[10px] bg-primary/15 text-primary mt-0.5">Affiliate</Badge>
                         </div>
                       </div>
-                      {isAffiliate ? (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-7 text-xs text-destructive border-destructive/30 shrink-0"
-                          disabled={revokeAffiliate.isPending}
-                          onClick={() => revokeAffiliate.mutate({ memberId: m.id, memberUserId: m.user_id })}
-                        >
-                          Revoke
-                        </Button>
-                      ) : (
-                        <Button
-                          size="sm"
-                          className="h-7 text-xs gold-gradient text-primary-foreground border-0 shrink-0"
-                          disabled={assignAffiliate.isPending}
-                          onClick={() => assignAffiliate.mutate({ memberId: m.id, memberUserId: m.user_id })}
-                        >
-                          Make Affiliate
-                        </Button>
-                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs text-destructive border-destructive/30 shrink-0"
+                        disabled={revokeAffiliate.isPending}
+                        onClick={() => revokeAffiliate.mutate({ memberId: m.id, memberUserId: m.user_id })}
+                      >
+                        Revoke
+                      </Button>
                     </div>
-
-                    {/* Affiliate link + stats */}
-                    {isAffiliate && shareUrl && (
+                    {shareUrl ? (
                       <>
                         <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-2.5 py-1.5">
                           <p className="text-[10px] font-mono text-muted-foreground flex-1 truncate">{shareUrl}</p>
@@ -523,10 +485,63 @@ export function AdminAffiliation() {
                           </span>
                         </div>
                       </>
-                    )}
-                    {isAffiliate && !shareUrl && (
+                    ) : (
                       <p className="text-[10px] text-muted-foreground italic">Generating link…</p>
                     )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Members to assign */}
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+          <div>
+            <h2 className="font-semibold text-sm">Members — Assign Affiliate Role</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Click "Make Affiliate" to generate a unique referral link for any member.
+            </p>
+          </div>
+
+          {isLoading ? (
+            <SkeletonRow count={3} />
+          ) : allOtherMembers.length === 0 ? (
+            <div className="py-6 text-center space-y-2">
+              <UserPlus className="h-8 w-8 text-muted-foreground/40 mx-auto" />
+              <p className="text-sm font-medium text-muted-foreground">No members yet</p>
+              <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+                Share your organization's public link so people can join. Once they join, you can make them affiliates here.
+              </p>
+              <Button size="sm" variant="outline" className="text-xs mt-2" onClick={() => navigate('/admin/members')}>
+                Go to Members →
+              </Button>
+            </div>
+          ) : regularMembers.length === 0 ? (
+            <p className="text-xs text-muted-foreground text-center py-4">
+              All members are already affiliates. ✅
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {regularMembers.map((m) => {
+                const name = getMemberName(m);
+                return (
+                  <div key={m.id} className="border border-border rounded-xl p-3 flex items-center gap-2.5">
+                    <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs font-bold shrink-0">
+                      {name[0].toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium leading-tight truncate">{name}</p>
+                      <Badge variant="secondary" className="text-[10px] capitalize mt-0.5">{m.role}</Badge>
+                    </div>
+                    <Button
+                      size="sm"
+                      className="h-7 text-xs gold-gradient text-primary-foreground border-0 shrink-0"
+                      disabled={assignAffiliate.isPending}
+                      onClick={() => assignAffiliate.mutate({ memberId: m.id, memberUserId: m.user_id, memberName: name })}
+                    >
+                      Make Affiliate
+                    </Button>
                   </div>
                 );
               })}
