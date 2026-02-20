@@ -1,8 +1,8 @@
 import { useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { Button } from '@/components/ui/button';
-import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { X, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ImageCropDialog } from '@/components/ui/ImageCropDialog';
 
 interface ImageUploaderProps {
   value: string;
@@ -12,6 +12,8 @@ interface ImageUploaderProps {
   hint?: string;
   aspectRatio?: 'square' | 'video' | 'banner';
 }
+
+const ASPECT_MAP = { square: 1, video: 16 / 9, banner: 3 / 1 } as const;
 
 export function ImageUploader({
   value,
@@ -25,13 +27,16 @@ export function ImageUploader({
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Crop state
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+
   const aspectClass = {
     square: 'aspect-square',
     video: 'aspect-video',
     banner: 'aspect-[3/1]',
   }[aspectRatio];
 
-  const handleFile = async (file: File) => {
+  const handleFileSelected = (file: File) => {
     if (!file) return;
     if (file.size > 10 * 1024 * 1024) {
       setError('File too large. Max 10MB.');
@@ -42,13 +47,19 @@ export function ImageUploader({
       return;
     }
     setError(null);
+    // Open crop dialog with a local object URL
+    const url = URL.createObjectURL(file);
+    setCropSrc(url);
+  };
+
+  const handleCropComplete = async (blob: Blob) => {
+    setCropSrc(null);
     setUploading(true);
     try {
-      const ext = file.name.split('.').pop();
-      const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+      const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`;
       const { error: uploadError } = await supabase.storage
         .from('org-uploads')
-        .upload(fileName, file, { upsert: true });
+        .upload(fileName, blob, { upsert: true, contentType: 'image/jpeg' });
       if (uploadError) throw uploadError;
       const { data } = supabase.storage.from('org-uploads').getPublicUrl(fileName);
       onChange(data.publicUrl);
@@ -108,11 +119,21 @@ export function ImageUploader({
         type="file"
         accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
         className="hidden"
-        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ''; }}
+        onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileSelected(f); e.target.value = ''; }}
       />
-      {/* Also allow typing a URL directly */}
       {value && !value.startsWith('blob:') && (
         <p className="text-[10px] text-muted-foreground truncate">📎 {value}</p>
+      )}
+
+      {/* Crop Dialog */}
+      {cropSrc && (
+        <ImageCropDialog
+          open={!!cropSrc}
+          imageSrc={cropSrc}
+          aspect={ASPECT_MAP[aspectRatio]}
+          onClose={() => setCropSrc(null)}
+          onCropComplete={handleCropComplete}
+        />
       )}
     </div>
   );
