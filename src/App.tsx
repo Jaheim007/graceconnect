@@ -25,6 +25,7 @@ import WatchPage from "@/pages/WatchPage";
 import NotificationsPage from "@/pages/NotificationsPage";
 import ProfilePage from "@/pages/ProfilePage";
 import UserDashboard from "@/pages/UserDashboard";
+import ResourcesPage from "@/pages/ResourcesPage";
 import CreateOrgPage from "@/pages/CreateOrgPage";
 
 // Admin layout + pages
@@ -83,6 +84,7 @@ const App = () => (
                   <Route path="/watch/:id" element={<WatchPage />} />
                   <Route path="/notifications" element={<NotificationsPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/resources" element={<ResourcesPage />} />
                   <Route path="/dashboard" element={<UserDashboard />} />
                   <Route path="/create-org" element={<CreateOrgPage />} />
                 </Route>

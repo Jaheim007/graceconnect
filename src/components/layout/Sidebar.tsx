@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import {
-  Home, Compass, Play, Bell, User, LayoutDashboard,
+  Home, Compass, Play, Bell, User, LayoutDashboard, BookOpen,
   Settings, ChevronLeft, ChevronRight, Shield,
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2
 } from 'lucide-react';
@@ -15,6 +15,7 @@ const mainNav = [
   { to: '/discover', icon: Compass, label: 'Discover' },
   { to: '/reels', icon: Play, label: 'Reels' },
   { to: '/notifications', icon: Bell, label: 'Notifications' },
+  { to: '/resources', icon: BookOpen, label: 'My Resources' },
   { to: '/dashboard', icon: LayoutDashboard, label: 'My Dashboard' },
   { to: '/profile', icon: User, label: 'Profile' },
 ];
