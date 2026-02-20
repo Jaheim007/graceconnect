@@ -56,38 +56,46 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
     const affiliateCode = getAffiliateCode();
 
-    openPayment({
-      email: user.email!,
-      amount: product.price,
-      currency: product.currency || 'XOF',
-      metadata: {
-        type: 'product',
-        product_id: product.id,
-        organization_id: organizationId,
-        buyer_name: profile?.display_name || '',
-      },
-      onClose: () => {},
-      onSuccess: async (reference) => {
-        setStep('processing');
-        try {
-          const verifyResult = await verifyPayment({
-            reference,
-            type: 'product',
-            organization_id: organizationId,
-            product_id: product.id,
-            affiliate_code: affiliateCode,
-          });
-          clearAffiliateCode();
-          setResult(verifyResult);
-          setStep('success');
-          onSuccess?.(verifyResult);
-        } catch (err: unknown) {
-          const message = err instanceof Error ? err.message : 'Une erreur est survenue.';
-          setErrorMsg(message);
-          setStep('error');
-        }
-      },
-    });
+    try {
+      await openPayment({
+        email: user.email!,
+        amount: product.price ?? 0,
+        currency: product.currency || 'XOF',
+        metadata: {
+          type: 'product',
+          product_id: product.id,
+          organization_id: organizationId,
+          buyer_name: profile?.display_name || '',
+        },
+        onClose: () => {
+          // user dismissed — stay on confirm step
+        },
+        onSuccess: async (reference) => {
+          setStep('processing');
+          try {
+            const verifyResult = await verifyPayment({
+              reference,
+              type: 'product',
+              organization_id: organizationId,
+              product_id: product.id,
+              affiliate_code: affiliateCode,
+            });
+            clearAffiliateCode();
+            setResult(verifyResult);
+            setStep('success');
+            onSuccess?.(verifyResult);
+          } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Erreur lors de la vérification du paiement.';
+            setErrorMsg(message);
+            setStep('error');
+          }
+        },
+      });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Impossible d\'ouvrir le paiement.';
+      console.error('[ProductPurchaseModal] openPayment error:', err);
+      toast({ title: 'Erreur de paiement', description: message, variant: 'destructive' });
+    }
   };
 
   const handleClose = () => {
