@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { db } from '@/lib/db';
 import { Profile } from '@/types/database';
 
 interface AuthContextType {
@@ -27,60 +26,99 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isSuperadmin, setIsSuperadmin] = useState(false);
 
   const fetchProfile = async (userId: string) => {
-    const { data } = await db.from('profiles').select('*').eq('id', userId).single();
-    if (data) setProfile(data as Profile);
+    try {
+      // Use maybeSingle() — never throws when row is missing
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .maybeSingle();
+      if (data) setProfile(data as Profile);
+    } catch {
+      // Non-fatal — profile is optional for display
+    }
   };
 
   const fetchPlatformRole = async (userId: string) => {
-    const { data } = await db
-      .from('user_platform_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .single();
-    setIsSuperadmin(data?.role === 'superadmin');
+    try {
+      const { data } = await supabase
+        .from('user_platform_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .maybeSingle();
+      setIsSuperadmin(data?.role === 'superadmin');
+    } catch {
+      setIsSuperadmin(false);
+    }
   };
 
   const upsertProfile = async (userId: string, displayName?: string) => {
-    const { data: existing } = await db.from('profiles').select('id').eq('id', userId).single();
-    if (!existing) {
-      await db.from('profiles').insert({
-        id: userId,
-        display_name: displayName || null,
-        country: 'CI',
-      });
+    try {
+      // Use upsert with ignoreDuplicates so it never throws on existing row
+      await supabase.from('profiles').upsert(
+        { id: userId, display_name: displayName || null, country: 'CI' },
+        { onConflict: 'id', ignoreDuplicates: true }
+      );
+      await fetchProfile(userId);
+    } catch {
+      // Non-fatal — user can still use the app
     }
-    await fetchProfile(userId);
   };
 
   useEffect(() => {
-    // Set up auth state listener FIRST (before getSession)
+    let mounted = true;
+
+    // Safety timeout — if Supabase never responds, unblock the app after 5s
+    const timeout = setTimeout(() => {
+      if (mounted) setLoading(false);
+    }, 5000);
+
+    // Get the initial session FIRST — set loading=false immediately after
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      if (!mounted) return;
+      clearTimeout(timeout);
+      if (s) {
+        setSession(s);
+        setUser(s.user);
+        // Fire-and-forget — don't block loading on these
+        upsertProfile(s.user.id, s.user.user_metadata?.full_name);
+        fetchPlatformRole(s.user.id);
+      }
+      // Always resolve loading after getSession — never block on profile fetch
+      setLoading(false);
+    }).catch(() => {
+      clearTimeout(timeout);
+      if (mounted) setLoading(false);
+    });
+
+    // Listen for subsequent auth changes (login, logout, token refresh)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, newSession) => {
+      (event, newSession) => {
+        if (!mounted) return;
         setSession(newSession);
         setUser(newSession?.user ?? null);
+
         if (newSession?.user) {
-          await upsertProfile(newSession.user.id, newSession.user.user_metadata?.full_name);
-          await fetchPlatformRole(newSession.user.id);
+          // Fire-and-forget — don't await here to avoid blocking state changes
+          upsertProfile(newSession.user.id, newSession.user.user_metadata?.full_name);
+          fetchPlatformRole(newSession.user.id);
         } else {
           setProfile(null);
           setIsSuperadmin(false);
         }
-        setLoading(false);
+
+        // Only set loading=false for INITIAL_SESSION event to avoid flicker
+        if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') {
+          setLoading(false);
+        }
       }
     );
 
-    // Then get current session
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
-      if (s) {
-        setSession(s);
-        setUser(s.user);
-        fetchProfile(s.user.id);
-        fetchPlatformRole(s.user.id);
-      }
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {

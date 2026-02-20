@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { Loader2 } from 'lucide-react';
 
-// Require auth
+// Require auth — only blocks on auth loading, never on profile/org
 export function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) return <FullPageLoader />;
@@ -22,13 +22,21 @@ export function RequireSuperadmin({ children }: { children: ReactNode }) {
 }
 
 // Require org manage role (owner/admin/editor)
+// Shows loader while orgs are loading — never redirects during loading phase
 export function RequireOrgManage({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const { currentOrg, currentOrgRole, isLoadingOrgs } = useOrg();
 
-  if (loading || isLoadingOrgs) return <FullPageLoader />;
+  // Block only on auth loading
+  if (loading) return <FullPageLoader />;
   if (!user) return <Nav to="/auth" replace />;
-  if (!currentOrg) return <Nav to="/discover" replace />;
+
+  // While org memberships are loading, keep showing loader — don't redirect
+  if (isLoadingOrgs) return <FullPageLoader />;
+
+  // If done loading and still no org, send to create-org (not discover)
+  // so users can immediately create one
+  if (!currentOrg) return <Nav to="/create-org" replace />;
 
   const allowed = ['owner', 'admin', 'editor'].includes(currentOrgRole || '');
   if (!allowed) return <Nav to="/feed" replace />;
@@ -36,11 +44,11 @@ export function RequireOrgManage({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-function FullPageLoader() {
+export function FullPageLoader() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-3">
-        <div className="h-10 w-10 rounded-xl gold-gradient flex items-center justify-center animate-pulse-gold">
+        <div className="h-10 w-10 rounded-xl gold-gradient flex items-center justify-center">
           <span className="text-sm font-bold text-primary-foreground">GC</span>
         </div>
         <Loader2 className="h-5 w-5 animate-spin text-primary" />

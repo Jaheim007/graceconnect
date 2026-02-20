@@ -5,9 +5,10 @@ import {
   useEffect,
   ReactNode,
   useCallback,
+  useRef,
 } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { db } from '@/lib/db';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Organization, OrganizationMember, OrgMemberRole } from '@/types/database';
 import { useAuth } from './AuthContext';
 
@@ -29,19 +30,26 @@ const OrgContext = createContext<OrgContextType | undefined>(undefined);
 
 export function OrgProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
+  const qc = useQueryClient();
   const [currentOrg, setCurrentOrgState] = useState<Organization | null>(null);
+  // Track whether we've done the initial restore from localStorage
+  const restoredRef = useRef(false);
 
   const { data: memberRows = [], refetch: refetchMembers, isLoading } = useQuery({
     queryKey: ['user-memberships', user?.id],
     queryFn: async () => {
       if (!user) return [];
-      const { data } = await db
+      const { data, error } = await supabase
         .from('organization_members')
         .select('*, organizations(*)')
         .eq('user_id', user.id);
+      if (error) throw error;
       return (data || []) as Array<OrganizationMember & { organizations: Organization }>;
     },
     enabled: !!user,
+    // Retry on failure so transient network errors don't leave the user stuck
+    retry: 3,
+    retryDelay: 1000,
   });
 
   const userOrgs = memberRows.map((m) => m.organizations).filter(Boolean);
@@ -49,17 +57,37 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     memberRows.map((m) => [m.organization_id, m.role])
   );
 
-  // Restore currentOrg from localStorage
+  // Restore or auto-select currentOrg when orgs list changes
   useEffect(() => {
-    const saved = localStorage.getItem('gc_current_org_id');
-    if (saved && userOrgs.length > 0) {
-      const found = userOrgs.find((o) => o.id === saved);
-      if (found) setCurrentOrgState(found);
-      else setCurrentOrgState(userOrgs[0]);
-    } else if (userOrgs.length > 0 && !currentOrg) {
-      setCurrentOrgState(userOrgs[0]);
+    if (userOrgs.length === 0) return;
+
+    // If we already have a valid currentOrg in this list, keep it
+    if (currentOrg && userOrgs.find((o) => o.id === currentOrg.id)) return;
+
+    // First time: try to restore from localStorage
+    if (!restoredRef.current) {
+      restoredRef.current = true;
+      const saved = localStorage.getItem('gc_current_org_id');
+      if (saved) {
+        const found = userOrgs.find((o) => o.id === saved);
+        if (found) {
+          setCurrentOrgState(found);
+          return;
+        }
+      }
     }
-  }, [userOrgs.length]);
+
+    // Fallback: pick the first org
+    setCurrentOrgState(userOrgs[0]);
+  }, [userOrgs, currentOrg]);
+
+  // Clear currentOrg when user logs out
+  useEffect(() => {
+    if (!user) {
+      setCurrentOrgState(null);
+      restoredRef.current = false;
+    }
+  }, [user]);
 
   const setCurrentOrg = useCallback((org: Organization | null) => {
     setCurrentOrgState(org);
@@ -67,30 +95,35 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     else localStorage.removeItem('gc_current_org_id');
   }, []);
 
+  const refetchOrgs = useCallback(() => {
+    refetchMembers();
+    qc.invalidateQueries({ queryKey: ['user-memberships', user?.id] });
+  }, [refetchMembers, qc, user?.id]);
+
   const currentOrgRole = currentOrg
     ? (membershipMap[currentOrg.id] as OrgMemberRole) ?? null
     : null;
 
   const joinOrg = async (orgId: string) => {
     if (!user) return { error: new Error('Not authenticated') };
-    const { error } = await db.from('organization_members').insert({
+    const { error } = await supabase.from('organization_members').insert({
       organization_id: orgId,
       user_id: user.id,
       role: 'member',
     });
-    if (!error) refetchMembers();
+    if (!error) refetchOrgs();
     return { error: error as Error | null };
   };
 
   const leaveOrg = async (orgId: string) => {
     if (!user) return { error: new Error('Not authenticated') };
-    const { error } = await db
+    const { error } = await supabase
       .from('organization_members')
       .delete()
       .eq('organization_id', orgId)
       .eq('user_id', user.id);
     if (!error) {
-      refetchMembers();
+      refetchOrgs();
       if (currentOrg?.id === orgId) setCurrentOrg(null);
     }
     return { error: error as Error | null };
@@ -110,7 +143,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         currentOrgRole,
         setCurrentOrg,
         isLoadingOrgs: isLoading,
-        refetchOrgs: refetchMembers,
+        refetchOrgs,
         joinOrg,
         leaveOrg,
         isMemberOf,
