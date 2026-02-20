@@ -72,10 +72,8 @@ export function CampaignForm() {
       toast({ title: 'Error', description: 'No organization selected.', variant: 'destructive' });
       return;
     }
-    if (!currentOrg.monetization_enabled) {
-      toast({ title: 'KYC required', description: 'Monetization must be enabled first.', variant: 'destructive' });
-      return;
-    }
+
+
     setLoading(true);
     try {
       const payload = {
@@ -105,11 +103,8 @@ export function CampaignForm() {
 
   return (
     <AdminPageShell title={isEdit ? 'Edit Campaign' : 'New Donation Campaign'} backRoute="/admin/campaigns">
-      {!currentOrg?.monetization_enabled && (
-        <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/30 text-xs text-destructive mb-4">
-          ⚠️ Monetization is not enabled. Submit KYC first.
-        </div>
-      )}
+
+
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
           <Label>Campaign Title *</Label>
