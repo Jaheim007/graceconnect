@@ -20,7 +20,11 @@ interface PaystackConfig {
   metadata?: Record<string, unknown>;
 }
 
-const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || '';
+const PAYSTACK_PUBLIC_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY as string | undefined;
+
+if (!PAYSTACK_PUBLIC_KEY) {
+  console.warn('[usePaystack] VITE_PAYSTACK_PUBLIC_KEY is not set. Payments will fail.');
+}
 
 function loadPaystackScript(): Promise<void> {
   return new Promise((resolve) => {
@@ -52,6 +56,10 @@ export function usePaystack() {
 
     // Generate unique reference
     const ref = `GC-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+
+    if (!PAYSTACK_PUBLIC_KEY) {
+      throw new Error('Paystack public key is not configured. Please set VITE_PAYSTACK_PUBLIC_KEY.');
+    }
 
     const handler = window.PaystackPop.setup({
       key: PAYSTACK_PUBLIC_KEY,
