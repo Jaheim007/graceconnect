@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -11,13 +11,17 @@ import { useOrgCampaigns, useOrgProducts } from '@/hooks/useMonetization';
 import { MediaCard } from '@/components/media/MediaCard';
 import { CampaignCard } from '@/components/donations/CampaignCard';
 import { ProductCard } from '@/components/products/ProductCard';
+import { ProductPurchaseModal } from '@/components/products/ProductPurchaseModal';
 import { DonateModal } from '@/components/donations/DonateModal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { Globe, MessageCircle, CheckCircle2, Users, CalendarDays, Share2 } from 'lucide-react';
-import { DonationCampaign } from '@/types/database';
+import {
+  Globe, MessageCircle, CheckCircle2, Users, CalendarDays,
+  Share2, ShoppingBag, Heart, Sparkles
+} from 'lucide-react';
+import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
 import { useAffiliateCapture } from '@/hooks/useAffiliateCapture';
 
@@ -26,15 +30,21 @@ export default function OrgPublicPage() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const { joinOrg, leaveOrg, isMemberOf } = useOrg();
   const { toast } = useToast();
   const [joining, setJoining] = useState(false);
   const [donateCampaign, setDonateCampaign] = useState<DonationCampaign | null>(null);
+  const [purchaseProduct, setPurchaseProduct] = useState<DigitalProduct | null>(null);
 
-  // Derive active tab from pathname segment
+  // If user came via affiliate link, default tab to store (conversion-focused)
+  const hasAffiliateRef = !!searchParams.get('ref');
   const pathTab = pathname.split('/').pop();
-  const activeTab = ['content', 'events', 'store', 'donate'].includes(pathTab || '') ? pathTab! : 'home';
+  const defaultTab = hasAffiliateRef && !['content', 'events', 'store', 'donate'].includes(pathTab || '')
+    ? 'store'
+    : 'home';
+  const activeTab = ['content', 'events', 'store', 'donate'].includes(pathTab || '') ? pathTab! : defaultTab;
 
   const { data: org, isLoading: orgLoading } = useOrgBySlug(slug);
   const { data: media = [] } = useOrgMedia(org?.id);
@@ -85,9 +95,14 @@ export default function OrgPublicPage() {
 
   const pinnedAnnouncement = announcements.find((a) => a.is_pinned);
 
+  const navigateTab = (tab: string) => {
+    const base = `/org/${slug}`;
+    navigate(tab === 'home' ? base : `${base}/${tab}`);
+  };
+
   return (
     <div className="min-h-screen">
-      {/* Guest top bar — shown only when not logged in */}
+      {/* Guest top bar */}
       {!user && (
         <div className="sticky top-0 z-20 border-b border-border/40 bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -102,14 +117,24 @@ export default function OrgPublicPage() {
         </div>
       )}
 
+      {/* Affiliate referral banner */}
+      {hasAffiliateRef && (
+        <div className="bg-primary/10 border-b border-primary/20 px-4 py-2 flex items-center gap-2">
+          <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+          <p className="text-xs text-primary font-medium">
+            You were invited to explore {org.name}'s store — browse products &amp; digital downloads below!
+          </p>
+        </div>
+      )}
+
       {/* Banner */}
-      <div className="relative h-48 sm:h-64 bg-gradient-to-br from-primary/20 to-accent/20 overflow-hidden">
+      <div className="relative h-40 sm:h-56 bg-gradient-to-br from-primary/20 to-accent/20 overflow-hidden">
         {org.banner_url ? (
           <img src={org.banner_url} alt={org.name} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full hero-gradient" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/90 to-transparent" />
       </div>
 
       <div className="container max-w-5xl">
@@ -159,12 +184,7 @@ export default function OrgPublicPage() {
           </div>
 
           <div className="flex items-center gap-2 sm:pt-10">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={shareWhatsApp}
-              className="h-8 gap-1.5 text-xs"
-            >
+            <Button variant="outline" size="sm" onClick={shareWhatsApp} className="h-8 gap-1.5 text-xs">
               <Share2 className="h-3.5 w-3.5" /> Share
             </Button>
             <Button
@@ -195,33 +215,62 @@ export default function OrgPublicPage() {
         )}
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={(tab) => navigate(tab === 'home' ? `/org/${slug}` : `/org/${slug}/${tab}`)} className="w-full">
+        <Tabs value={activeTab} onValueChange={navigateTab} className="w-full">
           <TabsList className="w-full justify-start overflow-x-auto scrollbar-hide mb-6 bg-muted/60 h-10">
             <TabsTrigger value="home" className="text-xs">Home</TabsTrigger>
+            {org.monetization_enabled && products.length > 0 && (
+              <TabsTrigger value="store" className="text-xs gap-1">
+                <ShoppingBag className="h-3 w-3" />
+                Store ({products.length})
+              </TabsTrigger>
+            )}
+            {org.monetization_enabled && campaigns.length > 0 && (
+              <TabsTrigger value="donate" className="text-xs gap-1">
+                <Heart className="h-3 w-3" />
+                Donate ({campaigns.length})
+              </TabsTrigger>
+            )}
             <TabsTrigger value="content" className="text-xs">Content ({media.length})</TabsTrigger>
             <TabsTrigger value="events" className="text-xs">Events ({events.length})</TabsTrigger>
-            {org.monetization_enabled && (
-              <>
-                <TabsTrigger value="store" className="text-xs">Store ({products.length})</TabsTrigger>
-                <TabsTrigger value="donate" className="text-xs">Donate ({campaigns.length})</TabsTrigger>
-              </>
-            )}
           </TabsList>
 
-          {/* Home tab */}
+          {/* ─── HOME TAB ─── */}
           <TabsContent value="home" className="space-y-8">
-            {media.length > 0 && (
+
+            {/* Products first — highest conversion priority */}
+            {products.length > 0 && org.monetization_enabled && (
               <section>
-                <h2 className="font-semibold mb-3 text-sm">Featured Content</h2>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="font-semibold text-sm flex items-center gap-1.5">
+                    <ShoppingBag className="h-4 w-4 text-primary" /> Digital Products
+                  </h2>
+                  {products.length > 3 && (
+                    <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('store')}>
+                      View all →
+                    </Button>
+                  )}
+                </div>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {media.slice(0, 3).map((m, i) => <MediaCard key={m.id} media={m} index={i} />)}
+                  {products.slice(0, 3).map((p, i) => (
+                    <ProductCard key={p.id} product={p} index={i} onPurchase={() => setPurchaseProduct(p)} />
+                  ))}
                 </div>
               </section>
             )}
 
+            {/* Active donation campaigns */}
             {campaigns.length > 0 && org.monetization_enabled && (
               <section>
-                <h2 className="font-semibold mb-3 text-sm">Active Campaigns</h2>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="font-semibold text-sm flex items-center gap-1.5">
+                    <Heart className="h-4 w-4 text-destructive" /> Active Campaigns
+                  </h2>
+                  {campaigns.length > 2 && (
+                    <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('donate')}>
+                      View all →
+                    </Button>
+                  )}
+                </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {campaigns.slice(0, 2).map((c, i) => (
                     <CampaignCard key={c.id} campaign={c} index={i} onDonate={() => setDonateCampaign(c)} />
@@ -230,6 +279,24 @@ export default function OrgPublicPage() {
               </section>
             )}
 
+            {/* Featured content */}
+            {media.length > 0 && (
+              <section>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="font-semibold text-sm">Featured Content</h2>
+                  {media.length > 3 && (
+                    <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('content')}>
+                      View all →
+                    </Button>
+                  )}
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {media.slice(0, 3).map((m, i) => <MediaCard key={m.id} media={m} index={i} />)}
+                </div>
+              </section>
+            )}
+
+            {/* Upcoming events */}
             {events.length > 0 && (
               <section>
                 <h2 className="font-semibold mb-3 text-sm">Upcoming Events</h2>
@@ -250,12 +317,44 @@ export default function OrgPublicPage() {
               </section>
             )}
 
-            {media.length === 0 && events.length === 0 && campaigns.length === 0 && (
+            {media.length === 0 && events.length === 0 && campaigns.length === 0 && products.length === 0 && (
               <EmptyState variant="content" description="This organization hasn't published content yet." />
             )}
           </TabsContent>
 
-          {/* Content tab */}
+          {/* ─── STORE TAB ─── */}
+          <TabsContent value="store">
+            {products.length === 0 ? (
+              <EmptyState variant="purchases" description="No products available yet." />
+            ) : (
+              <>
+                <div className="mb-4 p-4 rounded-2xl bg-primary/8 border border-primary/20 flex items-center gap-3">
+                  <ShoppingBag className="h-5 w-5 text-primary shrink-0" />
+                  <p className="text-sm text-muted-foreground">
+                    Purchase any product below to get instant access. Payments are processed securely via Paystack.
+                  </p>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {products.map((p, i) => <ProductCard key={p.id} product={p} index={i} onPurchase={() => setPurchaseProduct(p)} />)}
+                </div>
+              </>
+            )}
+          </TabsContent>
+
+          {/* ─── DONATE TAB ─── */}
+          <TabsContent value="donate">
+            {campaigns.length === 0 ? (
+              <EmptyState variant="campaigns" />
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2">
+                {campaigns.map((c, i) => (
+                  <CampaignCard key={c.id} campaign={c} index={i} onDonate={() => setDonateCampaign(c)} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* ─── CONTENT TAB ─── */}
           <TabsContent value="content">
             {media.length === 0 ? (
               <EmptyState variant="content" />
@@ -266,7 +365,7 @@ export default function OrgPublicPage() {
             )}
           </TabsContent>
 
-          {/* Events tab */}
+          {/* ─── EVENTS TAB ─── */}
           <TabsContent value="events">
             {events.length === 0 ? (
               <EmptyState variant="generic" title="No events" description="No upcoming events found." />
@@ -290,30 +389,6 @@ export default function OrgPublicPage() {
               </div>
             )}
           </TabsContent>
-
-          {/* Store tab */}
-          <TabsContent value="store">
-            {products.length === 0 ? (
-              <EmptyState variant="purchases" description="No products available yet." />
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {products.map((p, i) => <ProductCard key={p.id} product={p} index={i} onPurchase={() => {}} />)}
-              </div>
-            )}
-          </TabsContent>
-
-          {/* Donate tab */}
-          <TabsContent value="donate">
-            {campaigns.length === 0 ? (
-              <EmptyState variant="campaigns" />
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2">
-                {campaigns.map((c, i) => (
-                  <CampaignCard key={c.id} campaign={c} index={i} onDonate={() => setDonateCampaign(c)} />
-                ))}
-              </div>
-            )}
-          </TabsContent>
         </Tabs>
       </div>
 
@@ -322,6 +397,13 @@ export default function OrgPublicPage() {
         organizationId={org?.id ?? ''}
         open={!!donateCampaign}
         onClose={() => setDonateCampaign(null)}
+      />
+
+      <ProductPurchaseModal
+        product={purchaseProduct}
+        organizationId={org?.id ?? ''}
+        open={!!purchaseProduct}
+        onClose={() => setPurchaseProduct(null)}
       />
     </div>
   );
