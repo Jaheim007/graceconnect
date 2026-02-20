@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,6 +35,7 @@ export function CampaignForm() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const isEdit = !!id;
+  const [loading, setLoading] = useState(false);
 
   const { data: item } = useQuery({
     queryKey: ['campaign-item', id],
@@ -45,7 +46,7 @@ export function CampaignForm() {
     enabled: isEdit,
   });
 
-  const { register, handleSubmit, setValue, watch, reset, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { is_featured: false, is_active: true, is_published: true },
   });
@@ -66,31 +67,41 @@ export function CampaignForm() {
   }, [item, reset]);
 
   const onSubmit = async (data: FormData) => {
-    if (!currentOrg || !user) return;
+    if (!currentOrg || !user) {
+      toast({ title: 'Error', description: 'No organization selected.', variant: 'destructive' });
+      return;
+    }
     if (!currentOrg.monetization_enabled) {
       toast({ title: 'KYC required', description: 'Monetization must be enabled first.', variant: 'destructive' });
       return;
     }
-    const payload = {
-      ...data,
-      organization_id: currentOrg.id,
-      created_by: user.id,
-      currency: currentOrg.currency || 'XOF',
-      image_url: data.image_url || null,
-      goal_amount: data.goal_amount || null,
-      end_date: data.end_date ? new Date(data.end_date).toISOString() : null,
-    };
-    let error;
-    if (isEdit) {
-      ({ error } = await db.from('donation_campaigns').update(payload).eq('id', id));
-    } else {
-      ({ error } = await db.from('donation_campaigns').insert(payload));
-    }
-    if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    } else {
-      toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
-      navigate('/admin/campaigns');
+    setLoading(true);
+    try {
+      const payload = {
+        ...data,
+        organization_id: currentOrg.id,
+        created_by: user.id,
+        currency: currentOrg.currency || 'XOF',
+        image_url: data.image_url || null,
+        goal_amount: data.goal_amount || null,
+        end_date: data.end_date ? new Date(data.end_date).toISOString() : null,
+      };
+      let error;
+      if (isEdit) {
+        ({ error } = await db.from('donation_campaigns').update(payload).eq('id', id));
+      } else {
+        ({ error } = await db.from('donation_campaigns').insert(payload));
+      }
+      if (error) {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      } else {
+        toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
+        navigate('/admin/campaigns');
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -143,8 +154,8 @@ export function CampaignForm() {
         </div>
         <div className="flex gap-3 pt-2">
           <Button type="button" variant="outline" onClick={() => navigate('/admin/campaigns')}>Cancel</Button>
-          <Button type="submit" className="gold-gradient text-primary-foreground border-0 shadow-gold" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+          <Button type="submit" className="gold-gradient text-primary-foreground border-0 shadow-gold" disabled={loading}>
+            {loading ? 'Saving...' : isEdit ? 'Update' : 'Create'}
           </Button>
         </div>
       </form>

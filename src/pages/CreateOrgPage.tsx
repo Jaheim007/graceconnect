@@ -73,11 +73,13 @@ export default function CreateOrgPage() {
       if (error) throw error;
 
       // Fetch the newly created org directly so we can set it as current
-      const { data: newOrg } = await db
+      const { data: newOrg, error: fetchError } = await db
         .from('organizations')
         .select('*')
         .eq('id', orgId)
-        .single();
+        .maybeSingle();
+
+      if (fetchError) throw fetchError;
 
       // Refetch memberships to update context
       refetchOrgs();
@@ -88,7 +90,13 @@ export default function CreateOrgPage() {
       toast({ title: '🎉 Organization created!', description: data.name });
       navigate('/admin');
     } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      // Make slug uniqueness errors user-friendly
+      const msg = err.message || '';
+      if (msg.includes('duplicate') || msg.includes('unique') || msg.includes('slug')) {
+        toast({ title: 'Slug already taken', description: 'Please choose a different URL handle.', variant: 'destructive' });
+      } else {
+        toast({ title: 'Error creating organization', description: msg, variant: 'destructive' });
+      }
     } finally {
       setLoading(false);
     }

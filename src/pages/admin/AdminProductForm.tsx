@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -38,6 +38,7 @@ export function ProductForm() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const isEdit = !!id;
+  const [loading, setLoading] = useState(false);
 
   const { data: item } = useQuery({
     queryKey: ['product-item', id],
@@ -48,7 +49,7 @@ export function ProductForm() {
     enabled: isEdit,
   });
 
-  const { register, handleSubmit, setValue, watch, reset, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { product_type: 'pdf', price: 0, is_free: false, is_featured: false, is_published: false },
   });
@@ -73,32 +74,42 @@ export function ProductForm() {
   const isFree = watch('is_free');
 
   const onSubmit = async (data: FormData) => {
-    if (!currentOrg || !user) return;
+    if (!currentOrg || !user) {
+      toast({ title: 'Error', description: 'No organization selected.', variant: 'destructive' });
+      return;
+    }
     if (!currentOrg.monetization_enabled && !data.is_free) {
       toast({ title: 'KYC required', description: 'Monetization must be enabled for paid products.', variant: 'destructive' });
       return;
     }
-    const payload = {
-      ...data,
-      organization_id: currentOrg.id,
-      created_by: user.id,
-      currency: currentOrg.currency || 'XOF',
-      price: data.is_free ? 0 : data.price,
-      cover_image_url: data.cover_image_url || null,
-      file_url: data.file_url || null,
-      external_link: data.external_link || null,
-    };
-    let error;
-    if (isEdit) {
-      ({ error } = await db.from('digital_products').update(payload).eq('id', id));
-    } else {
-      ({ error } = await db.from('digital_products').insert(payload));
-    }
-    if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    } else {
-      toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
-      navigate('/admin/products');
+    setLoading(true);
+    try {
+      const payload = {
+        ...data,
+        organization_id: currentOrg.id,
+        created_by: user.id,
+        currency: currentOrg.currency || 'XOF',
+        price: data.is_free ? 0 : data.price,
+        cover_image_url: data.cover_image_url || null,
+        file_url: data.file_url || null,
+        external_link: data.external_link || null,
+      };
+      let error;
+      if (isEdit) {
+        ({ error } = await db.from('digital_products').update(payload).eq('id', id));
+      } else {
+        ({ error } = await db.from('digital_products').insert(payload));
+      }
+      if (error) {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      } else {
+        toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
+        navigate('/admin/products');
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -170,8 +181,8 @@ export function ProductForm() {
         </div>
         <div className="flex gap-3 pt-2">
           <Button type="button" variant="outline" onClick={() => navigate('/admin/products')}>Cancel</Button>
-          <Button type="submit" className="gold-gradient text-primary-foreground border-0 shadow-gold" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+          <Button type="submit" className="gold-gradient text-primary-foreground border-0 shadow-gold" disabled={loading}>
+            {loading ? 'Saving...' : isEdit ? 'Update' : 'Create'}
           </Button>
         </div>
       </form>

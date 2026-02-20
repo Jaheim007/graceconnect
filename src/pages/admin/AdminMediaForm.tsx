@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -38,6 +38,7 @@ export function MediaForm() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const isEdit = !!id;
+  const [loading, setLoading] = useState(false);
 
   const { data: item } = useQuery({
     queryKey: ['media-item', id],
@@ -48,7 +49,7 @@ export function MediaForm() {
     enabled: isEdit,
   });
 
-  const { register, handleSubmit, setValue, watch, reset, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { media_type: 'video', is_premium: false, is_published: false },
   });
@@ -71,26 +72,36 @@ export function MediaForm() {
   }, [item, reset]);
 
   const onSubmit = async (data: FormData) => {
-    if (!currentOrg || !user) return;
-    const payload = {
-      ...data,
-      organization_id: currentOrg.id,
-      created_by: user.id,
-      tags: data.tags ? data.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
-      media_url: data.media_url || null,
-      thumbnail_url: data.thumbnail_url || null,
-    };
-    let error;
-    if (isEdit) {
-      ({ error } = await db.from('media_content').update(payload).eq('id', id));
-    } else {
-      ({ error } = await db.from('media_content').insert(payload));
+    if (!currentOrg || !user) {
+      toast({ title: 'Error', description: 'No organization selected.', variant: 'destructive' });
+      return;
     }
-    if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    } else {
-      toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
-      navigate('/admin/media');
+    setLoading(true);
+    try {
+      const payload = {
+        ...data,
+        organization_id: currentOrg.id,
+        created_by: user.id,
+        tags: data.tags ? data.tags.split(',').map(t => t.trim()).filter(Boolean) : [],
+        media_url: data.media_url || null,
+        thumbnail_url: data.thumbnail_url || null,
+      };
+      let error;
+      if (isEdit) {
+        ({ error } = await db.from('media_content').update(payload).eq('id', id));
+      } else {
+        ({ error } = await db.from('media_content').insert(payload));
+      }
+      if (error) {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      } else {
+        toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
+        navigate('/admin/media');
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -154,8 +165,8 @@ export function MediaForm() {
         </div>
         <div className="flex gap-3 pt-2">
           <Button type="button" variant="outline" onClick={() => navigate('/admin/media')}>Cancel</Button>
-          <Button type="submit" className="gold-gradient text-primary-foreground border-0 shadow-gold" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+          <Button type="submit" className="gold-gradient text-primary-foreground border-0 shadow-gold" disabled={loading}>
+            {loading ? 'Saving...' : isEdit ? 'Update' : 'Create'}
           </Button>
         </div>
       </form>

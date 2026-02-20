@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -35,6 +35,7 @@ export function EventForm() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const isEdit = !!id;
+  const [loading, setLoading] = useState(false);
 
   const { data: item } = useQuery({
     queryKey: ['event-item', id],
@@ -45,7 +46,7 @@ export function EventForm() {
     enabled: isEdit,
   });
 
-  const { register, handleSubmit, setValue, watch, reset, formState: { errors, isSubmitting } } = useForm<FormData>({
+  const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: { is_featured: false, is_published: false },
   });
@@ -66,26 +67,36 @@ export function EventForm() {
   }, [item, reset]);
 
   const onSubmit = async (data: FormData) => {
-    if (!currentOrg || !user) return;
-    const payload = {
-      ...data,
-      organization_id: currentOrg.id,
-      created_by: user.id,
-      image_url: data.image_url || null,
-      video_url: data.video_url || null,
-      event_date: data.event_date ? new Date(data.event_date).toISOString() : null,
-    };
-    let error;
-    if (isEdit) {
-      ({ error } = await db.from('events').update(payload).eq('id', id));
-    } else {
-      ({ error } = await db.from('events').insert(payload));
+    if (!currentOrg || !user) {
+      toast({ title: 'Error', description: 'No organization selected.', variant: 'destructive' });
+      return;
     }
-    if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-    } else {
-      toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
-      navigate('/admin/events');
+    setLoading(true);
+    try {
+      const payload = {
+        ...data,
+        organization_id: currentOrg.id,
+        created_by: user.id,
+        image_url: data.image_url || null,
+        video_url: data.video_url || null,
+        event_date: data.event_date ? new Date(data.event_date).toISOString() : null,
+      };
+      let error;
+      if (isEdit) {
+        ({ error } = await db.from('events').update(payload).eq('id', id));
+      } else {
+        ({ error } = await db.from('events').insert(payload));
+      }
+      if (error) {
+        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      } else {
+        toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
+        navigate('/admin/events');
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -133,8 +144,8 @@ export function EventForm() {
         </div>
         <div className="flex gap-3 pt-2">
           <Button type="button" variant="outline" onClick={() => navigate('/admin/events')}>Cancel</Button>
-          <Button type="submit" className="gold-gradient text-primary-foreground border-0 shadow-gold" disabled={isSubmitting}>
-            {isSubmitting ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+          <Button type="submit" className="gold-gradient text-primary-foreground border-0 shadow-gold" disabled={loading}>
+            {loading ? 'Saving...' : isEdit ? 'Update' : 'Create'}
           </Button>
         </div>
       </form>
