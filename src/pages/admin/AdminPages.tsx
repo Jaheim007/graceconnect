@@ -648,9 +648,6 @@ export function AdminSettings() {
   );
   const [savingAffiliation, setSavingAffiliation] = useState(false);
 
-  // Paystack mode — read from env, managed here as display only with instructions
-  const paystackMode = (import.meta.env.VITE_PAYSTACK_MODE as string) || 'live';
-  const isTestMode = paystackMode === 'test';
 
   const handleSaveProfile = async () => {
     if (!currentOrg) return;
@@ -859,47 +856,6 @@ export function AdminSettings() {
           >
             {savingAffiliation ? 'Saving…' : 'Save Affiliation Settings'}
           </Button>
-        </div>
-
-        {/* ── PAYSTACK MODE ── */}
-        <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-          <div>
-            <h2 className="font-semibold text-sm">Paystack Payment Mode</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Switch between Test and Live mode for payments. Use Test mode during development.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/30">
-            <div className={cn(
-              'h-3 w-3 rounded-full shrink-0',
-              isTestMode ? 'bg-amber-500' : 'bg-green-500'
-            )} />
-            <div className="flex-1">
-              <p className="text-xs font-semibold">{isTestMode ? 'Test Mode' : 'Live Mode'}</p>
-              <p className="text-[10px] text-muted-foreground">
-                {isTestMode
-                  ? 'Payments are simulated — no real money is charged.'
-                  : 'Real payments are active. Customers are charged.'}
-              </p>
-            </div>
-            <Badge variant="outline" className={cn(
-              'text-[10px] border-0',
-              isTestMode ? 'bg-amber-500/10 text-amber-600' : 'bg-green-500/10 text-green-600 dark:text-green-400'
-            )}>
-              {isTestMode ? 'TEST' : 'LIVE'}
-            </Badge>
-          </div>
-
-          <div className="p-3 rounded-xl bg-muted/50 space-y-2">
-            <p className="text-xs font-medium">How to switch mode:</p>
-            <ol className="text-[11px] text-muted-foreground space-y-1 list-decimal list-inside">
-              <li>Go to your Supabase project settings → Environment Variables</li>
-              <li>Set <code className="bg-muted px-1 rounded text-[10px]">VITE_PAYSTACK_MODE</code> to <code className="bg-muted px-1 rounded text-[10px]">test</code> or <code className="bg-muted px-1 rounded text-[10px]">live</code></li>
-              <li>Ensure <code className="bg-muted px-1 rounded text-[10px]">VITE_PAYSTACK_PUBLIC_KEY</code> holds your <strong>live</strong> key and <code className="bg-muted px-1 rounded text-[10px]">VITE_PAYSTACK_PUBLIC_KEY_TEST</code> holds your <strong>test</strong> key</li>
-              <li>Redeploy the app for the change to take effect</li>
-            </ol>
-          </div>
         </div>
 
         <p className="text-xs text-muted-foreground text-center">Contact support to update plan, country, or currency.</p>
