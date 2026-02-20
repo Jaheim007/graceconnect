@@ -402,8 +402,11 @@ export function AdminAffiliation() {
 
   // All members except the current admin/owner
   const allOtherMembers = (members as any[]).filter(m => m.user_id !== user?.id);
-  const activeAffiliates = allOtherMembers.filter(m => m.role === 'affiliate');
-  const regularMembers = allOtherMembers.filter(m => m.role !== 'affiliate');
+  // A member is an "active affiliate" if their role is 'affiliate' OR they already have an affiliate link
+  const affiliateUserIds = new Set((existingLinks as any[]).map(l => l.user_id));
+  const activeAffiliates = allOtherMembers.filter(m => m.role === 'affiliate' || affiliateUserIds.has(m.user_id));
+  const activeAffiliateUserIds = new Set(activeAffiliates.map((m: any) => m.user_id));
+  const regularMembers = allOtherMembers.filter(m => !activeAffiliateUserIds.has(m.user_id));
 
   // Helper: get member display name with fallback
   const getMemberName = (m: any) =>

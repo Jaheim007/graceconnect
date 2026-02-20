@@ -87,6 +87,21 @@ export default function OrgPublicPage() {
 
   return (
     <div className="min-h-screen">
+      {/* Guest top bar — shown only when not logged in */}
+      {!user && (
+        <div className="sticky top-0 z-20 border-b border-border/40 bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="h-7 w-7 rounded-lg gold-gradient flex items-center justify-center">
+              <span className="text-[10px] font-bold text-primary-foreground">GC</span>
+            </div>
+            <span className="text-sm font-semibold">GraceConnect</span>
+          </div>
+          <Button size="sm" className="h-7 text-xs gold-gradient text-primary-foreground border-0" onClick={() => navigate('/auth')}>
+            Sign in
+          </Button>
+        </div>
+      )}
+
       {/* Banner */}
       <div className="relative h-48 sm:h-64 bg-gradient-to-br from-primary/20 to-accent/20 overflow-hidden">
         {org.banner_url ? (
