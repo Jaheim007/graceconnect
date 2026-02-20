@@ -23,7 +23,7 @@ export default function AdminMedia() {
   };
 
   return (
-    <AdminPageShell title="Media Library" newRoute="/admin/media/new">
+    <AdminPageShell title="Media Library" newRoute="/admin/media/new" backRoute="/admin">
       {isLoading ? <SkeletonRow count={5} /> : media.length === 0 ? (
         <EmptyState variant="content" action={{ label: 'Add media', onClick: () => navigate('/admin/media/new') }} />
       ) : (

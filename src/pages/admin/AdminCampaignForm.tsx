@@ -95,7 +95,7 @@ export function CampaignForm() {
   };
 
   return (
-    <AdminPageShell title={isEdit ? 'Edit Campaign' : 'New Donation Campaign'}>
+    <AdminPageShell title={isEdit ? 'Edit Campaign' : 'New Donation Campaign'} backRoute="/admin/campaigns">
       {!currentOrg?.monetization_enabled && (
       <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/30 text-xs text-destructive mb-4">
           ⚠️ Monetization is not enabled. Submit KYC first.

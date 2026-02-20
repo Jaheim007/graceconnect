@@ -85,7 +85,7 @@ export function AnnouncementForm() {
   };
 
   return (
-    <AdminPageShell title={isEdit ? 'Edit Announcement' : 'New Announcement'}>
+    <AdminPageShell title={isEdit ? 'Edit Announcement' : 'New Announcement'} backRoute="/admin/announcements">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
           <Label>Title *</Label>

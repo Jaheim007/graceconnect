@@ -95,7 +95,7 @@ export function MediaForm() {
   };
 
   return (
-    <AdminPageShell title={isEdit ? 'Edit Media' : 'New Media'}>
+    <AdminPageShell title={isEdit ? 'Edit Media' : 'New Media'} backRoute="/admin/media">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
           <Label>Title *</Label>
