@@ -21,6 +21,25 @@ export function useOrgCampaigns(orgId: string | undefined, publishedOnly = true)
   });
 }
 
+export function useFeedCampaigns(orgIds: string[]) {
+  return useQuery({
+    queryKey: ['feed-campaigns', orgIds],
+    queryFn: async () => {
+      if (!orgIds.length) return [];
+      const { data } = await db
+        .from('donation_campaigns')
+        .select('*')
+        .in('organization_id', orgIds)
+        .eq('is_published', true)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false })
+        .limit(10);
+      return (data || []) as DonationCampaign[];
+    },
+    enabled: orgIds.length > 0,
+  });
+}
+
 export function useCreateCampaign() {
   const qc = useQueryClient();
   return useMutation({
@@ -71,6 +90,25 @@ export function useOrgProducts(orgId: string | undefined, publishedOnly = true) 
       return (data || []) as DigitalProduct[];
     },
     enabled: !!orgId,
+  });
+}
+
+export function useFeedProducts(orgIds: string[]) {
+  return useQuery({
+    queryKey: ['feed-products', orgIds],
+    queryFn: async () => {
+      if (!orgIds.length) return [];
+      const { data } = await db
+        .from('digital_products')
+        .select('*')
+        .in('organization_id', orgIds)
+        .eq('is_published', true)
+        .order('display_order', { ascending: true })
+        .order('created_at', { ascending: false })
+        .limit(10);
+      return (data || []) as DigitalProduct[];
+    },
+    enabled: orgIds.length > 0,
   });
 }
 
