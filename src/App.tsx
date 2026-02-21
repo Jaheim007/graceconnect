@@ -9,6 +9,7 @@ import { OrgProvider } from "@/contexts/OrgContext";
 
 // Layout
 import { AppLayout } from "@/components/layout/AppLayout";
+import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { RequireAuth, RequireSuperadmin, RequireOrgManage } from "@/components/layout/RouteGuard";
 
 // Public pages
@@ -68,6 +69,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <ScrollToTop />
               <Routes>
                 {/* Public routes — no auth required */}
                 <Route path="/" element={<LandingPage />} />
