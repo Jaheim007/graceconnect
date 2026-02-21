@@ -134,6 +134,33 @@ export default function UserDashboard() {
   const pendingCommission = affiliateSales.filter((s: { status: string }) => s.status === 'pending').reduce((sum: number, s: { commission_amount: number }) => sum + s.commission_amount, 0);
   const baseUrl = window.location.origin;
 
+  // Org revenue: fetch donations & purchases received by orgs the user manages
+  const managedOrgIds = userOrgs.filter(o => o.owner_id === user?.id).map(o => o.id);
+
+  const { data: orgDonationRevenue = [] } = useQuery({
+    queryKey: ['user-org-donations-rev', user?.id, managedOrgIds],
+    queryFn: async () => {
+      if (!managedOrgIds.length) return [];
+      const { data } = await db.from('donations').select('amount, organization_amount').in('organization_id', managedOrgIds).eq('status', 'completed');
+      return data || [];
+    },
+    enabled: managedOrgIds.length > 0,
+  });
+
+  const { data: orgPurchaseRevenue = [] } = useQuery({
+    queryKey: ['user-org-purchases-rev', user?.id, managedOrgIds],
+    queryFn: async () => {
+      if (!managedOrgIds.length) return [];
+      const { data } = await db.from('product_purchases').select('amount, organization_amount').in('organization_id', managedOrgIds).eq('status', 'completed');
+      return data || [];
+    },
+    enabled: managedOrgIds.length > 0,
+  });
+
+  const allOrgTxns = [...orgDonationRevenue, ...orgPurchaseRevenue];
+  const totalOrgRevenue = allOrgTxns.reduce((s, t) => s + (t.amount || 0), 0);
+  const totalOrgReceived = allOrgTxns.reduce((s, t) => s + (t.organization_amount || 0), 0);
+
   const handleRequestPayout = async (orgId: string, orgKycStatus: string) => {
     if (orgKycStatus === 'none' || orgKycStatus === 'pending') {
       toast({ title: 'KYC requis pour le retrait', description: 'Veuillez compléter la vérification KYC avant de demander un retrait.' });
@@ -249,11 +276,18 @@ export default function UserDashboard() {
           </div>
 
           {/* Hero stats bar */}
-          <div className="relative z-10 grid grid-cols-3 gap-2 sm:gap-3 mt-4 sm:mt-5 pt-4 sm:pt-5 border-t border-white/15">
+          <div className={cn(
+            "relative z-10 gap-2 sm:gap-3 mt-4 sm:mt-5 pt-4 sm:pt-5 border-t border-white/15 grid",
+            managedOrgIds.length > 0 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'
+          )}>
             {[
+              ...(managedOrgIds.length > 0 ? [
+                { label: 'Ventes totales', value: fmt(totalOrgRevenue), icon: ShoppingBag },
+                { label: 'Reçu (org)', value: fmt(totalOrgReceived), icon: DollarSign },
+              ] : []),
               { label: 'Total dons', value: fmt(totalDonated), icon: Heart },
               { label: 'Commissions', value: fmt(totalEarned), icon: TrendingUp },
-              { label: 'Disponible', value: fmt(payableCommission), icon: Wallet },
+              ...(managedOrgIds.length === 0 ? [{ label: 'Disponible', value: fmt(payableCommission), icon: Wallet }] : []),
             ].map((s) => (
               <div key={s.label} className="text-center">
                 <div className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-white/15 mb-1.5">
