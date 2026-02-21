@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Bell, Sun, Moon, LogOut, User, Settings, LayoutDashboard, Shield, ChevronDown, Plus } from 'lucide-react';
+import { Bell, Sun, Moon, LogOut, User, Settings, Shield, ChevronDown, Plus, BookOpen } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -40,7 +40,7 @@ export function TopBar() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-1.5 h-8 text-xs max-w-[160px]">
-              <span className="truncate">{currentOrg?.name || 'Select Org'}</span>
+              <span className="truncate">{currentOrg?.name || 'Choisir une org'}</span>
               <ChevronDown className="h-3 w-3 shrink-0" />
             </Button>
           </DropdownMenuTrigger>
@@ -85,23 +85,22 @@ export function TopBar() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-52">
             <div className="px-2 py-1.5">
-              <p className="text-sm font-medium truncate">{profile?.display_name || 'User'}</p>
+              <p className="text-sm font-medium truncate">{profile?.display_name || 'Utilisateur'}</p>
               <p className="text-xs text-muted-foreground truncate">{user.email}</p>
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigate('/profile')}>
-              <User className="h-3.5 w-3.5 mr-2" /> Profile
+              <User className="h-3.5 w-3.5 mr-2" /> Profil
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/dashboard')}>
-              <LayoutDashboard className="h-3.5 w-3.5 mr-2" /> My Dashboard
+              <BookOpen className="h-3.5 w-3.5 mr-2" /> Mon Espace
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/create-org')}>
-              <Plus className="h-3.5 w-3.5 mr-2" /> Create Org
+              <Plus className="h-3.5 w-3.5 mr-2" /> Créer une org
             </DropdownMenuItem>
-            {/* Only show Manage Org to owner/admin/editor — not plain members */}
             {canManageCurrentOrg && (
               <DropdownMenuItem onClick={() => navigate('/admin')}>
-                <Settings className="h-3.5 w-3.5 mr-2" /> Manage Org
+                <Settings className="h-3.5 w-3.5 mr-2" /> Gérer l'org
               </DropdownMenuItem>
             )}
             {isSuperadmin && (
@@ -111,13 +110,13 @@ export function TopBar() {
             )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
-              <LogOut className="h-3.5 w-3.5 mr-2" /> Sign out
+              <LogOut className="h-3.5 w-3.5 mr-2" /> Déconnexion
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
         <Button size="sm" className="h-8 text-xs gold-gradient text-primary-foreground border-0 shadow-gold" onClick={() => navigate('/auth')}>
-          Sign In
+          Connexion
         </Button>
       )}
     </header>

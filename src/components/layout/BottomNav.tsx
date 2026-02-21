@@ -5,11 +5,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
 
 const navItems = [
-  { to: '/feed', icon: Home, label: 'Feed' },
-  { to: '/discover', icon: Compass, label: 'Discover' },
+  { to: '/feed', icon: Home, label: 'Accueil' },
+  { to: '/discover', icon: Compass, label: 'Explorer' },
   { to: '/reels', icon: Play, label: 'Reels' },
-  { to: '/notifications', icon: Bell, label: 'Alerts' },
-  { to: '/profile', icon: User, label: 'Profile' },
+  { to: '/notifications', icon: Bell, label: 'Alertes' },
+  { to: '/profile', icon: User, label: 'Profil' },
 ];
 
 export function BottomNav() {
@@ -23,7 +23,7 @@ export function BottomNav() {
         {navItems.map(({ to, icon: Icon, label }) => {
           const isActive = location.pathname === to ||
             (to === '/feed' && location.pathname === '/');
-          const showBadge = label === 'Alerts' && unread > 0;
+          const showBadge = label === 'Alertes' && unread > 0;
 
           return (
             <Link
