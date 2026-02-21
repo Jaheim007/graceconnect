@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -143,12 +143,9 @@ export default function OrgPublicPage() {
       {/* Guest top bar */}
       {!user && (
         <div className="sticky top-0 z-20 border-b border-border/40 bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-lg gold-gradient flex items-center justify-center">
-              <span className="text-[10px] font-bold text-primary-foreground">SV</span>
-            </div>
-            <span className="text-sm font-semibold">Siteviral</span>
-          </div>
+          <Link to="/">
+            <span className="text-lg font-extrabold tracking-tight italic text-gold">Siteviral</span>
+          </Link>
           <Button size="sm" className="h-7 text-xs gold-gradient text-primary-foreground border-0" onClick={() => navigate('/auth')}>
             Connexion
           </Button>
