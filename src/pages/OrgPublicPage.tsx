@@ -22,8 +22,9 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   Globe, MessageCircle, CheckCircle2, Users, CalendarDays,
-  Share2, ShoppingBag, Heart, Camera, MapPin, ArrowLeft
+  Share2, ShoppingBag, Heart, Camera, MapPin, ArrowLeft, MoreHorizontal
 } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
 import { useAffiliateCapture } from '@/hooks/useAffiliateCapture';
@@ -172,7 +173,7 @@ export default function OrgPublicPage() {
 
       {/* ─── FACEBOOK-STYLE BANNER ─── */}
       <div className="relative">
-        <div className="h-48 sm:h-72 lg:h-80 overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
+        <div className="h-32 sm:h-56 lg:h-72 overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
           {org.banner_url ? (
             <img src={org.banner_url} alt={org.name} className="w-full h-full object-cover" />
           ) : (
@@ -242,15 +243,29 @@ export default function OrgPublicPage() {
               <Button variant="outline" size="sm" onClick={shareWhatsApp} className="h-9 gap-1.5 text-xs">
                 <Share2 className="h-4 w-4" /> Partager
               </Button>
-              <Button
-                size="sm"
-                onClick={handleJoinLeave}
-                disabled={joining}
-                className={`h-9 text-xs px-5 ${isMember ? '' : 'gold-gradient text-primary-foreground border-0 shadow-gold'}`}
-                variant={isMember ? 'outline' : 'default'}
-              >
-                {joining ? '...' : isMember ? 'Quitter' : 'Rejoindre'}
-              </Button>
+              {isMember ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-9 text-xs px-3">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={handleJoinLeave} className="text-destructive focus:text-destructive text-xs">
+                      Quitter cette communauté
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button
+                  size="sm"
+                  onClick={handleJoinLeave}
+                  disabled={joining}
+                  className="h-9 text-xs px-5 gold-gradient text-primary-foreground border-0 shadow-gold"
+                >
+                  {joining ? '...' : 'Rejoindre'}
+                </Button>
+              )}
             </motion.div>
           </div>
 
@@ -333,25 +348,19 @@ export default function OrgPublicPage() {
         <Tabs value={activeTab} onValueChange={navigateTab} className="w-full">
           <TabsList className="w-full justify-start overflow-x-auto scrollbar-hide mb-6 bg-muted/60 h-11">
             <TabsTrigger value="home" className="text-xs">Accueil</TabsTrigger>
-            {products.length > 0 && (
-              <TabsTrigger value="store" className="text-xs gap-1">
-                <ShoppingBag className="h-3 w-3" />
-                Boutique ({products.length})
-              </TabsTrigger>
-            )}
-            {campaigns.length > 0 && (
-              <TabsTrigger value="donate" className="text-xs gap-1">
-                <Heart className="h-3 w-3" />
-                Dons ({campaigns.length})
-              </TabsTrigger>
-            )}
+            <TabsTrigger value="store" className="text-xs gap-1">
+              <ShoppingBag className="h-3 w-3" />
+              Boutique {products.length > 0 && `(${products.length})`}
+            </TabsTrigger>
+            <TabsTrigger value="donate" className="text-xs gap-1">
+              <Heart className="h-3 w-3" />
+              Dons {campaigns.length > 0 && `(${campaigns.length})`}
+            </TabsTrigger>
             <TabsTrigger value="content" className="text-xs">Contenu ({media.length})</TabsTrigger>
-            {photos.length > 0 && (
-              <TabsTrigger value="photos" className="text-xs gap-1">
-                <Camera className="h-3 w-3" />
-                Photos ({photos.length})
-              </TabsTrigger>
-            )}
+            <TabsTrigger value="photos" className="text-xs gap-1">
+              <Camera className="h-3 w-3" />
+              Photos {photos.length > 0 && `(${photos.length})`}
+            </TabsTrigger>
             <TabsTrigger value="events" className="text-xs">Événements ({events.length})</TabsTrigger>
           </TabsList>
 

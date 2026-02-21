@@ -103,9 +103,8 @@ export default function ProfilePage() {
   // Settings menu items
   const accountItems = [
     { icon: User, label: 'Modifier le profil', sub: displayName, onClick: () => setActiveSection('edit-profile') },
-    { icon: BookOpen, label: 'Mon Espace', sub: 'Achats & ressources', onClick: () => navigate('/dashboard') },
+    { icon: BookOpen, label: 'Tableau de bord', sub: 'Achats & ressources', onClick: () => navigate('/dashboard') },
     { icon: Bell, label: 'Notifications', sub: '', onClick: () => navigate('/notifications') },
-    { icon: Globe, label: 'Langue', sub: 'Français', onClick: () => toast({ title: 'Bientôt disponible', description: 'Le changement de langue arrive prochainement.' }) },
   ];
 
   const preferenceItems = [
@@ -293,6 +292,8 @@ export default function ProfilePage() {
                   ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
                   : 'bg-muted text-muted-foreground';
 
+                const isManagerOrOwner = role === 'owner' || role === 'admin' || role === 'editor';
+
                 return (
                   <div key={org.id} className="flex items-center gap-3.5 px-4 py-3.5">
                     <div className="h-9 w-9 rounded-xl gold-gradient flex items-center justify-center shrink-0 shadow-gold overflow-hidden">
@@ -311,14 +312,26 @@ export default function ProfilePage() {
                         <span className="text-[10px] text-muted-foreground capitalize">{org.category}</span>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-xs text-destructive hover:text-destructive hover:bg-destructive/10 h-7"
-                      onClick={() => leaveOrg(org.id)}
-                    >
-                      Quitter
-                    </Button>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-xs h-7 px-2"
+                        onClick={() => navigate(`/org/${org.slug}`)}
+                      >
+                        Voir
+                      </Button>
+                      {isManagerOrOwner && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-xs h-7 px-2 text-primary"
+                          onClick={() => navigate('/admin')}
+                        >
+                          Gérer
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 );
               })}

@@ -240,60 +240,49 @@ export default function UserDashboard() {
     : 'U';
 
   const tabs: { key: DashboardTab; label: string; icon: typeof Heart }[] = [
-    { key: 'apercu', label: 'Aperçu', icon: BarChart3 },
-    { key: 'ressources', label: 'Ressources', icon: BookOpen },
+    { key: 'apercu', label: 'Mon Espace', icon: BarChart3 },
     { key: 'affiliation', label: 'Affiliation', icon: Link2 },
-    { key: 'historique', label: 'Historique', icon: Clock },
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <div className="container max-w-4xl px-4 py-5 sm:py-6 space-y-5 sm:space-y-6">
-        {/* ══ HERO HEADER ══ */}
+        {/* ══ COMPACT HERO ══ */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-2xl sm:rounded-3xl gold-gradient p-5 sm:p-8 shadow-gold"
+          className="relative overflow-hidden rounded-2xl gold-gradient p-4 sm:p-5 shadow-gold"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-transparent pointer-events-none" />
-          <div className="relative z-10 flex items-center gap-4">
-            <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center overflow-hidden border-2 border-white/30 shadow-lg">
+          <div className="relative z-10 flex items-center gap-3">
+            <div className="h-11 w-11 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center overflow-hidden border-2 border-white/30">
               {avatarUrl ? (
                 <img src={avatarUrl} alt={initials} className="h-full w-full object-cover" />
               ) : (
-                <span className="text-xl sm:text-2xl font-bold text-white">{initials}</span>
+                <span className="text-base font-bold text-white">{initials}</span>
               )}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-white/70 font-medium">
-                {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
-              </p>
-              <h1 className="text-xl sm:text-2xl font-bold text-white truncate">
+              <h1 className="text-base sm:text-lg font-bold text-white truncate">
                 {greeting}, {displayName}
               </h1>
-              <p className="text-xs text-white/60 mt-0.5">{userOrgs.length} communauté{userOrgs.length > 1 ? 's' : ''}</p>
+              <p className="text-[11px] text-white/60">{userOrgs.length} communauté{userOrgs.length > 1 ? 's' : ''}</p>
             </div>
           </div>
 
-          {/* Hero stats bar */}
-          <div className={cn(
-            "relative z-10 gap-2 sm:gap-3 mt-4 sm:mt-5 pt-4 sm:pt-5 border-t border-white/15 grid",
-            managedOrgIds.length > 0 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-3'
-          )}>
+          {/* Inline stats */}
+          <div className="relative z-10 flex items-center gap-4 mt-3 pt-3 border-t border-white/15 overflow-x-auto scrollbar-hide">
             {[
               ...(managedOrgIds.length > 0 ? [
-                { label: 'Ventes totales', value: fmt(totalOrgRevenue), icon: ShoppingBag },
-                { label: 'Reçu (org)', value: fmt(totalOrgReceived), icon: DollarSign },
+                { label: 'Ventes', value: fmt(totalOrgRevenue) },
+                { label: 'Reçu', value: fmt(totalOrgReceived) },
               ] : []),
-              { label: 'Total dons', value: fmt(totalDonated), icon: Heart },
-              { label: 'Commissions', value: fmt(totalEarned), icon: TrendingUp },
-              ...(managedOrgIds.length === 0 ? [{ label: 'Disponible', value: fmt(payableCommission), icon: Wallet }] : []),
+              { label: 'Dons', value: fmt(totalDonated) },
+              { label: 'Commissions', value: fmt(totalEarned) },
+              ...(managedOrgIds.length === 0 ? [{ label: 'Disponible', value: fmt(payableCommission) }] : []),
             ].map((s) => (
-              <div key={s.label} className="text-center">
-                <div className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-white/15 mb-1.5">
-                  <s.icon className="h-3.5 w-3.5 text-white" />
-                </div>
-                <p className="text-xs sm:text-base font-bold text-white truncate">{s.value}</p>
+              <div key={s.label} className="shrink-0 text-center">
+                <p className="text-sm font-bold text-white">{s.value}</p>
                 <p className="text-[10px] text-white/60">{s.label}</p>
               </div>
             ))}
