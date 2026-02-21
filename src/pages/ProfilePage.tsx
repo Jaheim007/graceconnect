@@ -76,9 +76,9 @@ export default function ProfilePage() {
     try {
       const ext = file.name.split('.').pop();
       const path = `avatars/${user.id}.${ext}`;
-      const { error: uploadError } = await supabase.storage.from('avatars').upload(path, file, { upsert: true });
+      const { error: uploadError } = await supabase.storage.from('org-uploads').upload(path, file, { upsert: true });
       if (uploadError) throw uploadError;
-      const { data: urlData } = supabase.storage.from('avatars').getPublicUrl(path);
+      const { data: urlData } = supabase.storage.from('org-uploads').getPublicUrl(path);
       const avatarUrl = `${urlData.publicUrl}?t=${Date.now()}`;
       await db.from('profiles').update({ avatar_url: avatarUrl }).eq('id', user.id);
       await refreshProfile();

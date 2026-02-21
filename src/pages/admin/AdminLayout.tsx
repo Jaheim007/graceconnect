@@ -11,17 +11,17 @@ import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const adminLinks = [
-  { to: '/admin', label: 'Overview', icon: BarChart3, end: true },
-  { to: '/admin/media', label: 'Media', icon: Play },
-  { to: '/admin/announcements', label: 'Announcements', icon: Megaphone },
-  { to: '/admin/events', label: 'Events', icon: CalendarDays },
-  { to: '/admin/campaigns', label: 'Campaigns', icon: Heart },
-  { to: '/admin/products', label: 'Store', icon: ShoppingBag },
+  { to: '/admin', label: 'Vue d\'ensemble', icon: BarChart3, end: true },
+  { to: '/admin/media', label: 'Médias', icon: Play },
+  { to: '/admin/announcements', label: 'Annonces', icon: Megaphone },
+  { to: '/admin/events', label: 'Événements', icon: CalendarDays },
+  { to: '/admin/campaigns', label: 'Campagnes', icon: Heart },
+  { to: '/admin/products', label: 'Boutique', icon: ShoppingBag },
   { to: '/admin/photos', label: 'Photos', icon: Camera },
-  { to: '/admin/members', label: 'Members', icon: Users },
+  { to: '/admin/members', label: 'Membres', icon: Users },
   { to: '/admin/affiliation', label: 'Affiliation', icon: Link2 },
   { to: '/admin/kyc', label: 'KYC', icon: FileCheck },
-  { to: '/admin/settings', label: 'Settings', icon: Settings },
+  { to: '/admin/settings', label: 'Paramètres', icon: Settings },
 ];
 
 export default function AdminLayout() {
@@ -41,9 +41,9 @@ export default function AdminLayout() {
   if (!currentOrg) {
     return (
       <EmptyState
-        title="No organization selected"
-        description="Create or select an organization to access the admin panel."
-        action={{ label: 'Create organization', onClick: () => navigate('/create-org') }}
+        title="Aucune organisation sélectionnée"
+        description="Créez ou sélectionnez une organisation pour accéder au panneau d'administration."
+        action={{ label: 'Créer une organisation', onClick: () => navigate('/create-org') }}
         className="min-h-screen"
       />
     );
@@ -59,12 +59,12 @@ export default function AdminLayout() {
           size="icon"
           className="h-7 w-7 shrink-0 text-muted-foreground hover:text-foreground"
           onClick={() => navigate('/feed')}
-          title="Back to app"
+          title="Retour à l'app"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
         </Button>
 
-        <span className="text-xs text-muted-foreground hidden sm:block shrink-0">Managing:</span>
+        <span className="text-xs text-muted-foreground hidden sm:block shrink-0">Gestion :</span>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -84,7 +84,7 @@ export default function AdminLayout() {
               </DropdownMenuItem>
             ))}
             <DropdownMenuItem className="text-xs text-muted-foreground" onClick={() => navigate('/create-org')}>
-              + Create organization
+              + Créer une organisation
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
