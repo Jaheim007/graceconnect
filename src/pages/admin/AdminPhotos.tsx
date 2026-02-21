@@ -167,11 +167,11 @@ export default function AdminPhotos() {
                   !photo.is_published && 'opacity-60'
                 )}
               >
-                <div className="aspect-[4/3] overflow-hidden">
+                <div className="overflow-hidden">
                   <img
                     src={photo.image_url}
                     alt={photo.caption || 'Photo'}
-                    className="w-full h-full object-cover"
+                    className="w-full h-auto object-contain max-h-64"
                   />
                 </div>
 
