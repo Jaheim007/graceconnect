@@ -334,6 +334,12 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
             </div>
 
             <p className="text-xs text-muted-foreground">Un reçu a été envoyé à votre email.</p>
+            <Button
+              onClick={() => { handleClose(); navigate('/dashboard'); }}
+              className="w-full gold-gradient text-primary-foreground border-0 shadow-gold gap-1.5"
+            >
+              Accéder à mon tableau de bord
+            </Button>
             <Button variant="ghost" onClick={handleClose} className="text-muted-foreground">Fermer</Button>
           </div>
         )}
