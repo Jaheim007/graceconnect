@@ -110,6 +110,10 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
           organization_id: organizationId,
           buyer_name: buyerInfo.name.trim(),
           buyer_phone: buyerInfo.phone.trim(),
+          donor_name: buyerInfo.name.trim(),
+          donor_email: buyerInfo.email.trim(),
+          user_id: user?.id || null,
+          affiliate_code: getAffiliateCode() || null,
         },
         onClose: () => {
           // user dismissed — stay on buyer-info step

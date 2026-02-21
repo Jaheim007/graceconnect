@@ -71,6 +71,9 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
           campaign_id: campaign.id,
           organization_id: organizationId,
           donor_name: resolvedName,
+          donor_email: resolvedEmail,
+          user_id: user?.id || null,
+          affiliate_code: affiliateCode || null,
         },
         onClose: () => {
           // User closed the Paystack popup without paying — stay on form
