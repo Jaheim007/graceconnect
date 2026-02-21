@@ -17,6 +17,7 @@ import LandingPage from "@/pages/LandingPage";
 import AuthPage from "@/pages/AuthPage";
 import DiscoverPage from "@/pages/DiscoverPage";
 import OrgPublicPage from "@/pages/OrgPublicPage";
+import ProductDetailPage from "@/pages/ProductDetailPage";
 import NotFound from "@/pages/NotFound";
 import TermsPage from "@/pages/TermsPage";
 import PrivacyPage from "@/pages/PrivacyPage";
@@ -31,7 +32,7 @@ import ProfilePage from "@/pages/ProfilePage";
 import UserDashboard from "@/pages/UserDashboard";
 import ResourcesPage from "@/pages/ResourcesPage";
 import CreateOrgPage from "@/pages/CreateOrgPage";
-import MarketplacePage from "@/pages/MarketplacePage";
+// MarketplacePage merged into DiscoverPage
 import ProgramsPage from "@/pages/ProgramsPage";
 import ProgramViewPage from "@/pages/ProgramViewPage";
 
@@ -87,19 +88,20 @@ const App = () => (
                   <Route index element={<DiscoverPage />} />
                 </Route>
                 <Route path="/marketplace" element={<AppLayout />}>
-                  <Route index element={<MarketplacePage />} />
+                  <Route index element={<DiscoverPage />} />
                 </Route>
                 <Route path="/programs" element={<AppLayout />}>
                   <Route index element={<ProgramsPage />} />
                 </Route>
 
-                {/* Org public pages — MUST be outside RequireAuth so affiliate links work */}
+                {/* Org public pages */}
                 <Route path="/org/:slug" element={<OrgPublicPage />} />
                 <Route path="/org/:slug/content" element={<OrgPublicPage />} />
                 <Route path="/org/:slug/events" element={<OrgPublicPage />} />
                 <Route path="/org/:slug/store" element={<OrgPublicPage />} />
                 <Route path="/org/:slug/donate" element={<OrgPublicPage />} />
                 <Route path="/org/:slug/photos" element={<OrgPublicPage />} />
+                <Route path="/org/:slug/product/:productId" element={<ProductDetailPage />} />
 
                 {/* Authenticated shell (sidebar + topbar) */}
                 <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
