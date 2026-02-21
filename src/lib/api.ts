@@ -6,7 +6,7 @@ function fnUrl(name: string) {
   return `https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/${name}`;
 }
 
-async function callFn(name: string, body: unknown, requireAuth = true) {
+export async function callFn(name: string, body: unknown, requireAuth = true) {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
 
   if (requireAuth) {
