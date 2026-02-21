@@ -1,8 +1,9 @@
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Play, Heart, Users, ShoppingBag, Globe, CheckCircle, Zap, Shield } from 'lucide-react';
+import { ArrowRight, Play, Heart, Users, ShoppingBag, Globe, CheckCircle, Zap, Shield, Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useTheme } from '@/contexts/ThemeContext';
 import heroImg from '@/assets/landing-hero.jpg';
 import communityImg from '@/assets/landing-community.png';
 import devicesImg from '@/assets/landing-devices.jpg';
