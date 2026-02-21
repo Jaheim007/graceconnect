@@ -2,7 +2,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Donation, ProductPurchase, AffiliateLink } from '@/types/database';
-import { Heart, ShoppingBag, Link2, TrendingUp, Copy, ExternalLink, CheckCircle, AlertTriangle, DollarSign, Download, BookOpen, Eye, FileText, Music } from 'lucide-react';
+import {
+  Heart, ShoppingBag, Link2, TrendingUp, Copy, ExternalLink, CheckCircle,
+  AlertTriangle, DollarSign, Download, BookOpen, Eye, FileText, Music,
+  Wallet, ArrowUpRight, Sparkle, Gift, BarChart3, Clock
+} from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
@@ -37,14 +41,12 @@ const saleStatusColor: Record<string, string> = {
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
-
   const handleCopy = async () => {
     await navigator.clipboard.writeText(text);
     setCopied(true);
     toast({ title: 'Lien copié !', description: 'Partagez-le pour gagner des commissions.' });
     setTimeout(() => setCopied(false), 2000);
   };
-
   return (
     <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={handleCopy}>
       {copied ? <CheckCircle className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
@@ -163,7 +165,7 @@ export default function UserDashboard() {
       }
     },
     onSuccess: () => {
-      toast({ title: 'Vous êtes affilié !', description: 'Votre lien de parrainage est prêt. Partagez-le pour commencer à gagner.' });
+      toast({ title: 'Vous êtes affilié !', description: 'Votre lien de parrainage est prêt.' });
       qc.invalidateQueries({ queryKey: ['user-affiliate-links', user?.id] });
       qc.invalidateQueries({ queryKey: ['user-memberships', user?.id] });
     },
@@ -203,63 +205,83 @@ export default function UserDashboard() {
   // Greeting
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir';
+  const googleAvatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
+  const avatarUrl = profile?.avatar_url || googleAvatar;
   const displayName = profile?.display_name?.split(' ')[0] || 'Utilisateur';
+  const initials = profile?.display_name
+    ? profile.display_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+    : 'U';
 
-  const tabs: { key: DashboardTab; label: string }[] = [
-    { key: 'apercu', label: 'Aperçu' },
-    { key: 'ressources', label: 'Mes Ressources' },
-    { key: 'affiliation', label: 'Affiliation' },
-    { key: 'historique', label: 'Historique' },
+  const tabs: { key: DashboardTab; label: string; icon: typeof Heart }[] = [
+    { key: 'apercu', label: 'Aperçu', icon: BarChart3 },
+    { key: 'ressources', label: 'Ressources', icon: BookOpen },
+    { key: 'affiliation', label: 'Affiliation', icon: Link2 },
+    { key: 'historique', label: 'Historique', icon: Clock },
   ];
 
   return (
     <div className="min-h-screen bg-background">
       <div className="container max-w-4xl py-6 space-y-6">
-        {/* Greeting Header */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="space-y-1">
-          <p className="text-xs text-muted-foreground">{new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
-          <h1 className="text-2xl sm:text-3xl font-bold">{greeting}, <span className="text-primary">{displayName}</span></h1>
+        {/* ══ HERO HEADER ══ */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-3xl gold-gradient p-6 sm:p-8 shadow-gold"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-transparent pointer-events-none" />
+          <div className="relative z-10 flex items-center gap-4">
+            <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center overflow-hidden border-2 border-white/30 shadow-lg">
+              {avatarUrl ? (
+                <img src={avatarUrl} alt={initials} className="h-full w-full object-cover" />
+              ) : (
+                <span className="text-xl sm:text-2xl font-bold text-white">{initials}</span>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-white/70 font-medium">
+                {new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' })}
+              </p>
+              <h1 className="text-xl sm:text-2xl font-bold text-white truncate">
+                {greeting}, {displayName}
+              </h1>
+              <p className="text-xs text-white/60 mt-0.5">{userOrgs.length} communauté{userOrgs.length > 1 ? 's' : ''}</p>
+            </div>
+          </div>
+
+          {/* Hero stats bar */}
+          <div className="relative z-10 grid grid-cols-3 gap-3 mt-5 pt-5 border-t border-white/15">
+            {[
+              { label: 'Total dons', value: fmt(totalDonated), icon: Heart },
+              { label: 'Commissions', value: fmt(totalEarned), icon: TrendingUp },
+              { label: 'Disponible', value: fmt(payableCommission), icon: Wallet },
+            ].map((s) => (
+              <div key={s.label} className="text-center">
+                <div className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-white/15 mb-1.5">
+                  <s.icon className="h-3.5 w-3.5 text-white" />
+                </div>
+                <p className="text-sm sm:text-base font-bold text-white">{s.value}</p>
+                <p className="text-[10px] text-white/60">{s.label}</p>
+              </div>
+            ))}
+          </div>
         </motion.div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[
-            { label: 'Dons', value: fmt(totalDonated), sub: `${donations.length} don${donations.length > 1 ? 's' : ''}`, icon: Heart, colorClass: 'text-destructive bg-destructive/10' },
-            { label: 'Achats', value: String(purchases.length), sub: 'produits achetés', icon: ShoppingBag, colorClass: 'text-accent bg-accent/10' },
-            { label: 'Commissions', value: fmt(totalEarned), sub: affiliateLinks.length > 0 ? `${affiliateLinks.length} lien${affiliateLinks.length > 1 ? 's' : ''}` : 'Aucun lien', icon: Link2, colorClass: 'text-primary bg-primary/10' },
-            { label: 'Disponible', value: fmt(payableCommission), sub: pendingCommission > 0 ? `${fmt(pendingCommission)} en attente` : 'À retirer', icon: DollarSign, colorClass: 'text-green-500 bg-green-500/10' },
-          ].map((s, i) => (
-            <motion.div
-              key={s.label}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.06 }}
-              className="bg-card border border-border rounded-2xl p-4 shadow-card"
-            >
-              <div className={cn('h-8 w-8 rounded-lg flex items-center justify-center mb-2', s.colorClass)}>
-                <s.icon className="h-4 w-4" />
-              </div>
-              <p className="text-lg font-bold">{s.value}</p>
-              <p className="text-[10px] text-muted-foreground font-medium">{s.label}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{s.sub}</p>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Tabs */}
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+        {/* ══ TABS ══ */}
+        <div className="flex gap-1.5 bg-muted/50 p-1 rounded-2xl overflow-x-auto scrollbar-hide">
           {tabs.map((t) => (
             <button
               key={t.key}
               onClick={() => setActiveTab(t.key)}
               className={cn(
-                'shrink-0 px-4 py-2 rounded-full text-xs font-medium transition-all border',
+                'flex items-center gap-1.5 shrink-0 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all flex-1 justify-center',
                 activeTab === t.key
-                  ? 'gold-gradient text-primary-foreground border-primary shadow-gold'
-                  : 'border-border text-muted-foreground hover:text-foreground bg-card'
+                  ? 'bg-card text-foreground shadow-card'
+                  : 'text-muted-foreground hover:text-foreground'
               )}
             >
-              {t.label}
+              <t.icon className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{t.label}</span>
+              <span className="sm:hidden">{t.label.split(' ')[0]}</span>
             </button>
           ))}
         </div>
@@ -267,70 +289,81 @@ export default function UserDashboard() {
         {/* ══ TAB: APERÇU ══ */}
         {activeTab === 'apercu' && (
           <div className="space-y-5">
-            {/* Quick Actions */}
-            <div className="bg-card border border-border rounded-2xl p-5">
-              <h2 className="font-semibold text-sm mb-3">Accès rapide</h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {[
-                  { label: 'Mes Ressources', onClick: () => setActiveTab('ressources'), icon: BookOpen },
-                  { label: 'Affiliation', onClick: () => setActiveTab('affiliation'), icon: Link2 },
-                  { label: 'Historique', onClick: () => setActiveTab('historique'), icon: TrendingUp },
-                  { label: 'Explorer', onClick: () => navigate('/discover'), icon: Heart },
-                  { label: 'Mon Profil', onClick: () => navigate('/profile'), icon: CheckCircle },
-                ].map((a) => (
-                  <Button key={a.label} variant="outline" size="sm" onClick={a.onClick} className="gap-1.5 text-xs h-9 justify-start hover:bg-muted">
-                    <a.icon className="h-3.5 w-3.5 text-primary" />
-                    {a.label}
-                  </Button>
-                ))}
-              </div>
+            {/* Quick Actions Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                { label: 'Mes Ressources', icon: BookOpen, colorClass: 'bg-accent/10 text-accent', onClick: () => setActiveTab('ressources'), count: myResources?.length || 0 },
+                { label: 'Affiliation', icon: Link2, colorClass: 'bg-primary/10 text-primary', onClick: () => setActiveTab('affiliation'), count: affiliateLinks.length },
+                { label: 'Explorer', icon: Gift, colorClass: 'bg-green-500/10 text-green-500', onClick: () => navigate('/discover'), count: null },
+                { label: 'Mon Compte', icon: ArrowUpRight, colorClass: 'bg-muted text-foreground', onClick: () => navigate('/profile'), count: null },
+              ].map((a, i) => (
+                <motion.button
+                  key={a.label}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.04 }}
+                  onClick={a.onClick}
+                  className="group bg-card border border-border rounded-2xl p-4 shadow-card text-left hover:shadow-elevated transition-all hover:-translate-y-0.5"
+                >
+                  <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center mb-3', a.colorClass)}>
+                    <a.icon className="h-5 w-5" />
+                  </div>
+                  <p className="text-xs font-semibold text-foreground">{a.label}</p>
+                  {a.count !== null && (
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{a.count} élément{a.count > 1 ? 's' : ''}</p>
+                  )}
+                </motion.button>
+              ))}
             </div>
 
-            {/* Recent Resources preview */}
+            {/* Recent Resources */}
             {myResources && myResources.length > 0 && (
-              <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-                <div className="flex items-center justify-between">
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-card border border-border rounded-2xl overflow-hidden shadow-card">
+                <div className="flex items-center justify-between px-5 pt-5 pb-3">
                   <h2 className="font-semibold text-sm flex items-center gap-2"><BookOpen className="h-4 w-4 text-primary" /> Dernières ressources</h2>
                   <button onClick={() => setActiveTab('ressources')} className="text-xs text-primary font-medium hover:underline">Tout voir →</button>
                 </div>
-                <div className="space-y-2">
+                <div className="divide-y divide-border/50">
                   {myResources.slice(0, 3).map((p) => (
-                    <div key={p.id} className="flex items-center gap-3 py-2 border-b border-border/50 last:border-0">
-                      <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0 overflow-hidden">
-                        {p.product.cover_image_url ? <img src={p.product.cover_image_url} alt="" className="w-full h-full object-cover" /> : (typeIcons[p.product.product_type] || <FileText className="h-4 w-4 text-muted-foreground" />)}
+                    <div key={p.id} className="flex items-center gap-3 px-5 py-3.5 hover:bg-muted/30 transition-colors">
+                      <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center shrink-0 overflow-hidden">
+                        {p.product.cover_image_url ? <img src={p.product.cover_image_url} alt="" className="w-full h-full object-cover" /> : (typeIcons[p.product.product_type] || <FileText className="h-5 w-5 text-muted-foreground" />)}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{p.product.title}</p>
                         <p className="text-[10px] text-muted-foreground capitalize">{p.product.product_type}</p>
                       </div>
+                      {p.product.file_url && (
+                        <Button size="sm" variant="outline" className="gap-1 text-[10px] h-7" onClick={() => handleFileAction(p, 'inline')}>
+                          <Eye className="h-3 w-3" /> Lire
+                        </Button>
+                      )}
                     </div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {/* Affiliate summary */}
             {affiliateLinks.length > 0 && (
-              <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+              <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-card border border-border rounded-2xl p-5 space-y-4 shadow-card">
                 <div className="flex items-center justify-between">
                   <h2 className="font-semibold text-sm flex items-center gap-2"><Link2 className="h-4 w-4 text-primary" /> Affiliation</h2>
                   <button onClick={() => setActiveTab('affiliation')} className="text-xs text-primary font-medium hover:underline">Détails →</button>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
-                  <div className="rounded-xl bg-muted/50 p-3 text-center">
-                    <p className="text-lg font-bold">{affiliateLinks.length}</p>
-                    <p className="text-[10px] text-muted-foreground">Liens</p>
-                  </div>
-                  <div className="rounded-xl bg-primary/5 p-3 text-center">
-                    <p className="text-lg font-bold text-primary">{fmt(totalEarned)}</p>
-                    <p className="text-[10px] text-muted-foreground">Total gagné</p>
-                  </div>
-                  <div className="rounded-xl bg-green-500/5 p-3 text-center">
-                    <p className="text-lg font-bold text-green-500">{fmt(payableCommission)}</p>
-                    <p className="text-[10px] text-muted-foreground">À retirer</p>
-                  </div>
+                  {[
+                    { label: 'Liens', value: affiliateLinks.length, colorClass: '' },
+                    { label: 'Total gagné', value: fmt(totalEarned), colorClass: 'text-primary' },
+                    { label: 'À retirer', value: fmt(payableCommission), colorClass: 'text-green-500' },
+                  ].map((s) => (
+                    <div key={s.label} className="rounded-xl bg-muted/50 p-3 text-center">
+                      <p className={cn('text-lg font-bold', s.colorClass)}>{s.value}</p>
+                      <p className="text-[10px] text-muted-foreground">{s.label}</p>
+                    </div>
+                  ))}
                 </div>
-              </div>
+              </motion.div>
             )}
           </div>
         )}
@@ -351,7 +384,7 @@ export default function UserDashboard() {
             ) : (
               <div className="space-y-3">
                 {myResources.map((purchase) => (
-                  <div key={purchase.id} className="flex gap-4 p-4 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors">
+                  <div key={purchase.id} className="flex gap-4 p-4 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors shadow-card">
                     <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-muted">
                       {purchase.product.cover_image_url ? <img src={purchase.product.cover_image_url} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-muted-foreground">{typeIcons[purchase.product.product_type] || <FileText className="h-6 w-6" />}</div>}
                     </div>
@@ -391,8 +424,7 @@ export default function UserDashboard() {
         {/* ══ TAB: AFFILIATION ══ */}
         {activeTab === 'affiliation' && (
           <div className="space-y-5">
-            {/* Affiliate Links */}
-            <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+            <div className="bg-card border border-border rounded-2xl p-5 space-y-4 shadow-card">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="font-semibold text-sm flex items-center gap-2"><Link2 className="h-4 w-4 text-primary" /> Mes liens d'affiliation</h2>
@@ -444,9 +476,8 @@ export default function UserDashboard() {
               )}
             </div>
 
-            {/* Become Affiliate */}
             {orgsEligibleForAffiliate.length > 0 && (
-              <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+              <div className="bg-card border border-border rounded-2xl p-5 space-y-3 shadow-card">
                 <div>
                   <h2 className="font-semibold text-sm flex items-center gap-2"><TrendingUp className="h-4 w-4 text-primary" /> Devenir affilié</h2>
                   <p className="text-xs text-muted-foreground mt-0.5">Ces organisations ont un programme d'affiliation ouvert.</p>
@@ -470,9 +501,8 @@ export default function UserDashboard() {
               </div>
             )}
 
-            {/* Payout */}
             {Object.keys(payableByOrg).length > 0 && (
-              <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+              <div className="bg-card border border-border rounded-2xl p-5 space-y-3 shadow-card">
                 <h2 className="font-semibold text-sm flex items-center gap-2"><DollarSign className="h-4 w-4 text-primary" /> Demander un retrait</h2>
                 <p className="text-xs text-muted-foreground">La vérification KYC est requise avant un retrait.</p>
                 <div className="space-y-2">
@@ -497,9 +527,8 @@ export default function UserDashboard() {
               </div>
             )}
 
-            {/* Commission History */}
             {affiliateSales.length > 0 && (
-              <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+              <div className="bg-card border border-border rounded-2xl p-5 space-y-3 shadow-card">
                 <h2 className="font-semibold text-sm">Historique des commissions</h2>
                 <p className="text-xs text-muted-foreground">Les commissions deviennent disponibles 72h après la transaction.</p>
                 <div className="space-y-1">
@@ -522,8 +551,7 @@ export default function UserDashboard() {
         {/* ══ TAB: HISTORIQUE ══ */}
         {activeTab === 'historique' && (
           <div className="space-y-5">
-            {/* Donations */}
-            <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+            <div className="bg-card border border-border rounded-2xl p-5 space-y-3 shadow-card">
               <h2 className="font-semibold text-sm flex items-center gap-2"><Heart className="h-4 w-4 text-destructive" /> Historique des dons</h2>
               {dLoading ? <SkeletonRow count={3} /> : donations.length === 0 ? (
                 <p className="text-xs text-muted-foreground py-4 text-center">Aucun don pour le moment.</p>
@@ -543,8 +571,7 @@ export default function UserDashboard() {
               )}
             </div>
 
-            {/* Purchases */}
-            <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+            <div className="bg-card border border-border rounded-2xl p-5 space-y-3 shadow-card">
               <h2 className="font-semibold text-sm flex items-center gap-2"><ShoppingBag className="h-4 w-4 text-accent" /> Historique des achats</h2>
               {pLoading ? <SkeletonRow count={3} /> : purchases.length === 0 ? (
                 <p className="text-xs text-muted-foreground py-4 text-center">Aucun achat pour le moment.</p>
