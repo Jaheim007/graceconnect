@@ -52,6 +52,7 @@ import { AnnouncementForm } from "@/pages/admin/AdminAnnouncementForm";
 import { EventForm } from "@/pages/admin/AdminEventForm";
 import { CampaignForm } from "@/pages/admin/AdminCampaignForm";
 import { ProductForm } from "@/pages/admin/AdminProductForm";
+import AdminPromoCodes from "@/pages/admin/AdminPromoCodes";
 import AdminPhotos from "@/pages/admin/AdminPhotos";
 
 // Superadmin layout + pages
@@ -139,6 +140,7 @@ const App = () => (
                   <Route path="members" element={<AdminMembers />} />
                   <Route path="photos" element={<AdminPhotos />} />
                   <Route path="affiliation" element={<AdminAffiliation />} />
+                  <Route path="promo-codes" element={<AdminPromoCodes />} />
                   <Route path="analytics" element={<AdminAnalyticsPage />} />
                   <Route path="crm" element={<AdminCRM />} />
                   <Route path="programs" element={<AdminPrograms />} />

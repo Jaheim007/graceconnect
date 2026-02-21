@@ -21,6 +21,14 @@ export default function AuthPage() {
   const { userOrgs } = useOrg();
 
   const returnTo = searchParams.get('returnTo');
+  const inviteCode = searchParams.get('invite');
+
+  // Store invite code for post-registration referral tracking
+  useEffect(() => {
+    if (inviteCode) {
+      sessionStorage.setItem('sv_invite_code', inviteCode);
+    }
+  }, [inviteCode]);
 
   useEffect(() => {
     if (user) {
