@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useOrgBySlug } from '@/hooks/useOrganizations';
+import { useMyPurchases } from '@/hooks/usePurchases';
 import { useOrgMedia } from '@/hooks/useMedia';
 import { useOrgAnnouncements } from '@/hooks/useAnnouncements';
 import { useOrgEvents } from '@/hooks/useEvents';
@@ -52,6 +53,8 @@ export default function OrgPublicPage() {
   const { data: events = [] } = useOrgEvents(org?.id);
   const { data: campaigns = [] } = useOrgCampaigns(org?.id);
   const { data: products = [] } = useOrgProducts(org?.id);
+  const { data: purchases = [] } = useMyPurchases();
+  const purchasedProductIds = new Set(purchases.map(p => p.product_id));
 
   if (orgLoading) {
     return (
@@ -251,7 +254,7 @@ export default function OrgPublicPage() {
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {products.slice(0, 3).map((p, i) => (
-                    <ProductCard key={p.id} product={p} index={i} onPurchase={() => setPurchaseProduct(p)} />
+                    <ProductCard key={p.id} product={p} index={i} onPurchase={() => setPurchaseProduct(p)} isPurchased={purchasedProductIds.has(p.id)} />
                   ))}
                 </div>
               </section>
@@ -334,7 +337,7 @@ export default function OrgPublicPage() {
                   </p>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {products.map((p, i) => <ProductCard key={p.id} product={p} index={i} onPurchase={() => setPurchaseProduct(p)} />)}
+                  {products.map((p, i) => <ProductCard key={p.id} product={p} index={i} onPurchase={() => setPurchaseProduct(p)} isPurchased={purchasedProductIds.has(p.id)} />)}
                 </div>
               </>
             )}

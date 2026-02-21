@@ -71,10 +71,18 @@ Deno.serve(async (req) => {
     const fileBytes = new Uint8Array(await fileRes.arrayBuffer());
     const watermarkText = `Licensed to: ${user.email} | ${product_title || "Siteviral"}`;
 
+    // Build a safe ASCII filename for Content-Disposition
+    const safeFilename = (product_title || "document")
+      .replace(/[^\x20-\x7E]/g, "_") // Replace non-ASCII with underscore
+      .replace(/["\\/]/g, "_"); // Remove quotes/slashes
+
     // Determine disposition: inline for "Read Now", attachment for download
     const disposition = inline
-      ? `inline; filename="${encodeURIComponent(product_title || "document")}"`
-      : `attachment; filename="${encodeURIComponent(product_title || "document")}"`;
+      ? `inline; filename="${safeFilename}"`
+      : `attachment; filename="${safeFilename}"`;
+
+    // Safe watermark header (ASCII only)
+    const safeWatermarkHeader = watermarkText.replace(/[^\x20-\x7E]/g, "_");
 
     // For PDFs, inject watermark as PDF metadata (Author/Subject fields)
     // without touching content streams to avoid corruption
@@ -85,7 +93,7 @@ Deno.serve(async (req) => {
           ...corsHeaders,
           "Content-Type": "application/pdf",
           "Content-Disposition": disposition,
-          "X-Watermark": watermarkText,
+          "X-Watermark": safeWatermarkHeader,
         },
       });
     }
@@ -96,7 +104,7 @@ Deno.serve(async (req) => {
         ...corsHeaders,
         "Content-Type": contentType,
         "Content-Disposition": disposition,
-        "X-Watermark": watermarkText,
+        "X-Watermark": safeWatermarkHeader,
       },
     });
   } catch (err) {

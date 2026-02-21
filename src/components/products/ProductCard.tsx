@@ -1,16 +1,17 @@
 import { DigitalProduct } from '@/types/database';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingBag, Download, ExternalLink } from 'lucide-react';
+import { ShoppingBag, Download, ExternalLink, CheckCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ProductCardProps {
   product: DigitalProduct;
   onPurchase?: () => void;
   index?: number;
+  isPurchased?: boolean;
 }
 
-export function ProductCard({ product, onPurchase, index = 0 }: ProductCardProps) {
+export function ProductCard({ product, onPurchase, index = 0, isPurchased }: ProductCardProps) {
   const fmt = (n: number) =>
     n === 0 || product.is_free
       ? 'Free'
@@ -65,7 +66,11 @@ export function ProductCard({ product, onPurchase, index = 0 }: ProductCardProps
             </Badge>
           </div>
           <div className="flex items-center gap-1.5">
-            {product.external_link ? (
+            {isPurchased ? (
+              <Badge variant="outline" className="h-7 text-xs px-3 gap-1 text-green-500 border-green-500/30">
+                <CheckCircle className="h-3 w-3" /> Acheté
+              </Badge>
+            ) : product.external_link ? (
               <a href={product.external_link} target="_blank" rel="noreferrer">
                 <Button size="sm" className="h-7 text-xs px-3 gold-gradient text-primary-foreground border-0 shadow-gold gap-1">
                   <ExternalLink className="h-3 w-3" /> {product.is_free ? 'Open' : 'Get It'}
