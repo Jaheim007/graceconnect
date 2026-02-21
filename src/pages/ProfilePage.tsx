@@ -36,7 +36,7 @@ type Section = 'main' | 'edit-profile' | 'communities';
 
 export default function ProfilePage() {
   const { user, profile, signOut, refreshProfile } = useAuth();
-  const { userOrgs, leaveOrg } = useOrg();
+  const { userOrgs, leaveOrg, canManage, canAdmin, getRoleFor } = useOrg();
   const { theme, toggleTheme } = useTheme();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -104,7 +104,6 @@ export default function ProfilePage() {
   const accountItems = [
     { icon: User, label: 'Modifier le profil', sub: displayName, onClick: () => setActiveSection('edit-profile') },
     { icon: BookOpen, label: 'Mon Espace', sub: 'Achats & ressources', onClick: () => navigate('/dashboard') },
-    { icon: Lock, label: 'Mot de passe & sécurité', sub: '', onClick: () => toast({ title: 'Bientôt disponible', description: 'Cette fonctionnalité arrive prochainement.' }) },
     { icon: Bell, label: 'Notifications', sub: '', onClick: () => navigate('/notifications') },
     { icon: Globe, label: 'Langue', sub: 'Français', onClick: () => toast({ title: 'Bientôt disponible', description: 'Le changement de langue arrive prochainement.' }) },
   ];
@@ -278,29 +277,51 @@ export default function ProfilePage() {
               <p className="text-xs font-semibold text-primary uppercase tracking-wider">Mes communautés</p>
             </div>
             <div className="divide-y divide-border/50">
-              {userOrgs.map((org) => (
-                <div key={org.id} className="flex items-center gap-3.5 px-4 py-3.5">
-                  <div className="h-9 w-9 rounded-xl gold-gradient flex items-center justify-center shrink-0 shadow-gold overflow-hidden">
-                    {org.logo_url ? (
-                      <img src={org.logo_url} alt={org.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-xs font-bold text-primary-foreground">{org.name.slice(0, 2).toUpperCase()}</span>
-                    )}
+              {userOrgs.map((org) => {
+                const role = getRoleFor(org.id);
+                const roleLabels: Record<string, string> = {
+                  owner: 'Propriétaire',
+                  admin: 'Administrateur',
+                  editor: 'Éditeur',
+                  member: 'Membre',
+                  affiliate: 'Affilié',
+                };
+                const roleLabel = roleLabels[role || ''] || 'Membre';
+                const roleColor = role === 'owner'
+                  ? 'bg-primary/10 text-primary'
+                  : role === 'admin'
+                  ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                  : 'bg-muted text-muted-foreground';
+
+                return (
+                  <div key={org.id} className="flex items-center gap-3.5 px-4 py-3.5">
+                    <div className="h-9 w-9 rounded-xl gold-gradient flex items-center justify-center shrink-0 shadow-gold overflow-hidden">
+                      {org.logo_url ? (
+                        <img src={org.logo_url} alt={org.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-xs font-bold text-primary-foreground">{org.name.slice(0, 2).toUpperCase()}</span>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{org.name}</p>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className={cn('text-[10px] px-1.5 py-0.5 rounded-md font-medium', roleColor)}>
+                          {roleLabel}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground capitalize">{org.category}</span>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs text-destructive hover:text-destructive hover:bg-destructive/10 h-7"
+                      onClick={() => leaveOrg(org.id)}
+                    >
+                      Quitter
+                    </Button>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{org.name}</p>
-                    <p className="text-[10px] text-muted-foreground capitalize">{org.category}</p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs text-destructive hover:text-destructive hover:bg-destructive/10 h-7"
-                    onClick={() => leaveOrg(org.id)}
-                  >
-                    Quitter
-                  </Button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </motion.div>
         )}

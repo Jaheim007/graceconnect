@@ -24,6 +24,7 @@ interface OrgContextType {
   isMemberOf: (orgId: string) => boolean;
   canManage: (orgId: string) => boolean;
   canAdmin: (orgId: string) => boolean;
+  getRoleFor: (orgId: string) => OrgMemberRole | null;
 }
 
 const OrgContext = createContext<OrgContextType | undefined>(undefined);
@@ -134,7 +135,8 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     ['owner', 'admin', 'editor'].includes(membershipMap[orgId] || '');
   const canAdmin = (orgId: string) =>
     ['owner', 'admin'].includes(membershipMap[orgId] || '');
-
+  const getRoleFor = (orgId: string): OrgMemberRole | null =>
+    (membershipMap[orgId] as OrgMemberRole) ?? null;
   return (
     <OrgContext.Provider
       value={{
@@ -149,6 +151,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         isMemberOf,
         canManage,
         canAdmin,
+        getRoleFor,
       }}
     >
       {children}
