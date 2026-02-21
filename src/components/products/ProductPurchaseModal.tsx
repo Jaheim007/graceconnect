@@ -134,7 +134,8 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                 </span>
               </div>
 
-              {!product.is_free && (
+              {/* Only show payment recap when paying on platform (has file, no external link) */}
+              {!product.is_free && !product.external_link && (
                 <div className="rounded-lg bg-muted/50 p-3 text-sm space-y-1">
                   <p className="text-muted-foreground text-xs">Récapitulatif :</p>
                   <div className="flex justify-between"><span>Prix</span><span>{fmt(product.price)}</span></div>
@@ -146,18 +147,30 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Lock className="h-3 w-3" />
-                {product.is_free ? 'Accès immédiat après téléchargement' : 'Paiement sécurisé via Paystack'}
+                {product.external_link
+                  ? 'Vous serez redirigé vers le lien externe'
+                  : product.is_free
+                    ? 'Accès immédiat après téléchargement'
+                    : 'Paiement sécurisé via Paystack'}
               </div>
             </div>
 
             <div className="flex gap-2">
               <Button variant="outline" onClick={handleClose} className="flex-1">Annuler</Button>
-              <Button
-                onClick={handlePurchase}
-                className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold"
-              >
-                {product.is_free ? 'Accéder gratuitement' : `Payer ${fmt(product.price)}`}
-              </Button>
+              {product.external_link ? (
+                <a href={product.external_link} target="_blank" rel="noreferrer" className="flex-1">
+                  <Button className="w-full gold-gradient text-primary-foreground border-0 shadow-gold gap-1.5">
+                    <ExternalLink className="h-4 w-4" /> Accéder au contenu
+                  </Button>
+                </a>
+              ) : (
+                <Button
+                  onClick={handlePurchase}
+                  className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold"
+                >
+                  {product.is_free ? 'Accéder gratuitement' : `Payer ${fmt(product.price)}`}
+                </Button>
+              )}
             </div>
           </>
         )}

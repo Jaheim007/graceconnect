@@ -209,11 +209,20 @@
   animation: shimmer 1.5s infinite;
 }
 
-/* Ensure Paystack popup appears above app modals */
+/* Ensure Paystack popup appears above ALL layers */
+#paystack-checkout,
+#paystack-checkout ~ div,
 iframe[name="checkout"],
 iframe[src*="paystack"],
 div[id*="paystack"],
-.paystack-inline-frame {
-  z-index: 99999 !important;
-  position: relative !important;
+.paystack-inline-frame,
+div[style*="2147483647"],
+div[style*="z-index: 999999"] {
+  z-index: 2147483647 !important;
+  position: fixed !important;
+}
+
+/* Paystack backdrop must also be on top */
+body > div[style*="position: fixed"][style*="background"] {
+  z-index: 2147483646 !important;
 }

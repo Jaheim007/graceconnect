@@ -65,20 +65,21 @@ export function ProductCard({ product, onPurchase, index = 0 }: ProductCardProps
             </Badge>
           </div>
           <div className="flex items-center gap-1.5">
-            {product.external_link && !product.file_url && (product.is_free || product.price === 0) && (
+            {product.external_link ? (
               <a href={product.external_link} target="_blank" rel="noreferrer">
-                <Button size="sm" variant="outline" className="h-7 text-xs px-2 gap-1">
-                  <ExternalLink className="h-3 w-3" /> Open
+                <Button size="sm" className="h-7 text-xs px-3 gold-gradient text-primary-foreground border-0 shadow-gold gap-1">
+                  <ExternalLink className="h-3 w-3" /> {product.is_free ? 'Open' : 'Get It'}
                 </Button>
               </a>
+            ) : (
+              <Button
+                size="sm"
+                onClick={onPurchase}
+                className="h-7 text-xs px-3 gold-gradient text-primary-foreground border-0 shadow-gold"
+              >
+                {product.is_free ? 'Get Free' : 'Buy Now'}
+              </Button>
             )}
-            <Button
-              size="sm"
-              onClick={onPurchase}
-              className="h-7 text-xs px-3 gold-gradient text-primary-foreground border-0 shadow-gold"
-            >
-              {product.is_free ? 'Get Free' : 'Buy Now'}
-            </Button>
           </div>
         </div>
       </div>
