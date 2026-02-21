@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { DigitalProduct } from '@/types/database';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
@@ -40,6 +41,8 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const { user, profile } = useAuth();
   const { openPayment } = usePaystack();
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
 
   // Buyer info form state — pre-filled from profile
   const [buyerInfo, setBuyerInfo] = useState<BuyerInfo>({
@@ -68,7 +71,13 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   };
 
   const handleConfirmToBuyerInfo = () => {
-    // Pre-fill from profile if available (user may not be logged in)
+    if (!user) {
+      // Close modal and redirect to auth with return URL
+      handleClose();
+      navigate(`/auth?returnTo=${encodeURIComponent(pathname)}`);
+      return;
+    }
+    // Pre-fill from profile if available
     setBuyerInfo(prev => ({
       name: prev.name || profile?.display_name || '',
       email: prev.email || user?.email || '',
