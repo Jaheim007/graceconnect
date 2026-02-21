@@ -130,8 +130,7 @@ export default function AdminDashboard() {
       )}
 
       {/* Revenue cards — only when there are transactions */}
-      {allTxns.length > 0 && (
-        <motion.div
+      <motion.div
           variants={stagger}
           initial="hidden"
           animate="visible"
@@ -156,7 +155,6 @@ export default function AdminDashboard() {
             </motion.div>
           ))}
         </motion.div>
-      )}
 
       {/* Stats grid */}
       <motion.div
