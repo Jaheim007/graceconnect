@@ -34,6 +34,7 @@ const fadeUp = { hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0 } };
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,6 +44,9 @@ export default function LandingPage() {
           <span className="text-xl font-extrabold tracking-tight italic text-gold">Siteviral</span>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" asChild><Link to="/about">À propos</Link></Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
+              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </Button>
             <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>Connexion</Button>
             <Button
               size="sm"
