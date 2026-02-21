@@ -21,6 +21,13 @@ import { db } from '@/lib/db';
 import { supabase } from '@/integrations/supabase/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { motion } from 'framer-motion';
+
+const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
+const fadeUp = {
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 26 } },
+};
 
 function useOrgAffiliateLinks(orgId: string | undefined) {
   return useQuery({
@@ -45,42 +52,37 @@ export function AdminAnnouncements() {
   const { data: items = [], isLoading } = useOrgAnnouncements(currentOrg?.id, false);
   const del = useDeleteAnnouncement();
   return (
-    <AdminPageShell title="Announcements" newRoute="/admin/announcements/new" backRoute="/admin">
+    <AdminPageShell title="Annonces" newRoute="/admin/announcements/new" newLabel="Nouvelle annonce" backRoute="/admin">
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
-        <EmptyState variant="generic" title="No announcements" action={{ label: 'Create first', onClick: () => navigate('/admin/announcements/new') }} />
+        <EmptyState variant="generic" title="Aucune annonce" action={{ label: 'Créer une annonce', onClick: () => navigate('/admin/announcements/new') }} />
       ) : (
-        <div className="space-y-2">
-          {items.map(a => (
-            <div key={a.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:border-border/80 transition-colors">
-              {a.is_pinned && <span className="text-sm shrink-0">📌</span>}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{a.title}</p>
-                <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{a.body}</p>
-              </div>
-              <Badge
-                variant="outline"
-                className={cn('text-[10px] shrink-0 border-0', a.is_published ? 'bg-green-500/10 text-green-600 dark:text-green-400' : 'bg-muted text-muted-foreground')}
-              >
-                {a.is_published ? 'Live' : 'Draft'}
-              </Badge>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 shrink-0"
-                onClick={() => navigate(`/admin/announcements/${a.id}/edit`)}
-              >
-                <Pencil className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 text-destructive shrink-0"
-                onClick={async () => { await del.mutateAsync({ id: a.id, orgId: currentOrg!.id }); toast({ title: 'Deleted' }); }}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          ))}
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+          <h2 className="font-semibold text-sm">{items.length} annonce{items.length > 1 ? 's' : ''}</h2>
+          <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
+            {items.map(a => (
+              <motion.div key={a.id} variants={fadeUp} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all group">
+                {a.is_pinned && <span className="text-sm shrink-0">📌</span>}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{a.title}</p>
+                  <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{a.body}</p>
+                </div>
+                <Badge
+                  variant="outline"
+                  className={cn('text-[10px] shrink-0 border-0', a.is_published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}
+                >
+                  {a.is_published ? 'Publié' : 'Brouillon'}
+                </Badge>
+                <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate(`/admin/announcements/${a.id}/edit`)}>
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" onClick={async () => { await del.mutateAsync({ id: a.id, orgId: currentOrg!.id }); toast({ title: 'Supprimé' }); }}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       )}
     </AdminPageShell>
@@ -94,44 +96,44 @@ export function AdminEvents() {
   const { data: items = [], isLoading } = useOrgEvents(currentOrg?.id, false);
   const del = useDeleteEvent();
   return (
-    <AdminPageShell title="Events" newRoute="/admin/events/new" backRoute="/admin">
+    <AdminPageShell title="Événements" newRoute="/admin/events/new" newLabel="Nouvel événement" backRoute="/admin">
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
-        <EmptyState variant="generic" title="No events" action={{ label: 'Create event', onClick: () => navigate('/admin/events/new') }} />
+        <EmptyState variant="generic" title="Aucun événement" action={{ label: 'Créer un événement', onClick: () => navigate('/admin/events/new') }} />
       ) : (
-        <div className="space-y-2">
-          {items.map(ev => (
-            <div key={ev.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:border-border/80 transition-colors">
-              <div className="h-9 w-9 rounded-lg gold-gradient flex items-center justify-center shrink-0">
-                <span className="text-xs font-bold text-primary-foreground">
-                  {ev.event_date ? new Date(ev.event_date).getDate() : '?'}
-                </span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{ev.title}</p>
-                <p className="text-xs text-muted-foreground">
-                  {ev.event_date ? new Date(ev.event_date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric', year: 'numeric' }) : 'TBA'}
-                  {ev.location ? ` · ${ev.location}` : ''}
-                </p>
-              </div>
-              <Badge
-                variant="outline"
-                className={cn('text-[10px] shrink-0 border-0', ev.is_published ? 'bg-green-500/10 text-green-600 dark:text-green-400' : 'bg-muted text-muted-foreground')}
-              >
-                {ev.is_published ? 'Live' : 'Draft'}
-              </Badge>
-              <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => navigate(`/admin/events/${ev.id}/edit`)}>
-                <Pencil className="h-3.5 w-3.5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 text-destructive shrink-0"
-                onClick={async () => { await del.mutateAsync({ id: ev.id, orgId: currentOrg!.id }); toast({ title: 'Deleted' }); }}
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          ))}
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+          <h2 className="font-semibold text-sm">{items.length} événement{items.length > 1 ? 's' : ''}</h2>
+          <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
+            {items.map(ev => (
+              <motion.div key={ev.id} variants={fadeUp} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all group">
+                <div className="h-10 w-10 rounded-xl gold-gradient flex items-center justify-center shrink-0">
+                  <span className="text-xs font-bold text-primary-foreground">
+                    {ev.event_date ? new Date(ev.event_date).getDate() : '?'}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{ev.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {ev.event_date ? new Date(ev.event_date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric', year: 'numeric' }) : 'À définir'}
+                    {ev.location ? ` · ${ev.location}` : ''}
+                  </p>
+                </div>
+                <Badge
+                  variant="outline"
+                  className={cn('text-[10px] shrink-0 border-0', ev.is_published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}
+                >
+                  {ev.is_published ? 'Publié' : 'Brouillon'}
+                </Badge>
+                <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate(`/admin/events/${ev.id}/edit`)}>
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" onClick={async () => { await del.mutateAsync({ id: ev.id, orgId: currentOrg!.id }); toast({ title: 'Supprimé' }); }}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       )}
     </AdminPageShell>
@@ -143,47 +145,44 @@ export function AdminCampaigns() {
   const { data: items = [], isLoading } = useOrgCampaigns(currentOrg?.id, false);
   const navigate = useNavigate();
   return (
-    <AdminPageShell title="Donation Campaigns" newRoute="/admin/campaigns/new" backRoute="/admin">
+    <AdminPageShell title="Campagnes de dons" newRoute="/admin/campaigns/new" newLabel="Nouvelle campagne" backRoute="/admin">
       {currentOrg?.kyc_status === 'none' && (
         <div className="p-3 rounded-xl bg-primary/8 border border-primary/20 text-xs text-foreground mb-3 flex items-center gap-2">
           <span>💡</span>
-          <span className="text-muted-foreground">Submit KYC before requesting a payout. Accepting donations is available now.</span>
+          <span className="text-muted-foreground">Soumettez le KYC avant de demander un retrait. Les dons sont déjà acceptés.</span>
           <Button size="sm" variant="ghost" className="h-6 text-xs ml-auto text-primary" onClick={() => navigate('/admin/kyc')}>
-            Submit KYC →
+            Soumettre KYC →
           </Button>
         </div>
       )}
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
-        <EmptyState variant="campaigns" action={{ label: 'New campaign', onClick: () => navigate('/admin/campaigns/new') }} />
+        <EmptyState variant="campaigns" action={{ label: 'Nouvelle campagne', onClick: () => navigate('/admin/campaigns/new') }} />
       ) : (
-        <div className="space-y-2">
-          {items.map(c => (
-            <div key={c.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:border-border/80 transition-colors">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{c.title}</p>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <div className="h-1.5 flex-1 max-w-24 rounded-full bg-muted overflow-hidden">
-                    <div
-                      className="h-full gold-gradient rounded-full"
-                      style={{ width: c.goal_amount ? `${Math.min(100, (c.current_amount / c.goal_amount) * 100)}%` : '0%' }}
-                    />
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+          <h2 className="font-semibold text-sm">{items.length} campagne{items.length > 1 ? 's' : ''}</h2>
+          <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
+            {items.map(c => (
+              <motion.div key={c.id} variants={fadeUp} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all group">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{c.title}</p>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <div className="h-1.5 flex-1 max-w-24 rounded-full bg-muted overflow-hidden">
+                      <div className="h-full gold-gradient rounded-full" style={{ width: c.goal_amount ? `${Math.min(100, (c.current_amount / c.goal_amount) * 100)}%` : '0%' }} />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {c.current_amount.toLocaleString('fr-FR')} / {c.goal_amount?.toLocaleString('fr-FR') || '∞'} {c.currency}
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    {c.current_amount.toLocaleString()} / {c.goal_amount?.toLocaleString() || '∞'} {c.currency}
-                  </p>
                 </div>
-              </div>
-              <Badge
-                variant="outline"
-                className={cn('text-[10px] border-0 shrink-0', c.is_active ? 'bg-green-500/10 text-green-600 dark:text-green-400' : 'bg-muted text-muted-foreground')}
-              >
-                {c.is_active ? 'Active' : 'Inactive'}
-              </Badge>
-              <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => navigate(`/admin/campaigns/${c.id}/edit`)}>
-                <Pencil className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          ))}
+                <Badge variant="outline" className={cn('text-[10px] border-0 shrink-0', c.is_active ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}>
+                  {c.is_active ? 'Active' : 'Inactive'}
+                </Badge>
+                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" onClick={() => navigate(`/admin/campaigns/${c.id}/edit`)}>
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       )}
     </AdminPageShell>
@@ -195,37 +194,37 @@ export function AdminProducts() {
   const { data: items = [], isLoading } = useOrgProducts(currentOrg?.id, false);
   const navigate = useNavigate();
   return (
-    <AdminPageShell title="Digital Store" newRoute="/admin/products/new" backRoute="/admin">
+    <AdminPageShell title="Boutique digitale" newRoute="/admin/products/new" newLabel="Nouveau produit" backRoute="/admin">
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
-        <EmptyState variant="purchases" title="No products" action={{ label: 'New product', onClick: () => navigate('/admin/products/new') }} />
+        <EmptyState variant="purchases" title="Aucun produit" action={{ label: 'Nouveau produit', onClick: () => navigate('/admin/products/new') }} />
       ) : (
-        <div className="space-y-2">
-          {items.map(p => (
-            <div key={p.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:border-border/80 transition-colors">
-              <div className="h-10 w-10 rounded-lg bg-muted shrink-0 overflow-hidden">
-                {p.cover_image_url ? (
-                  <img src={p.cover_image_url} alt={p.title} className="w-full h-full object-cover" />
-                ) : (
-                  <div className="w-full h-full gold-gradient opacity-60" />
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{p.title}</p>
-                <p className="text-xs text-muted-foreground">
-                  {p.is_free ? 'Free' : `${p.price?.toLocaleString()} ${p.currency}`} · {p.sales_count || 0} sales
-                </p>
-              </div>
-              <Badge
-                variant="outline"
-                className={cn('text-[10px] border-0 shrink-0', p.is_published ? 'bg-green-500/10 text-green-600 dark:text-green-400' : 'bg-muted text-muted-foreground')}
-              >
-                {p.is_published ? 'Live' : 'Draft'}
-              </Badge>
-              <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => navigate(`/admin/products/${p.id}/edit`)}>
-                <Pencil className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          ))}
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+          <h2 className="font-semibold text-sm">{items.length} produit{items.length > 1 ? 's' : ''}</h2>
+          <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
+            {items.map(p => (
+              <motion.div key={p.id} variants={fadeUp} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all group">
+                <div className="h-10 w-10 rounded-xl bg-muted shrink-0 overflow-hidden">
+                  {p.cover_image_url ? (
+                    <img src={p.cover_image_url} alt={p.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full gold-gradient opacity-60" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{p.title}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {p.is_free ? 'Gratuit' : `${p.price?.toLocaleString('fr-FR')} ${p.currency}`} · {p.sales_count || 0} vente{(p.sales_count || 0) > 1 ? 's' : ''}
+                  </p>
+                </div>
+                <Badge variant="outline" className={cn('text-[10px] border-0 shrink-0', p.is_published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}>
+                  {p.is_published ? 'Publié' : 'Brouillon'}
+                </Badge>
+                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" onClick={() => navigate(`/admin/products/${p.id}/edit`)}>
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
+              </motion.div>
+            ))}
+          </motion.div>
         </div>
       )}
     </AdminPageShell>
@@ -243,12 +242,12 @@ export function AdminMembers() {
   const handleCopyInvite = async () => {
     await navigator.clipboard.writeText(inviteUrl);
     setCopiedInvite(true);
-    toast({ title: 'Invite link copied!' });
+    toast({ title: 'Lien d\'invitation copié !' });
     setTimeout(() => setCopiedInvite(false), 2000);
   };
 
   return (
-    <AdminPageShell title="Members" backRoute="/admin">
+    <AdminPageShell title="Membres" backRoute="/admin">
       <div className="space-y-4">
         {/* How members join explanation */}
         <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
@@ -257,9 +256,9 @@ export function AdminMembers() {
               <UserPlus className="h-4 w-4 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm">How members join</p>
+              <p className="font-semibold text-sm">Comment rejoindre</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Share your organization's public page link. Users who visit and click "Join" will appear here automatically.
+                Partagez le lien de votre page publique. Les visiteurs qui cliquent « Rejoindre » apparaîtront ici.
               </p>
             </div>
           </div>
@@ -273,25 +272,28 @@ export function AdminMembers() {
 
         {/* Members list */}
         {isLoading ? <SkeletonRow /> : members.length === 0 ? (
-          <EmptyState variant="members" title="No members yet" description="Share your invite link above to grow your community." />
+          <EmptyState variant="members" title="Aucun membre" description="Partagez votre lien d'invitation ci-dessus pour agrandir votre communauté." />
         ) : (
-          <div className="space-y-2">
-            {(members as any[]).map((m) => (
-              <div key={m.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:border-border/80 transition-colors">
-                <div className="h-9 w-9 rounded-full gold-gradient flex items-center justify-center shrink-0">
-                  <span className="text-xs font-bold text-primary-foreground">
-                    {(m.profiles?.display_name || 'U')[0].toUpperCase()}
-                  </span>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{m.profiles?.display_name || 'User'}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Joined {new Date(m.joined_at).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })}
-                  </p>
-                </div>
-                <Badge variant="secondary" className="text-[10px] capitalize">{m.role}</Badge>
-              </div>
-            ))}
+          <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+            <h2 className="font-semibold text-sm">{members.length} membre{members.length > 1 ? 's' : ''}</h2>
+            <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
+              {(members as any[]).map((m) => (
+                <motion.div key={m.id} variants={fadeUp} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all">
+                  <div className="h-10 w-10 rounded-full gold-gradient flex items-center justify-center shrink-0">
+                    <span className="text-xs font-bold text-primary-foreground">
+                      {(m.profiles?.display_name || 'U')[0].toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{m.profiles?.display_name || 'Utilisateur'}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Rejoint {new Date(m.joined_at).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })}
+                    </p>
+                  </div>
+                  <Badge variant="secondary" className="text-[10px] capitalize">{m.role}</Badge>
+                </motion.div>
+              ))}
+            </motion.div>
           </div>
         )}
       </div>
@@ -305,7 +307,7 @@ function AffiliateCopyButton({ text }: { text: string }) {
   const handleCopy = async () => {
     await navigator.clipboard.writeText(text);
     setCopied(true);
-    toast({ title: 'Link copied!' });
+    toast({ title: 'Lien copié !' });
     setTimeout(() => setCopied(false), 2000);
   };
   return (
@@ -383,17 +385,17 @@ export function AdminAffiliation() {
 
   if (!currentOrg?.affiliation_enabled) {
     return (
-      <AdminPageShell title="Affiliation Program" backRoute="/admin">
+      <AdminPageShell title="Programme d'affiliation" backRoute="/admin">
         <div className="p-8 rounded-2xl border border-border bg-card text-center space-y-3">
           <div className="h-12 w-12 rounded-2xl bg-muted flex items-center justify-center mx-auto">
             <Link2 className="h-6 w-6 text-muted-foreground" />
           </div>
-          <p className="font-semibold">Affiliation not enabled</p>
+          <p className="font-semibold">Affiliation non activée</p>
           <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-            Go to Settings to enable the affiliation program and set a commission rate for your members.
+            Allez dans les Paramètres pour activer le programme d'affiliation et définir un taux de commission.
           </p>
           <Button size="sm" className="gold-gradient text-primary-foreground border-0" onClick={() => navigate('/admin/settings')}>
-            Enable in Settings →
+            Activer dans les Paramètres →
           </Button>
         </div>
       </AdminPageShell>
@@ -410,33 +412,33 @@ export function AdminAffiliation() {
 
   // Helper: get member display name with fallback
   const getMemberName = (m: any) =>
-    m.profiles?.display_name?.trim() || `Member ${m.user_id.slice(0, 6).toUpperCase()}`;
+    m.profiles?.display_name?.trim() || `Membre ${m.user_id.slice(0, 6).toUpperCase()}`;
 
   return (
-    <AdminPageShell title="Affiliation Program" backRoute="/admin">
+    <AdminPageShell title="Programme d'affiliation" backRoute="/admin">
       <div className="space-y-4">
         {/* How it works */}
         <div className="bg-primary/8 border border-primary/20 rounded-2xl p-4 space-y-2">
-          <p className="font-semibold text-sm">💡 How the Affiliation System Works</p>
+          <p className="font-semibold text-sm">💡 Comment fonctionne l'affiliation</p>
           <ol className="space-y-1.5 text-xs text-muted-foreground list-none">
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">1.</span>Members join via the public page. They can also <strong>self-request</strong> the affiliate role from their dashboard.</li>
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">2.</span>You approve them here — they instantly get a unique referral link.</li>
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">3.</span>They share their link. When someone donates or buys through it, they earn <strong>{currentOrg.affiliation_commission_percent}%</strong>.</li>
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">4.</span>After 72h commissions become payable. They withdraw from their dashboard (KYC required).</li>
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">1.</span>Les membres rejoignent via la page publique. Ils peuvent aussi <strong>demander</strong> le rôle d'affilié depuis leur tableau de bord.</li>
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">2.</span>Vous les approuvez ici — ils reçoivent instantanément un lien de parrainage unique.</li>
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">3.</span>Ils partagent leur lien. Quand quelqu'un donne ou achète via ce lien, ils gagnent <strong>{currentOrg.affiliation_commission_percent}%</strong>.</li>
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">4.</span>Après 72h, les commissions deviennent retirables depuis leur tableau de bord (KYC requis).</li>
           </ol>
         </div>
 
         {/* Commission rate + stats bar */}
         <div className="bg-card border border-border rounded-2xl p-4 flex items-center justify-between">
           <div>
-            <p className="text-xs text-muted-foreground">Commission Rate</p>
+            <p className="text-xs text-muted-foreground">Taux de commission</p>
             <p className="text-2xl font-bold text-primary">{currentOrg.affiliation_commission_percent}%</p>
-            <p className="text-xs text-muted-foreground">per sale/donation via affiliate link</p>
+            <p className="text-xs text-muted-foreground">par vente/don via lien affilié</p>
           </div>
           <div className="flex flex-col items-end gap-2">
-            <Badge variant="secondary" className="text-[10px]">{activeAffiliates.length} active affiliate{activeAffiliates.length !== 1 ? 's' : ''}</Badge>
+            <Badge variant="secondary" className="text-[10px]">{activeAffiliates.length} affilié{activeAffiliates.length !== 1 ? 's' : ''} actif{activeAffiliates.length !== 1 ? 's' : ''}</Badge>
             <Button size="sm" variant="outline" className="text-xs" onClick={() => navigate('/admin/settings')}>
-              Change Rate
+              Modifier le taux
             </Button>
           </div>
         </div>
@@ -444,7 +446,7 @@ export function AdminAffiliation() {
         {/* Active affiliates */}
         {activeAffiliates.length > 0 && (
           <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-            <h2 className="font-semibold text-sm">Active Affiliates ({activeAffiliates.length})</h2>
+            <h2 className="font-semibold text-sm">Affiliés actifs ({activeAffiliates.length})</h2>
             <div className="space-y-2">
               {activeAffiliates.map((m) => {
                 const existingLink = (existingLinks as any[]).find(l => l.user_id === m.user_id && l.is_active !== false);
@@ -461,7 +463,7 @@ export function AdminAffiliation() {
                         </div>
                         <div>
                           <p className="text-sm font-medium leading-tight">{name}</p>
-                          <Badge variant="secondary" className="text-[10px] bg-primary/15 text-primary mt-0.5">Affiliate</Badge>
+                          <Badge variant="secondary" className="text-[10px] bg-primary/15 text-primary mt-0.5">Affilié</Badge>
                         </div>
                       </div>
                       <Button
@@ -471,7 +473,7 @@ export function AdminAffiliation() {
                         disabled={revokeAffiliate.isPending}
                         onClick={() => revokeAffiliate.mutate({ memberId: m.id, memberUserId: m.user_id })}
                       >
-                        Revoke
+                        Révoquer
                       </Button>
                     </div>
                     {shareUrl ? (
@@ -484,12 +486,12 @@ export function AdminAffiliation() {
                           <span>👆 {existingLink?.clicks || 0} clicks</span>
                           <span>✅ {existingLink?.conversions || 0} conversions</span>
                           <span className="text-primary font-semibold ml-auto">
-                            {(existingLink?.total_earned || 0).toLocaleString('fr-FR')} {currentOrg.currency} earned
+                            {(existingLink?.total_earned || 0).toLocaleString('fr-FR')} {currentOrg.currency} gagnés
                           </span>
                         </div>
                       </>
                     ) : (
-                      <p className="text-[10px] text-muted-foreground italic">Generating link…</p>
+                      <p className="text-[10px] text-muted-foreground italic">Génération du lien…</p>
                     )}
                   </div>
                 );
@@ -501,9 +503,9 @@ export function AdminAffiliation() {
         {/* Members to assign */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
           <div>
-            <h2 className="font-semibold text-sm">Members — Assign Affiliate Role</h2>
+            <h2 className="font-semibold text-sm">Membres — Assigner le rôle affilié</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Click "Make Affiliate" to generate a unique referral link for any member.
+              Cliquez « Rendre affilié » pour générer un lien de parrainage unique.
             </p>
           </div>
 
@@ -512,17 +514,17 @@ export function AdminAffiliation() {
           ) : allOtherMembers.length === 0 ? (
             <div className="py-6 text-center space-y-2">
               <UserPlus className="h-8 w-8 text-muted-foreground/40 mx-auto" />
-              <p className="text-sm font-medium text-muted-foreground">No members yet</p>
+              <p className="text-sm font-medium text-muted-foreground">Aucun membre</p>
               <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                Share your organization's public link so people can join. Once they join, you can make them affiliates here.
+                Partagez le lien de votre page publique pour que les gens puissent rejoindre. Une fois inscrits, vous pouvez les rendre affiliés ici.
               </p>
               <Button size="sm" variant="outline" className="text-xs mt-2" onClick={() => navigate('/admin/members')}>
-                Go to Members →
+                Voir les membres →
               </Button>
             </div>
           ) : regularMembers.length === 0 ? (
             <p className="text-xs text-muted-foreground text-center py-4">
-              All members are already affiliates. ✅
+              Tous les membres sont déjà affiliés. ✅
             </p>
           ) : (
             <div className="space-y-2">
@@ -543,7 +545,7 @@ export function AdminAffiliation() {
                       disabled={assignAffiliate.isPending}
                       onClick={() => assignAffiliate.mutate({ memberId: m.id, memberUserId: m.user_id, memberName: name })}
                     >
-                      Make Affiliate
+                      Rendre affilié
                     </Button>
                   </div>
                 );
@@ -558,14 +560,14 @@ export function AdminAffiliation() {
 
 export function AdminAnalytics() {
   return (
-    <AdminPageShell title="Analytics" backRoute="/admin">
+    <AdminPageShell title="Analytiques" backRoute="/admin">
       <div className="grid grid-cols-2 gap-3">
-        {['Total Views', 'Total Donations', 'Total Revenue', 'Active Members'].map((label) => (
-          <div key={label} className="bg-card border border-border rounded-2xl p-5 shadow-card">
+        {['Vues totales', 'Total des dons', 'Revenus totaux', 'Membres actifs'].map((label) => (
+          <motion.div key={label} variants={fadeUp} initial="hidden" animate="visible" className="bg-card border border-border rounded-2xl p-5 shadow-card">
             <p className="text-2xl font-bold text-muted-foreground">—</p>
             <p className="text-xs font-medium mt-0.5">{label}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Analytics coming soon</p>
-          </div>
+            <p className="text-[10px] text-muted-foreground mt-1">Bientôt disponible</p>
+          </motion.div>
         ))}
       </div>
     </AdminPageShell>
@@ -577,14 +579,14 @@ export function AdminKYC() {
   const isApproved = currentOrg?.kyc_status === 'level1' || currentOrg?.kyc_status === 'level2';
   const isPending = currentOrg?.kyc_status === 'pending';
   return (
-    <AdminPageShell title="KYC Verification" backRoute="/admin">
+    <AdminPageShell title="Vérification KYC" backRoute="/admin">
       <div className="space-y-4">
         {/* Info banner */}
         <div className="p-4 rounded-2xl border border-primary/20 bg-primary/8">
-          <p className="font-semibold text-sm mb-1">💡 KYC is only required for payouts</p>
+          <p className="font-semibold text-sm mb-1">💡 Le KYC est requis uniquement pour les retraits</p>
           <p className="text-xs text-muted-foreground">
-            You can accept donations, sell products, and run affiliate programs without completing KYC.
-            KYC verification is only needed when you want to withdraw your earnings.
+            Vous pouvez accepter les dons, vendre des produits et gérer le programme d'affiliation sans KYC.
+            La vérification KYC est nécessaire uniquement pour retirer vos revenus.
           </p>
         </div>
 
@@ -594,31 +596,31 @@ export function AdminKYC() {
         )}>
           <div className="flex items-center gap-2 mb-1">
             <span>{isApproved ? '✅' : isPending ? '⏳' : '📋'}</span>
-            <p className="font-semibold text-sm">KYC Status: <span className="capitalize">{currentOrg?.kyc_status || 'none'}</span></p>
+            <p className="font-semibold text-sm">Statut KYC : <span className="capitalize">{currentOrg?.kyc_status || 'aucun'}</span></p>
           </div>
           <p className="text-xs text-muted-foreground">
             {isApproved
-              ? 'KYC approved. You can now request payouts to your bank account.'
+              ? 'KYC approuvé. Vous pouvez maintenant demander des retraits sur votre compte bancaire.'
               : isPending
-              ? 'Your submission is under review. We typically respond within 48 hours.'
-              : 'Submit your KYC documents to enable payout withdrawals.'}
+              ? 'Votre soumission est en cours de vérification. Nous répondons généralement sous 48h.'
+              : 'Soumettez vos documents KYC pour activer les retraits.'}
           </p>
         </div>
 
         {!isApproved && (
           <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-            <h2 className="font-semibold text-sm">Required Documents for Payout</h2>
+            <h2 className="font-semibold text-sm">Documents requis pour les retraits</h2>
             <ul className="space-y-2 text-xs text-muted-foreground">
-              <li className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold shrink-0">1</span> Government-issued ID (passport, national card)</li>
-              <li className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold shrink-0">2</span> Organization registration certificate</li>
-              <li className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold shrink-0">3</span> Bank account details for payouts</li>
+              <li className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold shrink-0">1</span> Pièce d'identité (passeport, carte nationale)</li>
+              <li className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold shrink-0">2</span> Certificat d'enregistrement de l'organisation</li>
+              <li className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold shrink-0">3</span> Coordonnées bancaires pour les retraits</li>
             </ul>
             <Button
               size="sm"
               className="gold-gradient text-primary-foreground border-0 shadow-gold"
               disabled={isPending}
             >
-              {isPending ? '⏳ Under Review...' : 'Submit Documents'}
+              {isPending ? '⏳ En cours de vérification…' : 'Soumettre les documents'}
             </Button>
           </div>
         )}
@@ -767,7 +769,7 @@ export function AdminSettings() {
 
           {/* Banner upload */}
           <div className="space-y-2">
-            <Label className="text-xs font-medium">Banner Image</Label>
+            <Label className="text-xs font-medium">Image de bannière</Label>
             <div
               className="relative h-32 rounded-xl overflow-hidden border-2 border-dashed border-border bg-muted/40 cursor-pointer group"
               onClick={() => document.getElementById('banner-upload')?.click()}
@@ -776,11 +778,11 @@ export function AdminSettings() {
                 ? <img src={bannerUrl} alt="Banner" className="w-full h-full object-cover" />
                 : <div className="w-full h-full flex flex-col items-center justify-center gap-1">
                     <span className="text-2xl">🖼️</span>
-                    <span className="text-xs text-muted-foreground">Click to upload banner (16:9 recommended)</span>
+                    <span className="text-xs text-muted-foreground">Cliquez pour télécharger la bannière (16:9 recommandé)</span>
                   </div>
               }
               <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span className="text-white text-xs font-medium">Change Banner</span>
+                <span className="text-white text-xs font-medium">Changer la bannière</span>
               </div>
               <input id="banner-upload" type="file" accept="image/*" className="hidden"
                 onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadImage(f, 'banner'); }} />
@@ -789,7 +791,7 @@ export function AdminSettings() {
 
           {/* Logo upload */}
           <div className="space-y-2">
-            <Label className="text-xs font-medium">Logo / Profile Picture</Label>
+            <Label className="text-xs font-medium">Logo / Photo de profil</Label>
             <div className="flex items-center gap-4">
               <div
                 className="h-16 w-16 rounded-2xl overflow-hidden border-2 border-dashed border-border bg-muted/40 cursor-pointer flex items-center justify-center group shrink-0"
@@ -802,14 +804,14 @@ export function AdminSettings() {
                 <input id="logo-upload" type="file" accept="image/*" className="hidden"
                   onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadImage(f, 'logo'); }} />
               </div>
-              <p className="text-xs text-muted-foreground">Square image recommended. Will appear as your org avatar across the platform.</p>
+              <p className="text-xs text-muted-foreground">Image carrée recommandée. Apparaîtra comme avatar de votre organisation sur la plateforme.</p>
             </div>
           </div>
 
           {/* Text fields */}
           <div className="grid gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="org-name" className="text-xs font-medium">Organization Name</Label>
+              <Label htmlFor="org-name" className="text-xs font-medium">Nom de l'organisation</Label>
               <Input id="org-name" value={orgName} onChange={e => setOrgName(e.target.value)} className="h-8 text-xs" />
             </div>
             <div className="space-y-1.5">
@@ -819,17 +821,17 @@ export function AdminSettings() {
                 rows={3}
                 value={description}
                 onChange={e => setDescription(e.target.value)}
-                placeholder="Tell people what your organization is about…"
+                placeholder="Décrivez votre organisation aux visiteurs…"
                 className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="org-website" className="text-xs font-medium">Website URL</Label>
+                <Label htmlFor="org-website" className="text-xs font-medium">Site web</Label>
                 <Input id="org-website" value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://yourchurch.com" className="h-8 text-xs" />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="org-whatsapp" className="text-xs font-medium">WhatsApp Number</Label>
+                <Label htmlFor="org-whatsapp" className="text-xs font-medium">Numéro WhatsApp</Label>
                 <Input id="org-whatsapp" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="+225 07 00 00 00 00" className="h-8 text-xs" />
               </div>
             </div>
@@ -961,7 +963,7 @@ export function AdminSettings() {
           </Button>
         </div>
 
-        <p className="text-xs text-muted-foreground text-center">Contactez le support pour modifier le plan, pays ou devise.</p>
+        <p className="text-xs text-muted-foreground text-center">Contactez le support pour modifier le plan, le pays ou la devise.</p>
       </div>
     </AdminPageShell>
   );
