@@ -41,6 +41,7 @@ export default function LandingPage() {
         <div className="container flex items-center justify-between h-14 px-4">
           <span className="text-xl font-extrabold tracking-tight italic text-gold">Siteviral</span>
           <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" asChild><Link to="/about">À propos</Link></Button>
             <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>Connexion</Button>
             <Button
               size="sm"
@@ -324,6 +325,7 @@ export default function LandingPage() {
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link to="/terms" className="hover:text-foreground transition-colors">Conditions d'utilisation</Link></li>
                 <li><Link to="/privacy" className="hover:text-foreground transition-colors">Politique de confidentialité</Link></li>
+                <li><Link to="/about" className="hover:text-foreground transition-colors">À propos</Link></li>
               </ul>
             </div>
 
