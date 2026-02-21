@@ -237,7 +237,7 @@ export function AdminMembers() {
   const { toast } = useToast();
   const [copiedInvite, setCopiedInvite] = useState(false);
 
-  const inviteUrl = currentOrg ? `${window.location.origin}/org/${currentOrg.slug}` : '';
+  const inviteUrl = currentOrg ? `https://graceconnect.lovable.app/org/${currentOrg.slug}` : '';
 
   const handleCopyInvite = async () => {
     await navigator.clipboard.writeText(inviteUrl);
@@ -636,14 +636,28 @@ export function AdminSettings() {
 
   const orgAny = currentOrg as any;
 
+  const PUBLISHED_DOMAIN = 'https://graceconnect.lovable.app';
+
   // Profile fields
   const [orgName, setOrgName] = useState(currentOrg?.name ?? '');
+  const [orgSlug, setOrgSlug] = useState(currentOrg?.slug ?? '');
+  const [slugError, setSlugError] = useState('');
   const [description, setDescription] = useState(currentOrg?.description ?? '');
   const [website, setWebsite] = useState(currentOrg?.website ?? '');
   const [whatsapp, setWhatsapp] = useState(currentOrg?.whatsapp ?? '');
   const [logoUrl, setLogoUrl] = useState(currentOrg?.logo_url ?? '');
   const [bannerUrl, setBannerUrl] = useState(currentOrg?.banner_url ?? '');
   const [savingProfile, setSavingProfile] = useState(false);
+
+  const slugify = (v: string) => v.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+  const handleSlugChange = (v: string) => {
+    const clean = slugify(v);
+    setOrgSlug(clean);
+    if (clean.length < 3) setSlugError('Minimum 3 caractères');
+    else if (!/^[a-z0-9-]+$/.test(clean)) setSlugError('Lettres minuscules, chiffres et tirets uniquement');
+    else setSlugError('');
+  };
 
   // Leader biography fields
   const [leaderName, setLeaderName] = useState(orgAny?.leader_name ?? '');
@@ -666,11 +680,34 @@ export function AdminSettings() {
       toast({ title: 'Name is required', variant: 'destructive' });
       return;
     }
+    if (slugError) {
+      toast({ title: 'Slug invalide', description: slugError, variant: 'destructive' });
+      return;
+    }
+    if (orgSlug.length < 3) {
+      toast({ title: 'Slug trop court', description: 'Minimum 3 caractères.', variant: 'destructive' });
+      return;
+    }
     setSavingProfile(true);
+    // Check slug uniqueness if changed
+    if (orgSlug !== currentOrg.slug) {
+      const { data: existing } = await supabase
+        .from('organizations')
+        .select('id')
+        .eq('slug', orgSlug)
+        .neq('id', currentOrg.id)
+        .maybeSingle();
+      if (existing) {
+        setSavingProfile(false);
+        toast({ title: 'Slug déjà utilisé', description: 'Choisissez un autre identifiant URL.', variant: 'destructive' });
+        return;
+      }
+    }
     const { error } = await supabase
       .from('organizations')
       .update({
         name: orgName.trim(),
+        slug: orgSlug,
         description: description.trim() || null,
         website: website.trim() || null,
         whatsapp: whatsapp.trim() || null,
@@ -680,9 +717,13 @@ export function AdminSettings() {
       .eq('id', currentOrg.id);
     setSavingProfile(false);
     if (error) {
-      toast({ title: 'Error saving', description: error.message, variant: 'destructive' });
+      if (error.message.includes('slug') || error.message.includes('unique') || error.message.includes('duplicate')) {
+        toast({ title: 'Slug déjà utilisé', description: 'Choisissez un autre identifiant URL.', variant: 'destructive' });
+      } else {
+        toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
+      }
     } else {
-      toast({ title: '✅ Profile saved' });
+      toast({ title: '✅ Profil sauvegardé' });
       refetchOrgs();
       qc.invalidateQueries({ queryKey: ['org-by-slug'] });
       qc.invalidateQueries({ queryKey: ['org-by-id'] });
@@ -837,10 +878,30 @@ export function AdminSettings() {
             </div>
           </div>
 
+          {/* Editable slug */}
+          <div className="space-y-2 border-t border-border/60 pt-3">
+            <Label htmlFor="org-slug" className="text-xs font-medium">Lien public personnalisé</Label>
+            <div className="flex items-center gap-0 bg-muted/50 rounded-lg overflow-hidden border border-border">
+              <span className="text-[11px] text-muted-foreground px-3 py-2 shrink-0 bg-muted/80 border-r border-border">
+                graceconnect.lovable.app/org/
+              </span>
+              <Input
+                id="org-slug"
+                value={orgSlug}
+                onChange={e => handleSlugChange(e.target.value)}
+                className="h-8 text-xs border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
+                placeholder="mon-eglise"
+              />
+            </div>
+            {slugError && <p className="text-xs text-destructive">{slugError}</p>}
+            <p className="text-[11px] text-muted-foreground">
+              C'est le lien à partager pour que les membres rejoignent votre communauté.
+            </p>
+          </div>
+
           {/* Read-only info */}
           <div className="grid gap-1.5 text-xs border-t border-border/60 pt-3">
             {[
-              { label: 'Slug (URL)', value: currentOrg?.slug },
               { label: 'Plan', value: currentOrg?.plan_type },
               { label: 'Pays', value: currentOrg?.country },
               { label: 'Devise', value: currentOrg?.currency },
