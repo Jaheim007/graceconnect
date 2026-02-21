@@ -16,17 +16,17 @@ import { ChevronRight, ChevronLeft, Building2, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const CATEGORIES = [
-  { value: 'church', label: '⛪ Church' },
-  { value: 'ministry', label: '✝️ Ministry' },
+  { value: 'church', label: '⛪ Église' },
+  { value: 'ministry', label: '✝️ Ministère' },
   { value: 'leader', label: '👤 Leader' },
-  { value: 'ngo', label: '🤝 NGO' },
-  { value: 'community', label: '🏘️ Community' },
-  { value: 'other', label: '🔷 Other' },
+  { value: 'ngo', label: '🤝 ONG' },
+  { value: 'community', label: '🏘️ Communauté' },
+  { value: 'other', label: '🔷 Autre' },
 ] as const;
 
 const schema = z.object({
-  name: z.string().min(3, 'At least 3 characters').max(80),
-  slug: z.string().min(3).max(50).regex(/^[a-z0-9-]+$/, 'Lowercase letters, numbers and hyphens only'),
+  name: z.string().min(3, 'Au moins 3 caractères').max(80),
+  slug: z.string().min(3, 'Au moins 3 caractères').max(50).regex(/^[a-z0-9-]+$/, 'Lettres minuscules, chiffres et tirets uniquement'),
   category: z.enum(['church', 'ministry', 'leader', 'ngo', 'community', 'other']),
   description: z.string().max(500).optional(),
 });
@@ -59,7 +59,7 @@ export default function CreateOrgPage() {
     }
   };
 
-  const steps = ['Category', 'Details', 'Confirm'];
+  const steps = ['Catégorie', 'Détails', 'Confirmation'];
 
   const onSubmit = async (data: FormData) => {
     if (!user) return;
@@ -88,19 +88,19 @@ export default function CreateOrgPage() {
       // Trigger background refetch (non-blocking)
       refetchOrgs();
 
-      toast({ title: '🎉 Organization created!', description: data.name });
+      toast({ title: '🎉 Organisation créée !', description: data.name });
       navigate('/admin');
     } catch (err: any) {
       const msg = err?.message || String(err);
       if (msg.includes('duplicate') || msg.includes('unique') || msg.includes('slug')) {
         toast({
-          title: 'Slug already taken',
-          description: 'Choose a different URL handle on the previous step.',
+          title: 'Slug déjà pris',
+          description: 'Choisissez un autre identifiant URL à l\'étape précédente.',
           variant: 'destructive',
         });
       } else {
         toast({
-          title: 'Error creating organization',
+          title: 'Erreur lors de la création',
           description: msg,
           variant: 'destructive',
         });
@@ -144,8 +144,8 @@ export default function CreateOrgPage() {
             <Building2 className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold">Create Organization</h1>
-            <p className="text-xs text-muted-foreground">Step {step + 1} of {steps.length}</p>
+            <h1 className="text-xl font-bold">Créer une organisation</h1>
+            <p className="text-xs text-muted-foreground">Étape {step + 1} sur {steps.length}</p>
           </div>
         </div>
 
@@ -166,7 +166,7 @@ export default function CreateOrgPage() {
 
               {step === 0 && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-semibold">What type of organization?</h2>
+                  <h2 className="text-lg font-semibold">Quel type d'organisation ?</h2>
                   <div className="grid grid-cols-2 gap-3">
                     {CATEGORIES.map(cat => (
                       <button key={cat.value} type="button"
@@ -185,26 +185,26 @@ export default function CreateOrgPage() {
 
               {step === 1 && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-semibold">Name your organization</h2>
+                  <h2 className="text-lg font-semibold">Nommez votre organisation</h2>
                   <div className="space-y-2">
-                    <Label>Organization Name *</Label>
-                    <Input placeholder="e.g. Grace Church Abidjan" {...form.register('name')}
+                    <Label>Nom de l'organisation *</Label>
+                    <Input placeholder="ex. Église de Grâce Abidjan" {...form.register('name')}
                       onBlur={handleNameBlur}
                       className={errors.name ? 'border-destructive' : ''} />
                     {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label>Slug (URL handle) *</Label>
+                    <Label>Slug (identifiant URL) *</Label>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground shrink-0">graceco.app/org/</span>
-                      <Input placeholder="grace-church-abidjan" {...form.register('slug')}
+                      <span className="text-xs text-muted-foreground shrink-0">siteviral.com/org/</span>
+                      <Input placeholder="eglise-grace-abidjan" {...form.register('slug')}
                         className={errors.slug ? 'border-destructive' : ''} />
                     </div>
                     {errors.slug && <p className="text-xs text-destructive">{errors.slug.message}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label>Description (optional)</Label>
-                    <Textarea placeholder="Briefly describe your organization..." rows={3}
+                    <Label>Description (optionnel)</Label>
+                    <Textarea placeholder="Décrivez brièvement votre organisation..." rows={3}
                       {...form.register('description')} />
                   </div>
                 </div>
@@ -212,12 +212,12 @@ export default function CreateOrgPage() {
 
               {step === 2 && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-semibold">Confirm & Create</h2>
+                  <h2 className="text-lg font-semibold">Confirmer & Créer</h2>
                   <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
                     {[
-                      { label: 'Name', value: formValues.name },
+                      { label: 'Nom', value: formValues.name },
                       { label: 'Slug', value: formValues.slug },
-                      { label: 'Category', value: CATEGORIES.find(c => c.value === formValues.category)?.label },
+                      { label: 'Catégorie', value: CATEGORIES.find(c => c.value === formValues.category)?.label },
                       { label: 'Description', value: formValues.description || '—' },
                     ].map(({ label, value }) => (
                       <div key={label} className="flex gap-3 text-sm">
@@ -227,7 +227,7 @@ export default function CreateOrgPage() {
                     ))}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    You'll be set as the <strong>owner</strong>. You can invite other members from the admin panel.
+                    Vous serez défini comme <strong>propriétaire</strong>. Vous pourrez inviter d'autres membres depuis le panneau d'administration.
                   </p>
                 </div>
               )}
@@ -239,17 +239,17 @@ export default function CreateOrgPage() {
         <div className="flex gap-3 mt-8">
           {step > 0 && (
             <Button type="button" variant="outline" className="flex-1" onClick={goBack}>
-              <ChevronLeft className="h-4 w-4 mr-1" /> Back
+              <ChevronLeft className="h-4 w-4 mr-1" /> Retour
             </Button>
           )}
           {step < 2 ? (
             <Button type="button" className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold" onClick={nextStep}>
-              Next <ChevronRight className="h-4 w-4 ml-1" />
+              Suivant <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           ) : (
             <Button type="button" className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold"
               onClick={form.handleSubmit(onSubmit)} disabled={loading}>
-              {loading ? 'Creating...' : <><Check className="h-4 w-4 mr-1" /> Create Organization</>}
+              {loading ? 'Création...' : <><Check className="h-4 w-4 mr-1" /> Créer l'organisation</>}
             </Button>
           )}
         </div>
