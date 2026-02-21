@@ -45,6 +45,13 @@ export default function CreateOrgPage() {
   const [direction, setDirection] = useState(1);
   const [loading, setLoading] = useState(false);
 
+  const form = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: { category: 'church', name: '', slug: '', description: '' },
+  });
+
+  const { watch, setValue, formState: { errors } } = form;
+
   // Redirect away if user already has an org — prevents the "create org" flash on refresh
   useEffect(() => {
     if (!isLoadingOrgs && userOrgs.length > 0) {
@@ -55,13 +62,6 @@ export default function CreateOrgPage() {
   // Show nothing while checking orgs
   if (isLoadingOrgs) return null;
   if (userOrgs.length > 0) return null;
-
-  const form = useForm<FormData>({
-    resolver: zodResolver(schema),
-    defaultValues: { category: 'church', name: '', slug: '', description: '' },
-  });
-
-  const { watch, setValue, formState: { errors } } = form;
   const nameVal = watch('name');
 
   const handleNameBlur = () => {
