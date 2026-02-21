@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { DigitalProduct } from '@/types/database';
 import {
@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  ShoppingBag, Lock, CheckCircle, AlertCircle, Loader2, ExternalLink, Download, User, Mail, Phone,
+  ShoppingBag, Lock, CheckCircle, AlertCircle, Loader2, ExternalLink, Download, User, Mail, Phone, Tag, X,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePaystack } from '@/hooks/usePaystack';
@@ -16,6 +16,7 @@ import { getAffiliateCode, clearAffiliateCode } from '@/hooks/useAffiliateCaptur
 import { verifyPayment, VerifyPaymentResult } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { db } from '@/lib/db';
 
 interface ProductPurchaseModalProps {
   product: DigitalProduct | null;
@@ -33,6 +34,14 @@ interface BuyerInfo {
   phone: string;
 }
 
+interface PromoState {
+  code: string;
+  validating: boolean;
+  applied: boolean;
+  discountPercent: number;
+  error: string;
+}
+
 export function ProductPurchaseModal({ product, organizationId, open, onClose, onSuccess }: ProductPurchaseModalProps) {
   const [step, setStep] = useState<Step>('confirm');
   const [result, setResult] = useState<VerifyPaymentResult | null>(null);
@@ -44,7 +53,6 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
-  // Buyer info form state — pre-filled from profile
   const [buyerInfo, setBuyerInfo] = useState<BuyerInfo>({
     name: profile?.display_name || '',
     email: user?.email || '',
@@ -52,12 +60,55 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   });
   const [formErrors, setFormErrors] = useState<Partial<BuyerInfo>>({});
 
+  const [promo, setPromo] = useState<PromoState>({
+    code: '', validating: false, applied: false, discountPercent: 0, error: '',
+  });
+
   if (!product) return null;
 
   const fmt = (n: number) =>
     product.is_free || n === 0
       ? 'Gratuit'
       : new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(n) + ` ${product.currency || 'XOF'}`;
+
+  const discountAmount = promo.applied ? Math.round((product.price ?? 0) * promo.discountPercent / 100) : 0;
+  const finalPrice = Math.max(0, (product.price ?? 0) - discountAmount);
+
+  const validatePromoCode = async () => {
+    const trimmed = promo.code.trim().toUpperCase();
+    if (!trimmed) return;
+    setPromo(p => ({ ...p, validating: true, error: '' }));
+    try {
+      const { data, error } = await db.from('promo_codes')
+        .select('*')
+        .eq('organization_id', organizationId)
+        .eq('code', trimmed)
+        .eq('is_active', true)
+        .maybeSingle();
+      if (error || !data) {
+        setPromo(p => ({ ...p, validating: false, error: 'Code invalide ou expiré.' }));
+        return;
+      }
+      if (data.max_uses && data.current_uses >= data.max_uses) {
+        setPromo(p => ({ ...p, validating: false, error: 'Ce code a atteint sa limite d\'utilisation.' }));
+        return;
+      }
+      if (data.expires_at && new Date(data.expires_at) < new Date()) {
+        setPromo(p => ({ ...p, validating: false, error: 'Ce code a expiré.' }));
+        return;
+      }
+      if (data.product_id && data.product_id !== product.id) {
+        setPromo(p => ({ ...p, validating: false, error: 'Ce code n\'est pas valide pour ce produit.' }));
+        return;
+      }
+      setPromo(p => ({ ...p, validating: false, applied: true, discountPercent: data.discount_percent, error: '' }));
+      toast({ title: `🎉 -${data.discount_percent}% appliqué !` });
+    } catch {
+      setPromo(p => ({ ...p, validating: false, error: 'Erreur de vérification.' }));
+    }
+  };
+
+  const clearPromo = () => setPromo({ code: '', validating: false, applied: false, discountPercent: 0, error: '' });
 
   const validateBuyerInfo = (): boolean => {
     const errors: Partial<BuyerInfo> = {};
@@ -72,12 +123,10 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
   const handleConfirmToBuyerInfo = () => {
     if (!user) {
-      // Close modal and redirect to auth with return URL
       handleClose();
       navigate(`/auth?returnTo=${encodeURIComponent(pathname)}`);
       return;
     }
-    // Pre-fill from profile if available
     setBuyerInfo(prev => ({
       name: prev.name || profile?.display_name || '',
       email: prev.email || user?.email || '',
@@ -90,8 +139,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const handlePurchase = async () => {
     if (!validateBuyerInfo()) return;
 
-    // Free product — no payment needed
-    if (product.is_free || product.price === 0) {
+    if (product.is_free || finalPrice === 0) {
       setStep('success');
       onSuccess?.({ ok: true, transaction_id: 'free', breakdown: { amount: 0, currency: product.currency || 'XOF', platform_fee: 0, affiliate_commission: 0, organization_amount: 0, affiliate_attributed: false } });
       return;
@@ -102,7 +150,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
     try {
       await openPayment({
         email: buyerInfo.email.trim(),
-        amount: product.price ?? 0,
+        amount: finalPrice,
         currency: product.currency || 'XOF',
         metadata: {
           type: 'product',
@@ -114,10 +162,9 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
           donor_email: buyerInfo.email.trim(),
           user_id: user?.id || null,
           affiliate_code: getAffiliateCode() || null,
+          promo_code: promo.applied ? promo.code.trim().toUpperCase() : null,
         },
-        onClose: () => {
-          // user dismissed — stay on buyer-info step
-        },
+        onClose: () => {},
         onSuccess: async (reference) => {
           setStep('processing');
           try {
@@ -129,6 +176,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
               affiliate_code: affiliateCode,
               donor_name: buyerInfo.name.trim(),
               donor_email: buyerInfo.email.trim(),
+              promo_code: promo.applied ? promo.code.trim().toUpperCase() : undefined,
             });
             clearAffiliateCode();
             setResult(verifyResult);
@@ -152,6 +200,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
     setStep('confirm');
     setResult(null);
     setErrorMsg('');
+    clearPromo();
     onClose();
   };
 
@@ -166,7 +215,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
           <DialogDescription>{product.description}</DialogDescription>
         </DialogHeader>
 
-        {/* ── CONFIRM ───────────────────────────────────────────────────────── */}
+        {/* ── CONFIRM ─── */}
         {step === 'confirm' && (
           <>
             <div className="space-y-4 py-2">
@@ -184,12 +233,47 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                 </span>
               </div>
 
+              {/* Promo code input */}
               {!product.is_free && !product.external_link && (
-                <div className="rounded-lg bg-muted/50 p-3 text-sm space-y-1">
-                  <p className="text-muted-foreground text-xs">Récapitulatif :</p>
-                  <div className="flex justify-between"><span>Prix</span><span>{fmt(product.price)}</span></div>
-                  <div className="flex justify-between font-semibold border-t border-border pt-1 mt-1">
-                    <span>Total</span><span className="text-primary">{fmt(product.price)}</span>
+                <div className="space-y-2">
+                  {!promo.applied ? (
+                    <div className="space-y-1.5">
+                      <Label className="text-xs flex items-center gap-1"><Tag className="h-3 w-3" /> Code promo</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          value={promo.code}
+                          onChange={e => setPromo(p => ({ ...p, code: e.target.value.toUpperCase(), error: '' }))}
+                          placeholder="EX: BIENVENUE20"
+                          className="h-8 text-xs font-mono uppercase flex-1"
+                        />
+                        <Button size="sm" variant="outline" className="h-8 text-xs" onClick={validatePromoCode} disabled={promo.validating || !promo.code.trim()}>
+                          {promo.validating ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Appliquer'}
+                        </Button>
+                      </div>
+                      {promo.error && <p className="text-xs text-destructive">{promo.error}</p>}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-green-600 dark:text-green-400">Code {promo.code} appliqué — {promo.discountPercent}% de réduction</p>
+                      </div>
+                      <button onClick={clearPromo}><X className="h-3.5 w-3.5 text-muted-foreground" /></button>
+                    </div>
+                  )}
+
+                  <div className="rounded-lg bg-muted/50 p-3 text-sm space-y-1">
+                    <p className="text-muted-foreground text-xs">Récapitulatif :</p>
+                    <div className="flex justify-between"><span>Prix</span><span>{fmt(product.price)}</span></div>
+                    {promo.applied && (
+                      <div className="flex justify-between text-green-600 dark:text-green-400">
+                        <span>Réduction (-{promo.discountPercent}%)</span>
+                        <span>-{fmt(discountAmount)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between font-semibold border-t border-border pt-1 mt-1">
+                      <span>Total</span><span className="text-primary">{fmt(finalPrice)}</span>
+                    </div>
                   </div>
                 </div>
               )}
@@ -217,14 +301,14 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                   onClick={handleConfirmToBuyerInfo}
                   className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold"
                 >
-                  {product.is_free ? 'Accéder gratuitement' : `Payer ${fmt(product.price)}`}
+                  {product.is_free || finalPrice === 0 ? 'Accéder gratuitement' : `Payer ${fmt(finalPrice)}`}
                 </Button>
               )}
             </div>
           </>
         )}
 
-        {/* ── BUYER INFO ───────────────────────────────────────────────────── */}
+        {/* ── BUYER INFO ─── */}
         {step === 'buyer-info' && (
           <>
             <div className="space-y-4 py-2">
@@ -237,68 +321,49 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                   <Label htmlFor="buyer-name" className="text-sm flex items-center gap-1.5">
                     <User className="h-3.5 w-3.5" /> Nom complet
                   </Label>
-                  <Input
-                    id="buyer-name"
-                    placeholder="Votre nom complet"
-                    value={buyerInfo.name}
-                    onChange={(e) => setBuyerInfo(prev => ({ ...prev, name: e.target.value }))}
-                    maxLength={100}
-                  />
+                  <Input id="buyer-name" placeholder="Votre nom complet" value={buyerInfo.name} onChange={(e) => setBuyerInfo(prev => ({ ...prev, name: e.target.value }))} maxLength={100} />
                   {formErrors.name && <p className="text-xs text-destructive">{formErrors.name}</p>}
                 </div>
-
                 <div className="space-y-1.5">
                   <Label htmlFor="buyer-email" className="text-sm flex items-center gap-1.5">
                     <Mail className="h-3.5 w-3.5" /> Email
                   </Label>
-                  <Input
-                    id="buyer-email"
-                    type="email"
-                    placeholder="votre@email.com"
-                    value={buyerInfo.email}
-                    onChange={(e) => setBuyerInfo(prev => ({ ...prev, email: e.target.value }))}
-                    maxLength={255}
-                  />
+                  <Input id="buyer-email" type="email" placeholder="votre@email.com" value={buyerInfo.email} onChange={(e) => setBuyerInfo(prev => ({ ...prev, email: e.target.value }))} maxLength={255} />
                   {formErrors.email && <p className="text-xs text-destructive">{formErrors.email}</p>}
                 </div>
-
                 <div className="space-y-1.5">
                   <Label htmlFor="buyer-phone" className="text-sm flex items-center gap-1.5">
                     <Phone className="h-3.5 w-3.5" /> Téléphone
                   </Label>
-                  <Input
-                    id="buyer-phone"
-                    type="tel"
-                    placeholder="+225 07 00 00 00 00"
-                    value={buyerInfo.phone}
-                    onChange={(e) => setBuyerInfo(prev => ({ ...prev, phone: e.target.value }))}
-                    maxLength={20}
-                  />
+                  <Input id="buyer-phone" type="tel" placeholder="+225 07 00 00 00 00" value={buyerInfo.phone} onChange={(e) => setBuyerInfo(prev => ({ ...prev, phone: e.target.value }))} maxLength={20} />
                   {formErrors.phone && <p className="text-xs text-destructive">{formErrors.phone}</p>}
                 </div>
               </div>
 
               <div className="rounded-lg bg-muted/50 p-3 text-sm">
+                {promo.applied && (
+                  <div className="flex justify-between text-green-600 dark:text-green-400 text-xs mb-1">
+                    <span>🎟️ {promo.code} (-{promo.discountPercent}%)</span>
+                    <span>-{fmt(discountAmount)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between font-semibold">
                   <span>Total à payer</span>
-                  <span className="text-primary">{product.is_free ? 'Gratuit' : fmt(product.price)}</span>
+                  <span className="text-primary">{product.is_free || finalPrice === 0 ? 'Gratuit' : fmt(finalPrice)}</span>
                 </div>
               </div>
             </div>
 
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setStep('confirm')} className="flex-1">Retour</Button>
-              <Button
-                onClick={handlePurchase}
-                className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold"
-              >
-                {product.is_free ? 'Confirmer' : `Payer ${fmt(product.price)}`}
+              <Button onClick={handlePurchase} className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold">
+                {product.is_free || finalPrice === 0 ? 'Confirmer' : `Payer ${fmt(finalPrice)}`}
               </Button>
             </div>
           </>
         )}
 
-        {/* ── PROCESSING ────────────────────────────────────────────────────── */}
+        {/* ── PROCESSING ─── */}
         {step === 'processing' && (
           <div className="py-10 flex flex-col items-center gap-4 text-center">
             <Loader2 className="h-12 w-12 text-primary animate-spin" />
@@ -307,7 +372,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
           </div>
         )}
 
-        {/* ── SUCCESS ───────────────────────────────────────────────────────── */}
+        {/* ── SUCCESS ─── */}
         {step === 'success' && (
           <div className="py-6 flex flex-col items-center gap-4 text-center">
             <CheckCircle className="h-14 w-14 text-green-500" />
@@ -316,6 +381,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
               {result && (
                 <p className="text-sm text-muted-foreground mt-1">
                   {fmt(result.breakdown.amount)} payé.
+                  {result.breakdown.promo_applied && ` (réduction de ${fmt(result.breakdown.discount_amount || 0)})`}
                 </p>
               )}
             </div>
@@ -338,17 +404,14 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
             </div>
 
             <p className="text-xs text-muted-foreground">Un reçu a été envoyé à votre email.</p>
-            <Button
-              onClick={() => { handleClose(); navigate('/dashboard'); }}
-              className="w-full gold-gradient text-primary-foreground border-0 shadow-gold gap-1.5"
-            >
+            <Button onClick={() => { handleClose(); navigate('/dashboard'); }} className="w-full gold-gradient text-primary-foreground border-0 shadow-gold gap-1.5">
               Accéder à mon tableau de bord
             </Button>
             <Button variant="ghost" onClick={handleClose} className="text-muted-foreground">Fermer</Button>
           </div>
         )}
 
-        {/* ── ERROR ─────────────────────────────────────────────────────────── */}
+        {/* ── ERROR ─── */}
         {step === 'error' && (
           <div className="py-6 flex flex-col items-center gap-4 text-center">
             <AlertCircle className="h-14 w-14 text-destructive" />

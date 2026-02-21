@@ -36,6 +36,7 @@ export interface VerifyPaymentArgs {
   affiliate_code?: string | null;
   donor_name?: string;
   donor_email?: string;
+  promo_code?: string;
 }
 
 export interface VerifyPaymentResult {
@@ -49,6 +50,8 @@ export interface VerifyPaymentResult {
     affiliate_commission: number;
     organization_amount: number;
     affiliate_attributed: boolean;
+    discount_amount?: number;
+    promo_applied?: boolean;
   };
 }
 

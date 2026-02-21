@@ -14,6 +14,7 @@ interface VerifyPaymentBody {
   affiliate_code?: string;
   donor_name?: string;
   donor_email?: string;
+  promo_code?: string;
 }
 
 Deno.serve(async (req) => {
@@ -28,7 +29,7 @@ Deno.serve(async (req) => {
 
   try {
     const body: VerifyPaymentBody = await req.json();
-    const { reference, type, organization_id, campaign_id, product_id, affiliate_code, donor_name, donor_email } = body;
+    const { reference, type, organization_id, campaign_id, product_id, affiliate_code, donor_name, donor_email, promo_code } = body;
 
     if (!reference || !type || !organization_id) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
@@ -36,7 +37,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Resolve authenticated user (optional for guest donations)
+    // Resolve authenticated user
     const authHeader = req.headers.get('Authorization');
     let userId: string | null = null;
     if (authHeader?.startsWith('Bearer ')) {
@@ -45,7 +46,7 @@ Deno.serve(async (req) => {
       userId = authUser?.id ?? null;
     }
 
-    // ── 1. Idempotency check ──────────────────────────────────────────────────
+    // ── 1. Idempotency check ──
     const table = type === 'donation' ? 'donations' : 'product_purchases';
     const { data: existing } = await db.from(table).select('id, status').eq('paystack_reference', reference).maybeSingle();
     if (existing?.status === 'completed') {
@@ -54,13 +55,12 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ── 2. Load organization ──────────────────────────────────────────────────
+    // ── 2. Load organization ──
     const { data: org, error: orgErr } = await db.from('organizations').select('*').eq('id', organization_id).single();
     if (orgErr || !org) return new Response(JSON.stringify({ error: 'Organization not found' }), { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     if (!org.is_active) return new Response(JSON.stringify({ error: 'Organization is inactive' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-    // KYC is only required for payouts, not for accepting payments
 
-    // ── 3. Verify with Paystack ───────────────────────────────────────────────
+    // ── 3. Verify with Paystack ──
     const psRes = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
       headers: { Authorization: `Bearer ${PAYSTACK_SECRET}` }
     });
@@ -72,15 +72,48 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Amount from Paystack is in kobo/pesewas; XOF is zero-decimal, so divide by 100
     const amountPaid = psData.data.amount / 100;
     const currency = psData.data.currency || org.currency || 'XOF';
 
-    // ── 4. Fee calculations ───────────────────────────────────────────────────
+    // ── 4. Promo code validation ──
+    let promoCodeId: string | null = null;
+    let discountPercent = 0;
+    let discountAmount = 0;
+
+    if (promo_code) {
+      const promoQuery = db.from('promo_codes')
+        .select('*')
+        .eq('organization_id', organization_id)
+        .eq('code', promo_code.trim().toUpperCase())
+        .eq('is_active', true)
+        .maybeSingle();
+
+      const { data: promoData } = await promoQuery;
+
+      if (promoData) {
+        const withinUsageLimit = !promoData.max_uses || promoData.current_uses < promoData.max_uses;
+        const notExpired = !promoData.expires_at || new Date(promoData.expires_at) > new Date();
+        const productMatch = !promoData.product_id || promoData.product_id === product_id;
+
+        if (withinUsageLimit && notExpired && productMatch) {
+          promoCodeId = promoData.id;
+          discountPercent = promoData.discount_percent;
+          // We calculate the original price from the paid amount: paid = original * (1 - discount/100)
+          // So original = paid / (1 - discount/100), discount_amount = original - paid
+          const originalPrice = amountPaid / (1 - discountPercent / 100);
+          discountAmount = parseFloat((originalPrice - amountPaid).toFixed(2));
+
+          // Increment usage
+          await db.from('promo_codes').update({ current_uses: promoData.current_uses + 1 }).eq('id', promoData.id);
+        }
+      }
+    }
+
+    // ── 5. Fee calculations ──
     const platformFeePct = org.platform_fee_percent ?? 10;
     const platformFee = parseFloat((amountPaid * platformFeePct / 100).toFixed(2));
 
-    // ── 5. Affiliate resolution ───────────────────────────────────────────────
+    // ── 6. Affiliate resolution ──
     let affiliateLinkId: string | null = null;
     let affiliateUserId: string | null = null;
     let affiliateCommission = 0;
@@ -93,16 +126,19 @@ Deno.serve(async (req) => {
         .maybeSingle();
 
       if (affLink?.is_active) {
-        affiliateLinkId = affLink.id;
-        affiliateUserId = affLink.user_id;
-        const commPct = org.affiliation_commission_percent ?? 10;
-        affiliateCommission = parseFloat((amountPaid * commPct / 100).toFixed(2));
+        // Anti-fraud: affiliate cannot be the buyer
+        if (affLink.user_id !== userId) {
+          affiliateLinkId = affLink.id;
+          affiliateUserId = affLink.user_id;
+          const commPct = org.affiliation_commission_percent ?? 10;
+          affiliateCommission = parseFloat((amountPaid * commPct / 100).toFixed(2));
+        }
       }
     }
 
     const organizationAmount = parseFloat((amountPaid - platformFee - affiliateCommission).toFixed(2));
 
-    // ── 6. Insert / update transaction record ─────────────────────────────────
+    // ── 7. Insert / update transaction record ──
     let transactionId: string;
 
     if (type === 'donation') {
@@ -122,6 +158,7 @@ Deno.serve(async (req) => {
         affiliate_commission: affiliateCommission,
         organization_amount: organizationAmount,
         completed_at: new Date().toISOString(),
+        promo_code_id: promoCodeId,
       };
 
       let donationId: string;
@@ -134,7 +171,6 @@ Deno.serve(async (req) => {
       }
       transactionId = donationId;
 
-      // Update campaign current_amount
       if (campaign_id) {
         const { data: campaign } = await db.from('donation_campaigns').select('current_amount').eq('id', campaign_id).single();
         if (campaign) {
@@ -143,7 +179,6 @@ Deno.serve(async (req) => {
         }
       }
     } else {
-      // type === 'product'
       if (!product_id) return new Response(JSON.stringify({ error: 'product_id required for product purchase' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
       const payload: Record<string, unknown> = {
@@ -159,6 +194,8 @@ Deno.serve(async (req) => {
         affiliate_commission: affiliateCommission,
         organization_amount: organizationAmount,
         completed_at: new Date().toISOString(),
+        promo_code_id: promoCodeId,
+        discount_amount: discountAmount,
       };
 
       let purchaseId: string;
@@ -171,12 +208,11 @@ Deno.serve(async (req) => {
       }
       transactionId = purchaseId;
 
-      // Increment sales_count
       const { data: prod } = await db.from('digital_products').select('sales_count').eq('id', product_id).single();
       if (prod) await db.from('digital_products').update({ sales_count: (prod.sales_count || 0) + 1 }).eq('id', product_id);
     }
 
-    // ── 7. Affiliate sales record + notification ──────────────────────────────
+    // ── 8. Affiliate sales record + notification ──
     if (affiliateLinkId && affiliateUserId && affiliateCommission > 0) {
       const payableAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
       await db.from('affiliate_sales').insert({
@@ -192,7 +228,6 @@ Deno.serve(async (req) => {
         payable_at: payableAt,
       });
 
-      // Update link stats
       const { data: link } = await db.from('affiliate_links').select('clicks, conversions, total_earned').eq('id', affiliateLinkId).single();
       if (link) {
         await db.from('affiliate_links').update({
@@ -201,7 +236,6 @@ Deno.serve(async (req) => {
         }).eq('id', affiliateLinkId);
       }
 
-      // Notify affiliate of their commission
       const commissionFmt = affiliateCommission.toLocaleString('fr-FR');
       await db.from('user_notifications').insert({
         user_id: affiliateUserId,
@@ -213,7 +247,39 @@ Deno.serve(async (req) => {
       });
     }
 
-    // ── 8. User notification ─────────────────────────────────────────────────
+    // ── 9. Referral conversion ──
+    if (userId) {
+      const { data: pendingReferral } = await db.from('user_referrals')
+        .select('id')
+        .eq('referred_id', userId)
+        .eq('status', 'pending')
+        .maybeSingle();
+
+      if (pendingReferral) {
+        await db.from('user_referrals').update({
+          status: 'converted',
+          converted_at: new Date().toISOString(),
+        }).eq('id', pendingReferral.id);
+
+        // Notify referrer
+        const { data: referralData } = await db.from('user_referrals')
+          .select('referrer_id')
+          .eq('id', pendingReferral.id)
+          .single();
+
+        if (referralData) {
+          await db.from('user_notifications').insert({
+            user_id: referralData.referrer_id,
+            title: '🎉 Parrainage converti !',
+            body: `Un de vos filleuls vient d'effectuer son premier achat/don sur Siteviral.`,
+            notification_type: 'referral',
+            action_url: '/dashboard',
+          });
+        }
+      }
+    }
+
+    // ── 10. User notification ──
     if (userId) {
       await db.from('user_notifications').insert({
         user_id: userId,
@@ -221,7 +287,7 @@ Deno.serve(async (req) => {
         title: type === 'donation' ? '🙏 Don confirmé' : '✅ Achat confirmé',
         body: type === 'donation'
           ? `Votre don de ${amountPaid.toLocaleString('fr-FR')} ${currency} à ${org.name} a été reçu.`
-          : `Votre achat de ${amountPaid.toLocaleString('fr-FR')} ${currency} chez ${org.name} est confirmé.`,
+          : `Votre achat de ${amountPaid.toLocaleString('fr-FR')} ${currency} chez ${org.name} est confirmé.${promoCodeId ? ' (code promo appliqué)' : ''}`,
         notification_type: type === 'donation' ? 'donation' : 'purchase',
         action_url: '/dashboard',
       });
@@ -237,22 +303,21 @@ Deno.serve(async (req) => {
       const adminNotifs = admins.map((a: { user_id: string }) => ({
         user_id: a.user_id,
         organization_id,
-        title: type === 'donation' ? '💰 New Donation Received' : '🛍️ New Product Sale',
-        body: `${amountPaid.toLocaleString('fr-FR')} ${currency} — Org receives ${organizationAmount.toLocaleString('fr-FR')} ${currency}`,
+        title: type === 'donation' ? '💰 Nouveau don reçu' : '🛍️ Nouvelle vente',
+        body: `${amountPaid.toLocaleString('fr-FR')} ${currency} — L'organisation reçoit ${organizationAmount.toLocaleString('fr-FR')} ${currency}${promoCodeId ? ' (code promo utilisé)' : ''}`,
         notification_type: type === 'donation' ? 'donation_admin' : 'sale_admin',
         action_url: `/admin/analytics`,
       }));
       await db.from('user_notifications').insert(adminNotifs);
     }
 
-    // ── 9. Send email receipt ────────────────────────────────────────────────
-    const emailTo = donor_email || (userId ? (await db.from('profiles').select('*').eq('id', userId).single()).data : null);
-    const emailAddress = typeof emailTo === 'string' ? emailTo : null;
+    // ── 11. Send email receipt ──
+    const emailAddress = donor_email || null;
 
     if (emailAddress && RESEND_API_KEY) {
       const emailHtml = type === 'donation'
         ? buildDonationReceiptHtml({ orgName: org.name, amount: amountPaid, currency, reference, date: new Date().toLocaleDateString('fr-FR') })
-        : buildPurchaseReceiptHtml({ orgName: org.name, amount: amountPaid, currency, reference, date: new Date().toLocaleDateString('fr-FR') });
+        : buildPurchaseReceiptHtml({ orgName: org.name, amount: amountPaid, currency, reference, date: new Date().toLocaleDateString('fr-FR'), discount: discountAmount, promoCode: promo_code || '' });
 
       await fetch('https://api.resend.com/emails', {
         method: 'POST',
@@ -260,13 +325,13 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           from: 'Siteviral <noreply@graceconnect.app>',
           to: [emailAddress],
-          subject: type === 'donation' ? `Donation Receipt – ${org.name}` : `Purchase Confirmation – ${org.name}`,
+          subject: type === 'donation' ? `Reçu de don – ${org.name}` : `Confirmation d'achat – ${org.name}`,
           html: emailHtml,
         }),
       }).catch(console.error);
     }
 
-    // ── 10. Return result ─────────────────────────────────────────────────────
+    // ── 12. Return result ──
     return new Response(JSON.stringify({
       ok: true,
       transaction_id: transactionId,
@@ -277,6 +342,8 @@ Deno.serve(async (req) => {
         affiliate_commission: affiliateCommission,
         organization_amount: organizationAmount,
         affiliate_attributed: !!affiliateLinkId,
+        discount_amount: discountAmount,
+        promo_applied: !!promoCodeId,
       },
     }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
@@ -288,31 +355,35 @@ Deno.serve(async (req) => {
   }
 });
 
-// ── Email templates ───────────────────────────────────────────────────────────
+// ── Email templates ──
 function buildDonationReceiptHtml({ orgName, amount, currency, reference, date }: Record<string, string | number>) {
   return `<!DOCTYPE html><html><body style="font-family:sans-serif;background:#0f0f0f;color:#eee;padding:32px">
 <div style="max-width:520px;margin:0 auto;background:#1a1a1a;border-radius:16px;padding:32px;border:1px solid #333">
-  <h1 style="color:#c9a84c;margin-top:0">🙏 Donation Receipt</h1>
-  <p>Thank you for your generous donation to <strong>${orgName}</strong>.</p>
+  <h1 style="color:#c9a84c;margin-top:0">🙏 Reçu de don</h1>
+  <p>Merci pour votre don généreux à <strong>${orgName}</strong>.</p>
   <table style="width:100%;border-collapse:collapse;margin:24px 0">
-    <tr><td style="padding:8px 0;color:#aaa">Amount</td><td style="text-align:right;font-weight:bold;color:#c9a84c">${Number(amount).toLocaleString('fr-FR')} ${currency}</td></tr>
-    <tr><td style="padding:8px 0;color:#aaa">Reference</td><td style="text-align:right;font-family:monospace;font-size:12px">${reference}</td></tr>
+    <tr><td style="padding:8px 0;color:#aaa">Montant</td><td style="text-align:right;font-weight:bold;color:#c9a84c">${Number(amount).toLocaleString('fr-FR')} ${currency}</td></tr>
+    <tr><td style="padding:8px 0;color:#aaa">Référence</td><td style="text-align:right;font-family:monospace;font-size:12px">${reference}</td></tr>
     <tr><td style="padding:8px 0;color:#aaa">Date</td><td style="text-align:right">${date}</td></tr>
   </table>
-  <p style="color:#777;font-size:12px">This is an official receipt from Siteviral. Please keep it for your records.</p>
+  <p style="color:#777;font-size:12px">Ceci est un reçu officiel de Siteviral. Conservez-le pour vos dossiers.</p>
 </div></body></html>`;
 }
 
-function buildPurchaseReceiptHtml({ orgName, amount, currency, reference, date }: Record<string, string | number>) {
+function buildPurchaseReceiptHtml({ orgName, amount, currency, reference, date, discount, promoCode }: Record<string, string | number>) {
+  const discountRow = Number(discount) > 0
+    ? `<tr><td style="padding:8px 0;color:#4ade80">Réduction (${promoCode})</td><td style="text-align:right;color:#4ade80">-${Number(discount).toLocaleString('fr-FR')} ${currency}</td></tr>`
+    : '';
   return `<!DOCTYPE html><html><body style="font-family:sans-serif;background:#0f0f0f;color:#eee;padding:32px">
 <div style="max-width:520px;margin:0 auto;background:#1a1a1a;border-radius:16px;padding:32px;border:1px solid #333">
-  <h1 style="color:#c9a84c;margin-top:0">✅ Purchase Confirmation</h1>
-  <p>Your purchase from <strong>${orgName}</strong> is confirmed.</p>
+  <h1 style="color:#c9a84c;margin-top:0">✅ Confirmation d'achat</h1>
+  <p>Votre achat chez <strong>${orgName}</strong> est confirmé.</p>
   <table style="width:100%;border-collapse:collapse;margin:24px 0">
-    <tr><td style="padding:8px 0;color:#aaa">Amount</td><td style="text-align:right;font-weight:bold;color:#c9a84c">${Number(amount).toLocaleString('fr-FR')} ${currency}</td></tr>
-    <tr><td style="padding:8px 0;color:#aaa">Reference</td><td style="text-align:right;font-family:monospace;font-size:12px">${reference}</td></tr>
+    <tr><td style="padding:8px 0;color:#aaa">Montant payé</td><td style="text-align:right;font-weight:bold;color:#c9a84c">${Number(amount).toLocaleString('fr-FR')} ${currency}</td></tr>
+    ${discountRow}
+    <tr><td style="padding:8px 0;color:#aaa">Référence</td><td style="text-align:right;font-family:monospace;font-size:12px">${reference}</td></tr>
     <tr><td style="padding:8px 0;color:#aaa">Date</td><td style="text-align:right">${date}</td></tr>
   </table>
-  <p style="color:#777;font-size:12px">Access your purchase from your Siteviral dashboard. Thank you for your support!</p>
+  <p style="color:#777;font-size:12px">Accédez à votre achat depuis votre tableau de bord Siteviral. Merci pour votre confiance !</p>
 </div></body></html>`;
 }
