@@ -102,6 +102,7 @@ const App = () => (
                 <Route path="/org/:slug/donate" element={<OrgPublicPage />} />
                 <Route path="/org/:slug/photos" element={<OrgPublicPage />} />
                 <Route path="/org/:slug/product/:productId" element={<ProductDetailPage />} />
+                <Route path="/org/:slug/p/:productSlug" element={<ProductDetailPage />} />
 
                 {/* Authenticated shell (sidebar + topbar) */}
                 <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
