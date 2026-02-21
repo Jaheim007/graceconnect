@@ -114,16 +114,17 @@ export default function AdminPhotos() {
         <h2 className="font-semibold text-sm flex items-center gap-2">
           <Plus className="h-4 w-4 text-primary" /> Add Photo
         </h2>
-        <p className="text-xs text-muted-foreground">
-          Upload photos of your community, events, or activities. Recommended: landscape 4:3 ratio. You can crop after selecting.
-        </p>
+         <p className="text-xs text-muted-foreground">
+           Upload photos of your community, events, or activities. We'll optimize them automatically.
+         </p>
          <ImageUploader
            value={newImageUrl}
            onChange={setNewImageUrl}
            folder={`photos/${currentOrg?.id}`}
            label="Photo"
-           hint="Any size · Portrait, square, or landscape · JPG/PNG/WEBP"
+           hint="Any size · JPG/PNG/WEBP · Max 10MB"
            aspectRatio="free"
+           disableCrop
          />
         {newImageUrl && (
           <div className="space-y-2">

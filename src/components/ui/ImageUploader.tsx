@@ -11,6 +11,7 @@ interface ImageUploaderProps {
   label?: string;
   hint?: string;
   aspectRatio?: 'square' | 'video' | 'banner' | 'free';
+  disableCrop?: boolean;
 }
 
 const ASPECT_MAP = { square: 1, video: 16 / 9, banner: 3 / 1, free: undefined } as const;
@@ -22,6 +23,7 @@ export function ImageUploader({
   label = 'Image',
   hint,
   aspectRatio = 'video',
+  disableCrop = false,
 }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -37,7 +39,7 @@ export function ImageUploader({
     free: 'aspect-video',
   }[aspectRatio];
 
-  const handleFileSelected = (file: File) => {
+  const handleFileSelected = async (file: File) => {
     if (!file) return;
     if (file.size > 10 * 1024 * 1024) {
       setError('File too large. Max 10MB.');
@@ -48,9 +50,28 @@ export function ImageUploader({
       return;
     }
     setError(null);
-    // Open crop dialog with a local object URL
-    const url = URL.createObjectURL(file);
-    setCropSrc(url);
+
+    if (disableCrop) {
+      // Upload directly without cropping
+      setUploading(true);
+      try {
+        const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${file.name.split('.').pop() || 'jpg'}`;
+        const { error: uploadError } = await supabase.storage
+          .from('org-uploads')
+          .upload(fileName, file, { upsert: true, contentType: file.type });
+        if (uploadError) throw uploadError;
+        const { data } = supabase.storage.from('org-uploads').getPublicUrl(fileName);
+        onChange(data.publicUrl);
+      } catch (err: any) {
+        setError(err.message || 'Upload failed');
+      } finally {
+        setUploading(false);
+      }
+    } else {
+      // Open crop dialog
+      const url = URL.createObjectURL(file);
+      setCropSrc(url);
+    }
   };
 
   const handleCropComplete = async (blob: Blob) => {
