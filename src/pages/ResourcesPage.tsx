@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  Download, ExternalLink, ShoppingBag, FileText, Link2, Music, BookOpen,
+  Download, ExternalLink, ShoppingBag, FileText, Link2, Music, BookOpen, Eye,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
@@ -26,12 +26,11 @@ export default function ResourcesPage() {
   const { toast } = useToast();
   const [downloading, setDownloading] = useState<string | null>(null);
 
-  const handleDownload = async (purchase: (typeof purchases extends (infer T)[] | undefined ? T : never)) => {
+  const handleFileAction = async (purchase: (typeof purchases extends (infer T)[] | undefined ? T : never), mode: 'download' | 'inline') => {
     if (!purchase.product.file_url || !user) return;
 
     setDownloading(purchase.id);
     try {
-      // Call watermark edge function
       const { data: { session } } = await supabase.auth.getSession();
       const res = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/watermark-download`,
@@ -45,31 +44,40 @@ export default function ResourcesPage() {
             file_url: purchase.product.file_url,
             product_id: purchase.product_id,
             product_title: purchase.product.title,
+            inline: mode === 'inline',
           }),
         }
       );
 
       if (!res.ok) {
-        // Fallback: direct download if watermark fails
-        console.warn('Watermark service unavailable, falling back to direct download');
+        console.warn('Watermark service unavailable, falling back to direct');
         window.open(purchase.product.file_url, '_blank');
         return;
       }
 
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${purchase.product.title}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
 
-      toast({ title: 'Téléchargement lancé', description: 'Votre fichier avec filigrane est en cours de téléchargement.' });
+      if (mode === 'inline') {
+        // Open in new tab for reading
+        window.open(url, '_blank');
+      } else {
+        const a = document.createElement('a');
+        a.href = url;
+        const ext = purchase.product.file_url.split('.').pop() || 'pdf';
+        a.download = `${purchase.product.title}.${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      toast({
+        title: mode === 'inline' ? 'Document ouvert' : 'Téléchargement lancé',
+        description: mode === 'inline' ? 'Le document s\'ouvre dans un nouvel onglet.' : 'Votre fichier est en cours de téléchargement.',
+      });
     } catch (err) {
-      console.error('Download error:', err);
-      // Fallback
+      console.error('File action error:', err);
       window.open(purchase.product.file_url, '_blank');
     } finally {
       setDownloading(null);
@@ -150,15 +158,27 @@ export default function ResourcesPage() {
               {/* Actions */}
               <div className="shrink-0 flex flex-col gap-2 justify-center">
                 {purchase.product.file_url && (
-                  <Button
-                    size="sm"
-                    className="gap-1.5 gold-gradient text-primary-foreground border-0 shadow-gold"
-                    onClick={() => handleDownload(purchase)}
-                    disabled={downloading === purchase.id}
-                  >
-                    <Download className="h-3.5 w-3.5" />
-                    {downloading === purchase.id ? 'En cours…' : 'Télécharger'}
-                  </Button>
+                  <>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1.5"
+                      onClick={() => handleFileAction(purchase, 'inline')}
+                      disabled={downloading === purchase.id}
+                    >
+                      <Eye className="h-3.5 w-3.5" />
+                      Lire
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="gap-1.5 gold-gradient text-primary-foreground border-0 shadow-gold"
+                      onClick={() => handleFileAction(purchase, 'download')}
+                      disabled={downloading === purchase.id}
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      {downloading === purchase.id ? 'En cours…' : 'Télécharger'}
+                    </Button>
+                  </>
                 )}
                 {purchase.product.external_link && (
                   <a href={purchase.product.external_link} target="_blank" rel="noreferrer">
