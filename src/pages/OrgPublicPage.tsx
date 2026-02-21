@@ -27,6 +27,7 @@ import {
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
 import { useAffiliateCapture } from '@/hooks/useAffiliateCapture';
+import { PhotoLightbox } from '@/components/photos/PhotoLightbox';
 
 export default function OrgPublicPage() {
   useAffiliateCapture(); // capture ?ref=CODE from URL into sessionStorage
@@ -40,6 +41,7 @@ export default function OrgPublicPage() {
   const [joining, setJoining] = useState(false);
   const [donateCampaign, setDonateCampaign] = useState<DonationCampaign | null>(null);
   const [purchaseProduct, setPurchaseProduct] = useState<DigitalProduct | null>(null);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   // If user came via affiliate link, default tab to store (conversion-focused)
   const hasAffiliateRef = !!searchParams.get('ref');
@@ -334,9 +336,9 @@ export default function OrgPublicPage() {
                   )}
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {photos.slice(0, 4).map((photo: any) => (
-                    <div key={photo.id} className="rounded-xl overflow-hidden aspect-[4/3] group cursor-pointer" onClick={() => navigateTab('photos')}>
-                      <img src={photo.image_url} alt={photo.caption || 'Photo'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  {photos.slice(0, 4).map((photo: any, i: number) => (
+                    <div key={photo.id} className="rounded-xl overflow-hidden group cursor-pointer" onClick={() => setLightboxIndex(i)}>
+                      <img src={photo.image_url} alt={photo.caption || 'Photo'} className="w-full h-auto max-h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
                     </div>
                   ))}
                 </div>
@@ -442,20 +444,20 @@ export default function OrgPublicPage() {
             {photos.length === 0 ? (
               <EmptyState variant="generic" title="No photos" description="No photos have been shared yet." />
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+              <div className="columns-2 sm:columns-3 lg:columns-4 gap-3 space-y-3">
                 {photos.map((photo: any, i: number) => (
                   <div
                     key={photo.id}
-                    className="group relative rounded-xl overflow-hidden bg-card border border-border shadow-card hover:shadow-elevated transition-all cursor-pointer animate-in fade-in slide-in-from-bottom-2"
+                    className="group relative rounded-xl overflow-hidden bg-card border border-border shadow-card hover:shadow-elevated transition-all cursor-pointer break-inside-avoid animate-in fade-in slide-in-from-bottom-2"
                     style={{ animationDelay: `${i * 50}ms` }}
+                    onClick={() => setLightboxIndex(i)}
                   >
-                    <div className="aspect-[4/3] overflow-hidden">
-                      <img
-                        src={photo.image_url}
-                        alt={photo.caption || 'Photo'}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
+                    <img
+                      src={photo.image_url}
+                      alt={photo.caption || 'Photo'}
+                      className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
                     {photo.caption && (
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
                         <p className="text-xs text-white/90 line-clamp-2">{photo.caption}</p>
@@ -481,6 +483,13 @@ export default function OrgPublicPage() {
         organizationId={org?.id ?? ''}
         open={!!purchaseProduct}
         onClose={() => setPurchaseProduct(null)}
+      />
+
+      <PhotoLightbox
+        photos={photos}
+        initialIndex={lightboxIndex ?? 0}
+        open={lightboxIndex !== null}
+        onClose={() => setLightboxIndex(null)}
       />
     </div>
   );
