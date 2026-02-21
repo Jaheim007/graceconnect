@@ -337,8 +337,8 @@ export default function OrgPublicPage() {
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {photos.slice(0, 4).map((photo: any, i: number) => (
-                    <div key={photo.id} className="rounded-xl overflow-hidden group cursor-pointer" onClick={() => setLightboxIndex(i)}>
-                      <img src={photo.image_url} alt={photo.caption || 'Photo'} className="w-full h-auto max-h-48 object-cover group-hover:scale-105 transition-transform duration-300" />
+                    <div key={photo.id} className="rounded-xl overflow-hidden group cursor-pointer aspect-[4/3]" onClick={() => setLightboxIndex(i)}>
+                      <img src={photo.image_url} alt={photo.caption || 'Photo'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     </div>
                   ))}
                 </div>
@@ -444,20 +444,22 @@ export default function OrgPublicPage() {
             {photos.length === 0 ? (
               <EmptyState variant="generic" title="No photos" description="No photos have been shared yet." />
             ) : (
-              <div className="columns-2 sm:columns-3 lg:columns-4 gap-3 space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {photos.map((photo: any, i: number) => (
                   <div
                     key={photo.id}
-                    className="group relative rounded-xl overflow-hidden bg-card border border-border shadow-card hover:shadow-elevated transition-all cursor-pointer break-inside-avoid animate-in fade-in slide-in-from-bottom-2"
+                    className="group relative rounded-xl overflow-hidden bg-card border border-border shadow-card hover:shadow-elevated transition-all cursor-pointer animate-in fade-in slide-in-from-bottom-2"
                     style={{ animationDelay: `${i * 50}ms` }}
                     onClick={() => setLightboxIndex(i)}
                   >
-                    <img
-                      src={photo.image_url}
-                      alt={photo.caption || 'Photo'}
-                      className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-300"
-                      loading="lazy"
-                    />
+                    <div className="aspect-[4/3] overflow-hidden">
+                      <img
+                        src={photo.image_url}
+                        alt={photo.caption || 'Photo'}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                      />
+                    </div>
                     {photo.caption && (
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
                         <p className="text-xs text-white/90 line-clamp-2">{photo.caption}</p>
