@@ -31,6 +31,7 @@ import ProfilePage from "@/pages/ProfilePage";
 import UserDashboard from "@/pages/UserDashboard";
 import ResourcesPage from "@/pages/ResourcesPage";
 import CreateOrgPage from "@/pages/CreateOrgPage";
+import MarketplacePage from "@/pages/MarketplacePage";
 
 // Admin layout + pages
 import AdminLayout from "@/pages/admin/AdminLayout";
@@ -39,8 +40,11 @@ import AdminMedia from "@/pages/admin/AdminMedia";
 import { MediaForm } from "@/pages/admin/AdminMediaForm";
 import {
   AdminAnnouncements, AdminEvents, AdminCampaigns, AdminProducts,
-  AdminMembers, AdminAffiliation, AdminAnalytics, AdminKYC, AdminSettings
+  AdminMembers, AdminAffiliation, AdminKYC, AdminSettings
 } from "@/pages/admin/AdminPages";
+import AdminAnalyticsPage from "@/pages/admin/AdminAnalyticsPage";
+import AdminCRM from "@/pages/admin/AdminCRM";
+import AdminPrograms from "@/pages/admin/AdminPrograms";
 import { AnnouncementForm } from "@/pages/admin/AdminAnnouncementForm";
 import { EventForm } from "@/pages/admin/AdminEventForm";
 import { CampaignForm } from "@/pages/admin/AdminCampaignForm";
@@ -79,6 +83,9 @@ const App = () => (
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/discover" element={<AppLayout />}>
                   <Route index element={<DiscoverPage />} />
+                </Route>
+                <Route path="/marketplace" element={<AppLayout />}>
+                  <Route index element={<MarketplacePage />} />
                 </Route>
 
                 {/* Org public pages — MUST be outside RequireAuth so affiliate links work */}
@@ -123,7 +130,9 @@ const App = () => (
                   <Route path="members" element={<AdminMembers />} />
                   <Route path="photos" element={<AdminPhotos />} />
                   <Route path="affiliation" element={<AdminAffiliation />} />
-                  <Route path="analytics" element={<AdminAnalytics />} />
+                  <Route path="analytics" element={<AdminAnalyticsPage />} />
+                  <Route path="crm" element={<AdminCRM />} />
+                  <Route path="programs" element={<AdminPrograms />} />
                   <Route path="kyc" element={<AdminKYC />} />
                   <Route path="settings" element={<AdminSettings />} />
                 </Route>

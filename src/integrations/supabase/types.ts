@@ -229,6 +229,56 @@ export type Database = {
         }
         Relationships: []
       }
+      contacts: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_subscribed: boolean
+          metadata: Json | null
+          name: string | null
+          organization_id: string
+          phone: string | null
+          source: string | null
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_subscribed?: boolean
+          metadata?: Json | null
+          name?: string | null
+          organization_id: string
+          phone?: string | null
+          source?: string | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_subscribed?: boolean
+          metadata?: Json | null
+          name?: string | null
+          organization_id?: string
+          phone?: string | null
+          source?: string | null
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_reports: {
         Row: {
           content_id: string
@@ -271,7 +321,9 @@ export type Database = {
           description: string | null
           display_order: number | null
           external_link: string | null
+          featured_score: number | null
           file_url: string | null
+          fts_vector: unknown
           id: string
           is_featured: boolean | null
           is_free: boolean | null
@@ -291,7 +343,9 @@ export type Database = {
           description?: string | null
           display_order?: number | null
           external_link?: string | null
+          featured_score?: number | null
           file_url?: string | null
+          fts_vector?: unknown
           id?: string
           is_featured?: boolean | null
           is_free?: boolean | null
@@ -311,7 +365,9 @@ export type Database = {
           description?: string | null
           display_order?: number | null
           external_link?: string | null
+          featured_score?: number | null
           file_url?: string | null
+          fts_vector?: unknown
           id?: string
           is_featured?: boolean | null
           is_free?: boolean | null
@@ -341,6 +397,7 @@ export type Database = {
           current_amount: number | null
           description: string | null
           end_date: string | null
+          featured_score: number | null
           goal_amount: number | null
           id: string
           image_url: string | null
@@ -358,6 +415,7 @@ export type Database = {
           current_amount?: number | null
           description?: string | null
           end_date?: string | null
+          featured_score?: number | null
           goal_amount?: number | null
           id?: string
           image_url?: string | null
@@ -375,6 +433,7 @@ export type Database = {
           current_amount?: number | null
           description?: string | null
           end_date?: string | null
+          featured_score?: number | null
           goal_amount?: number | null
           id?: string
           image_url?: string | null
@@ -400,10 +459,12 @@ export type Database = {
           affiliate_commission: number | null
           affiliate_link_id: string | null
           amount: number
+          buyer_ip: string | null
           campaign_id: string | null
           completed_at: string | null
           created_at: string | null
           currency: string | null
+          device_hash: string | null
           donor_email: string | null
           donor_name: string | null
           id: string
@@ -419,10 +480,12 @@ export type Database = {
           affiliate_commission?: number | null
           affiliate_link_id?: string | null
           amount: number
+          buyer_ip?: string | null
           campaign_id?: string | null
           completed_at?: string | null
           created_at?: string | null
           currency?: string | null
+          device_hash?: string | null
           donor_email?: string | null
           donor_name?: string | null
           id?: string
@@ -438,10 +501,12 @@ export type Database = {
           affiliate_commission?: number | null
           affiliate_link_id?: string | null
           amount?: number
+          buyer_ip?: string | null
           campaign_id?: string | null
           completed_at?: string | null
           created_at?: string | null
           currency?: string | null
+          device_hash?: string | null
           donor_email?: string | null
           donor_name?: string | null
           id?: string
@@ -470,6 +535,68 @@ export type Database = {
           },
         ]
       }
+      email_campaigns: {
+        Row: {
+          body: string
+          click_count: number | null
+          created_at: string
+          created_by: string | null
+          id: string
+          open_count: number | null
+          organization_id: string
+          recipient_count: number | null
+          recipient_tags: string[] | null
+          scheduled_at: string | null
+          sent_at: string | null
+          sent_count: number | null
+          status: string
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          body: string
+          click_count?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          open_count?: number | null
+          organization_id: string
+          recipient_count?: number | null
+          recipient_tags?: string[] | null
+          scheduled_at?: string | null
+          sent_at?: string | null
+          sent_count?: number | null
+          status?: string
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          click_count?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          open_count?: number | null
+          organization_id?: string
+          recipient_count?: number | null
+          recipient_tags?: string[] | null
+          scheduled_at?: string | null
+          sent_at?: string | null
+          sent_count?: number | null
+          status?: string
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_campaigns_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           created_at: string | null
@@ -477,6 +604,7 @@ export type Database = {
           description: string | null
           display_order: number | null
           event_date: string | null
+          fts_vector: unknown
           id: string
           image_url: string | null
           is_featured: boolean | null
@@ -493,6 +621,7 @@ export type Database = {
           description?: string | null
           display_order?: number | null
           event_date?: string | null
+          fts_vector?: unknown
           id?: string
           image_url?: string | null
           is_featured?: boolean | null
@@ -509,6 +638,7 @@ export type Database = {
           description?: string | null
           display_order?: number | null
           event_date?: string | null
+          fts_vector?: unknown
           id?: string
           image_url?: string | null
           is_featured?: boolean | null
@@ -522,6 +652,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fraud_flags: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          organization_id: string | null
+          reason: string
+          resolved: boolean
+          resolved_at: string | null
+          resolved_by: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          organization_id?: string | null
+          reason: string
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          organization_id?: string | null
+          reason?: string
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fraud_flags_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -600,6 +774,41 @@ export type Database = {
           },
         ]
       }
+      lesson_progress: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          id: string
+          lesson_id: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          lesson_id: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_progress_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "program_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       media_content: {
         Row: {
           aspect_ratio: string | null
@@ -608,6 +817,7 @@ export type Database = {
           description: string | null
           display_order: number | null
           duration_seconds: number | null
+          fts_vector: unknown
           id: string
           is_featured: boolean | null
           is_premium: boolean | null
@@ -631,6 +841,7 @@ export type Database = {
           description?: string | null
           display_order?: number | null
           duration_seconds?: number | null
+          fts_vector?: unknown
           id?: string
           is_featured?: boolean | null
           is_premium?: boolean | null
@@ -654,6 +865,7 @@ export type Database = {
           description?: string | null
           display_order?: number | null
           duration_seconds?: number | null
+          fts_vector?: unknown
           id?: string
           is_featured?: boolean | null
           is_premium?: boolean | null
@@ -740,6 +952,59 @@ export type Database = {
             columns: ["media_id"]
             isOneToOne: false
             referencedRelation: "media_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_daily_metrics: {
+        Row: {
+          affiliate_commission_total: number | null
+          affiliate_sales_count: number | null
+          created_at: string
+          donations_count: number | null
+          id: string
+          metric_date: string
+          new_members: number | null
+          organization_id: string
+          page_views: number | null
+          products_sold: number | null
+          revenue: number | null
+          transactions_count: number | null
+        }
+        Insert: {
+          affiliate_commission_total?: number | null
+          affiliate_sales_count?: number | null
+          created_at?: string
+          donations_count?: number | null
+          id?: string
+          metric_date: string
+          new_members?: number | null
+          organization_id: string
+          page_views?: number | null
+          products_sold?: number | null
+          revenue?: number | null
+          transactions_count?: number | null
+        }
+        Update: {
+          affiliate_commission_total?: number | null
+          affiliate_sales_count?: number | null
+          created_at?: string
+          donations_count?: number | null
+          id?: string
+          metric_date?: string
+          new_members?: number | null
+          organization_id?: string
+          page_views?: number | null
+          products_sold?: number | null
+          revenue?: number | null
+          transactions_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_daily_metrics_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -833,8 +1098,10 @@ export type Database = {
           created_at: string | null
           currency: string | null
           description: string | null
+          fts_vector: unknown
           id: string
           is_active: boolean | null
+          is_suspended: boolean | null
           is_verified: boolean | null
           kyc_status: Database["public"]["Enums"]["kyc_status"] | null
           leader_bio: string | null
@@ -849,6 +1116,8 @@ export type Database = {
           plan_type: Database["public"]["Enums"]["org_plan"] | null
           platform_fee_percent: number | null
           slug: string
+          suspended_until: string | null
+          suspension_reason: string | null
           updated_at: string | null
           website: string | null
           whatsapp: string | null
@@ -862,8 +1131,10 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          fts_vector?: unknown
           id?: string
           is_active?: boolean | null
+          is_suspended?: boolean | null
           is_verified?: boolean | null
           kyc_status?: Database["public"]["Enums"]["kyc_status"] | null
           leader_bio?: string | null
@@ -878,6 +1149,8 @@ export type Database = {
           plan_type?: Database["public"]["Enums"]["org_plan"] | null
           platform_fee_percent?: number | null
           slug: string
+          suspended_until?: string | null
+          suspension_reason?: string | null
           updated_at?: string | null
           website?: string | null
           whatsapp?: string | null
@@ -891,8 +1164,10 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           description?: string | null
+          fts_vector?: unknown
           id?: string
           is_active?: boolean | null
+          is_suspended?: boolean | null
           is_verified?: boolean | null
           kyc_status?: Database["public"]["Enums"]["kyc_status"] | null
           leader_bio?: string | null
@@ -907,6 +1182,8 @@ export type Database = {
           plan_type?: Database["public"]["Enums"]["org_plan"] | null
           platform_fee_percent?: number | null
           slug?: string
+          suspended_until?: string | null
+          suspension_reason?: string | null
           updated_at?: string | null
           website?: string | null
           whatsapp?: string | null
@@ -952,14 +1229,58 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_metrics_daily: {
+        Row: {
+          active_affiliates: number | null
+          active_orgs: number | null
+          created_at: string
+          gmv: number | null
+          id: string
+          metric_date: string
+          new_orgs: number | null
+          new_users: number | null
+          platform_fees: number | null
+          total_revenue: number | null
+          total_transactions: number | null
+        }
+        Insert: {
+          active_affiliates?: number | null
+          active_orgs?: number | null
+          created_at?: string
+          gmv?: number | null
+          id?: string
+          metric_date: string
+          new_orgs?: number | null
+          new_users?: number | null
+          platform_fees?: number | null
+          total_revenue?: number | null
+          total_transactions?: number | null
+        }
+        Update: {
+          active_affiliates?: number | null
+          active_orgs?: number | null
+          created_at?: string
+          gmv?: number | null
+          id?: string
+          metric_date?: string
+          new_orgs?: number | null
+          new_users?: number | null
+          platform_fees?: number | null
+          total_revenue?: number | null
+          total_transactions?: number | null
+        }
+        Relationships: []
+      }
       product_purchases: {
         Row: {
           affiliate_commission: number | null
           affiliate_link_id: string | null
           amount: number
+          buyer_ip: string | null
           completed_at: string | null
           created_at: string | null
           currency: string | null
+          device_hash: string | null
           id: string
           organization_amount: number | null
           organization_id: string
@@ -973,9 +1294,11 @@ export type Database = {
           affiliate_commission?: number | null
           affiliate_link_id?: string | null
           amount: number
+          buyer_ip?: string | null
           completed_at?: string | null
           created_at?: string | null
           currency?: string | null
+          device_hash?: string | null
           id?: string
           organization_amount?: number | null
           organization_id: string
@@ -989,9 +1312,11 @@ export type Database = {
           affiliate_commission?: number | null
           affiliate_link_id?: string | null
           amount?: number
+          buyer_ip?: string | null
           completed_at?: string | null
           created_at?: string | null
           currency?: string | null
+          device_hash?: string | null
           id?: string
           organization_amount?: number | null
           organization_id?: string
@@ -1043,6 +1368,179 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      program_enrollments: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          program_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          program_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          program_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_enrollments_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_lessons: {
+        Row: {
+          content: string | null
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          is_free_preview: boolean | null
+          module_id: string
+          order_index: number
+          title: string
+          video_url: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          is_free_preview?: boolean | null
+          module_id: string
+          order_index?: number
+          title: string
+          video_url?: string | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          is_free_preview?: boolean | null
+          module_id?: string
+          order_index?: number
+          title?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_lessons_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "program_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      program_modules: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          order_index: number
+          program_id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_index?: number
+          program_id: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          order_index?: number
+          program_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_modules_program_id_fkey"
+            columns: ["program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      programs: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string
+          created_by: string | null
+          currency: string | null
+          description: string | null
+          enrollment_count: number | null
+          id: string
+          is_featured: boolean | null
+          is_free: boolean | null
+          is_published: boolean | null
+          organization_id: string
+          price: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          enrollment_count?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_free?: boolean | null
+          is_published?: boolean | null
+          organization_id: string
+          price?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          enrollment_count?: number | null
+          id?: string
+          is_featured?: boolean | null
+          is_free?: boolean | null
+          is_published?: boolean | null
+          organization_id?: string
+          price?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "programs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       push_subscriptions: {
         Row: {
