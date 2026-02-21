@@ -30,9 +30,9 @@ export default function LandingPage() {
         <div className="container flex items-center justify-between h-14">
           <div className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg gold-gradient flex items-center justify-center shadow-gold">
-              <span className="text-sm font-bold text-primary-foreground">GC</span>
+              <span className="text-sm font-bold text-primary-foreground">SV</span>
             </div>
-            <span className="font-bold text-base">GraceConnect</span>
+            <span className="font-bold text-base">Siteviral</span>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>Sign In</Button>
@@ -68,7 +68,7 @@ export default function LandingPage() {
             </h1>
 
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              GraceConnect is the all-in-one platform for churches, ministries, and faith leaders
+              Siteviral is the all-in-one platform for churches, ministries, and faith leaders
               to share content, raise funds, sell resources, and grow their community—starting in Côte d'Ivoire.
             </p>
 
@@ -176,7 +176,7 @@ export default function LandingPage() {
         <div className="container max-w-2xl text-center">
           <div className="bg-card rounded-3xl border border-primary/20 p-10 shadow-elevated space-y-5">
             <h2 className="text-3xl font-bold">Ready to connect your community?</h2>
-            <p className="text-muted-foreground">Join hundreds of faith communities already on GraceConnect.</p>
+            <p className="text-muted-foreground">Join hundreds of faith communities already on Siteviral.</p>
             <Button
               size="lg"
               className="gold-gradient text-primary-foreground border-0 shadow-gold px-10 h-12 gap-2"
@@ -193,7 +193,7 @@ export default function LandingPage() {
         <div className="container flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
             <div className="h-5 w-5 rounded gold-gradient" />
-            <span>GraceConnect © 2025</span>
+            <span>Siteviral © 2025</span>
           </div>
           <span>Made with ❤️ for faith communities in Côte d'Ivoire</span>
         </div>

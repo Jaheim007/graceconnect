@@ -31,9 +31,9 @@ export function TopBar() {
       {/* Logo (mobile) */}
       <Link to="/" className="flex lg:hidden items-center gap-2 mr-1">
         <div className="h-7 w-7 rounded-lg gold-gradient flex items-center justify-center">
-          <span className="text-xs font-bold text-primary-foreground">GC</span>
+          <span className="text-xs font-bold text-primary-foreground">SV</span>
         </div>
-        <span className="font-bold text-sm hidden sm:block">GraceConnect</span>
+        <span className="font-bold text-sm hidden sm:block">Siteviral</span>
       </Link>
 
       <div className="flex-1" />

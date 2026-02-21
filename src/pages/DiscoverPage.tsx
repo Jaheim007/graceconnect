@@ -84,7 +84,7 @@ export default function DiscoverPage() {
           <div className="mb-6 p-4 rounded-2xl bg-primary/5 border border-primary/20 flex items-center justify-between gap-4">
             <div>
               <p className="font-medium text-sm">Create your organization</p>
-              <p className="text-xs text-muted-foreground">Launch your community page on GraceConnect</p>
+              <p className="text-xs text-muted-foreground">Launch your community page on Siteviral</p>
             </div>
             <Button
               size="sm"

@@ -73,9 +73,9 @@ export default function AuthPage() {
       <div className="hidden lg:flex flex-col justify-between w-1/2 p-12 text-foreground">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl gold-gradient flex items-center justify-center shadow-gold">
-            <span className="font-bold text-primary-foreground">GC</span>
+            <span className="font-bold text-primary-foreground">SV</span>
           </div>
-          <span className="font-bold text-xl">GraceConnect</span>
+          <span className="font-bold text-xl">Siteviral</span>
         </div>
         <div className="space-y-4">
           <h1 className="text-4xl font-bold leading-tight text-foreground">
@@ -93,7 +93,7 @@ export default function AuthPage() {
             ))}
           </div>
         </div>
-        <p className="text-xs text-muted-foreground">© 2025 GraceConnect · Côte d'Ivoire</p>
+        <p className="text-xs text-muted-foreground">© 2025 Siteviral · Côte d'Ivoire</p>
       </div>
 
       {/* Right panel - form */}
@@ -103,9 +103,9 @@ export default function AuthPage() {
             {/* Mobile logo */}
             <div className="flex lg:hidden items-center gap-2 mb-2">
               <div className="h-8 w-8 rounded-lg gold-gradient flex items-center justify-center">
-                <span className="text-xs font-bold text-primary-foreground">GC</span>
+                <span className="text-xs font-bold text-primary-foreground">SV</span>
               </div>
-              <span className="font-bold">GraceConnect</span>
+              <span className="font-bold">Siteviral</span>
             </div>
 
             {/* Tabs */}
