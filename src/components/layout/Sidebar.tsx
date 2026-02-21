@@ -73,10 +73,10 @@ export function Sidebar() {
       <div className={cn('flex items-center h-16 px-4 border-b border-border/60', collapsed && 'justify-center px-0')}>
         {!collapsed ? (
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-xl font-extrabold tracking-tight italic bg-clip-text text-transparent gold-gradient">Siteviral</span>
+            <span className="text-xl font-extrabold tracking-tight italic text-gold">Siteviral</span>
           </Link>
         ) : (
-          <Link to="/" className="text-base font-extrabold italic bg-clip-text text-transparent gold-gradient">
+          <Link to="/" className="text-base font-extrabold italic text-gold">
             S
           </Link>
         )}

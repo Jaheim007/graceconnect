@@ -30,7 +30,7 @@ export function TopBar() {
     <header className="h-14 sticky top-0 z-40 glass border-b border-border/60 flex items-center px-4 gap-3">
       {/* Logo (mobile) */}
       <Link to="/" className="flex lg:hidden items-center gap-2 mr-1">
-        <span className="text-lg font-extrabold tracking-tight italic bg-clip-text text-transparent gold-gradient">Siteviral</span>
+        <span className="text-lg font-extrabold tracking-tight italic text-gold">Siteviral</span>
       </Link>
 
       <div className="flex-1" />
