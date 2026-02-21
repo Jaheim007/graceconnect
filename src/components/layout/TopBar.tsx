@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Bell, Sun, Moon, LogOut, User, Settings, Shield, ChevronDown, Plus, BookOpen } from 'lucide-react';
+import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import {
@@ -35,6 +36,9 @@ export function TopBar() {
       <Link to="/" className="flex lg:hidden items-center gap-2 mr-1">
         <span className="text-lg font-extrabold tracking-tight italic text-gold">Siteviral</span>
       </Link>
+
+      {/* Global Search */}
+      <GlobalSearch />
 
       <div className="flex-1" />
 

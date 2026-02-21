@@ -1,8 +1,9 @@
 import { Link, useLocation } from 'react-router-dom';
 import {
-  Home, Compass, Play, Bell, User, BookOpen,
+  Home, Compass, Play, Bell, User, BookOpen, Store,
   Settings, ChevronLeft, ChevronRight, Shield,
-  Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, Sun, Moon
+  Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, Sun, Moon,
+  GraduationCap, UserPlus, Camera
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -14,6 +15,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 const mainNav = [
   { to: '/feed', icon: Home, label: 'Accueil' },
   { to: '/discover', icon: Compass, label: 'Explorer' },
+  { to: '/marketplace', icon: Store, label: 'Marketplace' },
   { to: '/reels', icon: Play, label: 'Reels' },
   { to: '/notifications', icon: Bell, label: 'Notifications' },
   { to: '/dashboard', icon: BookOpen, label: 'Mon Espace' },
@@ -23,11 +25,14 @@ const mainNav = [
 const adminNav = [
   { to: '/admin', icon: BarChart3, label: 'Vue d\'ensemble' },
   { to: '/admin/media', icon: Play, label: 'Médias' },
+  { to: '/admin/photos', icon: Camera, label: 'Photos' },
   { to: '/admin/announcements', icon: Megaphone, label: 'Annonces' },
   { to: '/admin/events', icon: CalendarDays, label: 'Événements' },
   { to: '/admin/campaigns', icon: Heart, label: 'Campagnes' },
   { to: '/admin/products', icon: ShoppingBag, label: 'Boutique' },
+  { to: '/admin/programs', icon: GraduationCap, label: 'Programmes' },
   { to: '/admin/members', icon: Users, label: 'Membres' },
+  { to: '/admin/crm', icon: UserPlus, label: 'CRM' },
   { to: '/admin/affiliation', icon: Link2, label: 'Affiliation' },
   { to: '/admin/analytics', icon: BarChart3, label: 'Analytiques' },
   { to: '/admin/kyc', icon: FileCheck, label: 'KYC' },
