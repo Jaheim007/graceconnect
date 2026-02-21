@@ -66,7 +66,7 @@ Deno.serve(async (req) => {
           source: 'balance',
           amount: Math.round(payout.amount * 100),
           recipient: kyc.paystack_recipient_code,
-          reason: `GraceConnect affiliate payout — request ${payout_request_id}`,
+          reason: `Siteviral affiliate payout — request ${payout_request_id}`,
         }),
       });
       transferResult = await psRes.json();

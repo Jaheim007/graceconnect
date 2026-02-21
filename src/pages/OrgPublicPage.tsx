@@ -89,7 +89,7 @@ export default function OrgPublicPage() {
   };
 
   const shareWhatsApp = () => {
-    const url = `https://wa.me/?text=${encodeURIComponent(`Check out ${org.name} on GraceConnect: ${window.location.href}`)}`;
+    const url = `https://wa.me/?text=${encodeURIComponent(`Check out ${org.name} on Siteviral: ${window.location.href}`)}`;
     window.open(url, '_blank');
   };
 
@@ -107,9 +107,9 @@ export default function OrgPublicPage() {
         <div className="sticky top-0 z-20 border-b border-border/40 bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="h-7 w-7 rounded-lg gold-gradient flex items-center justify-center">
-              <span className="text-[10px] font-bold text-primary-foreground">GC</span>
+              <span className="text-[10px] font-bold text-primary-foreground">SV</span>
             </div>
-            <span className="text-sm font-semibold">GraceConnect</span>
+            <span className="text-sm font-semibold">Siteviral</span>
           </div>
           <Button size="sm" className="h-7 text-xs gold-gradient text-primary-foreground border-0" onClick={() => navigate('/auth')}>
             Sign in

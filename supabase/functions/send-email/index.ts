@@ -30,8 +30,8 @@ Deno.serve(async (req) => {
 
     const templates: Record<EmailTemplate, { subject: string; html: string }> = {
       welcome: {
-        subject: '👋 Welcome to GraceConnect',
-        html: `<div style="font-family:sans-serif;padding:32px"><h1 style="color:#c9a84c">Welcome to GraceConnect!</h1><p>Hi ${data.name || 'there'},</p><p>Your account is ready. Start exploring faith communities today.</p></div>`,
+        subject: '👋 Welcome to Siteviral',
+        html: `<div style="font-family:sans-serif;padding:32px"><h1 style="color:#c9a84c">Welcome to Siteviral!</h1><p>Hi ${data.name || 'there'},</p><p>Your account is ready. Start exploring faith communities today.</p></div>`,
       },
       donation_receipt: {
         subject: `Donation Receipt – ${data.org_name}`,
@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
       method: 'POST',
       headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: 'GraceConnect <noreply@graceconnect.app>',
+        from: 'Siteviral <noreply@graceconnect.app>',
         to: [to],
         subject: tpl.subject,
         html: tpl.html,

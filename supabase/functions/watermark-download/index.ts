@@ -71,7 +71,7 @@ Deno.serve(async (req) => {
     const contentType = fileRes.headers.get("content-type") || "application/octet-stream";
     const fileBytes = new Uint8Array(await fileRes.arrayBuffer());
 
-    const watermarkText = `Licensed to: ${user.email} | ${product_title || "GraceConnect"}`;
+    const watermarkText = `Licensed to: ${user.email} | ${product_title || "Siteviral"}`;
 
     // For PDF files: inject a simple text watermark into the PDF stream
     if (contentType.includes("pdf") || file_url.toLowerCase().endsWith(".pdf")) {

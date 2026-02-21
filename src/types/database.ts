@@ -1,4 +1,4 @@
-// Manual TypeScript types matching the GraceConnect DB schema
+// Manual TypeScript types matching the Siteviral DB schema
 // (auto-generated types.ts doesn't include our migrated tables yet)
 
 export type OrgCategory = 'church' | 'ministry' | 'leader' | 'ngo' | 'community' | 'other';

@@ -74,9 +74,9 @@ export function Sidebar() {
         {!collapsed ? (
           <Link to="/" className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg gold-gradient flex items-center justify-center shadow-gold">
-              <span className="text-sm font-bold text-primary-foreground">GC</span>
+              <span className="text-sm font-bold text-primary-foreground">SV</span>
             </div>
-            <span className="font-bold text-lg tracking-tight">GraceConnect</span>
+            <span className="font-bold text-lg tracking-tight">Siteviral</span>
           </Link>
         ) : (
           <Link to="/" className="h-8 w-8 rounded-lg gold-gradient flex items-center justify-center shadow-gold">

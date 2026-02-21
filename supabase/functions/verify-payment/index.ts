@@ -41,11 +41,8 @@ Deno.serve(async (req) => {
     let userId: string | null = null;
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.replace('Bearer ', '');
-      const anonClient = createClient(SUPABASE_URL, Deno.env.get('SUPABASE_PUBLISHABLE_KEY') ?? SUPABASE_SERVICE_KEY, {
-        global: { headers: { Authorization: authHeader } }
-      });
-      const { data: claims } = await anonClient.auth.getClaims(token);
-      userId = claims?.claims?.sub ?? null;
+      const { data: { user: authUser } } = await db.auth.getUser(token);
+      userId = authUser?.id ?? null;
     }
 
     // ── 1. Idempotency check ──────────────────────────────────────────────────
@@ -251,7 +248,7 @@ Deno.serve(async (req) => {
         method: 'POST',
         headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'GraceConnect <noreply@graceconnect.app>',
+          from: 'Siteviral <noreply@graceconnect.app>',
           to: [emailAddress],
           subject: type === 'donation' ? `Donation Receipt – ${org.name}` : `Purchase Confirmation – ${org.name}`,
           html: emailHtml,
@@ -292,7 +289,7 @@ function buildDonationReceiptHtml({ orgName, amount, currency, reference, date }
     <tr><td style="padding:8px 0;color:#aaa">Reference</td><td style="text-align:right;font-family:monospace;font-size:12px">${reference}</td></tr>
     <tr><td style="padding:8px 0;color:#aaa">Date</td><td style="text-align:right">${date}</td></tr>
   </table>
-  <p style="color:#777;font-size:12px">This is an official receipt from GraceConnect. Please keep it for your records.</p>
+  <p style="color:#777;font-size:12px">This is an official receipt from Siteviral. Please keep it for your records.</p>
 </div></body></html>`;
 }
 
@@ -306,6 +303,6 @@ function buildPurchaseReceiptHtml({ orgName, amount, currency, reference, date }
     <tr><td style="padding:8px 0;color:#aaa">Reference</td><td style="text-align:right;font-family:monospace;font-size:12px">${reference}</td></tr>
     <tr><td style="padding:8px 0;color:#aaa">Date</td><td style="text-align:right">${date}</td></tr>
   </table>
-  <p style="color:#777;font-size:12px">Access your purchase from your GraceConnect dashboard. Thank you for your support!</p>
+  <p style="color:#777;font-size:12px">Access your purchase from your Siteviral dashboard. Thank you for your support!</p>
 </div></body></html>`;
 }

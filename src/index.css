@@ -208,3 +208,12 @@
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
+
+/* Ensure Paystack popup appears above app modals */
+iframe[name="checkout"],
+iframe[src*="paystack"],
+div[id*="paystack"],
+.paystack-inline-frame {
+  z-index: 99999 !important;
+  position: relative !important;
+}

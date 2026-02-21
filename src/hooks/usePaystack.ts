@@ -59,7 +59,7 @@ export function usePaystack() {
     await loadPaystackScript();
 
     // Generate unique reference
-    const ref = `GC-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    const ref = `SV-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
     if (!PAYSTACK_PUBLIC_KEY) {
       throw new Error('Paystack public key is not configured. Please set VITE_PAYSTACK_PUBLIC_KEY.');
