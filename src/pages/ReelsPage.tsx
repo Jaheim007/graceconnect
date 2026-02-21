@@ -1,9 +1,35 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useOrg } from '@/contexts/OrgContext';
 import { useFeedMedia } from '@/hooks/useMedia';
-import { ArrowLeft, Heart, Share2, Volume2, VolumeX, Play } from 'lucide-react';
+import { ArrowLeft, Heart, Share2, Volume2, VolumeX, Play, ExternalLink } from 'lucide-react';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { EmptyState } from '@/components/ui/EmptyState';
+
+function isDirectVideo(url: string) {
+  return /\.(mp4|webm|mov|m3u8|ogg)(\?|$)/i.test(url);
+}
+
+function getEmbedUrl(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes('youtube.com') || u.hostname.includes('youtu.be')) {
+      const vid = u.hostname.includes('youtu.be') ? u.pathname.slice(1) : u.searchParams.get('v');
+      return vid ? `https://www.youtube.com/embed/${vid}?autoplay=1&mute=1` : null;
+    }
+    if (u.hostname.includes('vimeo.com')) {
+      const id = u.pathname.split('/').filter(Boolean).pop();
+      return id ? `https://player.vimeo.com/video/${id}?autoplay=1&muted=1` : null;
+    }
+    if (u.hostname.includes('facebook.com')) {
+      return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&autoplay=true&mute=1`;
+    }
+    if (u.hostname.includes('dailymotion.com')) {
+      const id = u.pathname.split('/').pop()?.replace('video/', '');
+      return id ? `https://www.dailymotion.com/embed/video/${id}?autoplay=1&mute=1` : null;
+    }
+  } catch {}
+  return null;
+}
 
 export default function ReelsPage() {
   const navigate = useNavigate();
@@ -120,7 +146,7 @@ function ReelSlide({
     <div className="relative h-screen w-full snap-start bg-black flex flex-col items-center justify-center">
       {/* Centered video container - preserves aspect ratio */}
       <div className="relative w-full max-w-md mx-auto flex-1 flex items-center justify-center px-4">
-        {reel.media_url ? (
+        {reel.media_url && isDirectVideo(reel.media_url) ? (
           <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl bg-black">
             <video
               ref={videoRef}
@@ -132,7 +158,6 @@ function ReelSlide({
               poster={reel.thumbnail_url || undefined}
               onClick={togglePlay}
             />
-            {/* Play overlay when paused */}
             {!isCurrent && (
               <div className="absolute inset-0 flex items-center justify-center bg-black/30">
                 <div className="h-14 w-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
@@ -141,13 +166,38 @@ function ReelSlide({
               </div>
             )}
           </div>
+        ) : reel.media_url && getEmbedUrl(reel.media_url) ? (
+          <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl bg-black aspect-[9/16] max-h-[70vh]">
+            <iframe
+              src={getEmbedUrl(reel.media_url)!}
+              className="w-full h-full border-0"
+              allow="autoplay; encrypted-media; fullscreen"
+              allowFullScreen
+            />
+          </div>
+        ) : reel.media_url ? (
+          <a
+            href={reel.media_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative w-full rounded-2xl overflow-hidden shadow-2xl block"
+          >
+            {reel.thumbnail_url ? (
+              <img src={reel.thumbnail_url} alt={reel.title} className="w-full h-auto max-h-[70vh] object-contain" />
+            ) : (
+              <div className="w-full aspect-[9/16] max-h-[70vh] bg-muted flex items-center justify-center">
+                <Play className="h-12 w-12 text-muted-foreground" />
+              </div>
+            )}
+            <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+              <div className="h-14 w-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                <ExternalLink className="h-7 w-7 text-white" />
+              </div>
+            </div>
+          </a>
         ) : reel.thumbnail_url ? (
           <div className="relative w-full rounded-2xl overflow-hidden shadow-2xl">
-            <img
-              src={reel.thumbnail_url}
-              alt={reel.title}
-              className="w-full h-auto max-h-[70vh] object-contain"
-            />
+            <img src={reel.thumbnail_url} alt={reel.title} className="w-full h-auto max-h-[70vh] object-contain" />
           </div>
         ) : (
           <div className="w-full aspect-[9/16] max-h-[70vh] rounded-2xl bg-muted flex items-center justify-center">
