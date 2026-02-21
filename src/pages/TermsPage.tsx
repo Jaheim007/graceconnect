@@ -1,10 +1,17 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import termsBg from '@/assets/terms-bg.jpg';
 
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-background">
+      {/* Background image — subtle, fixed */}
+      <div className="fixed inset-0 z-0">
+        <img src={termsBg} alt="" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-background/92 backdrop-blur-sm" />
+      </div>
+
       {/* Nav */}
       <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
         <div className="container flex items-center justify-between h-14 px-4">
@@ -15,7 +22,7 @@ export default function TermsPage() {
         </div>
       </header>
 
-      <main className="container max-w-3xl px-4 pt-24 pb-16">
+      <main className="relative z-10 container max-w-3xl px-4 pt-24 pb-16">
         <h1 className="text-3xl font-bold mb-2">Conditions Générales d'Utilisation</h1>
         <p className="text-sm text-muted-foreground mb-8">Dernière mise à jour : 21 février 2026</p>
 
@@ -167,7 +174,7 @@ export default function TermsPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border/60 py-6 px-4">
+      <footer className="relative z-10 border-t border-border/60 py-6 px-4 bg-background/80">
         <div className="container flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <Link to="/" className="font-extrabold italic text-sm text-gold">Siteviral</Link>
           <div className="flex gap-4">
