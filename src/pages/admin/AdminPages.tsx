@@ -632,6 +632,8 @@ export function AdminSettings() {
   const { toast } = useToast();
   const qc = useQueryClient();
 
+  const orgAny = currentOrg as any;
+
   // Profile fields
   const [orgName, setOrgName] = useState(currentOrg?.name ?? '');
   const [description, setDescription] = useState(currentOrg?.description ?? '');
@@ -640,6 +642,13 @@ export function AdminSettings() {
   const [logoUrl, setLogoUrl] = useState(currentOrg?.logo_url ?? '');
   const [bannerUrl, setBannerUrl] = useState(currentOrg?.banner_url ?? '');
   const [savingProfile, setSavingProfile] = useState(false);
+
+  // Leader biography fields
+  const [leaderName, setLeaderName] = useState(orgAny?.leader_name ?? '');
+  const [leaderTitle, setLeaderTitle] = useState(orgAny?.leader_title ?? '');
+  const [leaderBio, setLeaderBio] = useState(orgAny?.leader_bio ?? '');
+  const [leaderImageUrl, setLeaderImageUrl] = useState(orgAny?.leader_image_url ?? '');
+  const [savingLeader, setSavingLeader] = useState(false);
 
   // Affiliation fields
   const [affiliationEnabled, setAffiliationEnabled] = useState(currentOrg?.affiliation_enabled ?? false);
@@ -713,13 +722,48 @@ export function AdminSettings() {
     else setBannerUrl(publicUrl);
   };
 
+  const handleUploadLeaderImage = async (file: File) => {
+    if (!currentOrg) return;
+    if (!file.type.startsWith('image/')) { toast({ title: 'Sélectionnez une image', variant: 'destructive' }); return; }
+    if (file.size > 10 * 1024 * 1024) { toast({ title: 'Image max 10 Mo', variant: 'destructive' }); return; }
+    const ext = file.name.split('.').pop();
+    const path = `${currentOrg.id}/leader-${Date.now()}.${ext}`;
+    const { data, error } = await supabase.storage.from('org-uploads').upload(path, file, { upsert: true });
+    if (error) { toast({ title: 'Échec upload', description: error.message, variant: 'destructive' }); return; }
+    const { data: { publicUrl } } = supabase.storage.from('org-uploads').getPublicUrl(data.path);
+    setLeaderImageUrl(publicUrl);
+  };
+
+  const handleSaveLeader = async () => {
+    if (!currentOrg) return;
+    setSavingLeader(true);
+    const { error } = await db
+      .from('organizations')
+      .update({
+        leader_name: leaderName.trim() || null,
+        leader_title: leaderTitle.trim() || null,
+        leader_bio: leaderBio.trim() || null,
+        leader_image_url: leaderImageUrl || null,
+      })
+      .eq('id', currentOrg.id);
+    setSavingLeader(false);
+    if (error) {
+      toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: '✅ Biographie du leader sauvegardée' });
+      refetchOrgs();
+      qc.invalidateQueries({ queryKey: ['org-by-slug'] });
+      qc.invalidateQueries({ queryKey: ['org-by-id'] });
+    }
+  };
+
   return (
-    <AdminPageShell title="Organization Settings" backRoute="/admin">
+    <AdminPageShell title="Paramètres" backRoute="/admin">
       <div className="space-y-4">
 
         {/* ── PROFILE ── */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-          <h2 className="font-semibold text-sm">Organization Profile</h2>
+          <h2 className="font-semibold text-sm">Profil de l'organisation</h2>
 
           {/* Banner upload */}
           <div className="space-y-2">
@@ -796,8 +840,8 @@ export function AdminSettings() {
             {[
               { label: 'Slug (URL)', value: currentOrg?.slug },
               { label: 'Plan', value: currentOrg?.plan_type },
-              { label: 'Country', value: currentOrg?.country },
-              { label: 'Currency', value: currentOrg?.currency },
+              { label: 'Pays', value: currentOrg?.country },
+              { label: 'Devise', value: currentOrg?.currency },
             ].map(({ label, value }) => (
               <div key={label} className="flex justify-between">
                 <span className="text-muted-foreground">{label}</span>
@@ -812,27 +856,86 @@ export function AdminSettings() {
             onClick={handleSaveProfile}
             disabled={savingProfile}
           >
-            {savingProfile ? 'Saving…' : 'Save Profile'}
+            {savingProfile ? 'Sauvegarde…' : 'Sauvegarder le profil'}
+          </Button>
+        </div>
+
+        {/* ── LEADER BIOGRAPHY ── */}
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+          <div>
+            <h2 className="font-semibold text-sm">Biographie du Leader</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Présentez le leader de votre organisation aux visiteurs de votre page publique.
+            </p>
+          </div>
+
+          {/* Leader image */}
+          <div className="flex items-center gap-4">
+            <div
+              className="h-20 w-20 rounded-2xl overflow-hidden border-2 border-dashed border-border bg-muted/40 cursor-pointer flex items-center justify-center group shrink-0"
+              onClick={() => document.getElementById('leader-upload')?.click()}
+            >
+              {leaderImageUrl
+                ? <img src={leaderImageUrl} alt="Leader" className="w-full h-full object-cover" />
+                : <span className="text-2xl">👤</span>
+              }
+              <input id="leader-upload" type="file" accept="image/*" className="hidden"
+                onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadLeaderImage(f); }} />
+            </div>
+            <p className="text-xs text-muted-foreground">Photo du leader (carrée recommandée)</p>
+          </div>
+
+          <div className="grid gap-3">
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="leader-name" className="text-xs font-medium">Nom du leader</Label>
+                <Input id="leader-name" value={leaderName} onChange={e => setLeaderName(e.target.value)} placeholder="Ex: Pasteur Jean Dupont" className="h-8 text-xs" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="leader-title" className="text-xs font-medium">Titre / Fonction</Label>
+                <Input id="leader-title" value={leaderTitle} onChange={e => setLeaderTitle(e.target.value)} placeholder="Ex: Pasteur Principal, Fondateur…" className="h-8 text-xs" />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="leader-bio" className="text-xs font-medium">Biographie</Label>
+              <textarea
+                id="leader-bio"
+                rows={4}
+                value={leaderBio}
+                onChange={e => setLeaderBio(e.target.value)}
+                placeholder="Présentez le parcours, la vision et la mission du leader…"
+                className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-ring"
+              />
+            </div>
+          </div>
+
+          <Button
+            size="sm"
+            className="gold-gradient text-primary-foreground border-0 shadow-gold"
+            onClick={handleSaveLeader}
+            disabled={savingLeader}
+          >
+            {savingLeader ? 'Sauvegarde…' : 'Sauvegarder la biographie'}
           </Button>
         </div>
 
         {/* ── AFFILIATION ── */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
           <div>
-            <h2 className="font-semibold text-sm">Affiliation Program</h2>
+            <h2 className="font-semibold text-sm">Programme d'affiliation</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Allow members to earn commissions by sharing referral links for products and campaigns.
+              Permettez aux membres de gagner des commissions en partageant des liens de parrainage.
             </p>
           </div>
 
           <div className="flex items-center justify-between">
-            <Label htmlFor="affiliation-toggle" className="text-xs font-medium">Enable Affiliation</Label>
+            <Label htmlFor="affiliation-toggle" className="text-xs font-medium">Activer l'affiliation</Label>
             <Switch id="affiliation-toggle" checked={affiliationEnabled} onCheckedChange={setAffiliationEnabled} />
           </div>
 
           {affiliationEnabled && (
             <div className="space-y-2">
-              <Label htmlFor="commission-pct" className="text-xs font-medium">Commission Rate (%)</Label>
+              <Label htmlFor="commission-pct" className="text-xs font-medium">Taux de commission (%)</Label>
               <div className="flex items-center gap-2">
                 <Input
                   id="commission-pct"
@@ -843,7 +946,7 @@ export function AdminSettings() {
                   onChange={e => setCommissionPercent(e.target.value)}
                   className="h-8 text-xs w-24"
                 />
-                <span className="text-xs text-muted-foreground">% per sale/donation via affiliate link</span>
+                <span className="text-xs text-muted-foreground">% par vente/don via lien affilié</span>
               </div>
             </div>
           )}
@@ -854,11 +957,11 @@ export function AdminSettings() {
             onClick={handleSaveAffiliation}
             disabled={savingAffiliation}
           >
-            {savingAffiliation ? 'Saving…' : 'Save Affiliation Settings'}
+            {savingAffiliation ? 'Sauvegarde…' : 'Sauvegarder l\'affiliation'}
           </Button>
         </div>
 
-        <p className="text-xs text-muted-foreground text-center">Contact support to update plan, country, or currency.</p>
+        <p className="text-xs text-muted-foreground text-center">Contactez le support pour modifier le plan, pays ou devise.</p>
       </div>
     </AdminPageShell>
   );
