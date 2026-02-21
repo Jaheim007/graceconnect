@@ -744,6 +744,50 @@ export type Database = {
           },
         ]
       }
+      org_photos: {
+        Row: {
+          caption: string | null
+          created_at: string | null
+          created_by: string | null
+          display_order: number | null
+          id: string
+          image_url: string
+          is_published: boolean | null
+          organization_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          display_order?: number | null
+          id?: string
+          image_url: string
+          is_published?: boolean | null
+          organization_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string
+          is_published?: boolean | null
+          organization_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_photos_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_members: {
         Row: {
           id: string
