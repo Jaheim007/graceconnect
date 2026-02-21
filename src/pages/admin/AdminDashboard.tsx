@@ -107,54 +107,55 @@ export default function AdminDashboard() {
         </Button>
       </div>
 
-      {/* KYC banner */}
-      {currentOrg?.kyc_status === 'none' && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-start gap-3 p-4 rounded-2xl bg-primary/8 border border-primary/20"
-        >
-          <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
-            <AlertTriangle className="h-5 w-5 text-primary" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm">Soumettez votre KYC pour les paiements</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Vous pouvez accepter les paiements dès maintenant. Le KYC est requis uniquement pour les retraits.
-            </p>
-          </div>
-          <Button size="sm" variant="outline" onClick={() => navigate('/admin/kyc')} className="h-8 text-xs shrink-0">
-            Soumettre KYC
-          </Button>
-        </motion.div>
-      )}
-
-      {/* Revenue cards — only when there are transactions */}
+      {/* Quick actions — TOP */}
       <motion.div
-          variants={stagger}
-          initial="hidden"
-          animate="visible"
-          className="grid grid-cols-2 lg:grid-cols-4 gap-3"
-        >
-          {revenueCards.map((card) => (
-            <motion.div
-              key={card.label}
-              variants={fadeUp}
-              className={cn(
-                'rounded-2xl border p-4 bg-gradient-to-br backdrop-blur-sm',
-                card.colorClass
-              )}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-card border border-border rounded-2xl p-5"
+      >
+        <h2 className="font-semibold text-sm mb-4">Actions rapides</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {quickActions.map((a) => (
+            <Button
+              key={a.label}
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(a.to)}
+              className="gap-2 text-xs h-10 justify-start hover:bg-primary/5 hover:border-primary/30 transition-colors"
             >
-              <div className="flex items-center justify-between mb-3">
-                <card.icon className="h-4 w-4 text-muted-foreground" />
-                <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground/60" />
-              </div>
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{card.label}</p>
-              <p className="text-xl font-bold mt-1">{card.value}</p>
-              <p className="text-[10px] text-muted-foreground mt-1">{card.sub}</p>
-            </motion.div>
+              <a.icon className="h-4 w-4 text-primary" />
+              {a.label}
+            </Button>
           ))}
-        </motion.div>
+        </div>
+      </motion.div>
+
+      {/* Revenue cards */}
+      <motion.div
+        variants={stagger}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-2 lg:grid-cols-4 gap-3"
+      >
+        {revenueCards.map((card) => (
+          <motion.div
+            key={card.label}
+            variants={fadeUp}
+            className={cn(
+              'rounded-2xl border p-4 bg-gradient-to-br backdrop-blur-sm',
+              card.colorClass
+            )}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <card.icon className="h-4 w-4 text-muted-foreground" />
+              <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground/60" />
+            </div>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{card.label}</p>
+            <p className="text-xl font-bold mt-1">{card.value}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{card.sub}</p>
+          </motion.div>
+        ))}
+      </motion.div>
 
       {/* Stats grid */}
       <motion.div
@@ -183,29 +184,27 @@ export default function AdminDashboard() {
         ))}
       </motion.div>
 
-      {/* Quick actions */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="bg-card border border-border rounded-2xl p-5"
-      >
-        <h2 className="font-semibold text-sm mb-4">Actions rapides</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {quickActions.map((a) => (
-            <Button
-              key={a.label}
-              variant="outline"
-              size="sm"
-              onClick={() => navigate(a.to)}
-              className="gap-2 text-xs h-10 justify-start hover:bg-primary/5 hover:border-primary/30 transition-colors"
-            >
-              <a.icon className="h-4 w-4 text-primary" />
-              {a.label}
-            </Button>
-          ))}
-        </div>
-      </motion.div>
+      {/* KYC banner — BOTTOM */}
+      {currentOrg?.kyc_status === 'none' && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-start gap-3 p-4 rounded-2xl bg-primary/8 border border-primary/20"
+        >
+          <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+            <AlertTriangle className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-sm">Complétez votre vérification pour retirer vos fonds</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Vous pouvez accepter les paiements dès maintenant. La vérification KYC est requise uniquement pour les retraits.
+            </p>
+          </div>
+          <Button size="sm" variant="outline" onClick={() => navigate('/admin/kyc')} className="h-8 text-xs shrink-0">
+            Vérifier mon compte
+          </Button>
+        </motion.div>
+      )}
     </div>
   );
 }
