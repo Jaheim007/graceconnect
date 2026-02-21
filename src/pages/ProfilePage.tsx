@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
   Camera, LogOut, ChevronRight, User, Lock, Bell, Globe,
-  Info, Moon, Sun, HelpCircle, Mail, Shield, ArrowLeft, Trash2
+  Info, Moon, Sun, HelpCircle, Mail, Shield, ArrowLeft, Trash2, BookOpen
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -103,6 +103,7 @@ export default function ProfilePage() {
   // Settings menu items
   const accountItems = [
     { icon: User, label: 'Modifier le profil', sub: displayName, onClick: () => setActiveSection('edit-profile') },
+    { icon: BookOpen, label: 'Mon Espace', sub: 'Achats & ressources', onClick: () => navigate('/dashboard') },
     { icon: Lock, label: 'Mot de passe & sécurité', sub: '', onClick: () => toast({ title: 'Bientôt disponible', description: 'Cette fonctionnalité arrive prochainement.' }) },
     { icon: Bell, label: 'Notifications', sub: '', onClick: () => navigate('/notifications') },
     { icon: Globe, label: 'Langue', sub: 'Français', onClick: () => toast({ title: 'Bientôt disponible', description: 'Le changement de langue arrive prochainement.' }) },
