@@ -112,10 +112,10 @@ export default function AdminPhotos() {
       {/* Add new photo */}
       <div className="bg-card border border-border rounded-2xl p-5 space-y-4 mb-6">
         <h2 className="font-semibold text-sm flex items-center gap-2">
-          <Plus className="h-4 w-4 text-primary" /> Add Photo
+          <Plus className="h-4 w-4 text-primary" /> Ajouter une photo
         </h2>
          <p className="text-xs text-muted-foreground">
-           Upload photos of your community, events, or activities. We'll optimize them automatically.
+           Téléchargez des photos de votre communauté, événements ou activités. Nous les optimiserons automatiquement.
          </p>
          <ImageUploader
            value={newImageUrl}
@@ -129,7 +129,7 @@ export default function AdminPhotos() {
         {newImageUrl && (
           <div className="space-y-2">
             <Input
-              placeholder="Caption (optional)"
+              placeholder="Légende (optionnel)"
               value={newCaption}
               onChange={(e) => setNewCaption(e.target.value)}
               className="text-sm"
@@ -140,7 +140,7 @@ export default function AdminPhotos() {
               className="gold-gradient text-primary-foreground border-0 shadow-gold"
               size="sm"
             >
-              {adding ? 'Adding...' : 'Add Photo'}
+              {adding ? 'Ajout en cours…' : 'Ajouter la photo'}
             </Button>
           </div>
         )}
@@ -152,8 +152,8 @@ export default function AdminPhotos() {
       ) : photos.length === 0 ? (
         <EmptyState
           variant="generic"
-          title="No photos yet"
-          description="Upload photos to showcase your community on your public page."
+          title="Aucune photo"
+          description="Téléchargez des photos pour présenter votre communauté sur votre page publique."
         />
       ) : (
         <div className="space-y-3">

@@ -64,12 +64,12 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
         )}
 
         {/* Logo */}
-        <div className="absolute -bottom-5 left-4 h-10 w-10 rounded-xl border-2 border-card shadow-card overflow-hidden bg-card">
+        <div className="absolute -bottom-7 left-4 h-14 w-14 rounded-2xl border-[3px] border-card shadow-elevated overflow-hidden bg-card">
           {org.logo_url ? (
             <img src={org.logo_url} alt={org.name} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full gold-gradient flex items-center justify-center">
-              <span className="text-xs font-bold text-primary-foreground">
+              <span className="text-sm font-bold text-primary-foreground">
                 {org.name.slice(0, 2).toUpperCase()}
               </span>
             </div>
@@ -85,7 +85,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
       </div>
 
       {/* Content */}
-      <div className="pt-7 px-4 pb-4">
+      <div className="pt-9 px-4 pb-4">
         <div className="flex items-start justify-between gap-2 mb-1">
           <h3 className="font-semibold text-sm leading-tight line-clamp-1">{org.name}</h3>
           <Badge
