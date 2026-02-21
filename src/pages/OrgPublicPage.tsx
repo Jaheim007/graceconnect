@@ -333,13 +333,13 @@ export default function OrgPublicPage() {
         <Tabs value={activeTab} onValueChange={navigateTab} className="w-full">
           <TabsList className="w-full justify-start overflow-x-auto scrollbar-hide mb-6 bg-muted/60 h-11">
             <TabsTrigger value="home" className="text-xs">Accueil</TabsTrigger>
-            {org.monetization_enabled && products.length > 0 && (
+            {products.length > 0 && (
               <TabsTrigger value="store" className="text-xs gap-1">
                 <ShoppingBag className="h-3 w-3" />
                 Boutique ({products.length})
               </TabsTrigger>
             )}
-            {org.monetization_enabled && campaigns.length > 0 && (
+            {campaigns.length > 0 && (
               <TabsTrigger value="donate" className="text-xs gap-1">
                 <Heart className="h-3 w-3" />
                 Dons ({campaigns.length})
@@ -357,7 +357,7 @@ export default function OrgPublicPage() {
 
           {/* ─── HOME TAB ─── */}
           <TabsContent value="home" className="space-y-8">
-            {products.length > 0 && org.monetization_enabled && (
+            {products.length > 0 && (
               <section>
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="font-semibold text-sm flex items-center gap-1.5">
@@ -377,7 +377,7 @@ export default function OrgPublicPage() {
               </section>
             )}
 
-            {campaigns.length > 0 && org.monetization_enabled && (
+            {campaigns.length > 0 && (
               <section>
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="font-semibold text-sm flex items-center gap-1.5">

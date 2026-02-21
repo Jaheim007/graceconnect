@@ -1,9 +1,13 @@
 import { DigitalProduct } from '@/types/database';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen } from 'lucide-react';
+import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen, Share2, Copy, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface ProductCardProps {
   product: DigitalProduct;
@@ -14,6 +18,18 @@ interface ProductCardProps {
 
 export function ProductCard({ product, onPurchase, index = 0, isPurchased }: ProductCardProps) {
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const shareUrl = `${window.location.origin}/org/${(product as any).organization_slug || ''}?tab=store`;
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(shareUrl);
+    toast({ title: 'Lien copié !' });
+  };
+
+  const handleShareWhatsApp = () => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(`${product.title} — ${shareUrl}`)}`, '_blank');
+  };
 
   const fmt = (n: number) =>
     n === 0 || product.is_free
@@ -79,6 +95,21 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
           </div>
 
           <div className="flex items-center gap-1.5">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground">
+                  <Share2 className="h-3.5 w-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44">
+                <DropdownMenuItem onClick={handleCopyLink} className="gap-2 text-xs">
+                  <Copy className="h-3.5 w-3.5" /> Copier le lien
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleShareWhatsApp} className="gap-2 text-xs">
+                  <MessageCircle className="h-3.5 w-3.5 text-green-500" /> WhatsApp
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             {isPurchased ? (
               <Button
                 size="sm"
