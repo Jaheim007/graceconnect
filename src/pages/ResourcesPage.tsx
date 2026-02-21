@@ -56,16 +56,17 @@ export default function ResourcesPage() {
       }
 
       const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
 
       if (mode === 'inline') {
-        // Open in new tab for reading
+        // Force PDF type so browser opens it instead of downloading
+        const pdfBlob = new Blob([blob], { type: 'application/pdf' });
+        const url = URL.createObjectURL(pdfBlob);
         window.open(url, '_blank');
       } else {
+        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        const ext = purchase.product.file_url.split('.').pop() || 'pdf';
-        a.download = `${purchase.product.title}.${ext}`;
+        a.download = `${purchase.product.title}.pdf`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
