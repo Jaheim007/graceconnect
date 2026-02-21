@@ -51,17 +51,6 @@ export default function CreateOrgPage() {
   });
 
   const { watch, setValue, formState: { errors } } = form;
-
-  // Redirect away if user already has an org — prevents the "create org" flash on refresh
-  useEffect(() => {
-    if (!isLoadingOrgs && userOrgs.length > 0) {
-      navigate('/admin', { replace: true });
-    }
-  }, [isLoadingOrgs, userOrgs.length, navigate]);
-
-  // Show nothing while checking orgs
-  if (isLoadingOrgs) return null;
-  if (userOrgs.length > 0) return null;
   const nameVal = watch('name');
 
   const handleNameBlur = () => {
