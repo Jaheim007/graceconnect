@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
     const { data: org, error: orgErr } = await db.from('organizations').select('*').eq('id', organization_id).single();
     if (orgErr || !org) return new Response(JSON.stringify({ error: 'Organization not found' }), { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     if (!org.is_active) return new Response(JSON.stringify({ error: 'Organization is inactive' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-    if (!org.monetization_enabled) return new Response(JSON.stringify({ error: 'This organization has not enabled monetization. KYC approval required.' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    // KYC is only required for payouts, not for accepting payments
 
     // ── 3. Verify with Paystack ───────────────────────────────────────────────
     const psRes = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
