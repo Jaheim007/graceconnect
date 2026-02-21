@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Megaphone, CalendarDays, ShoppingBag, Heart,
-  Play, Headphones, Film, TrendingUp,
+  Play, Headphones, Film, TrendingUp, MapPin,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { MediaCard } from '@/components/media/MediaCard';
@@ -32,6 +32,16 @@ const TABS: { value: Tab; label: string; icon: React.ReactNode }[] = [
   { value: 'campaigns', label: 'Campagnes', icon: <Heart className="h-3.5 w-3.5" /> },
   { value: 'events', label: 'Événements', icon: <CalendarDays className="h-3.5 w-3.5" /> },
 ];
+
+const staggerContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08 } },
+} as const;
+
+const staggerItem = {
+  hidden: { opacity: 0, y: 20, scale: 0.97 },
+  visible: { opacity: 1, y: 0, scale: 1, transition: { type: 'spring' as const, stiffness: 300, damping: 24 } },
+} as const;
 
 export default function FeedPage() {
   const navigate = useNavigate();
@@ -71,39 +81,43 @@ export default function FeedPage() {
   }
 
   const tabVariants = {
-    hidden: { opacity: 0, y: 12 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.25 } },
-    exit: { opacity: 0, y: -8, transition: { duration: 0.15 } },
+    hidden: { opacity: 0, y: 16 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: 'easeOut' as const } },
+    exit: { opacity: 0, y: -10, transition: { duration: 0.15 } },
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container max-w-5xl py-5 space-y-5">
+      <div className="container max-w-5xl py-6 space-y-6">
 
         {/* Header */}
-        <div className="flex items-center justify-between gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between gap-4"
+        >
           <div>
-            <h1 className="text-xl font-bold">Votre fil</h1>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <h1 className="text-2xl font-extrabold tracking-tight">Votre fil</h1>
+            <p className="text-sm text-muted-foreground mt-0.5">
               {userOrgs.length} communauté{userOrgs.length > 1 ? 's' : ''}
             </p>
           </div>
           <div className="relative w-full max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-            <Input placeholder="Rechercher..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 h-9 text-sm" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input placeholder="Rechercher..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 h-10" />
           </div>
-        </div>
+        </motion.div>
 
         {/* Pinned Announcement */}
         {!announcementsLoading && announcements.some((a) => a.is_pinned) && (
-          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl border border-primary/30 bg-primary/5 p-4 flex gap-3 items-start">
-            <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-              <Megaphone className="h-4 w-4 text-primary" />
+          <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="rounded-2xl border border-primary/30 bg-primary/5 p-4 flex gap-3 items-start backdrop-blur-sm">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <Megaphone className="h-5 w-5 text-primary" />
             </div>
             <div className="min-w-0">
-              <span className="text-[10px] font-semibold text-primary uppercase tracking-wide">📌 Épinglé</span>
-              <p className="font-semibold text-sm mt-0.5 line-clamp-1">{announcements.find((a) => a.is_pinned)?.title}</p>
-              <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{announcements.find((a) => a.is_pinned)?.body}</p>
+              <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Épinglé</span>
+              <p className="font-bold text-sm mt-0.5 line-clamp-1">{announcements.find((a) => a.is_pinned)?.title}</p>
+              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{announcements.find((a) => a.is_pinned)?.body}</p>
             </div>
           </motion.div>
         )}
@@ -115,10 +129,10 @@ export default function FeedPage() {
               key={t.value}
               onClick={() => setTab(t.value)}
               className={cn(
-                'shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium transition-all border',
+                'shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all border',
                 tab === t.value
                   ? 'gold-gradient text-primary-foreground border-primary shadow-gold'
-                  : 'border-border text-muted-foreground hover:text-foreground bg-card'
+                  : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/20 bg-card'
               )}
             >
               {t.icon}
@@ -128,71 +142,95 @@ export default function FeedPage() {
         </div>
 
         <AnimatePresence mode="wait">
-          <motion.div key={tab} variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="space-y-8">
+          <motion.div key={tab} variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="space-y-10">
 
             {/* TAB: ALL */}
             {tab === 'all' && (
               <>
+                {/* Announcements */}
                 {!announcementsLoading && filteredAnnouncements.length > 0 && (
                   <section>
                     <SectionHeader icon={<Megaphone className="h-4 w-4 text-primary" />} title="Annonces" />
-                    <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
-                      {filteredAnnouncements.slice(0, 6).map((a, i) => (
-                        <motion.div key={a.id} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }} className="shrink-0 w-60 bg-card rounded-2xl border border-border overflow-hidden shadow-card">
-                          {a.image_url && <div className="h-28 overflow-hidden"><img src={a.image_url} alt={a.title} className="w-full h-full object-cover" /></div>}
-                          <div className="p-3">
-                            {a.is_pinned && <span className="text-[10px] text-primary font-semibold">📌 Épinglé</span>}
-                            <h3 className="font-semibold text-xs mt-0.5 line-clamp-2">{a.title}</h3>
-                            <p className="text-[11px] text-muted-foreground mt-1 line-clamp-3">{a.body}</p>
+                    <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
+                      {filteredAnnouncements.slice(0, 6).map((a) => (
+                        <motion.div key={a.id} variants={staggerItem} className="shrink-0 w-72 bg-card rounded-2xl border border-border overflow-hidden shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300">
+                          {a.image_url && <div className="h-36 overflow-hidden"><img src={a.image_url} alt={a.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" /></div>}
+                          <div className="p-4">
+                            {a.is_pinned && <span className="text-[10px] text-primary font-bold uppercase tracking-wider">Épinglé</span>}
+                            <h3 className="font-bold text-sm mt-1 line-clamp-2">{a.title}</h3>
+                            <p className="text-xs text-muted-foreground mt-1.5 line-clamp-3">{a.body}</p>
                           </div>
                         </motion.div>
                       ))}
-                    </div>
+                    </motion.div>
                   </section>
                 )}
 
+                {/* Events */}
                 {!eventsLoading && filteredEvents.length > 0 && (
                   <section>
                     <SectionHeader icon={<CalendarDays className="h-4 w-4 text-accent" />} title="Événements à venir" />
-                    <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
-                      {filteredEvents.map((ev, i) => (
-                        <motion.div key={ev.id} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.06 }} className="shrink-0 w-52 bg-card rounded-2xl border border-border overflow-hidden shadow-card">
-                          {ev.image_url ? <div className="h-28 overflow-hidden"><img src={ev.image_url} alt={ev.title} className="w-full h-full object-cover" /></div> : <div className="h-16 gold-gradient flex items-center justify-center"><CalendarDays className="h-7 w-7 text-primary-foreground/80" /></div>}
-                          <div className="p-3">
-                            <p className="font-semibold text-xs line-clamp-2">{ev.title}</p>
-                            <p className="text-[10px] text-primary font-medium mt-1">{ev.event_date ? new Date(ev.event_date).toLocaleDateString('fr-FR', { weekday: 'short', month: 'short', day: 'numeric' }) : 'Date à confirmer'}</p>
-                            {ev.location && <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-1">📍 {ev.location}</p>}
+                    <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
+                      {filteredEvents.map((ev) => (
+                        <motion.div key={ev.id} variants={staggerItem} className="shrink-0 w-64 bg-card rounded-2xl border border-border overflow-hidden shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300">
+                          {ev.image_url ? (
+                            <div className="h-36 overflow-hidden"><img src={ev.image_url} alt={ev.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" /></div>
+                          ) : (
+                            <div className="h-24 gold-gradient flex items-center justify-center"><CalendarDays className="h-8 w-8 text-primary-foreground/70" /></div>
+                          )}
+                          <div className="p-4 space-y-1.5">
+                            <p className="font-bold text-sm line-clamp-2">{ev.title}</p>
+                            <p className="text-xs font-semibold text-primary">{ev.event_date ? new Date(ev.event_date).toLocaleDateString('fr-FR', { weekday: 'short', month: 'short', day: 'numeric' }) : 'Date à confirmer'}</p>
+                            {ev.location && <p className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" />{ev.location}</p>}
                           </div>
                         </motion.div>
                       ))}
-                    </div>
+                    </motion.div>
                   </section>
                 )}
 
+                {/* Products */}
                 {!productsLoading && filteredProducts.length > 0 && (
                   <section>
                     <SectionHeader icon={<ShoppingBag className="h-4 w-4 text-primary" />} title="Boutique" action={{ label: 'Tout voir', onClick: () => setTab('store') }} />
-                    <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
-                      {filteredProducts.slice(0, 6).map((p, i) => <div key={p.id} className="shrink-0 w-52"><ProductCard product={p} index={i} onPurchase={() => setBuyProduct(p)} isPurchased={purchasedProductIds.has(p.id)} /></div>)}
-                    </div>
+                    <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                      {filteredProducts.slice(0, 6).map((p, i) => (
+                        <motion.div key={p.id} variants={staggerItem}>
+                          <ProductCard product={p} index={i} onPurchase={() => setBuyProduct(p)} isPurchased={purchasedProductIds.has(p.id)} />
+                        </motion.div>
+                      ))}
+                    </motion.div>
                   </section>
                 )}
 
+                {/* Campaigns */}
                 {!campaignsLoading && filteredCampaigns.length > 0 && (
                   <section>
                     <SectionHeader icon={<Heart className="h-4 w-4 text-destructive" />} title="Campagnes de dons" action={{ label: 'Tout voir', onClick: () => setTab('campaigns') }} />
-                    <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
-                      {filteredCampaigns.slice(0, 4).map((c, i) => <div key={c.id} className="shrink-0 w-64"><CampaignCard campaign={c} index={i} onDonate={() => setDonateCampaign(c)} /></div>)}
-                    </div>
+                    <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                      {filteredCampaigns.slice(0, 6).map((c, i) => (
+                        <motion.div key={c.id} variants={staggerItem}>
+                          <CampaignCard campaign={c} index={i} onDonate={() => setDonateCampaign(c)} />
+                        </motion.div>
+                      ))}
+                    </motion.div>
                   </section>
                 )}
 
+                {/* Photos */}
                 <FeedPhotoSlider orgIds={orgIds} />
 
+                {/* Latest content */}
                 <section>
                   <SectionHeader icon={<TrendingUp className="h-4 w-4 text-primary" />} title="Derniers contenus" action={filteredMedia.length > 6 ? { label: 'Tout voir', onClick: () => setTab('media') } : undefined} />
                   {mediaLoading ? <SkeletonList count={6} /> : filteredMedia.length === 0 ? <EmptyState variant="content" /> : (
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{filteredMedia.slice(0, 6).map((m, i) => <MediaCard key={m.id} media={m} index={i} />)}</div>
+                    <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                      {filteredMedia.slice(0, 6).map((m, i) => (
+                        <motion.div key={m.id} variants={staggerItem}>
+                          <MediaCard media={m} index={i} />
+                        </motion.div>
+                      ))}
+                    </motion.div>
                   )}
                 </section>
               </>
@@ -206,7 +244,13 @@ export default function FeedPage() {
               <section>
                 <SectionHeader icon={<ShoppingBag className="h-4 w-4 text-primary" />} title="Boutique" />
                 {productsLoading ? <SkeletonList count={4} /> : filteredProducts.length === 0 ? <EmptyState variant="generic" title="Aucun produit" description="Les organisations que vous suivez n'ont pas encore de produits." /> : (
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{filteredProducts.map((p, i) => <ProductCard key={p.id} product={p} index={i} onPurchase={() => setBuyProduct(p)} isPurchased={purchasedProductIds.has(p.id)} />)}</div>
+                  <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    {filteredProducts.map((p, i) => (
+                      <motion.div key={p.id} variants={staggerItem}>
+                        <ProductCard product={p} index={i} onPurchase={() => setBuyProduct(p)} isPurchased={purchasedProductIds.has(p.id)} />
+                      </motion.div>
+                    ))}
+                  </motion.div>
                 )}
               </section>
             )}
@@ -216,7 +260,13 @@ export default function FeedPage() {
               <section>
                 <SectionHeader icon={<Heart className="h-4 w-4 text-destructive" />} title="Campagnes de dons" />
                 {campaignsLoading ? <SkeletonList count={4} /> : filteredCampaigns.length === 0 ? <EmptyState variant="campaigns" /> : (
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{filteredCampaigns.map((c, i) => <CampaignCard key={c.id} campaign={c} index={i} onDonate={() => setDonateCampaign(c)} />)}</div>
+                  <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                    {filteredCampaigns.map((c, i) => (
+                      <motion.div key={c.id} variants={staggerItem}>
+                        <CampaignCard campaign={c} index={i} onDonate={() => setDonateCampaign(c)} />
+                      </motion.div>
+                    ))}
+                  </motion.div>
                 )}
               </section>
             )}
@@ -229,35 +279,35 @@ export default function FeedPage() {
                   <>
                     {filteredAnnouncements.length > 0 && (
                       <div className="mb-6">
-                        <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">Annonces</p>
-                        <div className="space-y-3">
-                          {filteredAnnouncements.map((a, i) => (
-                            <motion.div key={a.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="flex gap-3 items-start bg-card border border-border rounded-2xl p-3">
-                              {a.image_url ? <div className="h-14 w-14 rounded-xl overflow-hidden shrink-0"><img src={a.image_url} alt={a.title} className="w-full h-full object-cover" /></div> : <div className="h-14 w-14 rounded-xl bg-primary/10 flex items-center justify-center shrink-0"><Megaphone className="h-5 w-5 text-primary" /></div>}
+                        <p className="text-xs font-bold text-muted-foreground mb-3 uppercase tracking-widest">Annonces</p>
+                        <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-3">
+                          {filteredAnnouncements.map((a) => (
+                            <motion.div key={a.id} variants={staggerItem} className="flex gap-3 items-start bg-card border border-border rounded-2xl p-4 hover:shadow-elevated transition-all duration-300">
+                              {a.image_url ? <div className="h-16 w-16 rounded-xl overflow-hidden shrink-0"><img src={a.image_url} alt={a.title} className="w-full h-full object-cover" /></div> : <div className="h-16 w-16 rounded-xl bg-primary/10 flex items-center justify-center shrink-0"><Megaphone className="h-6 w-6 text-primary" /></div>}
                               <div className="min-w-0">
-                                {a.is_pinned && <span className="text-[10px] text-primary font-semibold">📌 Épinglé · </span>}
-                                <p className="font-semibold text-sm line-clamp-1">{a.title}</p>
-                                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{a.body}</p>
+                                {a.is_pinned && <span className="text-[10px] text-primary font-bold uppercase tracking-wider">Épinglé · </span>}
+                                <p className="font-bold text-sm line-clamp-1">{a.title}</p>
+                                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{a.body}</p>
                               </div>
                             </motion.div>
                           ))}
-                        </div>
+                        </motion.div>
                       </div>
                     )}
-                    <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wider">Événements</p>
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      {filteredEvents.map((ev, i) => (
-                        <motion.div key={ev.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }} className="bg-card border border-border rounded-2xl overflow-hidden shadow-card">
-                          {ev.image_url ? <div className="h-36 overflow-hidden"><img src={ev.image_url} alt={ev.title} className="w-full h-full object-cover" /></div> : <div className="h-24 gold-gradient flex items-center justify-center"><CalendarDays className="h-10 w-10 text-primary-foreground/60" /></div>}
-                          <div className="p-4 space-y-1.5">
-                            <p className="font-semibold text-sm line-clamp-2">{ev.title}</p>
-                            {ev.event_date && <p className="text-xs font-medium text-primary">📅 {new Date(ev.event_date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
-                            {ev.location && <p className="text-xs text-muted-foreground">📍 {ev.location}</p>}
+                    <p className="text-xs font-bold text-muted-foreground mb-4 uppercase tracking-widest">Événements</p>
+                    <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                      {filteredEvents.map((ev) => (
+                        <motion.div key={ev.id} variants={staggerItem} className="bg-card border border-border rounded-2xl overflow-hidden shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300">
+                          {ev.image_url ? <div className="h-44 overflow-hidden"><img src={ev.image_url} alt={ev.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" /></div> : <div className="h-28 gold-gradient flex items-center justify-center"><CalendarDays className="h-10 w-10 text-primary-foreground/60" /></div>}
+                          <div className="p-5 space-y-2">
+                            <p className="font-bold text-base line-clamp-2">{ev.title}</p>
+                            {ev.event_date && <p className="text-sm font-semibold text-primary">{new Date(ev.event_date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
+                            {ev.location && <p className="text-sm text-muted-foreground flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5" />{ev.location}</p>}
                             {ev.description && <p className="text-xs text-muted-foreground line-clamp-2 pt-1">{ev.description}</p>}
                           </div>
                         </motion.div>
                       ))}
-                    </div>
+                    </motion.div>
                   </>
                 )}
               </section>
@@ -275,9 +325,12 @@ export default function FeedPage() {
 
 function SectionHeader({ icon, title, action }: { icon: React.ReactNode; title: string; action?: { label: string; onClick: () => void } }) {
   return (
-    <div className="flex items-center justify-between mb-3">
-      <div className="flex items-center gap-2">{icon}<h2 className="font-semibold text-sm">{title}</h2></div>
-      {action && <button onClick={action.onClick} className="text-xs text-primary font-medium hover:underline">{action.label} →</button>}
+    <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center gap-2.5">
+        {icon}
+        <h2 className="font-bold text-base">{title}</h2>
+      </div>
+      {action && <button onClick={action.onClick} className="text-sm text-primary font-semibold hover:underline underline-offset-4">{action.label} →</button>}
     </div>
   );
 }
@@ -285,24 +338,30 @@ function SectionHeader({ icon, title, action }: { icon: React.ReactNode; title: 
 function MediaTypeFilter({ allMedia }: { allMedia: ReturnType<typeof useFeedMedia>['data'] }) {
   const [mediaFilter, setMediaFilter] = useState<string>('all');
   const MEDIA_FILTERS = [
-    { value: 'all', label: 'Tout', icon: <TrendingUp className="h-3 w-3" /> },
-    { value: 'video', label: 'Vidéos', icon: <Play className="h-3 w-3" /> },
-    { value: 'audio', label: 'Audio', icon: <Headphones className="h-3 w-3" /> },
-    { value: 'reel', label: 'Reels', icon: <Film className="h-3 w-3" /> },
+    { value: 'all', label: 'Tout', icon: <TrendingUp className="h-3.5 w-3.5" /> },
+    { value: 'video', label: 'Vidéos', icon: <Play className="h-3.5 w-3.5" /> },
+    { value: 'audio', label: 'Audio', icon: <Headphones className="h-3.5 w-3.5" /> },
+    { value: 'reel', label: 'Reels', icon: <Film className="h-3.5 w-3.5" /> },
   ];
   const filtered = (allMedia || []).filter((m) => mediaFilter === 'all' || m.media_type === mediaFilter);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
         {MEDIA_FILTERS.map((f) => (
-          <button key={f.value} onClick={() => setMediaFilter(f.value)} className={cn('shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all', mediaFilter === f.value ? 'gold-gradient text-primary-foreground border-primary shadow-gold' : 'border-border text-muted-foreground bg-card hover:text-foreground')}>
+          <button key={f.value} onClick={() => setMediaFilter(f.value)} className={cn('shrink-0 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border transition-all', mediaFilter === f.value ? 'gold-gradient text-primary-foreground border-primary shadow-gold' : 'border-border text-muted-foreground bg-card hover:text-foreground')}>
             {f.icon} {f.label}
           </button>
         ))}
       </div>
       {filtered.length === 0 ? <EmptyState variant="content" /> : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{filtered.map((m, i) => <MediaCard key={m.id} media={m} index={i} />)}</div>
+        <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((m, i) => (
+            <motion.div key={m.id} variants={staggerItem}>
+              <MediaCard media={m} index={i} />
+            </motion.div>
+          ))}
+        </motion.div>
       )}
     </div>
   );
