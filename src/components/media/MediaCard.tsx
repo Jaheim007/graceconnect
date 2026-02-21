@@ -29,7 +29,7 @@ export function MediaCard({ media, index = 0, compact = false }: MediaCardProps)
 
   return (
     <div
-      onClick={() => navigate(`/watch/${media.id}`)}
+      onClick={() => navigate(media.media_type === 'reel' ? `/reels/${media.id}` : `/watch/${media.id}`)}
       className={cn(
         'group bg-card border border-border rounded-xl overflow-hidden cursor-pointer hover:shadow-elevated transition-all duration-200 hover:-translate-y-0.5 animate-fade-in',
         compact ? 'flex gap-3 p-2' : ''

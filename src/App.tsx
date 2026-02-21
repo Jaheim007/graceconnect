@@ -85,6 +85,7 @@ const App = () => (
                 <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
                   <Route path="/feed" element={<FeedPage />} />
                   <Route path="/reels" element={<ReelsPage />} />
+                  <Route path="/reels/:id" element={<ReelsPage />} />
                   <Route path="/watch/:id" element={<WatchPage />} />
                   <Route path="/notifications" element={<NotificationsPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
