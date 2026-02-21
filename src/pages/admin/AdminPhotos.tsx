@@ -117,14 +117,14 @@ export default function AdminPhotos() {
         <p className="text-xs text-muted-foreground">
           Upload photos of your community, events, or activities. Recommended: landscape 4:3 ratio. You can crop after selecting.
         </p>
-        <ImageUploader
-          value={newImageUrl}
-          onChange={setNewImageUrl}
-          folder={`photos/${currentOrg?.id}`}
-          label="Photo"
-          hint="Landscape 4:3 · 1280×960px recommended · JPG/PNG/WEBP"
-          aspectRatio="video"
-        />
+         <ImageUploader
+           value={newImageUrl}
+           onChange={setNewImageUrl}
+           folder={`photos/${currentOrg?.id}`}
+           label="Photo"
+           hint="Any size · Portrait, square, or landscape · JPG/PNG/WEBP"
+           aspectRatio="free"
+         />
         {newImageUrl && (
           <div className="space-y-2">
             <Input
