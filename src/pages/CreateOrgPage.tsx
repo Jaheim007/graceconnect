@@ -115,7 +115,15 @@ export default function CreateOrgPage() {
     if (step === 0) fieldsToValidate = ['category'];
     if (step === 1) fieldsToValidate = ['name', 'slug'];
     const valid = await form.trigger(fieldsToValidate);
-    if (valid) setStep(s => s + 1);
+    if (valid) {
+      setDirection(1);
+      setStep(s => s + 1);
+    }
+  };
+
+  const goBack = () => {
+    setDirection(-1);
+    setStep(s => s - 1);
   };
 
   const slideVariants = {
@@ -123,9 +131,6 @@ export default function CreateOrgPage() {
     center: { x: 0, opacity: 1 },
     exit: (d: number) => ({ x: d > 0 ? -60 : 60, opacity: 0 }),
   };
-
-  const goNext = () => { setDirection(1); nextStep(); };
-  const goBack = () => { setDirection(-1); setStep(s => s - 1); };
 
   const selectedCategory = watch('category');
   const formValues = form.getValues();
@@ -153,7 +158,7 @@ export default function CreateOrgPage() {
         </div>
 
         {/* Step content */}
-        <div className="relative overflow-hidden">
+        <div className="relative overflow-hidden min-h-[280px]">
           <AnimatePresence custom={direction} mode="wait">
             <motion.div key={step} custom={direction} variants={slideVariants}
               initial="enter" animate="center" exit="exit"
@@ -238,7 +243,7 @@ export default function CreateOrgPage() {
             </Button>
           )}
           {step < 2 ? (
-            <Button type="button" className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold" onClick={goNext}>
+            <Button type="button" className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold" onClick={nextStep}>
               Next <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           ) : (
