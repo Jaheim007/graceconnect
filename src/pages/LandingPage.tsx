@@ -42,15 +42,15 @@ export default function LandingPage() {
       <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
         <div className="container flex items-center justify-between h-14 px-4">
           <span className="text-xl font-extrabold tracking-tight italic text-gold">Siteviral</span>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" asChild><Link to="/about">À propos</Link></Button>
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex"><Link to="/about">À propos</Link></Button>
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>Connexion</Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/auth')} className="text-xs sm:text-sm px-2 sm:px-3">Connexion</Button>
             <Button
               size="sm"
-              className="gold-gradient text-primary-foreground border-0 shadow-gold"
+              className="gold-gradient text-primary-foreground border-0 shadow-gold text-xs sm:text-sm px-3 sm:px-4"
               onClick={() => navigate('/auth?tab=signup')}
             >
               Commencer
