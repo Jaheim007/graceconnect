@@ -11,12 +11,22 @@ import { Button } from '@/components/ui/button';
 import {
   Play, Megaphone, CalendarDays, Heart, ShoppingBag,
   Users, Plus, ExternalLink, AlertTriangle, ChevronRight,
-  TrendingUp, DollarSign, Percent
+  TrendingUp, DollarSign, Percent, Camera, ArrowUpRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 const fmt = (n: number, currency = 'XOF') =>
   new Intl.NumberFormat('fr-FR', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
+
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.06 } },
+};
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 26 } },
+};
 
 export default function AdminDashboard() {
   const { currentOrg } = useOrg();
@@ -28,7 +38,6 @@ export default function AdminDashboard() {
   const { data: products = [] } = useOrgProducts(currentOrg?.id, false);
   const { data: members = [] } = useOrgMembers(currentOrg?.id);
 
-  // Revenue data
   const { data: donationTxns = [] } = useQuery({
     queryKey: ['admin-donations-rev', currentOrg?.id],
     queryFn: async () => {
@@ -57,21 +66,28 @@ export default function AdminDashboard() {
   const commissionRate = currentOrg?.affiliation_commission_percent ?? 10;
 
   const stats = [
-    { label: 'Media', value: media.length, published: media.filter(m => m.is_published).length, icon: Play, to: '/admin/media', colorClass: 'text-accent bg-accent/10' },
-    { label: 'Announcements', value: announcements.length, published: announcements.filter(a => a.is_published).length, icon: Megaphone, to: '/admin/announcements', colorClass: 'text-primary bg-primary/10' },
-    { label: 'Events', value: events.length, published: events.filter(e => e.is_published).length, icon: CalendarDays, to: '/admin/events', colorClass: 'text-accent bg-accent/10' },
-    { label: 'Members', value: members.length, published: members.length, icon: Users, to: '/admin/members', colorClass: 'text-primary bg-primary/10' },
-    { label: 'Campaigns', value: campaigns.length, published: campaigns.filter(c => c.is_published).length, icon: Heart, to: '/admin/campaigns', colorClass: 'text-destructive bg-destructive/10' },
-    { label: 'Products', value: products.length, published: products.filter(p => p.is_published).length, icon: ShoppingBag, to: '/admin/products', colorClass: 'text-primary bg-primary/10' },
+    { label: 'Médias', value: media.length, published: media.filter(m => m.is_published).length, icon: Play, to: '/admin/media', colorClass: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
+    { label: 'Annonces', value: announcements.length, published: announcements.filter(a => a.is_published).length, icon: Megaphone, to: '/admin/announcements', colorClass: 'text-primary bg-primary/10 border-primary/20' },
+    { label: 'Événements', value: events.length, published: events.filter(e => e.is_published).length, icon: CalendarDays, to: '/admin/events', colorClass: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
+    { label: 'Membres', value: members.length, published: members.length, icon: Users, to: '/admin/members', colorClass: 'text-violet-400 bg-violet-500/10 border-violet-500/20' },
+    { label: 'Campagnes', value: campaigns.length, published: campaigns.filter(c => c.is_published).length, icon: Heart, to: '/admin/campaigns', colorClass: 'text-rose-400 bg-rose-500/10 border-rose-500/20' },
+    { label: 'Produits', value: products.length, published: products.filter(p => p.is_published).length, icon: ShoppingBag, to: '/admin/products', colorClass: 'text-amber-400 bg-amber-500/10 border-amber-500/20' },
   ];
 
   const quickActions = [
-    { label: 'New Media', to: '/admin/media/new', icon: Play },
-    { label: 'New Announcement', to: '/admin/announcements/new', icon: Megaphone },
-    { label: 'New Event', to: '/admin/events/new', icon: CalendarDays },
-    { label: 'New Campaign', to: '/admin/campaigns/new', icon: Heart },
-    { label: 'New Product', to: '/admin/products/new', icon: ShoppingBag },
-    { label: 'Manage Members', to: '/admin/members', icon: Users },
+    { label: 'Nouveau Média', to: '/admin/media/new', icon: Play },
+    { label: 'Nouvelle Annonce', to: '/admin/announcements/new', icon: Megaphone },
+    { label: 'Nouvel Événement', to: '/admin/events/new', icon: CalendarDays },
+    { label: 'Nouvelle Campagne', to: '/admin/campaigns/new', icon: Heart },
+    { label: 'Nouveau Produit', to: '/admin/products/new', icon: ShoppingBag },
+    { label: 'Gérer Membres', to: '/admin/members', icon: Users },
+  ];
+
+  const revenueCards = [
+    { label: 'Ventes totales', value: fmt(totalRevenue), sub: `${allTxns.length} transaction${allTxns.length > 1 ? 's' : ''}`, icon: DollarSign, colorClass: 'from-primary/20 to-primary/5 border-primary/20' },
+    { label: 'Reçu par l\'org', value: fmt(totalOrgReceived), sub: 'Après frais & commissions', icon: TrendingUp, colorClass: 'from-emerald-500/20 to-emerald-500/5 border-emerald-500/20' },
+    { label: 'Commissions affiliés', value: fmt(totalAffiliateCommission), sub: `Taux : ${commissionRate}%`, icon: Percent, colorClass: 'from-amber-500/20 to-amber-500/5 border-amber-500/20' },
+    { label: 'Frais plateforme', value: fmt(totalPlatformFee), sub: `${currentOrg?.platform_fee_percent ?? 10}%`, icon: DollarSign, colorClass: 'from-muted to-muted/50 border-border' },
   ];
 
   return (
@@ -79,97 +95,102 @@ export default function AdminDashboard() {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold">Dashboard</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Overview for <span className="font-medium text-foreground">{currentOrg?.name}</span></p>
+          <h1 className="text-2xl font-bold">Tableau de bord</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Vue d'ensemble de <span className="font-medium text-foreground">{currentOrg?.name}</span>
+          </p>
         </div>
-        <Button size="sm" onClick={() => navigate(`/org/${currentOrg?.slug}`)} variant="outline" className="gap-1.5 text-xs h-8">
-          <ExternalLink className="h-3.5 w-3.5" /> Public Page
+        <Button size="sm" onClick={() => navigate(`/org/${currentOrg?.slug}`)} variant="outline" className="gap-1.5 text-xs h-9">
+          <ExternalLink className="h-4 w-4" /> Page publique
         </Button>
       </div>
 
-      {/* KYC banner — only for payout readiness */}
+      {/* KYC banner */}
       {currentOrg?.kyc_status === 'none' && (
-        <div className="flex items-start gap-3 p-4 rounded-2xl bg-primary/8 border border-primary/20">
-          <div className="h-8 w-8 rounded-lg bg-primary/15 flex items-center justify-center shrink-0">
-            <AlertTriangle className="h-4 w-4 text-primary" />
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-start gap-3 p-4 rounded-2xl bg-primary/8 border border-primary/20"
+        >
+          <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+            <AlertTriangle className="h-5 w-5 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm">Submit KYC to enable payouts</p>
-            <p className="text-xs text-muted-foreground mt-0.5">You can accept payments &amp; run affiliate programs right away. KYC is only required when requesting a payout.</p>
+            <p className="font-semibold text-sm">Soumettez votre KYC pour les paiements</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Vous pouvez accepter les paiements dès maintenant. Le KYC est requis uniquement pour les retraits.
+            </p>
           </div>
-          <Button size="sm" variant="outline" onClick={() => navigate('/admin/kyc')} className="h-7 text-xs shrink-0">
-            Submit KYC
+          <Button size="sm" variant="outline" onClick={() => navigate('/admin/kyc')} className="h-8 text-xs shrink-0">
+            Soumettre KYC
           </Button>
-        </div>
+        </motion.div>
+      )}
+
+      {/* Revenue cards — only when there are transactions */}
+      {allTxns.length > 0 && (
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          animate="visible"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-3"
+        >
+          {revenueCards.map((card) => (
+            <motion.div
+              key={card.label}
+              variants={fadeUp}
+              className={cn(
+                'rounded-2xl border p-4 bg-gradient-to-br backdrop-blur-sm',
+                card.colorClass
+              )}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <card.icon className="h-4 w-4 text-muted-foreground" />
+                <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground/60" />
+              </div>
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{card.label}</p>
+              <p className="text-xl font-bold mt-1">{card.value}</p>
+              <p className="text-[10px] text-muted-foreground mt-1">{card.sub}</p>
+            </motion.div>
+          ))}
+        </motion.div>
       )}
 
       {/* Stats grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      <motion.div
+        variants={stagger}
+        initial="hidden"
+        animate="visible"
+        className="grid grid-cols-2 sm:grid-cols-3 gap-3"
+      >
         {stats.map((s) => (
-          <button
+          <motion.button
             key={s.label}
+            variants={fadeUp}
             onClick={() => navigate(s.to)}
-            className="group bg-card border border-border rounded-2xl p-4 shadow-card text-left hover:shadow-elevated transition-all hover:-translate-y-0.5 hover:border-border/80"
+            className="group bg-card border border-border rounded-2xl p-4 shadow-card text-left hover:shadow-elevated transition-all hover:-translate-y-0.5 hover:border-primary/30"
           >
             <div className="flex items-center justify-between mb-3">
-              <div className={cn('h-8 w-8 rounded-lg flex items-center justify-center', s.colorClass)}>
-                <s.icon className="h-4 w-4" />
+              <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center border', s.colorClass)}>
+                <s.icon className="h-5 w-5" />
               </div>
-              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+              <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
-            <p className="text-2xl font-bold tracking-tight">{s.value}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{s.label}</p>
-            <p className="text-[10px] text-primary font-medium mt-1">{s.published} published</p>
-          </button>
+            <p className="text-3xl font-bold tracking-tight">{s.value}</p>
+            <p className="text-sm text-muted-foreground mt-0.5">{s.label}</p>
+            <p className="text-xs text-primary font-medium mt-1">{s.published} publié{s.published !== 1 ? 's' : ''}</p>
+          </motion.button>
         ))}
-      </div>
-
-      {/* Revenue & Commission summary */}
-      {allTxns.length > 0 && (
-        <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-          <h2 className="font-semibold text-sm flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-primary" /> Revenue &amp; Commissions
-          </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="rounded-xl bg-muted/50 p-3">
-              <div className="flex items-center gap-1.5 mb-1">
-                <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Total Sales</span>
-              </div>
-              <p className="text-lg font-bold">{fmt(totalRevenue)}</p>
-              <p className="text-[10px] text-muted-foreground">{allTxns.length} transaction{allTxns.length > 1 ? 's' : ''}</p>
-            </div>
-            <div className="rounded-xl bg-primary/5 p-3">
-              <div className="flex items-center gap-1.5 mb-1">
-                <TrendingUp className="h-3.5 w-3.5 text-primary" />
-                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Org Received</span>
-              </div>
-              <p className="text-lg font-bold text-primary">{fmt(totalOrgReceived)}</p>
-              <p className="text-[10px] text-muted-foreground">After fees &amp; commissions</p>
-            </div>
-            <div className="rounded-xl bg-accent/10 p-3">
-              <div className="flex items-center gap-1.5 mb-1">
-                <Percent className="h-3.5 w-3.5 text-accent" />
-                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Affiliate Commissions</span>
-              </div>
-              <p className="text-lg font-bold">{fmt(totalAffiliateCommission)}</p>
-              <p className="text-[10px] text-muted-foreground">Rate: {commissionRate}%</p>
-            </div>
-            <div className="rounded-xl bg-muted/50 p-3">
-              <div className="flex items-center gap-1.5 mb-1">
-                <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Platform Fees</span>
-              </div>
-              <p className="text-lg font-bold">{fmt(totalPlatformFee)}</p>
-              <p className="text-[10px] text-muted-foreground">{currentOrg?.platform_fee_percent ?? 10}%</p>
-            </div>
-          </div>
-        </div>
-      )}
+      </motion.div>
 
       {/* Quick actions */}
-      <div className="bg-card border border-border rounded-2xl p-5">
-        <h2 className="font-semibold text-sm mb-3">Quick Actions</h2>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="bg-card border border-border rounded-2xl p-5"
+      >
+        <h2 className="font-semibold text-sm mb-4">Actions rapides</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {quickActions.map((a) => (
             <Button
@@ -177,14 +198,14 @@ export default function AdminDashboard() {
               variant="outline"
               size="sm"
               onClick={() => navigate(a.to)}
-              className="gap-1.5 text-xs h-9 justify-start hover:bg-muted"
+              className="gap-2 text-xs h-10 justify-start hover:bg-primary/5 hover:border-primary/30 transition-colors"
             >
-              <a.icon className="h-3.5 w-3.5 text-primary" />
+              <a.icon className="h-4 w-4 text-primary" />
               {a.label}
             </Button>
           ))}
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

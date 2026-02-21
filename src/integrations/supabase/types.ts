@@ -837,6 +837,10 @@ export type Database = {
           is_active: boolean | null
           is_verified: boolean | null
           kyc_status: Database["public"]["Enums"]["kyc_status"] | null
+          leader_bio: string | null
+          leader_image_url: string | null
+          leader_name: string | null
+          leader_title: string | null
           logo_url: string | null
           monetization_enabled: boolean | null
           name: string
@@ -862,6 +866,10 @@ export type Database = {
           is_active?: boolean | null
           is_verified?: boolean | null
           kyc_status?: Database["public"]["Enums"]["kyc_status"] | null
+          leader_bio?: string | null
+          leader_image_url?: string | null
+          leader_name?: string | null
+          leader_title?: string | null
           logo_url?: string | null
           monetization_enabled?: boolean | null
           name: string
@@ -887,6 +895,10 @@ export type Database = {
           is_active?: boolean | null
           is_verified?: boolean | null
           kyc_status?: Database["public"]["Enums"]["kyc_status"] | null
+          leader_bio?: string | null
+          leader_image_url?: string | null
+          leader_name?: string | null
+          leader_title?: string | null
           logo_url?: string | null
           monetization_enabled?: boolean | null
           name?: string
