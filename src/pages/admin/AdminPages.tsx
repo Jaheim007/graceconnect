@@ -237,7 +237,7 @@ export function AdminMembers() {
   const { toast } = useToast();
   const [copiedInvite, setCopiedInvite] = useState(false);
 
-  const inviteUrl = currentOrg ? `https://graceconnect.lovable.app/org/${currentOrg.slug}` : '';
+  const inviteUrl = currentOrg ? `https://siteviral.com/org/${currentOrg.slug}` : '';
 
   const handleCopyInvite = async () => {
     await navigator.clipboard.writeText(inviteUrl);
@@ -636,7 +636,7 @@ export function AdminSettings() {
 
   const orgAny = currentOrg as any;
 
-  const PUBLISHED_DOMAIN = 'https://graceconnect.lovable.app';
+  const PUBLISHED_DOMAIN = 'https://siteviral.com';
 
   // Profile fields
   const [orgName, setOrgName] = useState(currentOrg?.name ?? '');
@@ -883,7 +883,7 @@ export function AdminSettings() {
             <Label htmlFor="org-slug" className="text-xs font-medium">Lien public personnalisé</Label>
             <div className="flex items-center gap-0 bg-muted/50 rounded-lg overflow-hidden border border-border">
               <span className="text-[11px] text-muted-foreground px-3 py-2 shrink-0 bg-muted/80 border-r border-border">
-                graceconnect.lovable.app/org/
+                siteviral.com/org/
               </span>
               <Input
                 id="org-slug"
