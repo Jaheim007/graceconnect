@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, X, Play, Pause } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Photo {
@@ -19,27 +19,16 @@ interface PhotoLightboxProps {
 
 export function PhotoLightbox({ photos, initialIndex = 0, open, onClose }: PhotoLightboxProps) {
   const [current, setCurrent] = useState(initialIndex);
-  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     if (open) setCurrent(initialIndex);
   }, [open, initialIndex]);
-
-  // Auto-slideshow
-  useEffect(() => {
-    if (!playing || !open) return;
-    const timer = setInterval(() => {
-      setCurrent((c) => (c + 1) % photos.length);
-    }, 3500);
-    return () => clearInterval(timer);
-  }, [playing, open, photos.length]);
 
   // Keyboard nav
   const handleKey = useCallback((e: KeyboardEvent) => {
     if (e.key === 'ArrowRight') setCurrent((c) => (c + 1) % photos.length);
     if (e.key === 'ArrowLeft') setCurrent((c) => (c - 1 + photos.length) % photos.length);
     if (e.key === 'Escape') onClose();
-    if (e.key === ' ') { e.preventDefault(); setPlaying((p) => !p); }
   }, [photos.length, onClose]);
 
   useEffect(() => {
@@ -62,16 +51,6 @@ export function PhotoLightbox({ photos, initialIndex = 0, open, onClose }: Photo
             {current + 1} / {photos.length}
           </span>
           <div className="flex items-center gap-1">
-            {photos.length > 1 && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-white/80 hover:text-white hover:bg-white/10"
-                onClick={() => setPlaying((p) => !p)}
-              >
-                {playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-              </Button>
-            )}
             <Button
               variant="ghost"
               size="icon"
