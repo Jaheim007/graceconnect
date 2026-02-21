@@ -221,12 +221,12 @@ export default function UserDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container max-w-4xl py-6 space-y-6">
+      <div className="container max-w-4xl px-4 py-5 sm:py-6 space-y-5 sm:space-y-6">
         {/* ══ HERO HEADER ══ */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-3xl gold-gradient p-6 sm:p-8 shadow-gold"
+          className="relative overflow-hidden rounded-2xl sm:rounded-3xl gold-gradient p-5 sm:p-8 shadow-gold"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-transparent pointer-events-none" />
           <div className="relative z-10 flex items-center gap-4">
@@ -249,7 +249,7 @@ export default function UserDashboard() {
           </div>
 
           {/* Hero stats bar */}
-          <div className="relative z-10 grid grid-cols-3 gap-3 mt-5 pt-5 border-t border-white/15">
+          <div className="relative z-10 grid grid-cols-3 gap-2 sm:gap-3 mt-4 sm:mt-5 pt-4 sm:pt-5 border-t border-white/15">
             {[
               { label: 'Total dons', value: fmt(totalDonated), icon: Heart },
               { label: 'Commissions', value: fmt(totalEarned), icon: TrendingUp },
@@ -259,7 +259,7 @@ export default function UserDashboard() {
                 <div className="inline-flex items-center justify-center h-8 w-8 rounded-lg bg-white/15 mb-1.5">
                   <s.icon className="h-3.5 w-3.5 text-white" />
                 </div>
-                <p className="text-sm sm:text-base font-bold text-white">{s.value}</p>
+                <p className="text-xs sm:text-base font-bold text-white truncate">{s.value}</p>
                 <p className="text-[10px] text-white/60">{s.label}</p>
               </div>
             ))}
@@ -267,13 +267,13 @@ export default function UserDashboard() {
         </motion.div>
 
         {/* ══ TABS ══ */}
-        <div className="flex gap-1.5 bg-muted/50 p-1 rounded-2xl overflow-x-auto scrollbar-hide">
+        <div className="flex gap-1 sm:gap-1.5 bg-muted/50 p-1 rounded-2xl overflow-x-auto scrollbar-hide">
           {tabs.map((t) => (
             <button
               key={t.key}
               onClick={() => setActiveTab(t.key)}
               className={cn(
-                'flex items-center gap-1.5 shrink-0 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all flex-1 justify-center',
+                'flex items-center gap-1 sm:gap-1.5 shrink-0 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-xs font-semibold transition-all flex-1 justify-center',
                 activeTab === t.key
                   ? 'bg-card text-foreground shadow-card'
                   : 'text-muted-foreground hover:text-foreground'

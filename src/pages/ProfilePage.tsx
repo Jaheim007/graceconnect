@@ -4,13 +4,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
   Camera, LogOut, ChevronRight, User, Lock, Bell, Globe,
-  Info, Moon, Sun, HelpCircle, Mail, Shield, ArrowLeft
+  Info, Moon, Sun, HelpCircle, Mail, Shield, ArrowLeft, Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -38,6 +43,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [activeSection, setActiveSection] = useState<Section>('main');
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<Form>({
@@ -149,7 +155,7 @@ export default function ProfilePage() {
           </Button>
           <span className="font-semibold text-sm">Modifier le profil</span>
         </div>
-        <div className="container max-w-lg py-6 space-y-6">
+        <div className="container max-w-lg px-4 py-5 sm:py-6 space-y-5 sm:space-y-6">
           {/* Avatar editor */}
           <div className="flex flex-col items-center gap-3">
             <div className="relative group">
@@ -219,7 +225,7 @@ export default function ProfilePage() {
         <span className="font-semibold text-sm">Mon Compte</span>
       </div>
 
-      <div className="container max-w-lg py-6 space-y-5">
+      <div className="container max-w-lg px-4 py-5 sm:py-6 space-y-4 sm:space-y-5">
         {/* Profile Card */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -333,6 +339,7 @@ export default function ProfilePage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
+          className="space-y-3"
         >
           <Button
             variant="outline"
@@ -341,11 +348,54 @@ export default function ProfilePage() {
           >
             <LogOut className="h-4 w-4" /> Déconnexion
           </Button>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                className="w-full h-10 gap-2 text-destructive/70 hover:text-destructive hover:bg-destructive/5 rounded-2xl text-xs"
+              >
+                <Trash2 className="h-3.5 w-3.5" /> Supprimer mon compte
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Supprimer votre compte ?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Cette action est irréversible. Toutes vos données, vos organisations créées et leur contenu seront définitivement supprimés.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                <AlertDialogAction
+                  disabled={deleting}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  onClick={async () => {
+                    if (!user) return;
+                    setDeleting(true);
+                    try {
+                      const { error } = await db.rpc('delete_user_account', { _user_id: user.id });
+                      if (error) throw error;
+                      toast({ title: 'Compte supprimé', description: 'Votre compte a été supprimé avec succès.' });
+                      await signOut();
+                      navigate('/');
+                    } catch (err: unknown) {
+                      toast({ title: 'Erreur', description: err instanceof Error ? err.message : 'Réessayez.', variant: 'destructive' });
+                    } finally {
+                      setDeleting(false);
+                    }
+                  }}
+                >
+                  {deleting ? 'Suppression...' : 'Oui, supprimer'}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </motion.div>
 
         {/* App version */}
         <p className="text-center text-[10px] text-muted-foreground/50 pb-4">
-          GraceConnect v1.0 · Fait avec ❤️ en Côte d'Ivoire
+          Siteviral v1.0 · Fait avec ❤️ en Côte d'Ivoire
         </p>
       </div>
     </div>
