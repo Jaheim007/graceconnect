@@ -38,7 +38,7 @@ export default function DiscoverPage() {
   const userOwnsOrg = userOrgs.length > 0;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       {/* Hero banner */}
       <div className="hero-gradient py-10 px-4 border-b border-border/40">
         <div className="container max-w-4xl">

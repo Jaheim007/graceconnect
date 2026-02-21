@@ -68,7 +68,9 @@ const App = () => (
                 {/* Public routes — no auth required */}
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/auth" element={<AuthPage />} />
-                <Route path="/discover" element={<DiscoverPage />} />
+                <Route path="/discover" element={<RequireAuth><AppLayout /></RequireAuth>}>
+                  <Route index element={<DiscoverPage />} />
+                </Route>
 
                 {/* Org public pages — MUST be outside RequireAuth so affiliate links work */}
                 <Route path="/org/:slug" element={<OrgPublicPage />} />

@@ -18,6 +18,7 @@ import { useFeedMedia } from '@/hooks/useMedia';
 import { useFeedAnnouncements } from '@/hooks/useAnnouncements';
 import { useFeedEvents } from '@/hooks/useEvents';
 import { useFeedProducts, useFeedCampaigns } from '@/hooks/useMonetization';
+import { useMyPurchases } from '@/hooks/usePurchases';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { cn } from '@/lib/utils';
 
@@ -47,6 +48,8 @@ export default function FeedPage() {
   const { data: events = [], isLoading: eventsLoading } = useFeedEvents(orgIds);
   const { data: products = [], isLoading: productsLoading } = useFeedProducts(orgIds);
   const { data: campaigns = [], isLoading: campaignsLoading } = useFeedCampaigns(orgIds);
+  const { data: purchases = [] } = useMyPurchases();
+  const purchasedProductIds = new Set(purchases.map(p => p.product_id));
 
   // Org map for finding org id from product/campaign
   const orgMap = Object.fromEntries(userOrgs.map((o) => [o.id, o]));
@@ -246,7 +249,7 @@ export default function FeedPage() {
                     <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1">
                       {filteredProducts.slice(0, 6).map((p, i) => (
                         <div key={p.id} className="shrink-0 w-52">
-                          <ProductCard product={p} index={i} onPurchase={() => setBuyProduct(p)} />
+                          <ProductCard product={p} index={i} onPurchase={() => setBuyProduct(p)} isPurchased={purchasedProductIds.has(p.id)} />
                         </div>
                       ))}
                     </div>
@@ -315,7 +318,7 @@ export default function FeedPage() {
                 ) : (
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {filteredProducts.map((p, i) => (
-                      <ProductCard key={p.id} product={p} index={i} onPurchase={() => setBuyProduct(p)} />
+                      <ProductCard key={p.id} product={p} index={i} onPurchase={() => setBuyProduct(p)} isPurchased={purchasedProductIds.has(p.id)} />
                     ))}
                   </div>
                 )}

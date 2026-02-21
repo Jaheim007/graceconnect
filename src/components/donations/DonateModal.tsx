@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { DonationCampaign } from '@/types/database';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
@@ -12,6 +13,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePaystack } from '@/hooks/usePaystack';
 import { getAffiliateCode, clearAffiliateCode } from '@/hooks/useAffiliateCapture';
 import { verifyPayment, VerifyPaymentResult } from '@/lib/api';
+import { useQueryClient } from '@tanstack/react-query';
 
 const PRESET_AMOUNTS = [500, 1000, 2500, 5000, 10000];
 
@@ -36,6 +38,8 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
   const { toast } = useToast();
   const { user, profile } = useAuth();
   const { openPayment } = usePaystack();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   if (!campaign) return null;
 
@@ -87,6 +91,10 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
             setResult(verifyResult);
             setStep('success');
             onSuccess?.(verifyResult);
+            // Refresh campaign data so progress bar updates
+            queryClient.invalidateQueries({ queryKey: ['feed-campaigns'] });
+            queryClient.invalidateQueries({ queryKey: ['org-campaigns'] });
+            queryClient.invalidateQueries({ queryKey: ['user-donations'] });
           } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Une erreur est survenue. Contactez le support avec votre référence.';
             setErrorMsg(message);
@@ -217,7 +225,15 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
               )}
             </div>
             <p className="text-xs text-muted-foreground">Un reçu a été envoyé à votre email.</p>
-            <Button onClick={handleClose} className="gold-gradient text-primary-foreground border-0 shadow-gold">Fermer</Button>
+            {user && (
+              <Button
+                onClick={() => { handleClose(); navigate('/dashboard'); }}
+                className="w-full gold-gradient text-primary-foreground border-0 shadow-gold"
+              >
+                Accéder à mon tableau de bord
+              </Button>
+            )}
+            <Button variant="ghost" onClick={handleClose} className="text-muted-foreground">Fermer</Button>
           </div>
         )}
 
