@@ -1,8 +1,9 @@
 import { DigitalProduct } from '@/types/database';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingBag, Download, ExternalLink, CheckCircle } from 'lucide-react';
+import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 interface ProductCardProps {
   product: DigitalProduct;
@@ -12,9 +13,11 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onPurchase, index = 0, isPurchased }: ProductCardProps) {
+  const navigate = useNavigate();
+
   const fmt = (n: number) =>
     n === 0 || product.is_free
-      ? 'Free'
+      ? 'Gratuit'
       : new Intl.NumberFormat('fr-FR', { style: 'currency', currency: product.currency || 'XOF', maximumFractionDigits: 0 }).format(n);
 
   const typeIcons: Record<string, React.ReactNode> = {
@@ -45,6 +48,13 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
             Featured
           </Badge>
         )}
+        {isPurchased && (
+          <div className="absolute top-2 left-2">
+            <Badge className="bg-green-600/90 text-white border-0 text-[10px] gap-0.5">
+              <CheckCircle className="h-3 w-3" /> Acheté
+            </Badge>
+          </div>
+        )}
       </div>
 
       <div className="p-4 space-y-2.5">
@@ -56,24 +66,34 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
         </div>
 
         <div className="flex items-center justify-between gap-2">
+          {/* Price or Purchased state */}
           <div className="flex items-center gap-1.5">
-            <span className={cn('font-bold text-sm', product.is_free ? 'text-green-500' : 'text-primary')}>
-              {fmt(product.price)}
-            </span>
+            {!isPurchased && (
+              <span className={cn('font-bold text-sm', product.is_free ? 'text-green-500' : 'text-primary')}>
+                {fmt(product.price)}
+              </span>
+            )}
             <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 gap-0.5 capitalize">
               {typeIcons[product.product_type] || typeIcons.default}
               {product.product_type}
             </Badge>
           </div>
+
+          {/* Action button */}
           <div className="flex items-center gap-1.5">
             {isPurchased ? (
-              <Badge variant="outline" className="h-7 text-xs px-3 gap-1 text-green-500 border-green-500/30">
-                <CheckCircle className="h-3 w-3" /> Acheté
-              </Badge>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 text-xs px-3 gap-1 text-green-500 border-green-500/30 hover:bg-green-500/10"
+                onClick={() => navigate('/resources')}
+              >
+                <BookOpen className="h-3 w-3" /> Mes Ressources
+              </Button>
             ) : product.external_link ? (
               <a href={product.external_link} target="_blank" rel="noreferrer">
                 <Button size="sm" className="h-7 text-xs px-3 gold-gradient text-primary-foreground border-0 shadow-gold gap-1">
-                  <ExternalLink className="h-3 w-3" /> {product.is_free ? 'Open' : 'Get It'}
+                  <ExternalLink className="h-3 w-3" /> {product.is_free ? 'Ouvrir' : 'Accéder'}
                 </Button>
               </a>
             ) : (
@@ -82,7 +102,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
                 onClick={onPurchase}
                 className="h-7 text-xs px-3 gold-gradient text-primary-foreground border-0 shadow-gold"
               >
-                {product.is_free ? 'Get Free' : 'Buy Now'}
+                {product.is_free ? 'Obtenir' : 'Acheter'}
               </Button>
             )}
           </div>
