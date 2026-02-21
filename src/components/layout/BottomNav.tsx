@@ -1,13 +1,14 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, Play, Bell, User } from 'lucide-react';
+import { Home, Compass, BookOpen, Bell, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
+import { Badge } from '@/components/ui/badge';
 
 const navItems = [
   { to: '/feed', icon: Home, label: 'Accueil' },
   { to: '/discover', icon: Compass, label: 'Explorer' },
-  { to: '/reels', icon: Play, label: 'Reels' },
+  { to: '/dashboard', icon: BookOpen, label: 'Mon Espace' },
   { to: '/notifications', icon: Bell, label: 'Alertes' },
   { to: '/profile', icon: User, label: 'Compte' },
 ];
@@ -18,41 +19,33 @@ export function BottomNav() {
   const { data: unread = 0 } = useUnreadCount(user?.id);
 
   return (
-    <nav className="glass border-t border-border/60 px-2 py-1 safe-area-pb">
-      <div className="flex items-center justify-around max-w-lg mx-auto">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur-sm lg:hidden">
+      <div className="flex items-center justify-around h-14 px-1 max-w-lg mx-auto">
         {navItems.map(({ to, icon: Icon, label }) => {
-          const isActive = location.pathname === to ||
-            (to === '/feed' && location.pathname === '/');
-          const showBadge = label === 'Alertes' && unread > 0;
+          const active = to === '/feed'
+            ? location.pathname === '/feed'
+            : location.pathname.startsWith(to);
 
           return (
             <Link
               key={to}
-              to={user ? to : '/auth'}
+              to={user ? to : (to === '/discover' ? to : '/auth')}
               className={cn(
-                'flex flex-col items-center gap-0.5 px-3 py-2 rounded-xl transition-all duration-200 relative',
-                isActive
-                  ? 'text-primary'
-                  : 'text-muted-foreground hover:text-foreground'
+                'flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5 transition-colors relative',
+                active ? 'text-primary' : 'text-muted-foreground'
               )}
             >
-              <div className={cn(
-                'p-1.5 rounded-xl transition-all duration-200',
-                isActive && 'bg-primary/10'
-              )}>
-                <Icon className={cn('h-5 w-5', isActive && 'stroke-[2.5px]')} />
-                {showBadge && (
-                  <span className="absolute top-1 right-2 h-2 w-2 rounded-full bg-destructive" />
+              <div className="relative">
+                <Icon className={cn('h-5 w-5', active && 'stroke-[2.5]')} />
+                {label === 'Alertes' && unread > 0 && (
+                  <Badge variant="destructive" className="absolute -top-1.5 -right-2.5 h-4 min-w-4 px-1 text-[9px] flex items-center justify-center">
+                    {unread > 9 ? '9+' : unread}
+                  </Badge>
                 )}
               </div>
-              <span className={cn(
-                'text-[10px] font-medium',
-                isActive ? 'text-primary' : 'text-muted-foreground'
-              )}>
-                {label}
-              </span>
-              {isActive && (
-                <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 h-0.5 w-4 rounded-full bg-primary" />
+              <span className="text-[10px] font-medium leading-none">{label}</span>
+              {active && (
+                <div className="absolute -bottom-1.5 w-6 h-0.5 rounded-full bg-primary" />
               )}
             </Link>
           );

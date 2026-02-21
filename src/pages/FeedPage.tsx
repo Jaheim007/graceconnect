@@ -6,6 +6,7 @@ import {
   Play, Headphones, Film, TrendingUp, MapPin,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { MediaCard } from '@/components/media/MediaCard';
 import { ProductCard } from '@/components/products/ProductCard';
 import { CampaignCard } from '@/components/donations/CampaignCard';
@@ -71,11 +72,52 @@ export default function FeedPage() {
 
   if (userOrgs.length === 0) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <EmptyState
-          variant="feed"
-          action={{ label: 'Explorer les communautés', onClick: () => navigate('/discover') }}
-        />
+      <div className="min-h-screen bg-background">
+        <div className="container max-w-lg px-4 py-10 space-y-6 text-center">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
+            <div className="h-16 w-16 rounded-2xl gold-gradient flex items-center justify-center mx-auto shadow-gold">
+              <Heart className="h-8 w-8 text-primary-foreground" />
+            </div>
+            <h1 className="text-2xl font-bold">Bienvenue sur Siteviral !</h1>
+            <p className="text-muted-foreground text-sm max-w-sm mx-auto">
+              Rejoignez des communautés pour voir leur contenu, acheter des ressources et soutenir leurs campagnes.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="space-y-3"
+          >
+            <Button
+              size="lg"
+              className="w-full gold-gradient text-primary-foreground border-0 shadow-gold gap-2 h-12"
+              onClick={() => navigate('/discover')}
+            >
+              <Search className="h-4 w-4" /> Explorer les communautés
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full h-12 gap-2"
+              onClick={() => navigate('/create-org')}
+            >
+              Créer ma communauté
+            </Button>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="pt-4"
+          >
+            <p className="text-xs text-muted-foreground">
+              💡 Astuce : Vous pouvez aussi partager un lien d'organisation directement avec quelqu'un pour qu'il la rejoigne.
+            </p>
+          </motion.div>
+        </div>
       </div>
     );
   }

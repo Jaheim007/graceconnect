@@ -77,7 +77,7 @@ const App = () => (
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/auth" element={<AuthPage />} />
-                <Route path="/discover" element={<RequireAuth><AppLayout /></RequireAuth>}>
+                <Route path="/discover" element={<AppLayout />}>
                   <Route index element={<DiscoverPage />} />
                 </Route>
 
