@@ -9,7 +9,7 @@ export default function TermsPage() {
       {/* Background image — subtle, fixed */}
       <div className="fixed inset-0 z-0">
         <img src={termsBg} alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-background/92 backdrop-blur-sm" />
+        <div className="absolute inset-0 bg-background/95 backdrop-blur-sm" />
       </div>
 
       {/* Nav */}
@@ -23,10 +23,10 @@ export default function TermsPage() {
       </header>
 
       <main className="relative z-10 container max-w-3xl px-4 pt-24 pb-16">
-        <h1 className="text-3xl font-bold mb-2">Conditions Générales d'Utilisation</h1>
-        <p className="text-sm text-muted-foreground mb-8">Dernière mise à jour : 21 février 2026</p>
+        <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-foreground">Conditions Générales d'Utilisation</h1>
+        <p className="text-sm text-muted-foreground mb-8 font-medium">Dernière mise à jour : 21 février 2026</p>
 
-        <div className="prose prose-sm dark:prose-invert max-w-none space-y-6 text-foreground/90">
+        <div className="max-w-none space-y-6 text-foreground text-[15px] sm:text-base font-semibold leading-relaxed [&_h2]:text-xl [&_h2]:sm:text-2xl [&_h2]:font-extrabold [&_h2]:text-foreground [&_h2]:mt-8 [&_h2]:mb-3 [&_ul]:font-medium [&_li]:font-medium">
           <section>
             <h2 className="text-xl font-semibold mt-8 mb-3">1. Objet</h2>
             <p>
