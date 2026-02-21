@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,17 +11,18 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { cn } from '@/lib/utils';
+import authBg from '@/assets/auth-bg.jpg';
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email'),
-  password: z.string().min(6, 'Min 6 characters'),
+  email: z.string().email('Email invalide'),
+  password: z.string().min(6, '6 caractères minimum'),
 });
 
 const signupSchema = loginSchema.extend({
-  displayName: z.string().min(2, 'Min 2 characters').optional(),
+  displayName: z.string().min(2, '2 caractères minimum').optional(),
   confirmPassword: z.string(),
 }).refine((d) => d.password === d.confirmPassword, {
-  message: 'Passwords do not match',
+  message: 'Les mots de passe ne correspondent pas',
   path: ['confirmPassword'],
 });
 
@@ -74,44 +75,46 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen hero-gradient flex">
-      {/* Left panel - branding */}
-      <div className="hidden lg:flex flex-col justify-between w-1/2 p-12 text-foreground">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl gold-gradient flex items-center justify-center shadow-gold">
-            <span className="font-bold text-primary-foreground">SV</span>
-          </div>
-          <span className="font-bold text-xl">Siteviral</span>
-        </div>
+    <div className="min-h-screen relative flex">
+      {/* Background image — covers full page, dimmed */}
+      <div className="absolute inset-0 z-0">
+        <img src={authBg} alt="" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-background/85 backdrop-blur-sm" />
+      </div>
+
+      {/* Left panel — branding */}
+      <div className="hidden lg:flex flex-col justify-between w-1/2 p-12 relative z-10">
+        <Link to="/">
+          <span className="text-2xl font-extrabold italic text-gold">Siteviral</span>
+        </Link>
         <div className="space-y-4">
-          <h1 className="text-4xl font-bold leading-tight text-foreground">
-            Connect. Grow.<br />
-            <span className="text-primary">Make an impact.</span>
+          <h1 className="text-4xl font-bold leading-tight">
+            Connectez-vous.{' '}
+            <span className="text-gold italic">Grandissez ensemble.</span>
           </h1>
-          <p className="text-muted-foreground text-lg">
-            The platform for faith communities across Côte d'Ivoire and beyond.
+          <p className="text-muted-foreground text-lg max-w-md">
+            La plateforme pour les communautés de foi en Côte d'Ivoire et au-delà.
           </p>
           <div className="flex gap-3 mt-4">
-            {['Media', 'Donations', 'Store', 'Affiliation'].map((t) => (
+            {['Médias', 'Dons', 'Boutique', 'Affiliation'].map((t) => (
               <span key={t} className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium border border-primary/20">
                 {t}
               </span>
             ))}
           </div>
         </div>
-        <p className="text-xs text-muted-foreground">© 2025 Siteviral · Côte d'Ivoire</p>
+        <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Siteviral · Côte d'Ivoire</p>
       </div>
 
-      {/* Right panel - form */}
-      <div className="flex-1 lg:w-1/2 flex items-center justify-center p-6">
+      {/* Right panel — form */}
+      <div className="flex-1 lg:w-1/2 flex items-center justify-center p-6 relative z-10">
         <div className="w-full max-w-md">
-          <div className="bg-card rounded-3xl border border-border shadow-elevated p-7 space-y-6">
+          <div className="bg-card/95 backdrop-blur-md rounded-3xl border border-border shadow-elevated p-7 space-y-6">
             {/* Mobile logo */}
-            <div className="flex lg:hidden items-center gap-2 mb-2">
-              <div className="h-8 w-8 rounded-lg gold-gradient flex items-center justify-center">
-                <span className="text-xs font-bold text-primary-foreground">SV</span>
-              </div>
-              <span className="font-bold">Siteviral</span>
+            <div className="flex lg:hidden items-center justify-center mb-2">
+              <Link to="/">
+                <span className="text-xl font-extrabold italic text-gold">Siteviral</span>
+              </Link>
             </div>
 
             {/* Tabs */}
@@ -127,7 +130,7 @@ export default function AuthPage() {
                       : 'text-muted-foreground hover:text-foreground'
                   )}
                 >
-                  {t === 'login' ? 'Sign In' : 'Create Account'}
+                  {t === 'login' ? 'Connexion' : 'Créer un compte'}
                 </button>
               ))}
             </div>
@@ -159,12 +162,12 @@ export default function AuthPage() {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              Continue with Google
+              Continuer avec Google
             </Button>
 
             <div className="flex items-center gap-3">
               <div className="h-px flex-1 bg-border" />
-              <span className="text-xs text-muted-foreground">or</span>
+              <span className="text-xs text-muted-foreground">ou</span>
               <div className="h-px flex-1 bg-border" />
             </div>
 
@@ -185,7 +188,7 @@ export default function AuthPage() {
                       <Input
                         id="email"
                         type="email"
-                        placeholder="you@example.com"
+                        placeholder="vous@exemple.com"
                         className="pl-9"
                         {...loginForm.register('email')}
                       />
@@ -195,7 +198,7 @@ export default function AuthPage() {
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="password">Password</Label>
+                    <Label htmlFor="password">Mot de passe</Label>
                     <div className="relative mt-1.5">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
@@ -222,7 +225,7 @@ export default function AuthPage() {
                     className="w-full h-11 gold-gradient text-primary-foreground border-0 shadow-gold"
                     disabled={loginForm.formState.isSubmitting}
                   >
-                    {loginForm.formState.isSubmitting ? 'Signing in...' : 'Sign In'}
+                    {loginForm.formState.isSubmitting ? 'Connexion en cours...' : 'Se connecter'}
                   </Button>
                 </motion.form>
               ) : (
@@ -235,24 +238,24 @@ export default function AuthPage() {
                   className="space-y-4"
                 >
                   <div>
-                    <Label htmlFor="displayName">Your name</Label>
+                    <Label htmlFor="displayName">Votre nom</Label>
                     <div className="relative mt-1.5">
                       <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input id="displayName" placeholder="Pastor Jean" className="pl-9" {...signupForm.register('displayName')} />
+                      <Input id="displayName" placeholder="Pasteur Jean" className="pl-9" {...signupForm.register('displayName')} />
                     </div>
                   </div>
                   <div>
                     <Label htmlFor="s-email">Email</Label>
                     <div className="relative mt-1.5">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input id="s-email" type="email" placeholder="you@example.com" className="pl-9" {...signupForm.register('email')} />
+                      <Input id="s-email" type="email" placeholder="vous@exemple.com" className="pl-9" {...signupForm.register('email')} />
                     </div>
                     {signupForm.formState.errors.email && (
                       <p className="text-xs text-destructive mt-1">{signupForm.formState.errors.email.message}</p>
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="s-password">Password</Label>
+                    <Label htmlFor="s-password">Mot de passe</Label>
                     <div className="relative mt-1.5">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
@@ -275,7 +278,7 @@ export default function AuthPage() {
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="confirm">Confirm password</Label>
+                    <Label htmlFor="confirm">Confirmer le mot de passe</Label>
                     <div className="relative mt-1.5">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input id="confirm" type={showPass ? 'text' : 'password'} placeholder="••••••••" className="pl-9" {...signupForm.register('confirmPassword')} />
@@ -289,11 +292,18 @@ export default function AuthPage() {
                     className="w-full h-11 gold-gradient text-primary-foreground border-0 shadow-gold"
                     disabled={signupForm.formState.isSubmitting}
                   >
-                    {signupForm.formState.isSubmitting ? 'Creating account...' : 'Create Account'}
+                    {signupForm.formState.isSubmitting ? 'Création en cours...' : 'Créer mon compte'}
                   </Button>
                 </motion.form>
               )}
             </AnimatePresence>
+
+            {/* Footer links */}
+            <p className="text-xs text-center text-muted-foreground">
+              En continuant, vous acceptez nos{' '}
+              <Link to="/terms" className="underline hover:text-foreground">Conditions</Link>{' '}et{' '}
+              <Link to="/privacy" className="underline hover:text-foreground">Politique de confidentialité</Link>.
+            </p>
           </div>
         </div>
       </div>

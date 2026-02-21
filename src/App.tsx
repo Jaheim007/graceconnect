@@ -19,6 +19,7 @@ import OrgPublicPage from "@/pages/OrgPublicPage";
 import NotFound from "@/pages/NotFound";
 import TermsPage from "@/pages/TermsPage";
 import PrivacyPage from "@/pages/PrivacyPage";
+import AboutPage from "@/pages/AboutPage";
 
 // Authenticated pages
 import FeedPage from "@/pages/FeedPage";
@@ -72,6 +73,7 @@ const App = () => (
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/privacy" element={<PrivacyPage />} />
+                <Route path="/about" element={<AboutPage />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/discover" element={<RequireAuth><AppLayout /></RequireAuth>}>
                   <Route index element={<DiscoverPage />} />
