@@ -20,7 +20,8 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const shareUrl = `${window.location.origin}/org/${(product as any).organization_slug || ''}?tab=store`;
+  const orgSlug = (product as any).organization_slug || '';
+  const shareUrl = `https://siteviral.com/org/${orgSlug}/product/${product.id}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareUrl);
