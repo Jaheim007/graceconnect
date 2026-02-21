@@ -52,7 +52,7 @@ function createImage(url: string): Promise<HTMLImageElement> {
 export function ImageCropDialog({
   open,
   imageSrc,
-  aspect = 16 / 9,
+  aspect,
   onClose,
   onCropComplete,
 }: ImageCropDialogProps) {
