@@ -8,7 +8,7 @@ import heroImg from '@/assets/landing-hero.jpg';
 const fadeUp = { hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0 } };
 
 const values = [
-  { icon: Heart, title: 'Foi & Impact', desc: 'Nous croyons que la technologie doit servir les communautés de foi pour amplifier leur mission.' },
+  { icon: Heart, title: 'Impact', desc: 'Nous croyons que la technologie doit servir les organisations pour amplifier leur mission.' },
   { icon: Users, title: 'Communauté', desc: 'Chaque fonctionnalité est pensée pour renforcer les liens entre leaders et membres.' },
   { icon: Shield, title: 'Confiance', desc: 'Sécurité des données, transparence financière et conformité aux lois ivoiriennes.' },
   { icon: Globe, title: 'Accessibilité', desc: 'Une plateforme accessible depuis n\'importe quel appareil, partout dans le monde.' },
@@ -48,12 +48,12 @@ export default function AboutPage() {
           <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ duration: 0.5 }} className="space-y-5">
             <h1 className="text-3xl sm:text-5xl font-bold leading-tight">
               Notre mission :{' '}
-              <span className="text-gold italic">connecter les communautés de foi.</span>
+              <span className="text-gold italic">connecter les organisations et leurs communautés.</span>
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Siteviral est née d'une conviction simple : chaque communauté de foi mérite des outils digitaux puissants,
+              Siteviral est née d'une conviction simple : chaque organisation mérite des outils digitaux puissants,
               accessibles et adaptés à ses réalités. Depuis Abidjan, nous construisons la plateforme qui rapproche
-              leaders et fidèles, où qu'ils soient.
+              leaders et membres, où qu'ils soient.
             </p>
           </motion.div>
         </div>
@@ -69,7 +69,7 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
                 <p>
-                  En Côte d'Ivoire, des milliers d'églises, ministères et ONG confessionnelles s'appuient encore
+                  En Côte d'Ivoire, des milliers d'organisations et associations s'appuient encore
                   sur des outils fragmentés — WhatsApp pour la communication, Facebook pour les vidéos,
                   et des transferts manuels pour les dons.
                 </p>
@@ -79,7 +79,7 @@ export default function AboutPage() {
                   le contexte africain, avec des paiements via Mobile Money et Paystack.
                 </p>
                 <p>
-                  Notre ambition : devenir la référence digitale des communautés de foi en Afrique francophone,
+                  Notre ambition : devenir la référence digitale des organisations et leaders en Afrique francophone,
                   puis au-delà.
                 </p>
               </div>
@@ -135,8 +135,8 @@ export default function AboutPage() {
           </div>
           <div className="grid sm:grid-cols-3 gap-5">
             {[
-              { icon: Target, title: 'Églises & Paroisses', desc: 'Gérez votre congrégation, partagez vos prédications et collectez les offrandes en ligne.' },
-              { icon: Zap, title: 'Ministères & Leaders', desc: 'Créez votre page, vendez vos formations et développez votre audience.' },
+              { icon: Target, title: 'Organisations', desc: 'Gérez votre communauté, partagez vos contenus et collectez des dons en ligne.' },
+              { icon: Zap, title: 'Leaders & Créateurs', desc: 'Créez votre page, vendez vos formations et développez votre audience.' },
               { icon: Users, title: 'ONG & Associations', desc: 'Lancez des campagnes de collecte et fédérez votre communauté autour de votre mission.' },
             ].map((item, i) => (
               <motion.div
@@ -216,7 +216,7 @@ export default function AboutPage() {
             <div className="space-y-3">
               <span className="text-xl font-extrabold italic text-gold">Siteviral</span>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                La plateforme tout-en-un pour les communautés de foi en Afrique.
+                La plateforme tout-en-un pour les leaders et organisations en Afrique.
               </p>
             </div>
             <div className="space-y-3">
@@ -245,7 +245,7 @@ export default function AboutPage() {
           </div>
           <div className="mt-10 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
             <span>© {new Date().getFullYear()} Siteviral. Tous droits réservés.</span>
-            <span>Fait avec ❤️ pour les communautés de foi en Côte d'Ivoire</span>
+            <span>Fait avec ❤️ en Côte d'Ivoire</span>
           </div>
         </div>
       </footer>

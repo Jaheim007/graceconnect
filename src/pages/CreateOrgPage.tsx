@@ -16,10 +16,10 @@ import { ChevronRight, ChevronLeft, Building2, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const CATEGORIES = [
-  { value: 'church', label: '⛪ Église' },
-  { value: 'ministry', label: '✝️ Ministère' },
+  { value: 'church', label: '🏢 Organisation' },
+  { value: 'ministry', label: '🤝 Association' },
   { value: 'leader', label: '👤 Leader' },
-  { value: 'ngo', label: '🤝 ONG' },
+  { value: 'ngo', label: '🌍 ONG' },
   { value: 'community', label: '🏘️ Communauté' },
   { value: 'other', label: '🔷 Autre' },
 ] as const;
@@ -188,7 +188,7 @@ export default function CreateOrgPage() {
                   <h2 className="text-lg font-semibold">Nommez votre organisation</h2>
                   <div className="space-y-2">
                     <Label>Nom de l'organisation *</Label>
-                    <Input placeholder="ex. Église de Grâce Abidjan" {...form.register('name')}
+                    <Input placeholder="ex. Mon Organisation Abidjan" {...form.register('name')}
                       onBlur={handleNameBlur}
                       className={errors.name ? 'border-destructive' : ''} />
                     {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
@@ -197,7 +197,7 @@ export default function CreateOrgPage() {
                     <Label>Slug (identifiant URL) *</Label>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-muted-foreground shrink-0">siteviral.com/org/</span>
-                      <Input placeholder="eglise-grace-abidjan" {...form.register('slug')}
+                      <Input placeholder="mon-organisation-abidjan" {...form.register('slug')}
                         className={errors.slug ? 'border-destructive' : ''} />
                     </div>
                     {errors.slug && <p className="text-xs text-destructive">{errors.slug.message}</p>}

@@ -35,8 +35,8 @@ export default function TermsPage() {
               société de droit ivoirien dont le siège social est situé à Abidjan, Côte d'Ivoire.
             </p>
             <p>
-              La Plateforme est destinée aux églises, ministères, organisations confessionnelles, leaders spirituels
-              et leurs communautés pour la gestion de contenu, la collecte de fonds, la vente de ressources numériques
+              La Plateforme est destinée aux organisations, associations, leaders et leurs communautés
+              pour la gestion de contenu, la collecte de fonds, la vente de ressources numériques
               et la communication communautaire.
             </p>
           </section>
@@ -75,7 +75,7 @@ export default function TermsPage() {
             <h2 className="text-xl font-semibold mt-8 mb-3">4. Services proposés</h2>
             <p>La Plateforme offre les services suivants :</p>
             <ul className="list-disc pl-5 space-y-1">
-              <li>Création et gestion de pages communautaires (églises, ministères, organisations)</li>
+              <li>Création et gestion de pages communautaires (organisations, associations, leaders)</li>
               <li>Publication et diffusion de contenu multimédia (vidéos, audios, reels)</li>
               <li>Collecte de dons et campagnes de financement</li>
               <li>Vente de produits numériques (ebooks, cours, ressources)</li>

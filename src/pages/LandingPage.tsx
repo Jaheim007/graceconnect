@@ -9,11 +9,11 @@ import communityImg from '@/assets/landing-community.png';
 import devicesImg from '@/assets/landing-devices.jpg';
 
 const features = [
-  { icon: Play, title: 'Médiathèque', desc: 'Partagez prédications, musique, podcasts et replays live avec votre communauté.' },
+  { icon: Play, title: 'Médiathèque', desc: 'Partagez vidéos, musique, podcasts et replays live avec votre communauté.' },
   { icon: Heart, title: 'Collecte de fonds', desc: 'Lancez des campagnes de dons avec suivi en temps réel et intégration Paystack.' },
-  { icon: ShoppingBag, title: 'Boutique digitale', desc: 'Vendez ebooks, formations et ressources à votre congrégation dans le monde entier.' },
+  { icon: ShoppingBag, title: 'Boutique digitale', desc: 'Vendez ebooks, formations et ressources à votre audience dans le monde entier.' },
   { icon: Users, title: 'Gestion communautaire', desc: 'Gérez membres, rôles et affiliés depuis un seul tableau de bord.' },
-  { icon: Globe, title: 'Multi-organisations', desc: 'Hébergez des centaines d\'églises et ministères sur une seule plateforme.' },
+  { icon: Globe, title: 'Multi-organisations', desc: 'Hébergez des centaines d\'organisations et associations sur une seule plateforme.' },
   { icon: Zap, title: 'Programme d\'affiliation', desc: 'Permettez à vos membres de gagner en promouvant vos produits et campagnes.' },
 ];
 
@@ -76,7 +76,7 @@ export default function LandingPage() {
             className="text-center space-y-6"
           >
             <Badge variant="secondary" className="text-xs px-3 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary">
-              🌍 Conçu pour les communautés de foi africaines
+              🌍 Conçu pour les leaders et organisations en Afrique
             </Badge>
 
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight">
@@ -87,7 +87,7 @@ export default function LandingPage() {
             </h1>
 
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Siteviral est la plateforme tout-en-un pour les églises, ministères et leaders de foi
+              Siteviral est la plateforme tout-en-un pour les organisations, leaders et associations
               pour partager du contenu, collecter des fonds, vendre des ressources et développer leur communauté — en commençant par la Côte d'Ivoire.
             </p>
 
@@ -147,7 +147,7 @@ export default function LandingPage() {
               </h2>
               <p className="text-muted-foreground leading-relaxed mb-6">
                 Que votre communauté soit à Abidjan, Paris ou New York, Siteviral vous permet de rester
-                connectés. Partagez des moments forts, diffusez vos prédications et gardez le lien avec chaque membre.
+                connectés. Partagez des moments forts, diffusez vos contenus et gardez le lien avec chaque membre.
               </p>
               <Button
                 className="gold-gradient text-primary-foreground border-0 shadow-gold gap-2"
@@ -290,7 +290,7 @@ export default function LandingPage() {
         <div className="container max-w-2xl text-center">
           <div className="bg-card rounded-3xl border border-primary/20 p-8 sm:p-10 shadow-elevated space-y-5">
             <h2 className="text-2xl sm:text-3xl font-bold">Prêt à connecter votre communauté ?</h2>
-            <p className="text-muted-foreground">Rejoignez des centaines de communautés de foi déjà sur Siteviral.</p>
+            <p className="text-muted-foreground">Rejoignez des centaines d'organisations déjà sur Siteviral.</p>
             <Button
               size="lg"
               className="gold-gradient text-primary-foreground border-0 shadow-gold px-10 h-12 gap-2 w-full sm:w-auto"
@@ -310,7 +310,7 @@ export default function LandingPage() {
             <div className="space-y-3">
               <span className="text-xl font-extrabold italic text-gold">Siteviral</span>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                La plateforme tout-en-un pour les communautés de foi en Afrique.
+                La plateforme tout-en-un pour les leaders et organisations en Afrique.
               </p>
             </div>
 
@@ -346,7 +346,7 @@ export default function LandingPage() {
 
           <div className="mt-10 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
             <span>© {new Date().getFullYear()} Siteviral. Tous droits réservés.</span>
-            <span>Fait avec ❤️ pour les communautés de foi en Côte d'Ivoire</span>
+            <span>Fait avec ❤️ en Côte d'Ivoire</span>
           </div>
         </div>
       </footer>

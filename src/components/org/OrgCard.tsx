@@ -9,6 +9,15 @@ import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
+const categoryLabels: Record<string, string> = {
+  church: 'Organisation',
+  ministry: 'Association',
+  leader: 'Leader',
+  ngo: 'ONG',
+  community: 'Communauté',
+  other: 'Autre',
+};
+
 const categoryColors: Record<string, string> = {
   church: 'bg-blue-500/15 text-blue-600 dark:text-blue-400',
   ministry: 'bg-purple-500/15 text-purple-600 dark:text-purple-400',
@@ -93,7 +102,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
             variant="secondary"
             className={cn('text-[10px] px-1.5 py-0 shrink-0 border-0', categoryColors[org.category])}
           >
-            {org.category}
+            {categoryLabels[org.category] || org.category}
           </Badge>
         </div>
 
