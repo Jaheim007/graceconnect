@@ -39,11 +39,17 @@ export default function AuthPage() {
   const { signIn, signUp, signInWithGoogle, user } = useAuth();
   const { userOrgs } = useOrg();
 
+  const returnTo = searchParams.get('returnTo');
+
   useEffect(() => {
     if (user) {
-      navigate(userOrgs.length > 0 ? '/feed' : '/discover', { replace: true });
+      if (returnTo) {
+        navigate(returnTo, { replace: true });
+      } else {
+        navigate(userOrgs.length > 0 ? '/feed' : '/discover', { replace: true });
+      }
     }
-  }, [user, userOrgs.length, navigate]);
+  }, [user, userOrgs.length, navigate, returnTo]);
 
   const loginForm = useForm<LoginForm>({ resolver: zodResolver(loginSchema) });
   const signupForm = useForm<SignupForm>({ resolver: zodResolver(signupSchema) });
@@ -58,12 +64,12 @@ export default function AuthPage() {
     setError('');
     const { error: err } = await signUp(data.email, data.password, data.displayName);
     if (err) setError(err.message);
-    else navigate('/discover');
+    else navigate(returnTo || '/discover');
   };
 
   const handleGoogle = async () => {
     setError('');
-    const { error: err } = await signInWithGoogle();
+    const { error: err } = await signInWithGoogle(returnTo || undefined);
     if (err) setError(err.message);
   };
 
