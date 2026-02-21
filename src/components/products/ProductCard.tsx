@@ -5,12 +5,15 @@ import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen, Share2, Cop
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
+import { useQuery } from '@tanstack/react-query';
+import { db } from '@/lib/db';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
 interface ProductCardProps {
-  product: DigitalProduct;
+  product: DigitalProduct & { slug?: string };
   onPurchase?: () => void;
   index?: number;
   isPurchased?: boolean;
@@ -19,9 +22,27 @@ interface ProductCardProps {
 export function ProductCard({ product, onPurchase, index = 0, isPurchased }: ProductCardProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const orgSlug = (product as any).organization_slug || '';
-  const shareUrl = `https://siteviral.com/org/${orgSlug}/product/${product.id}`;
+
+  // Get user's affiliate code for this org to auto-append ?ref=
+  const { data: affiliateCode } = useQuery({
+    queryKey: ['my-aff-code', user?.id, (product as any).organization_id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data: link } = await db.from('affiliate_links').select('code').eq('user_id', user.id).eq('organization_id', (product as any).organization_id).eq('is_active', true).maybeSingle();
+      return link?.code || null;
+    },
+    enabled: !!user && !!(product as any).organization_id,
+    staleTime: 1000 * 60 * 10,
+  });
+
+  // Build share URL with product slug + affiliate ref
+  const pSlug = (product as any).slug;
+  const basePath = pSlug ? `/org/${orgSlug}/p/${pSlug}` : `/org/${orgSlug}/product/${product.id}`;
+  let shareUrl = `https://siteviral.com${basePath}`;
+  if (affiliateCode) shareUrl += `?ref=${affiliateCode}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareUrl);

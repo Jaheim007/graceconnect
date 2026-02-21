@@ -27,41 +27,65 @@ const typeIcons: Record<string, React.ReactNode> = {
 };
 
 export default function ProductDetailPage() {
-  const { slug, productId } = useParams<{ slug: string; productId: string }>();
+  const { slug, productId, productSlug } = useParams<{ slug: string; productId?: string; productSlug?: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
   const [purchaseProduct, setPurchaseProduct] = useState<DigitalProduct | null>(null);
   const [copied, setCopied] = useState(false);
 
-  const { data: product, isLoading } = useQuery({
-    queryKey: ['product-detail', productId],
+  // Get user's affiliate code for this org
+  const { data: affiliateCode } = useQuery({
+    queryKey: ['my-affiliate-code', user?.id, slug],
     queryFn: async () => {
-      if (!productId) return null;
-      const { data } = await db
+      if (!user || !slug) return null;
+      const { data: org } = await db.from('organizations').select('id').eq('slug', slug).maybeSingle();
+      if (!org) return null;
+      const { data: link } = await db.from('affiliate_links').select('code').eq('user_id', user.id).eq('organization_id', org.id).eq('is_active', true).maybeSingle();
+      return link?.code || null;
+    },
+    enabled: !!user && !!slug,
+  });
+
+  const { data: product, isLoading } = useQuery({
+    queryKey: ['product-detail', productId || productSlug],
+    queryFn: async () => {
+      let q = db
         .from('digital_products')
         .select('*, organizations(name, slug, logo_url, currency, description)')
-        .eq('id', productId)
-        .eq('is_published', true)
-        .maybeSingle();
+        .eq('is_published', true);
+      if (productId) {
+        q = q.eq('id', productId);
+      } else if (productSlug && slug) {
+        q = q.eq('slug', productSlug);
+      }
+      const { data } = await q.maybeSingle();
       return data;
     },
-    enabled: !!productId,
+    enabled: !!(productId || productSlug),
   });
 
   const { data: purchases = [] } = useMyPurchases();
-  const isPurchased = purchases.some(p => p.product_id === productId);
+  const isPurchased = purchases.some(p => p.product_id === (productId || product?.id));
+
+  // Build shareable URL with product slug + affiliate ref
+  const buildShareUrl = () => {
+    const pSlug = (product as any)?.slug;
+    const basePath = pSlug ? `/org/${slug}/p/${pSlug}` : `/org/${slug}/product/${product?.id}`;
+    let url = `https://siteviral.com${basePath}`;
+    if (affiliateCode) url += `?ref=${affiliateCode}`;
+    return url;
+  };
 
   const handleCopyLink = async () => {
-    const url = window.location.href;
-    await navigator.clipboard.writeText(url);
+    await navigator.clipboard.writeText(buildShareUrl());
     setCopied(true);
     toast({ title: 'Lien copié !' });
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleShare = async () => {
-    const url = window.location.href;
+    const url = buildShareUrl();
     if (navigator.share) {
       await navigator.share({ title: product?.title, url });
     } else {
@@ -93,7 +117,7 @@ export default function ProductDetailPage() {
   }
 
   const org = (product as any).organizations;
-  const productUrl = window.location.href;
+  const productUrl = buildShareUrl();
 
   return (
     <div className="min-h-screen bg-background">

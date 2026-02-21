@@ -332,6 +332,7 @@ export type Database = {
           price: number | null
           product_type: string | null
           sales_count: number | null
+          slug: string | null
           title: string
           updated_at: string | null
         }
@@ -354,6 +355,7 @@ export type Database = {
           price?: number | null
           product_type?: string | null
           sales_count?: number | null
+          slug?: string | null
           title: string
           updated_at?: string | null
         }
@@ -376,6 +378,7 @@ export type Database = {
           price?: number | null
           product_type?: string | null
           sales_count?: number | null
+          slug?: string | null
           title?: string
           updated_at?: string | null
         }
