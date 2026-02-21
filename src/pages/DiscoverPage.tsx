@@ -19,8 +19,8 @@ import { motion } from 'framer-motion';
 
 const CATEGORIES: { value: OrgCategory | ''; label: string }[] = [
   { value: '', label: 'Tout' },
-  { value: 'church', label: '⛪ Église' },
-  { value: 'ministry', label: '🙏 Ministère' },
+  { value: 'church', label: '🏢 Organisation' },
+  { value: 'ministry', label: '🤝 Association' },
   { value: 'leader', label: '⭐ Leader' },
   { value: 'ngo', label: '🌍 ONG' },
   { value: 'community', label: '👥 Communauté' },

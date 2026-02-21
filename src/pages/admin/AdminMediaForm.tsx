@@ -23,28 +23,28 @@ const MEDIA_TYPES = [
     value: 'video',
     label: 'Video',
     icon: Play,
-    desc: 'Full-length sermon, teaching or event. Shown in Watch section.',
+    desc: 'Vidéo complète, formation ou événement. Affiché dans la section Regarder.',
     specs: 'Any aspect ratio · Recommend 16:9 (1920×1080)',
   },
   {
     value: 'reel',
     label: 'Reel',
     icon: Film,
-    desc: 'Short vertical clip (30s–3min). Shown in Reels feed.',
+    desc: 'Clip vertical court (30s–3min). Affiché dans le fil Reels.',
     specs: 'Vertical 9:16 · Recommend 1080×1920',
   },
   {
     value: 'audio',
     label: 'Audio',
     icon: Mic,
-    desc: 'Podcast or sermon audio only.',
+    desc: 'Podcast ou contenu audio uniquement.',
     specs: 'MP3/AAC · Add a cover art thumbnail',
   },
   {
     value: 'live_replay',
     label: 'Live Replay',
     icon: Radio,
-    desc: 'Archived livestream replay.',
+    desc: 'Replay d\'un livestream archivé.',
     specs: '16:9 · Same as Video',
   },
 ] as const;
@@ -129,7 +129,7 @@ export function MediaForm() {
         ({ error } = await db.from('media_content').insert(payload));
       }
       if (error) throw error;
-      toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
+      toast({ title: isEdit ? 'Mis à jour ✅' : 'Créé ✅' });
       navigate('/admin/media');
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
@@ -139,12 +139,12 @@ export function MediaForm() {
   };
 
   return (
-    <AdminPageShell title={isEdit ? 'Edit Media' : 'New Media'} backRoute="/admin/media">
+    <AdminPageShell title={isEdit ? 'Modifier le média' : 'Nouveau média'} backRoute="/admin/media">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 max-w-xl">
 
         {/* Media Type Picker */}
         <div className="space-y-2">
-          <Label>Content Type *</Label>
+          <Label>Type de contenu *</Label>
           <div className="grid grid-cols-2 gap-2">
             {MEDIA_TYPES.map(({ value, label, icon: Icon, desc, specs }) => (
               <button
@@ -174,26 +174,26 @@ export function MediaForm() {
         </div>
 
         <div className="space-y-1.5">
-          <Label>Title *</Label>
-          <Input {...register('title')} placeholder="Sermon or content title..." />
+          <Label>Titre *</Label>
+          <Input {...register('title')} placeholder="Titre du contenu..." />
           {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
         </div>
         <div className="space-y-1.5">
           <Label>Description</Label>
-          <Textarea {...register('description')} rows={3} placeholder="Short description..." />
+          <Textarea {...register('description')} rows={3} placeholder="Courte description..." />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label>Speaker</Label>
-            <Input {...register('speaker')} placeholder="Pastor Name..." />
+            <Label>Intervenant</Label>
+            <Input {...register('speaker')} placeholder="Nom de l'intervenant..." />
           </div>
           <div className="space-y-1.5">
-            <Label>Series</Label>
-            <Input {...register('series')} placeholder="Series name..." />
+            <Label>Série</Label>
+            <Input {...register('series')} placeholder="Nom de la série..." />
           </div>
         </div>
         <div className="space-y-1.5">
-          <Label>Media URL *</Label>
+          <Label>URL du média *</Label>
           <Input {...register('media_url')} placeholder="https://youtube.com/... or direct .mp4 / .mp3" />
           <p className="text-[11px] text-muted-foreground">
             Paste a YouTube, Vimeo, or direct file link. Reels should use direct .mp4 links for best playback.
@@ -216,8 +216,8 @@ export function MediaForm() {
         />
 
         <div className="space-y-1.5">
-          <Label>Tags (comma separated)</Label>
-          <Input {...register('tags')} placeholder="faith, prayer, youth..." />
+          <Label>Tags (séparés par des virgules)</Label>
+          <Input {...register('tags')} placeholder="formation, leadership, jeunesse..." />
         </div>
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
@@ -230,9 +230,9 @@ export function MediaForm() {
           </div>
         </div>
         <div className="flex gap-3 pt-2">
-          <Button type="button" variant="outline" onClick={() => navigate('/admin/media')}>Cancel</Button>
+          <Button type="button" variant="outline" onClick={() => navigate('/admin/media')}>Annuler</Button>
           <Button type="submit" className="gold-gradient text-primary-foreground border-0 shadow-gold" disabled={loading}>
-            {loading ? 'Saving...' : isEdit ? 'Update' : 'Create'}
+            {loading ? 'Enregistrement...' : isEdit ? 'Mettre à jour' : 'Créer'}
           </Button>
         </div>
       </form>
