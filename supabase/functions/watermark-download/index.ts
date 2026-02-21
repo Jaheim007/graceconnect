@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
     // Verify purchase
     const { data: purchase } = await adminClient
       .from("product_purchases")
-      .select("id")
+      .select("id, organization_id")
       .eq("user_id", user.id)
       .eq("product_id", product_id)
       .eq("status", "completed")
@@ -57,6 +57,17 @@ Deno.serve(async (req) => {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // Fetch the organization name
+    let orgName = "Siteviral";
+    if (purchase.organization_id) {
+      const { data: org } = await adminClient
+        .from("organizations")
+        .select("name")
+        .eq("id", purchase.organization_id)
+        .single();
+      if (org?.name) orgName = org.name;
     }
 
     // Fetch the original file
@@ -71,14 +82,13 @@ Deno.serve(async (req) => {
     const contentType = fileRes.headers.get("content-type") || "application/octet-stream";
     const fileBytes = new Uint8Array(await fileRes.arrayBuffer());
 
-    // Only watermark PDFs
     const isPdf = contentType.includes("pdf") || file_url.toLowerCase().includes(".pdf");
 
     let outputBytes: Uint8Array;
 
     if (isPdf) {
       try {
-        outputBytes = await watermarkPdf(fileBytes, user.email || "Unknown", product_title || "Document");
+        outputBytes = await watermarkPdf(fileBytes, user.email || "Unknown", product_title || "Document", orgName);
       } catch (err) {
         console.error("[watermark-download] PDF watermark failed, serving original:", err);
         outputBytes = fileBytes;
@@ -87,7 +97,6 @@ Deno.serve(async (req) => {
       outputBytes = fileBytes;
     }
 
-    // Build a safe ASCII filename
     const safeTitle = (product_title || "document")
       .replace(/[^\x20-\x7E]/g, "_")
       .replace(/["\\/]/g, "_")
@@ -120,29 +129,28 @@ async function watermarkPdf(
   pdfBytes: Uint8Array,
   buyerEmail: string,
   productTitle: string,
+  orgName: string,
 ): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.load(pdfBytes, { ignoreEncryption: true });
   const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const helveticaOblique = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
 
   const now = new Date();
   const dateStr = now.toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" });
-  const licenseId = `SV-${purchase_short_id(buyerEmail, now)}`;
+  const licenseId = `SV-${purchaseShortId(buyerEmail, now)}`;
 
-  // ── 1. Add a License Cover Page as the FIRST page ──────────────────────────
+  // ── 1. License Cover Page ───────────────────────────────────────────────────
   const coverPage = pdfDoc.insertPage(0, [595, 842]); // A4
   const { width: cw, height: ch } = coverPage.getSize();
 
-  // Background header bar
-  coverPage.drawRectangle({
-    x: 0, y: ch - 120, width: cw, height: 120,
-    color: rgb(0.07, 0.07, 0.07),
-  });
+  // Dark header bar
+  coverPage.drawRectangle({ x: 0, y: ch - 120, width: cw, height: 120, color: rgb(0.07, 0.07, 0.07) });
 
-  // Brand
-  coverPage.drawText("SITEVIRAL", {
-    x: 40, y: ch - 50, size: 28, font: helveticaBold,
-    color: rgb(0.788, 0.659, 0.298), // gold #c9a84c
+  // Brand name — stylish italic
+  coverPage.drawText("Siteviral", {
+    x: 40, y: ch - 55, size: 32, font: helveticaOblique,
+    color: rgb(0.788, 0.659, 0.298),
   });
 
   coverPage.drawText("Digital License Certificate", {
@@ -150,23 +158,16 @@ async function watermarkPdf(
     color: rgb(0.8, 0.8, 0.8),
   });
 
-  // Divider line
-  coverPage.drawRectangle({
-    x: 40, y: ch - 160, width: cw - 80, height: 2,
-    color: rgb(0.788, 0.659, 0.298),
-  });
+  // Gold divider
+  coverPage.drawRectangle({ x: 40, y: ch - 160, width: cw - 80, height: 2, color: rgb(0.788, 0.659, 0.298) });
 
   // Product title
   const titleLines = wrapText(productTitle, 45);
   let ty = ch - 200;
-  coverPage.drawText("LICENSED PRODUCT", {
-    x: 40, y: ty, size: 10, font: helvetica, color: rgb(0.5, 0.5, 0.5),
-  });
+  coverPage.drawText("LICENSED PRODUCT", { x: 40, y: ty, size: 10, font: helvetica, color: rgb(0.5, 0.5, 0.5) });
   ty -= 25;
   for (const line of titleLines) {
-    coverPage.drawText(line, {
-      x: 40, y: ty, size: 20, font: helveticaBold, color: rgb(0.1, 0.1, 0.1),
-    });
+    coverPage.drawText(line, { x: 40, y: ty, size: 20, font: helveticaBold, color: rgb(0.1, 0.1, 0.1) });
     ty -= 28;
   }
 
@@ -174,19 +175,16 @@ async function watermarkPdf(
   ty -= 20;
   const fields = [
     ["Licensed To", buyerEmail],
+    ["Purchased From", orgName],
     ["License ID", licenseId],
     ["Date of Purchase", dateStr],
     ["License Type", "Personal Use — Non-Transferable"],
   ];
 
   for (const [label, value] of fields) {
-    coverPage.drawText(label.toUpperCase(), {
-      x: 40, y: ty, size: 9, font: helvetica, color: rgb(0.5, 0.5, 0.5),
-    });
+    coverPage.drawText(label.toUpperCase(), { x: 40, y: ty, size: 9, font: helvetica, color: rgb(0.5, 0.5, 0.5) });
     ty -= 16;
-    coverPage.drawText(value, {
-      x: 40, y: ty, size: 13, font: helveticaBold, color: rgb(0.15, 0.15, 0.15),
-    });
+    coverPage.drawText(value, { x: 40, y: ty, size: 13, font: helveticaBold, color: rgb(0.15, 0.15, 0.15) });
     ty -= 30;
   }
 
@@ -194,9 +192,7 @@ async function watermarkPdf(
   ty -= 10;
   coverPage.drawRectangle({
     x: 30, y: ty - 100, width: cw - 60, height: 110,
-    color: rgb(0.96, 0.96, 0.96),
-    borderColor: rgb(0.85, 0.85, 0.85),
-    borderWidth: 1,
+    color: rgb(0.96, 0.96, 0.96), borderColor: rgb(0.85, 0.85, 0.85), borderWidth: 1,
   });
 
   const terms = [
@@ -207,14 +203,10 @@ async function watermarkPdf(
   ];
 
   let termY = ty - 20;
-  coverPage.drawText("TERMS OF USE", {
-    x: 45, y: termY, size: 9, font: helveticaBold, color: rgb(0.3, 0.3, 0.3),
-  });
+  coverPage.drawText("TERMS OF USE", { x: 45, y: termY, size: 9, font: helveticaBold, color: rgb(0.3, 0.3, 0.3) });
   termY -= 18;
   for (const t of terms) {
-    coverPage.drawText(`•  ${t}`, {
-      x: 50, y: termY, size: 9, font: helvetica, color: rgb(0.35, 0.35, 0.35),
-    });
+    coverPage.drawText(`•  ${t}`, { x: 50, y: termY, size: 9, font: helvetica, color: rgb(0.35, 0.35, 0.35) });
     termY -= 15;
   }
 
@@ -225,47 +217,27 @@ async function watermarkPdf(
 
   // ── 2. Watermark every content page ────────────────────────────────────────
   const pages = pdfDoc.getPages();
-  const watermarkLine = `Licensed to: ${buyerEmail}  |  ${licenseId}`;
+  const watermarkLine = `Licensed to: ${buyerEmail}  |  ${licenseId}  |  Purchased from: ${orgName}`;
 
   for (let i = 1; i < pages.length; i++) {
     const page = pages[i];
     const { width, height } = page.getSize();
 
-    // Diagonal watermark across the page (subtle)
+    // Diagonal watermark (subtle)
     page.drawText(buyerEmail, {
-      x: width * 0.1,
-      y: height * 0.35,
-      size: 38,
-      font: helvetica,
-      color: rgb(0.85, 0.85, 0.85),
-      opacity: 0.08,
-      rotate: degrees(45),
+      x: width * 0.1, y: height * 0.35, size: 38, font: helvetica,
+      color: rgb(0.85, 0.85, 0.85), opacity: 0.08, rotate: degrees(45),
     });
 
     // Bottom footer bar
-    page.drawRectangle({
-      x: 0, y: 0, width, height: 22,
-      color: rgb(0.95, 0.95, 0.95),
-      opacity: 0.9,
-    });
+    page.drawRectangle({ x: 0, y: 0, width, height: 22, color: rgb(0.95, 0.95, 0.95), opacity: 0.9 });
+    page.drawText(watermarkLine, { x: 10, y: 7, size: 7, font: helvetica, color: rgb(0.55, 0.55, 0.55) });
 
-    page.drawText(watermarkLine, {
-      x: 10,
-      y: 7,
-      size: 7,
-      font: helvetica,
-      color: rgb(0.55, 0.55, 0.55),
-    });
-
-    // Top-right corner license ID
+    // Top-right license ID
     const idWidth = helvetica.widthOfTextAtSize(licenseId, 7);
     page.drawText(licenseId, {
-      x: width - idWidth - 10,
-      y: height - 15,
-      size: 7,
-      font: helvetica,
-      color: rgb(0.75, 0.75, 0.75),
-      opacity: 0.5,
+      x: width - idWidth - 10, y: height - 15, size: 7, font: helvetica,
+      color: rgb(0.75, 0.75, 0.75), opacity: 0.5,
     });
   }
 
@@ -274,7 +246,7 @@ async function watermarkPdf(
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function purchase_short_id(email: string, date: Date): string {
+function purchaseShortId(email: string, date: Date): string {
   let hash = 0;
   const str = email + date.toISOString().slice(0, 10);
   for (let i = 0; i < str.length; i++) {

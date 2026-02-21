@@ -73,14 +73,11 @@ export function Sidebar() {
       <div className={cn('flex items-center h-16 px-4 border-b border-border/60', collapsed && 'justify-center px-0')}>
         {!collapsed ? (
           <Link to="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg gold-gradient flex items-center justify-center shadow-gold">
-              <span className="text-sm font-bold text-primary-foreground">SV</span>
-            </div>
-            <span className="font-bold text-lg tracking-tight">Siteviral</span>
+            <span className="text-xl font-extrabold tracking-tight italic bg-clip-text text-transparent gold-gradient">Siteviral</span>
           </Link>
         ) : (
-          <Link to="/" className="h-8 w-8 rounded-lg gold-gradient flex items-center justify-center shadow-gold">
-            <span className="text-sm font-bold text-primary-foreground">GC</span>
+          <Link to="/" className="text-base font-extrabold italic bg-clip-text text-transparent gold-gradient">
+            S
           </Link>
         )}
       </div>
