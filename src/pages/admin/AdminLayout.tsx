@@ -11,18 +11,28 @@ import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const adminLinks = [
-  { to: '/admin', label: 'Vue d\'ensemble', icon: BarChart3, end: true },
-  { to: '/admin/media', label: 'Médias', icon: Play },
-  { to: '/admin/announcements', label: 'Annonces', icon: Megaphone },
-  { to: '/admin/events', label: 'Événements', icon: CalendarDays },
-  { to: '/admin/campaigns', label: 'Campagnes', icon: Heart },
-  { to: '/admin/products', label: 'Boutique', icon: ShoppingBag },
-  { to: '/admin/photos', label: 'Photos', icon: Camera },
-  { to: '/admin/members', label: 'Membres', icon: Users },
-  { to: '/admin/affiliation', label: 'Affiliation', icon: Link2 },
-  { to: '/admin/kyc', label: 'KYC', icon: FileCheck },
-  { to: '/admin/settings', label: 'Paramètres', icon: Settings },
+  // Contenu
+  { to: '/admin', label: 'Vue d\'ensemble', icon: BarChart3, end: true, group: 'main' },
+  { to: '/admin/media', label: 'Médias', icon: Play, group: 'contenu' },
+  { to: '/admin/photos', label: 'Photos', icon: Camera, group: 'contenu' },
+  { to: '/admin/announcements', label: 'Annonces', icon: Megaphone, group: 'contenu' },
+  { to: '/admin/events', label: 'Événements', icon: CalendarDays, group: 'contenu' },
+  // Commerce
+  { to: '/admin/campaigns', label: 'Campagnes', icon: Heart, group: 'commerce' },
+  { to: '/admin/products', label: 'Boutique', icon: ShoppingBag, group: 'commerce' },
+  { to: '/admin/affiliation', label: 'Affiliation', icon: Link2, group: 'commerce' },
+  // Gestion
+  { to: '/admin/members', label: 'Membres', icon: Users, group: 'gestion' },
+  { to: '/admin/kyc', label: 'Vérification', icon: FileCheck, group: 'gestion' },
+  { to: '/admin/settings', label: 'Paramètres', icon: Settings, group: 'gestion' },
 ];
+
+const groupLabels: Record<string, string> = {
+  main: '',
+  contenu: 'Contenu',
+  commerce: 'Commerce',
+  gestion: 'Gestion',
+};
 
 export default function AdminLayout() {
   const { currentOrg, userOrgs, setCurrentOrg, isLoadingOrgs } = useOrg();
@@ -115,25 +125,33 @@ export default function AdminLayout() {
       <div className="flex">
         {/* Desktop sidebar */}
         <aside className="hidden lg:flex flex-col w-52 border-r border-border/60 min-h-[calc(100vh-5rem)] p-3 gap-0.5 shrink-0 bg-card/30">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-3 mb-1 mt-1">Navigation</p>
-          {adminLinks.map(({ to, label, icon: Icon, end }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all',
-                  isActive
-                    ? 'bg-primary text-primary-foreground shadow-gold'
-                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
-                )
-              }
-            >
-              <Icon className="h-3.5 w-3.5 shrink-0" />
-              {label}
-            </NavLink>
-          ))}
+          {['main', 'contenu', 'commerce', 'gestion'].map((group) => {
+            const groupItems = adminLinks.filter(l => l.group === group);
+            const label = groupLabels[group];
+            return (
+              <div key={group}>
+                {label && <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-3 mb-1 mt-3">{label}</p>}
+                {groupItems.map(({ to, label: itemLabel, icon: Icon, end }) => (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    end={end}
+                    className={({ isActive }) =>
+                      cn(
+                        'flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all',
+                        isActive
+                          ? 'bg-primary text-primary-foreground shadow-gold'
+                          : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                      )
+                    }
+                  >
+                    <Icon className="h-3.5 w-3.5 shrink-0" />
+                    {itemLabel}
+                  </NavLink>
+                ))}
+              </div>
+            );
+          })}
         </aside>
 
         <main className="flex-1 min-w-0 p-3 sm:p-4 lg:p-6">

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Compass, BookOpen, Bell, User } from 'lucide-react';
+import { Home, Compass, LayoutDashboard, Bell, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 const navItems = [
   { to: '/feed', icon: Home, label: 'Accueil' },
   { to: '/discover', icon: Compass, label: 'Explorer' },
-  { to: '/dashboard', icon: BookOpen, label: 'Mon Espace' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Tableau de bord' },
   { to: '/notifications', icon: Bell, label: 'Alertes' },
   { to: '/profile', icon: User, label: 'Compte' },
 ];

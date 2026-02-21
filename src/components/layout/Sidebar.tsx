@@ -17,7 +17,7 @@ const mainNav = [
   { to: '/discover', icon: Compass, label: 'Explorer' },
   { to: '/reels', icon: Play, label: 'Reels' },
   { to: '/notifications', icon: Bell, label: 'Notifications' },
-  { to: '/dashboard', icon: BookOpen, label: 'Mon Espace' },
+  { to: '/dashboard', icon: BookOpen, label: 'Tableau de bord' },
   { to: '/profile', icon: User, label: 'Mon Compte' },
 ];
 
@@ -34,7 +34,7 @@ const adminNav = [
   { to: '/admin/crm', icon: UserPlus, label: 'CRM' },
   { to: '/admin/affiliation', icon: Link2, label: 'Affiliation' },
   { to: '/admin/analytics', icon: BarChart3, label: 'Analytiques' },
-  { to: '/admin/kyc', icon: FileCheck, label: 'KYC' },
+  { to: '/admin/kyc', icon: FileCheck, label: 'Vérification' },
   { to: '/admin/settings', icon: Settings, label: 'Paramètres' },
 ];
 

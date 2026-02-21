@@ -141,15 +141,7 @@ export default function DiscoverPage() {
               ))}
             </div>
 
-            {user && (
-              <div className="mb-6 p-4 rounded-2xl bg-primary/5 border border-primary/20 flex items-center justify-between gap-4">
-                <div>
-                  <p className="font-medium text-sm">Créez votre organisation</p>
-                  <p className="text-xs text-muted-foreground">Lancez votre page communautaire sur Siteviral</p>
-                </div>
-                <Button size="sm" className="gold-gradient text-primary-foreground border-0 shadow-gold shrink-0" onClick={() => navigate('/create-org')}>+ Créer</Button>
-              </div>
-            )}
+            {/* CTA moved to bottom */}
 
             {!isLoading && (
               <p className="text-xs text-muted-foreground mb-4">
@@ -169,6 +161,17 @@ export default function DiscoverPage() {
                 <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}>Précédent</Button>
                 <span className="text-xs text-muted-foreground">Page {page + 1} sur {Math.ceil(total / pageSize)}</span>
                 <Button variant="outline" size="sm" disabled={(page + 1) * pageSize >= total} onClick={() => setPage(page + 1)}>Suivant</Button>
+              </div>
+            )}
+
+            {/* Create org CTA — bottom */}
+            {user && (
+              <div className="mt-8 p-4 rounded-2xl bg-muted/50 border border-border flex items-center justify-between gap-4">
+                <div>
+                  <p className="font-medium text-sm">Vous êtes un leader ?</p>
+                  <p className="text-xs text-muted-foreground">Lancez votre page communautaire sur Siteviral</p>
+                </div>
+                <Button size="sm" variant="outline" className="shrink-0" onClick={() => navigate('/create-org')}>+ Créer</Button>
               </div>
             )}
           </TabsContent>
