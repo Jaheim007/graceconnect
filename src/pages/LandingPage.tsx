@@ -28,12 +28,7 @@ export default function LandingPage() {
       {/* Nav */}
       <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
         <div className="container flex items-center justify-between h-14">
-          <div className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-lg gold-gradient flex items-center justify-center shadow-gold">
-              <span className="text-sm font-bold text-primary-foreground">SV</span>
-            </div>
-            <span className="font-bold text-base">Siteviral</span>
-          </div>
+          <span className="text-xl font-extrabold tracking-tight italic bg-clip-text text-transparent gold-gradient">Siteviral</span>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>Sign In</Button>
             <Button
@@ -192,8 +187,8 @@ export default function LandingPage() {
       <footer className="border-t border-border/60 py-8 px-4">
         <div className="container flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
-            <div className="h-5 w-5 rounded gold-gradient" />
-            <span>Siteviral © 2025</span>
+            <span className="font-extrabold italic text-sm bg-clip-text text-transparent gold-gradient">Siteviral</span>
+            <span>© 2025</span>
           </div>
           <span>Made with ❤️ for faith communities in Côte d'Ivoire</span>
         </div>
