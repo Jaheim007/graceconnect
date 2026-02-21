@@ -5,12 +5,18 @@ import { useOrgEvents } from '@/hooks/useEvents';
 import { useOrgCampaigns, useOrgProducts } from '@/hooks/useMonetization';
 import { useOrgMembers } from '@/hooks/useOrgRole';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import {
   Play, Megaphone, CalendarDays, Heart, ShoppingBag,
-  Users, Plus, ExternalLink, AlertTriangle, ChevronRight
+  Users, Plus, ExternalLink, AlertTriangle, ChevronRight,
+  TrendingUp, DollarSign, Percent
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+const fmt = (n: number, currency = 'XOF') =>
+  new Intl.NumberFormat('fr-FR', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
 
 export default function AdminDashboard() {
   const { currentOrg } = useOrg();
@@ -21,6 +27,34 @@ export default function AdminDashboard() {
   const { data: campaigns = [] } = useOrgCampaigns(currentOrg?.id, false);
   const { data: products = [] } = useOrgProducts(currentOrg?.id, false);
   const { data: members = [] } = useOrgMembers(currentOrg?.id);
+
+  // Revenue data
+  const { data: donationTxns = [] } = useQuery({
+    queryKey: ['admin-donations-rev', currentOrg?.id],
+    queryFn: async () => {
+      if (!currentOrg?.id) return [];
+      const { data } = await db.from('donations').select('amount, organization_amount, affiliate_commission, platform_fee').eq('organization_id', currentOrg.id).eq('status', 'completed');
+      return data || [];
+    },
+    enabled: !!currentOrg?.id,
+  });
+
+  const { data: purchaseTxns = [] } = useQuery({
+    queryKey: ['admin-purchases-rev', currentOrg?.id],
+    queryFn: async () => {
+      if (!currentOrg?.id) return [];
+      const { data } = await db.from('product_purchases').select('amount, organization_amount, affiliate_commission, platform_fee').eq('organization_id', currentOrg.id).eq('status', 'completed');
+      return data || [];
+    },
+    enabled: !!currentOrg?.id,
+  });
+
+  const allTxns = [...donationTxns, ...purchaseTxns];
+  const totalRevenue = allTxns.reduce((s, t) => s + (t.amount || 0), 0);
+  const totalOrgReceived = allTxns.reduce((s, t) => s + (t.organization_amount || 0), 0);
+  const totalAffiliateCommission = allTxns.reduce((s, t) => s + (t.affiliate_commission || 0), 0);
+  const totalPlatformFee = allTxns.reduce((s, t) => s + (t.platform_fee || 0), 0);
+  const commissionRate = currentOrg?.affiliation_commission_percent ?? 10;
 
   const stats = [
     { label: 'Media', value: media.length, published: media.filter(m => m.is_published).length, icon: Play, to: '/admin/media', colorClass: 'text-accent bg-accent/10' },
@@ -89,6 +123,49 @@ export default function AdminDashboard() {
           </button>
         ))}
       </div>
+
+      {/* Revenue & Commission summary */}
+      {allTxns.length > 0 && (
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+          <h2 className="font-semibold text-sm flex items-center gap-2">
+            <TrendingUp className="h-4 w-4 text-primary" /> Revenue &amp; Commissions
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="rounded-xl bg-muted/50 p-3">
+              <div className="flex items-center gap-1.5 mb-1">
+                <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Total Sales</span>
+              </div>
+              <p className="text-lg font-bold">{fmt(totalRevenue)}</p>
+              <p className="text-[10px] text-muted-foreground">{allTxns.length} transaction{allTxns.length > 1 ? 's' : ''}</p>
+            </div>
+            <div className="rounded-xl bg-primary/5 p-3">
+              <div className="flex items-center gap-1.5 mb-1">
+                <TrendingUp className="h-3.5 w-3.5 text-primary" />
+                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Org Received</span>
+              </div>
+              <p className="text-lg font-bold text-primary">{fmt(totalOrgReceived)}</p>
+              <p className="text-[10px] text-muted-foreground">After fees &amp; commissions</p>
+            </div>
+            <div className="rounded-xl bg-accent/10 p-3">
+              <div className="flex items-center gap-1.5 mb-1">
+                <Percent className="h-3.5 w-3.5 text-accent" />
+                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Affiliate Commissions</span>
+              </div>
+              <p className="text-lg font-bold">{fmt(totalAffiliateCommission)}</p>
+              <p className="text-[10px] text-muted-foreground">Rate: {commissionRate}%</p>
+            </div>
+            <div className="rounded-xl bg-muted/50 p-3">
+              <div className="flex items-center gap-1.5 mb-1">
+                <DollarSign className="h-3.5 w-3.5 text-muted-foreground" />
+                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Platform Fees</span>
+              </div>
+              <p className="text-lg font-bold">{fmt(totalPlatformFee)}</p>
+              <p className="text-[10px] text-muted-foreground">{currentOrg?.platform_fee_percent ?? 10}%</p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Quick actions */}
       <div className="bg-card border border-border rounded-2xl p-5">
