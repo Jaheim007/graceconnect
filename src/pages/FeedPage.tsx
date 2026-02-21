@@ -12,6 +12,7 @@ import { CampaignCard } from '@/components/donations/CampaignCard';
 import { DonateModal } from '@/components/donations/DonateModal';
 import { ProductPurchaseModal } from '@/components/products/ProductPurchaseModal';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
+import { FeedPhotoSlider } from '@/components/photos/FeedPhotoSlider';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useOrg } from '@/contexts/OrgContext';
 import { useFeedMedia } from '@/hooks/useMedia';
@@ -273,6 +274,9 @@ export default function FeedPage() {
                     </div>
                   </section>
                 )}
+
+                {/* Community Photos slider */}
+                <FeedPhotoSlider orgIds={orgIds} />
 
                 {/* Media */}
                 <section>
