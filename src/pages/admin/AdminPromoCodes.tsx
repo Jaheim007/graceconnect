@@ -10,11 +10,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Trash2, Plus, Copy, CheckCircle, Tag, Percent } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import { useOrgProducts } from '@/hooks/useMonetization';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
@@ -31,6 +33,9 @@ export default function AdminPromoCodes() {
   const [discountPercent, setDiscountPercent] = useState('10');
   const [maxUses, setMaxUses] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
+  const [selectedProductId, setSelectedProductId] = useState<string>('all');
+
+  const { data: products = [] } = useOrgProducts(currentOrg?.id, false);
 
   const { data: promoCodes = [], isLoading } = useQuery({
     queryKey: ['admin-promo-codes', currentOrg?.id],
@@ -38,7 +43,7 @@ export default function AdminPromoCodes() {
       if (!currentOrg) return [];
       const { data } = await db
         .from('promo_codes')
-        .select('*')
+        .select('*, digital_products(title)')
         .eq('organization_id', currentOrg.id)
         .order('created_at', { ascending: false });
       return data || [];
@@ -62,6 +67,7 @@ export default function AdminPromoCodes() {
       };
       if (maxUses) payload.max_uses = parseInt(maxUses);
       if (expiresAt) payload.expires_at = new Date(expiresAt).toISOString();
+      if (selectedProductId !== 'all') payload.product_id = selectedProductId;
 
       const { error } = await db.from('promo_codes').insert(payload);
       if (error) {
@@ -77,6 +83,7 @@ export default function AdminPromoCodes() {
       setDiscountPercent('10');
       setMaxUses('');
       setExpiresAt('');
+      setSelectedProductId('all');
       setShowForm(false);
       qc.invalidateQueries({ queryKey: ['admin-promo-codes', currentOrg?.id] });
     },
@@ -143,10 +150,24 @@ export default function AdminPromoCodes() {
                 <Input type="number" value={discountPercent} onChange={e => setDiscountPercent(e.target.value)} min="1" max="100" className="h-8 text-xs" />
               </div>
               <div className="space-y-1.5">
+                <Label className="text-xs">Produit (optionnel)</Label>
+                <Select value={selectedProductId} onValueChange={setSelectedProductId}>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue placeholder="Tous les produits" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous les produits</SelectItem>
+                    {products.map((p: any) => (
+                      <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
                 <Label className="text-xs">Utilisations max (optionnel)</Label>
                 <Input type="number" value={maxUses} onChange={e => setMaxUses(e.target.value)} placeholder="Illimité" className="h-8 text-xs" />
               </div>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 sm:col-span-2">
                 <Label className="text-xs">Expire le (optionnel)</Label>
                 <Input type="date" value={expiresAt} onChange={e => setExpiresAt(e.target.value)} className="h-8 text-xs" />
               </div>
@@ -183,6 +204,9 @@ export default function AdminPromoCodes() {
                       -{pc.discount_percent}% · {pc.current_uses}{pc.max_uses ? `/${pc.max_uses}` : ''} utilisations
                       {pc.expires_at && ` · Expire ${new Date(pc.expires_at).toLocaleDateString('fr-FR')}`}
                     </p>
+                    {pc.digital_products?.title && (
+                      <p className="text-[10px] text-primary">🏷️ {pc.digital_products.title}</p>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
