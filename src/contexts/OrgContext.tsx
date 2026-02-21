@@ -67,7 +67,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     // First time: try to restore from localStorage
     if (!restoredRef.current) {
       restoredRef.current = true;
-      const saved = localStorage.getItem('gc_current_org_id');
+      const saved = localStorage.getItem('sv_current_org_id');
       if (saved) {
         const found = userOrgs.find((o) => o.id === saved);
         if (found) {
@@ -91,8 +91,8 @@ export function OrgProvider({ children }: { children: ReactNode }) {
 
   const setCurrentOrg = useCallback((org: Organization | null) => {
     setCurrentOrgState(org);
-    if (org) localStorage.setItem('gc_current_org_id', org.id);
-    else localStorage.removeItem('gc_current_org_id');
+    if (org) localStorage.setItem('sv_current_org_id', org.id);
+    else localStorage.removeItem('sv_current_org_id');
   }, []);
 
   const refetchOrgs = useCallback(() => {
