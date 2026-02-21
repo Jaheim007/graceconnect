@@ -69,42 +69,32 @@ Deno.serve(async (req) => {
 
     const contentType = fileRes.headers.get("content-type") || "application/octet-stream";
     const fileBytes = new Uint8Array(await fileRes.arrayBuffer());
-    const watermarkText = `Licensed to: ${user.email} | ${product_title || "Siteviral"}`;
 
     // Build a safe ASCII filename for Content-Disposition
     const safeFilename = (product_title || "document")
-      .replace(/[^\x20-\x7E]/g, "_") // Replace non-ASCII with underscore
-      .replace(/["\\/]/g, "_"); // Remove quotes/slashes
+      .replace(/[^\x20-\x7E]/g, "_")
+      .replace(/["\\/]/g, "_");
 
-    // Determine disposition: inline for "Read Now", attachment for download
+    const ext = file_url.split('.').pop()?.split('?')[0] || 'pdf';
+
+    // Determine disposition: inline for reading in browser, attachment for download
     const disposition = inline
-      ? `inline; filename="${safeFilename}"`
-      : `attachment; filename="${safeFilename}"`;
+      ? `inline; filename="${safeFilename}.${ext}"`
+      : `attachment; filename="${safeFilename}.${ext}"`;
 
-    // Safe watermark header (ASCII only)
-    const safeWatermarkHeader = watermarkText.replace(/[^\x20-\x7E]/g, "_");
+    // Return the ORIGINAL file bytes untouched.
+    // Watermark info is conveyed via response headers only.
+    // We do NOT modify the PDF binary to avoid corruption.
+    const watermarkInfo = `Licensed to: ${user.email} | ${product_title || "Siteviral"}`;
+    const safeWatermarkHeader = watermarkInfo.replace(/[^\x20-\x7E]/g, "_");
 
-    // For PDFs, inject watermark as PDF metadata (Author/Subject fields)
-    // without touching content streams to avoid corruption
-    if (contentType.includes("pdf") || file_url.toLowerCase().endsWith(".pdf")) {
-      const watermarkedPdf = addPdfMetadataWatermark(fileBytes, watermarkText, user.email || "");
-      return new Response(watermarkedPdf, {
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/pdf",
-          "Content-Disposition": disposition,
-          "X-Watermark": safeWatermarkHeader,
-        },
-      });
-    }
-
-    // Non-PDF: return as-is with metadata header
     return new Response(fileBytes, {
       headers: {
         ...corsHeaders,
         "Content-Type": contentType,
         "Content-Disposition": disposition,
         "X-Watermark": safeWatermarkHeader,
+        "X-Licensed-To": (user.email || "").replace(/[^\x20-\x7E]/g, "_"),
       },
     });
   } catch (err) {
@@ -115,63 +105,3 @@ Deno.serve(async (req) => {
     });
   }
 });
-
-/**
- * Safely inject watermark info into PDF metadata (Info dictionary)
- * without modifying any content streams. This preserves the document content.
- */
-function addPdfMetadataWatermark(pdfBytes: Uint8Array, watermarkText: string, email: string): Uint8Array {
-  // We append a new Info dictionary object and update the trailer to reference it.
-  // This is safe because we only ADD bytes at the end; existing streams are untouched.
-
-  const decoder = new TextDecoder("latin1");
-  const pdfStr = decoder.decode(pdfBytes);
-
-  // Find the highest object number used
-  let maxObjNum = 0;
-  const objPattern = /(\d+)\s+\d+\s+obj/g;
-  let m;
-  while ((m = objPattern.exec(pdfStr)) !== null) {
-    const num = parseInt(m[1], 10);
-    if (num > maxObjNum) maxObjNum = num;
-  }
-
-  const newObjNum = maxObjNum + 1;
-  const safeWatermark = watermarkText.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
-  const safeEmail = email.replace(/\\/g, "\\\\").replace(/\(/g, "\\(").replace(/\)/g, "\\)");
-
-  // Create a new Info dictionary object with watermark metadata
-  const newInfoObj = `\n${newObjNum} 0 obj\n<< /Author (${safeEmail}) /Subject (${safeWatermark}) /Producer (Siteviral) /Creator (Siteviral - Licensed Content) >>\nendobj\n`;
-
-  // Find the last startxref position and rebuild a minimal xref + trailer
-  // For simplicity, we use a linearized cross-reference approach:
-  // Just append the object. Most PDF readers will find it via the trailer /Info reference.
-
-  // Find trailer and inject /Info reference
-  const trailerMatch = pdfStr.lastIndexOf("trailer");
-  
-  if (trailerMatch === -1) {
-    // No standard trailer (might be cross-ref stream PDF) - just return original
-    return pdfBytes;
-  }
-
-  // Build output: original bytes + new info object appended before %%EOF
-  // We won't rewrite the trailer to keep things safe; metadata is bonus
-  const eofIndex = pdfStr.lastIndexOf("%%EOF");
-  if (eofIndex === -1) {
-    return pdfBytes;
-  }
-
-  // Insert the new object before %%EOF
-  const before = pdfStr.substring(0, eofIndex);
-  const after = pdfStr.substring(eofIndex);
-  const finalStr = before + newInfoObj + after;
-
-  // Convert back to bytes preserving binary content
-  const resultBytes = new Uint8Array(finalStr.length);
-  for (let i = 0; i < finalStr.length; i++) {
-    resultBytes[i] = finalStr.charCodeAt(i) & 0xff;
-  }
-
-  return resultBytes;
-}

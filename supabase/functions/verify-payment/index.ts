@@ -136,12 +136,11 @@ Deno.serve(async (req) => {
 
       // Update campaign current_amount
       if (campaign_id) {
-        await db.rpc('increment_campaign_amount', { _campaign_id: campaign_id, _amount: amountPaid }).catch(() => {
-          // fallback manual increment if RPC not available
-          db.from('donation_campaigns').select('current_amount').eq('id', campaign_id).single().then(({ data: c }) => {
-            if (c) db.from('donation_campaigns').update({ current_amount: (c.current_amount || 0) + amountPaid }).eq('id', campaign_id);
-          });
-        });
+        const { data: campaign } = await db.from('donation_campaigns').select('current_amount').eq('id', campaign_id).single();
+        if (campaign) {
+          const newAmount = (campaign.current_amount || 0) + amountPaid;
+          await db.from('donation_campaigns').update({ current_amount: newAmount }).eq('id', campaign_id);
+        }
       }
     } else {
       // type === 'product'
