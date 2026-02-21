@@ -100,8 +100,10 @@ export default function AdminDashboard() {
             Vue d'ensemble de <span className="font-medium text-foreground">{currentOrg?.name}</span>
           </p>
         </div>
-        <Button size="sm" onClick={() => navigate(`/org/${currentOrg?.slug}`)} variant="outline" className="gap-1.5 text-xs h-9">
-          <ExternalLink className="h-4 w-4" /> Page publique
+        <Button size="sm" asChild variant="outline" className="gap-1.5 text-xs h-9">
+          <a href={`https://siteviral.com/org/${currentOrg?.slug}`} target="_blank" rel="noreferrer">
+            <ExternalLink className="h-4 w-4" /> Page publique
+          </a>
         </Button>
       </div>
 
