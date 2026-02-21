@@ -119,7 +119,7 @@ export function FileUploader({
                 <Upload className="h-5 w-5" />
               </div>
               <p className="text-xs font-medium">Click to upload file</p>
-              <p className="text-[10px] text-muted-foreground">PDF, Audio, Video · Max 100MB</p>
+              <p className="text-[10px] text-muted-foreground">PDF, Word, PowerPoint, Audio, Video · Max 100MB</p>
             </>
           )}
         </div>
