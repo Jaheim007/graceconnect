@@ -28,7 +28,7 @@ export default function LandingPage() {
       {/* Nav */}
       <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
         <div className="container flex items-center justify-between h-14">
-          <span className="text-xl font-extrabold tracking-tight italic bg-clip-text text-transparent gold-gradient">Siteviral</span>
+          <span className="text-xl font-extrabold tracking-tight italic text-gold">Siteviral</span>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" onClick={() => navigate('/auth')}>Sign In</Button>
             <Button
@@ -57,7 +57,7 @@ export default function LandingPage() {
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight">
               Grow your community.{' '}
-              <span className="bg-clip-text text-transparent gold-gradient">
+              <span className="text-gold font-extrabold italic">
                 Multiply your impact.
               </span>
             </h1>
@@ -187,7 +187,7 @@ export default function LandingPage() {
       <footer className="border-t border-border/60 py-8 px-4">
         <div className="container flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
-            <span className="font-extrabold italic text-sm bg-clip-text text-transparent gold-gradient">Siteviral</span>
+            <span className="font-extrabold italic text-sm text-gold">Siteviral</span>
             <span>© 2025</span>
           </div>
           <span>Made with ❤️ for faith communities in Côte d'Ivoire</span>
