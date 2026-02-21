@@ -68,11 +68,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   };
 
   const handleConfirmToBuyerInfo = () => {
-    if (!user) {
-      toast({ title: 'Connexion requise', description: 'Connectez-vous pour acheter ce produit.', variant: 'destructive' });
-      return;
-    }
-    // Pre-fill again in case profile loaded after mount
+    // Pre-fill from profile if available (user may not be logged in)
     setBuyerInfo(prev => ({
       name: prev.name || profile?.display_name || '',
       email: prev.email || user?.email || '',

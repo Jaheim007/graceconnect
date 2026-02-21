@@ -19,7 +19,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   Globe, MessageCircle, CheckCircle2, Users, CalendarDays,
-  Share2, ShoppingBag, Heart, Sparkles
+  Share2, ShoppingBag, Heart
 } from 'lucide-react';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
@@ -120,7 +120,6 @@ export default function OrgPublicPage() {
       {/* Affiliate referral banner */}
       {hasAffiliateRef && (
         <div className="bg-primary/10 border-b border-primary/20 px-4 py-2 flex items-center gap-2">
-          <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
           <p className="text-xs text-primary font-medium">
             You were invited to explore {org.name}'s store — browse products &amp; digital downloads below!
           </p>
