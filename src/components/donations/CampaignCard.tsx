@@ -1,6 +1,10 @@
 import { DonationCampaign } from '@/types/database';
 import { Button } from '@/components/ui/button';
-import { Heart, Target } from 'lucide-react';
+import { Heart, Target, Share2, Copy, MessageCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface CampaignCardProps {
   campaign: DonationCampaign;
@@ -9,6 +13,19 @@ interface CampaignCardProps {
 }
 
 export function CampaignCard({ campaign, onDonate, index = 0 }: CampaignCardProps) {
+  const { toast } = useToast();
+
+  const shareUrl = window.location.href;
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(shareUrl);
+    toast({ title: 'Lien copié !' });
+  };
+
+  const handleShareWhatsApp = () => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(`${campaign.title} — ${shareUrl}`)}`, '_blank');
+  };
+
   const progress = campaign.goal_amount
     ? Math.min((campaign.current_amount / campaign.goal_amount) * 100, 100)
     : null;
@@ -51,13 +68,30 @@ export function CampaignCard({ campaign, onDonate, index = 0 }: CampaignCardProp
           </div>
         )}
 
-        <Button
-          size="default"
-          onClick={onDonate}
-          className="w-full gold-gradient text-primary-foreground border-0 shadow-gold gap-2 font-semibold"
-        >
-          <Heart className="h-4 w-4" /> Faire un don
-        </Button>
+        <div className="flex gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="default" className="shrink-0 px-3">
+                <Share2 className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-44">
+              <DropdownMenuItem onClick={handleCopyLink} className="gap-2 text-xs">
+                <Copy className="h-3.5 w-3.5" /> Copier le lien
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleShareWhatsApp} className="gap-2 text-xs">
+                <MessageCircle className="h-3.5 w-3.5 text-green-500" /> WhatsApp
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button
+            size="default"
+            onClick={onDonate}
+            className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold gap-2 font-semibold"
+          >
+            <Heart className="h-4 w-4" /> Faire un don
+          </Button>
+        </div>
       </div>
     </div>
   );
