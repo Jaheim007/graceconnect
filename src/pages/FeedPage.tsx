@@ -88,21 +88,23 @@ export default function FeedPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container max-w-5xl py-6 space-y-6">
+      <div className="container max-w-5xl px-4 py-5 sm:py-6 space-y-5 sm:space-y-6">
 
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between gap-4"
+          className="space-y-3"
         >
-          <div>
-            <h1 className="text-2xl font-extrabold tracking-tight">Votre fil</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {userOrgs.length} communauté{userOrgs.length > 1 ? 's' : ''}
-            </p>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">Votre fil</h1>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+                {userOrgs.length} communauté{userOrgs.length > 1 ? 's' : ''}
+              </p>
+            </div>
           </div>
-          <div className="relative w-full max-w-xs">
+          <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Rechercher..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 h-10" />
           </div>
