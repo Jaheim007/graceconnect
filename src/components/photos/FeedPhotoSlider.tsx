@@ -31,7 +31,6 @@ export function FeedPhotoSlider({ orgIds }: FeedPhotoSliderProps) {
   const [isPaused, setIsPaused] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-slide animation
   useEffect(() => {
     if (!photos.length || photos.length <= 1 || isPaused) return;
     const timer = setInterval(() => {
@@ -40,13 +39,12 @@ export function FeedPhotoSlider({ orgIds }: FeedPhotoSliderProps) {
     return () => clearInterval(timer);
   }, [photos.length, isPaused]);
 
-  // Scroll to current slide
   useEffect(() => {
     if (!scrollRef.current || !photos.length) return;
     const container = scrollRef.current;
     const slideWidth = container.firstElementChild
-      ? (container.firstElementChild as HTMLElement).offsetWidth + 12
-      : 280;
+      ? (container.firstElementChild as HTMLElement).offsetWidth + 16
+      : 300;
     container.scrollTo({ left: currentSlide * slideWidth, behavior: 'smooth' });
   }, [currentSlide, photos.length]);
 
@@ -57,24 +55,24 @@ export function FeedPhotoSlider({ orgIds }: FeedPhotoSliderProps) {
 
   return (
     <section>
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2.5">
           <Camera className="h-4 w-4 text-primary" />
-          <h2 className="font-semibold text-sm">Community Photos</h2>
+          <h2 className="font-bold text-base">Photos de la communauté</h2>
         </div>
         {photos.length > 3 && (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <button
               onClick={goPrev}
-              className="h-7 w-7 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+              className="h-8 w-8 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
             >
-              <ChevronLeft className="h-3.5 w-3.5" />
+              <ChevronLeft className="h-4 w-4" />
             </button>
             <button
               onClick={goNext}
-              className="h-7 w-7 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+              className="h-8 w-8 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-all"
             >
-              <ChevronRight className="h-3.5 w-3.5" />
+              <ChevronRight className="h-4 w-4" />
             </button>
           </div>
         )}
@@ -82,7 +80,7 @@ export function FeedPhotoSlider({ orgIds }: FeedPhotoSliderProps) {
 
       <div
         ref={scrollRef}
-        className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 -mx-1 px-1"
+        className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
         onTouchStart={() => setIsPaused(true)}
@@ -92,8 +90,8 @@ export function FeedPhotoSlider({ orgIds }: FeedPhotoSliderProps) {
           <div
             key={photo.id}
             className={cn(
-              'shrink-0 w-64 sm:w-72 rounded-2xl overflow-hidden border border-border bg-card shadow-card cursor-pointer group transition-all duration-300',
-              currentSlide === i && 'ring-2 ring-primary/40 shadow-elevated'
+              'shrink-0 w-72 sm:w-80 rounded-2xl overflow-hidden border border-border bg-card shadow-card cursor-pointer group transition-all duration-300 hover:-translate-y-1 hover:shadow-elevated',
+              currentSlide === i && 'ring-2 ring-primary/50 shadow-elevated'
             )}
             onClick={() => setLightboxIndex(i)}
           >
@@ -101,22 +99,22 @@ export function FeedPhotoSlider({ orgIds }: FeedPhotoSliderProps) {
               <img
                 src={photo.image_url}
                 alt={photo.caption || 'Photo'}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
                 loading="lazy"
               />
             </div>
-            <div className="p-2.5 flex items-center gap-2">
+            <div className="p-3 flex items-center gap-2.5">
               {photo.organizations?.logo_url ? (
                 <img
                   src={photo.organizations.logo_url}
                   alt=""
-                  className="h-5 w-5 rounded-md object-cover shrink-0"
+                  className="h-6 w-6 rounded-lg object-cover shrink-0"
                 />
               ) : (
-                <div className="h-5 w-5 rounded-md gold-gradient shrink-0" />
+                <div className="h-6 w-6 rounded-lg gold-gradient shrink-0" />
               )}
-              <p className="text-[11px] text-muted-foreground truncate">
-                {photo.organizations?.name || 'Community'}
+              <p className="text-xs text-muted-foreground font-medium truncate">
+                {photo.organizations?.name || 'Communauté'}
               </p>
             </div>
           </div>
@@ -125,13 +123,13 @@ export function FeedPhotoSlider({ orgIds }: FeedPhotoSliderProps) {
 
       {/* Slide indicator dots */}
       {photos.length > 1 && photos.length <= 12 && (
-        <div className="flex justify-center gap-1 mt-2">
+        <div className="flex justify-center gap-1.5 mt-3">
           {photos.map((_, i) => (
             <button
               key={i}
               className={cn(
-                'h-1 rounded-full transition-all',
-                i === currentSlide ? 'w-3 bg-primary' : 'w-1 bg-muted-foreground/30'
+                'h-1.5 rounded-full transition-all duration-300',
+                i === currentSlide ? 'w-4 bg-primary' : 'w-1.5 bg-muted-foreground/30'
               )}
               onClick={() => setCurrentSlide(i)}
             />
