@@ -9,7 +9,7 @@ const navItems = [
   { to: '/discover', icon: Compass, label: 'Explorer' },
   { to: '/reels', icon: Play, label: 'Reels' },
   { to: '/notifications', icon: Bell, label: 'Alertes' },
-  { to: '/profile', icon: User, label: 'Profil' },
+  { to: '/profile', icon: User, label: 'Compte' },
 ];
 
 export function BottomNav() {

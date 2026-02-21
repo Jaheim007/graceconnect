@@ -17,7 +17,7 @@ const mainNav = [
   { to: '/reels', icon: Play, label: 'Reels' },
   { to: '/notifications', icon: Bell, label: 'Notifications' },
   { to: '/dashboard', icon: BookOpen, label: 'Mon Espace' },
-  { to: '/profile', icon: User, label: 'Profil' },
+  { to: '/profile', icon: User, label: 'Mon Compte' },
 ];
 
 const adminNav = [
@@ -122,48 +122,62 @@ export function Sidebar() {
       </nav>
 
       {/* Bottom links */}
-      {!collapsed && (
-        <div className="px-3 py-2 border-t border-border/60 space-y-0.5">
-          {/* Theme toggle */}
-          <button
-            onClick={toggleTheme}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors w-full"
+      <div className={cn('border-t border-border/60 space-y-0.5', collapsed ? 'px-1 py-2' : 'px-3 py-3')}>
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          title={collapsed ? (theme === 'dark' ? 'Mode clair' : 'Mode sombre') : undefined}
+          className={cn(
+            'flex items-center gap-3 rounded-lg text-sm font-medium transition-all w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+            collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
+          )}
+        >
+          {theme === 'dark' ? <Sun className="h-4 w-4 shrink-0" /> : <Moon className="h-4 w-4 shrink-0" />}
+          {!collapsed && <span>{theme === 'dark' ? 'Mode clair' : 'Mode sombre'}</span>}
+        </button>
+
+        {!isAdmin && !isSA && isSuperadmin && (
+          <Link
+            to="/superadmin"
+            title={collapsed ? 'Superadmin' : undefined}
+            className={cn(
+              'flex items-center gap-3 rounded-lg text-sm font-medium transition-all text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+              collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
+            )}
           >
-            {theme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
-            {theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
-          </button>
+            <Shield className="h-4 w-4 shrink-0" />
+            {!collapsed && <span>Superadmin</span>}
+          </Link>
+        )}
 
-          {!isAdmin && !isSA && isSuperadmin && (
-            <Link
-              to="/superadmin"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
-            >
-              <Shield className="h-3.5 w-3.5" />
-              Superadmin
-            </Link>
-          )}
+        {!isAdmin && !isSA && canManageCurrentOrg && (
+          <Link
+            to="/admin"
+            title={collapsed ? "Gérer l'organisation" : undefined}
+            className={cn(
+              'flex items-center gap-3 rounded-lg text-sm font-medium transition-all text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+              collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
+            )}
+          >
+            <Settings className="h-4 w-4 shrink-0" />
+            {!collapsed && <span>Gérer l'organisation</span>}
+          </Link>
+        )}
 
-          {!isAdmin && !isSA && canManageCurrentOrg && (
-            <Link
-              to="/admin"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
-            >
-              <Settings className="h-3.5 w-3.5" />
-              Gérer l'organisation
-            </Link>
-          )}
-
-          {(isAdmin || isSA) && (
-            <Link
-              to="/feed"
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
-            >
-              <Home className="h-3.5 w-3.5" />
-              Retour à l'app
-            </Link>
-          )}
-        </div>
-      )}
+        {(isAdmin || isSA) && (
+          <Link
+            to="/feed"
+            title={collapsed ? "Retour à l'app" : undefined}
+            className={cn(
+              'flex items-center gap-3 rounded-lg text-sm font-medium transition-all text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+              collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
+            )}
+          >
+            <Home className="h-4 w-4 shrink-0" />
+            {!collapsed && <span>Retour à l'app</span>}
+          </Link>
+        )}
+      </div>
 
       {/* Collapse toggle */}
       <button
