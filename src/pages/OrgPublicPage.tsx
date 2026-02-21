@@ -119,6 +119,7 @@ export default function OrgPublicPage() {
     } else {
       await joinOrg(org.id);
       toast({ title: `Vous avez rejoint ${org.name} !` });
+      navigate('/feed');
     }
     setJoining(false);
   };

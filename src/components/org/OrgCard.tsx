@@ -39,9 +39,10 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
     const { error } = await joinOrg(org.id);
     setJoining(false);
     if (error) {
-      toast({ title: 'Failed to join', description: error.message, variant: 'destructive' });
+      toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
     } else {
-      toast({ title: `Joined ${org.name}!`, description: 'You are now a member.' });
+      toast({ title: `Vous avez rejoint ${org.name} !`, description: 'Bienvenue dans la communauté.' });
+      navigate('/feed');
     }
   };
 
@@ -117,7 +118,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
               !isMember && 'gold-gradient text-primary-foreground border-0 shadow-gold hover:opacity-90'
             )}
           >
-            {isMember ? '✓ Joined' : joining ? 'Joining...' : 'Join'}
+            {isMember ? '✓ Rejoint' : joining ? 'En cours...' : 'Rejoindre'}
           </Button>
         </div>
       </div>
