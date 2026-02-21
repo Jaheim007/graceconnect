@@ -4,9 +4,10 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  ShoppingBag, Lock, CheckCircle, AlertCircle, Loader2, ExternalLink, Download,
+  ShoppingBag, Lock, CheckCircle, AlertCircle, Loader2, ExternalLink, Download, User, Mail, Phone,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePaystack } from '@/hooks/usePaystack';
@@ -23,7 +24,13 @@ interface ProductPurchaseModalProps {
   onSuccess?: (result: VerifyPaymentResult) => void;
 }
 
-type Step = 'confirm' | 'processing' | 'success' | 'error';
+type Step = 'confirm' | 'buyer-info' | 'processing' | 'success' | 'error';
+
+interface BuyerInfo {
+  name: string;
+  email: string;
+  phone: string;
+}
 
 export function ProductPurchaseModal({ product, organizationId, open, onClose, onSuccess }: ProductPurchaseModalProps) {
   const [step, setStep] = useState<Step>('confirm');
@@ -34,6 +41,14 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const { openPayment } = usePaystack();
   const { toast } = useToast();
 
+  // Buyer info form state — pre-filled from profile
+  const [buyerInfo, setBuyerInfo] = useState<BuyerInfo>({
+    name: profile?.display_name || '',
+    email: user?.email || '',
+    phone: profile?.phone || '',
+  });
+  const [formErrors, setFormErrors] = useState<Partial<BuyerInfo>>({});
+
   if (!product) return null;
 
   const fmt = (n: number) =>
@@ -41,11 +56,34 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
       ? 'Gratuit'
       : new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(n) + ` ${product.currency || 'XOF'}`;
 
-  const handlePurchase = async () => {
+  const validateBuyerInfo = (): boolean => {
+    const errors: Partial<BuyerInfo> = {};
+    if (!buyerInfo.name.trim()) errors.name = 'Nom requis';
+    if (!buyerInfo.email.trim()) errors.email = 'Email requis';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(buyerInfo.email.trim())) errors.email = 'Email invalide';
+    if (!buyerInfo.phone.trim()) errors.phone = 'Téléphone requis';
+    else if (buyerInfo.phone.trim().length < 8) errors.phone = 'Numéro trop court';
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const handleConfirmToBuyerInfo = () => {
     if (!user) {
       toast({ title: 'Connexion requise', description: 'Connectez-vous pour acheter ce produit.', variant: 'destructive' });
       return;
     }
+    // Pre-fill again in case profile loaded after mount
+    setBuyerInfo(prev => ({
+      name: prev.name || profile?.display_name || '',
+      email: prev.email || user?.email || '',
+      phone: prev.phone || profile?.phone || '',
+    }));
+    setFormErrors({});
+    setStep('buyer-info');
+  };
+
+  const handlePurchase = async () => {
+    if (!validateBuyerInfo()) return;
 
     // Free product — no payment needed
     if (product.is_free || product.price === 0) {
@@ -58,17 +96,18 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
     try {
       await openPayment({
-        email: user.email!,
+        email: buyerInfo.email.trim(),
         amount: product.price ?? 0,
         currency: product.currency || 'XOF',
         metadata: {
           type: 'product',
           product_id: product.id,
           organization_id: organizationId,
-          buyer_name: profile?.display_name || '',
+          buyer_name: buyerInfo.name.trim(),
+          buyer_phone: buyerInfo.phone.trim(),
         },
         onClose: () => {
-          // user dismissed — stay on confirm step
+          // user dismissed — stay on buyer-info step
         },
         onSuccess: async (reference) => {
           setStep('processing');
@@ -79,6 +118,8 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
               organization_id: organizationId,
               product_id: product.id,
               affiliate_code: affiliateCode,
+              donor_name: buyerInfo.name.trim(),
+              donor_email: buyerInfo.email.trim(),
             });
             clearAffiliateCode();
             setResult(verifyResult);
@@ -134,7 +175,6 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                 </span>
               </div>
 
-              {/* Only show payment recap when paying on platform (has file, no external link) */}
               {!product.is_free && !product.external_link && (
                 <div className="rounded-lg bg-muted/50 p-3 text-sm space-y-1">
                   <p className="text-muted-foreground text-xs">Récapitulatif :</p>
@@ -165,12 +205,86 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                 </a>
               ) : (
                 <Button
-                  onClick={handlePurchase}
+                  onClick={handleConfirmToBuyerInfo}
                   className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold"
                 >
                   {product.is_free ? 'Accéder gratuitement' : `Payer ${fmt(product.price)}`}
                 </Button>
               )}
+            </div>
+          </>
+        )}
+
+        {/* ── BUYER INFO ───────────────────────────────────────────────────── */}
+        {step === 'buyer-info' && (
+          <>
+            <div className="space-y-4 py-2">
+              <p className="text-sm text-muted-foreground">
+                Remplissez vos informations avant de procéder au paiement.
+              </p>
+
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="buyer-name" className="text-sm flex items-center gap-1.5">
+                    <User className="h-3.5 w-3.5" /> Nom complet
+                  </Label>
+                  <Input
+                    id="buyer-name"
+                    placeholder="Votre nom complet"
+                    value={buyerInfo.name}
+                    onChange={(e) => setBuyerInfo(prev => ({ ...prev, name: e.target.value }))}
+                    maxLength={100}
+                  />
+                  {formErrors.name && <p className="text-xs text-destructive">{formErrors.name}</p>}
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="buyer-email" className="text-sm flex items-center gap-1.5">
+                    <Mail className="h-3.5 w-3.5" /> Email
+                  </Label>
+                  <Input
+                    id="buyer-email"
+                    type="email"
+                    placeholder="votre@email.com"
+                    value={buyerInfo.email}
+                    onChange={(e) => setBuyerInfo(prev => ({ ...prev, email: e.target.value }))}
+                    maxLength={255}
+                  />
+                  {formErrors.email && <p className="text-xs text-destructive">{formErrors.email}</p>}
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="buyer-phone" className="text-sm flex items-center gap-1.5">
+                    <Phone className="h-3.5 w-3.5" /> Téléphone
+                  </Label>
+                  <Input
+                    id="buyer-phone"
+                    type="tel"
+                    placeholder="+225 07 00 00 00 00"
+                    value={buyerInfo.phone}
+                    onChange={(e) => setBuyerInfo(prev => ({ ...prev, phone: e.target.value }))}
+                    maxLength={20}
+                  />
+                  {formErrors.phone && <p className="text-xs text-destructive">{formErrors.phone}</p>}
+                </div>
+              </div>
+
+              <div className="rounded-lg bg-muted/50 p-3 text-sm">
+                <div className="flex justify-between font-semibold">
+                  <span>Total à payer</span>
+                  <span className="text-primary">{product.is_free ? 'Gratuit' : fmt(product.price)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => setStep('confirm')} className="flex-1">Retour</Button>
+              <Button
+                onClick={handlePurchase}
+                className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold"
+              >
+                {product.is_free ? 'Confirmer' : `Payer ${fmt(product.price)}`}
+              </Button>
             </div>
           </>
         )}
@@ -197,7 +311,6 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
               )}
             </div>
 
-            {/* Access links */}
             <div className="w-full space-y-2">
               {product.file_url && (
                 <a href={product.file_url} target="_blank" rel="noreferrer" className="w-full">
@@ -230,7 +343,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
             </div>
             <div className="flex gap-2 w-full">
               <Button variant="outline" onClick={handleClose} className="flex-1">Fermer</Button>
-              <Button onClick={() => setStep('confirm')} className="flex-1">Réessayer</Button>
+              <Button onClick={() => setStep('buyer-info')} className="flex-1">Réessayer</Button>
             </div>
           </div>
         )}
