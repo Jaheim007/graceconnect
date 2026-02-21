@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import {
   BarChart3, Play, Megaphone, CalendarDays, Heart, ShoppingBag,
   Users, Link2, FileCheck, Settings, ChevronDown, ArrowLeft, Loader2,
-  Camera
+  Camera, Tag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -21,6 +21,7 @@ const adminLinks = [
   { to: '/admin/campaigns', label: 'Campagnes', icon: Heart, group: 'commerce' },
   { to: '/admin/products', label: 'Boutique', icon: ShoppingBag, group: 'commerce' },
   { to: '/admin/affiliation', label: 'Affiliation', icon: Link2, group: 'commerce' },
+  { to: '/admin/promo-codes', label: 'Codes promo', icon: Tag, group: 'commerce' },
   // Gestion
   { to: '/admin/members', label: 'Membres', icon: Users, group: 'gestion' },
   { to: '/admin/kyc', label: 'Vérification', icon: FileCheck, group: 'gestion' },

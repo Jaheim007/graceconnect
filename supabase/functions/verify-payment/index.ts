@@ -176,7 +176,7 @@ Deno.serve(async (req) => {
       if (prod) await db.from('digital_products').update({ sales_count: (prod.sales_count || 0) + 1 }).eq('id', product_id);
     }
 
-    // ── 7. Affiliate sales record ─────────────────────────────────────────────
+    // ── 7. Affiliate sales record + notification ──────────────────────────────
     if (affiliateLinkId && affiliateUserId && affiliateCommission > 0) {
       const payableAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
       await db.from('affiliate_sales').insert({
@@ -200,6 +200,17 @@ Deno.serve(async (req) => {
           total_earned: (link.total_earned || 0) + affiliateCommission,
         }).eq('id', affiliateLinkId);
       }
+
+      // Notify affiliate of their commission
+      const commissionFmt = affiliateCommission.toLocaleString('fr-FR');
+      await db.from('user_notifications').insert({
+        user_id: affiliateUserId,
+        organization_id,
+        title: '💰 Commission gagnée !',
+        body: `Vous venez de gagner ${commissionFmt} ${currency} de commission sur une vente ${type === 'donation' ? 'de don' : 'de produit'} via ${org.name}. Elle sera disponible dans 72h.`,
+        notification_type: 'commission',
+        action_url: '/dashboard',
+      });
     }
 
     // ── 8. User notification ─────────────────────────────────────────────────
@@ -207,12 +218,12 @@ Deno.serve(async (req) => {
       await db.from('user_notifications').insert({
         user_id: userId,
         organization_id,
-        title: type === 'donation' ? '🙏 Donation Confirmed' : '✅ Purchase Complete',
+        title: type === 'donation' ? '🙏 Don confirmé' : '✅ Achat confirmé',
         body: type === 'donation'
-          ? `Your donation of ${amountPaid.toLocaleString('fr-FR')} ${currency} to ${org.name} was received.`
-          : `Your purchase of ${amountPaid.toLocaleString('fr-FR')} ${currency} from ${org.name} is confirmed.`,
+          ? `Votre don de ${amountPaid.toLocaleString('fr-FR')} ${currency} à ${org.name} a été reçu.`
+          : `Votre achat de ${amountPaid.toLocaleString('fr-FR')} ${currency} chez ${org.name} est confirmé.`,
         notification_type: type === 'donation' ? 'donation' : 'purchase',
-        action_url: type === 'donation' ? `/dashboard` : `/dashboard`,
+        action_url: '/dashboard',
       });
     }
 

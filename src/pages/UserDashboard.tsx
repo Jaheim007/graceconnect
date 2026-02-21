@@ -5,7 +5,7 @@ import { Donation, ProductPurchase, AffiliateLink } from '@/types/database';
 import {
   Heart, ShoppingBag, Link2, TrendingUp, Copy, ExternalLink, CheckCircle,
   AlertTriangle, DollarSign, Download, BookOpen, Eye, FileText, Music,
-  Wallet, ArrowUpRight, Sparkle, Gift, BarChart3, Clock
+  Wallet, ArrowUpRight, Sparkle, Gift, BarChart3, Clock, Users, Share2
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,7 @@ import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
+import { AffiliateShareTools } from '@/components/affiliate/AffiliateShareTools';
 
 const fmt = (n: number, currency = 'XOF') =>
   new Intl.NumberFormat('fr-FR', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
@@ -101,6 +102,23 @@ export default function UserDashboard() {
       if (!user) return [];
       const { data } = await db.from('affiliate_links').select('*, organizations(name, slug)').eq('user_id', user.id).order('created_at', { ascending: false });
       return (data || []) as (AffiliateLink & { organizations: { name: string; slug: string } | null })[];
+    },
+    enabled: !!user,
+  });
+
+  // Fetch user's referral info
+  const { data: referralInfo } = useQuery({
+    queryKey: ['user-referral-info', user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data: profile } = await db.from('profiles').select('referral_code').eq('id', user.id).maybeSingle();
+      const { data: referrals } = await db.from('user_referrals').select('*').eq('referrer_id', user.id);
+      return {
+        code: profile?.referral_code || `SV-${user.id.slice(0, 8).toUpperCase()}`,
+        referrals: referrals || [],
+        totalReferred: referrals?.length || 0,
+        converted: referrals?.filter((r: any) => r.status === 'converted').length || 0,
+      };
     },
     enabled: !!user,
   });
@@ -466,11 +484,11 @@ export default function UserDashboard() {
                   <p className="text-xs text-muted-foreground max-w-xs mx-auto">Rejoignez une organisation avec un programme d'affiliation activé.</p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {affiliateLinks.map((l) => {
-                    const shareUrl = `${baseUrl}/org/${l.organizations?.slug}?ref=${l.code}`;
+                    const shareUrl = `https://siteviral.com/org/${l.organizations?.slug}?ref=${l.code}`;
                     return (
-                      <div key={l.id} className="border border-border rounded-xl p-3 space-y-2">
+                      <div key={l.id} className="border border-border rounded-xl p-4 space-y-3">
                         <div className="flex items-center justify-between gap-2">
                           <div>
                             <p className="text-sm font-medium">{l.organizations?.name || 'Organisation'}</p>
@@ -480,18 +498,25 @@ export default function UserDashboard() {
                             {l.is_active ? 'Actif' : 'Inactif'}
                           </Badge>
                         </div>
-                        <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                          <span>{l.clicks || 0} clics</span>
-                          <span>{l.conversions || 0} conversions</span>
-                          <span className="text-primary font-semibold">{fmt(l.total_earned || 0)} gagné</span>
+                        <div className="grid grid-cols-3 gap-2 text-center">
+                          <div className="rounded-lg bg-muted/50 p-2">
+                            <p className="text-sm font-bold">{l.clicks || 0}</p>
+                            <p className="text-[10px] text-muted-foreground">Clics</p>
+                          </div>
+                          <div className="rounded-lg bg-muted/50 p-2">
+                            <p className="text-sm font-bold">{l.conversions || 0}</p>
+                            <p className="text-[10px] text-muted-foreground">Conversions</p>
+                          </div>
+                          <div className="rounded-lg bg-primary/10 p-2">
+                            <p className="text-sm font-bold text-primary">{fmt(l.total_earned || 0)}</p>
+                            <p className="text-[10px] text-muted-foreground">Gagné</p>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
-                          <p className="text-[11px] font-mono text-muted-foreground flex-1 truncate">{shareUrl}</p>
-                          <CopyButton text={shareUrl} />
-                          <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => window.open(shareUrl, '_blank')}>
-                            <ExternalLink className="h-3.5 w-3.5" />
-                          </Button>
-                        </div>
+                        <AffiliateShareTools
+                          shareUrl={shareUrl}
+                          orgName={l.organizations?.name || 'Organisation'}
+                          affiliateCode={l.code}
+                        />
                       </div>
                     );
                   })}
@@ -565,6 +590,36 @@ export default function UserDashboard() {
                       <Badge variant="outline" className={cn('text-[10px] border-0 capitalize', saleStatusColor[s.status] || '')}>{s.status === 'payable' ? 'Disponible' : s.status === 'pending' ? 'En attente' : s.status === 'paid' ? 'Payé' : s.status}</Badge>
                     </div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Referral Program */}
+            {referralInfo && (
+              <div className="bg-card border border-border rounded-2xl p-5 space-y-4 shadow-card">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="font-semibold text-sm flex items-center gap-2"><Users className="h-4 w-4 text-primary" /> Programme de parrainage</h2>
+                    <p className="text-xs text-muted-foreground mt-0.5">Invitez des amis à rejoindre Siteviral et gagnez des récompenses.</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-xl bg-muted/50 p-3 text-center">
+                    <p className="text-lg font-bold">{referralInfo.totalReferred}</p>
+                    <p className="text-[10px] text-muted-foreground">Invités</p>
+                  </div>
+                  <div className="rounded-xl bg-primary/10 p-3 text-center">
+                    <p className="text-lg font-bold text-primary">{referralInfo.converted}</p>
+                    <p className="text-[10px] text-muted-foreground">Convertis</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-muted-foreground">Votre code de parrainage</p>
+                  <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
+                    <p className="text-sm font-mono font-bold flex-1">{referralInfo.code}</p>
+                    <CopyButton text={`https://siteviral.com/auth?invite=${referralInfo.code}`} />
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">Partagez ce lien : <span className="font-mono">siteviral.com/auth?invite={referralInfo.code}</span></p>
                 </div>
               </div>
             )}

@@ -476,6 +476,7 @@ export type Database = {
           organization_id: string
           paystack_reference: string
           platform_fee: number | null
+          promo_code_id: string | null
           status: Database["public"]["Enums"]["payment_status"] | null
           user_id: string | null
         }
@@ -497,6 +498,7 @@ export type Database = {
           organization_id: string
           paystack_reference: string
           platform_fee?: number | null
+          promo_code_id?: string | null
           status?: Database["public"]["Enums"]["payment_status"] | null
           user_id?: string | null
         }
@@ -518,6 +520,7 @@ export type Database = {
           organization_id?: string
           paystack_reference?: string
           platform_fee?: number | null
+          promo_code_id?: string | null
           status?: Database["public"]["Enums"]["payment_status"] | null
           user_id?: string | null
         }
@@ -534,6 +537,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "donations_promo_code_id_fkey"
+            columns: ["promo_code_id"]
+            isOneToOne: false
+            referencedRelation: "promo_codes"
             referencedColumns: ["id"]
           },
         ]
@@ -1284,12 +1294,14 @@ export type Database = {
           created_at: string | null
           currency: string | null
           device_hash: string | null
+          discount_amount: number | null
           id: string
           organization_amount: number | null
           organization_id: string
           paystack_reference: string
           platform_fee: number | null
           product_id: string
+          promo_code_id: string | null
           status: Database["public"]["Enums"]["purchase_status"] | null
           user_id: string
         }
@@ -1302,12 +1314,14 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           device_hash?: string | null
+          discount_amount?: number | null
           id?: string
           organization_amount?: number | null
           organization_id: string
           paystack_reference: string
           platform_fee?: number | null
           product_id: string
+          promo_code_id?: string | null
           status?: Database["public"]["Enums"]["purchase_status"] | null
           user_id: string
         }
@@ -1320,12 +1334,14 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           device_hash?: string | null
+          discount_amount?: number | null
           id?: string
           organization_amount?: number | null
           organization_id?: string
           paystack_reference?: string
           platform_fee?: number | null
           product_id?: string
+          promo_code_id?: string | null
           status?: Database["public"]["Enums"]["purchase_status"] | null
           user_id?: string
         }
@@ -1335,6 +1351,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "digital_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_purchases_promo_code_id_fkey"
+            columns: ["promo_code_id"]
+            isOneToOne: false
+            referencedRelation: "promo_codes"
             referencedColumns: ["id"]
           },
         ]
@@ -1348,6 +1371,7 @@ export type Database = {
           display_name: string | null
           id: string
           phone: string | null
+          referral_code: string | null
           updated_at: string | null
         }
         Insert: {
@@ -1358,6 +1382,7 @@ export type Database = {
           display_name?: string | null
           id: string
           phone?: string | null
+          referral_code?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -1368,6 +1393,7 @@ export type Database = {
           display_name?: string | null
           id?: string
           phone?: string | null
+          referral_code?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -1545,6 +1571,66 @@ export type Database = {
           },
         ]
       }
+      promo_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          current_uses: number
+          discount_percent: number
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          organization_id: string
+          product_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          current_uses?: number
+          discount_percent?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          organization_id: string
+          product_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          current_uses?: number
+          discount_percent?: number
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          organization_id?: string
+          product_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promo_codes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promo_codes_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "digital_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       push_subscriptions: {
         Row: {
           auth: string
@@ -1635,6 +1721,42 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["platform_role"] | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_referrals: {
+        Row: {
+          converted_at: string | null
+          created_at: string
+          id: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+          reward_amount: number | null
+          reward_currency: string | null
+          status: string
+        }
+        Insert: {
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+          reward_amount?: number | null
+          reward_currency?: string | null
+          status?: string
+        }
+        Update: {
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_id?: string
+          referrer_id?: string
+          reward_amount?: number | null
+          reward_currency?: string | null
+          status?: string
         }
         Relationships: []
       }
