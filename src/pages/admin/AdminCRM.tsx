@@ -13,8 +13,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { motion } from 'framer-motion';
-import { UserPlus, Mail, Download, Send, Trash2, Plus } from 'lucide-react';
+import { UserPlus, Mail, Download, Send, Trash2, Plus, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Textarea } from '@/components/ui/textarea';
+import { callFn } from '@/lib/api';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
@@ -209,16 +211,128 @@ export default function AdminCRM() {
         </TabsContent>
 
         <TabsContent value="campaigns" className="space-y-4">
-          <div className="bg-card border border-border rounded-2xl p-6 text-center space-y-3">
-            <Mail className="h-10 w-10 text-muted-foreground mx-auto" />
-            <h3 className="font-semibold text-sm">Campagnes Email</h3>
-            <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-              Envoyez des emails ciblés à vos contacts. Créez des campagnes segmentées par tags.
-            </p>
-            <p className="text-xs text-muted-foreground">🚧 Module disponible prochainement</p>
-          </div>
+          <CampaignSection orgId={orgId} />
         </TabsContent>
       </Tabs>
     </AdminPageShell>
+  );
+}
+
+function CampaignSection({ orgId }: { orgId: string | undefined }) {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const qc = useQueryClient();
+  const [showNew, setShowNew] = useState(false);
+  const [subject, setSubject] = useState('');
+  const [body, setBody] = useState('');
+  const [tags, setTags] = useState('');
+
+  const { data: campaigns = [], isLoading } = useQuery({
+    queryKey: ['crm-email-campaigns', orgId],
+    queryFn: async () => {
+      if (!orgId) return [];
+      const { data } = await db.from('email_campaigns').select('*')
+        .eq('organization_id', orgId).order('created_at', { ascending: false });
+      return data || [];
+    },
+    enabled: !!orgId,
+  });
+
+  const createCampaign = useMutation({
+    mutationFn: async () => {
+      if (!orgId || !subject.trim() || !body.trim()) throw new Error('Sujet et contenu requis');
+      const recipientTags = tags.split(',').map(t => t.trim()).filter(Boolean);
+      const { error } = await db.from('email_campaigns').insert({
+        organization_id: orgId,
+        created_by: user?.id,
+        subject: subject.trim(),
+        body: body.trim(),
+        recipient_tags: recipientTags,
+        status: 'draft',
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({ title: '✅ Campagne créée' });
+      setSubject(''); setBody(''); setTags('');
+      setShowNew(false);
+      qc.invalidateQueries({ queryKey: ['crm-email-campaigns', orgId] });
+    },
+    onError: (e: any) => toast({ title: 'Erreur', description: e.message, variant: 'destructive' }),
+  });
+
+  const sendCampaign = useMutation({
+    mutationFn: async (campaignId: string) => {
+      return callFn('send-campaign', { campaign_id: campaignId }, true);
+    },
+    onSuccess: (data: any) => {
+      toast({ title: `📧 ${data.sent || 0} emails envoyés` });
+      qc.invalidateQueries({ queryKey: ['crm-email-campaigns', orgId] });
+    },
+    onError: (e: any) => toast({ title: 'Erreur envoi', description: e.message, variant: 'destructive' }),
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <Button size="sm" className="gap-1.5 text-xs gold-gradient text-primary-foreground border-0 shadow-gold"
+          onClick={() => setShowNew(true)}>
+          <Plus className="h-3.5 w-3.5" /> Nouvelle campagne
+        </Button>
+      </div>
+
+      {showNew && (
+        <motion.div variants={fadeUp} initial="hidden" animate="visible"
+          className="bg-card border border-border rounded-2xl p-4 space-y-3">
+          <h3 className="font-semibold text-sm">Nouvelle campagne email</h3>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Sujet *</Label>
+              <Input value={subject} onChange={e => setSubject(e.target.value)} placeholder="Votre sujet..." className="h-8 text-xs" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Contenu HTML *</Label>
+              <Textarea value={body} onChange={e => setBody(e.target.value)} placeholder="<h1>Bonjour {{name}}</h1>..." rows={5} className="text-xs" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Tags destinataires (optionnel, séparés par virgule)</Label>
+              <Input value={tags} onChange={e => setTags(e.target.value)} placeholder="vip, newsletter" className="h-8 text-xs" />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button size="sm" className="text-xs" onClick={() => createCampaign.mutate()} disabled={createCampaign.isPending}>
+              {createCampaign.isPending ? 'Création...' : 'Créer brouillon'}
+            </Button>
+            <Button size="sm" variant="ghost" className="text-xs" onClick={() => setShowNew(false)}>Annuler</Button>
+          </div>
+        </motion.div>
+      )}
+
+      {isLoading ? <SkeletonRow /> : campaigns.length === 0 ? (
+        <EmptyState variant="generic" title="Aucune campagne" description="Créez votre première campagne email." />
+      ) : (
+        <div className="bg-card border border-border rounded-2xl p-4 space-y-2">
+          {campaigns.map((c: any) => (
+            <div key={c.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background transition-all group">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{c.subject}</p>
+                <p className="text-xs text-muted-foreground">
+                  {c.status === 'sent' ? `Envoyé le ${new Date(c.sent_at).toLocaleDateString('fr-FR')} · ${c.sent_count}/${c.recipient_count}` : 'Brouillon'}
+                </p>
+              </div>
+              <Badge variant="outline" className={cn('text-[10px] border-0', c.status === 'sent' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-muted text-muted-foreground')}>
+                {c.status === 'sent' ? 'Envoyé' : 'Brouillon'}
+              </Badge>
+              {c.status === 'draft' && (
+                <Button size="sm" variant="outline" className="h-7 text-xs gap-1" 
+                  onClick={() => sendCampaign.mutate(c.id)} disabled={sendCampaign.isPending}>
+                  {sendCampaign.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />} Envoyer
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

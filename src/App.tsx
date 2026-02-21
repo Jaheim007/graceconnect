@@ -32,6 +32,8 @@ import UserDashboard from "@/pages/UserDashboard";
 import ResourcesPage from "@/pages/ResourcesPage";
 import CreateOrgPage from "@/pages/CreateOrgPage";
 import MarketplacePage from "@/pages/MarketplacePage";
+import ProgramsPage from "@/pages/ProgramsPage";
+import ProgramViewPage from "@/pages/ProgramViewPage";
 
 // Admin layout + pages
 import AdminLayout from "@/pages/admin/AdminLayout";
@@ -87,6 +89,9 @@ const App = () => (
                 <Route path="/marketplace" element={<AppLayout />}>
                   <Route index element={<MarketplacePage />} />
                 </Route>
+                <Route path="/programs" element={<AppLayout />}>
+                  <Route index element={<ProgramsPage />} />
+                </Route>
 
                 {/* Org public pages — MUST be outside RequireAuth so affiliate links work */}
                 <Route path="/org/:slug" element={<OrgPublicPage />} />
@@ -107,6 +112,7 @@ const App = () => (
                   <Route path="/resources" element={<ResourcesPage />} />
                   <Route path="/dashboard" element={<UserDashboard />} />
                   <Route path="/create-org" element={<CreateOrgPage />} />
+                  <Route path="/programs/:id" element={<ProgramViewPage />} />
                 </Route>
 
                 {/* Admin (org-scoped) */}

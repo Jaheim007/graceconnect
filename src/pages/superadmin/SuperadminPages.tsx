@@ -4,34 +4,82 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area } from 'recharts';
+import { TrendingUp, Users, DollarSign, BarChart3, Activity } from 'lucide-react';
 
 export function SuperadminDashboard() {
   const { data: stats } = useQuery({
     queryKey: ['sa-stats'],
     queryFn: async () => {
-      const [orgs, kyc] = await Promise.all([
+      const [orgs, kyc, donations, purchases, payouts] = await Promise.all([
         db.from('organizations').select('*', { count: 'exact', head: true }),
         db.from('kyc_submissions').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
+        db.from('donations').select('amount').eq('status', 'completed'),
+        db.from('product_purchases').select('amount').eq('status', 'completed'),
+        db.from('payout_requests').select('*', { count: 'exact', head: true }).eq('status', 'requested'),
       ]);
-      return { orgs: orgs.count || 0, pendingKyc: kyc.count || 0 };
+      const donationGMV = (donations.data || []).reduce((s: number, d: any) => s + (d.amount || 0), 0);
+      const productGMV = (purchases.data || []).reduce((s: number, p: any) => s + (p.amount || 0), 0);
+      return {
+        orgs: orgs.count || 0,
+        pendingKyc: kyc.count || 0,
+        gmv: donationGMV + productGMV,
+        pendingPayouts: payouts.count || 0,
+      };
     },
   });
+
+  const { data: metrics = [] } = useQuery({
+    queryKey: ['sa-platform-metrics'],
+    queryFn: async () => {
+      const { data } = await db.from('platform_metrics_daily').select('*')
+        .order('metric_date', { ascending: true }).limit(30);
+      return data || [];
+    },
+  });
+
+  const cards = [
+    { label: 'Total Organisations', value: stats?.orgs ?? '—', icon: Users, color: 'text-blue-500' },
+    { label: 'GMV Total (XOF)', value: stats?.gmv ? stats.gmv.toLocaleString('fr-FR') : '—', icon: DollarSign, color: 'text-primary' },
+    { label: 'KYC en attente', value: stats?.pendingKyc ?? '—', icon: Activity, color: 'text-amber-500' },
+    { label: 'Payouts en attente', value: stats?.pendingPayouts ?? '—', icon: TrendingUp, color: 'text-emerald-500' },
+  ];
+
   return (
     <div className="space-y-6">
       <h1 className="text-xl font-bold flex items-center gap-2">🛡️ Superadmin Dashboard</h1>
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          { label: 'Total Orgs', value: stats?.orgs ?? '—' },
-          { label: 'Pending KYC', value: stats?.pendingKyc ?? '—' },
-          { label: 'Platform GMV', value: '—' },
-          { label: 'Active Users', value: '—' },
-        ].map(s => (
-          <div key={s.label} className="bg-card border border-border rounded-2xl p-4 shadow-card">
-            <p className="text-2xl font-bold text-primary">{s.value}</p>
-            <p className="text-xs text-muted-foreground">{s.label}</p>
+        {cards.map(c => (
+          <div key={c.label} className="bg-card border border-border rounded-2xl p-4 shadow-card">
+            <div className="flex items-center gap-2 mb-2">
+              <c.icon className={`h-4 w-4 ${c.color}`} />
+            </div>
+            <p className="text-2xl font-bold">{c.value}</p>
+            <p className="text-xs text-muted-foreground">{c.label}</p>
           </div>
         ))}
       </div>
+
+      {metrics.length > 0 && (
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+          <h2 className="font-semibold text-sm flex items-center gap-2"><BarChart3 className="h-4 w-4 text-primary" /> GMV quotidien</h2>
+          <ResponsiveContainer width="100%" height={250}>
+            <AreaChart data={metrics}>
+              <defs>
+                <linearGradient id="gmvGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="metric_date" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+              <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+              <Tooltip />
+              <Area type="monotone" dataKey="gmv" stroke="hsl(var(--primary))" fill="url(#gmvGrad)" strokeWidth={2} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      )}
     </div>
   );
 }
@@ -41,6 +89,11 @@ export function SuperadminOrgs() {
     queryKey: ['sa-orgs'],
     queryFn: async () => { const { data } = await db.from('organizations').select('*').order('created_at', { ascending: false }); return data || []; },
   });
+  const { toast } = useToast();
+  const suspend = async (orgId: string, suspend: boolean) => {
+    await db.from('organizations').update({ is_suspended: suspend, suspension_reason: suspend ? 'Admin decision' : null }).eq('id', orgId);
+    toast({ title: suspend ? 'Organisation suspendue' : 'Suspension levée' });
+  };
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-bold">Organizations</h1>
@@ -54,6 +107,11 @@ export function SuperadminOrgs() {
               </div>
               <Badge variant="outline" className="text-[10px] capitalize">{o.plan_type}</Badge>
               <Badge className={`text-[10px] border-0 ${o.kyc_status === 'level1' ? 'bg-green-500/15 text-green-600' : 'bg-yellow-500/15 text-yellow-600'}`}>{o.kyc_status}</Badge>
+              {o.is_suspended ? (
+                <Button size="sm" variant="outline" className="h-6 text-[10px]" onClick={() => suspend(o.id, false)}>Unsuspend</Button>
+              ) : (
+                <Button size="sm" variant="outline" className="h-6 text-[10px] text-destructive border-destructive/30" onClick={() => suspend(o.id, true)}>Suspend</Button>
+              )}
               <Badge variant={o.is_active ? 'secondary' : 'destructive'} className="text-[10px]">{o.is_active ? 'Active' : 'Inactive'}</Badge>
             </div>
           ))}
@@ -160,18 +218,73 @@ export function SuperadminReports() {
 }
 
 export function SuperadminMetrics() {
+  const { data: metrics = [], isLoading } = useQuery({
+    queryKey: ['sa-platform-metrics-full'],
+    queryFn: async () => {
+      const { data } = await db.from('platform_metrics_daily').select('*')
+        .order('metric_date', { ascending: false }).limit(60);
+      return (data || []).reverse();
+    },
+  });
+
+  // Compute summaries from last 30 days
+  const last30 = metrics.slice(-30);
+  const totalGMV = last30.reduce((s: number, m: any) => s + (m.gmv || 0), 0);
+  const totalFees = last30.reduce((s: number, m: any) => s + (m.platform_fees || 0), 0);
+  const totalTx = last30.reduce((s: number, m: any) => s + (m.total_transactions || 0), 0);
+  const activeOrgs = last30.length > 0 ? last30[last30.length - 1]?.active_orgs || 0 : 0;
+  const newUsers30d = last30.reduce((s: number, m: any) => s + (m.new_users || 0), 0);
+  const takeRate = totalGMV > 0 ? ((totalFees / totalGMV) * 100).toFixed(1) : '0';
+
+  const summaryCards = [
+    { label: 'GMV 30j (XOF)', value: totalGMV.toLocaleString('fr-FR') },
+    { label: 'Platform Fees 30j', value: totalFees.toLocaleString('fr-FR') },
+    { label: 'Take Rate', value: `${takeRate}%` },
+    { label: 'Transactions 30j', value: totalTx.toLocaleString() },
+    { label: 'Orgs actives', value: activeOrgs },
+    { label: 'Nouveaux users 30j', value: newUsers30d },
+  ];
+
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-bold">Platform Metrics</h1>
+    <div className="space-y-6">
+      <h1 className="text-xl font-bold">📈 Platform Metrics (VC-Ready)</h1>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        {['MRR (XOF)', 'GMV (XOF)', 'Active Orgs', 'New Users (30d)', 'Platform Fees', 'Affiliate Paid'].map(label => (
-          <div key={label} className="bg-card border border-border rounded-2xl p-4 shadow-card">
-            <p className="text-xl font-bold text-muted-foreground">—</p>
-            <p className="text-xs text-muted-foreground">{label}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Analytics coming soon</p>
+        {summaryCards.map(s => (
+          <div key={s.label} className="bg-card border border-border rounded-2xl p-4 shadow-card">
+            <p className="text-xl font-bold">{s.value}</p>
+            <p className="text-xs text-muted-foreground">{s.label}</p>
           </div>
         ))}
       </div>
+
+      {metrics.length > 0 && (
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+          <h2 className="font-semibold text-sm">Évolution GMV & Fees</h2>
+          <ResponsiveContainer width="100%" height={280}>
+            <AreaChart data={metrics}>
+              <defs>
+                <linearGradient id="gmvG" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="metric_date" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+              <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+              <Tooltip />
+              <Area type="monotone" dataKey="gmv" stroke="hsl(var(--primary))" fill="url(#gmvG)" strokeWidth={2} name="GMV" />
+              <Line type="monotone" dataKey="platform_fees" stroke="hsl(var(--destructive))" strokeWidth={1.5} dot={false} name="Fees" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+
+      {!isLoading && metrics.length === 0 && (
+        <div className="bg-card border border-border rounded-2xl p-8 text-center space-y-2">
+          <p className="text-sm text-muted-foreground">Aucune donnée métrique encore.</p>
+          <p className="text-xs text-muted-foreground">Configurez le cron job <code>aggregate-metrics</code> pour alimenter cette vue.</p>
+        </div>
+      )}
     </div>
   );
 }
