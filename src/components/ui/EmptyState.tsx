@@ -8,43 +8,43 @@ type EmptyVariant = 'orgs' | 'content' | 'campaigns' | 'purchases' | 'feed' | 's
 const variants: Record<EmptyVariant, { icon: ReactNode; title: string; desc: string }> = {
   orgs: {
     icon: <Users className="h-10 w-10" />,
-    title: 'No organizations yet',
-    desc: 'Be the first to discover and join a community.',
+    title: 'Aucune organisation',
+    desc: 'Soyez le premier à découvrir et rejoindre une communauté.',
   },
   content: {
     icon: <Play className="h-10 w-10" />,
-    title: 'No content published',
-    desc: 'Check back soon for videos, audio, and more.',
+    title: 'Aucun contenu publié',
+    desc: 'Revenez bientôt pour des vidéos, audios et plus encore.',
   },
   campaigns: {
     icon: <Heart className="h-10 w-10" />,
-    title: 'No active campaigns',
-    desc: 'There are no donation campaigns running right now.',
+    title: 'Aucune campagne active',
+    desc: 'Il n\'y a pas de campagne de dons en cours.',
   },
   purchases: {
     icon: <ShoppingBag className="h-10 w-10" />,
-    title: 'No purchases yet',
-    desc: "You haven't bought any digital products yet.",
+    title: 'Aucun achat',
+    desc: 'Vous n\'avez pas encore acheté de produit.',
   },
   feed: {
     icon: <Inbox className="h-10 w-10" />,
-    title: 'Your feed is empty',
-    desc: 'Join communities to see content from organizations here.',
+    title: 'Votre fil est vide',
+    desc: 'Rejoignez des communautés pour voir leur contenu ici.',
   },
   search: {
     icon: <Search className="h-10 w-10" />,
-    title: 'No results found',
-    desc: 'Try adjusting your search or filters.',
+    title: 'Aucun résultat',
+    desc: 'Essayez d\'ajuster votre recherche ou vos filtres.',
   },
   members: {
     icon: <Users className="h-10 w-10" />,
-    title: 'No members yet',
-    desc: 'Invite people to join this organization.',
+    title: 'Aucun membre',
+    desc: 'Invitez des personnes à rejoindre cette organisation.',
   },
   generic: {
     icon: <Inbox className="h-10 w-10" />,
-    title: 'Nothing here yet',
-    desc: 'Come back later.',
+    title: 'Rien ici pour le moment',
+    desc: 'Revenez plus tard.',
   },
 };
 

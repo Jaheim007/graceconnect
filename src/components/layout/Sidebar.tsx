@@ -1,66 +1,65 @@
 import { Link, useLocation } from 'react-router-dom';
 import {
-  Home, Compass, Play, Bell, User, LayoutDashboard, BookOpen,
+  Home, Compass, Play, Bell, User, BookOpen,
   Settings, ChevronLeft, ChevronRight, Shield,
-  Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2
+  Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, Sun, Moon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const mainNav = [
-  { to: '/feed', icon: Home, label: 'Feed' },
-  { to: '/discover', icon: Compass, label: 'Discover' },
+  { to: '/feed', icon: Home, label: 'Accueil' },
+  { to: '/discover', icon: Compass, label: 'Explorer' },
   { to: '/reels', icon: Play, label: 'Reels' },
   { to: '/notifications', icon: Bell, label: 'Notifications' },
-  { to: '/resources', icon: BookOpen, label: 'My Resources' },
-  { to: '/dashboard', icon: LayoutDashboard, label: 'My Dashboard' },
-  { to: '/profile', icon: User, label: 'Profile' },
+  { to: '/dashboard', icon: BookOpen, label: 'Mon Espace' },
+  { to: '/profile', icon: User, label: 'Profil' },
 ];
 
 const adminNav = [
-  { to: '/admin', icon: BarChart3, label: 'Overview' },
-  { to: '/admin/media', icon: Play, label: 'Media' },
-  { to: '/admin/announcements', icon: Megaphone, label: 'Announcements' },
-  { to: '/admin/events', icon: CalendarDays, label: 'Events' },
-  { to: '/admin/campaigns', icon: Heart, label: 'Campaigns' },
-  { to: '/admin/products', icon: ShoppingBag, label: 'Store' },
-  { to: '/admin/members', icon: Users, label: 'Members' },
+  { to: '/admin', icon: BarChart3, label: 'Vue d\'ensemble' },
+  { to: '/admin/media', icon: Play, label: 'Médias' },
+  { to: '/admin/announcements', icon: Megaphone, label: 'Annonces' },
+  { to: '/admin/events', icon: CalendarDays, label: 'Événements' },
+  { to: '/admin/campaigns', icon: Heart, label: 'Campagnes' },
+  { to: '/admin/products', icon: ShoppingBag, label: 'Boutique' },
+  { to: '/admin/members', icon: Users, label: 'Membres' },
   { to: '/admin/affiliation', icon: Link2, label: 'Affiliation' },
-  { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
+  { to: '/admin/analytics', icon: BarChart3, label: 'Analytiques' },
   { to: '/admin/kyc', icon: FileCheck, label: 'KYC' },
-  { to: '/admin/settings', icon: Settings, label: 'Settings' },
+  { to: '/admin/settings', icon: Settings, label: 'Paramètres' },
 ];
 
 const superadminNav = [
-  { to: '/superadmin', icon: Shield, label: 'Overview' },
-  { to: '/superadmin/orgs', icon: Users, label: 'Organizations' },
-  { to: '/superadmin/kyc', icon: FileCheck, label: 'KYC Review' },
+  { to: '/superadmin', icon: Shield, label: 'Vue d\'ensemble' },
+  { to: '/superadmin/orgs', icon: Users, label: 'Organisations' },
+  { to: '/superadmin/kyc', icon: FileCheck, label: 'KYC' },
   { to: '/superadmin/transactions', icon: BarChart3, label: 'Transactions' },
-  { to: '/superadmin/reports', icon: Megaphone, label: 'Reports' },
-  { to: '/superadmin/metrics', icon: BarChart3, label: 'Metrics' },
+  { to: '/superadmin/reports', icon: Megaphone, label: 'Signalements' },
+  { to: '/superadmin/metrics', icon: BarChart3, label: 'Métriques' },
 ];
 
 export function Sidebar() {
   const location = useLocation();
-  
   const [collapsed, setCollapsed] = useState(false);
   const { user, isSuperadmin } = useAuth();
-  // canManage checks if user has owner/admin/editor role for the given org
   const { currentOrg, canManage } = useOrg();
   const { data: unread = 0 } = useUnreadCount(user?.id);
+  const { theme, toggleTheme } = useTheme();
 
   const isAdmin = location.pathname.startsWith('/admin');
   const isSA = location.pathname.startsWith('/superadmin');
   const items = isSA ? superadminNav : isAdmin ? adminNav : mainNav;
-
-  // Only show "Manage Org" to users with a management role (owner/admin/editor).
-  // A plain "member" who joined a church must NOT see or be able to access /admin.
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
 
-  const isActive = (to: string) => location.pathname.startsWith(to);
+  const isActive = (to: string) => {
+    if (to === '/admin' || to === '/superadmin') return location.pathname === to;
+    return location.pathname.startsWith(to);
+  };
 
   return (
     <aside
@@ -76,16 +75,14 @@ export function Sidebar() {
             <span className="text-xl font-extrabold tracking-tight italic text-gold">Siteviral</span>
           </Link>
         ) : (
-          <Link to="/" className="text-base font-extrabold italic text-gold">
-            S
-          </Link>
+          <Link to="/" className="text-base font-extrabold italic text-gold">S</Link>
         )}
       </div>
 
       {/* Org context (admin only) */}
       {isAdmin && currentOrg && !collapsed && (
         <div className="mx-3 mt-3 p-2 rounded-lg bg-primary/10 border border-primary/20">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Managing</p>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Gestion de</p>
           <p className="text-xs font-semibold text-primary truncate">{currentOrg.name}</p>
         </div>
       )}
@@ -124,9 +121,18 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Section links */}
+      {/* Bottom links */}
       {!collapsed && (
         <div className="px-3 py-2 border-t border-border/60 space-y-0.5">
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors w-full"
+          >
+            {theme === 'dark' ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
+            {theme === 'dark' ? 'Mode clair' : 'Mode sombre'}
+          </button>
+
           {!isAdmin && !isSA && isSuperadmin && (
             <Link
               to="/superadmin"
@@ -137,14 +143,13 @@ export function Sidebar() {
             </Link>
           )}
 
-          {/* Only show "Manage Org" if the user has owner/admin/editor role */}
           {!isAdmin && !isSA && canManageCurrentOrg && (
             <Link
               to="/admin"
               className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
             >
               <Settings className="h-3.5 w-3.5" />
-              Manage Org
+              Gérer l'organisation
             </Link>
           )}
 
@@ -154,7 +159,7 @@ export function Sidebar() {
               className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
             >
               <Home className="h-3.5 w-3.5" />
-              Back to App
+              Retour à l'app
             </Link>
           )}
         </div>
