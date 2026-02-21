@@ -35,7 +35,7 @@ export function FeedPhotoSlider({ orgIds }: FeedPhotoSliderProps) {
     if (!photos.length || photos.length <= 1 || isPaused) return;
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % photos.length);
-    }, 4000);
+    }, 2500);
     return () => clearInterval(timer);
   }, [photos.length, isPaused]);
 
