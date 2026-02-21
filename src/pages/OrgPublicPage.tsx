@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { db } from '@/lib/db';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -20,7 +22,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   Globe, MessageCircle, CheckCircle2, Users, CalendarDays,
-  Share2, ShoppingBag, Heart
+  Share2, ShoppingBag, Heart, Camera
 } from 'lucide-react';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
@@ -42,10 +44,10 @@ export default function OrgPublicPage() {
   // If user came via affiliate link, default tab to store (conversion-focused)
   const hasAffiliateRef = !!searchParams.get('ref');
   const pathTab = pathname.split('/').pop();
-  const defaultTab = hasAffiliateRef && !['content', 'events', 'store', 'donate'].includes(pathTab || '')
+  const defaultTab = hasAffiliateRef && !['content', 'events', 'store', 'donate', 'photos'].includes(pathTab || '')
     ? 'store'
     : 'home';
-  const activeTab = ['content', 'events', 'store', 'donate'].includes(pathTab || '') ? pathTab! : defaultTab;
+  const activeTab = ['content', 'events', 'store', 'donate', 'photos'].includes(pathTab || '') ? pathTab! : defaultTab;
 
   const { data: org, isLoading: orgLoading } = useOrgBySlug(slug);
   const { data: media = [] } = useOrgMedia(org?.id);
@@ -53,6 +55,20 @@ export default function OrgPublicPage() {
   const { data: events = [] } = useOrgEvents(org?.id);
   const { data: campaigns = [] } = useOrgCampaigns(org?.id);
   const { data: products = [] } = useOrgProducts(org?.id);
+  const { data: photos = [] } = useQuery({
+    queryKey: ['org-photos-public', org?.id],
+    queryFn: async () => {
+      if (!org?.id) return [];
+      const { data } = await db
+        .from('org_photos')
+        .select('*')
+        .eq('organization_id', org.id)
+        .eq('is_published', true)
+        .order('display_order', { ascending: true });
+      return data || [];
+    },
+    enabled: !!org?.id,
+  });
   const { data: purchases = [] } = useMyPurchases();
   const purchasedProductIds = new Set(purchases.map(p => p.product_id));
 
@@ -233,6 +249,12 @@ export default function OrgPublicPage() {
               </TabsTrigger>
             )}
             <TabsTrigger value="content" className="text-xs">Content ({media.length})</TabsTrigger>
+            {photos.length > 0 && (
+              <TabsTrigger value="photos" className="text-xs gap-1">
+                <Camera className="h-3 w-3" />
+                Photos ({photos.length})
+              </TabsTrigger>
+            )}
             <TabsTrigger value="events" className="text-xs">Events ({events.length})</TabsTrigger>
           </TabsList>
 
@@ -294,6 +316,29 @@ export default function OrgPublicPage() {
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                   {media.slice(0, 3).map((m, i) => <MediaCard key={m.id} media={m} index={i} />)}
+                </div>
+              </section>
+            )}
+
+            {/* Photos preview */}
+            {photos.length > 0 && (
+              <section>
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="font-semibold text-sm flex items-center gap-1.5">
+                    <Camera className="h-4 w-4 text-primary" /> Photos
+                  </h2>
+                  {photos.length > 4 && (
+                    <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('photos')}>
+                      View all →
+                    </Button>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {photos.slice(0, 4).map((photo: any) => (
+                    <div key={photo.id} className="rounded-xl overflow-hidden aspect-[4/3] group cursor-pointer" onClick={() => navigateTab('photos')}>
+                      <img src={photo.image_url} alt={photo.caption || 'Photo'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    </div>
+                  ))}
                 </div>
               </section>
             )}
@@ -386,6 +431,36 @@ export default function OrgPublicPage() {
                       {ev.event_date && <span className="text-xs text-muted-foreground">{new Date(ev.event_date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>}
                       {ev.location && <span className="text-xs text-primary">{ev.location}</span>}
                     </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          {/* ─── PHOTOS TAB ─── */}
+          <TabsContent value="photos">
+            {photos.length === 0 ? (
+              <EmptyState variant="generic" title="No photos" description="No photos have been shared yet." />
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {photos.map((photo: any, i: number) => (
+                  <div
+                    key={photo.id}
+                    className="group relative rounded-xl overflow-hidden bg-card border border-border shadow-card hover:shadow-elevated transition-all cursor-pointer animate-in fade-in slide-in-from-bottom-2"
+                    style={{ animationDelay: `${i * 50}ms` }}
+                  >
+                    <div className="aspect-[4/3] overflow-hidden">
+                      <img
+                        src={photo.image_url}
+                        alt={photo.caption || 'Photo'}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    {photo.caption && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <p className="text-xs text-white/90 line-clamp-2">{photo.caption}</p>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

@@ -41,6 +41,7 @@ import { AnnouncementForm } from "@/pages/admin/AdminAnnouncementForm";
 import { EventForm } from "@/pages/admin/AdminEventForm";
 import { CampaignForm } from "@/pages/admin/AdminCampaignForm";
 import { ProductForm } from "@/pages/admin/AdminProductForm";
+import AdminPhotos from "@/pages/admin/AdminPhotos";
 
 // Superadmin layout + pages
 import SuperadminLayout from "@/pages/superadmin/SuperadminLayout";
@@ -78,6 +79,7 @@ const App = () => (
                 <Route path="/org/:slug/events" element={<OrgPublicPage />} />
                 <Route path="/org/:slug/store" element={<OrgPublicPage />} />
                 <Route path="/org/:slug/donate" element={<OrgPublicPage />} />
+                <Route path="/org/:slug/photos" element={<OrgPublicPage />} />
 
                 {/* Authenticated shell (sidebar + topbar) */}
                 <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
@@ -110,6 +112,7 @@ const App = () => (
                   <Route path="products/new" element={<ProductForm />} />
                   <Route path="products/:id/edit" element={<ProductForm />} />
                   <Route path="members" element={<AdminMembers />} />
+                  <Route path="photos" element={<AdminPhotos />} />
                   <Route path="affiliation" element={<AdminAffiliation />} />
                   <Route path="analytics" element={<AdminAnalytics />} />
                   <Route path="kyc" element={<AdminKYC />} />
