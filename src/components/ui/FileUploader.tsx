@@ -12,6 +12,7 @@ interface FileUploaderProps {
   label?: string;
   hint?: string;
   accept?: string;
+  bucket?: 'org-uploads' | 'private-products';
 }
 
 export function FileUploader({
@@ -21,6 +22,7 @@ export function FileUploader({
   label = 'File',
   hint,
   accept = '*/*',
+  bucket = 'org-uploads',
 }: FileUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -42,12 +44,19 @@ export function FileUploader({
       const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_');
       const fileName = `${folder}/${Date.now()}-${safeName}`;
       const { error: uploadError } = await supabase.storage
-        .from('org-uploads')
+        .from(bucket)
         .upload(fileName, file, { upsert: true });
       if (uploadError) throw uploadError;
-      const { data } = supabase.storage.from('org-uploads').getPublicUrl(fileName);
-      onChange(data.publicUrl);
-      setUrlInput(data.publicUrl);
+      if (bucket === 'private-products') {
+        // For private bucket, store the path reference (served via signed URLs)
+        const fullUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/${bucket}/${fileName}`;
+        onChange(fullUrl);
+        setUrlInput(fullUrl);
+      } else {
+        const { data } = supabase.storage.from(bucket).getPublicUrl(fileName);
+        onChange(data.publicUrl);
+        setUrlInput(data.publicUrl);
+      }
     } catch (err: any) {
       setError(err.message || 'Upload failed');
     } finally {

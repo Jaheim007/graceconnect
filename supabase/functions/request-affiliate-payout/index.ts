@@ -26,6 +26,19 @@ Deno.serve(async (req) => {
     if (!userId) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
     const { organization_id } = await req.json();
+    if (!organization_id) {
+      return new Response(JSON.stringify({ error: 'organization_id required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    // Verify user is a member of this organization
+    const { data: membership } = await db.from('organization_members')
+      .select('role')
+      .eq('user_id', userId)
+      .eq('organization_id', organization_id)
+      .maybeSingle();
+    if (!membership) {
+      return new Response(JSON.stringify({ error: 'You are not a member of this organization' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
 
     // Find payable affiliate sales for this user in this org
     const now = new Date().toISOString();
