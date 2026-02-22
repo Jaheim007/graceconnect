@@ -22,6 +22,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { AffiliateShareTools } from '@/components/affiliate/AffiliateShareTools';
+import { ProductAffiliateLinkGen } from '@/components/affiliate/ProductAffiliateLinkGen';
 
 const fmt = (n: number, currency = 'XOF') =>
   new Intl.NumberFormat('fr-FR', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
@@ -517,6 +518,13 @@ export default function UserDashboard() {
                         <AffiliateShareTools
                           shareUrl={shareUrl}
                           orgName={l.organizations?.name || 'Organisation'}
+                          affiliateCode={l.code}
+                        />
+                        {/* Per-product link generator */}
+                        <ProductAffiliateLinkGen
+                          orgId={l.organization_id}
+                          orgSlug={l.organizations?.slug || ''}
+                          userId={user?.id || ''}
                           affiliateCode={l.code}
                         />
                       </div>
