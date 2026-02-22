@@ -32,6 +32,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAffiliateCapture } from '@/hooks/useAffiliateCapture';
 import { PhotoLightbox } from '@/components/photos/PhotoLightbox';
 import { motion } from 'framer-motion';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function OrgPublicPage() {
   useAffiliateCapture();
@@ -143,6 +144,20 @@ export default function OrgPublicPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={`${org.name} — Siteviral`}
+        description={org.description || `Découvrez ${org.name} sur Siteviral`}
+        ogImage={org.banner_url || org.logo_url}
+        canonicalUrl={`https://siteviral.com/org/${slug}`}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'Organization',
+          name: org.name,
+          description: org.description,
+          url: `https://siteviral.com/org/${slug}`,
+          image: org.logo_url,
+        }}
+      />
       {/* Top bar */}
       <div className="sticky top-0 z-20 border-b border-border/40 bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between">
         <Link to={user ? '/feed' : '/'}>

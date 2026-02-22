@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Search, Filter, ShoppingBag, Heart, Users, Sparkles } from 'lucide-react';
+import { Search, Filter, ShoppingBag, Heart, Users, Sparkles, CheckCircle2 } from 'lucide-react';
+import { SEOHead } from '@/components/seo/SEOHead';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -90,8 +91,12 @@ export default function DiscoverPage() {
     enabled: tab === 'campaigns',
   });
 
+  // Verified orgs for showcase
+  const verifiedOrgs = orgs.filter((o: any) => o.is_verified);
+
   return (
     <div className="bg-background min-h-screen">
+      <SEOHead title="Explorer — Communautés, Produits & Campagnes" description="Découvrez les meilleures communautés, produits numériques et campagnes de collecte sur Siteviral." />
       {/* Compact hero */}
       <div className="border-b border-border/40 py-6 px-4">
         <div className="container max-w-4xl">
@@ -128,6 +133,36 @@ export default function DiscoverPage() {
 
           {/* ─── COMMUNITIES TAB ─── */}
           <TabsContent value="communities">
+            {/* Verified showcase */}
+            {verifiedOrgs.length > 0 && !search && !category && (
+              <div className="mb-6">
+                <h2 className="text-sm font-semibold flex items-center gap-1.5 mb-3">
+                  <CheckCircle2 className="h-4 w-4 text-primary" /> Communautés vérifiées
+                </h2>
+                <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+                  {verifiedOrgs.slice(0, 6).map((org: any) => (
+                    <button
+                      key={org.id}
+                      onClick={() => navigate(`/org/${org.slug}`)}
+                      className="shrink-0 flex flex-col items-center gap-2 p-3 rounded-2xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all w-24"
+                    >
+                      <div className="h-12 w-12 rounded-xl overflow-hidden bg-card border border-border">
+                        {org.logo_url ? (
+                          <img src={org.logo_url} alt={org.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full gold-gradient flex items-center justify-center">
+                            <span className="text-xs font-bold text-primary-foreground">{org.name?.slice(0, 2).toUpperCase()}</span>
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-[11px] font-medium text-center leading-tight line-clamp-2">{org.name}</span>
+                      <CheckCircle2 className="h-3 w-3 text-primary" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center gap-2 mb-6 overflow-x-auto scrollbar-hide pb-1">
               <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
               {CATEGORIES.map((c) => (

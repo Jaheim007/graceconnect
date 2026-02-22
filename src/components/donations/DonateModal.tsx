@@ -15,6 +15,9 @@ import { getAffiliateCode, clearAffiliateCode } from '@/hooks/useAffiliateCaptur
 import { verifyPayment, VerifyPaymentResult } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 
+import { db } from '@/lib/db';
+import { Tag } from 'lucide-react';
+
 const PRESET_AMOUNTS = [500, 1000, 2500, 5000, 10000];
 
 interface DonateModalProps {
@@ -31,6 +34,10 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
   const [amount, setAmount] = useState<string>('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [promoCode, setPromoCode] = useState('');
+  const [promoDiscount, setPromoDiscount] = useState<number | null>(null);
+  const [promoValidating, setPromoValidating] = useState(false);
+  const [promoError, setPromoError] = useState('');
   const [step, setStep] = useState<Step>('form');
   const [result, setResult] = useState<VerifyPaymentResult | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
@@ -49,6 +56,29 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
   const resolvedEmail = email || user?.email || '';
   const resolvedName = name || profile?.display_name || '';
 
+  const validatePromo = async () => {
+    if (!promoCode.trim()) return;
+    setPromoValidating(true);
+    setPromoError('');
+    setPromoDiscount(null);
+    try {
+      const { data, error } = await db
+        .from('promo_codes')
+        .select('id, discount_percent, max_uses, current_uses, expires_at, is_active')
+        .eq('code', promoCode.trim().toUpperCase())
+        .eq('organization_id', organizationId)
+        .eq('is_active', true)
+        .maybeSingle();
+      if (error || !data) { setPromoError('Code invalide'); return; }
+      if (data.expires_at && new Date(data.expires_at) < new Date()) { setPromoError('Code expiré'); return; }
+      if (data.max_uses && data.current_uses >= data.max_uses) { setPromoError('Code épuisé'); return; }
+      setPromoDiscount(data.discount_percent);
+    } catch { setPromoError('Erreur de validation'); }
+    finally { setPromoValidating(false); }
+  };
+
+  const effectiveAmount = promoDiscount && amount ? Math.round(Number(amount) * (1 - promoDiscount / 100)) : Number(amount);
+
   const handleDonate = async () => {
     if (!amount || Number(amount) < 100) {
       toast({ title: 'Montant invalide', description: 'Le don minimum est de 100 XOF.', variant: 'destructive' });
@@ -64,7 +94,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
     try {
       await openPayment({
         email: resolvedEmail,
-        amount: Number(amount),
+        amount: effectiveAmount,
         currency: campaign.currency || 'XOF',
         metadata: {
           type: 'donation',
@@ -117,6 +147,9 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
     setAmount('');
     setName('');
     setEmail('');
+    setPromoCode('');
+    setPromoDiscount(null);
+    setPromoError('');
     setResult(null);
     setErrorMsg('');
     onClose();
@@ -186,6 +219,26 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
                 </div>
               )}
 
+              {/* Promo code */}
+              <div>
+                <Label className="text-xs flex items-center gap-1"><Tag className="h-3 w-3" /> Code promo (optionnel)</Label>
+                <div className="flex gap-2 mt-1.5">
+                  <Input
+                    placeholder="CODE2024"
+                    value={promoCode}
+                    onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoDiscount(null); setPromoError(''); }}
+                    className="flex-1"
+                  />
+                  <Button type="button" variant="outline" size="sm" onClick={validatePromo} disabled={promoValidating || !promoCode.trim()}>
+                    {promoValidating ? '...' : 'Appliquer'}
+                  </Button>
+                </div>
+                {promoError && <p className="text-xs text-destructive mt-1">{promoError}</p>}
+                {promoDiscount && (
+                  <p className="text-xs text-green-600 mt-1">✓ -{promoDiscount}% appliqué — Nouveau montant : {amount ? fmt(effectiveAmount) : '—'}</p>
+                )}
+              </div>
+
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Lock className="h-3 w-3" />
                 Paiements sécurisés par Paystack
@@ -199,7 +252,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
                 disabled={!amount || Number(amount) < 100}
                 className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold"
               >
-                Donner {amount ? fmt(Number(amount)) : ''}
+                Donner {amount ? fmt(effectiveAmount) : ''}
               </Button>
             </div>
           </>

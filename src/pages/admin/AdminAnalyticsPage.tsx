@@ -5,7 +5,9 @@ import { db } from '@/lib/db';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
-import { TrendingUp, DollarSign, Users, ShoppingBag, Heart, Activity } from 'lucide-react';
+import { TrendingUp, DollarSign, Users, ShoppingBag, Heart, Activity, Download } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { downloadCSV } from '@/lib/csvExport';
 import { subDays, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -128,9 +130,47 @@ export default function AdminAnalyticsPage() {
     { label: 'Panier moyen', value: fmt(stats.avgBasket, currency), icon: TrendingUp, color: 'text-cyan-500' },
   ];
 
+  const exportMembers = async () => {
+    if (!orgId) return;
+    const { data } = await db.from('organization_members').select('user_id, role, joined_at').eq('organization_id', orgId);
+    if (data) downloadCSV(data, `membres-${currentOrg?.slug || 'org'}`);
+  };
+
+  const exportTransactions = async () => {
+    if (!orgId) return;
+    const [{ data: d1 }, { data: d2 }] = await Promise.all([
+      db.from('donations').select('id, amount, currency, donor_name, donor_email, status, created_at').eq('organization_id', orgId),
+      db.from('product_purchases').select('id, amount, currency, status, created_at').eq('organization_id', orgId),
+    ]);
+    const all = [
+      ...(d1 || []).map((r: any) => ({ ...r, type: 'donation' })),
+      ...(d2 || []).map((r: any) => ({ ...r, type: 'purchase' })),
+    ];
+    downloadCSV(all, `transactions-${currentOrg?.slug || 'org'}`);
+  };
+
+  const exportAffiliates = async () => {
+    if (!orgId) return;
+    const { data } = await db.from('affiliate_sales').select('affiliate_user_id, commission_amount, gross_amount, status, created_at').eq('organization_id', orgId);
+    if (data) downloadCSV(data, `affilies-${currentOrg?.slug || 'org'}`);
+  };
+
   return (
     <AdminPageShell title="Analytiques avancés" subtitle="Données des 30 derniers jours" backRoute="/admin">
       <div className="space-y-6">
+        {/* Export buttons */}
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={exportMembers}>
+            <Download className="h-3.5 w-3.5" /> Membres CSV
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={exportTransactions}>
+            <Download className="h-3.5 w-3.5" /> Transactions CSV
+          </Button>
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={exportAffiliates}>
+            <Download className="h-3.5 w-3.5" /> Affiliés CSV
+          </Button>
+        </div>
+
         {/* KPI Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {kpis.map((kpi) => (
