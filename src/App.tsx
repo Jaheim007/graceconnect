@@ -29,6 +29,9 @@ import RefundPolicyPage from "@/pages/RefundPolicyPage";
 import PayoutPolicyPage from "@/pages/PayoutPolicyPage";
 import AcceptableUsePage from "@/pages/AcceptableUsePage";
 import InvitePage from "@/pages/InvitePage";
+import FAQPage from "@/pages/FAQPage";
+import ContactPage from "@/pages/ContactPage";
+import CompliancePage from "@/pages/CompliancePage";
 
 // Authenticated pages
 import FeedPage from "@/pages/FeedPage";
@@ -106,6 +109,9 @@ const App = () => (
                 <Route path="/refund-policy" element={<RefundPolicyPage />} />
                 <Route path="/payout-policy" element={<PayoutPolicyPage />} />
                 <Route path="/acceptable-use" element={<AcceptableUsePage />} />
+                <Route path="/faq" element={<FAQPage />} />
+                <Route path="/contact" element={<ContactPage />} />
+                <Route path="/compliance" element={<CompliancePage />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/payment/success" element={<PaymentSuccessPage />} />
                 <Route path="/invite/:code" element={<InvitePage />} />

@@ -1,5 +1,19 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
+// Simple in-memory rate limiter
+const requestCounts = new Map<string, { count: number; windowStart: number }>();
+function checkRateLimit(ip: string | null, max = 10): boolean {
+  const key = ip || 'unknown';
+  const now = Date.now();
+  const entry = requestCounts.get(key);
+  if (!entry || now - entry.windowStart > 60000) {
+    requestCounts.set(key, { count: 1, windowStart: now });
+    return true;
+  }
+  entry.count++;
+  return entry.count <= max;
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
@@ -7,6 +21,14 @@ const corsHeaders = {
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
+
+  // Rate limiting (strict for payouts)
+  const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('cf-connecting-ip');
+  if (!checkRateLimit(clientIp, 10)) {
+    return new Response(JSON.stringify({ error: 'Too many requests' }), {
+      status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
+  }
 
   const PAYSTACK_SECRET = Deno.env.get('PAYSTACK_SECRET_KEY')!;
   const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;

@@ -581,7 +581,9 @@ export default function LandingPage() {
               <h4 className="font-semibold text-sm">Entreprise</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link to="/about" className="hover:text-foreground transition-colors">À propos</Link></li>
-                <li>contact@siteviral.com</li>
+                <li><Link to="/faq" className="hover:text-foreground transition-colors">Centre d'aide</Link></li>
+                <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
+                <li><Link to="/compliance" className="hover:text-foreground transition-colors">Conformité</Link></li>
                 <li className="text-[11px]">Operated by HACKTUALIZ Inc.<br/>Delaware, USA</li>
               </ul>
             </div>
