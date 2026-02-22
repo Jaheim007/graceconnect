@@ -1,191 +1,192 @@
-import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import termsBg from '@/assets/terms-bg.jpg';
+import LegalPageShell, { proseClasses } from '@/components/layout/LegalPageShell';
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Background image — subtle, fixed */}
-      <div className="fixed inset-0 z-0">
-        <img src={termsBg} alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-background/95 backdrop-blur-sm" />
+    <LegalPageShell>
+      <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-foreground">Conditions Générales d'Utilisation</h1>
+      <p className="text-sm text-muted-foreground mb-8 font-medium">Dernière mise à jour : 22 février 2026</p>
+
+      <div className={proseClasses}>
+        <section>
+          <h2>1. Introduction</h2>
+          <p>
+            Les présentes Conditions Générales d'Utilisation (« CGU ») régissent l'accès et l'utilisation de <strong>Siteviral</strong> (« la Plateforme »),
+            un produit édité et exploité par <strong>Hacktualiz Inc.</strong>, société de droit américain (Delaware C-Corporation), dont le siège social est situé au :
+          </p>
+          <p className="font-medium">
+            131 Continental Dr, Suite 305, Newark, DE 19713, United States.
+          </p>
+          <p>
+            En accédant ou en utilisant la Plateforme, vous acceptez les présentes CGU dans leur intégralité.
+            Si vous n'acceptez pas ces conditions, vous devez cesser d'utiliser la Plateforme immédiatement.
+          </p>
+        </section>
+
+        <section>
+          <h2>2. Description du Service</h2>
+          <p>Siteviral est une plateforme SaaS multi-tenant qui offre les services suivants :</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Création et gestion de pages communautaires pour organisations, associations et leaders</li>
+            <li>Vente de produits numériques (ebooks, cours, formations, ressources)</li>
+            <li>Collecte de dons et campagnes de financement</li>
+            <li>Programmes de formation structurés (modules, leçons, progression)</li>
+            <li>Système d'affiliation et de parrainage</li>
+            <li>Publication et diffusion de contenu multimédia (vidéos, audios, reels)</li>
+            <li>Traitement des paiements via Paystack</li>
+            <li>Gestion des membres et des rôles au sein des organisations</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>3. Éligibilité</h2>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>L'utilisateur doit être âgé d'au moins <strong>18 ans</strong> ou disposer de l'autorisation d'un représentant légal</li>
+            <li>L'utilisation de la Plateforme à des fins illégales, frauduleuses ou contraires aux lois applicables est strictement interdite</li>
+            <li>Les organisations situées dans des pays sous sanctions internationales (OFAC, UE, ONU) ne sont pas autorisées à utiliser la Plateforme</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>4. Comptes Utilisateurs</h2>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>L'utilisateur s'engage à fournir des informations exactes, à jour et complètes lors de l'inscription</li>
+            <li>L'utilisateur est seul responsable de la sécurité de ses identifiants de connexion et de toute activité effectuée sous son compte</li>
+            <li>L'utilisateur doit notifier immédiatement Siteviral en cas d'utilisation non autorisée de son compte</li>
+            <li>Siteviral se réserve le droit de suspendre ou de supprimer tout compte en cas de violation des présentes CGU</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>5. Organisations (Multi-tenant)</h2>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Chaque organisation est responsable du contenu qu'elle publie sur la Plateforme</li>
+            <li>L'organisation est responsable des produits qu'elle vend et des fonds qu'elle collecte</li>
+            <li><strong>Siteviral agit en tant qu'infrastructure technique et intermédiaire de paiement, et non en tant que vendeur direct.</strong> Siteviral ne garantit pas la qualité, la légalité ou la conformité des produits et services proposés par les organisations</li>
+            <li>Les organisations doivent respecter les lois et réglementations applicables dans leur juridiction</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>6. Paiements</h2>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Les transactions financières sont traitées par <strong>Paystack</strong>, prestataire de paiement agréé</li>
+            <li>Les fonds collectés font l'objet d'un <strong>split automatique</strong> : commission de la plateforme + commission d'affiliation (le cas échéant) + montant net pour l'organisation</li>
+            <li>Les frais de transaction Paystack sont à la charge de l'organisation ou de l'acheteur selon la configuration</li>
+            <li>Les <strong>taxes et obligations fiscales</strong> sont à la charge de l'organisation. Siteviral ne fournit pas de conseil fiscal</li>
+            <li>Les méthodes de paiement disponibles dépendent de la couverture régionale de Paystack. Des fournisseurs supplémentaires pourront être ajoutés</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>7. Affiliation</h2>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Le système d'affiliation utilise l'<strong>attribution last-click</strong></li>
+            <li>Le cookie d'affiliation a une durée de <strong>7 jours</strong></li>
+            <li>L'<strong>auto-parrainage</strong> (gagner une commission sur ses propres achats) est interdit et détecté automatiquement</li>
+            <li>Siteviral se réserve le droit d'<strong>annuler des commissions</strong> en cas de fraude, manipulation ou violation des CGU</li>
+            <li>Les commissions d'affiliation sont soumises à une période de validation de 72 heures avant d'être disponibles pour retrait</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>8. KYC & Payout</h2>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>La <strong>vérification KYC</strong> (Know Your Customer) est obligatoire pour toute organisation souhaitant recevoir des paiements</li>
+            <li>Le délai minimum de retrait est de <strong>72 heures</strong> après approbation de la demande</li>
+            <li>Siteviral se réserve le droit de <strong>geler les retraits</strong> en cas de suspicion de fraude, activité suspecte ou non-conformité AML</li>
+            <li>Consultez notre <a href="/payout-policy" className="text-primary underline">Politique de Retrait</a> pour les détails complets</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>9. Remboursements</h2>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Les produits numériques sont <strong>généralement non remboursables</strong> une fois téléchargés ou consultés, sauf en cas de défaut technique avéré</li>
+            <li>Les dons sont par nature volontaires et non remboursables, sauf erreur technique</li>
+            <li>Consultez notre <a href="/refund-policy" className="text-primary underline">Politique de Remboursement</a> pour les conditions détaillées, délais et procédures</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>10. Activités interdites</h2>
+          <p>Les utilisateurs et organisations s'engagent à ne pas :</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Utiliser la Plateforme pour le <strong>blanchiment d'argent</strong> ou le financement d'activités illicites</li>
+            <li>Créer des organisations fictives ou frauduleuses pour collecter des fonds</li>
+            <li>Publier du contenu illégal, diffamatoire, haineux, violent ou portant atteinte aux droits d'autrui</li>
+            <li>Pratiquer l'<strong>usurpation d'identité</strong> ou la représentation frauduleuse</li>
+            <li>Vendre des produits contrefaits, volés ou en violation des droits de propriété intellectuelle</li>
+            <li>Manipuler les systèmes de commission, d'affiliation ou de métriques</li>
+            <li>Consultez notre <a href="/acceptable-use" className="text-primary underline">Politique d'Utilisation Acceptable</a> pour la liste complète</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>11. Suspension & Résiliation</h2>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Siteviral se réserve le droit de <strong>suspendre</strong> tout compte ou organisation en cas de violation des CGU, sans préavis ni indemnité</li>
+            <li>En cas de suspension, les <strong>retraits sont gelés</strong> jusqu'à résolution de l'enquête</li>
+            <li>Les fonds gelés seront libérés uniquement après résolution satisfaisante, ou transmis aux autorités compétentes si requis par la loi</li>
+            <li>L'utilisateur peut <strong>supprimer son compte</strong> à tout moment depuis les paramètres de son profil</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>12. Limitation de responsabilité</h2>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Siteviral fournit la Plateforme « en l'état » et ne garantit pas une disponibilité ininterrompue</li>
+            <li>Siteviral <strong>n'est pas responsable</strong> du contenu publié par les organisations sur la Plateforme</li>
+            <li>Siteviral ne saurait être tenu responsable des <strong>dommages indirects</strong>, pertes de revenus, pertes de données ou dommages consécutifs résultant de l'utilisation de la Plateforme</li>
+            <li>La responsabilité maximale de Siteviral est limitée au montant des frais de plateforme payés par l'utilisateur au cours des 12 derniers mois</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>13. Indemnisation</h2>
+          <p>
+            L'utilisateur s'engage à <strong>indemniser et dégager de toute responsabilité</strong> Hacktualiz Inc., ses dirigeants, employés et agents,
+            contre toute réclamation, perte, dommage, coût ou dépense (y compris les honoraires d'avocats raisonnables) résultant de :
+          </p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Son utilisation de la Plateforme en violation des présentes CGU</li>
+            <li>Son contenu publié sur la Plateforme</li>
+            <li>Sa violation des droits de tiers</li>
+            <li>Sa violation des lois et réglementations applicables</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>14. Loi applicable & Juridiction</h2>
+          <p>
+            Les présentes CGU sont régies par les <strong>lois de l'État du Delaware</strong> (États-Unis d'Amérique).
+          </p>
+          <p>
+            Tout litige relatif à l'interprétation ou à l'exécution des présentes sera soumis à la
+            <strong> compétence exclusive des tribunaux de l'État du Delaware</strong>, après tentative de résolution amiable
+            dans un délai de 30 jours.
+          </p>
+        </section>
+
+        <section>
+          <h2>15. Modifications des conditions</h2>
+          <p>
+            Siteviral se réserve le droit de modifier les présentes CGU à tout moment. Les utilisateurs seront informés
+            de toute modification substantielle par notification sur la Plateforme et/ou par email. La poursuite de
+            l'utilisation après notification vaut acceptation des CGU modifiées.
+          </p>
+        </section>
+
+        <section>
+          <h2>16. Contact</h2>
+          <p>Pour toute question relative aux présentes CGU :</p>
+          <p className="font-medium">
+            Hacktualiz Inc.<br />
+            131 Continental Dr, Suite 305<br />
+            Newark, DE 19713, United States<br />
+            Email : legal@siteviral.com
+          </p>
+        </section>
       </div>
-
-      {/* Nav */}
-      <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
-        <div className="container flex items-center justify-between h-14 px-4">
-          <Link to="/" className="text-xl font-extrabold tracking-tight italic text-gold">Siteviral</Link>
-          <Button variant="ghost" size="sm" asChild>
-            <Link to="/"><ArrowLeft className="h-4 w-4 mr-1" /> Retour</Link>
-          </Button>
-        </div>
-      </header>
-
-      <main className="relative z-10 container max-w-3xl px-4 pt-24 pb-16">
-        <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-foreground">Conditions Générales d'Utilisation</h1>
-        <p className="text-sm text-muted-foreground mb-8 font-medium">Dernière mise à jour : 21 février 2026</p>
-
-        <div className="max-w-none space-y-6 text-foreground text-[15px] sm:text-base font-semibold leading-relaxed [&_h2]:text-xl [&_h2]:sm:text-2xl [&_h2]:font-extrabold [&_h2]:text-foreground [&_h2]:mt-8 [&_h2]:mb-3 [&_ul]:font-medium [&_li]:font-medium">
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">1. Objet</h2>
-            <p>
-              Les présentes Conditions Générales d'Utilisation (ci-après « CGU ») régissent l'accès et l'utilisation
-              de la plateforme Siteviral (ci-après « la Plateforme »), éditée et exploitée par Hacktualiz Inc.,
-              société de droit américain (Delaware C-Corp), dont le siège social est situé au
-              131 Continental Dr, Suite 305, Newark, DE 19713, United States.
-            </p>
-            <p>
-              La Plateforme est destinée aux organisations, associations, leaders et leurs communautés
-              pour la gestion de contenu, la collecte de fonds, la vente de ressources numériques
-              et la communication communautaire.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">2. Acceptation des conditions</h2>
-            <p>
-              L'inscription et l'utilisation de la Plateforme impliquent l'acceptation pleine et entière des présentes CGU.
-              Si vous n'acceptez pas ces conditions, vous devez cesser d'utiliser la Plateforme immédiatement.
-            </p>
-            <p>
-              Siteviral se réserve le droit de modifier les présentes CGU à tout moment. Les utilisateurs seront informés
-              de toute modification par notification sur la Plateforme. La poursuite de l'utilisation après notification
-              vaut acceptation des CGU modifiées.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">3. Inscription et compte utilisateur</h2>
-            <p>
-              Pour accéder aux fonctionnalités de la Plateforme, l'utilisateur doit créer un compte en fournissant
-              des informations exactes, à jour et complètes. L'utilisateur est seul responsable de la confidentialité
-              de ses identifiants de connexion et de toute activité effectuée sous son compte.
-            </p>
-            <p>
-              L'utilisateur s'engage à notifier immédiatement Siteviral en cas d'utilisation non autorisée de son compte
-              ou de toute atteinte à la sécurité de celui-ci.
-            </p>
-            <p>
-              L'utilisateur doit être âgé d'au moins 18 ans ou disposer de l'autorisation d'un représentant légal
-              pour utiliser la Plateforme.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">4. Services proposés</h2>
-            <p>La Plateforme offre les services suivants :</p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Création et gestion de pages communautaires (organisations, associations, leaders)</li>
-              <li>Publication et diffusion de contenu multimédia (vidéos, audios, reels)</li>
-              <li>Collecte de dons et campagnes de financement</li>
-              <li>Vente de produits numériques (ebooks, cours, ressources)</li>
-              <li>Système d'affiliation et de parrainage</li>
-              <li>Gestion des membres et des rôles au sein des organisations</li>
-              <li>Notifications et communications communautaires</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">5. Obligations des utilisateurs</h2>
-            <p>L'utilisateur s'engage à :</p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Utiliser la Plateforme conformément à sa destination et aux présentes CGU</li>
-              <li>Ne pas publier de contenu illicite, diffamatoire, haineux, obscène ou portant atteinte aux droits des tiers</li>
-              <li>Respecter les droits de propriété intellectuelle d'autrui</li>
-              <li>Ne pas utiliser la Plateforme à des fins frauduleuses ou de blanchiment d'argent</li>
-              <li>Fournir des informations véridiques lors de la création d'organisations et des procédures KYC</li>
-              <li>Ne pas tenter de contourner les mesures de sécurité de la Plateforme</li>
-            </ul>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">6. Paiements et transactions financières</h2>
-            <p>
-              Les transactions financières sur la Plateforme (dons, achats de produits) sont traitées par Paystack,
-              prestataire de paiement agréé. Les fonds collectés sont soumis aux commissions suivantes :
-            </p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Commission de la plateforme : définie selon le plan de l'organisation</li>
-              <li>Frais de transaction Paystack : selon les conditions de Paystack</li>
-              <li>Commission d'affiliation : définie par chaque organisation (si applicable)</li>
-            </ul>
-            <p>
-              Les organisations doivent compléter la procédure KYC (Know Your Customer) pour recevoir des paiements.
-              Siteviral se réserve le droit de retenir les fonds en cas de suspicion de fraude ou de non-conformité.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">7. Propriété intellectuelle</h2>
-            <p>
-              La Plateforme, son code source, son design, ses logos et marques sont la propriété exclusive de Hacktualiz Inc.
-              Toute reproduction, représentation ou exploitation non autorisée est interdite.
-            </p>
-            <p>
-              Les utilisateurs conservent la propriété de leur contenu publié sur la Plateforme. En publiant du contenu,
-              l'utilisateur accorde à Siteviral une licence non exclusive, mondiale et gratuite pour héberger, afficher
-              et distribuer ce contenu dans le cadre du fonctionnement de la Plateforme.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">8. Responsabilité</h2>
-            <p>
-              Siteviral s'efforce d'assurer la disponibilité et le bon fonctionnement de la Plateforme, sans toutefois
-              garantir une disponibilité ininterrompue. Siteviral ne saurait être tenu responsable des dommages directs
-              ou indirects résultant de l'utilisation ou de l'impossibilité d'utiliser la Plateforme.
-            </p>
-            <p>
-              Siteviral n'est pas responsable du contenu publié par les utilisateurs et les organisations sur la Plateforme.
-              Tout contenu signalé comme inapproprié fera l'objet d'une vérification et pourra être supprimé.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">9. Suspension et résiliation</h2>
-            <p>
-              Siteviral se réserve le droit de suspendre ou de résilier tout compte utilisateur en cas de violation
-              des présentes CGU, sans préavis et sans indemnité. L'utilisateur peut supprimer son compte à tout moment
-              depuis les paramètres de son profil.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">10. Droit applicable et juridiction</h2>
-            <p>
-              Les présentes CGU sont régies par les lois de l'État du Delaware (USA).
-              Tout litige relatif à l'interprétation ou à l'exécution des présentes sera soumis à la compétence
-              exclusive des tribunaux de l'État du Delaware, après tentative de résolution amiable.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">11. Contact</h2>
-            <p>
-              Pour toute question relative aux présentes CGU, vous pouvez nous contacter à l'adresse suivante :
-            </p>
-            <p className="font-medium">
-              Hacktualiz Inc.<br />
-              131 Continental Dr, Suite 305<br />
-              Newark, DE 19713, United States<br />
-              Email : contact@siteviral.com
-            </p>
-          </section>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="relative z-10 border-t border-border/60 py-6 px-4 bg-background/80">
-        <div className="container flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <Link to="/" className="font-extrabold italic text-sm text-gold">Siteviral</Link>
-          <div className="flex gap-4">
-            <Link to="/terms" className="hover:text-foreground transition-colors">Conditions d'utilisation</Link>
-            <Link to="/privacy" className="hover:text-foreground transition-colors">Confidentialité</Link>
-          </div>
-          <span>© {new Date().getFullYear()} Hacktualiz Inc. All rights reserved.</span>
-        </div>
-      </footer>
-    </div>
+    </LegalPageShell>
   );
 }

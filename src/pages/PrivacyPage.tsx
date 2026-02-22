@@ -1,219 +1,192 @@
-import { Link } from 'react-router-dom';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import LegalPageShell, { proseClasses } from '@/components/layout/LegalPageShell';
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-background">
-      {/* Nav */}
-      <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
-        <div className="container flex items-center justify-between h-14 px-4">
-          <Link to="/" className="text-xl font-extrabold tracking-tight italic text-gold">Siteviral</Link>
-          <Button variant="ghost" size="sm" asChild>
-            <Link to="/"><ArrowLeft className="h-4 w-4 mr-1" /> Retour</Link>
-          </Button>
-        </div>
-      </header>
+    <LegalPageShell>
+      <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-foreground">Politique de Confidentialité</h1>
+      <p className="text-sm text-muted-foreground mb-8 font-medium">Dernière mise à jour : 22 février 2026</p>
 
-      <main className="container max-w-3xl px-4 pt-24 pb-16">
-        <h1 className="text-3xl font-bold mb-2">Politique de Confidentialité</h1>
-        <p className="text-sm text-muted-foreground mb-8">Dernière mise à jour : 21 février 2026</p>
+      <div className={proseClasses}>
+        <section>
+          <h2>1. Introduction</h2>
+          <p>
+            <strong>Hacktualiz Inc.</strong> (ci-après « Siteviral », « nous »), société de droit américain (Delaware C-Corp),
+            s'engage à protéger la vie privée de ses utilisateurs. La présente Politique de Confidentialité décrit comment nous
+            collectons, utilisons, stockons et protégeons vos données personnelles lors de votre utilisation de la plateforme Siteviral.
+          </p>
+          <p>
+            Cette politique est conforme au Règlement Général sur la Protection des Données (RGPD), au California Consumer Privacy Act (CCPA),
+            ainsi qu'aux lois applicables en matière de protection des données dans les juridictions où nous opérons.
+          </p>
+        </section>
 
-        <div className="prose prose-sm dark:prose-invert max-w-none space-y-6 text-foreground/90">
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">1. Introduction</h2>
-            <p>
-              Hacktualiz Inc. (ci-après « Siteviral », « nous ») s'engage à protéger la vie privée de ses utilisateurs.
-              La présente Politique de Confidentialité décrit comment nous collectons, utilisons, stockons et protégeons
-              vos données personnelles lors de votre utilisation de la plateforme Siteviral.
-            </p>
-            <p>
-              Cette politique est conforme au Règlement Général sur la Protection des Données (RGPD)
-              de l'Union européenne, ainsi qu'aux lois applicables en matière de protection des données
-              dans les juridictions où nous opérons.
-            </p>
-          </section>
+        <section>
+          <h2>2. Données collectées</h2>
 
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">2. Données collectées</h2>
-            <p>Nous collectons les catégories de données suivantes :</p>
+          <h3 className="text-lg font-bold mt-4 mb-2">2.1 Données de compte</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Adresse email</li>
+            <li>Nom et prénom</li>
+            <li>Photo de profil (optionnel)</li>
+            <li>Pays de résidence</li>
+          </ul>
 
-            <h3 className="text-lg font-medium mt-4 mb-2">2.1 Données d'identification</h3>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Nom et prénom</li>
-              <li>Adresse email</li>
-              <li>Numéro de téléphone</li>
-              <li>Photo de profil (optionnel)</li>
-              <li>Pays de résidence</li>
-            </ul>
+          <h3 className="text-lg font-bold mt-4 mb-2">2.2 Numéro de téléphone</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Stocké au format international E.164</li>
+            <li>Utilisé pour la vérification KYC et les notifications optionnelles</li>
+          </ul>
 
-            <h3 className="text-lg font-medium mt-4 mb-2">2.2 Données d'organisation</h3>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Nom et description de l'organisation</li>
-              <li>Logo et bannière</li>
-              <li>Catégorie (église, ministère, etc.)</li>
-              <li>Informations de contact (site web, WhatsApp)</li>
-            </ul>
+          <h3 className="text-lg font-bold mt-4 mb-2">2.3 Données transactionnelles</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Montants des dons et achats</li>
+            <li>Références de paiement Paystack</li>
+            <li>Historique des transactions et commissions d'affiliation</li>
+            <li>Adresse IP et empreinte appareil (device hash) pour la détection de fraude</li>
+          </ul>
 
-            <h3 className="text-lg font-medium mt-4 mb-2">2.3 Données KYC (Know Your Customer)</h3>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Pièce d'identité (CNI, passeport)</li>
-              <li>Documents de l'organisation</li>
-              <li>Informations bancaires (nom, numéro de compte, banque)</li>
-            </ul>
+          <h3 className="text-lg font-bold mt-4 mb-2">2.4 Logs techniques</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Logs d'audit (actions sensibles : KYC, payouts, modifications de compte)</li>
+            <li>Logs de téléchargement (preuve de livraison pour les produits numériques)</li>
+            <li>Adresse IP, user-agent, horodatage</li>
+          </ul>
 
-            <h3 className="text-lg font-medium mt-4 mb-2">2.4 Données transactionnelles</h3>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Montants des dons et achats</li>
-              <li>Références de paiement</li>
-              <li>Historique des transactions</li>
-            </ul>
+          <h3 className="text-lg font-bold mt-4 mb-2">2.5 Cookies</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Cookie de session (authentification)</li>
+            <li>Cookie d'affiliation (durée : 7 jours, attribution last-click)</li>
+            <li>Cookies fonctionnels (langue, thème)</li>
+          </ul>
 
-            <h3 className="text-lg font-medium mt-4 mb-2">2.5 Données d'utilisation</h3>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Historique de visionnage et interactions</li>
-              <li>Adresse IP et données de navigation</li>
-              <li>Type d'appareil et système d'exploitation</li>
-            </ul>
-          </section>
+          <h3 className="text-lg font-bold mt-4 mb-2">2.6 Documents KYC</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Pièce d'identité (CNI, passeport)</li>
+            <li>Documents de l'organisation</li>
+            <li>Informations bancaires (nom, numéro de compte, banque)</li>
+          </ul>
+        </section>
 
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">3. Finalités du traitement</h2>
-            <p>Vos données sont traitées pour les finalités suivantes :</p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Création et gestion de votre compte utilisateur</li>
-              <li>Fourniture des services de la Plateforme</li>
-              <li>Traitement des transactions financières</li>
-              <li>Vérification d'identité (KYC) des organisations</li>
-              <li>Communication de notifications et mises à jour</li>
-              <li>Amélioration de nos services et analyse d'utilisation</li>
-              <li>Prévention de la fraude et respect des obligations légales</li>
-              <li>Gestion du programme d'affiliation</li>
-            </ul>
-          </section>
+        <section>
+          <h2>3. Finalités du traitement</h2>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Fourniture et gestion des services de la Plateforme</li>
+            <li>Traitement des paiements et des retraits</li>
+            <li>Sécurité, prévention de la fraude et détection d'activités suspectes</li>
+            <li>Conformité AML (Anti-Money Laundering) et obligations légales</li>
+            <li>Support client et résolution des litiges</li>
+            <li>Gestion du programme d'affiliation et attribution des commissions</li>
+            <li>Amélioration de nos services</li>
+          </ul>
+        </section>
 
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">4. Base légale du traitement</h2>
-            <p>Le traitement de vos données repose sur :</p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li><strong>Exécution du contrat</strong> : pour fournir les services auxquels vous avez souscrit</li>
-              <li><strong>Consentement</strong> : pour les communications marketing et les cookies non essentiels</li>
-              <li><strong>Obligation légale</strong> : pour le respect des lois anti-blanchiment et fiscales</li>
-              <li><strong>Intérêt légitime</strong> : pour l'amélioration de nos services et la prévention de la fraude</li>
-            </ul>
-          </section>
+        <section>
+          <h2>4. Base légale</h2>
+          <ul className="list-disc pl-5 space-y-1">
+            <li><strong>Exécution contractuelle :</strong> fourniture des services auxquels vous avez souscrit</li>
+            <li><strong>Intérêt légitime :</strong> prévention de la fraude, amélioration des services, sécurité</li>
+            <li><strong>Consentement :</strong> cookies non essentiels, communications marketing</li>
+            <li><strong>Obligation légale :</strong> réglementations AML, fiscales et comptables</li>
+          </ul>
+        </section>
 
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">5. Partage des données</h2>
-            <p>Vos données peuvent être partagées avec :</p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li><strong>Paystack</strong> : pour le traitement des paiements</li>
-              <li><strong>Supabase</strong> : pour l'hébergement et le stockage des données</li>
-              <li><strong>Resend</strong> : pour l'envoi d'emails transactionnels</li>
-              <li><strong>Les organisations</strong> : dont vous êtes membre (données limitées au rôle)</li>
-              <li><strong>Autorités compétentes</strong> : en cas d'obligation légale ou de demande judiciaire</li>
-            </ul>
-            <p>
-              Nous ne vendons jamais vos données personnelles à des tiers. Les sous-traitants avec lesquels nous
-              travaillons sont contractuellement tenus de protéger vos données.
-            </p>
-          </section>
+        <section>
+          <h2>5. Cookies & Tracking</h2>
+          <ul className="list-disc pl-5 space-y-1">
+            <li><strong>Cookie d'affiliation :</strong> durée 7 jours, stocke le code d'affiliation pour l'attribution last-click des commissions</li>
+            <li><strong>Cookie de session :</strong> nécessaire au fonctionnement de l'authentification</li>
+            <li><strong>Cookies fonctionnels :</strong> préférences de langue et de thème</li>
+            <li>Aucun cookie publicitaire tiers n'est utilisé</li>
+            <li>Vous pouvez gérer vos préférences de cookies depuis les paramètres de votre navigateur</li>
+          </ul>
+        </section>
 
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">6. Sécurité des données</h2>
-            <p>
-              Nous mettons en œuvre des mesures techniques et organisationnelles appropriées pour protéger vos données :
-            </p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Chiffrement des données en transit (TLS/SSL) et au repos</li>
-              <li>Contrôle d'accès basé sur les rôles (Row Level Security)</li>
-              <li>Sauvegardes régulières et plans de reprise d'activité</li>
-              <li>Surveillance continue des tentatives d'accès non autorisées</li>
-            </ul>
-          </section>
+        <section>
+          <h2>6. Partage avec sous-traitants</h2>
+          <p>Vos données peuvent être partagées avec les sous-traitants suivants :</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li><strong>Supabase Inc.</strong> — hébergement, base de données, authentification, stockage de fichiers</li>
+            <li><strong>Paystack (Stripe Inc.)</strong> — traitement des paiements et vérification des transactions</li>
+            <li><strong>Resend Inc.</strong> — envoi d'emails transactionnels et de campagnes</li>
+            <li><strong>Sentry (Functional Software Inc.)</strong> — monitoring d'erreurs frontend</li>
+          </ul>
+          <p>
+            Nous ne vendons jamais vos données personnelles. Consultez notre <a href="/subprocessors" className="text-primary underline">liste complète des sous-traitants</a>.
+          </p>
+        </section>
 
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">7. Durée de conservation</h2>
-            <p>Vos données sont conservées pendant les durées suivantes :</p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li><strong>Données de compte</strong> : pendant la durée de votre inscription + 12 mois après suppression</li>
-              <li><strong>Données transactionnelles</strong> : 10 ans (obligations comptables et fiscales)</li>
-              <li><strong>Documents KYC</strong> : 5 ans après la fin de la relation commerciale</li>
-              <li><strong>Données de navigation</strong> : 13 mois maximum</li>
-            </ul>
-          </section>
+        <section>
+          <h2>7. Transferts internationaux</h2>
+          <p>
+            Vos données sont hébergées sur des serveurs situés aux <strong>États-Unis</strong> (Supabase / AWS).
+            Les paiements sont traités via Paystack (Nigeria / États-Unis).
+          </p>
+          <p>
+            Pour les utilisateurs de l'Union européenne, nous nous assurons que des garanties appropriées sont en place,
+            y compris les clauses contractuelles types de la Commission européenne.
+          </p>
+        </section>
 
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">8. Vos droits</h2>
-            <p>
-              Conformément au RGPD et aux lois applicables, vous disposez des droits suivants :
-            </p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li><strong>Droit d'accès</strong> : obtenir une copie de vos données personnelles</li>
-              <li><strong>Droit de rectification</strong> : corriger vos données inexactes ou incomplètes</li>
-              <li><strong>Droit à l'effacement</strong> : demander la suppression de vos données</li>
-              <li><strong>Droit à la portabilité</strong> : recevoir vos données dans un format structuré</li>
-              <li><strong>Droit d'opposition</strong> : vous opposer au traitement de vos données</li>
-              <li><strong>Droit à la limitation</strong> : restreindre le traitement de vos données</li>
-            </ul>
-            <p>
-              Pour exercer vos droits, envoyez un email à <strong>privacy@siteviral.com</strong> avec une copie
-              de votre pièce d'identité. Nous répondrons dans un délai de 30 jours.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">9. Transferts internationaux</h2>
-            <p>
-              Vos données peuvent être transférées et stockées sur des serveurs situés dans différents pays.
-              Dans ce cas, nous nous assurons que des garanties appropriées sont mises en place conformément
-              à la législation applicable, y compris les clauses contractuelles types de la Commission européenne.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">10. Cookies</h2>
-            <p>
-              La Plateforme utilise des cookies techniques nécessaires au fonctionnement du service.
-              Les cookies d'analyse et de performance ne sont utilisés qu'avec votre consentement.
-              Vous pouvez gérer vos préférences de cookies depuis les paramètres de votre navigateur.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">11. Autorité de contrôle</h2>
-            <p>
-              En cas de réclamation, vous pouvez contacter l'autorité de protection des données compétente
-              dans votre juridiction. Pour les utilisateurs de l'UE, il s'agit de la CNIL (France)
-              ou de l'autorité équivalente dans votre pays de résidence.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold mt-8 mb-3">12. Contact</h2>
-            <p>
-              Pour toute question relative à la présente Politique de Confidentialité :
-            </p>
-            <p className="font-medium">
-              Hacktualiz Inc. — Data Protection Officer<br />
-              131 Continental Dr, Suite 305, Newark, DE 19713, USA<br />
-              Email : privacy@siteviral.com
-            </p>
-          </section>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-border/60 py-6 px-4">
-        <div className="container flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <Link to="/" className="font-extrabold italic text-sm text-gold">Siteviral</Link>
-          <div className="flex gap-4">
-            <Link to="/terms" className="hover:text-foreground transition-colors">Conditions d'utilisation</Link>
-            <Link to="/privacy" className="hover:text-foreground transition-colors">Confidentialité</Link>
+        <section>
+          <h2>8. Conservation des données</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border border-border rounded-lg">
+              <thead>
+                <tr className="border-b border-border bg-muted/30">
+                  <th className="text-left p-3 font-bold text-foreground">Catégorie</th>
+                  <th className="text-left p-3 font-bold text-foreground">Durée</th>
+                </tr>
+              </thead>
+              <tbody className="text-muted-foreground">
+                <tr className="border-b border-border/50"><td className="p-3 font-medium text-foreground">Données de compte</td><td className="p-3">Durée de l'inscription + 30 jours après suppression</td></tr>
+                <tr className="border-b border-border/50"><td className="p-3 font-medium text-foreground">Transactions & paiements</td><td className="p-3">7 ans (obligations comptables et fiscales)</td></tr>
+                <tr className="border-b border-border/50"><td className="p-3 font-medium text-foreground">Payment events & audit logs</td><td className="p-3">24 mois (ou plus si exigence légale)</td></tr>
+                <tr className="border-b border-border/50"><td className="p-3 font-medium text-foreground">Download logs</td><td className="p-3">12 mois</td></tr>
+                <tr className="border-b border-border/50"><td className="p-3 font-medium text-foreground">Documents KYC</td><td className="p-3">5 ans après fin de la relation (réglementation AML)</td></tr>
+                <tr><td className="p-3 font-medium text-foreground">Support tickets</td><td className="p-3">24 mois après résolution</td></tr>
+              </tbody>
+            </table>
           </div>
-          <span>© {new Date().getFullYear()} Hacktualiz Inc. All rights reserved.</span>
-        </div>
-      </footer>
-    </div>
+        </section>
+
+        <section>
+          <h2>9. Droits des utilisateurs (DSAR)</h2>
+          <p>Conformément au RGPD et aux lois applicables, vous disposez des droits suivants :</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li><strong>Droit d'accès :</strong> obtenir une copie de vos données personnelles</li>
+            <li><strong>Droit de rectification :</strong> corriger vos données inexactes ou incomplètes</li>
+            <li><strong>Droit à l'effacement :</strong> demander la suppression de vos données (sous réserve des obligations légales de conservation)</li>
+            <li><strong>Droit à la portabilité :</strong> recevoir vos données dans un format structuré et lisible</li>
+            <li><strong>Droit d'opposition :</strong> vous opposer au traitement de vos données pour des motifs légitimes</li>
+          </ul>
+          <p>
+            Pour exercer vos droits, envoyez un email à <strong><a href="mailto:privacy@siteviral.com" className="text-primary underline">privacy@siteviral.com</a></strong>.
+            Nous répondrons dans un délai de <strong>30 jours</strong>.
+          </p>
+        </section>
+
+        <section>
+          <h2>10. Sécurité</h2>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Row Level Security (RLS) sur toutes les tables — isolation multi-tenant</li>
+            <li>Vérification HMAC SHA-512 des webhooks Paystack</li>
+            <li>URLs signées et temporaires pour les fichiers protégés</li>
+            <li>Audit logs permanents sur les actions sensibles</li>
+            <li>Chiffrement SSL/TLS sur toutes les communications</li>
+            <li>Consultez notre <a href="/security" className="text-primary underline">page Sécurité</a> pour plus de détails</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>11. Contact</h2>
+          <p>Pour toute question relative à la présente Politique de Confidentialité :</p>
+          <p className="font-medium">
+            Hacktualiz Inc. — Data Protection Officer<br />
+            131 Continental Dr, Suite 305, Newark, DE 19713, USA<br />
+            Email : <a href="mailto:privacy@siteviral.com" className="text-primary underline">privacy@siteviral.com</a>
+          </p>
+        </section>
+      </div>
+    </LegalPageShell>
   );
 }
