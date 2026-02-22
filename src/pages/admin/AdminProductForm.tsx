@@ -189,14 +189,29 @@ export function ProductForm() {
         </div>
 
         {/* Cover image upload */}
-        <ImageUploader
-          value={watch('cover_image_url') || ''}
-          onChange={(url) => setValue('cover_image_url', url)}
-          folder="products"
-          label="Cover Image"
-          hint="Recommended: 800×800px square. JPG/PNG/WEBP · Max 10MB"
-          aspectRatio="square"
-        />
+        {/* Cover image upload — hint adapts to product type */}
+        {(() => {
+          const pt = watch('product_type');
+          const coverHints: Record<string, { hint: string; aspect: 'square' | 'video' | 'banner' | 'free' }> = {
+            pdf:    { hint: 'Book cover: 1000×1600px (2:3 portrait) · JPG/PNG/WEBP · Max 10MB', aspect: 'free' },
+            ebook:  { hint: 'eBook cover: 1000×1600px (2:3 portrait) · JPG/PNG/WEBP · Max 10MB', aspect: 'free' },
+            audio:  { hint: 'Album art: 3000×3000px (1:1 square) · JPG/PNG/WEBP · Max 10MB', aspect: 'square' },
+            video:  { hint: 'Video cover: 1280×720px (16:9 horizontal) · JPG/PNG/WEBP · Max 10MB', aspect: 'video' },
+            course: { hint: 'Course cover: 1280×720px (16:9 horizontal) · JPG/PNG/WEBP · Max 10MB', aspect: 'video' },
+            other:  { hint: 'Recommended: 1280×720px (16:9) or 1000×1600px (2:3). JPG/PNG/WEBP · Max 10MB', aspect: 'free' },
+          };
+          const cfg = coverHints[pt] || coverHints.other;
+          return (
+            <ImageUploader
+              value={watch('cover_image_url') || ''}
+              onChange={(url) => setValue('cover_image_url', url)}
+              folder="products"
+              label="Cover Image"
+              hint={cfg.hint}
+              aspectRatio={cfg.aspect}
+            />
+          );
+        })()}
 
         <FileUploader
           value={watch('file_url') || ''}
