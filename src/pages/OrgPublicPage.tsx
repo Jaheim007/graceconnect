@@ -142,25 +142,20 @@ export default function OrgPublicPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Top bar */}
-      {!user ? (
-        <div className="sticky top-0 z-20 border-b border-border/40 bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between">
-          <Link to="/">
-            <span className="text-lg font-extrabold tracking-tight italic text-gold">Siteviral</span>
-          </Link>
+      <div className="sticky top-0 z-20 border-b border-border/40 bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between">
+        <Link to={user ? '/feed' : '/'}>
+          <span className="text-lg font-extrabold tracking-tight italic text-gold">Siteviral</span>
+        </Link>
+        {!user ? (
           <Button size="sm" className="h-7 text-xs gold-gradient text-primary-foreground border-0" onClick={() => navigate('/auth')}>
             Connexion
           </Button>
-        </div>
-      ) : (
-        <div className="sticky top-0 z-20 border-b border-border/40 bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between">
-          <Button variant="ghost" size="sm" className="gap-1.5 text-xs -ml-2" onClick={() => navigate(-1 as any)}>
+        ) : (
+          <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => navigate(-1 as any)}>
             <ArrowLeft className="h-4 w-4" /> Retour
           </Button>
-          <Link to="/feed">
-            <span className="text-lg font-extrabold tracking-tight italic text-gold">Siteviral</span>
-          </Link>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Affiliate referral banner */}
       {hasAffiliateRef && (
