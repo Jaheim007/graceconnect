@@ -61,6 +61,7 @@ import { CampaignForm } from "@/pages/admin/AdminCampaignForm";
 import { ProductForm } from "@/pages/admin/AdminProductForm";
 import AdminPromoCodes from "@/pages/admin/AdminPromoCodes";
 import AdminPhotos from "@/pages/admin/AdminPhotos";
+import AdminPayouts from "@/pages/admin/AdminPayouts";
 
 // Superadmin layout + pages
 import SuperadminLayout from "@/pages/superadmin/SuperadminLayout";
@@ -74,6 +75,8 @@ import SuperadminUsers from "@/pages/superadmin/SuperadminUsers";
 import SuperadminActivityFeed from "@/pages/superadmin/SuperadminActivityFeed";
 import SuperadminSettings from "@/pages/superadmin/SuperadminSettings";
 import SuperadminExports from "@/pages/superadmin/SuperadminExports";
+import SuperadminInvestorSnapshot from "@/pages/superadmin/SuperadminInvestorSnapshot";
+import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -92,6 +95,7 @@ const App = () => (
             <BrowserRouter>
               <ScrollToTop />
               <GDPRBanner />
+              <FeedbackWidget />
               <Routes>
                 {/* Public routes — no auth required */}
                 <Route path="/" element={<LandingPage />} />
@@ -166,6 +170,7 @@ const App = () => (
                   <Route path="programs" element={<AdminPrograms />} />
                   <Route path="kyc" element={<AdminKYC />} />
                   <Route path="settings" element={<AdminSettings />} />
+                  <Route path="payouts" element={<AdminPayouts />} />
                 </Route>
 
                 {/* Superadmin */}
@@ -180,6 +185,7 @@ const App = () => (
                   <Route path="metrics" element={<SuperadminMetrics />} />
                   <Route path="exports" element={<SuperadminExports />} />
                   <Route path="settings" element={<SuperadminSettings />} />
+                  <Route path="investor" element={<SuperadminInvestorSnapshot />} />
                   <Route path="ai" element={<SuperadminAIChat />} />
                 </Route>
 
