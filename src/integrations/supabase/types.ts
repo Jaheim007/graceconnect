@@ -1820,6 +1820,7 @@ export type Database = {
         }
         Returns: string
       }
+      delete_organization: { Args: { _org_id: string }; Returns: Json }
       delete_user_account: { Args: { _user_id: string }; Returns: undefined }
       get_org_role: {
         Args: { _org_id: string; _user_id: string }

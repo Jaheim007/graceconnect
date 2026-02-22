@@ -1059,9 +1059,11 @@ export function AdminSettings() {
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     onClick={async () => {
                       try {
-                        const { error } = await db.from('organizations').delete().eq('id', currentOrg!.id);
+                        const { data, error } = await db.rpc('delete_organization', { _org_id: currentOrg!.id });
                         if (error) throw error;
-                        toast({ title: '✅ Organisation supprimée' });
+                        const result = data as any;
+                        const notified = result?.members_notified || 0;
+                        toast({ title: '✅ Organisation supprimée', description: notified > 0 ? `${notified} membre(s) notifié(s).` : undefined });
                         qc.invalidateQueries({ queryKey: ['user-memberships'] });
                         navigate('/dashboard');
                       } catch (e: any) {
