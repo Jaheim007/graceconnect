@@ -3,7 +3,7 @@ import {
   Home, Compass, Play, Bell, User, BookOpen, Store,
   Settings, ChevronLeft, ChevronRight, Shield,
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, Sun, Moon,
-  GraduationCap, UserPlus, Camera, ChevronDown
+  GraduationCap, UserPlus, Camera, ChevronDown, Wallet
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -48,6 +48,7 @@ const adminGroups: AdminGroup[] = [
     items: [
       { to: '/admin/members', icon: Users, label: 'Membres' },
       { to: '/admin/crm', icon: UserPlus, label: 'CRM' },
+      { to: '/admin/payouts', icon: Wallet, label: 'Retraits' },
       { to: '/admin/analytics', icon: BarChart3, label: 'Analytiques' },
       { to: '/admin/kyc', icon: FileCheck, label: 'Vérification' },
       { to: '/admin/settings', icon: Settings, label: 'Paramètres' },

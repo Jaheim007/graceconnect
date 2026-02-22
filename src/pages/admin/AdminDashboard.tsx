@@ -59,12 +59,26 @@ export default function AdminDashboard() {
     enabled: !!currentOrg?.id,
   });
 
+  // Top products
+  const { data: topProducts = [] } = useQuery({
+    queryKey: ['admin-top-products', currentOrg?.id],
+    queryFn: async () => {
+      if (!currentOrg?.id) return [];
+      const { data } = await db.from('digital_products').select('id, title, sales_count, price, currency')
+        .eq('organization_id', currentOrg.id).eq('is_published', true)
+        .order('sales_count', { ascending: false }).limit(5);
+      return data || [];
+    },
+    enabled: !!currentOrg?.id,
+  });
+
   const allTxns = [...donationTxns, ...purchaseTxns];
   const totalRevenue = allTxns.reduce((s, t) => s + (t.amount || 0), 0);
   const totalOrgReceived = allTxns.reduce((s, t) => s + (t.organization_amount || 0), 0);
   const totalAffiliateCommission = allTxns.reduce((s, t) => s + (t.affiliate_commission || 0), 0);
   const totalPlatformFee = allTxns.reduce((s, t) => s + (t.platform_fee || 0), 0);
   const commissionRate = currentOrg?.affiliation_commission_percent ?? 10;
+  const conversionRate = allTxns.length > 0 ? ((allTxns.length / Math.max(members.length, 1)) * 100).toFixed(1) : '0';
 
   const stats = [
     { label: 'Médias', value: media.length, published: media.filter(m => m.is_published).length, icon: Play, to: '/admin/media', colorClass: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
@@ -171,7 +185,29 @@ export default function AdminDashboard() {
         ))}
       </motion.div>
 
-      {/* KYC banner */}
+      {/* Conversion rate + Top products */}
+      <div className="grid lg:grid-cols-2 gap-3">
+        <div className="bg-card border border-border rounded-2xl p-5">
+          <h2 className="font-semibold text-sm mb-2">Taux de conversion</h2>
+          <p className="text-3xl font-bold text-primary">{conversionRate}%</p>
+          <p className="text-xs text-muted-foreground mt-1">Membres → Acheteurs/Donateurs</p>
+        </div>
+        {topProducts.length > 0 && (
+          <div className="bg-card border border-border rounded-2xl p-5">
+            <h2 className="font-semibold text-sm mb-3">Top Produits</h2>
+            <div className="space-y-2">
+              {topProducts.map((p: any, i: number) => (
+                <div key={p.id} className="flex items-center gap-3 text-xs">
+                  <span className="font-bold text-muted-foreground w-4">{i + 1}</span>
+                  <span className="flex-1 truncate font-medium">{p.title}</span>
+                  <span className="text-primary font-semibold">{p.sales_count || 0} ventes</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
       {currentOrg?.kyc_status === 'none' && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
