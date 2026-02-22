@@ -55,9 +55,9 @@ const features = [
 ];
 
 const testimonials = [
-  { name: 'Pasteur Kouadio', role: 'Église Grâce Divine, Abidjan', text: 'Siteviral a transformé notre manière de toucher nos fidèles. Les dons en ligne ont augmenté de 300% en 3 mois.', rating: 5 },
-  { name: 'Marie-Claire Bamba', role: 'ONG Espoir Jeunesse', text: 'La boutique digitale nous permet de vendre nos formations partout en Afrique. C\'est un game-changer pour notre ONG.', rating: 5 },
-  { name: 'Ibrahim Traoré', role: 'Association Culturelle Djidji', text: 'En une semaine, nous avions notre page communautaire, notre médiathèque et nos premiers membres actifs. Incroyable !', rating: 5 },
+  { name: 'Pastor K.', role: 'Community Church, West Africa', text: 'Siteviral a transformé notre manière de toucher nos fidèles. Les dons en ligne ont augmenté de 300% en 3 mois.', rating: 5 },
+  { name: 'Marie-Claire B.', role: 'NGO Espoir Jeunesse', text: 'La boutique digitale nous permet de vendre nos formations partout dans le monde. C\'est un game-changer pour notre ONG.', rating: 5 },
+  { name: 'Ibrahim T.', role: 'Cultural Association', text: 'En une semaine, nous avions notre page communautaire, notre médiathèque et nos premiers membres actifs. Incroyable !', rating: 5 },
 ];
 
 const steps = [
@@ -67,8 +67,8 @@ const steps = [
 ];
 
 const plans = [
-  { name: 'Gratuit', price: '0', currency: 'XOF', period: '', features: ['Page communautaire', 'Médiathèque', 'Dons basiques', 'Jusqu\'à 100 membres'], cta: 'Commencer' },
-  { name: 'Pro', price: '15 000', currency: 'XOF', period: '/mois', features: ['Tout le plan Gratuit', 'Boutique digitale', 'Programme d\'affiliation', 'Analytics avancés', 'Membres illimités'], highlight: true, cta: 'Essai gratuit' },
+  { name: 'Gratuit', price: '0', currency: '', period: '', features: ['Page communautaire', 'Médiathèque', 'Dons basiques', 'Jusqu\'à 100 membres'], cta: 'Commencer' },
+  { name: 'Pro', price: '$29', currency: '', period: '/mois', features: ['Tout le plan Gratuit', 'Boutique digitale', 'Programme d\'affiliation', 'Analytics avancés', 'Membres illimités'], highlight: true, cta: 'Essai gratuit' },
   { name: 'Entreprise', price: 'Sur mesure', currency: '', period: '', features: ['Tout le plan Pro', 'Domaine personnalisé', 'Support prioritaire', 'API & intégrations', 'SLA garanti'], cta: 'Nous contacter' },
 ];
 
@@ -127,7 +127,7 @@ export default function LandingPage() {
             <motion.div variants={fadeUp}>
               <Badge variant="secondary" className="text-xs px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary gap-1.5">
                 <Zap className="h-3 w-3" />
-                Conçu pour les leaders et organisations en Afrique
+                Built for leaders and organizations worldwide
               </Badge>
             </motion.div>
 
@@ -193,7 +193,7 @@ export default function LandingPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
               <AnimatedStat target={10000} suffix="+" label="Membres actifs" />
               <AnimatedStat target={500} suffix="+" label="Communautés" />
-              <AnimatedStat target={2} suffix="M" label="XOF collectés" />
+              <AnimatedStat target={2} suffix="M+" label="Transactions" />
               <AnimatedStat target={15} suffix="+" label="Pays représentés" />
             </div>
           </div>
@@ -257,7 +257,7 @@ export default function LandingPage() {
                 <span className="text-gold italic">partout dans le monde.</span>
               </h2>
               <p className="text-muted-foreground leading-relaxed text-base">
-                Que votre communauté soit à Abidjan, Paris ou New York, Siteviral vous permet de rester
+                Que votre communauté soit à Lagos, Paris ou New York, Siteviral vous permet de rester
                 connectés. Partagez des moments forts, diffusez vos contenus et gardez le lien avec chaque membre.
               </p>
               <ul className="space-y-3">
@@ -493,10 +493,10 @@ export default function LandingPage() {
             <h2 className="text-2xl sm:text-3xl font-extrabold">Sécurité et confiance</h2>
             <p className="text-muted-foreground max-w-xl mx-auto leading-relaxed">
               Vos données sont protégées par un chiffrement de bout en bout. Les paiements sont sécurisés via Paystack,
-              leader des paiements en Afrique. Conformité RGPD et lois ivoiriennes.
+              leader des paiements numériques. Conformité RGPD et standards internationaux.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-              {['Chiffrement SSL', 'Paystack Certified', 'RGPD Conforme'].map((badge) => (
+              {['Chiffrement SSL', 'Paystack Certified', 'GDPR Compliant'].map((badge) => (
                 <div key={badge} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/60 rounded-full px-3 py-1.5 border border-border/60">
                   <CheckCircle className="h-3 w-3 text-primary" />
                   {badge}
@@ -555,7 +555,7 @@ export default function LandingPage() {
             <div className="space-y-3">
               <span className="text-xl font-extrabold italic text-gold">Siteviral</span>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                La plateforme tout-en-un pour les leaders et organisations en Afrique.
+                Infrastructure platform for digital organizations worldwide.
               </p>
             </div>
             <div className="space-y-3">
@@ -584,17 +584,17 @@ export default function LandingPage() {
                 <li><Link to="/faq" className="hover:text-foreground transition-colors">Centre d'aide</Link></li>
                 <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
                 <li><Link to="/compliance" className="hover:text-foreground transition-colors">Conformité</Link></li>
-                <li className="text-[11px]">Operated by HACKTUALIZ Inc.<br/>Delaware, USA</li>
+                <li className="text-[11px]">Operated by Hacktualiz Inc.<br/>131 Continental Dr, Suite 305<br/>Newark, DE 19713, USA</li>
               </ul>
             </div>
           </div>
           <div className="mt-10 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-            <span>© {new Date().getFullYear()} Siteviral — Operated by HACKTUALIZ Inc. All rights reserved.</span>
+            <span>© {new Date().getFullYear()} Hacktualiz Inc. All rights reserved.</span>
             <span>Infrastructure Platform for Digital Organizations</span>
           </div>
           <p className="mt-4 text-[10px] text-muted-foreground/60 text-center">
-            Chaque organisation est propriétaire de ses données. Siteviral agit en tant que sous-traitant (data processor) conformément au RGPD. 
-            Pour toute demande relative à vos données, contactez directement l'organisation concernée ou{' '}
+            Each organization owns its data. Hacktualiz Inc. acts as data processor in accordance with GDPR.
+            For data-related requests, contact the relevant organization or{' '}
             <a href="mailto:privacy@siteviral.com" className="underline hover:text-foreground transition-colors">privacy@siteviral.com</a>.
           </p>
         </div>

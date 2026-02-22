@@ -96,8 +96,9 @@ export default function PayoutPolicyPage() {
           <section>
             <h2>8. Contact</h2>
             <p className="font-medium">
-              HACKTUALIZ Inc.<br />
+              Hacktualiz Inc.<br />
               Finance & Payouts<br />
+              131 Continental Dr, Suite 305, Newark, DE 19713, USA<br />
               Email : payouts@siteviral.com
             </p>
           </section>
@@ -111,7 +112,7 @@ export default function PayoutPolicyPage() {
             <Link to="/terms" className="hover:text-foreground transition-colors">Conditions</Link>
             <Link to="/privacy" className="hover:text-foreground transition-colors">Confidentialité</Link>
           </div>
-          <span>© {new Date().getFullYear()} Siteviral — Operated by HACKTUALIZ Inc.</span>
+          <span>© {new Date().getFullYear()} Hacktualiz Inc. All rights reserved.</span>
         </div>
       </footer>
     </div>

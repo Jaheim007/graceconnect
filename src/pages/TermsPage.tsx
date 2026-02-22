@@ -31,8 +31,9 @@ export default function TermsPage() {
             <h2 className="text-xl font-semibold mt-8 mb-3">1. Objet</h2>
             <p>
               Les présentes Conditions Générales d'Utilisation (ci-après « CGU ») régissent l'accès et l'utilisation
-              de la plateforme Siteviral (ci-après « la Plateforme »), éditée et exploitée par Siteviral SAS,
-              société de droit ivoirien dont le siège social est situé à Abidjan, Côte d'Ivoire.
+              de la plateforme Siteviral (ci-après « la Plateforme »), éditée et exploitée par Hacktualiz Inc.,
+              société de droit américain (Delaware C-Corp), dont le siège social est situé au
+              131 Continental Dr, Suite 305, Newark, DE 19713, United States.
             </p>
             <p>
               La Plateforme est destinée aux organisations, associations, leaders et leurs communautés
@@ -118,7 +119,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold mt-8 mb-3">7. Propriété intellectuelle</h2>
             <p>
-              La Plateforme, son code source, son design, ses logos et marques sont la propriété exclusive de Siteviral SAS.
+              La Plateforme, son code source, son design, ses logos et marques sont la propriété exclusive de Hacktualiz Inc.
               Toute reproduction, représentation ou exploitation non autorisée est interdite.
             </p>
             <p>
@@ -153,9 +154,9 @@ export default function TermsPage() {
           <section>
             <h2 className="text-xl font-semibold mt-8 mb-3">10. Droit applicable et juridiction</h2>
             <p>
-              Les présentes CGU sont régies par le droit ivoirien et les règlements de l'OHADA applicables.
+              Les présentes CGU sont régies par les lois de l'État du Delaware (USA).
               Tout litige relatif à l'interprétation ou à l'exécution des présentes sera soumis à la compétence
-              exclusive des tribunaux d'Abidjan, Côte d'Ivoire, après tentative de résolution amiable.
+              exclusive des tribunaux de l'État du Delaware, après tentative de résolution amiable.
             </p>
           </section>
 
@@ -165,8 +166,9 @@ export default function TermsPage() {
               Pour toute question relative aux présentes CGU, vous pouvez nous contacter à l'adresse suivante :
             </p>
             <p className="font-medium">
-              Siteviral SAS<br />
-              Abidjan, Côte d'Ivoire<br />
+              Hacktualiz Inc.<br />
+              131 Continental Dr, Suite 305<br />
+              Newark, DE 19713, United States<br />
               Email : contact@siteviral.com
             </p>
           </section>
@@ -181,7 +183,7 @@ export default function TermsPage() {
             <Link to="/terms" className="hover:text-foreground transition-colors">Conditions d'utilisation</Link>
             <Link to="/privacy" className="hover:text-foreground transition-colors">Confidentialité</Link>
           </div>
-          <span>© {new Date().getFullYear()} Siteviral</span>
+          <span>© {new Date().getFullYear()} Hacktualiz Inc. All rights reserved.</span>
         </div>
       </footer>
     </div>

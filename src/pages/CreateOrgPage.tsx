@@ -191,7 +191,7 @@ export default function CreateOrgPage() {
                   <h2 className="text-lg font-semibold">Nommez votre organisation</h2>
                   <div className="space-y-2">
                     <Label>Nom de l'organisation *</Label>
-                    <Input placeholder="ex. Mon Organisation Abidjan" {...form.register('name')}
+                    <Input placeholder="e.g. My Organization" {...form.register('name')}
                       onBlur={handleNameBlur}
                       className={errors.name ? 'border-destructive' : ''} />
                     {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
@@ -200,7 +200,7 @@ export default function CreateOrgPage() {
                     <Label>Slug (identifiant URL) *</Label>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-muted-foreground shrink-0">siteviral.com/org/</span>
-                      <Input placeholder="mon-organisation-abidjan" {...form.register('slug')}
+                      <Input placeholder="my-organization" {...form.register('slug')}
                         className={errors.slug ? 'border-destructive' : ''} />
                     </div>
                     {errors.slug && <p className="text-xs text-destructive">{errors.slug.message}</p>}

@@ -10,12 +10,12 @@ const fadeUp = { hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0 } };
 const values = [
   { icon: Heart, title: 'Impact', desc: 'Nous croyons que la technologie doit servir les organisations pour amplifier leur mission.' },
   { icon: Users, title: 'Communauté', desc: 'Chaque fonctionnalité est pensée pour renforcer les liens entre leaders et membres.' },
-  { icon: Shield, title: 'Confiance', desc: 'Sécurité des données, transparence financière et conformité aux lois ivoiriennes.' },
+  { icon: Shield, title: 'Confiance', desc: 'Sécurité des données, transparence financière et conformité internationale.' },
   { icon: Globe, title: 'Accessibilité', desc: 'Une plateforme accessible depuis n\'importe quel appareil, partout dans le monde.' },
 ];
 
 const team = [
-  { role: 'Vision & Produit', desc: 'Concevoir la plateforme idéale pour les communautés africaines.' },
+  { role: 'Vision & Produit', desc: 'Concevoir la plateforme idéale pour les organisations digitales.' },
   { role: 'Ingénierie', desc: 'Bâtir une infrastructure fiable, rapide et évolutive.' },
   { role: 'Communauté', desc: 'Accompagner chaque organisation dans sa croissance digitale.' },
 ];
@@ -51,7 +51,7 @@ export default function AboutPage() {
               <span className="text-gold italic">connecter les organisations et leurs communautés.</span>
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Siteviral, opéré par HACKTUALIZ Inc. (Delaware, USA), est né d'une conviction simple : chaque organisation mérite
+              Siteviral, opéré par Hacktualiz Inc. (Delaware, USA), est né d'une conviction simple : chaque organisation mérite
               des outils digitaux puissants, accessibles et adaptés à ses réalités. Nous construisons l'infrastructure
               qui rapproche leaders et membres, partout dans le monde.
             </p>
@@ -69,18 +69,18 @@ export default function AboutPage() {
               </h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
                 <p>
-                  En Côte d'Ivoire, des milliers d'organisations et associations s'appuient encore
+                  Partout dans le monde, des milliers d'organisations et associations s'appuient encore
                   sur des outils fragmentés — WhatsApp pour la communication, Facebook pour les vidéos,
                   et des transferts manuels pour les dons.
                 </p>
                 <p>
                   Siteviral réunit tout cela en une seule plateforme : médiathèque, collecte de fonds,
                   boutique digitale, gestion des membres et programme d'affiliation. Le tout pensé pour
-                  le contexte africain, avec des paiements via Mobile Money et Paystack.
+                  un usage international, avec des paiements via Mobile Money et Paystack.
                 </p>
                 <p>
-                  Notre ambition : devenir la référence digitale des organisations et leaders en Afrique francophone,
-                  puis au-delà.
+                  Notre ambition : devenir la référence digitale des organisations et leaders à travers le monde,
+                  avec un support particulièrement fort pour l'Afrique.
                 </p>
               </div>
             </motion.div>
@@ -164,7 +164,7 @@ export default function AboutPage() {
         <div className="container max-w-4xl">
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold mb-3">Notre équipe</h2>
-            <p className="text-muted-foreground">Une équipe passionnée, basée à Abidjan.</p>
+            <p className="text-muted-foreground">Une équipe internationale, basée aux États-Unis.</p>
           </div>
           <div className="grid sm:grid-cols-3 gap-5">
             {team.map((t, i) => (
@@ -216,7 +216,7 @@ export default function AboutPage() {
             <div className="space-y-3">
               <span className="text-xl font-extrabold italic text-gold">Siteviral</span>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                La plateforme tout-en-un pour les leaders et organisations en Afrique.
+                La plateforme tout-en-un pour les leaders et organisations dans le monde.
               </p>
             </div>
             <div className="space-y-3">
@@ -242,12 +242,12 @@ export default function AboutPage() {
               <h4 className="font-semibold text-sm">Entreprise</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>contact@siteviral.com</li>
-                <li className="text-[11px]">Operated by HACKTUALIZ Inc.<br/>Delaware, USA</li>
+                <li className="text-[11px]">Operated by Hacktualiz Inc.<br/>131 Continental Dr, Suite 305<br/>Newark, DE 19713, USA</li>
               </ul>
             </div>
           </div>
           <div className="mt-10 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-            <span>© {new Date().getFullYear()} Siteviral — Operated by HACKTUALIZ Inc.</span>
+            <span>© {new Date().getFullYear()} Hacktualiz Inc. All rights reserved.</span>
             <span>Infrastructure Platform for Digital Organizations</span>
           </div>
         </div>

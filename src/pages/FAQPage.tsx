@@ -10,7 +10,7 @@ const faqs = [
     items: [
       { q: 'Qu\'est-ce que Siteviral ?', a: 'Siteviral est une plateforme tout-en-un permettant aux organisations (églises, ONG, associations, créateurs) de gérer leur communauté, vendre des produits numériques, collecter des dons et gérer un programme d\'affiliation.' },
       { q: 'Est-ce gratuit ?', a: 'Oui, le plan gratuit inclut toutes les fonctionnalités de base : page communautaire, médiathèque, dons et jusqu\'à 100 membres. Le plan Pro débloque des fonctionnalités avancées.' },
-      { q: 'Dans quels pays Siteviral est-il disponible ?', a: 'Siteviral est disponible dans tous les pays couverts par Paystack : Côte d\'Ivoire, Nigeria, Ghana, Kenya, Afrique du Sud et plus. Les dons sont acceptés depuis le monde entier.' },
+      { q: 'Dans quels pays Siteviral est-il disponible ?', a: 'Siteviral est disponible dans tous les pays couverts par Paystack : Nigeria, Ghana, Kenya, Afrique du Sud, Côte d\'Ivoire et plus. Les dons sont acceptés depuis le monde entier.' },
     ],
   },
   {
@@ -103,7 +103,7 @@ export default function FAQPage() {
             <Link to="/terms" className="hover:text-foreground transition-colors">Conditions</Link>
             <Link to="/privacy" className="hover:text-foreground transition-colors">Confidentialité</Link>
           </div>
-          <span>© {new Date().getFullYear()} Siteviral — Operated by HACKTUALIZ Inc.</span>
+          <span>© {new Date().getFullYear()} Hacktualiz Inc. All rights reserved.</span>
         </div>
       </footer>
     </div>

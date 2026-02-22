@@ -33,11 +33,10 @@ export default function CompliancePage() {
           <section>
             <h2 className="text-xl font-extrabold mb-3">Entité juridique</h2>
             <div className="bg-card border border-border rounded-xl p-5">
-              <p className="font-semibold">HACKTUALIZ Inc.</p>
+              <p className="font-semibold">Hacktualiz Inc.</p>
               <p className="text-muted-foreground text-sm mt-1">
-                Société de droit américain, immatriculée dans l'État du Delaware (USA).<br />
-                8 The Green, Suite A, Dover, DE 19901, United States.<br />
-                EIN : demande en cours.
+                Delaware C-Corporation, registered in the State of Delaware (USA).<br />
+                131 Continental Dr, Suite 305, Newark, DE 19713, United States.
               </p>
             </div>
           </section>
@@ -47,8 +46,7 @@ export default function CompliancePage() {
             <div className="space-y-3">
               {[
                 { title: 'RGPD (Union Européenne)', desc: 'Protection des données personnelles des utilisateurs européens. Droit d\'accès, rectification, suppression et portabilité.' },
-                { title: 'Loi n°2013-450 (Côte d\'Ivoire)', desc: 'Conformité avec la réglementation ivoirienne sur les transactions électroniques et la protection des données (ARTCI).' },
-                { title: 'OHADA', desc: 'Respect des normes de l\'Organisation pour l\'Harmonisation en Afrique du Droit des Affaires.' },
+                { title: 'US Privacy Laws', desc: 'Conformité avec les réglementations fédérales et étatiques américaines en matière de protection des données.' },
                 { title: 'PCI-DSS', desc: 'Les paiements sont traités par Paystack, certifié PCI-DSS Level 1, garantissant la sécurité des transactions.' },
               ].map((item) => (
                 <div key={item.title} className="flex items-start gap-3 bg-card border border-border rounded-xl p-4">
@@ -115,7 +113,7 @@ export default function CompliancePage() {
             <Link to="/terms" className="hover:text-foreground transition-colors">Conditions</Link>
             <Link to="/privacy" className="hover:text-foreground transition-colors">Confidentialité</Link>
           </div>
-          <span>© {new Date().getFullYear()} Siteviral — Operated by HACKTUALIZ Inc.</span>
+          <span>© {new Date().getFullYear()} Hacktualiz Inc. All rights reserved.</span>
         </div>
       </footer>
     </div>
