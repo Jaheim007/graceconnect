@@ -60,6 +60,14 @@ Deno.serve(async (req) => {
     if (!payout) return new Response(JSON.stringify({ error: 'Payout request not found' }), { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     if (payout.status !== 'requested') return new Response(JSON.stringify({ error: 'Payout already processed' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
+    // ── Payout freeze check ──
+    if (payout.organization_id) {
+      const { data: org } = await db.from('organizations').select('payouts_frozen, payout_freeze_reason').eq('id', payout.organization_id).single();
+      if (org?.payouts_frozen) {
+        return new Response(JSON.stringify({ error: `Payouts frozen for this organization: ${org.payout_freeze_reason || 'Contact support'}` }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+    }
+
     if (action === 'reject') {
       await db.from('payout_requests').update({ status: 'rejected', processed_at: new Date().toISOString() }).eq('id', payout_request_id);
       // Revert affiliate_sales back to payable

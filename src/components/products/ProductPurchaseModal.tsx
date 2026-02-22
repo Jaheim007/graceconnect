@@ -278,13 +278,22 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                 </div>
               )}
 
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Lock className="h-3 w-3" />
-                {product.external_link
-                  ? 'Vous serez redirigé vers le lien externe'
-                  : product.is_free
-                    ? 'Accès immédiat après téléchargement'
-                    : 'Paiement sécurisé via Paystack'}
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Lock className="h-3 w-3" />
+                  {product.external_link
+                    ? 'You will be redirected to an external link'
+                    : product.is_free
+                      ? 'Immediate access after download'
+                      : 'Secure payments powered by Paystack'}
+                </div>
+                {!product.external_link && !product.is_free && (
+                  <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">
+                    <a href="/refund-policy" target="_blank" className="underline hover:text-foreground">Refund Policy</a>
+                    <a href="/payout-policy" target="_blank" className="underline hover:text-foreground">Payout Policy</a>
+                    <a href="/acceptable-use" target="_blank" className="underline hover:text-foreground">Acceptable Use</a>
+                  </div>
+                )}
               </div>
             </div>
 

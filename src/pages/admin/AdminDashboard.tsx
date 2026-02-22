@@ -17,8 +17,8 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { OrgActivationChecklist } from '@/components/admin/OrgActivationChecklist';
 
-const fmt = (n: number, currency = 'XOF') =>
-  new Intl.NumberFormat('fr-FR', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
+const fmt = (n: number, currency = 'USD') =>
+  new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
 
 const stagger = {
   hidden: {},

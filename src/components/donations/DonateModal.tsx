@@ -255,9 +255,16 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
                 </Label>
               </div>
 
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Lock className="h-3 w-3" />
-                Paiements sécurisés par Paystack
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Lock className="h-3 w-3" />
+                  Secure payments powered by Paystack
+                </div>
+                <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">
+                  <a href="/refund-policy" target="_blank" className="underline hover:text-foreground">Refund Policy</a>
+                  <a href="/acceptable-use" target="_blank" className="underline hover:text-foreground">Acceptable Use</a>
+                  <a href="/aml" target="_blank" className="underline hover:text-foreground">AML Policy</a>
+                </div>
               </div>
             </div>
 

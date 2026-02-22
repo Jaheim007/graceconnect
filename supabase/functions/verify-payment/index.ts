@@ -345,7 +345,7 @@ Deno.serve(async (req) => {
         method: 'POST',
         headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          from: 'Siteviral <noreply@graceconnect.app>',
+          from: 'Siteviral <noreply@siteviral.com>',
           to: [emailAddress],
           subject: type === 'donation' ? `Reçu de don – ${org.name}` : `Confirmation d'achat – ${org.name}`,
           html: emailHtml,
@@ -388,7 +388,8 @@ function buildDonationReceiptHtml({ orgName, amount, currency, reference, date }
     <tr><td style="padding:8px 0;color:#aaa">Référence</td><td style="text-align:right;font-family:monospace;font-size:12px">${reference}</td></tr>
     <tr><td style="padding:8px 0;color:#aaa">Date</td><td style="text-align:right">${date}</td></tr>
   </table>
-  <p style="color:#777;font-size:12px">Ceci est un reçu officiel de Siteviral. Conservez-le pour vos dossiers.</p>
+   <p style="color:#777;font-size:12px">This is an official receipt from Siteviral, operated by Hacktualiz Inc. Keep it for your records.</p>
+   <p style="color:#555;font-size:10px;margin-top:12px">Hacktualiz Inc. — 131 Continental Dr, Suite 305, Newark, DE 19713, USA</p>
 </div></body></html>`;
 }
 
@@ -406,6 +407,7 @@ function buildPurchaseReceiptHtml({ orgName, amount, currency, reference, date, 
     <tr><td style="padding:8px 0;color:#aaa">Référence</td><td style="text-align:right;font-family:monospace;font-size:12px">${reference}</td></tr>
     <tr><td style="padding:8px 0;color:#aaa">Date</td><td style="text-align:right">${date}</td></tr>
   </table>
-  <p style="color:#777;font-size:12px">Accédez à votre achat depuis votre tableau de bord Siteviral. Merci pour votre confiance !</p>
+   <p style="color:#777;font-size:12px">Access your purchase from your Siteviral dashboard. Thank you for your trust!</p>
+   <p style="color:#555;font-size:10px;margin-top:12px">Hacktualiz Inc. — 131 Continental Dr, Suite 305, Newark, DE 19713, USA</p>
 </div></body></html>`;
 }

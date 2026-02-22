@@ -40,6 +40,12 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'You are not a member of this organization' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
+    // ── Payout freeze check ──
+    const { data: org } = await db.from('organizations').select('payouts_frozen, payout_freeze_reason, currency').eq('id', organization_id).single();
+    if (org?.payouts_frozen) {
+      return new Response(JSON.stringify({ error: `Payouts are currently frozen for this organization: ${org.payout_freeze_reason || 'Contact support'}` }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     // Find payable affiliate sales for this user in this org
     const now = new Date().toISOString();
     const { data: payableSales, error } = await db.from('affiliate_sales')
@@ -58,7 +64,7 @@ Deno.serve(async (req) => {
 
     // Calculate total payable
     const totalAmount = payableSales.reduce((sum: number, s: { commission_amount: number }) => sum + s.commission_amount, 0);
-    const currency = 'XOF'; // default
+    const currency = org?.currency || 'XOF';
 
     // Mark sales as payable
     const saleIds = payableSales.map((s: { id: string }) => s.id);
