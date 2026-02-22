@@ -19,6 +19,16 @@ interface ProductCardProps {
   isPurchased?: boolean;
 }
 
+/** Cover aspect ratio based on product type */
+const coverAspectClass: Record<string, string> = {
+  pdf: 'aspect-[2/3]',      // Book-like portrait
+  ebook: 'aspect-[2/3]',    // Book-like portrait
+  audio: 'aspect-square',   // Album art square
+  video: 'aspect-video',    // 16:9
+  course: 'aspect-video',   // 16:9
+  other: 'aspect-video',    // Default
+};
+
 export function ProductCard({ product, onPurchase, index = 0, isPurchased }: ProductCardProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -26,7 +36,6 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
 
   const orgSlug = (product as any).organization_slug || '';
 
-  // Get user's affiliate code for this org to auto-append ?ref=
   const { data: affiliateCode } = useQuery({
     queryKey: ['my-aff-code', user?.id, (product as any).organization_id],
     queryFn: async () => {
@@ -38,19 +47,42 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
     staleTime: 1000 * 60 * 10,
   });
 
-  // Build share URL with product slug + affiliate ref
+  // Need org slug for navigation — fetch if not on product
+  const { data: orgData } = useQuery({
+    queryKey: ['org-slug-for-card', (product as any).organization_id],
+    queryFn: async () => {
+      const { data } = await db.from('organizations').select('slug').eq('id', (product as any).organization_id).maybeSingle();
+      return data;
+    },
+    enabled: !orgSlug && !!(product as any).organization_id,
+    staleTime: 1000 * 60 * 30,
+  });
+
+  const resolvedSlug = orgSlug || orgData?.slug || '';
+
   const pSlug = (product as any).slug;
-  const basePath = pSlug ? `/org/${orgSlug}/p/${pSlug}` : `/org/${orgSlug}/product/${product.id}`;
-  let shareUrl = `https://siteviral.com${basePath}`;
+  const detailPath = pSlug
+    ? `/org/${resolvedSlug}/p/${pSlug}`
+    : `/org/${resolvedSlug}/product/${product.id}`;
+
+  let shareUrl = `https://siteviral.com${detailPath}`;
   if (affiliateCode) shareUrl += `?ref=${affiliateCode}`;
 
-  const handleCopyLink = () => {
+  const handleCopyLink = (e: React.MouseEvent) => {
+    e.stopPropagation();
     navigator.clipboard.writeText(shareUrl);
     toast({ title: 'Lien copié !' });
   };
 
-  const handleShareWhatsApp = () => {
+  const handleShareWhatsApp = (e: React.MouseEvent) => {
+    e.stopPropagation();
     window.open(`https://wa.me/?text=${encodeURIComponent(`${product.title} — ${shareUrl}`)}`, '_blank');
+  };
+
+  const handleCardClick = () => {
+    if (resolvedSlug) {
+      navigate(detailPath);
+    }
   };
 
   const fmt = (n: number) =>
@@ -58,68 +90,83 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
       ? 'Gratuit'
       : new Intl.NumberFormat('fr-FR', { style: 'currency', currency: product.currency || 'XOF', maximumFractionDigits: 0 }).format(n);
 
-  const typeLabels: Record<string, string> = { pdf: 'PDF', link: 'Lien', default: 'Produit' };
+  const typeLabels: Record<string, string> = { pdf: 'PDF', ebook: 'eBook', audio: 'Audio', video: 'Vidéo', course: 'Cours', link: 'Lien', default: 'Produit' };
   const typeIcons: Record<string, React.ReactNode> = {
     pdf: <Download className="h-3.5 w-3.5" />,
+    ebook: <BookOpen className="h-3.5 w-3.5" />,
+    audio: <ShoppingBag className="h-3.5 w-3.5" />,
+    video: <ExternalLink className="h-3.5 w-3.5" />,
     link: <ExternalLink className="h-3.5 w-3.5" />,
     default: <ShoppingBag className="h-3.5 w-3.5" />,
   };
 
+  const aspectClass = coverAspectClass[product.product_type || 'other'] || 'aspect-video';
+
   return (
     <div
-      className="bg-card border border-border rounded-2xl overflow-hidden shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300 group"
+      className="bg-card border border-border rounded-2xl overflow-hidden shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
+      onClick={handleCardClick}
     >
-      <div className="relative h-44 bg-gradient-to-br from-accent/10 to-primary/10 overflow-hidden">
+      {/* Cover image with adaptive aspect ratio */}
+      <div className={cn('relative overflow-hidden bg-gradient-to-br from-accent/10 to-primary/10', aspectClass)}>
         {product.cover_image_url ? (
           <img
             src={product.cover_image_url}
             alt={product.title}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <ShoppingBag className="h-14 w-14 text-muted-foreground/20" />
           </div>
         )}
-        {product.is_featured && (
-          <Badge className="absolute top-3 right-3 gold-gradient text-primary-foreground border-0 text-[10px] font-bold">
-            En vedette
-          </Badge>
-        )}
-        {isPurchased && (
-          <div className="absolute top-3 left-3">
-            <Badge className="bg-emerald-600/90 text-primary-foreground border-0 text-[10px] gap-1 font-semibold">
-              <CheckCircle className="h-3 w-3" /> Acheté
-            </Badge>
+        {/* Badges overlay */}
+        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-start justify-between">
+          <div className="flex flex-col gap-1">
+            {isPurchased && (
+              <Badge className="bg-emerald-600/90 text-primary-foreground border-0 text-[10px] gap-1 font-semibold w-fit">
+                <CheckCircle className="h-3 w-3" /> Acheté
+              </Badge>
+            )}
           </div>
-        )}
+          {product.is_featured && (
+            <Badge className="gold-gradient text-primary-foreground border-0 text-[10px] font-bold">
+              ⭐ En vedette
+            </Badge>
+          )}
+        </div>
+        {/* Price tag overlay on cover */}
+        <div className="absolute bottom-2.5 right-2.5">
+          <span className={cn(
+            'inline-block px-2.5 py-1 rounded-lg text-sm font-bold shadow-lg',
+            product.is_free
+              ? 'bg-emerald-600 text-white'
+              : 'bg-background/90 backdrop-blur-sm text-primary border border-border/50'
+          )}>
+            {fmt(product.price)}
+          </span>
+        </div>
       </div>
 
-      <div className="p-5 space-y-3">
+      {/* Info */}
+      <div className="p-4 space-y-2.5">
         <div>
-          <h3 className="font-bold text-base line-clamp-2 leading-snug">{product.title}</h3>
+          <h3 className="font-bold text-sm line-clamp-2 leading-snug">{product.title}</h3>
           {product.description && (
-            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{product.description}</p>
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{product.description}</p>
           )}
         </div>
 
         <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-2">
-            {!isPurchased && (
-              <span className={cn('font-bold text-base', product.is_free ? 'text-emerald-500' : 'text-primary')}>
-                {fmt(product.price)}
-              </span>
-            )}
-            <Badge variant="outline" className="text-[10px] px-1.5 py-0.5 h-5 gap-1 capitalize">
-              {typeIcons[product.product_type] || typeIcons.default}
-              {typeLabels[product.product_type] || product.product_type}
-            </Badge>
-          </div>
+          <Badge variant="outline" className="text-[10px] px-1.5 py-0.5 h-5 gap-1 capitalize">
+            {typeIcons[product.product_type] || typeIcons.default}
+            {typeLabels[product.product_type] || product.product_type}
+          </Badge>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground">
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground">
                   <Share2 className="h-3.5 w-3.5" />
                 </Button>
               </DropdownMenuTrigger>
@@ -136,22 +183,16 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
               <Button
                 size="sm"
                 variant="outline"
-                className="h-8 text-xs px-3 gap-1.5 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10"
-                onClick={() => navigate('/dashboard')}
+                className="h-7 text-[11px] px-2.5 gap-1 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10"
+                onClick={(e) => { e.stopPropagation(); navigate('/dashboard'); }}
               >
-                <BookOpen className="h-3.5 w-3.5" /> Mes Ressources
+                <BookOpen className="h-3 w-3" /> Mes Ressources
               </Button>
-            ) : product.external_link ? (
-              <a href={product.external_link} target="_blank" rel="noreferrer">
-                <Button size="sm" className="h-8 text-xs px-4 gold-gradient text-primary-foreground border-0 shadow-gold gap-1.5 font-semibold">
-                  <ExternalLink className="h-3.5 w-3.5" /> {product.is_free ? 'Ouvrir' : 'Accéder'}
-                </Button>
-              </a>
             ) : (
               <Button
                 size="sm"
-                onClick={onPurchase}
-                className="h-8 text-xs px-4 gold-gradient text-primary-foreground border-0 shadow-gold font-semibold"
+                onClick={(e) => { e.stopPropagation(); onPurchase?.(); }}
+                className="h-7 text-[11px] px-3 gold-gradient text-primary-foreground border-0 shadow-gold font-semibold"
               >
                 {product.is_free ? 'Obtenir' : 'Acheter'}
               </Button>
