@@ -1,15 +1,17 @@
 import { ReactNode } from 'react';
-import { Inbox, Search, Heart, ShoppingBag, Play, Users } from 'lucide-react';
+import { Inbox, Search, Heart, ShoppingBag, Play, Users, Compass, BookOpen, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 type EmptyVariant = 'orgs' | 'content' | 'campaigns' | 'purchases' | 'feed' | 'search' | 'members' | 'generic';
 
-const variants: Record<EmptyVariant, { icon: ReactNode; title: string; desc: string }> = {
+const variants: Record<EmptyVariant, { icon: ReactNode; title: string; desc: string; hint?: string }> = {
   orgs: {
     icon: <Users className="h-10 w-10" />,
     title: 'Aucune organisation',
     desc: 'Soyez le premier à découvrir et rejoindre une communauté.',
+    hint: '💡 Cliquez sur "Explorer" dans le menu pour découvrir des communautés.',
   },
   content: {
     icon: <Play className="h-10 w-10" />,
@@ -25,11 +27,13 @@ const variants: Record<EmptyVariant, { icon: ReactNode; title: string; desc: str
     icon: <ShoppingBag className="h-10 w-10" />,
     title: 'Aucun achat',
     desc: 'Vous n\'avez pas encore acheté de produit.',
+    hint: '💡 Visitez la boutique d\'une communauté pour découvrir des ressources.',
   },
   feed: {
     icon: <Inbox className="h-10 w-10" />,
     title: 'Votre fil est vide',
     desc: 'Rejoignez des communautés pour voir leur contenu ici.',
+    hint: '💡 Commencez par explorer les communautés disponibles.',
   },
   search: {
     icon: <Search className="h-10 w-10" />,
@@ -40,6 +44,7 @@ const variants: Record<EmptyVariant, { icon: ReactNode; title: string; desc: str
     icon: <Users className="h-10 w-10" />,
     title: 'Aucun membre',
     desc: 'Invitez des personnes à rejoindre cette organisation.',
+    hint: '💡 Partagez le lien de votre page pour recruter des membres.',
   },
   generic: {
     icon: <Inbox className="h-10 w-10" />,
@@ -65,22 +70,31 @@ export function EmptyState({
 }: EmptyStateProps) {
   const v = variants[variant];
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
       className={cn(
         'flex flex-col items-center justify-center py-16 px-6 text-center gap-4',
         className
       )}
     >
-      <div className="text-muted-foreground/50">{v.icon}</div>
-      <div className="space-y-1.5">
-        <h3 className="font-semibold text-foreground">{title || v.title}</h3>
-        <p className="text-sm text-muted-foreground max-w-xs">{description || v.desc}</p>
+      <div className="h-20 w-20 rounded-2xl bg-muted/50 flex items-center justify-center text-muted-foreground/40">
+        {v.icon}
+      </div>
+      <div className="space-y-1.5 max-w-sm">
+        <h3 className="font-semibold text-foreground text-lg">{title || v.title}</h3>
+        <p className="text-sm text-muted-foreground">{description || v.desc}</p>
+        {v.hint && (
+          <p className="text-xs text-muted-foreground/70 mt-2 bg-muted/30 rounded-lg px-3 py-2">
+            {v.hint}
+          </p>
+        )}
       </div>
       {action && (
-        <Button onClick={action.onClick} size="sm" className="mt-2 gold-gradient text-primary-foreground border-0 shadow-gold">
-          {action.label}
+        <Button onClick={action.onClick} size="sm" className="mt-2 gold-gradient text-primary-foreground border-0 shadow-gold gap-1.5">
+          {action.label} <ArrowRight className="h-3.5 w-3.5" />
         </Button>
       )}
-    </div>
+    </motion.div>
   );
 }

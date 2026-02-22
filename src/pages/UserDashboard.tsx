@@ -257,9 +257,11 @@ export default function UserDashboard() {
     ? profile.display_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
     : 'U';
 
-  const tabs: { key: DashboardTab; label: string; icon: typeof Heart }[] = [
-    { key: 'apercu', label: 'Mon Espace', icon: BarChart3 },
-    { key: 'affiliation', label: 'Affiliation', icon: Link2 },
+  const tabs: { key: DashboardTab; label: string; icon: typeof Heart; desc: string }[] = [
+    { key: 'apercu', label: 'Mon Espace', icon: BarChart3, desc: 'Vue d\'ensemble' },
+    { key: 'ressources', label: 'Ressources', icon: BookOpen, desc: 'Vos achats' },
+    { key: 'affiliation', label: 'Affiliation', icon: Link2, desc: 'Vos commissions' },
+    { key: 'historique', label: 'Historique', icon: Clock, desc: 'Transactions' },
   ];
 
   return (
