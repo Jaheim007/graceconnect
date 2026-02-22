@@ -22,6 +22,7 @@ import NotFound from "@/pages/NotFound";
 import TermsPage from "@/pages/TermsPage";
 import PrivacyPage from "@/pages/PrivacyPage";
 import AboutPage from "@/pages/AboutPage";
+import PaymentSuccessPage from "@/pages/PaymentSuccessPage";
 
 // Authenticated pages
 import FeedPage from "@/pages/FeedPage";
@@ -91,6 +92,7 @@ const App = () => (
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/auth" element={<AuthPage />} />
+                <Route path="/payment/success" element={<PaymentSuccessPage />} />
                 <Route path="/discover" element={<AppLayout />}>
                   <Route index element={<DiscoverPage />} />
                 </Route>
