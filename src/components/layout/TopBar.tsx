@@ -91,7 +91,7 @@ export function TopBar() {
 
       {/* Notifications */}
       {user && (
-        <Button variant="ghost" size="icon" className="h-8 w-8 relative" onClick={() => navigate('/notifications')}>
+        <Button variant="ghost" size="icon" className="h-8 w-8 relative" data-tour="nav-notifications" onClick={() => navigate('/notifications')}>
           <Bell className="h-4 w-4" />
           {unread > 0 && (
             <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-destructive animate-pulse" />
@@ -103,7 +103,7 @@ export function TopBar() {
       {user ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="h-8 w-8 rounded-full ring-2 ring-primary/30 overflow-hidden flex items-center justify-center text-xs font-bold shrink-0 hover:ring-primary/60 transition-all">
+            <button data-tour="nav-profile" className="h-8 w-8 rounded-full ring-2 ring-primary/30 overflow-hidden flex items-center justify-center text-xs font-bold shrink-0 hover:ring-primary/60 transition-all">
               {avatarUrl ? (
                 <img src={avatarUrl} alt={initials} className="h-full w-full rounded-full object-cover" />
               ) : (

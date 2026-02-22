@@ -98,7 +98,7 @@ export function GlobalSearch() {
 
   if (!open) {
     return (
-      <button
+      <button data-tour="search"
         onClick={() => setOpen(true)}
         className="flex items-center gap-2 h-8 px-3 rounded-lg border border-border/60 bg-card/60 hover:bg-card text-xs text-muted-foreground transition-colors"
       >
