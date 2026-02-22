@@ -260,6 +260,9 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
                   <Lock className="h-3 w-3" />
                   Secure payments powered by Paystack
                 </div>
+                <p className="text-[10px] text-muted-foreground">
+                  Payment methods depend on availability by country. Additional providers may be added.
+                </p>
                 <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">
                   <a href="/refund-policy" target="_blank" className="underline hover:text-foreground">Refund Policy</a>
                   <a href="/acceptable-use" target="_blank" className="underline hover:text-foreground">Acceptable Use</a>

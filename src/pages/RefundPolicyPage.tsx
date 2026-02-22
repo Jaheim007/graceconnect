@@ -53,18 +53,32 @@ export default function RefundPolicyPage() {
           </section>
 
           <section>
-            <h2>4. Procédure de demande</h2>
+            <h2>4. Procédure de demande et délais</h2>
             <p>Pour demander un remboursement :</p>
             <ul className="list-disc pl-5 space-y-1">
               <li>Envoyez un email à <strong>support@siteviral.com</strong> dans les 48h suivant l'achat</li>
               <li>Incluez votre référence de transaction (format SV-XXXXX)</li>
               <li>Décrivez le motif de votre demande</li>
-              <li>Délai de traitement : 5 à 10 jours ouvrés</li>
+            </ul>
+            <p className="mt-3">Délais de traitement :</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li><strong>Accusé de réception :</strong> 24 heures ouvrées</li>
+              <li><strong>Décision :</strong> 5 jours ouvrés maximum</li>
+              <li><strong>Remboursement effectif :</strong> 5 à 10 jours ouvrés après décision favorable</li>
             </ul>
           </section>
 
           <section>
-            <h2>5. Modalités de remboursement</h2>
+            <h2>5. Rôles dans le processus</h2>
+            <ul className="list-disc pl-5 space-y-1">
+              <li><strong>Organisation (Admin) :</strong> Premier niveau de résolution — peut approuver les remboursements directs pour ses produits</li>
+              <li><strong>Superadmin (Siteviral) :</strong> Arbitrage en cas de litige, validation des remboursements importants, décision finale</li>
+              <li><strong>Preuve de livraison :</strong> En cas de contestation, les <em>download logs</em> (historique de téléchargement avec IP, date, user-agent) sont utilisés pour vérifier la livraison effective du produit numérique</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>6. Modalités de remboursement</h2>
             <ul className="list-disc pl-5 space-y-1">
               <li>Le remboursement sera effectué via le même moyen de paiement utilisé lors de l'achat</li>
               <li>Les frais de transaction Paystack ne sont pas remboursables</li>
@@ -73,7 +87,7 @@ export default function RefundPolicyPage() {
           </section>
 
           <section>
-            <h2>6. Cas de fraude</h2>
+            <h2>7. Cas de fraude</h2>
             <p>
               En cas de transaction frauduleuse avérée, Siteviral procédera au remboursement intégral
               et prendra les mesures nécessaires (gel du compte de l'organisation, signalement aux autorités).
@@ -81,7 +95,7 @@ export default function RefundPolicyPage() {
           </section>
 
           <section>
-            <h2>7. Contact</h2>
+            <h2>8. Contact</h2>
             <p className="font-medium">
               Hacktualiz Inc.<br />
               Support & Refunds<br />

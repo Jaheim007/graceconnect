@@ -436,6 +436,47 @@ export type Database = {
           },
         ]
       }
+      directory_applications: {
+        Row: {
+          created_at: string
+          decision_reason: string | null
+          id: string
+          organization_id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          submitted_at: string
+        }
+        Insert: {
+          created_at?: string
+          decision_reason?: string | null
+          id?: string
+          organization_id: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+        }
+        Update: {
+          created_at?: string
+          decision_reason?: string | null
+          id?: string
+          organization_id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          submitted_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "directory_applications_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       donation_campaigns: {
         Row: {
           created_at: string | null
