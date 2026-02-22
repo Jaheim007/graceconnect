@@ -30,6 +30,7 @@ export function BottomNav() {
             <Link
               key={to}
               to={user ? to : (to === '/discover' ? to : '/auth')}
+              data-tour={`nav-${to.replace('/', '')}`}
               className={cn(
                 'flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5 transition-colors relative',
                 active ? 'text-primary' : 'text-muted-foreground'

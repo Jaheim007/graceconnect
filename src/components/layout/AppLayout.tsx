@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
+import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
 
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
 
@@ -33,6 +34,9 @@ export function AppLayout() {
           <BottomNav />
         </div>
       )}
+
+      {/* Onboarding tooltip tour for new users */}
+      {!hideNav && <OnboardingTour />}
     </div>
   );
 }
