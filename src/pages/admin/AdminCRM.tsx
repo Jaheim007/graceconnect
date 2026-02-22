@@ -13,10 +13,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { motion } from 'framer-motion';
-import { UserPlus, Mail, Download, Send, Trash2, Plus, Loader2 } from 'lucide-react';
+import { UserPlus, Mail, Download, Send, Trash2, Plus, Loader2, Heart, ShoppingBag } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 import { callFn } from '@/lib/api';
+import { downloadCSV } from '@/lib/csvExport';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
@@ -130,12 +131,18 @@ export default function AdminCRM() {
   return (
     <AdminPageShell title="CRM Communautaire" subtitle={`${contacts.length} contacts`} backRoute="/admin">
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="mb-4">
+        <TabsList className="mb-4 flex-wrap">
           <TabsTrigger value="contacts" className="gap-1.5">
             <UserPlus className="h-3.5 w-3.5" /> Contacts
           </TabsTrigger>
+          <TabsTrigger value="donations" className="gap-1.5">
+            <Heart className="h-3.5 w-3.5" /> Donateurs
+          </TabsTrigger>
+          <TabsTrigger value="purchases" className="gap-1.5">
+            <ShoppingBag className="h-3.5 w-3.5" /> Achats
+          </TabsTrigger>
           <TabsTrigger value="campaigns" className="gap-1.5">
-            <Mail className="h-3.5 w-3.5" /> Campagnes Email
+            <Mail className="h-3.5 w-3.5" /> Campagnes
           </TabsTrigger>
         </TabsList>
 
@@ -208,6 +215,14 @@ export default function AdminCRM() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="donations" className="space-y-4">
+          <DonationsSection orgId={orgId} orgSlug={currentOrg?.slug} />
+        </TabsContent>
+
+        <TabsContent value="purchases" className="space-y-4">
+          <PurchasesSection orgId={orgId} orgSlug={currentOrg?.slug} />
         </TabsContent>
 
         <TabsContent value="campaigns" className="space-y-4">
@@ -330,6 +345,157 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
                 </Button>
               )}
             </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const fmt = (n: number) =>
+  new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(n);
+
+function DonationsSection({ orgId, orgSlug }: { orgId: string | undefined; orgSlug?: string }) {
+  const { data: donations = [], isLoading } = useQuery({
+    queryKey: ['crm-donations', orgId],
+    queryFn: async () => {
+      if (!orgId) return [];
+      const { data } = await db.from('donations')
+        .select('id, amount, currency, donor_name, donor_email, status, created_at, completed_at, platform_fee, affiliate_commission, organization_amount')
+        .eq('organization_id', orgId)
+        .order('created_at', { ascending: false });
+      return data || [];
+    },
+    enabled: !!orgId,
+  });
+
+  const completed = donations.filter((d: any) => d.status === 'completed');
+  const totalAmount = completed.reduce((s: number, d: any) => s + (d.amount || 0), 0);
+
+  const handleExport = () => {
+    downloadCSV(
+      donations.map((d: any) => ({
+        Date: d.created_at?.slice(0, 10),
+        Donateur: d.donor_name || 'Anonyme',
+        Email: d.donor_email || '',
+        Montant: d.amount,
+        Devise: d.currency || 'XOF',
+        Statut: d.status,
+        'Frais plateforme': d.platform_fee || 0,
+        'Commission affilié': d.affiliate_commission || 0,
+        'Reçu par org': d.organization_amount || 0,
+      })),
+      `donations-${orgSlug || 'org'}`
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold">{completed.length} don{completed.length > 1 ? 's' : ''} complété{completed.length > 1 ? 's' : ''}</p>
+          <p className="text-xs text-muted-foreground">Total : {fmt(totalAmount)} XOF</p>
+        </div>
+        <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={handleExport} disabled={donations.length === 0}>
+          <Download className="h-3.5 w-3.5" /> Export CSV
+        </Button>
+      </div>
+
+      {isLoading ? <SkeletonRow /> : donations.length === 0 ? (
+        <EmptyState variant="generic" title="Aucun don" description="Les dons reçus apparaîtront ici." />
+      ) : (
+        <div className="bg-card border border-border rounded-2xl p-4 space-y-2">
+          {donations.map((d: any) => (
+            <motion.div key={d.id} variants={fadeUp} initial="hidden" animate="visible"
+              className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50">
+              <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <Heart className="h-3.5 w-3.5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{d.donor_name || 'Anonyme'}</p>
+                <p className="text-xs text-muted-foreground">{d.donor_email || '—'} · {new Date(d.created_at).toLocaleDateString('fr-FR')}</p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-sm font-semibold">{fmt(d.amount)} {d.currency || 'XOF'}</p>
+                <Badge variant="outline" className={cn('text-[10px] border-0', d.status === 'completed' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-muted text-muted-foreground')}>
+                  {d.status === 'completed' ? 'Complété' : d.status}
+                </Badge>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PurchasesSection({ orgId, orgSlug }: { orgId: string | undefined; orgSlug?: string }) {
+  const { data: purchases = [], isLoading } = useQuery({
+    queryKey: ['crm-purchases', orgId],
+    queryFn: async () => {
+      if (!orgId) return [];
+      const { data } = await db.from('product_purchases')
+        .select('id, amount, currency, status, created_at, completed_at, platform_fee, affiliate_commission, organization_amount, discount_amount, product_id, digital_products(title)')
+        .eq('organization_id', orgId)
+        .order('created_at', { ascending: false });
+      return data || [];
+    },
+    enabled: !!orgId,
+  });
+
+  const completed = purchases.filter((p: any) => p.status === 'completed');
+  const totalAmount = completed.reduce((s: number, p: any) => s + (p.amount || 0), 0);
+
+  const handleExport = () => {
+    downloadCSV(
+      purchases.map((p: any) => ({
+        Date: p.created_at?.slice(0, 10),
+        Produit: (p.digital_products as any)?.title || '—',
+        Montant: p.amount,
+        Devise: p.currency || 'XOF',
+        Statut: p.status,
+        Remise: p.discount_amount || 0,
+        'Frais plateforme': p.platform_fee || 0,
+        'Commission affilié': p.affiliate_commission || 0,
+        'Reçu par org': p.organization_amount || 0,
+      })),
+      `achats-${orgSlug || 'org'}`
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-semibold">{completed.length} achat{completed.length > 1 ? 's' : ''} complété{completed.length > 1 ? 's' : ''}</p>
+          <p className="text-xs text-muted-foreground">Total : {fmt(totalAmount)} XOF</p>
+        </div>
+        <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={handleExport} disabled={purchases.length === 0}>
+          <Download className="h-3.5 w-3.5" /> Export CSV
+        </Button>
+      </div>
+
+      {isLoading ? <SkeletonRow /> : purchases.length === 0 ? (
+        <EmptyState variant="generic" title="Aucun achat" description="Les achats apparaîtront ici." />
+      ) : (
+        <div className="bg-card border border-border rounded-2xl p-4 space-y-2">
+          {purchases.map((p: any) => (
+            <motion.div key={p.id} variants={fadeUp} initial="hidden" animate="visible"
+              className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50">
+              <div className="h-8 w-8 rounded-full bg-amber-500/10 flex items-center justify-center shrink-0">
+                <ShoppingBag className="h-3.5 w-3.5 text-amber-500" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{(p.digital_products as any)?.title || 'Produit'}</p>
+                <p className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleDateString('fr-FR')}</p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-sm font-semibold">{fmt(p.amount)} {p.currency || 'XOF'}</p>
+                <Badge variant="outline" className={cn('text-[10px] border-0', p.status === 'completed' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-muted text-muted-foreground')}>
+                  {p.status === 'completed' ? 'Complété' : p.status}
+                </Badge>
+              </div>
+            </motion.div>
           ))}
         </div>
       )}
