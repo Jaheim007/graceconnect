@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.send-campaign]
 verify_jwt = false
+
+[functions.superadmin-ai-chat]
+verify_jwt = false
