@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -14,6 +14,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { ChevronRight, ChevronLeft, Building2, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { OrgOnboardingWizard } from '@/components/onboarding/OrgOnboardingWizard';
 
 const CATEGORIES = [
   { value: 'church', label: '🏢 Organisation' },
@@ -44,6 +45,7 @@ export default function CreateOrgPage() {
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -89,7 +91,7 @@ export default function CreateOrgPage() {
       refetchOrgs();
 
       toast({ title: '🎉 Organisation créée !', description: data.name });
-      navigate('/admin');
+      setShowOnboarding(true);
     } catch (err: any) {
       const msg = err?.message || String(err);
       if (msg.includes('duplicate') || msg.includes('unique') || msg.includes('slug')) {
@@ -137,6 +139,7 @@ export default function CreateOrgPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+      <OrgOnboardingWizard open={showOnboarding} onClose={() => { setShowOnboarding(false); navigate('/admin'); }} />
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
