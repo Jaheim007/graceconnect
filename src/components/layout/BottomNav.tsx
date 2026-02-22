@@ -4,24 +4,27 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
 import { Badge } from '@/components/ui/badge';
+import { useI18n } from '@/i18n/I18nContext';
 
 const navItems = [
-  { to: '/feed', icon: Home, label: 'Accueil' },
-  { to: '/discover', icon: Compass, label: 'Explorer' },
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Tableau de bord' },
-  { to: '/notifications', icon: Bell, label: 'Alertes' },
-  { to: '/profile', icon: User, label: 'Compte' },
+  { to: '/feed', icon: Home, labelKey: 'nav.feed' },
+  { to: '/discover', icon: Compass, labelKey: 'nav.discover' },
+  { to: '/dashboard', icon: LayoutDashboard, labelKey: 'nav.notifications' },
+  { to: '/notifications', icon: Bell, labelKey: 'nav.notifications' },
+  { to: '/profile', icon: User, labelKey: 'nav.profile' },
 ];
 
 export function BottomNav() {
   const location = useLocation();
   const { user } = useAuth();
   const { data: unread = 0 } = useUnreadCount(user?.id);
+  const { t } = useI18n();
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border/60 bg-background/95 backdrop-blur-sm lg:hidden">
       <div className="flex items-center justify-around h-14 px-1 max-w-lg mx-auto">
-        {navItems.map(({ to, icon: Icon, label }) => {
+        {navItems.map(({ to, icon: Icon, labelKey }) => {
+          const label = t(labelKey);
           const active = to === '/feed'
             ? location.pathname === '/feed'
             : location.pathname.startsWith(to);
@@ -38,7 +41,7 @@ export function BottomNav() {
             >
               <div className="relative">
                 <Icon className={cn('h-5 w-5', active && 'stroke-[2.5]')} />
-                {label === 'Alertes' && unread > 0 && (
+                {labelKey === 'nav.notifications' && to === '/notifications' && unread > 0 && (
                   <Badge variant="destructive" className="absolute -top-1.5 -right-2.5 h-4 min-w-4 px-1 text-[9px] flex items-center justify-center">
                     {unread > 9 ? '9+' : unread}
                   </Badge>
