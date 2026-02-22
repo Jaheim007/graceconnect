@@ -1,14 +1,18 @@
 import { Outlet, NavLink } from 'react-router-dom';
-import { Shield, Users, FileCheck, BarChart3, Megaphone, Sparkles, LayoutDashboard } from 'lucide-react';
+import { Shield, Users, FileCheck, BarChart3, Megaphone, Sparkles, LayoutDashboard, Activity, Settings, Download, UserCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const links = [
   { to: '/superadmin', label: 'Overview', icon: LayoutDashboard, end: true },
   { to: '/superadmin/orgs', label: 'Organizations', icon: Users },
+  { to: '/superadmin/users', label: 'Users', icon: UserCircle },
+  { to: '/superadmin/activity', label: 'Activity', icon: Activity },
   { to: '/superadmin/kyc', label: 'KYC Review', icon: FileCheck },
   { to: '/superadmin/transactions', label: 'Transactions', icon: BarChart3 },
   { to: '/superadmin/reports', label: 'Reports', icon: Megaphone },
   { to: '/superadmin/metrics', label: 'Metrics', icon: BarChart3 },
+  { to: '/superadmin/exports', label: 'Exports', icon: Download },
+  { to: '/superadmin/settings', label: 'Settings', icon: Settings },
   { to: '/superadmin/ai', label: 'AI Insights', icon: Sparkles },
 ];
 
