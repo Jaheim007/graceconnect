@@ -1,0 +1,111 @@
+export const SUPPORTED_LOCALES = ['en', 'fr'] as const;
+export type Locale = (typeof SUPPORTED_LOCALES)[number];
+export const DEFAULT_LOCALE: Locale = 'en';
+
+export const LOCALE_LABELS: Record<Locale, string> = {
+  en: 'English',
+  fr: 'Français',
+};
+
+// Flat dictionary – add keys as needed. Components call t('key').
+const translations: Record<Locale, Record<string, string>> = {
+  en: {
+    // Nav
+    'nav.feed': 'Feed',
+    'nav.discover': 'Discover',
+    'nav.marketplace': 'Marketplace',
+    'nav.programs': 'Programs',
+    'nav.notifications': 'Notifications',
+    'nav.profile': 'Profile',
+    'nav.support': 'Support',
+    'nav.watch': 'Watch',
+    // Auth
+    'auth.login': 'Log in',
+    'auth.signup': 'Sign up',
+    'auth.logout': 'Log out',
+    'auth.email': 'Email address',
+    'auth.magic_link': 'Send magic link',
+    'auth.google': 'Continue with Google',
+    // Common
+    'common.save': 'Save',
+    'common.cancel': 'Cancel',
+    'common.next': 'Next',
+    'common.back': 'Back',
+    'common.create': 'Create',
+    'common.delete': 'Delete',
+    'common.loading': 'Loading…',
+    'common.search': 'Search',
+    'common.settings': 'Settings',
+    'common.error': 'Error',
+    // Org
+    'org.create': 'Create organization',
+    'org.category': 'Category',
+    'org.name': 'Organization name',
+    'org.slug': 'URL identifier',
+    'org.description': 'Description',
+    // Theme
+    'theme.dark': 'Dark',
+    'theme.light': 'Light',
+    // Profile
+    'profile.edit': 'Edit profile',
+    'profile.display_name': 'Display name',
+    'profile.bio': 'Bio',
+    'profile.phone': 'Phone',
+    'profile.my_account': 'My Account',
+    'profile.preferences': 'Preferences',
+    'profile.communities': 'My communities',
+    'profile.delete_account': 'Delete my account',
+    // Support
+    'support.title': 'Support',
+    'support.submit': 'Submit a ticket',
+    'support.subject': 'Subject',
+    'support.message': 'Message',
+  },
+  fr: {
+    'nav.feed': 'Fil',
+    'nav.discover': 'Découvrir',
+    'nav.marketplace': 'Boutique',
+    'nav.programs': 'Programmes',
+    'nav.notifications': 'Notifications',
+    'nav.profile': 'Profil',
+    'nav.support': 'Support',
+    'nav.watch': 'Regarder',
+    'auth.login': 'Se connecter',
+    'auth.signup': 'Créer un compte',
+    'auth.logout': 'Déconnexion',
+    'auth.email': 'Adresse email',
+    'auth.magic_link': 'Envoyer un lien magique',
+    'auth.google': 'Continuer avec Google',
+    'common.save': 'Enregistrer',
+    'common.cancel': 'Annuler',
+    'common.next': 'Suivant',
+    'common.back': 'Retour',
+    'common.create': 'Créer',
+    'common.delete': 'Supprimer',
+    'common.loading': 'Chargement…',
+    'common.search': 'Rechercher',
+    'common.settings': 'Paramètres',
+    'common.error': 'Erreur',
+    'org.create': 'Créer une organisation',
+    'org.category': 'Catégorie',
+    'org.name': 'Nom de l\'organisation',
+    'org.slug': 'Identifiant URL',
+    'org.description': 'Description',
+    'theme.dark': 'Sombre',
+    'theme.light': 'Clair',
+    'profile.edit': 'Modifier le profil',
+    'profile.display_name': 'Nom d\'affichage',
+    'profile.bio': 'Bio',
+    'profile.phone': 'Téléphone',
+    'profile.my_account': 'Mon Compte',
+    'profile.preferences': 'Préférences',
+    'profile.communities': 'Mes communautés',
+    'profile.delete_account': 'Supprimer mon compte',
+    'support.title': 'Support',
+    'support.submit': 'Soumettre un ticket',
+    'support.subject': 'Sujet',
+    'support.message': 'Message',
+  },
+};
+
+export default translations;

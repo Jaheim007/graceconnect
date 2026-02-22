@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
   Camera, LogOut, ChevronRight, User, Lock, Bell, Globe,
-  Info, Moon, Sun, HelpCircle, Mail, Shield, ArrowLeft, Trash2, BookOpen
+  Info, Moon, Sun, HelpCircle, Mail, Shield, ArrowLeft, Trash2, BookOpen, Languages
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +24,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/i18n/I18nContext';
+import { LOCALE_LABELS, SUPPORTED_LOCALES, Locale } from '@/i18n/locales';
 
 const schema = z.object({
   display_name: z.string().min(1, 'Ce champ est requis'),
@@ -107,8 +109,15 @@ export default function ProfilePage() {
     { icon: Bell, label: 'Notifications', sub: '', onClick: () => navigate('/notifications') },
   ];
 
+  const { locale, setLocale } = useI18n();
+  const cycleLocale = () => {
+    const idx = SUPPORTED_LOCALES.indexOf(locale);
+    setLocale(SUPPORTED_LOCALES[(idx + 1) % SUPPORTED_LOCALES.length]);
+  };
+
   const preferenceItems = [
     { icon: theme === 'dark' ? Sun : Moon, label: 'Thème', sub: theme === 'dark' ? 'Sombre' : 'Clair', onClick: toggleTheme, isToggle: true },
+    { icon: Languages, label: 'Langue', sub: LOCALE_LABELS[locale], onClick: cycleLocale },
     { icon: Info, label: 'À propos', sub: '', onClick: () => navigate('/about') },
   ];
 

@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { OrgProvider } from "@/contexts/OrgContext";
+import { I18nProvider } from "@/i18n/I18nContext";
 
 // Layout
 import { AppLayout } from "@/components/layout/AppLayout";
@@ -91,6 +92,7 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <I18nProvider>
     <ThemeProvider>
       <TooltipProvider>
         <AuthProvider>
@@ -206,6 +208,7 @@ const App = () => (
         </AuthProvider>
       </TooltipProvider>
     </ThemeProvider>
+    </I18nProvider>
   </QueryClientProvider>
 );
 
