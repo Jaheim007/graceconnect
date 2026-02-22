@@ -51,9 +51,9 @@ export default function AboutPage() {
               <span className="text-gold italic">connecter les organisations et leurs communautés.</span>
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Siteviral est née d'une conviction simple : chaque organisation mérite des outils digitaux puissants,
-              accessibles et adaptés à ses réalités. Depuis Abidjan, nous construisons la plateforme qui rapproche
-              leaders et membres, où qu'ils soient.
+              Siteviral, opéré par HACKTUALIZ Inc. (Delaware, USA), est né d'une conviction simple : chaque organisation mérite
+              des outils digitaux puissants, accessibles et adaptés à ses réalités. Nous construisons l'infrastructure
+              qui rapproche leaders et membres, partout dans le monde.
             </p>
           </motion.div>
         </div>
@@ -230,22 +230,25 @@ export default function AboutPage() {
             <div className="space-y-3">
               <h4 className="font-semibold text-sm">Légal</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/terms" className="hover:text-foreground transition-colors">Conditions d'utilisation</Link></li>
-                <li><Link to="/privacy" className="hover:text-foreground transition-colors">Politique de confidentialité</Link></li>
-                <li><Link to="/about" className="hover:text-foreground transition-colors">À propos</Link></li>
+                <li><Link to="/terms" className="hover:text-foreground transition-colors">Conditions</Link></li>
+                <li><Link to="/privacy" className="hover:text-foreground transition-colors">Confidentialité</Link></li>
+                <li><Link to="/aml" className="hover:text-foreground transition-colors">AML</Link></li>
+                <li><Link to="/refund-policy" className="hover:text-foreground transition-colors">Remboursement</Link></li>
+                <li><Link to="/payout-policy" className="hover:text-foreground transition-colors">Retraits</Link></li>
+                <li><Link to="/acceptable-use" className="hover:text-foreground transition-colors">Usage acceptable</Link></li>
               </ul>
             </div>
             <div className="space-y-3">
-              <h4 className="font-semibold text-sm">Contact</h4>
+              <h4 className="font-semibold text-sm">Entreprise</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>Abidjan, Côte d'Ivoire</li>
                 <li>contact@siteviral.com</li>
+                <li className="text-[11px]">Operated by HACKTUALIZ Inc.<br/>Delaware, USA</li>
               </ul>
             </div>
           </div>
           <div className="mt-10 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-            <span>© {new Date().getFullYear()} Siteviral. Tous droits réservés.</span>
-            <span>Fait avec ❤️ en Côte d'Ivoire</span>
+            <span>© {new Date().getFullYear()} Siteviral — Operated by HACKTUALIZ Inc.</span>
+            <span>Infrastructure Platform for Digital Organizations</span>
           </div>
         </div>
       </footer>

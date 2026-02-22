@@ -23,6 +23,11 @@ import TermsPage from "@/pages/TermsPage";
 import PrivacyPage from "@/pages/PrivacyPage";
 import AboutPage from "@/pages/AboutPage";
 import PaymentSuccessPage from "@/pages/PaymentSuccessPage";
+import AMLPage from "@/pages/AMLPage";
+import RefundPolicyPage from "@/pages/RefundPolicyPage";
+import PayoutPolicyPage from "@/pages/PayoutPolicyPage";
+import AcceptableUsePage from "@/pages/AcceptableUsePage";
+import InvitePage from "@/pages/InvitePage";
 
 // Authenticated pages
 import FeedPage from "@/pages/FeedPage";
@@ -91,8 +96,13 @@ const App = () => (
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/about" element={<AboutPage />} />
+                <Route path="/aml" element={<AMLPage />} />
+                <Route path="/refund-policy" element={<RefundPolicyPage />} />
+                <Route path="/payout-policy" element={<PayoutPolicyPage />} />
+                <Route path="/acceptable-use" element={<AcceptableUsePage />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/payment/success" element={<PaymentSuccessPage />} />
+                <Route path="/invite/:code" element={<InvitePage />} />
                 <Route path="/discover" element={<AppLayout />}>
                   <Route index element={<DiscoverPage />} />
                 </Route>

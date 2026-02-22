@@ -10,11 +10,12 @@ import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import {
   Play, Megaphone, CalendarDays, Heart, ShoppingBag,
-  Users, Plus, ExternalLink, AlertTriangle, ChevronRight,
-  TrendingUp, DollarSign, Percent, Camera, ArrowUpRight
+  Users, ExternalLink, AlertTriangle, ChevronRight,
+  TrendingUp, DollarSign, Percent, ArrowUpRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { OrgActivationChecklist } from '@/components/admin/OrgActivationChecklist';
 
 const fmt = (n: number, currency = 'XOF') =>
   new Intl.NumberFormat('fr-FR', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
@@ -107,7 +108,10 @@ export default function AdminDashboard() {
         </Button>
       </div>
 
-      {/* Quick actions — TOP */}
+      {/* Activation checklist */}
+      <OrgActivationChecklist />
+
+      {/* Quick actions */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -131,21 +135,9 @@ export default function AdminDashboard() {
       </motion.div>
 
       {/* Revenue cards */}
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        animate="visible"
-        className="grid grid-cols-2 lg:grid-cols-4 gap-3"
-      >
+      <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {revenueCards.map((card) => (
-          <motion.div
-            key={card.label}
-            variants={fadeUp}
-            className={cn(
-              'rounded-2xl border p-4 bg-gradient-to-br backdrop-blur-sm',
-              card.colorClass
-            )}
-          >
+          <motion.div key={card.label} variants={fadeUp} className={cn('rounded-2xl border p-4 bg-gradient-to-br backdrop-blur-sm', card.colorClass)}>
             <div className="flex items-center justify-between mb-3">
               <card.icon className="h-4 w-4 text-muted-foreground" />
               <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground/60" />
@@ -158,12 +150,7 @@ export default function AdminDashboard() {
       </motion.div>
 
       {/* Stats grid */}
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        animate="visible"
-        className="grid grid-cols-2 sm:grid-cols-3 gap-3"
-      >
+      <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {stats.map((s) => (
           <motion.button
             key={s.label}
@@ -184,7 +171,7 @@ export default function AdminDashboard() {
         ))}
       </motion.div>
 
-      {/* KYC banner — BOTTOM */}
+      {/* KYC banner */}
       {currentOrg?.kyc_status === 'none' && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
