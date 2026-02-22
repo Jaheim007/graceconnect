@@ -3,7 +3,7 @@ import {
   Home, Compass, Play, Bell, User, BookOpen, Store,
   Settings, ChevronLeft, ChevronRight, Shield,
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, Sun, Moon,
-  GraduationCap, UserPlus, Camera
+  GraduationCap, UserPlus, Camera, ChevronDown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -21,21 +21,38 @@ const mainNav = [
   { to: '/profile', icon: User, label: 'Mon Compte' },
 ];
 
-const adminNav = [
-  { to: '/admin', icon: BarChart3, label: 'Vue d\'ensemble' },
-  { to: '/admin/media', icon: Play, label: 'Médias' },
-  { to: '/admin/photos', icon: Camera, label: 'Photos' },
-  { to: '/admin/announcements', icon: Megaphone, label: 'Annonces' },
-  { to: '/admin/events', icon: CalendarDays, label: 'Événements' },
-  { to: '/admin/campaigns', icon: Heart, label: 'Campagnes' },
-  { to: '/admin/products', icon: ShoppingBag, label: 'Boutique' },
-  { to: '/admin/programs', icon: GraduationCap, label: 'Programmes' },
-  { to: '/admin/members', icon: Users, label: 'Membres' },
-  { to: '/admin/crm', icon: UserPlus, label: 'CRM' },
-  { to: '/admin/affiliation', icon: Link2, label: 'Affiliation' },
-  { to: '/admin/analytics', icon: BarChart3, label: 'Analytiques' },
-  { to: '/admin/kyc', icon: FileCheck, label: 'Vérification' },
-  { to: '/admin/settings', icon: Settings, label: 'Paramètres' },
+type AdminGroup = { label: string; items: { to: string; icon: typeof Home; label: string }[] };
+
+const adminGroups: AdminGroup[] = [
+  {
+    label: 'Contenu',
+    items: [
+      { to: '/admin/media', icon: Play, label: 'Médias' },
+      { to: '/admin/photos', icon: Camera, label: 'Photos' },
+      { to: '/admin/announcements', icon: Megaphone, label: 'Annonces' },
+      { to: '/admin/events', icon: CalendarDays, label: 'Événements' },
+      { to: '/admin/programs', icon: GraduationCap, label: 'Programmes' },
+    ],
+  },
+  {
+    label: 'Commerce',
+    items: [
+      { to: '/admin/products', icon: ShoppingBag, label: 'Boutique' },
+      { to: '/admin/campaigns', icon: Heart, label: 'Campagnes' },
+      { to: '/admin/affiliation', icon: Link2, label: 'Affiliation' },
+      { to: '/admin/promo-codes', icon: FileCheck, label: 'Codes promo' },
+    ],
+  },
+  {
+    label: 'Gestion',
+    items: [
+      { to: '/admin/members', icon: Users, label: 'Membres' },
+      { to: '/admin/crm', icon: UserPlus, label: 'CRM' },
+      { to: '/admin/analytics', icon: BarChart3, label: 'Analytiques' },
+      { to: '/admin/kyc', icon: FileCheck, label: 'Vérification' },
+      { to: '/admin/settings', icon: Settings, label: 'Paramètres' },
+    ],
+  },
 ];
 
 const superadminNav = [
@@ -54,15 +71,51 @@ export function Sidebar() {
   const { currentOrg, canManage } = useOrg();
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const { theme, toggleTheme } = useTheme();
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ Contenu: true, Commerce: true, Gestion: true });
 
   const isAdmin = location.pathname.startsWith('/admin');
   const isSA = location.pathname.startsWith('/superadmin');
-  const items = isSA ? superadminNav : isAdmin ? adminNav : mainNav;
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
 
   const isActive = (to: string) => {
     if (to === '/admin' || to === '/superadmin') return location.pathname === to;
     return location.pathname.startsWith(to);
+  };
+
+  const toggleGroup = (label: string) => {
+    setOpenGroups((prev) => ({ ...prev, [label]: !prev[label] }));
+  };
+
+  const renderNavItem = (item: { to: string; icon: typeof Home; label: string }) => {
+    const active = isActive(item.to);
+    const showBadge = item.label === 'Notifications' && unread > 0;
+    const Icon = item.icon;
+    return (
+      <Link
+        key={item.to}
+        to={item.to}
+        title={collapsed ? item.label : undefined}
+        className={cn(
+          'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 relative group',
+          active
+            ? 'bg-primary text-primary-foreground shadow-gold'
+            : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
+        )}
+      >
+        <div className="relative shrink-0">
+          <Icon className="h-4 w-4" />
+          {showBadge && (
+            <span className="absolute -top-1 -right-1 h-1.5 w-1.5 rounded-full bg-destructive" />
+          )}
+        </div>
+        {!collapsed && <span className="truncate">{item.label}</span>}
+        {collapsed && (
+          <div className="absolute left-full ml-2 px-2 py-1 bg-popover border border-border rounded-md text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-elevated">
+            {item.label}
+          </div>
+        )}
+      </Link>
+    );
   };
 
   return (
@@ -93,36 +146,38 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5 scrollbar-hide">
-        {items.map(({ to, icon: Icon, label }) => {
-          const active = isActive(to);
-          const showBadge = label === 'Notifications' && unread > 0;
-          return (
-            <Link
-              key={to}
-              to={to}
-              title={collapsed ? label : undefined}
-              className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 relative group',
-                active
-                  ? 'bg-primary text-primary-foreground shadow-gold'
-                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
-              )}
-            >
-              <div className="relative shrink-0">
-                <Icon className="h-4 w-4" />
-                {showBadge && (
-                  <span className="absolute -top-1 -right-1 h-1.5 w-1.5 rounded-full bg-destructive" />
-                )}
-              </div>
-              {!collapsed && <span className="truncate">{label}</span>}
-              {collapsed && (
-                <div className="absolute left-full ml-2 px-2 py-1 bg-popover border border-border rounded-md text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-elevated">
-                  {label}
+        {isSA ? (
+          superadminNav.map(renderNavItem)
+        ) : isAdmin ? (
+          <>
+            {/* Dashboard overview always visible */}
+            {renderNavItem({ to: '/admin', icon: BarChart3, label: "Vue d'ensemble" })}
+            
+            {/* Grouped admin nav */}
+            {!collapsed ? (
+              adminGroups.map((group) => (
+                <div key={group.label} className="mt-3">
+                  <button
+                    onClick={() => toggleGroup(group.label)}
+                    className="flex items-center justify-between w-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {group.label}
+                    <ChevronDown className={cn('h-3 w-3 transition-transform', openGroups[group.label] && 'rotate-180')} />
+                  </button>
+                  {openGroups[group.label] && (
+                    <div className="space-y-0.5 mt-0.5">
+                      {group.items.map(renderNavItem)}
+                    </div>
+                  )}
                 </div>
-              )}
-            </Link>
-          );
-        })}
+              ))
+            ) : (
+              adminGroups.flatMap((g) => g.items).map(renderNavItem)
+            )}
+          </>
+        ) : (
+          mainNav.map(renderNavItem)
+        )}
       </nav>
 
       {/* Bottom links */}

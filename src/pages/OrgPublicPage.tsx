@@ -22,8 +22,10 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   Globe, MessageCircle, CheckCircle2, Users, CalendarDays,
-  Share2, ShoppingBag, Heart, Camera, MapPin, ArrowLeft, MoreHorizontal
+  Share2, ShoppingBag, Heart, Camera, MapPin, ArrowLeft, MoreHorizontal,
+  Home, Play
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
@@ -339,25 +341,37 @@ export default function OrgPublicPage() {
           </div>
         )}
 
-        {/* Tabs */}
+        {/* Tabs - simplified: show only relevant tabs */}
         <Tabs value={activeTab} onValueChange={navigateTab} className="w-full">
-          <TabsList className="w-full justify-start overflow-x-auto scrollbar-hide mb-6 bg-muted/60 h-11">
-            <TabsTrigger value="home" className="text-xs">Accueil</TabsTrigger>
-            <TabsTrigger value="store" className="text-xs gap-1">
-              <ShoppingBag className="h-3 w-3" />
-              Boutique {products.length > 0 && `(${products.length})`}
-            </TabsTrigger>
-            <TabsTrigger value="donate" className="text-xs gap-1">
-              <Heart className="h-3 w-3" />
-              Dons {campaigns.length > 0 && `(${campaigns.length})`}
-            </TabsTrigger>
-            <TabsTrigger value="content" className="text-xs">Contenu ({media.length})</TabsTrigger>
-            <TabsTrigger value="photos" className="text-xs gap-1">
-              <Camera className="h-3 w-3" />
-              Photos {photos.length > 0 && `(${photos.length})`}
-            </TabsTrigger>
-            <TabsTrigger value="events" className="text-xs">Événements ({events.length})</TabsTrigger>
-          </TabsList>
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-6 pb-1">
+            {[
+              { value: 'home', label: 'Accueil', icon: Home, count: null },
+              ...(products.length > 0 ? [{ value: 'store', label: 'Boutique', icon: ShoppingBag, count: products.length }] : []),
+              ...(campaigns.length > 0 ? [{ value: 'donate', label: 'Dons', icon: Heart, count: campaigns.length }] : []),
+              ...(media.length > 0 ? [{ value: 'content', label: 'Contenu', icon: Play, count: media.length }] : []),
+              ...(photos.length > 0 ? [{ value: 'photos', label: 'Photos', icon: Camera, count: photos.length }] : []),
+              ...(events.length > 0 ? [{ value: 'events', label: 'Événements', icon: CalendarDays, count: events.length }] : []),
+            ].map((t) => {
+              const Icon = t.icon;
+              return (
+                <button
+                  key={t.value}
+                  onClick={() => navigateTab(t.value)}
+                  className={cn(
+                    'shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-semibold transition-all border',
+                    activeTab === t.value
+                      ? 'gold-gradient text-primary-foreground border-primary shadow-gold'
+                      : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/20 bg-card'
+                  )}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {t.label}
+                  {t.count !== null && <span className="text-[10px] opacity-70">({t.count})</span>}
+                </button>
+              );
+            })}
+
+          </div>
 
           {/* ─── HOME TAB ─── */}
           <TabsContent value="home" className="space-y-8">
