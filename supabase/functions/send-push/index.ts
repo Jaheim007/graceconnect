@@ -14,22 +14,48 @@ Deno.serve(async (req) => {
   const db = createClient(SUPABASE_URL, SERVICE_KEY);
 
   try {
+    // Auth check - require authenticated user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    const token = authHeader.replace('Bearer ', '');
+    const anonClient = createClient(SUPABASE_URL, Deno.env.get('SUPABASE_PUBLISHABLE_KEY') ?? SERVICE_KEY, {
+      global: { headers: { Authorization: authHeader } }
+    });
+    const { data: claims } = await anonClient.auth.getClaims(token);
+    const callerId = claims?.claims?.sub;
+    if (!callerId) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     const { user_id, organization_id, title, body, url, tag } = await req.json();
+
+    // Verify caller can manage the org (if org notification) or is sending to self
+    if (organization_id) {
+      const { data: canManage } = await db.rpc('can_manage_org', { _user_id: callerId, _org_id: organization_id });
+      if (!canManage) {
+        return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+    } else if (user_id && user_id !== callerId) {
+      // Only allow sending to self unless org manager
+      return new Response(JSON.stringify({ error: 'Forbidden' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    if (!user_id && !organization_id) {
+      return new Response(JSON.stringify({ error: 'user_id or organization_id required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
 
     // Get subscriptions for user or org
     let query = db.from('push_subscriptions').select('*');
     if (user_id) query = query.eq('user_id', user_id);
     else if (organization_id) query = query.eq('organization_id', organization_id);
-    else return new Response(JSON.stringify({ error: 'user_id or organization_id required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
     const { data: subs } = await query;
     if (!subs?.length) {
       return new Response(JSON.stringify({ ok: true, sent: 0 }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    // For now, we store subscriptions for future use when web-push is configured
-    // Real Web Push requires the web-push npm package which needs VAPID keys
-    // This function is ready — just needs VAPID_PRIVATE_KEY secret
     const sent = subs.length;
 
     // Also insert in-app notifications
