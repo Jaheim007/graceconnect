@@ -63,6 +63,10 @@ import {
 } from "@/pages/superadmin/SuperadminPages";
 import SuperadminFullDashboard from "@/pages/superadmin/SuperadminFullDashboard";
 import SuperadminAIChat from "@/pages/superadmin/SuperadminAIChat";
+import SuperadminUsers from "@/pages/superadmin/SuperadminUsers";
+import SuperadminActivityFeed from "@/pages/superadmin/SuperadminActivityFeed";
+import SuperadminSettings from "@/pages/superadmin/SuperadminSettings";
+import SuperadminExports from "@/pages/superadmin/SuperadminExports";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -154,10 +158,14 @@ const App = () => (
                 <Route path="/superadmin" element={<RequireSuperadmin><SuperadminLayout /></RequireSuperadmin>}>
                   <Route index element={<SuperadminFullDashboard />} />
                   <Route path="orgs" element={<SuperadminOrgs />} />
+                  <Route path="users" element={<SuperadminUsers />} />
+                  <Route path="activity" element={<SuperadminActivityFeed />} />
                   <Route path="kyc" element={<SuperadminKYC />} />
                   <Route path="transactions" element={<SuperadminTransactions />} />
                   <Route path="reports" element={<SuperadminReports />} />
                   <Route path="metrics" element={<SuperadminMetrics />} />
+                  <Route path="exports" element={<SuperadminExports />} />
+                  <Route path="settings" element={<SuperadminSettings />} />
                   <Route path="ai" element={<SuperadminAIChat />} />
                 </Route>
 
