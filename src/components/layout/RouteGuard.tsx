@@ -34,9 +34,9 @@ export function RequireOrgManage({ children }: { children: ReactNode }) {
   // While org memberships are loading, keep showing loader — don't redirect
   if (isLoadingOrgs) return <FullPageLoader />;
 
-  // If done loading and still no org, send to create-org (not discover)
-  // so users can immediately create one
-  if (!currentOrg) return <Nav to="/create-org" replace />;
+  // If done loading and still no org, send to discover — not create-org
+  // (create-org should only be visited intentionally)
+  if (!currentOrg) return <Nav to="/discover" replace />;
 
   const allowed = ['owner', 'admin', 'editor'].includes(currentOrgRole || '');
   if (!allowed) return <Nav to="/feed" replace />;
