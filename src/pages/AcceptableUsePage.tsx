@@ -57,6 +57,8 @@ export default function AcceptableUsePage() {
               <li>Manipulation des systèmes de commission ou d'affiliation</li>
               <li>Auto-achat ou auto-référencement frauduleux</li>
               <li>Création de fausses organisations pour collecter des fonds</li>
+              <li>Commerce de biens ou services soumis à sanctions ou embargos internationaux</li>
+              <li>Opérations impliquant des entités ou personnes figurant sur les listes de sanctions (OFAC, UE, ONU)</li>
             </ul>
           </section>
 

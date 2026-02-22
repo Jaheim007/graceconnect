@@ -63,11 +63,64 @@ export default function DPAPage() {
         <h2 className="text-lg font-semibold mt-8 mb-3">4. Security Measures</h2>
         <p className="text-sm text-muted-foreground">We implement industry-standard security measures including: encryption in transit (TLS), row-level security (RLS) for multi-tenant data isolation, HMAC webhook signature verification, rate limiting on critical endpoints, and audit logging.</p>
 
-        <h2 className="text-lg font-semibold mt-8 mb-3">5. Data Retention</h2>
-        <p className="text-sm text-muted-foreground">Personal data is retained for the duration of the Controller&apos;s account. Upon account deletion, personal data is removed within 30 days, except where retention is required by law (e.g., financial transaction records).</p>
+        <h2 className="text-lg font-semibold mt-8 mb-3">5. Data Retention Schedule</h2>
+        <p className="text-sm text-muted-foreground mb-3">We retain personal data according to the following schedule:</p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm border border-border rounded-lg">
+            <thead>
+              <tr className="border-b border-border bg-muted/30">
+                <th className="text-left p-3 font-semibold">Data Category</th>
+                <th className="text-left p-3 font-semibold">Retention Period</th>
+                <th className="text-left p-3 font-semibold">Legal Basis</th>
+              </tr>
+            </thead>
+            <tbody className="text-muted-foreground">
+              <tr className="border-b border-border/50">
+                <td className="p-3 font-medium text-foreground">Payment events &amp; audit logs</td>
+                <td className="p-3">24 months (or longer if required by law)</td>
+                <td className="p-3">Legal obligation (financial regulations)</td>
+              </tr>
+              <tr className="border-b border-border/50">
+                <td className="p-3 font-medium text-foreground">Download logs</td>
+                <td className="p-3">12 months</td>
+                <td className="p-3">Legitimate interest (dispute resolution)</td>
+              </tr>
+              <tr className="border-b border-border/50">
+                <td className="p-3 font-medium text-foreground">KYC submissions</td>
+                <td className="p-3">5 years after end of relationship (regulatory requirement)</td>
+                <td className="p-3">Legal obligation (AML regulations)</td>
+              </tr>
+              <tr className="border-b border-border/50">
+                <td className="p-3 font-medium text-foreground">Support tickets</td>
+                <td className="p-3">24 months after resolution</td>
+                <td className="p-3">Legitimate interest</td>
+              </tr>
+              <tr className="border-b border-border/50">
+                <td className="p-3 font-medium text-foreground">User profiles</td>
+                <td className="p-3">Duration of account + 30 days after deletion</td>
+                <td className="p-3">Contract performance</td>
+              </tr>
+              <tr>
+                <td className="p-3 font-medium text-foreground">Transaction records</td>
+                <td className="p-3">7 years (financial/tax compliance)</td>
+                <td className="p-3">Legal obligation</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-        <h2 className="text-lg font-semibold mt-8 mb-3">6. Data Subject Rights</h2>
-        <p className="text-sm text-muted-foreground">We assist Controllers in fulfilling data subject requests (access, rectification, erasure, portability) through our platform tools and admin APIs. Users can delete their accounts and associated data directly from their profile settings.</p>
+        <h2 className="text-lg font-semibold mt-8 mb-3">6. Data Subject Rights (DSAR)</h2>
+        <p className="text-sm text-muted-foreground mb-3">We assist Controllers in fulfilling data subject requests through our platform tools and admin APIs. The following rights are supported:</p>
+        <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
+          <li><strong className="text-foreground">Right of Access:</strong> Users can export their personal data from their profile settings.</li>
+          <li><strong className="text-foreground">Right to Rectification:</strong> Users can update their profile information directly in the platform.</li>
+          <li><strong className="text-foreground">Right to Erasure:</strong> Users can delete their accounts and associated data from their profile settings. Deletion is completed within 30 days, except for data retained under legal obligation.</li>
+          <li><strong className="text-foreground">Right to Data Portability:</strong> Users can request an export of their data in machine-readable format.</li>
+          <li><strong className="text-foreground">Right to Object:</strong> Users can opt out of non-essential communications and data processing.</li>
+        </ul>
+        <p className="text-sm text-muted-foreground mt-3">
+          To submit a DSAR, contact us at <a href="mailto:privacy@siteviral.com" className="text-primary hover:underline">privacy@siteviral.com</a>. We respond to all requests within 30 days.
+        </p>
 
         <h2 className="text-lg font-semibold mt-8 mb-3">7. Breach Notification</h2>
         <p className="text-sm text-muted-foreground">In the event of a personal data breach, we will notify the Controller without undue delay and within 72 hours of becoming aware, providing details of the breach and remediation steps.</p>

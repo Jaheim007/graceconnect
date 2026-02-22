@@ -285,7 +285,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                     ? 'You will be redirected to an external link'
                     : product.is_free
                       ? 'Immediate access after download'
-                      : 'Secure payments powered by Paystack'}
+                      : 'Secure payments powered by Paystack. Methods depend on availability by country.'}
                 </div>
                 {!product.external_link && !product.is_free && (
                   <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">

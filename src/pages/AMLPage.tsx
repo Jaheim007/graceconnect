@@ -91,14 +91,32 @@ export default function AMLPage() {
           </section>
 
           <section>
-            <h2>8. Formation et sensibilisation</h2>
+            <h2>8. Sanctions, Embargoes &amp; Restricted Countries</h2>
+            <p>
+              As a US-incorporated entity, Hacktualiz Inc. complies with all applicable sanctions programs administered by the
+              Office of Foreign Assets Control (OFAC), the European Union, and other relevant authorities.
+            </p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>We do not provide services to individuals or entities on OFAC's Specially Designated Nationals (SDN) list or equivalent international sanctions lists</li>
+              <li>Organizations located in comprehensively sanctioned countries/regions are prohibited from using the platform</li>
+              <li>All payout requests are subject to manual review and may be frozen if sanctions risks are identified</li>
+              <li>We reserve the right to refuse service, freeze funds, and report suspicious activity to relevant authorities</li>
+            </ul>
+            <p className="mt-3">
+              If we determine that an organization or individual is operating in violation of applicable sanctions,
+              their account will be immediately suspended and funds frozen pending investigation.
+            </p>
+          </section>
+
+          <section>
+            <h2>9. Formation et sensibilisation</h2>
             <p>
               L'équipe Siteviral reçoit une formation régulière sur les procédures AML et les indicateurs de transactions suspectes.
             </p>
           </section>
 
           <section>
-            <h2>9. Contact</h2>
+            <h2>10. Contact</h2>
             <p>Pour signaler une activité suspecte ou pour toute question relative à notre politique AML :</p>
             <p className="font-medium">
               Hacktualiz Inc.<br />

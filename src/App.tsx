@@ -83,6 +83,7 @@ import SuperadminSettings from "@/pages/superadmin/SuperadminSettings";
 import SuperadminExports from "@/pages/superadmin/SuperadminExports";
 import SuperadminInvestorSnapshot from "@/pages/superadmin/SuperadminInvestorSnapshot";
 import SuperadminRiskAML from "@/pages/superadmin/SuperadminRiskAML";
+import SuperadminDirectory from "@/pages/superadmin/SuperadminDirectory";
 import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
 
 const queryClient = new QueryClient({
@@ -200,6 +201,7 @@ const App = () => (
                   <Route path="settings" element={<SuperadminSettings />} />
                   <Route path="investor" element={<SuperadminInvestorSnapshot />} />
                   <Route path="risk" element={<SuperadminRiskAML />} />
+                  <Route path="directory" element={<SuperadminDirectory />} />
                   <Route path="ai" element={<SuperadminAIChat />} />
                 </Route>
 
