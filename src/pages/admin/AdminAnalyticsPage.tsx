@@ -10,6 +10,104 @@ import { Button } from '@/components/ui/button';
 import { downloadCSV } from '@/lib/csvExport';
 import { subDays, format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/contexts/AuthContext';
+
+function AffiliatePerformanceTable({ orgId, currency }: { orgId?: string; currency: string }) {
+  const { data: affiliates = [], isLoading } = useQuery({
+    queryKey: ['admin-affiliate-perf', orgId],
+    queryFn: async () => {
+      if (!orgId) return [];
+      const { data: links } = await db.from('affiliate_links')
+        .select('id, code, user_id, clicks, conversions, total_earned, is_active, created_at')
+        .eq('organization_id', orgId)
+        .order('total_earned', { ascending: false });
+      if (!links?.length) return [];
+      
+      const userIds = [...new Set(links.map((l: any) => l.user_id))];
+      const { data: profiles } = await db.from('profiles')
+        .select('id, display_name, avatar_url')
+        .in('id', userIds);
+      const profileMap: Record<string, any> = {};
+      (profiles || []).forEach((p: any) => { profileMap[p.id] = p; });
+
+      const { data: sales } = await db.from('affiliate_sales')
+        .select('affiliate_link_id, commission_amount, status')
+        .eq('organization_id', orgId);
+      const salesByLink: Record<string, { pending: number; payable: number; paid: number }> = {};
+      (sales || []).forEach((s: any) => {
+        if (!salesByLink[s.affiliate_link_id]) salesByLink[s.affiliate_link_id] = { pending: 0, payable: 0, paid: 0 };
+        if (s.status === 'pending') salesByLink[s.affiliate_link_id].pending += s.commission_amount;
+        else if (s.status === 'payable') salesByLink[s.affiliate_link_id].payable += s.commission_amount;
+        else if (s.status === 'paid') salesByLink[s.affiliate_link_id].paid += s.commission_amount;
+      });
+
+      return links.map((l: any) => ({
+        ...l,
+        profile: profileMap[l.user_id],
+        sales: salesByLink[l.id] || { pending: 0, payable: 0, paid: 0 },
+        conversionRate: l.clicks > 0 ? ((l.conversions || 0) / l.clicks * 100).toFixed(1) : '0',
+      }));
+    },
+    enabled: !!orgId,
+  });
+
+  if (isLoading) return <SkeletonRow count={3} />;
+  if (!affiliates.length) return null;
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="font-semibold text-sm">Performance des affiliés</h2>
+        <Badge variant="outline" className="text-[10px]">{affiliates.length} affilié{affiliates.length > 1 ? 's' : ''}</Badge>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b border-border text-muted-foreground">
+              <th className="text-left py-2 font-medium">Affilié</th>
+              <th className="text-right py-2 font-medium">Clics</th>
+              <th className="text-right py-2 font-medium">Conv.</th>
+              <th className="text-right py-2 font-medium">Taux</th>
+              <th className="text-right py-2 font-medium">En attente</th>
+              <th className="text-right py-2 font-medium">Disponible</th>
+              <th className="text-right py-2 font-medium">Payé</th>
+              <th className="text-right py-2 font-medium">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {affiliates.map((a: any) => (
+              <tr key={a.id} className="border-b border-border/50 last:border-0 hover:bg-muted/30">
+                <td className="py-2.5">
+                  <div className="flex items-center gap-2">
+                    <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center overflow-hidden shrink-0">
+                      {a.profile?.avatar_url ? <img src={a.profile.avatar_url} alt="" className="w-full h-full object-cover" /> : <span className="text-[9px] font-bold">{(a.profile?.display_name || '?')[0]}</span>}
+                    </div>
+                    <div>
+                      <p className="font-medium truncate max-w-[120px]">{a.profile?.display_name || 'Utilisateur'}</p>
+                      <p className="text-[10px] text-muted-foreground font-mono">{a.code}</p>
+                    </div>
+                  </div>
+                </td>
+                <td className="text-right py-2.5 font-medium">{a.clicks || 0}</td>
+                <td className="text-right py-2.5 font-medium">{a.conversions || 0}</td>
+                <td className="text-right py-2.5">
+                  <Badge variant="outline" className={`text-[9px] border-0 ${parseFloat(a.conversionRate) > 5 ? 'bg-green-500/10 text-green-500' : 'bg-muted text-muted-foreground'}`}>
+                    {a.conversionRate}%
+                  </Badge>
+                </td>
+                <td className="text-right py-2.5 text-muted-foreground">{fmt(a.sales.pending, currency)}</td>
+                <td className="text-right py-2.5 text-green-500 font-medium">{fmt(a.sales.payable, currency)}</td>
+                <td className="text-right py-2.5 text-muted-foreground">{fmt(a.sales.paid, currency)}</td>
+                <td className="text-right py-2.5 font-bold text-primary">{fmt(a.total_earned || 0, currency)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
 
 const fmt = (n: number, currency = 'XOF') =>
   n.toLocaleString('fr-FR', { style: 'currency', currency, maximumFractionDigits: 0 });
@@ -247,6 +345,9 @@ export default function AdminAnalyticsPage() {
           <p className="text-2xl font-bold text-primary">{fmt(stats.totalAffiliateCommissions, currency)}</p>
           <p className="text-xs text-muted-foreground mt-1">Total des commissions générées par vos affiliés</p>
         </div>
+
+        {/* Detailed Affiliate Performance Table */}
+        <AffiliatePerformanceTable orgId={orgId} currency={currency} />
       </div>
     </AdminPageShell>
   );
