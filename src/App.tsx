@@ -35,6 +35,8 @@ import FAQPage from "@/pages/FAQPage";
 import ContactPage from "@/pages/ContactPage";
 import CompliancePage from "@/pages/CompliancePage";
 import DPAPage from "@/pages/DPAPage";
+import SecurityPage from "@/pages/SecurityPage";
+import SubprocessorsPage from "@/pages/SubprocessorsPage";
 
 // Authenticated pages
 import FeedPage from "@/pages/FeedPage";
@@ -120,6 +122,8 @@ const App = () => (
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/compliance" element={<CompliancePage />} />
                 <Route path="/dpa" element={<DPAPage />} />
+                <Route path="/security" element={<SecurityPage />} />
+                <Route path="/subprocessors" element={<SubprocessorsPage />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/payment/success" element={<PaymentSuccessPage />} />
                 <Route path="/invite/:code" element={<InvitePage />} />

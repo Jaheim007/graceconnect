@@ -1,138 +1,111 @@
+import LegalPageShell from '@/components/layout/LegalPageShell';
 import { SEOHead } from '@/components/seo/SEOHead';
-import { ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
 
 export default function DPAPage() {
-  const navigate = useNavigate();
   return (
-    <div className="min-h-screen bg-background">
+    <LegalPageShell>
       <SEOHead title="Data Processing Agreement — Siteviral" description="Siteviral DPA: how we handle data processing on behalf of organizations." />
-      <div className="sticky top-0 z-10 glass border-b border-border/40 px-4 h-14 flex items-center gap-3">
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4" />
-        </Button>
-        <span className="font-semibold text-sm">Data Processing Agreement</span>
-      </div>
-      <div className="container max-w-3xl px-4 py-8 prose prose-invert prose-sm max-w-none">
-        <h1 className="text-2xl font-bold mb-2">Data Processing Agreement (DPA)</h1>
-        <p className="text-muted-foreground text-sm mb-6">Last updated: February 2026</p>
 
-        <p>This Data Processing Agreement (&quot;DPA&quot;) forms part of the Terms of Service between Hacktualiz Inc. (&quot;Processor&quot;, &quot;we&quot;, &quot;us&quot;) and the Organization (&quot;Controller&quot;, &quot;you&quot;) using the Siteviral platform.</p>
+      <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-foreground">Data Processing Agreement (DPA)</h1>
+      <p className="text-sm text-muted-foreground mb-8 font-medium">Last updated: February 2026</p>
 
-        <h2 className="text-lg font-semibold mt-8 mb-3">1. Roles</h2>
-        <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
-          <li><strong className="text-foreground">Data Controller:</strong> The Organization that uses Siteviral to manage its community, content, and transactions.</li>
-          <li><strong className="text-foreground">Data Processor:</strong> Hacktualiz Inc., operator of the Siteviral platform, processing data on behalf of the Controller.</li>
+      <div className="max-w-none space-y-6 text-foreground text-[15px] sm:text-base font-semibold leading-relaxed">
+        <p>This Data Processing Agreement ("DPA") forms part of the Terms of Service between Hacktualiz Inc. ("Processor", "we", "us") and the Organization ("Controller", "you") using the Siteviral platform.</p>
+
+        <h2 className="text-xl font-extrabold mt-8 mb-3">1. Roles</h2>
+        <ul className="list-disc pl-5 space-y-1 font-medium">
+          <li><strong>Data Controller:</strong> The Organization that uses Siteviral to manage its community, content, and transactions.</li>
+          <li><strong>Data Processor:</strong> Hacktualiz Inc., operator of the Siteviral platform, processing data on behalf of the Controller.</li>
         </ul>
 
-        <h2 className="text-lg font-semibold mt-8 mb-3">2. Data Processed</h2>
-        <p className="text-sm text-muted-foreground">We process personal data including but not limited to: names, email addresses, phone numbers, payment references, IP addresses, device identifiers, and transaction records, strictly as necessary to provide platform services.</p>
+        <h2 className="text-xl font-extrabold mt-8 mb-3">2. Data Processed</h2>
+        <p className="font-medium">We process personal data including but not limited to: names, email addresses, phone numbers (E.164), payment references, IP addresses, device identifiers, and transaction records, strictly as necessary to provide platform services.</p>
 
-        <h2 className="text-lg font-semibold mt-8 mb-3">3. Sub-Processors</h2>
-        <p className="text-sm text-muted-foreground mb-3">We engage the following sub-processors to deliver our services:</p>
+        <h2 className="text-xl font-extrabold mt-8 mb-3">3. Authorized Processing</h2>
+        <ul className="list-disc pl-5 space-y-1 font-medium">
+          <li>Hosting and serving platform content</li>
+          <li>Processing payments via Paystack</li>
+          <li>Sending transactional emails via Resend</li>
+          <li>Security monitoring and fraud prevention</li>
+          <li>AML/KYC compliance checks</li>
+        </ul>
+
+        <h2 className="text-xl font-extrabold mt-8 mb-3">4. Sub-Processors</h2>
+        <p className="font-medium mb-3">We engage the following sub-processors to deliver our services:</p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm border border-border rounded-lg">
             <thead>
               <tr className="border-b border-border bg-muted/30">
-                <th className="text-left p-3 font-semibold">Sub-Processor</th>
-                <th className="text-left p-3 font-semibold">Purpose</th>
-                <th className="text-left p-3 font-semibold">Location</th>
+                <th className="text-left p-3 font-bold">Sub-Processor</th>
+                <th className="text-left p-3 font-bold">Purpose</th>
+                <th className="text-left p-3 font-bold">Location</th>
               </tr>
             </thead>
             <tbody className="text-muted-foreground">
-              <tr className="border-b border-border/50">
-                <td className="p-3 font-medium text-foreground">Supabase Inc.</td>
-                <td className="p-3">Database hosting, authentication, file storage, edge functions</td>
-                <td className="p-3">United States</td>
-              </tr>
-              <tr className="border-b border-border/50">
-                <td className="p-3 font-medium text-foreground">Paystack (Stripe)</td>
-                <td className="p-3">Payment processing, transaction verification</td>
-                <td className="p-3">Nigeria / United States</td>
-              </tr>
-              <tr>
-                <td className="p-3 font-medium text-foreground">Resend Inc.</td>
-                <td className="p-3">Transactional email delivery</td>
-                <td className="p-3">United States</td>
-              </tr>
+              <tr className="border-b border-border/50"><td className="p-3 font-medium text-foreground">Supabase Inc.</td><td className="p-3">Database, auth, storage, edge functions</td><td className="p-3">United States</td></tr>
+              <tr className="border-b border-border/50"><td className="p-3 font-medium text-foreground">Paystack (Stripe)</td><td className="p-3">Payment processing, verification</td><td className="p-3">Nigeria / US</td></tr>
+              <tr className="border-b border-border/50"><td className="p-3 font-medium text-foreground">Resend Inc.</td><td className="p-3">Transactional email delivery</td><td className="p-3">United States</td></tr>
+              <tr><td className="p-3 font-medium text-foreground">Sentry</td><td className="p-3">Error monitoring</td><td className="p-3">United States</td></tr>
             </tbody>
           </table>
         </div>
+        <p className="font-medium mt-3">See our full <a href="/subprocessors" className="text-primary underline">Sub-Processors list</a>.</p>
 
-        <h2 className="text-lg font-semibold mt-8 mb-3">4. Security Measures</h2>
-        <p className="text-sm text-muted-foreground">We implement industry-standard security measures including: encryption in transit (TLS), row-level security (RLS) for multi-tenant data isolation, HMAC webhook signature verification, rate limiting on critical endpoints, and audit logging.</p>
+        <h2 className="text-xl font-extrabold mt-8 mb-3">5. Security Measures</h2>
+        <ul className="list-disc pl-5 space-y-1 font-medium">
+          <li>Encryption in transit (TLS) and at rest</li>
+          <li>Row-level security (RLS) for multi-tenant data isolation</li>
+          <li>HMAC webhook signature verification</li>
+          <li>Rate limiting on critical endpoints</li>
+          <li>Idempotent transaction processing</li>
+          <li>Signed URLs for protected file downloads</li>
+          <li>Audit logging on all sensitive actions</li>
+        </ul>
 
-        <h2 className="text-lg font-semibold mt-8 mb-3">5. Data Retention Schedule</h2>
-        <p className="text-sm text-muted-foreground mb-3">We retain personal data according to the following schedule:</p>
+        <h2 className="text-xl font-extrabold mt-8 mb-3">6. Data Retention Schedule</h2>
         <div className="overflow-x-auto">
           <table className="w-full text-sm border border-border rounded-lg">
             <thead>
               <tr className="border-b border-border bg-muted/30">
-                <th className="text-left p-3 font-semibold">Data Category</th>
-                <th className="text-left p-3 font-semibold">Retention Period</th>
-                <th className="text-left p-3 font-semibold">Legal Basis</th>
+                <th className="text-left p-3 font-bold">Data Category</th>
+                <th className="text-left p-3 font-bold">Retention Period</th>
+                <th className="text-left p-3 font-bold">Legal Basis</th>
               </tr>
             </thead>
             <tbody className="text-muted-foreground">
-              <tr className="border-b border-border/50">
-                <td className="p-3 font-medium text-foreground">Payment events &amp; audit logs</td>
-                <td className="p-3">24 months (or longer if required by law)</td>
-                <td className="p-3">Legal obligation (financial regulations)</td>
-              </tr>
-              <tr className="border-b border-border/50">
-                <td className="p-3 font-medium text-foreground">Download logs</td>
-                <td className="p-3">12 months</td>
-                <td className="p-3">Legitimate interest (dispute resolution)</td>
-              </tr>
-              <tr className="border-b border-border/50">
-                <td className="p-3 font-medium text-foreground">KYC submissions</td>
-                <td className="p-3">5 years after end of relationship (regulatory requirement)</td>
-                <td className="p-3">Legal obligation (AML regulations)</td>
-              </tr>
-              <tr className="border-b border-border/50">
-                <td className="p-3 font-medium text-foreground">Support tickets</td>
-                <td className="p-3">24 months after resolution</td>
-                <td className="p-3">Legitimate interest</td>
-              </tr>
-              <tr className="border-b border-border/50">
-                <td className="p-3 font-medium text-foreground">User profiles</td>
-                <td className="p-3">Duration of account + 30 days after deletion</td>
-                <td className="p-3">Contract performance</td>
-              </tr>
-              <tr>
-                <td className="p-3 font-medium text-foreground">Transaction records</td>
-                <td className="p-3">7 years (financial/tax compliance)</td>
-                <td className="p-3">Legal obligation</td>
-              </tr>
+              <tr className="border-b border-border/50"><td className="p-3 font-medium text-foreground">Payment events & audit logs</td><td className="p-3">24 months (or longer if required by law)</td><td className="p-3">Legal obligation</td></tr>
+              <tr className="border-b border-border/50"><td className="p-3 font-medium text-foreground">Download logs</td><td className="p-3">12 months</td><td className="p-3">Legitimate interest</td></tr>
+              <tr className="border-b border-border/50"><td className="p-3 font-medium text-foreground">KYC submissions</td><td className="p-3">5 years after end of relationship</td><td className="p-3">AML regulations</td></tr>
+              <tr className="border-b border-border/50"><td className="p-3 font-medium text-foreground">Support tickets</td><td className="p-3">24 months after resolution</td><td className="p-3">Legitimate interest</td></tr>
+              <tr className="border-b border-border/50"><td className="p-3 font-medium text-foreground">User profiles</td><td className="p-3">Duration of account + 30 days</td><td className="p-3">Contract performance</td></tr>
+              <tr><td className="p-3 font-medium text-foreground">Transaction records</td><td className="p-3">7 years</td><td className="p-3">Financial/tax compliance</td></tr>
             </tbody>
           </table>
         </div>
 
-        <h2 className="text-lg font-semibold mt-8 mb-3">6. Data Subject Rights (DSAR)</h2>
-        <p className="text-sm text-muted-foreground mb-3">We assist Controllers in fulfilling data subject requests through our platform tools and admin APIs. The following rights are supported:</p>
-        <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
-          <li><strong className="text-foreground">Right of Access:</strong> Users can export their personal data from their profile settings.</li>
-          <li><strong className="text-foreground">Right to Rectification:</strong> Users can update their profile information directly in the platform.</li>
-          <li><strong className="text-foreground">Right to Erasure:</strong> Users can delete their accounts and associated data from their profile settings. Deletion is completed within 30 days, except for data retained under legal obligation.</li>
-          <li><strong className="text-foreground">Right to Data Portability:</strong> Users can request an export of their data in machine-readable format.</li>
-          <li><strong className="text-foreground">Right to Object:</strong> Users can opt out of non-essential communications and data processing.</li>
+        <h2 className="text-xl font-extrabold mt-8 mb-3">7. Data Subject Rights (DSAR)</h2>
+        <p className="font-medium mb-3">We assist Controllers in fulfilling data subject requests:</p>
+        <ul className="list-disc pl-5 space-y-1 font-medium">
+          <li><strong>Right of Access:</strong> Users can export their personal data from profile settings.</li>
+          <li><strong>Right to Rectification:</strong> Users can update their profile directly.</li>
+          <li><strong>Right to Erasure:</strong> Users can delete accounts; completed within 30 days, except legally retained data.</li>
+          <li><strong>Right to Data Portability:</strong> Export in machine-readable format available on request.</li>
+          <li><strong>Right to Object:</strong> Users can opt out of non-essential processing.</li>
         </ul>
-        <p className="text-sm text-muted-foreground mt-3">
-          To submit a DSAR, contact us at <a href="mailto:privacy@siteviral.com" className="text-primary hover:underline">privacy@siteviral.com</a>. We respond to all requests within 30 days.
+        <p className="font-medium mt-3">
+          Submit a DSAR to <a href="mailto:privacy@siteviral.com" className="text-primary underline">privacy@siteviral.com</a>. Response within 30 days.
         </p>
 
-        <h2 className="text-lg font-semibold mt-8 mb-3">7. Breach Notification</h2>
-        <p className="text-sm text-muted-foreground">In the event of a personal data breach, we will notify the Controller without undue delay and within 72 hours of becoming aware, providing details of the breach and remediation steps.</p>
+        <h2 className="text-xl font-extrabold mt-8 mb-3">8. Breach Notification</h2>
+        <p className="font-medium">In the event of a personal data breach, we will notify the Controller without undue delay and within 72 hours, providing details and remediation steps.</p>
 
-        <h2 className="text-lg font-semibold mt-8 mb-3">8. Contact</h2>
-        <p className="text-sm text-muted-foreground">
-          For DPA-related inquiries:<br />
+        <h2 className="text-xl font-extrabold mt-8 mb-3">9. Contact</h2>
+        <p className="font-medium">
           Hacktualiz Inc.<br />
           131 Continental Dr, Suite 305, Newark, DE 19713, United States<br />
-          Email: <a href="mailto:privacy@siteviral.com" className="text-primary hover:underline">privacy@siteviral.com</a>
+          Email: <a href="mailto:privacy@siteviral.com" className="text-primary underline">privacy@siteviral.com</a>
         </p>
       </div>
-    </div>
+    </LegalPageShell>
   );
 }

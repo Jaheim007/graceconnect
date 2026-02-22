@@ -1,24 +1,14 @@
+import { LegalFooter } from '@/components/layout/LegalPageShell';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Mail, MapPin, Globe, Building2 } from 'lucide-react';
+import { Mail, MapPin, Globe, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import termsBg from '@/assets/terms-bg.jpg';
+import { LegalBackground, LegalHeader } from '@/components/layout/LegalPageShell';
 
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="fixed inset-0 z-0">
-        <img src={termsBg} alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-background/95 backdrop-blur-sm" />
-      </div>
-
-      <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
-        <div className="container flex items-center justify-between h-14 px-4">
-          <Link to="/" className="text-xl font-extrabold tracking-tight italic text-gold">Siteviral</Link>
-          <Button variant="ghost" size="sm" asChild>
-            <Link to="/"><ArrowLeft className="h-4 w-4 mr-1" /> Retour</Link>
-          </Button>
-        </div>
-      </header>
+      <LegalBackground />
+      <LegalHeader />
 
       <main className="relative z-10 container max-w-3xl px-4 pt-24 pb-16">
         <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-foreground">Contactez-nous</h1>
@@ -81,16 +71,7 @@ export default function ContactPage() {
         </div>
       </main>
 
-      <footer className="relative z-10 border-t border-border/60 py-6 px-4 bg-background/80">
-        <div className="container flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <Link to="/" className="font-extrabold italic text-sm text-gold">Siteviral</Link>
-          <div className="flex gap-4">
-            <Link to="/terms" className="hover:text-foreground transition-colors">Conditions</Link>
-            <Link to="/privacy" className="hover:text-foreground transition-colors">Confidentialité</Link>
-          </div>
-          <span>© {new Date().getFullYear()} Hacktualiz Inc. All rights reserved.</span>
-        </div>
-      </footer>
+      <LegalFooter />
     </div>
   );
 }

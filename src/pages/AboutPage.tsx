@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Heart, Users, Globe, Shield, Target, Zap, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { LegalFooter } from '@/components/layout/LegalPageShell';
 import communityImg from '@/assets/landing-community.png';
 import heroImg from '@/assets/landing-hero.jpg';
 
@@ -209,49 +210,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border/60 bg-muted/20">
-        <div className="container px-4 py-12">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="space-y-3">
-              <span className="text-xl font-extrabold italic text-gold">Siteviral</span>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                La plateforme tout-en-un pour les leaders et organisations dans le monde.
-              </p>
-            </div>
-            <div className="space-y-3">
-              <h4 className="font-semibold text-sm">Produit</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/discover" className="hover:text-foreground transition-colors">Découvrir</Link></li>
-                <li><Link to="/auth?tab=signup" className="hover:text-foreground transition-colors">Créer une communauté</Link></li>
-                <li><Link to="/auth" className="hover:text-foreground transition-colors">Connexion</Link></li>
-              </ul>
-            </div>
-            <div className="space-y-3">
-              <h4 className="font-semibold text-sm">Légal</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/terms" className="hover:text-foreground transition-colors">Conditions</Link></li>
-                <li><Link to="/privacy" className="hover:text-foreground transition-colors">Confidentialité</Link></li>
-                <li><Link to="/aml" className="hover:text-foreground transition-colors">AML</Link></li>
-                <li><Link to="/refund-policy" className="hover:text-foreground transition-colors">Remboursement</Link></li>
-                <li><Link to="/payout-policy" className="hover:text-foreground transition-colors">Retraits</Link></li>
-                <li><Link to="/acceptable-use" className="hover:text-foreground transition-colors">Usage acceptable</Link></li>
-              </ul>
-            </div>
-            <div className="space-y-3">
-              <h4 className="font-semibold text-sm">Entreprise</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li>contact@siteviral.com</li>
-                <li className="text-[11px]">Operated by Hacktualiz Inc.<br/>131 Continental Dr, Suite 305<br/>Newark, DE 19713, USA</li>
-              </ul>
-            </div>
-          </div>
-          <div className="mt-10 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-            <span>© {new Date().getFullYear()} Hacktualiz Inc. All rights reserved.</span>
-            <span>Infrastructure Platform for Digital Organizations</span>
-          </div>
-        </div>
-      </footer>
+      <LegalFooter />
     </div>
   );
 }
