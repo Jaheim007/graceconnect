@@ -16,6 +16,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 const fmt = (n: number, currency = 'XOF') =>
   new Intl.NumberFormat('fr-FR', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
@@ -143,7 +144,26 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Top bar */}
+      <SEOHead
+        title={`${product.title} — Siteviral`}
+        description={product.description?.slice(0, 155) || `Buy ${product.title} on Siteviral`}
+        ogImage={product.cover_image_url || undefined}
+        ogType="product"
+        canonicalUrl={`https://siteviral.com/org/${slug}/p/${(product as any).slug || product.id}`}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: product.title,
+          description: product.description,
+          image: product.cover_image_url,
+          offers: {
+            '@type': 'Offer',
+            price: product.is_free ? '0' : String(product.price || 0),
+            priceCurrency: product.currency || 'USD',
+            availability: 'https://schema.org/InStock',
+          },
+        }}
+      />
       <div className="sticky top-0 z-20 border-b border-border/40 bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between">
         <Link to={user ? '/feed' : '/'}>
           <span className="text-lg font-extrabold tracking-tight italic text-gold">Siteviral</span>

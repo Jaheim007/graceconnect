@@ -33,6 +33,7 @@ import InvitePage from "@/pages/InvitePage";
 import FAQPage from "@/pages/FAQPage";
 import ContactPage from "@/pages/ContactPage";
 import CompliancePage from "@/pages/CompliancePage";
+import DPAPage from "@/pages/DPAPage";
 
 // Authenticated pages
 import FeedPage from "@/pages/FeedPage";
@@ -116,6 +117,7 @@ const App = () => (
                 <Route path="/faq" element={<FAQPage />} />
                 <Route path="/contact" element={<ContactPage />} />
                 <Route path="/compliance" element={<CompliancePage />} />
+                <Route path="/dpa" element={<DPAPage />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/payment/success" element={<PaymentSuccessPage />} />
                 <Route path="/invite/:code" element={<InvitePage />} />
