@@ -54,7 +54,16 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Superadmin only' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    const { payout_request_id, action } = await req.json(); // action: 'approve' | 'reject'
+    const { payout_request_id, action } = await req.json();
+
+    // Input validation
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!payout_request_id || typeof payout_request_id !== 'string' || !UUID_RE.test(payout_request_id)) {
+      return new Response(JSON.stringify({ error: 'Invalid payout_request_id' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (!action || !['approve', 'reject'].includes(action)) {
+      return new Response(JSON.stringify({ error: 'Invalid action, must be approve or reject' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
 
     const { data: payout } = await db.from('payout_requests').select('*').eq('id', payout_request_id).single();
     if (!payout) return new Response(JSON.stringify({ error: 'Payout request not found' }), { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
