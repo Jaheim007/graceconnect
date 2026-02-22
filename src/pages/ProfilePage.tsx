@@ -206,7 +206,7 @@ export default function ProfilePage() {
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Téléphone</Label>
-                <Input {...form.register('phone')} placeholder="+225 00 00 00 00" className="h-11" />
+                <Input {...form.register('phone')} placeholder="+1 234 567 8900" className="h-11" />
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</Label>
