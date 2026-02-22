@@ -12,7 +12,7 @@ export function AppLayout() {
   const hideNav = HIDE_NAV_ROUTES.some((r) => location.pathname.startsWith(r));
 
   return (
-    <div className="min-h-screen flex w-full bg-background">
+    <div className="min-h-[100dvh] flex w-full bg-background overflow-x-hidden">
       {/* Desktop Sidebar */}
       {!hideNav && (
         <div className="hidden lg:flex">
@@ -23,7 +23,7 @@ export function AppLayout() {
       {/* Main content */}
       <div className="flex flex-col flex-1 min-w-0">
         {!hideNav && <TopBar />}
-        <main className={`flex-1 ${!hideNav ? 'pb-20 lg:pb-0' : ''}`}>
+        <main className={`flex-1 overflow-x-hidden ${!hideNav ? 'pb-16 lg:pb-0' : ''}`}>
           <Outlet />
         </main>
       </div>

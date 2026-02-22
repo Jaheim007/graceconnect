@@ -115,12 +115,33 @@
   * {
     @apply border-border;
   }
+  html {
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  #root {
+    overflow-x: hidden;
+    min-height: 100dvh;
   }
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold tracking-tight;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+  img, video {
+    max-width: 100%;
+    height: auto;
+  }
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }
 

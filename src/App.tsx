@@ -30,6 +30,7 @@ import RefundPolicyPage from "@/pages/RefundPolicyPage";
 import PayoutPolicyPage from "@/pages/PayoutPolicyPage";
 import AcceptableUsePage from "@/pages/AcceptableUsePage";
 import InvitePage from "@/pages/InvitePage";
+import InstallPage from "@/pages/InstallPage";
 import FAQPage from "@/pages/FAQPage";
 import ContactPage from "@/pages/ContactPage";
 import CompliancePage from "@/pages/CompliancePage";
@@ -122,6 +123,7 @@ const App = () => (
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/payment/success" element={<PaymentSuccessPage />} />
                 <Route path="/invite/:code" element={<InvitePage />} />
+                <Route path="/install" element={<InstallPage />} />
                 <Route path="/discover" element={<AppLayout />}>
                   <Route index element={<DiscoverPage />} />
                 </Route>
