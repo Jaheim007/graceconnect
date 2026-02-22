@@ -53,8 +53,22 @@ Deno.serve(async (req) => {
     const body: VerifyPaymentBody = await req.json();
     const { reference, type, organization_id, campaign_id, product_id, affiliate_code, donor_name, donor_email, promo_code } = body;
 
-    if (!reference || !type || !organization_id) {
-      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+    // Input validation
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const validationErrors: string[] = [];
+
+    if (!reference || typeof reference !== 'string' || reference.length > 100) validationErrors.push('Invalid reference');
+    if (!type || !['donation', 'product'].includes(type)) validationErrors.push('Invalid type');
+    if (!organization_id || !UUID_RE.test(organization_id)) validationErrors.push('Invalid organization_id');
+    if (campaign_id && !UUID_RE.test(campaign_id)) validationErrors.push('Invalid campaign_id');
+    if (product_id && !UUID_RE.test(product_id)) validationErrors.push('Invalid product_id');
+    if (affiliate_code && (typeof affiliate_code !== 'string' || affiliate_code.length > 50)) validationErrors.push('Invalid affiliate_code');
+    if (donor_name && (typeof donor_name !== 'string' || donor_name.length > 200)) validationErrors.push('Invalid donor_name');
+    if (donor_email && (typeof donor_email !== 'string' || donor_email.length > 255 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(donor_email))) validationErrors.push('Invalid donor_email');
+    if (promo_code && (typeof promo_code !== 'string' || promo_code.length > 50)) validationErrors.push('Invalid promo_code');
+
+    if (validationErrors.length > 0) {
+      return new Response(JSON.stringify({ error: 'Validation failed', details: validationErrors }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }

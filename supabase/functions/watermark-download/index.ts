@@ -35,11 +35,16 @@ Deno.serve(async (req) => {
 
     const { file_url, product_id, product_title, inline } = await req.json();
 
-    if (!file_url || !product_id) {
-      return new Response(JSON.stringify({ error: "Missing file_url or product_id" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    // Input validation
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!file_url || typeof file_url !== 'string' || file_url.length > 2000) {
+      return new Response(JSON.stringify({ error: "Invalid file_url" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    if (!product_id || !UUID_RE.test(product_id)) {
+      return new Response(JSON.stringify({ error: "Invalid product_id" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    if (product_title && (typeof product_title !== 'string' || product_title.length > 300)) {
+      return new Response(JSON.stringify({ error: "Invalid product_title" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     // Verify purchase

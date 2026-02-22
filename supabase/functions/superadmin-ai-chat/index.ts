@@ -43,9 +43,23 @@ serve(async (req) => {
 
     const { messages } = await req.json();
 
-    // Fetch platform stats for AI context
+    // Input validation
+    if (!Array.isArray(messages) || messages.length > 50) {
+      return new Response(JSON.stringify({ error: "Invalid messages format" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    for (const msg of messages) {
+      if (!msg || typeof msg.role !== 'string' || !['user', 'assistant'].includes(msg.role) || typeof msg.content !== 'string' || msg.content.length > 5000) {
+        return new Response(JSON.stringify({ error: "Invalid message format" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
+    // Fetch platform stats for AI context (anonymized - no org names/slugs)
     const [orgsRes, donationsRes, purchasesRes, membersRes, metricsRes, kycRes, payoutsRes, reportsRes] = await Promise.all([
-      svcClient.from("organizations").select("id, name, slug, plan_type, kyc_status, is_active, is_suspended, category, country, created_at", { count: "exact" }),
+      svcClient.from("organizations").select("id, plan_type, kyc_status, is_active, is_suspended, category, country", { count: "exact" }),
       svcClient.from("donations").select("amount, status, currency, created_at, organization_id").eq("status", "completed").order("created_at", { ascending: false }).limit(200),
       svcClient.from("product_purchases").select("amount, status, currency, created_at, organization_id").eq("status", "completed").order("created_at", { ascending: false }).limit(200),
       svcClient.from("organization_members").select("id, role, joined_at", { count: "exact" }),
@@ -77,32 +91,29 @@ serve(async (req) => {
     const activeOrgs = orgs.filter((o: any) => o.is_active && !o.is_suspended).length;
     const suspendedOrgs = orgs.filter((o: any) => o.is_suspended).length;
 
-    const systemPrompt = `Tu es l'assistant IA du superadmin de SiteViral / GraceConnect, une plateforme SaaS multi-tenant pour les organisations religieuses et communautaires en Afrique (principalement Côte d'Ivoire).
+    const systemPrompt = `Tu es l'assistant IA du superadmin de Siteviral, une plateforme SaaS multi-tenant internationale pour les organisations, leaders et communautés. Opérée par Hacktualiz Inc. (Delaware, USA).
 
-DONNÉES EN TEMPS RÉEL DE LA PLATEFORME :
+DONNÉES AGRÉGÉES DE LA PLATEFORME (anonymisées) :
 - Total organisations: ${orgs.length} (actives: ${activeOrgs}, suspendues: ${suspendedOrgs})
 - Répartition par catégorie: ${JSON.stringify(orgsByCategory)}
 - Répartition par pays: ${JSON.stringify(orgsByCountry)}
 - Total membres (tous orgs): ${totalMembers}
-- GMV total: ${totalGMV.toLocaleString()} XOF (donations: ${totalDonationGMV.toLocaleString()}, achats: ${totalPurchaseGMV.toLocaleString()})
+- GMV total: ${totalGMV.toLocaleString()} (donations: ${totalDonationGMV.toLocaleString()}, achats: ${totalPurchaseGMV.toLocaleString()})
 - Transactions: ${donations.length} dons complétés, ${purchases.length} achats complétés
 - KYC en attente: ${pendingKYC}
 - Payouts en attente: ${pendingPayouts}
 - Signalements en attente: ${pendingReports}
-- Métriques quotidiennes (30 derniers jours): ${JSON.stringify((metricsRes.data || []).slice(0, 7))}
-
-LISTE DES ORGANISATIONS :
-${orgs.slice(0, 20).map((o: any) => `- ${o.name} (${o.slug}) | ${o.category} | ${o.country} | plan:${o.plan_type} | KYC:${o.kyc_status} | ${o.is_suspended ? "SUSPENDUE" : "active"}`).join("\n")}
+- Métriques quotidiennes récentes: ${JSON.stringify((metricsRes.data || []).slice(0, 7))}
 
 Tu dois :
 1. Répondre en français
-2. Analyser les données et fournir des insights actionnables
+2. Analyser les données agrégées et fournir des insights actionnables
 3. Suggérer des améliorations produit basées sur les patterns observés
 4. Alerter sur les problèmes potentiels (KYC en attente, payouts, fraude)
 5. Proposer des stratégies de croissance
 6. Être concis et direct
 
-Ne révèle jamais d'informations sensibles (clés API, mots de passe). Tu peux discuter de toutes les métriques business.`;
+IMPORTANT : Ne révèle jamais d'informations sensibles (clés API, mots de passe, noms d'organisations spécifiques, emails utilisateurs). Travaille uniquement avec des données agrégées.`;
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
