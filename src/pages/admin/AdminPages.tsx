@@ -13,7 +13,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus } from 'lucide-react';
+import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle } from 'lucide-react';
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger
+} from '@/components/ui/alert-dialog';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -631,7 +635,9 @@ export function AdminKYC() {
 
 export function AdminSettings() {
   const { currentOrg, refetchOrgs } = useOrg();
+  const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const qc = useQueryClient();
 
   const orgAny = currentOrg as any;
@@ -1024,10 +1030,56 @@ export function AdminSettings() {
           </Button>
         </div>
 
+        {/* ── DANGER ZONE ── */}
+        {currentOrg?.owner_id === user?.id && (
+          <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-5 space-y-3">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+              <h2 className="font-semibold text-sm text-destructive">Zone dangereuse</h2>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              La suppression est irréversible. Toutes les données (médias, événements, dons, produits, membres) seront définitivement perdues.
+            </p>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="sm" className="text-xs gap-1.5">
+                  <Trash2 className="h-3.5 w-3.5" /> Supprimer cette organisation
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Supprimer « {currentOrg?.name} » ?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Cette action est irréversible. Tous les médias, événements, dons, produits, membres et données associées seront définitivement supprimés.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    onClick={async () => {
+                      try {
+                        const { error } = await db.from('organizations').delete().eq('id', currentOrg!.id);
+                        if (error) throw error;
+                        toast({ title: '✅ Organisation supprimée' });
+                        qc.invalidateQueries({ queryKey: ['user-memberships'] });
+                        navigate('/dashboard');
+                      } catch (e: any) {
+                        toast({ title: 'Erreur', description: e.message, variant: 'destructive' });
+                      }
+                    }}
+                  >
+                    Supprimer définitivement
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
+        )}
+
         <p className="text-xs text-muted-foreground text-center">Contactez le support pour modifier le plan, le pays ou la devise.</p>
       </div>
     </AdminPageShell>
   );
 }
-
 

@@ -58,9 +58,11 @@ import AdminPhotos from "@/pages/admin/AdminPhotos";
 // Superadmin layout + pages
 import SuperadminLayout from "@/pages/superadmin/SuperadminLayout";
 import {
-  SuperadminDashboard, SuperadminOrgs, SuperadminKYC,
+  SuperadminOrgs, SuperadminKYC,
   SuperadminTransactions, SuperadminReports, SuperadminMetrics
 } from "@/pages/superadmin/SuperadminPages";
+import SuperadminFullDashboard from "@/pages/superadmin/SuperadminFullDashboard";
+import SuperadminAIChat from "@/pages/superadmin/SuperadminAIChat";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -150,12 +152,13 @@ const App = () => (
 
                 {/* Superadmin */}
                 <Route path="/superadmin" element={<RequireSuperadmin><SuperadminLayout /></RequireSuperadmin>}>
-                  <Route index element={<SuperadminDashboard />} />
+                  <Route index element={<SuperadminFullDashboard />} />
                   <Route path="orgs" element={<SuperadminOrgs />} />
                   <Route path="kyc" element={<SuperadminKYC />} />
                   <Route path="transactions" element={<SuperadminTransactions />} />
                   <Route path="reports" element={<SuperadminReports />} />
                   <Route path="metrics" element={<SuperadminMetrics />} />
+                  <Route path="ai" element={<SuperadminAIChat />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
