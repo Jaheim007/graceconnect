@@ -11,6 +11,7 @@ import { OrgProvider } from "@/contexts/OrgContext";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { RequireAuth, RequireSuperadmin, RequireOrgManage } from "@/components/layout/RouteGuard";
+import { GDPRBanner } from "@/components/layout/GDPRBanner";
 
 // Public pages
 import LandingPage from "@/pages/LandingPage";
@@ -90,6 +91,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <ScrollToTop />
+              <GDPRBanner />
               <Routes>
                 {/* Public routes — no auth required */}
                 <Route path="/" element={<LandingPage />} />

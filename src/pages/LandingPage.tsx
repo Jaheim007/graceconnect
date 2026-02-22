@@ -590,6 +590,11 @@ export default function LandingPage() {
             <span>© {new Date().getFullYear()} Siteviral — Operated by HACKTUALIZ Inc. All rights reserved.</span>
             <span>Infrastructure Platform for Digital Organizations</span>
           </div>
+          <p className="mt-4 text-[10px] text-muted-foreground/60 text-center">
+            Chaque organisation est propriétaire de ses données. Siteviral agit en tant que sous-traitant (data processor) conformément au RGPD. 
+            Pour toute demande relative à vos données, contactez directement l'organisation concernée ou{' '}
+            <a href="mailto:privacy@siteviral.com" className="underline hover:text-foreground transition-colors">privacy@siteviral.com</a>.
+          </p>
         </div>
       </footer>
     </div>

@@ -7,7 +7,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Heart, Lock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Heart, Lock, CheckCircle, AlertCircle, Loader2, EyeOff } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePaystack } from '@/hooks/usePaystack';
@@ -38,6 +39,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
   const [promoDiscount, setPromoDiscount] = useState<number | null>(null);
   const [promoValidating, setPromoValidating] = useState(false);
   const [promoError, setPromoError] = useState('');
+  const [isAnonymous, setIsAnonymous] = useState(false);
   const [step, setStep] = useState<Step>('form');
   const [result, setResult] = useState<VerifyPaymentResult | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
@@ -96,12 +98,12 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
         email: resolvedEmail,
         amount: effectiveAmount,
         currency: campaign.currency || 'XOF',
-        metadata: {
-          type: 'donation',
-          campaign_id: campaign.id,
-          organization_id: organizationId,
-          donor_name: resolvedName,
-          donor_email: resolvedEmail,
+          metadata: {
+            type: 'donation',
+            campaign_id: campaign.id,
+            organization_id: organizationId,
+            donor_name: isAnonymous ? 'Anonyme' : resolvedName,
+            donor_email: resolvedEmail,
           user_id: user?.id || null,
           affiliate_code: affiliateCode || null,
         },
@@ -117,7 +119,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
               organization_id: organizationId,
               campaign_id: campaign.id,
               affiliate_code: affiliateCode,
-              donor_name: resolvedName || undefined,
+              donor_name: isAnonymous ? 'Anonyme' : (resolvedName || undefined),
               donor_email: resolvedEmail || undefined,
             });
             clearAffiliateCode();
@@ -150,6 +152,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
     setPromoCode('');
     setPromoDiscount(null);
     setPromoError('');
+    setIsAnonymous(false);
     setResult(null);
     setErrorMsg('');
     onClose();
@@ -237,6 +240,19 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
                 {promoDiscount && (
                   <p className="text-xs text-green-600 mt-1">✓ -{promoDiscount}% appliqué — Nouveau montant : {amount ? fmt(effectiveAmount) : '—'}</p>
                 )}
+              </div>
+
+              {/* Anonymous donation */}
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="anonymous"
+                  checked={isAnonymous}
+                  onCheckedChange={(v) => setIsAnonymous(v === true)}
+                />
+                <Label htmlFor="anonymous" className="text-xs flex items-center gap-1.5 cursor-pointer">
+                  <EyeOff className="h-3 w-3 text-muted-foreground" />
+                  Don anonyme (votre nom ne sera pas visible)
+                </Label>
               </div>
 
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
