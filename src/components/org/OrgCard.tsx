@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Organization } from '@/types/database';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { CheckCircle2, Users } from 'lucide-react';
+import { CheckCircle2, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -62,72 +62,87 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
       onClick={() => navigate(`/org/${org.slug}`)}
     >
       {/* Banner */}
-      <div className="relative h-32 bg-gradient-to-br from-primary/20 to-accent/20 overflow-hidden">
+      <div className="relative h-24 bg-gradient-to-br from-primary/20 to-accent/20 overflow-hidden">
         {org.banner_url ? (
           <img
             src={org.banner_url}
-            alt={org.name}
+            alt=""
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
           <div className="w-full h-full hero-gradient opacity-60" />
         )}
-
-        {/* Logo */}
-        <div className="absolute -bottom-7 left-4 h-14 w-14 rounded-2xl border-[3px] border-card shadow-elevated overflow-hidden bg-card">
-          {org.logo_url ? (
-            <img src={org.logo_url} alt={org.name} className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full gold-gradient flex items-center justify-center">
-              <span className="text-sm font-bold text-primary-foreground">
-                {org.name.slice(0, 2).toUpperCase()}
-              </span>
-            </div>
-          )}
-        </div>
-
         {/* Verified badge */}
         {org.is_verified && (
           <div className="absolute top-2 right-2">
             <CheckCircle2 className="h-4 w-4 text-primary drop-shadow" />
           </div>
         )}
-      </div>
-
-      {/* Content */}
-      <div className="pt-9 px-4 pb-4">
-        <div className="flex items-start justify-between gap-2 mb-1">
-          <h3 className="font-semibold text-sm leading-tight line-clamp-1">{org.name}</h3>
+        {/* Category badge on banner */}
+        <div className="absolute bottom-2 right-2">
           <Badge
             variant="secondary"
-            className={cn('text-[10px] px-1.5 py-0 shrink-0 border-0', categoryColors[org.category])}
+            className={cn('text-[10px] px-1.5 py-0 border-0 backdrop-blur-sm', categoryColors[org.category])}
           >
             {categoryLabels[org.category] || org.category}
           </Badge>
         </div>
+      </div>
 
-        {org.description && (
-          <p className="text-xs text-muted-foreground line-clamp-2 mb-3 leading-relaxed">
-            {org.description}
-          </p>
-        )}
-
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Users className="h-3 w-3" />
-            <span>{org.country}</span>
+      {/* Logo + Info row */}
+      <div className="px-4 pt-3 pb-4">
+        <div className="flex items-start gap-3 mb-2">
+          {/* Logo — fully visible, not overlapping */}
+          <div className="h-14 w-14 rounded-xl border-2 border-border shadow-sm overflow-hidden bg-card shrink-0">
+            {org.logo_url ? (
+              <img src={org.logo_url} alt={org.name} className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full gold-gradient flex items-center justify-center">
+                <span className="text-sm font-bold text-primary-foreground">
+                  {org.name.slice(0, 2).toUpperCase()}
+                </span>
+              </div>
+            )}
           </div>
+
+          {/* Name + description */}
+          <div className="min-w-0 flex-1">
+            <h3 className="font-semibold text-sm leading-tight line-clamp-1 flex items-center gap-1">
+              {org.name}
+              {org.is_verified && (
+                <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0 inline" />
+              )}
+            </h3>
+            {org.description ? (
+              <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5 leading-relaxed">
+                {org.description}
+              </p>
+            ) : (
+              <p className="text-xs text-muted-foreground mt-0.5">Communauté sur Siteviral</p>
+            )}
+          </div>
+        </div>
+
+        {/* Footer: country + join */}
+        <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/50">
+          {org.country && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <MapPin className="h-3 w-3" />
+              <span>{org.country}</span>
+            </div>
+          )}
+          {!org.country && <div />}
           <Button
             size="sm"
             variant={isMember ? 'secondary' : 'default'}
             onClick={handleJoin}
             disabled={joining || isMember}
             className={cn(
-              'h-7 text-xs px-3',
+              'h-7 text-xs px-4 rounded-full',
               !isMember && 'gold-gradient text-primary-foreground border-0 shadow-gold hover:opacity-90'
             )}
           >
-            {isMember ? '✓ Rejoint' : joining ? 'En cours...' : 'Rejoindre'}
+            {isMember ? '✓ Rejoint' : joining ? '...' : 'Rejoindre'}
           </Button>
         </div>
       </div>
