@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useOrg } from '@/contexts/OrgContext';
 import { useOrgMedia } from '@/hooks/useMedia';
 import { useOrgAnnouncements } from '@/hooks/useAnnouncements';
@@ -11,11 +12,12 @@ import { Button } from '@/components/ui/button';
 import {
   Play, Megaphone, CalendarDays, Heart, ShoppingBag,
   Users, ExternalLink, AlertTriangle, ChevronRight,
-  TrendingUp, DollarSign, Percent, ArrowUpRight
+  TrendingUp, DollarSign, Percent, ArrowUpRight, Rocket
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { OrgActivationChecklist } from '@/components/admin/OrgActivationChecklist';
+import { QuickStartWizard } from '@/components/onboarding/QuickStartWizard';
 
 const fmt = (n: number, currency = 'USD') =>
   new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
@@ -32,6 +34,7 @@ const fadeUp = {
 export default function AdminDashboard() {
   const { currentOrg } = useOrg();
   const navigate = useNavigate();
+  const [showQuickStart, setShowQuickStart] = useState(false);
   const { data: media = [] } = useOrgMedia(currentOrg?.id, false);
   const { data: announcements = [] } = useOrgAnnouncements(currentOrg?.id, false);
   const { data: events = [] } = useOrgEvents(currentOrg?.id, false);
@@ -107,6 +110,7 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
+      <QuickStartWizard open={showQuickStart} onClose={() => setShowQuickStart(false)} />
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
@@ -115,11 +119,16 @@ export default function AdminDashboard() {
             Vue d'ensemble de <span className="font-medium text-foreground">{currentOrg?.name}</span>
           </p>
         </div>
-        <Button size="sm" asChild variant="outline" className="gap-1.5 text-xs h-9">
-          <a href={`https://siteviral.com/org/${currentOrg?.slug}`} target="_blank" rel="noreferrer">
-            <ExternalLink className="h-4 w-4" /> Page publique
-          </a>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={() => setShowQuickStart(true)} className="gap-1.5 text-xs h-9">
+            <Rocket className="h-4 w-4" /> QuickStart
+          </Button>
+          <Button size="sm" asChild variant="outline" className="gap-1.5 text-xs h-9">
+            <a href={`https://siteviral.com/org/${currentOrg?.slug}`} target="_blank" rel="noreferrer">
+              <ExternalLink className="h-4 w-4" /> Page publique
+            </a>
+          </Button>
+        </div>
       </div>
 
       {/* Activation checklist */}

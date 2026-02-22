@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { motion } from 'framer-motion';
+import { useDirectoryMode } from '@/hooks/useDirectoryMode';
 
 const CATEGORIES: { value: OrgCategory | ''; label: string }[] = [
   { value: '', label: 'Tout' },
@@ -42,6 +43,7 @@ export default function DiscoverPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { userOrgs } = useOrg();
+  const { data: directoryMode = 'curated' } = useDirectoryMode();
 
   const { data, isLoading } = usePublicOrgs({ search, category, page });
   const orgs = data?.orgs || [];
@@ -91,8 +93,13 @@ export default function DiscoverPage() {
     enabled: tab === 'campaigns',
   });
 
+  // Directory mode filtering
+  const filteredOrgs = directoryMode === 'curated'
+    ? orgs.filter((o: any) => o.is_verified || o.is_featured)
+    : orgs;
+
   // Verified orgs for showcase
-  const verifiedOrgs = orgs.filter((o: any) => o.is_verified);
+  const verifiedOrgs = filteredOrgs.filter((o: any) => o.is_verified);
 
   return (
     <div className="bg-background min-h-screen">
@@ -178,17 +185,17 @@ export default function DiscoverPage() {
 
             {/* CTA moved to bottom */}
 
-            {!isLoading && (
+            {!isLoading && directoryMode !== 'curated' && (
               <p className="text-xs text-muted-foreground mb-4">
                 {total} organisation{total > 1 ? 's' : ''} trouvée{total > 1 ? 's' : ''}
                 {search && ` pour "${search}"`}
               </p>
             )}
 
-            {isLoading ? <SkeletonList count={9} /> : orgs.length === 0 ? (
+            {isLoading ? <SkeletonList count={9} /> : filteredOrgs.length === 0 ? (
               <EmptyState variant={search ? 'search' : 'orgs'} action={!search ? { label: 'Effacer les filtres', onClick: () => { setCategory(''); setSearch(''); } } : undefined} />
             ) : (
-              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{orgs.map((org, i) => <OrgCard key={org.id} org={org} index={i} />)}</div>
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{filteredOrgs.map((org, i) => <OrgCard key={org.id} org={org} index={i} />)}</div>
             )}
 
             {total > pageSize && (

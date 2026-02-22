@@ -3,7 +3,7 @@ import {
   Home, Compass, Play, Bell, User, BookOpen, Store,
   Settings, ChevronLeft, ChevronRight, Shield,
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, Sun, Moon,
-  GraduationCap, UserPlus, Camera, ChevronDown, Wallet
+  GraduationCap, UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, ShieldAlert
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -18,6 +18,7 @@ const mainNav = [
   { to: '/reels', icon: Play, label: 'Reels' },
   { to: '/notifications', icon: Bell, label: 'Notifications' },
   { to: '/dashboard', icon: BookOpen, label: 'Tableau de bord' },
+  { to: '/support', icon: LifeBuoy, label: 'Support' },
   { to: '/profile', icon: User, label: 'Mon Compte' },
 ];
 
@@ -62,6 +63,7 @@ const superadminNav = [
   { to: '/superadmin/kyc', icon: FileCheck, label: 'KYC' },
   { to: '/superadmin/transactions', icon: BarChart3, label: 'Transactions' },
   { to: '/superadmin/reports', icon: Megaphone, label: 'Signalements' },
+  { to: '/superadmin/risk', icon: ShieldAlert, label: 'Risk & AML' },
   { to: '/superadmin/metrics', icon: BarChart3, label: 'Métriques' },
 ];
 
