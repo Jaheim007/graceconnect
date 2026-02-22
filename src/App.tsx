@@ -45,6 +45,7 @@ import CreateOrgPage from "@/pages/CreateOrgPage";
 // MarketplacePage merged into DiscoverPage
 import ProgramsPage from "@/pages/ProgramsPage";
 import ProgramViewPage from "@/pages/ProgramViewPage";
+import SupportPage from "@/pages/SupportPage";
 
 // Admin layout + pages
 import AdminLayout from "@/pages/admin/AdminLayout";
@@ -79,6 +80,7 @@ import SuperadminActivityFeed from "@/pages/superadmin/SuperadminActivityFeed";
 import SuperadminSettings from "@/pages/superadmin/SuperadminSettings";
 import SuperadminExports from "@/pages/superadmin/SuperadminExports";
 import SuperadminInvestorSnapshot from "@/pages/superadmin/SuperadminInvestorSnapshot";
+import SuperadminRiskAML from "@/pages/superadmin/SuperadminRiskAML";
 import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
 
 const queryClient = new QueryClient({
@@ -147,6 +149,7 @@ const App = () => (
                   <Route path="/dashboard" element={<UserDashboard />} />
                   <Route path="/create-org" element={<CreateOrgPage />} />
                   <Route path="/programs/:id" element={<ProgramViewPage />} />
+                  <Route path="/support" element={<SupportPage />} />
                 </Route>
 
                 {/* Admin (org-scoped) */}
@@ -192,6 +195,7 @@ const App = () => (
                   <Route path="exports" element={<SuperadminExports />} />
                   <Route path="settings" element={<SuperadminSettings />} />
                   <Route path="investor" element={<SuperadminInvestorSnapshot />} />
+                  <Route path="risk" element={<SuperadminRiskAML />} />
                   <Route path="ai" element={<SuperadminAIChat />} />
                 </Route>
 

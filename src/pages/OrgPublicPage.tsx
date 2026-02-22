@@ -33,6 +33,7 @@ import { useAffiliateCapture } from '@/hooks/useAffiliateCapture';
 import { PhotoLightbox } from '@/components/photos/PhotoLightbox';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { OrgBadges } from '@/components/org/OrgBadges';
 
 export default function OrgPublicPage() {
   useAffiliateCapture();
@@ -225,6 +226,7 @@ export default function OrgPublicPage() {
                   <h1 className="text-2xl sm:text-3xl font-bold truncate">{org.name}</h1>
                   {org.is_verified && <CheckCircle2 className="h-6 w-6 text-primary shrink-0" />}
                 </div>
+                <OrgBadges isVerified={org.is_verified} kycStatus={(org as any).kyc_status} isSuspended={(org as any).is_suspended} size="sm" className="mt-1" />
                 <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                   <Badge variant="secondary" className="text-xs capitalize">{org.category}</Badge>
                   <span className="flex items-center gap-1">
