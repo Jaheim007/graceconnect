@@ -83,8 +83,9 @@ export default function RefundPolicyPage() {
           <section>
             <h2>7. Contact</h2>
             <p className="font-medium">
-              HACKTUALIZ Inc.<br />
-              Support & Remboursements<br />
+              Hacktualiz Inc.<br />
+              Support & Refunds<br />
+              131 Continental Dr, Suite 305, Newark, DE 19713, USA<br />
               Email : support@siteviral.com
             </p>
           </section>
@@ -98,7 +99,7 @@ export default function RefundPolicyPage() {
             <Link to="/terms" className="hover:text-foreground transition-colors">Conditions</Link>
             <Link to="/privacy" className="hover:text-foreground transition-colors">Confidentialité</Link>
           </div>
-          <span>© {new Date().getFullYear()} Siteviral — Operated by HACKTUALIZ Inc.</span>
+          <span>© {new Date().getFullYear()} Hacktualiz Inc. All rights reserved.</span>
         </div>
       </footer>
     </div>

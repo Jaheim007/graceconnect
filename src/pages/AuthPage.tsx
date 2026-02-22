@@ -83,7 +83,7 @@ export default function AuthPage() {
             <span className="text-gold italic">Grandissez ensemble.</span>
           </h1>
           <p className="text-muted-foreground text-lg max-w-md">
-            La plateforme pour les communautés de foi en Côte d'Ivoire et au-delà.
+            La plateforme pour les organisations et communautés dans le monde entier.
           </p>
           <div className="flex gap-3 mt-4">
             {['Médias', 'Dons', 'Boutique', 'Affiliation'].map((t) => (
@@ -93,7 +93,7 @@ export default function AuthPage() {
             ))}
           </div>
         </div>
-        <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Siteviral · Côte d'Ivoire</p>
+        <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} Siteviral · Hacktualiz Inc.</p>
       </div>
 
       {/* Right panel — auth */}

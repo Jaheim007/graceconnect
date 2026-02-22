@@ -64,9 +64,9 @@ export default function ContactPage() {
             </div>
             <h3 className="font-bold text-foreground">Siège Social</h3>
             <p className="text-sm text-muted-foreground">
-              HACKTUALIZ Inc.<br />
-              8 The Green, Suite A<br />
-              Dover, DE 19901<br />
+              Hacktualiz Inc.<br />
+              131 Continental Dr, Suite 305<br />
+              Newark, DE 19713<br />
               United States
             </p>
           </div>
@@ -88,7 +88,7 @@ export default function ContactPage() {
             <Link to="/terms" className="hover:text-foreground transition-colors">Conditions</Link>
             <Link to="/privacy" className="hover:text-foreground transition-colors">Confidentialité</Link>
           </div>
-          <span>© {new Date().getFullYear()} Siteviral — Operated by HACKTUALIZ Inc.</span>
+          <span>© {new Date().getFullYear()} Hacktualiz Inc. All rights reserved.</span>
         </div>
       </footer>
     </div>

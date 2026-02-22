@@ -23,14 +23,14 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold mt-8 mb-3">1. Introduction</h2>
             <p>
-              Siteviral SAS (ci-après « Siteviral », « nous ») s'engage à protéger la vie privée de ses utilisateurs.
+              Hacktualiz Inc. (ci-après « Siteviral », « nous ») s'engage à protéger la vie privée de ses utilisateurs.
               La présente Politique de Confidentialité décrit comment nous collectons, utilisons, stockons et protégeons
               vos données personnelles lors de votre utilisation de la plateforme Siteviral.
             </p>
             <p>
-              Cette politique est conforme à la loi n°2013-450 du 19 juin 2013 relative à la protection des données
-              à caractère personnel en Côte d'Ivoire, ainsi qu'au Règlement Général sur la Protection des Données (RGPD)
-              de l'Union européenne pour nos utilisateurs situés dans l'Espace Économique Européen.
+              Cette politique est conforme au Règlement Général sur la Protection des Données (RGPD)
+              de l'Union européenne, ainsi qu'aux lois applicables en matière de protection des données
+              dans les juridictions où nous opérons.
             </p>
           </section>
 
@@ -109,6 +109,7 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-5 space-y-1">
               <li><strong>Paystack</strong> : pour le traitement des paiements</li>
               <li><strong>Supabase</strong> : pour l'hébergement et le stockage des données</li>
+              <li><strong>Resend</strong> : pour l'envoi d'emails transactionnels</li>
               <li><strong>Les organisations</strong> : dont vous êtes membre (données limitées au rôle)</li>
               <li><strong>Autorités compétentes</strong> : en cas d'obligation légale ou de demande judiciaire</li>
             </ul>
@@ -145,7 +146,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold mt-8 mb-3">8. Vos droits</h2>
             <p>
-              Conformément à la loi ivoirienne et au RGPD, vous disposez des droits suivants :
+              Conformément au RGPD et aux lois applicables, vous disposez des droits suivants :
             </p>
             <ul className="list-disc pl-5 space-y-1">
               <li><strong>Droit d'accès</strong> : obtenir une copie de vos données personnelles</li>
@@ -164,9 +165,9 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold mt-8 mb-3">9. Transferts internationaux</h2>
             <p>
-              Vos données peuvent être transférées et stockées sur des serveurs situés en dehors de la Côte d'Ivoire.
+              Vos données peuvent être transférées et stockées sur des serveurs situés dans différents pays.
               Dans ce cas, nous nous assurons que des garanties appropriées sont mises en place conformément
-              à la législation applicable.
+              à la législation applicable, y compris les clauses contractuelles types de la Commission européenne.
             </p>
           </section>
 
@@ -182,8 +183,9 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-xl font-semibold mt-8 mb-3">11. Autorité de contrôle</h2>
             <p>
-              En cas de réclamation, vous pouvez contacter l'Autorité de Régulation des Télécommunications/TIC
-              de Côte d'Ivoire (ARTCI), autorité compétente en matière de protection des données personnelles.
+              En cas de réclamation, vous pouvez contacter l'autorité de protection des données compétente
+              dans votre juridiction. Pour les utilisateurs de l'UE, il s'agit de la CNIL (France)
+              ou de l'autorité équivalente dans votre pays de résidence.
             </p>
           </section>
 
@@ -193,8 +195,8 @@ export default function PrivacyPage() {
               Pour toute question relative à la présente Politique de Confidentialité :
             </p>
             <p className="font-medium">
-              Siteviral SAS — Délégué à la Protection des Données<br />
-              Abidjan, Côte d'Ivoire<br />
+              Hacktualiz Inc. — Data Protection Officer<br />
+              131 Continental Dr, Suite 305, Newark, DE 19713, USA<br />
               Email : privacy@siteviral.com
             </p>
           </section>
@@ -209,7 +211,7 @@ export default function PrivacyPage() {
             <Link to="/terms" className="hover:text-foreground transition-colors">Conditions d'utilisation</Link>
             <Link to="/privacy" className="hover:text-foreground transition-colors">Confidentialité</Link>
           </div>
-          <span>© {new Date().getFullYear()} Siteviral</span>
+          <span>© {new Date().getFullYear()} Hacktualiz Inc. All rights reserved.</span>
         </div>
       </footer>
     </div>

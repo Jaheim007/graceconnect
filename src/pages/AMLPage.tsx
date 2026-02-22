@@ -28,7 +28,7 @@ export default function AMLPage() {
           <section>
             <h2>1. Engagement</h2>
             <p>
-              Siteviral, opéré par HACKTUALIZ Inc. (Delaware, USA), s'engage fermement à lutter contre le blanchiment d'argent,
+              Siteviral, opéré par Hacktualiz Inc. (Delaware, USA), s'engage fermement à lutter contre le blanchiment d'argent,
               le financement du terrorisme et toute activité financière illicite sur sa plateforme.
             </p>
           </section>
@@ -38,9 +38,8 @@ export default function AMLPage() {
             <p>Notre politique AML est conforme aux réglementations suivantes :</p>
             <ul className="list-disc pl-5 space-y-1">
               <li>Bank Secrecy Act (BSA) et réglementations FinCEN (États-Unis)</li>
-              <li>Loi n°2016-992 relative à la lutte contre le blanchiment (Côte d'Ivoire)</li>
               <li>Directives du Groupe d'Action Financière (GAFI/FATF)</li>
-              <li>Réglementations UEMOA en matière de lutte contre le blanchiment</li>
+              <li>Réglementations applicables dans les juridictions où nous opérons</li>
             </ul>
           </section>
 
@@ -78,8 +77,8 @@ export default function AMLPage() {
             <h2>6. Déclaration de soupçon</h2>
             <p>
               Conformément à nos obligations légales, toute transaction suspecte sera signalée aux autorités compétentes,
-              y compris la CENTIF (Cellule Nationale de Traitement des Informations Financières) en Côte d'Ivoire
-              et le FinCEN aux États-Unis.
+              y compris le FinCEN aux États-Unis et les organismes équivalents dans les juridictions
+              où l'activité suspecte a eu lieu.
             </p>
           </section>
 
@@ -102,8 +101,9 @@ export default function AMLPage() {
             <h2>9. Contact</h2>
             <p>Pour signaler une activité suspecte ou pour toute question relative à notre politique AML :</p>
             <p className="font-medium">
-              HACKTUALIZ Inc.<br />
+              Hacktualiz Inc.<br />
               Compliance Department<br />
+              131 Continental Dr, Suite 305, Newark, DE 19713, USA<br />
               Email : compliance@siteviral.com
             </p>
           </section>
@@ -118,7 +118,7 @@ export default function AMLPage() {
             <Link to="/privacy" className="hover:text-foreground transition-colors">Confidentialité</Link>
             <Link to="/aml" className="hover:text-foreground transition-colors">AML</Link>
           </div>
-          <span>© {new Date().getFullYear()} Siteviral — Operated by HACKTUALIZ Inc.</span>
+          <span>© {new Date().getFullYear()} Hacktualiz Inc. All rights reserved.</span>
         </div>
       </footer>
     </div>

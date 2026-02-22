@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_attributions: {
+        Row: {
+          affiliate_link_id: string | null
+          captured_at: string
+          converted: boolean
+          cookie_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          landing_url: string | null
+          user_id: string | null
+        }
+        Insert: {
+          affiliate_link_id?: string | null
+          captured_at?: string
+          converted?: boolean
+          cookie_id: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          landing_url?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          affiliate_link_id?: string | null
+          captured_at?: string
+          converted?: boolean
+          cookie_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          landing_url?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_attributions_affiliate_link_id_fkey"
+            columns: ["affiliate_link_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       affiliate_links: {
         Row: {
           campaign_id: string | null
@@ -544,6 +588,41 @@ export type Database = {
             columns: ["promo_code_id"]
             isOneToOne: false
             referencedRelation: "promo_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      download_logs: {
+        Row: {
+          created_at: string
+          id: string
+          ip_address: string | null
+          purchase_id: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          purchase_id?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          purchase_id?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "download_logs_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "product_purchases"
             referencedColumns: ["id"]
           },
         ]
@@ -1125,6 +1204,9 @@ export type Database = {
           monetization_enabled: boolean | null
           name: string
           owner_id: string
+          payout_freeze_reason: string | null
+          payouts_frozen: boolean | null
+          payouts_frozen_until: string | null
           paystack_subaccount_code: string | null
           plan_type: Database["public"]["Enums"]["org_plan"] | null
           platform_fee_percent: number | null
@@ -1158,6 +1240,9 @@ export type Database = {
           monetization_enabled?: boolean | null
           name: string
           owner_id: string
+          payout_freeze_reason?: string | null
+          payouts_frozen?: boolean | null
+          payouts_frozen_until?: string | null
           paystack_subaccount_code?: string | null
           plan_type?: Database["public"]["Enums"]["org_plan"] | null
           platform_fee_percent?: number | null
@@ -1191,6 +1276,9 @@ export type Database = {
           monetization_enabled?: boolean | null
           name?: string
           owner_id?: string
+          payout_freeze_reason?: string | null
+          payouts_frozen?: boolean | null
+          payouts_frozen_until?: string | null
           paystack_subaccount_code?: string | null
           plan_type?: Database["public"]["Enums"]["org_plan"] | null
           platform_fee_percent?: number | null
@@ -1200,6 +1288,39 @@ export type Database = {
           updated_at?: string | null
           website?: string | null
           whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      payment_events: {
+        Row: {
+          event_id: string
+          id: string
+          payload: Json
+          processed_at: string | null
+          provider: string
+          received_at: string
+          reference: string | null
+          status: string
+        }
+        Insert: {
+          event_id: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          provider?: string
+          received_at?: string
+          reference?: string | null
+          status?: string
+        }
+        Update: {
+          event_id?: string
+          id?: string
+          payload?: Json
+          processed_at?: string | null
+          provider?: string
+          received_at?: string
+          reference?: string | null
+          status?: string
         }
         Relationships: []
       }
@@ -1281,6 +1402,30 @@ export type Database = {
           platform_fees?: number | null
           total_revenue?: number | null
           total_transactions?: number | null
+        }
+        Relationships: []
+      }
+      platform_settings: {
+        Row: {
+          id: string
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: string
+        }
+        Insert: {
+          id?: string
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: string
+        }
+        Update: {
+          id?: string
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: string
         }
         Relationships: []
       }
@@ -1660,6 +1805,123 @@ export type Database = {
           organization_id?: string | null
           p256dh?: string
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      refund_requests: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          created_at: string
+          currency: string | null
+          donation_id: string | null
+          id: string
+          organization_id: string
+          purchase_id: string | null
+          reason: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          created_at?: string
+          currency?: string | null
+          donation_id?: string | null
+          id?: string
+          organization_id: string
+          purchase_id?: string | null
+          reason: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          donation_id?: string | null
+          id?: string
+          organization_id?: string
+          purchase_id?: string | null
+          reason?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "refund_requests_donation_id_fkey"
+            columns: ["donation_id"]
+            isOneToOne: false
+            referencedRelation: "donations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "refund_requests_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "product_purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          admin_response: string | null
+          category: string
+          created_at: string
+          id: string
+          message: string
+          organization_id: string | null
+          priority: string
+          resolved_at: string | null
+          responded_at: string | null
+          responded_by: string | null
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_response?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          message: string
+          organization_id?: string | null
+          priority?: string
+          resolved_at?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_response?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          message?: string
+          organization_id?: string | null
+          priority?: string
+          resolved_at?: string | null
+          responded_at?: string | null
+          responded_by?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
