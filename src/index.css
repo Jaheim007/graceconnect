@@ -132,6 +132,10 @@
     overflow-wrap: break-word;
     word-break: break-word;
   }
+  p, span, a, li, td, th, label, div {
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
   img, video {
     max-width: 100%;
     height: auto;

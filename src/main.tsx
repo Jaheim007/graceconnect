@@ -18,6 +18,12 @@ if (import.meta.env.PROD) {
   });
 }
 
+// Global unhandled rejection handler — prevents white-screen on async errors (e.g. payment)
+window.addEventListener('unhandledrejection', (event) => {
+  console.error('[Global] Unhandled promise rejection:', event.reason);
+  event.preventDefault(); // prevent default console error & crash
+});
+
 // Apply saved theme before first render to avoid FOUC
 const savedTheme = localStorage.getItem('gc_theme') || 'dark';
 document.documentElement.classList.add(savedTheme);
