@@ -48,14 +48,27 @@ function getTooltipStyles(
   position: TourStep['position'],
   fallback?: { top: number; left: number }
 ): React.CSSProperties {
+  const base: React.CSSProperties = { position: 'fixed', zIndex: 10002 };
+  const isMobile = window.innerWidth < 640;
+
   if (!rect) {
     return fallback
-      ? { position: 'fixed', top: fallback.top, left: fallback.left, zIndex: 10002 }
-      : { position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: 10002 };
+      ? { ...base, top: fallback.top, left: fallback.left }
+      : { ...base, top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
   }
 
   const gap = 14;
-  const base: React.CSSProperties = { position: 'fixed', zIndex: 10002 };
+
+  // On mobile, always position below the target element, centered horizontally
+  if (isMobile) {
+    return {
+      ...base,
+      top: Math.min(rect.bottom + gap, window.innerHeight - 220),
+      left: 16,
+      right: 16,
+      transform: 'none',
+    };
+  }
 
   switch (position) {
     case 'bottom':
@@ -207,7 +220,7 @@ export function OnboardingTour() {
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             style={getTooltipStyles(targetRect, currentStep.position, currentStep.fallbackPosition)}
-            className="w-[320px] max-w-[calc(100vw-32px)]"
+            className="w-full sm:w-[320px] max-w-[calc(100vw-32px)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="bg-card border border-border rounded-2xl shadow-elevated p-5 space-y-3">
