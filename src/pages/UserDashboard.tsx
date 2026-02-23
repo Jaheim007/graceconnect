@@ -250,19 +250,19 @@ export default function UserDashboard() {
 
   // Greeting
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir';
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
   const googleAvatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
   const avatarUrl = profile?.avatar_url || googleAvatar;
-  const displayName = profile?.display_name?.split(' ')[0] || 'Utilisateur';
+  const displayName = profile?.display_name?.split(' ')[0] || 'User';
   const initials = profile?.display_name
     ? profile.display_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
     : 'U';
 
   const tabs: { key: DashboardTab; label: string; icon: typeof Heart; desc: string }[] = [
-    { key: 'apercu', label: 'Mon Espace', icon: BarChart3, desc: 'Vue d\'ensemble' },
-    { key: 'ressources', label: 'Ressources', icon: BookOpen, desc: 'Vos achats' },
-    { key: 'affiliation', label: 'Affiliation', icon: Link2, desc: 'Vos commissions' },
-    { key: 'historique', label: 'Historique', icon: Clock, desc: 'Transactions' },
+    { key: 'apercu', label: 'Overview', icon: BarChart3, desc: 'Dashboard' },
+    { key: 'ressources', label: 'Resources', icon: BookOpen, desc: 'Your purchases' },
+    { key: 'affiliation', label: 'Affiliation', icon: Link2, desc: 'Your commissions' },
+    { key: 'historique', label: 'History', icon: Clock, desc: 'Transactions' },
   ];
 
   return (
@@ -287,7 +287,7 @@ export default function UserDashboard() {
               <h1 className="text-base sm:text-lg font-bold text-white truncate">
                 {greeting}, {displayName}
               </h1>
-              <p className="text-[11px] text-white/60">{userOrgs.length} communauté{userOrgs.length > 1 ? 's' : ''}</p>
+              <p className="text-[11px] text-white/60">{userOrgs.length} organization{userOrgs.length > 1 ? 's' : ''}</p>
             </div>
           </div>
 
@@ -336,10 +336,10 @@ export default function UserDashboard() {
             {/* Quick Actions Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
-                { label: 'Mes Ressources', icon: BookOpen, colorClass: 'bg-accent/10 text-accent', onClick: () => setActiveTab('ressources'), count: myResources?.length || 0 },
+                { label: 'My Resources', icon: BookOpen, colorClass: 'bg-accent/10 text-accent', onClick: () => setActiveTab('ressources'), count: myResources?.length || 0 },
                 { label: 'Affiliation', icon: Link2, colorClass: 'bg-primary/10 text-primary', onClick: () => setActiveTab('affiliation'), count: affiliateLinks.length },
-                { label: 'Explorer', icon: Gift, colorClass: 'bg-green-500/10 text-green-500', onClick: () => navigate('/discover'), count: null },
-                { label: 'Mon Compte', icon: ArrowUpRight, colorClass: 'bg-muted text-foreground', onClick: () => navigate('/profile'), count: null },
+                { label: 'Create Org', icon: Gift, colorClass: 'bg-green-500/10 text-green-500', onClick: () => navigate('/create-org'), count: null },
+                { label: 'My Account', icon: ArrowUpRight, colorClass: 'bg-muted text-foreground', onClick: () => navigate('/profile'), count: null },
               ].map((a, i) => (
                 <motion.button
                   key={a.label}

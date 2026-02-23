@@ -53,13 +53,13 @@ export function TopBar() {
                   {currentOrg?.name?.[0]?.toUpperCase() || 'O'}
                 </div>
               )}
-              <span className="truncate font-medium">{currentOrg?.name || 'Choisir une org'}</span>
+              <span className="truncate font-medium">{currentOrg?.name || 'Select org'}</span>
               <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <div className="px-2 py-1.5">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Mes communautés</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">My organizations</p>
             </div>
             {userOrgs.map((org) => (
               <DropdownMenuItem
@@ -117,23 +117,23 @@ export function TopBar() {
                 <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-primary-foreground shrink-0">{initials}</div>
               )}
               <div className="min-w-0">
-                <p className="text-sm font-semibold truncate">{profile?.display_name || 'Utilisateur'}</p>
+                <p className="text-sm font-semibold truncate">{profile?.display_name || 'User'}</p>
                 <p className="text-xs text-muted-foreground truncate">{user.email}</p>
               </div>
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigate('/profile')}>
-              <User className="h-3.5 w-3.5 mr-2" /> Mon Compte
+              <User className="h-3.5 w-3.5 mr-2" /> My Account
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/dashboard')}>
-              <BookOpen className="h-3.5 w-3.5 mr-2" /> Mon Espace
+              <BookOpen className="h-3.5 w-3.5 mr-2" /> My Dashboard
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/create-org')}>
-              <Plus className="h-3.5 w-3.5 mr-2" /> Créer une org
+              <Plus className="h-3.5 w-3.5 mr-2" /> Create organization
             </DropdownMenuItem>
             {canManageCurrentOrg && (
               <DropdownMenuItem onClick={() => navigate('/admin')}>
-                <Settings className="h-3.5 w-3.5 mr-2" /> Gérer l'org
+                <Settings className="h-3.5 w-3.5 mr-2" /> Manage org
               </DropdownMenuItem>
             )}
             {isSuperadmin && (
@@ -143,13 +143,13 @@ export function TopBar() {
             )}
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
-              <LogOut className="h-3.5 w-3.5 mr-2" /> Déconnexion
+              <LogOut className="h-3.5 w-3.5 mr-2" /> Sign out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
         <Button size="sm" className="h-8 text-xs" onClick={() => navigate('/auth')}>
-          Connexion
+          Sign in
         </Button>
       )}
     </header>

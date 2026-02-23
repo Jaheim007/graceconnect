@@ -44,22 +44,22 @@ export function GDPRBanner() {
                 <Shield className="h-5 w-5 text-primary shrink-0 mt-0.5" />
                 <div className="text-xs text-muted-foreground leading-relaxed">
                   <p>
-                    Nous utilisons des cookies essentiels pour le bon fonctionnement du site. En continuant, vous acceptez notre{' '}
+                    We use essential cookies for the proper functioning of the site. By continuing, you accept our{' '}
                     <Link to="/privacy" className="underline text-foreground hover:text-primary transition-colors">
-                      politique de confidentialité
+                      Privacy Policy
                     </Link>.
                   </p>
                   <p className="mt-1 text-[10px] text-muted-foreground/70">
-                    Siteviral agit en tant que sous-traitant des données (data processor). Chaque organisation est responsable de ses propres données.
+                    Siteviral acts as a data processor. Each organization is responsible for its own data.
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 <Button variant="ghost" size="sm" className="text-xs h-8" onClick={decline}>
-                  Refuser
+                  Decline
                 </Button>
                 <Button size="sm" className="text-xs h-8 bg-primary text-primary-foreground" onClick={accept}>
-                  Accepter
+                  Accept
                 </Button>
               </div>
             </div>
