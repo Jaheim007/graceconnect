@@ -35,7 +35,9 @@ export function TopBar() {
       <GlobalSearch />
       <div className="flex-1" />
 
-      {user && userOrgs.length > 0 && (
+      {user && (() => {
+        const ownedOrgs = userOrgs.filter((org) => org.owner_id === user.id);
+        return ownedOrgs.length > 0 ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-2 h-9 text-xs max-w-[200px] border-border bg-card/60 hover:bg-card">
@@ -54,7 +56,7 @@ export function TopBar() {
             <div className="px-2 py-1.5">
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">{t('org.my_orgs')}</p>
             </div>
-            {userOrgs.map((org) => (
+            {ownedOrgs.map((org) => (
               <DropdownMenuItem key={org.id} onClick={() => setCurrentOrg(org)} className={cn('flex items-center gap-2.5 py-2', currentOrg?.id === org.id && 'bg-primary/10')}>
                 {org.logo_url ? (
                   <img src={org.logo_url} alt="" className="h-6 w-6 rounded-md object-cover shrink-0" />
@@ -64,9 +66,13 @@ export function TopBar() {
                 <span className={cn('text-sm truncate', currentOrg?.id === org.id && 'text-primary font-semibold')}>{org.name}</span>
               </DropdownMenuItem>
             ))}
+            <DropdownMenuItem className="text-xs text-muted-foreground" onClick={() => navigate('/create-org')}>
+              + {t('topbar.create_org')}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      )}
+        ) : null;
+      })()}
 
       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
         {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
