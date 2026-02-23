@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { useI18n } from '@/i18n/I18nContext';
 import { Trash2, Plus, Copy, CheckCircle, Tag, Percent } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -27,6 +28,7 @@ export default function AdminPromoCodes() {
   const { currentOrg } = useOrg();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t, locale } = useI18n();
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [code, setCode] = useState('');
@@ -36,6 +38,7 @@ export default function AdminPromoCodes() {
   const [selectedProductId, setSelectedProductId] = useState<string>('all');
 
   const { data: products = [] } = useOrgProducts(currentOrg?.id, false);
+  const dateFmt = locale === 'fr' ? 'fr-FR' : 'en-US';
 
   const { data: promoCodes = [], isLoading } = useQuery({
     queryKey: ['admin-promo-codes', currentOrg?.id],
@@ -53,11 +56,11 @@ export default function AdminPromoCodes() {
 
   const createCode = useMutation({
     mutationFn: async () => {
-      if (!currentOrg || !user) throw new Error('Non authentifié');
+      if (!currentOrg || !user) throw new Error('Not authenticated');
       const trimmedCode = code.trim().toUpperCase().replace(/[^A-Z0-9-]/g, '');
-      if (!trimmedCode || trimmedCode.length < 3) throw new Error('Code trop court (min 3 caractères)');
+      if (!trimmedCode || trimmedCode.length < 3) throw new Error('Code too short (min 3)');
       const pct = parseFloat(discountPercent);
-      if (isNaN(pct) || pct <= 0 || pct > 100) throw new Error('Pourcentage invalide (1-100)');
+      if (isNaN(pct) || pct <= 0 || pct > 100) throw new Error('Invalid percentage (1-100)');
 
       const payload: any = {
         organization_id: currentOrg.id,
@@ -72,23 +75,19 @@ export default function AdminPromoCodes() {
       const { error } = await db.from('promo_codes').insert(payload);
       if (error) {
         if (error.message.includes('unique') || error.message.includes('duplicate')) {
-          throw new Error('Ce code existe déjà pour cette organisation');
+          throw new Error(locale === 'fr' ? 'Ce code existe déjà pour cette organisation' : 'This code already exists for this organization');
         }
         throw error;
       }
     },
     onSuccess: () => {
-      toast({ title: '✅ Code promo créé' });
-      setCode('');
-      setDiscountPercent('10');
-      setMaxUses('');
-      setExpiresAt('');
-      setSelectedProductId('all');
+      toast({ title: `✅ ${t('admin_promo.created')}` });
+      setCode(''); setDiscountPercent('10'); setMaxUses(''); setExpiresAt(''); setSelectedProductId('all');
       setShowForm(false);
       qc.invalidateQueries({ queryKey: ['admin-promo-codes', currentOrg?.id] });
     },
     onError: (err: Error) => {
-      toast({ title: 'Erreur', description: err.message, variant: 'destructive' });
+      toast({ title: t('common.error'), description: err.message, variant: 'destructive' });
     },
   });
 
@@ -108,7 +107,7 @@ export default function AdminPromoCodes() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast({ title: 'Code supprimé' });
+      toast({ title: t('admin_promo.deleted') });
       qc.invalidateQueries({ queryKey: ['admin-promo-codes', currentOrg?.id] });
     },
   });
@@ -117,46 +116,42 @@ export default function AdminPromoCodes() {
   const handleCopy = (c: string, id: string) => {
     navigator.clipboard.writeText(c);
     setCopiedId(id);
-    toast({ title: 'Code copié !' });
+    toast({ title: t('admin_promo.copied') });
     setTimeout(() => setCopiedId(null), 2000);
   };
 
   return (
-    <AdminPageShell title="Codes promo" backRoute="/admin">
+    <AdminPageShell title={t('admin_promo.title')} backRoute="/admin">
       <div className="space-y-4">
-        {/* Info */}
         <div className="bg-primary/8 border border-primary/20 rounded-2xl p-4 space-y-1">
-          <p className="font-semibold text-sm flex items-center gap-2"><Tag className="h-4 w-4 text-primary" /> Codes de réduction</p>
-          <p className="text-xs text-muted-foreground">
-            Créez des codes promo pour offrir des réductions sur vos produits digitaux. Les acheteurs appliqueront le code lors du paiement.
-          </p>
+          <p className="font-semibold text-sm flex items-center gap-2"><Tag className="h-4 w-4 text-primary" /> {t('admin_promo.info_title')}</p>
+          <p className="text-xs text-muted-foreground">{t('admin_promo.info_desc')}</p>
         </div>
 
-        {/* Create button / form */}
         {!showForm ? (
           <Button size="sm" className="bg-primary text-primary-foreground gap-1.5" onClick={() => setShowForm(true)}>
-            <Plus className="h-3.5 w-3.5" /> Nouveau code promo
+            <Plus className="h-3.5 w-3.5" /> {t('admin_promo.new')}
           </Button>
         ) : (
           <motion.div variants={fadeUp} initial="hidden" animate="visible" className="bg-card border border-border rounded-2xl p-5 space-y-4">
-            <h3 className="font-semibold text-sm">Créer un code promo</h3>
+            <h3 className="font-semibold text-sm">{t('admin_promo.create')}</h3>
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-xs">Code</Label>
+                <Label className="text-xs">{t('admin_promo.code')}</Label>
                 <Input value={code} onChange={e => setCode(e.target.value.toUpperCase())} placeholder="EX: BIENVENUE20" className="h-8 text-xs font-mono uppercase" />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">Réduction (%)</Label>
+                <Label className="text-xs">{t('admin_promo.discount')}</Label>
                 <Input type="number" value={discountPercent} onChange={e => setDiscountPercent(e.target.value)} min="1" max="100" className="h-8 text-xs" />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">Produit (optionnel)</Label>
+                <Label className="text-xs">{t('admin_promo.product_label')}</Label>
                 <Select value={selectedProductId} onValueChange={setSelectedProductId}>
                   <SelectTrigger className="h-8 text-xs">
-                    <SelectValue placeholder="Tous les produits" />
+                    <SelectValue placeholder={t('admin_promo.all_products')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Tous les produits</SelectItem>
+                    <SelectItem value="all">{t('admin_promo.all_products')}</SelectItem>
                     {products.map((p: any) => (
                       <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
                     ))}
@@ -164,29 +159,28 @@ export default function AdminPromoCodes() {
                 </Select>
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">Utilisations max (optionnel)</Label>
-                <Input type="number" value={maxUses} onChange={e => setMaxUses(e.target.value)} placeholder="Illimité" className="h-8 text-xs" />
+                <Label className="text-xs">{t('admin_promo.max_uses')}</Label>
+                <Input type="number" value={maxUses} onChange={e => setMaxUses(e.target.value)} placeholder={t('admin_promo.unlimited')} className="h-8 text-xs" />
               </div>
               <div className="space-y-1.5 sm:col-span-2">
-                <Label className="text-xs">Expire le (optionnel)</Label>
+                <Label className="text-xs">{t('admin_promo.expires')}</Label>
                 <Input type="date" value={expiresAt} onChange={e => setExpiresAt(e.target.value)} className="h-8 text-xs" />
               </div>
             </div>
             <div className="flex gap-2">
               <Button size="sm" className="bg-primary text-primary-foreground" onClick={() => createCode.mutate()} disabled={createCode.isPending}>
-                {createCode.isPending ? 'Création...' : 'Créer'}
+                {createCode.isPending ? t('admin_promo.creating') : t('common.create')}
               </Button>
-              <Button size="sm" variant="outline" onClick={() => setShowForm(false)}>Annuler</Button>
+              <Button size="sm" variant="outline" onClick={() => setShowForm(false)}>{t('admin_promo.cancel')}</Button>
             </div>
           </motion.div>
         )}
 
-        {/* List */}
         {isLoading ? <SkeletonRow count={3} /> : promoCodes.length === 0 ? (
-          <EmptyState variant="generic" title="Aucun code promo" description="Créez votre premier code de réduction." />
+          <EmptyState variant="generic" title={t('admin_promo.no_codes')} description={t('admin_promo.no_codes_desc')} />
         ) : (
           <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-            <h2 className="font-semibold text-sm">{promoCodes.length} code{promoCodes.length > 1 ? 's' : ''} promo</h2>
+            <h2 className="font-semibold text-sm">{promoCodes.length} {promoCodes.length > 1 ? t('admin_promo.count_plural') : t('admin_promo.count')}</h2>
             <div className="space-y-2">
               {(promoCodes as any[]).map((pc) => (
                 <div key={pc.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background transition-all group">
@@ -201,20 +195,17 @@ export default function AdminPromoCodes() {
                       </button>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      -{pc.discount_percent}% · {pc.current_uses}{pc.max_uses ? `/${pc.max_uses}` : ''} utilisations
-                      {pc.expires_at && ` · Expire ${new Date(pc.expires_at).toLocaleDateString('fr-FR')}`}
+                      -{pc.discount_percent}% · {pc.current_uses}{pc.max_uses ? `/${pc.max_uses}` : ''} {t('admin_promo.uses')}
+                      {pc.expires_at && ` · ${t('admin_promo.expires_on')} ${new Date(pc.expires_at).toLocaleDateString(dateFmt)}`}
                     </p>
                     {pc.digital_products?.title && (
                       <p className="text-[10px] text-primary">🏷️ {pc.digital_products.title}</p>
                     )}
                   </div>
                   <div className="flex items-center gap-2">
-                    <Switch
-                      checked={pc.is_active}
-                      onCheckedChange={(v) => toggleActive.mutate({ id: pc.id, is_active: v })}
-                    />
+                    <Switch checked={pc.is_active} onCheckedChange={(v) => toggleActive.mutate({ id: pc.id, is_active: v })} />
                     <Badge variant="outline" className={cn('text-[10px] border-0', pc.is_active ? 'bg-emerald-500/10 text-emerald-600' : 'bg-muted text-muted-foreground')}>
-                      {pc.is_active ? 'Actif' : 'Inactif'}
+                      {pc.is_active ? t('admin_promo.active') : t('admin_promo.inactive')}
                     </Badge>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive opacity-60 group-hover:opacity-100" onClick={() => deleteCode.mutate(pc.id)}>
                       <Trash2 className="h-3.5 w-3.5" />

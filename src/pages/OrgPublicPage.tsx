@@ -20,6 +20,7 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/i18n/I18nContext';
 import {
   Globe, MessageCircle, CheckCircle2, Users, CalendarDays,
   Share2, ShoppingBag, Heart, Camera, MapPin, ArrowLeft, MoreHorizontal,
@@ -44,6 +45,7 @@ export default function OrgPublicPage() {
   const { user } = useAuth();
   const { joinOrg, leaveOrg, isMemberOf } = useOrg();
   const { toast } = useToast();
+  const { t, locale } = useI18n();
   const [joining, setJoining] = useState(false);
   const [donateCampaign, setDonateCampaign] = useState<DonationCampaign | null>(null);
   const [purchaseProduct, setPurchaseProduct] = useState<DigitalProduct | null>(null);
@@ -79,7 +81,6 @@ export default function OrgPublicPage() {
   const { data: purchases = [] } = useMyPurchases();
   const purchasedProductIds = new Set(purchases.map(p => p.product_id));
 
-  // Fetch member count
   const { data: memberCount = 0 } = useQuery({
     queryKey: ['org-member-count', org?.id],
     queryFn: async () => {
@@ -93,6 +94,8 @@ export default function OrgPublicPage() {
     enabled: !!org?.id,
   });
 
+  const dateFmt = locale === 'fr' ? 'fr-FR' : 'en-US';
+
   if (orgLoading) {
     return (
       <div className="container max-w-5xl py-8">
@@ -105,9 +108,9 @@ export default function OrgPublicPage() {
   if (!org) {
     return (
       <EmptyState
-        title="Organisation introuvable"
-        description="Cette page communautaire n'existe pas ou est inactive."
-        action={{ label: 'Explorer les communautés', onClick: () => navigate('/discover') }}
+        title={t('org_public.not_found')}
+        description={t('org_public.not_found_desc')}
+        action={{ label: t('org_public.explore'), onClick: () => navigate('/discover') }}
         className="min-h-screen"
       />
     );
@@ -120,17 +123,20 @@ export default function OrgPublicPage() {
     setJoining(true);
     if (isMember) {
       await leaveOrg(org.id);
-      toast({ title: `Vous avez quitté ${org.name}` });
+      toast({ title: `${t('org_public.left')} ${org.name}` });
     } else {
       await joinOrg(org.id);
-      toast({ title: `Vous avez rejoint ${org.name} !` });
+      toast({ title: `${t('org_public.joined')} ${org.name} !` });
       navigate('/feed');
     }
     setJoining(false);
   };
 
   const shareWhatsApp = () => {
-    const url = `https://wa.me/?text=${encodeURIComponent(`Découvrez ${org.name} sur Siteviral: ${window.location.href}`)}`;
+    const msg = locale === 'fr'
+      ? `Découvrez ${org.name} sur Siteviral: ${window.location.href}`
+      : `Discover ${org.name} on Siteviral: ${window.location.href}`;
+    const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
     window.open(url, '_blank');
   };
 
@@ -147,7 +153,7 @@ export default function OrgPublicPage() {
     <div className="min-h-screen bg-background">
       <SEOHead
         title={`${org.name} — Siteviral`}
-        description={org.description || `Découvrez ${org.name} sur Siteviral`}
+        description={org.description || (locale === 'fr' ? `Découvrez ${org.name} sur Siteviral` : `Discover ${org.name} on Siteviral`)}
         ogImage={org.banner_url || org.logo_url}
         canonicalUrl={`https://siteviral.com/org/${slug}`}
         jsonLd={{
@@ -166,11 +172,11 @@ export default function OrgPublicPage() {
         </Link>
         {!user ? (
           <Button size="sm" className="h-7 text-xs bg-primary text-primary-foreground" onClick={() => navigate('/auth')}>
-            Connexion
+            {t('org_public.login')}
           </Button>
         ) : (
           <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => navigate(-1 as any)}>
-            <ArrowLeft className="h-4 w-4" /> Retour
+            <ArrowLeft className="h-4 w-4" /> {t('org_public.back')}
           </Button>
         )}
       </div>
@@ -179,7 +185,7 @@ export default function OrgPublicPage() {
       {hasAffiliateRef && (
         <div className="bg-primary/10 border-b border-primary/20 px-4 py-2 flex items-center gap-2">
           <p className="text-xs text-primary font-medium">
-            Vous avez été invité à explorer la boutique de {org.name} — parcourez les produits ci-dessous !
+            {t('org_public.invited_explore')} {org.name} {t('org_public.browse_below')}
           </p>
         </div>
       )}
@@ -195,10 +201,8 @@ export default function OrgPublicPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
         </div>
 
-        {/* Org header overlapping banner */}
         <div className="container max-w-5xl relative">
           <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-16 sm:-mt-12 pb-4">
-            {/* Logo — large, Facebook-style */}
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -230,7 +234,7 @@ export default function OrgPublicPage() {
                 <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                   <Badge variant="secondary" className="text-xs capitalize">{org.category}</Badge>
                   <span className="flex items-center gap-1">
-                    <Users className="h-3.5 w-3.5" /> {memberCount} membre{memberCount !== 1 ? 's' : ''}
+                    <Users className="h-3.5 w-3.5" /> {memberCount} {memberCount !== 1 ? t('org_public.members_plural') : t('org_public.members')}
                   </span>
                   {org.country && (
                     <span className="flex items-center gap-1">
@@ -255,7 +259,7 @@ export default function OrgPublicPage() {
                 </Button>
               )}
               <Button variant="outline" size="sm" onClick={shareWhatsApp} className="h-9 gap-1.5 text-xs">
-                <Share2 className="h-4 w-4" /> Partager
+                <Share2 className="h-4 w-4" /> {t('org_public.share')}
               </Button>
               {isMember ? (
                 <DropdownMenu>
@@ -266,7 +270,7 @@ export default function OrgPublicPage() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={handleJoinLeave} className="text-destructive focus:text-destructive text-xs">
-                      Quitter cette communauté
+                      {t('org_public.leave')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -277,13 +281,12 @@ export default function OrgPublicPage() {
                   disabled={joining}
                   className="h-9 text-xs px-5 bg-primary text-primary-foreground"
                 >
-                  {joining ? '...' : 'Rejoindre'}
+                  {joining ? '...' : t('org_public.join')}
                 </Button>
               )}
             </motion.div>
           </div>
 
-          {/* Description */}
           {org.description && (
             <motion.p
               initial={{ opacity: 0 }}
@@ -295,7 +298,6 @@ export default function OrgPublicPage() {
             </motion.p>
           )}
 
-          {/* Links row */}
           <div className="flex flex-wrap items-center gap-4 mb-4">
             {org.website && (
               <a href={org.website} className="flex items-center gap-1.5 text-xs text-primary hover:underline" target="_blank" rel="noreferrer">
@@ -315,29 +317,19 @@ export default function OrgPublicPage() {
             transition={{ delay: 0.25 }}
             className="mb-8 p-5 sm:p-6 rounded-2xl border border-border bg-card shadow-card"
           >
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-primary mb-4">Biographie du Leader</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-primary mb-4">{t('org_public.leader_bio')}</h2>
             <div className="flex flex-col sm:flex-row gap-5">
               {orgAny.leader_image_url && (
                 <div className="shrink-0">
                   <div className="h-28 w-28 sm:h-32 sm:w-32 rounded-2xl overflow-hidden border-2 border-primary/20 shadow-elevated">
-                    <img
-                      src={orgAny.leader_image_url}
-                      alt={orgAny.leader_name}
-                      className="w-full h-full object-cover"
-                    />
+                    <img src={orgAny.leader_image_url} alt={orgAny.leader_name} className="w-full h-full object-cover" />
                   </div>
                 </div>
               )}
               <div className="flex-1 min-w-0">
                 <h3 className="text-lg sm:text-xl font-bold">{orgAny.leader_name}</h3>
-                {orgAny.leader_title && (
-                  <p className="text-sm text-primary font-medium mt-0.5">{orgAny.leader_title}</p>
-                )}
-                {orgAny.leader_bio && (
-                  <p className="text-sm text-muted-foreground mt-2 leading-relaxed whitespace-pre-line">
-                    {orgAny.leader_bio}
-                  </p>
-                )}
+                {orgAny.leader_title && <p className="text-sm text-primary font-medium mt-0.5">{orgAny.leader_title}</p>}
+                {orgAny.leader_bio && <p className="text-sm text-muted-foreground mt-2 leading-relaxed whitespace-pre-line">{orgAny.leader_bio}</p>}
               </div>
             </div>
           </motion.section>
@@ -358,36 +350,35 @@ export default function OrgPublicPage() {
           </div>
         )}
 
-        {/* Tabs - simplified: show only relevant tabs */}
+        {/* Tabs */}
         <Tabs value={activeTab} onValueChange={navigateTab} className="w-full">
           <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-6 pb-1">
             {[
-              { value: 'home', label: 'Accueil', icon: Home, count: null },
-              ...(products.length > 0 ? [{ value: 'store', label: 'Boutique', icon: ShoppingBag, count: products.length }] : []),
-              ...(campaigns.length > 0 ? [{ value: 'donate', label: 'Dons', icon: Heart, count: campaigns.length }] : []),
-              ...(media.length > 0 ? [{ value: 'content', label: 'Contenu', icon: Play, count: media.length }] : []),
-              ...(photos.length > 0 ? [{ value: 'photos', label: 'Photos', icon: Camera, count: photos.length }] : []),
-              ...(events.length > 0 ? [{ value: 'events', label: 'Événements', icon: CalendarDays, count: events.length }] : []),
-            ].map((t) => {
-              const Icon = t.icon;
+              { value: 'home', label: t('org_public.home'), icon: Home, count: null },
+              ...(products.length > 0 ? [{ value: 'store', label: t('org_public.store'), icon: ShoppingBag, count: products.length }] : []),
+              ...(campaigns.length > 0 ? [{ value: 'donate', label: t('org_public.donations'), icon: Heart, count: campaigns.length }] : []),
+              ...(media.length > 0 ? [{ value: 'content', label: t('org_public.content'), icon: Play, count: media.length }] : []),
+              ...(photos.length > 0 ? [{ value: 'photos', label: t('org_public.photos'), icon: Camera, count: photos.length }] : []),
+              ...(events.length > 0 ? [{ value: 'events', label: t('org_public.events'), icon: CalendarDays, count: events.length }] : []),
+            ].map((tab) => {
+              const Icon = tab.icon;
               return (
                 <button
-                  key={t.value}
-                  onClick={() => navigateTab(t.value)}
+                  key={tab.value}
+                  onClick={() => navigateTab(tab.value)}
                   className={cn(
                     'shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-semibold transition-all border',
-                    activeTab === t.value
+                    activeTab === tab.value
                       ? 'bg-primary text-primary-foreground border-primary'
                       : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/20 bg-card'
                   )}
                 >
                   <Icon className="h-3.5 w-3.5" />
-                  {t.label}
-                  {t.count !== null && <span className="text-[10px] opacity-70">({t.count})</span>}
+                  {tab.label}
+                  {tab.count !== null && <span className="text-[10px] opacity-70">({tab.count})</span>}
                 </button>
               );
             })}
-
           </div>
 
           {/* ─── HOME TAB ─── */}
@@ -396,11 +387,11 @@ export default function OrgPublicPage() {
               <section>
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="font-semibold text-sm flex items-center gap-1.5">
-                    <ShoppingBag className="h-4 w-4 text-primary" /> Produits Numériques
+                    <ShoppingBag className="h-4 w-4 text-primary" /> {t('org_public.digital_products')}
                   </h2>
                   {products.length > 3 && (
                     <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('store')}>
-                      Tout voir →
+                      {t('org_public.view_all')}
                     </Button>
                   )}
                 </div>
@@ -416,11 +407,11 @@ export default function OrgPublicPage() {
               <section>
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="font-semibold text-sm flex items-center gap-1.5">
-                    <Heart className="h-4 w-4 text-destructive" /> Campagnes Actives
+                    <Heart className="h-4 w-4 text-destructive" /> {t('org_public.active_campaigns')}
                   </h2>
                   {campaigns.length > 2 && (
                     <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('donate')}>
-                      Tout voir →
+                      {t('org_public.view_all')}
                     </Button>
                   )}
                 </div>
@@ -435,10 +426,10 @@ export default function OrgPublicPage() {
             {media.length > 0 && (
               <section>
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="font-semibold text-sm">Contenu en vedette</h2>
+                  <h2 className="font-semibold text-sm">{t('org_public.featured_content')}</h2>
                   {media.length > 3 && (
                     <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('content')}>
-                      Tout voir →
+                      {t('org_public.view_all')}
                     </Button>
                   )}
                 </div>
@@ -452,11 +443,11 @@ export default function OrgPublicPage() {
               <section>
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="font-semibold text-sm flex items-center gap-1.5">
-                    <Camera className="h-4 w-4 text-primary" /> Photos
+                    <Camera className="h-4 w-4 text-primary" /> {t('org_public.photos')}
                   </h2>
                   {photos.length > 4 && (
                     <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('photos')}>
-                      Tout voir →
+                      {t('org_public.view_all')}
                     </Button>
                   )}
                 </div>
@@ -472,7 +463,7 @@ export default function OrgPublicPage() {
 
             {events.length > 0 && (
               <section>
-                <h2 className="font-semibold mb-3 text-sm">Événements à venir</h2>
+                <h2 className="font-semibold mb-3 text-sm">{t('org_public.upcoming_events')}</h2>
                 <div className="space-y-2">
                   {events.slice(0, 3).map((ev) => (
                     <div key={ev.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card">
@@ -481,7 +472,7 @@ export default function OrgPublicPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm truncate">{ev.title}</p>
-                        <p className="text-xs text-muted-foreground">{ev.event_date ? new Date(ev.event_date).toLocaleDateString('fr-FR') : 'À définir'}</p>
+                        <p className="text-xs text-muted-foreground">{ev.event_date ? new Date(ev.event_date).toLocaleDateString(dateFmt) : t('org_public.date_tbc')}</p>
                       </div>
                       {ev.location && <span className="text-xs text-muted-foreground hidden sm:block">{ev.location}</span>}
                     </div>
@@ -491,21 +482,19 @@ export default function OrgPublicPage() {
             )}
 
             {media.length === 0 && events.length === 0 && campaigns.length === 0 && products.length === 0 && (
-              <EmptyState variant="content" description="Cette organisation n'a pas encore publié de contenu." />
+              <EmptyState variant="content" description={t('org_public.no_content')} />
             )}
           </TabsContent>
 
           {/* ─── STORE TAB ─── */}
           <TabsContent value="store">
             {products.length === 0 ? (
-              <EmptyState variant="purchases" description="Aucun produit disponible pour le moment." />
+              <EmptyState variant="purchases" description={t('org_public.no_products_desc')} />
             ) : (
               <>
                 <div className="mb-4 p-4 rounded-2xl bg-primary/8 border border-primary/20 flex items-center gap-3">
                   <ShoppingBag className="h-5 w-5 text-primary shrink-0" />
-                  <p className="text-sm text-muted-foreground">
-                    Achetez un produit ci-dessous pour un accès instantané. Paiements sécurisés via Paystack.
-                  </p>
+                  <p className="text-sm text-muted-foreground">{t('org_public.store_info')}</p>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {products.map((p, i) => <ProductCard key={p.id} product={p} index={i} onPurchase={() => setPurchaseProduct(p)} isPurchased={purchasedProductIds.has(p.id)} />)}
@@ -541,7 +530,7 @@ export default function OrgPublicPage() {
           {/* ─── EVENTS TAB ─── */}
           <TabsContent value="events">
             {events.length === 0 ? (
-              <EmptyState variant="generic" title="Aucun événement" description="Aucun événement à venir." />
+              <EmptyState variant="generic" title={t('org_public.no_events')} description={t('org_public.no_events_desc')} />
             ) : (
               <div className="space-y-3">
                 {events.map((ev) => (
@@ -554,7 +543,7 @@ export default function OrgPublicPage() {
                     <h3 className="font-semibold">{ev.title}</h3>
                     {ev.description && <p className="text-sm text-muted-foreground mt-1">{ev.description}</p>}
                     <div className="flex gap-4 mt-2">
-                      {ev.event_date && <span className="text-xs text-muted-foreground">{new Date(ev.event_date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>}
+                      {ev.event_date && <span className="text-xs text-muted-foreground">{new Date(ev.event_date).toLocaleDateString(dateFmt, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>}
                       {ev.location && <span className="text-xs text-primary">{ev.location}</span>}
                     </div>
                   </div>
@@ -566,7 +555,7 @@ export default function OrgPublicPage() {
           {/* ─── PHOTOS TAB ─── */}
           <TabsContent value="photos">
             {photos.length === 0 ? (
-              <EmptyState variant="generic" title="Aucune photo" description="Aucune photo partagée pour le moment." />
+              <EmptyState variant="generic" title={t('org_public.no_photos')} description={t('org_public.no_photos_desc')} />
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {photos.map((photo: any, i: number) => (
@@ -577,12 +566,7 @@ export default function OrgPublicPage() {
                     onClick={() => setLightboxIndex(i)}
                   >
                     <div className="aspect-[4/3] overflow-hidden">
-                      <img
-                        src={photo.image_url}
-                        alt={photo.caption || 'Photo'}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
-                      />
+                      <img src={photo.image_url} alt={photo.caption || 'Photo'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
                     </div>
                     {photo.caption && (
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2.5 opacity-0 group-hover:opacity-100 transition-opacity">

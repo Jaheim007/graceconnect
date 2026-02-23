@@ -342,31 +342,29 @@ export default function LandingPage() {
                 <li><Link to="/terms" className="hover:text-foreground transition-colors">{t('auth.terms_of_service')}</Link></li>
                 <li><Link to="/privacy" className="hover:text-foreground transition-colors">{t('auth.privacy_policy')}</Link></li>
                 <li><Link to="/aml" className="hover:text-foreground transition-colors">AML</Link></li>
-                <li><Link to="/refund-policy" className="hover:text-foreground transition-colors">Refund</Link></li>
-                <li><Link to="/payout-policy" className="hover:text-foreground transition-colors">Payout</Link></li>
-                <li><Link to="/acceptable-use" className="hover:text-foreground transition-colors">Acceptable Use</Link></li>
-                <li><Link to="/dpa" className="hover:text-foreground transition-colors">DPA</Link></li>
+                <li><Link to="/refund-policy" className="hover:text-foreground transition-colors">{t('landing.footer_refund')}</Link></li>
+                <li><Link to="/payout-policy" className="hover:text-foreground transition-colors">{t('landing.footer_payout')}</Link></li>
+                <li><Link to="/acceptable-use" className="hover:text-foreground transition-colors">{t('landing.footer_acceptable')}</Link></li>
+                <li><Link to="/dpa" className="hover:text-foreground transition-colors">{t('landing.footer_dpa')}</Link></li>
               </ul>
             </div>
             <div className="space-y-3">
               <h4 className="font-semibold text-sm">{t('landing.footer_trust')}</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/security" className="hover:text-foreground transition-colors">Security</Link></li>
-                <li><Link to="/compliance" className="hover:text-foreground transition-colors">Compliance</Link></li>
-                <li><Link to="/subprocessors" className="hover:text-foreground transition-colors">Subprocessors</Link></li>
-                <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
+                <li><Link to="/security" className="hover:text-foreground transition-colors">{t('landing.footer_security')}</Link></li>
+                <li><Link to="/compliance" className="hover:text-foreground transition-colors">{t('landing.footer_compliance')}</Link></li>
+                <li><Link to="/subprocessors" className="hover:text-foreground transition-colors">{t('landing.footer_subprocessors')}</Link></li>
+                <li><Link to="/contact" className="hover:text-foreground transition-colors">{t('landing.footer_contact')}</Link></li>
               </ul>
             </div>
           </div>
           <div className="mt-12 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-            <span>© {new Date().getFullYear()} Hacktualiz Inc. All rights reserved.</span>
-            <span>Infrastructure Platform for Digital Organizations</span>
+            <span>© {new Date().getFullYear()} Hacktualiz Inc. {t('landing.footer_rights')}</span>
+            <span>{t('landing.footer_infra')}</span>
           </div>
           <p className="mt-4 text-[10px] text-muted-foreground/60 text-center">
-            Siteviral is operated by Hacktualiz Inc., a Delaware C-Corporation (USA).
-            131 Continental Dr, Suite 305, Newark, DE 19713.
-            Each organization owns its data. Hacktualiz Inc. acts as data processor in accordance with GDPR.
-            For data-related requests, contact the relevant organization or{' '}
+            {t('landing.footer_operated')}{' '}
+            {t('landing.footer_data_requests')}{' '}
             <a href="mailto:privacy@siteviral.com" className="underline hover:text-foreground transition-colors">privacy@siteviral.com</a>.
           </p>
         </div>

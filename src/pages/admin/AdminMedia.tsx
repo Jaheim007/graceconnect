@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useI18n } from '@/i18n/I18nContext';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -21,23 +22,24 @@ export default function AdminMedia() {
   const { currentOrg } = useOrg();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useI18n();
   const { data: media = [], isLoading } = useOrgMedia(currentOrg?.id, false);
   const deleteMutation = useDeleteMedia();
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Supprimer ce média ?')) return;
+    if (!confirm(t('admin_media.delete_confirm'))) return;
     await deleteMutation.mutateAsync({ id, orgId: currentOrg!.id });
-    toast({ title: 'Média supprimé' });
+    toast({ title: t('admin_media.deleted') });
   };
 
   return (
-    <AdminPageShell title="Médiathèque" newRoute="/admin/media/new" newLabel="Nouveau média" backRoute="/admin">
+    <AdminPageShell title={t('admin_media.title')} newRoute="/admin/media/new" newLabel={t('admin_media.new')} backRoute="/admin">
       {isLoading ? <SkeletonRow count={5} /> : media.length === 0 ? (
-        <EmptyState variant="content" action={{ label: 'Ajouter un média', onClick: () => navigate('/admin/media/new') }} />
+        <EmptyState variant="content" action={{ label: t('admin_media.add'), onClick: () => navigate('/admin/media/new') }} />
       ) : (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-sm">{media.length} média{media.length > 1 ? 's' : ''}</h2>
+            <h2 className="font-semibold text-sm">{media.length} {media.length > 1 ? t('admin_media.count_plural') : t('admin_media.count')}</h2>
           </div>
           <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
             {media.map((m) => (
@@ -60,7 +62,7 @@ export default function AdminMedia() {
                         m.is_published ? 'bg-green-500/10 text-green-600 dark:text-green-400' : 'bg-muted text-muted-foreground'
                       )}
                     >
-                      {m.is_published ? 'Publié' : 'Brouillon'}
+                      {m.is_published ? t('admin_media.published') : t('admin_media.draft')}
                     </Badge>
                   </div>
                 </div>
