@@ -20,7 +20,7 @@ const mainNav = [
   { to: '/notifications', icon: Bell, label: 'Notifications' },
   { to: '/affiliation', icon: Link2, label: 'Affiliation' },
   { to: '/resources', icon: BookOpen, label: 'My Purchases' },
-  { to: '/support', icon: LifeBuoy, label: 'Support' },
+  { to: '/support', icon: LifeBuoy, label: 'Aide' },
   { to: '/profile', icon: User, label: 'Account' },
 ];
 
