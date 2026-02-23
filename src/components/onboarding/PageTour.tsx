@@ -24,15 +24,11 @@ export function PageTour({ pageId, steps }: PageTourProps) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const done = localStorage.getItem(`${TOUR_PREFIX}${pageId}`);
-    if (!done) {
-      const timer = setTimeout(() => setVisible(true), 800);
-      return () => clearTimeout(timer);
-    }
+    const timer = setTimeout(() => setVisible(true), 800);
+    return () => clearTimeout(timer);
   }, [pageId]);
 
   const dismiss = () => {
-    localStorage.setItem(`${TOUR_PREFIX}${pageId}`, 'true');
     setVisible(false);
   };
 
