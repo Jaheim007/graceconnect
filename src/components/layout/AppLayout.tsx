@@ -3,8 +3,6 @@ import { useLocation } from 'react-router-dom';
 import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
-import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
-
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
 
 export function AppLayout() {
@@ -35,8 +33,7 @@ export function AppLayout() {
         </div>
       )}
 
-      {/* Onboarding tooltip tour for new users */}
-      {!hideNav && <OnboardingTour />}
+      {/* Onboarding tour is now scoped to /admin only — rendered inside OnboardingTour component */}
     </div>
   );
 }

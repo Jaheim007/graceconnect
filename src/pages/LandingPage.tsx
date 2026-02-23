@@ -1,6 +1,6 @@
 import { useNavigate, Link } from 'react-router-dom';
-import { motion, useInView, useMotionValue, useTransform, animate } from 'framer-motion';
-import { useRef, useEffect, useState } from 'react';
+import { motion, useInView } from 'framer-motion';
+import { useRef } from 'react';
 import {
   ArrowRight, Play, Heart, Users, ShoppingBag, Globe,
   CheckCircle, Zap, Shield, Sun, Moon, Quote,
@@ -13,63 +13,32 @@ import heroImg from '@/assets/landing-hero.jpg';
 import communityImg from '@/assets/landing-community.png';
 import devicesImg from '@/assets/landing-devices.jpg';
 
-/* ─── Animated counter hook ─── */
-function useCounter(target: number, duration = 2) {
-  const [value, setValue] = useState(0);
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: '-40px' });
-
-  useEffect(() => {
-    if (!inView) return;
-    const controls = animate(0, target, {
-      duration,
-      ease: 'easeOut',
-      onUpdate: (v) => setValue(Math.floor(v)),
-    });
-    return () => controls.stop();
-  }, [inView, target, duration]);
-
-  return { ref, value };
-}
-
-function AnimatedStat({ target, suffix, label }: { target: number; suffix: string; label: string }) {
-  const { ref, value } = useCounter(target);
-  return (
-    <div ref={ref} className="text-center">
-      <div className="text-3xl sm:text-4xl font-extrabold text-primary tabular-nums">
-        {value.toLocaleString('fr-FR')}{suffix}
-      </div>
-      <div className="text-xs sm:text-sm text-muted-foreground mt-1 font-medium">{label}</div>
-    </div>
-  );
-}
-
 /* ─── Data ─── */
 const features = [
-  { icon: Play, title: 'Médiathèque', desc: 'Partagez vidéos, musique, podcasts et replays live avec votre communauté.' },
-  { icon: Heart, title: 'Collecte de fonds', desc: 'Lancez des campagnes de dons avec suivi en temps réel et intégration Paystack.' },
-  { icon: ShoppingBag, title: 'Boutique digitale', desc: 'Vendez ebooks, formations et ressources à votre audience dans le monde entier.' },
-  { icon: Users, title: 'Gestion communautaire', desc: 'Gérez membres, rôles et affiliés depuis un seul tableau de bord.' },
-  { icon: BarChart3, title: 'Analytics avancés', desc: 'Suivez vos performances avec des métriques détaillées : revenus, membres, engagement.' },
-  { icon: Zap, title: 'Programme d\'affiliation', desc: 'Permettez à vos membres de gagner en promouvant vos produits et campagnes.' },
+  { icon: Play, title: 'Media Library', desc: 'Share videos, music, podcasts, and live replays with your community.' },
+  { icon: Heart, title: 'Fundraising', desc: 'Launch donation campaigns with real-time tracking and Paystack integration.' },
+  { icon: ShoppingBag, title: 'Digital Store', desc: 'Sell ebooks, courses, and digital resources to your audience worldwide.' },
+  { icon: Users, title: 'Community Management', desc: 'Manage members, roles, and affiliates from a single dashboard.' },
+  { icon: BarChart3, title: 'Advanced Analytics', desc: 'Track performance with detailed metrics: revenue, members, engagement.' },
+  { icon: Zap, title: 'Affiliate Program', desc: 'Let your members earn by promoting your products and campaigns.' },
 ];
 
 const testimonials = [
-  { name: 'K. M.', role: 'Community Leader, West Africa', text: 'Siteviral a transformé notre manière de toucher notre audience. Les dons en ligne ont augmenté de 300% en 3 mois.' },
-  { name: 'Marie-Claire B.', role: 'NGO Espoir Jeunesse', text: 'La boutique digitale nous permet de vendre nos formations partout dans le monde. C\'est un game-changer pour notre ONG.' },
-  { name: 'Ibrahim T.', role: 'Cultural Association', text: 'En une semaine, nous avions notre page communautaire, notre médiathèque et nos premiers membres actifs.' },
+  { name: 'K. M.', role: 'Community Leader', text: 'Siteviral transformed the way we reach our audience. Online donations increased by 300% in 3 months.' },
+  { name: 'Marie-Claire B.', role: 'NGO Director', text: 'The digital store lets us sell our training programs worldwide. It\'s a game-changer for our organization.' },
+  { name: 'Ibrahim T.', role: 'Cultural Association', text: 'Within a week, we had our community page, media library, and first active members.' },
 ];
 
 const steps = [
-  { num: '01', title: 'Créez votre compte', desc: 'Inscription gratuite en 30 secondes avec Google ou email.', icon: Smartphone },
-  { num: '02', title: 'Lancez votre communauté', desc: 'Configurez votre page, ajoutez du contenu et invitez vos membres.', icon: Globe },
-  { num: '03', title: 'Monétisez et grandissez', desc: 'Vendez des ressources, collectez des dons et suivez vos résultats.', icon: BarChart3 },
+  { num: '01', title: 'Create your account', desc: 'Free sign-up in 30 seconds with Google or email.', icon: Smartphone },
+  { num: '02', title: 'Launch your organization', desc: 'Set up your page, add content, and invite your members.', icon: Globe },
+  { num: '03', title: 'Monetize and grow', desc: 'Sell resources, collect donations, and track your results.', icon: BarChart3 },
 ];
 
 const plans = [
-  { name: 'Gratuit', price: '0', currency: '', period: '', features: ['Page communautaire', 'Médiathèque', 'Dons basiques', 'Jusqu\'à 100 membres'], cta: 'Commencer' },
-  { name: 'Pro', price: '$29', currency: '', period: '/mois', features: ['Tout le plan Gratuit', 'Boutique digitale', 'Programme d\'affiliation', 'Analytics avancés', 'Membres illimités'], highlight: true, cta: 'Essai gratuit' },
-  { name: 'Entreprise', price: 'Sur mesure', currency: '', period: '', features: ['Tout le plan Pro', 'Domaine personnalisé', 'Support prioritaire', 'API & intégrations', 'SLA garanti'], cta: 'Nous contacter' },
+  { name: 'Free', price: '$0', period: '', features: ['Community page', 'Media library', 'Basic donations', 'Up to 100 members'], cta: 'Get Started' },
+  { name: 'Pro', price: '$29', period: '/mo', features: ['Everything in Free', 'Digital store', 'Affiliate program', 'Advanced analytics', 'Unlimited members'], highlight: true, cta: 'Start Free Trial' },
+  { name: 'Enterprise', price: 'Custom', period: '', features: ['Everything in Pro', 'Custom domain', 'Priority support', 'API & integrations', 'SLA guarantee'], cta: 'Contact Us' },
 ];
 
 const fadeUp = {
@@ -93,18 +62,17 @@ export default function LandingPage() {
         <div className="container flex items-center justify-between h-14 px-4">
           <span className="text-xl font-extrabold tracking-tight text-foreground">Siteviral</span>
           <div className="flex items-center gap-1 sm:gap-2">
-            <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex"><Link to="/discover">Explorer</Link></Button>
-            <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex"><Link to="/about">À propos</Link></Button>
+            <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex"><Link to="/about">About</Link></Button>
             <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
               {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/auth')} className="text-xs sm:text-sm px-2 sm:px-3">Connexion</Button>
+            <Button variant="ghost" size="sm" onClick={() => navigate('/auth?mode=signin')} className="text-xs sm:text-sm px-2 sm:px-3">Sign in</Button>
             <Button
               size="sm"
               className="text-xs sm:text-sm px-3 sm:px-4"
-              onClick={() => navigate('/auth?tab=signup')}
+              onClick={() => navigate('/auth?mode=signup')}
             >
-              Commencer
+              Get Started
             </Button>
           </div>
         </div>
@@ -126,67 +94,39 @@ export default function LandingPage() {
           >
             <motion.div variants={fadeUp}>
               <Badge variant="secondary" className="text-xs px-4 py-1.5 rounded-full border border-border bg-card/50 text-muted-foreground gap-1.5">
-                Built for leaders and organizations worldwide
+                Infrastructure for digital organizations
               </Badge>
             </motion.div>
 
             <motion.h1 variants={fadeUp} className="text-4xl sm:text-5xl lg:text-7xl font-extrabold leading-[1.08] tracking-tight">
-              Community monetization
+              Launch your organization
               <br />
-              <span className="text-primary">infrastructure.</span>
+              <span className="text-primary">in minutes.</span>
             </motion.h1>
 
             <motion.p variants={fadeUp} className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              La plateforme tout-en-un pour partager du contenu, collecter des fonds,
-              vendre des ressources et développer votre communauté.
+              The all-in-one infrastructure to share content, collect donations,
+              sell digital resources, and grow your organization.
             </motion.p>
 
             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
               <Button
                 size="lg"
                 className="px-8 gap-2 h-13 text-base w-full sm:w-auto"
-                onClick={() => navigate('/auth?tab=signup')}
+                onClick={() => navigate('/auth?mode=signup')}
               >
-                Commencer gratuitement <ArrowRight className="h-4 w-4" />
+                Get Started Free <ArrowRight className="h-4 w-4" />
               </Button>
               <Button
                 size="lg"
                 variant="outline"
                 className="h-13 px-8 gap-2 text-base w-full sm:w-auto"
-                onClick={() => navigate('/discover')}
+                onClick={() => navigate('/about')}
               >
-                <Play className="h-4 w-4" /> Découvrir les communautés
+                Learn More
               </Button>
             </motion.div>
-
-            {/* Social proof micro */}
-            <motion.div variants={fadeUp} className="flex items-center justify-center gap-3 pt-4">
-              <div className="flex -space-x-2">
-                {['K', 'M', 'A', 'S'].map((initial, i) => (
-                  <div key={i} className="h-8 w-8 rounded-full border-2 border-background bg-primary flex items-center justify-center text-[10px] font-bold text-primary-foreground">
-                    {initial}
-                  </div>
-                ))}
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Rejoint par <span className="font-semibold text-foreground">500+</span> organisations
-              </p>
-            </motion.div>
           </motion.div>
-        </div>
-      </section>
-
-      {/* ─── Animated Stats ─── */}
-      <section className="relative -mt-14 z-20 px-4">
-        <div className="container max-w-4xl">
-          <div className="rounded-2xl border border-border overflow-hidden glass p-6 sm:p-10">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
-              <AnimatedStat target={10000} suffix="+" label="Membres actifs" />
-              <AnimatedStat target={500} suffix="+" label="Communautés" />
-              <AnimatedStat target={2} suffix="M+" label="Transactions" />
-              <AnimatedStat target={15} suffix="+" label="Pays représentés" />
-            </div>
-          </div>
         </div>
       </section>
 
@@ -198,9 +138,9 @@ export default function LandingPage() {
             variants={fadeUp}
             className="text-center mb-16"
           >
-            <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">Comment ça marche</Badge>
+            <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">How it works</Badge>
             <h2 className="text-3xl sm:text-4xl font-extrabold">
-              Lancez-vous en <span className="text-primary">3 étapes simples</span>
+              Get started in <span className="text-primary">3 simple steps</span>
             </h2>
           </motion.div>
 
@@ -241,17 +181,17 @@ export default function LandingPage() {
               variants={fadeUp}
               className="space-y-6"
             >
-              <Badge variant="secondary" className="text-xs px-3 py-1 rounded-full">Connectivité</Badge>
+              <Badge variant="secondary" className="text-xs px-3 py-1 rounded-full">Connectivity</Badge>
               <h2 className="text-3xl sm:text-4xl font-extrabold leading-tight">
-                Connectez vos membres,{' '}
-                <span className="text-primary">partout dans le monde.</span>
+                Connect your members,{' '}
+                <span className="text-primary">anywhere in the world.</span>
               </h2>
               <p className="text-muted-foreground leading-relaxed text-base">
-                Que votre communauté soit à Lagos, Paris ou New York, Siteviral vous permet de rester
-                connectés. Partagez des moments forts, diffusez vos contenus et gardez le lien avec chaque membre.
+                Whether your community is in Lagos, Paris, or New York, Siteviral keeps you connected.
+                Share key moments, distribute content, and maintain engagement with every member.
               </p>
               <ul className="space-y-3">
-                {['Diffusion en temps réel', 'Notifications push intelligentes', 'Contenu multimédia illimité'].map((item) => (
+                {['Real-time broadcasting', 'Smart push notifications', 'Unlimited multimedia content'].map((item) => (
                   <li key={item} className="flex items-center gap-2.5 text-sm">
                     <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                       <CheckCircle className="h-3 w-3 text-primary" />
@@ -262,9 +202,9 @@ export default function LandingPage() {
               </ul>
               <Button
                 className="gap-2 h-11 px-6"
-                onClick={() => navigate('/auth?tab=signup')}
+                onClick={() => navigate('/auth?mode=signup')}
               >
-                Rejoignez-nous <ArrowRight className="h-4 w-4" />
+                Get Started <ArrowRight className="h-4 w-4" />
               </Button>
             </motion.div>
             <motion.div
@@ -273,7 +213,7 @@ export default function LandingPage() {
               transition={{ delay: 0.1 }}
               className="rounded-2xl overflow-hidden border border-border"
             >
-              <img src={communityImg} alt="Communauté unie" className="w-full h-auto object-cover" loading="lazy" />
+              <img src={communityImg} alt="Global community" className="w-full h-auto object-cover" loading="lazy" />
             </motion.div>
           </div>
         </div>
@@ -287,11 +227,11 @@ export default function LandingPage() {
             variants={fadeUp}
             className="text-center mb-14"
           >
-            <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">Fonctionnalités</Badge>
+            <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">Features</Badge>
             <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">
-              Tout ce dont votre communauté <span className="text-primary">a besoin</span>
+              Everything your organization <span className="text-primary">needs</span>
             </h2>
-            <p className="text-muted-foreground text-base max-w-xl mx-auto">Une plateforme. Des possibilités infinies.</p>
+            <p className="text-muted-foreground text-base max-w-xl mx-auto">One platform. Infinite possibilities.</p>
           </motion.div>
 
           <motion.div
@@ -325,7 +265,7 @@ export default function LandingPage() {
               variants={fadeUp}
               className="order-2 md:order-1 rounded-2xl overflow-hidden border border-border"
             >
-              <img src={devicesImg} alt="Accessible sur tous les appareils" className="w-full h-auto object-cover" loading="lazy" />
+              <img src={devicesImg} alt="Accessible on all devices" className="w-full h-auto object-cover" loading="lazy" />
             </motion.div>
             <motion.div
               initial="hidden" whileInView="visible" viewport={{ once: true }}
@@ -333,20 +273,20 @@ export default function LandingPage() {
               transition={{ delay: 0.1 }}
               className="order-1 md:order-2 space-y-6"
             >
-              <Badge variant="secondary" className="text-xs px-3 py-1 rounded-full">Application PWA</Badge>
+              <Badge variant="secondary" className="text-xs px-3 py-1 rounded-full">PWA Application</Badge>
               <h2 className="text-3xl sm:text-4xl font-extrabold leading-tight">
-                Accessible sur{' '}
-                <span className="text-primary">tous vos appareils.</span>
+                Accessible on{' '}
+                <span className="text-primary">all your devices.</span>
               </h2>
               <p className="text-muted-foreground leading-relaxed text-base">
-                Application installable directement depuis votre navigateur. Pas besoin de télécharger sur un store.
+                Installable app directly from your browser. No app store download required.
               </p>
               <ul className="space-y-3">
                 {[
-                  { text: 'Application installable (PWA)', icon: Smartphone },
-                  { text: 'Fonctionne hors-ligne', icon: Globe },
-                  { text: 'Notifications push', icon: Megaphone },
-                  { text: 'Temps de chargement ultra-rapide', icon: Zap },
+                  { text: 'Installable app (PWA)', icon: Smartphone },
+                  { text: 'Works offline', icon: Globe },
+                  { text: 'Push notifications', icon: Megaphone },
+                  { text: 'Ultra-fast loading', icon: Zap },
                 ].map((item) => (
                   <li key={item.text} className="flex items-center gap-2.5 text-sm">
                     <div className="h-5 w-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
@@ -369,9 +309,9 @@ export default function LandingPage() {
             variants={fadeUp}
             className="text-center mb-14"
           >
-            <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">Témoignages</Badge>
+            <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">Testimonials</Badge>
             <h2 className="text-3xl sm:text-4xl font-extrabold">
-              Ils nous font <span className="text-primary">confiance</span>
+              Trusted by <span className="text-primary">organizations</span>
             </h2>
           </motion.div>
 
@@ -406,12 +346,12 @@ export default function LandingPage() {
             variants={fadeUp}
             className="text-center mb-14"
           >
-            <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">Tarifs</Badge>
+            <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">Pricing</Badge>
             <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">
-              Commencez gratuitement. <span className="text-primary">Évoluez selon vos besoins.</span>
+              Start free. <span className="text-primary">Scale as you grow.</span>
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto">
-              Le plan gratuit inclut tout pour démarrer. Passez au Pro quand vous êtes prêt à grandir.
+              The free plan includes everything to get started. Upgrade to Pro when you're ready to grow.
             </p>
           </motion.div>
 
@@ -432,13 +372,13 @@ export default function LandingPage() {
               >
                 {plan.highlight && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground border-0 text-[10px] px-3">Populaire</Badge>
+                    <Badge className="bg-primary text-primary-foreground border-0 text-[10px] px-3">Popular</Badge>
                   </div>
                 )}
                 <h3 className="font-bold text-lg">{plan.name}</h3>
                 <div className="mt-2 flex items-baseline gap-1">
                   <span className={`text-3xl font-extrabold ${plan.highlight ? 'text-primary' : ''}`}>{plan.price}</span>
-                  {plan.currency && <span className="text-sm text-muted-foreground">{plan.currency}{plan.period}</span>}
+                  {plan.period && <span className="text-sm text-muted-foreground">{plan.period}</span>}
                 </div>
                 <ul className="mt-5 space-y-2.5">
                   {plan.features.map((f) => (
@@ -450,7 +390,7 @@ export default function LandingPage() {
                 <Button
                   className="w-full mt-6 h-11"
                   variant={plan.highlight ? 'default' : 'outline'}
-                  onClick={() => navigate('/auth?tab=signup')}
+                  onClick={() => navigate('/auth?mode=signup')}
                 >
                   {plan.cta} <ChevronRight className="h-4 w-4" />
                 </Button>
@@ -471,13 +411,13 @@ export default function LandingPage() {
             <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
               <Shield className="h-7 w-7 text-primary" />
             </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold">Sécurité et confiance</h2>
+            <h2 className="text-2xl sm:text-3xl font-extrabold">Security & Trust</h2>
             <p className="text-muted-foreground max-w-xl mx-auto leading-relaxed">
-              Vos données sont protégées par un chiffrement de bout en bout. Les paiements sont sécurisés via Paystack,
-              leader des paiements numériques. Conformité RGPD et standards internationaux.
+              Your data is protected with end-to-end encryption. Payments are secured through Paystack,
+              a leading digital payments provider. GDPR compliant and meeting international standards.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
-              {['Chiffrement SSL', 'Paystack Certified', 'GDPR Compliant'].map((badge) => (
+              {['SSL Encryption', 'Paystack Certified', 'GDPR Compliant'].map((badge) => (
                 <div key={badge} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/60 rounded-full px-3 py-1.5 border border-border">
                   <CheckCircle className="h-3 w-3 text-primary" />
                   {badge}
@@ -501,28 +441,18 @@ export default function LandingPage() {
 
             <div className="relative z-10 p-8 sm:p-14 text-center space-y-6">
               <h2 className="text-3xl sm:text-4xl font-extrabold text-primary-foreground leading-tight">
-                Prêt à connecter votre communauté ?
+                Ready to launch your organization?
               </h2>
               <p className="text-primary-foreground/70 max-w-md mx-auto">
-                Rejoignez des centaines d'organisations déjà sur Siteviral et commencez à développer votre impact dès aujourd'hui.
+                Join organizations already using Siteviral to grow their digital presence and monetize their community.
               </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-                <Button
-                  size="lg"
-                  className="bg-background text-foreground hover:bg-background/90 border-0 px-8 h-13 text-base gap-2 w-full sm:w-auto shadow-elevated"
-                  onClick={() => navigate('/auth?tab=signup')}
-                >
-                  Créez votre communauté <ArrowRight className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 h-13 px-8 text-base w-full sm:w-auto"
-                  onClick={() => navigate('/discover')}
-                >
-                  Explorer d'abord
-                </Button>
-              </div>
+              <Button
+                size="lg"
+                className="bg-background text-foreground hover:bg-background/90 border-0 px-8 h-13 text-base gap-2 shadow-elevated"
+                onClick={() => navigate('/auth?mode=signup')}
+              >
+                Get Started Free <ArrowRight className="h-4 w-4" />
+              </Button>
             </div>
           </motion.div>
         </div>
@@ -539,32 +469,32 @@ export default function LandingPage() {
               </p>
             </div>
             <div className="space-y-3">
-              <h4 className="font-semibold text-sm">Produit</h4>
+              <h4 className="font-semibold text-sm">Product</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/discover" className="hover:text-foreground transition-colors">Découvrir</Link></li>
-                <li><Link to="/programs" className="hover:text-foreground transition-colors">Programmes</Link></li>
-                <li><Link to="/auth?tab=signup" className="hover:text-foreground transition-colors">Créer une communauté</Link></li>
+                <li><Link to="/about" className="hover:text-foreground transition-colors">About</Link></li>
+                <li><Link to="/auth?mode=signup" className="hover:text-foreground transition-colors">Get Started</Link></li>
+                <li><Link to="/faq" className="hover:text-foreground transition-colors">FAQ</Link></li>
               </ul>
             </div>
             <div className="space-y-3">
-              <h4 className="font-semibold text-sm">Légal</h4>
+              <h4 className="font-semibold text-sm">Legal</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/terms" className="hover:text-foreground transition-colors">Conditions d'utilisation</Link></li>
-                <li><Link to="/privacy" className="hover:text-foreground transition-colors">Confidentialité</Link></li>
-                <li><Link to="/aml" className="hover:text-foreground transition-colors">Politique AML</Link></li>
-                <li><Link to="/refund-policy" className="hover:text-foreground transition-colors">Remboursement</Link></li>
-                <li><Link to="/payout-policy" className="hover:text-foreground transition-colors">Retraits</Link></li>
-                <li><Link to="/acceptable-use" className="hover:text-foreground transition-colors">Utilisation acceptable</Link></li>
+                <li><Link to="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
+                <li><Link to="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
+                <li><Link to="/aml" className="hover:text-foreground transition-colors">AML Policy</Link></li>
+                <li><Link to="/refund-policy" className="hover:text-foreground transition-colors">Refund Policy</Link></li>
+                <li><Link to="/payout-policy" className="hover:text-foreground transition-colors">Payout Policy</Link></li>
+                <li><Link to="/acceptable-use" className="hover:text-foreground transition-colors">Acceptable Use</Link></li>
+                <li><Link to="/dpa" className="hover:text-foreground transition-colors">DPA</Link></li>
               </ul>
             </div>
             <div className="space-y-3">
-              <h4 className="font-semibold text-sm">Entreprise</h4>
+              <h4 className="font-semibold text-sm">Trust</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/about" className="hover:text-foreground transition-colors">À propos</Link></li>
-                <li><Link to="/faq" className="hover:text-foreground transition-colors">Centre d'aide</Link></li>
+                <li><Link to="/security" className="hover:text-foreground transition-colors">Security</Link></li>
+                <li><Link to="/compliance" className="hover:text-foreground transition-colors">Compliance</Link></li>
+                <li><Link to="/subprocessors" className="hover:text-foreground transition-colors">Subprocessors</Link></li>
                 <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
-                <li><Link to="/compliance" className="hover:text-foreground transition-colors">Conformité</Link></li>
-                <li className="text-[11px] pt-2 border-t border-border/40">Operated by Hacktualiz Inc.<br/>131 Continental Dr, Suite 305<br/>Newark, DE 19713, USA</li>
               </ul>
             </div>
           </div>
@@ -573,6 +503,8 @@ export default function LandingPage() {
             <span>Infrastructure Platform for Digital Organizations</span>
           </div>
           <p className="mt-4 text-[10px] text-muted-foreground/60 text-center">
+            Siteviral is operated by Hacktualiz Inc., a Delaware C-Corporation (USA).
+            131 Continental Dr, Suite 305, Newark, DE 19713.
             Each organization owns its data. Hacktualiz Inc. acts as data processor in accordance with GDPR.
             For data-related requests, contact the relevant organization or{' '}
             <a href="mailto:privacy@siteviral.com" className="underline hover:text-foreground transition-colors">privacy@siteviral.com</a>.

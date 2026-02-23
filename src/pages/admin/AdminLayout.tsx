@@ -1,5 +1,6 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useOrg } from '@/contexts/OrgContext';
+import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/button';
 import {
@@ -159,6 +160,7 @@ export default function AdminLayout() {
           <Outlet />
         </main>
       </div>
+      <OnboardingTour />
     </div>
   );
 }
