@@ -18,6 +18,7 @@ import { ProductPurchaseModal } from '@/components/products/ProductPurchaseModal
 import { DonateModal } from '@/components/donations/DonateModal';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
+import { FormattedText } from '@/lib/formatText';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
@@ -288,14 +289,14 @@ export default function OrgPublicPage() {
           </div>
 
           {org.description && (
-            <motion.p
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.15 }}
-              className="text-sm text-muted-foreground max-w-3xl mb-2 break-words whitespace-pre-line overflow-hidden"
+              className="max-w-3xl mb-2 overflow-hidden"
             >
-              {org.description}
-            </motion.p>
+              <FormattedText text={org.description} className="text-sm text-muted-foreground break-words leading-relaxed" />
+            </motion.div>
           )}
 
           <div className="flex flex-wrap items-center gap-4 mb-4">
@@ -329,7 +330,7 @@ export default function OrgPublicPage() {
               <div className="flex-1 min-w-0">
                 <h3 className="text-lg sm:text-xl font-bold">{orgAny.leader_name}</h3>
                 {orgAny.leader_title && <p className="text-sm text-primary font-medium mt-0.5">{orgAny.leader_title}</p>}
-                {orgAny.leader_bio && <p className="text-sm text-muted-foreground mt-2 leading-relaxed whitespace-pre-line break-words overflow-hidden">{orgAny.leader_bio}</p>}
+                {orgAny.leader_bio && <FormattedText text={orgAny.leader_bio} className="text-sm text-muted-foreground mt-2 leading-relaxed break-words" />}
               </div>
             </div>
           </motion.section>
