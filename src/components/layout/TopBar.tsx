@@ -31,26 +31,25 @@ export function TopBar() {
     : user?.email?.[0]?.toUpperCase() || 'U';
 
   return (
-    <header className="h-14 sticky top-0 z-40 glass border-b border-border/60 flex items-center px-4 gap-3">
+    <header className="h-14 sticky top-0 z-40 glass border-b border-border flex items-center px-4 gap-3">
       {/* Logo (mobile) */}
       <Link to="/" className="flex lg:hidden items-center gap-2 mr-1">
-        <span className="text-lg font-extrabold tracking-tight italic text-gold">Siteviral</span>
+        <span className="text-lg font-extrabold tracking-tight text-foreground">Siteviral</span>
       </Link>
 
-      {/* Global Search */}
       <GlobalSearch />
 
       <div className="flex-1" />
 
-      {/* Org switcher — premium with logo */}
+      {/* Org switcher */}
       {user && userOrgs.length > 0 && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-2 h-9 text-xs max-w-[200px] border-border/60 bg-card/60 hover:bg-card">
+            <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-2 h-9 text-xs max-w-[200px] border-border bg-card/60 hover:bg-card">
               {currentOrg?.logo_url ? (
                 <img src={currentOrg.logo_url} alt="" className="h-5 w-5 rounded-md object-cover shrink-0" />
               ) : (
-                <div className="h-5 w-5 rounded-md gold-gradient shrink-0 flex items-center justify-center text-[9px] font-bold text-primary-foreground">
+                <div className="h-5 w-5 rounded-md bg-primary shrink-0 flex items-center justify-center text-[9px] font-bold text-primary-foreground">
                   {currentOrg?.name?.[0]?.toUpperCase() || 'O'}
                 </div>
               )}
@@ -84,12 +83,10 @@ export function TopBar() {
         </DropdownMenu>
       )}
 
-      {/* Theme toggle */}
       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
         {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
       </Button>
 
-      {/* Notifications */}
       {user && (
         <Button variant="ghost" size="icon" className="h-8 w-8 relative" data-tour="nav-notifications" onClick={() => navigate('/notifications')}>
           <Bell className="h-4 w-4" />
@@ -99,15 +96,14 @@ export function TopBar() {
         </Button>
       )}
 
-      {/* User menu */}
       {user ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button data-tour="nav-profile" className="h-8 w-8 rounded-full ring-2 ring-primary/30 overflow-hidden flex items-center justify-center text-xs font-bold shrink-0 hover:ring-primary/60 transition-all">
+            <button data-tour="nav-profile" className="h-8 w-8 rounded-full ring-2 ring-border overflow-hidden flex items-center justify-center text-xs font-bold shrink-0 hover:ring-primary/40 transition-all">
               {avatarUrl ? (
                 <img src={avatarUrl} alt={initials} className="h-full w-full rounded-full object-cover" />
               ) : (
-                <div className="h-full w-full gold-gradient flex items-center justify-center text-primary-foreground">
+                <div className="h-full w-full bg-primary flex items-center justify-center text-primary-foreground">
                   {initials}
                 </div>
               )}
@@ -118,7 +114,7 @@ export function TopBar() {
               {avatarUrl ? (
                 <img src={avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover shrink-0" />
               ) : (
-                <div className="h-8 w-8 rounded-full gold-gradient flex items-center justify-center text-xs font-bold text-primary-foreground shrink-0">{initials}</div>
+                <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-primary-foreground shrink-0">{initials}</div>
               )}
               <div className="min-w-0">
                 <p className="text-sm font-semibold truncate">{profile?.display_name || 'Utilisateur'}</p>
@@ -152,7 +148,7 @@ export function TopBar() {
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <Button size="sm" className="h-8 text-xs gold-gradient text-primary-foreground border-0 shadow-gold" onClick={() => navigate('/auth')}>
+        <Button size="sm" className="h-8 text-xs" onClick={() => navigate('/auth')}>
           Connexion
         </Button>
       )}

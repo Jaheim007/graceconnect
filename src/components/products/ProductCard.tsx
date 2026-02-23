@@ -19,14 +19,13 @@ interface ProductCardProps {
   isPurchased?: boolean;
 }
 
-/** Cover aspect ratio based on product type */
 const coverAspectClass: Record<string, string> = {
-  pdf: 'aspect-[2/3]',      // Book-like portrait
-  ebook: 'aspect-[2/3]',    // Book-like portrait
-  audio: 'aspect-square',   // Album art square
-  video: 'aspect-video',    // 16:9
-  course: 'aspect-video',   // 16:9
-  other: 'aspect-video',    // Default
+  pdf: 'aspect-[2/3]',
+  ebook: 'aspect-[2/3]',
+  audio: 'aspect-square',
+  video: 'aspect-video',
+  course: 'aspect-video',
+  other: 'aspect-video',
 };
 
 export function ProductCard({ product, onPurchase, index = 0, isPurchased }: ProductCardProps) {
@@ -47,7 +46,6 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
     staleTime: 1000 * 60 * 10,
   });
 
-  // Need org slug for navigation — fetch if not on product
   const { data: orgData } = useQuery({
     queryKey: ['org-slug-for-card', (product as any).organization_id],
     queryFn: async () => {
@@ -59,7 +57,6 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
   });
 
   const resolvedSlug = orgSlug || orgData?.slug || '';
-
   const pSlug = (product as any).slug;
   const detailPath = pSlug
     ? `/org/${resolvedSlug}/p/${pSlug}`
@@ -80,9 +77,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
   };
 
   const handleCardClick = () => {
-    if (resolvedSlug) {
-      navigate(detailPath);
-    }
+    if (resolvedSlug) navigate(detailPath);
   };
 
   const fmt = (n: number) =>
@@ -104,51 +99,47 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
 
   return (
     <div
-      className="bg-card border border-border rounded-2xl overflow-hidden shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300 group cursor-pointer"
+      className="bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/30 transition-all duration-200 group cursor-pointer"
       onClick={handleCardClick}
     >
-      {/* Cover image with adaptive aspect ratio */}
-      <div className={cn('relative overflow-hidden bg-gradient-to-br from-accent/10 to-primary/10', aspectClass)}>
+      <div className={cn('relative overflow-hidden bg-muted/50', aspectClass)}>
         {product.cover_image_url ? (
           <img
             src={product.cover_image_url}
             alt={product.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500 ease-out"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <ShoppingBag className="h-14 w-14 text-muted-foreground/20" />
           </div>
         )}
-        {/* Badges overlay */}
         <div className="absolute top-2.5 left-2.5 right-2.5 flex items-start justify-between">
           <div className="flex flex-col gap-1">
             {isPurchased && (
-              <Badge className="bg-emerald-600/90 text-primary-foreground border-0 text-[10px] gap-1 font-semibold w-fit">
+              <Badge className="bg-emerald-600/90 text-white border-0 text-[10px] gap-1 font-semibold w-fit">
                 <CheckCircle className="h-3 w-3" /> Acheté
               </Badge>
             )}
           </div>
           {product.is_featured && (
-            <Badge className="gold-gradient text-primary-foreground border-0 text-[10px] font-bold">
-              ⭐ En vedette
+            <Badge className="bg-accent text-accent-foreground border-0 text-[10px] font-bold">
+              En vedette
             </Badge>
           )}
         </div>
-        {/* Price tag overlay on cover */}
         <div className="absolute bottom-2.5 right-2.5">
           <span className={cn(
-            'inline-block px-2.5 py-1 rounded-lg text-sm font-bold shadow-lg',
+            'inline-block px-2.5 py-1 rounded-lg text-sm font-bold shadow-sm',
             product.is_free
               ? 'bg-emerald-600 text-white'
-              : 'bg-background/90 backdrop-blur-sm text-primary border border-border/50'
+              : 'bg-background/90 backdrop-blur-sm text-foreground border border-border/50'
           )}>
             {fmt(product.price)}
           </span>
         </div>
       </div>
 
-      {/* Info */}
       <div className="p-4 space-y-2.5">
         <div>
           <h3 className="font-bold text-sm line-clamp-2 leading-snug">{product.title}</h3>
@@ -192,7 +183,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
               <Button
                 size="sm"
                 onClick={(e) => { e.stopPropagation(); onPurchase?.(); }}
-                className="h-7 text-[11px] px-3 gold-gradient text-primary-foreground border-0 shadow-gold font-semibold"
+                className="h-7 text-[11px] px-3 font-semibold"
               >
                 {product.is_free ? 'Obtenir' : 'Acheter'}
               </Button>

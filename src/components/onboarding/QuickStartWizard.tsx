@@ -58,7 +58,7 @@ export function QuickStartWizard({ open, onClose }: QuickStartWizardProps) {
 
         {/* Header */}
         <div className="flex items-center gap-2 mb-4">
-          <div className="h-8 w-8 rounded-xl gold-gradient flex items-center justify-center">
+          <div className="h-8 w-8 rounded-xl bg-primary flex items-center justify-center">
             <Rocket className="h-4 w-4 text-primary-foreground" />
           </div>
           <div>
@@ -72,7 +72,7 @@ export function QuickStartWizard({ open, onClose }: QuickStartWizardProps) {
           {STEPS.map((s, i) => (
             <div key={s.id} className={cn(
               'h-1.5 flex-1 rounded-full transition-all',
-              i <= currentStep ? 'gold-gradient' : 'bg-muted',
+              i <= currentStep ? 'bg-primary' : 'bg-muted',
               completedSteps.has(s.id) && i !== currentStep && 'bg-emerald-500'
             )} />
           ))}
@@ -108,7 +108,7 @@ export function QuickStartWizard({ open, onClose }: QuickStartWizardProps) {
           <Button variant="outline" size="sm" onClick={handleSkip}>
             {isLast ? 'Done' : 'Skip'}
           </Button>
-          <Button size="sm" onClick={handleAction} className="gap-1.5 gold-gradient text-primary-foreground border-0 shadow-gold">
+          <Button size="sm" onClick={handleAction} className="gap-1.5">
             {step.cta} <ArrowRight className="h-4 w-4" />
           </Button>
         </div>

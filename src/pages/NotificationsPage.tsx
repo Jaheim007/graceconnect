@@ -62,7 +62,7 @@ export default function NotificationsPage() {
                   n.is_read ? 'border-border bg-card' : 'border-primary/20 bg-primary/5 hover:bg-primary/8'
                 )}
               >
-                <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center shrink-0', n.is_read ? 'bg-muted' : 'gold-gradient shadow-gold')}>
+                <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center shrink-0', n.is_read ? 'bg-muted' : 'bg-primary')}>
                   <Bell className={cn('h-4 w-4', n.is_read ? 'text-muted-foreground' : 'text-primary-foreground')} />
                 </div>
                 <div className="flex-1 min-w-0">

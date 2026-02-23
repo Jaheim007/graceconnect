@@ -57,28 +57,26 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
 
   return (
     <div
-      className="group bg-card border border-border rounded-2xl overflow-hidden shadow-card hover:shadow-elevated transition-all duration-300 cursor-pointer hover:-translate-y-0.5 animate-fade-in"
-      style={{ animationDelay: `${index * 60}ms`, animationFillMode: 'both' }}
+      className="group bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/30 transition-all duration-200 cursor-pointer animate-fade-in"
+      style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'both' }}
       onClick={() => navigate(`/org/${org.slug}`)}
     >
       {/* Banner */}
-      <div className="relative h-24 bg-gradient-to-br from-primary/20 to-accent/20 overflow-hidden">
+      <div className="relative h-24 bg-muted overflow-hidden">
         {org.banner_url ? (
           <img
             src={org.banner_url}
             alt=""
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
           />
         ) : (
-          <div className="w-full h-full hero-gradient opacity-60" />
+          <div className="w-full h-full hero-gradient opacity-40" />
         )}
-        {/* Verified badge */}
         {org.is_verified && (
           <div className="absolute top-2 right-2">
-            <CheckCircle2 className="h-4 w-4 text-primary drop-shadow" />
+            <CheckCircle2 className="h-4 w-4 text-accent drop-shadow" />
           </div>
         )}
-        {/* Category badge on banner */}
         <div className="absolute bottom-2 right-2">
           <Badge
             variant="secondary"
@@ -89,15 +87,13 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
         </div>
       </div>
 
-      {/* Logo + Info row */}
       <div className="px-4 pt-3 pb-4">
         <div className="flex items-start gap-3 mb-2">
-          {/* Logo — fully visible, not overlapping */}
           <div className="h-14 w-14 rounded-xl border-2 border-border shadow-sm overflow-hidden bg-card shrink-0">
             {org.logo_url ? (
               <img src={org.logo_url} alt={org.name} className="w-full h-full object-cover" />
             ) : (
-              <div className="w-full h-full gold-gradient flex items-center justify-center">
+              <div className="w-full h-full bg-primary flex items-center justify-center">
                 <span className="text-sm font-bold text-primary-foreground">
                   {org.name.slice(0, 2).toUpperCase()}
                 </span>
@@ -105,12 +101,11 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
             )}
           </div>
 
-          {/* Name + description */}
           <div className="min-w-0 flex-1">
             <h3 className="font-semibold text-sm leading-tight line-clamp-1 flex items-center gap-1">
               {org.name}
               {org.is_verified && (
-                <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0 inline" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-accent shrink-0 inline" />
               )}
             </h3>
             {org.description ? (
@@ -123,7 +118,6 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
           </div>
         </div>
 
-        {/* Footer: country + join */}
         <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/50">
           {org.country && (
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -137,10 +131,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
             variant={isMember ? 'secondary' : 'default'}
             onClick={handleJoin}
             disabled={joining || isMember}
-            className={cn(
-              'h-7 text-xs px-4 rounded-full',
-              !isMember && 'gold-gradient text-primary-foreground border-0 shadow-gold hover:opacity-90'
-            )}
+            className="h-7 text-xs px-4 rounded-full"
           >
             {isMember ? '✓ Rejoint' : joining ? '...' : 'Rejoindre'}
           </Button>

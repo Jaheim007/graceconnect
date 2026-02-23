@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Search, Filter, ShoppingBag, Heart, Users, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Search, Filter, ShoppingBag, Heart, Users, CheckCircle2 } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -21,18 +21,18 @@ import { useDirectoryMode } from '@/hooks/useDirectoryMode';
 
 const CATEGORIES: { value: OrgCategory | ''; label: string }[] = [
   { value: '', label: 'Tout' },
-  { value: 'church', label: '🏢 Organisation' },
-  { value: 'ministry', label: '🤝 Association' },
-  { value: 'leader', label: '⭐ Leader' },
-  { value: 'ngo', label: '🌍 ONG' },
-  { value: 'community', label: '👥 Communauté' },
-  { value: 'other', label: '🔷 Autre' },
+  { value: 'church', label: 'Organisation' },
+  { value: 'ministry', label: 'Association' },
+  { value: 'leader', label: 'Leader' },
+  { value: 'ngo', label: 'ONG' },
+  { value: 'community', label: 'Communauté' },
+  { value: 'other', label: 'Autre' },
 ];
 
-const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.05 } } };
+const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 260, damping: 24 } },
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 26 } },
 };
 
 export default function DiscoverPage() {
@@ -50,7 +50,6 @@ export default function DiscoverPage() {
   const total = data?.total || 0;
   const pageSize = 12;
 
-  // Products & Campaigns for marketplace tabs
   const { data: products = [], isLoading: loadingProducts } = useQuery({
     queryKey: ['discover-products', search],
     queryFn: async () => {
@@ -93,24 +92,18 @@ export default function DiscoverPage() {
     enabled: tab === 'campaigns',
   });
 
-  // Directory mode filtering
   const filteredOrgs = directoryMode === 'curated'
     ? orgs.filter((o: any) => o.is_verified || o.is_featured)
     : orgs;
 
-  // Verified orgs for showcase
   const verifiedOrgs = filteredOrgs.filter((o: any) => o.is_verified);
 
   return (
     <div className="bg-background min-h-screen">
       <SEOHead title="Explorer — Communautés, Produits & Campagnes" description="Découvrez les meilleures communautés, produits numériques et campagnes de collecte sur Siteviral." />
-      {/* Compact hero */}
-      <div className="border-b border-border/40 py-6 px-4">
+      <div className="border-b border-border py-6 px-4">
         <div className="container max-w-4xl">
-          <div className="flex items-center gap-2 mb-1">
-            <Sparkles className="h-5 w-5 text-gold" />
-            <h1 className="text-xl sm:text-2xl font-bold">Explorer</h1>
-          </div>
+          <h1 className="text-xl sm:text-2xl font-bold mb-1">Explorer</h1>
           <p className="text-muted-foreground text-sm mb-4">Communautés, produits et campagnes à découvrir.</p>
           <div className="relative max-w-xl">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -138,32 +131,30 @@ export default function DiscoverPage() {
             </TabsTrigger>
           </TabsList>
 
-          {/* ─── COMMUNITIES TAB ─── */}
           <TabsContent value="communities">
-            {/* Verified showcase */}
             {verifiedOrgs.length > 0 && !search && !category && (
               <div className="mb-6">
                 <h2 className="text-sm font-semibold flex items-center gap-1.5 mb-3">
-                  <CheckCircle2 className="h-4 w-4 text-primary" /> Communautés vérifiées
+                  <CheckCircle2 className="h-4 w-4 text-accent" /> Communautés vérifiées
                 </h2>
                 <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
                   {verifiedOrgs.slice(0, 6).map((org: any) => (
                     <button
                       key={org.id}
                       onClick={() => navigate(`/org/${org.slug}`)}
-                      className="shrink-0 flex flex-col items-center gap-2 p-3 rounded-2xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all w-24"
+                      className="shrink-0 flex flex-col items-center gap-2 p-3 rounded-2xl border border-border bg-card hover:border-primary/20 transition-all w-24"
                     >
-                      <div className="h-12 w-12 rounded-xl overflow-hidden bg-card border border-border">
+                      <div className="h-12 w-12 rounded-xl overflow-hidden bg-muted border border-border">
                         {org.logo_url ? (
                           <img src={org.logo_url} alt={org.name} className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full gold-gradient flex items-center justify-center">
+                          <div className="w-full h-full bg-primary flex items-center justify-center">
                             <span className="text-xs font-bold text-primary-foreground">{org.name?.slice(0, 2).toUpperCase()}</span>
                           </div>
                         )}
                       </div>
                       <span className="text-[11px] font-medium text-center leading-tight line-clamp-2">{org.name}</span>
-                      <CheckCircle2 className="h-3 w-3 text-primary" />
+                      <CheckCircle2 className="h-3 w-3 text-accent" />
                     </button>
                   ))}
                 </div>
@@ -176,14 +167,12 @@ export default function DiscoverPage() {
                 <button
                   key={c.value}
                   onClick={() => { setCategory(c.value); setPage(0); }}
-                  className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${category === c.value ? 'bg-primary text-primary-foreground border-primary shadow-gold' : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'}`}
+                  className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${category === c.value ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'}`}
                 >
                   {c.label}
                 </button>
               ))}
             </div>
-
-            {/* CTA moved to bottom */}
 
             {!isLoading && directoryMode !== 'curated' && (
               <p className="text-xs text-muted-foreground mb-4">
@@ -206,7 +195,6 @@ export default function DiscoverPage() {
               </div>
             )}
 
-            {/* Create org CTA — bottom */}
             {user && (
               <div className="mt-8 p-4 rounded-2xl bg-muted/50 border border-border flex items-center justify-between gap-4">
                 <div>
@@ -218,7 +206,6 @@ export default function DiscoverPage() {
             )}
           </TabsContent>
 
-          {/* ─── PRODUCTS TAB ─── */}
           <TabsContent value="products">
             {loadingProducts ? <SkeletonList count={8} /> : products.length === 0 ? (
               <EmptyState variant="search" title="Aucun produit trouvé" />
@@ -233,7 +220,6 @@ export default function DiscoverPage() {
             )}
           </TabsContent>
 
-          {/* ─── CAMPAIGNS TAB ─── */}
           <TabsContent value="campaigns">
             {loadingCampaigns ? <SkeletonList count={6} /> : campaigns.length === 0 ? (
               <EmptyState variant="search" title="Aucune campagne trouvée" />

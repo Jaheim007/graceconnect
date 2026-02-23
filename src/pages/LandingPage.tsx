@@ -3,7 +3,7 @@ import { motion, useInView, useMotionValue, useTransform, animate } from 'framer
 import { useRef, useEffect, useState } from 'react';
 import {
   ArrowRight, Play, Heart, Users, ShoppingBag, Globe,
-  CheckCircle, Zap, Shield, Sun, Moon, Star, Quote,
+  CheckCircle, Zap, Shield, Sun, Moon, Quote,
   Smartphone, BarChart3, BookOpen, Megaphone, ChevronRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -36,7 +36,7 @@ function AnimatedStat({ target, suffix, label }: { target: number; suffix: strin
   const { ref, value } = useCounter(target);
   return (
     <div ref={ref} className="text-center">
-      <div className="text-3xl sm:text-4xl font-extrabold text-gold tabular-nums">
+      <div className="text-3xl sm:text-4xl font-extrabold text-primary tabular-nums">
         {value.toLocaleString('fr-FR')}{suffix}
       </div>
       <div className="text-xs sm:text-sm text-muted-foreground mt-1 font-medium">{label}</div>
@@ -46,18 +46,18 @@ function AnimatedStat({ target, suffix, label }: { target: number; suffix: strin
 
 /* ─── Data ─── */
 const features = [
-  { icon: Play, title: 'Médiathèque', desc: 'Partagez vidéos, musique, podcasts et replays live avec votre communauté.', color: 'from-red-500/20 to-orange-500/20' },
-  { icon: Heart, title: 'Collecte de fonds', desc: 'Lancez des campagnes de dons avec suivi en temps réel et intégration Paystack.', color: 'from-pink-500/20 to-red-500/20' },
-  { icon: ShoppingBag, title: 'Boutique digitale', desc: 'Vendez ebooks, formations et ressources à votre audience dans le monde entier.', color: 'from-violet-500/20 to-purple-500/20' },
-  { icon: Users, title: 'Gestion communautaire', desc: 'Gérez membres, rôles et affiliés depuis un seul tableau de bord.', color: 'from-blue-500/20 to-cyan-500/20' },
-  { icon: BarChart3, title: 'Analytics avancés', desc: 'Suivez vos performances avec des métriques détaillées : revenus, membres, engagement.', color: 'from-emerald-500/20 to-green-500/20' },
-  { icon: Zap, title: 'Programme d\'affiliation', desc: 'Permettez à vos membres de gagner en promouvant vos produits et campagnes.', color: 'from-amber-500/20 to-yellow-500/20' },
+  { icon: Play, title: 'Médiathèque', desc: 'Partagez vidéos, musique, podcasts et replays live avec votre communauté.' },
+  { icon: Heart, title: 'Collecte de fonds', desc: 'Lancez des campagnes de dons avec suivi en temps réel et intégration Paystack.' },
+  { icon: ShoppingBag, title: 'Boutique digitale', desc: 'Vendez ebooks, formations et ressources à votre audience dans le monde entier.' },
+  { icon: Users, title: 'Gestion communautaire', desc: 'Gérez membres, rôles et affiliés depuis un seul tableau de bord.' },
+  { icon: BarChart3, title: 'Analytics avancés', desc: 'Suivez vos performances avec des métriques détaillées : revenus, membres, engagement.' },
+  { icon: Zap, title: 'Programme d\'affiliation', desc: 'Permettez à vos membres de gagner en promouvant vos produits et campagnes.' },
 ];
 
 const testimonials = [
-  { name: 'Pastor K.', role: 'Community Church, West Africa', text: 'Siteviral a transformé notre manière de toucher nos fidèles. Les dons en ligne ont augmenté de 300% en 3 mois.', rating: 5 },
-  { name: 'Marie-Claire B.', role: 'NGO Espoir Jeunesse', text: 'La boutique digitale nous permet de vendre nos formations partout dans le monde. C\'est un game-changer pour notre ONG.', rating: 5 },
-  { name: 'Ibrahim T.', role: 'Cultural Association', text: 'En une semaine, nous avions notre page communautaire, notre médiathèque et nos premiers membres actifs. Incroyable !', rating: 5 },
+  { name: 'K. M.', role: 'Community Leader, West Africa', text: 'Siteviral a transformé notre manière de toucher notre audience. Les dons en ligne ont augmenté de 300% en 3 mois.' },
+  { name: 'Marie-Claire B.', role: 'NGO Espoir Jeunesse', text: 'La boutique digitale nous permet de vendre nos formations partout dans le monde. C\'est un game-changer pour notre ONG.' },
+  { name: 'Ibrahim T.', role: 'Cultural Association', text: 'En une semaine, nous avions notre page communautaire, notre médiathèque et nos premiers membres actifs.' },
 ];
 
 const steps = [
@@ -73,13 +73,13 @@ const plans = [
 ];
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' as const } },
+  hidden: { opacity: 0, y: 12 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.35, ease: 'easeOut' as const } },
 };
 
 const stagger = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.05 } },
 };
 
 export default function LandingPage() {
@@ -91,7 +91,7 @@ export default function LandingPage() {
       {/* ─── Nav ─── */}
       <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
         <div className="container flex items-center justify-between h-14 px-4">
-          <span className="text-xl font-extrabold tracking-tight italic text-gold">Siteviral</span>
+          <span className="text-xl font-extrabold tracking-tight text-foreground">Siteviral</span>
           <div className="flex items-center gap-1 sm:gap-2">
             <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex"><Link to="/discover">Explorer</Link></Button>
             <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex"><Link to="/about">À propos</Link></Button>
@@ -101,7 +101,7 @@ export default function LandingPage() {
             <Button variant="ghost" size="sm" onClick={() => navigate('/auth')} className="text-xs sm:text-sm px-2 sm:px-3">Connexion</Button>
             <Button
               size="sm"
-              className="gold-gradient text-primary-foreground border-0 shadow-gold text-xs sm:text-sm px-3 sm:px-4"
+              className="text-xs sm:text-sm px-3 sm:px-4"
               onClick={() => navigate('/auth?tab=signup')}
             >
               Commencer
@@ -114,36 +114,26 @@ export default function LandingPage() {
       <section className="relative pt-14 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img src={heroImg} alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/85 via-background/70 to-background" />
+          <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/75 to-background" />
         </div>
 
-        <div className="relative z-10 container max-w-5xl px-4 pt-20 pb-28 sm:pt-28 sm:pb-36">
+        <div className="relative z-10 container max-w-5xl px-4 pt-24 pb-32 sm:pt-32 sm:pb-40">
           <motion.div
             initial="hidden"
             animate="visible"
             variants={stagger}
-            className="text-center space-y-7"
+            className="text-center space-y-8"
           >
             <motion.div variants={fadeUp}>
-              <Badge variant="secondary" className="text-xs px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary gap-1.5">
-                <Zap className="h-3 w-3" />
+              <Badge variant="secondary" className="text-xs px-4 py-1.5 rounded-full border border-border bg-card/50 text-muted-foreground gap-1.5">
                 Built for leaders and organizations worldwide
               </Badge>
             </motion.div>
 
-            <motion.h1 variants={fadeUp} className="text-4xl sm:text-5xl lg:text-7xl font-extrabold leading-[1.1] tracking-tight">
-              Développez votre
+            <motion.h1 variants={fadeUp} className="text-4xl sm:text-5xl lg:text-7xl font-extrabold leading-[1.08] tracking-tight">
+              Community monetization
               <br />
-              communauté.{' '}
-              <span className="text-gold italic relative">
-                Multipliez votre impact.
-                <motion.span
-                  className="absolute -bottom-2 left-0 right-0 h-1 gold-gradient rounded-full"
-                  initial={{ scaleX: 0, originX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ delay: 0.8, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                />
-              </span>
+              <span className="text-primary">infrastructure.</span>
             </motion.h1>
 
             <motion.p variants={fadeUp} className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
@@ -154,7 +144,7 @@ export default function LandingPage() {
             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
               <Button
                 size="lg"
-                className="gold-gradient text-primary-foreground border-0 shadow-gold px-8 gap-2 h-13 text-base w-full sm:w-auto hover:scale-105 transition-transform"
+                className="px-8 gap-2 h-13 text-base w-full sm:w-auto"
                 onClick={() => navigate('/auth?tab=signup')}
               >
                 Commencer gratuitement <ArrowRight className="h-4 w-4" />
@@ -162,7 +152,7 @@ export default function LandingPage() {
               <Button
                 size="lg"
                 variant="outline"
-                className="h-13 px-8 gap-2 text-base w-full sm:w-auto hover:scale-105 transition-transform"
+                className="h-13 px-8 gap-2 text-base w-full sm:w-auto"
                 onClick={() => navigate('/discover')}
               >
                 <Play className="h-4 w-4" /> Découvrir les communautés
@@ -173,7 +163,7 @@ export default function LandingPage() {
             <motion.div variants={fadeUp} className="flex items-center justify-center gap-3 pt-4">
               <div className="flex -space-x-2">
                 {['K', 'M', 'A', 'S'].map((initial, i) => (
-                  <div key={i} className="h-8 w-8 rounded-full border-2 border-background gold-gradient flex items-center justify-center text-[10px] font-bold text-primary-foreground">
+                  <div key={i} className="h-8 w-8 rounded-full border-2 border-background bg-primary flex items-center justify-center text-[10px] font-bold text-primary-foreground">
                     {initial}
                   </div>
                 ))}
@@ -189,7 +179,7 @@ export default function LandingPage() {
       {/* ─── Animated Stats ─── */}
       <section className="relative -mt-14 z-20 px-4">
         <div className="container max-w-4xl">
-          <div className="rounded-2xl border border-border/60 overflow-hidden shadow-elevated glass p-6 sm:p-10">
+          <div className="rounded-2xl border border-border overflow-hidden glass p-6 sm:p-10">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
               <AnimatedStat target={10000} suffix="+" label="Membres actifs" />
               <AnimatedStat target={500} suffix="+" label="Communautés" />
@@ -201,7 +191,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── How it works ─── */}
-      <section className="py-24 px-4">
+      <section className="py-28 px-4">
         <div className="container max-w-5xl">
           <motion.div
             initial="hidden" whileInView="visible" viewport={{ once: true }}
@@ -210,7 +200,7 @@ export default function LandingPage() {
           >
             <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">Comment ça marche</Badge>
             <h2 className="text-3xl sm:text-4xl font-extrabold">
-              Lancez-vous en <span className="text-gold italic">3 étapes simples</span>
+              Lancez-vous en <span className="text-primary">3 étapes simples</span>
             </h2>
           </motion.div>
 
@@ -220,18 +210,18 @@ export default function LandingPage() {
                 key={s.num}
                 initial="hidden" whileInView="visible" viewport={{ once: true }}
                 variants={fadeUp}
-                transition={{ delay: i * 0.15 }}
+                transition={{ delay: i * 0.08 }}
                 className="relative group"
               >
                 {i < steps.length - 1 && (
                   <div className="hidden md:block absolute top-12 left-[60%] w-[80%] h-px border-t-2 border-dashed border-border" />
                 )}
-                <div className="bg-card rounded-2xl border border-border p-6 space-y-4 shadow-card group-hover:shadow-elevated group-hover:-translate-y-1 transition-all duration-300">
+                <div className="bg-card rounded-2xl border border-border p-8 space-y-4 hover:border-primary/20 transition-colors duration-200">
                   <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-2xl gold-gradient flex items-center justify-center shadow-gold">
+                    <div className="h-12 w-12 rounded-2xl bg-primary flex items-center justify-center">
                       <s.icon className="h-6 w-6 text-primary-foreground" />
                     </div>
-                    <span className="text-4xl font-black text-muted-foreground/20">{s.num}</span>
+                    <span className="text-4xl font-black text-muted-foreground/15">{s.num}</span>
                   </div>
                   <h3 className="text-lg font-bold">{s.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
@@ -243,7 +233,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Community image section ─── */}
-      <section className="py-20 px-4 bg-muted/30">
+      <section className="py-24 px-4 bg-muted/30">
         <div className="container max-w-5xl">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -254,7 +244,7 @@ export default function LandingPage() {
               <Badge variant="secondary" className="text-xs px-3 py-1 rounded-full">Connectivité</Badge>
               <h2 className="text-3xl sm:text-4xl font-extrabold leading-tight">
                 Connectez vos membres,{' '}
-                <span className="text-gold italic">partout dans le monde.</span>
+                <span className="text-primary">partout dans le monde.</span>
               </h2>
               <p className="text-muted-foreground leading-relaxed text-base">
                 Que votre communauté soit à Lagos, Paris ou New York, Siteviral vous permet de rester
@@ -271,7 +261,7 @@ export default function LandingPage() {
                 ))}
               </ul>
               <Button
-                className="gold-gradient text-primary-foreground border-0 shadow-gold gap-2 h-11 px-6 hover:scale-105 transition-transform"
+                className="gap-2 h-11 px-6"
                 onClick={() => navigate('/auth?tab=signup')}
               >
                 Rejoignez-nous <ArrowRight className="h-4 w-4" />
@@ -280,8 +270,8 @@ export default function LandingPage() {
             <motion.div
               initial="hidden" whileInView="visible" viewport={{ once: true }}
               variants={fadeUp}
-              transition={{ delay: 0.15 }}
-              className="rounded-2xl overflow-hidden shadow-elevated border border-border/40 hover:scale-[1.02] transition-transform duration-500"
+              transition={{ delay: 0.1 }}
+              className="rounded-2xl overflow-hidden border border-border"
             >
               <img src={communityImg} alt="Communauté unie" className="w-full h-auto object-cover" loading="lazy" />
             </motion.div>
@@ -290,7 +280,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Features ─── */}
-      <section className="py-24 px-4">
+      <section className="py-28 px-4">
         <div className="container max-w-5xl">
           <motion.div
             initial="hidden" whileInView="visible" viewport={{ once: true }}
@@ -299,7 +289,7 @@ export default function LandingPage() {
           >
             <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">Fonctionnalités</Badge>
             <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">
-              Tout ce dont votre communauté <span className="text-gold italic">a besoin</span>
+              Tout ce dont votre communauté <span className="text-primary">a besoin</span>
             </h2>
             <p className="text-muted-foreground text-base max-w-xl mx-auto">Une plateforme. Des possibilités infinies.</p>
           </motion.div>
@@ -309,14 +299,14 @@ export default function LandingPage() {
             variants={stagger}
             className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5"
           >
-            {features.map((f, i) => (
+            {features.map((f) => (
               <motion.div
                 key={f.title}
                 variants={fadeUp}
-                className="group bg-card rounded-2xl border border-border p-6 shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300 space-y-4"
+                className="group bg-card rounded-2xl border border-border p-8 hover:border-primary/20 transition-colors duration-200 space-y-4"
               >
-                <div className={`h-12 w-12 rounded-2xl bg-gradient-to-br ${f.color} flex items-center justify-center`}>
-                  <f.icon className="h-6 w-6 text-primary" />
+                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <f.icon className="h-5 w-5 text-primary" />
                 </div>
                 <h3 className="font-bold text-base">{f.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
@@ -327,26 +317,26 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Devices / PWA ─── */}
-      <section className="py-20 px-4 bg-muted/30">
+      <section className="py-24 px-4 bg-muted/30">
         <div className="container max-w-5xl">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <motion.div
               initial="hidden" whileInView="visible" viewport={{ once: true }}
               variants={fadeUp}
-              className="order-2 md:order-1 rounded-2xl overflow-hidden shadow-elevated border border-border/40 hover:scale-[1.02] transition-transform duration-500"
+              className="order-2 md:order-1 rounded-2xl overflow-hidden border border-border"
             >
               <img src={devicesImg} alt="Accessible sur tous les appareils" className="w-full h-auto object-cover" loading="lazy" />
             </motion.div>
             <motion.div
               initial="hidden" whileInView="visible" viewport={{ once: true }}
               variants={fadeUp}
-              transition={{ delay: 0.15 }}
+              transition={{ delay: 0.1 }}
               className="order-1 md:order-2 space-y-6"
             >
               <Badge variant="secondary" className="text-xs px-3 py-1 rounded-full">Application PWA</Badge>
               <h2 className="text-3xl sm:text-4xl font-extrabold leading-tight">
                 Accessible sur{' '}
-                <span className="text-gold italic">tous vos appareils.</span>
+                <span className="text-primary">tous vos appareils.</span>
               </h2>
               <p className="text-muted-foreground leading-relaxed text-base">
                 Application installable directement depuis votre navigateur. Pas besoin de télécharger sur un store.
@@ -372,7 +362,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Testimonials ─── */}
-      <section className="py-24 px-4">
+      <section className="py-28 px-4">
         <div className="container max-w-5xl">
           <motion.div
             initial="hidden" whileInView="visible" viewport={{ once: true }}
@@ -381,7 +371,7 @@ export default function LandingPage() {
           >
             <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">Témoignages</Badge>
             <h2 className="text-3xl sm:text-4xl font-extrabold">
-              Ils nous font <span className="text-gold italic">confiance</span>
+              Ils nous font <span className="text-primary">confiance</span>
             </h2>
           </motion.div>
 
@@ -390,18 +380,13 @@ export default function LandingPage() {
             variants={stagger}
             className="grid md:grid-cols-3 gap-6"
           >
-            {testimonials.map((t, i) => (
+            {testimonials.map((t) => (
               <motion.div
                 key={t.name}
                 variants={fadeUp}
-                className="bg-card rounded-2xl border border-border p-6 shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300 space-y-4 relative"
+                className="bg-card rounded-2xl border border-border p-8 space-y-4 relative"
               >
-                <Quote className="h-8 w-8 text-primary/15 absolute top-4 right-4" />
-                <div className="flex gap-0.5">
-                  {Array.from({ length: t.rating }).map((_, j) => (
-                    <Star key={j} className="h-4 w-4 fill-primary text-primary" />
-                  ))}
-                </div>
+                <Quote className="h-8 w-8 text-primary/10 absolute top-6 right-6" />
                 <p className="text-sm text-muted-foreground leading-relaxed italic">"{t.text}"</p>
                 <div className="pt-2 border-t border-border/60">
                   <p className="font-semibold text-sm">{t.name}</p>
@@ -414,7 +399,7 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Pricing ─── */}
-      <section className="py-24 px-4 bg-muted/30">
+      <section className="py-28 px-4 bg-muted/30">
         <div className="container max-w-4xl">
           <motion.div
             initial="hidden" whileInView="visible" viewport={{ once: true }}
@@ -423,7 +408,7 @@ export default function LandingPage() {
           >
             <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">Tarifs</Badge>
             <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">
-              Commencez gratuitement. <span className="text-gold italic">Évoluez selon vos besoins.</span>
+              Commencez gratuitement. <span className="text-primary">Évoluez selon vos besoins.</span>
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto">
               Le plan gratuit inclut tout pour démarrer. Passez au Pro quand vous êtes prêt à grandir.
@@ -439,20 +424,20 @@ export default function LandingPage() {
               <motion.div
                 key={plan.name}
                 variants={fadeUp}
-                className={`rounded-2xl p-6 border text-left transition-all duration-300 hover:-translate-y-1 ${
+                className={`rounded-2xl p-8 border text-left transition-all duration-200 ${
                   plan.highlight
-                    ? 'border-primary bg-primary/5 shadow-gold ring-1 ring-primary/20 relative'
-                    : 'border-border bg-card shadow-card hover:shadow-elevated'
+                    ? 'border-primary bg-primary/5 ring-1 ring-primary/20 relative'
+                    : 'border-border bg-card'
                 }`}
               >
                 {plan.highlight && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="gold-gradient text-primary-foreground border-0 text-[10px] px-3">Populaire</Badge>
+                    <Badge className="bg-primary text-primary-foreground border-0 text-[10px] px-3">Populaire</Badge>
                   </div>
                 )}
                 <h3 className="font-bold text-lg">{plan.name}</h3>
                 <div className="mt-2 flex items-baseline gap-1">
-                  <span className={`text-3xl font-extrabold ${plan.highlight ? 'text-gold' : ''}`}>{plan.price}</span>
+                  <span className={`text-3xl font-extrabold ${plan.highlight ? 'text-primary' : ''}`}>{plan.price}</span>
                   {plan.currency && <span className="text-sm text-muted-foreground">{plan.currency}{plan.period}</span>}
                 </div>
                 <ul className="mt-5 space-y-2.5">
@@ -463,11 +448,7 @@ export default function LandingPage() {
                   ))}
                 </ul>
                 <Button
-                  className={`w-full mt-6 h-11 ${
-                    plan.highlight
-                      ? 'gold-gradient text-primary-foreground border-0 shadow-gold'
-                      : ''
-                  }`}
+                  className="w-full mt-6 h-11"
                   variant={plan.highlight ? 'default' : 'outline'}
                   onClick={() => navigate('/auth?tab=signup')}
                 >
@@ -480,15 +461,15 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Trust / Security ─── */}
-      <section className="py-20 px-4">
+      <section className="py-24 px-4">
         <div className="container max-w-3xl">
           <motion.div
             initial="hidden" whileInView="visible" viewport={{ once: true }}
             variants={fadeUp}
             className="text-center space-y-4"
           >
-            <div className="h-14 w-14 rounded-2xl gold-gradient flex items-center justify-center mx-auto shadow-gold">
-              <Shield className="h-7 w-7 text-primary-foreground" />
+            <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
+              <Shield className="h-7 w-7 text-primary" />
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold">Sécurité et confiance</h2>
             <p className="text-muted-foreground max-w-xl mx-auto leading-relaxed">
@@ -497,7 +478,7 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
               {['Chiffrement SSL', 'Paystack Certified', 'GDPR Compliant'].map((badge) => (
-                <div key={badge} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/60 rounded-full px-3 py-1.5 border border-border/60">
+                <div key={badge} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground bg-muted/60 rounded-full px-3 py-1.5 border border-border">
                   <CheckCircle className="h-3 w-3 text-primary" />
                   {badge}
                 </div>
@@ -508,28 +489,27 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Final CTA ─── */}
-      <section className="py-24 px-4">
+      <section className="py-28 px-4">
         <div className="container max-w-3xl">
           <motion.div
             initial="hidden" whileInView="visible" viewport={{ once: true }}
             variants={fadeUp}
             className="relative rounded-3xl overflow-hidden"
           >
-            {/* Background */}
-            <div className="absolute inset-0 gold-gradient opacity-90" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.15),transparent_70%)]" />
+            <div className="absolute inset-0 bg-primary" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_70%)]" />
 
             <div className="relative z-10 p-8 sm:p-14 text-center space-y-6">
               <h2 className="text-3xl sm:text-4xl font-extrabold text-primary-foreground leading-tight">
                 Prêt à connecter votre communauté ?
               </h2>
-              <p className="text-primary-foreground/80 max-w-md mx-auto">
+              <p className="text-primary-foreground/70 max-w-md mx-auto">
                 Rejoignez des centaines d'organisations déjà sur Siteviral et commencez à développer votre impact dès aujourd'hui.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Button
                   size="lg"
-                  className="bg-background text-foreground hover:bg-background/90 border-0 px-8 h-13 text-base gap-2 w-full sm:w-auto hover:scale-105 transition-transform shadow-elevated"
+                  className="bg-background text-foreground hover:bg-background/90 border-0 px-8 h-13 text-base gap-2 w-full sm:w-auto shadow-elevated"
                   onClick={() => navigate('/auth?tab=signup')}
                 >
                   Créez votre communauté <ArrowRight className="h-4 w-4" />
@@ -549,11 +529,11 @@ export default function LandingPage() {
       </section>
 
       {/* ─── Footer ─── */}
-      <footer className="border-t border-border/60 bg-muted/20">
-        <div className="container px-4 py-12">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+      <footer className="border-t border-border bg-card/50">
+        <div className="container px-4 py-14">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
             <div className="space-y-3">
-              <span className="text-xl font-extrabold italic text-gold">Siteviral</span>
+              <span className="text-xl font-extrabold text-foreground">Siteviral</span>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Infrastructure platform for digital organizations worldwide.
               </p>
@@ -584,11 +564,11 @@ export default function LandingPage() {
                 <li><Link to="/faq" className="hover:text-foreground transition-colors">Centre d'aide</Link></li>
                 <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
                 <li><Link to="/compliance" className="hover:text-foreground transition-colors">Conformité</Link></li>
-                <li className="text-[11px]">Operated by Hacktualiz Inc.<br/>131 Continental Dr, Suite 305<br/>Newark, DE 19713, USA</li>
+                <li className="text-[11px] pt-2 border-t border-border/40">Operated by Hacktualiz Inc.<br/>131 Continental Dr, Suite 305<br/>Newark, DE 19713, USA</li>
               </ul>
             </div>
           </div>
-          <div className="mt-10 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+          <div className="mt-12 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
             <span>© {new Date().getFullYear()} Hacktualiz Inc. All rights reserved.</span>
             <span>Infrastructure Platform for Digital Organizations</span>
           </div>
