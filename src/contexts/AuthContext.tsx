@@ -11,6 +11,7 @@ interface AuthContextType {
   isSuperadmin: boolean;
   signInWithGoogle: (returnTo?: string) => Promise<{ error: Error | null }>;
   signInWithMagicLink: (email: string, returnTo?: string) => Promise<{ error: Error | null }>;
+  verifyOtp: (email: string, token: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -136,6 +137,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error as Error | null };
   };
 
+  const verifyOtp = async (email: string, token: string) => {
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'email',
+    });
+    return { error: error as Error | null };
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setProfile(null);
@@ -156,6 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isSuperadmin,
         signInWithGoogle,
         signInWithMagicLink,
+        verifyOtp,
         signOut,
         refreshProfile,
       }}
