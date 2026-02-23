@@ -21,16 +21,6 @@ import { useDirectoryMode } from '@/hooks/useDirectoryMode';
 import { useI18n } from '@/i18n/I18nContext';
 import { PageTour } from '@/components/onboarding/PageTour';
 
-const CATEGORIES: { value: OrgCategory | ''; label: string }[] = [
-  { value: '', label: 'Tout' },
-  { value: 'church', label: 'Organisation' },
-  { value: 'ministry', label: 'Association' },
-  { value: 'leader', label: 'Leader' },
-  { value: 'ngo', label: 'ONG' },
-  { value: 'community', label: 'Communauté' },
-  { value: 'other', label: 'Autre' },
-];
-
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
   hidden: { opacity: 0, y: 10 },
@@ -53,6 +43,16 @@ export default function DiscoverPage() {
   const { userOrgs } = useOrg();
   const { data: directoryMode = 'curated' } = useDirectoryMode();
   const { t } = useI18n();
+
+  const CATEGORIES: { value: OrgCategory | ''; label: string }[] = [
+    { value: '', label: t('discover.cat_all') },
+    { value: 'church', label: t('discover.cat_church') },
+    { value: 'ministry', label: t('discover.cat_ministry') },
+    { value: 'leader', label: t('discover.cat_leader') },
+    { value: 'ngo', label: t('discover.cat_ngo') },
+    { value: 'community', label: t('discover.cat_community') },
+    { value: 'other', label: t('discover.cat_other') },
+  ];
 
   const { data, isLoading } = usePublicOrgs({ search, category, page });
   const orgs = data?.orgs || [];
@@ -109,15 +109,15 @@ export default function DiscoverPage() {
 
   return (
     <div className="bg-background min-h-screen">
-      <SEOHead title="Explorer — Ressources & Campagnes" description="Découvrez les meilleures ressources numériques et campagnes de collecte sur Siteviral." />
+      <SEOHead title={t('discover.seo_title')} description={t('discover.seo_desc')} />
       <div className="border-b border-border py-6 px-4">
         <div className="container max-w-4xl">
-          <h1 className="text-xl sm:text-2xl font-bold mb-1">Explorer</h1>
-          <p className="text-muted-foreground text-sm mb-4">Ressources et campagnes à découvrir.</p>
+          <h1 className="text-xl sm:text-2xl font-bold mb-1">{t('discover.title')}</h1>
+          <p className="text-muted-foreground text-sm mb-4">{t('discover.subtitle')}</p>
           <div className="relative max-w-xl">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Rechercher..."
+              placeholder={t('discover.search')}
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(0); }}
               className="pl-10 h-11 bg-card/80"
@@ -131,17 +131,17 @@ export default function DiscoverPage() {
         <Tabs value={tab} onValueChange={(v) => { setTab(v); setPage(0); }}>
           <TabsList className="mb-6">
             <TabsTrigger value="products" className="gap-1.5">
-              <ShoppingBag className="h-3.5 w-3.5" /> Ressources
+              <ShoppingBag className="h-3.5 w-3.5" /> {t('discover.resources')}
             </TabsTrigger>
             <TabsTrigger value="campaigns" className="gap-1.5">
-              <Heart className="h-3.5 w-3.5" /> Campagnes
+              <Heart className="h-3.5 w-3.5" /> {t('discover.campaigns')}
             </TabsTrigger>
           </TabsList>
 
 
           <TabsContent value="products">
             {loadingProducts ? <SkeletonList count={8} /> : products.length === 0 ? (
-              <EmptyState variant="search" title="Aucun produit trouvé" />
+              <EmptyState variant="search" title={t('discover.no_products')} />
             ) : (
               <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {products.map((p: any) => (
@@ -155,7 +155,7 @@ export default function DiscoverPage() {
 
           <TabsContent value="campaigns">
             {loadingCampaigns ? <SkeletonList count={6} /> : campaigns.length === 0 ? (
-              <EmptyState variant="search" title="Aucune campagne trouvée" />
+              <EmptyState variant="search" title={t('discover.no_campaigns')} />
             ) : (
               <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 {campaigns.map((c: any) => (
