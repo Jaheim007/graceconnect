@@ -57,7 +57,7 @@ export default function FAQPage() {
 
       <main className="relative z-10 container max-w-3xl px-4 pt-24 pb-16">
         <div className="flex items-center gap-3 mb-2">
-          <div className="h-10 w-10 rounded-xl gold-gradient flex items-center justify-center shadow-gold">
+          <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
             <HelpCircle className="h-5 w-5 text-primary-foreground" />
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground">Centre d'aide</h1>
@@ -87,7 +87,7 @@ export default function FAQPage() {
         <div className="mt-12 bg-card border border-border rounded-2xl p-6 text-center space-y-3">
           <h3 className="font-bold text-foreground">Vous n'avez pas trouvé votre réponse ?</h3>
           <p className="text-sm text-muted-foreground">Notre équipe est disponible pour vous aider.</p>
-          <Button asChild className="gold-gradient text-primary-foreground border-0 shadow-gold gap-2">
+          <Button asChild className="bg-primary text-primary-foreground gap-2">
             <a href="mailto:support@siteviral.com">
               <Mail className="h-4 w-4" /> Contacter le support
             </a>

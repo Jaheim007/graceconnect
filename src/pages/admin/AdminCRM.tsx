@@ -149,7 +149,7 @@ export default function AdminCRM() {
         <TabsContent value="contacts" className="space-y-4">
           {/* Actions bar */}
           <div className="flex items-center gap-2 flex-wrap">
-            <Button size="sm" className="gap-1.5 text-xs gold-gradient text-primary-foreground border-0 shadow-gold"
+            <Button size="sm" className="gap-1.5 text-xs bg-primary text-primary-foreground"
               onClick={() => setShowAddContact(true)}>
               <Plus className="h-3.5 w-3.5" /> Ajouter
             </Button>
@@ -290,7 +290,7 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Button size="sm" className="gap-1.5 text-xs gold-gradient text-primary-foreground border-0 shadow-gold"
+        <Button size="sm" className="gap-1.5 text-xs bg-primary text-primary-foreground"
           onClick={() => setShowNew(true)}>
           <Plus className="h-3.5 w-3.5" /> Nouvelle campagne
         </Button>

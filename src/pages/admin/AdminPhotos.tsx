@@ -137,7 +137,7 @@ export default function AdminPhotos() {
             <Button
               onClick={addPhoto}
               disabled={adding}
-              className="gold-gradient text-primary-foreground border-0 shadow-gold"
+              className="bg-primary text-primary-foreground"
               size="sm"
             >
               {adding ? 'Ajout en cours…' : 'Ajouter la photo'}

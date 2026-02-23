@@ -51,7 +51,7 @@ export function LegalFooter() {
           </div>
         </div>
         <div className="mt-8 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-          <Link to="/" className="font-extrabold italic text-sm text-gold">Siteviral</Link>
+          <Link to="/" className="font-extrabold italic text-sm text-primary">Siteviral</Link>
           <span className="text-center">© {new Date().getFullYear()} Hacktualiz Inc. · Delaware C-Corp, United States · 131 Continental Dr, Suite 305, Newark, DE 19713</span>
         </div>
       </div>
@@ -63,7 +63,7 @@ export function LegalHeader() {
   return (
     <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
       <div className="container flex items-center justify-between h-14 px-4">
-        <Link to="/" className="text-xl font-extrabold tracking-tight italic text-gold">Siteviral</Link>
+        <Link to="/" className="text-xl font-extrabold tracking-tight italic text-primary">Siteviral</Link>
         <Button variant="ghost" size="sm" asChild>
           <Link to="/"><ArrowLeft className="h-4 w-4 mr-1" /> Retour</Link>
         </Button>

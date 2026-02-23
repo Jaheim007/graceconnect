@@ -301,14 +301,14 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
               <Button variant="outline" onClick={handleClose} className="flex-1">Annuler</Button>
               {product.external_link ? (
                 <a href={product.external_link} target="_blank" rel="noreferrer" className="flex-1">
-                  <Button className="w-full gold-gradient text-primary-foreground border-0 shadow-gold gap-1.5">
+                  <Button className="w-full bg-primary text-primary-foreground gap-1.5">
                     <ExternalLink className="h-4 w-4" /> Accéder au contenu
                   </Button>
                 </a>
               ) : (
                 <Button
                   onClick={handleConfirmToBuyerInfo}
-                  className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold"
+                  className="flex-1 bg-primary text-primary-foreground"
                 >
                   {product.is_free || finalPrice === 0 ? 'Accéder gratuitement' : `Payer ${fmt(finalPrice)}`}
                 </Button>
@@ -365,7 +365,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setStep('confirm')} className="flex-1">Retour</Button>
-              <Button onClick={handlePurchase} className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold">
+              <Button onClick={handlePurchase} className="flex-1 bg-primary text-primary-foreground">
                 {product.is_free || finalPrice === 0 ? 'Confirmer' : `Payer ${fmt(finalPrice)}`}
               </Button>
             </div>
@@ -398,7 +398,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
             <div className="w-full space-y-2">
               {product.file_url && (
                 <a href={product.file_url} target="_blank" rel="noreferrer" className="w-full">
-                  <Button className="w-full gap-2 gold-gradient text-primary-foreground border-0 shadow-gold">
+                  <Button className="w-full gap-2 bg-primary text-primary-foreground">
                     <Download className="h-4 w-4" /> Télécharger le fichier
                   </Button>
                 </a>
@@ -413,7 +413,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
             </div>
 
             <p className="text-xs text-muted-foreground">Un reçu a été envoyé à votre email.</p>
-            <Button onClick={() => { handleClose(); navigate('/dashboard'); }} className="w-full gold-gradient text-primary-foreground border-0 shadow-gold gap-1.5">
+            <Button onClick={() => { handleClose(); navigate('/dashboard'); }} className="w-full bg-primary text-primary-foreground gap-1.5">
               Accéder à mon tableau de bord
             </Button>
             <Button variant="ghost" onClick={handleClose} className="text-muted-foreground">Fermer</Button>

@@ -272,7 +272,7 @@ export default function UserDashboard() {
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="relative overflow-hidden rounded-2xl gold-gradient p-4 sm:p-5 shadow-gold"
+          className="relative overflow-hidden rounded-2xl bg-primary p-4 sm:p-5"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-black/10 to-transparent pointer-events-none" />
           <div className="relative z-10 flex items-center gap-3">
@@ -447,7 +447,7 @@ export default function UserDashboard() {
                           <Button size="sm" variant="outline" className="gap-1 text-[10px] h-7" onClick={() => handleFileAction(purchase, 'inline')} disabled={downloading === purchase.id}>
                             <Eye className="h-3 w-3" /> Lire
                           </Button>
-                          <Button size="sm" className="gap-1 text-[10px] h-7 gold-gradient text-primary-foreground border-0 shadow-gold" onClick={() => handleFileAction(purchase, 'download')} disabled={downloading === purchase.id}>
+                          <Button size="sm" className="gap-1 text-[10px] h-7 bg-primary text-primary-foreground border-0" onClick={() => handleFileAction(purchase, 'download')} disabled={downloading === purchase.id}>
                             <Download className="h-3 w-3" /> {downloading === purchase.id ? '...' : 'Télécharger'}
                           </Button>
                         </>
@@ -543,14 +543,14 @@ export default function UserDashboard() {
                 <div className="space-y-2">
                   {orgsEligibleForAffiliate.map((org) => (
                     <div key={org.id} className="border border-primary/20 bg-primary/5 rounded-xl p-3 flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-lg gold-gradient flex items-center justify-center shrink-0">
+                      <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center shrink-0">
                         {org.logo_url ? <img src={org.logo_url} alt={org.name} className="w-full h-full object-cover rounded-lg" /> : <span className="text-xs font-bold text-primary-foreground">{org.name.slice(0, 2).toUpperCase()}</span>}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{org.name}</p>
                         <p className="text-xs text-primary font-semibold">Gagnez {org.affiliation_commission_percent}% par parrainage</p>
                       </div>
-                      <Button size="sm" className="h-7 text-xs gold-gradient text-primary-foreground border-0 shadow-gold shrink-0" disabled={requestingAffiliate === org.id || requestAffiliateRole.isPending} onClick={async () => { setRequestingAffiliate(org.id); await requestAffiliateRole.mutateAsync({ orgId: org.id, orgSlug: org.slug }); setRequestingAffiliate(null); }}>
+                      <Button size="sm" className="h-7 text-xs bg-primary text-primary-foreground border-0 shrink-0" disabled={requestingAffiliate === org.id || requestAffiliateRole.isPending} onClick={async () => { setRequestingAffiliate(org.id); await requestAffiliateRole.mutateAsync({ orgId: org.id, orgSlug: org.slug }); setRequestingAffiliate(null); }}>
                         {requestingAffiliate === org.id ? 'En cours...' : 'Devenir affilié'}
                       </Button>
                     </div>
@@ -575,7 +575,7 @@ export default function UserDashboard() {
                           <p className="text-xs text-primary font-semibold">{fmt(amount, currency)} disponible</p>
                         </div>
                         {!kycApproved && <div className="flex items-center gap-1 text-[10px] text-primary"><AlertTriangle className="h-3 w-3" /><span>KYC requis</span></div>}
-                        <Button size="sm" className="h-7 text-xs gold-gradient text-primary-foreground border-0 shadow-gold" disabled={requestingPayout === orgId} onClick={() => handleRequestPayout(orgId, kycStatus)}>
+                        <Button size="sm" className="h-7 text-xs bg-primary text-primary-foreground border-0" disabled={requestingPayout === orgId} onClick={() => handleRequestPayout(orgId, kycStatus)}>
                           {requestingPayout === orgId ? 'En cours...' : kycApproved ? 'Demander le retrait' : 'Soumettre KYC'}
                         </Button>
                       </div>

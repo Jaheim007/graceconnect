@@ -166,7 +166,7 @@ export default function ProductDetailPage() {
       />
       <div className="sticky top-0 z-20 border-b border-border/40 bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between">
         <Link to={user ? '/feed' : '/'}>
-          <span className="text-lg font-extrabold tracking-tight italic text-gold">Siteviral</span>
+          <span className="text-lg font-extrabold tracking-tight italic text-primary">Siteviral</span>
         </Link>
         <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4" /> Retour
@@ -224,7 +224,7 @@ export default function ProductDetailPage() {
                   {org.logo_url ? (
                     <img src={org.logo_url} alt={org.name} className="h-12 w-12 rounded-xl object-cover border border-border" />
                   ) : (
-                    <div className="h-12 w-12 rounded-xl gold-gradient flex items-center justify-center text-lg font-bold text-primary-foreground">
+                    <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center text-lg font-bold text-primary-foreground">
                       {org.name?.[0]?.toUpperCase()}
                     </div>
                   )}
@@ -284,7 +284,7 @@ export default function ProductDetailPage() {
                 </div>
               ) : (
                 <Button
-                  className="w-full h-12 text-base gold-gradient text-primary-foreground border-0 shadow-gold gap-2 font-semibold"
+                  className="w-full h-12 text-base bg-primary text-primary-foreground gap-2 font-semibold"
                   onClick={() => {
                     if (!user) { navigate(`/auth?returnTo=${encodeURIComponent(buildShareUrl())}`); return; }
                     setPurchaseProduct(product as DigitalProduct);

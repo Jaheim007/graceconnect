@@ -75,7 +75,7 @@ export default function FeedPage() {
       <div className="min-h-screen bg-background">
         <div className="container max-w-lg px-4 py-10 space-y-6 text-center">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-            <div className="h-16 w-16 rounded-2xl gold-gradient flex items-center justify-center mx-auto shadow-gold">
+            <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center mx-auto">
               <Heart className="h-8 w-8 text-primary-foreground" />
             </div>
             <h1 className="text-2xl font-bold">Bienvenue sur Siteviral !</h1>
@@ -92,7 +92,7 @@ export default function FeedPage() {
           >
             <Button
               size="lg"
-              className="w-full gold-gradient text-primary-foreground border-0 shadow-gold gap-2 h-12"
+              className="w-full bg-primary text-primary-foreground gap-2 h-12"
               onClick={() => navigate('/discover')}
             >
               <Search className="h-4 w-4" /> Explorer les communautés
@@ -175,7 +175,7 @@ export default function FeedPage() {
               className={cn(
                 'shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-full text-sm font-semibold transition-all border',
                 tab === t.value
-                  ? 'gold-gradient text-primary-foreground border-primary shadow-gold'
+                  ? 'bg-primary text-primary-foreground border-primary'
                   : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/20 bg-card'
               )}
             >
@@ -220,7 +220,7 @@ export default function FeedPage() {
                           {ev.image_url ? (
                             <div className="h-36 overflow-hidden"><img src={ev.image_url} alt={ev.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" /></div>
                           ) : (
-                            <div className="h-24 gold-gradient flex items-center justify-center"><CalendarDays className="h-8 w-8 text-primary-foreground/70" /></div>
+                            <div className="h-24 bg-primary/10 flex items-center justify-center"><CalendarDays className="h-8 w-8 text-primary/70" /></div>
                           )}
                           <div className="p-4 space-y-1.5">
                             <p className="font-bold text-sm line-clamp-2">{ev.title}</p>
@@ -342,7 +342,7 @@ export default function FeedPage() {
                     <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                       {filteredEvents.map((ev) => (
                         <motion.div key={ev.id} variants={staggerItem} className="bg-card border border-border rounded-2xl overflow-hidden shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300">
-                          {ev.image_url ? <div className="h-44 overflow-hidden"><img src={ev.image_url} alt={ev.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" /></div> : <div className="h-28 gold-gradient flex items-center justify-center"><CalendarDays className="h-10 w-10 text-primary-foreground/60" /></div>}
+                          {ev.image_url ? <div className="h-44 overflow-hidden"><img src={ev.image_url} alt={ev.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" /></div> : <div className="h-28 bg-primary/10 flex items-center justify-center"><CalendarDays className="h-10 w-10 text-primary/60" /></div>}
                           <div className="p-5 space-y-2">
                             <p className="font-bold text-base line-clamp-2">{ev.title}</p>
                             {ev.event_date && <p className="text-sm font-semibold text-primary">{new Date(ev.event_date).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>}
@@ -393,7 +393,7 @@ function MediaTypeFilter({ allMedia }: { allMedia: ReturnType<typeof useFeedMedi
     <div className="space-y-5">
       <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
         {MEDIA_FILTERS.map((f) => (
-          <button key={f.value} onClick={() => setMediaFilter(f.value)} className={cn('shrink-0 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border transition-all', mediaFilter === f.value ? 'gold-gradient text-primary-foreground border-primary shadow-gold' : 'border-border text-muted-foreground bg-card hover:text-foreground')}>
+          <button key={f.value} onClick={() => setMediaFilter(f.value)} className={cn('shrink-0 flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold border transition-all', mediaFilter === f.value ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground bg-card hover:text-foreground')}>
             {f.icon} {f.label}
           </button>
         ))}

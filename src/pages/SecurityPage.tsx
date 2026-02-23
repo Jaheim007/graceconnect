@@ -5,7 +5,7 @@ export default function SecurityPage() {
   return (
     <LegalPageShell>
       <div className="flex items-center gap-3 mb-2">
-        <div className="h-10 w-10 rounded-xl gold-gradient flex items-center justify-center shadow-gold">
+        <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
           <Shield className="h-5 w-5 text-primary-foreground" />
         </div>
         <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground">Security</h1>

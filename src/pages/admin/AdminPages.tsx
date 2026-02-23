@@ -109,8 +109,8 @@ export function AdminEvents() {
           <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
             {items.map(ev => (
               <motion.div key={ev.id} variants={fadeUp} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all group">
-                <div className="h-10 w-10 rounded-xl gold-gradient flex items-center justify-center shrink-0">
-                  <span className="text-xs font-bold text-primary-foreground">
+                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <span className="text-xs font-bold text-primary">
                     {ev.event_date ? new Date(ev.event_date).getDate() : '?'}
                   </span>
                 </div>
@@ -171,7 +171,7 @@ export function AdminCampaigns() {
                   <p className="text-sm font-medium truncate">{c.title}</p>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <div className="h-1.5 flex-1 max-w-24 rounded-full bg-muted overflow-hidden">
-                      <div className="h-full gold-gradient rounded-full" style={{ width: c.goal_amount ? `${Math.min(100, (c.current_amount / c.goal_amount) * 100)}%` : '0%' }} />
+                      <div className="h-full bg-primary rounded-full" style={{ width: c.goal_amount ? `${Math.min(100, (c.current_amount / c.goal_amount) * 100)}%` : '0%' }} />
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {c.current_amount.toLocaleString('fr-FR')} / {c.goal_amount?.toLocaleString('fr-FR') || '∞'} {c.currency}
@@ -211,7 +211,7 @@ export function AdminProducts() {
                   {p.cover_image_url ? (
                     <img src={p.cover_image_url} alt={p.title} className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full gold-gradient opacity-60" />
+                    <div className="w-full h-full bg-muted opacity-60" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
@@ -283,7 +283,7 @@ export function AdminMembers() {
             <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
               {(members as any[]).map((m) => (
                 <motion.div key={m.id} variants={fadeUp} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all">
-                  <div className="h-10 w-10 rounded-full gold-gradient flex items-center justify-center shrink-0">
+                  <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center shrink-0">
                     <span className="text-xs font-bold text-primary-foreground">
                       {(m.profiles?.display_name || 'U')[0].toUpperCase()}
                     </span>
@@ -398,7 +398,7 @@ export function AdminAffiliation() {
           <p className="text-sm text-muted-foreground max-w-xs mx-auto">
             Allez dans les Paramètres pour activer le programme d'affiliation et définir un taux de commission.
           </p>
-          <Button size="sm" className="gold-gradient text-primary-foreground border-0" onClick={() => navigate('/admin/settings')}>
+          <Button size="sm" className="bg-primary text-primary-foreground" onClick={() => navigate('/admin/settings')}>
             Activer dans les Paramètres →
           </Button>
         </div>
@@ -462,7 +462,7 @@ export function AdminAffiliation() {
                   <div key={m.id} className="border border-primary/30 bg-primary/5 rounded-xl p-3 space-y-2">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2.5">
-                        <div className="h-8 w-8 rounded-full gold-gradient flex items-center justify-center text-xs font-bold shrink-0 text-primary-foreground">
+                        <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold shrink-0 text-primary-foreground">
                           {name[0].toUpperCase()}
                         </div>
                         <div>
@@ -545,7 +545,7 @@ export function AdminAffiliation() {
                     </div>
                     <Button
                       size="sm"
-                      className="h-7 text-xs gold-gradient text-primary-foreground border-0 shrink-0"
+                      className="h-7 text-xs bg-primary text-primary-foreground shrink-0"
                       disabled={assignAffiliate.isPending}
                       onClick={() => assignAffiliate.mutate({ memberId: m.id, memberUserId: m.user_id, memberName: name })}
                     >
@@ -621,7 +621,7 @@ export function AdminKYC() {
             </ul>
             <Button
               size="sm"
-              className="gold-gradient text-primary-foreground border-0 shadow-gold"
+              className="bg-primary text-primary-foreground"
               disabled={isPending}
             >
               {isPending ? '⏳ En cours de vérification…' : 'Soumettre les documents'}
@@ -921,7 +921,7 @@ export function AdminSettings() {
 
           <Button
             size="sm"
-            className="gold-gradient text-primary-foreground border-0 shadow-gold"
+            className="bg-primary text-primary-foreground"
             onClick={handleSaveProfile}
             disabled={savingProfile}
           >
@@ -980,7 +980,7 @@ export function AdminSettings() {
 
           <Button
             size="sm"
-            className="gold-gradient text-primary-foreground border-0 shadow-gold"
+            className="bg-primary text-primary-foreground"
             onClick={handleSaveLeader}
             disabled={savingLeader}
           >
@@ -1022,7 +1022,7 @@ export function AdminSettings() {
 
           <Button
             size="sm"
-            className="gold-gradient text-primary-foreground border-0 shadow-gold"
+            className="bg-primary text-primary-foreground"
             onClick={handleSaveAffiliation}
             disabled={savingAffiliation}
           >

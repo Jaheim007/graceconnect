@@ -58,7 +58,7 @@ export function GDPRBanner() {
                 <Button variant="ghost" size="sm" className="text-xs h-8" onClick={decline}>
                   Refuser
                 </Button>
-                <Button size="sm" className="text-xs h-8 gold-gradient text-primary-foreground border-0" onClick={accept}>
+                <Button size="sm" className="text-xs h-8 bg-primary text-primary-foreground" onClick={accept}>
                   Accepter
                 </Button>
               </div>

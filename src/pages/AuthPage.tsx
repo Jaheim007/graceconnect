@@ -75,12 +75,12 @@ export default function AuthPage() {
       {/* Left panel — branding */}
       <div className="hidden lg:flex flex-col justify-between w-1/2 p-12 relative z-10">
         <Link to="/">
-          <span className="text-2xl font-extrabold italic text-gold">Siteviral</span>
+          <span className="text-2xl font-extrabold italic text-primary">Siteviral</span>
         </Link>
         <div className="space-y-4">
           <h1 className="text-4xl font-bold leading-tight">
             Connectez-vous.{' '}
-            <span className="text-gold italic">Grandissez ensemble.</span>
+            <span className="text-primary italic">Grandissez ensemble.</span>
           </h1>
           <p className="text-muted-foreground text-lg max-w-md">
             La plateforme pour les organisations et communautés dans le monde entier.
@@ -103,7 +103,7 @@ export default function AuthPage() {
             {/* Mobile logo */}
             <div className="flex lg:hidden items-center justify-center mb-2">
               <Link to="/">
-                <span className="text-xl font-extrabold italic text-gold">Siteviral</span>
+                <span className="text-xl font-extrabold italic text-primary">Siteviral</span>
               </Link>
             </div>
 
@@ -233,7 +233,7 @@ export default function AuthPage() {
                   </div>
                   <Button
                     type="submit"
-                    className="w-full h-11 gold-gradient text-primary-foreground border-0 shadow-gold"
+                    className="w-full h-11 bg-primary text-primary-foreground"
                     disabled={sending || !email}
                   >
                     {sending ? (

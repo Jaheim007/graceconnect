@@ -91,7 +91,7 @@ export function EmptyState({
         )}
       </div>
       {action && (
-        <Button onClick={action.onClick} size="sm" className="mt-2 gold-gradient text-primary-foreground border-0 shadow-gold gap-1.5">
+        <Button onClick={action.onClick} size="sm" className="mt-2 bg-primary text-primary-foreground border-0 gap-1.5">
           {action.label} <ArrowRight className="h-3.5 w-3.5" />
         </Button>
       )}

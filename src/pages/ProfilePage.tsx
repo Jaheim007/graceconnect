@@ -167,7 +167,7 @@ export default function ProfilePage() {
           {/* Avatar editor */}
           <div className="flex flex-col items-center gap-3">
             <div className="relative group">
-              <div className="h-24 w-24 rounded-2xl gold-gradient flex items-center justify-center shadow-gold overflow-hidden">
+              <div className="h-24 w-24 rounded-2xl bg-primary flex items-center justify-center overflow-hidden">
                 {avatarUrl ? (
                   <img src={avatarUrl} alt={initials} className="h-full w-full object-cover" />
                 ) : (
@@ -214,7 +214,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <Button type="submit" disabled={saving} className="w-full h-11 gold-gradient text-primary-foreground border-0 shadow-gold font-semibold">
+            <Button type="submit" disabled={saving} className="w-full h-11 bg-primary text-primary-foreground font-semibold">
               {saving ? 'Enregistrement...' : 'Enregistrer les modifications'}
             </Button>
           </form>
@@ -241,7 +241,7 @@ export default function ProfilePage() {
           className="flex items-center gap-4 p-4 bg-card border border-border rounded-2xl shadow-card"
         >
           <div className="relative">
-            <div className="h-16 w-16 rounded-2xl gold-gradient flex items-center justify-center shadow-gold overflow-hidden">
+            <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center overflow-hidden">
               {avatarUrl ? (
                 <img src={avatarUrl} alt={initials} className="h-full w-full object-cover" />
               ) : (
@@ -305,7 +305,7 @@ export default function ProfilePage() {
 
                 return (
                   <div key={org.id} className="flex items-center gap-3.5 px-4 py-3.5">
-                    <div className="h-9 w-9 rounded-xl gold-gradient flex items-center justify-center shrink-0 shadow-gold overflow-hidden">
+                    <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center shrink-0 overflow-hidden">
                       {org.logo_url ? (
                         <img src={org.logo_url} alt={org.name} className="w-full h-full object-cover" />
                       ) : (

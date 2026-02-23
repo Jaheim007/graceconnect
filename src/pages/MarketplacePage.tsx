@@ -72,7 +72,7 @@ export default function MarketplacePage() {
       <div className="hero-gradient text-primary-foreground py-12 px-4 border-b border-border/40">
         <div className="container max-w-4xl">
           <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="h-5 w-5 text-gold" />
+            <Sparkles className="h-5 w-5 text-primary" />
             <Badge variant="secondary" className="text-[10px] bg-white/10 text-white border-0">Marketplace</Badge>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold mb-1">Marketplace Siteviral</h1>
