@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { sendEmail, sendEmailToOrgAdmins, getUserEmail } from '../_shared/send-email-helper.ts';
 
 // Simple in-memory rate limiter
 const requestCounts = new Map<string, { count: number; windowStart: number }>();
@@ -347,24 +348,44 @@ Deno.serve(async (req) => {
       await db.from('user_notifications').insert(adminNotifs);
     }
 
-    // ── 11. Send email receipt ──
-    const emailAddress = donor_email || null;
+    // ── 11. Send emails (fire-and-forget) ──
+    const date = new Date().toLocaleDateString('fr-FR');
 
-    if (emailAddress && RESEND_API_KEY) {
-      const emailHtml = type === 'donation'
-        ? buildDonationReceiptHtml({ orgName: org.name, amount: amountPaid, currency, reference, date: new Date().toLocaleDateString('fr-FR') })
-        : buildPurchaseReceiptHtml({ orgName: org.name, amount: amountPaid, currency, reference, date: new Date().toLocaleDateString('fr-FR'), discount: discountAmount, promoCode: promo_code || '' });
+    if (type === 'donation') {
+      // Email to donor
+      const donorAddr = donor_email || (userId ? await getUserEmail(userId) : null);
+      if (donorAddr) {
+        sendEmail({ template: 'donation_receipt', to: donorAddr, data: { org_name: org.name, amount: amountPaid, currency, reference, date }, organization_id }).catch(() => {});
+      }
+      // Email to org admins
+      sendEmailToOrgAdmins('new_donation_received', organization_id, {
+        donor_name: donor_name || 'Anonymous', amount: amountPaid, currency, org_name: org.name,
+        campaign_name: campaign_id ? 'Campaign' : 'General', reference,
+      }).catch(() => {});
+    } else {
+      // Email to buyer
+      const buyerEmail = userId ? await getUserEmail(userId) : null;
+      const { data: productData } = await db.from('digital_products').select('title').eq('id', product_id!).maybeSingle();
+      const productName = productData?.title || 'Product';
+      if (buyerEmail) {
+        sendEmail({ template: 'purchase_confirmation', to: buyerEmail, data: { product_name: productName, org_name: org.name, amount: amountPaid, currency, reference, access_link: `https://siteviral.com/dashboard` }, organization_id }).catch(() => {});
+      }
+      // Email to org admins
+      sendEmailToOrgAdmins('new_purchase_received', organization_id, {
+        buyer_name: donor_name || 'A customer', product_name: productName, amount: amountPaid, currency, reference,
+      }).catch(() => {});
+    }
 
-      await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          from: 'Siteviral <noreply@siteviral.com>',
-          to: [emailAddress],
-          subject: type === 'donation' ? `Reçu de don – ${org.name}` : `Confirmation d'achat – ${org.name}`,
-          html: emailHtml,
-        }),
-      }).catch(console.error);
+    // Affiliate commission email
+    if (affiliateLinkId && affiliateUserId && affiliateCommission > 0) {
+      const affEmail = await getUserEmail(affiliateUserId);
+      if (affEmail) {
+        sendEmail({ template: 'affiliate_sale', to: affEmail, data: {
+          commission: affiliateCommission, currency, org_name: org.name,
+          transaction_type: type, gross_amount: amountPaid,
+          commission_percent: org.affiliation_commission_percent ?? 10,
+        }, organization_id }).catch(() => {});
+      }
     }
 
     // ── 12. Return result ──
@@ -390,38 +411,3 @@ Deno.serve(async (req) => {
     });
   }
 });
-
-// ── Email templates ──
-function buildDonationReceiptHtml({ orgName, amount, currency, reference, date }: Record<string, string | number>) {
-  return `<!DOCTYPE html><html><body style="font-family:sans-serif;background:#0f0f0f;color:#eee;padding:32px">
-<div style="max-width:520px;margin:0 auto;background:#1a1a1a;border-radius:16px;padding:32px;border:1px solid #333">
-  <h1 style="color:#c9a84c;margin-top:0">🙏 Reçu de don</h1>
-  <p>Merci pour votre don généreux à <strong>${orgName}</strong>.</p>
-  <table style="width:100%;border-collapse:collapse;margin:24px 0">
-    <tr><td style="padding:8px 0;color:#aaa">Montant</td><td style="text-align:right;font-weight:bold;color:#c9a84c">${Number(amount).toLocaleString('fr-FR')} ${currency}</td></tr>
-    <tr><td style="padding:8px 0;color:#aaa">Référence</td><td style="text-align:right;font-family:monospace;font-size:12px">${reference}</td></tr>
-    <tr><td style="padding:8px 0;color:#aaa">Date</td><td style="text-align:right">${date}</td></tr>
-  </table>
-   <p style="color:#777;font-size:12px">This is an official receipt from Siteviral, operated by Hacktualiz Inc. Keep it for your records.</p>
-   <p style="color:#555;font-size:10px;margin-top:12px">Hacktualiz Inc. — 131 Continental Dr, Suite 305, Newark, DE 19713, USA</p>
-</div></body></html>`;
-}
-
-function buildPurchaseReceiptHtml({ orgName, amount, currency, reference, date, discount, promoCode }: Record<string, string | number>) {
-  const discountRow = Number(discount) > 0
-    ? `<tr><td style="padding:8px 0;color:#4ade80">Réduction (${promoCode})</td><td style="text-align:right;color:#4ade80">-${Number(discount).toLocaleString('fr-FR')} ${currency}</td></tr>`
-    : '';
-  return `<!DOCTYPE html><html><body style="font-family:sans-serif;background:#0f0f0f;color:#eee;padding:32px">
-<div style="max-width:520px;margin:0 auto;background:#1a1a1a;border-radius:16px;padding:32px;border:1px solid #333">
-  <h1 style="color:#c9a84c;margin-top:0">✅ Confirmation d'achat</h1>
-  <p>Votre achat chez <strong>${orgName}</strong> est confirmé.</p>
-  <table style="width:100%;border-collapse:collapse;margin:24px 0">
-    <tr><td style="padding:8px 0;color:#aaa">Montant payé</td><td style="text-align:right;font-weight:bold;color:#c9a84c">${Number(amount).toLocaleString('fr-FR')} ${currency}</td></tr>
-    ${discountRow}
-    <tr><td style="padding:8px 0;color:#aaa">Référence</td><td style="text-align:right;font-family:monospace;font-size:12px">${reference}</td></tr>
-    <tr><td style="padding:8px 0;color:#aaa">Date</td><td style="text-align:right">${date}</td></tr>
-  </table>
-   <p style="color:#777;font-size:12px">Access your purchase from your Siteviral dashboard. Thank you for your trust!</p>
-   <p style="color:#555;font-size:10px;margin-top:12px">Hacktualiz Inc. — 131 Continental Dr, Suite 305, Newark, DE 19713, USA</p>
-</div></body></html>`;
-}

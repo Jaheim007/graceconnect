@@ -75,3 +75,33 @@ export async function requestAffiliatePayout(organization_id: string) {
 export async function processPayout(payout_request_id: string, action: 'approve' | 'reject') {
   return callFn('process-payout', { payout_request_id, action }, true);
 }
+
+// ── Email sending ──
+export type EmailTemplate =
+  | 'welcome'
+  | 'donation_receipt' | 'new_donation_received'
+  | 'purchase_confirmation' | 'new_purchase_received' | 'download_ready'
+  | 'program_enrolled' | 'program_completed'
+  | 'kyc_submitted' | 'kyc_approved' | 'kyc_rejected'
+  | 'org_created' | 'org_deleted' | 'org_suspended' | 'org_unsuspended'
+  | 'new_member_joined' | 'member_left' | 'invite_to_org' | 'role_changed'
+  | 'payout_requested' | 'payout_approved' | 'payout_rejected' | 'payouts_frozen'
+  | 'affiliate_sale' | 'affiliate_payout_requested' | 'affiliate_payout_completed'
+  | 'directory_approved' | 'directory_rejected'
+  | 'ticket_created' | 'ticket_replied' | 'ticket_resolved'
+  | 'refund_initiated' | 'refund_completed'
+  | 'content_report_resolved';
+
+export async function sendEmailNotification(
+  template: EmailTemplate,
+  to: string,
+  data: Record<string, string | number>,
+  organization_id?: string,
+) {
+  try {
+    return await callFn('send-email', { template, to, data, organization_id }, true);
+  } catch (err) {
+    console.error('sendEmailNotification error:', err);
+    return { ok: false };
+  }
+}

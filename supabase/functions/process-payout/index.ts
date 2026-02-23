@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { sendEmail, getUserEmail } from '../_shared/send-email-helper.ts';
 
 // Simple in-memory rate limiter
 const requestCounts = new Map<string, { count: number; windowStart: number }>();
@@ -82,6 +83,12 @@ Deno.serve(async (req) => {
       // Revert affiliate_sales back to payable
       const saleIds = payout.metadata?.sale_ids || [];
       if (saleIds.length) await db.from('affiliate_sales').update({ status: 'payable' }).in('id', saleIds);
+      // Send rejection email
+      const rejEmail = await getUserEmail(payout.user_id);
+      const { data: rejOrg } = await db.from('organizations').select('name').eq('id', payout.organization_id).maybeSingle();
+      if (rejEmail) {
+        sendEmail({ template: 'payout_rejected', to: rejEmail, data: { org_name: rejOrg?.name || '', reason: 'Request rejected by admin.' }, organization_id: payout.organization_id }).catch(() => {});
+      }
       return new Response(JSON.stringify({ ok: true, status: 'rejected' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
@@ -127,6 +134,13 @@ Deno.serve(async (req) => {
       body: `Your affiliate payout of ${payout.amount.toLocaleString('fr-FR')} ${payout.currency} has been approved and is being transferred.`,
       notification_type: 'payout',
     });
+
+    // Send approval email
+    const { data: payOrg } = await db.from('organizations').select('name').eq('id', payout.organization_id).maybeSingle();
+    const payEmail = await getUserEmail(payout.user_id);
+    if (payEmail) {
+      sendEmail({ template: 'affiliate_payout_completed', to: payEmail, data: { amount: payout.amount, currency: payout.currency, org_name: payOrg?.name || '' }, organization_id: payout.organization_id }).catch(() => {});
+    }
 
     return new Response(JSON.stringify({ ok: true, status: 'paid', transfer: transferResult }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }

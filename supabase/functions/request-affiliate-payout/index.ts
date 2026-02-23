@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { sendEmail, getUserEmail, sendEmailToOrgAdmins } from '../_shared/send-email-helper.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -81,6 +82,14 @@ Deno.serve(async (req) => {
       status: 'requested',
       metadata: { sale_ids: saleIds },
     }).select('id').single();
+
+    // Send confirmation email to requester
+    const reqEmail = await getUserEmail(userId);
+    if (reqEmail) {
+      sendEmail({ template: 'affiliate_payout_requested', to: reqEmail, data: { amount: totalAmount, currency, org_name: org?.name || '' }, organization_id: organization_id }).catch(() => {});
+    }
+    // Notify org admins
+    sendEmailToOrgAdmins('payout_requested', organization_id, { amount: totalAmount, currency, org_name: org?.name || '' }).catch(() => {});
 
     return new Response(JSON.stringify({
       ok: true,
