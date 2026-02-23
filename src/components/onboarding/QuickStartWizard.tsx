@@ -98,7 +98,7 @@ export function QuickStartWizard({ open, onClose }: QuickStartWizardProps) {
         </AnimatePresence>
 
         {/* Actions */}
-        <div className="flex gap-2 mt-6">
+        <div className="flex flex-wrap gap-2 mt-6">
           {currentStep > 0 && (
             <Button variant="ghost" size="sm" onClick={() => setCurrentStep(prev => prev - 1)} className="gap-1">
               <ArrowLeft className="h-4 w-4" /> Back
@@ -108,8 +108,9 @@ export function QuickStartWizard({ open, onClose }: QuickStartWizardProps) {
           <Button variant="outline" size="sm" onClick={handleSkip}>
             {isLast ? 'Done' : 'Skip'}
           </Button>
-          <Button size="sm" onClick={handleAction} className="gap-1.5">
-            {step.cta} <ArrowRight className="h-4 w-4" />
+          <Button size="sm" onClick={handleAction} className="gap-1.5 text-xs">
+            <span className="truncate max-w-[120px] sm:max-w-none">{step.cta}</span>
+            <ArrowRight className="h-4 w-4 shrink-0" />
           </Button>
         </div>
       </motion.div>

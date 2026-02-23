@@ -112,20 +112,20 @@ export default function AdminDashboard() {
     <div className="space-y-6">
       <QuickStartWizard open={showQuickStart} onClose={() => setShowQuickStart(false)} />
       {/* Page header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Tableau de bord</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">
+          <h1 className="text-xl sm:text-2xl font-bold">Tableau de bord</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
             Vue d'ensemble de <span className="font-medium text-foreground">{currentOrg?.name}</span>
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline" onClick={() => setShowQuickStart(true)} className="gap-1.5 text-xs h-9">
-            <Rocket className="h-4 w-4" /> QuickStart
+          <Button size="sm" variant="outline" onClick={() => setShowQuickStart(true)} className="gap-1.5 text-xs h-8 sm:h-9">
+            <Rocket className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> QuickStart
           </Button>
-          <Button size="sm" asChild variant="outline" className="gap-1.5 text-xs h-9">
+          <Button size="sm" asChild variant="outline" className="gap-1.5 text-xs h-8 sm:h-9">
             <a href={`https://siteviral.com/org/${currentOrg?.slug}`} target="_blank" rel="noreferrer">
-              <ExternalLink className="h-4 w-4" /> Page publique
+              <ExternalLink className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Page publique
             </a>
           </Button>
         </div>
@@ -221,18 +221,20 @@ export default function AdminDashboard() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-start gap-3 p-4 rounded-2xl bg-primary/8 border border-primary/20"
+          className="flex flex-col sm:flex-row items-start gap-3 p-4 rounded-2xl bg-primary/8 border border-primary/20"
         >
-          <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
-            <AlertTriangle className="h-5 w-5 text-primary" />
+          <div className="flex items-start gap-3 flex-1 min-w-0">
+            <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
+              <AlertTriangle className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm">Complétez votre vérification pour retirer vos fonds</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Vous pouvez accepter les paiements dès maintenant. La vérification KYC est requise uniquement pour les retraits.
+              </p>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm">Complétez votre vérification pour retirer vos fonds</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Vous pouvez accepter les paiements dès maintenant. La vérification KYC est requise uniquement pour les retraits.
-            </p>
-          </div>
-          <Button size="sm" variant="outline" onClick={() => navigate('/admin/kyc')} className="h-8 text-xs shrink-0">
+          <Button size="sm" variant="outline" onClick={() => navigate('/admin/kyc')} className="h-8 text-xs shrink-0 w-full sm:w-auto">
             Vérifier mon compte
           </Button>
         </motion.div>
