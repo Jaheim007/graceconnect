@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Search, Filter, ShoppingBag, Heart, Users, CheckCircle2 } from 'lucide-react';
+import { Search, Filter, ShoppingBag, Heart, Users, CheckCircle2, Sparkles } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { motion } from 'framer-motion';
 import { useDirectoryMode } from '@/hooks/useDirectoryMode';
+import { useI18n } from '@/i18n/I18nContext';
+import { PageTour } from '@/components/onboarding/PageTour';
 
 const CATEGORIES: { value: OrgCategory | ''; label: string }[] = [
   { value: '', label: 'Tout' },
@@ -35,6 +37,12 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 26 } },
 };
 
+const DISCOVER_TOUR_STEPS = [
+  { titleKey: 'tour.discover_1_title', descKey: 'tour.discover_1_desc', icon: <Search className="h-4 w-4" /> },
+  { titleKey: 'tour.discover_2_title', descKey: 'tour.discover_2_desc', icon: <ShoppingBag className="h-4 w-4" /> },
+  { titleKey: 'tour.discover_3_title', descKey: 'tour.discover_3_desc', icon: <Heart className="h-4 w-4" /> },
+];
+
 export default function DiscoverPage() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<OrgCategory | ''>('');
@@ -44,6 +52,7 @@ export default function DiscoverPage() {
   const { user } = useAuth();
   const { userOrgs } = useOrg();
   const { data: directoryMode = 'curated' } = useDirectoryMode();
+  const { t } = useI18n();
 
   const { data, isLoading } = usePublicOrgs({ search, category, page });
   const orgs = data?.orgs || [];
@@ -118,6 +127,7 @@ export default function DiscoverPage() {
       </div>
 
       <div className="container max-w-6xl py-6">
+        <PageTour pageId="discover" steps={DISCOVER_TOUR_STEPS} />
         <Tabs value={tab} onValueChange={(v) => { setTab(v); setPage(0); }}>
           <TabsList className="mb-6">
             <TabsTrigger value="products" className="gap-1.5">
