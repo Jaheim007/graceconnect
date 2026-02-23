@@ -17,6 +17,7 @@ import { ChevronRight, ChevronLeft, Building2, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OrgOnboardingWizard } from '@/components/onboarding/OrgOnboardingWizard';
 import { useI18n } from '@/i18n/I18nContext';
+import { detectCurrencyFromTimezone } from '@/lib/countryDetect';
 
 const CATEGORIES = [
   { value: 'church', label: '🏢 Organization' },
@@ -65,7 +66,7 @@ export default function CreateOrgPage() {
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { category: 'church', name: '', slug: '', description: '', currency: 'USD' },
+    defaultValues: { category: 'church', name: '', slug: '', description: '', currency: detectCurrencyFromTimezone() },
   });
 
   const { watch, setValue, formState: { errors } } = form;
