@@ -19,13 +19,11 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useMyPurchases } from '@/hooks/usePurchases';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr, enUS } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { AffiliateShareTools } from '@/components/affiliate/AffiliateShareTools';
 import { ProductAffiliateLinkGen } from '@/components/affiliate/ProductAffiliateLinkGen';
-
-const fmt = (n: number, currency = 'XOF') =>
-  new Intl.NumberFormat('fr-FR', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
+import { useI18n } from '@/i18n/I18nContext';
 
 const statusColor: Record<string, string> = {
   completed: 'bg-green-500/15 text-green-600 dark:text-green-400',
@@ -43,10 +41,11 @@ const saleStatusColor: Record<string, string> = {
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+  const { t } = useI18n();
   const handleCopy = async () => {
     await navigator.clipboard.writeText(text);
     setCopied(true);
-    toast({ title: 'Lien copié !', description: 'Partagez-le pour gagner des commissions.' });
+    toast({ title: t('dash.link_copied'), description: t('dash.link_copied_desc') });
     setTimeout(() => setCopied(false), 2000);
   };
   return (
@@ -70,11 +69,16 @@ export default function UserDashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { userOrgs } = useOrg();
+  const { t, locale } = useI18n();
   const qc = useQueryClient();
   const [requestingPayout, setRequestingPayout] = useState<string | null>(null);
   const [requestingAffiliate, setRequestingAffiliate] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<DashboardTab>('apercu');
   const [downloading, setDownloading] = useState<string | null>(null);
+
+  const dateFnsLocale = locale === 'fr' ? fr : enUS;
+  const fmt = (n: number, currency = 'USD') =>
+    new Intl.NumberFormat(locale === 'fr' ? 'fr-FR' : 'en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
 
   // Data queries
   const { data: donations = [], isLoading: dLoading } = useQuery({
@@ -107,7 +111,6 @@ export default function UserDashboard() {
     enabled: !!user,
   });
 
-  // Fetch user's referral info
   const { data: referralInfo } = useQuery({
     queryKey: ['user-referral-info', user?.id],
     queryFn: async () => {
@@ -153,7 +156,6 @@ export default function UserDashboard() {
   const pendingCommission = affiliateSales.filter((s: { status: string }) => s.status === 'pending').reduce((sum: number, s: { commission_amount: number }) => sum + s.commission_amount, 0);
   const baseUrl = window.location.origin;
 
-  // Org revenue: fetch donations & purchases received by orgs the user manages
   const managedOrgIds = userOrgs.filter(o => o.owner_id === user?.id).map(o => o.id);
 
   const { data: orgDonationRevenue = [] } = useQuery({
@@ -177,31 +179,31 @@ export default function UserDashboard() {
   });
 
   const allOrgTxns = [...orgDonationRevenue, ...orgPurchaseRevenue];
-  const totalOrgRevenue = allOrgTxns.reduce((s, t) => s + (t.amount || 0), 0);
-  const totalOrgReceived = allOrgTxns.reduce((s, t) => s + (t.organization_amount || 0), 0);
+  const totalOrgRevenue = allOrgTxns.reduce((s, t2) => s + (t2.amount || 0), 0);
+  const totalOrgReceived = allOrgTxns.reduce((s, t2) => s + (t2.organization_amount || 0), 0);
 
   const handleRequestPayout = async (orgId: string, orgKycStatus: string) => {
     if (orgKycStatus === 'none' || orgKycStatus === 'pending') {
-      toast({ title: 'KYC requis pour le retrait', description: 'Veuillez compléter la vérification KYC avant de demander un retrait.' });
+      toast({ title: t('dash.kyc_required_title'), description: t('dash.kyc_required_desc') });
       navigate('/admin/kyc');
       return;
     }
     setRequestingPayout(orgId);
     try {
       const result = await requestAffiliatePayout(orgId);
-      toast({ title: 'Retrait demandé', description: `${result.amount?.toLocaleString()} XOF demandé. Vous serez notifié du traitement.` });
+      toast({ title: t('dash.payout_requested'), description: t('dash.payout_desc').replace('{amount}', result.amount?.toLocaleString() || '0') });
       qc.invalidateQueries({ queryKey: ['user-affiliate-sales', user?.id] });
     } catch (err: unknown) {
-      toast({ title: 'Échec de la demande', description: err instanceof Error ? err.message : 'Réessayez.', variant: 'destructive' });
+      toast({ title: t('dash.request_failed'), description: err instanceof Error ? err.message : '', variant: 'destructive' });
     } finally { setRequestingPayout(null); }
   };
 
   const requestAffiliateRole = useMutation({
     mutationFn: async ({ orgId, orgSlug }: { orgId: string; orgSlug: string }) => {
-      if (!user) throw new Error('Non authentifié');
+      if (!user) throw new Error('Not authenticated');
       const { data: memberRow } = await db.from('organization_members').select('id, role').eq('user_id', user.id).eq('organization_id', orgId).single();
-      if (!memberRow) throw new Error('Vous devez être membre de cette organisation.');
-      if (memberRow.role === 'affiliate') throw new Error('Déjà affilié');
+      if (!memberRow) throw new Error('Must be a member');
+      if (memberRow.role === 'affiliate') throw new Error('Already affiliate');
       const { error: roleErr } = await db.from('organization_members').update({ role: 'affiliate' }).eq('id', memberRow.id);
       if (roleErr) throw roleErr;
       const code = `${orgSlug.slice(0, 6).toUpperCase()}-${user.id.slice(0, 6).toUpperCase()}`;
@@ -211,11 +213,11 @@ export default function UserDashboard() {
       }
     },
     onSuccess: () => {
-      toast({ title: 'Vous êtes affilié !', description: 'Votre lien de parrainage est prêt.' });
+      toast({ title: t('dash.you_are_affiliate'), description: t('dash.affiliate_ready') });
       qc.invalidateQueries({ queryKey: ['user-affiliate-links', user?.id] });
       qc.invalidateQueries({ queryKey: ['user-memberships', user?.id] });
     },
-    onError: (err: Error) => { toast({ title: 'Erreur', description: err.message, variant: 'destructive' }); },
+    onError: (err: Error) => { toast({ title: t('common.error'), description: err.message, variant: 'destructive' }); },
   });
 
   const affiliateLinkOrgIds = new Set(affiliateLinks.map(l => l.organization_id));
@@ -225,7 +227,7 @@ export default function UserDashboard() {
   for (const s of affiliateSales) {
     const sale = s as { status: string; organization_id: string; commission_amount: number; currency?: string };
     if (sale.status === 'payable') {
-      if (!payableByOrg[sale.organization_id]) payableByOrg[sale.organization_id] = { orgId: sale.organization_id, amount: 0, currency: sale.currency || 'XOF' };
+      if (!payableByOrg[sale.organization_id]) payableByOrg[sale.organization_id] = { orgId: sale.organization_id, amount: 0, currency: sale.currency || 'USD' };
       payableByOrg[sale.organization_id].amount += sale.commission_amount;
     }
   }
@@ -250,7 +252,7 @@ export default function UserDashboard() {
 
   // Greeting
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+  const greeting = hour < 12 ? t('dash.good_morning') : hour < 18 ? t('dash.good_afternoon') : t('dash.good_evening');
   const googleAvatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
   const avatarUrl = profile?.avatar_url || googleAvatar;
   const displayName = profile?.display_name?.split(' ')[0] || 'User';
@@ -259,10 +261,10 @@ export default function UserDashboard() {
     : 'U';
 
   const tabs: { key: DashboardTab; label: string; icon: typeof Heart; desc: string }[] = [
-    { key: 'apercu', label: 'Overview', icon: BarChart3, desc: 'Dashboard' },
-    { key: 'ressources', label: 'Resources', icon: BookOpen, desc: 'Your purchases' },
-    { key: 'affiliation', label: 'Affiliation', icon: Link2, desc: 'Your commissions' },
-    { key: 'historique', label: 'History', icon: Clock, desc: 'Transactions' },
+    { key: 'apercu', label: t('dash.overview'), icon: BarChart3, desc: 'Dashboard' },
+    { key: 'ressources', label: t('dash.resources'), icon: BookOpen, desc: t('dash.your_purchases') },
+    { key: 'affiliation', label: t('dash.affiliation'), icon: Link2, desc: t('dash.commissions') },
+    { key: 'historique', label: t('dash.history'), icon: Clock, desc: 'Transactions' },
   ];
 
   return (
@@ -287,7 +289,7 @@ export default function UserDashboard() {
               <h1 className="text-base sm:text-lg font-bold text-white truncate">
                 {greeting}, {displayName}
               </h1>
-              <p className="text-[11px] text-white/60">{userOrgs.length} organization{userOrgs.length > 1 ? 's' : ''}</p>
+              <p className="text-[11px] text-white/60">{userOrgs.length} {userOrgs.length > 1 ? t('feed.organizations') : t('feed.organization')}</p>
             </div>
           </div>
 
@@ -295,12 +297,12 @@ export default function UserDashboard() {
           <div className="relative z-10 flex items-center gap-4 mt-3 pt-3 border-t border-white/15 overflow-x-auto scrollbar-hide">
             {[
               ...(managedOrgIds.length > 0 ? [
-                { label: 'Ventes', value: fmt(totalOrgRevenue) },
-                { label: 'Reçu', value: fmt(totalOrgReceived) },
+                { label: t('dash.sales'), value: fmt(totalOrgRevenue) },
+                { label: t('dash.received'), value: fmt(totalOrgReceived) },
               ] : []),
-              { label: 'Dons', value: fmt(totalDonated) },
-              { label: 'Commissions', value: fmt(totalEarned) },
-              ...(managedOrgIds.length === 0 ? [{ label: 'Disponible', value: fmt(payableCommission) }] : []),
+              { label: t('dash.donations'), value: fmt(totalDonated) },
+              { label: t('dash.commissions'), value: fmt(totalEarned) },
+              ...(managedOrgIds.length === 0 ? [{ label: t('dash.available'), value: fmt(payableCommission) }] : []),
             ].map((s) => (
               <div key={s.label} className="shrink-0 text-center">
                 <p className="text-sm font-bold text-white">{s.value}</p>
@@ -312,34 +314,34 @@ export default function UserDashboard() {
 
         {/* ══ TABS ══ */}
         <div className="flex gap-1 sm:gap-1.5 bg-muted/50 p-1 rounded-2xl overflow-x-auto scrollbar-hide">
-          {tabs.map((t) => (
+          {tabs.map((tab) => (
             <button
-              key={t.key}
-              onClick={() => setActiveTab(t.key)}
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
               className={cn(
                 'flex items-center gap-1 sm:gap-1.5 shrink-0 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-[11px] sm:text-xs font-semibold transition-all flex-1 justify-center',
-                activeTab === t.key
+                activeTab === tab.key
                   ? 'bg-card text-foreground shadow-card'
                   : 'text-muted-foreground hover:text-foreground'
               )}
             >
-              <t.icon className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">{t.label}</span>
-              <span className="sm:hidden">{t.label.split(' ')[0]}</span>
+              <tab.icon className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{tab.label}</span>
+              <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
             </button>
           ))}
         </div>
 
-        {/* ══ TAB: APERÇU ══ */}
+        {/* ══ TAB: OVERVIEW ══ */}
         {activeTab === 'apercu' && (
           <div className="space-y-5">
             {/* Quick Actions Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
-                { label: 'My Resources', icon: BookOpen, colorClass: 'bg-accent/10 text-accent', onClick: () => setActiveTab('ressources'), count: myResources?.length || 0 },
-                { label: 'Affiliation', icon: Link2, colorClass: 'bg-primary/10 text-primary', onClick: () => setActiveTab('affiliation'), count: affiliateLinks.length },
-                { label: 'Create Org', icon: Gift, colorClass: 'bg-green-500/10 text-green-500', onClick: () => navigate('/create-org'), count: null },
-                { label: 'My Account', icon: ArrowUpRight, colorClass: 'bg-muted text-foreground', onClick: () => navigate('/profile'), count: null },
+                { label: t('dash.my_resources'), icon: BookOpen, colorClass: 'bg-accent/10 text-accent', onClick: () => setActiveTab('ressources'), count: myResources?.length || 0 },
+                { label: t('dash.affiliation'), icon: Link2, colorClass: 'bg-primary/10 text-primary', onClick: () => setActiveTab('affiliation'), count: affiliateLinks.length },
+                { label: t('dash.create_org'), icon: Gift, colorClass: 'bg-green-500/10 text-green-500', onClick: () => navigate('/create-org'), count: null },
+                { label: t('dash.my_account'), icon: ArrowUpRight, colorClass: 'bg-muted text-foreground', onClick: () => navigate('/profile'), count: null },
               ].map((a, i) => (
                 <motion.button
                   key={a.label}
@@ -354,7 +356,7 @@ export default function UserDashboard() {
                   </div>
                   <p className="text-xs font-semibold text-foreground">{a.label}</p>
                   {a.count !== null && (
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{a.count} élément{a.count > 1 ? 's' : ''}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{a.count} {a.count > 1 ? t('dash.items_plural') : t('dash.items')}</p>
                   )}
                 </motion.button>
               ))}
@@ -364,8 +366,8 @@ export default function UserDashboard() {
             {myResources && myResources.length > 0 && (
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="bg-card border border-border rounded-2xl overflow-hidden shadow-card">
                 <div className="flex items-center justify-between px-5 pt-5 pb-3">
-                  <h2 className="font-semibold text-sm flex items-center gap-2"><BookOpen className="h-4 w-4 text-primary" /> Dernières ressources</h2>
-                  <button onClick={() => setActiveTab('ressources')} className="text-xs text-primary font-medium hover:underline">Tout voir →</button>
+                  <h2 className="font-semibold text-sm flex items-center gap-2"><BookOpen className="h-4 w-4 text-primary" /> {t('dash.latest_resources')}</h2>
+                  <button onClick={() => setActiveTab('ressources')} className="text-xs text-primary font-medium hover:underline">{t('dash.view_all')}</button>
                 </div>
                 <div className="divide-y divide-border/50">
                   {myResources.slice(0, 3).map((p) => (
@@ -379,7 +381,7 @@ export default function UserDashboard() {
                       </div>
                       {p.product.file_url && (
                         <Button size="sm" variant="outline" className="gap-1 text-[10px] h-7" onClick={() => handleFileAction(p, 'inline')}>
-                          <Eye className="h-3 w-3" /> Lire
+                          <Eye className="h-3 w-3" /> {t('dash.read')}
                         </Button>
                       )}
                     </div>
@@ -392,14 +394,14 @@ export default function UserDashboard() {
             {affiliateLinks.length > 0 && (
               <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-card border border-border rounded-2xl p-5 space-y-4 shadow-card">
                 <div className="flex items-center justify-between">
-                  <h2 className="font-semibold text-sm flex items-center gap-2"><Link2 className="h-4 w-4 text-primary" /> Affiliation</h2>
-                  <button onClick={() => setActiveTab('affiliation')} className="text-xs text-primary font-medium hover:underline">Détails →</button>
+                  <h2 className="font-semibold text-sm flex items-center gap-2"><Link2 className="h-4 w-4 text-primary" /> {t('dash.affiliation')}</h2>
+                  <button onClick={() => setActiveTab('affiliation')} className="text-xs text-primary font-medium hover:underline">{t('dash.details')}</button>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    { label: 'Liens', value: affiliateLinks.length, colorClass: '' },
-                    { label: 'Total gagné', value: fmt(totalEarned), colorClass: 'text-primary' },
-                    { label: 'À retirer', value: fmt(payableCommission), colorClass: 'text-green-500' },
+                    { label: t('dash.links'), value: affiliateLinks.length, colorClass: '' },
+                    { label: t('dash.total_earned'), value: fmt(totalEarned), colorClass: 'text-primary' },
+                    { label: t('dash.withdrawable'), value: fmt(payableCommission), colorClass: 'text-green-500' },
                   ].map((s) => (
                     <div key={s.label} className="rounded-xl bg-muted/50 p-3 text-center">
                       <p className={cn('text-lg font-bold', s.colorClass)}>{s.value}</p>
@@ -412,18 +414,18 @@ export default function UserDashboard() {
           </div>
         )}
 
-        {/* ══ TAB: RESSOURCES ══ */}
+        {/* ══ TAB: RESOURCES ══ */}
         {activeTab === 'ressources' && (
           <div className="space-y-4">
             <div>
-              <h2 className="font-semibold text-base flex items-center gap-2"><BookOpen className="h-5 w-5 text-primary" /> Mes Ressources</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Tous les produits que vous avez achetés.</p>
+              <h2 className="font-semibold text-base flex items-center gap-2"><BookOpen className="h-5 w-5 text-primary" /> {t('dash.my_resources')}</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">{t('dash.all_purchased')}</p>
             </div>
             {resLoading ? <SkeletonRow count={3} /> : !myResources?.length ? (
               <div className="text-center py-10">
                 <ShoppingBag className="h-10 w-10 text-muted-foreground/40 mx-auto mb-3" />
-                <p className="text-sm text-muted-foreground">Aucun achat pour le moment.</p>
-                <Button size="sm" variant="outline" className="mt-3" onClick={() => navigate('/discover')}>Explorer les communautés</Button>
+                <p className="text-sm text-muted-foreground">{t('dash.no_purchases')}</p>
+                <Button size="sm" variant="outline" className="mt-3" onClick={() => navigate('/feed')}>{t('dash.explore')}</Button>
               </div>
             ) : (
               <div className="space-y-3">
@@ -437,7 +439,7 @@ export default function UserDashboard() {
                       <div className="flex items-center gap-2 mt-1">
                         <Badge variant="outline" className="text-[10px] capitalize">{purchase.product.product_type}</Badge>
                         <span className="text-[10px] text-muted-foreground">
-                          {purchase.completed_at ? format(new Date(purchase.completed_at), 'dd MMM yyyy', { locale: fr }) : format(new Date(purchase.created_at), 'dd MMM yyyy', { locale: fr })}
+                          {purchase.completed_at ? format(new Date(purchase.completed_at), 'dd MMM yyyy', { locale: dateFnsLocale }) : format(new Date(purchase.created_at), 'dd MMM yyyy', { locale: dateFnsLocale })}
                         </span>
                       </div>
                     </div>
@@ -445,16 +447,16 @@ export default function UserDashboard() {
                       {purchase.product.file_url && (
                         <>
                           <Button size="sm" variant="outline" className="gap-1 text-[10px] h-7" onClick={() => handleFileAction(purchase, 'inline')} disabled={downloading === purchase.id}>
-                            <Eye className="h-3 w-3" /> Lire
+                            <Eye className="h-3 w-3" /> {t('dash.read')}
                           </Button>
                           <Button size="sm" className="gap-1 text-[10px] h-7 bg-primary text-primary-foreground border-0" onClick={() => handleFileAction(purchase, 'download')} disabled={downloading === purchase.id}>
-                            <Download className="h-3 w-3" /> {downloading === purchase.id ? '...' : 'Télécharger'}
+                            <Download className="h-3 w-3" /> {downloading === purchase.id ? '...' : t('dash.download')}
                           </Button>
                         </>
                       )}
                       {purchase.product.external_link && (
                         <a href={purchase.product.external_link} target="_blank" rel="noreferrer">
-                          <Button size="sm" variant="outline" className="gap-1 text-[10px] h-7 w-full"><ExternalLink className="h-3 w-3" /> Accéder</Button>
+                          <Button size="sm" variant="outline" className="gap-1 text-[10px] h-7 w-full"><ExternalLink className="h-3 w-3" /> {t('dash.access')}</Button>
                         </a>
                       )}
                     </div>
@@ -471,20 +473,20 @@ export default function UserDashboard() {
             <div className="bg-card border border-border rounded-2xl p-5 space-y-4 shadow-card">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="font-semibold text-sm flex items-center gap-2"><Link2 className="h-4 w-4 text-primary" /> Mes liens d'affiliation</h2>
-                  <p className="text-xs text-muted-foreground mt-0.5">Partagez ces liens pour gagner des commissions.</p>
+                  <h2 className="font-semibold text-sm flex items-center gap-2"><Link2 className="h-4 w-4 text-primary" /> {t('dash.my_affiliate_links')}</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t('dash.share_links')}</p>
                 </div>
                 <div className="flex flex-col items-end gap-1">
-                  {payableCommission > 0 && <Badge variant="outline" className="bg-accent/10 text-accent-foreground border-0 text-xs">{fmt(payableCommission)} disponible</Badge>}
-                  {pendingCommission > 0 && <Badge variant="outline" className="bg-primary/10 text-primary border-0 text-xs">{fmt(pendingCommission)} en attente</Badge>}
+                  {payableCommission > 0 && <Badge variant="outline" className="bg-accent/10 text-accent-foreground border-0 text-xs">{fmt(payableCommission)} {t('dash.available_amount')}</Badge>}
+                  {pendingCommission > 0 && <Badge variant="outline" className="bg-primary/10 text-primary border-0 text-xs">{fmt(pendingCommission)} {t('dash.status_pending').toLowerCase()}</Badge>}
                 </div>
               </div>
 
               {aLoading ? <SkeletonRow count={2} /> : affiliateLinks.length === 0 ? (
                 <div className="text-center py-6 space-y-2">
                   <Link2 className="h-8 w-8 text-muted-foreground/40 mx-auto" />
-                  <p className="text-sm text-muted-foreground">Aucun lien d'affiliation.</p>
-                  <p className="text-xs text-muted-foreground max-w-xs mx-auto">Rejoignez une organisation avec un programme d'affiliation activé.</p>
+                  <p className="text-sm text-muted-foreground">{t('dash.no_links')}</p>
+                  <p className="text-xs text-muted-foreground max-w-xs mx-auto">{t('dash.no_links_desc')}</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -494,33 +496,32 @@ export default function UserDashboard() {
                       <div key={l.id} className="border border-border rounded-xl p-4 space-y-3">
                         <div className="flex items-center justify-between gap-2">
                           <div>
-                            <p className="text-sm font-medium">{l.organizations?.name || 'Organisation'}</p>
-                            <p className="text-[10px] text-muted-foreground capitalize">Affilié · code: <span className="font-mono">{l.code}</span></p>
+                            <p className="text-sm font-medium">{l.organizations?.name || 'Organization'}</p>
+                            <p className="text-[10px] text-muted-foreground capitalize">{t('dash.affiliate_code')} <span className="font-mono">{l.code}</span></p>
                           </div>
                           <Badge variant="outline" className={cn('text-[10px] border-0 capitalize', l.is_active ? 'bg-accent/10 text-accent-foreground' : 'bg-muted text-muted-foreground')}>
-                            {l.is_active ? 'Actif' : 'Inactif'}
+                            {l.is_active ? t('dash.active') : t('dash.inactive')}
                           </Badge>
                         </div>
                         <div className="grid grid-cols-3 gap-2 text-center">
                           <div className="rounded-lg bg-muted/50 p-2">
                             <p className="text-sm font-bold">{l.clicks || 0}</p>
-                            <p className="text-[10px] text-muted-foreground">Clics</p>
+                            <p className="text-[10px] text-muted-foreground">{t('dash.clicks')}</p>
                           </div>
                           <div className="rounded-lg bg-muted/50 p-2">
                             <p className="text-sm font-bold">{l.conversions || 0}</p>
-                            <p className="text-[10px] text-muted-foreground">Conversions</p>
+                            <p className="text-[10px] text-muted-foreground">{t('dash.conversions')}</p>
                           </div>
                           <div className="rounded-lg bg-primary/10 p-2">
                             <p className="text-sm font-bold text-primary">{fmt(l.total_earned || 0)}</p>
-                            <p className="text-[10px] text-muted-foreground">Gagné</p>
+                            <p className="text-[10px] text-muted-foreground">{t('dash.earned')}</p>
                           </div>
                         </div>
                         <AffiliateShareTools
                           shareUrl={shareUrl}
-                          orgName={l.organizations?.name || 'Organisation'}
+                          orgName={l.organizations?.name || 'Organization'}
                           affiliateCode={l.code}
                         />
-                        {/* Per-product link generator */}
                         <ProductAffiliateLinkGen
                           orgId={l.organization_id}
                           orgSlug={l.organizations?.slug || ''}
@@ -537,8 +538,8 @@ export default function UserDashboard() {
             {orgsEligibleForAffiliate.length > 0 && (
               <div className="bg-card border border-border rounded-2xl p-5 space-y-3 shadow-card">
                 <div>
-                  <h2 className="font-semibold text-sm flex items-center gap-2"><TrendingUp className="h-4 w-4 text-primary" /> Devenir affilié</h2>
-                  <p className="text-xs text-muted-foreground mt-0.5">Ces organisations ont un programme d'affiliation ouvert.</p>
+                  <h2 className="font-semibold text-sm flex items-center gap-2"><TrendingUp className="h-4 w-4 text-primary" /> {t('dash.become_affiliate')}</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t('dash.become_affiliate_desc')}</p>
                 </div>
                 <div className="space-y-2">
                   {orgsEligibleForAffiliate.map((org) => (
@@ -548,10 +549,10 @@ export default function UserDashboard() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{org.name}</p>
-                        <p className="text-xs text-primary font-semibold">Gagnez {org.affiliation_commission_percent}% par parrainage</p>
+                        <p className="text-xs text-primary font-semibold">{t('dash.earn_percent').replace('{percent}', String(org.affiliation_commission_percent))}</p>
                       </div>
                       <Button size="sm" className="h-7 text-xs bg-primary text-primary-foreground border-0 shrink-0" disabled={requestingAffiliate === org.id || requestAffiliateRole.isPending} onClick={async () => { setRequestingAffiliate(org.id); await requestAffiliateRole.mutateAsync({ orgId: org.id, orgSlug: org.slug }); setRequestingAffiliate(null); }}>
-                        {requestingAffiliate === org.id ? 'En cours...' : 'Devenir affilié'}
+                        {requestingAffiliate === org.id ? t('dash.becoming') : t('dash.become')}
                       </Button>
                     </div>
                   ))}
@@ -561,8 +562,8 @@ export default function UserDashboard() {
 
             {Object.keys(payableByOrg).length > 0 && (
               <div className="bg-card border border-border rounded-2xl p-5 space-y-3 shadow-card">
-                <h2 className="font-semibold text-sm flex items-center gap-2"><DollarSign className="h-4 w-4 text-primary" /> Demander un retrait</h2>
-                <p className="text-xs text-muted-foreground">La vérification KYC est requise avant un retrait.</p>
+                <h2 className="font-semibold text-sm flex items-center gap-2"><DollarSign className="h-4 w-4 text-primary" /> {t('dash.request_payout')}</h2>
+                <p className="text-xs text-muted-foreground">{t('dash.kyc_required')}</p>
                 <div className="space-y-2">
                   {Object.values(payableByOrg).map(({ orgId, amount, currency }) => {
                     const org = userOrgs.find(o => o.id === orgId);
@@ -572,11 +573,11 @@ export default function UserDashboard() {
                       <div key={orgId} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/30">
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium">{org?.name || orgId}</p>
-                          <p className="text-xs text-primary font-semibold">{fmt(amount, currency)} disponible</p>
+                          <p className="text-xs text-primary font-semibold">{fmt(amount, currency)} {t('dash.available_amount')}</p>
                         </div>
-                        {!kycApproved && <div className="flex items-center gap-1 text-[10px] text-primary"><AlertTriangle className="h-3 w-3" /><span>KYC requis</span></div>}
+                        {!kycApproved && <div className="flex items-center gap-1 text-[10px] text-primary"><AlertTriangle className="h-3 w-3" /><span>{t('dash.kyc_required_short')}</span></div>}
                         <Button size="sm" className="h-7 text-xs bg-primary text-primary-foreground border-0" disabled={requestingPayout === orgId} onClick={() => handleRequestPayout(orgId, kycStatus)}>
-                          {requestingPayout === orgId ? 'En cours...' : kycApproved ? 'Demander le retrait' : 'Soumettre KYC'}
+                          {requestingPayout === orgId ? t('dash.requesting') : kycApproved ? t('dash.request_withdrawal') : t('dash.submit_kyc')}
                         </Button>
                       </div>
                     );
@@ -587,17 +588,17 @@ export default function UserDashboard() {
 
             {affiliateSales.length > 0 && (
               <div className="bg-card border border-border rounded-2xl p-5 space-y-3 shadow-card">
-                <h2 className="font-semibold text-sm">Historique des commissions</h2>
-                <p className="text-xs text-muted-foreground">Les commissions deviennent disponibles 72h après la transaction.</p>
+                <h2 className="font-semibold text-sm">{t('dash.commission_history')}</h2>
+                <p className="text-xs text-muted-foreground">{t('dash.commission_delay')}</p>
                 <div className="space-y-1">
                   {affiliateSales.map((s: { id: string; transaction_type: string; gross_amount: number; commission_amount: number; commission_percent: number; currency?: string; status: string; created_at: string; payable_at?: string }) => (
                     <div key={s.id} className="flex items-center gap-3 py-2.5 border-b border-border/50 last:border-0">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium capitalize">Vente {s.transaction_type}</p>
-                        <p className="text-xs text-muted-foreground">{new Date(s.created_at).toLocaleDateString('fr-FR')} · {s.commission_percent}% · brut {fmt(s.gross_amount, s.currency || 'XOF')}</p>
+                        <p className="text-sm font-medium capitalize">{t('dash.sale')} {s.transaction_type}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(s.created_at).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US')} · {s.commission_percent}% · {t('dash.gross')} {fmt(s.gross_amount, s.currency || 'USD')}</p>
                       </div>
-                      <span className="font-semibold text-sm text-primary">+{fmt(s.commission_amount, s.currency || 'XOF')}</span>
-                      <Badge variant="outline" className={cn('text-[10px] border-0 capitalize', saleStatusColor[s.status] || '')}>{s.status === 'payable' ? 'Disponible' : s.status === 'pending' ? 'En attente' : s.status === 'paid' ? 'Payé' : s.status}</Badge>
+                      <span className="font-semibold text-sm text-primary">+{fmt(s.commission_amount, s.currency || 'USD')}</span>
+                      <Badge variant="outline" className={cn('text-[10px] border-0 capitalize', saleStatusColor[s.status] || '')}>{s.status === 'payable' ? t('dash.status_available') : s.status === 'pending' ? t('dash.status_pending') : s.status === 'paid' ? t('dash.status_paid') : s.status}</Badge>
                     </div>
                   ))}
                 </div>
@@ -609,50 +610,50 @@ export default function UserDashboard() {
               <div className="bg-card border border-border rounded-2xl p-5 space-y-4 shadow-card">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="font-semibold text-sm flex items-center gap-2"><Users className="h-4 w-4 text-primary" /> Programme de parrainage</h2>
-                    <p className="text-xs text-muted-foreground mt-0.5">Invitez des amis à rejoindre Siteviral et gagnez des récompenses.</p>
+                    <h2 className="font-semibold text-sm flex items-center gap-2"><Users className="h-4 w-4 text-primary" /> {t('dash.referral_program')}</h2>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t('dash.referral_desc')}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-xl bg-muted/50 p-3 text-center">
                     <p className="text-lg font-bold">{referralInfo.totalReferred}</p>
-                    <p className="text-[10px] text-muted-foreground">Invités</p>
+                    <p className="text-[10px] text-muted-foreground">{t('dash.invited')}</p>
                   </div>
                   <div className="rounded-xl bg-primary/10 p-3 text-center">
                     <p className="text-lg font-bold text-primary">{referralInfo.converted}</p>
-                    <p className="text-[10px] text-muted-foreground">Convertis</p>
+                    <p className="text-[10px] text-muted-foreground">{t('dash.converted')}</p>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <p className="text-xs font-semibold text-muted-foreground">Votre code de parrainage</p>
+                  <p className="text-xs font-semibold text-muted-foreground">{t('dash.your_referral_code')}</p>
                   <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
                     <p className="text-sm font-mono font-bold flex-1">{referralInfo.code}</p>
                     <CopyButton text={`https://siteviral.com/auth?invite=${referralInfo.code}`} />
                   </div>
-                  <p className="text-[10px] text-muted-foreground">Partagez ce lien : <span className="font-mono">siteviral.com/auth?invite={referralInfo.code}</span></p>
+                  <p className="text-[10px] text-muted-foreground">{t('dash.share_link')} <span className="font-mono">siteviral.com/auth?invite={referralInfo.code}</span></p>
                 </div>
               </div>
             )}
           </div>
         )}
 
-        {/* ══ TAB: HISTORIQUE ══ */}
+        {/* ══ TAB: HISTORY ══ */}
         {activeTab === 'historique' && (
           <div className="space-y-5">
             <div className="bg-card border border-border rounded-2xl p-5 space-y-3 shadow-card">
-              <h2 className="font-semibold text-sm flex items-center gap-2"><Heart className="h-4 w-4 text-destructive" /> Historique des dons</h2>
+              <h2 className="font-semibold text-sm flex items-center gap-2"><Heart className="h-4 w-4 text-destructive" /> {t('dash.donation_history')}</h2>
               {dLoading ? <SkeletonRow count={3} /> : donations.length === 0 ? (
-                <p className="text-xs text-muted-foreground py-4 text-center">Aucun don pour le moment.</p>
+                <p className="text-xs text-muted-foreground py-4 text-center">{t('dash.no_donations')}</p>
               ) : (
                 <div className="space-y-1">
                   {donations.map((d) => (
                     <div key={d.id} className="flex items-center gap-3 py-2.5 border-b border-border/50 last:border-0">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">{d.donor_name || 'Anonyme'}</p>
-                        <p className="text-xs text-muted-foreground">{new Date(d.created_at).toLocaleDateString('fr-FR')}</p>
+                        <p className="text-sm font-medium">{d.donor_name || t('dash.anonymous')}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(d.created_at).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US')}</p>
                       </div>
                       <span className="font-semibold text-sm">{fmt(d.amount, d.currency)}</span>
-                      <Badge variant="outline" className={cn('text-[10px] border-0', statusColor[d.status] || '')}>{d.status === 'completed' ? 'Complété' : d.status === 'pending' ? 'En attente' : d.status}</Badge>
+                      <Badge variant="outline" className={cn('text-[10px] border-0', statusColor[d.status] || '')}>{d.status === 'completed' ? t('dash.completed') : d.status === 'pending' ? t('dash.pending') : d.status}</Badge>
                     </div>
                   ))}
                 </div>
@@ -660,19 +661,19 @@ export default function UserDashboard() {
             </div>
 
             <div className="bg-card border border-border rounded-2xl p-5 space-y-3 shadow-card">
-              <h2 className="font-semibold text-sm flex items-center gap-2"><ShoppingBag className="h-4 w-4 text-accent" /> Historique des achats</h2>
+              <h2 className="font-semibold text-sm flex items-center gap-2"><ShoppingBag className="h-4 w-4 text-accent" /> {t('dash.purchase_history')}</h2>
               {pLoading ? <SkeletonRow count={3} /> : purchases.length === 0 ? (
-                <p className="text-xs text-muted-foreground py-4 text-center">Aucun achat pour le moment.</p>
+                <p className="text-xs text-muted-foreground py-4 text-center">{t('dash.no_purchases_hist')}</p>
               ) : (
                 <div className="space-y-1">
                   {purchases.map((p) => (
                     <div key={p.id} className="flex items-center gap-3 py-2.5 border-b border-border/50 last:border-0">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">Achat de produit</p>
-                        <p className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleDateString('fr-FR')}</p>
+                        <p className="text-sm font-medium">{t('dash.product_purchase')}</p>
+                        <p className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US')}</p>
                       </div>
                       <span className="font-semibold text-sm">{fmt(p.amount, p.currency)}</span>
-                      <Badge variant="outline" className={cn('text-[10px] border-0', statusColor[p.status] || '')}>{p.status === 'completed' ? 'Complété' : p.status === 'pending' ? 'En attente' : p.status}</Badge>
+                      <Badge variant="outline" className={cn('text-[10px] border-0', statusColor[p.status] || '')}>{p.status === 'completed' ? t('dash.completed') : p.status === 'pending' ? t('dash.pending') : p.status}</Badge>
                     </div>
                   ))}
                 </div>

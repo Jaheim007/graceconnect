@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ChevronRight, ChevronLeft, Building2, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OrgOnboardingWizard } from '@/components/onboarding/OrgOnboardingWizard';
+import { useI18n } from '@/i18n/I18nContext';
 
 const CATEGORIES = [
   { value: 'church', label: '🏢 Organization' },
@@ -55,6 +56,7 @@ export default function CreateOrgPage() {
   const { user } = useAuth();
   const { refetchOrgs, setCurrentOrg, userOrgs, isLoadingOrgs } = useOrg();
   const { toast } = useToast();
+  const { t } = useI18n();
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -74,7 +76,7 @@ export default function CreateOrgPage() {
     }
   };
 
-  const steps = ['Category', 'Details', 'Confirmation'];
+  const steps = [t('org.category'), t('org.name'), t('org.confirm_create')];
 
   const onSubmit = async (data: FormData) => {
     if (!user) return;
@@ -88,10 +90,8 @@ export default function CreateOrgPage() {
       });
       if (error) throw error;
 
-      // Set currency on the newly created org
       await db.from('organizations').update({ currency: data.currency }).eq('id', orgId);
 
-      // Fetch the newly created org so we can set it immediately
       const { data: newOrg, error: fetchError } = await db
         .from('organizations')
         .select('*')
@@ -100,25 +100,22 @@ export default function CreateOrgPage() {
 
       if (fetchError) throw fetchError;
 
-      // Set as current org BEFORE navigating so AdminLayout doesn't redirect
       if (newOrg) setCurrentOrg(newOrg);
-
-      // Trigger background refetch (non-blocking)
       refetchOrgs();
 
-      toast({ title: '🎉 Organization created!', description: data.name });
+      toast({ title: '🎉 ' + t('org.created'), description: data.name });
       setShowOnboarding(true);
     } catch (err: any) {
       const msg = err?.message || String(err);
       if (msg.includes('duplicate') || msg.includes('unique') || msg.includes('slug')) {
-          toast({
-          title: 'Slug already taken',
-          description: 'Choose a different URL identifier in the previous step.',
+        toast({
+          title: t('org.slug_taken'),
+          description: t('org.slug_taken_desc'),
           variant: 'destructive',
         });
       } else {
         toast({
-          title: 'Creation error',
+          title: t('org.creation_error'),
           description: msg,
           variant: 'destructive',
         });
@@ -163,8 +160,8 @@ export default function CreateOrgPage() {
             <Building2 className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold">Create an Organization</h1>
-            <p className="text-xs text-muted-foreground">Step {step + 1} of {steps.length}</p>
+            <h1 className="text-xl font-bold">{t('org.create_org')}</h1>
+            <p className="text-xs text-muted-foreground">{t('org.step_of').replace('{step}', String(step + 1)).replace('{total}', String(steps.length))}</p>
           </div>
         </div>
 
@@ -185,7 +182,7 @@ export default function CreateOrgPage() {
 
               {step === 0 && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-semibold">What type of organization?</h2>
+                  <h2 className="text-lg font-semibold">{t('org.what_type')}</h2>
                   <div className="grid grid-cols-2 gap-3">
                     {CATEGORIES.map(cat => (
                       <button key={cat.value} type="button"
@@ -204,32 +201,32 @@ export default function CreateOrgPage() {
 
               {step === 1 && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-semibold">Name your organization</h2>
+                  <h2 className="text-lg font-semibold">{t('org.name_your')}</h2>
                   <div className="space-y-2">
-                    <Label>Organization name *</Label>
-                    <Input placeholder="e.g. My Organization" {...form.register('name')}
+                    <Label>{t('org.org_name_label')}</Label>
+                    <Input placeholder={t('org.org_name_placeholder')} {...form.register('name')}
                       onBlur={handleNameBlur}
                       className={errors.name ? 'border-destructive' : ''} />
                     {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label>Slug (URL identifier) *</Label>
+                    <Label>{t('org.slug_label')}</Label>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-muted-foreground shrink-0">siteviral.com/org/</span>
-                      <Input placeholder="my-organization" {...form.register('slug')}
+                      <Input placeholder={t('org.slug_placeholder')} {...form.register('slug')}
                         className={errors.slug ? 'border-destructive' : ''} />
                     </div>
                     {errors.slug && <p className="text-xs text-destructive">{errors.slug.message}</p>}
                   </div>
                   <div className="space-y-2">
-                    <Label>Currency *</Label>
+                    <Label>{t('org.currency_label')}</Label>
                     <select {...form.register('currency')} className="w-full h-10 rounded-md border border-border bg-background px-3 text-sm">
                       {CURRENCIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                     </select>
                   </div>
                   <div className="space-y-2">
-                    <Label>Description (optional)</Label>
-                    <Textarea placeholder="Briefly describe your organization..." rows={3}
+                    <Label>{t('org.desc_label')}</Label>
+                    <Textarea placeholder={t('org.desc_placeholder')} rows={3}
                       {...form.register('description')} />
                   </div>
                 </div>
@@ -237,14 +234,14 @@ export default function CreateOrgPage() {
 
               {step === 2 && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-semibold">Confirm & Create</h2>
+                  <h2 className="text-lg font-semibold">{t('org.confirm_create')}</h2>
                   <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
                     {[
-                      { label: 'Name', value: formValues.name },
-                      { label: 'Slug', value: formValues.slug },
-                      { label: 'Category', value: CATEGORIES.find(c => c.value === formValues.category)?.label },
-                      { label: 'Currency', value: formValues.currency },
-                      { label: 'Description', value: formValues.description || '—' },
+                      { label: t('org.name'), value: formValues.name },
+                      { label: t('org.slug'), value: formValues.slug },
+                      { label: t('org.category'), value: CATEGORIES.find(c => c.value === formValues.category)?.label },
+                      { label: t('org.currency_label').replace(' *', ''), value: formValues.currency },
+                      { label: t('org.description'), value: formValues.description || '—' },
                     ].map(({ label, value }) => (
                       <div key={label} className="flex gap-3 text-sm">
                         <span className="text-muted-foreground w-24 shrink-0">{label}</span>
@@ -253,7 +250,7 @@ export default function CreateOrgPage() {
                     ))}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    You will be set as <strong>owner</strong>. You can invite other members from the admin panel.
+                    {t('org.owner_note')}
                   </p>
                 </div>
               )}
@@ -265,17 +262,17 @@ export default function CreateOrgPage() {
         <div className="flex gap-3 mt-8">
           {step > 0 && (
             <Button type="button" variant="outline" className="flex-1" onClick={goBack}>
-              <ChevronLeft className="h-4 w-4 mr-1" /> Back
+              <ChevronLeft className="h-4 w-4 mr-1" /> {t('common.back')}
             </Button>
           )}
           {step < 2 ? (
             <Button type="button" className="flex-1" onClick={nextStep}>
-              Next <ChevronRight className="h-4 w-4 ml-1" />
+              {t('common.next')} <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           ) : (
             <Button type="button" className="flex-1"
               onClick={form.handleSubmit(onSubmit)} disabled={loading}>
-              {loading ? 'Creating...' : <><Check className="h-4 w-4 mr-1" /> Create Organization</>}
+              {loading ? t('org.creating') : <><Check className="h-4 w-4 mr-1" /> {t('org.create_organization')}</>}
             </Button>
           )}
         </div>
