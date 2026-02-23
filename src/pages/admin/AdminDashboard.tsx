@@ -19,8 +19,8 @@ import { motion } from 'framer-motion';
 import { OrgActivationChecklist } from '@/components/admin/OrgActivationChecklist';
 import { QuickStartWizard } from '@/components/onboarding/QuickStartWizard';
 
-const fmt = (n: number, currency = 'USD') =>
-  new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
+import { formatCurrency } from '@/lib/currency';
+const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
 
 const stagger = {
   hidden: {},
@@ -101,11 +101,12 @@ export default function AdminDashboard() {
     { label: 'Gérer Membres', to: '/admin/members', icon: Users },
   ];
 
+  const orgCurrency = currentOrg?.currency;
   const revenueCards = [
-    { label: 'Ventes totales', value: fmt(totalRevenue), sub: `${allTxns.length} transaction${allTxns.length > 1 ? 's' : ''}`, icon: DollarSign, colorClass: 'from-primary/20 to-primary/5 border-primary/20' },
-    { label: 'Reçu par l\'org', value: fmt(totalOrgReceived), sub: 'Après frais & commissions', icon: TrendingUp, colorClass: 'from-emerald-500/20 to-emerald-500/5 border-emerald-500/20' },
-    { label: 'Commissions affiliés', value: fmt(totalAffiliateCommission), sub: `Taux : ${commissionRate}%`, icon: Percent, colorClass: 'from-amber-500/20 to-amber-500/5 border-amber-500/20' },
-    { label: 'Frais plateforme', value: fmt(totalPlatformFee), sub: `${currentOrg?.platform_fee_percent ?? 10}%`, icon: DollarSign, colorClass: 'from-muted to-muted/50 border-border' },
+    { label: 'Ventes totales', value: fmt(totalRevenue, orgCurrency), sub: `${allTxns.length} transaction${allTxns.length > 1 ? 's' : ''}`, icon: DollarSign, colorClass: 'from-primary/20 to-primary/5 border-primary/20' },
+    { label: 'Reçu par l\'org', value: fmt(totalOrgReceived, orgCurrency), sub: 'Après frais & commissions', icon: TrendingUp, colorClass: 'from-emerald-500/20 to-emerald-500/5 border-emerald-500/20' },
+    { label: 'Commissions affiliés', value: fmt(totalAffiliateCommission, orgCurrency), sub: `Taux : ${commissionRate}%`, icon: Percent, colorClass: 'from-amber-500/20 to-amber-500/5 border-amber-500/20' },
+    { label: 'Frais plateforme', value: fmt(totalPlatformFee, orgCurrency), sub: `${currentOrg?.platform_fee_percent ?? 10}%`, icon: DollarSign, colorClass: 'from-muted to-muted/50 border-border' },
   ];
 
   return (

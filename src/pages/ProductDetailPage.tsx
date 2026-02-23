@@ -17,9 +17,8 @@ import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { SEOHead } from '@/components/seo/SEOHead';
-
-const fmt = (n: number, currency = 'XOF') =>
-  new Intl.NumberFormat('fr-FR', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
+import { formatCurrency, formatPrice } from '@/lib/currency';
+const fmt = (n: number, currency?: string | null) => formatCurrency(n, currency);
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -264,7 +263,7 @@ export default function ProductDetailPage() {
               {/* Price */}
               <div className="text-center py-2">
                 <span className={cn('text-3xl font-bold', product.is_free ? 'text-emerald-500' : 'text-primary')}>
-                  {product.is_free ? 'Gratuit' : fmt(product.price || 0, product.currency || 'XOF')}
+                  {formatPrice(product.price || 0, product.is_free, product.currency)}
                 </span>
               </div>
 

@@ -109,8 +109,8 @@ function AffiliatePerformanceTable({ orgId, currency }: { orgId?: string; curren
   );
 }
 
-const fmt = (n: number, currency = 'XOF') =>
-  n.toLocaleString('fr-FR', { style: 'currency', currency, maximumFractionDigits: 0 });
+import { formatCurrency } from '@/lib/currency';
+const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },

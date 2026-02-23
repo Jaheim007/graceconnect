@@ -1,4 +1,5 @@
 import { DonationCampaign } from '@/types/database';
+import { formatCurrency } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { Heart, Target, Share2, Copy, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -29,8 +30,7 @@ export function CampaignCard({ campaign, onDonate, index = 0 }: CampaignCardProp
     ? Math.min((campaign.current_amount / campaign.goal_amount) * 100, 100)
     : null;
 
-  const fmt = (n: number) =>
-    new Intl.NumberFormat('fr-FR', { style: 'currency', currency: campaign.currency || 'XOF', maximumFractionDigits: 0 }).format(n);
+  const fmt = (n: number) => formatCurrency(n, campaign.currency);
 
   return (
     <div className="bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/30 transition-all duration-200">

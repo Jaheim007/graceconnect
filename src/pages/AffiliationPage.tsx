@@ -22,6 +22,7 @@ import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
 import { PageTour } from '@/components/onboarding/PageTour';
+import { formatCurrency } from '@/lib/currency';
 
 const saleStatusColor: Record<string, string> = {
   pending: 'bg-primary/10 text-primary',
@@ -44,8 +45,7 @@ export default function AffiliationPage() {
   const [requestingPayout, setRequestingPayout] = useState<string | null>(null);
   const [search, setSearch] = useState('');
 
-  const fmt = (n: number, currency = 'XOF') =>
-    new Intl.NumberFormat('fr-FR', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
+  const fmt = (n: number, currency?: string | null) => formatCurrency(n, currency);
 
   // My affiliate links
   const { data: affiliateLinks = [], isLoading: aLoading } = useQuery({

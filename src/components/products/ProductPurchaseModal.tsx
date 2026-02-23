@@ -17,6 +17,7 @@ import { verifyPayment, VerifyPaymentResult } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { db } from '@/lib/db';
+import { formatPrice } from '@/lib/currency';
 
 interface ProductPurchaseModalProps {
   product: DigitalProduct | null;
@@ -66,10 +67,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
   if (!product) return null;
 
-  const fmt = (n: number) =>
-    product.is_free || n === 0
-      ? 'Gratuit'
-      : new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(n) + ` ${product.currency || 'XOF'}`;
+  const fmt = (n: number) => formatPrice(n, product.is_free, product.currency);
 
   const discountAmount = promo.applied ? Math.round((product.price ?? 0) * promo.discountPercent / 100) : 0;
   const finalPrice = Math.max(0, (product.price ?? 0) - discountAmount);

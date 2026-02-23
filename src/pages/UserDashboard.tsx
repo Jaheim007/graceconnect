@@ -25,6 +25,7 @@ import { AffiliateShareTools } from '@/components/affiliate/AffiliateShareTools'
 import { ProductAffiliateLinkGen } from '@/components/affiliate/ProductAffiliateLinkGen';
 import { useI18n } from '@/i18n/I18nContext';
 import { PageTour } from '@/components/onboarding/PageTour';
+import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
 
 const statusColor: Record<string, string> = {
   completed: 'bg-green-500/15 text-green-600 dark:text-green-400',
@@ -80,12 +81,8 @@ export default function UserDashboard() {
   const [downloading, setDownloading] = useState<string | null>(null);
 
   const dateFnsLocale = locale === 'fr' ? fr : enUS;
-  // Use the primary org's currency as default (fallback to XOF for legacy data)
-  const primaryCurrency = userOrgs[0]?.currency || 'XOF';
-  const fmt = (n: number, currency?: string) => {
-    const cur = currency || primaryCurrency;
-    return new Intl.NumberFormat(locale === 'fr' ? 'fr-FR' : 'en-US', { style: 'currency', currency: cur, maximumFractionDigits: 0 }).format(n);
-  };
+  const primaryCurrency = userOrgs[0]?.currency || DEFAULT_CURRENCY;
+  const fmt = (n: number, currency?: string | null) => formatCurrency(n, currency || primaryCurrency, locale);
 
   // Data queries
   const { data: donations = [], isLoading: dLoading } = useQuery({
