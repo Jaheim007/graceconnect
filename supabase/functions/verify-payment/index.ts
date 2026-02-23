@@ -251,37 +251,51 @@ Deno.serve(async (req) => {
 
     // ── 8. Affiliate sales record + notification ──
     if (affiliateLinkId && affiliateUserId && affiliateCommission > 0) {
-      const payableAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
-      await db.from('affiliate_sales').insert({
-        affiliate_link_id: affiliateLinkId,
-        affiliate_user_id: affiliateUserId,
-        organization_id,
-        transaction_type: type,
-        transaction_id: transactionId,
-        gross_amount: amountPaid,
-        commission_amount: affiliateCommission,
-        commission_percent: org.affiliation_commission_percent ?? 10,
-        status: 'pending',
-        payable_at: payableAt,
-      });
+      try {
+        // Check if affiliate_sale already exists (idempotency)
+        const { data: existingAffiliateSale } = await db.from('affiliate_sales')
+          .select('id')
+          .eq('affiliate_link_id', affiliateLinkId)
+          .eq('transaction_id', transactionId)
+          .maybeSingle();
 
-      const { data: link } = await db.from('affiliate_links').select('clicks, conversions, total_earned').eq('id', affiliateLinkId).single();
-      if (link) {
-        await db.from('affiliate_links').update({
-          conversions: (link.conversions || 0) + 1,
-          total_earned: (link.total_earned || 0) + affiliateCommission,
-        }).eq('id', affiliateLinkId);
+        if (!existingAffiliateSale) {
+          const payableAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
+          await db.from('affiliate_sales').insert({
+            affiliate_link_id: affiliateLinkId,
+            affiliate_user_id: affiliateUserId,
+            organization_id,
+            transaction_type: type,
+            transaction_id: transactionId,
+            gross_amount: amountPaid,
+            commission_amount: affiliateCommission,
+            commission_percent: org.affiliation_commission_percent ?? 10,
+            status: 'pending',
+            payable_at: payableAt,
+          });
+
+          const { data: link } = await db.from('affiliate_links').select('clicks, conversions, total_earned').eq('id', affiliateLinkId).single();
+          if (link) {
+            await db.from('affiliate_links').update({
+              conversions: (link.conversions || 0) + 1,
+              total_earned: (link.total_earned || 0) + affiliateCommission,
+            }).eq('id', affiliateLinkId);
+          }
+
+          const commissionFmt = affiliateCommission.toLocaleString('fr-FR');
+          await db.from('user_notifications').insert({
+            user_id: affiliateUserId,
+            organization_id,
+            title: '💰 Commission gagnée !',
+            body: `Vous avez gagné ${commissionFmt} ${currency} de commission via ${org.name}. Disponible dans 72h.`,
+            notification_type: 'commission',
+            action_url: '/affiliation',
+          });
+        }
+      } catch (affErr) {
+        console.error('[verify-payment] Affiliate processing error (non-fatal):', affErr);
+        // Don't fail the entire transaction for affiliate processing errors
       }
-
-      const commissionFmt = affiliateCommission.toLocaleString('fr-FR');
-      await db.from('user_notifications').insert({
-        user_id: affiliateUserId,
-        organization_id,
-        title: '💰 Commission gagnée !',
-        body: `Vous venez de gagner ${commissionFmt} ${currency} de commission sur une vente ${type === 'donation' ? 'de don' : 'de produit'} via ${org.name}. Elle sera disponible dans 72h.`,
-        notification_type: 'commission',
-        action_url: '/dashboard',
-      });
     }
 
     // ── 9. Referral conversion ──
@@ -368,7 +382,7 @@ Deno.serve(async (req) => {
       const { data: productData } = await db.from('digital_products').select('title').eq('id', product_id!).maybeSingle();
       const productName = productData?.title || 'Product';
       if (buyerEmail) {
-        sendEmail({ template: 'purchase_confirmation', to: buyerEmail, data: { product_name: productName, org_name: org.name, amount: amountPaid, currency, reference, access_link: `https://siteviral.com/dashboard` }, organization_id }).catch(() => {});
+        sendEmail({ template: 'purchase_confirmation', to: buyerEmail, data: { product_name: productName, org_name: org.name, amount: amountPaid, currency, reference, access_link: `https://siteviral.com/resources` }, organization_id }).catch(() => {});
       }
       // Email to org admins
       sendEmailToOrgAdmins('new_purchase_received', organization_id, {

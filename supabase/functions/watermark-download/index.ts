@@ -64,6 +64,14 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Log download
+    await adminClient.from("download_logs").insert({
+      user_id: user.id,
+      purchase_id: purchase.id,
+      ip_address: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null,
+      user_agent: req.headers.get("user-agent") || null,
+    }).then(() => {}).catch(() => {});
+
     // Fetch the organization name
     let orgName = "Siteviral";
     if (purchase.organization_id) {
@@ -75,17 +83,40 @@ Deno.serve(async (req) => {
       if (org?.name) orgName = org.name;
     }
 
-    // Fetch the original file
-    const fileRes = await fetch(file_url);
-    if (!fileRes.ok) {
-      return new Response(JSON.stringify({ error: "Could not fetch file" }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    // ── Fetch the file (handle private bucket URLs) ──
+    let fileBytes: Uint8Array;
+    let contentType = "application/octet-stream";
 
-    const contentType = fileRes.headers.get("content-type") || "application/octet-stream";
-    const fileBytes = new Uint8Array(await fileRes.arrayBuffer());
+    const privateMatch = file_url.match(/\/storage\/v1\/object\/(?:public\/|)(private-products)\/(.+)$/);
+    if (privateMatch) {
+      // File is in private-products bucket — use admin client to download
+      const filePath = decodeURIComponent(privateMatch[2].split('?')[0]);
+      console.log('[watermark-download] Downloading from private bucket:', filePath);
+      const { data: blob, error: dlError } = await adminClient.storage
+        .from('private-products')
+        .download(filePath);
+      if (dlError || !blob) {
+        console.error('[watermark-download] Private download error:', dlError);
+        return new Response(JSON.stringify({ error: "Could not fetch file from storage" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      fileBytes = new Uint8Array(await blob.arrayBuffer());
+      contentType = blob.type || "application/octet-stream";
+    } else {
+      // Public URL or external — direct fetch
+      const fileRes = await fetch(file_url);
+      if (!fileRes.ok) {
+        console.error('[watermark-download] Public fetch failed:', fileRes.status);
+        return new Response(JSON.stringify({ error: "Could not fetch file" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      contentType = fileRes.headers.get("content-type") || "application/octet-stream";
+      fileBytes = new Uint8Array(await fileRes.arrayBuffer());
+    }
 
     const isPdf = contentType.includes("pdf") || file_url.toLowerCase().includes(".pdf");
 
@@ -149,24 +180,11 @@ async function watermarkPdf(
   const coverPage = pdfDoc.insertPage(0, [595, 842]); // A4
   const { width: cw, height: ch } = coverPage.getSize();
 
-  // Dark header bar
   coverPage.drawRectangle({ x: 0, y: ch - 120, width: cw, height: 120, color: rgb(0.07, 0.07, 0.07) });
-
-  // Brand name — stylish italic
-  coverPage.drawText("Siteviral", {
-    x: 40, y: ch - 55, size: 32, font: helveticaOblique,
-    color: rgb(0.788, 0.659, 0.298),
-  });
-
-  coverPage.drawText("Digital License Certificate", {
-    x: 40, y: ch - 80, size: 14, font: helvetica,
-    color: rgb(0.8, 0.8, 0.8),
-  });
-
-  // Gold divider
+  coverPage.drawText("Siteviral", { x: 40, y: ch - 55, size: 32, font: helveticaOblique, color: rgb(0.788, 0.659, 0.298) });
+  coverPage.drawText("Digital License Certificate", { x: 40, y: ch - 80, size: 14, font: helvetica, color: rgb(0.8, 0.8, 0.8) });
   coverPage.drawRectangle({ x: 40, y: ch - 160, width: cw - 80, height: 2, color: rgb(0.788, 0.659, 0.298) });
 
-  // Product title
   const titleLines = wrapText(productTitle, 45);
   let ty = ch - 200;
   coverPage.drawText("LICENSED PRODUCT", { x: 40, y: ty, size: 10, font: helvetica, color: rgb(0.5, 0.5, 0.5) });
@@ -176,7 +194,6 @@ async function watermarkPdf(
     ty -= 28;
   }
 
-  // License details
   ty -= 20;
   const fields = [
     ["Licensed To", buyerEmail],
@@ -193,12 +210,8 @@ async function watermarkPdf(
     ty -= 30;
   }
 
-  // Terms box
   ty -= 10;
-  coverPage.drawRectangle({
-    x: 30, y: ty - 100, width: cw - 60, height: 110,
-    color: rgb(0.96, 0.96, 0.96), borderColor: rgb(0.85, 0.85, 0.85), borderWidth: 1,
-  });
+  coverPage.drawRectangle({ x: 30, y: ty - 100, width: cw - 60, height: 110, color: rgb(0.96, 0.96, 0.96), borderColor: rgb(0.85, 0.85, 0.85), borderWidth: 1 });
 
   const terms = [
     "This document is licensed for personal use only.",
@@ -215,10 +228,7 @@ async function watermarkPdf(
     termY -= 15;
   }
 
-  // Footer
-  coverPage.drawText(`Generated on ${dateStr} — Siteviral Platform`, {
-    x: 40, y: 40, size: 8, font: helvetica, color: rgb(0.6, 0.6, 0.6),
-  });
+  coverPage.drawText(`Generated on ${dateStr} — Siteviral Platform`, { x: 40, y: 40, size: 8, font: helvetica, color: rgb(0.6, 0.6, 0.6) });
 
   // ── 2. Watermark every content page ────────────────────────────────────────
   const pages = pdfDoc.getPages();
@@ -228,17 +238,14 @@ async function watermarkPdf(
     const page = pages[i];
     const { width, height } = page.getSize();
 
-    // Diagonal watermark (subtle)
     page.drawText(buyerEmail, {
       x: width * 0.1, y: height * 0.35, size: 38, font: helvetica,
       color: rgb(0.85, 0.85, 0.85), opacity: 0.08, rotate: degrees(45),
     });
 
-    // Bottom footer bar
     page.drawRectangle({ x: 0, y: 0, width, height: 22, color: rgb(0.95, 0.95, 0.95), opacity: 0.9 });
     page.drawText(watermarkLine, { x: 10, y: 7, size: 7, font: helvetica, color: rgb(0.55, 0.55, 0.55) });
 
-    // Top-right license ID
     const idWidth = helvetica.widthOfTextAtSize(licenseId, 7);
     page.drawText(licenseId, {
       x: width - idWidth - 10, y: height - 15, size: 7, font: helvetica,
@@ -248,8 +255,6 @@ async function watermarkPdf(
 
   return new Uint8Array(await pdfDoc.save());
 }
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
 
 function purchaseShortId(email: string, date: Date): string {
   let hash = 0;
