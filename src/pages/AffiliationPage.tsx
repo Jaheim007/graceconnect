@@ -126,31 +126,17 @@ export default function AffiliationPage() {
   const totalConversions = filteredAffiliateLinks.reduce((s, l) => s + (l.conversions || 0), 0);
 
   const requestAffiliateRole = useMutation({
-    mutationFn: async ({ orgId, orgSlug }: { orgId: string; orgSlug: string }) => {
+    mutationFn: async ({ orgId }: { orgId: string; orgSlug: string }) => {
       if (!user) throw new Error('Non authentifié');
-      // Block owners from becoming affiliates of their own org
-      const { data: orgRow } = await db.from('organizations').select('owner_id').eq('id', orgId).single();
-      if (orgRow?.owner_id === user.id) throw new Error('Vous ne pouvez pas devenir affilié de votre propre organisation.');
-
-      // Check if already member
-      const { data: memberRow } = await db.from('organization_members')
-        .select('id, role').eq('user_id', user.id).eq('organization_id', orgId).maybeSingle();
-      
-      if (!memberRow) {
-        await db.from('organization_members').insert({ user_id: user.id, organization_id: orgId, role: 'affiliate' });
-      } else if (memberRow.role !== 'affiliate' && memberRow.role !== 'owner' && memberRow.role !== 'admin' && memberRow.role !== 'editor') {
-        await db.from('organization_members').update({ role: 'affiliate' }).eq('id', memberRow.id);
-      }
-      const code = `${orgSlug.slice(0, 6).toUpperCase()}-${user.id.slice(0, 6).toUpperCase()}`;
-      const { data: existingLink } = await db.from('affiliate_links').select('id').eq('user_id', user.id).eq('organization_id', orgId).maybeSingle();
-      if (!existingLink) {
-        await db.from('affiliate_links').insert({ user_id: user.id, organization_id: orgId, code, link_type: 'org' });
-      }
+      // Use the secure DB function that handles role upgrade + link creation
+      const { error } = await db.rpc('self_enroll_affiliate', { _org_id: orgId });
+      if (error) throw new Error(error.message);
     },
     onSuccess: () => {
       toast({ title: 'Vous êtes affilié !', description: 'Votre lien est prêt à être partagé.' });
       qc.invalidateQueries({ queryKey: ['user-affiliate-links'] });
       qc.invalidateQueries({ queryKey: ['user-memberships'] });
+      qc.invalidateQueries({ queryKey: ['all-affiliate-orgs'] });
     },
     onError: (err: Error) => { toast({ title: 'Erreur', description: err.message, variant: 'destructive' }); },
   });

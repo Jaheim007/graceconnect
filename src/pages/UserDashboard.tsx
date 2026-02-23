@@ -202,18 +202,10 @@ export default function UserDashboard() {
   };
 
   const requestAffiliateRole = useMutation({
-    mutationFn: async ({ orgId, orgSlug }: { orgId: string; orgSlug: string }) => {
+    mutationFn: async ({ orgId }: { orgId: string; orgSlug: string }) => {
       if (!user) throw new Error('Not authenticated');
-      const { data: memberRow } = await db.from('organization_members').select('id, role').eq('user_id', user.id).eq('organization_id', orgId).single();
-      if (!memberRow) throw new Error('Must be a member');
-      if (memberRow.role === 'affiliate') throw new Error('Already affiliate');
-      const { error: roleErr } = await db.from('organization_members').update({ role: 'affiliate' }).eq('id', memberRow.id);
-      if (roleErr) throw roleErr;
-      const code = `${orgSlug.slice(0, 6).toUpperCase()}-${user.id.slice(0, 6).toUpperCase()}`;
-      const { data: existingLink } = await db.from('affiliate_links').select('id').eq('user_id', user.id).eq('organization_id', orgId).maybeSingle();
-      if (!existingLink) {
-        await db.from('affiliate_links').insert({ user_id: user.id, organization_id: orgId, code, link_type: 'org' });
-      }
+      const { error } = await db.rpc('self_enroll_affiliate', { _org_id: orgId });
+      if (error) throw new Error(error.message);
     },
     onSuccess: () => {
       toast({ title: t('dash.you_are_affiliate'), description: t('dash.affiliate_ready') });

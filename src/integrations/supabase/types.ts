@@ -2175,6 +2175,7 @@ export type Database = {
       is_superadmin: { Args: { _user_id: string }; Returns: boolean }
       org_affiliation_allowed: { Args: { _org_id: string }; Returns: boolean }
       org_monetization_allowed: { Args: { _org_id: string }; Returns: boolean }
+      self_enroll_affiliate: { Args: { _org_id: string }; Returns: undefined }
     }
     Enums: {
       affiliate_sale_status: "pending" | "payable" | "paid" | "cancelled"

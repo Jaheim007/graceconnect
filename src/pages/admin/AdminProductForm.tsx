@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Copy, ExternalLink, Share2 } from 'lucide-react';
+import { Copy, ExternalLink, Share2, CheckCircle, Plus, Eye } from 'lucide-react';
 import { z } from 'zod';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -44,6 +44,7 @@ export function ProductForm() {
   const { toast } = useToast();
   const isEdit = !!id;
   const [loading, setLoading] = useState(false);
+  const [createdProduct, setCreatedProduct] = useState<{ id: string; slug: string } | null>(null);
 
   const { data: item } = useQuery({
     queryKey: ['product-item', id],
@@ -84,7 +85,6 @@ export function ProductForm() {
       return;
     }
 
-
     setLoading(true);
     try {
       const payload = {
@@ -98,16 +98,26 @@ export function ProductForm() {
         external_link: data.external_link || null,
       };
       let error;
+      let resultData: any;
       if (isEdit) {
         ({ error } = await db.from('digital_products').update(payload).eq('id', id));
       } else {
-        ({ error } = await db.from('digital_products').insert(payload));
+        const res = await db.from('digital_products').insert(payload).select('id, slug').single();
+        error = res.error;
+        resultData = res.data;
       }
       if (error) throw error;
-      toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
-      navigate('/admin/products');
+      
+      if (isEdit) {
+        toast({ title: 'Mis à jour ✅' });
+        navigate('/admin/products');
+      } else if (resultData) {
+        setCreatedProduct({ id: resultData.id, slug: resultData.slug });
+      } else {
+        navigate('/admin/products');
+      }
     } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({ title: 'Erreur', description: err.message, variant: 'destructive' });
     } finally {
       setLoading(false);
     }
@@ -134,8 +144,49 @@ export function ProductForm() {
     }
   };
 
+  // Success screen after product creation
+  if (createdProduct) {
+    const newProductUrl = `${window.location.origin}/org/${currentOrg?.slug}/product/${createdProduct.id}`;
+    return (
+      <AdminPageShell title="Produit créé !" backRoute="/admin/products">
+        <div className="max-w-md mx-auto text-center space-y-6 py-8">
+          <div className="h-16 w-16 rounded-full bg-green-500/15 flex items-center justify-center mx-auto">
+            <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold">Produit créé avec succès !</h2>
+            <p className="text-sm text-muted-foreground mt-1">Votre produit est prêt. Partagez-le avec votre audience.</p>
+          </div>
+          <div className="bg-muted/50 border border-border rounded-xl p-3 text-left">
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Lien du produit</p>
+            <div className="flex items-center gap-2">
+              <p className="text-xs font-mono text-foreground truncate flex-1">{newProductUrl}</p>
+              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 shrink-0" onClick={() => { navigator.clipboard.writeText(newProductUrl); toast({ title: 'Lien copié ✅' }); }}>
+                <Copy className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <Button variant="outline" className="gap-2" onClick={() => window.open(newProductUrl, '_blank')}>
+              <Eye className="h-4 w-4" /> Voir le produit
+            </Button>
+            <Button variant="outline" className="gap-2" onClick={() => { if (navigator.share) navigator.share({ title: watch('title'), url: newProductUrl }); else { navigator.clipboard.writeText(newProductUrl); toast({ title: 'Lien copié ✅' }); } }}>
+              <Share2 className="h-4 w-4" /> Partager
+            </Button>
+            <Button className="gap-2 bg-primary text-primary-foreground" onClick={() => { setCreatedProduct(null); reset({ product_type: 'pdf', price: 0, is_free: false, is_featured: false, is_published: false }); }}>
+              <Plus className="h-4 w-4" /> Nouveau produit
+            </Button>
+          </div>
+          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={() => navigate('/admin/products')}>
+            ← Retour à la boutique
+          </Button>
+        </div>
+      </AdminPageShell>
+    );
+  }
+
   return (
-    <AdminPageShell title={isEdit ? 'Edit Product' : 'New Digital Product'} backRoute="/admin/products">
+    <AdminPageShell title={isEdit ? 'Modifier le produit' : 'Nouveau produit'} backRoute="/admin/products">
       {/* Product link preview */}
       {productUrl && (
         <div className="mb-4 p-3 rounded-xl bg-muted/50 border border-border flex items-center gap-2 flex-wrap">
