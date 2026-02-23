@@ -80,8 +80,12 @@ export default function UserDashboard() {
   const [downloading, setDownloading] = useState<string | null>(null);
 
   const dateFnsLocale = locale === 'fr' ? fr : enUS;
-  const fmt = (n: number, currency = 'USD') =>
-    new Intl.NumberFormat(locale === 'fr' ? 'fr-FR' : 'en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
+  // Use the primary org's currency as default (fallback to XOF for legacy data)
+  const primaryCurrency = userOrgs[0]?.currency || 'XOF';
+  const fmt = (n: number, currency?: string) => {
+    const cur = currency || primaryCurrency;
+    return new Intl.NumberFormat(locale === 'fr' ? 'fr-FR' : 'en-US', { style: 'currency', currency: cur, maximumFractionDigits: 0 }).format(n);
+  };
 
   // Data queries
   const { data: donations = [], isLoading: dLoading } = useQuery({
@@ -164,7 +168,7 @@ export default function UserDashboard() {
     queryKey: ['user-org-donations-rev', user?.id, managedOrgIds],
     queryFn: async () => {
       if (!managedOrgIds.length) return [];
-      const { data } = await db.from('donations').select('amount, organization_amount').in('organization_id', managedOrgIds).eq('status', 'completed');
+      const { data } = await db.from('donations').select('amount, organization_amount, currency').in('organization_id', managedOrgIds).eq('status', 'completed');
       return data || [];
     },
     enabled: managedOrgIds.length > 0,
@@ -174,7 +178,7 @@ export default function UserDashboard() {
     queryKey: ['user-org-purchases-rev', user?.id, managedOrgIds],
     queryFn: async () => {
       if (!managedOrgIds.length) return [];
-      const { data } = await db.from('product_purchases').select('amount, organization_amount').in('organization_id', managedOrgIds).eq('status', 'completed');
+      const { data } = await db.from('product_purchases').select('amount, organization_amount, currency').in('organization_id', managedOrgIds).eq('status', 'completed');
       return data || [];
     },
     enabled: managedOrgIds.length > 0,
@@ -229,7 +233,7 @@ export default function UserDashboard() {
   for (const s of affiliateSales) {
     const sale = s as { status: string; organization_id: string; commission_amount: number; currency?: string };
     if (sale.status === 'payable') {
-      if (!payableByOrg[sale.organization_id]) payableByOrg[sale.organization_id] = { orgId: sale.organization_id, amount: 0, currency: sale.currency || 'USD' };
+      if (!payableByOrg[sale.organization_id]) payableByOrg[sale.organization_id] = { orgId: sale.organization_id, amount: 0, currency: sale.currency || primaryCurrency };
       payableByOrg[sale.organization_id].amount += sale.commission_amount;
     }
   }
