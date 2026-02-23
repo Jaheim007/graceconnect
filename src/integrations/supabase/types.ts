@@ -730,6 +730,45 @@ export type Database = {
           },
         ]
       }
+      email_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          organization_id: string | null
+          recipient: string
+          resend_message_id: string | null
+          status: string
+          subject: string | null
+          template: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          organization_id?: string | null
+          recipient: string
+          resend_message_id?: string | null
+          status?: string
+          subject?: string | null
+          template: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          organization_id?: string | null
+          recipient?: string
+          resend_message_id?: string | null
+          status?: string
+          subject?: string | null
+          template?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           created_at: string | null

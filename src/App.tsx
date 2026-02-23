@@ -87,6 +87,7 @@ import SuperadminExports from "@/pages/superadmin/SuperadminExports";
 import SuperadminInvestorSnapshot from "@/pages/superadmin/SuperadminInvestorSnapshot";
 import SuperadminRiskAML from "@/pages/superadmin/SuperadminRiskAML";
 import SuperadminDirectory from "@/pages/superadmin/SuperadminDirectory";
+import SuperadminEmailLogs from "@/pages/superadmin/SuperadminEmailLogs";
 import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
 
 const queryClient = new QueryClient({
@@ -208,6 +209,7 @@ const App = () => (
                   <Route path="investor" element={<SuperadminInvestorSnapshot />} />
                   <Route path="risk" element={<SuperadminRiskAML />} />
                   <Route path="directory" element={<SuperadminDirectory />} />
+                  <Route path="emails" element={<SuperadminEmailLogs />} />
                   <Route path="ai" element={<SuperadminAIChat />} />
                 </Route>
 
