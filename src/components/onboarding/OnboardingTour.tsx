@@ -1,11 +1,14 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronLeft, ChevronRight, Compass, Home, ShoppingBag, Bell, User, Search, Sparkles } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Home, ShoppingBag, Bell, User, BarChart3, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLocation } from 'react-router-dom';
 
-const TOUR_STORAGE_KEY = 'gc_onboarding_done';
+const TOUR_VERSION = 'v2';
+const TOUR_STORAGE_KEY = `gc_onboarding_done_${TOUR_VERSION}`;
 
 interface TourStep {
   selector: string;
@@ -18,46 +21,25 @@ interface TourStep {
 
 const STEPS: TourStep[] = [
   {
-    selector: '[data-tour="search"]',
-    title: 'Recherche globale',
-    description: 'Trouvez rapidement des communautés, contenus, produits et événements depuis n\'importe quelle page.',
-    icon: <Search className="h-5 w-5" />,
-    position: 'bottom',
+    selector: '[data-tour="admin-overview"]',
+    title: 'Dashboard Overview',
+    description: 'See your organization performance at a glance — revenue, members, and engagement metrics.',
+    icon: <BarChart3 className="h-5 w-5" />,
+    position: 'right',
   },
   {
-    selector: '[data-tour="nav-discover"]',
-    title: 'Explorer',
-    description: 'Découvrez toutes les communautés disponibles, parcourez leurs contenus et rejoignez celles qui vous intéressent.',
-    icon: <Compass className="h-5 w-5" />,
-    position: 'top',
-  },
-  {
-    selector: '[data-tour="nav-feed"]',
-    title: 'Votre fil d\'actualité',
-    description: 'Retrouvez ici tout le contenu des communautés que vous avez rejointes : médias, annonces, événements.',
+    selector: '[data-tour="admin-media"]',
+    title: 'Content Management',
+    description: 'Upload and manage videos, audio, and other media content for your community.',
     icon: <Home className="h-5 w-5" />,
-    position: 'top',
+    position: 'right',
   },
   {
-    selector: '[data-tour="nav-dashboard"]',
-    title: 'Votre tableau de bord',
-    description: 'Gérez vos achats, ressources, affiliations et historique depuis un seul endroit.',
+    selector: '[data-tour="admin-products"]',
+    title: 'Digital Products',
+    description: 'Create and sell ebooks, courses, and digital resources to your audience.',
     icon: <ShoppingBag className="h-5 w-5" />,
-    position: 'top',
-  },
-  {
-    selector: '[data-tour="nav-notifications"]',
-    title: 'Notifications',
-    description: 'Restez informé des nouveaux contenus, événements et mises à jour de vos communautés.',
-    icon: <Bell className="h-5 w-5" />,
-    position: 'top',
-  },
-  {
-    selector: '[data-tour="nav-profile"]',
-    title: 'Votre profil',
-    description: 'Personnalisez votre profil, gérez vos paramètres et accédez à votre compte.',
-    icon: <User className="h-5 w-5" />,
-    position: 'top',
+    position: 'right',
   },
 ];
 
@@ -92,16 +74,23 @@ export function OnboardingTour() {
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const rafRef = useRef<number>(0);
+  const { user } = useAuth();
+  const location = useLocation();
 
-  // Check if tour should show
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
+  // Only show for authenticated users on /admin routes
   useEffect(() => {
+    if (!user || !isAdminRoute) {
+      setActive(false);
+      return;
+    }
     const done = localStorage.getItem(TOUR_STORAGE_KEY);
     if (!done) {
-      // Small delay to let the page render
       const t = setTimeout(() => setActive(true), 1200);
       return () => clearTimeout(t);
     }
-  }, []);
+  }, [user, isAdminRoute]);
 
   // Track target element position
   const updateRect = useCallback(() => {
@@ -231,13 +220,14 @@ export function OnboardingTour() {
                   <div>
                     <h3 className="font-bold text-sm">{currentStep.title}</h3>
                     <p className="text-[10px] text-muted-foreground">
-                      Étape {step + 1} / {STEPS.length}
+                      Step {step + 1} / {STEPS.length}
                     </p>
                   </div>
                 </div>
                 <button
                   onClick={finish}
                   className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                  aria-label="Close tour"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -263,16 +253,26 @@ export function OnboardingTour() {
 
               {/* Actions */}
               <div className="flex items-center justify-between pt-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={prev}
-                  disabled={step === 0}
-                  className="h-8 text-xs gap-1"
-                >
-                  <ChevronLeft className="h-3.5 w-3.5" />
-                  Précédent
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={finish}
+                    className="h-8 text-xs text-muted-foreground"
+                  >
+                    Skip
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={prev}
+                    disabled={step === 0}
+                    className="h-8 text-xs gap-1"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                    Back
+                  </Button>
+                </div>
                 <Button
                   size="sm"
                   onClick={next}
@@ -281,11 +281,11 @@ export function OnboardingTour() {
                   {step === STEPS.length - 1 ? (
                     <>
                       <Sparkles className="h-3.5 w-3.5" />
-                      C'est parti !
+                      Done
                     </>
                   ) : (
                     <>
-                      Suivant
+                      Next
                       <ChevronRight className="h-3.5 w-3.5" />
                     </>
                   )}

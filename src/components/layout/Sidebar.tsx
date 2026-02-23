@@ -1,9 +1,9 @@
 import { Link, useLocation } from 'react-router-dom';
 import {
-  Home, Compass, Play, Bell, User, BookOpen, Store,
+  Home, Play, Bell, User, BookOpen, Store,
   Settings, ChevronLeft, ChevronRight, Shield,
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, Sun, Moon,
-  GraduationCap, UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, ShieldAlert
+  GraduationCap, UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, ShieldAlert, LayoutDashboard, Building2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -13,58 +13,58 @@ import { useUnreadCount } from '@/hooks/useNotifications';
 import { useTheme } from '@/contexts/ThemeContext';
 
 const mainNav = [
-  { to: '/feed', icon: Home, label: 'Accueil' },
-  { to: '/discover', icon: Compass, label: 'Explorer' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/feed', icon: Home, label: 'Feed' },
   { to: '/reels', icon: Play, label: 'Reels' },
   { to: '/notifications', icon: Bell, label: 'Notifications' },
-  { to: '/dashboard', icon: BookOpen, label: 'Tableau de bord' },
+  { to: '/resources', icon: BookOpen, label: 'Resources' },
   { to: '/support', icon: LifeBuoy, label: 'Support' },
-  { to: '/profile', icon: User, label: 'Mon Compte' },
+  { to: '/profile', icon: User, label: 'Account' },
 ];
 
 type AdminGroup = { label: string; items: { to: string; icon: typeof Home; label: string }[] };
 
 const adminGroups: AdminGroup[] = [
   {
-    label: 'Contenu',
+    label: 'Content',
     items: [
-      { to: '/admin/media', icon: Play, label: 'Médias' },
+      { to: '/admin/media', icon: Play, label: 'Media' },
       { to: '/admin/photos', icon: Camera, label: 'Photos' },
-      { to: '/admin/announcements', icon: Megaphone, label: 'Annonces' },
-      { to: '/admin/events', icon: CalendarDays, label: 'Événements' },
-      { to: '/admin/programs', icon: GraduationCap, label: 'Programmes' },
+      { to: '/admin/announcements', icon: Megaphone, label: 'Announcements' },
+      { to: '/admin/events', icon: CalendarDays, label: 'Events' },
+      { to: '/admin/programs', icon: GraduationCap, label: 'Programs' },
     ],
   },
   {
     label: 'Commerce',
     items: [
-      { to: '/admin/products', icon: ShoppingBag, label: 'Boutique' },
-      { to: '/admin/campaigns', icon: Heart, label: 'Campagnes' },
+      { to: '/admin/products', icon: ShoppingBag, label: 'Products' },
+      { to: '/admin/campaigns', icon: Heart, label: 'Campaigns' },
       { to: '/admin/affiliation', icon: Link2, label: 'Affiliation' },
-      { to: '/admin/promo-codes', icon: FileCheck, label: 'Codes promo' },
+      { to: '/admin/promo-codes', icon: FileCheck, label: 'Promo Codes' },
     ],
   },
   {
-    label: 'Gestion',
+    label: 'Management',
     items: [
-      { to: '/admin/members', icon: Users, label: 'Membres' },
+      { to: '/admin/members', icon: Users, label: 'Members' },
       { to: '/admin/crm', icon: UserPlus, label: 'CRM' },
-      { to: '/admin/payouts', icon: Wallet, label: 'Retraits' },
-      { to: '/admin/analytics', icon: BarChart3, label: 'Analytiques' },
-      { to: '/admin/kyc', icon: FileCheck, label: 'Vérification' },
-      { to: '/admin/settings', icon: Settings, label: 'Paramètres' },
+      { to: '/admin/payouts', icon: Wallet, label: 'Payouts' },
+      { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
+      { to: '/admin/kyc', icon: FileCheck, label: 'Verification' },
+      { to: '/admin/settings', icon: Settings, label: 'Settings' },
     ],
   },
 ];
 
 const superadminNav = [
-  { to: '/superadmin', icon: Shield, label: 'Vue d\'ensemble' },
-  { to: '/superadmin/orgs', icon: Users, label: 'Organisations' },
+  { to: '/superadmin', icon: Shield, label: 'Overview' },
+  { to: '/superadmin/orgs', icon: Users, label: 'Organizations' },
   { to: '/superadmin/kyc', icon: FileCheck, label: 'KYC' },
   { to: '/superadmin/transactions', icon: BarChart3, label: 'Transactions' },
-  { to: '/superadmin/reports', icon: Megaphone, label: 'Signalements' },
+  { to: '/superadmin/reports', icon: Megaphone, label: 'Reports' },
   { to: '/superadmin/risk', icon: ShieldAlert, label: 'Risk & AML' },
-  { to: '/superadmin/metrics', icon: BarChart3, label: 'Métriques' },
+  { to: '/superadmin/metrics', icon: BarChart3, label: 'Metrics' },
 ];
 
 export function Sidebar() {
@@ -74,7 +74,7 @@ export function Sidebar() {
   const { currentOrg, canManage } = useOrg();
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const { theme, toggleTheme } = useTheme();
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ Contenu: true, Commerce: true, Gestion: true });
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ Content: true, Commerce: true, Management: true });
 
   const isAdmin = location.pathname.startsWith('/admin');
   const isSA = location.pathname.startsWith('/superadmin');
@@ -142,7 +142,7 @@ export function Sidebar() {
       {/* Org context (admin only) */}
       {isAdmin && currentOrg && !collapsed && (
         <div className="mx-3 mt-3 p-2 rounded-lg bg-primary/10 border border-primary/20">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Gestion de</p>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Managing</p>
           <p className="text-xs font-semibold text-primary truncate">{currentOrg.name}</p>
         </div>
       )}
@@ -153,7 +153,7 @@ export function Sidebar() {
           superadminNav.map(renderNavItem)
         ) : isAdmin ? (
           <>
-            {renderNavItem({ to: '/admin', icon: BarChart3, label: "Vue d'ensemble" })}
+            {renderNavItem({ to: '/admin', icon: BarChart3, label: 'Overview' })}
             
             {!collapsed ? (
               adminGroups.map((group) => (
@@ -185,14 +185,14 @@ export function Sidebar() {
       <div className={cn('border-t border-border space-y-0.5', collapsed ? 'px-1 py-2' : 'px-3 py-3')}>
         <button
           onClick={toggleTheme}
-          title={collapsed ? (theme === 'dark' ? 'Mode clair' : 'Mode sombre') : undefined}
+          title={collapsed ? (theme === 'dark' ? 'Light mode' : 'Dark mode') : undefined}
           className={cn(
             'flex items-center gap-3 rounded-lg text-sm font-medium transition-all w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
             collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
           )}
         >
           {theme === 'dark' ? <Sun className="h-4 w-4 shrink-0" /> : <Moon className="h-4 w-4 shrink-0" />}
-          {!collapsed && <span>{theme === 'dark' ? 'Mode clair' : 'Mode sombre'}</span>}
+          {!collapsed && <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>}
         </button>
 
         {!isAdmin && !isSA && isSuperadmin && (
@@ -212,28 +212,28 @@ export function Sidebar() {
         {!isAdmin && !isSA && canManageCurrentOrg && (
           <Link
             to="/admin"
-            title={collapsed ? "Gérer l'organisation" : undefined}
+            title={collapsed ? 'Manage organization' : undefined}
             className={cn(
               'flex items-center gap-3 rounded-lg text-sm font-medium transition-all text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
               collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
             )}
           >
             <Settings className="h-4 w-4 shrink-0" />
-            {!collapsed && <span>Gérer l'organisation</span>}
+            {!collapsed && <span>Manage organization</span>}
           </Link>
         )}
 
         {(isAdmin || isSA) && (
           <Link
             to="/feed"
-            title={collapsed ? "Retour à l'app" : undefined}
+            title={collapsed ? 'Back to app' : undefined}
             className={cn(
               'flex items-center gap-3 rounded-lg text-sm font-medium transition-all text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
               collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
             )}
           >
             <Home className="h-4 w-4 shrink-0" />
-            {!collapsed && <span>Retour à l'app</span>}
+            {!collapsed && <span>Back to app</span>}
           </Link>
         )}
       </div>
