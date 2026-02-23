@@ -1,11 +1,11 @@
 import { LegalFooter } from '@/components/layout/LegalPageShell';
 import { LegalBackground, LegalHeader } from '@/components/layout/LegalPageShell';
-import { Link } from 'react-router-dom';
 import { HelpCircle, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { useI18n } from '@/i18n/I18nContext';
 
-const faqs = [
+const faqs_fr = [
   {
     category: 'Général',
     items: [
@@ -49,7 +49,54 @@ const faqs = [
   },
 ];
 
+const faqs_en = [
+  {
+    category: 'General',
+    items: [
+      { q: 'What is Siteviral?', a: 'Siteviral is an all-in-one platform for organizations (NGOs, associations, creators, leaders) to manage their community, sell digital products, collect donations, and run an affiliate program.' },
+      { q: 'Is it free?', a: 'Yes, the free plan includes all basic features: community page, media library, donations, and up to 100 members. The Pro plan unlocks advanced features.' },
+      { q: 'In which countries is Siteviral available?', a: 'Siteviral is available in all countries covered by Paystack. Donations are accepted worldwide. Payment methods depend on regional availability; additional providers may be added.' },
+    ],
+  },
+  {
+    category: 'Payments & Donations',
+    items: [
+      { q: 'What payment methods are accepted?', a: 'We accept Mobile Money (MTN, Orange, Moov), bank cards (Visa, Mastercard), and bank transfers via Paystack. Available methods depend on your country.' },
+      { q: 'When do I receive my funds?', a: 'Funds are available for withdrawal after a processing delay of 72 hours to 5 business days. Affiliate commissions have a 72-hour validation period.' },
+      { q: 'Can I get a refund?', a: 'Digital products are generally non-refundable once downloaded. A refund may be granted within 48 hours if the product has not been accessed. See our refund policy.' },
+    ],
+  },
+  {
+    category: 'Affiliation',
+    items: [
+      { q: 'How does the affiliate program work?', a: 'Organization members can generate unique referral links. Each sale or donation made via their link earns a commission configurable by the organization. Last-click attribution, 7-day cookie.' },
+      { q: 'When are my commissions available?', a: 'Commissions move from "pending" to "available" after 72 hours of validation. You can then request a withdrawal.' },
+      { q: 'Can I earn on my own purchases?', a: 'No, self-referral is automatically detected and blocked. Commissions are canceled in case of manipulation.' },
+    ],
+  },
+  {
+    category: 'KYC & Payout',
+    items: [
+      { q: 'What is KYC?', a: 'KYC (Know Your Customer) is a mandatory identity verification for organizations wishing to receive payments. Level 1: ID document + organization document. Level 2: verified bank information.' },
+      { q: 'How long does KYC verification take?', a: 'KYC verification is processed within 48 business hours by our team. Enhanced verification may be required for high volumes.' },
+      { q: 'Why are my funds frozen?', a: 'Funds may be frozen due to suspected fraud, AML activity, ongoing disputes, or KYC non-compliance. You will be notified of the reason and can provide supporting documents.' },
+    ],
+  },
+  {
+    category: 'Security & Data',
+    items: [
+      { q: 'Is my data secure?', a: 'Yes. We use SSL encryption, Supabase Row Level Security, and are GDPR compliant. Payments are secured via Paystack, PCI-DSS certified.' },
+      { q: 'Who owns my organization\'s data?', a: 'Your organization owns its data (Data Controller). Siteviral acts as Data Processor in accordance with GDPR.' },
+      { q: 'How do I delete my account?', a: 'You can delete your account from your profile settings. Data will be deleted within 30 days, except data retained for legal obligations.' },
+      { q: 'How do I exercise my GDPR rights?', a: 'Send an email to privacy@siteviral.com. We will respond within 30 days. You can request access, rectification, deletion, or portability of your data.' },
+    ],
+  },
+];
+
 export default function FAQPage() {
+  const { t, locale } = useI18n();
+  const faqs = locale === 'fr' ? faqs_fr : faqs_en;
+
   return (
     <div className="min-h-screen bg-background">
       <LegalBackground />
@@ -60,9 +107,9 @@ export default function FAQPage() {
           <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
             <HelpCircle className="h-5 w-5 text-primary-foreground" />
           </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground">Centre d'aide</h1>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground">{t('faq.title')}</h1>
         </div>
-        <p className="text-sm text-muted-foreground mb-8 font-medium">Questions fréquentes sur Siteviral</p>
+        <p className="text-sm text-muted-foreground mb-8 font-medium">{t('faq.subtitle')}</p>
 
         <div className="space-y-8">
           {faqs.map((section) => (
@@ -85,11 +132,11 @@ export default function FAQPage() {
         </div>
 
         <div className="mt-12 bg-card border border-border rounded-2xl p-6 text-center space-y-3">
-          <h3 className="font-bold text-foreground">Vous n'avez pas trouvé votre réponse ?</h3>
-          <p className="text-sm text-muted-foreground">Notre équipe est disponible pour vous aider.</p>
+          <h3 className="font-bold text-foreground">{t('faq.not_found')}</h3>
+          <p className="text-sm text-muted-foreground">{t('faq.not_found_desc')}</p>
           <Button asChild className="bg-primary text-primary-foreground gap-2">
             <a href="mailto:support@siteviral.com">
-              <Mail className="h-4 w-4" /> Contacter le support
+              <Mail className="h-4 w-4" /> {t('faq.contact_support')}
             </a>
           </Button>
         </div>

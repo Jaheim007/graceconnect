@@ -3,25 +3,28 @@ import { motion } from 'framer-motion';
 import { Heart, Users, Globe, Shield, Target, Zap, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LegalFooter } from '@/components/layout/LegalPageShell';
+import { useI18n } from '@/i18n/I18nContext';
 import communityImg from '@/assets/landing-community.png';
 import heroImg from '@/assets/landing-hero.jpg';
 
 const fadeUp = { hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0 } };
 
-const values = [
-  { icon: Heart, title: 'Impact', desc: 'Nous croyons que la technologie doit servir les organisations pour amplifier leur mission.' },
-  { icon: Users, title: 'Communauté', desc: 'Chaque fonctionnalité est pensée pour renforcer les liens entre leaders et membres.' },
-  { icon: Shield, title: 'Confiance', desc: 'Sécurité des données, transparence financière et conformité internationale.' },
-  { icon: Globe, title: 'Accessibilité', desc: 'Une plateforme accessible depuis n\'importe quel appareil, partout dans le monde.' },
-];
-
-const team = [
-  { role: 'Vision & Produit', desc: 'Concevoir la plateforme idéale pour les organisations digitales.' },
-  { role: 'Ingénierie', desc: 'Bâtir une infrastructure fiable, rapide et évolutive.' },
-  { role: 'Communauté', desc: 'Accompagner chaque organisation dans sa croissance digitale.' },
-];
-
 export default function AboutPage() {
+  const { t } = useI18n();
+
+  const values = [
+    { icon: Heart, title: t('about.val_impact'), desc: t('about.val_impact_desc') },
+    { icon: Users, title: t('about.val_community'), desc: t('about.val_community_desc') },
+    { icon: Shield, title: t('about.val_trust'), desc: t('about.val_trust_desc') },
+    { icon: Globe, title: t('about.val_access'), desc: t('about.val_access_desc') },
+  ];
+
+  const team = [
+    { role: t('about.team_vision'), desc: t('about.team_vision_desc') },
+    { role: t('about.team_engineering'), desc: t('about.team_engineering_desc') },
+    { role: t('about.team_community'), desc: t('about.team_community_desc') },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
@@ -31,9 +34,9 @@ export default function AboutPage() {
             <span className="text-xl font-extrabold tracking-tight italic text-primary">Siteviral</span>
           </Link>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" asChild><Link to="/auth">Connexion</Link></Button>
+            <Button variant="ghost" size="sm" asChild><Link to="/auth">{t('about.sign_in')}</Link></Button>
             <Button size="sm" className="bg-primary text-primary-foreground" asChild>
-              <Link to="/auth?tab=signup">Commencer</Link>
+              <Link to="/auth?tab=signup">{t('about.get_started')}</Link>
             </Button>
           </div>
         </div>
@@ -48,13 +51,11 @@ export default function AboutPage() {
         <div className="relative z-10 container max-w-4xl px-4 pt-20 pb-24 sm:pt-28 sm:pb-32 text-center">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ duration: 0.5 }} className="space-y-5">
             <h1 className="text-3xl sm:text-5xl font-bold leading-tight">
-              Notre mission :{' '}
-              <span className="text-primary italic">connecter les organisations et leurs communautés.</span>
+              {t('about.hero_title')}{' '}
+              <span className="text-primary italic">{t('about.hero_title_accent')}</span>
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Siteviral, opéré par Hacktualiz Inc. (Delaware, USA), est né d'une conviction simple : chaque organisation mérite
-              des outils digitaux puissants, accessibles et adaptés à ses réalités. Nous construisons l'infrastructure
-              qui rapproche leaders et membres, partout dans le monde.
+              {t('about.hero_desc')}
             </p>
           </motion.div>
         </div>
@@ -66,34 +67,20 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 gap-10 items-center">
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} transition={{ duration: 0.5 }}>
               <h2 className="text-2xl sm:text-3xl font-bold mb-4">
-                L'histoire derrière <span className="text-primary italic">Siteviral</span>
+                {t('about.story_title')} <span className="text-primary italic">Siteviral</span>
               </h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
-                <p>
-                  Partout dans le monde, des milliers d'organisations et associations s'appuient encore
-                  sur des outils fragmentés — WhatsApp pour la communication, Facebook pour les vidéos,
-                  et des transferts manuels pour les dons.
-                </p>
-                <p>
-                  Siteviral réunit tout cela en une seule plateforme : médiathèque, collecte de fonds,
-                  boutique digitale, gestion des membres et programme d'affiliation. Le tout pensé pour
-                  un usage international, avec des paiements via Mobile Money et Paystack.
-                </p>
-                <p>
-                  Notre ambition : devenir la référence digitale des organisations et leaders à travers le monde,
-                  avec un support particulièrement fort pour l'Afrique.
-                </p>
+                <p>{t('about.story_p1')}</p>
+                <p>{t('about.story_p2')}</p>
+                <p>{t('about.story_p3')}</p>
               </div>
             </motion.div>
             <motion.div
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
+              initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
               transition={{ duration: 0.5, delay: 0.1 }}
               className="rounded-2xl overflow-hidden shadow-elevated border border-border/40"
             >
-              <img src={communityImg} alt="Communauté unie" className="w-full h-auto object-cover" loading="lazy" />
+              <img src={communityImg} alt="Community" className="w-full h-auto object-cover" loading="lazy" />
             </motion.div>
           </div>
         </div>
@@ -103,20 +90,13 @@ export default function AboutPage() {
       <section className="py-20 px-4 bg-muted/30">
         <div className="container max-w-5xl">
           <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3">Nos valeurs</h2>
-            <p className="text-muted-foreground">Ce qui guide chacune de nos décisions.</p>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3">{t('about.values_title')}</h2>
+            <p className="text-muted-foreground">{t('about.values_desc')}</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {values.map((v, i) => (
-              <motion.div
-                key={v.title}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-                transition={{ delay: i * 0.08 }}
-                className="bg-card rounded-2xl border border-border p-5 shadow-card space-y-3 text-center"
-              >
+              <motion.div key={v.title} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} transition={{ delay: i * 0.08 }}
+                className="bg-card rounded-2xl border border-border p-5 shadow-card space-y-3 text-center">
                 <div className="h-10 w-10 mx-auto rounded-xl bg-primary flex items-center justify-center">
                   <v.icon className="h-5 w-5 text-primary-foreground" />
                 </div>
@@ -128,27 +108,20 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Mission targets */}
+      {/* Who is it for */}
       <section className="py-16 px-4">
         <div className="container max-w-4xl">
           <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3">Pour qui est Siteviral ?</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3">{t('about.who_title')}</h2>
           </div>
           <div className="grid sm:grid-cols-3 gap-5">
             {[
-              { icon: Target, title: 'Organisations', desc: 'Gérez votre communauté, partagez vos contenus et collectez des dons en ligne.' },
-              { icon: Zap, title: 'Leaders & Créateurs', desc: 'Créez votre page, vendez vos formations et développez votre audience.' },
-              { icon: Users, title: 'ONG & Associations', desc: 'Lancez des campagnes de collecte et fédérez votre communauté autour de votre mission.' },
+              { icon: Target, title: t('about.who_orgs'), desc: t('about.who_orgs_desc') },
+              { icon: Zap, title: t('about.who_leaders'), desc: t('about.who_leaders_desc') },
+              { icon: Users, title: t('about.who_ngos'), desc: t('about.who_ngos_desc') },
             ].map((item, i) => (
-              <motion.div
-                key={item.title}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-                transition={{ delay: i * 0.1 }}
-                className="bg-card rounded-2xl border border-border p-6 shadow-card space-y-3"
-              >
+              <motion.div key={item.title} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} transition={{ delay: i * 0.1 }}
+                className="bg-card rounded-2xl border border-border p-6 shadow-card space-y-3">
                 <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
                   <item.icon className="h-5 w-5 text-primary" />
                 </div>
@@ -164,25 +137,18 @@ export default function AboutPage() {
       <section className="py-20 px-4 bg-muted/30">
         <div className="container max-w-4xl">
           <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-bold mb-3">Notre équipe</h2>
-            <p className="text-muted-foreground">Une équipe internationale, basée aux États-Unis.</p>
+            <h2 className="text-2xl sm:text-3xl font-bold mb-3">{t('about.team_title')}</h2>
+            <p className="text-muted-foreground">{t('about.team_desc')}</p>
           </div>
           <div className="grid sm:grid-cols-3 gap-5">
-            {team.map((t, i) => (
-              <motion.div
-                key={t.role}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-                transition={{ delay: i * 0.1 }}
-                className="bg-card rounded-2xl border border-border p-6 shadow-card text-center space-y-2"
-              >
+            {team.map((tm, i) => (
+              <motion.div key={tm.role} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} transition={{ delay: i * 0.1 }}
+                className="bg-card rounded-2xl border border-border p-6 shadow-card text-center space-y-2">
                 <div className="h-12 w-12 mx-auto rounded-full bg-primary flex items-center justify-center">
-                  <span className="text-sm font-bold text-primary-foreground">{t.role.charAt(0)}</span>
+                  <span className="text-sm font-bold text-primary-foreground">{tm.role.charAt(0)}</span>
                 </div>
-                <h3 className="font-semibold text-sm">{t.role}</h3>
-                <p className="text-xs text-muted-foreground">{t.desc}</p>
+                <h3 className="font-semibold text-sm">{tm.role}</h3>
+                <p className="text-xs text-muted-foreground">{tm.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -193,17 +159,11 @@ export default function AboutPage() {
       <section className="py-20 px-4">
         <div className="container max-w-2xl text-center">
           <div className="bg-card rounded-3xl border border-primary/20 p-8 sm:p-10 shadow-elevated space-y-5">
-            <h2 className="text-2xl sm:text-3xl font-bold">Rejoignez le mouvement</h2>
-            <p className="text-muted-foreground">
-              Des centaines de communautés utilisent déjà Siteviral. C'est votre tour.
-            </p>
-            <Button
-              size="lg"
-              className="bg-primary text-primary-foreground px-10 h-12 gap-2 w-full sm:w-auto"
-              asChild
-            >
+            <h2 className="text-2xl sm:text-3xl font-bold">{t('about.cta_title')}</h2>
+            <p className="text-muted-foreground">{t('about.cta_desc')}</p>
+            <Button size="lg" className="bg-primary text-primary-foreground px-10 h-12 gap-2 w-full sm:w-auto" asChild>
               <Link to="/auth?tab=signup">
-                Créez votre communauté <ArrowRight className="h-4 w-4" />
+                {t('about.cta_button')} <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
           </div>

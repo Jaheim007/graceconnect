@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
 import { callFn } from '@/lib/api';
 import { downloadCSV } from '@/lib/csvExport';
+import { useI18n } from '@/i18n/I18nContext';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
@@ -28,6 +29,7 @@ export default function AdminCRM() {
   const { currentOrg } = useOrg();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t, locale } = useI18n();
   const qc = useQueryClient();
   const orgId = currentOrg?.id;
 
@@ -76,12 +78,12 @@ export default function AdminCRM() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast({ title: '✅ Contact ajouté' });
+      toast({ title: `✅ ${t('crm.contact_added')}` });
       setNewEmail(''); setNewName(''); setNewTags('');
       setShowAddContact(false);
       qc.invalidateQueries({ queryKey: ['crm-contacts', orgId] });
     },
-    onError: (e: any) => toast({ title: 'Erreur', description: e.message, variant: 'destructive' }),
+    onError: (e: any) => toast({ title: t('common.error'), description: e.message, variant: 'destructive' }),
   });
 
   // Delete contact
@@ -91,7 +93,7 @@ export default function AdminCRM() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast({ title: 'Contact supprimé' });
+      toast({ title: t('common.delete') });
       qc.invalidateQueries({ queryKey: ['crm-contacts', orgId] });
     },
   });
@@ -99,7 +101,7 @@ export default function AdminCRM() {
   // Export CSV
   const handleExportCSV = () => {
     if (contacts.length === 0) return;
-    const headers = ['Email', 'Nom', 'Tags', 'Source', 'Date'];
+    const headers = ['Email', t('crm.name'), 'Tags', 'Source', 'Date'];
     const rows = contacts.map((c: any) => [
       c.email, c.name || '', (c.tags || []).join(';'), c.source, c.created_at?.slice(0, 10),
     ]);
@@ -108,7 +110,7 @@ export default function AdminCRM() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href = url; a.download = `contacts-${currentOrg?.slug}.csv`; a.click();
     URL.revokeObjectURL(url);
-    toast({ title: '📥 Export CSV téléchargé' });
+    toast({ title: `📥 ${t('crm.export_csv')}` });
   };
 
   // Auto-import members as contacts
@@ -119,77 +121,71 @@ export default function AdminCRM() {
         .from('organization_members')
         .select('user_id, profiles(display_name)')
         .eq('organization_id', orgId);
-      // For each member with an email in auth, we'd need to get from profiles
-      // For now, import display names
-      const existing = new Set(contacts.map((c: any) => c.email));
-      let imported = 0;
-      // We can't access auth.users, so just add a toast explaining
-      toast({ title: `${members?.length || 0} membres trouvés`, description: 'Ajoutez manuellement leurs emails pour le CRM.' });
+      toast({ title: `${members?.length || 0} ${t('admin.members')}`, description: locale === 'fr' ? 'Ajoutez manuellement leurs emails pour le CRM.' : 'Manually add their emails for CRM.' });
     },
   });
 
+  const dateFmt = locale === 'fr' ? 'fr-FR' : 'en-US';
+
   return (
-    <AdminPageShell title="CRM Communautaire" subtitle={`${contacts.length} contacts`} backRoute="/admin">
+    <AdminPageShell title={t('crm.title')} subtitle={`${contacts.length} ${t('crm.contacts').toLowerCase()}`} backRoute="/admin">
       <Tabs value={tab} onValueChange={setTab}>
         <TabsList className="mb-4 flex-wrap">
           <TabsTrigger value="contacts" className="gap-1.5">
-            <UserPlus className="h-3.5 w-3.5" /> Contacts
+            <UserPlus className="h-3.5 w-3.5" /> {t('crm.contacts')}
           </TabsTrigger>
           <TabsTrigger value="donations" className="gap-1.5">
-            <Heart className="h-3.5 w-3.5" /> Donateurs
+            <Heart className="h-3.5 w-3.5" /> {t('crm.donors')}
           </TabsTrigger>
           <TabsTrigger value="purchases" className="gap-1.5">
-            <ShoppingBag className="h-3.5 w-3.5" /> Achats
+            <ShoppingBag className="h-3.5 w-3.5" /> {t('crm.purchases')}
           </TabsTrigger>
           <TabsTrigger value="campaigns" className="gap-1.5">
-            <Mail className="h-3.5 w-3.5" /> Campagnes
+            <Mail className="h-3.5 w-3.5" /> {t('crm.email_campaigns')}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="contacts" className="space-y-4">
-          {/* Actions bar */}
           <div className="flex items-center gap-2 flex-wrap">
             <Button size="sm" className="gap-1.5 text-xs bg-primary text-primary-foreground"
               onClick={() => setShowAddContact(true)}>
-              <Plus className="h-3.5 w-3.5" /> Ajouter
+              <Plus className="h-3.5 w-3.5" /> {t('crm.add')}
             </Button>
             <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={handleExportCSV}
               disabled={contacts.length === 0}>
-              <Download className="h-3.5 w-3.5" /> Export CSV
+              <Download className="h-3.5 w-3.5" /> {t('crm.export_csv')}
             </Button>
           </div>
 
-          {/* Add contact form */}
           {showAddContact && (
             <motion.div variants={fadeUp} initial="hidden" animate="visible"
               className="bg-card border border-border rounded-2xl p-4 space-y-3">
-              <h3 className="font-semibold text-sm">Nouveau contact</h3>
+              <h3 className="font-semibold text-sm">{t('crm.new_contact')}</h3>
               <div className="grid sm:grid-cols-3 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-xs">Email *</Label>
+                  <Label className="text-xs">{t('crm.email')} *</Label>
                   <Input value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="email@exemple.com" className="h-8 text-xs" />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">Nom</Label>
+                  <Label className="text-xs">{t('crm.name')}</Label>
                   <Input value={newName} onChange={e => setNewName(e.target.value)} placeholder="Jean Dupont" className="h-8 text-xs" />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-xs">Tags (séparés par virgule)</Label>
+                  <Label className="text-xs">{t('crm.tags_label')}</Label>
                   <Input value={newTags} onChange={e => setNewTags(e.target.value)} placeholder="vip, newsletter" className="h-8 text-xs" />
                 </div>
               </div>
               <div className="flex gap-2">
                 <Button size="sm" className="text-xs" onClick={() => addContact.mutate()} disabled={addContact.isPending}>
-                  {addContact.isPending ? 'Ajout...' : 'Ajouter'}
+                  {addContact.isPending ? t('crm.adding') : t('crm.add')}
                 </Button>
-                <Button size="sm" variant="ghost" className="text-xs" onClick={() => setShowAddContact(false)}>Annuler</Button>
+                <Button size="sm" variant="ghost" className="text-xs" onClick={() => setShowAddContact(false)}>{t('crm.cancel')}</Button>
               </div>
             </motion.div>
           )}
 
-          {/* Contacts list */}
           {loadingContacts ? <SkeletonRow /> : contacts.length === 0 ? (
-            <EmptyState variant="generic" title="Aucun contact" description="Ajoutez des contacts pour gérer votre communauté." />
+            <EmptyState variant="generic" title={t('crm.no_contacts')} description={t('crm.no_contacts_desc')} />
           ) : (
             <div className="bg-card border border-border rounded-2xl p-4 space-y-2">
               {contacts.map((c: any) => (
@@ -202,8 +198,8 @@ export default function AdminCRM() {
                     <p className="text-xs text-muted-foreground truncate">{c.email}</p>
                   </div>
                   <div className="flex gap-1 flex-wrap">
-                    {(c.tags || []).slice(0, 2).map((t: string) => (
-                      <Badge key={t} variant="secondary" className="text-[9px]">{t}</Badge>
+                    {(c.tags || []).slice(0, 2).map((tg: string) => (
+                      <Badge key={tg} variant="secondary" className="text-[9px]">{tg}</Badge>
                     ))}
                   </div>
                   <Badge variant="outline" className="text-[10px] shrink-0">{c.source}</Badge>
@@ -236,6 +232,7 @@ export default function AdminCRM() {
 function CampaignSection({ orgId }: { orgId: string | undefined }) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t, locale } = useI18n();
   const qc = useQueryClient();
   const [showNew, setShowNew] = useState(false);
   const [subject, setSubject] = useState('');
@@ -255,7 +252,7 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
 
   const createCampaign = useMutation({
     mutationFn: async () => {
-      if (!orgId || !subject.trim() || !body.trim()) throw new Error('Sujet et contenu requis');
+      if (!orgId || !subject.trim() || !body.trim()) throw new Error(locale === 'fr' ? 'Sujet et contenu requis' : 'Subject and content required');
       const recipientTags = tags.split(',').map(t => t.trim()).filter(Boolean);
       const { error } = await db.from('email_campaigns').insert({
         organization_id: orgId,
@@ -268,12 +265,12 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast({ title: '✅ Campagne créée' });
+      toast({ title: `✅ ${t('crm.campaign_created')}` });
       setSubject(''); setBody(''); setTags('');
       setShowNew(false);
       qc.invalidateQueries({ queryKey: ['crm-email-campaigns', orgId] });
     },
-    onError: (e: any) => toast({ title: 'Erreur', description: e.message, variant: 'destructive' }),
+    onError: (e: any) => toast({ title: t('common.error'), description: e.message, variant: 'destructive' }),
   });
 
   const sendCampaign = useMutation({
@@ -281,50 +278,52 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
       return callFn('send-campaign', { campaign_id: campaignId }, true);
     },
     onSuccess: (data: any) => {
-      toast({ title: `📧 ${data.sent || 0} emails envoyés` });
+      toast({ title: `📧 ${data.sent || 0} emails ${t('crm.sent').toLowerCase()}` });
       qc.invalidateQueries({ queryKey: ['crm-email-campaigns', orgId] });
     },
-    onError: (e: any) => toast({ title: 'Erreur envoi', description: e.message, variant: 'destructive' }),
+    onError: (e: any) => toast({ title: t('common.error'), description: e.message, variant: 'destructive' }),
   });
+
+  const dateFmt = locale === 'fr' ? 'fr-FR' : 'en-US';
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Button size="sm" className="gap-1.5 text-xs bg-primary text-primary-foreground"
           onClick={() => setShowNew(true)}>
-          <Plus className="h-3.5 w-3.5" /> Nouvelle campagne
+          <Plus className="h-3.5 w-3.5" /> {t('crm.new_campaign')}
         </Button>
       </div>
 
       {showNew && (
         <motion.div variants={fadeUp} initial="hidden" animate="visible"
           className="bg-card border border-border rounded-2xl p-4 space-y-3">
-          <h3 className="font-semibold text-sm">Nouvelle campagne email</h3>
+          <h3 className="font-semibold text-sm">{t('crm.new_email_campaign')}</h3>
           <div className="space-y-3">
             <div className="space-y-1">
-              <Label className="text-xs">Sujet *</Label>
-              <Input value={subject} onChange={e => setSubject(e.target.value)} placeholder="Votre sujet..." className="h-8 text-xs" />
+              <Label className="text-xs">{t('crm.subject')} *</Label>
+              <Input value={subject} onChange={e => setSubject(e.target.value)} placeholder={locale === 'fr' ? 'Votre sujet...' : 'Your subject...'} className="h-8 text-xs" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Contenu HTML *</Label>
-              <Textarea value={body} onChange={e => setBody(e.target.value)} placeholder="<h1>Bonjour {{name}}</h1>..." rows={5} className="text-xs" />
+              <Label className="text-xs">{t('crm.html_content')} *</Label>
+              <Textarea value={body} onChange={e => setBody(e.target.value)} placeholder="<h1>Hello {{name}}</h1>..." rows={5} className="text-xs" />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Tags destinataires (optionnel, séparés par virgule)</Label>
+              <Label className="text-xs">{t('crm.recipient_tags')}</Label>
               <Input value={tags} onChange={e => setTags(e.target.value)} placeholder="vip, newsletter" className="h-8 text-xs" />
             </div>
           </div>
           <div className="flex gap-2">
             <Button size="sm" className="text-xs" onClick={() => createCampaign.mutate()} disabled={createCampaign.isPending}>
-              {createCampaign.isPending ? 'Création...' : 'Créer brouillon'}
+              {createCampaign.isPending ? t('crm.creating') : t('crm.create_draft')}
             </Button>
-            <Button size="sm" variant="ghost" className="text-xs" onClick={() => setShowNew(false)}>Annuler</Button>
+            <Button size="sm" variant="ghost" className="text-xs" onClick={() => setShowNew(false)}>{t('crm.cancel')}</Button>
           </div>
         </motion.div>
       )}
 
       {isLoading ? <SkeletonRow /> : campaigns.length === 0 ? (
-        <EmptyState variant="generic" title="Aucune campagne" description="Créez votre première campagne email." />
+        <EmptyState variant="generic" title={t('crm.no_campaigns')} description={t('crm.no_campaigns_desc')} />
       ) : (
         <div className="bg-card border border-border rounded-2xl p-4 space-y-2">
           {campaigns.map((c: any) => (
@@ -332,16 +331,16 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{c.subject}</p>
                 <p className="text-xs text-muted-foreground">
-                  {c.status === 'sent' ? `Envoyé le ${new Date(c.sent_at).toLocaleDateString('fr-FR')} · ${c.sent_count}/${c.recipient_count}` : 'Brouillon'}
+                  {c.status === 'sent' ? `${t('crm.sent_on')} ${new Date(c.sent_at).toLocaleDateString(dateFmt)} · ${c.sent_count}/${c.recipient_count}` : t('crm.draft')}
                 </p>
               </div>
               <Badge variant="outline" className={cn('text-[10px] border-0', c.status === 'sent' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-muted text-muted-foreground')}>
-                {c.status === 'sent' ? 'Envoyé' : 'Brouillon'}
+                {c.status === 'sent' ? t('crm.sent') : t('crm.draft')}
               </Badge>
               {c.status === 'draft' && (
                 <Button size="sm" variant="outline" className="h-7 text-xs gap-1" 
                   onClick={() => sendCampaign.mutate(c.id)} disabled={sendCampaign.isPending}>
-                  {sendCampaign.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />} Envoyer
+                  {sendCampaign.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <Send className="h-3 w-3" />} {t('crm.send')}
                 </Button>
               )}
             </div>
@@ -356,6 +355,7 @@ import { formatCurrency } from '@/lib/currency';
 const fmt = (n: number, currency?: string | null) => formatCurrency(n, currency);
 
 function DonationsSection({ orgId, orgSlug }: { orgId: string | undefined; orgSlug?: string }) {
+  const { t, locale } = useI18n();
   const { data: donations = [], isLoading } = useQuery({
     queryKey: ['crm-donations', orgId],
     queryFn: async () => {
@@ -371,19 +371,20 @@ function DonationsSection({ orgId, orgSlug }: { orgId: string | undefined; orgSl
 
   const completed = donations.filter((d: any) => d.status === 'completed');
   const totalAmount = completed.reduce((s: number, d: any) => s + (d.amount || 0), 0);
+  const dateFmt = locale === 'fr' ? 'fr-FR' : 'en-US';
 
   const handleExport = () => {
     downloadCSV(
       donations.map((d: any) => ({
         Date: d.created_at?.slice(0, 10),
-        Donateur: d.donor_name || 'Anonyme',
+        [t('crm.donor')]: d.donor_name || t('crm.anonymous'),
         Email: d.donor_email || '',
-        Montant: d.amount,
-        Devise: d.currency || 'XOF',
-        Statut: d.status,
-        'Frais plateforme': d.platform_fee || 0,
-        'Commission affilié': d.affiliate_commission || 0,
-        'Reçu par org': d.organization_amount || 0,
+        [locale === 'fr' ? 'Montant' : 'Amount']: d.amount,
+        [locale === 'fr' ? 'Devise' : 'Currency']: d.currency || 'XOF',
+        [locale === 'fr' ? 'Statut' : 'Status']: d.status,
+        [locale === 'fr' ? 'Frais plateforme' : 'Platform fee']: d.platform_fee || 0,
+        [locale === 'fr' ? 'Commission affilié' : 'Affiliate commission']: d.affiliate_commission || 0,
+        [locale === 'fr' ? 'Reçu par org' : 'Received by org']: d.organization_amount || 0,
       })),
       `donations-${orgSlug || 'org'}`
     );
@@ -393,16 +394,16 @@ function DonationsSection({ orgId, orgSlug }: { orgId: string | undefined; orgSl
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-semibold">{completed.length} don{completed.length > 1 ? 's' : ''} complété{completed.length > 1 ? 's' : ''}</p>
-          <p className="text-xs text-muted-foreground">Total : {fmt(totalAmount, completed[0]?.currency)}</p>
+          <p className="text-sm font-semibold">{completed.length} {completed.length > 1 ? t('crm.donation_plural') : t('crm.donation')} {t('crm.completed').toLowerCase()}</p>
+          <p className="text-xs text-muted-foreground">{t('crm.total')} : {fmt(totalAmount, completed[0]?.currency)}</p>
         </div>
         <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={handleExport} disabled={donations.length === 0}>
-          <Download className="h-3.5 w-3.5" /> Export CSV
+          <Download className="h-3.5 w-3.5" /> {t('crm.export_csv')}
         </Button>
       </div>
 
       {isLoading ? <SkeletonRow /> : donations.length === 0 ? (
-        <EmptyState variant="generic" title="Aucun don" description="Les dons reçus apparaîtront ici." />
+        <EmptyState variant="generic" title={t('crm.no_donors')} description={t('crm.no_donors_desc')} />
       ) : (
         <div className="bg-card border border-border rounded-2xl p-4 space-y-2">
           {donations.map((d: any) => (
@@ -412,13 +413,13 @@ function DonationsSection({ orgId, orgSlug }: { orgId: string | undefined; orgSl
                 <Heart className="h-3.5 w-3.5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{d.donor_name || 'Anonyme'}</p>
-                <p className="text-xs text-muted-foreground">{d.donor_email || '—'} · {new Date(d.created_at).toLocaleDateString('fr-FR')}</p>
+                <p className="text-sm font-medium truncate">{d.donor_name || t('crm.anonymous')}</p>
+                <p className="text-xs text-muted-foreground">{d.donor_email || '—'} · {new Date(d.created_at).toLocaleDateString(dateFmt)}</p>
               </div>
               <div className="text-right shrink-0">
                 <p className="text-sm font-semibold">{fmt(d.amount, d.currency)}</p>
                 <Badge variant="outline" className={cn('text-[10px] border-0', d.status === 'completed' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-muted text-muted-foreground')}>
-                  {d.status === 'completed' ? 'Complété' : d.status}
+                  {d.status === 'completed' ? t('crm.completed') : d.status}
                 </Badge>
               </div>
             </motion.div>
@@ -430,6 +431,7 @@ function DonationsSection({ orgId, orgSlug }: { orgId: string | undefined; orgSl
 }
 
 function PurchasesSection({ orgId, orgSlug }: { orgId: string | undefined; orgSlug?: string }) {
+  const { t, locale } = useI18n();
   const { data: purchases = [], isLoading } = useQuery({
     queryKey: ['crm-purchases', orgId],
     queryFn: async () => {
@@ -445,21 +447,22 @@ function PurchasesSection({ orgId, orgSlug }: { orgId: string | undefined; orgSl
 
   const completed = purchases.filter((p: any) => p.status === 'completed');
   const totalAmount = completed.reduce((s: number, p: any) => s + (p.amount || 0), 0);
+  const dateFmt = locale === 'fr' ? 'fr-FR' : 'en-US';
 
   const handleExport = () => {
     downloadCSV(
       purchases.map((p: any) => ({
         Date: p.created_at?.slice(0, 10),
-        Produit: (p.digital_products as any)?.title || '—',
-        Montant: p.amount,
-        Devise: p.currency || 'XOF',
-        Statut: p.status,
-        Remise: p.discount_amount || 0,
-        'Frais plateforme': p.platform_fee || 0,
-        'Commission affilié': p.affiliate_commission || 0,
-        'Reçu par org': p.organization_amount || 0,
+        [t('crm.product')]: (p.digital_products as any)?.title || '—',
+        [locale === 'fr' ? 'Montant' : 'Amount']: p.amount,
+        [locale === 'fr' ? 'Devise' : 'Currency']: p.currency || 'XOF',
+        [locale === 'fr' ? 'Statut' : 'Status']: p.status,
+        [locale === 'fr' ? 'Remise' : 'Discount']: p.discount_amount || 0,
+        [locale === 'fr' ? 'Frais plateforme' : 'Platform fee']: p.platform_fee || 0,
+        [locale === 'fr' ? 'Commission affilié' : 'Affiliate commission']: p.affiliate_commission || 0,
+        [locale === 'fr' ? 'Reçu par org' : 'Received by org']: p.organization_amount || 0,
       })),
-      `achats-${orgSlug || 'org'}`
+      `${locale === 'fr' ? 'achats' : 'purchases'}-${orgSlug || 'org'}`
     );
   };
 
@@ -467,16 +470,16 @@ function PurchasesSection({ orgId, orgSlug }: { orgId: string | undefined; orgSl
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-semibold">{completed.length} achat{completed.length > 1 ? 's' : ''} complété{completed.length > 1 ? 's' : ''}</p>
-          <p className="text-xs text-muted-foreground">Total : {fmt(totalAmount, completed[0]?.currency)}</p>
+          <p className="text-sm font-semibold">{completed.length} {completed.length > 1 ? t('crm.purchase_plural') : t('crm.purchase')} {t('crm.completed').toLowerCase()}</p>
+          <p className="text-xs text-muted-foreground">{t('crm.total')} : {fmt(totalAmount, completed[0]?.currency)}</p>
         </div>
         <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={handleExport} disabled={purchases.length === 0}>
-          <Download className="h-3.5 w-3.5" /> Export CSV
+          <Download className="h-3.5 w-3.5" /> {t('crm.export_csv')}
         </Button>
       </div>
 
       {isLoading ? <SkeletonRow /> : purchases.length === 0 ? (
-        <EmptyState variant="generic" title="Aucun achat" description="Les achats apparaîtront ici." />
+        <EmptyState variant="generic" title={t('crm.no_purchases')} description={t('crm.no_purchases_desc')} />
       ) : (
         <div className="bg-card border border-border rounded-2xl p-4 space-y-2">
           {purchases.map((p: any) => (
@@ -486,13 +489,13 @@ function PurchasesSection({ orgId, orgSlug }: { orgId: string | undefined; orgSl
                 <ShoppingBag className="h-3.5 w-3.5 text-amber-500" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{(p.digital_products as any)?.title || 'Produit'}</p>
-                <p className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleDateString('fr-FR')}</p>
+                <p className="text-sm font-medium truncate">{(p.digital_products as any)?.title || t('crm.product')}</p>
+                <p className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleDateString(dateFmt)}</p>
               </div>
               <div className="text-right shrink-0">
                 <p className="text-sm font-semibold">{fmt(p.amount, p.currency)}</p>
                 <Badge variant="outline" className={cn('text-[10px] border-0', p.status === 'completed' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-muted text-muted-foreground')}>
-                  {p.status === 'completed' ? 'Complété' : p.status}
+                  {p.status === 'completed' ? t('crm.completed') : p.status}
                 </Badge>
               </div>
             </motion.div>
