@@ -78,19 +78,50 @@ export async function processPayout(payout_request_id: string, action: 'approve'
 
 // ── Email sending ──
 export type EmailTemplate =
-  | 'welcome'
-  | 'donation_receipt' | 'new_donation_received'
+  // Auth & Onboarding
+  | 'welcome' | 'onboarding_day1' | 'onboarding_day3' | 'onboarding_day7'
+  | 'account_deleted' | 'new_device_login' | 'password_changed' | 'email_changed'
+  | 'data_export_ready'
+  // Re-engagement
+  | 'inactive_7d' | 'inactive_14d' | 'inactive_30d' | 'anniversary_1y'
+  // Donations
+  | 'donation_receipt' | 'new_donation_received' | 'first_donation_milestone'
+  | 'campaign_goal_reached' | 'campaign_expiring_soon' | 'payment_failed'
+  // Products
   | 'purchase_confirmation' | 'new_purchase_received' | 'download_ready'
-  | 'program_enrolled' | 'program_completed'
+  | 'first_sale_milestone'
+  // Programs
+  | 'program_enrolled' | 'program_completed' | 'lesson_reminder'
+  | 'new_module_added' | 'certificate_ready'
+  // KYC
   | 'kyc_submitted' | 'kyc_approved' | 'kyc_rejected'
+  // Org lifecycle
   | 'org_created' | 'org_deleted' | 'org_suspended' | 'org_unsuspended'
+  | 'org_inactive_30d' | 'member_milestone'
+  // Members
   | 'new_member_joined' | 'member_left' | 'invite_to_org' | 'role_changed'
+  | 'invite_accepted'
+  // Payouts
   | 'payout_requested' | 'payout_approved' | 'payout_rejected' | 'payouts_frozen'
+  // Affiliates
   | 'affiliate_sale' | 'affiliate_payout_requested' | 'affiliate_payout_completed'
+  | 'affiliate_welcome' | 'affiliate_first_click' | 'affiliate_first_conversion'
+  | 'affiliate_commission_payable' | 'affiliate_monthly_recap'
+  // Directory
   | 'directory_approved' | 'directory_rejected'
+  // Support
   | 'ticket_created' | 'ticket_replied' | 'ticket_resolved'
+  // Refunds
   | 'refund_initiated' | 'refund_completed'
-  | 'content_report_resolved';
+  // Content & Social
+  | 'content_report_resolved' | 'content_liked' | 'content_saved'
+  | 'new_event_published' | 'new_announcement_published'
+  | 'new_media_published' | 'new_product_published' | 'new_campaign_published'
+  | 'new_program_published'
+  // Recaps
+  | 'weekly_recap_user' | 'daily_recap_admin' | 'daily_recap_superadmin'
+  // Superadmin
+  | 'fraud_alert' | 'new_org_alert';
 
 export async function sendEmailNotification(
   template: EmailTemplate,

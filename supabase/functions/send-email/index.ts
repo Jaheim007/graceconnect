@@ -6,19 +6,50 @@ const corsHeaders = {
 };
 
 type EmailTemplate =
-  | 'welcome'
-  | 'donation_receipt' | 'new_donation_received'
+  // Auth & Onboarding
+  | 'welcome' | 'onboarding_day1' | 'onboarding_day3' | 'onboarding_day7'
+  | 'account_deleted' | 'new_device_login' | 'password_changed' | 'email_changed'
+  | 'data_export_ready'
+  // Re-engagement
+  | 'inactive_7d' | 'inactive_14d' | 'inactive_30d' | 'anniversary_1y'
+  // Donations
+  | 'donation_receipt' | 'new_donation_received' | 'first_donation_milestone'
+  | 'campaign_goal_reached' | 'campaign_expiring_soon' | 'payment_failed'
+  // Products & Purchases
   | 'purchase_confirmation' | 'new_purchase_received' | 'download_ready'
-  | 'program_enrolled' | 'program_completed'
+  | 'first_sale_milestone'
+  // Programs
+  | 'program_enrolled' | 'program_completed' | 'lesson_reminder'
+  | 'new_module_added' | 'certificate_ready'
+  // KYC
   | 'kyc_submitted' | 'kyc_approved' | 'kyc_rejected'
+  // Org lifecycle
   | 'org_created' | 'org_deleted' | 'org_suspended' | 'org_unsuspended'
+  | 'org_inactive_30d' | 'member_milestone'
+  // Members
   | 'new_member_joined' | 'member_left' | 'invite_to_org' | 'role_changed'
+  | 'invite_accepted'
+  // Payouts
   | 'payout_requested' | 'payout_approved' | 'payout_rejected' | 'payouts_frozen'
+  // Affiliates
   | 'affiliate_sale' | 'affiliate_payout_requested' | 'affiliate_payout_completed'
+  | 'affiliate_welcome' | 'affiliate_first_click' | 'affiliate_first_conversion'
+  | 'affiliate_commission_payable' | 'affiliate_monthly_recap'
+  // Directory
   | 'directory_approved' | 'directory_rejected'
+  // Support
   | 'ticket_created' | 'ticket_replied' | 'ticket_resolved'
+  // Refunds
   | 'refund_initiated' | 'refund_completed'
-  | 'content_report_resolved';
+  // Content & Social
+  | 'content_report_resolved' | 'content_liked' | 'content_saved'
+  | 'new_event_published' | 'new_announcement_published'
+  | 'new_media_published' | 'new_product_published' | 'new_campaign_published'
+  | 'new_program_published'
+  // Recaps
+  | 'weekly_recap_user' | 'daily_recap_admin' | 'daily_recap_superadmin'
+  // Superadmin alerts
+  | 'fraud_alert' | 'new_org_alert';
 
 interface SendEmailBody {
   template: EmailTemplate;
@@ -42,31 +73,88 @@ const blue = '#1a66e6';
 const green = '#22c55e';
 const red = '#ef4444';
 const info = '#3b82f6';
+const orange = '#f59e0b';
+
+const cta = (href: string, text: string) =>
+  `<p style="margin:20px 0"><a href="${href}" style="display:inline-block;background:${blue};color:#fff;padding:12px 24px;border-radius:8px;font-weight:bold;text-decoration:none">${text}</a></p>`;
 
 function buildTemplate(template: EmailTemplate, d: Record<string, string | number>): { subject: string; html: string } {
   switch (template) {
+    // ═══ AUTH & ONBOARDING ═══
     case 'welcome':
-      return { subject: '👋 Welcome to Siteviral', html: wrap(`<h1 style="color:${blue}">Welcome to Siteviral!</h1><p>Hi ${d.name || 'there'},</p><p>Your account is ready. Start building and growing your community today.</p>`) };
+      return { subject: '👋 Welcome to Siteviral', html: wrap(`<h1 style="color:${blue}">Welcome to Siteviral!</h1><p>Hi ${d.name || 'there'},</p><p>Your account is ready. Start building and growing your community today.</p>${cta('https://siteviral.com/dashboard', 'Go to Dashboard')}`) };
+    case 'onboarding_day1':
+      return { subject: '🚀 Complete your profile – Siteviral', html: wrap(`<h1 style="color:${blue}">🚀 One step to go!</h1><p>Hi ${d.name || 'there'},</p><p>Complete your profile to unlock all features: add a photo, bio, and join an organization.</p>${cta('https://siteviral.com/profile', 'Complete Profile')}`) };
+    case 'onboarding_day3':
+      return { subject: '🏢 Join or create an organization – Siteviral', html: wrap(`<h1 style="color:${blue}">🏢 Ready to build?</h1><p>Hi ${d.name || 'there'},</p><p>Create your first organization or discover existing ones to join.</p>${cta('https://siteviral.com/discover', 'Discover Organizations')}`) };
+    case 'onboarding_day7':
+      return { subject: '💡 Tips to grow your community – Siteviral', html: wrap(`<h1 style="color:${blue}">💡 Growth Tips</h1><p>Hi ${d.name || 'there'},</p><p>Here's how to make the most of Siteviral:</p><ul style="color:#ccc"><li>Publish media content to engage your members</li><li>Launch a donation campaign</li><li>Enable affiliates to grow your reach</li><li>Use email campaigns to stay connected</li></ul>${cta('https://siteviral.com/dashboard', 'Get Started')}`) };
+    case 'new_device_login':
+      return { subject: '🔒 New login detected – Siteviral', html: wrap(`<h1 style="color:${orange}">🔒 New Login Detected</h1><p>A new login to your account was detected.</p><p><strong>Device:</strong> ${d.device || 'Unknown'}</p><p><strong>Time:</strong> ${d.time || 'Just now'}</p><p style="color:#999">If this wasn't you, please change your password immediately.</p>`) };
+    case 'password_changed':
+      return { subject: '🔑 Password changed – Siteviral', html: wrap(`<h1 style="color:${info}">🔑 Password Changed</h1><p>Your password was successfully changed.</p><p style="color:#999">If you didn't make this change, contact <a href="mailto:support@siteviral.com" style="color:${blue}">support@siteviral.com</a> immediately.</p>`) };
+    case 'email_changed':
+      return { subject: '📧 Email updated – Siteviral', html: wrap(`<h1 style="color:${info}">📧 Email Updated</h1><p>Your email has been changed to <strong>${d.new_email}</strong>.</p><p style="color:#999">If you didn't make this change, contact support immediately.</p>`) };
+    case 'account_deleted':
+      return { subject: '👋 Account deleted – Siteviral', html: wrap(`<h1 style="color:${red}">👋 Account Deleted</h1><p>Your Siteviral account has been permanently deleted as requested.</p><p>All your data has been removed. We're sorry to see you go.</p>`) };
+    case 'data_export_ready':
+      return { subject: '📦 Your data export is ready – Siteviral', html: wrap(`<h1 style="color:${blue}">📦 Data Export Ready</h1><p>Your data export is ready for download.</p><p style="color:#999">The link expires in 48 hours.</p>${cta(String(d.download_link || '#'), 'Download Data')}`) };
+
+    // ═══ RE-ENGAGEMENT ═══
+    case 'inactive_7d':
+      return { subject: '👀 We miss you! – Siteviral', html: wrap(`<h1 style="color:${blue}">👀 We Miss You!</h1><p>Hi ${d.name || 'there'},</p><p>It's been a week since your last visit. Here's what you may have missed:</p><p>• ${d.updates || 'New content from your organizations'}</p>${cta('https://siteviral.com/feed', 'Check What\'s New')}`) };
+    case 'inactive_14d':
+      return { subject: '🔔 Your communities are waiting – Siteviral', html: wrap(`<h1 style="color:${orange}">🔔 Your Communities Need You</h1><p>Hi ${d.name || 'there'},</p><p>It's been 2 weeks! Your organizations have new content, events, and updates waiting for you.</p>${cta('https://siteviral.com/feed', 'Come Back')}`) };
+    case 'inactive_30d':
+      return { subject: '❤️ Come back to Siteviral', html: wrap(`<h1 style="color:${red}">❤️ We'd Love You Back</h1><p>Hi ${d.name || 'there'},</p><p>It's been a month since your last visit. Your community misses you!</p><p>Need help? Reply to this email or contact <a href="mailto:support@siteviral.com" style="color:${blue}">support@siteviral.com</a>.</p>${cta('https://siteviral.com', 'Reconnect')}`) };
+    case 'anniversary_1y':
+      return { subject: '🎂 Happy 1 Year on Siteviral!', html: wrap(`<h1 style="color:${green}">🎂 Happy Anniversary!</h1><p>Hi ${d.name || 'there'},</p><p>It's been <strong>1 year</strong> since you joined Siteviral! Here's your year in review:</p><ul style="color:#ccc"><li>Organizations joined: ${d.orgs_count || 0}</li><li>Programs completed: ${d.programs_count || 0}</li></ul><p>Thank you for being part of the community! 🎉</p>`) };
+
+    // ═══ DONATIONS ═══
     case 'donation_receipt':
       return { subject: `Donation Receipt – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🙏 Donation Receipt</h1><p>Thank you for donating <strong>${d.amount} ${d.currency}</strong> to <strong>${d.org_name}</strong>.</p><p>Reference: <code>${d.reference}</code></p><p>Date: ${d.date}</p>`) };
     case 'new_donation_received':
       return { subject: `💰 New Donation – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${green}">💰 New Donation Received</h1><p><strong>${d.donor_name || 'Anonymous'}</strong> donated <strong>${d.amount} ${d.currency}</strong> to <strong>${d.org_name}</strong>.</p><p>Campaign: ${d.campaign_name || 'General'}</p><p>Reference: <code>${d.reference}</code></p>`) };
+    case 'first_donation_milestone':
+      return { subject: `🎉 First donation received! – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">🎉 First Donation!</h1><p>Congratulations! <strong>${d.org_name}</strong> has received its very first donation of <strong>${d.amount} ${d.currency}</strong>.</p><p>This is just the beginning! 🚀</p>`) };
+    case 'campaign_goal_reached':
+      return { subject: `🏆 Campaign goal reached – ${d.campaign_name}`, html: wrap(`<h1 style="color:${green}">🏆 Goal Reached!</h1><p>The campaign <strong>"${d.campaign_name}"</strong> for <strong>${d.org_name}</strong> has reached its goal of <strong>${d.goal_amount} ${d.currency}</strong>!</p><p>Current: ${d.current_amount} ${d.currency}</p>`) };
+    case 'campaign_expiring_soon':
+      return { subject: `⏰ Campaign ending soon – ${d.campaign_name}`, html: wrap(`<h1 style="color:${orange}">⏰ Campaign Ending Soon</h1><p>The campaign <strong>"${d.campaign_name}"</strong> for <strong>${d.org_name}</strong> ends in <strong>${d.days_left} days</strong>.</p><p>Progress: ${d.current_amount}/${d.goal_amount} ${d.currency}</p>`) };
+    case 'payment_failed':
+      return { subject: `❌ Payment failed – ${d.reference || ''}`, html: wrap(`<h1 style="color:${red}">❌ Payment Failed</h1><p>Your payment of <strong>${d.amount} ${d.currency}</strong> could not be processed.</p><p>Reference: <code>${d.reference}</code></p><p>Please try again or use a different payment method.</p>${cta('https://siteviral.com', 'Try Again')}`) };
+
+    // ═══ PRODUCTS & PURCHASES ═══
     case 'purchase_confirmation':
-      return { subject: `Purchase Confirmed – ${d.product_name}`, html: wrap(`<h1 style="color:${blue}">✅ Purchase Confirmed</h1><p>You purchased <strong>${d.product_name}</strong> from <strong>${d.org_name}</strong>.</p><p>Amount: ${d.amount} ${d.currency}</p><p>Reference: <code>${d.reference}</code></p>${d.access_link ? `<p><a href="${d.access_link}" style="color:${blue}">Access your purchase →</a></p>` : ''}`) };
+      return { subject: `Purchase Confirmed – ${d.product_name}`, html: wrap(`<h1 style="color:${blue}">✅ Purchase Confirmed</h1><p>You purchased <strong>${d.product_name}</strong> from <strong>${d.org_name}</strong>.</p><p>Amount: ${d.amount} ${d.currency}</p><p>Reference: <code>${d.reference}</code></p>${d.access_link ? cta(String(d.access_link), 'Access Purchase →') : ''}`) };
     case 'new_purchase_received':
       return { subject: `🛒 New Sale – ${d.product_name}`, html: wrap(`<h1 style="color:${green}">🛒 New Sale</h1><p><strong>${d.buyer_name || 'A customer'}</strong> purchased <strong>${d.product_name}</strong> for <strong>${d.amount} ${d.currency}</strong>.</p><p>Reference: <code>${d.reference}</code></p>`) };
     case 'download_ready':
-      return { subject: `📥 Your download is ready – ${d.product_name}`, html: wrap(`<h1 style="color:${blue}">📥 Download Ready</h1><p>Your purchase of <strong>${d.product_name}</strong> is ready for download.</p><p><a href="${d.download_link}" style="color:${blue};font-weight:bold">Download Now →</a></p><p style="font-size:12px;color:#999">This link expires in 24 hours.</p>`) };
+      return { subject: `📥 Your download is ready – ${d.product_name}`, html: wrap(`<h1 style="color:${blue}">📥 Download Ready</h1><p>Your purchase of <strong>${d.product_name}</strong> is ready for download.</p>${cta(String(d.download_link), 'Download Now →')}<p style="font-size:12px;color:#999">This link expires in 24 hours.</p>`) };
+    case 'first_sale_milestone':
+      return { subject: `🎉 First sale! – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">🎉 First Sale!</h1><p>Congratulations! <strong>${d.org_name}</strong> made its first sale: <strong>${d.product_name}</strong> for <strong>${d.amount} ${d.currency}</strong>.</p><p>Keep it up! 🚀</p>`) };
+
+    // ═══ PROGRAMS ═══
     case 'program_enrolled':
-      return { subject: `🎓 Enrolled – ${d.program_name}`, html: wrap(`<h1 style="color:${blue}">🎓 Enrollment Confirmed</h1><p>You are now enrolled in <strong>${d.program_name}</strong> by <strong>${d.org_name}</strong>.</p><p><a href="${d.program_link || '#'}" style="color:${blue}">Start Learning →</a></p>`) };
+      return { subject: `🎓 Enrolled – ${d.program_name}`, html: wrap(`<h1 style="color:${blue}">🎓 Enrollment Confirmed</h1><p>You are now enrolled in <strong>${d.program_name}</strong> by <strong>${d.org_name}</strong>.</p>${cta(String(d.program_link || '#'), 'Start Learning →')}`) };
     case 'program_completed':
       return { subject: `🏆 Congratulations! – ${d.program_name}`, html: wrap(`<h1 style="color:${green}">🏆 Program Completed</h1><p>Congratulations! You have completed <strong>${d.program_name}</strong>.</p><p>Keep up the great work!</p>`) };
+    case 'lesson_reminder':
+      return { subject: `📚 Continue your lesson – ${d.program_name}`, html: wrap(`<h1 style="color:${blue}">📚 Lesson Waiting</h1><p>You haven't continued <strong>${d.program_name}</strong> for a few days.</p><p>Pick up where you left off!</p>${cta(String(d.program_link || '#'), 'Continue Learning')}`) };
+    case 'new_module_added':
+      return { subject: `📖 New module – ${d.program_name}`, html: wrap(`<h1 style="color:${blue}">📖 New Module Added</h1><p>A new module <strong>"${d.module_name}"</strong> has been added to <strong>${d.program_name}</strong>.</p>${cta(String(d.program_link || '#'), 'Check It Out')}`) };
+    case 'certificate_ready':
+      return { subject: `🎖 Certificate ready – ${d.program_name}`, html: wrap(`<h1 style="color:${green}">🎖 Certificate Ready</h1><p>Your certificate for <strong>${d.program_name}</strong> is ready!</p>${cta(String(d.certificate_link || '#'), 'View Certificate')}`) };
+
+    // ═══ KYC ═══
     case 'kyc_submitted':
       return { subject: `KYC Submitted – ${d.org_name}`, html: wrap(`<h1 style="color:${info}">📄 KYC Submitted</h1><p>Your KYC documents for <strong>${d.org_name}</strong> have been submitted successfully.</p><p>We'll review them within 2–3 business days.</p>`) };
     case 'kyc_approved':
-      return { subject: `KYC Approved – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">✅ KYC Approved</h1><p>Congratulations! Your KYC for <strong>${d.org_name}</strong> has been approved.</p><p>You can now enable monetization features.</p>`) };
+      return { subject: `KYC Approved – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">✅ KYC Approved</h1><p>Your KYC for <strong>${d.org_name}</strong> has been approved.</p><p>You can now enable monetization features.</p>`) };
     case 'kyc_rejected':
-      return { subject: `KYC Update – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ KYC Requires Attention</h1><p>Your KYC submission for <strong>${d.org_name}</strong> was not approved.</p><p>Reason: ${d.reason || 'Please contact support.'}</p><p>You may resubmit with the correct documents.</p>`) };
+      return { subject: `KYC Update – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ KYC Requires Attention</h1><p>Your KYC submission for <strong>${d.org_name}</strong> was not approved.</p><p>Reason: ${d.reason || 'Please contact support.'}</p>`) };
+
+    // ═══ ORG LIFECYCLE ═══
     case 'org_created':
       return { subject: `🏢 Organization Created – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🏢 Organization Created</h1><p>Your organization <strong>${d.org_name}</strong> has been created successfully.</p><p>Next steps: complete your profile, invite members, and start publishing content.</p>`) };
     case 'org_deleted':
@@ -75,14 +163,24 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
       return { subject: `⚠️ Organization Suspended – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">⚠️ Organization Suspended</h1><p>Your organization <strong>${d.org_name}</strong> has been suspended.</p><p>Reason: ${d.reason || 'Policy violation.'}</p>${d.until ? `<p>Suspended until: ${d.until}</p>` : ''}<p>Contact <a href="mailto:support@siteviral.com" style="color:${blue}">support@siteviral.com</a>.</p>`) };
     case 'org_unsuspended':
       return { subject: `✅ Suspension Lifted – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">✅ Suspension Lifted</h1><p>Your organization <strong>${d.org_name}</strong> is now active again.</p>`) };
+    case 'org_inactive_30d':
+      return { subject: `📊 Your organization needs attention – ${d.org_name}`, html: wrap(`<h1 style="color:${orange}">📊 Inactive Organization</h1><p>Hi,</p><p>Your organization <strong>${d.org_name}</strong> has had no activity in the last 30 days.</p><p>Publish content, create events, or launch a campaign to re-engage your members!</p>${cta('https://siteviral.com/admin', 'Go to Dashboard')}`) };
+    case 'member_milestone':
+      return { subject: `🎉 ${d.count} members! – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">🎉 Milestone Reached!</h1><p><strong>${d.org_name}</strong> now has <strong>${d.count} members</strong>!</p><p>Keep growing! 🚀</p>`) };
+
+    // ═══ MEMBERS ═══
     case 'new_member_joined':
       return { subject: `👤 New Member – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">👤 New Member</h1><p><strong>${d.member_name || 'Someone'}</strong> just joined <strong>${d.org_name}</strong>.</p><p>Total members: ${d.total_members || 'N/A'}</p>`) };
     case 'member_left':
       return { subject: `Member Left – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">👋 Member Left</h1><p><strong>${d.member_name || 'A member'}</strong> has left <strong>${d.org_name}</strong>.</p>`) };
     case 'invite_to_org':
-      return { subject: `You're invited to join ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📩 You're Invited</h1><p><strong>${d.inviter_name || 'Someone'}</strong> invited you to join <strong>${d.org_name}</strong> on Siteviral.</p><p><a href="${d.invite_link || 'https://siteviral.com'}" style="display:inline-block;background:${blue};color:#fff;padding:12px 24px;border-radius:8px;font-weight:bold;text-decoration:none">Accept Invitation →</a></p>`) };
+      return { subject: `You're invited to join ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📩 You're Invited</h1><p><strong>${d.inviter_name || 'Someone'}</strong> invited you to join <strong>${d.org_name}</strong> on Siteviral.</p>${cta(String(d.invite_link || 'https://siteviral.com'), 'Accept Invitation →')}`) };
     case 'role_changed':
       return { subject: `Role Updated – ${d.org_name}`, html: wrap(`<h1 style="color:${info}">🔄 Role Updated</h1><p>Your role in <strong>${d.org_name}</strong> has been changed to <strong>${d.new_role}</strong>.</p>${d.old_role ? `<p>Previous role: ${d.old_role}</p>` : ''}`) };
+    case 'invite_accepted':
+      return { subject: `✅ Invitation accepted – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">✅ Invitation Accepted</h1><p><strong>${d.member_name}</strong> has accepted your invitation to join <strong>${d.org_name}</strong>.</p>`) };
+
+    // ═══ PAYOUTS ═══
     case 'payout_requested':
       return { subject: `💸 Payout Requested – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${blue}">💸 Payout Requested</h1><p>A payout of <strong>${d.amount} ${d.currency}</strong> has been requested for <strong>${d.org_name}</strong>.</p><p>Processing time: 3–5 business days.</p>`) };
     case 'payout_approved':
@@ -91,28 +189,79 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
       return { subject: `Payout Rejected – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ Payout Rejected</h1><p>Your payout request for <strong>${d.org_name}</strong> was rejected.</p><p>Reason: ${d.reason || 'Please contact support.'}</p>`) };
     case 'payouts_frozen':
       return { subject: `⚠️ Payouts Frozen – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">🧊 Payouts Frozen</h1><p>Payouts for <strong>${d.org_name}</strong> have been temporarily frozen.</p><p>Reason: ${d.reason || 'Under review.'}</p>${d.until ? `<p>Frozen until: ${d.until}</p>` : ''}<p>Contact <a href="mailto:support@siteviral.com" style="color:${blue}">support@siteviral.com</a>.</p>`) };
+
+    // ═══ AFFILIATES ═══
     case 'affiliate_sale':
       return { subject: `🎉 Commission Earned – ${d.commission} ${d.currency}`, html: wrap(`<h1 style="color:${green}">🎉 Commission Earned</h1><p>You earned <strong>${d.commission} ${d.currency}</strong> from a ${d.transaction_type || 'sale'} on <strong>${d.org_name}</strong>.</p><p>Gross: ${d.gross_amount} ${d.currency} · Rate: ${d.commission_percent}%</p><p>Payable after 72h hold.</p>`) };
     case 'affiliate_payout_requested':
       return { subject: `💸 Affiliate Payout Requested`, html: wrap(`<h1 style="color:${blue}">💸 Affiliate Payout Requested</h1><p>Your affiliate payout of <strong>${d.amount} ${d.currency}</strong> from <strong>${d.org_name}</strong> has been submitted.</p><p>Processing time: 3–5 business days.</p>`) };
     case 'affiliate_payout_completed':
       return { subject: `✅ Affiliate Payout Sent – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${green}">✅ Payout Sent</h1><p>Your affiliate payout of <strong>${d.amount} ${d.currency}</strong> from <strong>${d.org_name}</strong> has been sent to your bank account.</p>`) };
+    case 'affiliate_welcome':
+      return { subject: `🤝 Welcome, Affiliate! – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🤝 Affiliate Link Created</h1><p>You created your first affiliate link for <strong>${d.org_name}</strong>.</p><p>Share your link and earn <strong>${d.commission_percent}%</strong> on every sale!</p><p>Your code: <code>${d.code}</code></p>`) };
+    case 'affiliate_first_click':
+      return { subject: `👆 First click on your affiliate link!`, html: wrap(`<h1 style="color:${blue}">👆 First Click!</h1><p>Someone clicked your affiliate link for <strong>${d.org_name}</strong>.</p><p>Keep sharing to get more conversions!</p>`) };
+    case 'affiliate_first_conversion':
+      return { subject: `🎯 First conversion! – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">🎯 First Conversion!</h1><p>Your first referral just converted on <strong>${d.org_name}</strong>!</p><p>Commission: <strong>${d.commission} ${d.currency}</strong></p>`) };
+    case 'affiliate_commission_payable':
+      return { subject: `💰 Commission now payable – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${green}">💰 Commission Payable</h1><p>Your commission of <strong>${d.amount} ${d.currency}</strong> from <strong>${d.org_name}</strong> has cleared the 72h hold and is now payable.</p>${cta('https://siteviral.com/dashboard', 'Request Payout')}`) };
+    case 'affiliate_monthly_recap':
+      return { subject: `📊 Affiliate Monthly Recap`, html: wrap(`<h1 style="color:${blue}">📊 Monthly Affiliate Recap</h1><p>Here's your affiliate summary for <strong>${d.month}</strong>:</p><ul style="color:#ccc"><li>Clicks: ${d.clicks || 0}</li><li>Conversions: ${d.conversions || 0}</li><li>Earnings: ${d.earnings || 0} ${d.currency || 'XOF'}</li></ul>`) };
+
+    // ═══ DIRECTORY ═══
     case 'directory_approved':
       return { subject: `🌟 Directory Approved – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">🌟 Directory Listing Approved</h1><p>Your organization <strong>${d.org_name}</strong> has been approved for the Siteviral directory.</p>`) };
     case 'directory_rejected':
       return { subject: `Directory Application Update – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ Directory Application Declined</h1><p>Your directory application for <strong>${d.org_name}</strong> was not approved.</p><p>Reason: ${d.reason || 'Does not meet listing criteria.'}</p>`) };
+
+    // ═══ SUPPORT ═══
     case 'ticket_created':
       return { subject: `🎫 Support Ticket #${d.ticket_id || ''} Created`, html: wrap(`<h1 style="color:${blue}">🎫 Ticket Created</h1><p>Your support ticket has been created.</p><p><strong>Subject:</strong> ${d.subject}</p><p><strong>Category:</strong> ${d.category}</p><p>Our team will respond within 24–48 hours.</p>`) };
     case 'ticket_replied':
-      return { subject: `💬 Reply to Ticket #${d.ticket_id || ''}`, html: wrap(`<h1 style="color:${info}">💬 New Reply</h1><p>A support agent has replied to your ticket:</p><div style="background:#222;border-radius:8px;padding:16px;margin:12px 0;border-left:3px solid ${blue}">${d.reply_preview || 'View the full reply in your Support Center.'}</div><p><a href="https://siteviral.com/support" style="color:${blue}">View Ticket →</a></p>`) };
+      return { subject: `💬 Reply to Ticket #${d.ticket_id || ''}`, html: wrap(`<h1 style="color:${info}">💬 New Reply</h1><p>A support agent has replied to your ticket:</p><div style="background:#222;border-radius:8px;padding:16px;margin:12px 0;border-left:3px solid ${blue}">${d.reply_preview || 'View the full reply in your Support Center.'}</div>${cta('https://siteviral.com/support', 'View Ticket →')}`) };
     case 'ticket_resolved':
-      return { subject: `✅ Ticket Resolved #${d.ticket_id || ''}`, html: wrap(`<h1 style="color:${green}">✅ Ticket Resolved</h1><p>Your support ticket <strong>${d.subject}</strong> has been marked as resolved.</p><p><a href="https://siteviral.com/support" style="color:${blue}">Support Center</a></p>`) };
+      return { subject: `✅ Ticket Resolved #${d.ticket_id || ''}`, html: wrap(`<h1 style="color:${green}">✅ Ticket Resolved</h1><p>Your support ticket <strong>${d.subject}</strong> has been marked as resolved.</p>`) };
+
+    // ═══ REFUNDS ═══
     case 'refund_initiated':
       return { subject: `🔄 Refund Request Received – ${d.reference || ''}`, html: wrap(`<h1 style="color:${info}">🔄 Refund Request Received</h1><p>We received your refund request for <strong>${d.amount} ${d.currency}</strong>.</p><p>Product/Donation: ${d.item_name || 'N/A'}</p><p>Reference: <code>${d.reference}</code></p><p>Review within 3–5 business days.</p>`) };
     case 'refund_completed':
       return { subject: `✅ Refund Processed – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${green}">✅ Refund Processed</h1><p>Your refund of <strong>${d.amount} ${d.currency}</strong> has been processed.</p><p>Reference: <code>${d.reference}</code></p><p>Funds should appear within 5–10 business days.</p>`) };
+
+    // ═══ CONTENT & SOCIAL ═══
     case 'content_report_resolved':
       return { subject: `Content Report Update`, html: wrap(`<h1 style="color:${info}">📋 Report Update</h1><p>Your content report has been reviewed and resolved.</p><p>Content type: ${d.content_type}</p><p>Action taken: ${d.action_taken || 'Reviewed and addressed.'}</p>`) };
+    case 'content_liked':
+      return { subject: `❤️ Someone liked your content`, html: wrap(`<h1 style="color:${red}">❤️ New Like</h1><p><strong>${d.liker_name || 'Someone'}</strong> liked your ${d.content_type || 'content'}: <strong>"${d.content_title}"</strong>.</p>`) };
+    case 'content_saved':
+      return { subject: `🔖 Someone saved your content`, html: wrap(`<h1 style="color:${blue}">🔖 Content Saved</h1><p><strong>${d.saver_name || 'Someone'}</strong> saved your ${d.content_type || 'content'}: <strong>"${d.content_title}"</strong>.</p>`) };
+    case 'new_event_published':
+      return { subject: `📅 New Event – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📅 New Event</h1><p><strong>${d.org_name}</strong> published a new event: <strong>"${d.event_title}"</strong>.</p>${d.event_date ? `<p>Date: ${d.event_date}</p>` : ''}${cta(String(d.event_link || '#'), 'View Event')}`) };
+    case 'new_announcement_published':
+      return { subject: `📢 New Announcement – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📢 New Announcement</h1><p><strong>${d.org_name}</strong> posted: <strong>"${d.announcement_title}"</strong>.</p>${cta(String(d.org_link || '#'), 'Read More')}`) };
+    case 'new_media_published':
+      return { subject: `🎬 New Content – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🎬 New Content</h1><p><strong>${d.org_name}</strong> published: <strong>"${d.media_title}"</strong>.</p>${cta(String(d.media_link || '#'), 'Watch Now')}`) };
+    case 'new_product_published':
+      return { subject: `🛍 New Product – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🛍 New Product</h1><p><strong>${d.org_name}</strong> released a new product: <strong>"${d.product_name}"</strong>.</p>${d.price ? `<p>Price: ${d.price} ${d.currency || 'XOF'}</p>` : '<p>Free!</p>'}${cta(String(d.product_link || '#'), 'View Product')}`) };
+    case 'new_campaign_published':
+      return { subject: `🎯 New Campaign – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🎯 New Campaign</h1><p><strong>${d.org_name}</strong> launched: <strong>"${d.campaign_name}"</strong>.</p>${d.goal_amount ? `<p>Goal: ${d.goal_amount} ${d.currency || 'XOF'}</p>` : ''}${cta(String(d.campaign_link || '#'), 'Donate Now')}`) };
+    case 'new_program_published':
+      return { subject: `🎓 New Program – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🎓 New Program</h1><p><strong>${d.org_name}</strong> launched: <strong>"${d.program_name}"</strong>.</p>${cta(String(d.program_link || '#'), 'Enroll Now')}`) };
+
+    // ═══ RECAPS ═══
+    case 'weekly_recap_user':
+      return { subject: `📬 Your Weekly Recap – Siteviral`, html: wrap(`<h1 style="color:${blue}">📬 Weekly Recap</h1><p>Hi ${d.name || 'there'}, here's your week in review:</p><ul style="color:#ccc"><li>New content: ${d.new_content || 0}</li><li>Events coming up: ${d.upcoming_events || 0}</li><li>Notifications: ${d.unread_notifications || 0}</li></ul>${cta('https://siteviral.com/feed', 'See What\'s New')}`) };
+    case 'daily_recap_admin':
+      return { subject: `📊 Daily Report – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📊 Daily Report</h1><p><strong>${d.org_name}</strong> – ${d.date}</p><ul style="color:#ccc"><li>Revenue: ${d.revenue || 0} ${d.currency || 'XOF'}</li><li>New members: ${d.new_members || 0}</li><li>Transactions: ${d.transactions || 0}</li><li>Page views: ${d.page_views || 0}</li></ul>`) };
+    case 'daily_recap_superadmin':
+      return { subject: `🔷 Platform Daily Report – Siteviral`, html: wrap(`<h1 style="color:${blue}">🔷 Platform Report – ${d.date}</h1><ul style="color:#ccc"><li>GMV: ${d.gmv || 0} XOF</li><li>Platform fees: ${d.platform_fees || 0} XOF</li><li>New users: ${d.new_users || 0}</li><li>New orgs: ${d.new_orgs || 0}</li><li>Total transactions: ${d.total_transactions || 0}</li></ul>`) };
+
+    // ═══ SUPERADMIN ALERTS ═══
+    case 'fraud_alert':
+      return { subject: `🚨 Fraud Alert – ${d.org_name || 'Platform'}`, html: wrap(`<h1 style="color:${red}">🚨 Fraud Alert</h1><p>Suspicious activity detected:</p><p><strong>Type:</strong> ${d.reason}</p><p><strong>Organization:</strong> ${d.org_name || 'N/A'}</p><p><strong>User:</strong> ${d.user_email || 'N/A'}</p>${cta('https://siteviral.com/superadmin/risk', 'Review Now')}`) };
+    case 'new_org_alert':
+      return { subject: `🏢 New Organization Created – ${d.org_name}`, html: wrap(`<h1 style="color:${info}">🏢 New Organization</h1><p>A new organization has been created:</p><p><strong>Name:</strong> ${d.org_name}</p><p><strong>Category:</strong> ${d.category || 'N/A'}</p><p><strong>Owner:</strong> ${d.owner_email || 'N/A'}</p>${cta('https://siteviral.com/superadmin/directory', 'Review')}`) };
+
     default:
       throw new Error(`Unknown template: ${template}`);
   }
@@ -183,7 +332,6 @@ Deno.serve(async (req) => {
       lastResult = result;
       if (!res.ok) allOk = false;
 
-      // Log each email
       await supabaseAdmin.from('email_logs').insert({
         template,
         recipient,
