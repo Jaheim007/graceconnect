@@ -4,16 +4,14 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { supabase } from '@/integrations/supabase/client';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Trash2, GripVertical, Plus, Image as ImageIcon, Eye, EyeOff } from 'lucide-react';
+import { Trash2, Plus, Eye, EyeOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
 
 interface OrgPhoto {
@@ -47,6 +45,7 @@ export default function AdminPhotos() {
   const { currentOrg } = useOrg();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useI18n();
   const qc = useQueryClient();
   const { data: photos = [], isLoading } = useOrgPhotos(currentOrg?.id);
   const [newImageUrl, setNewImageUrl] = useState('');
@@ -68,9 +67,9 @@ export default function AdminPhotos() {
       setNewImageUrl('');
       setNewCaption('');
       qc.invalidateQueries({ queryKey: ['org-photos', currentOrg.id] });
-      toast({ title: 'Photo added!' });
+      toast({ title: t('admin_photos.added') });
     } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+      toast({ title: t('common.error'), description: err.message, variant: 'destructive' });
     } finally {
       setAdding(false);
     }
@@ -83,7 +82,7 @@ export default function AdminPhotos() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['org-photos', currentOrg?.id] });
-      toast({ title: 'Photo deleted' });
+      toast({ title: t('admin_photos.deleted') });
     },
   });
 
@@ -97,50 +96,33 @@ export default function AdminPhotos() {
     },
   });
 
-  const updateCaption = useMutation({
-    mutationFn: async ({ id, caption }: { id: string; caption: string }) => {
-      const { error } = await db.from('org_photos').update({ caption: caption || null }).eq('id', id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['org-photos', currentOrg?.id] });
-    },
-  });
-
   return (
-    <AdminPageShell title="Photos" backRoute="/admin">
+    <AdminPageShell title={t('admin_photos.title')} backRoute="/admin">
       {/* Add new photo */}
       <div className="bg-card border border-border rounded-2xl p-5 space-y-4 mb-6">
         <h2 className="font-semibold text-sm flex items-center gap-2">
-          <Plus className="h-4 w-4 text-primary" /> Ajouter une photo
+          <Plus className="h-4 w-4 text-primary" /> {t('admin_photos.add')}
         </h2>
-         <p className="text-xs text-muted-foreground">
-           Téléchargez des photos de votre communauté, événements ou activités. Nous les optimiserons automatiquement.
-         </p>
-         <ImageUploader
-           value={newImageUrl}
-           onChange={setNewImageUrl}
-           folder={`photos/${currentOrg?.id}`}
-           label="Photo"
-           hint="Any size · JPG/PNG/WEBP · Max 10MB"
-           aspectRatio="free"
-           disableCrop
-         />
+        <p className="text-xs text-muted-foreground">{t('admin_photos.add_desc')}</p>
+        <ImageUploader
+          value={newImageUrl}
+          onChange={setNewImageUrl}
+          folder={`photos/${currentOrg?.id}`}
+          label="Photo"
+          hint="Any size · JPG/PNG/WEBP · Max 10MB"
+          aspectRatio="free"
+          disableCrop
+        />
         {newImageUrl && (
           <div className="space-y-2">
             <Input
-              placeholder="Légende (optionnel)"
+              placeholder={t('admin_photos.caption')}
               value={newCaption}
               onChange={(e) => setNewCaption(e.target.value)}
               className="text-sm"
             />
-            <Button
-              onClick={addPhoto}
-              disabled={adding}
-              className="bg-primary text-primary-foreground"
-              size="sm"
-            >
-              {adding ? 'Ajout en cours…' : 'Ajouter la photo'}
+            <Button onClick={addPhoto} disabled={adding} className="bg-primary text-primary-foreground" size="sm">
+              {adding ? t('admin_photos.adding') : t('admin_photos.add_photo')}
             </Button>
           </div>
         )}
@@ -150,14 +132,10 @@ export default function AdminPhotos() {
       {isLoading ? (
         <SkeletonList count={4} />
       ) : photos.length === 0 ? (
-        <EmptyState
-          variant="generic"
-          title="Aucune photo"
-          description="Téléchargez des photos pour présenter votre communauté sur votre page publique."
-        />
+        <EmptyState variant="generic" title={t('admin_photos.no_photos')} description={t('admin_photos.no_photos_desc')} />
       ) : (
         <div className="space-y-3">
-          <p className="text-xs text-muted-foreground">{photos.length} photo{photos.length > 1 ? 's' : ''}</p>
+          <p className="text-xs text-muted-foreground">{photos.length} {photos.length > 1 ? t('admin_photos.count_plural') : t('admin_photos.count')}</p>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {photos.map((photo) => (
               <div
@@ -168,48 +146,31 @@ export default function AdminPhotos() {
                 )}
               >
                 <div className="overflow-hidden">
-                  <img
-                    src={photo.image_url}
-                    alt={photo.caption || 'Photo'}
-                    className="w-full h-auto object-contain max-h-64"
-                  />
+                  <img src={photo.image_url} alt={photo.caption || 'Photo'} className="w-full h-auto object-contain max-h-64" />
                 </div>
 
-                {/* Overlay actions */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="absolute bottom-0 left-0 right-0 p-2 flex items-end justify-between">
                     <div className="flex-1 min-w-0">
-                      {photo.caption && (
-                        <p className="text-[10px] text-white/90 truncate">{photo.caption}</p>
-                      )}
+                      {photo.caption && <p className="text-[10px] text-white/90 truncate">{photo.caption}</p>}
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-white hover:bg-white/20"
-                        onClick={() => togglePublished.mutate({ id: photo.id, is_published: !photo.is_published })}
-                        title={photo.is_published ? 'Hide' : 'Show'}
-                      >
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:bg-white/20"
+                        onClick={() => togglePublished.mutate({ id: photo.id, is_published: !photo.is_published })}>
                         {photo.is_published ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-white hover:bg-destructive/80"
-                        onClick={() => deletePhoto.mutate(photo.id)}
-                      >
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-white hover:bg-destructive/80"
+                        onClick={() => deletePhoto.mutate(photo.id)}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   </div>
                 </div>
 
-                {/* Status badge */}
                 {!photo.is_published && (
                   <div className="absolute top-2 left-2">
                     <span className="text-[10px] bg-muted/90 text-muted-foreground px-1.5 py-0.5 rounded-md font-medium">
-                      Draft
+                      {t('admin_photos.count') === 'photo' ? 'Draft' : 'Brouillon'}
                     </span>
                   </div>
                 )}

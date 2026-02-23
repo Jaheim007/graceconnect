@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useToast } from '@/hooks/use-toast';
+import { useI18n } from '@/i18n/I18nContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -25,6 +26,7 @@ export default function AdminPrograms() {
   const { currentOrg } = useOrg();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useI18n();
   const qc = useQueryClient();
   const orgId = currentOrg?.id;
 
@@ -47,7 +49,7 @@ export default function AdminPrograms() {
 
   const createProgram = useMutation({
     mutationFn: async () => {
-      if (!orgId || !title.trim()) throw new Error('Titre requis');
+      if (!orgId || !title.trim()) throw new Error(t('admin_programs.title_label'));
       const { error } = await db.from('programs').insert({
         organization_id: orgId,
         created_by: user?.id,
@@ -60,11 +62,11 @@ export default function AdminPrograms() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast({ title: '✅ Programme créé' });
+      toast({ title: `✅ ${t('admin_programs.created')}` });
       setTitle(''); setDescription(''); setPrice('0'); setIsFree(true); setShowCreate(false);
       qc.invalidateQueries({ queryKey: ['admin-programs', orgId] });
     },
-    onError: (e: any) => toast({ title: 'Erreur', description: e.message, variant: 'destructive' }),
+    onError: (e: any) => toast({ title: t('common.error'), description: e.message, variant: 'destructive' }),
   });
 
   const togglePublish = useMutation({
@@ -73,7 +75,7 @@ export default function AdminPrograms() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast({ title: 'Statut mis à jour' });
+      toast({ title: t('admin_programs.status_updated') });
       qc.invalidateQueries({ queryKey: ['admin-programs', orgId] });
     },
   });
@@ -84,41 +86,41 @@ export default function AdminPrograms() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast({ title: 'Programme supprimé' });
+      toast({ title: t('admin_programs.deleted') });
       qc.invalidateQueries({ queryKey: ['admin-programs', orgId] });
     },
   });
 
   return (
-    <AdminPageShell title="Programmes de formation" subtitle="Créez des parcours structurés pour votre communauté" backRoute="/admin"
-      newLabel="Nouveau programme" newRoute={undefined}>
+    <AdminPageShell title={t('admin_programs.title')} subtitle={t('admin_programs.subtitle')} backRoute="/admin"
+      newLabel={t('admin_programs.new')} newRoute={undefined}>
       <div className="space-y-4">
         <Button size="sm" className="gap-1.5 text-xs bg-primary text-primary-foreground"
           onClick={() => setShowCreate(true)}>
-          <Plus className="h-3.5 w-3.5" /> Nouveau programme
+          <Plus className="h-3.5 w-3.5" /> {t('admin_programs.new')}
         </Button>
 
         {showCreate && (
           <motion.div variants={fadeUp} initial="hidden" animate="visible"
             className="bg-card border border-border rounded-2xl p-5 space-y-4">
             <h3 className="font-semibold text-sm flex items-center gap-2">
-              <GraduationCap className="h-4 w-4 text-primary" /> Créer un programme
+              <GraduationCap className="h-4 w-4 text-primary" /> {t('admin_programs.create')}
             </h3>
             <div className="grid gap-3">
               <div className="space-y-1">
-                <Label className="text-xs">Titre *</Label>
-                <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Ex: Formation Leadership" className="h-8 text-xs" />
+                <Label className="text-xs">{t('admin_programs.title_label')}</Label>
+                <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={t('admin_programs.title_placeholder')} className="h-8 text-xs" />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Description</Label>
+                <Label className="text-xs">{t('admin_programs.description')}</Label>
                 <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3}
-                  placeholder="Décrivez le contenu du programme..."
+                  placeholder={t('admin_programs.describe')}
                   className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-ring" />
               </div>
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2">
                   <Switch checked={isFree} onCheckedChange={setIsFree} />
-                  <Label className="text-xs">Gratuit</Label>
+                  <Label className="text-xs">{t('admin_programs.free')}</Label>
                 </div>
                 {!isFree && (
                   <div className="flex items-center gap-2">
@@ -130,17 +132,17 @@ export default function AdminPrograms() {
             </div>
             <div className="flex gap-2">
               <Button size="sm" className="text-xs" onClick={() => createProgram.mutate()} disabled={createProgram.isPending}>
-                {createProgram.isPending ? 'Création...' : 'Créer le programme'}
+                {createProgram.isPending ? t('admin_programs.creating') : t('admin_programs.create_btn')}
               </Button>
-              <Button size="sm" variant="ghost" className="text-xs" onClick={() => setShowCreate(false)}>Annuler</Button>
+              <Button size="sm" variant="ghost" className="text-xs" onClick={() => setShowCreate(false)}>{t('admin_programs.cancel')}</Button>
             </div>
           </motion.div>
         )}
 
         {isLoading ? <SkeletonRow /> : programs.length === 0 && !showCreate ? (
-          <EmptyState variant="generic" title="Aucun programme"
-            description="Créez des programmes de formation structurés avec modules et leçons."
-            action={{ label: 'Créer un programme', onClick: () => setShowCreate(true) }} />
+          <EmptyState variant="generic" title={t('admin_programs.no_programs')}
+            description={t('admin_programs.no_programs_desc')}
+            action={{ label: t('admin_programs.create'), onClick: () => setShowCreate(true) }} />
         ) : (
           <div className="space-y-2">
             {programs.map((p: any) => (
@@ -152,13 +154,13 @@ export default function AdminPrograms() {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{p.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {p.is_free ? 'Gratuit' : `${p.price?.toLocaleString('fr-FR')} ${p.currency}`}
-                    {' · '}{p.enrollment_count || 0} inscrits
+                    {p.is_free ? t('admin_programs.free') : `${p.price?.toLocaleString()} ${p.currency}`}
+                    {' · '}{p.enrollment_count || 0} {t('admin_programs.enrolled')}
                   </p>
                 </div>
                 <Badge variant="outline" className={cn('text-[10px] border-0 shrink-0',
                   p.is_published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}>
-                  {p.is_published ? 'Publié' : 'Brouillon'}
+                  {p.is_published ? t('admin_programs.published') : t('admin_programs.draft')}
                 </Badge>
                 <div className="flex gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
                   <Button variant="ghost" size="icon" className="h-8 w-8"
