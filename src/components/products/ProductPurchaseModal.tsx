@@ -64,6 +64,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const [promo, setPromo] = useState<PromoState>({
     code: '', validating: false, applied: false, discountPercent: 0, error: '',
   });
+  const [promoOpen, setPromoOpen] = useState(false);
 
   if (!product) return null;
 
@@ -106,7 +107,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
     }
   };
 
-  const clearPromo = () => setPromo({ code: '', validating: false, applied: false, discountPercent: 0, error: '' });
+  const clearPromo = () => { setPromo({ code: '', validating: false, applied: false, discountPercent: 0, error: '' }); setPromoOpen(false); };
 
   const validateBuyerInfo = (): boolean => {
     const errors: Partial<BuyerInfo> = {};
@@ -231,10 +232,26 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                 </span>
               </div>
 
-              {/* Promo code input */}
+              {/* Promo code - collapsible, hidden by default */}
               {!product.is_free && !product.external_link && (
                 <div className="space-y-2">
-                  {!promo.applied ? (
+                  {promo.applied ? (
+                    <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-green-600 dark:text-green-400">Code {promo.code} appliqué — {promo.discountPercent}% de réduction</p>
+                      </div>
+                      <button onClick={clearPromo}><X className="h-3.5 w-3.5 text-muted-foreground" /></button>
+                    </div>
+                  ) : !promoOpen ? (
+                    <button
+                      type="button"
+                      onClick={() => setPromoOpen(true)}
+                      className="text-xs text-muted-foreground underline hover:text-foreground flex items-center gap-1"
+                    >
+                      <Tag className="h-3 w-3" /> J'ai un code promo
+                    </button>
+                  ) : (
                     <div className="space-y-1.5">
                       <Label className="text-xs flex items-center gap-1"><Tag className="h-3 w-3" /> Code promo</Label>
                       <div className="flex gap-2">
@@ -250,29 +267,20 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                       </div>
                       {promo.error && <p className="text-xs text-destructive">{promo.error}</p>}
                     </div>
-                  ) : (
-                    <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-green-600 dark:text-green-400">Code {promo.code} appliqué — {promo.discountPercent}% de réduction</p>
-                      </div>
-                      <button onClick={clearPromo}><X className="h-3.5 w-3.5 text-muted-foreground" /></button>
-                    </div>
                   )}
 
-                  <div className="rounded-lg bg-muted/50 p-3 text-sm space-y-1">
-                    <p className="text-muted-foreground text-xs">Récapitulatif :</p>
-                    <div className="flex justify-between"><span>Prix</span><span>{fmt(product.price)}</span></div>
-                    {promo.applied && (
+                  {promo.applied && (
+                    <div className="rounded-lg bg-muted/50 p-3 text-sm space-y-1">
+                      <div className="flex justify-between"><span>Prix</span><span>{fmt(product.price)}</span></div>
                       <div className="flex justify-between text-green-600 dark:text-green-400">
                         <span>Réduction (-{promo.discountPercent}%)</span>
                         <span>-{fmt(discountAmount)}</span>
                       </div>
-                    )}
-                    <div className="flex justify-between font-semibold border-t border-border pt-1 mt-1">
-                      <span>Total</span><span className="text-primary">{fmt(finalPrice)}</span>
+                      <div className="flex justify-between font-semibold border-t border-border pt-1 mt-1">
+                        <span>Total</span><span className="text-primary">{fmt(finalPrice)}</span>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               )}
 
