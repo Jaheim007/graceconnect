@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, AlertCircle, Loader2, CheckCircle, ArrowLeft } from 'lucide-react';
+import { Mail, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -119,12 +119,13 @@ export default function AuthPage() {
                 <motion.div key="otp" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="space-y-5">
                   <div className="text-center space-y-2">
                     <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
-                      <CheckCircle className="h-7 w-7 text-primary" />
+                      <Mail className="h-7 w-7 text-primary" />
                     </div>
-                    <h3 className="font-semibold text-base">{t('auth.check_email')}</h3>
+                    <h3 className="font-semibold text-base">Vérifiez votre email</h3>
                     <p className="text-sm text-muted-foreground">
-                      Entrez le code envoyé à <strong className="text-foreground">{email}</strong>
+                      Un code à 8 chiffres a été envoyé à<br /><strong className="text-foreground">{email}</strong>
                     </p>
+                    <p className="text-xs text-muted-foreground">Entrez le code ci-dessous pour vous connecter</p>
                   </div>
 
                   <div className="flex justify-center">
@@ -151,7 +152,7 @@ export default function AuthPage() {
                   </Button>
 
                   <div className="flex flex-col items-center gap-2">
-                    <p className="text-xs text-muted-foreground">{t('auth.check_spam')}</p>
+                    <p className="text-xs text-muted-foreground">Vérifiez vos spams si vous ne voyez pas l'email</p>
                     <div className="flex gap-3">
                       <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => { setMethod('magic-link'); setError(''); setOtpCode(''); }}>
                         <ArrowLeft className="h-3 w-3" /> Changer d'email
