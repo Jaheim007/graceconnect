@@ -1,15 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Shield } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useI18n } from '@/i18n/I18nContext';
+import { I18nContext } from '@/i18n/I18nContext';
 
 const CONSENT_KEY = 'sv_gdpr_consent';
 
 export function GDPRBanner() {
   const [visible, setVisible] = useState(false);
-  const { t } = useI18n();
+  const i18n = useContext(I18nContext);
+  const t = i18n?.t ?? ((key: string) => key);
 
   useEffect(() => {
     const consent = localStorage.getItem(CONSENT_KEY);
