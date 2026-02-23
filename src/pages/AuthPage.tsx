@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, AlertCircle, Loader2, CheckCircle } from 'lucide-react';
+import { Mail, AlertCircle, Loader2, CheckCircle, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
@@ -12,13 +13,14 @@ import authBg from '@/assets/auth-bg.jpg';
 
 export default function AuthPage() {
   const [searchParams] = useSearchParams();
-  const [method, setMethod] = useState<'choose' | 'magic-link'>('choose');
+  const [method, setMethod] = useState<'choose' | 'magic-link' | 'otp-verify'>('choose');
   const [email, setEmail] = useState('');
-  const [magicLinkSent, setMagicLinkSent] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
   const [sending, setSending] = useState(false);
+  const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { signInWithGoogle, signInWithMagicLink, user } = useAuth();
+  const { signInWithGoogle, signInWithMagicLink, verifyOtp, user } = useAuth();
   const { userOrgs } = useOrg();
   const { t } = useI18n();
 
@@ -45,7 +47,7 @@ export default function AuthPage() {
     if (err) { setError(err.message); setGoogleLoading(false); }
   };
 
-  const handleMagicLink = async (e: React.FormEvent) => {
+  const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
     setError('');
@@ -53,7 +55,19 @@ export default function AuthPage() {
     const { error: err } = await signInWithMagicLink(email, returnTo || undefined);
     setSending(false);
     if (err) setError(err.message);
-    else setMagicLinkSent(true);
+    else {
+      setMethod('otp-verify');
+      setOtpCode('');
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (otpCode.length < 6) return;
+    setError('');
+    setVerifying(true);
+    const { error: err } = await verifyOtp(email, otpCode);
+    setVerifying(false);
+    if (err) setError(err.message);
   };
 
   return (
@@ -101,15 +115,58 @@ export default function AuthPage() {
             </AnimatePresence>
 
             <AnimatePresence mode="wait">
-              {magicLinkSent ? (
-                <motion.div key="sent" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="text-center space-y-4 py-4">
-                  <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto"><CheckCircle className="h-8 w-8 text-primary" /></div>
-                  <div className="space-y-1">
-                    <h3 className="font-semibold">{t('auth.check_email')}</h3>
-                    <p className="text-sm text-muted-foreground">{t('auth.link_sent_to')} <strong className="text-foreground">{email}</strong></p>
+              {method === 'otp-verify' ? (
+                <motion.div key="otp" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="space-y-5">
+                  <div className="text-center space-y-2">
+                    <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
+                      <CheckCircle className="h-7 w-7 text-primary" />
+                    </div>
+                    <h3 className="font-semibold text-base">{t('auth.check_email')}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Entrez le code envoyé à <strong className="text-foreground">{email}</strong>
+                    </p>
                   </div>
-                  <p className="text-xs text-muted-foreground">{t('auth.check_spam')}</p>
-                  <Button variant="ghost" size="sm" className="text-xs" onClick={() => { setMagicLinkSent(false); setMethod('choose'); }}>{t('auth.back')}</Button>
+
+                  <div className="flex justify-center">
+                    <InputOTP maxLength={8} value={otpCode} onChange={setOtpCode} onComplete={handleVerifyOtp}>
+                      <InputOTPGroup>
+                        <InputOTPSlot index={0} />
+                        <InputOTPSlot index={1} />
+                        <InputOTPSlot index={2} />
+                        <InputOTPSlot index={3} />
+                        <InputOTPSlot index={4} />
+                        <InputOTPSlot index={5} />
+                        <InputOTPSlot index={6} />
+                        <InputOTPSlot index={7} />
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+
+                  <Button
+                    className="w-full h-11 bg-primary text-primary-foreground"
+                    disabled={verifying || otpCode.length < 6}
+                    onClick={handleVerifyOtp}
+                  >
+                    {verifying ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Vérification...</> : 'Vérifier le code'}
+                  </Button>
+
+                  <div className="flex flex-col items-center gap-2">
+                    <p className="text-xs text-muted-foreground">{t('auth.check_spam')}</p>
+                    <div className="flex gap-3">
+                      <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => { setMethod('magic-link'); setError(''); setOtpCode(''); }}>
+                        <ArrowLeft className="h-3 w-3" /> Changer d'email
+                      </Button>
+                      <Button variant="ghost" size="sm" className="text-xs" onClick={async () => {
+                        setError('');
+                        setSending(true);
+                        const { error: err } = await signInWithMagicLink(email, returnTo || undefined);
+                        setSending(false);
+                        if (err) setError(err.message);
+                      }} disabled={sending}>
+                        {sending ? 'Envoi...' : 'Renvoyer le code'}
+                      </Button>
+                    </div>
+                  </div>
                 </motion.div>
               ) : method === 'choose' ? (
                 <motion.div key="choose" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }} className="space-y-3">
@@ -133,7 +190,7 @@ export default function AuthPage() {
                   <p className="text-[11px] text-center text-muted-foreground pt-2">{t('auth.no_password')}</p>
                 </motion.div>
               ) : (
-                <motion.form key="magic" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} onSubmit={handleMagicLink} className="space-y-4">
+                <motion.form key="magic" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }} onSubmit={handleSendOtp} className="space-y-4">
                   <div>
                     <Label htmlFor="magic-email">{t('auth.your_email')}</Label>
                     <div className="relative mt-1.5">
@@ -142,7 +199,7 @@ export default function AuthPage() {
                     </div>
                   </div>
                   <Button type="submit" className="w-full h-11 bg-primary text-primary-foreground" disabled={sending || !email}>
-                    {sending ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> {t('auth.sending')}</> : t('auth.send_magic_link')}
+                    {sending ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> {t('auth.sending')}</> : 'Envoyer le code'}
                   </Button>
                   <Button type="button" variant="ghost" size="sm" className="w-full text-xs text-muted-foreground" onClick={() => setMethod('choose')}>{t('auth.back_options')}</Button>
                 </motion.form>
