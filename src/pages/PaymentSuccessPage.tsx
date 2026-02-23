@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   CheckCircle, Download, BookOpen, ArrowRight, ShieldCheck,
@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { db } from '@/lib/db';
-import { callFn } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface TransactionDetails {
@@ -128,18 +127,15 @@ export default function PaymentSuccessPage() {
   const fmtDate = (d: string) =>
     new Date(d).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
+  const [downloading, setDownloading] = useState(false);
+  const [reading, setReading] = useState(false);
+
   const handleDownload = async () => {
     if (!tx?.product_id || !tx?.file_url) return;
+    setDownloading(true);
     try {
-      const res = await callFn('watermark-download', {
-        file_url: tx.file_url,
-        product_id: tx.product_id,
-        product_title: tx.product_title || 'Document',
-      });
-      // If callFn returns blob-like data, we handle it — but since our edge fn returns binary,
-      // we need to call it directly
       const { data: { session } } = await db.auth.getSession();
-      const url = `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1/watermark-download`;
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/watermark-download`;
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -152,7 +148,10 @@ export default function PaymentSuccessPage() {
           product_title: tx.product_title || 'Document',
         }),
       });
-      if (!response.ok) throw new Error('Download failed');
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || 'Download failed');
+      }
       const blob = await response.blob();
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
@@ -161,14 +160,18 @@ export default function PaymentSuccessPage() {
       URL.revokeObjectURL(a.href);
     } catch (err) {
       console.error('[PaymentSuccess] download error:', err);
+      alert('Erreur lors du téléchargement. Veuillez réessayer depuis "Mes Ressources".');
+    } finally {
+      setDownloading(false);
     }
   };
 
   const handleRead = async () => {
     if (!tx?.product_id || !tx?.file_url) return;
+    setReading(true);
     try {
       const { data: { session } } = await db.auth.getSession();
-      const url = `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1/watermark-download`;
+      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/watermark-download`;
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -182,12 +185,18 @@ export default function PaymentSuccessPage() {
           inline: true,
         }),
       });
-      if (!response.ok) throw new Error('Read failed');
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || 'Read failed');
+      }
       const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
+      const blobUrl = URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
       window.open(blobUrl, '_blank');
     } catch (err) {
       console.error('[PaymentSuccess] read error:', err);
+      alert('Erreur lors de l\'ouverture. Veuillez réessayer depuis "Mes Ressources".');
+    } finally {
+      setReading(false);
     }
   };
 
@@ -362,19 +371,21 @@ export default function PaymentSuccessPage() {
                 <>
                   <Button
                     onClick={handleDownload}
+                    disabled={downloading}
                     className="w-full gap-2 bg-primary text-primary-foreground"
                   >
-                    <Download className="h-4 w-4" />
-                    Télécharger
+                    {downloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+                    {downloading ? 'Téléchargement…' : 'Télécharger'}
                   </Button>
                   {isBook && (
                     <Button
                       onClick={handleRead}
+                      disabled={reading}
                       variant="outline"
                       className="w-full gap-2"
                     >
-                      <BookOpen className="h-4 w-4" />
-                      Lire maintenant
+                      {reading ? <Loader2 className="h-4 w-4 animate-spin" /> : <BookOpen className="h-4 w-4" />}
+                      {reading ? 'Ouverture…' : 'Lire maintenant'}
                     </Button>
                   )}
                 </>
