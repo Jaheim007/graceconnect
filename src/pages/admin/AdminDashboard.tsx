@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { OrgActivationChecklist } from '@/components/admin/OrgActivationChecklist';
 import { QuickStartWizard } from '@/components/onboarding/QuickStartWizard';
+import { useI18n } from '@/i18n/I18nContext';
 
 import { formatCurrency } from '@/lib/currency';
 const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
@@ -34,6 +35,7 @@ const fadeUp = {
 export default function AdminDashboard() {
   const { currentOrg } = useOrg();
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [showQuickStart, setShowQuickStart] = useState(false);
   const { data: media = [] } = useOrgMedia(currentOrg?.id, false);
   const { data: announcements = [] } = useOrgAnnouncements(currentOrg?.id, false);
@@ -84,29 +86,30 @@ export default function AdminDashboard() {
   const conversionRate = allTxns.length > 0 ? ((allTxns.length / Math.max(members.length, 1)) * 100).toFixed(1) : '0';
 
   const stats = [
-    { label: 'Médias', value: media.length, published: media.filter(m => m.is_published).length, icon: Play, to: '/admin/media', colorClass: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
-    { label: 'Annonces', value: announcements.length, published: announcements.filter(a => a.is_published).length, icon: Megaphone, to: '/admin/announcements', colorClass: 'text-primary bg-primary/10 border-primary/20' },
-    { label: 'Événements', value: events.length, published: events.filter(e => e.is_published).length, icon: CalendarDays, to: '/admin/events', colorClass: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
-    { label: 'Membres', value: members.length, published: members.length, icon: Users, to: '/admin/members', colorClass: 'text-violet-400 bg-violet-500/10 border-violet-500/20' },
-    { label: 'Campagnes', value: campaigns.length, published: campaigns.filter(c => c.is_published).length, icon: Heart, to: '/admin/campaigns', colorClass: 'text-rose-400 bg-rose-500/10 border-rose-500/20' },
-    { label: 'Produits', value: products.length, published: products.filter(p => p.is_published).length, icon: ShoppingBag, to: '/admin/products', colorClass: 'text-amber-400 bg-amber-500/10 border-amber-500/20' },
+    { label: t('admin.media'), value: media.length, published: media.filter(m => m.is_published).length, icon: Play, to: '/admin/media', colorClass: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
+    { label: t('admin.announcements'), value: announcements.length, published: announcements.filter(a => a.is_published).length, icon: Megaphone, to: '/admin/announcements', colorClass: 'text-primary bg-primary/10 border-primary/20' },
+    { label: t('admin.events'), value: events.length, published: events.filter(e => e.is_published).length, icon: CalendarDays, to: '/admin/events', colorClass: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
+    { label: t('admin.members'), value: members.length, published: members.length, icon: Users, to: '/admin/members', colorClass: 'text-violet-400 bg-violet-500/10 border-violet-500/20' },
+    { label: t('admin.campaigns'), value: campaigns.length, published: campaigns.filter(c => c.is_published).length, icon: Heart, to: '/admin/campaigns', colorClass: 'text-rose-400 bg-rose-500/10 border-rose-500/20' },
+    { label: t('admin.products'), value: products.length, published: products.filter(p => p.is_published).length, icon: ShoppingBag, to: '/admin/products', colorClass: 'text-amber-400 bg-amber-500/10 border-amber-500/20' },
   ];
 
   const quickActions = [
-    { label: 'Nouveau Média', to: '/admin/media/new', icon: Play },
-    { label: 'Nouvelle Annonce', to: '/admin/announcements/new', icon: Megaphone },
-    { label: 'Nouvel Événement', to: '/admin/events/new', icon: CalendarDays },
-    { label: 'Nouvelle Campagne', to: '/admin/campaigns/new', icon: Heart },
-    { label: 'Nouveau Produit', to: '/admin/products/new', icon: ShoppingBag },
-    { label: 'Gérer Membres', to: '/admin/members', icon: Users },
+    { label: t('admin.new_media'), to: '/admin/media/new', icon: Play },
+    { label: t('admin.new_announcement'), to: '/admin/announcements/new', icon: Megaphone },
+    { label: t('admin.new_event'), to: '/admin/events/new', icon: CalendarDays },
+    { label: t('admin.new_campaign'), to: '/admin/campaigns/new', icon: Heart },
+    { label: t('admin.new_product'), to: '/admin/products/new', icon: ShoppingBag },
+    { label: t('admin.manage_members'), to: '/admin/members', icon: Users },
   ];
 
   const orgCurrency = currentOrg?.currency;
+  const txCount = allTxns.length;
   const revenueCards = [
-    { label: 'Ventes totales', value: fmt(totalRevenue, orgCurrency), sub: `${allTxns.length} transaction${allTxns.length > 1 ? 's' : ''}`, icon: DollarSign, colorClass: 'from-primary/20 to-primary/5 border-primary/20' },
-    { label: 'Reçu par l\'org', value: fmt(totalOrgReceived, orgCurrency), sub: 'Après frais & commissions', icon: TrendingUp, colorClass: 'from-emerald-500/20 to-emerald-500/5 border-emerald-500/20' },
-    { label: 'Commissions affiliés', value: fmt(totalAffiliateCommission, orgCurrency), sub: `Taux : ${commissionRate}%`, icon: Percent, colorClass: 'from-amber-500/20 to-amber-500/5 border-amber-500/20' },
-    { label: 'Frais plateforme', value: fmt(totalPlatformFee, orgCurrency), sub: `${currentOrg?.platform_fee_percent ?? 10}%`, icon: DollarSign, colorClass: 'from-muted to-muted/50 border-border' },
+    { label: t('admin.total_sales'), value: fmt(totalRevenue, orgCurrency), sub: `${txCount} ${txCount > 1 ? t('admin.transactions') : t('admin.transaction')}`, icon: DollarSign, colorClass: 'from-primary/20 to-primary/5 border-primary/20' },
+    { label: t('admin.org_received'), value: fmt(totalOrgReceived, orgCurrency), sub: t('admin.after_fees'), icon: TrendingUp, colorClass: 'from-emerald-500/20 to-emerald-500/5 border-emerald-500/20' },
+    { label: t('admin.affiliate_commissions'), value: fmt(totalAffiliateCommission, orgCurrency), sub: `${t('admin.rate')} : ${commissionRate}%`, icon: Percent, colorClass: 'from-amber-500/20 to-amber-500/5 border-amber-500/20' },
+    { label: t('admin.platform_fees'), value: fmt(totalPlatformFee, orgCurrency), sub: `${currentOrg?.platform_fee_percent ?? 10}%`, icon: DollarSign, colorClass: 'from-muted to-muted/50 border-border' },
   ];
 
   return (
@@ -115,18 +118,18 @@ export default function AdminDashboard() {
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold">Tableau de bord</h1>
+          <h1 className="text-xl sm:text-2xl font-bold">{t('admin.dashboard')}</h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Vue d'ensemble de <span className="font-medium text-foreground">{currentOrg?.name}</span>
+            {t('admin.overview_of')} <span className="font-medium text-foreground">{currentOrg?.name}</span>
           </p>
         </div>
         <div className="flex items-center gap-2">
           <Button size="sm" variant="outline" onClick={() => setShowQuickStart(true)} className="gap-1.5 text-xs h-8 sm:h-9">
-            <Rocket className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> QuickStart
+            <Rocket className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> {t('admin.quickstart')}
           </Button>
           <Button size="sm" asChild variant="outline" className="gap-1.5 text-xs h-8 sm:h-9">
             <a href={`https://siteviral.com/org/${currentOrg?.slug}`} target="_blank" rel="noreferrer">
-              <ExternalLink className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Page publique
+              <ExternalLink className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> {t('admin.public_page')}
             </a>
           </Button>
         </div>
@@ -141,7 +144,7 @@ export default function AdminDashboard() {
         animate={{ opacity: 1, y: 0 }}
         className="bg-card border border-border rounded-2xl p-5"
       >
-        <h2 className="font-semibold text-sm mb-4">Actions rapides</h2>
+        <h2 className="font-semibold text-sm mb-4">{t('admin.quick_actions')}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {quickActions.map((a) => (
             <Button
@@ -190,7 +193,7 @@ export default function AdminDashboard() {
             </div>
             <p className="text-3xl font-bold tracking-tight">{s.value}</p>
             <p className="text-sm text-muted-foreground mt-0.5">{s.label}</p>
-            <p className="text-xs text-primary font-medium mt-1">{s.published} publié{s.published !== 1 ? 's' : ''}</p>
+            <p className="text-xs text-primary font-medium mt-1">{s.published} {t('admin.published')}{s.published !== 1 ? 's' : ''}</p>
           </motion.button>
         ))}
       </motion.div>
@@ -198,19 +201,19 @@ export default function AdminDashboard() {
       {/* Conversion rate + Top products */}
       <div className="grid lg:grid-cols-2 gap-3">
         <div className="bg-card border border-border rounded-2xl p-5">
-          <h2 className="font-semibold text-sm mb-2">Taux de conversion</h2>
+          <h2 className="font-semibold text-sm mb-2">{t('admin.conversion_rate')}</h2>
           <p className="text-3xl font-bold text-primary">{conversionRate}%</p>
-          <p className="text-xs text-muted-foreground mt-1">Membres → Acheteurs/Donateurs</p>
+          <p className="text-xs text-muted-foreground mt-1">{t('admin.members_to_buyers')}</p>
         </div>
         {topProducts.length > 0 && (
           <div className="bg-card border border-border rounded-2xl p-5">
-            <h2 className="font-semibold text-sm mb-3">Top Produits</h2>
+            <h2 className="font-semibold text-sm mb-3">{t('admin.top_products')}</h2>
             <div className="space-y-2">
               {topProducts.map((p: any, i: number) => (
                 <div key={p.id} className="flex items-center gap-3 text-xs">
                   <span className="font-bold text-muted-foreground w-4">{i + 1}</span>
                   <span className="flex-1 truncate font-medium">{p.title}</span>
-                  <span className="text-primary font-semibold">{p.sales_count || 0} ventes</span>
+                  <span className="text-primary font-semibold">{p.sales_count || 0} {t('admin.sales')}</span>
                 </div>
               ))}
             </div>
@@ -229,14 +232,12 @@ export default function AdminDashboard() {
               <AlertTriangle className="h-5 w-5 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm">Complétez votre vérification pour retirer vos fonds</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Vous pouvez accepter les paiements dès maintenant. La vérification KYC est requise uniquement pour les retraits.
-              </p>
+              <p className="font-semibold text-sm">{t('admin.complete_verification')}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{t('admin.accept_payments')}</p>
             </div>
           </div>
           <Button size="sm" variant="outline" onClick={() => navigate('/admin/kyc')} className="h-8 text-xs shrink-0 w-full sm:w-auto">
-            Vérifier mon compte
+            {t('admin.verify_account')}
           </Button>
         </motion.div>
       )}
