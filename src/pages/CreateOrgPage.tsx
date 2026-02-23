@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import { db } from '@/lib/db';
+import { sendEmailNotification } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { Button } from '@/components/ui/button';
@@ -102,6 +103,11 @@ export default function CreateOrgPage() {
 
       if (newOrg) setCurrentOrg(newOrg);
       refetchOrgs();
+
+      // Send org_created email (fire-and-forget)
+      if (user.email) {
+        sendEmailNotification('org_created', user.email, { org_name: data.name }, orgId);
+      }
 
       toast({ title: '🎉 ' + t('org.created'), description: data.name });
       setShowOnboarding(true);

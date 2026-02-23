@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { Profile } from '@/types/database';
+import { sendEmailNotification } from '@/lib/api';
 
 interface AuthContextType {
   user: User | null;
@@ -99,15 +100,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(newSession?.user ?? null);
 
         if (newSession?.user) {
-          // Fire-and-forget — don't await here to avoid blocking state changes
           upsertProfile(newSession.user.id, newSession.user.user_metadata?.full_name);
           fetchPlatformRole(newSession.user.id);
+
+          // Send welcome email on first sign-up
+          if (event === 'SIGNED_IN' && newSession.user.email) {
+            sendEmailNotification('welcome', newSession.user.email, {
+              name: newSession.user.user_metadata?.full_name || newSession.user.email.split('@')[0],
+            }).catch(() => {});
+          }
         } else {
           setProfile(null);
           setIsSuperadmin(false);
         }
 
-        // Only set loading=false for INITIAL_SESSION event to avoid flicker
         if (event === 'INITIAL_SESSION' || event === 'SIGNED_OUT') {
           setLoading(false);
         }

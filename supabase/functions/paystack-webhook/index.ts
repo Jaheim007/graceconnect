@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { createHmac } from 'node:crypto';
+import { sendEmail, sendEmailToOrgAdmins, getUserEmail } from '../_shared/send-email-helper.ts';
 
 const requestCounts = new Map<string, { count: number; windowStart: number }>();
 function checkRateLimit(ip: string | null, max = 60): boolean {
@@ -185,10 +186,16 @@ Deno.serve(async (req) => {
         affiliate_commission: affiliateCommission, organization_amount: organizationAmount,
         completed_at: new Date().toISOString(),
       });
-      const { data: prod } = await db.from('digital_products').select('sales_count').eq('id', productId).single();
+      const { data: prod } = await db.from('digital_products').select('sales_count, title').eq('id', productId).single();
       if (prod) await db.from('digital_products').update({ sales_count: (prod.sales_count || 0) + 1 }).eq('id', productId);
       if (userId) {
         await db.from('user_notifications').insert({ user_id: userId, organization_id: organizationId, title: '✅ Achat confirmé', body: `Votre achat de ${amountPaid.toLocaleString('fr-FR')} ${currency} auprès de ${org.name} est confirmé.`, notification_type: 'purchase', action_url: '/dashboard' });
+        // Send email
+        const buyerEmail = await getUserEmail(userId);
+        if (buyerEmail) {
+          sendEmail({ template: 'purchase_confirmation', to: buyerEmail, data: { product_name: prod?.title || 'Product', org_name: org.name, amount: amountPaid, currency, reference, access_link: 'https://siteviral.com/dashboard' }, organization_id: organizationId }).catch(() => {});
+        }
+        sendEmailToOrgAdmins('new_purchase_received', organizationId, { buyer_name: 'A customer', product_name: prod?.title || 'Product', amount: amountPaid, currency, reference }).catch(() => {});
       }
     } else {
       await db.from('donations').insert({
@@ -206,9 +213,15 @@ Deno.serve(async (req) => {
       if (userId) {
         await db.from('user_notifications').insert({ user_id: userId, organization_id: organizationId, title: '🙏 Don confirmé', body: `Votre don de ${amountPaid.toLocaleString('fr-FR')} ${currency} à ${org.name} a été reçu.`, notification_type: 'donation', action_url: '/dashboard' });
       }
+      // Send donation emails
+      const donorAddr = donorEmail || (userId ? await getUserEmail(userId) : null);
+      if (donorAddr) {
+        sendEmail({ template: 'donation_receipt', to: donorAddr, data: { org_name: org.name, amount: amountPaid, currency, reference, date: new Date().toLocaleDateString('fr-FR') }, organization_id: organizationId }).catch(() => {});
+      }
+      sendEmailToOrgAdmins('new_donation_received', organizationId, { donor_name: donorName || 'Anonymous', amount: amountPaid, currency, org_name: org.name, campaign_name: 'General', reference }).catch(() => {});
     }
 
-    // Affiliate sales record
+    // Affiliate sales record + email
     if (affiliateLinkId && affiliateUserId && affiliateCommission > 0) {
       await db.from('affiliate_sales').insert({
         affiliate_link_id: affiliateLinkId, affiliate_user_id: affiliateUserId,
@@ -217,6 +230,10 @@ Deno.serve(async (req) => {
         commission_amount: affiliateCommission, commission_percent: org.affiliation_commission_percent ?? 10,
         status: 'pending', payable_at: new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(),
       });
+      const affEmail = await getUserEmail(affiliateUserId);
+      if (affEmail) {
+        sendEmail({ template: 'affiliate_sale', to: affEmail, data: { commission: affiliateCommission, currency, org_name: org.name, transaction_type: type || 'donation', gross_amount: amountPaid, commission_percent: org.affiliation_commission_percent ?? 10 }, organization_id: organizationId }).catch(() => {});
+      }
     }
 
     // Mark event processed
