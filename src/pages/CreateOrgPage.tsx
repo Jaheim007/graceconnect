@@ -159,7 +159,7 @@ export default function CreateOrgPage() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="flex items-center gap-3 mb-8">
-          <div className="h-10 w-10 rounded-xl gold-gradient flex items-center justify-center">
+          <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
             <Building2 className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
@@ -172,7 +172,7 @@ export default function CreateOrgPage() {
         <div className="flex gap-1.5 mb-8">
           {steps.map((_, i) => (
             <div key={i} className={cn('h-1.5 flex-1 rounded-full transition-all duration-300',
-              i <= step ? 'gold-gradient' : 'bg-muted')} />
+              i <= step ? 'bg-primary' : 'bg-muted')} />
           ))}
         </div>
 
@@ -192,7 +192,7 @@ export default function CreateOrgPage() {
                         onClick={() => setValue('category', cat.value)}
                         className={cn('p-4 rounded-2xl border-2 text-left transition-all',
                           selectedCategory === cat.value
-                            ? 'border-primary bg-primary/10 shadow-gold'
+                            ? 'border-primary bg-primary/10'
                             : 'border-border bg-card hover:border-muted-foreground/40')}>
                         <span className="text-xl block mb-1">{cat.label.split(' ')[0]}</span>
                         <span className="text-sm font-medium">{cat.label.split(' ').slice(1).join(' ')}</span>
@@ -269,11 +269,11 @@ export default function CreateOrgPage() {
             </Button>
           )}
           {step < 2 ? (
-            <Button type="button" className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold" onClick={nextStep}>
+            <Button type="button" className="flex-1" onClick={nextStep}>
               Next <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           ) : (
-            <Button type="button" className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold"
+            <Button type="button" className="flex-1"
               onClick={form.handleSubmit(onSubmit)} disabled={loading}>
               {loading ? 'Creating...' : <><Check className="h-4 w-4 mr-1" /> Create Organization</>}
             </Button>

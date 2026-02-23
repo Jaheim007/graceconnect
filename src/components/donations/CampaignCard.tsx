@@ -14,7 +14,6 @@ interface CampaignCardProps {
 
 export function CampaignCard({ campaign, onDonate, index = 0 }: CampaignCardProps) {
   const { toast } = useToast();
-
   const shareUrl = window.location.href;
 
   const handleCopyLink = () => {
@@ -34,12 +33,10 @@ export function CampaignCard({ campaign, onDonate, index = 0 }: CampaignCardProp
     new Intl.NumberFormat('fr-FR', { style: 'currency', currency: campaign.currency || 'XOF', maximumFractionDigits: 0 }).format(n);
 
   return (
-    <div
-      className="bg-card border border-border rounded-2xl overflow-hidden shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300"
-    >
+    <div className="bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/30 transition-all duration-200">
       {campaign.image_url && (
         <div className="h-44 overflow-hidden">
-          <img src={campaign.image_url} alt={campaign.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+          <img src={campaign.image_url} alt={campaign.title} className="w-full h-full object-cover" />
         </div>
       )}
       <div className="p-5 space-y-3">
@@ -49,12 +46,11 @@ export function CampaignCard({ campaign, onDonate, index = 0 }: CampaignCardProp
           <p className="text-sm text-muted-foreground line-clamp-2">{campaign.description}</p>
         )}
 
-        {/* Progress */}
         {progress !== null && (
           <div className="space-y-2">
             <div className="h-2 bg-muted rounded-full overflow-hidden">
               <div
-                className="h-full gold-gradient rounded-full transition-all duration-1000 ease-out"
+                className="h-full bg-primary rounded-full transition-all duration-1000 ease-out"
                 style={{ width: `${progress}%` }}
               />
             </div>
@@ -87,7 +83,7 @@ export function CampaignCard({ campaign, onDonate, index = 0 }: CampaignCardProp
           <Button
             size="default"
             onClick={onDonate}
-            className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold gap-2 font-semibold"
+            className="flex-1 gap-2 font-semibold"
           >
             <Heart className="h-4 w-4" /> Faire un don
           </Button>

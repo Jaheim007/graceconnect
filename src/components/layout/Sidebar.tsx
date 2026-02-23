@@ -101,7 +101,7 @@ export function Sidebar() {
         className={cn(
           'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 relative group',
           active
-            ? 'bg-primary text-primary-foreground shadow-gold'
+            ? 'bg-primary text-primary-foreground'
             : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground'
         )}
       >
@@ -124,18 +124,18 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'h-screen sticky top-0 flex flex-col border-r border-border/60 bg-sidebar transition-all duration-300 overflow-hidden',
+        'h-screen sticky top-0 flex flex-col border-r border-border bg-sidebar transition-all duration-300 overflow-hidden',
         collapsed ? 'w-16' : 'w-60'
       )}
     >
       {/* Logo */}
-      <div className={cn('flex items-center h-16 px-4 border-b border-border/60', collapsed && 'justify-center px-0')}>
+      <div className={cn('flex items-center h-16 px-4 border-b border-border', collapsed && 'justify-center px-0')}>
         {!collapsed ? (
           <Link to="/" className="flex items-center gap-2">
-            <span className="text-xl font-extrabold tracking-tight italic text-gold">Siteviral</span>
+            <span className="text-xl font-extrabold tracking-tight text-foreground">Siteviral</span>
           </Link>
         ) : (
-          <Link to="/" className="text-base font-extrabold italic text-gold">S</Link>
+          <Link to="/" className="text-base font-extrabold text-foreground">S</Link>
         )}
       </div>
 
@@ -153,10 +153,8 @@ export function Sidebar() {
           superadminNav.map(renderNavItem)
         ) : isAdmin ? (
           <>
-            {/* Dashboard overview always visible */}
             {renderNavItem({ to: '/admin', icon: BarChart3, label: "Vue d'ensemble" })}
             
-            {/* Grouped admin nav */}
             {!collapsed ? (
               adminGroups.map((group) => (
                 <div key={group.label} className="mt-3">
@@ -184,8 +182,7 @@ export function Sidebar() {
       </nav>
 
       {/* Bottom links */}
-      <div className={cn('border-t border-border/60 space-y-0.5', collapsed ? 'px-1 py-2' : 'px-3 py-3')}>
-        {/* Theme toggle */}
+      <div className={cn('border-t border-border space-y-0.5', collapsed ? 'px-1 py-2' : 'px-3 py-3')}>
         <button
           onClick={toggleTheme}
           title={collapsed ? (theme === 'dark' ? 'Mode clair' : 'Mode sombre') : undefined}
@@ -244,7 +241,7 @@ export function Sidebar() {
       {/* Collapse toggle */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="flex items-center justify-center h-10 w-full border-t border-border/60 text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
+        className="flex items-center justify-center h-10 w-full border-t border-border text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
       >
         {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
       </button>

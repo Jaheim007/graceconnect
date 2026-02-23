@@ -78,11 +78,11 @@ export default function InvitePage() {
       <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
         <div className="container flex items-center justify-between h-14 px-4">
           <Link to="/">
-            <span className="text-xl font-extrabold tracking-tight italic text-gold">Siteviral</span>
+            <span className="text-xl font-extrabold tracking-tight text-foreground">Siteviral</span>
           </Link>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" asChild><Link to="/auth">Connexion</Link></Button>
-            <Button size="sm" className="gold-gradient text-primary-foreground border-0 shadow-gold" asChild>
+            <Button size="sm" asChild>
               <Link to={`/auth?tab=signup&invite=${code}`}>S'inscrire</Link>
             </Button>
           </div>
@@ -99,7 +99,7 @@ export default function InvitePage() {
                   {referrer.avatar_url ? (
                     <img src={referrer.avatar_url} alt="" className="h-14 w-14 rounded-full border-2 border-primary object-cover" />
                   ) : (
-                    <div className="h-14 w-14 rounded-full gold-gradient flex items-center justify-center text-lg font-bold text-primary-foreground">
+                    <div className="h-14 w-14 rounded-full bg-primary flex items-center justify-center text-lg font-bold text-primary-foreground">
                       {(referrer.display_name || 'U')[0]}
                     </div>
                   )}
@@ -112,7 +112,7 @@ export default function InvitePage() {
 
               <h1 className="text-3xl sm:text-5xl font-extrabold leading-tight">
                 Rejoignez la communauté{' '}
-                <span className="text-gold italic">Siteviral</span>
+                <span className="text-primary">Siteviral</span>
               </h1>
 
               <p className="text-muted-foreground text-base sm:text-lg max-w-lg mx-auto leading-relaxed">
@@ -122,7 +122,7 @@ export default function InvitePage() {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Button
                   size="lg"
-                  className="gold-gradient text-primary-foreground border-0 shadow-gold px-8 h-13 text-base gap-2 w-full sm:w-auto hover:scale-105 transition-transform"
+                  className="px-8 h-13 text-base gap-2 w-full sm:w-auto"
                   onClick={handleJoin}
                 >
                   {user ? 'Explorer les communautés' : 'Créer mon compte gratuit'} <ArrowRight className="h-4 w-4" />

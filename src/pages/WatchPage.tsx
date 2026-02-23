@@ -90,7 +90,7 @@ export default function WatchPage() {
           )}
           <button
             onClick={() => setPlaying(!playing)}
-            className="h-14 w-14 rounded-full bg-primary/90 flex items-center justify-center z-10 shadow-gold hover:bg-primary transition-colors"
+            className="h-14 w-14 rounded-full bg-primary/90 flex items-center justify-center z-10 hover:bg-primary transition-colors"
           >
             {playing ? <Pause className="h-6 w-6 text-primary-foreground" /> : <Play className="h-6 w-6 text-primary-foreground ml-0.5" />}
           </button>
