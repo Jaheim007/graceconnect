@@ -20,7 +20,7 @@ export function BottomNav() {
 
   const authItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: t('bottom.dashboard') },
-    { to: '/marketplace', icon: Store, label: 'Explorer' },
+    { to: '/marketplace', icon: Store, label: t('sidebar.explorer') },
     { to: '/admin', icon: Building2, label: t('bottom.organization') },
     { to: '/notifications', icon: Bell, label: t('bottom.alerts') },
     { to: '/profile', icon: User, label: t('bottom.account') },
