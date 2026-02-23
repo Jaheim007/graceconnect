@@ -16,7 +16,7 @@ const mainNav = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/feed', icon: Home, label: 'Feed' },
   { to: '/marketplace', icon: Store, label: 'Explorer' },
-  { to: '/reels', icon: Play, label: 'Reels' },
+  
   { to: '/notifications', icon: Bell, label: 'Notifications' },
   { to: '/resources', icon: BookOpen, label: 'Resources' },
   { to: '/support', icon: LifeBuoy, label: 'Support' },
