@@ -1,5 +1,5 @@
 import { Outlet, NavLink } from 'react-router-dom';
-import { Shield, Users, FileCheck, BarChart3, Megaphone, Sparkles, LayoutDashboard, Activity, Settings, Download, UserCircle, Target, ShieldAlert } from 'lucide-react';
+import { Shield, Users, FileCheck, BarChart3, Megaphone, Sparkles, LayoutDashboard, Activity, Settings, Download, UserCircle, Target, ShieldAlert, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const links = [
@@ -14,6 +14,7 @@ const links = [
   { to: '/superadmin/exports', label: 'Exports', icon: Download },
   { to: '/superadmin/investor', label: 'Investor', icon: Target },
   { to: '/superadmin/risk', label: 'Risk & AML', icon: ShieldAlert },
+  { to: '/superadmin/emails', label: 'Emails', icon: Mail },
   { to: '/superadmin/settings', label: 'Settings', icon: Settings },
   { to: '/superadmin/ai', label: 'AI Insights', icon: Sparkles },
 ];

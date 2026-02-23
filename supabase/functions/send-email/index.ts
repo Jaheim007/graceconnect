@@ -6,64 +6,31 @@ const corsHeaders = {
 };
 
 type EmailTemplate =
-  // Auth & onboarding
   | 'welcome'
-  // Donations (buyer + admin)
-  | 'donation_receipt'
-  | 'new_donation_received'
-  // Purchases (buyer + admin)
-  | 'purchase_confirmation'
-  | 'new_purchase_received'
-  | 'download_ready'
-  // Programs
-  | 'program_enrolled'
-  | 'program_completed'
-  // KYC
-  | 'kyc_submitted'
-  | 'kyc_approved'
-  | 'kyc_rejected'
-  // Org lifecycle
-  | 'org_created'
-  | 'org_deleted'
-  | 'org_suspended'
-  | 'org_unsuspended'
-  // Members
-  | 'new_member_joined'
-  | 'member_left'
-  | 'invite_to_org'
-  | 'role_changed'
-  // Payouts (org)
-  | 'payout_requested'
-  | 'payout_approved'
-  | 'payout_rejected'
-  | 'payouts_frozen'
-  // Affiliate
-  | 'affiliate_sale'
-  | 'affiliate_payout_requested'
-  | 'affiliate_payout_completed'
-  // Directory
-  | 'directory_approved'
-  | 'directory_rejected'
-  // Support
-  | 'ticket_created'
-  | 'ticket_replied'
-  | 'ticket_resolved'
-  // Refunds
-  | 'refund_initiated'
-  | 'refund_completed'
-  // Content moderation
+  | 'donation_receipt' | 'new_donation_received'
+  | 'purchase_confirmation' | 'new_purchase_received' | 'download_ready'
+  | 'program_enrolled' | 'program_completed'
+  | 'kyc_submitted' | 'kyc_approved' | 'kyc_rejected'
+  | 'org_created' | 'org_deleted' | 'org_suspended' | 'org_unsuspended'
+  | 'new_member_joined' | 'member_left' | 'invite_to_org' | 'role_changed'
+  | 'payout_requested' | 'payout_approved' | 'payout_rejected' | 'payouts_frozen'
+  | 'affiliate_sale' | 'affiliate_payout_requested' | 'affiliate_payout_completed'
+  | 'directory_approved' | 'directory_rejected'
+  | 'ticket_created' | 'ticket_replied' | 'ticket_resolved'
+  | 'refund_initiated' | 'refund_completed'
   | 'content_report_resolved';
 
 interface SendEmailBody {
   template: EmailTemplate;
   to: string;
   data: Record<string, string | number>;
+  organization_id?: string;
 }
 
 const FOOTER = `<div style="margin-top:32px;padding-top:16px;border-top:1px solid #333;font-size:11px;color:#777">
   <p>Siteviral — Operated by Hacktualiz Inc.</p>
   <p>131 Continental Dr, Suite 305, Newark, DE 19713, United States</p>
-  <p><a href="https://siteviral.com/terms" style="color:#c9a84c">Terms</a> · <a href="https://siteviral.com/privacy" style="color:#c9a84c">Privacy</a> · <a href="https://siteviral.com/refund-policy" style="color:#c9a84c">Refund Policy</a></p>
+  <p><a href="https://siteviral.com/terms" style="color:#1a66e6">Terms</a> · <a href="https://siteviral.com/privacy" style="color:#1a66e6">Privacy</a> · <a href="https://siteviral.com/refund-policy" style="color:#1a66e6">Refund Policy</a></p>
 </div>`;
 
 const wrap = (content: string) => `<!DOCTYPE html><html><body style="font-family:sans-serif;background:#0f0f0f;color:#eee;padding:32px">
@@ -71,209 +38,81 @@ const wrap = (content: string) => `<!DOCTYPE html><html><body style="font-family
 ${content}${FOOTER}
 </div></body></html>`;
 
-const gold = '#c9a84c';
+const blue = '#1a66e6';
 const green = '#22c55e';
 const red = '#ef4444';
-const blue = '#3b82f6';
+const info = '#3b82f6';
 
 function buildTemplate(template: EmailTemplate, d: Record<string, string | number>): { subject: string; html: string } {
   switch (template) {
-    // ─── AUTH & ONBOARDING ───
     case 'welcome':
-      return {
-        subject: '👋 Welcome to Siteviral',
-        html: wrap(`<h1 style="color:${gold}">Welcome to Siteviral!</h1><p>Hi ${d.name || 'there'},</p><p>Your account is ready. Start building and growing your community today.</p>`),
-      };
-
-    // ─── DONATIONS ───
+      return { subject: '👋 Welcome to Siteviral', html: wrap(`<h1 style="color:${blue}">Welcome to Siteviral!</h1><p>Hi ${d.name || 'there'},</p><p>Your account is ready. Start building and growing your community today.</p>`) };
     case 'donation_receipt':
-      return {
-        subject: `Donation Receipt – ${d.org_name}`,
-        html: wrap(`<h1 style="color:${gold}">🙏 Donation Receipt</h1><p>Thank you for donating <strong>${d.amount} ${d.currency}</strong> to <strong>${d.org_name}</strong>.</p><p>Reference: <code>${d.reference}</code></p><p>Date: ${d.date}</p>`),
-      };
+      return { subject: `Donation Receipt – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🙏 Donation Receipt</h1><p>Thank you for donating <strong>${d.amount} ${d.currency}</strong> to <strong>${d.org_name}</strong>.</p><p>Reference: <code>${d.reference}</code></p><p>Date: ${d.date}</p>`) };
     case 'new_donation_received':
-      return {
-        subject: `💰 New Donation – ${d.amount} ${d.currency}`,
-        html: wrap(`<h1 style="color:${green}">💰 New Donation Received</h1><p><strong>${d.donor_name || 'Anonymous'}</strong> donated <strong>${d.amount} ${d.currency}</strong> to <strong>${d.org_name}</strong>.</p><p>Campaign: ${d.campaign_name || 'General'}</p><p>Reference: <code>${d.reference}</code></p>`),
-      };
-
-    // ─── PURCHASES ───
+      return { subject: `💰 New Donation – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${green}">💰 New Donation Received</h1><p><strong>${d.donor_name || 'Anonymous'}</strong> donated <strong>${d.amount} ${d.currency}</strong> to <strong>${d.org_name}</strong>.</p><p>Campaign: ${d.campaign_name || 'General'}</p><p>Reference: <code>${d.reference}</code></p>`) };
     case 'purchase_confirmation':
-      return {
-        subject: `Purchase Confirmed – ${d.product_name}`,
-        html: wrap(`<h1 style="color:${gold}">✅ Purchase Confirmed</h1><p>You purchased <strong>${d.product_name}</strong> from <strong>${d.org_name}</strong>.</p><p>Amount: ${d.amount} ${d.currency}</p><p>Reference: <code>${d.reference}</code></p>${d.access_link ? `<p><a href="${d.access_link}" style="color:${gold}">Access your purchase →</a></p>` : ''}`),
-      };
+      return { subject: `Purchase Confirmed – ${d.product_name}`, html: wrap(`<h1 style="color:${blue}">✅ Purchase Confirmed</h1><p>You purchased <strong>${d.product_name}</strong> from <strong>${d.org_name}</strong>.</p><p>Amount: ${d.amount} ${d.currency}</p><p>Reference: <code>${d.reference}</code></p>${d.access_link ? `<p><a href="${d.access_link}" style="color:${blue}">Access your purchase →</a></p>` : ''}`) };
     case 'new_purchase_received':
-      return {
-        subject: `🛒 New Sale – ${d.product_name}`,
-        html: wrap(`<h1 style="color:${green}">🛒 New Sale</h1><p><strong>${d.buyer_name || 'A customer'}</strong> purchased <strong>${d.product_name}</strong> for <strong>${d.amount} ${d.currency}</strong>.</p><p>Reference: <code>${d.reference}</code></p>`),
-      };
+      return { subject: `🛒 New Sale – ${d.product_name}`, html: wrap(`<h1 style="color:${green}">🛒 New Sale</h1><p><strong>${d.buyer_name || 'A customer'}</strong> purchased <strong>${d.product_name}</strong> for <strong>${d.amount} ${d.currency}</strong>.</p><p>Reference: <code>${d.reference}</code></p>`) };
     case 'download_ready':
-      return {
-        subject: `📥 Your download is ready – ${d.product_name}`,
-        html: wrap(`<h1 style="color:${gold}">📥 Download Ready</h1><p>Your purchase of <strong>${d.product_name}</strong> is ready for download.</p><p><a href="${d.download_link}" style="color:${gold};font-weight:bold">Download Now →</a></p><p style="font-size:12px;color:#999">This link expires in 24 hours.</p>`),
-      };
-
-    // ─── PROGRAMS ───
+      return { subject: `📥 Your download is ready – ${d.product_name}`, html: wrap(`<h1 style="color:${blue}">📥 Download Ready</h1><p>Your purchase of <strong>${d.product_name}</strong> is ready for download.</p><p><a href="${d.download_link}" style="color:${blue};font-weight:bold">Download Now →</a></p><p style="font-size:12px;color:#999">This link expires in 24 hours.</p>`) };
     case 'program_enrolled':
-      return {
-        subject: `🎓 Enrolled – ${d.program_name}`,
-        html: wrap(`<h1 style="color:${gold}">🎓 Enrollment Confirmed</h1><p>You are now enrolled in <strong>${d.program_name}</strong> by <strong>${d.org_name}</strong>.</p><p><a href="${d.program_link || '#'}" style="color:${gold}">Start Learning →</a></p>`),
-      };
+      return { subject: `🎓 Enrolled – ${d.program_name}`, html: wrap(`<h1 style="color:${blue}">🎓 Enrollment Confirmed</h1><p>You are now enrolled in <strong>${d.program_name}</strong> by <strong>${d.org_name}</strong>.</p><p><a href="${d.program_link || '#'}" style="color:${blue}">Start Learning →</a></p>`) };
     case 'program_completed':
-      return {
-        subject: `🏆 Congratulations! – ${d.program_name}`,
-        html: wrap(`<h1 style="color:${green}">🏆 Program Completed</h1><p>Congratulations! You have completed <strong>${d.program_name}</strong>.</p><p>Keep up the great work!</p>`),
-      };
-
-    // ─── KYC ───
+      return { subject: `🏆 Congratulations! – ${d.program_name}`, html: wrap(`<h1 style="color:${green}">🏆 Program Completed</h1><p>Congratulations! You have completed <strong>${d.program_name}</strong>.</p><p>Keep up the great work!</p>`) };
     case 'kyc_submitted':
-      return {
-        subject: `KYC Submitted – ${d.org_name}`,
-        html: wrap(`<h1 style="color:${blue}">📄 KYC Submitted</h1><p>Your KYC documents for <strong>${d.org_name}</strong> have been submitted successfully.</p><p>We'll review them within 2–3 business days and notify you of the result.</p>`),
-      };
+      return { subject: `KYC Submitted – ${d.org_name}`, html: wrap(`<h1 style="color:${info}">📄 KYC Submitted</h1><p>Your KYC documents for <strong>${d.org_name}</strong> have been submitted successfully.</p><p>We'll review them within 2–3 business days.</p>`) };
     case 'kyc_approved':
-      return {
-        subject: `KYC Approved – ${d.org_name}`,
-        html: wrap(`<h1 style="color:${green}">✅ KYC Approved</h1><p>Congratulations! Your KYC for <strong>${d.org_name}</strong> has been approved.</p><p>You can now enable monetization features including donations and digital products.</p>`),
-      };
+      return { subject: `KYC Approved – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">✅ KYC Approved</h1><p>Congratulations! Your KYC for <strong>${d.org_name}</strong> has been approved.</p><p>You can now enable monetization features.</p>`) };
     case 'kyc_rejected':
-      return {
-        subject: `KYC Update – ${d.org_name}`,
-        html: wrap(`<h1 style="color:${red}">❌ KYC Requires Attention</h1><p>Your KYC submission for <strong>${d.org_name}</strong> was not approved.</p><p>Reason: ${d.reason || 'Please contact support.'}</p><p>You may resubmit with the correct documents.</p>`),
-      };
-
-    // ─── ORG LIFECYCLE ───
+      return { subject: `KYC Update – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ KYC Requires Attention</h1><p>Your KYC submission for <strong>${d.org_name}</strong> was not approved.</p><p>Reason: ${d.reason || 'Please contact support.'}</p><p>You may resubmit with the correct documents.</p>`) };
     case 'org_created':
-      return {
-        subject: `🏢 Organization Created – ${d.org_name}`,
-        html: wrap(`<h1 style="color:${gold}">🏢 Organization Created</h1><p>Your organization <strong>${d.org_name}</strong> has been created successfully.</p><p>Next steps: complete your profile, invite members, and start publishing content.</p>`),
-      };
+      return { subject: `🏢 Organization Created – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🏢 Organization Created</h1><p>Your organization <strong>${d.org_name}</strong> has been created successfully.</p><p>Next steps: complete your profile, invite members, and start publishing content.</p>`) };
     case 'org_deleted':
-      return {
-        subject: `Organization Deleted – ${d.org_name}`,
-        html: wrap(`<h1 style="color:${red}">🗑 Organization Deleted</h1><p>The organization <strong>${d.org_name}</strong> has been permanently deleted.</p><p>All associated data (members, content, transactions) has been removed.</p>${d.reason ? `<p>Reason: ${d.reason}</p>` : ''}`),
-      };
+      return { subject: `Organization Deleted – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">🗑 Organization Deleted</h1><p>The organization <strong>${d.org_name}</strong> has been permanently deleted.</p>${d.reason ? `<p>Reason: ${d.reason}</p>` : ''}`) };
     case 'org_suspended':
-      return {
-        subject: `⚠️ Organization Suspended – ${d.org_name}`,
-        html: wrap(`<h1 style="color:${red}">⚠️ Organization Suspended</h1><p>Your organization <strong>${d.org_name}</strong> has been suspended.</p><p>Reason: ${d.reason || 'Policy violation.'}</p>${d.until ? `<p>Suspended until: ${d.until}</p>` : ''}<p>Please contact <a href="mailto:support@siteviral.com" style="color:${gold}">support@siteviral.com</a> for more information.</p>`),
-      };
+      return { subject: `⚠️ Organization Suspended – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">⚠️ Organization Suspended</h1><p>Your organization <strong>${d.org_name}</strong> has been suspended.</p><p>Reason: ${d.reason || 'Policy violation.'}</p>${d.until ? `<p>Suspended until: ${d.until}</p>` : ''}<p>Contact <a href="mailto:support@siteviral.com" style="color:${blue}">support@siteviral.com</a>.</p>`) };
     case 'org_unsuspended':
-      return {
-        subject: `✅ Suspension Lifted – ${d.org_name}`,
-        html: wrap(`<h1 style="color:${green}">✅ Suspension Lifted</h1><p>Your organization <strong>${d.org_name}</strong> is now active again.</p><p>All features have been restored. Please ensure compliance with our terms of service.</p>`),
-      };
-
-    // ─── MEMBERS ───
+      return { subject: `✅ Suspension Lifted – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">✅ Suspension Lifted</h1><p>Your organization <strong>${d.org_name}</strong> is now active again.</p>`) };
     case 'new_member_joined':
-      return {
-        subject: `👤 New Member – ${d.org_name}`,
-        html: wrap(`<h1 style="color:${gold}">👤 New Member</h1><p><strong>${d.member_name || 'Someone'}</strong> just joined <strong>${d.org_name}</strong>.</p><p>Total members: ${d.total_members || 'N/A'}</p>`),
-      };
+      return { subject: `👤 New Member – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">👤 New Member</h1><p><strong>${d.member_name || 'Someone'}</strong> just joined <strong>${d.org_name}</strong>.</p><p>Total members: ${d.total_members || 'N/A'}</p>`) };
     case 'member_left':
-      return {
-        subject: `Member Left – ${d.org_name}`,
-        html: wrap(`<h1 style="color:${red}">👋 Member Left</h1><p><strong>${d.member_name || 'A member'}</strong> has left <strong>${d.org_name}</strong>.</p>`),
-      };
+      return { subject: `Member Left – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">👋 Member Left</h1><p><strong>${d.member_name || 'A member'}</strong> has left <strong>${d.org_name}</strong>.</p>`) };
     case 'invite_to_org':
-      return {
-        subject: `You're invited to join ${d.org_name}`,
-        html: wrap(`<h1 style="color:${gold}">📩 You're Invited</h1><p><strong>${d.inviter_name || 'Someone'}</strong> invited you to join <strong>${d.org_name}</strong> on Siteviral.</p><p><a href="${d.invite_link || 'https://siteviral.com'}" style="display:inline-block;background:${gold};color:#000;padding:12px 24px;border-radius:8px;font-weight:bold;text-decoration:none">Accept Invitation →</a></p>`),
-      };
+      return { subject: `You're invited to join ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📩 You're Invited</h1><p><strong>${d.inviter_name || 'Someone'}</strong> invited you to join <strong>${d.org_name}</strong> on Siteviral.</p><p><a href="${d.invite_link || 'https://siteviral.com'}" style="display:inline-block;background:${blue};color:#fff;padding:12px 24px;border-radius:8px;font-weight:bold;text-decoration:none">Accept Invitation →</a></p>`) };
     case 'role_changed':
-      return {
-        subject: `Role Updated – ${d.org_name}`,
-        html: wrap(`<h1 style="color:${blue}">🔄 Role Updated</h1><p>Your role in <strong>${d.org_name}</strong> has been changed to <strong>${d.new_role}</strong>.</p>${d.old_role ? `<p>Previous role: ${d.old_role}</p>` : ''}`),
-      };
-
-    // ─── PAYOUTS ───
+      return { subject: `Role Updated – ${d.org_name}`, html: wrap(`<h1 style="color:${info}">🔄 Role Updated</h1><p>Your role in <strong>${d.org_name}</strong> has been changed to <strong>${d.new_role}</strong>.</p>${d.old_role ? `<p>Previous role: ${d.old_role}</p>` : ''}`) };
     case 'payout_requested':
-      return {
-        subject: `💸 Payout Requested – ${d.amount} ${d.currency}`,
-        html: wrap(`<h1 style="color:${gold}">💸 Payout Requested</h1><p>A payout of <strong>${d.amount} ${d.currency}</strong> has been requested for <strong>${d.org_name}</strong>.</p><p>Processing time: 3–5 business days.</p>`),
-      };
+      return { subject: `💸 Payout Requested – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${blue}">💸 Payout Requested</h1><p>A payout of <strong>${d.amount} ${d.currency}</strong> has been requested for <strong>${d.org_name}</strong>.</p><p>Processing time: 3–5 business days.</p>`) };
     case 'payout_approved':
-      return {
-        subject: `✅ Payout Approved – ${d.amount} ${d.currency}`,
-        html: wrap(`<h1 style="color:${green}">✅ Payout Approved</h1><p>Your payout of <strong>${d.amount} ${d.currency}</strong> for <strong>${d.org_name}</strong> has been approved and is being processed.</p>`),
-      };
+      return { subject: `✅ Payout Approved – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${green}">✅ Payout Approved</h1><p>Your payout of <strong>${d.amount} ${d.currency}</strong> for <strong>${d.org_name}</strong> has been approved and is being processed.</p>`) };
     case 'payout_rejected':
-      return {
-        subject: `Payout Rejected – ${d.org_name}`,
-        html: wrap(`<h1 style="color:${red}">❌ Payout Rejected</h1><p>Your payout request for <strong>${d.org_name}</strong> was rejected.</p><p>Reason: ${d.reason || 'Please contact support.'}</p>`),
-      };
+      return { subject: `Payout Rejected – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ Payout Rejected</h1><p>Your payout request for <strong>${d.org_name}</strong> was rejected.</p><p>Reason: ${d.reason || 'Please contact support.'}</p>`) };
     case 'payouts_frozen':
-      return {
-        subject: `⚠️ Payouts Frozen – ${d.org_name}`,
-        html: wrap(`<h1 style="color:${red}">🧊 Payouts Frozen</h1><p>Payouts for <strong>${d.org_name}</strong> have been temporarily frozen.</p><p>Reason: ${d.reason || 'Under review.'}</p>${d.until ? `<p>Frozen until: ${d.until}</p>` : ''}<p>Contact <a href="mailto:support@siteviral.com" style="color:${gold}">support@siteviral.com</a> for details.</p>`),
-      };
-
-    // ─── AFFILIATE ───
+      return { subject: `⚠️ Payouts Frozen – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">🧊 Payouts Frozen</h1><p>Payouts for <strong>${d.org_name}</strong> have been temporarily frozen.</p><p>Reason: ${d.reason || 'Under review.'}</p>${d.until ? `<p>Frozen until: ${d.until}</p>` : ''}<p>Contact <a href="mailto:support@siteviral.com" style="color:${blue}">support@siteviral.com</a>.</p>`) };
     case 'affiliate_sale':
-      return {
-        subject: `🎉 Commission Earned – ${d.commission} ${d.currency}`,
-        html: wrap(`<h1 style="color:${green}">🎉 Commission Earned</h1><p>You earned a commission of <strong>${d.commission} ${d.currency}</strong> from a ${d.transaction_type || 'sale'} on <strong>${d.org_name}</strong>.</p><p>Gross amount: ${d.gross_amount} ${d.currency}</p><p>Commission rate: ${d.commission_percent}%</p><p>Payable after the 72h hold period.</p>`),
-      };
+      return { subject: `🎉 Commission Earned – ${d.commission} ${d.currency}`, html: wrap(`<h1 style="color:${green}">🎉 Commission Earned</h1><p>You earned <strong>${d.commission} ${d.currency}</strong> from a ${d.transaction_type || 'sale'} on <strong>${d.org_name}</strong>.</p><p>Gross: ${d.gross_amount} ${d.currency} · Rate: ${d.commission_percent}%</p><p>Payable after 72h hold.</p>`) };
     case 'affiliate_payout_requested':
-      return {
-        subject: `💸 Affiliate Payout Requested`,
-        html: wrap(`<h1 style="color:${gold}">💸 Affiliate Payout Requested</h1><p>Your affiliate payout of <strong>${d.amount} ${d.currency}</strong> from <strong>${d.org_name}</strong> has been submitted.</p><p>Processing time: 3–5 business days.</p>`),
-      };
+      return { subject: `💸 Affiliate Payout Requested`, html: wrap(`<h1 style="color:${blue}">💸 Affiliate Payout Requested</h1><p>Your affiliate payout of <strong>${d.amount} ${d.currency}</strong> from <strong>${d.org_name}</strong> has been submitted.</p><p>Processing time: 3–5 business days.</p>`) };
     case 'affiliate_payout_completed':
-      return {
-        subject: `✅ Affiliate Payout Sent – ${d.amount} ${d.currency}`,
-        html: wrap(`<h1 style="color:${green}">✅ Payout Sent</h1><p>Your affiliate payout of <strong>${d.amount} ${d.currency}</strong> from <strong>${d.org_name}</strong> has been sent to your bank account.</p>`),
-      };
-
-    // ─── DIRECTORY ───
+      return { subject: `✅ Affiliate Payout Sent – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${green}">✅ Payout Sent</h1><p>Your affiliate payout of <strong>${d.amount} ${d.currency}</strong> from <strong>${d.org_name}</strong> has been sent to your bank account.</p>`) };
     case 'directory_approved':
-      return {
-        subject: `🌟 Directory Approved – ${d.org_name}`,
-        html: wrap(`<h1 style="color:${green}">🌟 Directory Listing Approved</h1><p>Your organization <strong>${d.org_name}</strong> has been approved for the Siteviral directory.</p><p>You're now visible to a wider audience.</p>`),
-      };
+      return { subject: `🌟 Directory Approved – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">🌟 Directory Listing Approved</h1><p>Your organization <strong>${d.org_name}</strong> has been approved for the Siteviral directory.</p>`) };
     case 'directory_rejected':
-      return {
-        subject: `Directory Application Update – ${d.org_name}`,
-        html: wrap(`<h1 style="color:${red}">❌ Directory Application Declined</h1><p>Your directory application for <strong>${d.org_name}</strong> was not approved at this time.</p><p>Reason: ${d.reason || 'Does not meet current listing criteria.'}</p><p>You may reapply after addressing the feedback.</p>`),
-      };
-
-    // ─── SUPPORT ───
+      return { subject: `Directory Application Update – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ Directory Application Declined</h1><p>Your directory application for <strong>${d.org_name}</strong> was not approved.</p><p>Reason: ${d.reason || 'Does not meet listing criteria.'}</p>`) };
     case 'ticket_created':
-      return {
-        subject: `🎫 Support Ticket #${d.ticket_id || ''} Created`,
-        html: wrap(`<h1 style="color:${gold}">🎫 Ticket Created</h1><p>Your support ticket has been created.</p><p><strong>Subject:</strong> ${d.subject}</p><p><strong>Category:</strong> ${d.category}</p><p>Our team will respond within 24–48 hours. You can track your ticket in the <a href="https://siteviral.com/support" style="color:${gold}">Support Center</a>.</p>`),
-      };
+      return { subject: `🎫 Support Ticket #${d.ticket_id || ''} Created`, html: wrap(`<h1 style="color:${blue}">🎫 Ticket Created</h1><p>Your support ticket has been created.</p><p><strong>Subject:</strong> ${d.subject}</p><p><strong>Category:</strong> ${d.category}</p><p>Our team will respond within 24–48 hours.</p>`) };
     case 'ticket_replied':
-      return {
-        subject: `💬 Reply to Ticket #${d.ticket_id || ''} – ${d.subject || ''}`,
-        html: wrap(`<h1 style="color:${blue}">💬 New Reply</h1><p>A support agent has replied to your ticket:</p><p><strong>${d.subject}</strong></p><div style="background:#222;border-radius:8px;padding:16px;margin:12px 0;border-left:3px solid ${gold}">${d.reply_preview || 'View the full reply in your Support Center.'}</div><p><a href="https://siteviral.com/support" style="color:${gold}">View Ticket →</a></p>`),
-      };
+      return { subject: `💬 Reply to Ticket #${d.ticket_id || ''}`, html: wrap(`<h1 style="color:${info}">💬 New Reply</h1><p>A support agent has replied to your ticket:</p><div style="background:#222;border-radius:8px;padding:16px;margin:12px 0;border-left:3px solid ${blue}">${d.reply_preview || 'View the full reply in your Support Center.'}</div><p><a href="https://siteviral.com/support" style="color:${blue}">View Ticket →</a></p>`) };
     case 'ticket_resolved':
-      return {
-        subject: `✅ Ticket Resolved #${d.ticket_id || ''} – ${d.subject || ''}`,
-        html: wrap(`<h1 style="color:${green}">✅ Ticket Resolved</h1><p>Your support ticket <strong>${d.subject}</strong> has been marked as resolved.</p><p>If you still need help, you can reopen it from the <a href="https://siteviral.com/support" style="color:${gold}">Support Center</a>.</p>`),
-      };
-
-    // ─── REFUNDS ───
+      return { subject: `✅ Ticket Resolved #${d.ticket_id || ''}`, html: wrap(`<h1 style="color:${green}">✅ Ticket Resolved</h1><p>Your support ticket <strong>${d.subject}</strong> has been marked as resolved.</p><p><a href="https://siteviral.com/support" style="color:${blue}">Support Center</a></p>`) };
     case 'refund_initiated':
-      return {
-        subject: `🔄 Refund Request Received – ${d.reference || ''}`,
-        html: wrap(`<h1 style="color:${blue}">🔄 Refund Request Received</h1><p>We received your refund request for <strong>${d.amount} ${d.currency}</strong>.</p><p>Product/Donation: ${d.item_name || 'N/A'}</p><p>Reference: <code>${d.reference}</code></p><p>We'll review it within 3–5 business days.</p>`),
-      };
+      return { subject: `🔄 Refund Request Received – ${d.reference || ''}`, html: wrap(`<h1 style="color:${info}">🔄 Refund Request Received</h1><p>We received your refund request for <strong>${d.amount} ${d.currency}</strong>.</p><p>Product/Donation: ${d.item_name || 'N/A'}</p><p>Reference: <code>${d.reference}</code></p><p>Review within 3–5 business days.</p>`) };
     case 'refund_completed':
-      return {
-        subject: `✅ Refund Processed – ${d.amount} ${d.currency}`,
-        html: wrap(`<h1 style="color:${green}">✅ Refund Processed</h1><p>Your refund of <strong>${d.amount} ${d.currency}</strong> has been processed.</p><p>Reference: <code>${d.reference}</code></p><p>The funds should appear in your account within 5–10 business days depending on your bank.</p>`),
-      };
-
-    // ─── CONTENT MODERATION ───
+      return { subject: `✅ Refund Processed – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${green}">✅ Refund Processed</h1><p>Your refund of <strong>${d.amount} ${d.currency}</strong> has been processed.</p><p>Reference: <code>${d.reference}</code></p><p>Funds should appear within 5–10 business days.</p>`) };
     case 'content_report_resolved':
-      return {
-        subject: `Content Report Update`,
-        html: wrap(`<h1 style="color:${blue}">📋 Report Update</h1><p>Your content report has been reviewed and resolved.</p><p>Content type: ${d.content_type}</p><p>Action taken: ${d.action_taken || 'Reviewed and addressed.'}</p><p>Thank you for helping keep Siteviral safe.</p>`),
-      };
-
+      return { subject: `Content Report Update`, html: wrap(`<h1 style="color:${info}">📋 Report Update</h1><p>Your content report has been reviewed and resolved.</p><p>Content type: ${d.content_type}</p><p>Action taken: ${d.action_taken || 'Reviewed and addressed.'}</p>`) };
     default:
       throw new Error(`Unknown template: ${template}`);
   }
@@ -283,13 +122,17 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!;
+  const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+  const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+  const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
   try {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
     const body: SendEmailBody = await req.json();
-    const { template, to, data } = body;
+    const { template, to, data, organization_id } = body;
 
     if (!template || !to) {
       return new Response(JSON.stringify({ error: 'Missing template or to' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
@@ -313,6 +156,18 @@ Deno.serve(async (req) => {
       }),
     });
     const result = await res.json();
+
+    // Log to email_logs table
+    await supabaseAdmin.from('email_logs').insert({
+      template,
+      recipient: to,
+      subject: tpl.subject,
+      status: res.ok ? 'sent' : 'failed',
+      resend_message_id: result.id || null,
+      error_message: res.ok ? null : (result.message || 'Unknown error'),
+      organization_id: organization_id || null,
+      metadata: data || {},
+    });
 
     return new Response(JSON.stringify({ ok: res.ok, message_id: result.id, error: result.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
