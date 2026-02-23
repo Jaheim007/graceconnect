@@ -81,7 +81,7 @@ export default function AffiliationPage() {
     queryKey: ['all-affiliate-orgs'],
     queryFn: async () => {
       const { data } = await db.from('organizations')
-        .select('id, name, slug, logo_url, banner_url, description, affiliation_commission_percent, category')
+        .select('id, name, slug, logo_url, banner_url, description, affiliation_commission_percent, category, owner_id')
         .eq('is_active', true)
         .eq('affiliation_enabled', true)
         .order('affiliation_commission_percent', { ascending: false });
@@ -103,10 +103,12 @@ export default function AffiliationPage() {
 
   const affiliateLinkOrgIds = new Set(affiliateLinks.map(l => l.organization_id));
   const subscribedOrgIds = new Set(userOrgs.map(o => o.id));
+  // Exclude orgs the user owns — owners cannot be affiliates of their own org
+  const ownedOrgIds = new Set(userOrgs.filter(o => o.owner_id === user?.id).map(o => o.id));
 
-  // Split discovery orgs: subscribed first, then others
-  const subscribedWithAffiliation = allAffiliateOrgs.filter(o => subscribedOrgIds.has(o.id) && !affiliateLinkOrgIds.has(o.id));
-  const otherOrgs = allAffiliateOrgs.filter(o => !subscribedOrgIds.has(o.id) && !affiliateLinkOrgIds.has(o.id));
+  // Split discovery orgs: subscribed first, then others — exclude owned orgs
+  const subscribedWithAffiliation = allAffiliateOrgs.filter(o => subscribedOrgIds.has(o.id) && !affiliateLinkOrgIds.has(o.id) && !ownedOrgIds.has(o.id));
+  const otherOrgs = allAffiliateOrgs.filter(o => !subscribedOrgIds.has(o.id) && !affiliateLinkOrgIds.has(o.id) && (o as any).owner_id !== user?.id);
 
   const filteredSubscribed = search
     ? subscribedWithAffiliation.filter(o => o.name.toLowerCase().includes(search.toLowerCase()))
@@ -124,12 +126,15 @@ export default function AffiliationPage() {
   const requestAffiliateRole = useMutation({
     mutationFn: async ({ orgId, orgSlug }: { orgId: string; orgSlug: string }) => {
       if (!user) throw new Error('Non authentifié');
+      // Block owners from becoming affiliates of their own org
+      const { data: orgRow } = await db.from('organizations').select('owner_id').eq('id', orgId).single();
+      if (orgRow?.owner_id === user.id) throw new Error('Vous ne pouvez pas devenir affilié de votre propre organisation.');
+
       // Check if already member
       const { data: memberRow } = await db.from('organization_members')
         .select('id, role').eq('user_id', user.id).eq('organization_id', orgId).maybeSingle();
       
       if (!memberRow) {
-        // Join as affiliate member
         await db.from('organization_members').insert({ user_id: user.id, organization_id: orgId, role: 'affiliate' });
       } else if (memberRow.role !== 'affiliate' && memberRow.role !== 'owner' && memberRow.role !== 'admin' && memberRow.role !== 'editor') {
         await db.from('organization_members').update({ role: 'affiliate' }).eq('id', memberRow.id);
