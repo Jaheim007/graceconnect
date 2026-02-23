@@ -4,13 +4,14 @@ import { db } from '@/lib/db';
 import { Search, TrendingUp, Sparkles, ShoppingBag, Heart } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ProductCard } from '@/components/products/ProductCard';
 import { CampaignCard } from '@/components/donations/CampaignCard';
 import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useI18n } from '@/i18n/I18nContext';
+import { PageTour } from '@/components/onboarding/PageTour';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.05 } } };
 const fadeUp = {
@@ -18,9 +19,15 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 260, damping: 24 } },
 };
 
+const TOUR_STEPS = [
+  { titleKey: 'tour.explorer_1_title', descKey: 'tour.explorer_1_desc', icon: <Sparkles className="h-4 w-4" /> },
+  { titleKey: 'tour.explorer_2_title', descKey: 'tour.explorer_2_desc', icon: <ShoppingBag className="h-4 w-4" /> },
+];
+
 export default function MarketplacePage() {
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState('products');
+  const { t } = useI18n();
 
   const { data: products = [], isLoading: loadingProducts } = useQuery({
     queryKey: ['marketplace-products', search],
@@ -31,9 +38,7 @@ export default function MarketplacePage() {
         .eq('is_published', true)
         .order('sales_count', { ascending: false })
         .limit(50);
-      if (search) {
-        q = q.ilike('title', `%${search}%`);
-      }
+      if (search) q = q.ilike('title', `%${search}%`);
       const { data } = await q;
       return (data || []).map((p: any) => ({
         ...p,
@@ -54,9 +59,7 @@ export default function MarketplacePage() {
         .eq('is_active', true)
         .order('current_amount', { ascending: false })
         .limit(50);
-      if (search) {
-        q = q.ilike('title', `%${search}%`);
-      }
+      if (search) q = q.ilike('title', `%${search}%`);
       const { data } = await q;
       return (data || []).map((c: any) => ({
         ...c,
@@ -73,14 +76,14 @@ export default function MarketplacePage() {
         <div className="container max-w-4xl">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="h-5 w-5 text-primary" />
-            <Badge variant="secondary" className="text-[10px] bg-white/10 text-white border-0">Marketplace</Badge>
+            <Badge variant="secondary" className="text-[10px] bg-white/10 text-white border-0">{t('page.explorer')}</Badge>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold mb-1">Marketplace Siteviral</h1>
-          <p className="text-sm opacity-80 mb-5">Découvrez les meilleurs produits et campagnes de notre communauté.</p>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-1">{t('page.explorer')}</h1>
+          <p className="text-sm opacity-80 mb-5">{t('page.explorer_desc')}</p>
           <div className="relative max-w-xl">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 opacity-60" />
             <Input
-              placeholder="Rechercher produits, campagnes..."
+              placeholder={t('page.explorer_search')}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="pl-10 h-11 bg-white/10 border-white/20 text-white placeholder:text-white/50"
@@ -89,26 +92,26 @@ export default function MarketplacePage() {
         </div>
       </div>
 
-      <div className="container max-w-6xl py-6">
+      <div className="container max-w-6xl py-6 space-y-4">
+        <PageTour pageId="explorer" steps={TOUR_STEPS} />
+
         <Tabs value={tab} onValueChange={setTab}>
           <TabsList className="mb-6">
             <TabsTrigger value="products" className="gap-1.5">
-              <ShoppingBag className="h-3.5 w-3.5" /> Produits ({products.length})
+              <ShoppingBag className="h-3.5 w-3.5" /> {t('page.explorer_products')} ({products.length})
             </TabsTrigger>
             <TabsTrigger value="campaigns" className="gap-1.5">
-              <Heart className="h-3.5 w-3.5" /> Campagnes ({campaigns.length})
+              <Heart className="h-3.5 w-3.5" /> {t('page.explorer_campaigns')} ({campaigns.length})
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="products">
             {loadingProducts ? <SkeletonList count={8} /> : products.length === 0 ? (
-              <EmptyState variant="search" title="Aucun produit trouvé" />
+              <EmptyState variant="search" title={t('page.explorer_no_products')} />
             ) : (
               <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {products.map((p: any) => (
-                  <motion.div key={p.id} variants={fadeUp}>
-                    <ProductCard product={p} />
-                  </motion.div>
+                  <motion.div key={p.id} variants={fadeUp}><ProductCard product={p} /></motion.div>
                 ))}
               </motion.div>
             )}
@@ -116,13 +119,11 @@ export default function MarketplacePage() {
 
           <TabsContent value="campaigns">
             {loadingCampaigns ? <SkeletonList count={6} /> : campaigns.length === 0 ? (
-              <EmptyState variant="search" title="Aucune campagne trouvée" />
+              <EmptyState variant="search" title={t('page.explorer_no_campaigns')} />
             ) : (
               <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 {campaigns.map((c: any) => (
-                  <motion.div key={c.id} variants={fadeUp}>
-                    <CampaignCard campaign={c} />
-                  </motion.div>
+                  <motion.div key={c.id} variants={fadeUp}><CampaignCard campaign={c} /></motion.div>
                 ))}
               </motion.div>
             )}

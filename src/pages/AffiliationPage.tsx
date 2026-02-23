@@ -20,6 +20,8 @@ import { AffiliateShareTools } from '@/components/affiliate/AffiliateShareTools'
 import { ProductAffiliateLinkGen } from '@/components/affiliate/ProductAffiliateLinkGen';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { useI18n } from '@/i18n/I18nContext';
+import { PageTour } from '@/components/onboarding/PageTour';
 
 const saleStatusColor: Record<string, string> = {
   pending: 'bg-primary/10 text-primary',
@@ -35,6 +37,7 @@ export default function AffiliationPage() {
   const { userOrgs } = useOrg();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { t } = useI18n();
   const qc = useQueryClient();
   const [activeTab, setActiveTab] = useState<AffiliationTab>('mes-liens');
   const [requestingAffiliate, setRequestingAffiliate] = useState<string | null>(null);
@@ -183,12 +186,18 @@ export default function AffiliationPage() {
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight flex items-center gap-2">
-            <Link2 className="h-6 w-6 text-primary" /> Affiliation
+            <Link2 className="h-6 w-6 text-primary" /> {t('page.affiliation')}
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Gagnez des commissions en partageant des liens vers les organisations et leurs ressources.
+            {t('page.affiliation_desc')}
           </p>
         </motion.div>
+
+        <PageTour pageId="affiliation" steps={[
+          { titleKey: 'tour.affiliation_1_title', descKey: 'tour.affiliation_1_desc', icon: <Link2 className="h-4 w-4" /> },
+          { titleKey: 'tour.affiliation_2_title', descKey: 'tour.affiliation_2_desc', icon: <Search className="h-4 w-4" /> },
+          { titleKey: 'tour.affiliation_3_title', descKey: 'tour.affiliation_3_desc', icon: <TrendingUp className="h-4 w-4" /> },
+        ]} />
 
         {/* Stats Banner */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}

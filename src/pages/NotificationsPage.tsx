@@ -8,11 +8,18 @@ import { db } from '@/lib/db';
 import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { useI18n } from '@/i18n/I18nContext';
+import { PageTour } from '@/components/onboarding/PageTour';
+
+const TOUR_STEPS = [
+  { titleKey: 'tour.notifications_1_title', descKey: 'tour.notifications_1_desc', icon: <Bell className="h-4 w-4" /> },
+];
 
 export default function NotificationsPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const { t, locale } = useI18n();
   const { data: notifs = [], isLoading } = useNotifications(user?.id);
 
   const markAllRead = async () => {
@@ -36,21 +43,27 @@ export default function NotificationsPage() {
         <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <span className="font-semibold text-sm flex-1">Notifications</span>
+        <span className="font-semibold text-sm flex-1">{t('page.notifications')}</span>
         {unreadCount > 0 && (
           <Button variant="ghost" size="sm" onClick={markAllRead} className="gap-1.5 text-xs h-7 text-muted-foreground hover:text-foreground">
-            <CheckCheck className="h-3.5 w-3.5" /> Tout marquer lu
+            <CheckCheck className="h-3.5 w-3.5" /> {t('page.notifications_mark_all')}
           </Button>
         )}
       </div>
 
-      <div className="container max-w-2xl py-5">
+      <div className="container max-w-2xl py-5 space-y-4">
+        <p className="text-xs sm:text-sm text-muted-foreground">{t('page.notifications_desc')}</p>
+
+        <PageTour pageId="notifications" steps={TOUR_STEPS} />
+
         {unreadCount > 0 && (
-          <p className="text-xs text-muted-foreground mb-4">{unreadCount} notification{unreadCount > 1 ? 's' : ''} non lue{unreadCount > 1 ? 's' : ''}</p>
+          <p className="text-xs text-muted-foreground">
+            {t('page.notifications_unread').replace('{count}', String(unreadCount))}
+          </p>
         )}
 
         {isLoading ? <SkeletonRow count={5} /> : notifs.length === 0 ? (
-          <EmptyState variant="generic" title="Aucune notification" description="Vous êtes à jour ! 🎉" />
+          <EmptyState variant="generic" title={t('page.notifications_empty')} description={t('page.notifications_empty_desc')} />
         ) : (
           <div className="space-y-2">
             {notifs.map((n) => (
@@ -69,7 +82,7 @@ export default function NotificationsPage() {
                   <p className={cn('text-sm font-medium leading-snug', !n.is_read && 'text-foreground')}>{n.title}</p>
                   <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{n.body}</p>
                   <p className="text-[10px] text-muted-foreground mt-1.5">
-                    {new Date(n.created_at).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                    {new Date(n.created_at).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>
                 {!n.is_read && <div className="h-2 w-2 rounded-full bg-primary shrink-0 mt-2" />}
