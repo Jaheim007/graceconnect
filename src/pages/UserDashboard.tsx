@@ -24,6 +24,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { AffiliateShareTools } from '@/components/affiliate/AffiliateShareTools';
 import { ProductAffiliateLinkGen } from '@/components/affiliate/ProductAffiliateLinkGen';
 import { useI18n } from '@/i18n/I18nContext';
+import { PageTour } from '@/components/onboarding/PageTour';
 
 const statusColor: Record<string, string> = {
   completed: 'bg-green-500/15 text-green-600 dark:text-green-400',
@@ -270,6 +271,17 @@ export default function UserDashboard() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container max-w-4xl px-4 py-5 sm:py-6 space-y-5 sm:space-y-6">
+        {/* Page description */}
+        <div>
+          <h1 className="sr-only">{t('page.dashboard')}</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">{t('page.dashboard_desc')}</p>
+        </div>
+
+        <PageTour pageId="dashboard" steps={[
+          { titleKey: 'tour.dashboard_1_title', descKey: 'tour.dashboard_1_desc', icon: <BarChart3 className="h-4 w-4" /> },
+          { titleKey: 'tour.dashboard_2_title', descKey: 'tour.dashboard_2_desc', icon: <Sparkle className="h-4 w-4" /> },
+          { titleKey: 'tour.dashboard_3_title', descKey: 'tour.dashboard_3_desc', icon: <BookOpen className="h-4 w-4" /> },
+        ]} />
         {/* ══ COMPACT HERO ══ */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}

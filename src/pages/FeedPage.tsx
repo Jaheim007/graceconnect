@@ -25,6 +25,8 @@ import { useMyPurchases } from '@/hooks/usePurchases';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nContext';
+import { PageTour } from '@/components/onboarding/PageTour';
+import { Home } from 'lucide-react';
 
 type Tab = 'all' | 'media' | 'store' | 'campaigns' | 'events';
 
@@ -149,12 +151,17 @@ export default function FeedPage() {
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">My Network</h1>
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">{t('page.my_network')}</h1>
               <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                Ressources, campagnes et événements de vos abonnements
+                {t('page.my_network_desc')}
               </p>
             </div>
           </div>
+
+          <PageTour pageId="network" steps={[
+            { titleKey: 'tour.network_1_title', descKey: 'tour.network_1_desc', icon: <Home className="h-4 w-4" /> },
+            { titleKey: 'tour.network_2_title', descKey: 'tour.network_2_desc', icon: <Search className="h-4 w-4" /> },
+          ]} />
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder={t('common.search_placeholder')} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 h-10" />
