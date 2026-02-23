@@ -149,7 +149,7 @@ export default function FeedPage() {
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">{t('feed.your_feed')}</h1>
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">My Network</h1>
               <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
                 Ressources, campagnes et événements de vos abonnements
               </p>
