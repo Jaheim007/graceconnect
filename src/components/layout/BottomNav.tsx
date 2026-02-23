@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, LogIn, UserPlus, LayoutDashboard, Building2, Bell, User } from 'lucide-react';
+import { Home, LogIn, UserPlus, LayoutDashboard, Building2, Bell, User, Store } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
@@ -20,6 +20,7 @@ export function BottomNav() {
 
   const authItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: t('bottom.dashboard') },
+    { to: '/marketplace', icon: Store, label: 'Explorer' },
     { to: '/admin', icon: Building2, label: t('bottom.organization') },
     { to: '/notifications', icon: Bell, label: t('bottom.alerts') },
     { to: '/profile', icon: User, label: t('bottom.account') },
