@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Search, Megaphone, CalendarDays, ShoppingBag, Heart,
   Play, Headphones, Film, TrendingUp, MapPin,
+  Rocket, Eye, Users, Compass,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -76,18 +77,59 @@ export default function FeedPage() {
   ];
 
   if (userOrgs.length === 0) {
+    const actions = [
+      { icon: <Rocket className="h-6 w-6" />, label: t('feed.action_create_org'), desc: t('feed.action_create_org_desc'), onClick: () => navigate('/create-org'), primary: true },
+      { icon: <Compass className="h-6 w-6" />, label: t('feed.action_discover'), desc: t('feed.action_discover_desc'), onClick: () => navigate('/discover') },
+      { icon: <Eye className="h-6 w-6" />, label: t('feed.action_browse_content'), desc: t('feed.action_browse_content_desc'), onClick: () => navigate('/marketplace') },
+      { icon: <Users className="h-6 w-6" />, label: t('feed.action_join'), desc: t('feed.action_join_desc'), onClick: () => navigate('/discover') },
+    ];
+
     return (
       <div className="min-h-screen bg-background">
-        <div className="container max-w-lg px-4 py-10 space-y-6 text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-            <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center mx-auto"><Heart className="h-8 w-8 text-primary-foreground" /></div>
+        <div className="container max-w-lg px-4 py-10 space-y-8">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-3">
+            <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center mx-auto">
+              <Heart className="h-8 w-8 text-primary-foreground" />
+            </div>
             <h1 className="text-2xl font-bold">{t('feed.welcome')}</h1>
-            <p className="text-muted-foreground text-sm max-w-sm mx-auto">{t('feed.join_orgs')}</p>
+            <p className="text-muted-foreground text-sm max-w-sm mx-auto">{t('feed.welcome_desc')}</p>
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="space-y-3">
-            <Button size="lg" className="w-full bg-primary text-primary-foreground gap-2 h-12" onClick={() => navigate('/create-org')}>{t('feed.launch_org')}</Button>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="grid gap-3"
+          >
+            {actions.map((a, i) => (
+              <motion.button
+                key={i}
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15 + i * 0.06 }}
+                onClick={a.onClick}
+                className={cn(
+                  'flex items-center gap-4 w-full p-4 rounded-2xl border text-left transition-all duration-200 hover:-translate-y-0.5',
+                  a.primary
+                    ? 'bg-primary/10 border-primary/30 hover:bg-primary/15 hover:shadow-elevated'
+                    : 'bg-card border-border hover:bg-accent/50 hover:shadow-card'
+                )}
+              >
+                <div className={cn(
+                  'h-12 w-12 rounded-xl flex items-center justify-center shrink-0',
+                  a.primary ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+                )}>
+                  {a.icon}
+                </div>
+                <div className="min-w-0">
+                  <p className="font-semibold text-sm">{a.label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{a.desc}</p>
+                </div>
+              </motion.button>
+            ))}
           </motion.div>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="pt-4">
+
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-center pt-2">
             <p className="text-xs text-muted-foreground">{t('feed.tip')}</p>
           </motion.div>
         </div>
