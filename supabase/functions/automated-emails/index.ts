@@ -311,7 +311,8 @@ Deno.serve(async (req) => {
     // ═══════════════════════════════════════════
     let milestoneCount = 0;
     const milestones = [100, 500, 1000, 5000, 10000];
-    const { data: orgMemCounts } = await db.rpc('get_org_member_counts' as any).catch(() => ({ data: null }));
+    let orgMemCounts: any = null;
+    try { const res = await db.rpc('get_org_member_counts' as any); orgMemCounts = res.data; } catch { /* skip */ }
     // Fallback: manual count for active orgs
     if (!orgMemCounts) {
       const { data: activeOrgs } = await db.from('organizations').select('id, name').eq('is_active', true).limit(100);
