@@ -8,6 +8,7 @@ import { CheckCircle, XCircle, Clock, Building2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { onDirectoryDecision } from '@/lib/notifications';
 
 export default function SuperadminDirectory() {
   const { toast } = useToast();
@@ -48,6 +49,10 @@ export default function SuperadminDirectory() {
     onSuccess: (_, vars) => {
       toast({ title: vars.action === 'approved' ? '✅ Approved & verified' : '❌ Rejected' });
       queryClient.invalidateQueries({ queryKey: ['sa-directory-apps'] });
+      // Find org name from the applications list
+      const app = applications.find((a: any) => a.id === vars.id);
+      const orgName = app?.organizations?.name || 'Organization';
+      onDirectoryDecision(vars.orgId, orgName, vars.action, vars.reason);
       setRejectId(null);
       setRejectReason('');
     },

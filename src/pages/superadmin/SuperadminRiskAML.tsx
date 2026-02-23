@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { ShieldAlert, Flag, Snowflake, AlertTriangle, CheckCircle, Search, LifeBuoy } from 'lucide-react';
+import { onPayoutsFrozen, onTicketResolved } from '@/lib/notifications';
 
 export default function SuperadminRiskAML() {
   const { toast } = useToast();
@@ -68,14 +69,33 @@ export default function SuperadminRiskAML() {
         payouts_frozen_until: null,
       }).eq('id', orgId);
     },
-    onSuccess: () => { toast({ title: 'Payout status updated' }); qc.invalidateQueries({ queryKey: ['sa-frozen-orgs'] }); qc.invalidateQueries({ queryKey: ['sa-high-volume-orgs'] }); },
+    onSuccess: (_, vars) => {
+      toast({ title: 'Payout status updated' });
+      qc.invalidateQueries({ queryKey: ['sa-frozen-orgs'] });
+      qc.invalidateQueries({ queryKey: ['sa-high-volume-orgs'] });
+      if (vars.freeze) {
+        // Find org name
+        const org = highVolumeOrgs.find((o: any) => o.id === vars.orgId) || frozenOrgs.find((o: any) => o.id === vars.orgId);
+        onPayoutsFrozen(vars.orgId, (org as any)?.name || 'Organization', vars.reason || 'Under review');
+      }
+    },
   });
 
   const updateTicketStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
       await db.from('support_tickets').update({ status, resolved_at: status === 'resolved' ? new Date().toISOString() : null }).eq('id', id);
     },
-    onSuccess: () => { toast({ title: 'Ticket updated' }); qc.invalidateQueries({ queryKey: ['sa-support-tickets'] }); },
+    onSuccess: (_, vars) => {
+      toast({ title: 'Ticket updated' });
+      qc.invalidateQueries({ queryKey: ['sa-support-tickets'] });
+      // Send resolved notification
+      if (vars.status === 'resolved') {
+        const ticket = tickets.find((t: any) => t.id === vars.id);
+        if (ticket && (ticket as any).user_id) {
+          onTicketResolved((ticket as any).user_id, (ticket as any).email, vars.id, (ticket as any).subject || '');
+        }
+      }
+    },
   });
 
   const unresolvedFlags = flags.filter((f: any) => !f.resolved);
