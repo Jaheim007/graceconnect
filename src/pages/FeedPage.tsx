@@ -151,7 +151,7 @@ export default function FeedPage() {
             <div>
               <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">{t('feed.your_feed')}</h1>
               <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                {userOrgs.length} {userOrgs.length > 1 ? t('feed.organizations') : t('feed.organization')}
+                Ressources, campagnes et événements de vos abonnements
               </p>
             </div>
           </div>
