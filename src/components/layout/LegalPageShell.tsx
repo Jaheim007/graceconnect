@@ -16,9 +16,9 @@ export function LegalFooter() {
           <div className="space-y-2">
             <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">Product</h4>
             <ul className="space-y-1.5 text-muted-foreground">
-              <li><Link to="/discover" className="hover:text-foreground transition-colors">Discover</Link></li>
-              <li><Link to="/marketplace" className="hover:text-foreground transition-colors">Marketplace</Link></li>
-              <li><Link to="/programs" className="hover:text-foreground transition-colors">Programs</Link></li>
+              <li><Link to="/auth?mode=signup" className="hover:text-foreground transition-colors">Get Started</Link></li>
+              <li><Link to="/install" className="hover:text-foreground transition-colors">Install</Link></li>
+              <li><Link to="/faq" className="hover:text-foreground transition-colors">FAQ</Link></li>
             </ul>
           </div>
           <div className="space-y-2">
@@ -65,7 +65,7 @@ export function LegalHeader() {
       <div className="container flex items-center justify-between h-14 px-4">
         <Link to="/" className="text-xl font-extrabold tracking-tight italic text-primary">Siteviral</Link>
         <Button variant="ghost" size="sm" asChild>
-          <Link to="/"><ArrowLeft className="h-4 w-4 mr-1" /> Retour</Link>
+          <Link to="/"><ArrowLeft className="h-4 w-4 mr-1" /> Back</Link>
         </Button>
       </div>
     </header>
