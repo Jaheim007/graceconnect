@@ -18,7 +18,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { formatCurrency, formatPrice } from '@/lib/currency';
-const fmt = (n: number, currency?: string | null) => formatCurrency(n, currency);
+import { useI18n } from '@/i18n/I18nContext';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -27,11 +27,6 @@ const typeIcons: Record<string, React.ReactNode> = {
   link: <Link2 className="h-4 w-4" />,
 };
 
-const typeLabels: Record<string, string> = {
-  pdf: 'PDF', ebook: 'eBook', audio: 'Audio', video: 'Vidéo', course: 'Cours', link: 'Lien',
-};
-
-/** Cover aspect ratio based on product type */
 const coverAspectClass: Record<string, string> = {
   pdf: 'aspect-[2/3]',
   ebook: 'aspect-[2/3]',
@@ -46,8 +41,14 @@ export default function ProductDetailPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useI18n();
   const [purchaseProduct, setPurchaseProduct] = useState<DigitalProduct | null>(null);
   const [copied, setCopied] = useState(false);
+
+  const typeLabels: Record<string, string> = {
+    pdf: t('product.type_pdf'), ebook: t('product.type_ebook'), audio: t('product.type_audio'),
+    video: t('product.type_video'), course: t('product.type_course'), link: t('product.type_link'),
+  };
 
   const { data: affiliateCode } = useQuery({
     queryKey: ['my-affiliate-code', user?.id, slug],
@@ -93,7 +94,7 @@ export default function ProductDetailPage() {
   const handleCopyLink = async () => {
     await navigator.clipboard.writeText(buildShareUrl());
     setCopied(true);
-    toast({ title: 'Lien copié !' });
+    toast({ title: t('product.link_copied') });
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -130,9 +131,9 @@ export default function ProductDetailPage() {
   if (!product) {
     return (
       <EmptyState
-        title="Produit introuvable"
-        description="Ce produit n'existe pas ou n'est pas publié."
-        action={{ label: 'Retour', onClick: () => navigate(-1) }}
+        title={t('product.not_found')}
+        description={t('product.not_found_desc')}
+        action={{ label: t('product.back'), onClick: () => navigate(-1) }}
         className="min-h-screen"
       />
     );
@@ -168,20 +169,13 @@ export default function ProductDetailPage() {
           <span className="text-lg font-extrabold tracking-tight italic text-primary">Siteviral</span>
         </Link>
         <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4" /> Retour
+          <ArrowLeft className="h-4 w-4" /> {t('product.back')}
         </Button>
       </div>
 
       <div className="container max-w-5xl px-4 py-6">
-        {/* Two-column layout on desktop, stacked on mobile */}
         <div className="grid md:grid-cols-[1fr_340px] gap-6 md:gap-8">
-          {/* LEFT — Cover + Description */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            {/* Cover image — adaptive aspect ratio */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             <div className={cn('rounded-2xl overflow-hidden border border-border shadow-card bg-muted/30 max-w-md mx-auto md:max-w-none', aspectClass)}>
               {product.cover_image_url ? (
                 <img src={product.cover_image_url} alt={product.title} className="w-full h-full object-cover" />
@@ -192,7 +186,6 @@ export default function ProductDetailPage() {
               )}
             </div>
 
-            {/* Title (visible on mobile, hidden on md+) */}
             <div className="md:hidden space-y-2">
               <h1 className="text-2xl font-bold">{product.title}</h1>
               <div className="flex items-center gap-2 flex-wrap">
@@ -200,25 +193,23 @@ export default function ProductDetailPage() {
                   {typeIcons[product.product_type || 'pdf']} {typeLabels[product.product_type || 'pdf'] || product.product_type}
                 </Badge>
                 {product.sales_count && product.sales_count > 0 && (
-                  <span className="text-xs text-muted-foreground">{product.sales_count}+ ventes</span>
+                  <span className="text-xs text-muted-foreground">{product.sales_count}+ {t('product.sales')}</span>
                 )}
               </div>
             </div>
 
-            {/* Description */}
             {product.description && (
               <div className="space-y-3">
-                <h2 className="text-base font-semibold">Description</h2>
+                <h2 className="text-base font-semibold">{t('product.description')}</h2>
                 <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
                   {product.description}
                 </div>
               </div>
             )}
 
-            {/* Org info */}
             {org && (
               <div className="p-4 rounded-2xl border border-border bg-card shadow-card">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Vendu par</p>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{t('product.sold_by')}</p>
                 <div className="flex items-center gap-3">
                   {org.logo_url ? (
                     <img src={org.logo_url} alt={org.name} className="h-12 w-12 rounded-xl object-cover border border-border" />
@@ -232,22 +223,15 @@ export default function ProductDetailPage() {
                     {org.description && <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{org.description}</p>}
                   </div>
                   <Button variant="outline" size="sm" className="gap-1.5 text-xs shrink-0" onClick={() => navigate(`/org/${slug}`)}>
-                    <ExternalLink className="h-3.5 w-3.5" /> Voir
+                    <ExternalLink className="h-3.5 w-3.5" /> {t('product.view')}
                   </Button>
                 </div>
               </div>
             )}
           </motion.div>
 
-          {/* RIGHT — Sticky purchase sidebar */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 }}
-            className="md:sticky md:top-16 md:self-start space-y-4"
-          >
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="md:sticky md:top-16 md:self-start space-y-4">
             <div className="p-5 rounded-2xl border border-border bg-card shadow-card space-y-4">
-              {/* Title (hidden on mobile, shown on md+) */}
               <div className="hidden md:block space-y-2">
                 <h1 className="text-xl font-bold leading-snug">{product.title}</h1>
                 <div className="flex items-center gap-2 flex-wrap">
@@ -255,30 +239,24 @@ export default function ProductDetailPage() {
                     {typeIcons[product.product_type || 'pdf']} {typeLabels[product.product_type || 'pdf'] || product.product_type}
                   </Badge>
                   {product.sales_count && product.sales_count > 0 && (
-                    <span className="text-xs text-muted-foreground">{product.sales_count}+ ventes</span>
+                    <span className="text-xs text-muted-foreground">{product.sales_count}+ {t('product.sales')}</span>
                   )}
                 </div>
               </div>
 
-              {/* Price */}
               <div className="text-center py-2">
                 <span className={cn('text-3xl font-bold', product.is_free ? 'text-emerald-500' : 'text-primary')}>
                   {formatPrice(product.price || 0, product.is_free, product.currency)}
                 </span>
               </div>
 
-              {/* CTA */}
               {isPurchased ? (
                 <div className="space-y-2">
                   <Badge className="w-full justify-center py-2 bg-emerald-500/10 text-emerald-600 border-emerald-500/20 gap-1.5">
-                    <CheckCircle className="h-4 w-4" /> Déjà acheté
+                    <CheckCircle className="h-4 w-4" /> {t('product.already_purchased')}
                   </Badge>
-                  <Button
-                    variant="outline"
-                    className="w-full gap-2"
-                    onClick={() => navigate('/dashboard')}
-                  >
-                    <BookOpen className="h-4 w-4" /> Accéder à Mes Ressources
+                  <Button variant="outline" className="w-full gap-2" onClick={() => navigate('/dashboard')}>
+                    <BookOpen className="h-4 w-4" /> {t('product.access_resources')}
                   </Button>
                 </div>
               ) : (
@@ -290,18 +268,17 @@ export default function ProductDetailPage() {
                   }}
                 >
                   <ShoppingBag className="h-5 w-5" />
-                  {product.is_free ? 'Obtenir gratuitement' : 'Acheter maintenant'}
+                  {product.is_free ? t('product.get_free') : t('product.buy_now')}
                 </Button>
               )}
 
-              {/* Share actions */}
               <div className="flex items-center justify-center gap-2 pt-2 border-t border-border/40">
                 <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={handleShare}>
-                  <Share2 className="h-3.5 w-3.5" /> Partager
+                  <Share2 className="h-3.5 w-3.5" /> {t('product.share')}
                 </Button>
                 <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={handleCopyLink}>
                   {copied ? <CheckCircle className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
-                  {copied ? 'Copié' : 'Copier'}
+                  {copied ? t('product.copied') : t('product.copy')}
                 </Button>
                 <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={handleShareWhatsApp}>
                   <MessageCircle className="h-3.5 w-3.5 text-green-500" /> WhatsApp

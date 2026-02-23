@@ -9,11 +9,15 @@ import { TrendingUp, DollarSign, Users, ShoppingBag, Heart, Activity, Download }
 import { Button } from '@/components/ui/button';
 import { downloadCSV } from '@/lib/csvExport';
 import { subDays, format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr, enUS } from 'date-fns/locale';
 import { Badge } from '@/components/ui/badge';
-import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/i18n/I18nContext';
+import { formatCurrency } from '@/lib/currency';
+
+const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
 
 function AffiliatePerformanceTable({ orgId, currency }: { orgId?: string; currency: string }) {
+  const { t } = useI18n();
   const { data: affiliates = [], isLoading } = useQuery({
     queryKey: ['admin-affiliate-perf', orgId],
     queryFn: async () => {
@@ -58,21 +62,21 @@ function AffiliatePerformanceTable({ orgId, currency }: { orgId?: string; curren
   return (
     <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="font-semibold text-sm">Performance des affiliés</h2>
-        <Badge variant="outline" className="text-[10px]">{affiliates.length} affilié{affiliates.length > 1 ? 's' : ''}</Badge>
+        <h2 className="font-semibold text-sm">{t('analytics.affiliate_performance')}</h2>
+        <Badge variant="outline" className="text-[10px]">{affiliates.length} {affiliates.length > 1 ? t('analytics.affiliates_count_plural') : t('analytics.affiliates_count')}</Badge>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
             <tr className="border-b border-border text-muted-foreground">
-              <th className="text-left py-2 font-medium">Affilié</th>
-              <th className="text-right py-2 font-medium">Clics</th>
-              <th className="text-right py-2 font-medium">Conv.</th>
-              <th className="text-right py-2 font-medium">Taux</th>
-              <th className="text-right py-2 font-medium">En attente</th>
-              <th className="text-right py-2 font-medium">Disponible</th>
-              <th className="text-right py-2 font-medium">Payé</th>
-              <th className="text-right py-2 font-medium">Total</th>
+              <th className="text-left py-2 font-medium">{t('analytics.affiliate_col')}</th>
+              <th className="text-right py-2 font-medium">{t('analytics.clicks')}</th>
+              <th className="text-right py-2 font-medium">{t('analytics.conv')}</th>
+              <th className="text-right py-2 font-medium">{t('analytics.rate')}</th>
+              <th className="text-right py-2 font-medium">{t('analytics.pending')}</th>
+              <th className="text-right py-2 font-medium">{t('analytics.available')}</th>
+              <th className="text-right py-2 font-medium">{t('analytics.paid')}</th>
+              <th className="text-right py-2 font-medium">{t('analytics.total')}</th>
             </tr>
           </thead>
           <tbody>
@@ -84,7 +88,7 @@ function AffiliatePerformanceTable({ orgId, currency }: { orgId?: string; curren
                       {a.profile?.avatar_url ? <img src={a.profile.avatar_url} alt="" className="w-full h-full object-cover" /> : <span className="text-[9px] font-bold">{(a.profile?.display_name || '?')[0]}</span>}
                     </div>
                     <div>
-                      <p className="font-medium truncate max-w-[120px]">{a.profile?.display_name || 'Utilisateur'}</p>
+                      <p className="font-medium truncate max-w-[120px]">{a.profile?.display_name || t('analytics.user')}</p>
                       <p className="text-[10px] text-muted-foreground font-mono">{a.code}</p>
                     </div>
                   </div>
@@ -109,9 +113,6 @@ function AffiliatePerformanceTable({ orgId, currency }: { orgId?: string; curren
   );
 }
 
-import { formatCurrency } from '@/lib/currency';
-const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
-
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
   visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 26 } },
@@ -119,7 +120,9 @@ const fadeUp = {
 
 export default function AdminAnalyticsPage() {
   const { currentOrg } = useOrg();
+  const { t, locale } = useI18n();
   const orgId = currentOrg?.id;
+  const dateFnsLocale = locale === 'fr' ? fr : enUS;
 
   // Load daily metrics
   const { data: metrics = [], isLoading } = useQuery({
@@ -188,7 +191,7 @@ export default function AdminAnalyticsPage() {
       });
 
       const chartData = Object.entries(dailyMap).map(([date, v]) => ({
-        date: format(new Date(date), 'dd MMM', { locale: fr }),
+        date: format(new Date(date), 'dd MMM', { locale: dateFnsLocale }),
         revenue: v.revenue,
         transactions: v.tx,
         members: v.members,
@@ -220,12 +223,12 @@ export default function AdminAnalyticsPage() {
   const currency = currentOrg?.currency || 'XOF';
 
   const kpis = [
-    { label: 'Revenu total (30j)', value: fmt(stats.totalRevenue, currency), icon: DollarSign, color: 'text-emerald-500' },
-    { label: 'Transactions', value: stats.totalTransactions, icon: Activity, color: 'text-blue-500' },
-    { label: 'Dons reçus', value: fmt(stats.totalDonations, currency), icon: Heart, color: 'text-pink-500' },
-    { label: 'Ventes produits', value: fmt(stats.totalPurchases, currency), icon: ShoppingBag, color: 'text-amber-500' },
-    { label: 'Nouveaux membres', value: stats.newMembers, icon: Users, color: 'text-violet-500' },
-    { label: 'Panier moyen', value: fmt(stats.avgBasket, currency), icon: TrendingUp, color: 'text-cyan-500' },
+    { label: t('analytics.total_revenue'), value: fmt(stats.totalRevenue, currency), icon: DollarSign, color: 'text-emerald-500' },
+    { label: t('analytics.transactions'), value: stats.totalTransactions, icon: Activity, color: 'text-blue-500' },
+    { label: t('analytics.donations_received'), value: fmt(stats.totalDonations, currency), icon: Heart, color: 'text-pink-500' },
+    { label: t('analytics.product_sales'), value: fmt(stats.totalPurchases, currency), icon: ShoppingBag, color: 'text-amber-500' },
+    { label: t('analytics.new_members'), value: stats.newMembers, icon: Users, color: 'text-violet-500' },
+    { label: t('analytics.avg_basket'), value: fmt(stats.avgBasket, currency), icon: TrendingUp, color: 'text-cyan-500' },
   ];
 
   const exportMembers = async () => {
@@ -254,22 +257,20 @@ export default function AdminAnalyticsPage() {
   };
 
   return (
-    <AdminPageShell title="Analytiques avancés" subtitle="Données des 30 derniers jours" backRoute="/admin">
+    <AdminPageShell title={t('analytics.title')} subtitle={t('analytics.subtitle')} backRoute="/admin">
       <div className="space-y-6">
-        {/* Export buttons */}
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={exportMembers}>
-            <Download className="h-3.5 w-3.5" /> Membres CSV
+            <Download className="h-3.5 w-3.5" /> {t('analytics.export_members')}
           </Button>
           <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={exportTransactions}>
-            <Download className="h-3.5 w-3.5" /> Transactions CSV
+            <Download className="h-3.5 w-3.5" /> {t('analytics.export_transactions')}
           </Button>
           <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={exportAffiliates}>
-            <Download className="h-3.5 w-3.5" /> Affiliés CSV
+            <Download className="h-3.5 w-3.5" /> {t('analytics.export_affiliates')}
           </Button>
         </div>
 
-        {/* KPI Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {kpis.map((kpi) => (
             <motion.div key={kpi.label} variants={fadeUp} initial="hidden" animate="visible"
@@ -283,10 +284,9 @@ export default function AdminAnalyticsPage() {
           ))}
         </div>
 
-        {/* Revenue Chart */}
         {stats.chartData.length > 0 && (
           <div className="bg-card border border-border rounded-2xl p-5">
-            <h2 className="font-semibold text-sm mb-4">Revenu quotidien</h2>
+            <h2 className="font-semibold text-sm mb-4">{t('analytics.daily_revenue')}</h2>
             <ResponsiveContainer width="100%" height={240}>
               <AreaChart data={stats.chartData}>
                 <defs>
@@ -305,10 +305,9 @@ export default function AdminAnalyticsPage() {
           </div>
         )}
 
-        {/* Members Growth Chart */}
         {stats.chartData.length > 0 && (
           <div className="bg-card border border-border rounded-2xl p-5">
-            <h2 className="font-semibold text-sm mb-4">Croissance des membres</h2>
+            <h2 className="font-semibold text-sm mb-4">{t('analytics.member_growth')}</h2>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={stats.chartData}>
                 <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
@@ -320,33 +319,30 @@ export default function AdminAnalyticsPage() {
           </div>
         )}
 
-        {/* Top Products */}
         {topProducts.length > 0 && (
           <div className="bg-card border border-border rounded-2xl p-5">
-            <h2 className="font-semibold text-sm mb-3">Top Produits</h2>
+            <h2 className="font-semibold text-sm mb-3">{t('analytics.top_products')}</h2>
             <div className="space-y-2">
               {topProducts.map((p: any, i: number) => (
                 <div key={p.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors">
                   <span className="text-xs font-bold text-muted-foreground w-5">{i + 1}</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{p.title}</p>
-                    <p className="text-xs text-muted-foreground">{p.price?.toLocaleString('fr-FR')} {p.currency}</p>
+                    <p className="text-xs text-muted-foreground">{fmt(p.price || 0, p.currency)}</p>
                   </div>
-                  <span className="text-xs font-semibold text-primary">{p.sales_count} ventes</span>
+                  <span className="text-xs font-semibold text-primary">{p.sales_count} {t('analytics.sales')}</span>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Affiliate commissions summary */}
         <div className="bg-card border border-border rounded-2xl p-5">
-          <h2 className="font-semibold text-sm mb-2">Commissions affiliés (30j)</h2>
+          <h2 className="font-semibold text-sm mb-2">{t('analytics.affiliate_commissions')}</h2>
           <p className="text-2xl font-bold text-primary">{fmt(stats.totalAffiliateCommissions, currency)}</p>
-          <p className="text-xs text-muted-foreground mt-1">Total des commissions générées par vos affiliés</p>
+          <p className="text-xs text-muted-foreground mt-1">{t('analytics.affiliate_commissions_desc')}</p>
         </div>
 
-        {/* Detailed Affiliate Performance Table */}
         <AffiliatePerformanceTable orgId={orgId} currency={currency} />
       </div>
     </AdminPageShell>
