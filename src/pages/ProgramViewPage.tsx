@@ -121,7 +121,7 @@ export default function ProgramViewPage() {
           <p className="text-xs text-muted-foreground">{(program as any).organizations?.name}</p>
         </div>
         {!enrollment && (
-          <Button size="sm" className="gold-gradient text-primary-foreground border-0 shadow-gold text-xs"
+          <Button size="sm" className="bg-primary text-primary-foreground text-xs"
             onClick={() => user ? enroll.mutate() : navigate('/auth')}
             disabled={enroll.isPending}>
             {program.is_free ? 'S\'inscrire gratuitement' : `S'inscrire · ${program.price?.toLocaleString('fr-FR')} ${program.currency}`}

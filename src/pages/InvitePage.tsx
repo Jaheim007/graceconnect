@@ -169,7 +169,7 @@ export default function InvitePage() {
                       {org.logo_url ? (
                         <img src={org.logo_url} alt="" className="h-10 w-10 rounded-xl object-cover" />
                       ) : (
-                        <div className="h-10 w-10 rounded-xl gold-gradient flex items-center justify-center text-sm font-bold text-primary-foreground">
+                        <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center text-sm font-bold text-primary-foreground">
                           {org.name[0]}
                         </div>
                       )}
@@ -203,7 +203,7 @@ export default function InvitePage() {
                   Ce code sera associé à votre compte lors de l'inscription.
                 </p>
                 <Button
-                  className="w-full gold-gradient text-primary-foreground border-0 shadow-gold"
+                  className="w-full bg-primary text-primary-foreground"
                   onClick={handleJoin}
                 >
                   {user ? 'Explorer' : 'S\'inscrire maintenant'}
@@ -217,7 +217,7 @@ export default function InvitePage() {
       {/* Footer */}
       <footer className="border-t border-border/60 py-6 px-4 bg-muted/20">
         <div className="container flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <Link to="/" className="font-extrabold italic text-sm text-gold">Siteviral</Link>
+          <Link to="/" className="font-extrabold italic text-sm text-primary">Siteviral</Link>
           <span>© {new Date().getFullYear()} Siteviral — Operated by HACKTUALIZ Inc.</span>
         </div>
       </footer>

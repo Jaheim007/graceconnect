@@ -47,7 +47,7 @@ export function OrgActivationChecklist() {
       {/* Progress bar */}
       <div className="h-2 rounded-full bg-muted mb-4 overflow-hidden">
         <motion.div
-          className="h-full rounded-full gold-gradient"
+          className="h-full rounded-full bg-primary"
           initial={{ width: 0 }}
           animate={{ width: `${percent}%` }}
           transition={{ duration: 0.8, ease: 'easeOut' }}

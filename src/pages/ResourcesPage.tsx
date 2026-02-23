@@ -172,7 +172,7 @@ export default function ResourcesPage() {
                     </Button>
                     <Button
                       size="sm"
-                      className="gap-1.5 gold-gradient text-primary-foreground border-0 shadow-gold"
+                      className="gap-1.5 bg-primary text-primary-foreground"
                       onClick={() => handleFileAction(purchase, 'download')}
                       disabled={downloading === purchase.id}
                     >

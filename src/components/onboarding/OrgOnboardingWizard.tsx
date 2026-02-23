@@ -51,7 +51,7 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
         </button>
 
         <div className="text-center mb-6">
-          <div className="h-12 w-12 mx-auto rounded-2xl gold-gradient flex items-center justify-center shadow-gold mb-4">
+          <div className="h-12 w-12 mx-auto rounded-2xl bg-primary flex items-center justify-center mb-4">
             <Check className="h-6 w-6 text-primary-foreground" />
           </div>
           <h2 className="text-xl font-bold">🎉 Organisation créée !</h2>
@@ -82,7 +82,7 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
             Plus tard
           </Button>
           <Button
-            className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold gap-2"
+            className="flex-1 bg-primary text-primary-foreground gap-2"
             onClick={handleStart}
           >
             C'est parti <ArrowRight className="h-4 w-4" />

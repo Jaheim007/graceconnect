@@ -362,7 +362,7 @@ export default function PaymentSuccessPage() {
                 <>
                   <Button
                     onClick={handleDownload}
-                    className="w-full gap-2 gold-gradient text-primary-foreground border-0 shadow-gold"
+                    className="w-full gap-2 bg-primary text-primary-foreground"
                   >
                     <Download className="h-4 w-4" />
                     Télécharger

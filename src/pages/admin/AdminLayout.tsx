@@ -141,7 +141,7 @@ export default function AdminLayout() {
                       cn(
                         'flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all',
                         isActive
-                          ? 'bg-primary text-primary-foreground shadow-gold'
+                          ? 'bg-primary text-primary-foreground'
                           : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                       )
                     }

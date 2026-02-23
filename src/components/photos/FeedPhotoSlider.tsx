@@ -111,7 +111,7 @@ export function FeedPhotoSlider({ orgIds }: FeedPhotoSliderProps) {
                   className="h-6 w-6 rounded-lg object-cover shrink-0"
                 />
               ) : (
-                <div className="h-6 w-6 rounded-lg gold-gradient shrink-0" />
+                <div className="h-6 w-6 rounded-lg bg-primary shrink-0" />
               )}
               <p className="text-xs text-muted-foreground font-medium truncate">
                 {photo.organizations?.name || 'Communauté'}

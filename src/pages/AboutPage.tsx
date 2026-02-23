@@ -28,11 +28,11 @@ export default function AboutPage() {
       <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
         <div className="container flex items-center justify-between h-14 px-4">
           <Link to="/">
-            <span className="text-xl font-extrabold tracking-tight italic text-gold">Siteviral</span>
+            <span className="text-xl font-extrabold tracking-tight italic text-primary">Siteviral</span>
           </Link>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" asChild><Link to="/auth">Connexion</Link></Button>
-            <Button size="sm" className="gold-gradient text-primary-foreground border-0 shadow-gold" asChild>
+            <Button size="sm" className="bg-primary text-primary-foreground" asChild>
               <Link to="/auth?tab=signup">Commencer</Link>
             </Button>
           </div>
@@ -49,7 +49,7 @@ export default function AboutPage() {
           <motion.div initial="hidden" animate="visible" variants={fadeUp} transition={{ duration: 0.5 }} className="space-y-5">
             <h1 className="text-3xl sm:text-5xl font-bold leading-tight">
               Notre mission :{' '}
-              <span className="text-gold italic">connecter les organisations et leurs communautés.</span>
+              <span className="text-primary italic">connecter les organisations et leurs communautés.</span>
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Siteviral, opéré par Hacktualiz Inc. (Delaware, USA), est né d'une conviction simple : chaque organisation mérite
@@ -66,7 +66,7 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 gap-10 items-center">
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} transition={{ duration: 0.5 }}>
               <h2 className="text-2xl sm:text-3xl font-bold mb-4">
-                L'histoire derrière <span className="text-gold italic">Siteviral</span>
+                L'histoire derrière <span className="text-primary italic">Siteviral</span>
               </h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">
                 <p>
@@ -117,7 +117,7 @@ export default function AboutPage() {
                 transition={{ delay: i * 0.08 }}
                 className="bg-card rounded-2xl border border-border p-5 shadow-card space-y-3 text-center"
               >
-                <div className="h-10 w-10 mx-auto rounded-xl gold-gradient flex items-center justify-center shadow-gold">
+                <div className="h-10 w-10 mx-auto rounded-xl bg-primary flex items-center justify-center">
                   <v.icon className="h-5 w-5 text-primary-foreground" />
                 </div>
                 <h3 className="font-semibold">{v.title}</h3>
@@ -178,7 +178,7 @@ export default function AboutPage() {
                 transition={{ delay: i * 0.1 }}
                 className="bg-card rounded-2xl border border-border p-6 shadow-card text-center space-y-2"
               >
-                <div className="h-12 w-12 mx-auto rounded-full gold-gradient flex items-center justify-center shadow-gold">
+                <div className="h-12 w-12 mx-auto rounded-full bg-primary flex items-center justify-center">
                   <span className="text-sm font-bold text-primary-foreground">{t.role.charAt(0)}</span>
                 </div>
                 <h3 className="font-semibold text-sm">{t.role}</h3>
@@ -199,7 +199,7 @@ export default function AboutPage() {
             </p>
             <Button
               size="lg"
-              className="gold-gradient text-primary-foreground border-0 shadow-gold px-10 h-12 gap-2 w-full sm:w-auto"
+              className="bg-primary text-primary-foreground px-10 h-12 gap-2 w-full sm:w-auto"
               asChild
             >
               <Link to="/auth?tab=signup">

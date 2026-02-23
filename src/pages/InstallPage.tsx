@@ -56,7 +56,7 @@ export default function InstallPage() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md space-y-6 text-center"
       >
-        <div className="h-16 w-16 rounded-2xl gold-gradient flex items-center justify-center mx-auto shadow-gold">
+        <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center mx-auto">
           <Download className="h-8 w-8 text-primary-foreground" />
         </div>
 
@@ -72,7 +72,7 @@ export default function InstallPage() {
             <CheckCircle className="h-10 w-10 text-primary mx-auto" />
             <p className="font-semibold">Siteviral est déjà installé !</p>
             <p className="text-sm text-muted-foreground">Vous profitez déjà de l'expérience complète.</p>
-            <Button className="w-full gold-gradient text-primary-foreground border-0 shadow-gold" onClick={() => navigate('/feed')}>
+            <Button className="w-full bg-primary text-primary-foreground" onClick={() => navigate('/feed')}>
               Continuer <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           </div>
@@ -92,7 +92,7 @@ export default function InstallPage() {
 
             {/* Install button or iOS instructions */}
             {deferredPrompt ? (
-              <Button size="lg" className="w-full gold-gradient text-primary-foreground border-0 shadow-gold h-12 text-base gap-2" onClick={handleInstall}>
+              <Button size="lg" className="w-full bg-primary text-primary-foreground h-12 text-base gap-2" onClick={handleInstall}>
                 <Download className="h-5 w-5" /> Installer maintenant
               </Button>
             ) : isIOS ? (

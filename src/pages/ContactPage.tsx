@@ -65,7 +65,7 @@ export default function ContactPage() {
         <div className="mt-10 bg-card border border-border rounded-2xl p-6 text-center space-y-3">
           <h3 className="font-bold text-foreground">Besoin d'aide rapidement ?</h3>
           <p className="text-sm text-muted-foreground">Consultez notre centre d'aide pour des réponses instantanées.</p>
-          <Button asChild className="gold-gradient text-primary-foreground border-0 shadow-gold gap-2">
+          <Button asChild className="bg-primary text-primary-foreground gap-2">
             <Link to="/faq">Consulter la FAQ</Link>
           </Button>
         </div>

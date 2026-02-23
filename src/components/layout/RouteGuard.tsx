@@ -48,7 +48,7 @@ export function FullPageLoader() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-3">
-        <div className="h-10 w-10 rounded-xl gold-gradient flex items-center justify-center">
+        <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
           <span className="text-sm font-bold text-primary-foreground">GC</span>
         </div>
         <Loader2 className="h-5 w-5 animate-spin text-primary" />

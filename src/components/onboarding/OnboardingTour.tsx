@@ -225,7 +225,7 @@ export function OnboardingTour() {
               {/* Header */}
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2.5">
-                  <div className="h-9 w-9 rounded-xl gold-gradient flex items-center justify-center text-primary-foreground shrink-0">
+                  <div className="h-9 w-9 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shrink-0">
                     {currentStep.icon}
                   </div>
                   <div>
@@ -276,7 +276,7 @@ export function OnboardingTour() {
                 <Button
                   size="sm"
                   onClick={next}
-                  className="h-8 text-xs gap-1 gold-gradient text-primary-foreground border-0"
+                  className="h-8 text-xs gap-1 bg-primary text-primary-foreground"
                 >
                   {step === STEPS.length - 1 ? (
                     <>

@@ -162,10 +162,10 @@ export default function OrgPublicPage() {
       {/* Top bar */}
       <div className="sticky top-0 z-20 border-b border-border/40 bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between">
         <Link to={user ? '/feed' : '/'}>
-          <span className="text-lg font-extrabold tracking-tight italic text-gold">Siteviral</span>
+          <span className="text-lg font-extrabold tracking-tight italic text-primary">Siteviral</span>
         </Link>
         {!user ? (
-          <Button size="sm" className="h-7 text-xs gold-gradient text-primary-foreground border-0" onClick={() => navigate('/auth')}>
+          <Button size="sm" className="h-7 text-xs bg-primary text-primary-foreground" onClick={() => navigate('/auth')}>
             Connexion
           </Button>
         ) : (
@@ -208,7 +208,7 @@ export default function OrgPublicPage() {
               {org.logo_url ? (
                 <img src={org.logo_url} alt={org.name} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full gold-gradient flex items-center justify-center">
+                <div className="w-full h-full bg-primary flex items-center justify-center">
                   <span className="text-3xl sm:text-4xl font-bold text-primary-foreground">
                     {org.name.slice(0, 2).toUpperCase()}
                   </span>
@@ -275,7 +275,7 @@ export default function OrgPublicPage() {
                   size="sm"
                   onClick={handleJoinLeave}
                   disabled={joining}
-                  className="h-9 text-xs px-5 gold-gradient text-primary-foreground border-0 shadow-gold"
+                  className="h-9 text-xs px-5 bg-primary text-primary-foreground"
                 >
                   {joining ? '...' : 'Rejoindre'}
                 </Button>
@@ -347,7 +347,7 @@ export default function OrgPublicPage() {
         {pinnedAnnouncement && (
           <div className="mb-6 p-4 rounded-2xl bg-primary/10 border border-primary/20">
             <div className="flex items-start gap-3">
-              <div className="h-8 w-8 rounded-lg gold-gradient flex items-center justify-center shrink-0">
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                 <span className="text-xs">📌</span>
               </div>
               <div>
@@ -377,7 +377,7 @@ export default function OrgPublicPage() {
                   className={cn(
                     'shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-semibold transition-all border',
                     activeTab === t.value
-                      ? 'gold-gradient text-primary-foreground border-primary shadow-gold'
+                      ? 'bg-primary text-primary-foreground border-primary'
                       : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/20 bg-card'
                   )}
                 >
@@ -476,7 +476,7 @@ export default function OrgPublicPage() {
                 <div className="space-y-2">
                   {events.slice(0, 3).map((ev) => (
                     <div key={ev.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card">
-                      <div className="h-10 w-10 rounded-lg gold-gradient flex items-center justify-center shrink-0">
+                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                         <CalendarDays className="h-5 w-5 text-primary-foreground" />
                       </div>
                       <div className="flex-1 min-w-0">

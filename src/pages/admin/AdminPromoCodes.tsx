@@ -134,7 +134,7 @@ export default function AdminPromoCodes() {
 
         {/* Create button / form */}
         {!showForm ? (
-          <Button size="sm" className="gold-gradient text-primary-foreground border-0 shadow-gold gap-1.5" onClick={() => setShowForm(true)}>
+          <Button size="sm" className="bg-primary text-primary-foreground gap-1.5" onClick={() => setShowForm(true)}>
             <Plus className="h-3.5 w-3.5" /> Nouveau code promo
           </Button>
         ) : (
@@ -173,7 +173,7 @@ export default function AdminPromoCodes() {
               </div>
             </div>
             <div className="flex gap-2">
-              <Button size="sm" className="gold-gradient text-primary-foreground border-0" onClick={() => createCode.mutate()} disabled={createCode.isPending}>
+              <Button size="sm" className="bg-primary text-primary-foreground" onClick={() => createCode.mutate()} disabled={createCode.isPending}>
                 {createCode.isPending ? 'Création...' : 'Créer'}
               </Button>
               <Button size="sm" variant="outline" onClick={() => setShowForm(false)}>Annuler</Button>

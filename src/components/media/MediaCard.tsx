@@ -84,7 +84,7 @@ export function MediaCard({ media, index = 0, compact = false }: MediaCardProps)
         {/* Premium */}
         {media.is_premium && (
           <div className="absolute top-2 right-2">
-            <Badge className="text-[10px] px-2 py-0.5 h-5 gold-gradient text-primary-foreground border-0 font-bold">
+            <Badge className="text-[10px] px-2 py-0.5 h-5 bg-primary text-primary-foreground border-0 font-bold">
               PRO
             </Badge>
           </div>

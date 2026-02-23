@@ -93,7 +93,7 @@ export default function AdminPrograms() {
     <AdminPageShell title="Programmes de formation" subtitle="Créez des parcours structurés pour votre communauté" backRoute="/admin"
       newLabel="Nouveau programme" newRoute={undefined}>
       <div className="space-y-4">
-        <Button size="sm" className="gap-1.5 text-xs gold-gradient text-primary-foreground border-0 shadow-gold"
+        <Button size="sm" className="gap-1.5 text-xs bg-primary text-primary-foreground"
           onClick={() => setShowCreate(true)}>
           <Plus className="h-3.5 w-3.5" /> Nouveau programme
         </Button>
@@ -146,7 +146,7 @@ export default function AdminPrograms() {
             {programs.map((p: any) => (
               <motion.div key={p.id} variants={fadeUp} initial="hidden" animate="visible"
                 className="flex items-center gap-3 p-4 rounded-2xl border border-border bg-card hover:border-primary/20 transition-all group">
-                <div className="h-10 w-10 rounded-xl gold-gradient flex items-center justify-center shrink-0">
+                <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shrink-0">
                   <BookOpen className="h-5 w-5 text-primary-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">

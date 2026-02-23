@@ -231,7 +231,7 @@ export function MediaForm() {
         </div>
         <div className="flex gap-3 pt-2">
           <Button type="button" variant="outline" onClick={() => navigate('/admin/media')}>Annuler</Button>
-          <Button type="submit" className="gold-gradient text-primary-foreground border-0 shadow-gold" disabled={loading}>
+          <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>
             {loading ? 'Enregistrement...' : isEdit ? 'Mettre à jour' : 'Créer'}
           </Button>
         </div>

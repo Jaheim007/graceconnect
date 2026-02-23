@@ -276,7 +276,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
               <Button
                 onClick={handleDonate}
                 disabled={!amount || Number(amount) < 100}
-                className="flex-1 gold-gradient text-primary-foreground border-0 shadow-gold"
+                className="flex-1 bg-primary text-primary-foreground"
               >
                 Donner {amount ? fmt(effectiveAmount) : ''}
               </Button>
@@ -310,7 +310,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
             {user && (
               <Button
                 onClick={() => { handleClose(); navigate('/dashboard'); }}
-                className="w-full gold-gradient text-primary-foreground border-0 shadow-gold"
+                className="w-full bg-primary text-primary-foreground"
               >
                 Accéder à mon tableau de bord
               </Button>
