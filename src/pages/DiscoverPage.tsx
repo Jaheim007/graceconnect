@@ -100,11 +100,11 @@ export default function DiscoverPage() {
 
   return (
     <div className="bg-background min-h-screen">
-      <SEOHead title="Explorer — Communautés, Produits & Campagnes" description="Découvrez les meilleures communautés, produits numériques et campagnes de collecte sur Siteviral." />
+      <SEOHead title="Explorer — Ressources & Campagnes" description="Découvrez les meilleures ressources numériques et campagnes de collecte sur Siteviral." />
       <div className="border-b border-border py-6 px-4">
         <div className="container max-w-4xl">
           <h1 className="text-xl sm:text-2xl font-bold mb-1">Explorer</h1>
-          <p className="text-muted-foreground text-sm mb-4">Communautés, produits et campagnes à découvrir.</p>
+          <p className="text-muted-foreground text-sm mb-4">Ressources et campagnes à découvrir.</p>
           <div className="relative max-w-xl">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -121,7 +121,7 @@ export default function DiscoverPage() {
         <Tabs value={tab} onValueChange={(v) => { setTab(v); setPage(0); }}>
           <TabsList className="mb-6">
             <TabsTrigger value="products" className="gap-1.5">
-              <ShoppingBag className="h-3.5 w-3.5" /> Produits
+              <ShoppingBag className="h-3.5 w-3.5" /> Ressources
             </TabsTrigger>
             <TabsTrigger value="campaigns" className="gap-1.5">
               <Heart className="h-3.5 w-3.5" /> Campagnes
