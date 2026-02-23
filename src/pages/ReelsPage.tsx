@@ -1,9 +1,13 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useOrg } from '@/contexts/OrgContext';
-import { useFeedMedia } from '@/hooks/useMedia';
+import { useAuth } from '@/contexts/AuthContext';
+import { useFeedMedia, useLikeMedia } from '@/hooks/useMedia';
+import { db } from '@/lib/db';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Heart, Share2, Volume2, VolumeX, Play, ExternalLink } from 'lucide-react';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { toast } from 'sonner';
 
 function isDirectVideo(url: string) {
   return /\.(mp4|webm|mov|m3u8|ogg)(\?|$)/i.test(url);
@@ -34,9 +38,23 @@ function getEmbedUrl(url: string): string | null {
 export default function ReelsPage() {
   const navigate = useNavigate();
   const { id } = useParams<{ id?: string }>();
+  const { user } = useAuth();
   const { userOrgs } = useOrg();
   const orgIds = userOrgs.map((o) => o.id);
   const { data: allMedia = [] } = useFeedMedia(orgIds);
+  const likeMutation = useLikeMedia();
+  const queryClient = useQueryClient();
+
+  // Fetch user's liked media IDs
+  const { data: likedIds = [] } = useQuery({
+    queryKey: ['user-media-likes', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data } = await db.from('media_likes').select('media_id').eq('user_id', user.id);
+      return (data || []).map((r: any) => r.media_id);
+    },
+    enabled: !!user,
+  });
 
   const reels = allMedia.filter((m) => m.media_type === 'reel');
 
@@ -116,6 +134,23 @@ export default function ReelsPage() {
               isCurrent={i === currentIndex}
               muted={muted}
               videoRef={(el) => { videoRefs.current[i] = el; }}
+              liked={likedIds.includes(reel.id)}
+              onLike={() => {
+                if (!user) { toast.error('Connectez-vous pour aimer'); return; }
+                likeMutation.mutate(
+                  { mediaId: reel.id, orgId: reel.organization_id, userId: user.id, liked: likedIds.includes(reel.id) },
+                  { onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['user-media-likes'] }); } }
+                );
+              }}
+              onShare={async () => {
+                const url = `${window.location.origin}/reels/${reel.id}`;
+                if (navigator.share) {
+                  try { await navigator.share({ title: reel.title, url }); } catch {}
+                } else {
+                  await navigator.clipboard.writeText(url);
+                  toast.success('Lien copié !');
+                }
+              }}
             />
           ))}
         </div>
@@ -129,16 +164,21 @@ function ReelSlide({
   isCurrent,
   muted,
   videoRef,
+  liked,
+  onLike,
+  onShare,
 }: {
   reel: any;
   isCurrent: boolean;
   muted: boolean;
   videoRef: (el: HTMLVideoElement | null) => void;
+  liked: boolean;
+  onLike: () => void;
+  onShare: () => void;
 }) {
   const [isPlaying, setIsPlaying] = useState(true);
 
   const togglePlay = () => {
-    // handled via parent, but we track local state for UI
     setIsPlaying(!isPlaying);
   };
 
@@ -207,17 +247,17 @@ function ReelSlide({
 
         {/* Side actions */}
         <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-full pl-3 flex flex-col gap-5 sm:flex">
-          <button className="flex flex-col items-center gap-1">
+          <button className="flex flex-col items-center gap-1" onClick={onLike}>
             <div className="h-11 w-11 rounded-full bg-white/10 flex items-center justify-center">
-              <Heart className="h-6 w-6 text-white" />
+              <Heart className={`h-6 w-6 transition-colors ${liked ? 'text-red-500 fill-red-500' : 'text-white'}`} />
             </div>
             <span className="text-white text-xs">{reel.like_count || 0}</span>
           </button>
-          <button className="flex flex-col items-center gap-1">
+          <button className="flex flex-col items-center gap-1" onClick={onShare}>
             <div className="h-11 w-11 rounded-full bg-white/10 flex items-center justify-center">
               <Share2 className="h-6 w-6 text-white" />
             </div>
-            <span className="text-white text-xs">Share</span>
+            <span className="text-white text-xs">Partager</span>
           </button>
         </div>
       </div>
