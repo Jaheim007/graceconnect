@@ -11,63 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
 import { useTheme } from '@/contexts/ThemeContext';
-
-const mainNav = [
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/feed', icon: Home, label: 'My Network' },
-  { to: '/marketplace', icon: Store, label: 'Explorer' },
-  
-  { to: '/notifications', icon: Bell, label: 'Notifications' },
-  { to: '/affiliation', icon: Link2, label: 'Affiliation' },
-  { to: '/resources', icon: BookOpen, label: 'My Purchases' },
-  { to: '/support', icon: LifeBuoy, label: 'Aide' },
-  { to: '/profile', icon: User, label: 'Account' },
-];
-
-type AdminGroup = { label: string; items: { to: string; icon: typeof Home; label: string }[] };
-
-const adminGroups: AdminGroup[] = [
-  {
-    label: 'Content',
-    items: [
-      { to: '/admin/media', icon: Play, label: 'Media' },
-      { to: '/admin/photos', icon: Camera, label: 'Photos' },
-      { to: '/admin/announcements', icon: Megaphone, label: 'Announcements' },
-      { to: '/admin/events', icon: CalendarDays, label: 'Events' },
-      { to: '/admin/programs', icon: GraduationCap, label: 'Programs' },
-    ],
-  },
-  {
-    label: 'Commerce',
-    items: [
-      { to: '/admin/products', icon: ShoppingBag, label: 'Products' },
-      { to: '/admin/campaigns', icon: Heart, label: 'Campaigns' },
-      { to: '/admin/affiliation', icon: Link2, label: 'Affiliation' },
-      { to: '/admin/promo-codes', icon: FileCheck, label: 'Promo Codes' },
-    ],
-  },
-  {
-    label: 'Management',
-    items: [
-      { to: '/admin/members', icon: Users, label: 'Members' },
-      { to: '/admin/crm', icon: UserPlus, label: 'CRM' },
-      { to: '/admin/payouts', icon: Wallet, label: 'Payouts' },
-      { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
-      { to: '/admin/kyc', icon: FileCheck, label: 'Verification' },
-      { to: '/admin/settings', icon: Settings, label: 'Settings' },
-    ],
-  },
-];
-
-const superadminNav = [
-  { to: '/superadmin', icon: Shield, label: 'Overview' },
-  { to: '/superadmin/orgs', icon: Users, label: 'Organizations' },
-  { to: '/superadmin/kyc', icon: FileCheck, label: 'KYC' },
-  { to: '/superadmin/transactions', icon: BarChart3, label: 'Transactions' },
-  { to: '/superadmin/reports', icon: Megaphone, label: 'Reports' },
-  { to: '/superadmin/risk', icon: ShieldAlert, label: 'Risk & AML' },
-  { to: '/superadmin/metrics', icon: BarChart3, label: 'Metrics' },
-];
+import { useI18n } from '@/i18n/I18nContext';
 
 export function Sidebar() {
   const location = useLocation();
@@ -76,24 +20,82 @@ export function Sidebar() {
   const { currentOrg, canManage } = useOrg();
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const { theme, toggleTheme } = useTheme();
+  const { t } = useI18n();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ Content: true, Commerce: true, Management: true });
 
   const isAdmin = location.pathname.startsWith('/admin');
   const isSA = location.pathname.startsWith('/superadmin');
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
 
+  const mainNav = [
+    { to: '/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard') },
+    { to: '/feed', icon: Home, label: t('sidebar.my_network') },
+    { to: '/marketplace', icon: Store, label: t('sidebar.explorer') },
+    { to: '/notifications', icon: Bell, label: t('sidebar.notifications') },
+    { to: '/affiliation', icon: Link2, label: t('sidebar.affiliation') },
+    { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases') },
+    { to: '/support', icon: LifeBuoy, label: t('sidebar.help') },
+    { to: '/profile', icon: User, label: t('sidebar.account') },
+  ];
+
+  const adminGroups = [
+    {
+      label: t('sidebar.content'),
+      key: 'Content',
+      items: [
+        { to: '/admin/media', icon: Play, label: t('sidebar.media') },
+        { to: '/admin/photos', icon: Camera, label: t('sidebar.photos') },
+        { to: '/admin/announcements', icon: Megaphone, label: t('sidebar.announcements') },
+        { to: '/admin/events', icon: CalendarDays, label: t('sidebar.events') },
+        { to: '/admin/programs', icon: GraduationCap, label: t('sidebar.programs') },
+      ],
+    },
+    {
+      label: t('sidebar.commerce'),
+      key: 'Commerce',
+      items: [
+        { to: '/admin/products', icon: ShoppingBag, label: t('sidebar.products') },
+        { to: '/admin/campaigns', icon: Heart, label: t('sidebar.campaigns') },
+        { to: '/admin/affiliation', icon: Link2, label: t('sidebar.affiliation') },
+        { to: '/admin/promo-codes', icon: FileCheck, label: t('sidebar.promo_codes') },
+      ],
+    },
+    {
+      label: t('sidebar.management'),
+      key: 'Management',
+      items: [
+        { to: '/admin/members', icon: Users, label: t('sidebar.members') },
+        { to: '/admin/crm', icon: UserPlus, label: t('sidebar.crm') },
+        { to: '/admin/payouts', icon: Wallet, label: t('sidebar.payouts') },
+        { to: '/admin/analytics', icon: BarChart3, label: t('sidebar.analytics') },
+        { to: '/admin/kyc', icon: FileCheck, label: t('sidebar.verification') },
+        { to: '/admin/settings', icon: Settings, label: t('sidebar.settings') },
+      ],
+    },
+  ];
+
+  const superadminNav = [
+    { to: '/superadmin', icon: Shield, label: t('sidebar.overview') },
+    { to: '/superadmin/orgs', icon: Users, label: t('sidebar.organizations') },
+    { to: '/superadmin/kyc', icon: FileCheck, label: t('sidebar.kyc') },
+    { to: '/superadmin/transactions', icon: BarChart3, label: t('sidebar.transactions') },
+    { to: '/superadmin/reports', icon: Megaphone, label: t('sidebar.reports') },
+    { to: '/superadmin/risk', icon: ShieldAlert, label: t('sidebar.risk_aml') },
+    { to: '/superadmin/metrics', icon: BarChart3, label: t('sidebar.metrics') },
+  ];
+
   const isActive = (to: string) => {
     if (to === '/admin' || to === '/superadmin') return location.pathname === to;
     return location.pathname.startsWith(to);
   };
 
-  const toggleGroup = (label: string) => {
-    setOpenGroups((prev) => ({ ...prev, [label]: !prev[label] }));
+  const toggleGroup = (key: string) => {
+    setOpenGroups((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const renderNavItem = (item: { to: string; icon: typeof Home; label: string }) => {
     const active = isActive(item.to);
-    const showBadge = item.label === 'Notifications' && unread > 0;
+    const showBadge = item.to === '/notifications' && unread > 0;
     const Icon = item.icon;
     return (
       <Link
@@ -144,7 +146,7 @@ export function Sidebar() {
       {/* Org context (admin only) */}
       {isAdmin && currentOrg && !collapsed && (
         <div className="mx-3 mt-3 p-2 rounded-lg bg-primary/10 border border-primary/20">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Managing</p>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{t('sidebar.managing')}</p>
           <p className="text-xs font-semibold text-primary truncate">{currentOrg.name}</p>
         </div>
       )}
@@ -155,19 +157,19 @@ export function Sidebar() {
           superadminNav.map(renderNavItem)
         ) : isAdmin ? (
           <>
-            {renderNavItem({ to: '/admin', icon: BarChart3, label: 'Overview' })}
+            {renderNavItem({ to: '/admin', icon: BarChart3, label: t('sidebar.overview') })}
             
             {!collapsed ? (
               adminGroups.map((group) => (
-                <div key={group.label} className="mt-3">
+                <div key={group.key} className="mt-3">
                   <button
-                    onClick={() => toggleGroup(group.label)}
+                    onClick={() => toggleGroup(group.key)}
                     className="flex items-center justify-between w-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {group.label}
-                    <ChevronDown className={cn('h-3 w-3 transition-transform', openGroups[group.label] && 'rotate-180')} />
+                    <ChevronDown className={cn('h-3 w-3 transition-transform', openGroups[group.key] && 'rotate-180')} />
                   </button>
-                  {openGroups[group.label] && (
+                  {openGroups[group.key] && (
                     <div className="space-y-0.5 mt-0.5">
                       {group.items.map(renderNavItem)}
                     </div>
@@ -187,55 +189,55 @@ export function Sidebar() {
       <div className={cn('border-t border-border space-y-0.5', collapsed ? 'px-1 py-2' : 'px-3 py-3')}>
         <button
           onClick={toggleTheme}
-          title={collapsed ? (theme === 'dark' ? 'Light mode' : 'Dark mode') : undefined}
+          title={collapsed ? (theme === 'dark' ? t('sidebar.light_mode') : t('sidebar.dark_mode')) : undefined}
           className={cn(
             'flex items-center gap-3 rounded-lg text-sm font-medium transition-all w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
             collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
           )}
         >
           {theme === 'dark' ? <Sun className="h-4 w-4 shrink-0" /> : <Moon className="h-4 w-4 shrink-0" />}
-          {!collapsed && <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>}
+          {!collapsed && <span>{theme === 'dark' ? t('sidebar.light_mode') : t('sidebar.dark_mode')}</span>}
         </button>
 
         {!isAdmin && !isSA && isSuperadmin && (
           <Link
             to="/superadmin"
-            title={collapsed ? 'Superadmin' : undefined}
+            title={collapsed ? t('sidebar.superadmin') : undefined}
             className={cn(
               'flex items-center gap-3 rounded-lg text-sm font-medium transition-all text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
               collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
             )}
           >
             <Shield className="h-4 w-4 shrink-0" />
-            {!collapsed && <span>Superadmin</span>}
+            {!collapsed && <span>{t('sidebar.superadmin')}</span>}
           </Link>
         )}
 
         {!isAdmin && !isSA && canManageCurrentOrg && (
           <Link
             to="/admin"
-            title={collapsed ? 'Manage organization' : undefined}
+            title={collapsed ? t('sidebar.manage_org') : undefined}
             className={cn(
               'flex items-center gap-3 rounded-lg text-sm font-medium transition-all text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
               collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
             )}
           >
             <Settings className="h-4 w-4 shrink-0" />
-            {!collapsed && <span>Manage organization</span>}
+            {!collapsed && <span>{t('sidebar.manage_org')}</span>}
           </Link>
         )}
 
         {(isAdmin || isSA) && (
           <Link
             to="/feed"
-            title={collapsed ? 'Back to app' : undefined}
+            title={collapsed ? t('sidebar.back_to_app') : undefined}
             className={cn(
               'flex items-center gap-3 rounded-lg text-sm font-medium transition-all text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
               collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
             )}
           >
             <Home className="h-4 w-4 shrink-0" />
-            {!collapsed && <span>Back to app</span>}
+            {!collapsed && <span>{t('sidebar.back_to_app')}</span>}
           </Link>
         )}
       </div>
