@@ -3,26 +3,28 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import termsBg from '@/assets/terms-bg.jpg';
 import { ReactNode } from 'react';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface LegalPageShellProps {
   children: ReactNode;
 }
 
 export function LegalFooter() {
+  const { t } = useI18n();
   return (
     <footer className="relative z-10 border-t border-border/60 py-10 px-4 bg-background/80">
       <div className="container max-w-5xl">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-sm">
           <div className="space-y-2">
-            <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">Product</h4>
+            <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">{t('legal.product')}</h4>
             <ul className="space-y-1.5 text-muted-foreground">
-              <li><Link to="/auth?mode=signup" className="hover:text-foreground transition-colors">Get Started</Link></li>
+              <li><Link to="/auth?mode=signup" className="hover:text-foreground transition-colors">{t('landing.get_started')}</Link></li>
               <li><Link to="/install" className="hover:text-foreground transition-colors">Install</Link></li>
               <li><Link to="/faq" className="hover:text-foreground transition-colors">FAQ</Link></li>
             </ul>
           </div>
           <div className="space-y-2">
-            <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">Legal</h4>
+            <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">{t('legal.legal')}</h4>
             <ul className="space-y-1.5 text-muted-foreground">
               <li><Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link></li>
               <li><Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link></li>
@@ -34,7 +36,7 @@ export function LegalFooter() {
             </ul>
           </div>
           <div className="space-y-2">
-            <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">Trust</h4>
+            <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">{t('legal.trust')}</h4>
             <ul className="space-y-1.5 text-muted-foreground">
               <li><Link to="/security" className="hover:text-foreground transition-colors">Security</Link></li>
               <li><Link to="/compliance" className="hover:text-foreground transition-colors">Compliance</Link></li>
@@ -42,9 +44,9 @@ export function LegalFooter() {
             </ul>
           </div>
           <div className="space-y-2">
-            <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">Company</h4>
+            <h4 className="font-bold text-foreground text-xs uppercase tracking-wider">{t('legal.company')}</h4>
             <ul className="space-y-1.5 text-muted-foreground">
-              <li><Link to="/about" className="hover:text-foreground transition-colors">About</Link></li>
+              <li><Link to="/about" className="hover:text-foreground transition-colors">{t('landing.about')}</Link></li>
               <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
               <li><Link to="/faq" className="hover:text-foreground transition-colors">FAQ</Link></li>
             </ul>
@@ -60,12 +62,13 @@ export function LegalFooter() {
 }
 
 export function LegalHeader() {
+  const { t } = useI18n();
   return (
     <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
       <div className="container flex items-center justify-between h-14 px-4">
         <Link to="/" className="text-xl font-extrabold tracking-tight italic text-primary">Siteviral</Link>
         <Button variant="ghost" size="sm" asChild>
-          <Link to="/"><ArrowLeft className="h-4 w-4 mr-1" /> Back</Link>
+          <Link to="/"><ArrowLeft className="h-4 w-4 mr-1" /> {t('legal.back')}</Link>
         </Button>
       </div>
     </header>
@@ -90,9 +93,7 @@ export default function LegalPageShell({ children }: LegalPageShellProps) {
     <div className="min-h-screen bg-background">
       <LegalBackground />
       <LegalHeader />
-      <main className="relative z-10 container max-w-3xl px-4 pt-24 pb-16">
-        {children}
-      </main>
+      <main className="relative z-10 container max-w-3xl px-4 pt-24 pb-16">{children}</main>
       <LegalFooter />
     </div>
   );
