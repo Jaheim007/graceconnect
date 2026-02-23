@@ -79,9 +79,7 @@ export default function FeedPage() {
   if (userOrgs.length === 0) {
     const actions = [
       { icon: <Rocket className="h-6 w-6" />, label: t('feed.action_create_org'), desc: t('feed.action_create_org_desc'), onClick: () => navigate('/create-org'), primary: true },
-      { icon: <Compass className="h-6 w-6" />, label: t('feed.action_discover'), desc: t('feed.action_discover_desc'), onClick: () => navigate('/discover') },
       { icon: <Eye className="h-6 w-6" />, label: t('feed.action_browse_content'), desc: t('feed.action_browse_content_desc'), onClick: () => navigate('/marketplace') },
-      { icon: <Users className="h-6 w-6" />, label: t('feed.action_join'), desc: t('feed.action_join_desc'), onClick: () => navigate('/discover') },
     ];
 
     return (
