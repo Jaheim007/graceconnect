@@ -79,14 +79,14 @@ export default function AuthPage() {
         </Link>
         <div className="space-y-4">
           <h1 className="text-4xl font-bold leading-tight">
-            Connectez-vous.{' '}
-            <span className="text-primary italic">Grandissez ensemble.</span>
+            Sign in.{' '}
+            <span className="text-primary italic">Grow together.</span>
           </h1>
           <p className="text-muted-foreground text-lg max-w-md">
-            La plateforme pour les organisations et communautés dans le monde entier.
+            Infrastructure platform for digital organizations worldwide.
           </p>
           <div className="flex gap-3 mt-4">
-            {['Médias', 'Dons', 'Boutique', 'Affiliation'].map((t) => (
+            {['Media', 'Donations', 'Store', 'Affiliation'].map((t) => (
               <span key={t} className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium border border-primary/20">
                 {t}
               </span>
@@ -108,9 +108,9 @@ export default function AuthPage() {
             </div>
 
             <div className="text-center space-y-1">
-              <h2 className="text-xl font-bold">Bienvenue</h2>
+              <h2 className="text-xl font-bold">Welcome</h2>
               <p className="text-sm text-muted-foreground">
-                Connectez-vous pour accéder à vos communautés
+                Sign in to access your organizations
               </p>
             </div>
 
@@ -141,13 +141,13 @@ export default function AuthPage() {
                     <CheckCircle className="h-8 w-8 text-primary" />
                   </div>
                   <div className="space-y-1">
-                    <h3 className="font-semibold">Vérifiez votre email</h3>
+                    <h3 className="font-semibold">Check your email</h3>
                     <p className="text-sm text-muted-foreground">
-                      Un lien de connexion a été envoyé à <strong className="text-foreground">{email}</strong>
+                      A sign-in link has been sent to <strong className="text-foreground">{email}</strong>
                     </p>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Cliquez sur le lien dans l'email pour vous connecter. Vérifiez vos spams si vous ne le trouvez pas.
+                    Click the link in the email to sign in. Check your spam folder if you don't see it.
                   </p>
                   <Button
                     variant="ghost"
@@ -155,7 +155,7 @@ export default function AuthPage() {
                     className="text-xs"
                     onClick={() => { setMagicLinkSent(false); setMethod('choose'); }}
                   >
-                    ← Retour
+                    ← Back
                   </Button>
                 </motion.div>
               ) : method === 'choose' ? (
@@ -183,12 +183,12 @@ export default function AuthPage() {
                         <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                       </svg>
                     )}
-                    {googleLoading ? 'Redirection...' : 'Continuer avec Google'}
+                    {googleLoading ? 'Redirecting...' : 'Continue with Google'}
                   </Button>
 
                   <div className="flex items-center gap-3">
                     <div className="h-px flex-1 bg-border" />
-                    <span className="text-xs text-muted-foreground">ou</span>
+                    <span className="text-xs text-muted-foreground">or</span>
                     <div className="h-px flex-1 bg-border" />
                   </div>
 
@@ -199,11 +199,11 @@ export default function AuthPage() {
                     onClick={() => setMethod('magic-link')}
                   >
                     <Mail className="h-5 w-5" />
-                    Continuer avec un lien magique
+                    Continue with magic link
                   </Button>
 
                   <p className="text-[11px] text-center text-muted-foreground pt-2">
-                    Pas de mot de passe nécessaire — recevez un lien de connexion par email.
+                    No password needed — receive a sign-in link by email.
                   </p>
                 </motion.div>
               ) : (
@@ -216,13 +216,13 @@ export default function AuthPage() {
                   className="space-y-4"
                 >
                   <div>
-                    <Label htmlFor="magic-email">Votre adresse email</Label>
+                    <Label htmlFor="magic-email">Your email address</Label>
                     <div className="relative mt-1.5">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="magic-email"
                         type="email"
-                        placeholder="vous@exemple.com"
+                        placeholder="you@example.com"
                         className="pl-9 h-11"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -237,9 +237,9 @@ export default function AuthPage() {
                     disabled={sending || !email}
                   >
                     {sending ? (
-                      <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Envoi en cours...</>
+                      <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Sending...</>
                     ) : (
-                      'Envoyer le lien magique'
+                      'Send magic link'
                     )}
                   </Button>
                   <Button
@@ -249,7 +249,7 @@ export default function AuthPage() {
                     className="w-full text-xs text-muted-foreground"
                     onClick={() => setMethod('choose')}
                   >
-                    ← Revenir aux options
+                    ← Back to options
                   </Button>
                 </motion.form>
               )}
@@ -257,9 +257,9 @@ export default function AuthPage() {
 
             {/* Footer links */}
             <p className="text-xs text-center text-muted-foreground">
-              En continuant, vous acceptez nos{' '}
-              <Link to="/terms" className="underline hover:text-foreground">Conditions</Link>{' '}et{' '}
-              <Link to="/privacy" className="underline hover:text-foreground">Politique de confidentialité</Link>.
+              By continuing, you agree to our{' '}
+              <Link to="/terms" className="underline hover:text-foreground">Terms of Service</Link>{' '}and{' '}
+              <Link to="/privacy" className="underline hover:text-foreground">Privacy Policy</Link>.
             </p>
           </div>
         </div>

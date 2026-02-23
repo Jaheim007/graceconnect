@@ -27,11 +27,11 @@ import { cn } from '@/lib/utils';
 type Tab = 'all' | 'media' | 'store' | 'campaigns' | 'events';
 
 const TABS: { value: Tab; label: string; icon: React.ReactNode }[] = [
-  { value: 'all', label: 'Tout', icon: <TrendingUp className="h-3.5 w-3.5" /> },
-  { value: 'media', label: 'Médias', icon: <Play className="h-3.5 w-3.5" /> },
-  { value: 'store', label: 'Boutique', icon: <ShoppingBag className="h-3.5 w-3.5" /> },
-  { value: 'campaigns', label: 'Campagnes', icon: <Heart className="h-3.5 w-3.5" /> },
-  { value: 'events', label: 'Événements', icon: <CalendarDays className="h-3.5 w-3.5" /> },
+  { value: 'all', label: 'All', icon: <TrendingUp className="h-3.5 w-3.5" /> },
+  { value: 'media', label: 'Media', icon: <Play className="h-3.5 w-3.5" /> },
+  { value: 'store', label: 'Store', icon: <ShoppingBag className="h-3.5 w-3.5" /> },
+  { value: 'campaigns', label: 'Campaigns', icon: <Heart className="h-3.5 w-3.5" /> },
+  { value: 'events', label: 'Events', icon: <CalendarDays className="h-3.5 w-3.5" /> },
 ];
 
 const staggerContainer = {
@@ -78,9 +78,9 @@ export default function FeedPage() {
             <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center mx-auto">
               <Heart className="h-8 w-8 text-primary-foreground" />
             </div>
-            <h1 className="text-2xl font-bold">Bienvenue sur Siteviral !</h1>
+            <h1 className="text-2xl font-bold">Welcome to Siteviral!</h1>
             <p className="text-muted-foreground text-sm max-w-sm mx-auto">
-              Rejoignez des communautés pour voir leur contenu, acheter des ressources et soutenir leurs campagnes.
+              Join organizations to see their content, buy resources, and support their campaigns.
             </p>
           </motion.div>
 
@@ -93,17 +93,9 @@ export default function FeedPage() {
             <Button
               size="lg"
               className="w-full bg-primary text-primary-foreground gap-2 h-12"
-              onClick={() => navigate('/discover')}
-            >
-              <Search className="h-4 w-4" /> Explorer les communautés
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full h-12 gap-2"
               onClick={() => navigate('/create-org')}
             >
-              Créer ma communauté
+              Launch your organization
             </Button>
           </motion.div>
 
@@ -114,7 +106,7 @@ export default function FeedPage() {
             className="pt-4"
           >
             <p className="text-xs text-muted-foreground">
-              💡 Astuce : Vous pouvez aussi partager un lien d'organisation directement avec quelqu'un pour qu'il la rejoigne.
+              💡 Tip: You can share an organization link directly with someone so they can join.
             </p>
           </motion.div>
         </div>
@@ -140,15 +132,15 @@ export default function FeedPage() {
         >
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">Votre fil</h1>
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight">Your Feed</h1>
               <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-                {userOrgs.length} communauté{userOrgs.length > 1 ? 's' : ''}
+                {userOrgs.length} organization{userOrgs.length > 1 ? 's' : ''}
               </p>
             </div>
           </div>
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Rechercher..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 h-10" />
+            <Input placeholder="Search..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 h-10" />
           </div>
         </motion.div>
 
@@ -159,7 +151,7 @@ export default function FeedPage() {
               <Megaphone className="h-5 w-5 text-primary" />
             </div>
             <div className="min-w-0">
-              <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Épinglé</span>
+              <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Pinned</span>
               <p className="font-bold text-sm mt-0.5 line-clamp-1">{announcements.find((a) => a.is_pinned)?.title}</p>
               <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{announcements.find((a) => a.is_pinned)?.body}</p>
             </div>
@@ -194,13 +186,13 @@ export default function FeedPage() {
                 {/* Announcements */}
                 {!announcementsLoading && filteredAnnouncements.length > 0 && (
                   <section>
-                    <SectionHeader icon={<Megaphone className="h-4 w-4 text-primary" />} title="Annonces" />
+                    <SectionHeader icon={<Megaphone className="h-4 w-4 text-primary" />} title="Announcements" />
                     <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
                       {filteredAnnouncements.slice(0, 6).map((a) => (
                         <motion.div key={a.id} variants={staggerItem} className="shrink-0 w-72 bg-card rounded-2xl border border-border overflow-hidden shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300">
                           {a.image_url && <div className="h-36 overflow-hidden"><img src={a.image_url} alt={a.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" /></div>}
                           <div className="p-4">
-                            {a.is_pinned && <span className="text-[10px] text-primary font-bold uppercase tracking-wider">Épinglé</span>}
+                            {a.is_pinned && <span className="text-[10px] text-primary font-bold uppercase tracking-wider">Pinned</span>}
                             <h3 className="font-bold text-sm mt-1 line-clamp-2">{a.title}</h3>
                             <p className="text-xs text-muted-foreground mt-1.5 line-clamp-3">{a.body}</p>
                           </div>
@@ -213,7 +205,7 @@ export default function FeedPage() {
                 {/* Events */}
                 {!eventsLoading && filteredEvents.length > 0 && (
                   <section>
-                    <SectionHeader icon={<CalendarDays className="h-4 w-4 text-accent" />} title="Événements à venir" />
+                    <SectionHeader icon={<CalendarDays className="h-4 w-4 text-accent" />} title="Upcoming Events" />
                     <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
                       {filteredEvents.map((ev) => (
                         <motion.div key={ev.id} variants={staggerItem} className="shrink-0 w-64 bg-card rounded-2xl border border-border overflow-hidden shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300">
@@ -236,7 +228,7 @@ export default function FeedPage() {
                 {/* Products */}
                 {!productsLoading && filteredProducts.length > 0 && (
                   <section>
-                    <SectionHeader icon={<ShoppingBag className="h-4 w-4 text-primary" />} title="Boutique" action={{ label: 'Tout voir', onClick: () => setTab('store') }} />
+                    <SectionHeader icon={<ShoppingBag className="h-4 w-4 text-primary" />} title="Store" action={{ label: 'View all', onClick: () => setTab('store') }} />
                     <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                       {filteredProducts.slice(0, 6).map((p, i) => (
                         <motion.div key={p.id} variants={staggerItem}>
@@ -250,7 +242,7 @@ export default function FeedPage() {
                 {/* Campaigns */}
                 {!campaignsLoading && filteredCampaigns.length > 0 && (
                   <section>
-                    <SectionHeader icon={<Heart className="h-4 w-4 text-destructive" />} title="Campagnes de dons" action={{ label: 'Tout voir', onClick: () => setTab('campaigns') }} />
+                    <SectionHeader icon={<Heart className="h-4 w-4 text-destructive" />} title="Donation Campaigns" action={{ label: 'View all', onClick: () => setTab('campaigns') }} />
                     <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                       {filteredCampaigns.slice(0, 6).map((c, i) => (
                         <motion.div key={c.id} variants={staggerItem}>
@@ -266,7 +258,7 @@ export default function FeedPage() {
 
                 {/* Latest content */}
                 <section>
-                  <SectionHeader icon={<TrendingUp className="h-4 w-4 text-primary" />} title="Derniers contenus" action={filteredMedia.length > 6 ? { label: 'Tout voir', onClick: () => setTab('media') } : undefined} />
+                  <SectionHeader icon={<TrendingUp className="h-4 w-4 text-primary" />} title="Latest Content" action={filteredMedia.length > 6 ? { label: 'View all', onClick: () => setTab('media') } : undefined} />
                   {mediaLoading ? <SkeletonList count={6} /> : filteredMedia.length === 0 ? <EmptyState variant="content" /> : (
                     <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                       {filteredMedia.slice(0, 6).map((m, i) => (
@@ -286,8 +278,8 @@ export default function FeedPage() {
             {/* TAB: STORE */}
             {tab === 'store' && (
               <section>
-                <SectionHeader icon={<ShoppingBag className="h-4 w-4 text-primary" />} title="Boutique" />
-                {productsLoading ? <SkeletonList count={4} /> : filteredProducts.length === 0 ? <EmptyState variant="generic" title="Aucun produit" description="Les organisations que vous suivez n'ont pas encore de produits." /> : (
+                <SectionHeader icon={<ShoppingBag className="h-4 w-4 text-primary" />} title="Store" />
+                {productsLoading ? <SkeletonList count={4} /> : filteredProducts.length === 0 ? <EmptyState variant="generic" title="No products" description="Organizations you follow haven't published products yet." /> : (
                   <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                     {filteredProducts.map((p, i) => (
                       <motion.div key={p.id} variants={staggerItem}>
@@ -302,7 +294,7 @@ export default function FeedPage() {
             {/* TAB: CAMPAIGNS */}
             {tab === 'campaigns' && (
               <section>
-                <SectionHeader icon={<Heart className="h-4 w-4 text-destructive" />} title="Campagnes de dons" />
+                <SectionHeader icon={<Heart className="h-4 w-4 text-destructive" />} title="Donation Campaigns" />
                 {campaignsLoading ? <SkeletonList count={4} /> : filteredCampaigns.length === 0 ? <EmptyState variant="campaigns" /> : (
                   <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                     {filteredCampaigns.map((c, i) => (
