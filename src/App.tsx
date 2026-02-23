@@ -51,6 +51,7 @@ import CreateOrgPage from "@/pages/CreateOrgPage";
 import ProgramsPage from "@/pages/ProgramsPage";
 import ProgramViewPage from "@/pages/ProgramViewPage";
 import SupportPage from "@/pages/SupportPage";
+import AffiliationPage from "@/pages/AffiliationPage";
 
 // Admin layout + pages
 import AdminLayout from "@/pages/admin/AdminLayout";
@@ -162,6 +163,7 @@ const App = () => (
                   <Route path="/create-org" element={<CreateOrgPage />} />
                   <Route path="/programs/:id" element={<ProgramViewPage />} />
                   <Route path="/support" element={<SupportPage />} />
+                  <Route path="/affiliation" element={<AffiliationPage />} />
                 </Route>
 
                 {/* Admin (org-scoped) */}
