@@ -170,7 +170,7 @@ export default function SupportPage() {
       {view === 'tickets' && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">Vos demandes d'aide précédentes.</p>
+            <p className="text-sm text-muted-foreground">Vos demandes d'aide Technique.</p>
             <Button size="sm" variant="outline" onClick={() => setView('new-ticket')} className="gap-1.5">
               <Plus className="h-3.5 w-3.5" /> Nouvelle demande
             </Button>
@@ -179,7 +179,7 @@ export default function SupportPage() {
           {isLoading ? (
             <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-16 rounded-xl skeleton-shimmer" />)}</div>
           ) : tickets.length === 0 ? (
-            <EmptyState variant="generic" title="Aucune demande" description="Vous n'avez pas encore envoyé de demande d'aide."
+            <EmptyState variant="generic" title="Aucune demande" description="Vous n'avez pas encore envoyé de demande d'aide Technique."
               action={{ label: 'Envoyer une demande', onClick: () => setView('new-ticket') }} />
           ) : (
             <div className="space-y-2">
