@@ -214,7 +214,7 @@ export function GlobalSearch() {
                         </Badge>
                         {r.type === 'product' && r.price !== undefined && (
                           <span className="text-[10px] font-semibold text-primary">
-                            {r.price === 0 ? 'Gratuit' : `${r.price?.toLocaleString('fr-FR')} ${r.currency || 'XOF'}`}
+                            {r.price === 0 ? 'Gratuit' : `${r.price?.toLocaleString('fr-FR')} ${r.currency || ''}`}
                           </span>
                         )}
                       </div>

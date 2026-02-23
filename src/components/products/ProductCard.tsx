@@ -1,4 +1,5 @@
 import { DigitalProduct } from '@/types/database';
+import { formatPrice } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen, Share2, Copy, MessageCircle } from 'lucide-react';
@@ -80,10 +81,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
     if (resolvedSlug) navigate(detailPath);
   };
 
-  const fmt = (n: number) =>
-    n === 0 || product.is_free
-      ? 'Gratuit'
-      : new Intl.NumberFormat('fr-FR', { style: 'currency', currency: product.currency || 'XOF', maximumFractionDigits: 0 }).format(n);
+  const fmt = (n: number) => formatPrice(n, product.is_free, product.currency);
 
   const typeLabels: Record<string, string> = { pdf: 'PDF', ebook: 'eBook', audio: 'Audio', video: 'Vidéo', course: 'Cours', link: 'Lien', default: 'Produit' };
   const typeIcons: Record<string, React.ReactNode> = {

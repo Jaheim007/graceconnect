@@ -26,7 +26,7 @@ export const ORG_TEMPLATES: OrgTemplate[] = [
     defaults: {
       monetization_enabled: true,
       affiliation_enabled: false,
-      currency: 'USD',
+      currency: '',
       platform_fee_percent: 10,
       affiliation_commission_percent: 10,
     },
@@ -39,7 +39,7 @@ export const ORG_TEMPLATES: OrgTemplate[] = [
     defaults: {
       monetization_enabled: true,
       affiliation_enabled: true,
-      currency: 'USD',
+      currency: '',
       platform_fee_percent: 10,
       affiliation_commission_percent: 15,
     },
@@ -52,7 +52,7 @@ export const ORG_TEMPLATES: OrgTemplate[] = [
     defaults: {
       monetization_enabled: true,
       affiliation_enabled: true,
-      currency: 'USD',
+      currency: '',
       platform_fee_percent: 10,
       affiliation_commission_percent: 10,
     },
@@ -65,7 +65,7 @@ export const ORG_TEMPLATES: OrgTemplate[] = [
     defaults: {
       monetization_enabled: true,
       affiliation_enabled: false,
-      currency: 'USD',
+      currency: '',
       platform_fee_percent: 8,
       affiliation_commission_percent: 5,
     },
@@ -78,7 +78,7 @@ export const ORG_TEMPLATES: OrgTemplate[] = [
     defaults: {
       monetization_enabled: false,
       affiliation_enabled: false,
-      currency: 'USD',
+      currency: '',
       platform_fee_percent: 10,
       affiliation_commission_percent: 10,
     },
@@ -91,7 +91,7 @@ export const ORG_TEMPLATES: OrgTemplate[] = [
     defaults: {
       monetization_enabled: true,
       affiliation_enabled: false,
-      currency: 'USD',
+      currency: '',
       platform_fee_percent: 10,
       affiliation_commission_percent: 10,
     },

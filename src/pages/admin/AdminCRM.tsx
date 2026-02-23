@@ -352,8 +352,8 @@ function CampaignSection({ orgId }: { orgId: string | undefined }) {
   );
 }
 
-const fmt = (n: number) =>
-  new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(n);
+import { formatCurrency } from '@/lib/currency';
+const fmt = (n: number, currency?: string | null) => formatCurrency(n, currency);
 
 function DonationsSection({ orgId, orgSlug }: { orgId: string | undefined; orgSlug?: string }) {
   const { data: donations = [], isLoading } = useQuery({
@@ -394,7 +394,7 @@ function DonationsSection({ orgId, orgSlug }: { orgId: string | undefined; orgSl
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold">{completed.length} don{completed.length > 1 ? 's' : ''} complété{completed.length > 1 ? 's' : ''}</p>
-          <p className="text-xs text-muted-foreground">Total : {fmt(totalAmount)} XOF</p>
+          <p className="text-xs text-muted-foreground">Total : {fmt(totalAmount, completed[0]?.currency)}</p>
         </div>
         <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={handleExport} disabled={donations.length === 0}>
           <Download className="h-3.5 w-3.5" /> Export CSV
@@ -416,7 +416,7 @@ function DonationsSection({ orgId, orgSlug }: { orgId: string | undefined; orgSl
                 <p className="text-xs text-muted-foreground">{d.donor_email || '—'} · {new Date(d.created_at).toLocaleDateString('fr-FR')}</p>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-sm font-semibold">{fmt(d.amount)} {d.currency || 'XOF'}</p>
+                <p className="text-sm font-semibold">{fmt(d.amount, d.currency)}</p>
                 <Badge variant="outline" className={cn('text-[10px] border-0', d.status === 'completed' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-muted text-muted-foreground')}>
                   {d.status === 'completed' ? 'Complété' : d.status}
                 </Badge>
@@ -468,7 +468,7 @@ function PurchasesSection({ orgId, orgSlug }: { orgId: string | undefined; orgSl
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm font-semibold">{completed.length} achat{completed.length > 1 ? 's' : ''} complété{completed.length > 1 ? 's' : ''}</p>
-          <p className="text-xs text-muted-foreground">Total : {fmt(totalAmount)} XOF</p>
+          <p className="text-xs text-muted-foreground">Total : {fmt(totalAmount, completed[0]?.currency)}</p>
         </div>
         <Button size="sm" variant="outline" className="gap-1.5 text-xs" onClick={handleExport} disabled={purchases.length === 0}>
           <Download className="h-3.5 w-3.5" /> Export CSV
@@ -490,7 +490,7 @@ function PurchasesSection({ orgId, orgSlug }: { orgId: string | undefined; orgSl
                 <p className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleDateString('fr-FR')}</p>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-sm font-semibold">{fmt(p.amount)} {p.currency || 'XOF'}</p>
+                <p className="text-sm font-semibold">{fmt(p.amount, p.currency)}</p>
                 <Badge variant="outline" className={cn('text-[10px] border-0', p.status === 'completed' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-muted text-muted-foreground')}>
                   {p.status === 'completed' ? 'Complété' : p.status}
                 </Badge>

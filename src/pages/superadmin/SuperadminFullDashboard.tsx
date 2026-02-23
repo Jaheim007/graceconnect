@@ -20,7 +20,8 @@ import { cn } from '@/lib/utils';
 import { format, subDays, isAfter } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-const fmt = (n: number) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF', maximumFractionDigits: 0 }).format(n);
+import { formatCurrency } from '@/lib/currency';
+const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
 const fmtNum = (n: number) => new Intl.NumberFormat('fr-FR').format(n);
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };

@@ -16,8 +16,8 @@ import { downloadCSV } from '@/lib/csvExport';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-const fmt = (n: number, currency = 'XOF') =>
-  new Intl.NumberFormat('fr-FR', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n);
+import { formatCurrency } from '@/lib/currency';
+const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
 
 const statusConfig: Record<string, { label: string; icon: typeof Clock; colorClass: string }> = {
   requested: { label: 'Demandé', icon: Clock, colorClass: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
