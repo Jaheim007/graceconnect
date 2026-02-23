@@ -120,11 +120,11 @@ export default function AuthPage() {
                     <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto">
                       <Mail className="h-7 w-7 text-primary" />
                     </div>
-                    <h3 className="font-semibold text-base">Vérifiez votre email</h3>
+                    <h3 className="font-semibold text-base">{t('auth.verify_email')}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Un code à 8 chiffres a été envoyé à<br /><strong className="text-foreground">{email}</strong>
+                      {t('auth.otp_sent')}<br /><strong className="text-foreground">{email}</strong>
                     </p>
-                    <p className="text-xs text-muted-foreground">Entrez le code ci-dessous pour vous connecter</p>
+                    <p className="text-xs text-muted-foreground">{t('auth.enter_code')}</p>
                   </div>
 
                   <div className="flex justify-center">
@@ -147,14 +147,14 @@ export default function AuthPage() {
                     disabled={verifying || otpCode.length < 6}
                     onClick={handleVerifyOtp}
                   >
-                    {verifying ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Vérification...</> : 'Vérifier le code'}
+                    {verifying ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> {t('auth.verifying')}</> : t('auth.verify_code')}
                   </Button>
 
                   <div className="flex flex-col items-center gap-2">
-                    <p className="text-xs text-muted-foreground">Vérifiez vos spams si vous ne voyez pas l'email</p>
+                    <p className="text-xs text-muted-foreground">{t('auth.check_spam_otp')}</p>
                     <div className="flex gap-3">
                       <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => { setMethod('magic-link'); setError(''); setOtpCode(''); }}>
-                        <ArrowLeft className="h-3 w-3" /> Changer d'email
+                        <ArrowLeft className="h-3 w-3" /> {t('auth.change_email')}
                       </Button>
                       <Button variant="ghost" size="sm" className="text-xs" onClick={async () => {
                         setError('');
@@ -163,7 +163,7 @@ export default function AuthPage() {
                         setSending(false);
                         if (err) setError(err.message);
                       }} disabled={sending}>
-                        {sending ? 'Envoi...' : 'Renvoyer le code'}
+                        {sending ? t('auth.sending') : t('auth.resend_code')}
                       </Button>
                     </div>
                   </div>
@@ -199,7 +199,7 @@ export default function AuthPage() {
                     </div>
                   </div>
                   <Button type="submit" className="w-full h-11 bg-primary text-primary-foreground" disabled={sending || !email}>
-                    {sending ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> {t('auth.sending')}</> : 'Envoyer le code'}
+                    {sending ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> {t('auth.sending')}</> : t('auth.send_code')}
                   </Button>
                   <Button type="button" variant="ghost" size="sm" className="w-full text-xs text-muted-foreground" onClick={() => setMethod('choose')}>{t('auth.back_options')}</Button>
                 </motion.form>
