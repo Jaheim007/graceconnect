@@ -101,10 +101,12 @@ export default function AffiliationPage() {
     enabled: !!user && userOrgs.length > 0,
   });
 
-  const affiliateLinkOrgIds = new Set(affiliateLinks.map(l => l.organization_id));
-  const subscribedOrgIds = new Set(userOrgs.map(o => o.id));
   // Exclude orgs the user owns — owners cannot be affiliates of their own org
   const ownedOrgIds = new Set(userOrgs.filter(o => o.owner_id === user?.id).map(o => o.id));
+  // Filter out self-owned affiliate links from "Mes liens" display
+  const filteredAffiliateLinks = affiliateLinks.filter(l => !ownedOrgIds.has(l.organization_id));
+  const affiliateLinkOrgIds = new Set(filteredAffiliateLinks.map(l => l.organization_id));
+  const subscribedOrgIds = new Set(userOrgs.map(o => o.id));
 
   // Split discovery orgs: subscribed first, then others — exclude owned orgs
   const subscribedWithAffiliation = allAffiliateOrgs.filter(o => subscribedOrgIds.has(o.id) && !affiliateLinkOrgIds.has(o.id) && !ownedOrgIds.has(o.id));
@@ -117,11 +119,11 @@ export default function AffiliationPage() {
     ? otherOrgs.filter(o => o.name.toLowerCase().includes(search.toLowerCase()))
     : otherOrgs;
 
-  const totalEarned = affiliateLinks.reduce((s, l) => s + (l.total_earned || 0), 0);
+  const totalEarned = filteredAffiliateLinks.reduce((s, l) => s + (l.total_earned || 0), 0);
   const payableCommission = affiliateSales.filter((s: any) => s.status === 'payable').reduce((sum: number, s: any) => sum + s.commission_amount, 0);
   const pendingCommission = affiliateSales.filter((s: any) => s.status === 'pending').reduce((sum: number, s: any) => sum + s.commission_amount, 0);
-  const totalClicks = affiliateLinks.reduce((s, l) => s + (l.clicks || 0), 0);
-  const totalConversions = affiliateLinks.reduce((s, l) => s + (l.conversions || 0), 0);
+  const totalClicks = filteredAffiliateLinks.reduce((s, l) => s + (l.clicks || 0), 0);
+  const totalConversions = filteredAffiliateLinks.reduce((s, l) => s + (l.conversions || 0), 0);
 
   const requestAffiliateRole = useMutation({
     mutationFn: async ({ orgId, orgSlug }: { orgId: string; orgSlug: string }) => {
@@ -209,7 +211,7 @@ export default function AffiliationPage() {
           className="grid grid-cols-2 sm:grid-cols-4 gap-3"
         >
           {[
-            { label: 'Liens actifs', value: affiliateLinks.length, colorClass: '' },
+            { label: 'Liens actifs', value: filteredAffiliateLinks.length, colorClass: '' },
             { label: 'Clics totaux', value: totalClicks, colorClass: '' },
             { label: 'Conversions', value: totalConversions, colorClass: 'text-primary' },
             { label: 'Gains totaux', value: fmt(totalEarned), colorClass: 'text-green-600 dark:text-green-400' },
@@ -253,7 +255,7 @@ export default function AffiliationPage() {
               </div>
             )}
 
-            {aLoading ? <SkeletonRow count={3} /> : affiliateLinks.length === 0 ? (
+            {aLoading ? <SkeletonRow count={3} /> : filteredAffiliateLinks.length === 0 ? (
               <div className="text-center py-12 space-y-3">
                 <Link2 className="h-10 w-10 text-muted-foreground/40 mx-auto" />
                 <p className="text-sm font-medium text-muted-foreground">Aucun lien d'affiliation</p>
@@ -264,7 +266,7 @@ export default function AffiliationPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {affiliateLinks.map((l) => {
+                {filteredAffiliateLinks.map((l) => {
                   const shareUrl = `${window.location.origin}/org/${l.organizations?.slug}?ref=${l.code}`;
                   return (
                     <motion.div key={l.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}

@@ -36,6 +36,8 @@ export function Sidebar() {
     { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases') },
     { to: '/support', icon: LifeBuoy, label: t('sidebar.help') },
     { to: '/profile', icon: User, label: t('sidebar.account') },
+    ...(canManageCurrentOrg ? [{ to: '/admin', icon: Settings, label: t('sidebar.manage_org') }] : []),
+    ...(isSuperadmin && !isAdmin && !isSA ? [{ to: '/superadmin', icon: Shield, label: t('sidebar.superadmin') }] : []),
   ];
 
   const adminGroups = [
@@ -185,7 +187,7 @@ export function Sidebar() {
         )}
       </nav>
 
-      {/* Bottom links */}
+      {/* Bottom */}
       <div className={cn('border-t border-border space-y-0.5', collapsed ? 'px-1 py-2' : 'px-3 py-3')}>
         <button
           onClick={toggleTheme}
@@ -198,34 +200,6 @@ export function Sidebar() {
           {theme === 'dark' ? <Sun className="h-4 w-4 shrink-0" /> : <Moon className="h-4 w-4 shrink-0" />}
           {!collapsed && <span>{theme === 'dark' ? t('sidebar.light_mode') : t('sidebar.dark_mode')}</span>}
         </button>
-
-        {!isAdmin && !isSA && isSuperadmin && (
-          <Link
-            to="/superadmin"
-            title={collapsed ? t('sidebar.superadmin') : undefined}
-            className={cn(
-              'flex items-center gap-3 rounded-lg text-sm font-medium transition-all text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-              collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
-            )}
-          >
-            <Shield className="h-4 w-4 shrink-0" />
-            {!collapsed && <span>{t('sidebar.superadmin')}</span>}
-          </Link>
-        )}
-
-        {!isAdmin && !isSA && canManageCurrentOrg && (
-          <Link
-            to="/admin"
-            title={collapsed ? t('sidebar.manage_org') : undefined}
-            className={cn(
-              'flex items-center gap-3 rounded-lg text-sm font-medium transition-all text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-              collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
-            )}
-          >
-            <Settings className="h-4 w-4 shrink-0" />
-            {!collapsed && <span>{t('sidebar.manage_org')}</span>}
-          </Link>
-        )}
 
         {(isAdmin || isSA) && (
           <Link
