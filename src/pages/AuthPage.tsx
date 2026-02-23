@@ -33,8 +33,7 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (user) {
-      if (returnTo) navigate(returnTo, { replace: true });
-      else navigate(userOrgs.length > 0 ? '/feed' : '/create-org', { replace: true });
+      navigate(returnTo || '/feed', { replace: true });
     }
   }, [user, userOrgs.length, navigate, returnTo]);
 
