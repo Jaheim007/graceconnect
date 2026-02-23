@@ -39,7 +39,7 @@ export default function DiscoverPage() {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<OrgCategory | ''>('');
   const [page, setPage] = useState(0);
-  const [tab, setTab] = useState('communities');
+  const [tab, setTab] = useState('products');
   const navigate = useNavigate();
   const { user } = useAuth();
   const { userOrgs } = useOrg();
@@ -120,9 +120,6 @@ export default function DiscoverPage() {
       <div className="container max-w-6xl py-6">
         <Tabs value={tab} onValueChange={(v) => { setTab(v); setPage(0); }}>
           <TabsList className="mb-6">
-            <TabsTrigger value="communities" className="gap-1.5">
-              <Users className="h-3.5 w-3.5" /> Communautés
-            </TabsTrigger>
             <TabsTrigger value="products" className="gap-1.5">
               <ShoppingBag className="h-3.5 w-3.5" /> Produits
             </TabsTrigger>
@@ -131,80 +128,6 @@ export default function DiscoverPage() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="communities">
-            {verifiedOrgs.length > 0 && !search && !category && (
-              <div className="mb-6">
-                <h2 className="text-sm font-semibold flex items-center gap-1.5 mb-3">
-                  <CheckCircle2 className="h-4 w-4 text-accent" /> Communautés vérifiées
-                </h2>
-                <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
-                  {verifiedOrgs.slice(0, 6).map((org: any) => (
-                    <button
-                      key={org.id}
-                      onClick={() => navigate(`/org/${org.slug}`)}
-                      className="shrink-0 flex flex-col items-center gap-2 p-3 rounded-2xl border border-border bg-card hover:border-primary/20 transition-all w-24"
-                    >
-                      <div className="h-12 w-12 rounded-xl overflow-hidden bg-muted border border-border">
-                        {org.logo_url ? (
-                          <img src={org.logo_url} alt={org.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full bg-primary flex items-center justify-center">
-                            <span className="text-xs font-bold text-primary-foreground">{org.name?.slice(0, 2).toUpperCase()}</span>
-                          </div>
-                        )}
-                      </div>
-                      <span className="text-[11px] font-medium text-center leading-tight line-clamp-2">{org.name}</span>
-                      <CheckCircle2 className="h-3 w-3 text-accent" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="flex items-center gap-2 mb-6 overflow-x-auto scrollbar-hide pb-1">
-              <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
-              {CATEGORIES.map((c) => (
-                <button
-                  key={c.value}
-                  onClick={() => { setCategory(c.value); setPage(0); }}
-                  className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all border ${category === c.value ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'}`}
-                >
-                  {c.label}
-                </button>
-              ))}
-            </div>
-
-            {!isLoading && directoryMode !== 'curated' && (
-              <p className="text-xs text-muted-foreground mb-4">
-                {total} organisation{total > 1 ? 's' : ''} trouvée{total > 1 ? 's' : ''}
-                {search && ` pour "${search}"`}
-              </p>
-            )}
-
-            {isLoading ? <SkeletonList count={9} /> : filteredOrgs.length === 0 ? (
-              <EmptyState variant={search ? 'search' : 'orgs'} action={!search ? { label: 'Effacer les filtres', onClick: () => { setCategory(''); setSearch(''); } } : undefined} />
-            ) : (
-              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{filteredOrgs.map((org, i) => <OrgCard key={org.id} org={org} index={i} />)}</div>
-            )}
-
-            {total > pageSize && (
-              <div className="flex items-center justify-center gap-3 mt-8">
-                <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}>Précédent</Button>
-                <span className="text-xs text-muted-foreground">Page {page + 1} sur {Math.ceil(total / pageSize)}</span>
-                <Button variant="outline" size="sm" disabled={(page + 1) * pageSize >= total} onClick={() => setPage(page + 1)}>Suivant</Button>
-              </div>
-            )}
-
-            {user && (
-              <div className="mt-8 p-4 rounded-2xl bg-muted/50 border border-border flex items-center justify-between gap-4">
-                <div>
-                  <p className="font-medium text-sm">Vous êtes un leader ?</p>
-                  <p className="text-xs text-muted-foreground">Lancez votre page communautaire sur Siteviral</p>
-                </div>
-                <Button size="sm" variant="outline" className="shrink-0" onClick={() => navigate('/create-org')}>+ Créer</Button>
-              </div>
-            )}
-          </TabsContent>
 
           <TabsContent value="products">
             {loadingProducts ? <SkeletonList count={8} /> : products.length === 0 ? (
