@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { formatCurrency, formatPrice } from '@/lib/currency';
 import { useI18n } from '@/i18n/I18nContext';
+import { FormattedText } from '@/lib/formatText';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -201,9 +202,10 @@ export default function ProductDetailPage() {
             {product.description && (
               <div className="space-y-3 overflow-hidden">
                 <h2 className="text-base font-semibold">{t('product.description')}</h2>
-                <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line break-words">
-                  {product.description}
-                </div>
+                <FormattedText
+                  text={product.description}
+                  className="text-sm text-muted-foreground leading-relaxed break-words"
+                />
               </div>
             )}
 
