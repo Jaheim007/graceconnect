@@ -88,7 +88,7 @@ export default function ResourcesPage() {
   if (isLoading) {
     return (
       <div className="max-w-4xl mx-auto p-4 space-y-4">
-        <h1 className="text-2xl font-bold">Mes Ressources</h1>
+        <h1 className="text-2xl font-bold">Mes Achats</h1>
         {[1, 2, 3].map(i => (
           <Skeleton key={i} className="h-28 w-full rounded-xl" />
         ))}
@@ -101,7 +101,7 @@ export default function ResourcesPage() {
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <ShoppingBag className="h-6 w-6 text-primary" />
-          Mes Ressources
+          Mes Achats
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           Tous les produits que vous avez achetés. Téléchargez-les à tout moment.
