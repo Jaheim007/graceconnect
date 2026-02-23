@@ -134,8 +134,8 @@ Deno.serve(async (req) => {
     const body: SendEmailBody = await req.json();
     const { template, to, data, organization_id } = body;
 
-    if (!template || !to) {
-      return new Response(JSON.stringify({ error: 'Missing template or to' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    if (!template) {
+      return new Response(JSON.stringify({ error: 'Missing template' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
     let tpl: { subject: string; html: string };
@@ -145,31 +145,58 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Unknown template' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    const res = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: 'Siteviral <noreply@siteviral.com>',
-        to: [to],
+    // If `to` is empty but org_id provided, send to all org admins/owners
+    let recipients: string[] = [];
+    if (to) {
+      recipients = [to];
+    } else if (organization_id) {
+      const { data: admins } = await supabaseAdmin.from('organization_members')
+        .select('user_id')
+        .eq('organization_id', organization_id)
+        .in('role', ['owner', 'admin']);
+      if (admins?.length) {
+        for (const admin of admins) {
+          const { data: { user } } = await supabaseAdmin.auth.admin.getUserById(admin.user_id);
+          if (user?.email) recipients.push(user.email);
+        }
+      }
+    }
+
+    if (recipients.length === 0) {
+      return new Response(JSON.stringify({ ok: false, error: 'No recipients' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    let lastResult: any = {};
+    let allOk = true;
+    for (const recipient of recipients) {
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'Siteviral <noreply@siteviral.com>',
+          to: [recipient],
+          subject: tpl.subject,
+          html: tpl.html,
+        }),
+      });
+      const result = await res.json();
+      lastResult = result;
+      if (!res.ok) allOk = false;
+
+      // Log each email
+      await supabaseAdmin.from('email_logs').insert({
+        template,
+        recipient,
         subject: tpl.subject,
-        html: tpl.html,
-      }),
-    });
-    const result = await res.json();
+        status: res.ok ? 'sent' : 'failed',
+        resend_message_id: result.id || null,
+        error_message: res.ok ? null : (result.message || 'Unknown error'),
+        organization_id: organization_id || null,
+        metadata: data || {},
+      });
+    }
 
-    // Log to email_logs table
-    await supabaseAdmin.from('email_logs').insert({
-      template,
-      recipient: to,
-      subject: tpl.subject,
-      status: res.ok ? 'sent' : 'failed',
-      resend_message_id: result.id || null,
-      error_message: res.ok ? null : (result.message || 'Unknown error'),
-      organization_id: organization_id || null,
-      metadata: data || {},
-    });
-
-    return new Response(JSON.stringify({ ok: res.ok, message_id: result.id, error: result.message }), {
+    return new Response(JSON.stringify({ ok: allOk, message_id: lastResult.id, recipients: recipients.length }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
 

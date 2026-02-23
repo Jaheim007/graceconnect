@@ -10,6 +10,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { ArrowLeft, CheckCircle, Circle, PlayCircle, Lock, GraduationCap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
+import { onProgramEnrolled, onProgramCompleted } from '@/lib/notifications';
 
 export default function ProgramViewPage() {
   const { id } = useParams<{ id: string }>();
@@ -85,6 +86,11 @@ export default function ProgramViewPage() {
       toast({ title: '🎓 Inscrit avec succès !' });
       qc.invalidateQueries({ queryKey: ['enrollment', id, user?.id] });
       qc.invalidateQueries({ queryKey: ['my-enrollments'] });
+      // Send enrollment notification
+      if (user && program) {
+        const orgName = (program as any).organizations?.name || '';
+        onProgramEnrolled(user.id, user.email || undefined, program.title, orgName, program.organization_id, id!);
+      }
     },
     onError: (e: any) => toast({ title: 'Erreur', description: e.message, variant: 'destructive' }),
   });
@@ -100,8 +106,13 @@ export default function ProgramViewPage() {
       }, { onConflict: 'user_id,lesson_id' });
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, lessonId) => {
       qc.invalidateQueries({ queryKey: ['lesson-progress', user?.id] });
+      // Check if program is now complete
+      const newCompleted = new Set([...completedIds, lessonId]);
+      if (newCompleted.size === totalLessons && totalLessons > 0 && user && program) {
+        onProgramCompleted(user.id, user.email || undefined, program.title, program.organization_id);
+      }
     },
   });
 

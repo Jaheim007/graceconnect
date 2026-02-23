@@ -103,11 +103,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           upsertProfile(newSession.user.id, newSession.user.user_metadata?.full_name);
           fetchPlatformRole(newSession.user.id);
 
-          // Send welcome email on first sign-up
+          // Send welcome email on first sign-up only (not repeat logins)
           if (event === 'SIGNED_IN' && newSession.user.email) {
-            sendEmailNotification('welcome', newSession.user.email, {
-              name: newSession.user.user_metadata?.full_name || newSession.user.email.split('@')[0],
-            }).catch(() => {});
+            const createdAt = new Date(newSession.user.created_at).getTime();
+            const now = Date.now();
+            // Only send if account was created within last 60 seconds
+            if (now - createdAt < 60_000) {
+              sendEmailNotification('welcome', newSession.user.email, {
+                name: newSession.user.user_metadata?.full_name || newSession.user.email.split('@')[0],
+              }).catch(() => {});
+            }
           }
         } else {
           setProfile(null);
