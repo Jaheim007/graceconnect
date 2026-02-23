@@ -14,7 +14,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 
 const mainNav = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/feed', icon: Home, label: 'Feed' },
+  { to: '/feed', icon: Home, label: 'My Network' },
   { to: '/marketplace', icon: Store, label: 'Explorer' },
   
   { to: '/notifications', icon: Bell, label: 'Notifications' },
