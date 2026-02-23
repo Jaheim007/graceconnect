@@ -199,9 +199,9 @@ export default function ProductDetailPage() {
             </div>
 
             {product.description && (
-              <div className="space-y-3">
+              <div className="space-y-3 overflow-hidden">
                 <h2 className="text-base font-semibold">{t('product.description')}</h2>
-                <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                <div className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line break-words">
                   {product.description}
                 </div>
               </div>

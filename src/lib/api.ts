@@ -20,7 +20,15 @@ export async function callFn(name: string, body: unknown, requireAuth = true) {
     method: 'POST',
     headers,
     body: JSON.stringify(body),
+    signal: AbortSignal.timeout(90_000), // 90s timeout for payment operations
   });
+
+  const contentType = res.headers.get('content-type');
+  if (!contentType?.includes('application/json')) {
+    const text = await res.text();
+    console.error(`[callFn] Non-JSON response from ${name}:`, text.substring(0, 200));
+    throw new Error('Server returned an unexpected response. Please try again.');
+  }
 
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Request failed');

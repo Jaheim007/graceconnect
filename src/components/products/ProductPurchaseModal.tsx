@@ -204,13 +204,13 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ShoppingBag className="h-4 w-4 text-primary" />
             {product.is_free ? 'Télécharger gratuitement' : 'Acheter ce produit'}
           </DialogTitle>
-          <DialogDescription>{product.description}</DialogDescription>
+          <DialogDescription className="line-clamp-3 break-words">{product.description}</DialogDescription>
         </DialogHeader>
 
         {/* ── CONFIRM ─── */}

@@ -292,7 +292,7 @@ export default function OrgPublicPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.15 }}
-              className="text-sm text-muted-foreground max-w-3xl mb-2"
+              className="text-sm text-muted-foreground max-w-3xl mb-2 break-words whitespace-pre-line overflow-hidden"
             >
               {org.description}
             </motion.p>
@@ -329,7 +329,7 @@ export default function OrgPublicPage() {
               <div className="flex-1 min-w-0">
                 <h3 className="text-lg sm:text-xl font-bold">{orgAny.leader_name}</h3>
                 {orgAny.leader_title && <p className="text-sm text-primary font-medium mt-0.5">{orgAny.leader_title}</p>}
-                {orgAny.leader_bio && <p className="text-sm text-muted-foreground mt-2 leading-relaxed whitespace-pre-line">{orgAny.leader_bio}</p>}
+                {orgAny.leader_bio && <p className="text-sm text-muted-foreground mt-2 leading-relaxed whitespace-pre-line break-words overflow-hidden">{orgAny.leader_bio}</p>}
               </div>
             </div>
           </motion.section>
