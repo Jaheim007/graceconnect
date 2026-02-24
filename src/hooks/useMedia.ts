@@ -119,16 +119,24 @@ export function useLikeMedia() {
     }) => {
       if (liked) {
         await db.from('media_likes').delete().eq('media_id', mediaId).eq('user_id', userId);
-        await db
-          .from('media_content')
-          .update({ like_count: db.rpc('decrement', { x: 1 }) })
-          .eq('id', mediaId);
+        await db.rpc('decrement_like_count', { media_id: mediaId });
       } else {
         await db.from('media_likes').insert({ media_id: mediaId, organization_id: orgId, user_id: userId });
+        await db.rpc('increment_like_count', { media_id: mediaId });
       }
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['feed-media'] });
+      qc.invalidateQueries({ queryKey: ['org-media'] });
+      qc.invalidateQueries({ queryKey: ['media-by-id'] });
+    },
+  });
+}
+
+export function useTrackView() {
+  return useMutation({
+    mutationFn: async (mediaId: string) => {
+      await db.rpc('increment_view_count', { media_id: mediaId });
     },
   });
 }

@@ -65,9 +65,10 @@ export default function OrgPublicPage() {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [tourOpen, setTourOpen] = useState(false);
 
-  // Image upload refs
+  // Refs
   const bannerInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const tabsRef = useRef<HTMLDivElement>(null);
   const [uploadingBanner, setUploadingBanner] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
 
@@ -221,9 +222,14 @@ export default function OrgPublicPage() {
 
   const pinnedAnnouncement = announcements.find((a) => a.is_pinned);
 
+
   const navigateTab = (tab: string) => {
     const base = `/org/${slug}`;
-    navigate(tab === 'home' ? base : `${base}/${tab}`);
+    navigate(tab === 'home' ? base : `${base}/${tab}`, { replace: true });
+    // Scroll tabs into view instead of going to top
+    setTimeout(() => {
+      tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
   };
 
   // Section ordering & visibility
@@ -234,109 +240,187 @@ export default function OrgPublicPage() {
     products: {
       items: products,
       render: () => products.length > 0 ? (
-        <section key="products">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold text-sm flex items-center gap-1.5">
-              <ShoppingBag className="h-4 w-4 text-primary" /> {t('org_public.digital_products')}
-            </h2>
+        <motion.section
+          key="products"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 }}
+          className="rounded-2xl border border-border bg-card overflow-hidden shadow-card"
+        >
+          <div className="flex items-center justify-between px-5 pt-5 pb-3">
+            <div className="flex items-center gap-2">
+              <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                <ShoppingBag className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <h2 className="font-bold text-base">{t('org_public.digital_products')}</h2>
+                <p className="text-xs text-muted-foreground">{products.length} {locale === 'fr' ? 'disponible(s)' : 'available'}</p>
+              </div>
+            </div>
             {products.length > 3 && (
-              <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('store')}>
-                {t('org_public.view_all')}
+              <Button variant="outline" size="sm" className="text-xs h-8 rounded-full gap-1" onClick={() => navigateTab('store')}>
+                {t('org_public.view_all')} →
               </Button>
             )}
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {products.slice(0, 3).map((p, i) => (
-              <ProductCard key={p.id} product={p} index={i} onPurchase={() => setPurchaseProduct(p)} isPurchased={purchasedProductIds.has(p.id)} />
-            ))}
+          <div className="px-5 pb-5">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {products.slice(0, 6).map((p, i) => (
+                <ProductCard key={p.id} product={p} index={i} onPurchase={() => setPurchaseProduct(p)} isPurchased={purchasedProductIds.has(p.id)} />
+              ))}
+            </div>
           </div>
-        </section>
+        </motion.section>
       ) : null,
     },
     campaigns: {
       items: campaigns,
       render: () => campaigns.length > 0 ? (
-        <section key="campaigns">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold text-sm flex items-center gap-1.5">
-              <Heart className="h-4 w-4 text-destructive" /> {t('org_public.active_campaigns')}
-            </h2>
+        <motion.section
+          key="campaigns"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.1 }}
+          className="rounded-2xl border border-border bg-card overflow-hidden shadow-card"
+        >
+          <div className="flex items-center justify-between px-5 pt-5 pb-3">
+            <div className="flex items-center gap-2">
+              <div className="h-9 w-9 rounded-xl bg-destructive/10 flex items-center justify-center">
+                <Heart className="h-4 w-4 text-destructive" />
+              </div>
+              <div>
+                <h2 className="font-bold text-base">{t('org_public.active_campaigns')}</h2>
+                <p className="text-xs text-muted-foreground">{campaigns.length} {locale === 'fr' ? 'campagne(s)' : 'campaign(s)'}</p>
+              </div>
+            </div>
             {campaigns.length > 2 && (
-              <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('donate')}>
-                {t('org_public.view_all')}
+              <Button variant="outline" size="sm" className="text-xs h-8 rounded-full gap-1" onClick={() => navigateTab('donate')}>
+                {t('org_public.view_all')} →
               </Button>
             )}
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2 px-5 pb-5">
             {campaigns.slice(0, 2).map((c, i) => (
               <CampaignCard key={c.id} campaign={c} index={i} onDonate={() => setDonateCampaign(c)} />
             ))}
           </div>
-        </section>
+        </motion.section>
       ) : null,
     },
     content: {
       items: media,
       render: () => media.length > 0 ? (
-        <section key="content">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold text-sm">{t('org_public.featured_content')}</h2>
+        <motion.section
+          key="content"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.15 }}
+          className="rounded-2xl border border-border bg-card overflow-hidden shadow-card"
+        >
+          <div className="flex items-center justify-between px-5 pt-5 pb-3">
+            <div className="flex items-center gap-2">
+              <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Play className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <h2 className="font-bold text-base">{t('org_public.featured_content')}</h2>
+                <p className="text-xs text-muted-foreground">{media.length} {locale === 'fr' ? 'contenu(s)' : 'item(s)'}</p>
+              </div>
+            </div>
             {media.length > 3 && (
-              <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('content')}>
-                {t('org_public.view_all')}
+              <Button variant="outline" size="sm" className="text-xs h-8 rounded-full gap-1" onClick={() => navigateTab('content')}>
+                {t('org_public.view_all')} →
               </Button>
             )}
           </div>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {media.slice(0, 3).map((m, i) => <MediaCard key={m.id} media={m} index={i} />)}
+          <div className="px-5 pb-5">
+            {media.length >= 1 && (
+              <div className="mb-4">
+                <MediaCard key={media[0].id} media={media[0]} index={0} />
+              </div>
+            )}
+            {media.length > 1 && (
+              <div className="grid gap-3 sm:grid-cols-2">
+                {media.slice(1, 5).map((m, i) => <MediaCard key={m.id} media={m} index={i + 1} compact />)}
+              </div>
+            )}
           </div>
-        </section>
+        </motion.section>
       ) : null,
     },
     photos: {
       items: photos,
       render: () => photos.length > 0 ? (
-        <section key="photos">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="font-semibold text-sm flex items-center gap-1.5">
-              <Camera className="h-4 w-4 text-primary" /> {t('org_public.photos')}
-            </h2>
+        <motion.section
+          key="photos"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.2 }}
+          className="rounded-2xl border border-border bg-card overflow-hidden shadow-card"
+        >
+          <div className="flex items-center justify-between px-5 pt-5 pb-3">
+            <div className="flex items-center gap-2">
+              <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Camera className="h-4 w-4 text-primary" />
+              </div>
+              <h2 className="font-bold text-base">{t('org_public.photos')}</h2>
+            </div>
             {photos.length > 4 && (
-              <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('photos')}>
-                {t('org_public.view_all')}
+              <Button variant="outline" size="sm" className="text-xs h-8 rounded-full gap-1" onClick={() => navigateTab('photos')}>
+                {t('org_public.view_all')} →
               </Button>
             )}
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 px-5 pb-5">
             {photos.slice(0, 4).map((photo: any, i: number) => (
               <div key={photo.id} className="rounded-xl overflow-hidden group cursor-pointer aspect-[4/3]" onClick={() => setLightboxIndex(i)}>
-                <img src={photo.image_url} alt={photo.caption || 'Photo'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                <img src={photo.image_url} alt={photo.caption || 'Photo'} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
               </div>
             ))}
           </div>
-        </section>
+        </motion.section>
       ) : null,
     },
     events: {
       items: events,
       render: () => events.length > 0 ? (
-        <section key="events">
-          <h2 className="font-semibold mb-3 text-sm">{t('org_public.upcoming_events')}</h2>
-          <div className="space-y-2">
+        <motion.section
+          key="events"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.25 }}
+          className="rounded-2xl border border-border bg-card overflow-hidden shadow-card"
+        >
+          <div className="flex items-center justify-between px-5 pt-5 pb-3">
+            <div className="flex items-center gap-2">
+              <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
+                <CalendarDays className="h-4 w-4 text-primary" />
+              </div>
+              <h2 className="font-bold text-base">{t('org_public.upcoming_events')}</h2>
+            </div>
+          </div>
+          <div className="space-y-2 px-5 pb-5">
             {events.slice(0, 3).map((ev) => (
-              <div key={ev.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card">
-                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                  <CalendarDays className="h-5 w-5 text-primary-foreground" />
+              <div key={ev.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/30 hover:bg-muted/60 transition-colors">
+                <div className="h-12 w-12 rounded-xl bg-primary/10 flex flex-col items-center justify-center shrink-0">
+                  {ev.event_date ? (
+                    <>
+                      <span className="text-[10px] font-bold text-primary uppercase">{new Date(ev.event_date).toLocaleDateString(dateFmt, { month: 'short' })}</span>
+                      <span className="text-sm font-bold leading-none">{new Date(ev.event_date).getDate()}</span>
+                    </>
+                  ) : (
+                    <CalendarDays className="h-5 w-5 text-primary" />
+                  )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-sm truncate">{ev.title}</p>
-                  <p className="text-xs text-muted-foreground">{ev.event_date ? new Date(ev.event_date).toLocaleDateString(dateFmt) : t('org_public.date_tbc')}</p>
+                  <p className="font-semibold text-sm truncate">{ev.title}</p>
+                  <p className="text-xs text-muted-foreground">{ev.event_date ? new Date(ev.event_date).toLocaleDateString(dateFmt, { weekday: 'long' }) : t('org_public.date_tbc')}</p>
                 </div>
                 {ev.location && <span className="text-xs text-muted-foreground hidden sm:block">{ev.location}</span>}
               </div>
             ))}
           </div>
-        </section>
+        </motion.section>
       ) : null,
     },
   };
@@ -700,8 +784,9 @@ export default function OrgPublicPage() {
         )}
 
         {/* Tabs */}
+        <div ref={tabsRef} className="scroll-mt-14">
         <Tabs value={activeTab} onValueChange={navigateTab} className="w-full">
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-6 pb-1">
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-6 pb-1 sticky top-12 z-10 bg-background/95 backdrop-blur-sm py-3 -mx-4 px-4">
             {[
               { value: 'home', label: t('org_public.home'), icon: Home, count: null },
               ...(products.length > 0 || isAdmin ? [{ value: 'store', label: t('org_public.store'), icon: ShoppingBag, count: products.length }] : []),
@@ -845,6 +930,7 @@ export default function OrgPublicPage() {
             )}
           </TabsContent>
         </Tabs>
+        </div>
       </div>
 
       {/* Admin toolbar - only for org managers */}
