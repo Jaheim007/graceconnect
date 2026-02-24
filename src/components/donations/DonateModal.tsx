@@ -16,9 +16,6 @@ import { getAffiliateCode, clearAffiliateCode } from '@/hooks/useAffiliateCaptur
 import { verifyPayment, VerifyPaymentResult } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { db } from '@/lib/db';
-import { Tag } from 'lucide-react';
-
 const PRESET_AMOUNTS = [500, 1000, 2500, 5000, 10000];
 
 interface DonateModalProps {
@@ -35,10 +32,6 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
   const [amount, setAmount] = useState<string>('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [promoCode, setPromoCode] = useState('');
-  const [promoDiscount, setPromoDiscount] = useState<number | null>(null);
-  const [promoValidating, setPromoValidating] = useState(false);
-  const [promoError, setPromoError] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [step, setStep] = useState<Step>('form');
   const [result, setResult] = useState<VerifyPaymentResult | null>(null);
@@ -57,38 +50,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
 
   const resolvedEmail = email || user?.email || '';
   const resolvedName = name || profile?.display_name || '';
-
-  const [promoData, setPromoData] = useState<{ discount_percent: number; discount_type: string; discount_amount: number } | null>(null);
-
-  const validatePromo = async () => {
-    if (!promoCode.trim()) return;
-    setPromoValidating(true);
-    setPromoError('');
-    setPromoDiscount(null);
-    setPromoData(null);
-    try {
-      const { data, error } = await db
-        .from('promo_codes')
-        .select('id, discount_percent, discount_type, discount_amount, max_uses, current_uses, expires_at, is_active')
-        .eq('code', promoCode.trim().toUpperCase())
-        .eq('organization_id', organizationId)
-        .eq('is_active', true)
-        .maybeSingle();
-      if (error || !data) { setPromoError('Code invalide'); return; }
-      if (data.expires_at && new Date(data.expires_at) < new Date()) { setPromoError('Code expiré'); return; }
-      if (data.max_uses && data.current_uses >= data.max_uses) { setPromoError('Code épuisé'); return; }
-      setPromoData({ discount_percent: data.discount_percent, discount_type: data.discount_type || 'percent', discount_amount: data.discount_amount || 0 });
-      // For backward compat, set promoDiscount as percent value
-      setPromoDiscount(data.discount_type === 'fixed' ? null : data.discount_percent);
-    } catch { setPromoError('Erreur de validation'); }
-    finally { setPromoValidating(false); }
-  };
-
-  const effectiveAmount = promoData && amount
-    ? promoData.discount_type === 'fixed'
-      ? Math.max(0, Number(amount) - promoData.discount_amount)
-      : Math.round(Number(amount) * (1 - promoData.discount_percent / 100))
-    : promoDiscount && amount ? Math.round(Number(amount) * (1 - promoDiscount / 100)) : Number(amount);
+  const effectiveAmount = Number(amount);
 
   const handleDonate = async () => {
     if (!amount || Number(amount) < 100) {
@@ -107,12 +69,12 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
         email: resolvedEmail,
         amount: effectiveAmount,
         currency: campaign.currency || 'XOF',
-          metadata: {
-            type: 'donation',
-            campaign_id: campaign.id,
-            organization_id: organizationId,
-            donor_name: isAnonymous ? 'Anonyme' : resolvedName,
-            donor_email: resolvedEmail,
+        metadata: {
+          type: 'donation',
+          campaign_id: campaign.id,
+          organization_id: organizationId,
+          donor_name: isAnonymous ? 'Anonyme' : resolvedName,
+          donor_email: resolvedEmail,
           user_id: user?.id || null,
           affiliate_code: affiliateCode || null,
         },
@@ -135,7 +97,6 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
             setResult(verifyResult);
             setStep('success');
             onSuccess?.(verifyResult);
-            // Refresh campaign data so progress bar updates
             queryClient.invalidateQueries({ queryKey: ['feed-campaigns'] });
             queryClient.invalidateQueries({ queryKey: ['org-campaigns'] });
             queryClient.invalidateQueries({ queryKey: ['user-donations'] });
@@ -158,9 +119,6 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
     setAmount('');
     setName('');
     setEmail('');
-    setPromoCode('');
-    setPromoDiscount(null);
-    setPromoError('');
     setIsAnonymous(false);
     setResult(null);
     setErrorMsg('');
@@ -182,7 +140,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
           )}
         </DialogHeader>
 
-        {/* ── FORM ──────────────────────────────────────────────────────────── */}
+        {/* ── FORM ── */}
         {step === 'form' && (
           <>
             <div className="space-y-4 py-2">
@@ -231,28 +189,6 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
                 </div>
               )}
 
-              {/* Promo code */}
-              <div>
-                <Label className="text-xs flex items-center gap-1"><Tag className="h-3 w-3" /> Code promo (optionnel)</Label>
-                <div className="flex gap-2 mt-1.5">
-                  <Input
-                    placeholder="CODE2024"
-                    value={promoCode}
-                    onChange={(e) => { setPromoCode(e.target.value.toUpperCase()); setPromoDiscount(null); setPromoError(''); }}
-                    className="flex-1"
-                  />
-                  <Button type="button" variant="outline" size="sm" onClick={validatePromo} disabled={promoValidating || !promoCode.trim()}>
-                    {promoValidating ? '...' : 'Appliquer'}
-                  </Button>
-                </div>
-                {promoError && <p className="text-xs text-destructive mt-1">{promoError}</p>}
-                {promoData && (
-                  <p className="text-xs text-green-600 mt-1">
-                    ✓ {promoData.discount_type === 'fixed' ? `-${promoData.discount_amount} fixe` : `-${promoData.discount_percent}%`} appliqué — Nouveau montant : {amount ? fmt(effectiveAmount) : '—'}
-                  </p>
-                )}
-              </div>
-
               {/* Anonymous donation */}
               <div className="flex items-center gap-2">
                 <Checkbox
@@ -295,7 +231,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
           </>
         )}
 
-        {/* ── PROCESSING ────────────────────────────────────────────────────── */}
+        {/* ── PROCESSING ── */}
         {step === 'processing' && (
           <div className="py-10 flex flex-col items-center gap-4 text-center">
             <Loader2 className="h-12 w-12 text-primary animate-spin" />
@@ -304,7 +240,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
           </div>
         )}
 
-        {/* ── SUCCESS ───────────────────────────────────────────────────────── */}
+        {/* ── SUCCESS ── */}
         {step === 'success' && result && (
           <div className="py-6 flex flex-col items-center gap-4 text-center">
             <CheckCircle className="h-14 w-14 text-green-500" />
@@ -330,7 +266,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
           </div>
         )}
 
-        {/* ── ERROR ─────────────────────────────────────────────────────────── */}
+        {/* ── ERROR ── */}
         {step === 'error' && (
           <div className="py-6 flex flex-col items-center gap-4 text-center">
             <AlertCircle className="h-14 w-14 text-destructive" />

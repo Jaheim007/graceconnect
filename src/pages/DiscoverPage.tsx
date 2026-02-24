@@ -236,10 +236,7 @@ export default function DiscoverPage() {
               <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 {campaigns.map((c: any) => (
                   <motion.div key={c.id} variants={fadeUp}>
-                    <CampaignCard
-                      campaign={c}
-                      onDonate={() => navigate(`/campaign/${c.id}`)}
-                    />
+                    <CampaignCard campaign={c} />
                   </motion.div>
                 ))}
               </motion.div>

@@ -301,7 +301,7 @@ export default function OrgPublicPage() {
           </div>
           <div className="grid gap-3 sm:grid-cols-2 px-5 pb-5">
             {campaigns.slice(0, 2).map((c, i) => (
-              <CampaignCard key={c.id} campaign={c} index={i} onDonate={() => setDonateCampaign(c)} />
+               <CampaignCard key={c.id} campaign={c} index={i} />
             ))}
           </div>
         </motion.section>
@@ -861,7 +861,7 @@ export default function OrgPublicPage() {
             ) : (
               <div className="grid gap-4 sm:grid-cols-2">
                 {campaigns.map((c, i) => (
-                  <CampaignCard key={c.id} campaign={c} index={i} onDonate={() => setDonateCampaign(c)} />
+                  <CampaignCard key={c.id} campaign={c} index={i} />
                 ))}
               </div>
             )}

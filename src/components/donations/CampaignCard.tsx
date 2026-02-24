@@ -10,11 +10,10 @@ import {
 
 interface CampaignCardProps {
   campaign: DonationCampaign;
-  onDonate?: () => void;
   index?: number;
 }
 
-export function CampaignCard({ campaign, onDonate, index = 0 }: CampaignCardProps) {
+export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
   const { toast } = useToast();
   const navigate = useNavigate();
   const shareUrl = `${window.location.origin}/campaign/${campaign.id}`;
@@ -84,7 +83,7 @@ export function CampaignCard({ campaign, onDonate, index = 0 }: CampaignCardProp
         </DropdownMenu>
         <Button
           size="default"
-          onClick={onDonate}
+          onClick={() => navigate(`/campaign/${campaign.id}`)}
           className="flex-1 gap-2 font-semibold"
         >
           <Heart className="h-4 w-4" /> Faire un don
