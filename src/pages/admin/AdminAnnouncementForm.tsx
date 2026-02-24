@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/db';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AdminPageShell } from './AdminPageShell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,6 +33,7 @@ export function AnnouncementForm() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const isEdit = !!id;
   const [loading, setLoading] = useState(false);
 
@@ -84,6 +85,8 @@ export function AnnouncementForm() {
         ({ error } = await db.from('announcements').insert(payload));
       }
       if (error) throw error;
+      await queryClient.invalidateQueries({ queryKey: ['org-announcements'] });
+      await queryClient.invalidateQueries({ queryKey: ['announcement-item', id] });
       toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
       navigate('/admin/announcements');
     } catch (err: any) {

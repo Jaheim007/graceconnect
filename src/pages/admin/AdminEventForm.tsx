@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/db';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AdminPageShell } from './AdminPageShell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,6 +35,7 @@ export function EventForm() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const isEdit = !!id;
   const [loading, setLoading] = useState(false);
 
@@ -89,6 +90,8 @@ export function EventForm() {
         ({ error } = await db.from('events').insert(payload));
       }
       if (error) throw error;
+      await queryClient.invalidateQueries({ queryKey: ['org-events'] });
+      await queryClient.invalidateQueries({ queryKey: ['event-item', id] });
       toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
       navigate('/admin/events');
     } catch (err: any) {
