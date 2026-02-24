@@ -141,7 +141,7 @@ export default function CampaignDetailPage() {
             {/* Organization info */}
             {org && (
               <div className="p-4 rounded-2xl border border-border bg-card shadow-card">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Organisé par</p>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Plateforme</p>
                 <div className="flex items-center gap-3">
                   {org.logo_url ? (
                     <img src={org.logo_url} alt={org.name} className="h-12 w-12 rounded-xl object-cover border border-border" />

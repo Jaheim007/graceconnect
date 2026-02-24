@@ -311,7 +311,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
             <div>
               <p className="font-semibold text-lg">🙏 Merci pour votre don !</p>
               <p className="text-sm text-muted-foreground mt-1">
-                {fmt(result.breakdown.amount)} reçu — l'organisation reçoit {fmt(result.breakdown.organization_amount)}.
+                {fmt(result.breakdown.amount)} reçu — la plateforme reçoit {fmt(result.breakdown.organization_amount)}.
               </p>
               {result.breakdown.affiliate_attributed && (
                 <p className="text-xs text-primary mt-1">✓ Commission affilié attribuée</p>
