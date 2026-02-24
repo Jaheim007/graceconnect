@@ -21,9 +21,9 @@ const FAQS_EN = [
   {
     category: 'General',
     items: [
-      { q: 'What is Siteviral?', a: 'Siteviral is an all-in-one platform for organizations (NGOs, associations, creators, leaders) to manage their community, sell digital products, collect donations, and run an affiliate program.' },
+      { q: 'What is Siteviral?', a: 'Siteviral is an all-in-one platform for platforms (NGOs, associations, creators, leaders) to manage their community, sell digital products, collect donations, and run an affiliate program.' },
       { q: 'Is it free?', a: 'Yes, the free plan includes all basic features: community page, media library, donations, and up to 100 members. The Pro plan unlocks advanced features.' },
-      { q: 'How do I join an organization?', a: 'Go to Explorer, find the organization you want, and click "Join." You can also use an invite link shared by a member.' },
+      { q: 'How do I join a platform?', a: 'Go to Explorer, find the platform you want, and click "Join." You can also use an invite link shared by a member.' },
     ],
   },
   {
@@ -54,9 +54,9 @@ const FAQS_FR = [
   {
     category: 'Général',
     items: [
-      { q: "Qu'est-ce que Siteviral ?", a: "Siteviral est une plateforme tout-en-un permettant aux organisations (ONG, associations, créateurs, leaders) de gérer leur communauté, vendre des produits numériques, collecter des dons et gérer un programme d'affiliation." },
+      { q: "Qu'est-ce que Siteviral ?", a: "Siteviral est une plateforme tout-en-un permettant aux plateformes (ONG, associations, créateurs, leaders) de gérer leur communauté, vendre des produits numériques, collecter des dons et gérer un programme d'affiliation." },
       { q: 'Est-ce gratuit ?', a: "Oui, le plan gratuit inclut toutes les fonctionnalités de base : page communautaire, médiathèque, dons et jusqu'à 100 membres. Le plan Pro débloque des fonctionnalités avancées." },
-      { q: 'Comment rejoindre une organisation ?', a: "Rendez-vous dans l'Explorer, trouvez l'organisation souhaitée et cliquez sur « Rejoindre ». Vous pouvez aussi utiliser un lien d'invitation partagé par un membre." },
+      { q: 'Comment rejoindre une plateforme ?', a: "Rendez-vous dans l'Explorer, trouvez la plateforme souhaitée et cliquez sur « Rejoindre ». Vous pouvez aussi utiliser un lien d'invitation partagé par un membre." },
     ],
   },
   {
@@ -70,7 +70,7 @@ const FAQS_FR = [
   {
     category: 'Affiliation',
     items: [
-      { q: "Comment fonctionne l'affiliation ?", a: "Générez des liens de parrainage uniques. Chaque vente ou don effectué via votre lien vous rapporte une commission configurable par l'organisation. Attribution last-click, cookie 7 jours." },
+      { q: "Comment fonctionne l'affiliation ?", a: "Générez des liens de parrainage uniques. Chaque vente ou don effectué via votre lien vous rapporte une commission configurable par la plateforme. Attribution last-click, cookie 7 jours." },
       { q: 'Quand mes commissions sont-elles disponibles ?', a: "Les commissions passent de « en attente » à « disponible » après 72 heures de validation. Vous pouvez ensuite demander un retrait." },
     ],
   },

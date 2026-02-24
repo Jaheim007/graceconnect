@@ -28,7 +28,7 @@ const ICONS = {
 
 const LABELS: Record<string, string> = {
   all: 'Tout',
-  org: 'Organisations',
+  org: 'Plateformes',
   product: 'Produits',
   event: 'Événements',
   media: 'Médias',
@@ -144,7 +144,7 @@ export function GlobalSearch() {
               ref={inputRef}
               value={query}
               onChange={(e) => { setQuery(e.target.value); setFilter('all'); }}
-              placeholder="Rechercher organisations, produits, événements..."
+              placeholder="Rechercher plateformes, produits, événements..."
               className="border-0 h-12 text-sm focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent"
             />
             <button onClick={() => setOpen(false)} className="shrink-0 p-1 rounded hover:bg-muted">

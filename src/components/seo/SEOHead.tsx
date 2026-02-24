@@ -17,7 +17,7 @@ export function SEOHead({ title, description, ogImage, ogType = 'website', canon
     // Meta description
     const metaDesc = document.querySelector('meta[name="description"]') || document.createElement('meta');
     metaDesc.setAttribute('name', 'description');
-    metaDesc.setAttribute('content', description || 'Siteviral — Infrastructure Platform for Digital Organizations. Vendez, collectez, formez et développez votre communauté.');
+    metaDesc.setAttribute('content', description || 'Siteviral — Infrastructure Platform for Digital Platforms. Vendez, collectez, formez et développez votre communauté.');
     if (!metaDesc.parentNode) document.head.appendChild(metaDesc);
 
     // OG tags

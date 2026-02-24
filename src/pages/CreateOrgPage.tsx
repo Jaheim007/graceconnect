@@ -30,7 +30,7 @@ const CATEGORIES = [
 
 // Contextual labels & placeholders per category for step 2
 const CATEGORY_CONTEXT: Record<string, { nameLabel: string; namePlaceholder: string; stepTitle: string; descPlaceholder: string; slugPlaceholder: string }> = {
-  church:    { nameLabel: 'Organization name *', namePlaceholder: 'e.g. Grace Community Church', stepTitle: 'Name your organization', descPlaceholder: 'Briefly describe your organization...', slugPlaceholder: 'grace-community' },
+  church:    { nameLabel: 'Platform name *', namePlaceholder: 'e.g. Grace Community Church', stepTitle: 'Name your platform', descPlaceholder: 'Briefly describe your platform...', slugPlaceholder: 'grace-community' },
   ministry:  { nameLabel: 'Association name *', namePlaceholder: 'e.g. Hope for All Association', stepTitle: 'Name your association', descPlaceholder: 'Briefly describe your association...', slugPlaceholder: 'hope-for-all' },
   leader:    { nameLabel: 'Your name *', namePlaceholder: 'e.g. John Doe', stepTitle: 'Put your name', descPlaceholder: 'Tell people about yourself and what you do...', slugPlaceholder: 'john-doe' },
   ngo:       { nameLabel: 'NGO / Nonprofit name *', namePlaceholder: 'e.g. World Aid Foundation', stepTitle: 'Name your nonprofit', descPlaceholder: 'Briefly describe your nonprofit mission...', slugPlaceholder: 'world-aid' },

@@ -132,7 +132,7 @@ export default function ResourcesPage() {
           </div>
           <div className="bg-card border border-border rounded-xl p-3 text-center">
             <p className="text-2xl font-bold text-primary">{grouped.size}</p>
-            <p className="text-[10px] text-muted-foreground">{locale === 'fr' ? 'Organisations' : 'Organizations'}</p>
+            <p className="text-[10px] text-muted-foreground">{locale === 'fr' ? 'Plateformes' : 'Platforms'}</p>
           </div>
           <div className="bg-card border border-border rounded-xl p-3 text-center">
             <p className="text-2xl font-bold text-primary">
@@ -166,7 +166,7 @@ export default function ResourcesPage() {
                     </div>
                   )}
                   <div className="text-left">
-                    <p className="text-sm font-semibold">{org?.name || 'Organisation'}</p>
+                    <p className="text-sm font-semibold">{org?.name || 'Plateforme'}</p>
                     <p className="text-[10px] text-muted-foreground">{orgPurchases!.length} {locale === 'fr' ? 'produit(s)' : 'product(s)'}</p>
                   </div>
                 </button>
