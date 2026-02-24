@@ -30,7 +30,7 @@ import { supabase } from '@/integrations/supabase/client';
 import {
   Globe, MessageCircle, CheckCircle2, Users, CalendarDays,
   Share2, ShoppingBag, Heart, Camera, MapPin, ArrowLeft, MoreHorizontal,
-  Home, Play, Pencil, Loader2
+  Home, Play, Pencil, Loader2, Link2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -208,6 +208,7 @@ export default function OrgPublicPage() {
       toast({ title: `${t('org_public.joined')} ${org.name} !` });
       navigate('/feed');
     }
+    qc.invalidateQueries({ queryKey: ['org-member-count', org.id] });
     setJoining(false);
   };
 
@@ -559,6 +560,16 @@ export default function OrgPublicPage() {
                   <a href={`https://wa.me/${org.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noreferrer">
                     <MessageCircle className="h-4 w-4 text-green-500" /> WhatsApp
                   </a>
+                </Button>
+              )}
+              {isMember && (
+                <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs" onClick={() => navigate('/messages')}>
+                  <MessageCircle className="h-4 w-4 text-primary" /> {locale === 'fr' ? 'Message' : 'Message'}
+                </Button>
+              )}
+              {isMember && orgAny.affiliation_enabled && (
+                <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs" onClick={() => navigate('/affiliation')}>
+                  <Link2 className="h-4 w-4 text-primary" /> {locale === 'fr' ? 'Affilier' : 'Affiliate'}
                 </Button>
               )}
               <Button variant="outline" size="sm" onClick={shareWhatsApp} className="h-9 gap-1.5 text-xs">
