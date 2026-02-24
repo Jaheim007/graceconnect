@@ -75,6 +75,7 @@ import AdminPromoCodes from "@/pages/admin/AdminPromoCodes";
 import AdminPhotos from "@/pages/admin/AdminPhotos";
 import AdminPayouts from "@/pages/admin/AdminPayouts";
 import AdminSubscriptions from "@/pages/admin/AdminSubscriptions";
+import AdminWaitlists from "@/pages/admin/AdminWaitlists";
 
 // Superadmin layout + pages
 import SuperadminLayout from "@/pages/superadmin/SuperadminLayout";
@@ -200,6 +201,7 @@ const App = () => (
                   <Route path="settings" element={<AdminSettings />} />
                   <Route path="payouts" element={<AdminPayouts />} />
                   <Route path="subscriptions" element={<AdminSubscriptions />} />
+                  <Route path="waitlists" element={<AdminWaitlists />} />
                 </Route>
 
                 {/* Superadmin */}
