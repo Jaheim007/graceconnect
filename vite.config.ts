@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico"],
+      includeAssets: ["favicon.ico", "offline.html"],
       manifest: {
         name: "Siteviral",
         short_name: "Siteviral",
@@ -50,27 +50,54 @@ export default defineConfig(({ mode }) => ({
         lang: "fr",
         scope: "/",
         prefer_related_applications: false,
+        shortcuts: [
+          { name: "Feed", short_name: "Feed", url: "/feed", icons: [{ src: "/pwa-192x192.png", sizes: "192x192" }] },
+          { name: "Discover", short_name: "Discover", url: "/discover", icons: [{ src: "/pwa-192x192.png", sizes: "192x192" }] },
+        ],
       },
       workbox: {
-      maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-      globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,woff,woff2}"],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,woff,woff2}"],
         navigateFallback: "/index.html",
         navigateFallbackDenylist: [/^\/~oauth/],
+        // Offline fallback for failed navigations
+        offlineGoogleAnalytics: false,
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
+            // Supabase API: network first with offline fallback
+            urlPattern: /^https:\/\/.*\.supabase\.co\/rest\/.*/i,
             handler: "NetworkFirst",
             options: {
-              cacheName: "supabase-api",
-              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 5 },
+              cacheName: "supabase-rest",
+              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 10 },
+              networkTimeoutSeconds: 5,
             },
+          },
+          {
+            // Supabase storage: cache first (immutable assets)
+            urlPattern: /^https:\/\/.*\.supabase\.co\/storage\/.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "supabase-storage",
+              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
+            },
+          },
+          {
+            // Supabase auth: always network
+            urlPattern: /^https:\/\/.*\.supabase\.co\/auth\/.*/i,
+            handler: "NetworkOnly",
+          },
+          {
+            // Edge functions: network only
+            urlPattern: /^https:\/\/.*\.supabase\.co\/functions\/.*/i,
+            handler: "NetworkOnly",
           },
           {
             urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/i,
             handler: "CacheFirst",
             options: {
               cacheName: "images",
-              expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
             },
           },
           {
@@ -79,6 +106,15 @@ export default defineConfig(({ mode }) => ({
             options: {
               cacheName: "fonts",
               expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            },
+          },
+          {
+            // Paystack script
+            urlPattern: /^https:\/\/js\.paystack\.co\/.*/i,
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "paystack-scripts",
+              expiration: { maxEntries: 5, maxAgeSeconds: 60 * 60 * 24 },
             },
           },
         ],
