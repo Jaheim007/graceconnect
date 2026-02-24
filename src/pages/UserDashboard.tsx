@@ -134,22 +134,6 @@ export default function UserDashboard() {
     enabled: !!user,
   });
 
-  const { data: referralInfo } = useQuery({
-    queryKey: ['user-referral-info', user?.id],
-    queryFn: async () => {
-      if (!user) return null;
-      const { data: profile } = await db.from('profiles').select('referral_code').eq('id', user.id).maybeSingle();
-      const { data: referrals } = await db.from('user_referrals').select('*').eq('referrer_id', user.id);
-      return {
-        code: profile?.referral_code || `SV-${user.id.slice(0, 8).toUpperCase()}`,
-        referrals: referrals || [],
-        totalReferred: referrals?.length || 0,
-        converted: referrals?.filter((r: any) => r.status === 'converted').length || 0,
-      };
-    },
-    enabled: !!user,
-  });
-
   const { data: affiliateSales = [] } = useQuery({
     queryKey: ['user-affiliate-sales', user?.id],
     queryFn: async () => {
@@ -526,30 +510,8 @@ export default function UserDashboard() {
           </div>
         </div>
 
-        {/* ══ REFERRAL + PAYOUT ══ */}
+        {/* ══ PAYOUT ══ */}
         <div className="grid lg:grid-cols-2 gap-4">
-          {/* Referral program */}
-          {referralInfo && (
-            <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-              <h3 className="font-semibold text-sm flex items-center gap-2"><Users className="h-4 w-4 text-primary" /> {t('dash.referral_program')}</h3>
-              <p className="text-xs text-muted-foreground">{t('dash.referral_desc')}</p>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl bg-muted/50 p-3 text-center">
-                  <p className="text-lg font-bold">{referralInfo.totalReferred}</p>
-                  <p className="text-[10px] text-muted-foreground">{t('dash.invited')}</p>
-                </div>
-                <div className="rounded-xl bg-primary/10 p-3 text-center">
-                  <p className="text-lg font-bold text-primary">{referralInfo.converted}</p>
-                  <p className="text-[10px] text-muted-foreground">{t('dash.converted')}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
-                <p className="text-xs font-mono font-bold flex-1 truncate">{referralInfo.code}</p>
-                <CopyButton text={`https://siteviral.com/auth?invite=${referralInfo.code}`} />
-              </div>
-            </div>
-          )}
-
           {/* Payout requests */}
           {Object.keys(payableByOrg).length > 0 && (
             <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
