@@ -117,6 +117,12 @@ export default function ProgramViewPage() {
       const newCompleted = new Set([...completedIds, lessonId]);
       if (newCompleted.size === totalLessons && totalLessons > 0 && user && program) {
         onProgramCompleted(user.id, user.email || undefined, program.title, program.organization_id);
+        // Auto-issue certificate
+        if (!certificate) {
+          issueCert.mutateAsync({ programId: id!, orgId: program.organization_id }).then((cert) => {
+            toast({ title: '🏆 Certificat délivré !', description: 'Votre certificat est prêt à télécharger.' });
+          }).catch(() => {});
+        }
       }
     },
   });
