@@ -7,14 +7,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { ArrowLeft, CheckCircle, Circle, PlayCircle, Lock, GraduationCap } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Circle, PlayCircle, Lock, GraduationCap, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { onProgramEnrolled, onProgramCompleted } from '@/lib/notifications';
+import { downloadCertificate } from '@/lib/certificate';
 
 export default function ProgramViewPage() {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const qc = useQueryClient();
@@ -149,8 +150,22 @@ export default function ProgramViewPage() {
           </div>
           <Progress value={progressPercent} className="h-2" />
           {progressPercent === 100 && (
-            <div className="flex items-center gap-2 text-primary text-xs font-medium pt-1">
-              <GraduationCap className="h-4 w-4" /> Programme terminé ! 🎉
+            <div className="flex items-center justify-between pt-1">
+              <div className="flex items-center gap-2 text-primary text-xs font-medium">
+                <GraduationCap className="h-4 w-4" /> Programme terminé ! 🎉
+              </div>
+              {(program as any).certificate_enabled && (
+                <Button size="sm" variant="outline" className="text-xs gap-1.5 h-7"
+                  onClick={() => downloadCertificate({
+                    studentName: profile?.display_name || user?.email || 'Apprenant',
+                    programTitle: program.title,
+                    orgName: (program as any).organizations?.name || '',
+                    completionDate: new Date().toISOString(),
+                    certificateId: `CERT-${enrollment?.id?.slice(0, 8).toUpperCase()}`,
+                  })}>
+                  <Award className="h-3.5 w-3.5" /> Certificat
+                </Button>
+              )}
             </div>
           )}
         </div>

@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { DigitalProduct } from '@/types/database';
 import {
@@ -8,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  ShoppingBag, Lock, CheckCircle, AlertCircle, Loader2, ExternalLink, Download, User, Mail, Phone, Tag, X,
+  ShoppingBag, Lock, CheckCircle, AlertCircle, Loader2, ExternalLink, Download, User, Mail, Phone, Tag, X, Gift,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePaystack } from '@/hooks/usePaystack';
@@ -71,7 +72,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
     code: '', validating: false, applied: false, discountPercent: 0, discountType: 'percent', discountFixedAmount: 0, error: '', promoCodeId: null,
   });
   const [promoOpen, setPromoOpen] = useState(false);
-
+  const [orderBumpChecked, setOrderBumpChecked] = useState(false);
   // Auto-apply promo from URL (?promo=CODE)
   useEffect(() => {
     const autoCode = getAutoPromoCode();
@@ -85,16 +86,32 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
     }
   }, [open]);
 
+  // Order bump product query
+  const bumpProductId = (product as any)?.order_bump_product_id;
+  const bumpDiscount = (product as any)?.order_bump_discount_percent || 0;
+  const { data: bumpProduct } = useQuery({
+    queryKey: ['bump-product', bumpProductId],
+    queryFn: async () => {
+      if (!bumpProductId) return null;
+      const { data } = await db.from('digital_products').select('id, title, price, currency, cover_image_url').eq('id', bumpProductId).maybeSingle();
+      return data;
+    },
+    enabled: !!bumpProductId,
+  });
+
   if (!product) return null;
 
   const fmt = (n: number) => formatPrice(n, product.is_free, product.currency);
+
+  const bumpPrice = bumpProduct ? Math.round((bumpProduct.price || 0) * (1 - bumpDiscount / 100)) : 0;
+  const orderBumpTotal = orderBumpChecked && bumpProduct ? bumpPrice : 0;
 
   const discountAmount = promo.applied
     ? promo.discountType === 'fixed'
       ? promo.discountFixedAmount
       : Math.round((product.price ?? 0) * promo.discountPercent / 100)
     : 0;
-  const finalPrice = Math.max(0, (product.price ?? 0) - discountAmount);
+  const finalPrice = Math.max(0, (product.price ?? 0) - discountAmount) + orderBumpTotal;
 
   const validatePromoCode = async () => {
     const trimmed = promo.code.trim().toUpperCase();
@@ -317,6 +334,22 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                     </div>
                   )}
                 </div>
+              )}
+
+              {/* Order Bump */}
+              {bumpProduct && !product.is_free && !product.external_link && (
+                <label className="flex items-start gap-3 p-3 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 cursor-pointer hover:border-primary/50 transition-colors">
+                  <input type="checkbox" checked={orderBumpChecked} onChange={e => setOrderBumpChecked(e.target.checked)}
+                    className="mt-0.5 rounded border-primary text-primary focus:ring-primary" />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
+                      <Gift className="h-3.5 w-3.5" /> Offre spéciale !
+                    </div>
+                    <p className="text-xs mt-0.5">Ajoutez <strong>{bumpProduct.title}</strong> pour seulement <strong>{fmt(bumpPrice)}</strong>
+                      {bumpDiscount > 0 && <span className="text-muted-foreground line-through ml-1">{fmt(bumpProduct.price)}</span>}
+                    </p>
+                  </div>
+                </label>
               )}
 
               <div className="space-y-1.5">
