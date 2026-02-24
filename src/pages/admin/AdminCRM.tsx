@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { AdminPageShell } from './AdminPageShell';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,9 +13,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { motion } from 'framer-motion';
-import { UserPlus, Mail, Download, Send, Trash2, Plus, Loader2, Heart, ShoppingBag } from 'lucide-react';
+import { UserPlus, Mail, Download, Send, Trash2, Plus, Loader2, Heart, ShoppingBag, Search, Tag, Star, Filter } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { callFn } from '@/lib/api';
 import { downloadCSV } from '@/lib/csvExport';
 import { useI18n } from '@/i18n/I18nContext';
@@ -38,6 +39,9 @@ export default function AdminCRM() {
   const [newEmail, setNewEmail] = useState('');
   const [newName, setNewName] = useState('');
   const [newTags, setNewTags] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterTag, setFilterTag] = useState<string>('all');
+  const [filterSource, setFilterSource] = useState<string>('all');
 
   // Contacts
   const { data: contacts = [], isLoading: loadingContacts } = useQuery({
@@ -127,9 +131,62 @@ export default function AdminCRM() {
 
   const dateFmt = locale === 'fr' ? 'fr-FR' : 'en-US';
 
+  // Derived: all tags & sources for filters
+  const allTags = useMemo(() => {
+    const tags = new Set<string>();
+    contacts.forEach((c: any) => (c.tags || []).forEach((t: string) => tags.add(t)));
+    return Array.from(tags).sort();
+  }, [contacts]);
+
+  const allSources = useMemo(() => {
+    const sources = new Set<string>();
+    contacts.forEach((c: any) => { if (c.source) sources.add(c.source); });
+    return Array.from(sources).sort();
+  }, [contacts]);
+
+  // Lead scoring: contacts with purchases or donations get higher scores
+  const { data: purchaseCounts = {} } = useQuery({
+    queryKey: ['crm-lead-scores', orgId],
+    queryFn: async () => {
+      if (!orgId) return {};
+      const [{ data: purchases }, { data: donations }] = await Promise.all([
+        db.from('product_purchases').select('user_id').eq('organization_id', orgId).eq('status', 'completed'),
+        db.from('donations').select('donor_email').eq('organization_id', orgId).eq('status', 'completed'),
+      ]);
+      const scores: Record<string, number> = {};
+      (purchases || []).forEach((p: any) => { if (p.user_id) scores[p.user_id] = (scores[p.user_id] || 0) + 10; });
+      (donations || []).forEach((d: any) => { if (d.donor_email) scores[d.donor_email] = (scores[d.donor_email] || 0) + 5; });
+      return scores;
+    },
+    enabled: !!orgId,
+  });
+
+  // Filter & search contacts
+  const filteredContacts = useMemo(() => {
+    return contacts.filter((c: any) => {
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        if (!(c.email?.toLowerCase().includes(q) || c.name?.toLowerCase().includes(q))) return false;
+      }
+      if (filterTag !== 'all' && !(c.tags || []).includes(filterTag)) return false;
+      if (filterSource !== 'all' && c.source !== filterSource) return false;
+      return true;
+    });
+  }, [contacts, searchQuery, filterTag, filterSource]);
+
+  const getLeadScore = (contact: any): number => {
+    return (purchaseCounts as any)[contact.email] || (purchaseCounts as any)[contact.user_id] || 0;
+  };
+
+  const getScoreBadge = (score: number) => {
+    if (score >= 15) return { label: 'Hot', className: 'bg-destructive/10 text-destructive' };
+    if (score >= 5) return { label: 'Warm', className: 'bg-amber-500/10 text-amber-600' };
+    return null;
+  };
+
   return (
     <AdminPageShell title={t('crm.title')} subtitle={`${contacts.length} ${t('crm.contacts').toLowerCase()}`} backRoute="/admin">
-      <Tabs value={tab} onValueChange={setTab}>
+      <Tabs value={tab} onValueChange={v => setTab(v)}>
         <TabsList className="mb-4 flex-wrap">
           <TabsTrigger value="contacts" className="gap-1.5">
             <UserPlus className="h-3.5 w-3.5" /> {t('crm.contacts')}
@@ -155,6 +212,34 @@ export default function AdminCRM() {
               disabled={contacts.length === 0}>
               <Download className="h-3.5 w-3.5" /> {t('crm.export_csv')}
             </Button>
+          </div>
+
+          {/* Search & Filters */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="relative flex-1 min-w-[180px]">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                placeholder={locale === 'fr' ? 'Rechercher...' : 'Search...'}
+                className="h-8 text-xs pl-8" />
+            </div>
+            {allTags.length > 0 && (
+              <Select value={filterTag} onValueChange={setFilterTag}>
+                <SelectTrigger className="h-8 w-[120px] text-xs"><Tag className="h-3 w-3 mr-1" /><SelectValue placeholder="Tag" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{locale === 'fr' ? 'Tous tags' : 'All tags'}</SelectItem>
+                  {allTags.map(tag => <SelectItem key={tag} value={tag}>{tag}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            )}
+            {allSources.length > 1 && (
+              <Select value={filterSource} onValueChange={setFilterSource}>
+                <SelectTrigger className="h-8 w-[120px] text-xs"><Filter className="h-3 w-3 mr-1" /><SelectValue placeholder="Source" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{locale === 'fr' ? 'Toutes sources' : 'All sources'}</SelectItem>
+                  {allSources.map(src => <SelectItem key={src} value={src}>{src}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           {showAddContact && (
@@ -184,31 +269,43 @@ export default function AdminCRM() {
             </motion.div>
           )}
 
-          {loadingContacts ? <SkeletonRow /> : contacts.length === 0 ? (
-            <EmptyState variant="generic" title={t('crm.no_contacts')} description={t('crm.no_contacts_desc')} />
+          {loadingContacts ? <SkeletonRow /> : filteredContacts.length === 0 ? (
+            <EmptyState variant="generic" title={searchQuery || filterTag !== 'all' ? (locale === 'fr' ? 'Aucun résultat' : 'No results') : t('crm.no_contacts')} description={t('crm.no_contacts_desc')} />
           ) : (
             <div className="bg-card border border-border rounded-2xl p-4 space-y-2">
-              {contacts.map((c: any) => (
-                <div key={c.id} className="flex items-center gap-3 p-2.5 rounded-xl border border-border bg-background/50 hover:bg-background transition-all group">
-                  <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0">
-                    <span className="text-xs font-bold">{(c.name || c.email)[0].toUpperCase()}</span>
+              <p className="text-[10px] text-muted-foreground mb-1">
+                {filteredContacts.length} / {contacts.length} {t('crm.contacts').toLowerCase()}
+              </p>
+              {filteredContacts.map((c: any) => {
+                const score = getLeadScore(c);
+                const scoreBadge = getScoreBadge(score);
+                return (
+                  <div key={c.id} className="flex items-center gap-3 p-2.5 rounded-xl border border-border bg-background/50 hover:bg-background transition-all group">
+                    <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+                      <span className="text-xs font-bold">{(c.name || c.email)[0].toUpperCase()}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{c.name || c.email}</p>
+                      <p className="text-xs text-muted-foreground truncate">{c.email}</p>
+                    </div>
+                    <div className="flex gap-1 flex-wrap items-center">
+                      {scoreBadge && (
+                        <Badge variant="outline" className={cn('text-[9px] border-0 gap-0.5', scoreBadge.className)}>
+                          <Star className="h-2.5 w-2.5" />{scoreBadge.label}
+                        </Badge>
+                      )}
+                      {(c.tags || []).slice(0, 2).map((tg: string) => (
+                        <Badge key={tg} variant="secondary" className="text-[9px]">{tg}</Badge>
+                      ))}
+                    </div>
+                    <Badge variant="outline" className="text-[10px] shrink-0">{c.source}</Badge>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 text-destructive"
+                      onClick={() => deleteContact.mutate(c.id)}>
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{c.name || c.email}</p>
-                    <p className="text-xs text-muted-foreground truncate">{c.email}</p>
-                  </div>
-                  <div className="flex gap-1 flex-wrap">
-                    {(c.tags || []).slice(0, 2).map((tg: string) => (
-                      <Badge key={tg} variant="secondary" className="text-[9px]">{tg}</Badge>
-                    ))}
-                  </div>
-                  <Badge variant="outline" className="text-[10px] shrink-0">{c.source}</Badge>
-                  <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 text-destructive"
-                    onClick={() => deleteContact.mutate(c.id)}>
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </TabsContent>
