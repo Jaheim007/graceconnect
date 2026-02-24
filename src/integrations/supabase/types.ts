@@ -333,6 +333,45 @@ export type Database = {
         }
         Relationships: []
       }
+      bundle_items: {
+        Row: {
+          bundle_product_id: string
+          created_at: string
+          display_order: number | null
+          id: string
+          included_product_id: string
+        }
+        Insert: {
+          bundle_product_id: string
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          included_product_id: string
+        }
+        Update: {
+          bundle_product_id?: string
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          included_product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bundle_items_bundle_product_id_fkey"
+            columns: ["bundle_product_id"]
+            isOneToOne: false
+            referencedRelation: "digital_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bundle_items_included_product_id_fkey"
+            columns: ["included_product_id"]
+            isOneToOne: false
+            referencedRelation: "digital_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           created_at: string
@@ -426,10 +465,13 @@ export type Database = {
           description: string | null
           display_order: number | null
           external_link: string | null
+          faq_json: Json | null
           featured_score: number | null
           file_url: string | null
           fts_vector: unknown
+          guarantee_text: string | null
           id: string
+          is_bundle: boolean | null
           is_featured: boolean | null
           is_free: boolean | null
           is_published: boolean | null
@@ -439,6 +481,7 @@ export type Database = {
           review_count: number | null
           sales_count: number | null
           slug: string | null
+          testimonials_json: Json | null
           title: string
           updated_at: string | null
         }
@@ -451,10 +494,13 @@ export type Database = {
           description?: string | null
           display_order?: number | null
           external_link?: string | null
+          faq_json?: Json | null
           featured_score?: number | null
           file_url?: string | null
           fts_vector?: unknown
+          guarantee_text?: string | null
           id?: string
+          is_bundle?: boolean | null
           is_featured?: boolean | null
           is_free?: boolean | null
           is_published?: boolean | null
@@ -464,6 +510,7 @@ export type Database = {
           review_count?: number | null
           sales_count?: number | null
           slug?: string | null
+          testimonials_json?: Json | null
           title: string
           updated_at?: string | null
         }
@@ -476,10 +523,13 @@ export type Database = {
           description?: string | null
           display_order?: number | null
           external_link?: string | null
+          faq_json?: Json | null
           featured_score?: number | null
           file_url?: string | null
           fts_vector?: unknown
+          guarantee_text?: string | null
           id?: string
+          is_bundle?: boolean | null
           is_featured?: boolean | null
           is_free?: boolean | null
           is_published?: boolean | null
@@ -489,6 +539,7 @@ export type Database = {
           review_count?: number | null
           sales_count?: number | null
           slug?: string | null
+          testimonials_json?: Json | null
           title?: string
           updated_at?: string | null
         }
@@ -1700,6 +1751,48 @@ export type Database = {
           },
         ]
       }
+      product_recommendations: {
+        Row: {
+          created_at: string
+          display_order: number | null
+          id: string
+          product_id: string
+          recommendation_type: string
+          recommended_product_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          product_id: string
+          recommendation_type?: string
+          recommended_product_id: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          product_id?: string
+          recommendation_type?: string
+          recommended_product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_recommendations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "digital_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_recommendations_recommended_product_id_fkey"
+            columns: ["recommended_product_id"]
+            isOneToOne: false
+            referencedRelation: "digital_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_reviews: {
         Row: {
           comment: string | null
@@ -1969,7 +2062,9 @@ export type Database = {
           created_at: string
           created_by: string | null
           current_uses: number
+          discount_amount: number | null
           discount_percent: number
+          discount_type: string
           expires_at: string | null
           id: string
           is_active: boolean
@@ -1983,7 +2078,9 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           current_uses?: number
+          discount_amount?: number | null
           discount_percent?: number
+          discount_type?: string
           expires_at?: string | null
           id?: string
           is_active?: boolean
@@ -1997,7 +2094,9 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           current_uses?: number
+          discount_amount?: number | null
           discount_percent?: number
+          discount_type?: string
           expires_at?: string | null
           id?: string
           is_active?: boolean
