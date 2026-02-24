@@ -2221,6 +2221,62 @@ export type Database = {
           },
         ]
       }
+      subscription_plans: {
+        Row: {
+          created_at: string
+          currency: string
+          description: string | null
+          display_order: number | null
+          features: Json | null
+          id: string
+          interval: string
+          is_active: boolean
+          is_published: boolean
+          name: string
+          organization_id: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          description?: string | null
+          display_order?: number | null
+          features?: Json | null
+          id?: string
+          interval?: string
+          is_active?: boolean
+          is_published?: boolean
+          name: string
+          organization_id: string
+          price?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          description?: string | null
+          display_order?: number | null
+          features?: Json | null
+          id?: string
+          interval?: string
+          is_active?: boolean
+          is_published?: boolean
+          name?: string
+          organization_id?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_plans_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       support_tickets: {
         Row: {
           admin_response: string | null
@@ -2268,6 +2324,33 @@ export type Database = {
           status?: string
           subject?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_badges: {
+        Row: {
+          badge_label: string
+          badge_type: string
+          earned_at: string
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          badge_label: string
+          badge_type: string
+          earned_at?: string
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          badge_label?: string
+          badge_type?: string
+          earned_at?: string
+          id?: string
+          metadata?: Json | null
           user_id?: string
         }
         Relationships: []
@@ -2367,6 +2450,96 @@ export type Database = {
           status?: string
         }
         Relationships: []
+      }
+      user_streaks: {
+        Row: {
+          current_streak: number
+          id: string
+          last_activity_date: string | null
+          longest_streak: number
+          total_activity_days: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number
+          total_activity_days?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          current_streak?: number
+          id?: string
+          last_activity_date?: string | null
+          longest_streak?: number
+          total_activity_days?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_subscriptions: {
+        Row: {
+          cancelled_at: string | null
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          organization_id: string
+          paystack_email_token: string | null
+          paystack_subscription_code: string | null
+          plan_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          organization_id: string
+          paystack_email_token?: string | null
+          paystack_subscription_code?: string | null
+          plan_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          organization_id?: string
+          paystack_email_token?: string | null
+          paystack_subscription_code?: string | null
+          plan_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       watch_history: {
         Row: {

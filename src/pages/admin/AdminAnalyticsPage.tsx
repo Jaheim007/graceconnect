@@ -256,6 +256,37 @@ export default function AdminAnalyticsPage() {
     if (data) downloadCSV(data, `affilies-${currentOrg?.slug || 'org'}`);
   };
 
+  // Conversion funnel data
+  const { data: funnelData } = useQuery({
+    queryKey: ['org-conversion-funnel', orgId],
+    queryFn: async () => {
+      if (!orgId) return null;
+      const [visitors, carts, purchases] = await Promise.all([
+        db.from('org_daily_metrics').select('page_views').eq('organization_id', orgId),
+        db.from('abandoned_carts').select('id, converted').eq('organization_id', orgId),
+        db.from('product_purchases').select('id').eq('organization_id', orgId).eq('status', 'completed'),
+      ]);
+      const totalViews = (visitors.data || []).reduce((s: number, m: any) => s + (m.page_views || 0), 0);
+      const totalCarts = carts.data?.length || 0;
+      const convertedCarts = (carts.data || []).filter((c: any) => c.converted).length;
+      const totalPurchases = purchases.data?.length || 0;
+      const cartConversion = totalCarts > 0 ? ((convertedCarts / totalCarts) * 100).toFixed(1) : '0';
+      return { totalViews, totalCarts, convertedCarts, totalPurchases, cartConversion };
+    },
+    enabled: !!orgId,
+  });
+
+  // Subscriber count
+  const { data: subscriberCount = 0 } = useQuery({
+    queryKey: ['org-subscriber-count', orgId],
+    queryFn: async () => {
+      if (!orgId) return 0;
+      const { data } = await db.from('user_subscriptions').select('id').eq('organization_id', orgId).eq('status', 'active');
+      return data?.length || 0;
+    },
+    enabled: !!orgId,
+  });
+
   return (
     <AdminPageShell title={t('analytics.title')} subtitle={t('analytics.subtitle')} backRoute="/admin">
       <div className="space-y-6">
@@ -271,7 +302,7 @@ export default function AdminAnalyticsPage() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {kpis.map((kpi) => (
             <motion.div key={kpi.label} variants={fadeUp} initial="hidden" animate="visible"
               className="bg-card border border-border rounded-2xl p-4 shadow-card">
@@ -282,7 +313,44 @@ export default function AdminAnalyticsPage() {
               <p className="text-xl font-bold">{kpi.value}</p>
             </motion.div>
           ))}
+          {/* Subscriber KPI */}
+          <motion.div variants={fadeUp} initial="hidden" animate="visible" className="bg-card border border-border rounded-2xl p-4 shadow-card">
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="h-4 w-4 text-indigo-500" />
+              <p className="text-[11px] text-muted-foreground">{locale === 'fr' ? 'Abonnés actifs' : 'Active subscribers'}</p>
+            </div>
+            <p className="text-xl font-bold">{subscriberCount}</p>
+          </motion.div>
         </div>
+
+        {/* ═══ Conversion Funnel ═══ */}
+        {funnelData && (funnelData.totalViews > 0 || funnelData.totalCarts > 0) && (
+          <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+            <h2 className="font-semibold text-sm flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-primary" /> {locale === 'fr' ? 'Entonnoir de conversion' : 'Conversion Funnel'}
+            </h2>
+            <div className="space-y-3">
+              {[
+                { label: locale === 'fr' ? 'Vues de page' : 'Page views', value: funnelData.totalViews, pct: 100 },
+                { label: locale === 'fr' ? 'Paniers ouverts' : 'Carts opened', value: funnelData.totalCarts, pct: funnelData.totalViews > 0 ? (funnelData.totalCarts / funnelData.totalViews * 100) : 0 },
+                { label: locale === 'fr' ? 'Achats complétés' : 'Purchases completed', value: funnelData.totalPurchases, pct: funnelData.totalCarts > 0 ? (funnelData.totalPurchases / funnelData.totalCarts * 100) : 0 },
+              ].map((step, i) => (
+                <div key={i} className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-medium">{step.label}</span>
+                    <span className="text-muted-foreground">{step.value.toLocaleString()} ({step.pct.toFixed(1)}%)</span>
+                  </div>
+                  <div className="h-2 rounded-full bg-muted overflow-hidden">
+                    <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${Math.min(100, step.pct)}%` }} />
+                  </div>
+                </div>
+              ))}
+              <p className="text-[11px] text-muted-foreground">
+                {locale === 'fr' ? 'Taux de conversion panier' : 'Cart conversion rate'}: <span className="font-bold text-primary">{funnelData.cartConversion}%</span>
+              </p>
+            </div>
+          </div>
+        )}
 
         {stats.chartData.length > 0 && (
           <div className="bg-card border border-border rounded-2xl p-5">

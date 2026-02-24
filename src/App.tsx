@@ -74,6 +74,7 @@ import { ProductForm } from "@/pages/admin/AdminProductForm";
 import AdminPromoCodes from "@/pages/admin/AdminPromoCodes";
 import AdminPhotos from "@/pages/admin/AdminPhotos";
 import AdminPayouts from "@/pages/admin/AdminPayouts";
+import AdminSubscriptions from "@/pages/admin/AdminSubscriptions";
 
 // Superadmin layout + pages
 import SuperadminLayout from "@/pages/superadmin/SuperadminLayout";
@@ -198,6 +199,7 @@ const App = () => (
                   <Route path="kyc" element={<AdminKYC />} />
                   <Route path="settings" element={<AdminSettings />} />
                   <Route path="payouts" element={<AdminPayouts />} />
+                  <Route path="subscriptions" element={<AdminSubscriptions />} />
                 </Route>
 
                 {/* Superadmin */}
