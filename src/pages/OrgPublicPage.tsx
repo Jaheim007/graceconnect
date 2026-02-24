@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useParams, useNavigate, useLocation, useSearchParams, Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
@@ -40,6 +40,7 @@ import { useAffiliateCapture } from '@/hooks/useAffiliateCapture';
 import { PhotoLightbox } from '@/components/photos/PhotoLightbox';
 import { PixelInjector } from '@/components/org/PixelInjector';
 import { motion } from 'framer-motion';
+import { ImageCropDialog } from '@/components/ui/ImageCropDialog';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { OrgBadges } from '@/components/org/OrgBadges';
 import { SmartPopup } from '@/components/org/SmartPopup';
@@ -64,6 +65,11 @@ export default function OrgPublicPage() {
   const [purchaseProduct, setPurchaseProduct] = useState<DigitalProduct | null>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [tourOpen, setTourOpen] = useState(false);
+
+  // Crop state
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [cropField, setCropField] = useState<'banner_url' | 'logo_url'>('banner_url');
+  const [cropAspect, setCropAspect] = useState<number | undefined>(3 / 1);
 
   // Refs
   const bannerInputRef = useRef<HTMLInputElement>(null);
@@ -516,13 +522,18 @@ export default function OrgPublicPage() {
           className="hidden"
           onChange={(e) => {
             const f = e.target.files?.[0];
-            if (f) handleImageUpload(f, 'banner_url', setUploadingBanner);
+            if (f) {
+              const url = URL.createObjectURL(f);
+              setCropSrc(url);
+              setCropField('banner_url');
+              setCropAspect(3 / 1);
+            }
             e.target.value = '';
           }}
         />
 
         <div className="container max-w-5xl relative">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-16 sm:-mt-12 pb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-16 sm:-mt-12 pb-2">
             {/* Logo */}
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
@@ -560,7 +571,12 @@ export default function OrgPublicPage() {
               className="hidden"
               onChange={(e) => {
                 const f = e.target.files?.[0];
-                if (f) handleImageUpload(f, 'logo_url', setUploadingLogo);
+                if (f) {
+                  const url = URL.createObjectURL(f);
+                  setCropSrc(url);
+                  setCropField('logo_url');
+                  setCropAspect(1);
+                }
                 e.target.value = '';
               }}
             />
@@ -595,13 +611,16 @@ export default function OrgPublicPage() {
                 </div>
               </motion.div>
             </div>
+          </div>
 
+          {/* ─── STATS & ACTION BUTTONS ROW ─── */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4">
             {/* ─── ANIMATED STATS BAR ─── */}
             <motion.div
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="flex flex-wrap gap-3 mt-4 mb-2"
+              className="flex flex-wrap gap-2"
             >
               {products.length > 0 && (
                 <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-card shadow-card">
@@ -637,7 +656,7 @@ export default function OrgPublicPage() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
-              className="flex items-center gap-2 sm:pb-1"
+              className="flex flex-wrap items-center gap-2"
             >
               {org.whatsapp && (
                 <Button variant="outline" size="sm" asChild className="h-9 gap-1.5 text-xs">
@@ -973,6 +992,33 @@ export default function OrgPublicPage() {
       {/* Smart Popup */}
       {pageSettings?.popup_config && (pageSettings.popup_config as any)?.enabled && (
         <SmartPopup config={pageSettings.popup_config as any} orgName={org.name} />
+      )}
+      {/* Crop Dialog for banner/logo */}
+      {cropSrc && (
+        <ImageCropDialog
+          open={!!cropSrc}
+          imageSrc={cropSrc}
+          aspect={cropAspect}
+          onClose={() => setCropSrc(null)}
+          onCropComplete={async (blob) => {
+            setCropSrc(null);
+            const setUploading = cropField === 'banner_url' ? setUploadingBanner : setUploadingLogo;
+            setUploading(true);
+            try {
+              const ext = 'jpg';
+              const fileName = `${org.id}/${cropField}-${Date.now()}.${ext}`;
+              const { error } = await supabase.storage.from('org-uploads').upload(fileName, blob, { upsert: true, contentType: 'image/jpeg' });
+              if (error) throw error;
+              const { data } = supabase.storage.from('org-uploads').getPublicUrl(fileName);
+              await updateOrg.mutateAsync({ id: org.id, updates: { [cropField]: data.publicUrl } });
+              qc.invalidateQueries({ queryKey: ['org-by-slug', slug] });
+              toast({ title: locale === 'fr' ? 'Image mise à jour ✓' : 'Image updated ✓' });
+            } catch (err: any) {
+              toast({ title: err.message || 'Upload failed', variant: 'destructive' });
+            }
+            setUploading(false);
+          }}
+        />
       )}
     </div>
   );
