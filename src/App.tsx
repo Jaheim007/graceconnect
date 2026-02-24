@@ -19,10 +19,16 @@ import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
 import { SkipLink } from "@/components/layout/SkipLink";
 
-// Lazy-loaded fallback
+// Lazy-loaded fallback — branded splash
 const PageLoader = () => (
-  <div className="min-h-[60dvh] flex items-center justify-center">
-    <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+  <div className="min-h-[60dvh] flex flex-col items-center justify-center gap-4">
+    <div className="relative">
+      <div className="h-12 w-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+        <span className="text-lg font-extrabold text-primary tracking-tight">SV</span>
+      </div>
+      <div className="absolute inset-0 h-12 w-12 rounded-2xl border-2 border-primary/40 border-t-primary animate-spin" />
+    </div>
+    <p className="text-xs text-muted-foreground font-medium animate-pulse">Chargement…</p>
   </div>
 );
 
