@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useOrg } from '@/contexts/OrgContext';
 import { useOrgMedia } from '@/hooks/useMedia';
 import { useOrgAnnouncements } from '@/hooks/useAnnouncements';
@@ -12,13 +12,15 @@ import { Button } from '@/components/ui/button';
 import {
   Play, Megaphone, CalendarDays, Heart, ShoppingBag,
   Users, ExternalLink, AlertTriangle, ChevronRight,
-  TrendingUp, DollarSign, Percent, ArrowUpRight, Rocket
+  TrendingUp, DollarSign, Percent, ArrowUpRight, Rocket, Download
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { OrgActivationChecklist } from '@/components/admin/OrgActivationChecklist';
 import { QuickStartWizard } from '@/components/onboarding/QuickStartWizard';
 import { useI18n } from '@/i18n/I18nContext';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { downloadCSV } from '@/lib/csvExport';
 
 import { formatCurrency } from '@/lib/currency';
 const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
@@ -77,6 +79,31 @@ export default function AdminDashboard() {
     enabled: !!currentOrg?.id,
   });
 
+  // Daily metrics for chart
+  const { data: dailyMetrics = [] } = useQuery({
+    queryKey: ['admin-daily-metrics', currentOrg?.id],
+    queryFn: async () => {
+      if (!currentOrg?.id) return [];
+      const { data } = await db.from('org_daily_metrics')
+        .select('metric_date, revenue, transactions_count, new_members, products_sold, donations_count')
+        .eq('organization_id', currentOrg.id)
+        .order('metric_date', { ascending: true })
+        .limit(30);
+      return data || [];
+    },
+    enabled: !!currentOrg?.id,
+  });
+
+  const chartData = useMemo(() =>
+    dailyMetrics.map((d: any) => ({
+      date: new Date(d.metric_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }),
+      revenue: d.revenue || 0,
+      transactions: d.transactions_count || 0,
+      members: d.new_members || 0,
+    })),
+    [dailyMetrics]
+  );
+
   const allTxns = [...donationTxns, ...purchaseTxns];
   const totalRevenue = allTxns.reduce((s, t) => s + (t.amount || 0), 0);
   const totalOrgReceived = allTxns.reduce((s, t) => s + (t.organization_amount || 0), 0);
@@ -84,6 +111,16 @@ export default function AdminDashboard() {
   const totalPlatformFee = allTxns.reduce((s, t) => s + (t.platform_fee || 0), 0);
   const commissionRate = currentOrg?.affiliation_commission_percent ?? 10;
   const conversionRate = allTxns.length > 0 ? ((allTxns.length / Math.max(members.length, 1)) * 100).toFixed(1) : '0';
+
+  const handleExportCSV = () => {
+    const rows = allTxns.map((t: any) => ({
+      montant: t.amount || 0,
+      reçu_org: t.organization_amount || 0,
+      commission_affilié: t.affiliate_commission || 0,
+      frais_plateforme: t.platform_fee || 0,
+    }));
+    downloadCSV(rows, `revenus-${currentOrg?.slug || 'org'}`);
+  };
 
   const stats = [
     { label: t('admin.media'), value: media.length, published: media.filter(m => m.is_published).length, icon: Play, to: '/admin/media', colorClass: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
@@ -124,6 +161,9 @@ export default function AdminDashboard() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" onClick={handleExportCSV} className="gap-1.5 text-xs h-8 sm:h-9">
+            <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> CSV
+          </Button>
           <Button size="sm" variant="outline" onClick={() => setShowQuickStart(true)} className="gap-1.5 text-xs h-8 sm:h-9">
             <Rocket className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> {t('admin.quickstart')}
           </Button>
@@ -175,6 +215,29 @@ export default function AdminDashboard() {
           </motion.div>
         ))}
       </motion.div>
+
+      {/* Revenue chart */}
+      {chartData.length > 1 && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-2xl p-5">
+          <h2 className="font-semibold text-sm mb-4">{t('admin.total_sales')} — 30 derniers jours</h2>
+          <div className="h-48">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData}>
+                <defs>
+                  <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="date" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+                <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+                <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 12, fontSize: 12 }} labelStyle={{ color: 'hsl(var(--foreground))' }} />
+                <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fill="url(#revGrad)" strokeWidth={2} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </motion.div>
+      )}
 
       {/* Stats grid */}
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 sm:grid-cols-3 gap-3">
