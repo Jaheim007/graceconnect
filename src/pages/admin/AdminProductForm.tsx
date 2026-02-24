@@ -128,8 +128,8 @@ export function ProductForm() {
         guarantee_text: data.guarantee_text || null,
         faq_json: faqItems.length > 0 ? faqItems : [],
         testimonials_json: testimonials.length > 0 ? testimonials : [],
-        sale_price: salePrice ? parseFloat(salePrice) : null,
-        sale_ends_at: saleEndsAt ? new Date(saleEndsAt).toISOString() : null,
+        sale_price: data.is_free ? null : (salePrice ? parseFloat(salePrice) : null),
+        sale_ends_at: data.is_free ? null : (saleEndsAt ? new Date(saleEndsAt).toISOString() : null),
       };
       let error;
       let resultData: any;

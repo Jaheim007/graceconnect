@@ -47,7 +47,7 @@ export default function SuperadminSupport() {
   const { data: tickets = [], isLoading, refetch } = useQuery({
     queryKey: ['sa-support-tickets', filter],
     queryFn: async () => {
-      let q = db.from('support_tickets').select('*, profiles:user_id(display_name, avatar_url, email:id)').order('created_at', { ascending: false });
+      let q = db.from('support_tickets').select('*').order('created_at', { ascending: false });
       if (filter !== 'all') q = q.eq('status', filter);
       const { data } = await q;
       return data || [];
