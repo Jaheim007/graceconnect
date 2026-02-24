@@ -45,6 +45,7 @@ import { OrgBadges } from '@/components/org/OrgBadges';
 import { SmartPopup } from '@/components/org/SmartPopup';
 import { WaitlistWidget } from '@/components/org/WaitlistWidget';
 import { useWaitlists } from '@/hooks/useWaitlists';
+import { SubscriptionPlansWidget } from '@/components/subscriptions/SubscriptionPlansWidget';
 
 export default function OrgPublicPage() {
   useAffiliateCapture();
@@ -341,6 +342,13 @@ export default function OrgPublicPage() {
     .filter(s => !hiddenSections.has(s) && sectionData[s])
     .map(s => sectionData[s].render())
     .filter(Boolean);
+
+  // Add subscription plans after ordered sections
+  const subscriptionSection = org?.id ? (
+    <section key="subscriptions">
+      <SubscriptionPlansWidget orgId={org.id} currency={org.currency || 'XOF'} />
+    </section>
+  ) : null;
 
   const hasAnyContent = Object.values(sectionData).some(s => s.items.length > 0);
 
@@ -712,6 +720,7 @@ export default function OrgPublicPage() {
           {/* ─── HOME TAB ─── */}
           <TabsContent value="home" className="space-y-8">
             {orderedSections}
+            {subscriptionSection}
 
             {/* Waitlists */}
             {(waitlists as any[]).filter(w => w.is_active).length > 0 && (
