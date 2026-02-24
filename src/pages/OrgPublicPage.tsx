@@ -401,7 +401,7 @@ export default function OrgPublicPage() {
           </div>
           <div className="space-y-2 px-5 pb-5">
             {events.slice(0, 3).map((ev) => (
-              <div key={ev.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/30 hover:bg-muted/60 transition-colors">
+              <div key={ev.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/30 hover:bg-muted/60 transition-colors cursor-pointer" onClick={() => navigate(`/event/${ev.id}`)}>
                 <div className="h-12 w-12 rounded-xl bg-primary/10 flex flex-col items-center justify-center shrink-0">
                   {ev.event_date ? (
                     <>
@@ -770,7 +770,7 @@ export default function OrgPublicPage() {
 
         {/* Pinned announcement */}
         {pinnedAnnouncement && (
-          <div className="mb-6 p-4 rounded-2xl bg-primary/10 border border-primary/20">
+          <div className="mb-6 p-4 rounded-2xl bg-primary/10 border border-primary/20 cursor-pointer hover:bg-primary/15 transition-colors" onClick={() => navigate(`/announcement/${pinnedAnnouncement.id}`)}>
             <div className="flex items-start gap-3">
               <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                 <span className="text-xs">📌</span>
