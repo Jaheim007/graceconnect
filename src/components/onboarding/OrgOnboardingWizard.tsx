@@ -54,8 +54,8 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
           <div className="h-12 w-12 mx-auto rounded-2xl bg-primary flex items-center justify-center mb-4">
             <Check className="h-6 w-6 text-primary-foreground" />
           </div>
-          <h2 className="text-xl font-bold">🎉 Organisation créée !</h2>
-          <p className="text-sm text-muted-foreground mt-1">Que souhaitez-vous faire en premier ?</p>
+          <h2 className="text-xl font-bold">🎉 Platform created!</h2>
+          <p className="text-sm text-muted-foreground mt-1">What would you like to do first?</p>
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-6">
