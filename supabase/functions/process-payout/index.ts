@@ -92,8 +92,25 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ ok: true, status: 'rejected' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    // action === 'approve' — attempt Paystack transfer
-    // Lookup affiliate user's recipient code from kyc_submissions
+    // action === 'approve'
+    // For org payouts: verify that the requested amount doesn't exceed cleared funds (72h hold)
+    if (payout.payout_type === 'org' && payout.organization_id) {
+      const holdCutoff = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
+      const [{ data: donations }, { data: purchases }, { data: otherPayouts }] = await Promise.all([
+        db.from('donations').select('organization_amount, completed_at').eq('organization_id', payout.organization_id).eq('status', 'completed').lte('completed_at', holdCutoff),
+        db.from('product_purchases').select('organization_amount, completed_at').eq('organization_id', payout.organization_id).eq('status', 'completed').lte('completed_at', holdCutoff),
+        db.from('payout_requests').select('amount, status').eq('organization_id', payout.organization_id).in('status', ['completed', 'paid', 'approved', 'processing']).neq('id', payout.id),
+      ]);
+      const clearedFunds = [...(donations || []), ...(purchases || [])].reduce((s: number, t: any) => s + (t.organization_amount || 0), 0);
+      const alreadyPaidOut = (otherPayouts || []).reduce((s: number, p: any) => s + (p.amount || 0), 0);
+      const availableBalance = clearedFunds - alreadyPaidOut;
+      if (payout.amount > availableBalance) {
+        return new Response(JSON.stringify({ error: `Insufficient cleared funds. Available after 72h hold: ${Math.max(0, availableBalance).toLocaleString('fr-FR')} ${payout.currency || 'XOF'}. Requested: ${payout.amount.toLocaleString('fr-FR')} ${payout.currency || 'XOF'}.` }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+    }
+
+    // attempt Paystack transfer
+    // Lookup recipient code from kyc_submissions
     const { data: kyc } = await db.from('kyc_submissions')
       .select('paystack_recipient_code')
       .eq('organization_id', payout.organization_id)

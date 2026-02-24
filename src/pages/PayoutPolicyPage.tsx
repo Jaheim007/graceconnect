@@ -31,10 +31,18 @@ export default function PayoutPolicyPage() {
 
         <section>
           <h2>3. Délais de traitement (SLA)</h2>
+          <p><strong>Organisations (vendeurs) :</strong></p>
           <ul className="list-disc pl-5 space-y-1">
-            <li>Examen de la demande : <strong>72 heures</strong> ouvrées</li>
+            <li>Période de rétention des fonds : <strong>72 heures</strong> après chaque transaction confirmée</li>
+            <li>Examen de la demande de retrait : <strong>72 heures</strong> ouvrées</li>
             <li>Exécution du virement après approbation : <strong>3 à 5 jours</strong> ouvrés</li>
-            <li>Délai total estimé : <strong>5 à 8 jours</strong> ouvrés</li>
+            <li>Délai total estimé : <strong>6 à 8 jours</strong> ouvrés</li>
+          </ul>
+          <p><strong>Affiliés :</strong></p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Période de validation des commissions : <strong>15 jours</strong> après la transaction</li>
+            <li>Examen de la demande de retrait : <strong>72 heures</strong> ouvrées</li>
+            <li>Exécution du virement après approbation : <strong>3 à 5 jours</strong> ouvrés</li>
           </ul>
           <p className="text-muted-foreground mt-2">
             Note : Les délais peuvent être prolongés en cas de vérification supplémentaire requise.
