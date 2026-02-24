@@ -76,6 +76,7 @@ import AdminPhotos from "@/pages/admin/AdminPhotos";
 import AdminPayouts from "@/pages/admin/AdminPayouts";
 import AdminSubscriptions from "@/pages/admin/AdminSubscriptions";
 import AdminWaitlists from "@/pages/admin/AdminWaitlists";
+import AdminNotifications from "@/pages/admin/AdminNotifications";
 
 // Superadmin layout + pages
 import SuperadminLayout from "@/pages/superadmin/SuperadminLayout";
@@ -202,6 +203,7 @@ const App = () => (
                   <Route path="payouts" element={<AdminPayouts />} />
                   <Route path="subscriptions" element={<AdminSubscriptions />} />
                   <Route path="waitlists" element={<AdminWaitlists />} />
+                  <Route path="notifications" element={<AdminNotifications />} />
                 </Route>
 
                 {/* Superadmin */}
