@@ -4,7 +4,7 @@ import {
   Settings, ChevronLeft, ChevronRight, Shield,
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, Sun, Moon,
   GraduationCap, UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, ShieldAlert, LayoutDashboard, Building2,
-  MessageCircle, Trophy, Award
+  MessageCircle, Trophy, Award, CreditCard, Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -29,20 +29,20 @@ export function Sidebar() {
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
 
   const mainNav = [
-    { to: '/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard') },
-    { to: '/feed', icon: Home, label: t('sidebar.my_network') },
-    { to: '/marketplace', icon: Store, label: t('sidebar.explorer') },
-    { to: '/messages', icon: MessageCircle, label: t('sidebar.messages') },
-    { to: '/leaderboard', icon: Trophy, label: t('sidebar.leaderboard') },
-    { to: '/certificates', icon: Award, label: t('sidebar.certificates') },
-    { to: '/notifications', icon: Bell, label: t('sidebar.notifications') },
-    { to: '/affiliation', icon: Link2, label: t('sidebar.affiliation') },
-    { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases') },
-    { to: '/support', icon: LifeBuoy, label: t('sidebar.help') },
-    { to: '/profile', icon: User, label: t('sidebar.account') },
-    ...(currentOrg ? [{ to: `/org/${currentOrg.slug}`, icon: Building2, label: t('sidebar.view_org') }] : []),
-    ...(canManageCurrentOrg ? [{ to: '/admin', icon: Settings, label: t('sidebar.manage_org') }] : []),
-    ...(isSuperadmin && !isAdmin && !isSA ? [{ to: '/superadmin', icon: Shield, label: t('sidebar.superadmin') }] : []),
+    { to: '/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard'), desc: t('sidebar.desc.dashboard') },
+    { to: '/feed', icon: Home, label: t('sidebar.my_network'), desc: t('sidebar.desc.my_network') },
+    { to: '/marketplace', icon: Store, label: t('sidebar.explorer'), desc: t('sidebar.desc.explorer') },
+    { to: '/messages', icon: MessageCircle, label: t('sidebar.messages'), desc: t('sidebar.desc.messages') },
+    { to: '/leaderboard', icon: Trophy, label: t('sidebar.leaderboard'), desc: t('sidebar.desc.leaderboard') },
+    { to: '/certificates', icon: Award, label: t('sidebar.certificates'), desc: t('sidebar.desc.certificates') },
+    { to: '/notifications', icon: Bell, label: t('sidebar.notifications'), desc: t('sidebar.desc.notifications') },
+    { to: '/affiliation', icon: Link2, label: t('sidebar.affiliation'), desc: t('sidebar.desc.affiliation') },
+    { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases'), desc: t('sidebar.desc.my_purchases') },
+    { to: '/support', icon: LifeBuoy, label: t('sidebar.help'), desc: t('sidebar.desc.help') },
+    { to: '/profile', icon: User, label: t('sidebar.account'), desc: t('sidebar.desc.account') },
+    ...(currentOrg ? [{ to: `/org/${currentOrg.slug}`, icon: Building2, label: t('sidebar.view_org'), desc: t('sidebar.desc.view_org') }] : []),
+    ...(canManageCurrentOrg ? [{ to: '/admin', icon: Settings, label: t('sidebar.manage_org'), desc: t('sidebar.desc.manage_org') }] : []),
+    ...(isSuperadmin && !isAdmin && !isSA ? [{ to: '/superadmin', icon: Shield, label: t('sidebar.superadmin'), desc: '' }] : []),
   ];
 
   const adminGroups = [
@@ -65,6 +65,8 @@ export function Sidebar() {
         { to: '/admin/campaigns', icon: Heart, label: t('sidebar.campaigns') },
         { to: '/admin/affiliation', icon: Link2, label: t('sidebar.affiliation') },
         { to: '/admin/promo-codes', icon: FileCheck, label: t('sidebar.promo_codes') },
+        { to: '/admin/subscriptions', icon: CreditCard, label: t('sidebar.subscriptions') },
+        { to: '/admin/waitlists', icon: Clock, label: t('sidebar.waitlists') },
       ],
     },
     {
@@ -73,6 +75,7 @@ export function Sidebar() {
       items: [
         { to: '/admin/members', icon: Users, label: t('sidebar.members') },
         { to: '/admin/crm', icon: UserPlus, label: t('sidebar.crm') },
+        { to: '/admin/notifications', icon: Bell, label: t('sidebar.notifications') },
         { to: '/admin/payouts', icon: Wallet, label: t('sidebar.payouts') },
         { to: '/admin/analytics', icon: BarChart3, label: t('sidebar.analytics') },
         { to: '/admin/kyc', icon: FileCheck, label: t('sidebar.verification') },
@@ -100,7 +103,7 @@ export function Sidebar() {
     setOpenGroups((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const renderNavItem = (item: { to: string; icon: typeof Home; label: string }) => {
+  const renderNavItem = (item: { to: string; icon: typeof Home; label: string; desc?: string }) => {
     const active = isActive(item.to);
     const showBadge = item.to === '/notifications' && unread > 0;
     const Icon = item.icon;
@@ -108,7 +111,7 @@ export function Sidebar() {
       <Link
         key={item.to}
         to={item.to}
-        title={collapsed ? item.label : undefined}
+        title={collapsed ? item.label : item.desc || item.label}
         className={cn(
           'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 relative group',
           active
