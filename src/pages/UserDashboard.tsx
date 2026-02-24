@@ -26,6 +26,9 @@ import { ProductAffiliateLinkGen } from '@/components/affiliate/ProductAffiliate
 import { useI18n } from '@/i18n/I18nContext';
 import { PageTour } from '@/components/onboarding/PageTour';
 import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
+import { useStreak, useBadges, useRecordActivity, useCheckAndAwardBadges, BADGE_DEFINITIONS } from '@/hooks/useGamification';
+import { useEffect } from 'react';
+import { Flame, Award, Trophy } from 'lucide-react';
 
 const statusColor: Record<string, string> = {
   completed: 'bg-green-500/15 text-green-600 dark:text-green-400',
@@ -83,6 +86,20 @@ export default function UserDashboard() {
   const dateFnsLocale = locale === 'fr' ? fr : enUS;
   const primaryCurrency = userOrgs[0]?.currency || DEFAULT_CURRENCY;
   const fmt = (n: number, currency?: string | null) => formatCurrency(n, currency || primaryCurrency, locale);
+
+  // Gamification
+  const { data: streak } = useStreak();
+  const { data: badges = [] } = useBadges();
+  const recordActivity = useRecordActivity();
+  const checkBadges = useCheckAndAwardBadges();
+
+  useEffect(() => {
+    if (user) {
+      recordActivity.mutate();
+      checkBadges.mutate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   // Data queries
   const { data: donations = [], isLoading: dLoading } = useQuery({
@@ -298,6 +315,41 @@ export default function UserDashboard() {
               {greeting}, {displayName}
             </h2>
             <p className="text-xs text-muted-foreground">{userOrgs.length} {userOrgs.length > 1 ? t('feed.organizations') : t('feed.organization')}</p>
+          </div>
+        </div>
+
+        {/* ══ GAMIFICATION: Streak + Badges ══ */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {/* Streak */}
+          <div className="bg-card border border-border rounded-2xl p-4 flex items-center gap-4">
+            <div className="h-12 w-12 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0">
+              <Flame className="h-6 w-6 text-orange-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-2xl font-bold">{streak?.current_streak || 0} <span className="text-sm font-normal text-muted-foreground">{locale === 'fr' ? 'jours' : 'days'}</span></p>
+              <p className="text-[11px] text-muted-foreground">{locale === 'fr' ? 'Série en cours' : 'Current streak'} · {locale === 'fr' ? 'Record' : 'Best'}: {streak?.longest_streak || 0}</p>
+            </div>
+          </div>
+          {/* Badges */}
+          <div className="bg-card border border-border rounded-2xl p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Trophy className="h-4 w-4 text-amber-500" />
+              <p className="text-sm font-semibold">{badges.length} {locale === 'fr' ? 'badges' : 'badges'}</p>
+            </div>
+            {badges.length === 0 ? (
+              <p className="text-xs text-muted-foreground">{locale === 'fr' ? 'Continuez pour débloquer des badges !' : 'Keep going to unlock badges!'}</p>
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {badges.slice(0, 8).map((b) => {
+                  const def = BADGE_DEFINITIONS[b.badge_type];
+                  return (
+                    <span key={b.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/10 text-[11px] font-medium" title={def?.description || b.badge_label}>
+                      {def?.emoji || '🏅'} {b.badge_label}
+                    </span>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
