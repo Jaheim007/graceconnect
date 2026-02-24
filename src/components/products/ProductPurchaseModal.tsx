@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { DigitalProduct } from '@/types/database';
 import {
@@ -55,6 +55,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const [errorMsg, setErrorMsg] = useState('');
 
   const { user, profile } = useAuth();
+  const queryClient = useQueryClient();
   const { openPayment } = usePaystack();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -219,11 +220,11 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
           status: 'completed',
           completed_at: new Date().toISOString(),
           paystack_reference: `free-${Date.now()}`,
-          buyer_name: buyerInfo.name.trim(),
-          buyer_email: buyerInfo.email.trim(),
           platform_fee: 0,
           organization_amount: 0,
         });
+        // Invalidate purchases cache so My Purchases shows the new item
+        await queryClient.invalidateQueries({ queryKey: ['my-purchases'] });
       } catch (e) {
         console.warn('[ProductPurchaseModal] Free purchase insert error (may already exist):', e);
       }

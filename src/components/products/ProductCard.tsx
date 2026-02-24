@@ -22,8 +22,8 @@ interface ProductCardProps {
 }
 
 const coverAspectClass: Record<string, string> = {
-  pdf: 'aspect-[2/3]',
-  ebook: 'aspect-[2/3]',
+  pdf: 'aspect-[8/5]',
+  ebook: 'aspect-[8/5]',
   audio: 'aspect-square',
   video: 'aspect-video',
   course: 'aspect-video',
