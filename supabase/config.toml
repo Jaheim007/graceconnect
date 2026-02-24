@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.release-settlement]
 verify_jwt = false
+
+[functions.migrate-subaccounts]
+verify_jwt = false

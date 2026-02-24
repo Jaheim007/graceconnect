@@ -88,6 +88,10 @@ export async function releaseSettlement(organization_id?: string) {
   return callFn('release-settlement', { organization_id }, true);
 }
 
+export async function migrateSubaccounts(batch_size = 10, dry_run = false) {
+  return callFn('migrate-subaccounts', { batch_size, dry_run }, true);
+}
+
 // ── Email sending ──
 export type EmailTemplate =
   // Auth & Onboarding
