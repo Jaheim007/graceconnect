@@ -111,7 +111,6 @@ export default function AdminPhotos() {
           label="Photo"
           hint="Any size · JPG/PNG/WEBP · Max 10MB"
           aspectRatio="free"
-          disableCrop
         />
         {newImageUrl && (
           <div className="space-y-2">
