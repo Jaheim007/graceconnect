@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import {
   Home, Play, Bell, User, BookOpen, Store,
   Settings, ChevronLeft, ChevronRight, Shield,
-  Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, Sun, Moon,
+  Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, UsersRound, Sun, Moon,
   GraduationCap, UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, ShieldAlert, LayoutDashboard, Building2,
   MessageCircle, Trophy, Award, CreditCard, Clock
 } from 'lucide-react';
@@ -36,12 +36,13 @@ export function Sidebar() {
     { to: '/leaderboard', icon: Trophy, label: t('sidebar.leaderboard'), desc: t('sidebar.desc.leaderboard') },
     // { to: '/certificates', icon: Award, label: t('sidebar.certificates'), desc: t('sidebar.desc.certificates') }, // DISABLED
     { to: '/notifications', icon: Bell, label: t('sidebar.notifications'), desc: t('sidebar.desc.notifications') },
-    { to: '/affiliation', icon: Link2, label: t('sidebar.affiliation'), desc: t('sidebar.desc.affiliation') },
+    { to: '/affiliation', icon: Link2, label: t('sidebar.my_affiliations'), desc: t('sidebar.desc.my_affiliations') },
+    ...(canManageCurrentOrg ? [{ to: '/admin/affiliation', icon: UsersRound, label: t('sidebar.my_affiliates'), desc: t('sidebar.desc.my_affiliates') }] : []),
     { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases'), desc: t('sidebar.desc.my_purchases') },
     { to: '/support', icon: LifeBuoy, label: t('sidebar.help'), desc: t('sidebar.desc.help') },
     { to: '/profile', icon: User, label: t('sidebar.account'), desc: t('sidebar.desc.account') },
     ...(currentOrg ? [{ to: `/org/${currentOrg.slug}`, icon: Building2, label: t('sidebar.view_org'), desc: t('sidebar.desc.view_org') }] : []),
-    ...(canManageCurrentOrg ? [{ to: '/admin', icon: Settings, label: t('sidebar.manage_org'), desc: t('sidebar.desc.manage_org') }] : []),
+    
     ...(isSuperadmin && !isAdmin && !isSA ? [{ to: '/superadmin', icon: Shield, label: t('sidebar.superadmin'), desc: '' }] : []),
   ];
 
