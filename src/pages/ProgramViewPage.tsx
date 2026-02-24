@@ -117,12 +117,7 @@ export default function ProgramViewPage() {
       const newCompleted = new Set([...completedIds, lessonId]);
       if (newCompleted.size === totalLessons && totalLessons > 0 && user && program) {
         onProgramCompleted(user.id, user.email || undefined, program.title, program.organization_id);
-        // Auto-issue certificate
-        if (!certificate) {
-          issueCert.mutateAsync({ programId: id!, orgId: program.organization_id }).then((cert) => {
-            toast({ title: '🏆 Certificat délivré !', description: 'Votre certificat est prêt à télécharger.' });
-          }).catch(() => {});
-        }
+        // Certificate auto-issue disabled — coming soon
       }
     },
   });
@@ -164,24 +159,9 @@ export default function ProgramViewPage() {
               <div className="flex items-center gap-2 text-primary text-xs font-medium">
                 <GraduationCap className="h-4 w-4" /> Programme terminé ! 🎉
               </div>
-              <Button size="sm" variant="outline" className="text-xs gap-1.5 h-7"
-                onClick={async () => {
-                  // Issue certificate if not yet issued
-                  let cert = certificate;
-                  if (!cert) {
-                    cert = await issueCert.mutateAsync({ programId: id!, orgId: program.organization_id });
-                  }
-                  downloadCertificate({
-                    studentName: profile?.display_name || user?.email || 'Apprenant',
-                    programTitle: program.title,
-                    orgName: (program as any).organizations?.name || '',
-                    completionDate: cert?.issued_at || new Date().toISOString(),
-                    certificateId: cert?.certificate_number || `CERT-${enrollment?.id?.slice(0, 8).toUpperCase()}`,
-                  });
-                }}
-                disabled={issueCert.isPending}>
-                <Award className="h-3.5 w-3.5" /> Certificat
-              </Button>
+              <Badge variant="outline" className="text-[10px] gap-1 text-muted-foreground">
+                <Award className="h-3 w-3" /> Certificat — Bientôt disponible
+              </Badge>
             </div>
           )}
         </div>
