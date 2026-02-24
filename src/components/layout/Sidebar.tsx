@@ -36,6 +36,7 @@ export function Sidebar() {
     { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases') },
     { to: '/support', icon: LifeBuoy, label: t('sidebar.help') },
     { to: '/profile', icon: User, label: t('sidebar.account') },
+    ...(currentOrg ? [{ to: `/org/${currentOrg.slug}`, icon: Building2, label: t('sidebar.view_org') }] : []),
     ...(canManageCurrentOrg ? [{ to: '/admin', icon: Settings, label: t('sidebar.manage_org') }] : []),
     ...(isSuperadmin && !isAdmin && !isSA ? [{ to: '/superadmin', icon: Shield, label: t('sidebar.superadmin') }] : []),
   ];

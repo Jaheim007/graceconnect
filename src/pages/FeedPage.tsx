@@ -17,6 +17,7 @@ import { SkeletonList } from '@/components/ui/SkeletonCard';
 import { FeedPhotoSlider } from '@/components/photos/FeedPhotoSlider';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useOrg } from '@/contexts/OrgContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useFeedMedia } from '@/hooks/useMedia';
 import { useFeedAnnouncements } from '@/hooks/useAnnouncements';
 import { useFeedEvents } from '@/hooks/useEvents';
@@ -39,7 +40,10 @@ const staggerItem = {
 export default function FeedPage() {
   const navigate = useNavigate();
   const { userOrgs } = useOrg();
-  const orgIds = userOrgs.map((o) => o.id);
+  const { user } = useAuth();
+  // Only show content from orgs the user subscribes to, NOT orgs they own
+  const subscribedOrgs = userOrgs.filter(o => o.owner_id !== user?.id);
+  const orgIds = subscribedOrgs.map((o) => o.id);
   const { t } = useI18n();
 
   const [tab, setTab] = useState<Tab>('all');
