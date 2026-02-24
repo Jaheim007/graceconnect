@@ -525,6 +525,8 @@ export type Database = {
           price: number | null
           product_type: string | null
           review_count: number | null
+          sale_ends_at: string | null
+          sale_price: number | null
           sales_count: number | null
           slug: string | null
           testimonials_json: Json | null
@@ -557,6 +559,8 @@ export type Database = {
           price?: number | null
           product_type?: string | null
           review_count?: number | null
+          sale_ends_at?: string | null
+          sale_price?: number | null
           sales_count?: number | null
           slug?: string | null
           testimonials_json?: Json | null
@@ -589,6 +593,8 @@ export type Database = {
           price?: number | null
           product_type?: string | null
           review_count?: number | null
+          sale_ends_at?: string | null
+          sale_price?: number | null
           sales_count?: number | null
           slug?: string | null
           testimonials_json?: Json | null

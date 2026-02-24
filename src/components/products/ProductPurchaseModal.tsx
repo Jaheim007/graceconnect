@@ -115,15 +115,21 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
   const fmt = (n: number) => formatPrice(n, product.is_free, product.currency);
 
+  // Flash sale support
+  const salePrice = (product as any).sale_price;
+  const saleEndsAt = (product as any).sale_ends_at;
+  const isFlashSale = salePrice != null && saleEndsAt && new Date(saleEndsAt) > new Date();
+  const effectiveBasePrice = isFlashSale ? salePrice : (product.price ?? 0);
+
   const bumpPrice = bumpProduct ? Math.round((bumpProduct.price || 0) * (1 - bumpDiscount / 100)) : 0;
   const orderBumpTotal = orderBumpChecked && bumpProduct ? bumpPrice : 0;
 
   const discountAmount = promo.applied
     ? promo.discountType === 'fixed'
       ? promo.discountFixedAmount
-      : Math.round((product.price ?? 0) * promo.discountPercent / 100)
+      : Math.round(effectiveBasePrice * promo.discountPercent / 100)
     : 0;
-  const finalPrice = Math.max(0, (product.price ?? 0) - discountAmount) + orderBumpTotal;
+  const finalPrice = Math.max(0, effectiveBasePrice - discountAmount) + orderBumpTotal;
 
   const validatePromoCode = async () => {
     const trimmed = promo.code.trim().toUpperCase();

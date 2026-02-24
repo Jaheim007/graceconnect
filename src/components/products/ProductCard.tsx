@@ -3,6 +3,7 @@ import { formatPrice } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen, Share2, Copy, MessageCircle } from 'lucide-react';
+import { FlashSaleBadge } from './FlashSaleBadge';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -81,6 +82,11 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
     if (resolvedSlug) navigate(detailPath);
   };
 
+  const salePrice = (product as any).sale_price;
+  const saleEndsAt = (product as any).sale_ends_at;
+  const isFlashSale = salePrice != null && saleEndsAt && new Date(saleEndsAt) > new Date();
+  const displayPrice = isFlashSale ? salePrice : product.price;
+
   const fmt = (n: number) => formatPrice(n, product.is_free, product.currency);
 
   const typeLabels: Record<string, string> = { pdf: 'PDF', ebook: 'eBook', audio: 'Audio', video: 'Vidéo', course: 'Cours', link: 'Lien', default: 'Produit' };
@@ -119,6 +125,9 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
                 <CheckCircle className="h-3 w-3" /> Acheté
               </Badge>
             )}
+            {isFlashSale && (
+              <FlashSaleBadge saleEndsAt={saleEndsAt} salePrice={salePrice} originalPrice={product.price} />
+            )}
           </div>
           {product.is_featured && (
             <Badge className="bg-accent text-accent-foreground border-0 text-[10px] font-bold">
@@ -133,7 +142,8 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
               ? 'bg-emerald-600 text-white'
               : 'bg-background/90 backdrop-blur-sm text-foreground border border-border/50'
           )}>
-            {fmt(product.price)}
+            {isFlashSale && <span className="text-[10px] line-through text-muted-foreground mr-1">{fmt(product.price)}</span>}
+            {fmt(displayPrice)}
           </span>
         </div>
       </div>

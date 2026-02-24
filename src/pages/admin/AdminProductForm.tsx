@@ -54,6 +54,8 @@ export function ProductForm() {
   const [testimonials, setTestimonials] = useState<{ name: string; text: string }[]>([]);
   const [newFaq, setNewFaq] = useState({ q: '', a: '' });
   const [newTestimonial, setNewTestimonial] = useState({ name: '', text: '' });
+  const [salePrice, setSalePrice] = useState('');
+  const [saleEndsAt, setSaleEndsAt] = useState('');
 
   // Bundle & Recommendation hooks
   const { data: allProducts = [] } = useOrgProducts(currentOrg?.id, false);
@@ -99,6 +101,8 @@ export function ProductForm() {
       });
       setFaqItems(item.faq_json || []);
       setTestimonials(item.testimonials_json || []);
+      setSalePrice(item.sale_price != null ? String(item.sale_price) : '');
+      setSaleEndsAt(item.sale_ends_at ? item.sale_ends_at.slice(0, 16) : '');
     }
   }, [item, reset]);
 
@@ -124,6 +128,8 @@ export function ProductForm() {
         guarantee_text: data.guarantee_text || null,
         faq_json: faqItems.length > 0 ? faqItems : [],
         testimonials_json: testimonials.length > 0 ? testimonials : [],
+        sale_price: salePrice ? parseFloat(salePrice) : null,
+        sale_ends_at: saleEndsAt ? new Date(saleEndsAt).toISOString() : null,
       };
       let error;
       let resultData: any;
@@ -266,6 +272,24 @@ export function ProductForm() {
             <Input type="number" {...register('price')} disabled={isFree} placeholder="e.g. 5000" />
           </div>
         </div>
+
+        {/* Flash Sale */}
+        {!isFree && (
+          <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4 space-y-3">
+            <p className="text-sm font-semibold flex items-center gap-2">🔥 Vente Flash</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label className="text-xs">Prix promo ({currentOrg?.currency || 'XOF'})</Label>
+                <Input type="number" value={salePrice} onChange={e => setSalePrice(e.target.value)} placeholder="Ex: 2500" className="h-8 text-xs" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Fin de la promo</Label>
+                <Input type="datetime-local" value={saleEndsAt} onChange={e => setSaleEndsAt(e.target.value)} className="h-8 text-xs" />
+              </div>
+            </div>
+            <p className="text-[10px] text-muted-foreground">Laissez vide pour désactiver. Le countdown s'affiche automatiquement sur la fiche produit.</p>
+          </div>
+        )}
 
         {/* Cover image upload */}
         {/* Cover image upload — hint adapts to product type */}
