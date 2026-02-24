@@ -192,7 +192,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
 
     // ═══ AFFILIATES ═══
     case 'affiliate_sale':
-      return { subject: `🎉 Commission Earned – ${d.commission} ${d.currency}`, html: wrap(`<h1 style="color:${green}">🎉 Commission Earned</h1><p>You earned <strong>${d.commission} ${d.currency}</strong> from a ${d.transaction_type || 'sale'} on <strong>${d.org_name}</strong>.</p><p>Gross: ${d.gross_amount} ${d.currency} · Rate: ${d.commission_percent}%</p><p>Payable after 72h hold.</p>`) };
+      return { subject: `🎉 Commission Earned – ${d.commission} ${d.currency}`, html: wrap(`<h1 style="color:${green}">🎉 Commission Earned</h1><p>You earned <strong>${d.commission} ${d.currency}</strong> from a ${d.transaction_type || 'sale'} on <strong>${d.org_name}</strong>.</p><p>Gross: ${d.gross_amount} ${d.currency} · Rate: ${d.commission_percent}%</p><p>Payable after 15-day hold.</p>`) };
     case 'affiliate_payout_requested':
       return { subject: `💸 Affiliate Payout Requested`, html: wrap(`<h1 style="color:${blue}">💸 Affiliate Payout Requested</h1><p>Your affiliate payout of <strong>${d.amount} ${d.currency}</strong> from <strong>${d.org_name}</strong> has been submitted.</p><p>Processing time: 3–5 business days.</p>`) };
     case 'affiliate_payout_completed':
@@ -204,7 +204,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
     case 'affiliate_first_conversion':
       return { subject: `🎯 First conversion! – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">🎯 First Conversion!</h1><p>Your first referral just converted on <strong>${d.org_name}</strong>!</p><p>Commission: <strong>${d.commission} ${d.currency}</strong></p>`) };
     case 'affiliate_commission_payable':
-      return { subject: `💰 Commission now payable – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${green}">💰 Commission Payable</h1><p>Your commission of <strong>${d.amount} ${d.currency}</strong> from <strong>${d.org_name}</strong> has cleared the 72h hold and is now payable.</p>${cta('https://siteviral.com/dashboard', 'Request Payout')}`) };
+      return { subject: `💰 Commission now payable – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${green}">💰 Commission Payable</h1><p>Your commission of <strong>${d.amount} ${d.currency}</strong> from <strong>${d.org_name}</strong> has cleared the 15-day hold and is now payable.</p>${cta('https://siteviral.com/dashboard', 'Request Payout')}`) };
     case 'affiliate_monthly_recap':
       return { subject: `📊 Affiliate Monthly Recap`, html: wrap(`<h1 style="color:${blue}">📊 Monthly Affiliate Recap</h1><p>Here's your affiliate summary for <strong>${d.month}</strong>:</p><ul style="color:#ccc"><li>Clicks: ${d.clicks || 0}</li><li>Conversions: ${d.conversions || 0}</li><li>Earnings: ${d.earnings || 0} ${d.currency || 'XOF'}</li></ul>`) };
 

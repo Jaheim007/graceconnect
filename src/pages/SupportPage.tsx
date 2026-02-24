@@ -30,7 +30,7 @@ const FAQS_EN = [
     category: 'Payments & Donations',
     items: [
       { q: 'What payment methods are accepted?', a: 'Mobile Money (MTN, Orange, Moov), bank cards (Visa, Mastercard), and bank transfers via Paystack. Available methods depend on your country.' },
-      { q: 'When do I receive my funds?', a: 'Funds are available for withdrawal after a processing delay of 72 hours to 5 business days.' },
+      { q: 'When do I receive my funds?', a: 'Funds are available for withdrawal after a processing delay of 15 days to 5 business days.' },
       { q: 'Can I get a refund?', a: 'Digital products are generally non-refundable once downloaded. A refund may be granted within 48 hours if the product has not been accessed.' },
     ],
   },
@@ -38,7 +38,7 @@ const FAQS_EN = [
     category: 'Affiliation',
     items: [
       { q: 'How does affiliation work?', a: 'Generate unique referral links. Each sale or donation made via your link earns you a configurable commission. Last-click attribution, 7-day cookie.' },
-      { q: 'When are my commissions available?', a: 'Commissions move from "pending" to "available" after 72 hours of validation. You can then request a withdrawal.' },
+      { q: 'When are my commissions available?', a: 'Commissions move from "pending" to "available" after 15 days of validation. You can then request a withdrawal.' },
     ],
   },
   {
@@ -63,7 +63,7 @@ const FAQS_FR = [
     category: 'Paiements & Dons',
     items: [
       { q: 'Quels moyens de paiement sont acceptés ?', a: "Mobile Money (MTN, Orange, Moov), cartes bancaires (Visa, Mastercard) et virements bancaires via Paystack. Les méthodes disponibles dépendent de votre pays." },
-      { q: 'Quand reçois-je mes fonds ?', a: "Les fonds sont disponibles pour retrait après un délai de traitement de 72h à 5 jours ouvrés." },
+      { q: 'Quand reçois-je mes fonds ?', a: "Les fonds sont disponibles pour retrait après un délai de traitement de 15 jours." },
       { q: 'Puis-je obtenir un remboursement ?', a: "Les produits numériques sont généralement non remboursables une fois téléchargés. Un remboursement peut être accordé dans les 48h si le produit n'a pas été consulté." },
     ],
   },

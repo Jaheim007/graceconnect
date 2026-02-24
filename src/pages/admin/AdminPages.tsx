@@ -412,7 +412,7 @@ export function AdminAffiliation() {
             <li className="flex gap-2"><span className="text-primary font-bold shrink-0">1.</span>Les visiteurs découvrent votre page publique et cliquent sur « Devenir affilié ».</li>
             <li className="flex gap-2"><span className="text-primary font-bold shrink-0">2.</span>Ils sont automatiquement inscrits — aucune action de votre part n'est nécessaire.</li>
             <li className="flex gap-2"><span className="text-primary font-bold shrink-0">3.</span>Ils partagent leur lien. Quand quelqu'un donne ou achète via ce lien, ils gagnent <strong>{currentOrg.affiliation_commission_percent}%</strong>.</li>
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">4.</span>Après 72h, les commissions deviennent retirables (KYC requis).</li>
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">4.</span>Après 15 jours, les commissions deviennent retirables (KYC requis).</li>
           </ol>
         </div>
 

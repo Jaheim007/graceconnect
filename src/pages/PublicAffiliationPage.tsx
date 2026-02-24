@@ -31,7 +31,7 @@ export default function PublicAffiliationPage() {
   ];
 
   const benefits = [
-    { icon: Wallet, title: 'Commissions rapides', desc: 'Les paiements sont automatisés. Commissions disponibles sous 72h. Retraits par Mobile Money ou virement.' },
+    { icon: Wallet, title: 'Commissions rapides', desc: 'Les paiements sont automatisés. Commissions disponibles sous 15 jours. Retraits par Mobile Money ou virement.' },
     { icon: BarChart3, title: 'Suivi en temps réel', desc: 'Un tableau de bord clair : clics, conversions, revenus. Voyez exactement d\'où viennent vos gains.' },
     { icon: Headphones, title: 'Support dédié', desc: 'Notre équipe vous accompagne. Ressources, guides et conseils pour maximiser vos résultats.' },
     { icon: ShieldCheck, title: 'Transparent & fiable', desc: 'Aucun frais caché. Commissions clairement définies par chaque organisation. Historique complet.' },
@@ -40,7 +40,7 @@ export default function PublicAffiliationPage() {
   const faq = [
     { q: 'Combien puis-je gagner en tant qu\'affilié ?', a: 'Les commissions varient de 5% à 50% selon l\'organisation et le produit. Plus vous partagez, plus vous gagnez.' },
     { q: 'Y a-t-il des frais pour rejoindre le réseau ?', a: 'Non, devenir affilié est entièrement gratuit. Il suffit de rejoindre une organisation et d\'activer l\'affiliation.' },
-    { q: 'Comment sont versées les commissions ?', a: 'Les commissions deviennent disponibles 72h après la transaction. Vous pouvez demander un retrait par Mobile Money ou virement bancaire.' },
+    { q: 'Comment sont versées les commissions ?', a: 'Les commissions deviennent disponibles 15 jours après la transaction. Vous pouvez demander un retrait par Mobile Money ou virement bancaire.' },
     { q: 'Puis-je promouvoir plusieurs organisations ?', a: 'Oui ! Vous pouvez être affilié à autant d\'organisations que vous le souhaitez et avoir des liens pour chacune.' },
   ];
 

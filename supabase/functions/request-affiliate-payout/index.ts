@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
 
     if (error) throw error;
     if (!payableSales?.length) {
-      return new Response(JSON.stringify({ ok: false, message: 'No payable commissions available yet. Commissions become payable 72h after the transaction.' }), {
+      return new Response(JSON.stringify({ ok: false, message: 'No payable commissions available yet. Commissions become payable 15 days after the transaction.' }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }

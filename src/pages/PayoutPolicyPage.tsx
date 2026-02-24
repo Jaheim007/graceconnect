@@ -45,7 +45,7 @@ export default function PayoutPolicyPage() {
           <h2>4. Commissions d'affiliation</h2>
           <p>Les commissions des affiliés suivent un calendrier spécifique :</p>
           <ul className="list-disc pl-5 space-y-1">
-            <li>Période de validation : <strong>72 heures</strong> après la transaction</li>
+            <li>Période de validation : <strong>15 jours</strong> après la transaction</li>
             <li>Les commissions passent de « pending » à « payable » après la période de validation</li>
             <li>Montant minimum de retrait affilié : <strong>2 500 XOF</strong></li>
           </ul>

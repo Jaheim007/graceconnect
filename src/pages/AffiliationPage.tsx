@@ -415,14 +415,14 @@ export default function AffiliationPage() {
               </div>
               <div className="rounded-xl bg-card border border-border p-4 shadow-card">
                 <p className="text-2xl font-bold">{fmt(pendingCommission)}</p>
-                <p className="text-xs text-muted-foreground">En attente (72h)</p>
+                <p className="text-xs text-muted-foreground">En attente (15 jours)</p>
               </div>
             </div>
 
             {/* Sales history */}
             <div className="bg-card border border-border rounded-2xl p-4 space-y-3 shadow-card">
               <h2 className="font-semibold text-sm flex items-center gap-2"><TrendingUp className="h-4 w-4 text-primary" /> Historique des commissions</h2>
-              <p className="text-xs text-muted-foreground">Les commissions sont payables après un délai de sécurité de 72h.</p>
+              <p className="text-xs text-muted-foreground">Les commissions sont payables après un délai de sécurité de 15 jours.</p>
               {affiliateSales.length === 0 ? (
                 <div className="text-center py-8">
                   <TrendingUp className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />

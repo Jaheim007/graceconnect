@@ -287,7 +287,7 @@ Deno.serve(async (req) => {
             user_id: affiliateUserId,
             organization_id,
             title: '💰 Commission gagnée !',
-            body: `Vous avez gagné ${commissionFmt} ${currency} de commission via ${org.name}. Disponible dans 72h.`,
+            body: `Vous avez gagné ${commissionFmt} ${currency} de commission via ${org.name}. Disponible dans 15 jours.`,
             notification_type: 'commission',
             action_url: '/affiliation',
           });

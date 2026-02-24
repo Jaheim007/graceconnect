@@ -19,7 +19,7 @@ const faqs_fr = [
     category: 'Paiements & Dons',
     items: [
       { q: 'Quels moyens de paiement sont acceptés ?', a: 'Nous acceptons Mobile Money (MTN, Orange, Moov), cartes bancaires (Visa, Mastercard) et les virements bancaires via Paystack. Les méthodes disponibles dépendent de votre pays.' },
-      { q: 'Quand reçois-je mes fonds ?', a: 'Les fonds sont disponibles pour retrait après un délai de traitement de 72h à 5 jours ouvrés. Les commissions d\'affiliation ont une période de validation de 72h.' },
+      { q: 'Quand reçois-je mes fonds ?', a: 'Les fonds sont disponibles pour retrait après un délai de traitement de 15 jours. Les commissions d\'affiliation ont une période de validation de 15 jours.' },
       { q: 'Puis-je obtenir un remboursement ?', a: 'Les produits numériques sont généralement non remboursables une fois téléchargés. Un remboursement peut être accordé dans les 48h si le produit n\'a pas été consulté. Consultez notre politique de remboursement.' },
     ],
   },
@@ -27,7 +27,7 @@ const faqs_fr = [
     category: 'Affiliation',
     items: [
       { q: 'Comment fonctionne le programme d\'affiliation ?', a: 'Les membres d\'une organisation peuvent générer des liens de parrainage uniques. Chaque vente ou don effectué via leur lien leur rapporte une commission configurable par l\'organisation. Attribution last-click, cookie 7 jours.' },
-      { q: 'Quand mes commissions sont-elles disponibles ?', a: 'Les commissions passent de "en attente" à "disponible" après 72 heures de validation. Vous pouvez ensuite demander un retrait.' },
+      { q: 'Quand mes commissions sont-elles disponibles ?', a: 'Les commissions passent de "en attente" à "disponible" après 15 jours de validation. Vous pouvez ensuite demander un retrait.' },
       { q: 'Puis-je gagner sur mes propres achats ?', a: 'Non, l\'auto-parrainage est détecté et bloqué automatiquement. Les commissions sont annulées en cas de manipulation.' },
     ],
   },
@@ -63,7 +63,7 @@ const faqs_en = [
     category: 'Payments & Donations',
     items: [
       { q: 'What payment methods are accepted?', a: 'We accept Mobile Money (MTN, Orange, Moov), bank cards (Visa, Mastercard), and bank transfers via Paystack. Available methods depend on your country.' },
-      { q: 'When do I receive my funds?', a: 'Funds are available for withdrawal after a processing delay of 72 hours to 5 business days. Affiliate commissions have a 72-hour validation period.' },
+      { q: 'When do I receive my funds?', a: 'Funds are available for withdrawal after a processing delay of 15 days. Affiliate commissions have a 15-day validation period.' },
       { q: 'Can I get a refund?', a: 'Digital products are generally non-refundable once downloaded. A refund may be granted within 48 hours if the product has not been accessed. See our refund policy.' },
     ],
   },
@@ -71,7 +71,7 @@ const faqs_en = [
     category: 'Affiliation',
     items: [
       { q: 'How does the affiliate program work?', a: 'Organization members can generate unique referral links. Each sale or donation made via their link earns a commission configurable by the organization. Last-click attribution, 7-day cookie.' },
-      { q: 'When are my commissions available?', a: 'Commissions move from "pending" to "available" after 72 hours of validation. You can then request a withdrawal.' },
+      { q: 'When are my commissions available?', a: 'Commissions move from "pending" to "available" after 15 days of validation. You can then request a withdrawal.' },
       { q: 'Can I earn on my own purchases?', a: 'No, self-referral is automatically detected and blocked. Commissions are canceled in case of manipulation.' },
     ],
   },
