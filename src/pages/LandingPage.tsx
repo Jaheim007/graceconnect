@@ -16,6 +16,7 @@ import { LandingFooter } from '@/components/landing/LandingFooter';
 import { AnimatedCounter } from '@/components/landing/AnimatedCounter';
 import { TestimonialCarousel } from '@/components/landing/TestimonialCarousel';
 import { Marquee } from '@/components/landing/Marquee';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
@@ -66,6 +67,11 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
+      <SEOHead
+        title="Siteviral — Infrastructure Platform for Digital Organizations"
+        description="Manage your community, sell digital products, collect donations and grow your impact worldwide."
+        canonicalUrl="https://siteviral.com"
+      />
       <LandingNav />
 
       {/* ─── Hero ─── */}

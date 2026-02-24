@@ -110,6 +110,8 @@ export default function OrgPublicPage() {
     '--primary': customPrimary || undefined,
     '--accent': customAccent || undefined,
     '--ring': customPrimary || undefined,
+    '--primary-foreground': '0 0% 100%',
+    '--sidebar-primary': customPrimary || undefined,
   } as React.CSSProperties : undefined;
 
   // Tracking pixels
