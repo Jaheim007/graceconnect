@@ -32,9 +32,9 @@ export function Sidebar() {
     { to: '/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard'), desc: t('sidebar.desc.dashboard') },
     { to: '/feed', icon: Home, label: t('sidebar.my_network'), desc: t('sidebar.desc.my_network') },
     { to: '/marketplace', icon: Store, label: t('sidebar.explorer'), desc: t('sidebar.desc.explorer') },
-    { to: '/messages', icon: MessageCircle, label: t('sidebar.messages'), desc: t('sidebar.desc.messages') },
+    // { to: '/messages', icon: MessageCircle, label: t('sidebar.messages'), desc: t('sidebar.desc.messages') }, // DISABLED
     { to: '/leaderboard', icon: Trophy, label: t('sidebar.leaderboard'), desc: t('sidebar.desc.leaderboard') },
-    { to: '/certificates', icon: Award, label: t('sidebar.certificates'), desc: t('sidebar.desc.certificates') },
+    // { to: '/certificates', icon: Award, label: t('sidebar.certificates'), desc: t('sidebar.desc.certificates') }, // DISABLED
     { to: '/notifications', icon: Bell, label: t('sidebar.notifications'), desc: t('sidebar.desc.notifications') },
     { to: '/affiliation', icon: Link2, label: t('sidebar.affiliation'), desc: t('sidebar.desc.affiliation') },
     { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases'), desc: t('sidebar.desc.my_purchases') },
@@ -54,7 +54,7 @@ export function Sidebar() {
         { to: '/admin/photos', icon: Camera, label: t('sidebar.photos') },
         { to: '/admin/announcements', icon: Megaphone, label: t('sidebar.announcements') },
         { to: '/admin/events', icon: CalendarDays, label: t('sidebar.events') },
-        { to: '/admin/programs', icon: GraduationCap, label: t('sidebar.programs') },
+        // { to: '/admin/programs', icon: GraduationCap, label: t('sidebar.programs') }, // DISABLED
       ],
     },
     {

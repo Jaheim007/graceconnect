@@ -665,11 +665,7 @@ export default function OrgPublicPage() {
                   </a>
                 </Button>
               )}
-              {isMember && (
-                <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs" onClick={() => navigate('/messages')}>
-                  <MessageCircle className="h-4 w-4 text-primary" /> {locale === 'fr' ? 'Message' : 'Message'}
-                </Button>
-              )}
+              {/* Messages button DISABLED */}
               {isMember && orgAny.affiliation_enabled && (
                 <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs" onClick={() => navigate('/affiliation')}>
                   <Link2 className="h-4 w-4 text-primary" /> {locale === 'fr' ? 'Affilier' : 'Affiliate'}
