@@ -58,6 +58,7 @@ const SecurityPage = lazy(() => import("@/pages/SecurityPage"));
 const SubprocessorsPage = lazy(() => import("@/pages/SubprocessorsPage"));
 const FeaturesPage = lazy(() => import("@/pages/FeaturesPage"));
 const PublicAffiliationPage = lazy(() => import("@/pages/PublicAffiliationPage"));
+const CampaignDetailPage = lazy(() => import("@/pages/CampaignDetailPage"));
 const ProgramsPage = lazy(() => import("@/pages/ProgramsPage"));
 
 // Authenticated
@@ -192,6 +193,7 @@ const App = () => (
                 <Route path="/org/:slug/photos" element={<OrgPublicPage />} />
                 <Route path="/org/:slug/product/:productId" element={<ProductDetailPage />} />
                 <Route path="/org/:slug/p/:productSlug" element={<ProductDetailPage />} />
+                <Route path="/campaign/:campaignId" element={<CampaignDetailPage />} />
 
                 {/* Authenticated shell */}
                 <Route element={<RequireAuth><AppLayout /></RequireAuth>}>

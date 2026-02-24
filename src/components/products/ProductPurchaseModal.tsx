@@ -208,6 +208,25 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
     if (!validateBuyerInfo()) return;
 
     if (product.is_free || finalPrice === 0) {
+      try {
+        // Create a purchase record for free products so it appears in My Purchases
+        await db.from('product_purchases').insert({
+          user_id: user!.id,
+          product_id: product.id,
+          organization_id: organizationId,
+          amount: 0,
+          currency: product.currency || 'XOF',
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+          paystack_reference: `free-${Date.now()}`,
+          buyer_name: buyerInfo.name.trim(),
+          buyer_email: buyerInfo.email.trim(),
+          platform_fee: 0,
+          organization_amount: 0,
+        });
+      } catch (e) {
+        console.warn('[ProductPurchaseModal] Free purchase insert error (may already exist):', e);
+      }
       setStep('success');
       onSuccess?.({ ok: true, transaction_id: 'free', breakdown: { amount: 0, currency: product.currency || 'XOF', platform_fee: 0, affiliate_commission: 0, organization_amount: 0, affiliate_attributed: false } });
       return;
@@ -489,11 +508,26 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
             <div className="w-full space-y-2">
               {product.file_url && (
-                <a href={product.file_url} target="_blank" rel="noreferrer" className="w-full">
-                  <Button className="w-full gap-2 bg-primary text-primary-foreground">
-                    <Download className="h-4 w-4" /> Télécharger le fichier
-                  </Button>
-                </a>
+                <Button
+                  className="w-full gap-2 bg-primary text-primary-foreground"
+                  onClick={async () => {
+                    try {
+                      const { data: fnData, error: fnErr } = await db.functions.invoke('generate-signed-url', {
+                        body: { product_id: product.id },
+                      });
+                      if (fnErr || !fnData?.url) {
+                        // Fallback to direct URL
+                        window.open(product.file_url!, '_blank');
+                        return;
+                      }
+                      window.open(fnData.url, '_blank');
+                    } catch {
+                      window.open(product.file_url!, '_blank');
+                    }
+                  }}
+                >
+                  <Download className="h-4 w-4" /> Télécharger le fichier
+                </Button>
               )}
               {product.external_link && (
                 <a href={product.external_link} target="_blank" rel="noreferrer" className="w-full">
