@@ -203,7 +203,7 @@ export default function FeedPage() {
                     <SectionHeader icon={<Megaphone className="h-4 w-4 text-primary" />} title={t('feed.announcements')} />
                     <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
                       {filteredAnnouncements.slice(0, 6).map((a) => (
-                        <motion.div key={a.id} variants={staggerItem} className="shrink-0 w-72 bg-card rounded-2xl border border-border overflow-hidden shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300">
+                        <motion.div key={a.id} variants={staggerItem} className="shrink-0 w-72 bg-card rounded-2xl border border-border overflow-hidden shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300 cursor-pointer" onClick={() => navigate(`/announcement/${a.id}`)}>
                           {a.image_url && <div className="h-36 overflow-hidden"><img src={a.image_url} alt={a.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" /></div>}
                           <div className="p-4">
                             {a.is_pinned && <span className="text-[10px] text-primary font-bold uppercase tracking-wider">{t('feed.pinned')}</span>}
@@ -221,7 +221,7 @@ export default function FeedPage() {
                     <SectionHeader icon={<CalendarDays className="h-4 w-4 text-accent" />} title={t('feed.upcoming_events')} />
                     <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
                       {filteredEvents.map((ev) => (
-                        <motion.div key={ev.id} variants={staggerItem} className="shrink-0 w-64 bg-card rounded-2xl border border-border overflow-hidden shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300">
+                        <motion.div key={ev.id} variants={staggerItem} className="shrink-0 w-64 bg-card rounded-2xl border border-border overflow-hidden shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300 cursor-pointer" onClick={() => navigate(`/event/${ev.id}`)}>
                           {ev.image_url ? <div className="h-36 overflow-hidden"><img src={ev.image_url} alt={ev.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" /></div> : <div className="h-24 bg-primary/10 flex items-center justify-center"><CalendarDays className="h-8 w-8 text-primary/70" /></div>}
                           <div className="p-4 space-y-1.5">
                             <p className="font-bold text-sm line-clamp-2">{ev.title}</p>
@@ -309,7 +309,7 @@ export default function FeedPage() {
                         <p className="text-xs font-bold text-muted-foreground mb-3 uppercase tracking-widest">{t('feed.announcements')}</p>
                         <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="space-y-3">
                           {filteredAnnouncements.map((a) => (
-                            <motion.div key={a.id} variants={staggerItem} className="flex gap-3 items-start bg-card border border-border rounded-2xl p-4 hover:shadow-elevated transition-all duration-300">
+                            <motion.div key={a.id} variants={staggerItem} className="flex gap-3 items-start bg-card border border-border rounded-2xl p-4 hover:shadow-elevated transition-all duration-300 cursor-pointer" onClick={() => navigate(`/announcement/${a.id}`)}>
                               {a.image_url ? <div className="h-16 w-16 rounded-xl overflow-hidden shrink-0"><img src={a.image_url} alt={a.title} className="w-full h-full object-cover" /></div> : <div className="h-16 w-16 rounded-xl bg-primary/10 flex items-center justify-center shrink-0"><Megaphone className="h-6 w-6 text-primary" /></div>}
                               <div className="min-w-0">
                                 {a.is_pinned && <span className="text-[10px] text-primary font-bold uppercase tracking-wider">{t('feed.pinned')} · </span>}
@@ -324,7 +324,7 @@ export default function FeedPage() {
                     <p className="text-xs font-bold text-muted-foreground mb-4 uppercase tracking-widest">{t('feed.events')}</p>
                     <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                       {filteredEvents.map((ev) => (
-                        <motion.div key={ev.id} variants={staggerItem} className="bg-card border border-border rounded-2xl overflow-hidden shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300">
+                        <motion.div key={ev.id} variants={staggerItem} className="bg-card border border-border rounded-2xl overflow-hidden shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300 cursor-pointer" onClick={() => navigate(`/event/${ev.id}`)}>
                           {ev.image_url ? <div className="h-44 overflow-hidden"><img src={ev.image_url} alt={ev.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" /></div> : <div className="h-28 bg-primary/10 flex items-center justify-center"><CalendarDays className="h-10 w-10 text-primary/60" /></div>}
                           <div className="p-5 space-y-2">
                             <p className="font-bold text-base line-clamp-2">{ev.title}</p>

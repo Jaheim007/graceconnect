@@ -59,6 +59,8 @@ const SubprocessorsPage = lazy(() => import("@/pages/SubprocessorsPage"));
 const FeaturesPage = lazy(() => import("@/pages/FeaturesPage"));
 const PublicAffiliationPage = lazy(() => import("@/pages/PublicAffiliationPage"));
 const CampaignDetailPage = lazy(() => import("@/pages/CampaignDetailPage"));
+const AnnouncementDetailPage = lazy(() => import("@/pages/AnnouncementDetailPage"));
+const EventDetailPage = lazy(() => import("@/pages/EventDetailPage"));
 const ProgramsPage = lazy(() => import("@/pages/ProgramsPage"));
 
 // Authenticated
@@ -194,6 +196,8 @@ const App = () => (
                 <Route path="/org/:slug/product/:productId" element={<ProductDetailPage />} />
                 <Route path="/org/:slug/p/:productSlug" element={<ProductDetailPage />} />
                 <Route path="/campaign/:campaignId" element={<CampaignDetailPage />} />
+                <Route path="/announcement/:announcementId" element={<AnnouncementDetailPage />} />
+                <Route path="/event/:eventId" element={<EventDetailPage />} />
 
                 {/* Authenticated shell */}
                 <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
