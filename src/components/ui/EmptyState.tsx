@@ -9,7 +9,7 @@ type EmptyVariant = 'orgs' | 'content' | 'campaigns' | 'purchases' | 'feed' | 's
 const variants: Record<EmptyVariant, { icon: ReactNode; title: string; desc: string; hint?: string }> = {
   orgs: {
     icon: <Users className="h-10 w-10" />,
-    title: 'Aucune organisation',
+    title: 'Aucune plateforme',
     desc: 'Soyez le premier à découvrir et rejoindre une communauté.',
     hint: '💡 Cliquez sur "Explorer" dans le menu pour découvrir des communautés.',
   },
@@ -43,7 +43,7 @@ const variants: Record<EmptyVariant, { icon: ReactNode; title: string; desc: str
   members: {
     icon: <Users className="h-10 w-10" />,
     title: 'Aucun membre',
-    desc: 'Invitez des personnes à rejoindre cette organisation.',
+    desc: 'Invitez des personnes à rejoindre cette plateforme.',
     hint: '💡 Partagez le lien de votre page pour recruter des membres.',
   },
   generic: {

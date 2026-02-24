@@ -68,7 +68,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <SEOHead
-        title="Siteviral — Infrastructure Platform for Digital Organizations"
+        title="Siteviral — Infrastructure Platform for Digital Platforms"
         description="Manage your community, sell digital products, collect donations and grow your impact worldwide."
         canonicalUrl="https://siteviral.com"
       />
@@ -109,7 +109,7 @@ export default function LandingPage() {
       <section className="py-16 px-4 border-b border-border/40">
         <div className="container max-w-5xl">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            <AnimatedCounter value={500} suffix="+" label="Organisations actives" />
+            <AnimatedCounter value={500} suffix="+" label="Plateformes actives" />
             <AnimatedCounter value={50000} suffix="+" label="Membres connectés" />
             <AnimatedCounter value={150} suffix="+" label="Pays couverts" />
             <AnimatedCounter value={1000000} prefix="$" suffix="+" label="Reversés aux créateurs" />

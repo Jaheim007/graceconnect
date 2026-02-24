@@ -23,7 +23,7 @@ const STEPS: TourStep[] = [
   {
     selector: '[data-tour="admin-overview"]',
     title: 'Dashboard Overview',
-    description: 'See your organization performance at a glance — revenue, members, and engagement metrics.',
+    description: 'See your platform performance at a glance — revenue, members, and engagement metrics.',
     icon: <BarChart3 className="h-5 w-5" />,
     position: 'right',
   },
