@@ -1,4 +1,4 @@
-import { Bell, CheckCheck, ArrowLeft } from 'lucide-react';
+import { Bell, CheckCheck, ArrowLeft, BellRing } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
 import { PageTour } from '@/components/onboarding/PageTour';
+import { usePushNotifications } from '@/hooks/usePushNotifications';
 
 const TOUR_STEPS = [
   { titleKey: 'tour.notifications_1_title', descKey: 'tour.notifications_1_desc', icon: <Bell className="h-4 w-4" /> },
@@ -21,7 +22,7 @@ export default function NotificationsPage() {
   const navigate = useNavigate();
   const { t, locale } = useI18n();
   const { data: notifs = [], isLoading } = useNotifications(user?.id);
-
+  const { isSupported: pushSupported, isSubscribed: pushSubscribed, subscribe: subscribePush, loading: pushLoading } = usePushNotifications();
   const markAllRead = async () => {
     if (!user) return;
     await db.from('user_notifications').update({ is_read: true }).eq('user_id', user.id);
@@ -52,6 +53,22 @@ export default function NotificationsPage() {
       </div>
 
       <div className="container max-w-2xl py-5 space-y-4">
+        {/* Push notification toggle */}
+        {pushSupported && !pushSubscribed && (
+          <div className="bg-primary/8 border border-primary/20 rounded-2xl p-4 flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <BellRing className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold">Notifications push</p>
+              <p className="text-xs text-muted-foreground">Recevez des alertes même quand l'app est fermée</p>
+            </div>
+            <Button size="sm" className="bg-primary text-primary-foreground shrink-0" onClick={subscribePush} disabled={pushLoading}>
+              {pushLoading ? '...' : 'Activer'}
+            </Button>
+          </div>
+        )}
+
         <p className="text-xs sm:text-sm text-muted-foreground">{t('page.notifications_desc')}</p>
 
         <PageTour pageId="notifications" steps={TOUR_STEPS} />
