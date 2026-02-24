@@ -119,7 +119,7 @@ export default function TermsPage() {
           <ul className="list-disc pl-5 space-y-1">
             <li>Are subject to last-click attribution within a defined cookie window.</li>
             <li>May be subject to review for fraud or abuse.</li>
-            <li>Become payable only after a holding period (minimum 72 hours).</li>
+            <li>Become payable only after a holding period (minimum 15 days).</li>
           </ul>
           <p>Self-referrals, fraudulent activity, artificial traffic, or manipulation of attribution mechanisms are <strong>strictly prohibited</strong>.</p>
           <p>The Company may cancel commissions determined to be fraudulent.</p>
