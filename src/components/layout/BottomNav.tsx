@@ -25,7 +25,7 @@ export function BottomNav() {
   const primaryItems = [
     { to: '/feed', icon: Home, label: t('sidebar.my_network') },
     { to: '/marketplace', icon: Store, label: t('sidebar.explorer') },
-    { to: '/messages', icon: MessageCircle, label: t('sidebar.messages') },
+    // { to: '/messages', icon: MessageCircle, label: t('sidebar.messages') }, // DISABLED
     { to: '/notifications', icon: Bell, label: t('bottom.alerts') },
   ];
 
@@ -33,7 +33,7 @@ export function BottomNav() {
   const moreItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard'), desc: t('sidebar.desc.dashboard') },
     { to: '/leaderboard', icon: Trophy, label: t('sidebar.leaderboard'), desc: t('sidebar.desc.leaderboard') },
-    { to: '/certificates', icon: Award, label: t('sidebar.certificates'), desc: t('sidebar.desc.certificates') },
+    // { to: '/certificates', icon: Award, label: t('sidebar.certificates'), desc: t('sidebar.desc.certificates') }, // DISABLED
     { to: '/affiliation', icon: Link2, label: t('sidebar.affiliation'), desc: t('sidebar.desc.affiliation') },
     { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases'), desc: t('sidebar.desc.my_purchases') },
     { to: '/support', icon: LifeBuoy, label: t('sidebar.help'), desc: t('sidebar.desc.help') },
