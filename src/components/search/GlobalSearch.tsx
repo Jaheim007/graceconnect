@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Search, X, Building2, ShoppingBag, CalendarDays, Play, Filter } from 'lucide-react';
@@ -49,12 +50,13 @@ export function GlobalSearch() {
   const [filter, setFilter] = useState<FilterType>('all');
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const debouncedQuery = useDebounce(query, 300);
 
   const { data: results = [], isLoading } = useQuery<SearchResult[]>({
-    queryKey: ['global-search', query],
+    queryKey: ['global-search', debouncedQuery],
     queryFn: async () => {
-      if (query.length < 2) return [];
-      const tsQuery = query.split(/\s+/).filter(Boolean).join(' & ');
+      if (debouncedQuery.length < 2) return [];
+      const tsQuery = debouncedQuery.split(/\s+/).filter(Boolean).join(' & ');
       const all: SearchResult[] = [];
 
       const [orgs, products, events, media] = await Promise.all([
@@ -88,7 +90,7 @@ export function GlobalSearch() {
 
       return all;
     },
-    enabled: query.length >= 2,
+    enabled: debouncedQuery.length >= 2,
   });
 
   const filtered = filter === 'all' ? results : results.filter(r => r.type === filter);

@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { X, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ImageCropDialog } from '@/components/ui/ImageCropDialog';
+import { compressImage } from '@/hooks/useImageOptimizer';
 
 interface ImageUploaderProps {
   value: string;
@@ -39,17 +40,20 @@ export function ImageUploader({
     free: 'aspect-video',
   }[aspectRatio];
 
-  const handleFileSelected = async (file: File) => {
-    if (!file) return;
-    if (file.size > 10 * 1024 * 1024) {
+  const handleFileSelected = async (rawFile: File) => {
+    if (!rawFile) return;
+    if (rawFile.size > 10 * 1024 * 1024) {
       setError('File too large. Max 10MB.');
       return;
     }
-    if (!file.type.startsWith('image/')) {
+    if (!rawFile.type.startsWith('image/')) {
       setError('Only image files are allowed.');
       return;
     }
     setError(null);
+
+    // Compress before upload
+    const file = await compressImage(rawFile);
 
     if (disableCrop) {
       // Upload directly without cropping

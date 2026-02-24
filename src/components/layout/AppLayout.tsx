@@ -34,7 +34,7 @@ export function AppLayout() {
       {/* Main content */}
       <div className="flex flex-col flex-1 min-w-0">
         {!hideNav && <TopBar />}
-        <main className={`flex-1 overflow-x-hidden ${!hideNav ? 'pb-16 lg:pb-0' : ''}`}>
+        <main id="main-content" role="main" className={`flex-1 overflow-x-hidden ${!hideNav ? 'pb-16 lg:pb-0' : ''}`}>
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
