@@ -111,6 +111,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
           <img
             src={product.cover_image_url}
             alt={product.title}
+            loading="lazy"
             className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500 ease-out"
           />
         ) : (

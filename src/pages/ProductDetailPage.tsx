@@ -174,6 +174,15 @@ export default function ProductDetailPage() {
             priceCurrency: product.currency || 'USD',
             availability: 'https://schema.org/InStock',
           },
+          ...(product.review_count && product.review_count > 0 ? {
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: String(product.average_rating || 0),
+              reviewCount: String(product.review_count),
+              bestRating: '5',
+              worstRating: '1',
+            },
+          } : {}),
         }}
       />
       <div className="sticky top-0 z-20 border-b border-border/40 bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between">
@@ -190,7 +199,7 @@ export default function ProductDetailPage() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             <div className={cn('rounded-2xl overflow-hidden border border-border shadow-card bg-muted/30 max-w-md mx-auto md:max-w-none', aspectClass)}>
               {product.cover_image_url ? (
-                <img src={product.cover_image_url} alt={product.title} className="w-full h-full object-cover" />
+                <img src={product.cover_image_url} alt={product.title} loading="lazy" className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-accent/10 to-primary/10">
                   <ShoppingBag className="h-16 w-16 text-muted-foreground/20" />
