@@ -12,3 +12,8 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /superadmin
+Disallow: /auth
+
+Sitemap: https://siteviral.com/sitemap.xml
