@@ -21,6 +21,67 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
 
+function MemberRetentionWidget({ orgId }: { orgId?: string }) {
+  const { data: cohorts = [] } = useQuery({
+    queryKey: ['org-retention-cohort', orgId],
+    queryFn: async () => {
+      if (!orgId) return [];
+      // Get all members with join dates
+      const { data: members } = await db.from('organization_members')
+        .select('user_id, joined_at')
+        .eq('organization_id', orgId)
+        .order('joined_at', { ascending: true });
+      if (!members?.length) return [];
+
+      // Group into weekly cohorts (last 8 weeks)
+      const now = new Date();
+      const weeks: { label: string; start: Date; end: Date; joined: number; retained: number }[] = [];
+      for (let i = 7; i >= 0; i--) {
+        const start = subDays(now, (i + 1) * 7);
+        const end = subDays(now, i * 7);
+        const cohortMembers = members.filter((m: any) => {
+          const d = new Date(m.joined_at);
+          return d >= start && d < end;
+        });
+        // "Retained" = members who joined in this week and are still in the list (they haven't left)
+        // Since we only have current members, all are retained
+        weeks.push({
+          label: format(start, 'dd/MM'),
+          start,
+          end,
+          joined: cohortMembers.length,
+          retained: cohortMembers.length,
+        });
+      }
+      return weeks.filter(w => w.joined > 0);
+    },
+    enabled: !!orgId,
+  });
+
+  if (!cohorts.length) return null;
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-5">
+      <h2 className="font-semibold text-sm mb-4 flex items-center gap-2">
+        <Users className="h-4 w-4 text-primary" />
+        Cohortes d'inscription (hebdomadaire)
+      </h2>
+      <ResponsiveContainer width="100%" height={200}>
+        <BarChart data={cohorts}>
+          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+          <XAxis dataKey="label" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
+          <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} width={30} />
+          <Tooltip labelStyle={{ fontSize: 11 }} />
+          <Bar dataKey="joined" name="Inscrits" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+        </BarChart>
+      </ResponsiveContainer>
+      <p className="text-[10px] text-muted-foreground mt-2">
+        Nombre de nouveaux membres par semaine sur les 8 dernières semaines
+      </p>
+    </div>
+  );
+}
+
 const PERIODS = [
   { key: '7d', label: '7j', days: 7 },
   { key: '30d', label: '30j', days: 30 },
@@ -442,6 +503,43 @@ export default function AdminAnalyticsPage() {
             </ResponsiveContainer>
           </div>
         )}
+
+        {/* Cumulative Revenue Trend */}
+        {stats.chartData.length > 1 && (() => {
+          let cumulative = 0;
+          const cumulativeData = stats.chartData.map((d: any) => {
+            cumulative += d.revenue;
+            return { ...d, cumulative };
+          });
+          return (
+            <div className="bg-card border border-border rounded-2xl p-5">
+              <h2 className="font-semibold text-sm mb-4 flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-primary" />
+                {locale === 'fr' ? 'Revenu cumulé' : 'Cumulative Revenue'}
+              </h2>
+              <ResponsiveContainer width="100%" height={220}>
+                <LineChart data={cumulativeData}>
+                  <defs>
+                    <linearGradient id="cumGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="date" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
+                  <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} width={60}
+                    tickFormatter={(v) => v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v} />
+                  <Tooltip formatter={(v: number) => fmt(v, currency)} labelStyle={{ fontSize: 11 }} />
+                  <Line type="monotone" dataKey="cumulative" name={locale === 'fr' ? 'Cumulé' : 'Cumulative'}
+                    stroke="hsl(var(--primary))" strokeWidth={2.5} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          );
+        })()}
+
+        {/* Member Retention Cohort */}
+        <MemberRetentionWidget orgId={orgId} />
 
         {/* Top Products + Affiliate Commissions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

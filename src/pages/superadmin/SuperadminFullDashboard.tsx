@@ -542,8 +542,8 @@ export default function SuperadminFullDashboard() {
         </Panel>
       </div>
 
-      {/* ═══ ROW 6: Roles + Content Stats ═══ */}
-      <div className="grid lg:grid-cols-2 gap-3">
+      {/* ═══ ROW 6: Roles + Content Stats + User Cohorts ═══ */}
+      <div className="grid lg:grid-cols-3 gap-3">
         <Panel>
           <WidgetHeader icon={Eye} title="Répartition des rôles" />
           <div className="flex flex-wrap gap-2">
@@ -571,6 +571,36 @@ export default function SuperadminFullDashboard() {
               <p className="text-[10px] text-muted-foreground">Contenus</p>
             </div>
           </div>
+        </Panel>
+
+        {/* User Registration Cohorts */}
+        <Panel>
+          <WidgetHeader icon={UserPlus} title="Cohortes d'inscription" badge="8 semaines" />
+          {(() => {
+            const profiles = stats?.recentUsers || [];
+            // Build weekly cohort data from all profiles
+            const now = new Date();
+            const weekData = [];
+            for (let i = 7; i >= 0; i--) {
+              const start = subDays(now, (i + 1) * 7);
+              const end = subDays(now, i * 7);
+              const count = (stats?.recentUsers || []).filter((u: any) => {
+                const d = new Date(u.created_at);
+                return d >= start && d < end;
+              }).length;
+              weekData.push({ week: format(start, 'dd/MM', { locale: fr }), users: count });
+            }
+            return weekData.some(w => w.users > 0) ? (
+              <ResponsiveContainer width="100%" height={140}>
+                <BarChart data={weekData}>
+                  <XAxis dataKey="week" tick={{ fontSize: 8 }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fontSize: 8 }} tickLine={false} axisLine={false} width={20} />
+                  <Tooltip />
+                  <Bar dataKey="users" name="Inscrits" fill="hsl(var(--primary))" radius={[3, 3, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : <p className="text-xs text-muted-foreground text-center py-4">Aucune donnée</p>;
+          })()}
         </Panel>
       </div>
     </motion.div>
