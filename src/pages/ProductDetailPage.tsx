@@ -13,7 +13,7 @@ import {
   FileText, BookOpen, Music, Link2, ExternalLink, MessageCircle,
   Shield, HelpCircle, MessageSquareQuote, PackagePlus, Star
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -73,7 +73,7 @@ export default function ProductDetailPage() {
     queryFn: async () => {
       let q = db
         .from('digital_products')
-        .select('*, organizations(name, slug, logo_url, currency, description)')
+        .select('*, organizations(name, slug, logo_url, currency, description, banner_url)')
         .eq('is_published', true);
       if (productId) {
         q = q.eq('id', productId);
@@ -85,6 +85,30 @@ export default function ProductDetailPage() {
     },
     enabled: !!(productId || productSlug),
   });
+
+  // Fetch org page settings for theme colors
+  const orgId = product?.organization_id;
+  const { data: pageSettings } = useQuery({
+    queryKey: ['org-page-settings-product', orgId],
+    queryFn: async () => {
+      const { data } = await db
+        .from('org_page_settings')
+        .select('theme_primary_color, theme_accent_color')
+        .eq('organization_id', orgId!)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!orgId,
+  });
+
+  const orgThemeStyle = useMemo(() => {
+    const primary = pageSettings?.theme_primary_color;
+    if (!primary) return {};
+    return {
+      '--org-primary': primary,
+      '--org-accent': pageSettings?.theme_accent_color || primary,
+    } as React.CSSProperties;
+  }, [pageSettings]);
 
   const { data: purchases = [] } = useMyPurchases();
   const isPurchased = purchases.some(p => p.product_id === (productId || product?.id));
@@ -154,8 +178,16 @@ export default function ProductDetailPage() {
   const testimonials: { name: string; text: string }[] = (product as any).testimonials_json || [];
   const guaranteeText: string | null = (product as any).guarantee_text;
 
+  const orgPrimary = pageSettings?.theme_primary_color;
+  const bannerBg = orgPrimary
+    ? { background: `linear-gradient(135deg, ${orgPrimary}18, ${orgPrimary}08, transparent)` }
+    : {};
+  const topBarStyle = orgPrimary
+    ? { borderBottomColor: `${orgPrimary}30` }
+    : {};
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" style={orgThemeStyle}>
       <SEOHead
         title={`${product.title} — Siteviral`}
         description={product.description?.slice(0, 155) || `Buy ${product.title} on Siteviral`}
@@ -185,40 +217,73 @@ export default function ProductDetailPage() {
           } : {}),
         }}
       />
-      <div className="sticky top-0 z-20 border-b border-border/40 bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between">
-        <Link to={user ? '/feed' : '/'}>
-          <span className="text-lg font-extrabold tracking-tight italic text-primary">Siteviral</span>
-        </Link>
+
+      {/* Org-branded top bar */}
+      <div
+        className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between"
+        style={topBarStyle}
+      >
+        {org ? (
+          <Link to={`/org/${slug}`} className="flex items-center gap-2.5">
+            {org.logo_url ? (
+              <img src={org.logo_url} alt={org.name} className="h-7 w-7 rounded-lg object-cover" />
+            ) : (
+              <div
+                className="h-7 w-7 rounded-lg flex items-center justify-center text-xs font-bold text-primary-foreground"
+                style={{ backgroundColor: orgPrimary || 'hsl(var(--primary))' }}
+              >
+                {org.name?.[0]?.toUpperCase()}
+              </div>
+            )}
+            <span className="text-sm font-bold truncate max-w-[180px]">{org.name}</span>
+          </Link>
+        ) : (
+          <Link to={user ? '/feed' : '/'}>
+            <span className="text-lg font-extrabold tracking-tight italic text-primary">Siteviral</span>
+          </Link>
+        )}
         <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4" /> {t('product.back')}
         </Button>
       </div>
 
-      {/* Seller storefront banner */}
+      {/* Org-branded banner with org colors */}
       {org && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="relative border-b border-border overflow-hidden"
+          className="relative border-b border-border/30 overflow-hidden"
+          style={bannerBg}
         >
-          {/* Gradient background inspired by org brand */}
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-accent/10" />
-          <div className="container max-w-5xl px-4 py-5 relative z-10">
+          {/* Fallback gradient if no custom color */}
+          {!orgPrimary && (
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-accent/10" />
+          )}
+          {/* Banner image if org has one */}
+          {org.banner_url && (
+            <div className="absolute inset-0">
+              <img src={org.banner_url} alt="" className="w-full h-full object-cover opacity-15" />
+            </div>
+          )}
+          <div className="container max-w-5xl px-4 py-4 relative z-10">
             <div className="flex items-center gap-4">
               {org.logo_url ? (
                 <img
                   src={org.logo_url}
                   alt={org.name}
-                  className="h-14 w-14 rounded-xl object-cover border-2 border-background shadow-md"
+                  className="h-12 w-12 rounded-xl object-cover border-2 border-background shadow-md"
                 />
               ) : (
-                <div className="h-14 w-14 rounded-xl bg-primary flex items-center justify-center text-xl font-bold text-primary-foreground shadow-md border-2 border-background">
+                <div
+                  className="h-12 w-12 rounded-xl flex items-center justify-center text-lg font-bold text-primary-foreground shadow-md border-2 border-background"
+                  style={{ backgroundColor: orgPrimary || 'hsl(var(--primary))' }}
+                >
                   {org.name?.[0]?.toUpperCase()}
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('product.sold_by')}</p>
-                <p className="font-bold text-base">{org.name}</p>
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">{t('product.sold_by')}</p>
+                <p className="font-bold text-sm">{org.name}</p>
                 {org.description && (
                   <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{org.description}</p>
                 )}
@@ -405,7 +470,9 @@ export default function ProductDetailPage() {
                 </div>
               ) : (
                 <Button
-                  className="w-full h-12 text-base bg-primary text-primary-foreground gap-2 font-semibold"
+                  className="w-full h-12 text-base gap-2 font-semibold text-white"
+                  style={{ backgroundColor: orgPrimary || 'hsl(var(--primary))' }}
+
                   onClick={() => {
                     if (!user) { navigate(`/auth?returnTo=${encodeURIComponent(buildShareUrl())}`); return; }
                     setPurchaseProduct(product as DigitalProduct);
