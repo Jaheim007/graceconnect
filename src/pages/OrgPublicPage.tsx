@@ -97,6 +97,15 @@ export default function OrgPublicPage() {
   const purchasedProductIds = new Set(purchases.map(p => p.product_id));
   const { data: pageSettings } = useOrgPageSettings(org?.id);
 
+  // Apply custom theme colors from page settings
+  const customPrimary = pageSettings?.theme_primary_color;
+  const customAccent = pageSettings?.theme_accent_color;
+  const themeStyle = (customPrimary || customAccent) ? {
+    '--primary': customPrimary || undefined,
+    '--accent': customAccent || undefined,
+    '--ring': customPrimary || undefined,
+  } as React.CSSProperties : undefined;
+
   const { data: memberCount = 0 } = useQuery({
     queryKey: ['org-member-count', org?.id],
     queryFn: async () => {
@@ -326,7 +335,7 @@ export default function OrgPublicPage() {
   const hasAnyContent = Object.values(sectionData).some(s => s.items.length > 0);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background" style={themeStyle}>
       <SEOHead
         title={`${org.name} — Siteviral`}
         description={org.description || (locale === 'fr' ? `Découvrez ${org.name} sur Siteviral` : `Discover ${org.name} on Siteviral`)}
@@ -480,6 +489,43 @@ export default function OrgPublicPage() {
                 </div>
               </motion.div>
             </div>
+
+            {/* ─── ANIMATED STATS BAR ─── */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="flex flex-wrap gap-3 mt-4 mb-2"
+            >
+              {products.length > 0 && (
+                <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-card shadow-card">
+                  <ShoppingBag className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-bold">{products.length}</span>
+                  <span className="text-xs text-muted-foreground">{locale === 'fr' ? 'Produits' : 'Products'}</span>
+                </div>
+              )}
+              {media.length > 0 && (
+                <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-card shadow-card">
+                  <Play className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-bold">{media.length}</span>
+                  <span className="text-xs text-muted-foreground">{locale === 'fr' ? 'Contenus' : 'Content'}</span>
+                </div>
+              )}
+              {events.length > 0 && (
+                <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-card shadow-card">
+                  <CalendarDays className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-bold">{events.length}</span>
+                  <span className="text-xs text-muted-foreground">{locale === 'fr' ? 'Événements' : 'Events'}</span>
+                </div>
+              )}
+              {photos.length > 0 && (
+                <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-card shadow-card">
+                  <Camera className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-bold">{photos.length}</span>
+                  <span className="text-xs text-muted-foreground">Photos</span>
+                </div>
+              )}
+            </motion.div>
 
             <motion.div
               initial={{ opacity: 0, x: 20 }}
