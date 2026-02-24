@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { db } from '@/lib/db';
 import { formatPrice } from '@/lib/currency';
+import { useAbandonedCart } from '@/hooks/useAbandonedCart';
 
 interface ProductPurchaseModalProps {
   product: DigitalProduct | null;
@@ -53,6 +54,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const { toast } = useToast();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const { trackCartOpen, markConverted } = useAbandonedCart();
 
   const [buyerInfo, setBuyerInfo] = useState<BuyerInfo>({
     name: profile?.display_name || '',
@@ -126,6 +128,8 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
       navigate(`/auth?returnTo=${encodeURIComponent(pathname)}`);
       return;
     }
+    // Track abandoned cart when user proceeds to buyer info
+    if (product) trackCartOpen(product.id, organizationId);
     setBuyerInfo(prev => ({
       name: prev.name || profile?.display_name || '',
       email: prev.email || user?.email || '',
@@ -178,6 +182,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
               promo_code: promo.applied ? promo.code.trim().toUpperCase() : undefined,
             });
             clearAffiliateCode();
+            if (product) markConverted(product.id);
             setResult(verifyResult);
             setStep('success');
             onSuccess?.(verifyResult);

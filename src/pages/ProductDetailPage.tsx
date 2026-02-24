@@ -20,6 +20,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { formatCurrency, formatPrice } from '@/lib/currency';
 import { useI18n } from '@/i18n/I18nContext';
 import { FormattedText } from '@/lib/formatText';
+import { ProductReviews } from '@/components/products/ProductReviews';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -208,6 +209,13 @@ export default function ProductDetailPage() {
                 />
               </div>
             )}
+
+            {/* Reviews section */}
+            <ProductReviews
+              productId={product.id}
+              organizationId={product.organization_id}
+              isPurchased={isPurchased}
+            />
 
             {org && (
               <div className="p-4 rounded-2xl border border-border bg-card shadow-card">

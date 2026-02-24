@@ -633,6 +633,72 @@ export function AdminKYC() {
   );
 }
 
+function PixelSettings({ orgId }: { orgId?: string }) {
+  const [fb, setFb] = useState('');
+  const [tt, setTt] = useState('');
+  const [gt, setGt] = useState('');
+  const [saving, setSaving] = useState(false);
+  const { toast } = useToast();
+
+  const { data: settings } = useQuery({
+    queryKey: ['pixel-settings', orgId],
+    queryFn: async () => {
+      if (!orgId) return null;
+      const { data } = await db.from('org_page_settings').select('facebook_pixel_id, tiktok_pixel_id, google_tag_id').eq('organization_id', orgId).maybeSingle();
+      return data as { facebook_pixel_id: string | null; tiktok_pixel_id: string | null; google_tag_id: string | null } | null;
+    },
+    enabled: !!orgId,
+  });
+
+  useState(() => {
+    if (settings) {
+      setFb(settings.facebook_pixel_id || '');
+      setTt(settings.tiktok_pixel_id || '');
+      setGt(settings.google_tag_id || '');
+    }
+  });
+
+  const handleSave = async () => {
+    if (!orgId) return;
+    setSaving(true);
+    const updates = { facebook_pixel_id: fb.trim() || null, tiktok_pixel_id: tt.trim() || null, google_tag_id: gt.trim() || null };
+    const { data: existing } = await db.from('org_page_settings').select('id').eq('organization_id', orgId).maybeSingle();
+    if (existing) {
+      await db.from('org_page_settings').update(updates).eq('organization_id', orgId);
+    } else {
+      await db.from('org_page_settings').insert({ organization_id: orgId, ...updates });
+    }
+    setSaving(false);
+    toast({ title: '✅ Pixels sauvegardés' });
+  };
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+      <div>
+        <h2 className="font-semibold text-sm">Pixels de tracking</h2>
+        <p className="text-xs text-muted-foreground mt-0.5">Ajoutez vos pixels pour le suivi publicitaire sur votre page publique.</p>
+      </div>
+      <div className="grid gap-3">
+        <div className="space-y-1.5">
+          <Label className="text-xs font-medium">Facebook Pixel ID</Label>
+          <Input value={fb || settings?.facebook_pixel_id || ''} onChange={e => setFb(e.target.value)} placeholder="Ex: 123456789012345" className="h-8 text-xs font-mono" />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs font-medium">TikTok Pixel ID</Label>
+          <Input value={tt || settings?.tiktok_pixel_id || ''} onChange={e => setTt(e.target.value)} placeholder="Ex: ABCDEF123456" className="h-8 text-xs font-mono" />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs font-medium">Google Tag (gtag) ID</Label>
+          <Input value={gt || settings?.google_tag_id || ''} onChange={e => setGt(e.target.value)} placeholder="Ex: G-XXXXXXXXXX" className="h-8 text-xs font-mono" />
+        </div>
+      </div>
+      <Button size="sm" className="bg-primary text-primary-foreground" onClick={handleSave} disabled={saving}>
+        {saving ? 'Sauvegarde…' : 'Sauvegarder les pixels'}
+      </Button>
+    </div>
+  );
+}
+
 export function AdminSettings() {
   const { currentOrg, refetchOrgs } = useOrg();
   const { user } = useAuth();
@@ -987,6 +1053,9 @@ export function AdminSettings() {
             {savingLeader ? 'Sauvegarde…' : 'Sauvegarder la biographie'}
           </Button>
         </div>
+
+        {/* ── TRACKING PIXELS ── */}
+        <PixelSettings orgId={currentOrg?.id} />
 
         {/* ── AFFILIATION ── */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-4">

@@ -8,6 +8,9 @@ export interface OrgPageSettings {
   hidden_sections: string[];
   theme_primary_color: string | null;
   theme_accent_color: string | null;
+  facebook_pixel_id: string | null;
+  tiktok_pixel_id: string | null;
+  google_tag_id: string | null;
   updated_at: string;
 }
 
@@ -29,6 +32,9 @@ export function useOrgPageSettings(orgId: string | undefined) {
         hidden_sections: [],
         theme_primary_color: null,
         theme_accent_color: null,
+        facebook_pixel_id: null,
+        tiktok_pixel_id: null,
+        google_tag_id: null,
       } as OrgPageSettings;
     },
     enabled: !!orgId,

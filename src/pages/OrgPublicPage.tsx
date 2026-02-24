@@ -38,6 +38,7 @@ import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { useToast } from '@/hooks/use-toast';
 import { useAffiliateCapture } from '@/hooks/useAffiliateCapture';
 import { PhotoLightbox } from '@/components/photos/PhotoLightbox';
+import { PixelInjector } from '@/components/org/PixelInjector';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { OrgBadges } from '@/components/org/OrgBadges';
@@ -105,6 +106,11 @@ export default function OrgPublicPage() {
     '--accent': customAccent || undefined,
     '--ring': customPrimary || undefined,
   } as React.CSSProperties : undefined;
+
+  // Tracking pixels
+  const fbPixel = (pageSettings as any)?.facebook_pixel_id;
+  const ttPixel = (pageSettings as any)?.tiktok_pixel_id;
+  const gTagId = (pageSettings as any)?.google_tag_id;
 
   const { data: memberCount = 0 } = useQuery({
     queryKey: ['org-member-count', org?.id],
@@ -336,6 +342,7 @@ export default function OrgPublicPage() {
 
   return (
     <div className="min-h-screen bg-background" style={themeStyle}>
+      <PixelInjector facebookPixelId={fbPixel} tiktokPixelId={ttPixel} googleTagId={gTagId} />
       <SEOHead
         title={`${org.name} — Siteviral`}
         description={org.description || (locale === 'fr' ? `Découvrez ${org.name} sur Siteviral` : `Discover ${org.name} on Siteviral`)}
