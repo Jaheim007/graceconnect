@@ -24,8 +24,12 @@ import { cn } from '@/lib/utils';
 import { db } from '@/lib/db';
 import { supabase } from '@/integrations/supabase/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useUpsertOrgPageSettings, useOrgPageSettings } from '@/hooks/useOrgPageSettings';
+import { BulkActionsToolbar, useBulkSelect } from '@/components/admin/BulkActions';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
@@ -197,16 +201,58 @@ export function AdminProducts() {
   const { currentOrg } = useOrg();
   const { data: items = [], isLoading } = useOrgProducts(currentOrg?.id, false);
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const qc = useQueryClient();
+  const bulk = useBulkSelect(items as any[]);
+
+  const handleBulkPublish = async (ids: string[]) => {
+    await db.from('digital_products').update({ is_published: true }).in('id', ids);
+    qc.invalidateQueries({ queryKey: ['org-products'] });
+    bulk.clear();
+    toast({ title: `${ids.length} produit(s) publié(s) ✅` });
+  };
+  const handleBulkUnpublish = async (ids: string[]) => {
+    await db.from('digital_products').update({ is_published: false }).in('id', ids);
+    qc.invalidateQueries({ queryKey: ['org-products'] });
+    bulk.clear();
+    toast({ title: `${ids.length} produit(s) dépublié(s)` });
+  };
+  const handleBulkDelete = async (ids: string[]) => {
+    await db.from('digital_products').delete().in('id', ids);
+    qc.invalidateQueries({ queryKey: ['org-products'] });
+    bulk.clear();
+    toast({ title: `${ids.length} produit(s) supprimé(s)` });
+  };
+
   return (
     <AdminPageShell title="Boutique digitale" newRoute="/admin/products/new" newLabel="Nouveau produit" backRoute="/admin">
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
         <EmptyState variant="purchases" title="Aucun produit" action={{ label: 'Nouveau produit', onClick: () => navigate('/admin/products/new') }} />
       ) : (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-          <h2 className="font-semibold text-sm">{items.length} produit{items.length > 1 ? 's' : ''}</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold text-sm">{items.length} produit{items.length > 1 ? 's' : ''}</h2>
+            <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={bulk.toggleAll}>
+              {bulk.allSelected ? 'Désélectionner' : 'Tout sélectionner'}
+            </Button>
+          </div>
+          <BulkActionsToolbar
+            selectedIds={bulk.selectedIds}
+            totalCount={items.length}
+            onClear={bulk.clear}
+            actions={[
+              { label: 'Publier', icon: CheckCircle, onClick: handleBulkPublish },
+              { label: 'Dépublier', icon: Pencil, onClick: handleBulkUnpublish },
+              { label: 'Supprimer', icon: Trash2, variant: 'destructive', onClick: handleBulkDelete },
+            ]}
+          />
           <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
             {items.map(p => (
-              <motion.div key={p.id} variants={fadeUp} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all group">
+              <motion.div key={p.id} variants={fadeUp}
+                className={cn("flex items-center gap-3 p-3 rounded-xl border bg-background/50 hover:bg-background transition-all group cursor-pointer",
+                  bulk.isSelected(p.id) ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/20')}
+                onClick={() => bulk.toggle(p.id)}
+              >
                 <div className="h-10 w-10 rounded-xl bg-muted shrink-0 overflow-hidden">
                   {p.cover_image_url ? (
                     <img src={p.cover_image_url} alt={p.title} className="w-full h-full object-cover" />
@@ -223,7 +269,8 @@ export function AdminProducts() {
                 <Badge variant="outline" className={cn('text-[10px] border-0 shrink-0', p.is_published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}>
                   {p.is_published ? 'Publié' : 'Brouillon'}
                 </Badge>
-                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" onClick={() => navigate(`/admin/products/${p.id}/edit`)}>
+                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => { e.stopPropagation(); navigate(`/admin/products/${p.id}/edit`); }}>
                   <Pencil className="h-3.5 w-3.5" />
                 </Button>
               </motion.div>
@@ -699,6 +746,163 @@ function PixelSettings({ orgId }: { orgId?: string }) {
   );
 }
 
+function WebhookSettings({ orgId }: { orgId?: string }) {
+  const [webhookUrl, setWebhookUrl] = useState('');
+  const [webhookEvents, setWebhookEvents] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+  const { toast } = useToast();
+
+  const { data: org } = useQuery({
+    queryKey: ['org-webhook', orgId],
+    queryFn: async () => {
+      if (!orgId) return null;
+      const { data } = await db.from('organizations').select('webhook_url, webhook_events').eq('id', orgId).single();
+      return data;
+    },
+    enabled: !!orgId,
+  });
+
+  useEffect(() => {
+    if (org) {
+      setWebhookUrl(org.webhook_url || '');
+      setWebhookEvents(org.webhook_events || []);
+    }
+  }, [org]);
+
+  const allEvents = ['sale', 'donation', 'member_joined', 'payout_requested', 'subscription_started'];
+
+  const toggleEvent = (ev: string) => {
+    setWebhookEvents(prev => prev.includes(ev) ? prev.filter(e => e !== ev) : [...prev, ev]);
+  };
+
+  const handleSave = async () => {
+    if (!orgId) return;
+    setSaving(true);
+    await db.from('organizations').update({ webhook_url: webhookUrl.trim() || null, webhook_events: webhookEvents }).eq('id', orgId);
+    setSaving(false);
+    toast({ title: '✅ Webhooks sauvegardés' });
+  };
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+      <div>
+        <h2 className="font-semibold text-sm">Webhooks (Zapier / Make)</h2>
+        <p className="text-xs text-muted-foreground mt-0.5">Envoyez automatiquement les événements vers un outil externe.</p>
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium">URL du webhook</Label>
+        <Input value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)} placeholder="https://hooks.zapier.com/..." className="h-8 text-xs font-mono" />
+      </div>
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium">Événements à envoyer</Label>
+        <div className="flex flex-wrap gap-2">
+          {allEvents.map(ev => (
+            <Badge
+              key={ev}
+              variant={webhookEvents.includes(ev) ? 'default' : 'outline'}
+              className="cursor-pointer text-[10px]"
+              onClick={() => toggleEvent(ev)}
+            >
+              {ev}
+            </Badge>
+          ))}
+        </div>
+        <p className="text-[10px] text-muted-foreground">Si aucun n'est sélectionné, tous les événements seront envoyés.</p>
+      </div>
+      <Button size="sm" className="bg-primary text-primary-foreground" onClick={handleSave} disabled={saving}>
+        {saving ? 'Sauvegarde…' : 'Sauvegarder les webhooks'}
+      </Button>
+    </div>
+  );
+}
+
+function PopupSettings({ orgId }: { orgId?: string }) {
+  const { data: pageSettings } = useOrgPageSettings(orgId);
+  const upsert = useUpsertOrgPageSettings();
+  const { toast } = useToast();
+
+  const popupConfig = (pageSettings?.popup_config as any) || { enabled: false };
+  const [enabled, setEnabled] = useState(popupConfig.enabled || false);
+  const [title, setTitle] = useState(popupConfig.title || '');
+  const [message, setMessage] = useState(popupConfig.message || '');
+  const [ctaText, setCtaText] = useState(popupConfig.cta_text || '');
+  const [trigger, setTrigger] = useState(popupConfig.trigger || 'exit_intent');
+  const [collectEmail, setCollectEmail] = useState(popupConfig.collect_email || false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (pageSettings?.popup_config) {
+      const c = pageSettings.popup_config as any;
+      setEnabled(c.enabled || false);
+      setTitle(c.title || '');
+      setMessage(c.message || '');
+      setCtaText(c.cta_text || '');
+      setTrigger(c.trigger || 'exit_intent');
+      setCollectEmail(c.collect_email || false);
+    }
+  }, [pageSettings]);
+
+  const handleSave = async () => {
+    if (!orgId) return;
+    setSaving(true);
+    await upsert.mutateAsync({
+      orgId,
+      updates: {
+        popup_config: { enabled, title: title || null, message: message || null, cta_text: ctaText || null, trigger, collect_email: collectEmail } as any,
+      },
+    });
+    setSaving(false);
+    toast({ title: '✅ Popup sauvegardé' });
+  };
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+      <div>
+        <h2 className="font-semibold text-sm">Popup intelligent</h2>
+        <p className="text-xs text-muted-foreground mt-0.5">Affichez un popup sur votre page publique pour capter les visiteurs.</p>
+      </div>
+      <div className="flex items-center justify-between">
+        <Label className="text-xs font-medium">Activer le popup</Label>
+        <Switch checked={enabled} onCheckedChange={setEnabled} />
+      </div>
+      {enabled && (
+        <div className="grid gap-3">
+          <div className="space-y-1.5">
+            <Label className="text-xs">Titre</Label>
+            <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Ne partez pas si vite !" className="h-8 text-xs" />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Message</Label>
+            <Textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="Rejoignez-nous..." rows={2} className="text-xs" />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Texte du bouton</Label>
+            <Input value={ctaText} onChange={e => setCtaText(e.target.value)} placeholder="S'inscrire" className="h-8 text-xs" />
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">Déclencheur</Label>
+            <Select value={trigger} onValueChange={setTrigger}>
+              <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="exit_intent">Intention de sortie</SelectItem>
+                <SelectItem value="scroll_50">Scroll 50%</SelectItem>
+                <SelectItem value="timer_10s">Après 10 secondes</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex items-center justify-between">
+            <Label className="text-xs">Collecter les emails</Label>
+            <Switch checked={collectEmail} onCheckedChange={setCollectEmail} />
+          </div>
+        </div>
+      )}
+      <Button size="sm" className="bg-primary text-primary-foreground" onClick={handleSave} disabled={saving}>
+        {saving ? 'Sauvegarde…' : 'Sauvegarder le popup'}
+      </Button>
+    </div>
+  );
+}
+
 export function AdminSettings() {
   const { currentOrg, refetchOrgs } = useOrg();
   const { user } = useAuth();
@@ -1056,6 +1260,12 @@ export function AdminSettings() {
 
         {/* ── TRACKING PIXELS ── */}
         <PixelSettings orgId={currentOrg?.id} />
+
+        {/* ── WEBHOOKS ── */}
+        <WebhookSettings orgId={currentOrg?.id} />
+
+        {/* ── POPUP CONFIG ── */}
+        <PopupSettings orgId={currentOrg?.id} />
 
         {/* ── AFFILIATION ── */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-4">

@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { useBundleItems, useAddBundleItem, useRemoveBundleItem, useProductRecommendations, useAddRecommendation, useRemoveRecommendation } from '@/hooks/useBundlesAndRecommendations';
 import { useOrgProducts } from '@/hooks/useMonetization';
+import { EmbedSnippetGen } from '@/components/products/EmbedSnippetGen';
 
 const schema = z.object({
   title: z.string().min(2, 'Required'),
@@ -452,6 +453,20 @@ export function ProductForm() {
             {loading ? 'Saving...' : isEdit ? 'Update' : 'Create'}
           </Button>
         </div>
+
+        {/* Embed Snippet */}
+        {isEdit && productUrl && (
+          <div className="mt-6">
+            <EmbedSnippetGen
+              productId={id!}
+              orgSlug={currentOrg?.slug || ''}
+              productTitle={watch('title')}
+              price={watch('price') || 0}
+              currency={currentOrg?.currency || 'XOF'}
+              isFree={watch('is_free')}
+            />
+          </div>
+        )}
       </form>
     </AdminPageShell>
   );
