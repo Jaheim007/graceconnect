@@ -62,6 +62,19 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const { pathname } = useLocation();
   const { trackCartOpen, markConverted } = useAbandonedCart();
 
+  // Fetch org subaccount for split payments
+  const { data: orgPayment } = useQuery({
+    queryKey: ['org-payment-config', organizationId],
+    queryFn: async () => {
+      const { data } = await db.from('organizations')
+        .select('paystack_subaccount_code, platform_fee_percent')
+        .eq('id', organizationId)
+        .single();
+      return data;
+    },
+    enabled: open && !!organizationId,
+  });
+
   const [buyerInfo, setBuyerInfo] = useState<BuyerInfo>({
     name: profile?.display_name || '',
     email: user?.email || '',
@@ -240,6 +253,11 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
         email: buyerInfo.email.trim(),
         amount: finalPrice,
         currency: product.currency || 'XOF',
+        // Split payment: route funds to org subaccount
+        subaccount: orgPayment?.paystack_subaccount_code || undefined,
+        platformFeeAmount: orgPayment?.paystack_subaccount_code
+          ? finalPrice * ((orgPayment?.platform_fee_percent ?? 10) / 100)
+          : undefined,
         metadata: {
           type: 'product',
           product_id: product.id,

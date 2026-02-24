@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { DonationCampaign } from '@/types/database';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
@@ -15,6 +16,7 @@ import { usePaystack } from '@/hooks/usePaystack';
 import { getAffiliateCode, clearAffiliateCode } from '@/hooks/useAffiliateCapture';
 import { verifyPayment, VerifyPaymentResult } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
+import { db } from '@/lib/db';
 
 const PRESET_AMOUNTS = [500, 1000, 2500, 5000, 10000];
 
@@ -43,6 +45,19 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
+  // Fetch org subaccount for split payments
+  const { data: orgPayment } = useQuery({
+    queryKey: ['org-payment-config', organizationId],
+    queryFn: async () => {
+      const { data } = await db.from('organizations')
+        .select('paystack_subaccount_code, platform_fee_percent')
+        .eq('id', organizationId)
+        .single();
+      return data;
+    },
+    enabled: open && !!organizationId,
+  });
+
   if (!campaign) return null;
 
   const fmt = (n: number) =>
@@ -69,6 +84,11 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
         email: resolvedEmail,
         amount: effectiveAmount,
         currency: campaign.currency || 'XOF',
+        // Split payment: route funds to org subaccount
+        subaccount: orgPayment?.paystack_subaccount_code || undefined,
+        platformFeeAmount: orgPayment?.paystack_subaccount_code
+          ? effectiveAmount * ((orgPayment?.platform_fee_percent ?? 10) / 100)
+          : undefined,
         metadata: {
           type: 'donation',
           campaign_id: campaign.id,

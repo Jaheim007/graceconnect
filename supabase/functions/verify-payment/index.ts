@@ -196,6 +196,7 @@ Deno.serve(async (req) => {
         organization_amount: organizationAmount,
         completed_at: new Date().toISOString(),
         promo_code_id: promoCodeId,
+        settlement_status: 'held', // Held for 72h before release
       };
 
       let donationId: string;
@@ -233,6 +234,7 @@ Deno.serve(async (req) => {
         completed_at: new Date().toISOString(),
         promo_code_id: promoCodeId,
         discount_amount: discountAmount,
+        settlement_status: 'held', // Held for 72h before release
       };
 
       let purchaseId: string;
@@ -260,7 +262,7 @@ Deno.serve(async (req) => {
           .maybeSingle();
 
         if (!existingAffiliateSale) {
-          const payableAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
+          const payableAt = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(); // 15 days hold for affiliates
           await db.from('affiliate_sales').insert({
             affiliate_link_id: affiliateLinkId,
             affiliate_user_id: affiliateUserId,

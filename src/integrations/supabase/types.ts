@@ -125,8 +125,10 @@ export type Database = {
           code: string
           conversions: number | null
           created_at: string | null
+          freeze_reason: string | null
           id: string
           is_active: boolean | null
+          is_frozen: boolean | null
           link_type: string | null
           organization_id: string
           product_id: string | null
@@ -139,8 +141,10 @@ export type Database = {
           code: string
           conversions?: number | null
           created_at?: string | null
+          freeze_reason?: string | null
           id?: string
           is_active?: boolean | null
+          is_frozen?: boolean | null
           link_type?: string | null
           organization_id: string
           product_id?: string | null
@@ -153,8 +157,10 @@ export type Database = {
           code?: string
           conversions?: number | null
           created_at?: string | null
+          freeze_reason?: string | null
           id?: string
           is_active?: boolean | null
+          is_frozen?: boolean | null
           link_type?: string | null
           organization_id?: string
           product_id?: string | null
@@ -839,6 +845,8 @@ export type Database = {
           created_at: string | null
           currency: string | null
           device_hash: string | null
+          dispute_id: string | null
+          dispute_status: string | null
           donor_email: string | null
           donor_name: string | null
           id: string
@@ -848,6 +856,8 @@ export type Database = {
           paystack_reference: string
           platform_fee: number | null
           promo_code_id: string | null
+          settlement_released_at: string | null
+          settlement_status: string | null
           status: Database["public"]["Enums"]["payment_status"] | null
           user_id: string | null
         }
@@ -861,6 +871,8 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           device_hash?: string | null
+          dispute_id?: string | null
+          dispute_status?: string | null
           donor_email?: string | null
           donor_name?: string | null
           id?: string
@@ -870,6 +882,8 @@ export type Database = {
           paystack_reference: string
           platform_fee?: number | null
           promo_code_id?: string | null
+          settlement_released_at?: string | null
+          settlement_status?: string | null
           status?: Database["public"]["Enums"]["payment_status"] | null
           user_id?: string | null
         }
@@ -883,6 +897,8 @@ export type Database = {
           created_at?: string | null
           currency?: string | null
           device_hash?: string | null
+          dispute_id?: string | null
+          dispute_status?: string | null
           donor_email?: string | null
           donor_name?: string | null
           id?: string
@@ -892,6 +908,8 @@ export type Database = {
           paystack_reference?: string
           platform_fee?: number | null
           promo_code_id?: string | null
+          settlement_released_at?: string | null
+          settlement_status?: string | null
           status?: Database["public"]["Enums"]["payment_status"] | null
           user_id?: string | null
         }
@@ -1699,6 +1717,7 @@ export type Database = {
           banner_url: string | null
           category: Database["public"]["Enums"]["org_category"] | null
           country: string | null
+          country_code: string | null
           created_at: string | null
           currency: string | null
           description: string | null
@@ -1713,15 +1732,20 @@ export type Database = {
           leader_name: string | null
           leader_title: string | null
           logo_url: string | null
+          momo_number: string | null
+          momo_provider: string | null
           monetization_enabled: boolean | null
           name: string
           owner_id: string
           payout_freeze_reason: string | null
+          payout_method: string | null
           payouts_frozen: boolean | null
           payouts_frozen_until: string | null
+          paystack_recipient_code: string | null
           paystack_subaccount_code: string | null
           plan_type: Database["public"]["Enums"]["org_plan"] | null
           platform_fee_percent: number | null
+          settlement_released: boolean | null
           slug: string
           suspended_until: string | null
           suspension_reason: string | null
@@ -1737,6 +1761,7 @@ export type Database = {
           banner_url?: string | null
           category?: Database["public"]["Enums"]["org_category"] | null
           country?: string | null
+          country_code?: string | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
@@ -1751,15 +1776,20 @@ export type Database = {
           leader_name?: string | null
           leader_title?: string | null
           logo_url?: string | null
+          momo_number?: string | null
+          momo_provider?: string | null
           monetization_enabled?: boolean | null
           name: string
           owner_id: string
           payout_freeze_reason?: string | null
+          payout_method?: string | null
           payouts_frozen?: boolean | null
           payouts_frozen_until?: string | null
+          paystack_recipient_code?: string | null
           paystack_subaccount_code?: string | null
           plan_type?: Database["public"]["Enums"]["org_plan"] | null
           platform_fee_percent?: number | null
+          settlement_released?: boolean | null
           slug: string
           suspended_until?: string | null
           suspension_reason?: string | null
@@ -1775,6 +1805,7 @@ export type Database = {
           banner_url?: string | null
           category?: Database["public"]["Enums"]["org_category"] | null
           country?: string | null
+          country_code?: string | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
@@ -1789,15 +1820,20 @@ export type Database = {
           leader_name?: string | null
           leader_title?: string | null
           logo_url?: string | null
+          momo_number?: string | null
+          momo_provider?: string | null
           monetization_enabled?: boolean | null
           name?: string
           owner_id?: string
           payout_freeze_reason?: string | null
+          payout_method?: string | null
           payouts_frozen?: boolean | null
           payouts_frozen_until?: string | null
+          paystack_recipient_code?: string | null
           paystack_subaccount_code?: string | null
           plan_type?: Database["public"]["Enums"]["org_plan"] | null
           platform_fee_percent?: number | null
+          settlement_released?: boolean | null
           slug?: string
           suspended_until?: string | null
           suspension_reason?: string | null
@@ -1996,6 +2032,8 @@ export type Database = {
           currency: string | null
           device_hash: string | null
           discount_amount: number | null
+          dispute_id: string | null
+          dispute_status: string | null
           id: string
           invoice_number: string | null
           organization_amount: number | null
@@ -2004,6 +2042,8 @@ export type Database = {
           platform_fee: number | null
           product_id: string
           promo_code_id: string | null
+          settlement_released_at: string | null
+          settlement_status: string | null
           status: Database["public"]["Enums"]["purchase_status"] | null
           user_id: string
         }
@@ -2017,6 +2057,8 @@ export type Database = {
           currency?: string | null
           device_hash?: string | null
           discount_amount?: number | null
+          dispute_id?: string | null
+          dispute_status?: string | null
           id?: string
           invoice_number?: string | null
           organization_amount?: number | null
@@ -2025,6 +2067,8 @@ export type Database = {
           platform_fee?: number | null
           product_id: string
           promo_code_id?: string | null
+          settlement_released_at?: string | null
+          settlement_status?: string | null
           status?: Database["public"]["Enums"]["purchase_status"] | null
           user_id: string
         }
@@ -2038,6 +2082,8 @@ export type Database = {
           currency?: string | null
           device_hash?: string | null
           discount_amount?: number | null
+          dispute_id?: string | null
+          dispute_status?: string | null
           id?: string
           invoice_number?: string | null
           organization_amount?: number | null
@@ -2046,6 +2092,8 @@ export type Database = {
           platform_fee?: number | null
           product_id?: string
           promo_code_id?: string | null
+          settlement_released_at?: string | null
+          settlement_status?: string | null
           status?: Database["public"]["Enums"]["purchase_status"] | null
           user_id?: string
         }
@@ -2796,6 +2844,42 @@ export type Database = {
           subject?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      supported_payout_countries: {
+        Row: {
+          bank_payout: boolean | null
+          country_code: string
+          country_name: string
+          currency: string
+          momo_payout: boolean | null
+          momo_providers: string[] | null
+          notes: string | null
+          paystack_supported: boolean | null
+          transfer_api: boolean | null
+        }
+        Insert: {
+          bank_payout?: boolean | null
+          country_code: string
+          country_name: string
+          currency: string
+          momo_payout?: boolean | null
+          momo_providers?: string[] | null
+          notes?: string | null
+          paystack_supported?: boolean | null
+          transfer_api?: boolean | null
+        }
+        Update: {
+          bank_payout?: boolean | null
+          country_code?: string
+          country_name?: string
+          currency?: string
+          momo_payout?: boolean | null
+          momo_providers?: string[] | null
+          notes?: string | null
+          paystack_supported?: boolean | null
+          transfer_api?: boolean | null
         }
         Relationships: []
       }
