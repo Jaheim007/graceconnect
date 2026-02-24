@@ -250,7 +250,7 @@ export default function FeedPage() {
                     <SectionHeader icon={<Heart className="h-4 w-4 text-destructive" />} title={t('feed.donation_campaigns')} action={{ label: t('common.view_all'), onClick: () => setTab('campaigns') }} />
                     <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                       {filteredCampaigns.slice(0, 6).map((c, i) => (
-                        <motion.div key={c.id} variants={staggerItem}><CampaignCard campaign={c} index={i} onDonate={() => setDonateCampaign(c)} /></motion.div>
+                         <motion.div key={c.id} variants={staggerItem}><CampaignCard campaign={c} index={i} /></motion.div>
                       ))}
                     </motion.div>
                   </section>
@@ -292,7 +292,7 @@ export default function FeedPage() {
                 {campaignsLoading ? <SkeletonList count={4} /> : filteredCampaigns.length === 0 ? <EmptyState variant="campaigns" /> : (
                   <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                     {filteredCampaigns.map((c, i) => (
-                      <motion.div key={c.id} variants={staggerItem}><CampaignCard campaign={c} index={i} onDonate={() => setDonateCampaign(c)} /></motion.div>
+                      <motion.div key={c.id} variants={staggerItem}><CampaignCard campaign={c} index={i} /></motion.div>
                     ))}
                   </motion.div>
                 )}
