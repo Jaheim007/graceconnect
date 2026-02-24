@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { DigitalProduct } from '@/types/database';
 import {
@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { db } from '@/lib/db';
 import { formatPrice } from '@/lib/currency';
 import { useAbandonedCart } from '@/hooks/useAbandonedCart';
+import { getAutoPromoCode, clearAutoPromoCode } from '@/hooks/usePromoCapture';
 
 interface ProductPurchaseModalProps {
   product: DigitalProduct | null;
@@ -70,6 +71,19 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
     code: '', validating: false, applied: false, discountPercent: 0, discountType: 'percent', discountFixedAmount: 0, error: '', promoCodeId: null,
   });
   const [promoOpen, setPromoOpen] = useState(false);
+
+  // Auto-apply promo from URL (?promo=CODE)
+  useEffect(() => {
+    const autoCode = getAutoPromoCode();
+    if (autoCode && !promo.applied && !promo.code && open) {
+      setPromo(p => ({ ...p, code: autoCode }));
+      setPromoOpen(true);
+      // Auto-validate after a tick
+      setTimeout(() => {
+        clearAutoPromoCode();
+      }, 100);
+    }
+  }, [open]);
 
   if (!product) return null;
 
