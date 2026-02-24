@@ -3,7 +3,8 @@ import {
   Home, Play, Bell, User, BookOpen, Store,
   Settings, ChevronLeft, ChevronRight, Shield,
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, Sun, Moon,
-  GraduationCap, UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, ShieldAlert, LayoutDashboard, Building2
+  GraduationCap, UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, ShieldAlert, LayoutDashboard, Building2,
+  MessageCircle, Trophy, Award
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -31,8 +32,9 @@ export function Sidebar() {
     { to: '/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard') },
     { to: '/feed', icon: Home, label: t('sidebar.my_network') },
     { to: '/marketplace', icon: Store, label: t('sidebar.explorer') },
-    { to: '/messages', icon: Megaphone, label: t('sidebar.messages') },
-    { to: '/leaderboard', icon: GraduationCap, label: t('sidebar.leaderboard') },
+    { to: '/messages', icon: MessageCircle, label: t('sidebar.messages') },
+    { to: '/leaderboard', icon: Trophy, label: t('sidebar.leaderboard') },
+    { to: '/certificates', icon: Award, label: t('sidebar.certificates') },
     { to: '/notifications', icon: Bell, label: t('sidebar.notifications') },
     { to: '/affiliation', icon: Link2, label: t('sidebar.affiliation') },
     { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases') },

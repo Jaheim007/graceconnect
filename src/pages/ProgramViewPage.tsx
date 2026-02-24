@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { onProgramEnrolled, onProgramCompleted } from '@/lib/notifications';
 import { downloadCertificate } from '@/lib/certificate';
+import { useProgramCertificate, useIssueCertificate } from '@/hooks/useCertificates';
 
 export default function ProgramViewPage() {
   const { id } = useParams<{ id: string }>();
@@ -20,6 +21,8 @@ export default function ProgramViewPage() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [activeLesson, setActiveLesson] = useState<string | null>(null);
+  const { data: certificate } = useProgramCertificate(id);
+  const issueCert = useIssueCertificate();
 
   const { data: program } = useQuery({
     queryKey: ['program', id],
@@ -154,18 +157,24 @@ export default function ProgramViewPage() {
               <div className="flex items-center gap-2 text-primary text-xs font-medium">
                 <GraduationCap className="h-4 w-4" /> Programme terminé ! 🎉
               </div>
-              {(program as any).certificate_enabled && (
-                <Button size="sm" variant="outline" className="text-xs gap-1.5 h-7"
-                  onClick={() => downloadCertificate({
+              <Button size="sm" variant="outline" className="text-xs gap-1.5 h-7"
+                onClick={async () => {
+                  // Issue certificate if not yet issued
+                  let cert = certificate;
+                  if (!cert) {
+                    cert = await issueCert.mutateAsync({ programId: id!, orgId: program.organization_id });
+                  }
+                  downloadCertificate({
                     studentName: profile?.display_name || user?.email || 'Apprenant',
                     programTitle: program.title,
                     orgName: (program as any).organizations?.name || '',
-                    completionDate: new Date().toISOString(),
-                    certificateId: `CERT-${enrollment?.id?.slice(0, 8).toUpperCase()}`,
-                  })}>
-                  <Award className="h-3.5 w-3.5" /> Certificat
-                </Button>
-              )}
+                    completionDate: cert?.issued_at || new Date().toISOString(),
+                    certificateId: cert?.certificate_number || `CERT-${enrollment?.id?.slice(0, 8).toUpperCase()}`,
+                  });
+                }}
+                disabled={issueCert.isPending}>
+                <Award className="h-3.5 w-3.5" /> Certificat
+              </Button>
             </div>
           )}
         </div>

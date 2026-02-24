@@ -57,6 +57,7 @@ import SupportPage from "@/pages/SupportPage";
 import AffiliationPage from "@/pages/AffiliationPage";
 import MessagesPage from "@/pages/MessagesPage";
 import LeaderboardPage from "@/pages/LeaderboardPage";
+import CertificatesPage from "@/pages/CertificatesPage";
 
 // Admin layout + pages
 import AdminLayout from "@/pages/admin/AdminLayout";
@@ -176,6 +177,7 @@ const App = () => (
                   <Route path="/affiliation" element={<AffiliationPage />} />
                   <Route path="/messages" element={<MessagesPage />} />
                   <Route path="/leaderboard" element={<LeaderboardPage />} />
+                  <Route path="/certificates" element={<CertificatesPage />} />
                 </Route>
 
                 {/* Admin (org-scoped) */}
