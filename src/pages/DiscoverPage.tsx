@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useDebounce } from '@/hooks/useDebounce';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Search, ShoppingBag, Heart, Users, SlidersHorizontal, ArrowUpDown, Star, TrendingUp } from 'lucide-react';
@@ -52,6 +53,7 @@ export default function DiscoverPage() {
   const { userOrgs } = useOrg();
   const { data: directoryMode = 'curated' } = useDirectoryMode();
   const { t, locale } = useI18n();
+  const debouncedSearch = useDebounce(search, 300);
 
   const CATEGORIES: { value: OrgCategory | ''; label: string }[] = [
     { value: '', label: t('discover.cat_all') },
@@ -73,20 +75,20 @@ export default function DiscoverPage() {
     { value: 'bundle', label: 'Bundle' },
   ];
 
-  const { data, isLoading } = usePublicOrgs({ search, category, page });
+  const { data, isLoading } = usePublicOrgs({ search: debouncedSearch, category, page });
   const orgs = data?.orgs || [];
   const total = data?.total || 0;
   const pageSize = 12;
 
   const { data: products = [], isLoading: loadingProducts } = useQuery({
-    queryKey: ['discover-products', search, sortBy, priceFilter, typeFilter],
+    queryKey: ['discover-products', debouncedSearch, sortBy, priceFilter, typeFilter],
     queryFn: async () => {
       let q = db
         .from('digital_products')
         .select('*, organizations(name, slug, logo_url, currency)')
         .eq('is_published', true);
 
-      if (search) q = q.or(`title.ilike.%${search}%,description.ilike.%${search}%`);
+      if (debouncedSearch) q = q.or(`title.ilike.%${debouncedSearch}%,description.ilike.%${debouncedSearch}%`);
       if (priceFilter === 'free') q = q.eq('is_free', true);
       if (priceFilter === 'paid') q = q.eq('is_free', false);
       if (typeFilter === 'bundle') q = q.eq('is_bundle', true);
@@ -112,7 +114,7 @@ export default function DiscoverPage() {
   });
 
   const { data: campaigns = [], isLoading: loadingCampaigns } = useQuery({
-    queryKey: ['discover-campaigns', search],
+    queryKey: ['discover-campaigns', debouncedSearch],
     queryFn: async () => {
       let q = db
         .from('donation_campaigns')
@@ -121,7 +123,7 @@ export default function DiscoverPage() {
         .eq('is_active', true)
         .order('current_amount', { ascending: false })
         .limit(50);
-      if (search) q = q.ilike('title', `%${search}%`);
+      if (debouncedSearch) q = q.ilike('title', `%${debouncedSearch}%`);
       const { data } = await q;
       return (data || []).map((c: any) => ({
         ...c,

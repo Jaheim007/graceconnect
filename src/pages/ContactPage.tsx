@@ -4,11 +4,13 @@ import { Mail, MapPin, Globe, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LegalBackground, LegalHeader } from '@/components/layout/LegalPageShell';
 import { useI18n } from '@/i18n/I18nContext';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function ContactPage() {
   const { t } = useI18n();
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead title={t('contact.title') + ' — Siteviral'} description="Contactez Siteviral pour toute question. Support, partenariats, données personnelles." />
       <LegalBackground />
       <LegalHeader />
 

@@ -4,6 +4,7 @@ import { HelpCircle, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useI18n } from '@/i18n/I18nContext';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 const faqs_fr = [
   {
@@ -99,6 +100,11 @@ export default function FAQPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={locale === 'fr' ? 'FAQ — Siteviral' : 'FAQ — Siteviral'}
+        description={locale === 'fr' ? 'Trouvez les réponses à vos questions fréquentes sur Siteviral.' : 'Find answers to frequently asked questions about Siteviral.'}
+        jsonLd={{ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.flatMap(s => s.items).map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) }}
+      />
       <LegalBackground />
       <LegalHeader />
 

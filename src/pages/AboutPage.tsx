@@ -4,6 +4,7 @@ import { Heart, Users, Globe, Shield, Target, Zap, ArrowRight } from 'lucide-rea
 import { Button } from '@/components/ui/button';
 import { LegalFooter } from '@/components/layout/LegalPageShell';
 import { useI18n } from '@/i18n/I18nContext';
+import { SEOHead } from '@/components/seo/SEOHead';
 import communityImg from '@/assets/landing-community.png';
 import heroImg from '@/assets/landing-hero.jpg';
 
@@ -27,6 +28,7 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead title={t('about.hero_title') + ' — Siteviral'} description="Siteviral — Infrastructure platform for digital organizations in Africa and beyond." />
       {/* Nav */}
       <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
         <div className="container flex items-center justify-between h-14 px-4">
