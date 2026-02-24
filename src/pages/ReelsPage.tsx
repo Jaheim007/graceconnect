@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { useFeedMedia, useLikeMedia } from '@/hooks/useMedia';
+import { useFeedMedia, useLikeMedia, useTrackView } from '@/hooks/useMedia';
 import { db } from '@/lib/db';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Heart, Share2, Volume2, VolumeX, Play, ExternalLink } from 'lucide-react';
@@ -43,6 +43,8 @@ export default function ReelsPage() {
   const orgIds = userOrgs.map((o) => o.id);
   const { data: allMedia = [] } = useFeedMedia(orgIds);
   const likeMutation = useLikeMedia();
+  const trackView = useTrackView();
+  const trackedViewIds = useRef(new Set<string>());
   const queryClient = useQueryClient();
 
   // Fetch user's liked media IDs
@@ -72,7 +74,7 @@ export default function ReelsPage() {
     }
   }, [id, reels.length]);
 
-  // Play/pause videos based on current index
+  // Play/pause videos and track views based on current index
   useEffect(() => {
     videoRefs.current.forEach((v, i) => {
       if (!v) return;
@@ -84,7 +86,13 @@ export default function ReelsPage() {
         v.currentTime = 0;
       }
     });
-  }, [currentIndex, muted]);
+    // Track view for current reel
+    const currentReel = reels[currentIndex];
+    if (currentReel && !trackedViewIds.current.has(currentReel.id)) {
+      trackedViewIds.current.add(currentReel.id);
+      trackView.mutate(currentReel.id);
+    }
+  }, [currentIndex, muted, reels]);
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
     const el = e.currentTarget;

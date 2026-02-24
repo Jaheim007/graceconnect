@@ -2,8 +2,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Heart, BookmarkPlus, Share2, Play, Pause, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useMediaById } from '@/hooks/useMedia';
-import { useState, useMemo } from 'react';
+import { useMediaById, useTrackView } from '@/hooks/useMedia';
+import { useState, useMemo, useEffect, useRef } from 'react';
 
 /** Detect social media / YouTube / Vimeo / Facebook URLs and return embeddable iframe src */
 function getEmbedUrl(url: string): string | null {
@@ -58,6 +58,16 @@ export default function WatchPage() {
   const navigate = useNavigate();
   const { data: media, isLoading } = useMediaById(id);
   const [playing, setPlaying] = useState(false);
+  const trackView = useTrackView();
+  const viewTracked = useRef(false);
+
+  // Track view once when media loads
+  useEffect(() => {
+    if (media?.id && !viewTracked.current) {
+      viewTracked.current = true;
+      trackView.mutate(media.id);
+    }
+  }, [media?.id]);
 
   const embedUrl = useMemo(() => (media?.media_url ? getEmbedUrl(media.media_url) : null), [media?.media_url]);
   const isDirect = media?.media_url ? isDirectMedia(media.media_url) : false;
