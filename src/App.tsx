@@ -99,6 +99,8 @@ import SuperadminRiskAML from "@/pages/superadmin/SuperadminRiskAML";
 import SuperadminDirectory from "@/pages/superadmin/SuperadminDirectory";
 import SuperadminEmailLogs from "@/pages/superadmin/SuperadminEmailLogs";
 import { FeedbackWidget } from "@/components/feedback/FeedbackWidget";
+import { ErrorBoundary } from "@/components/layout/ErrorBoundary";
+import { OfflineBanner } from "@/components/layout/OfflineBanner";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -113,9 +115,11 @@ const App = () => (
       <TooltipProvider>
         <AuthProvider>
           <OrgProvider>
+            <ErrorBoundary>
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <OfflineBanner />
               <ScrollToTop />
               <GDPRBanner />
               <FeedbackWidget />
@@ -235,6 +239,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
+            </ErrorBoundary>
           </OrgProvider>
         </AuthProvider>
       </TooltipProvider>
