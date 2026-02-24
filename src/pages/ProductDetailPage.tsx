@@ -327,12 +327,17 @@ export default function ProductDetailPage() {
             </div>
 
             {product.description && (
-              <div className="space-y-3 overflow-hidden">
-                <h2 className="text-base font-semibold">{t('product.description')}</h2>
-                <FormattedText
-                  text={product.description}
-                  className="text-sm text-muted-foreground leading-relaxed break-words"
-                />
+              <div className="space-y-4 overflow-hidden">
+                <h2 className="text-lg font-bold flex items-center gap-2">
+                  <FileText className="h-4.5 w-4.5 text-primary" />
+                  {t('product.description')}
+                </h2>
+                <div className="p-5 rounded-2xl border border-border bg-card shadow-sm">
+                  <FormattedText
+                    text={product.description}
+                    className="text-sm text-muted-foreground leading-relaxed break-words prose prose-sm max-w-none"
+                  />
+                </div>
               </div>
             )}
 
@@ -424,19 +429,6 @@ export default function ProductDetailPage() {
               isPurchased={isPurchased}
             />
 
-            {/* Trust indicators */}
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { icon: <Shield className="h-5 w-5 text-primary" />, label: 'Paiement sécurisé' },
-                { icon: <CheckCircle className="h-5 w-5 text-emerald-500" />, label: 'Accès immédiat' },
-                { icon: <Star className="h-5 w-5 text-yellow-500" />, label: 'Qualité garantie' },
-              ].map((item, i) => (
-                <div key={i} className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-border bg-card text-center">
-                  {item.icon}
-                  <span className="text-[10px] font-medium text-muted-foreground leading-tight">{item.label}</span>
-                </div>
-              ))}
-            </div>
           </motion.div>
 
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="md:sticky md:top-14 md:self-start space-y-4 md:max-h-[calc(100vh-4rem)] md:overflow-y-auto">
@@ -495,6 +487,26 @@ export default function ProductDetailPage() {
                   <MessageCircle className="h-3.5 w-3.5 text-green-500" /> WhatsApp
                 </Button>
               </div>
+            </div>
+
+            {/* Trust indicators in sidebar */}
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { icon: <Shield className="h-4 w-4" style={{ color: orgPrimary || 'hsl(var(--primary))' }} />, label: 'Paiement sécurisé' },
+                { icon: <CheckCircle className="h-4 w-4 text-emerald-500" />, label: 'Accès immédiat' },
+                { icon: <Star className="h-4 w-4 text-yellow-500" />, label: 'Qualité garantie' },
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 + i * 0.08 }}
+                  className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-border/60 bg-muted/30 text-center"
+                >
+                  {item.icon}
+                  <span className="text-[10px] font-medium text-muted-foreground leading-tight">{item.label}</span>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         </div>
