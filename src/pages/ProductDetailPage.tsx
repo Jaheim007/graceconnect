@@ -194,6 +194,48 @@ export default function ProductDetailPage() {
         </Button>
       </div>
 
+      {/* Seller storefront banner */}
+      {org && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="relative border-b border-border overflow-hidden"
+        >
+          {/* Gradient background inspired by org brand */}
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-accent/10" />
+          <div className="container max-w-5xl px-4 py-5 relative z-10">
+            <div className="flex items-center gap-4">
+              {org.logo_url ? (
+                <img
+                  src={org.logo_url}
+                  alt={org.name}
+                  className="h-14 w-14 rounded-xl object-cover border-2 border-background shadow-md"
+                />
+              ) : (
+                <div className="h-14 w-14 rounded-xl bg-primary flex items-center justify-center text-xl font-bold text-primary-foreground shadow-md border-2 border-background">
+                  {org.name?.[0]?.toUpperCase()}
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('product.sold_by')}</p>
+                <p className="font-bold text-base">{org.name}</p>
+                {org.description && (
+                  <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{org.description}</p>
+                )}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs shrink-0 bg-background/80 backdrop-blur-sm"
+                onClick={() => navigate(`/org/${slug}`)}
+              >
+                <ExternalLink className="h-3.5 w-3.5" /> {t('product.view')}
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       <div className="container max-w-5xl px-4 py-6">
         <div className="grid md:grid-cols-[1fr_340px] gap-6 md:gap-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
@@ -317,27 +359,19 @@ export default function ProductDetailPage() {
               isPurchased={isPurchased}
             />
 
-            {org && (
-              <div className="p-4 rounded-2xl border border-border bg-card shadow-card">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{t('product.sold_by')}</p>
-                <div className="flex items-center gap-3">
-                  {org.logo_url ? (
-                    <img src={org.logo_url} alt={org.name} className="h-12 w-12 rounded-xl object-cover border border-border" />
-                  ) : (
-                    <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center text-lg font-bold text-primary-foreground">
-                      {org.name?.[0]?.toUpperCase()}
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-sm">{org.name}</p>
-                    {org.description && <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{org.description}</p>}
-                  </div>
-                  <Button variant="outline" size="sm" className="gap-1.5 text-xs shrink-0" onClick={() => navigate(`/org/${slug}`)}>
-                    <ExternalLink className="h-3.5 w-3.5" /> {t('product.view')}
-                  </Button>
+            {/* Trust indicators */}
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { icon: <Shield className="h-5 w-5 text-primary" />, label: 'Paiement sécurisé' },
+                { icon: <CheckCircle className="h-5 w-5 text-emerald-500" />, label: 'Accès immédiat' },
+                { icon: <Star className="h-5 w-5 text-yellow-500" />, label: 'Qualité garantie' },
+              ].map((item, i) => (
+                <div key={i} className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-border bg-card text-center">
+                  {item.icon}
+                  <span className="text-[10px] font-medium text-muted-foreground leading-tight">{item.label}</span>
                 </div>
-              </div>
-            )}
+              ))}
+            </div>
           </motion.div>
 
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="md:sticky md:top-14 md:self-start space-y-4 md:max-h-[calc(100vh-4rem)] md:overflow-y-auto">
