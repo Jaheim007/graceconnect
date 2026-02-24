@@ -46,6 +46,17 @@ export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
           {campaign.description && (
             <p className="text-sm text-muted-foreground line-clamp-2">{campaign.description}</p>
           )}
+          {(campaign as any).organization_name && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Publié par{' '}
+              <span
+                className="font-semibold text-primary hover:underline cursor-pointer"
+                onClick={(e) => { e.stopPropagation(); navigate(`/org/${(campaign as any).organization_slug}`); }}
+              >
+                {(campaign as any).organization_name}
+              </span>
+            </p>
+          )}
           {progress !== null && (
             <div className="space-y-2">
               <div className="h-2 bg-muted rounded-full overflow-hidden">

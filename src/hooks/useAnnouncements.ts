@@ -28,13 +28,17 @@ export function useFeedAnnouncements(orgIds: string[]) {
       if (!orgIds.length) return [];
       const { data } = await db
         .from('announcements')
-        .select('*')
+        .select('*, organizations(name, slug)')
         .in('organization_id', orgIds)
         .eq('is_published', true)
         .order('is_pinned', { ascending: false })
         .order('published_at', { ascending: false })
         .limit(20);
-      return (data || []) as Announcement[];
+      return (data || []).map((a: any) => ({
+        ...a,
+        organization_name: a.organizations?.name,
+        organization_slug: a.organizations?.slug,
+      })) as Announcement[];
     },
     enabled: orgIds.length > 0,
   });

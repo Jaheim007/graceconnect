@@ -28,13 +28,17 @@ export function useFeedEvents(orgIds: string[]) {
       const now = new Date().toISOString();
       const { data } = await db
         .from('events')
-        .select('*')
+        .select('*, organizations(name, slug)')
         .in('organization_id', orgIds)
         .eq('is_published', true)
         .gte('event_date', now)
         .order('event_date', { ascending: true })
         .limit(10);
-      return (data || []) as Event[];
+      return (data || []).map((e: any) => ({
+        ...e,
+        organization_name: e.organizations?.name,
+        organization_slug: e.organizations?.slug,
+      })) as Event[];
     },
     enabled: orgIds.length > 0,
   });

@@ -155,6 +155,17 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
           {product.description && (
             <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{product.description}</p>
           )}
+          {(product as any).organization_name && (
+            <p className="text-[11px] text-muted-foreground mt-1.5">
+              Publié par{' '}
+              <span
+                className="font-semibold text-primary hover:underline cursor-pointer"
+                onClick={(e) => { e.stopPropagation(); navigate(`/org/${resolvedSlug}`); }}
+              >
+                {(product as any).organization_name}
+              </span>
+            </p>
+          )}
         </div>
 
         <div className="flex items-center justify-between gap-2">

@@ -28,13 +28,17 @@ export function useFeedCampaigns(orgIds: string[]) {
       if (!orgIds.length) return [];
       const { data } = await db
         .from('donation_campaigns')
-        .select('*')
+        .select('*, organizations(name, slug)')
         .in('organization_id', orgIds)
         .eq('is_published', true)
         .eq('is_active', true)
         .order('created_at', { ascending: false })
         .limit(10);
-      return (data || []) as DonationCampaign[];
+      return (data || []).map((c: any) => ({
+        ...c,
+        organization_name: c.organizations?.name,
+        organization_slug: c.organizations?.slug,
+      })) as DonationCampaign[];
     },
     enabled: orgIds.length > 0,
   });
@@ -100,13 +104,17 @@ export function useFeedProducts(orgIds: string[]) {
       if (!orgIds.length) return [];
       const { data } = await db
         .from('digital_products')
-        .select('*')
+        .select('*, organizations(name, slug, logo_url)')
         .in('organization_id', orgIds)
         .eq('is_published', true)
         .order('display_order', { ascending: true })
         .order('created_at', { ascending: false })
         .limit(10);
-      return (data || []) as DigitalProduct[];
+      return (data || []).map((p: any) => ({
+        ...p,
+        organization_name: p.organizations?.name,
+        organization_slug: p.organizations?.slug,
+      })) as DigitalProduct[];
     },
     enabled: orgIds.length > 0,
   });
