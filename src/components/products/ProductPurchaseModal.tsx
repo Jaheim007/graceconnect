@@ -99,6 +99,18 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
     enabled: !!bumpProductId,
   });
 
+  // Upsell products query
+  const upsellIds: string[] = (product as any)?.upsell_product_ids || [];
+  const { data: upsellProducts = [] } = useQuery({
+    queryKey: ['upsell-products', product?.id],
+    queryFn: async () => {
+      if (!upsellIds.length) return [];
+      const { data } = await db.from('digital_products').select('id, title, price, currency, cover_image_url, is_free, is_published').in('id', upsellIds).eq('is_published', true);
+      return data || [];
+    },
+    enabled: upsellIds.length > 0,
+  });
+
   if (!product) return null;
 
   const fmt = (n: number) => formatPrice(n, product.is_free, product.currency);
@@ -485,6 +497,26 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                 </a>
               )}
             </div>
+
+            {/* Upsell recommendations */}
+            {upsellProducts.length > 0 && (
+              <div className="w-full space-y-2 pt-2 border-t border-border">
+                <p className="text-xs font-semibold text-muted-foreground">💡 Vous pourriez aussi aimer</p>
+                {upsellProducts.map((up: any) => (
+                  <div key={up.id} className="flex items-center gap-3 p-2 rounded-lg border border-border bg-muted/30">
+                    {up.cover_image_url && <img src={up.cover_image_url} className="h-10 w-10 rounded-lg object-cover shrink-0" alt="" />}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium truncate">{up.title}</p>
+                      <p className="text-[10px] text-muted-foreground">{up.is_free ? 'Gratuit' : `${up.price?.toLocaleString('fr-FR')} ${up.currency}`}</p>
+                    </div>
+                    <Button size="sm" variant="outline" className="h-7 text-[10px] shrink-0"
+                      onClick={() => { handleClose(); }}>
+                      Voir
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <p className="text-xs text-muted-foreground">Un reçu a été envoyé à votre email.</p>
             <Button onClick={() => { handleClose(); navigate('/dashboard'); }} className="w-full bg-primary text-primary-foreground gap-1.5">

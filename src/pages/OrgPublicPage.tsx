@@ -43,6 +43,8 @@ import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { OrgBadges } from '@/components/org/OrgBadges';
 import { SmartPopup } from '@/components/org/SmartPopup';
+import { WaitlistWidget } from '@/components/org/WaitlistWidget';
+import { useWaitlists } from '@/hooks/useWaitlists';
 
 export default function OrgPublicPage() {
   useAffiliateCapture();
@@ -98,6 +100,7 @@ export default function OrgPublicPage() {
   const { data: purchases = [] } = useMyPurchases();
   const purchasedProductIds = new Set(purchases.map(p => p.product_id));
   const { data: pageSettings } = useOrgPageSettings(org?.id);
+  const { data: waitlists = [] } = useWaitlists(org?.id);
 
   // Apply custom theme colors from page settings
   const customPrimary = pageSettings?.theme_primary_color;
@@ -709,7 +712,20 @@ export default function OrgPublicPage() {
           {/* ─── HOME TAB ─── */}
           <TabsContent value="home" className="space-y-8">
             {orderedSections}
-            {!hasAnyContent && (
+
+            {/* Waitlists */}
+            {(waitlists as any[]).filter(w => w.is_active).length > 0 && (
+              <div className="space-y-3">
+                <h2 className="font-semibold text-sm">🚀 Bientôt disponible</h2>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {(waitlists as any[]).filter(w => w.is_active).map(w => (
+                    <WaitlistWidget key={w.id} waitlist={w} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {!hasAnyContent && (waitlists as any[]).filter(w => w.is_active).length === 0 && (
               <EmptyState variant="content" description={t('org_public.no_content')} />
             )}
           </TabsContent>
