@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle } from 'lucide-react';
+import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle, Users } from 'lucide-react';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger
@@ -371,73 +371,16 @@ function AffiliateCopyButton({ text }: { text: string }) {
 
 export function AdminAffiliation() {
   const { currentOrg } = useOrg();
-  const { user } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const qc = useQueryClient();
-  const { data: members = [], isLoading } = useOrgMembers(currentOrg?.id);
 
   // Fetch existing affiliate links for this org
-  const { data: existingLinks = [] } = useOrgAffiliateLinks(currentOrg?.id);
-
-  const assignAffiliate = useMutation({
-    mutationFn: async ({ memberId, memberUserId, memberName }: { memberId: string; memberUserId: string; memberName: string }) => {
-      // 1. Update role to affiliate
-      const { error: roleErr } = await db
-        .from('organization_members')
-        .update({ role: 'affiliate' })
-        .eq('id', memberId);
-      if (roleErr) throw roleErr;
-
-      // 2. Check if link already exists
-      const { data: existing } = await db
-        .from('affiliate_links')
-        .select('id')
-        .eq('user_id', memberUserId)
-        .eq('organization_id', currentOrg!.id)
-        .maybeSingle();
-      if (existing) return;
-
-      // 3. Generate unique affiliate code: SLUG6-USERID6
-      const code = `${currentOrg!.slug.slice(0, 6).toUpperCase()}-${memberUserId.slice(0, 6).toUpperCase()}`;
-      const { error: linkErr } = await db.from('affiliate_links').insert({
-        user_id: memberUserId,
-        organization_id: currentOrg!.id,
-        code,
-        link_type: 'org',
-      });
-      if (linkErr) throw linkErr;
-    },
-    onSuccess: (_, variables) => {
-      toast({ title: '✅ Affiliate assigned', description: `${variables.memberName} now has a unique referral link.` });
-      qc.invalidateQueries({ queryKey: ['org-members', currentOrg?.id] });
-      qc.invalidateQueries({ queryKey: ['org-affiliate-links', currentOrg?.id] });
-    },
-    onError: (err: Error) => {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
-    },
-  });
-
-  const revokeAffiliate = useMutation({
-    mutationFn: async ({ memberId, memberUserId }: { memberId: string; memberUserId: string }) => {
-      await db.from('organization_members').update({ role: 'member' }).eq('id', memberId);
-      await db.from('affiliate_links')
-        .update({ is_active: false })
-        .eq('user_id', memberUserId)
-        .eq('organization_id', currentOrg!.id);
-    },
-    onSuccess: () => {
-      toast({ title: 'Affiliate role revoked' });
-      qc.invalidateQueries({ queryKey: ['org-members', currentOrg?.id] });
-      qc.invalidateQueries({ queryKey: ['org-affiliate-links', currentOrg?.id] });
-    },
-  });
+  const { data: existingLinks = [], isLoading } = useOrgAffiliateLinks(currentOrg?.id);
 
   const baseUrl = window.location.origin;
 
   if (!currentOrg?.affiliation_enabled) {
     return (
-      <AdminPageShell title="Programme d'affiliation" backRoute="/admin">
+      <AdminPageShell title="Mes affiliés" backRoute="/admin">
         <div className="p-8 rounded-2xl border border-border bg-card text-center space-y-3">
           <div className="h-12 w-12 rounded-2xl bg-muted flex items-center justify-center mx-auto">
             <Link2 className="h-6 w-6 text-muted-foreground" />
@@ -454,152 +397,98 @@ export function AdminAffiliation() {
     );
   }
 
-  // All members except the current admin/owner
-  const allOtherMembers = (members as any[]).filter(m => m.user_id !== user?.id);
-  // A member is an "active affiliate" if their role is 'affiliate' OR they already have an affiliate link
-  const affiliateUserIds = new Set((existingLinks as any[]).map(l => l.user_id));
-  const activeAffiliates = allOtherMembers.filter(m => m.role === 'affiliate' || affiliateUserIds.has(m.user_id));
-  const activeAffiliateUserIds = new Set(activeAffiliates.map((m: any) => m.user_id));
-  const regularMembers = allOtherMembers.filter(m => !activeAffiliateUserIds.has(m.user_id));
-
-  // Helper: get member display name with fallback
-  const getMemberName = (m: any) =>
-    m.profiles?.display_name?.trim() || `Membre ${m.user_id.slice(0, 6).toUpperCase()}`;
+  const activeLinks = (existingLinks as any[]).filter(l => l.is_active !== false);
+  const totalClicks = activeLinks.reduce((s, l) => s + (l.clicks || 0), 0);
+  const totalConversions = activeLinks.reduce((s, l) => s + (l.conversions || 0), 0);
+  const totalEarned = activeLinks.reduce((s, l) => s + (l.total_earned || 0), 0);
 
   return (
-    <AdminPageShell title="Programme d'affiliation" backRoute="/admin">
+    <AdminPageShell title="Mes affiliés" backRoute="/admin">
       <div className="space-y-4">
         {/* How it works */}
         <div className="bg-primary/8 border border-primary/20 rounded-2xl p-4 space-y-2">
           <p className="font-semibold text-sm">💡 Comment fonctionne l'affiliation</p>
           <ol className="space-y-1.5 text-xs text-muted-foreground list-none">
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">1.</span>Les membres rejoignent via la page publique. Ils peuvent aussi <strong>demander</strong> le rôle d'affilié depuis leur tableau de bord.</li>
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">2.</span>Vous les approuvez ici — ils reçoivent instantanément un lien de parrainage unique.</li>
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">1.</span>Les visiteurs découvrent votre page publique et cliquent sur « Devenir affilié ».</li>
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">2.</span>Ils sont automatiquement inscrits — aucune action de votre part n'est nécessaire.</li>
             <li className="flex gap-2"><span className="text-primary font-bold shrink-0">3.</span>Ils partagent leur lien. Quand quelqu'un donne ou achète via ce lien, ils gagnent <strong>{currentOrg.affiliation_commission_percent}%</strong>.</li>
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">4.</span>Après 72h, les commissions deviennent retirables depuis leur tableau de bord (KYC requis).</li>
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">4.</span>Après 72h, les commissions deviennent retirables (KYC requis).</li>
           </ol>
         </div>
 
-        {/* Commission rate + stats bar */}
-        <div className="bg-card border border-border rounded-2xl p-4 flex items-center justify-between">
-          <div>
-            <p className="text-xs text-muted-foreground">Taux de commission</p>
+        {/* Stats bar */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="bg-card border border-border rounded-2xl p-4 text-center">
             <p className="text-2xl font-bold text-primary">{currentOrg.affiliation_commission_percent}%</p>
-            <p className="text-xs text-muted-foreground">par vente/don via lien affilié</p>
+            <p className="text-[10px] text-muted-foreground mt-1">Taux de commission</p>
           </div>
-          <div className="flex flex-col items-end gap-2">
-            <Badge variant="secondary" className="text-[10px]">{activeAffiliates.length} affilié{activeAffiliates.length !== 1 ? 's' : ''} actif{activeAffiliates.length !== 1 ? 's' : ''}</Badge>
-            <Button size="sm" variant="outline" className="text-xs" onClick={() => navigate('/admin/settings')}>
-              Modifier le taux
-            </Button>
+          <div className="bg-card border border-border rounded-2xl p-4 text-center">
+            <p className="text-2xl font-bold">{activeLinks.length}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">Affiliés actifs</p>
+          </div>
+          <div className="bg-card border border-border rounded-2xl p-4 text-center">
+            <p className="text-2xl font-bold">{totalClicks.toLocaleString('fr-FR')}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">Clics totaux</p>
+          </div>
+          <div className="bg-card border border-border rounded-2xl p-4 text-center">
+            <p className="text-2xl font-bold">{totalConversions.toLocaleString('fr-FR')}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">Conversions</p>
           </div>
         </div>
 
-        {/* Active affiliates */}
-        {activeAffiliates.length > 0 && (
-          <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-            <h2 className="font-semibold text-sm">Affiliés actifs ({activeAffiliates.length})</h2>
-            <div className="space-y-2">
-              {activeAffiliates.map((m) => {
-                const existingLink = (existingLinks as any[]).find(l => l.user_id === m.user_id && l.is_active !== false);
-                const shareUrl = existingLink
-                  ? `${baseUrl}/org/${currentOrg.slug}?ref=${existingLink.code}`
-                  : null;
-                const name = getMemberName(m);
-                return (
-                  <div key={m.id} className="border border-primary/30 bg-primary/5 rounded-xl p-3 space-y-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2.5">
-                        <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold shrink-0 text-primary-foreground">
-                          {name[0].toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium leading-tight">{name}</p>
-                          <Badge variant="secondary" className="text-[10px] bg-primary/15 text-primary mt-0.5">Affilié</Badge>
-                        </div>
-                      </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-7 text-xs text-destructive border-destructive/30 shrink-0"
-                        disabled={revokeAffiliate.isPending}
-                        onClick={() => revokeAffiliate.mutate({ memberId: m.id, memberUserId: m.user_id })}
-                      >
-                        Révoquer
-                      </Button>
-                    </div>
-                    {shareUrl ? (
-                      <>
-                        <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-2.5 py-1.5">
-                          <p className="text-[10px] font-mono text-muted-foreground flex-1 truncate">{shareUrl}</p>
-                          <AffiliateCopyButton text={shareUrl} />
-                        </div>
-                        <div className="flex items-center gap-4 text-[10px] text-muted-foreground px-0.5">
-                          <span>👆 {existingLink?.clicks || 0} clicks</span>
-                          <span>✅ {existingLink?.conversions || 0} conversions</span>
-                          <span className="text-primary font-semibold ml-auto">
-                            {(existingLink?.total_earned || 0).toLocaleString('fr-FR')} {currentOrg.currency} gagnés
-                          </span>
-                        </div>
-                      </>
-                    ) : (
-                      <p className="text-[10px] text-muted-foreground italic">Génération du lien…</p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Members to assign */}
-        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+        {/* Total commissions paid */}
+        <div className="bg-card border border-border rounded-2xl p-4 flex items-center justify-between">
           <div>
-            <h2 className="font-semibold text-sm">Membres — Assigner le rôle affilié</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Cliquez « Rendre affilié » pour générer un lien de parrainage unique.
-            </p>
+            <p className="text-xs text-muted-foreground">Total commissions versées</p>
+            <p className="text-2xl font-bold text-primary">{totalEarned.toLocaleString('fr-FR')} {currentOrg.currency}</p>
           </div>
+          <Button size="sm" variant="outline" className="text-xs" onClick={() => navigate('/admin/settings')}>
+            Modifier le taux
+          </Button>
+        </div>
+
+        {/* Active affiliates list */}
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+          <h2 className="font-semibold text-sm">Affiliés actifs ({activeLinks.length})</h2>
 
           {isLoading ? (
             <SkeletonRow count={3} />
-          ) : allOtherMembers.length === 0 ? (
+          ) : activeLinks.length === 0 ? (
             <div className="py-6 text-center space-y-2">
-              <UserPlus className="h-8 w-8 text-muted-foreground/40 mx-auto" />
-              <p className="text-sm font-medium text-muted-foreground">Aucun membre</p>
+              <Users className="h-8 w-8 text-muted-foreground/40 mx-auto" />
+              <p className="text-sm font-medium text-muted-foreground">Aucun affilié pour le moment</p>
               <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                Partagez le lien de votre page publique pour que les gens puissent rejoindre. Une fois inscrits, vous pouvez les rendre affiliés ici.
+                Partagez le lien de votre page publique. Les visiteurs pourront rejoindre votre programme d'affiliation en un clic.
               </p>
-              <Button size="sm" variant="outline" className="text-xs mt-2" onClick={() => navigate('/admin/members')}>
-                Voir les membres →
-              </Button>
             </div>
-          ) : regularMembers.length === 0 ? (
-            <p className="text-xs text-muted-foreground text-center py-4">
-              Tous les membres sont déjà affiliés. ✅
-            </p>
           ) : (
             <div className="space-y-2">
-              {regularMembers.map((m) => {
-                const name = getMemberName(m);
+              {activeLinks.map((link: any) => {
+                const shareUrl = `${baseUrl}/org/${currentOrg.slug}?ref=${link.code}`;
                 return (
-                  <div key={m.id} className="border border-border rounded-xl p-3 flex items-center gap-2.5">
-                    <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs font-bold shrink-0">
-                      {name[0].toUpperCase()}
+                  <motion.div key={link.id} variants={fadeUp} initial="hidden" animate="visible"
+                    className="border border-primary/30 bg-primary/5 rounded-xl p-3 space-y-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold shrink-0 text-primary-foreground">
+                        {link.code?.[0]?.toUpperCase() || 'A'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium leading-tight truncate font-mono">{link.code}</p>
+                        <Badge variant="secondary" className="text-[10px] bg-primary/15 text-primary mt-0.5">Affilié</Badge>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium leading-tight truncate">{name}</p>
-                      <Badge variant="secondary" className="text-[10px] capitalize mt-0.5">{m.role}</Badge>
+                    <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-2.5 py-1.5">
+                      <p className="text-[10px] font-mono text-muted-foreground flex-1 truncate">{shareUrl}</p>
+                      <AffiliateCopyButton text={shareUrl} />
                     </div>
-                    <Button
-                      size="sm"
-                      className="h-7 text-xs bg-primary text-primary-foreground shrink-0"
-                      disabled={assignAffiliate.isPending}
-                      onClick={() => assignAffiliate.mutate({ memberId: m.id, memberUserId: m.user_id, memberName: name })}
-                    >
-                      Rendre affilié
-                    </Button>
-                  </div>
+                    <div className="flex items-center gap-4 text-[10px] text-muted-foreground px-0.5">
+                      <span>👆 {link.clicks || 0} clics</span>
+                      <span>✅ {link.conversions || 0} conversions</span>
+                      <span className="text-primary font-semibold ml-auto">
+                        {(link.total_earned || 0).toLocaleString('fr-FR')} {currentOrg.currency} gagnés
+                      </span>
+                    </div>
+                  </motion.div>
                 );
               })}
             </div>
