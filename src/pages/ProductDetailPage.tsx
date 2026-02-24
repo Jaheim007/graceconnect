@@ -340,7 +340,7 @@ export default function ProductDetailPage() {
             )}
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="md:sticky md:top-16 md:self-start space-y-4">
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="md:sticky md:top-14 md:self-start space-y-4 md:max-h-[calc(100vh-4rem)] md:overflow-y-auto">
             <div className="p-5 rounded-2xl border border-border bg-card shadow-card space-y-4">
               <div className="hidden md:block space-y-2">
                 <h1 className="text-xl font-bold leading-snug">{product.title}</h1>
