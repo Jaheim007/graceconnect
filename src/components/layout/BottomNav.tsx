@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, LogIn, UserPlus, LayoutDashboard, Building2, Bell, User, Store, MoreHorizontal, MessageCircle, Trophy, Award, Link2, BookOpen, LifeBuoy } from 'lucide-react';
+import { Home, LogIn, UserPlus, LayoutDashboard, Building2, Bell, User, Store, MoreHorizontal, MessageCircle, Trophy, Award, Link2, UsersRound, BookOpen, LifeBuoy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
@@ -34,11 +34,12 @@ export function BottomNav() {
     { to: '/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard'), desc: t('sidebar.desc.dashboard') },
     { to: '/leaderboard', icon: Trophy, label: t('sidebar.leaderboard'), desc: t('sidebar.desc.leaderboard') },
     // { to: '/certificates', icon: Award, label: t('sidebar.certificates'), desc: t('sidebar.desc.certificates') }, // DISABLED
-    { to: '/affiliation', icon: Link2, label: t('sidebar.affiliation'), desc: t('sidebar.desc.affiliation') },
+    { to: '/affiliation', icon: Link2, label: t('sidebar.my_affiliations'), desc: t('sidebar.desc.my_affiliations') },
+    { to: '/admin/affiliation', icon: UsersRound, label: t('sidebar.my_affiliates'), desc: t('sidebar.desc.my_affiliates') },
     { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases'), desc: t('sidebar.desc.my_purchases') },
     { to: '/support', icon: LifeBuoy, label: t('sidebar.help'), desc: t('sidebar.desc.help') },
     { to: '/profile', icon: User, label: t('sidebar.account'), desc: t('sidebar.desc.account') },
-    { to: '/admin', icon: Building2, label: t('sidebar.manage_org'), desc: t('sidebar.desc.manage_org') },
+    
   ];
 
   const navItems = user ? primaryItems : guestItems;
