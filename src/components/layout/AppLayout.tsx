@@ -1,9 +1,16 @@
-import { Outlet } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
+
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
+
+const pageVariants = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.2, ease: 'easeOut' as const } },
+  exit: { opacity: 0, y: -4, transition: { duration: 0.12 } },
+};
 
 export function AppLayout() {
   const location = useLocation();
@@ -22,7 +29,17 @@ export function AppLayout() {
       <div className="flex flex-col flex-1 min-w-0">
         {!hideNav && <TopBar />}
         <main className={`flex-1 overflow-x-hidden ${!hideNav ? 'pb-16 lg:pb-0' : ''}`}>
-          <Outlet />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              variants={pageVariants}
+              initial="initial"
+              animate="animate"
+              exit="exit"
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
 
@@ -32,8 +49,6 @@ export function AppLayout() {
           <BottomNav />
         </div>
       )}
-
-      {/* Onboarding tour is now scoped to /admin only — rendered inside OnboardingTour component */}
     </div>
   );
 }
