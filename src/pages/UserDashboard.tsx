@@ -28,7 +28,9 @@ import { PageTour } from '@/components/onboarding/PageTour';
 import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
 import { useStreak, useBadges, useRecordActivity, useCheckAndAwardBadges, BADGE_DEFINITIONS } from '@/hooks/useGamification';
 import { useEffect } from 'react';
-import { Flame, Award, Trophy } from 'lucide-react';
+import { Flame, Award as AwardIcon, Trophy, GraduationCap, CreditCard, MessageCircle } from 'lucide-react';
+import { useMyCertificates } from '@/hooks/useCertificates';
+import { useMySubscriptions } from '@/hooks/useSubscriptions';
 
 const statusColor: Record<string, string> = {
   completed: 'bg-green-500/15 text-green-600 dark:text-green-400',
@@ -377,6 +379,8 @@ export default function UserDashboard() {
           {[
             { label: t('sidebar.my_purchases'), icon: BookOpen, onClick: () => navigate('/resources') },
             { label: t('sidebar.affiliation'), icon: Link2, onClick: () => navigate('/affiliation') },
+            { label: locale === 'fr' ? 'Certificats' : 'Certificates', icon: GraduationCap, onClick: () => navigate('/certificates') },
+            { label: locale === 'fr' ? 'Messages' : 'Messages', icon: MessageCircle, onClick: () => navigate('/messages') },
             { label: t('dash.create_org'), icon: Gift, onClick: () => navigate('/create-org') },
             { label: t('dash.my_account'), icon: ArrowUpRight, onClick: () => navigate('/profile') },
           ].map((a) => (

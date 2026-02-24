@@ -43,7 +43,7 @@ export default function MessagesPage() {
       return data.map((m: any) => ({ ...m, profile: pm[m.sender_id] }));
     },
     enabled: !!orgId,
-    refetchInterval: 5000, // Poll every 5s for "real-time" feel
+    refetchInterval: 10000, // Fallback polling; realtime handles most updates
   });
 
   // Send message

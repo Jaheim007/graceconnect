@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { TopBar } from './TopBar';
 import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
+import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
+import { useOrg } from '@/contexts/OrgContext';
 
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
 
@@ -14,7 +16,11 @@ const pageVariants = {
 
 export function AppLayout() {
   const location = useLocation();
+  const { userOrgs } = useOrg();
   const hideNav = HIDE_NAV_ROUTES.some((r) => location.pathname.startsWith(r));
+
+  // Realtime subscriptions for messages & notifications
+  useRealtimeNotifications(userOrgs.map(o => o.id));
 
   return (
     <div className="min-h-[100dvh] flex w-full bg-background overflow-x-hidden">

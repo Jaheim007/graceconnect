@@ -9,6 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ArrowLeft, CheckCircle, Circle, PlayCircle, Lock, GraduationCap, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { QuizWidget } from '@/components/programs/QuizWidget';
 import { useState } from 'react';
 import { onProgramEnrolled, onProgramCompleted } from '@/lib/notifications';
 import { downloadCertificate } from '@/lib/certificate';
@@ -237,6 +238,17 @@ export default function ProgramViewPage() {
               )}
               {completedIds.has(currentLessonData.id) && (
                 <Badge variant="secondary" className="text-xs gap-1"><CheckCircle className="h-3 w-3" /> Terminé</Badge>
+              )}
+              {/* Quiz section */}
+              {enrollment && (
+                <QuizWidget
+                  lessonId={currentLessonData.id}
+                  onComplete={(passed) => {
+                    if (passed && !completedIds.has(currentLessonData.id)) {
+                      markComplete.mutate(currentLessonData.id);
+                    }
+                  }}
+                />
               )}
             </div>
           ) : (
