@@ -6,8 +6,9 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Download, ExternalLink, ShoppingBag, FileText, Link2, Music, BookOpen, Eye,
-  Star, Package,
+  Star, Package, Receipt,
 } from 'lucide-react';
+import { downloadInvoice } from '@/lib/invoice';
 import { format } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
@@ -197,6 +198,22 @@ export default function ResourcesPage() {
                             </Button>
                             <Button size="sm" className="gap-1 h-7 text-[11px] bg-primary text-primary-foreground" onClick={() => handleFileAction(purchase, 'download')} disabled={downloading === purchase.id}>
                               <Download className="h-3 w-3" /> {downloading === purchase.id ? '…' : t('page.purchases_download')}
+                            </Button>
+                            <Button size="sm" variant="ghost" className="gap-1 h-7 text-[10px]" onClick={() => {
+                              const org = orgMap.get(purchase.product.organization_id);
+                              downloadInvoice({
+                                invoiceNumber: (purchase as any).invoice_number || `SV-${purchase.id.slice(0, 8).toUpperCase()}`,
+                                date: purchase.completed_at || purchase.created_at,
+                                buyerName: user?.user_metadata?.display_name || user?.email || '',
+                                buyerEmail: user?.email || '',
+                                productTitle: purchase.product.title,
+                                amount: purchase.amount,
+                                currency: purchase.currency || 'XOF',
+                                orgName: org?.name || '',
+                                reference: (purchase as any).paystack_reference || purchase.id,
+                              });
+                            }}>
+                              <Receipt className="h-3 w-3" /> Facture
                             </Button>
                           </>
                         )}

@@ -475,6 +475,8 @@ export type Database = {
           is_featured: boolean | null
           is_free: boolean | null
           is_published: boolean | null
+          order_bump_discount_percent: number | null
+          order_bump_product_id: string | null
           organization_id: string
           price: number | null
           product_type: string | null
@@ -484,6 +486,7 @@ export type Database = {
           testimonials_json: Json | null
           title: string
           updated_at: string | null
+          upsell_product_ids: string[] | null
         }
         Insert: {
           average_rating?: number | null
@@ -504,6 +507,8 @@ export type Database = {
           is_featured?: boolean | null
           is_free?: boolean | null
           is_published?: boolean | null
+          order_bump_discount_percent?: number | null
+          order_bump_product_id?: string | null
           organization_id: string
           price?: number | null
           product_type?: string | null
@@ -513,6 +518,7 @@ export type Database = {
           testimonials_json?: Json | null
           title: string
           updated_at?: string | null
+          upsell_product_ids?: string[] | null
         }
         Update: {
           average_rating?: number | null
@@ -533,6 +539,8 @@ export type Database = {
           is_featured?: boolean | null
           is_free?: boolean | null
           is_published?: boolean | null
+          order_bump_discount_percent?: number | null
+          order_bump_product_id?: string | null
           organization_id?: string
           price?: number | null
           product_type?: string | null
@@ -542,6 +550,7 @@ export type Database = {
           testimonials_json?: Json | null
           title?: string
           updated_at?: string | null
+          upsell_product_ids?: string[] | null
         }
         Relationships: [
           {
@@ -1305,6 +1314,7 @@ export type Database = {
           hidden_sections: string[] | null
           id: string
           organization_id: string
+          popup_config: Json | null
           section_order: string[] | null
           theme_accent_color: string | null
           theme_primary_color: string | null
@@ -1317,6 +1327,7 @@ export type Database = {
           hidden_sections?: string[] | null
           id?: string
           organization_id: string
+          popup_config?: Json | null
           section_order?: string[] | null
           theme_accent_color?: string | null
           theme_primary_color?: string | null
@@ -1329,6 +1340,7 @@ export type Database = {
           hidden_sections?: string[] | null
           id?: string
           organization_id?: string
+          popup_config?: Json | null
           section_order?: string[] | null
           theme_accent_color?: string | null
           theme_primary_color?: string | null
@@ -1458,6 +1470,8 @@ export type Database = {
           suspended_until: string | null
           suspension_reason: string | null
           updated_at: string | null
+          webhook_events: string[] | null
+          webhook_url: string | null
           website: string | null
           whatsapp: string | null
         }
@@ -1494,6 +1508,8 @@ export type Database = {
           suspended_until?: string | null
           suspension_reason?: string | null
           updated_at?: string | null
+          webhook_events?: string[] | null
+          webhook_url?: string | null
           website?: string | null
           whatsapp?: string | null
         }
@@ -1530,6 +1546,8 @@ export type Database = {
           suspended_until?: string | null
           suspension_reason?: string | null
           updated_at?: string | null
+          webhook_events?: string[] | null
+          webhook_url?: string | null
           website?: string | null
           whatsapp?: string | null
         }
@@ -1685,6 +1703,7 @@ export type Database = {
           device_hash: string | null
           discount_amount: number | null
           id: string
+          invoice_number: string | null
           organization_amount: number | null
           organization_id: string
           paystack_reference: string
@@ -1705,6 +1724,7 @@ export type Database = {
           device_hash?: string | null
           discount_amount?: number | null
           id?: string
+          invoice_number?: string | null
           organization_amount?: number | null
           organization_id: string
           paystack_reference: string
@@ -1725,6 +1745,7 @@ export type Database = {
           device_hash?: string | null
           discount_amount?: number | null
           id?: string
+          invoice_number?: string | null
           organization_amount?: number | null
           organization_id?: string
           paystack_reference?: string
@@ -1997,8 +2018,42 @@ export type Database = {
           },
         ]
       }
+      program_quizzes: {
+        Row: {
+          created_at: string
+          id: string
+          lesson_id: string
+          passing_score: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lesson_id: string
+          passing_score?: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lesson_id?: string
+          passing_score?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_quizzes_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "program_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       programs: {
         Row: {
+          certificate_enabled: boolean | null
+          certificate_template: string | null
           cover_image_url: string | null
           created_at: string
           created_by: string | null
@@ -2015,6 +2070,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          certificate_enabled?: boolean | null
+          certificate_template?: string | null
           cover_image_url?: string | null
           created_at?: string
           created_by?: string | null
@@ -2031,6 +2088,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          certificate_enabled?: boolean | null
+          certificate_template?: string | null
           cover_image_url?: string | null
           created_at?: string
           created_by?: string | null
@@ -2154,6 +2213,82 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      quiz_attempts: {
+        Row: {
+          answers: Json | null
+          completed_at: string
+          id: string
+          passed: boolean
+          quiz_id: string
+          score: number
+          user_id: string
+        }
+        Insert: {
+          answers?: Json | null
+          completed_at?: string
+          id?: string
+          passed?: boolean
+          quiz_id: string
+          score?: number
+          user_id: string
+        }
+        Update: {
+          answers?: Json | null
+          completed_at?: string
+          id?: string
+          passed?: boolean
+          quiz_id?: string
+          score?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_attempts_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "program_quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      quiz_questions: {
+        Row: {
+          correct_index: number
+          created_at: string
+          display_order: number | null
+          id: string
+          options: Json
+          question: string
+          quiz_id: string
+        }
+        Insert: {
+          correct_index?: number
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          options?: Json
+          question: string
+          quiz_id: string
+        }
+        Update: {
+          correct_index?: number
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          options?: Json
+          question?: string
+          quiz_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_questions_quiz_id_fkey"
+            columns: ["quiz_id"]
+            isOneToOne: false
+            referencedRelation: "program_quizzes"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       refund_requests: {
         Row: {
@@ -2537,6 +2672,86 @@ export type Database = {
             columns: ["plan_id"]
             isOneToOne: false
             referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      waitlist_entries: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string | null
+          waitlist_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name?: string | null
+          waitlist_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string | null
+          waitlist_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waitlist_entries_waitlist_id_fkey"
+            columns: ["waitlist_id"]
+            isOneToOne: false
+            referencedRelation: "waitlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      waitlists: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          launch_date: string | null
+          organization_id: string
+          product_id: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          launch_date?: string | null
+          organization_id: string
+          product_id?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          launch_date?: string | null
+          organization_id?: string
+          product_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "waitlists_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "waitlists_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "digital_products"
             referencedColumns: ["id"]
           },
         ]

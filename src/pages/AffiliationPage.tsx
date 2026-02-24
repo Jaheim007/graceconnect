@@ -5,8 +5,9 @@ import { db } from '@/lib/db';
 import { AffiliateLink } from '@/types/database';
 import {
   Link2, TrendingUp, Copy, CheckCircle, DollarSign, AlertTriangle,
-  Users, ExternalLink, Search, Sparkle, Building2, ArrowRight, Wallet
+  Users, ExternalLink, Search, Sparkle, Building2, ArrowRight, Wallet, Trophy, Crown
 } from 'lucide-react';
+import { useAffiliateLeaderboard, useMyAffiliateRank } from '@/hooks/useAffiliateMarketplace';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,7 +32,7 @@ const saleStatusColor: Record<string, string> = {
   cancelled: 'bg-destructive/10 text-destructive',
 };
 
-type AffiliationTab = 'mes-liens' | 'decouvrir' | 'resultats';
+type AffiliationTab = 'mes-liens' | 'decouvrir' | 'resultats' | 'leaderboard';
 
 export default function AffiliationPage() {
   const { user } = useAuth();
@@ -166,10 +167,14 @@ export default function AffiliationPage() {
     }
   }
 
+  const { data: leaderboard = [] } = useAffiliateLeaderboard(20);
+  const { data: myRank } = useMyAffiliateRank();
+
   const tabs: { key: AffiliationTab; label: string; icon: typeof Link2 }[] = [
     { key: 'mes-liens', label: 'Mes liens', icon: Link2 },
     { key: 'decouvrir', label: 'Découvrir', icon: Search },
     { key: 'resultats', label: 'Résultats', icon: TrendingUp },
+    { key: 'leaderboard', label: 'Top affiliés', icon: Trophy },
   ];
 
   return (
@@ -438,6 +443,58 @@ export default function AffiliationPage() {
                       <Badge variant="outline" className={cn('text-[10px] border-0 capitalize', saleStatusColor[s.status] || '')}>
                         {s.status === 'payable' ? 'Disponible' : s.status === 'pending' ? 'En attente' : s.status === 'paid' ? 'Payé' : s.status}
                       </Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* TAB: Leaderboard */}
+        {activeTab === 'leaderboard' && (
+          <div className="space-y-4">
+            {myRank && (
+              <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
+                  <Crown className="h-5 w-5 text-primary-foreground" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold">Votre classement : #{myRank.rank}</p>
+                  <p className="text-xs text-muted-foreground">{fmt(myRank.totalEarned)} gagnés · {myRank.totalConversions} conversions</p>
+                </div>
+              </div>
+            )}
+
+            <div className="bg-card border border-border rounded-2xl p-4 space-y-3 shadow-card">
+              <h2 className="font-semibold text-sm flex items-center gap-2">
+                <Trophy className="h-4 w-4 text-primary" /> Top affiliés de la plateforme
+              </h2>
+              {leaderboard.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-6">Aucun classement disponible.</p>
+              ) : (
+                <div className="space-y-1">
+                  {leaderboard.map((entry: any, idx: number) => (
+                    <div key={entry.user_id + idx} className="flex items-center gap-3 py-2.5 border-b border-border/50 last:border-0">
+                      <div className={cn(
+                        'h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0',
+                        idx === 0 ? 'bg-yellow-500/20 text-yellow-600' : idx === 1 ? 'bg-gray-300/20 text-gray-500' : idx === 2 ? 'bg-orange-400/20 text-orange-500' : 'bg-muted text-muted-foreground'
+                      )}>
+                        {idx < 3 ? ['🥇', '🥈', '🥉'][idx] : `#${idx + 1}`}
+                      </div>
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        {(entry.organizations as any)?.logo_url && (
+                          <img src={(entry.organizations as any).logo_url} className="h-6 w-6 rounded-lg object-cover" alt="" />
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-xs font-medium truncate">{(entry.organizations as any)?.name || 'Affilié'}</p>
+                          <p className="text-[10px] text-muted-foreground font-mono">{entry.code}</p>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-bold text-primary">{fmt(entry.total_earned || 0)}</p>
+                        <p className="text-[10px] text-muted-foreground">{entry.conversions || 0} conv.</p>
+                      </div>
                     </div>
                   ))}
                 </div>
