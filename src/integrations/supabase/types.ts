@@ -1181,6 +1181,44 @@ export type Database = {
           },
         ]
       }
+      org_page_settings: {
+        Row: {
+          hidden_sections: string[] | null
+          id: string
+          organization_id: string
+          section_order: string[] | null
+          theme_accent_color: string | null
+          theme_primary_color: string | null
+          updated_at: string
+        }
+        Insert: {
+          hidden_sections?: string[] | null
+          id?: string
+          organization_id: string
+          section_order?: string[] | null
+          theme_accent_color?: string | null
+          theme_primary_color?: string | null
+          updated_at?: string
+        }
+        Update: {
+          hidden_sections?: string[] | null
+          id?: string
+          organization_id?: string
+          section_order?: string[] | null
+          theme_accent_color?: string | null
+          theme_primary_color?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_page_settings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_photos: {
         Row: {
           caption: string | null
