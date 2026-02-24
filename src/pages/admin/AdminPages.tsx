@@ -30,6 +30,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useUpsertOrgPageSettings, useOrgPageSettings } from '@/hooks/useOrgPageSettings';
 import { BulkActionsToolbar, useBulkSelect } from '@/components/admin/BulkActions';
+import { ImageCropDialog } from '@/components/ui/ImageCropDialog';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
@@ -942,6 +943,11 @@ export function AdminSettings() {
   const [leaderImageUrl, setLeaderImageUrl] = useState(orgAny?.leader_image_url ?? '');
   const [savingLeader, setSavingLeader] = useState(false);
 
+  // Crop state for settings images
+  const [settingsCropSrc, setSettingsCropSrc] = useState<string | null>(null);
+  const [settingsCropType, setSettingsCropType] = useState<'logo' | 'banner' | 'leader'>('banner');
+  const settingsCropAspect = settingsCropType === 'banner' ? 3 / 1 : 1;
+
   // Affiliation fields
   const [affiliationEnabled, setAffiliationEnabled] = useState(currentOrg?.affiliation_enabled ?? false);
   const [commissionPercent, setCommissionPercent] = useState(
@@ -1032,25 +1038,31 @@ export function AdminSettings() {
     if (!currentOrg) return;
     if (!file.type.startsWith('image/')) { toast({ title: 'Please select an image file', variant: 'destructive' }); return; }
     if (file.size > 10 * 1024 * 1024) { toast({ title: 'Image must be under 10MB', variant: 'destructive' }); return; }
-    const ext = file.name.split('.').pop();
-    const path = `${currentOrg.id}/${type}-${Date.now()}.${ext}`;
-    const { data, error } = await supabase.storage.from('org-uploads').upload(path, file, { upsert: true });
-    if (error) { toast({ title: 'Upload failed', description: error.message, variant: 'destructive' }); return; }
-    const { data: { publicUrl } } = supabase.storage.from('org-uploads').getPublicUrl(data.path);
-    if (type === 'logo') setLogoUrl(publicUrl);
-    else setBannerUrl(publicUrl);
+    // Open crop dialog
+    const url = URL.createObjectURL(file);
+    setSettingsCropSrc(url);
+    setSettingsCropType(type);
   };
 
   const handleUploadLeaderImage = async (file: File) => {
     if (!currentOrg) return;
     if (!file.type.startsWith('image/')) { toast({ title: 'Sélectionnez une image', variant: 'destructive' }); return; }
     if (file.size > 10 * 1024 * 1024) { toast({ title: 'Image max 10 Mo', variant: 'destructive' }); return; }
-    const ext = file.name.split('.').pop();
-    const path = `${currentOrg.id}/leader-${Date.now()}.${ext}`;
-    const { data, error } = await supabase.storage.from('org-uploads').upload(path, file, { upsert: true });
-    if (error) { toast({ title: 'Échec upload', description: error.message, variant: 'destructive' }); return; }
+    const url = URL.createObjectURL(file);
+    setSettingsCropSrc(url);
+    setSettingsCropType('leader');
+  };
+
+  const handleCropDone = async (blob: Blob) => {
+    if (!currentOrg) return;
+    setSettingsCropSrc(null);
+    const path = `${currentOrg.id}/${settingsCropType}-${Date.now()}.jpg`;
+    const { data, error } = await supabase.storage.from('org-uploads').upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
+    if (error) { toast({ title: 'Upload failed', description: error.message, variant: 'destructive' }); return; }
     const { data: { publicUrl } } = supabase.storage.from('org-uploads').getPublicUrl(data.path);
-    setLeaderImageUrl(publicUrl);
+    if (settingsCropType === 'logo') setLogoUrl(publicUrl);
+    else if (settingsCropType === 'banner') setBannerUrl(publicUrl);
+    else setLeaderImageUrl(publicUrl);
   };
 
   const handleSaveLeader = async () => {
@@ -1360,6 +1372,16 @@ export function AdminSettings() {
 
         <p className="text-xs text-muted-foreground text-center">Contactez le support pour modifier le plan, le pays ou la devise.</p>
       </div>
+      {/* Crop Dialog */}
+      {settingsCropSrc && (
+        <ImageCropDialog
+          open={!!settingsCropSrc}
+          imageSrc={settingsCropSrc}
+          aspect={settingsCropAspect}
+          onClose={() => setSettingsCropSrc(null)}
+          onCropComplete={handleCropDone}
+        />
+      )}
     </AdminPageShell>
   );
 }
