@@ -28,6 +28,16 @@ const CATEGORIES = [
   { value: 'other', label: '🔷 Other' },
 ] as const;
 
+// Contextual labels & placeholders per category for step 2
+const CATEGORY_CONTEXT: Record<string, { nameLabel: string; namePlaceholder: string; stepTitle: string; descPlaceholder: string; slugPlaceholder: string }> = {
+  church:    { nameLabel: 'Organization name *', namePlaceholder: 'e.g. Grace Community Church', stepTitle: 'Name your organization', descPlaceholder: 'Briefly describe your organization...', slugPlaceholder: 'grace-community' },
+  ministry:  { nameLabel: 'Association name *', namePlaceholder: 'e.g. Hope for All Association', stepTitle: 'Name your association', descPlaceholder: 'Briefly describe your association...', slugPlaceholder: 'hope-for-all' },
+  leader:    { nameLabel: 'Your name *', namePlaceholder: 'e.g. John Doe', stepTitle: 'Put your name', descPlaceholder: 'Tell people about yourself and what you do...', slugPlaceholder: 'john-doe' },
+  ngo:       { nameLabel: 'NGO / Nonprofit name *', namePlaceholder: 'e.g. World Aid Foundation', stepTitle: 'Name your nonprofit', descPlaceholder: 'Briefly describe your nonprofit mission...', slugPlaceholder: 'world-aid' },
+  community: { nameLabel: 'Community name *', namePlaceholder: 'e.g. Tech Makers Community', stepTitle: 'Name your community', descPlaceholder: 'Briefly describe your community...', slugPlaceholder: 'tech-makers' },
+  other:     { nameLabel: 'Platform name *', namePlaceholder: 'e.g. My Platform', stepTitle: 'Name your platform', descPlaceholder: 'Briefly describe your platform...', slugPlaceholder: 'my-platform' },
+};
+
 const CURRENCIES = [
   { value: 'XOF', label: 'XOF — West African CFA Franc' },
   { value: 'XAF', label: 'XAF — Central African CFA Franc' },
@@ -206,12 +216,14 @@ export default function CreateOrgPage() {
                 </div>
               )}
 
-              {step === 1 && (
+              {step === 1 && (() => {
+                const ctx = CATEGORY_CONTEXT[selectedCategory] || CATEGORY_CONTEXT.other;
+                return (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-semibold">{t('org.name_your')}</h2>
+                  <h2 className="text-lg font-semibold">{ctx.stepTitle}</h2>
                   <div className="space-y-2">
-                    <Label>{t('org.org_name_label')}</Label>
-                    <Input placeholder={t('org.org_name_placeholder')} {...form.register('name')}
+                    <Label>{ctx.nameLabel}</Label>
+                    <Input placeholder={ctx.namePlaceholder} {...form.register('name')}
                       onBlur={handleNameBlur}
                       className={errors.name ? 'border-destructive' : ''} />
                     {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
@@ -220,7 +232,7 @@ export default function CreateOrgPage() {
                     <Label>{t('org.slug_label')}</Label>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-muted-foreground shrink-0">siteviral.com/org/</span>
-                      <Input placeholder={t('org.slug_placeholder')} {...form.register('slug')}
+                      <Input placeholder={ctx.slugPlaceholder} {...form.register('slug')}
                         className={errors.slug ? 'border-destructive' : ''} />
                     </div>
                     {errors.slug && <p className="text-xs text-destructive">{errors.slug.message}</p>}
@@ -233,11 +245,12 @@ export default function CreateOrgPage() {
                   </div>
                   <div className="space-y-2">
                     <Label>{t('org.desc_label')}</Label>
-                    <Textarea placeholder={t('org.desc_placeholder')} rows={3}
+                    <Textarea placeholder={ctx.descPlaceholder} rows={3}
                       {...form.register('description')} />
                   </div>
                 </div>
-              )}
+                );
+              })()}
 
               {step === 2 && (
                 <div className="space-y-4">
