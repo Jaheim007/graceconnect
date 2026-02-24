@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Badge } from '@/components/ui/badge';
@@ -13,18 +12,12 @@ import {
   TrendingUp, Users, DollarSign, BarChart3, Activity,
   Shield, AlertTriangle, CreditCard, Building2, UserPlus,
   Percent, Eye, Globe, Clock, ArrowUpRight,
-  ShoppingBag, Heart, Zap, Target, CalendarDays,
-  Bell, Send, Loader2, CheckCircle2
+  ShoppingBag, Heart, Zap, Target, CalendarDays
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { format, subDays, isAfter } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { callFn } from '@/lib/api';
-import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatCurrency } from '@/lib/currency';
 
@@ -89,14 +82,7 @@ const tooltipStyle = { background: 'hsl(var(--card))', border: '1px solid hsl(va
 
 export default function SuperadminFullDashboard() {
   const { profile } = useAuth();
-  const { toast } = useToast();
   const firstName = profile?.display_name?.split(' ')[0] || 'Admin';
-
-  // Push notification test state
-  const [pushTitle, setPushTitle] = useState('');
-  const [pushMessage, setPushMessage] = useState('');
-  const [pushSending, setPushSending] = useState(false);
-  const [pushResult, setPushResult] = useState<{ ok: boolean; recipients?: number } | null>(null);
 
   const { data: stats } = useQuery({
     queryKey: ['sa-full-stats-v2'],
@@ -591,69 +577,6 @@ export default function SuperadminFullDashboard() {
           })()}
         </Panel>
       </div>
-      {/* ═══ PUSH NOTIFICATION TEST ═══ */}
-      <Panel glow="bg-amber-500">
-        <SectionTitle icon={Bell} title="Test Push Notifications (OneSignal)" badge="Superadmin" />
-        <div className="space-y-4">
-          <p className="text-xs text-muted-foreground">
-            Envoyez une notification push de test via OneSignal pour vérifier que tout fonctionne correctement.
-          </p>
-          <div className="grid sm:grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-medium text-muted-foreground">Titre</label>
-              <Input
-                value={pushTitle}
-                onChange={e => setPushTitle(e.target.value)}
-                placeholder="🔔 Test SiteViral"
-                className="h-9 text-sm"
-              />
-            </div>
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-medium text-muted-foreground">Message</label>
-              <Textarea
-                value={pushMessage}
-                onChange={e => setPushMessage(e.target.value)}
-                placeholder="Ceci est un test de notification push..."
-                rows={1}
-                className="text-sm min-h-9"
-              />
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button
-              size="sm"
-              className="gap-1.5"
-              disabled={!pushTitle.trim() || !pushMessage.trim() || pushSending}
-              onClick={async () => {
-                setPushSending(true);
-                setPushResult(null);
-                try {
-                  const res = await callFn('onesignal-test-push', {
-                    title: pushTitle.trim(),
-                    message: pushMessage.trim(),
-                    segment: 'Subscribed Users',
-                  }, true);
-                  setPushResult({ ok: true, recipients: res?.recipients || 0 });
-                  toast({ title: `✅ Push envoyée à ${res?.recipients || 0} appareil(s)` });
-                } catch (err: any) {
-                  setPushResult({ ok: false });
-                  toast({ title: 'Erreur', description: err.message, variant: 'destructive' });
-                } finally {
-                  setPushSending(false);
-                }
-              }}
-            >
-              {pushSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-              Envoyer le test
-            </Button>
-            {pushResult && (
-              <span className={cn('text-xs font-medium flex items-center gap-1', pushResult.ok ? 'text-emerald-600' : 'text-destructive')}>
-                {pushResult.ok ? <><CheckCircle2 className="h-3.5 w-3.5" /> {pushResult.recipients} destinataire(s)</> : 'Échec — voir logs'}
-              </span>
-            )}
-          </div>
-        </div>
-      </Panel>
     </motion.div>
   );
 }
