@@ -2,16 +2,20 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
   ArrowRight, Play, Heart, Users, ShoppingBag, Globe,
-  CheckCircle, Zap, Shield, Sun, Moon, Quote,
-  Smartphone, BarChart3, BookOpen, Megaphone, ChevronRight,
+  CheckCircle, Zap, Shield, Quote,
+  Smartphone, BarChart3, Megaphone, ChevronRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useTheme } from '@/contexts/ThemeContext';
 import { useI18n } from '@/i18n/I18nContext';
 import heroImg from '@/assets/landing-hero.jpg';
 import communityImg from '@/assets/landing-community.png';
 import devicesImg from '@/assets/landing-devices.jpg';
+import { LandingNav } from '@/components/landing/LandingNav';
+import { LandingFooter } from '@/components/landing/LandingFooter';
+import { AnimatedCounter } from '@/components/landing/AnimatedCounter';
+import { TestimonialCarousel } from '@/components/landing/TestimonialCarousel';
+import { Marquee } from '@/components/landing/Marquee';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
@@ -25,7 +29,6 @@ const stagger = {
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { theme, toggleTheme } = useTheme();
   const { t } = useI18n();
 
   const features = [
@@ -38,9 +41,12 @@ export default function LandingPage() {
   ];
 
   const testimonials = [
-    { name: t('landing.test1_name'), role: t('landing.test1_role'), text: t('landing.test1_text') },
-    { name: t('landing.test2_name'), role: t('landing.test2_role'), text: t('landing.test2_text') },
-    { name: t('landing.test3_name'), role: t('landing.test3_role'), text: t('landing.test3_text') },
+    { name: 'K. M.', role: t('landing.test1_role'), text: t('landing.test1_text'), flag: '🇳🇬' },
+    { name: 'Marie-Claire B.', role: t('landing.test2_role'), text: t('landing.test2_text'), flag: '🇨🇲' },
+    { name: 'Ibrahim T.', role: t('landing.test3_role'), text: t('landing.test3_text'), flag: '🇸🇳' },
+    { name: 'Amara D.', role: 'Digital Creator', text: 'En 2 mois, j\'ai vendu plus de 500 ressources numériques. Les paiements sont automatiques et les retraits rapides.', flag: '🇨🇮' },
+    { name: 'Sophie N.', role: 'Community Leader', text: 'La gestion de notre communauté de 2000 membres est devenue simple. Contenu, dons, événements : tout est centralisé.', flag: '🇧🇯' },
+    { name: 'David K.', role: 'NGO Director', text: 'Nos campagnes de collecte ont levé 3x plus qu\'avant. Les donateurs paient par Mobile Money en un clic.', flag: '🇬🇭' },
   ];
 
   const steps = [
@@ -55,24 +61,12 @@ export default function LandingPage() {
     { name: t('plan.enterprise'), price: 'Custom', period: '', features: [t('plan.ent_f1'), t('plan.ent_f2'), t('plan.ent_f3'), t('plan.ent_f4'), t('plan.ent_f5')], cta: t('plan.contact') },
   ];
 
+  const marqueeRow1 = ['E-books', 'Formations', 'Templates', 'Podcasts', 'Vidéos', 'Guides', 'Coaching', 'Webinaires', 'Photos', 'Musique'];
+  const marqueeRow2 = ['Cours en ligne', 'Mentorat', 'Newsletters', 'Fichiers PDF', 'Illustrations', 'Plugins', 'Scripts', 'Presets', 'Tutoriels', 'Plans'];
+
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
-      {/* ─── Nav ─── */}
-      <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
-        <div className="container flex items-center justify-between h-14 px-4">
-          <span className="text-xl font-extrabold tracking-tight text-foreground">Siteviral</span>
-          <div className="flex items-center gap-1 sm:gap-2">
-            <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex"><Link to="/about">{t('landing.about')}</Link></Button>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
-              {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => navigate('/auth?mode=signin')} className="text-xs sm:text-sm px-2 sm:px-3">{t('landing.sign_in')}</Button>
-            <Button size="sm" className="text-xs sm:text-sm px-3 sm:px-4" onClick={() => navigate('/auth?mode=signup')}>
-              {t('landing.get_started')}
-            </Button>
-          </div>
-        </div>
-      </header>
+      <LandingNav />
 
       {/* ─── Hero ─── */}
       <section className="relative pt-14 overflow-hidden">
@@ -80,7 +74,6 @@ export default function LandingPage() {
           <img src={heroImg} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/75 to-background" />
         </div>
-
         <div className="relative z-10 container max-w-5xl px-4 pt-24 pb-32 sm:pt-32 sm:pb-40">
           <motion.div initial="hidden" animate="visible" variants={stagger} className="text-center space-y-8">
             <motion.div variants={fadeUp}>
@@ -88,15 +81,12 @@ export default function LandingPage() {
                 {t('landing.badge')}
               </Badge>
             </motion.div>
-
             <motion.h1 variants={fadeUp} className="text-4xl sm:text-5xl lg:text-7xl font-extrabold leading-[1.08] tracking-tight">
               {t('landing.hero_title_1')}<br /><span className="text-primary">{t('landing.hero_title_2')}</span>
             </motion.h1>
-
             <motion.p variants={fadeUp} className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               {t('landing.hero_desc')}
             </motion.p>
-
             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
               <Button size="lg" className="px-8 gap-2 h-13 text-base w-full sm:w-auto" onClick={() => navigate('/auth?mode=signup')}>
                 {t('landing.cta_free')} <ArrowRight className="h-4 w-4" />
@@ -109,6 +99,34 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ─── Giant Animated Counters ─── */}
+      <section className="py-16 px-4 border-b border-border/40">
+        <div className="container max-w-5xl">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
+            <AnimatedCounter value={500} suffix="+" label="Organisations actives" />
+            <AnimatedCounter value={50000} suffix="+" label="Membres connectés" />
+            <AnimatedCounter value={150} suffix="+" label="Pays couverts" />
+            <AnimatedCounter value={1000000} prefix="$" suffix="+" label="Reversés aux créateurs" />
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Auto-Scrolling Testimonials ─── */}
+      <section className="py-20 px-4 overflow-hidden">
+        <div className="container max-w-6xl">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-12">
+            <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">{t('landing.testimonials_badge')}</Badge>
+            <h2 className="text-3xl sm:text-4xl font-extrabold">
+              {t('landing.testimonials_title_1')} <span className="text-primary">{t('landing.testimonials_title_2')}</span>
+            </h2>
+          </motion.div>
+        </div>
+        <TestimonialCarousel
+          testimonials={testimonials}
+          statCard={{ value: '+$1M', label: 'Reversés aux créateurs' }}
+        />
+      </section>
+
       {/* ─── How it works ─── */}
       <section className="py-28 px-4">
         <div className="container max-w-5xl">
@@ -118,7 +136,6 @@ export default function LandingPage() {
               {t('landing.how_title_1')} <span className="text-primary">{t('landing.how_title_2')}</span>
             </h2>
           </motion.div>
-
           <div className="grid md:grid-cols-3 gap-8">
             {steps.map((s, i) => (
               <motion.div key={s.num} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} transition={{ delay: i * 0.08 }} className="relative group">
@@ -176,7 +193,6 @@ export default function LandingPage() {
             </h2>
             <p className="text-muted-foreground text-base max-w-xl mx-auto">{t('landing.features_sub')}</p>
           </motion.div>
-
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {features.map((f) => (
               <motion.div key={f.title} variants={fadeUp} className="group bg-card rounded-2xl border border-border p-8 hover:border-primary/20 transition-colors duration-200 space-y-4">
@@ -186,11 +202,32 @@ export default function LandingPage() {
               </motion.div>
             ))}
           </motion.div>
+          <div className="text-center mt-10">
+            <Button variant="outline" size="lg" className="gap-2" onClick={() => navigate('/features')}>
+              Voir toutes les fonctionnalités <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Marquee: What you can sell ─── */}
+      <section className="py-20 px-4 bg-muted/30 overflow-hidden">
+        <div className="container max-w-5xl mb-10">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center">
+            <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">
+              Vendez tout ce que vous pouvez <span className="text-primary">imaginer</span>
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">Siteviral vous offre la flexibilité pour vendre tous types de produits numériques.</p>
+          </motion.div>
+        </div>
+        <div className="space-y-4">
+          <Marquee items={marqueeRow1} direction="left" speed={35} />
+          <Marquee items={marqueeRow2} direction="right" speed={40} />
         </div>
       </section>
 
       {/* ─── Devices / PWA ─── */}
-      <section className="py-24 px-4 bg-muted/30">
+      <section className="py-24 px-4">
         <div className="container max-w-5xl">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="order-2 md:order-1 rounded-2xl overflow-hidden border border-border">
@@ -220,31 +257,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── Testimonials ─── */}
-      <section className="py-28 px-4">
-        <div className="container max-w-5xl">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-14">
-            <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">{t('landing.testimonials_badge')}</Badge>
-            <h2 className="text-3xl sm:text-4xl font-extrabold">
-              {t('landing.testimonials_title_1')} <span className="text-primary">{t('landing.testimonials_title_2')}</span>
-            </h2>
-          </motion.div>
-
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="grid md:grid-cols-3 gap-6">
-            {testimonials.map((tst) => (
-              <motion.div key={tst.name} variants={fadeUp} className="bg-card rounded-2xl border border-border p-8 space-y-4 relative">
-                <Quote className="h-8 w-8 text-primary/10 absolute top-6 right-6" />
-                <p className="text-sm text-muted-foreground leading-relaxed italic">"{tst.text}"</p>
-                <div className="pt-2 border-t border-border/60">
-                  <p className="font-semibold text-sm">{tst.name}</p>
-                  <p className="text-xs text-muted-foreground">{tst.role}</p>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
       {/* ─── Pricing ─── */}
       <section className="py-28 px-4 bg-muted/30">
         <div className="container max-w-4xl">
@@ -255,7 +267,6 @@ export default function LandingPage() {
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto">{t('landing.pricing_desc')}</p>
           </motion.div>
-
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="grid sm:grid-cols-3 gap-5">
             {plans.map((plan) => (
               <motion.div key={plan.name} variants={fadeUp} className={`rounded-2xl p-8 border text-left transition-all duration-200 ${plan.highlight ? 'border-primary bg-primary/5 ring-1 ring-primary/20 relative' : 'border-border bg-card'}`}>
@@ -320,55 +331,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── Footer ─── */}
-      <footer className="border-t border-border bg-card/50">
-        <div className="container px-4 py-14">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
-            <div className="space-y-3">
-              <span className="text-xl font-extrabold text-foreground">Siteviral</span>
-              <p className="text-sm text-muted-foreground leading-relaxed">{t('landing.footer_desc')}</p>
-            </div>
-            <div className="space-y-3">
-              <h4 className="font-semibold text-sm">{t('landing.footer_product')}</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/about" className="hover:text-foreground transition-colors">{t('landing.about')}</Link></li>
-                <li><Link to="/auth?mode=signup" className="hover:text-foreground transition-colors">{t('landing.get_started')}</Link></li>
-                <li><Link to="/faq" className="hover:text-foreground transition-colors">FAQ</Link></li>
-              </ul>
-            </div>
-            <div className="space-y-3">
-              <h4 className="font-semibold text-sm">{t('landing.footer_legal')}</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/terms" className="hover:text-foreground transition-colors">{t('auth.terms_of_service')}</Link></li>
-                <li><Link to="/privacy" className="hover:text-foreground transition-colors">{t('auth.privacy_policy')}</Link></li>
-                <li><Link to="/aml" className="hover:text-foreground transition-colors">AML</Link></li>
-                <li><Link to="/refund-policy" className="hover:text-foreground transition-colors">{t('landing.footer_refund')}</Link></li>
-                <li><Link to="/payout-policy" className="hover:text-foreground transition-colors">{t('landing.footer_payout')}</Link></li>
-                <li><Link to="/acceptable-use" className="hover:text-foreground transition-colors">{t('landing.footer_acceptable')}</Link></li>
-                <li><Link to="/dpa" className="hover:text-foreground transition-colors">{t('landing.footer_dpa')}</Link></li>
-              </ul>
-            </div>
-            <div className="space-y-3">
-              <h4 className="font-semibold text-sm">{t('landing.footer_trust')}</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/security" className="hover:text-foreground transition-colors">{t('landing.footer_security')}</Link></li>
-                <li><Link to="/compliance" className="hover:text-foreground transition-colors">{t('landing.footer_compliance')}</Link></li>
-                <li><Link to="/subprocessors" className="hover:text-foreground transition-colors">{t('landing.footer_subprocessors')}</Link></li>
-                <li><Link to="/contact" className="hover:text-foreground transition-colors">{t('landing.footer_contact')}</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="mt-12 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-            <span>© {new Date().getFullYear()} Hacktualiz Inc. {t('landing.footer_rights')}</span>
-            <span>{t('landing.footer_infra')}</span>
-          </div>
-          <p className="mt-4 text-[10px] text-muted-foreground/60 text-center">
-            {t('landing.footer_operated')}{' '}
-            {t('landing.footer_data_requests')}{' '}
-            <a href="mailto:privacy@siteviral.com" className="underline hover:text-foreground transition-colors">privacy@siteviral.com</a>.
-          </p>
-        </div>
-      </footer>
+      <LandingFooter />
     </div>
   );
 }

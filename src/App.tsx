@@ -37,6 +37,8 @@ import CompliancePage from "@/pages/CompliancePage";
 import DPAPage from "@/pages/DPAPage";
 import SecurityPage from "@/pages/SecurityPage";
 import SubprocessorsPage from "@/pages/SubprocessorsPage";
+import FeaturesPage from "@/pages/FeaturesPage";
+import PublicAffiliationPage from "@/pages/PublicAffiliationPage";
 
 // Authenticated pages
 import FeedPage from "@/pages/FeedPage";
@@ -126,6 +128,8 @@ const App = () => (
                 <Route path="/dpa" element={<DPAPage />} />
                 <Route path="/security" element={<SecurityPage />} />
                 <Route path="/subprocessors" element={<SubprocessorsPage />} />
+                <Route path="/features" element={<FeaturesPage />} />
+                <Route path="/affiliate-program" element={<PublicAffiliationPage />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/payment/success" element={<PaymentSuccessPage />} />
                 <Route path="/invite/:code" element={<InvitePage />} />
