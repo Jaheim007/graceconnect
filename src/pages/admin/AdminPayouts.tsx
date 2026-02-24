@@ -61,8 +61,8 @@ export default function AdminPayouts() {
     queryFn: async () => {
       if (!orgId) return null;
       const [{ data: donations }, { data: purchases }, { data: payoutData }] = await Promise.all([
-        db.from('donations').select('amount, organization_amount, platform_fee, affiliate_commission').eq('organization_id', orgId).eq('status', 'completed'),
-        db.from('product_purchases').select('amount, organization_amount, platform_fee, affiliate_commission').eq('organization_id', orgId).eq('status', 'completed'),
+        db.from('donations').select('amount, organization_amount, platform_fee, affiliate_commission, completed_at').eq('organization_id', orgId).eq('status', 'completed'),
+        db.from('product_purchases').select('amount, organization_amount, platform_fee, affiliate_commission, completed_at').eq('organization_id', orgId).eq('status', 'completed'),
         db.from('payout_requests').select('amount, status').eq('organization_id', orgId),
       ]);
       const allTxns = [...(donations || []), ...(purchases || [])];
@@ -72,9 +72,15 @@ export default function AdminPayouts() {
       const totalAffiliateCommissions = allTxns.reduce((s, t) => s + (t.affiliate_commission || 0), 0);
       const completedPayouts = (payoutData || []).filter((p: any) => p.status === 'completed').reduce((s: number, p: any) => s + (p.amount || 0), 0);
       const pendingPayouts = (payoutData || []).filter((p: any) => ['requested', 'approved', 'processing'].includes(p.status)).reduce((s: number, p: any) => s + (p.amount || 0), 0);
-      const availableBalance = totalOrgReceived - completedPayouts - pendingPayouts;
+      // Only count transactions completed more than 72h ago as available
+      const holdCutoff = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
+      const clearedOrgReceived = allTxns
+        .filter((t: any) => t.completed_at && t.completed_at <= holdCutoff)
+        .reduce((s, t) => s + (t.organization_amount || 0), 0);
+      const pendingClearance = totalOrgReceived - clearedOrgReceived;
+      const availableBalance = clearedOrgReceived - completedPayouts - pendingPayouts;
 
-      return { totalGMV, totalOrgReceived, totalPlatformFees, totalAffiliateCommissions, completedPayouts, pendingPayouts, availableBalance };
+      return { totalGMV, totalOrgReceived, totalPlatformFees, totalAffiliateCommissions, completedPayouts, pendingPayouts, availableBalance, pendingClearance };
     },
     enabled: !!orgId,
   });
@@ -123,6 +129,9 @@ export default function AdminPayouts() {
               <p className="text-2xl font-bold text-emerald-500">{fmt(Math.max(0, fundSummary.availableBalance), currency)}</p>
               <p className="text-[10px] text-muted-foreground mt-0.5">
                 {t('payouts.already_withdrawn')} : {fmt(fundSummary.completedPayouts, currency)} · {t('payouts.in_progress')} : {fmt(fundSummary.pendingPayouts, currency)}
+                {fundSummary.pendingClearance > 0 && (
+                  <> · En attente (72h) : {fmt(fundSummary.pendingClearance, currency)}</>
+                )}
               </p>
             </div>
             {currentOrg?.kyc_status === 'none' && (
