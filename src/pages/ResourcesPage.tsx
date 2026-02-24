@@ -84,7 +84,10 @@ export default function ResourcesPage() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${purchase.product.title}.pdf`;
+        // Extract original filename: strip timestamp prefix from stored name
+        const storedName = purchase.product.file_url!.split('/').pop()?.split('?')[0] || purchase.product.title;
+        const originalName = storedName.replace(/^\d+-/, '');
+        a.download = originalName;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

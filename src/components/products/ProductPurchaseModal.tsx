@@ -515,12 +515,21 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                       const { data: fnData, error: fnErr } = await db.functions.invoke('generate-signed-url', {
                         body: { product_id: product.id },
                       });
-                      if (fnErr || !fnData?.url) {
-                        // Fallback to direct URL
-                        window.open(product.file_url!, '_blank');
-                        return;
-                      }
-                      window.open(fnData.url, '_blank');
+                      const downloadUrl = (!fnErr && fnData?.url) ? fnData.url : product.file_url!;
+                      // Extract original filename from the stored URL (strip timestamp prefix)
+                      const storedName = product.file_url!.split('/').pop()?.split('?')[0] || product.title;
+                      // Remove leading timestamp- prefix (e.g. "1771937392498-from-zero-to-ai-expert.docx" → "from-zero-to-ai-expert.docx")
+                      const originalName = storedName.replace(/^\d+-/, '');
+                      const res = await fetch(downloadUrl);
+                      const blob = await res.blob();
+                      const blobUrl = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = blobUrl;
+                      a.download = originalName;
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      URL.revokeObjectURL(blobUrl);
                     } catch {
                       window.open(product.file_url!, '_blank');
                     }
@@ -559,8 +568,8 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
             )}
 
             <p className="text-xs text-muted-foreground">Un reçu a été envoyé à votre email.</p>
-            <Button onClick={() => { handleClose(); navigate('/dashboard'); }} className="w-full bg-primary text-primary-foreground gap-1.5">
-              Accéder à mon tableau de bord
+            <Button onClick={() => { handleClose(); navigate('/resources'); }} className="w-full bg-primary text-primary-foreground gap-1.5">
+              Accéder à mon livre
             </Button>
             <Button variant="ghost" onClick={handleClose} className="text-muted-foreground">Fermer</Button>
           </div>
