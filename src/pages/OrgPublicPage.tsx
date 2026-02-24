@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useParams, useNavigate, useLocation, useSearchParams, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useOrgBySlug } from '@/hooks/useOrganizations';
+import { useOrgBySlug, useUpdateOrg } from '@/hooks/useOrganizations';
 import { useMyPurchases } from '@/hooks/usePurchases';
 import { useOrgMedia } from '@/hooks/useMedia';
 import { useOrgAnnouncements } from '@/hooks/useAnnouncements';
@@ -22,10 +22,15 @@ import { FormattedText } from '@/lib/formatText';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
+import { InlineEditableText } from '@/components/org/InlineEditableText';
+import { OrgAdminToolbar } from '@/components/org/OrgAdminToolbar';
+import { OrgPageTour } from '@/components/org/OrgPageTour';
+import { useOrgPageSettings } from '@/hooks/useOrgPageSettings';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Globe, MessageCircle, CheckCircle2, Users, CalendarDays,
   Share2, ShoppingBag, Heart, Camera, MapPin, ArrowLeft, MoreHorizontal,
-  Home, Play
+  Home, Play, Pencil, Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -44,13 +49,22 @@ export default function OrgPublicPage() {
   const { pathname } = useLocation();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const { joinOrg, leaveOrg, isMemberOf } = useOrg();
+  const { joinOrg, leaveOrg, isMemberOf, canManage } = useOrg();
   const { toast } = useToast();
   const { t, locale } = useI18n();
+  const qc = useQueryClient();
+  const updateOrg = useUpdateOrg();
   const [joining, setJoining] = useState(false);
   const [donateCampaign, setDonateCampaign] = useState<DonationCampaign | null>(null);
   const [purchaseProduct, setPurchaseProduct] = useState<DigitalProduct | null>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [tourOpen, setTourOpen] = useState(false);
+
+  // Image upload refs
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   const hasAffiliateRef = !!searchParams.get('ref');
   const pathTab = pathname.split('/').pop();
@@ -81,6 +95,7 @@ export default function OrgPublicPage() {
   });
   const { data: purchases = [] } = useMyPurchases();
   const purchasedProductIds = new Set(purchases.map(p => p.product_id));
+  const { data: pageSettings } = useOrgPageSettings(org?.id);
 
   const { data: memberCount = 0 } = useQuery({
     queryKey: ['org-member-count', org?.id],
@@ -96,6 +111,46 @@ export default function OrgPublicPage() {
   });
 
   const dateFmt = locale === 'fr' ? 'fr-FR' : 'en-US';
+
+  // Admin check
+  const isAdmin = org ? canManage(org.id) : false;
+  const isOwner = org ? org.owner_id === user?.id : false;
+
+  // Inline edit save handler
+  const saveOrgField = async (field: string, value: string) => {
+    if (!org) return;
+    await updateOrg.mutateAsync({ id: org.id, updates: { [field]: value } });
+    qc.invalidateQueries({ queryKey: ['org-by-slug', slug] });
+    toast({ title: locale === 'fr' ? 'Modifié ✓' : 'Updated ✓' });
+  };
+
+  // Image upload handler
+  const handleImageUpload = async (file: File, field: 'banner_url' | 'logo_url', setUploading: (b: boolean) => void) => {
+    if (!org || !file) return;
+    if (file.size > 10 * 1024 * 1024) { toast({ title: 'Max 10MB', variant: 'destructive' }); return; }
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop() || 'jpg';
+      const fileName = `${org.id}/${field}-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from('org-uploads').upload(fileName, file, { upsert: true, contentType: file.type });
+      if (error) throw error;
+      const { data } = supabase.storage.from('org-uploads').getPublicUrl(fileName);
+      await updateOrg.mutateAsync({ id: org.id, updates: { [field]: data.publicUrl } });
+      qc.invalidateQueries({ queryKey: ['org-by-slug', slug] });
+      toast({ title: locale === 'fr' ? 'Image mise à jour ✓' : 'Image updated ✓' });
+    } catch (err: any) {
+      toast({ title: err.message || 'Upload failed', variant: 'destructive' });
+    }
+    setUploading(false);
+  };
+
+  const toggleAffiliation = async () => {
+    if (!org) return;
+    const newVal = !(org as any).affiliation_enabled;
+    await updateOrg.mutateAsync({ id: org.id, updates: { affiliation_enabled: newVal } as any });
+    qc.invalidateQueries({ queryKey: ['org-by-slug', slug] });
+    toast({ title: newVal ? (locale === 'fr' ? 'Affiliation activée' : 'Affiliation enabled') : (locale === 'fr' ? 'Affiliation désactivée' : 'Affiliation disabled') });
+  };
 
   if (orgLoading) {
     return (
@@ -118,6 +173,7 @@ export default function OrgPublicPage() {
   }
 
   const isMember = isMemberOf(org.id);
+  const orgAny = org as any;
 
   const handleJoinLeave = async () => {
     if (!user) { navigate('/auth'); return; }
@@ -137,8 +193,7 @@ export default function OrgPublicPage() {
     const msg = locale === 'fr'
       ? `Découvrez ${org.name} sur Siteviral: ${window.location.href}`
       : `Discover ${org.name} on Siteviral: ${window.location.href}`;
-    const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
-    window.open(url, '_blank');
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
   const pinnedAnnouncement = announcements.find((a) => a.is_pinned);
@@ -148,7 +203,127 @@ export default function OrgPublicPage() {
     navigate(tab === 'home' ? base : `${base}/${tab}`);
   };
 
-  const orgAny = org as any;
+  // Section ordering & visibility
+  const sectionOrder = pageSettings?.section_order || ['products', 'campaigns', 'content', 'photos', 'events'];
+  const hiddenSections = new Set(pageSettings?.hidden_sections || []);
+
+  const sectionData: Record<string, { items: any[]; render: () => JSX.Element | null }> = {
+    products: {
+      items: products,
+      render: () => products.length > 0 ? (
+        <section key="products">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold text-sm flex items-center gap-1.5">
+              <ShoppingBag className="h-4 w-4 text-primary" /> {t('org_public.digital_products')}
+            </h2>
+            {products.length > 3 && (
+              <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('store')}>
+                {t('org_public.view_all')}
+              </Button>
+            )}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {products.slice(0, 3).map((p, i) => (
+              <ProductCard key={p.id} product={p} index={i} onPurchase={() => setPurchaseProduct(p)} isPurchased={purchasedProductIds.has(p.id)} />
+            ))}
+          </div>
+        </section>
+      ) : null,
+    },
+    campaigns: {
+      items: campaigns,
+      render: () => campaigns.length > 0 ? (
+        <section key="campaigns">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold text-sm flex items-center gap-1.5">
+              <Heart className="h-4 w-4 text-destructive" /> {t('org_public.active_campaigns')}
+            </h2>
+            {campaigns.length > 2 && (
+              <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('donate')}>
+                {t('org_public.view_all')}
+              </Button>
+            )}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {campaigns.slice(0, 2).map((c, i) => (
+              <CampaignCard key={c.id} campaign={c} index={i} onDonate={() => setDonateCampaign(c)} />
+            ))}
+          </div>
+        </section>
+      ) : null,
+    },
+    content: {
+      items: media,
+      render: () => media.length > 0 ? (
+        <section key="content">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold text-sm">{t('org_public.featured_content')}</h2>
+            {media.length > 3 && (
+              <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('content')}>
+                {t('org_public.view_all')}
+              </Button>
+            )}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {media.slice(0, 3).map((m, i) => <MediaCard key={m.id} media={m} index={i} />)}
+          </div>
+        </section>
+      ) : null,
+    },
+    photos: {
+      items: photos,
+      render: () => photos.length > 0 ? (
+        <section key="photos">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold text-sm flex items-center gap-1.5">
+              <Camera className="h-4 w-4 text-primary" /> {t('org_public.photos')}
+            </h2>
+            {photos.length > 4 && (
+              <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('photos')}>
+                {t('org_public.view_all')}
+              </Button>
+            )}
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {photos.slice(0, 4).map((photo: any, i: number) => (
+              <div key={photo.id} className="rounded-xl overflow-hidden group cursor-pointer aspect-[4/3]" onClick={() => setLightboxIndex(i)}>
+                <img src={photo.image_url} alt={photo.caption || 'Photo'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null,
+    },
+    events: {
+      items: events,
+      render: () => events.length > 0 ? (
+        <section key="events">
+          <h2 className="font-semibold mb-3 text-sm">{t('org_public.upcoming_events')}</h2>
+          <div className="space-y-2">
+            {events.slice(0, 3).map((ev) => (
+              <div key={ev.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card">
+                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                  <CalendarDays className="h-5 w-5 text-primary-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate">{ev.title}</p>
+                  <p className="text-xs text-muted-foreground">{ev.event_date ? new Date(ev.event_date).toLocaleDateString(dateFmt) : t('org_public.date_tbc')}</p>
+                </div>
+                {ev.location && <span className="text-xs text-muted-foreground hidden sm:block">{ev.location}</span>}
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null,
+    },
+  };
+
+  const orderedSections = sectionOrder
+    .filter(s => !hiddenSections.has(s) && sectionData[s])
+    .map(s => sectionData[s].render())
+    .filter(Boolean);
+
+  const hasAnyContent = Object.values(sectionData).some(s => s.items.length > 0);
 
   return (
     <div className="min-h-screen bg-background">
@@ -166,6 +341,7 @@ export default function OrgPublicPage() {
           image: org.logo_url,
         }}
       />
+
       {/* Top bar */}
       <div className="sticky top-0 z-20 border-b border-border/40 bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between">
         <Link to={user ? '/feed' : '/'}>
@@ -191,24 +367,57 @@ export default function OrgPublicPage() {
         </div>
       )}
 
-      {/* ─── FACEBOOK-STYLE BANNER ─── */}
+      {/* ─── BANNER ─── */}
       <div className="relative">
-        <div className="h-32 sm:h-56 lg:h-72 overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20">
+        <div
+          className={cn(
+            "h-32 sm:h-56 lg:h-72 overflow-hidden bg-gradient-to-br from-primary/20 to-accent/20",
+            isAdmin && "cursor-pointer group"
+          )}
+          onClick={() => isAdmin && bannerInputRef.current?.click()}
+        >
           {org.banner_url ? (
             <img src={org.banner_url} alt={org.name} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full hero-gradient" />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/20 to-transparent" />
+          {isAdmin && (
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
+              {uploadingBanner ? (
+                <Loader2 className="h-8 w-8 text-white animate-spin" />
+              ) : (
+                <div className="bg-black/50 text-white rounded-full px-4 py-2 text-sm font-medium flex items-center gap-2">
+                  <Pencil className="h-4 w-4" /> {locale === 'fr' ? 'Modifier la bannière' : 'Edit banner'}
+                </div>
+              )}
+            </div>
+          )}
         </div>
+        <input
+          ref={bannerInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) handleImageUpload(f, 'banner_url', setUploadingBanner);
+            e.target.value = '';
+          }}
+        />
 
         <div className="container max-w-5xl relative">
           <div className="flex flex-col sm:flex-row items-start sm:items-end gap-4 -mt-16 sm:-mt-12 pb-4">
+            {/* Logo */}
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-              className="h-28 w-28 sm:h-36 sm:w-36 rounded-2xl border-4 border-background shadow-elevated overflow-hidden bg-card shrink-0"
+              className={cn(
+                "h-28 w-28 sm:h-36 sm:w-36 rounded-2xl border-4 border-background shadow-elevated overflow-hidden bg-card shrink-0 relative",
+                isAdmin && "cursor-pointer group"
+              )}
+              onClick={() => isAdmin && logoInputRef.current?.click()}
             >
               {org.logo_url ? (
                 <img src={org.logo_url} alt={org.name} className="w-full h-full object-cover" />
@@ -219,7 +428,27 @@ export default function OrgPublicPage() {
                   </span>
                 </div>
               )}
+              {isAdmin && (
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-2xl">
+                  {uploadingLogo ? (
+                    <Loader2 className="h-5 w-5 text-white animate-spin" />
+                  ) : (
+                    <Pencil className="h-5 w-5 text-white" />
+                  )}
+                </div>
+              )}
             </motion.div>
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleImageUpload(f, 'logo_url', setUploadingLogo);
+                e.target.value = '';
+              }}
+            />
 
             <div className="flex-1 min-w-0 sm:pb-1">
               <motion.div
@@ -228,10 +457,16 @@ export default function OrgPublicPage() {
                 transition={{ delay: 0.1 }}
               >
                 <div className="flex flex-wrap items-center gap-2 mb-1">
-                  <h1 className="text-2xl sm:text-3xl font-bold truncate">{org.name}</h1>
+                  <InlineEditableText
+                    value={org.name}
+                    onSave={(v) => saveOrgField('name', v)}
+                    canEdit={isAdmin}
+                    tag="h1"
+                    className="text-2xl sm:text-3xl font-bold truncate"
+                  />
                   {org.is_verified && <CheckCircle2 className="h-6 w-6 text-primary shrink-0" />}
                 </div>
-                <OrgBadges isVerified={org.is_verified} kycStatus={(org as any).kyc_status} isSuspended={(org as any).is_suspended} size="sm" className="mt-1" />
+                <OrgBadges isVerified={org.is_verified} kycStatus={orgAny.kyc_status} isSuspended={orgAny.is_suspended} size="sm" className="mt-1" />
                 <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                   <Badge variant="secondary" className="text-xs capitalize">{org.category}</Badge>
                   <span className="flex items-center gap-1">
@@ -288,16 +523,26 @@ export default function OrgPublicPage() {
             </motion.div>
           </div>
 
-          {org.description && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.15 }}
-              className="max-w-3xl mb-2 overflow-hidden"
-            >
+          {/* Description - inline editable */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.15 }}
+            className="max-w-3xl mb-2 overflow-hidden"
+          >
+            {isAdmin ? (
+              <InlineEditableText
+                value={org.description || ''}
+                onSave={(v) => saveOrgField('description', v)}
+                canEdit={true}
+                multiline
+                className="text-sm text-muted-foreground break-words leading-relaxed"
+                placeholder={locale === 'fr' ? 'Ajoutez une description...' : 'Add a description...'}
+              />
+            ) : org.description ? (
               <FormattedText text={org.description} className="text-sm text-muted-foreground break-words leading-relaxed" />
-            </motion.div>
-          )}
+            ) : null}
+          </motion.div>
 
           <div className="flex flex-wrap items-center gap-4 mb-4">
             {org.website && (
@@ -311,7 +556,7 @@ export default function OrgPublicPage() {
 
       <div className="container max-w-5xl">
         {/* ─── LEADER BIOGRAPHY ─── */}
-        {orgAny.leader_name && (
+        {(orgAny.leader_name || isAdmin) && (
           <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -328,9 +573,34 @@ export default function OrgPublicPage() {
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <h3 className="text-lg sm:text-xl font-bold">{orgAny.leader_name}</h3>
-                {orgAny.leader_title && <p className="text-sm text-primary font-medium mt-0.5">{orgAny.leader_title}</p>}
-                {orgAny.leader_bio && <FormattedText text={orgAny.leader_bio} className="text-sm text-muted-foreground mt-2 leading-relaxed break-words" />}
+                <InlineEditableText
+                  value={orgAny.leader_name || ''}
+                  onSave={(v) => saveOrgField('leader_name', v)}
+                  canEdit={isAdmin}
+                  tag="h3"
+                  className="text-lg sm:text-xl font-bold"
+                  placeholder={locale === 'fr' ? 'Nom du leader...' : 'Leader name...'}
+                />
+                <InlineEditableText
+                  value={orgAny.leader_title || ''}
+                  onSave={(v) => saveOrgField('leader_title', v)}
+                  canEdit={isAdmin}
+                  tag="p"
+                  className="text-sm text-primary font-medium mt-0.5"
+                  placeholder={locale === 'fr' ? 'Titre...' : 'Title...'}
+                />
+                {isAdmin ? (
+                  <InlineEditableText
+                    value={orgAny.leader_bio || ''}
+                    onSave={(v) => saveOrgField('leader_bio', v)}
+                    canEdit={true}
+                    multiline
+                    className="text-sm text-muted-foreground mt-2 leading-relaxed break-words"
+                    placeholder={locale === 'fr' ? 'Biographie...' : 'Biography...'}
+                  />
+                ) : orgAny.leader_bio ? (
+                  <FormattedText text={orgAny.leader_bio} className="text-sm text-muted-foreground mt-2 leading-relaxed break-words" />
+                ) : null}
               </div>
             </div>
           </motion.section>
@@ -356,11 +626,11 @@ export default function OrgPublicPage() {
           <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-6 pb-1">
             {[
               { value: 'home', label: t('org_public.home'), icon: Home, count: null },
-              ...(products.length > 0 ? [{ value: 'store', label: t('org_public.store'), icon: ShoppingBag, count: products.length }] : []),
-              ...(campaigns.length > 0 ? [{ value: 'donate', label: t('org_public.donations'), icon: Heart, count: campaigns.length }] : []),
-              ...(media.length > 0 ? [{ value: 'content', label: t('org_public.content'), icon: Play, count: media.length }] : []),
-              ...(photos.length > 0 ? [{ value: 'photos', label: t('org_public.photos'), icon: Camera, count: photos.length }] : []),
-              ...(events.length > 0 ? [{ value: 'events', label: t('org_public.events'), icon: CalendarDays, count: events.length }] : []),
+              ...(products.length > 0 || isAdmin ? [{ value: 'store', label: t('org_public.store'), icon: ShoppingBag, count: products.length }] : []),
+              ...(campaigns.length > 0 || isAdmin ? [{ value: 'donate', label: t('org_public.donations'), icon: Heart, count: campaigns.length }] : []),
+              ...(media.length > 0 || isAdmin ? [{ value: 'content', label: t('org_public.content'), icon: Play, count: media.length }] : []),
+              ...(photos.length > 0 || isAdmin ? [{ value: 'photos', label: t('org_public.photos'), icon: Camera, count: photos.length }] : []),
+              ...(events.length > 0 || isAdmin ? [{ value: 'events', label: t('org_public.events'), icon: CalendarDays, count: events.length }] : []),
             ].map((tab) => {
               const Icon = tab.icon;
               return (
@@ -384,105 +654,8 @@ export default function OrgPublicPage() {
 
           {/* ─── HOME TAB ─── */}
           <TabsContent value="home" className="space-y-8">
-            {products.length > 0 && (
-              <section>
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="font-semibold text-sm flex items-center gap-1.5">
-                    <ShoppingBag className="h-4 w-4 text-primary" /> {t('org_public.digital_products')}
-                  </h2>
-                  {products.length > 3 && (
-                    <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('store')}>
-                      {t('org_public.view_all')}
-                    </Button>
-                  )}
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {products.slice(0, 3).map((p, i) => (
-                    <ProductCard key={p.id} product={p} index={i} onPurchase={() => setPurchaseProduct(p)} isPurchased={purchasedProductIds.has(p.id)} />
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {campaigns.length > 0 && (
-              <section>
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="font-semibold text-sm flex items-center gap-1.5">
-                    <Heart className="h-4 w-4 text-destructive" /> {t('org_public.active_campaigns')}
-                  </h2>
-                  {campaigns.length > 2 && (
-                    <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('donate')}>
-                      {t('org_public.view_all')}
-                    </Button>
-                  )}
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2">
-                  {campaigns.slice(0, 2).map((c, i) => (
-                    <CampaignCard key={c.id} campaign={c} index={i} onDonate={() => setDonateCampaign(c)} />
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {media.length > 0 && (
-              <section>
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="font-semibold text-sm">{t('org_public.featured_content')}</h2>
-                  {media.length > 3 && (
-                    <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('content')}>
-                      {t('org_public.view_all')}
-                    </Button>
-                  )}
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {media.slice(0, 3).map((m, i) => <MediaCard key={m.id} media={m} index={i} />)}
-                </div>
-              </section>
-            )}
-
-            {photos.length > 0 && (
-              <section>
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="font-semibold text-sm flex items-center gap-1.5">
-                    <Camera className="h-4 w-4 text-primary" /> {t('org_public.photos')}
-                  </h2>
-                  {photos.length > 4 && (
-                    <Button variant="ghost" size="sm" className="text-xs h-7 text-primary" onClick={() => navigateTab('photos')}>
-                      {t('org_public.view_all')}
-                    </Button>
-                  )}
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {photos.slice(0, 4).map((photo: any, i: number) => (
-                    <div key={photo.id} className="rounded-xl overflow-hidden group cursor-pointer aspect-[4/3]" onClick={() => setLightboxIndex(i)}>
-                      <img src={photo.image_url} alt={photo.caption || 'Photo'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {events.length > 0 && (
-              <section>
-                <h2 className="font-semibold mb-3 text-sm">{t('org_public.upcoming_events')}</h2>
-                <div className="space-y-2">
-                  {events.slice(0, 3).map((ev) => (
-                    <div key={ev.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card">
-                      <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                        <CalendarDays className="h-5 w-5 text-primary-foreground" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm truncate">{ev.title}</p>
-                        <p className="text-xs text-muted-foreground">{ev.event_date ? new Date(ev.event_date).toLocaleDateString(dateFmt) : t('org_public.date_tbc')}</p>
-                      </div>
-                      {ev.location && <span className="text-xs text-muted-foreground hidden sm:block">{ev.location}</span>}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {media.length === 0 && events.length === 0 && campaigns.length === 0 && products.length === 0 && (
+            {orderedSections}
+            {!hasAnyContent && (
               <EmptyState variant="content" description={t('org_public.no_content')} />
             )}
           </TabsContent>
@@ -581,6 +754,22 @@ export default function OrgPublicPage() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Admin toolbar - only for org managers */}
+      {isAdmin && org && (
+        <OrgAdminToolbar
+          orgId={org.id}
+          orgSlug={org.slug}
+          isOwner={isOwner}
+          affiliationEnabled={!!orgAny.affiliation_enabled}
+          pageSettings={pageSettings || null}
+          onStartTour={() => setTourOpen(true)}
+          onToggleAffiliation={toggleAffiliation}
+        />
+      )}
+
+      {/* Interactive tour */}
+      <OrgPageTour open={tourOpen} onClose={() => setTourOpen(false)} />
 
       <DonateModal
         campaign={donateCampaign}
