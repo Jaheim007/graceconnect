@@ -84,6 +84,10 @@ export async function processPayout(payout_request_id: string, action: 'approve'
   return callFn('process-payout', { payout_request_id, action }, true);
 }
 
+export async function releaseSettlement(organization_id?: string) {
+  return callFn('release-settlement', { organization_id }, true);
+}
+
 // ── Email sending ──
 export type EmailTemplate =
   // Auth & Onboarding

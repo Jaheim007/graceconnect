@@ -79,6 +79,64 @@ Deno.serve(async (req) => {
       });
     }
 
+    // ── Handle dispute events ──
+    if (event.event === 'charge.dispute.create' || event.event === 'charge.dispute.remind' || event.event === 'charge.dispute.resolve') {
+      const disputeRef = txData?.transaction?.reference || txData?.reference;
+      const disputeId = txData?.id || txData?.dispute_id;
+      const disputeStatus = event.event === 'charge.dispute.resolve' ? 'resolved' : 'active';
+
+      if (disputeRef) {
+        // Mark in donations
+        await db.from('donations').update({
+          dispute_status: disputeStatus,
+          dispute_id: String(disputeId),
+          settlement_status: disputeStatus === 'active' ? 'disputed' : 'held',
+        }).eq('paystack_reference', disputeRef);
+
+        // Mark in purchases
+        await db.from('product_purchases').update({
+          dispute_status: disputeStatus,
+          dispute_id: String(disputeId),
+          settlement_status: disputeStatus === 'active' ? 'disputed' : 'held',
+        }).eq('paystack_reference', disputeRef);
+
+        // Freeze org payouts if active dispute
+        if (disputeStatus === 'active') {
+          const { data: donation } = await db.from('donations').select('organization_id').eq('paystack_reference', disputeRef).maybeSingle();
+          const { data: purchase } = await db.from('product_purchases').select('organization_id').eq('paystack_reference', disputeRef).maybeSingle();
+          const orgId = donation?.organization_id || purchase?.organization_id;
+          if (orgId) {
+            // Log dispute in audit
+            await db.from('audit_logs').insert({
+              organization_id: orgId,
+              action: 'dispute_opened',
+              resource_type: 'payment',
+              metadata: { reference: disputeRef, dispute_id: disputeId, event: event.event },
+            });
+          }
+        }
+      }
+
+      await db.from('payment_events').update({ status: 'processed', processed_at: new Date().toISOString() }).eq('event_id', String(eventId));
+      return new Response(JSON.stringify({ ok: true, dispute_handled: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    // ── Handle transfer events ──
+    if (event.event === 'transfer.success' || event.event === 'transfer.failed' || event.event === 'transfer.reversed') {
+      const transferStatus = event.event === 'transfer.success' ? 'completed' : event.event === 'transfer.failed' ? 'failed' : 'reversed';
+      const reason = txData?.reason || txData?.complete_message || '';
+
+      // Log transfer event
+      await db.from('audit_logs').insert({
+        action: `transfer_${transferStatus}`,
+        resource_type: 'transfer',
+        metadata: { transfer_code: txData?.transfer_code, recipient_code: txData?.recipient?.recipient_code, amount: txData?.amount, reason, event: event.event },
+      });
+
+      await db.from('payment_events').update({ status: 'processed', processed_at: new Date().toISOString() }).eq('event_id', String(eventId));
+      return new Response(JSON.stringify({ ok: true, transfer_handled: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     // Only process successful charges
     if (event.event !== 'charge.success') {
       await db.from('payment_events').update({ status: 'skipped', processed_at: new Date().toISOString() })
@@ -164,7 +222,7 @@ Deno.serve(async (req) => {
         commission_amount: affCommission,
         commission_percent: org?.affiliation_commission_percent ?? 10,
         status: 'pending',
-        payable_at: new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(),
+        payable_at: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(), // 15 days hold for affiliates
       });
 
       // Update affiliate link counters

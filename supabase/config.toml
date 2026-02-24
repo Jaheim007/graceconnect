@@ -38,3 +38,6 @@ verify_jwt = false
 
 [functions.onesignal-test-push]
 verify_jwt = false
+
+[functions.release-settlement]
+verify_jwt = false
