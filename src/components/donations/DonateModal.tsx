@@ -58,15 +58,18 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
   const resolvedEmail = email || user?.email || '';
   const resolvedName = name || profile?.display_name || '';
 
+  const [promoData, setPromoData] = useState<{ discount_percent: number; discount_type: string; discount_amount: number } | null>(null);
+
   const validatePromo = async () => {
     if (!promoCode.trim()) return;
     setPromoValidating(true);
     setPromoError('');
     setPromoDiscount(null);
+    setPromoData(null);
     try {
       const { data, error } = await db
         .from('promo_codes')
-        .select('id, discount_percent, max_uses, current_uses, expires_at, is_active')
+        .select('id, discount_percent, discount_type, discount_amount, max_uses, current_uses, expires_at, is_active')
         .eq('code', promoCode.trim().toUpperCase())
         .eq('organization_id', organizationId)
         .eq('is_active', true)
@@ -74,12 +77,18 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
       if (error || !data) { setPromoError('Code invalide'); return; }
       if (data.expires_at && new Date(data.expires_at) < new Date()) { setPromoError('Code expiré'); return; }
       if (data.max_uses && data.current_uses >= data.max_uses) { setPromoError('Code épuisé'); return; }
-      setPromoDiscount(data.discount_percent);
+      setPromoData({ discount_percent: data.discount_percent, discount_type: data.discount_type || 'percent', discount_amount: data.discount_amount || 0 });
+      // For backward compat, set promoDiscount as percent value
+      setPromoDiscount(data.discount_type === 'fixed' ? null : data.discount_percent);
     } catch { setPromoError('Erreur de validation'); }
     finally { setPromoValidating(false); }
   };
 
-  const effectiveAmount = promoDiscount && amount ? Math.round(Number(amount) * (1 - promoDiscount / 100)) : Number(amount);
+  const effectiveAmount = promoData && amount
+    ? promoData.discount_type === 'fixed'
+      ? Math.max(0, Number(amount) - promoData.discount_amount)
+      : Math.round(Number(amount) * (1 - promoData.discount_percent / 100))
+    : promoDiscount && amount ? Math.round(Number(amount) * (1 - promoDiscount / 100)) : Number(amount);
 
   const handleDonate = async () => {
     if (!amount || Number(amount) < 100) {
@@ -237,8 +246,10 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
                   </Button>
                 </div>
                 {promoError && <p className="text-xs text-destructive mt-1">{promoError}</p>}
-                {promoDiscount && (
-                  <p className="text-xs text-green-600 mt-1">✓ -{promoDiscount}% appliqué — Nouveau montant : {amount ? fmt(effectiveAmount) : '—'}</p>
+                {promoData && (
+                  <p className="text-xs text-green-600 mt-1">
+                    ✓ {promoData.discount_type === 'fixed' ? `-${promoData.discount_amount} fixe` : `-${promoData.discount_percent}%`} appliqué — Nouveau montant : {amount ? fmt(effectiveAmount) : '—'}
+                  </p>
                 )}
               </div>
 

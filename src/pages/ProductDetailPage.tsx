@@ -10,7 +10,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { DigitalProduct } from '@/types/database';
 import {
   ArrowLeft, ShoppingBag, Share2, Copy, CheckCircle,
-  FileText, BookOpen, Music, Link2, ExternalLink, MessageCircle
+  FileText, BookOpen, Music, Link2, ExternalLink, MessageCircle,
+  Shield, HelpCircle, MessageSquareQuote, PackagePlus, Star
 } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -21,6 +22,9 @@ import { formatCurrency, formatPrice } from '@/lib/currency';
 import { useI18n } from '@/i18n/I18nContext';
 import { FormattedText } from '@/lib/formatText';
 import { ProductReviews } from '@/components/products/ProductReviews';
+import { useBundleItems, useProductRecommendations } from '@/hooks/useBundlesAndRecommendations';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ProductCard } from '@/components/products/ProductCard';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -84,6 +88,9 @@ export default function ProductDetailPage() {
 
   const { data: purchases = [] } = useMyPurchases();
   const isPurchased = purchases.some(p => p.product_id === (productId || product?.id));
+  
+  const { data: bundleItems = [] } = useBundleItems(product?.is_bundle ? product?.id : undefined);
+  const { data: recommendations = [] } = useProductRecommendations(product?.id);
 
   const buildShareUrl = () => {
     const pSlug = (product as any)?.slug;
@@ -143,6 +150,9 @@ export default function ProductDetailPage() {
 
   const org = (product as any).organizations;
   const aspectClass = coverAspectClass[product.product_type || 'other'] || 'aspect-video';
+  const faqItems: { q: string; a: string }[] = (product as any).faq_json || [];
+  const testimonials: { name: string; text: string }[] = (product as any).testimonials_json || [];
+  const guaranteeText: string | null = (product as any).guarantee_text;
 
   return (
     <div className="min-h-screen bg-background">
@@ -207,6 +217,87 @@ export default function ProductDetailPage() {
                   text={product.description}
                   className="text-sm text-muted-foreground leading-relaxed break-words"
                 />
+              </div>
+            )}
+
+            {/* Bundle Items */}
+            {(product as any).is_bundle && bundleItems.length > 0 && (
+              <div className="space-y-3">
+                <h2 className="text-base font-semibold flex items-center gap-2">
+                  <PackagePlus className="h-4 w-4 text-primary" /> Ce bundle inclut
+                </h2>
+                <div className="space-y-2">
+                  {bundleItems.map((bi: any) => (
+                    <div key={bi.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card">
+                      {bi.included_product?.cover_image_url ? (
+                        <img src={bi.included_product.cover_image_url} alt="" className="h-12 w-12 rounded-lg object-cover" />
+                      ) : (
+                        <div className="h-12 w-12 rounded-lg bg-muted flex items-center justify-center">
+                          <ShoppingBag className="h-5 w-5 text-muted-foreground/30" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold line-clamp-1">{bi.included_product?.title}</p>
+                        <p className="text-xs text-muted-foreground capitalize">{bi.included_product?.product_type}</p>
+                      </div>
+                      {bi.included_product?.price > 0 && !bi.included_product?.is_free && (
+                        <span className="text-xs text-muted-foreground line-through">
+                          {formatPrice(bi.included_product.price, false, bi.included_product.currency)}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Guarantee */}
+            {guaranteeText && (
+              <div className="p-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/5">
+                <div className="flex items-start gap-3">
+                  <Shield className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-semibold text-sm">Garantie</p>
+                    <p className="text-sm text-muted-foreground mt-1">{guaranteeText}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Testimonials */}
+            {testimonials.length > 0 && (
+              <div className="space-y-3">
+                <h2 className="text-base font-semibold flex items-center gap-2">
+                  <MessageSquareQuote className="h-4 w-4" /> Témoignages
+                </h2>
+                <div className="space-y-2">
+                  {testimonials.map((t, i) => (
+                    <div key={i} className="p-4 rounded-xl border border-border bg-card">
+                      <div className="flex items-center gap-1 mb-2">
+                        {[1,2,3,4,5].map(s => <Star key={s} className="h-3 w-3 fill-yellow-400 text-yellow-400" />)}
+                      </div>
+                      <p className="text-sm italic text-muted-foreground">"{t.text}"</p>
+                      <p className="text-xs font-semibold mt-2">— {t.name}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* FAQ */}
+            {faqItems.length > 0 && (
+              <div className="space-y-3">
+                <h2 className="text-base font-semibold flex items-center gap-2">
+                  <HelpCircle className="h-4 w-4" /> Questions fréquentes
+                </h2>
+                <Accordion type="single" collapsible className="w-full">
+                  {faqItems.map((faq, i) => (
+                    <AccordionItem key={i} value={`faq-${i}`}>
+                      <AccordionTrigger className="text-sm text-left">{faq.q}</AccordionTrigger>
+                      <AccordionContent className="text-sm text-muted-foreground">{faq.a}</AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
               </div>
             )}
 
@@ -297,6 +388,22 @@ export default function ProductDetailPage() {
             </div>
           </motion.div>
         </div>
+
+        {/* Recommended Products */}
+        {recommendations.length > 0 && (
+          <div className="mt-10 space-y-4">
+            <h2 className="text-lg font-bold">Vous aimerez aussi</h2>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {recommendations.map((rec: any) => rec.recommended_product && (
+                <ProductCard
+                  key={rec.id}
+                  product={{ ...rec.recommended_product, organization_slug: slug }}
+                  isPurchased={purchases.some(p => p.product_id === rec.recommended_product.id)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <ProductPurchaseModal

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Copy, ExternalLink, Share2, CheckCircle, Plus, Eye } from 'lucide-react';
+import { Copy, ExternalLink, Share2, CheckCircle, Plus, Eye, Trash2, PackagePlus, ArrowUpRight, HelpCircle, Shield, MessageSquareQuote } from 'lucide-react';
 import { z } from 'zod';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,7 +18,9 @@ import { Switch } from '@/components/ui/switch';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { FileUploader } from '@/components/ui/FileUploader';
 import { useToast } from '@/hooks/use-toast';
-
+import { Badge } from '@/components/ui/badge';
+import { useBundleItems, useAddBundleItem, useRemoveBundleItem, useProductRecommendations, useAddRecommendation, useRemoveRecommendation } from '@/hooks/useBundlesAndRecommendations';
+import { useOrgProducts } from '@/hooks/useMonetization';
 
 const schema = z.object({
   title: z.string().min(2, 'Required'),
@@ -31,6 +33,8 @@ const schema = z.object({
   is_free: z.boolean().default(false),
   is_featured: z.boolean().default(false),
   is_published: z.boolean().default(false),
+  is_bundle: z.boolean().default(false),
+  guarantee_text: z.string().optional(),
 });
 
 
@@ -45,6 +49,22 @@ export function ProductForm() {
   const isEdit = !!id;
   const [loading, setLoading] = useState(false);
   const [createdProduct, setCreatedProduct] = useState<{ id: string; slug: string } | null>(null);
+  const [faqItems, setFaqItems] = useState<{ q: string; a: string }[]>([]);
+  const [testimonials, setTestimonials] = useState<{ name: string; text: string }[]>([]);
+  const [newFaq, setNewFaq] = useState({ q: '', a: '' });
+  const [newTestimonial, setNewTestimonial] = useState({ name: '', text: '' });
+
+  // Bundle & Recommendation hooks
+  const { data: allProducts = [] } = useOrgProducts(currentOrg?.id, false);
+  const { data: bundleItems = [] } = useBundleItems(isEdit ? id : undefined);
+  const addBundleItem = useAddBundleItem();
+  const removeBundleItem = useRemoveBundleItem();
+  const { data: recommendations = [] } = useProductRecommendations(isEdit ? id : undefined);
+  const addRecommendation = useAddRecommendation();
+  const removeRecommendation = useRemoveRecommendation();
+  const [selectedBundleProduct, setSelectedBundleProduct] = useState('');
+  const [selectedRecommendation, setSelectedRecommendation] = useState('');
+  const [recommendationType, setRecommendationType] = useState<string>('related');
 
   const { data: item } = useQuery({
     queryKey: ['product-item', id],
@@ -57,7 +77,7 @@ export function ProductForm() {
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { product_type: 'pdf', price: 0, is_free: false, is_featured: false, is_published: false },
+    defaultValues: { product_type: 'pdf', price: 0, is_free: false, is_featured: false, is_published: false, is_bundle: false, guarantee_text: '' },
   });
 
   useEffect(() => {
@@ -73,7 +93,11 @@ export function ProductForm() {
         is_free: item.is_free || false,
         is_featured: item.is_featured || false,
         is_published: item.is_published || false,
+        is_bundle: item.is_bundle || false,
+        guarantee_text: item.guarantee_text || '',
       });
+      setFaqItems(item.faq_json || []);
+      setTestimonials(item.testimonials_json || []);
     }
   }, [item, reset]);
 
@@ -96,6 +120,9 @@ export function ProductForm() {
         cover_image_url: data.cover_image_url || null,
         file_url: data.file_url || null,
         external_link: data.external_link || null,
+        guarantee_text: data.guarantee_text || null,
+        faq_json: faqItems.length > 0 ? faqItems : [],
+        testimonials_json: testimonials.length > 0 ? testimonials : [],
       };
       let error;
       let resultData: any;
@@ -292,7 +319,133 @@ export function ProductForm() {
             <Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} />
             <Label className="text-sm cursor-pointer">Published</Label>
           </div>
+          <div className="flex items-center gap-2">
+            <Switch checked={watch('is_bundle')} onCheckedChange={v => setValue('is_bundle', v)} />
+            <Label className="text-sm cursor-pointer flex items-center gap-1"><PackagePlus className="h-3.5 w-3.5" /> Bundle</Label>
+          </div>
         </div>
+
+        {/* Guarantee */}
+        <div className="space-y-1.5">
+          <Label className="flex items-center gap-1"><Shield className="h-3.5 w-3.5" /> Garantie (optionnel)</Label>
+          <Textarea {...register('guarantee_text')} rows={2} placeholder="Ex: Satisfait ou remboursé sous 30 jours" />
+        </div>
+
+        {/* FAQ Section */}
+        <div className="space-y-2 border border-border rounded-xl p-4">
+          <Label className="flex items-center gap-1 text-sm font-semibold"><HelpCircle className="h-3.5 w-3.5" /> FAQ du produit</Label>
+          {faqItems.map((faq, i) => (
+            <div key={i} className="flex items-start gap-2 bg-muted/50 rounded-lg p-2">
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold">{faq.q}</p>
+                <p className="text-xs text-muted-foreground">{faq.a}</p>
+              </div>
+              <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={() => setFaqItems(prev => prev.filter((_, idx) => idx !== i))}>
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
+          ))}
+          <div className="grid gap-2">
+            <Input placeholder="Question" value={newFaq.q} onChange={e => setNewFaq(f => ({ ...f, q: e.target.value }))} className="h-8 text-xs" />
+            <Input placeholder="Réponse" value={newFaq.a} onChange={e => setNewFaq(f => ({ ...f, a: e.target.value }))} className="h-8 text-xs" />
+            <Button type="button" variant="outline" size="sm" className="w-fit gap-1"
+              onClick={() => { if (newFaq.q && newFaq.a) { setFaqItems(prev => [...prev, { ...newFaq }]); setNewFaq({ q: '', a: '' }); } }}>
+              <Plus className="h-3 w-3" /> Ajouter
+            </Button>
+          </div>
+        </div>
+
+        {/* Testimonials Section */}
+        <div className="space-y-2 border border-border rounded-xl p-4">
+          <Label className="flex items-center gap-1 text-sm font-semibold"><MessageSquareQuote className="h-3.5 w-3.5" /> Témoignages</Label>
+          {testimonials.map((t, i) => (
+            <div key={i} className="flex items-start gap-2 bg-muted/50 rounded-lg p-2">
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold">{t.name}</p>
+                <p className="text-xs text-muted-foreground italic">"{t.text}"</p>
+              </div>
+              <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={() => setTestimonials(prev => prev.filter((_, idx) => idx !== i))}>
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
+          ))}
+          <div className="grid gap-2">
+            <Input placeholder="Nom du client" value={newTestimonial.name} onChange={e => setNewTestimonial(t => ({ ...t, name: e.target.value }))} className="h-8 text-xs" />
+            <Input placeholder="Témoignage" value={newTestimonial.text} onChange={e => setNewTestimonial(t => ({ ...t, text: e.target.value }))} className="h-8 text-xs" />
+            <Button type="button" variant="outline" size="sm" className="w-fit gap-1"
+              onClick={() => { if (newTestimonial.name && newTestimonial.text) { setTestimonials(prev => [...prev, { ...newTestimonial }]); setNewTestimonial({ name: '', text: '' }); } }}>
+              <Plus className="h-3 w-3" /> Ajouter
+            </Button>
+          </div>
+        </div>
+
+        {/* Bundle Items (only in edit mode) */}
+        {isEdit && watch('is_bundle') && (
+          <div className="space-y-2 border border-primary/20 rounded-xl p-4">
+            <Label className="flex items-center gap-1 text-sm font-semibold"><PackagePlus className="h-3.5 w-3.5 text-primary" /> Produits inclus dans le bundle</Label>
+            {bundleItems.map((bi: any) => (
+              <div key={bi.id} className="flex items-center gap-2 bg-muted/50 rounded-lg p-2">
+                <span className="text-xs font-medium flex-1">{bi.included_product?.title || bi.included_product_id}</span>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeBundleItem.mutate({ id: bi.id, bundleProductId: id! })}>
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+            ))}
+            <div className="flex gap-2">
+              <Select value={selectedBundleProduct} onValueChange={setSelectedBundleProduct}>
+                <SelectTrigger className="h-8 text-xs flex-1"><SelectValue placeholder="Sélectionner un produit" /></SelectTrigger>
+                <SelectContent>
+                  {allProducts.filter((p: any) => p.id !== id && !bundleItems.some((bi: any) => bi.included_product_id === p.id)).map((p: any) => (
+                    <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button type="button" variant="outline" size="sm" className="h-8 gap-1"
+                onClick={() => { if (selectedBundleProduct) { addBundleItem.mutate({ bundleProductId: id!, includedProductId: selectedBundleProduct }); setSelectedBundleProduct(''); } }}>
+                <Plus className="h-3 w-3" /> Ajouter
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Recommendations (only in edit mode) */}
+        {isEdit && (
+          <div className="space-y-2 border border-border rounded-xl p-4">
+            <Label className="flex items-center gap-1 text-sm font-semibold"><ArrowUpRight className="h-3.5 w-3.5" /> Produits recommandés (Upsell / Cross-sell)</Label>
+            {recommendations.map((rec: any) => (
+              <div key={rec.id} className="flex items-center gap-2 bg-muted/50 rounded-lg p-2">
+                <Badge variant="outline" className="text-[10px] capitalize">{rec.recommendation_type}</Badge>
+                <span className="text-xs font-medium flex-1">{rec.recommended_product?.title || rec.recommended_product_id}</span>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeRecommendation.mutate({ id: rec.id, productId: id! })}>
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              </div>
+            ))}
+            <div className="flex gap-2 flex-wrap">
+              <Select value={recommendationType} onValueChange={setRecommendationType}>
+                <SelectTrigger className="h-8 text-xs w-28"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="upsell">Upsell</SelectItem>
+                  <SelectItem value="cross_sell">Cross-sell</SelectItem>
+                  <SelectItem value="related">Related</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={selectedRecommendation} onValueChange={setSelectedRecommendation}>
+                <SelectTrigger className="h-8 text-xs flex-1"><SelectValue placeholder="Sélectionner un produit" /></SelectTrigger>
+                <SelectContent>
+                  {allProducts.filter((p: any) => p.id !== id && !recommendations.some((r: any) => r.recommended_product_id === p.id)).map((p: any) => (
+                    <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button type="button" variant="outline" size="sm" className="h-8 gap-1"
+                onClick={() => { if (selectedRecommendation) { addRecommendation.mutate({ productId: id!, recommendedProductId: selectedRecommendation, type: recommendationType }); setSelectedRecommendation(''); } }}>
+                <Plus className="h-3 w-3" /> Ajouter
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div className="flex gap-3 pt-2">
           <Button type="button" variant="outline" onClick={() => navigate('/admin/products')}>Cancel</Button>
           <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>

@@ -41,7 +41,10 @@ interface PromoState {
   validating: boolean;
   applied: boolean;
   discountPercent: number;
+  discountType: 'percent' | 'fixed';
+  discountFixedAmount: number;
   error: string;
+  promoCodeId: string | null;
 }
 
 export function ProductPurchaseModal({ product, organizationId, open, onClose, onSuccess }: ProductPurchaseModalProps) {
@@ -64,7 +67,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const [formErrors, setFormErrors] = useState<Partial<BuyerInfo>>({});
 
   const [promo, setPromo] = useState<PromoState>({
-    code: '', validating: false, applied: false, discountPercent: 0, error: '',
+    code: '', validating: false, applied: false, discountPercent: 0, discountType: 'percent', discountFixedAmount: 0, error: '', promoCodeId: null,
   });
   const [promoOpen, setPromoOpen] = useState(false);
 
@@ -72,7 +75,11 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
   const fmt = (n: number) => formatPrice(n, product.is_free, product.currency);
 
-  const discountAmount = promo.applied ? Math.round((product.price ?? 0) * promo.discountPercent / 100) : 0;
+  const discountAmount = promo.applied
+    ? promo.discountType === 'fixed'
+      ? promo.discountFixedAmount
+      : Math.round((product.price ?? 0) * promo.discountPercent / 100)
+    : 0;
   const finalPrice = Math.max(0, (product.price ?? 0) - discountAmount);
 
   const validatePromoCode = async () => {
@@ -102,14 +109,23 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
         setPromo(p => ({ ...p, validating: false, error: 'Ce code n\'est pas valide pour ce produit.' }));
         return;
       }
-      setPromo(p => ({ ...p, validating: false, applied: true, discountPercent: data.discount_percent, error: '' }));
-      toast({ title: `🎉 -${data.discount_percent}% appliqué !` });
+      const discType = data.discount_type || 'percent';
+      const label = discType === 'fixed' ? `-${data.discount_amount} fixe` : `-${data.discount_percent}%`;
+      setPromo(p => ({
+        ...p, validating: false, applied: true,
+        discountPercent: data.discount_percent || 0,
+        discountType: discType,
+        discountFixedAmount: data.discount_amount || 0,
+        error: '',
+        promoCodeId: data.id,
+      }));
+      toast({ title: `🎉 ${label} appliqué !` });
     } catch {
       setPromo(p => ({ ...p, validating: false, error: 'Erreur de vérification.' }));
     }
   };
 
-  const clearPromo = () => { setPromo({ code: '', validating: false, applied: false, discountPercent: 0, error: '' }); setPromoOpen(false); };
+  const clearPromo = () => { setPromo({ code: '', validating: false, applied: false, discountPercent: 0, discountType: 'percent', discountFixedAmount: 0, error: '', promoCodeId: null }); setPromoOpen(false); };
 
   const validateBuyerInfo = (): boolean => {
     const errors: Partial<BuyerInfo> = {};
@@ -244,7 +260,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                     <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2">
                       <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-green-600 dark:text-green-400">Code {promo.code} appliqué — {promo.discountPercent}% de réduction</p>
+                        <p className="text-xs font-semibold text-green-600 dark:text-green-400">Code {promo.code} appliqué — {promo.discountType === 'fixed' ? `-${promo.discountFixedAmount}` : `-${promo.discountPercent}%`}</p>
                       </div>
                       <button onClick={clearPromo}><X className="h-3.5 w-3.5 text-muted-foreground" /></button>
                     </div>
@@ -277,9 +293,9 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                   {promo.applied && (
                     <div className="rounded-lg bg-muted/50 p-3 text-sm space-y-1">
                       <div className="flex justify-between"><span>Prix</span><span>{fmt(product.price)}</span></div>
-                      <div className="flex justify-between text-green-600 dark:text-green-400">
-                        <span>Réduction (-{promo.discountPercent}%)</span>
-                        <span>-{fmt(discountAmount)}</span>
+                        <div className="flex justify-between text-green-600 dark:text-green-400">
+                          <span>Réduction ({promo.discountType === 'fixed' ? `${promo.discountFixedAmount} fixe` : `-${promo.discountPercent}%`})</span>
+                          <span>-{fmt(discountAmount)}</span>
                       </div>
                       <div className="flex justify-between font-semibold border-t border-border pt-1 mt-1">
                         <span>Total</span><span className="text-primary">{fmt(finalPrice)}</span>
@@ -363,7 +379,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
               <div className="rounded-lg bg-muted/50 p-3 text-sm">
                 {promo.applied && (
                   <div className="flex justify-between text-green-600 dark:text-green-400 text-xs mb-1">
-                    <span>🎟️ {promo.code} (-{promo.discountPercent}%)</span>
+                    <span>🎟️ {promo.code} ({promo.discountType === 'fixed' ? `${promo.discountFixedAmount} fixe` : `-${promo.discountPercent}%`})</span>
                     <span>-{fmt(discountAmount)}</span>
                   </div>
                 )}

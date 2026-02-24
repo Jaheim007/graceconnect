@@ -32,7 +32,9 @@ export default function AdminPromoCodes() {
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [code, setCode] = useState('');
+  const [discountType, setDiscountType] = useState<'percent' | 'fixed'>('percent');
   const [discountPercent, setDiscountPercent] = useState('10');
+  const [discountAmount, setDiscountAmount] = useState('');
   const [maxUses, setMaxUses] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
   const [selectedProductId, setSelectedProductId] = useState<string>('all');
@@ -59,15 +61,25 @@ export default function AdminPromoCodes() {
       if (!currentOrg || !user) throw new Error('Not authenticated');
       const trimmedCode = code.trim().toUpperCase().replace(/[^A-Z0-9-]/g, '');
       if (!trimmedCode || trimmedCode.length < 3) throw new Error('Code too short (min 3)');
-      const pct = parseFloat(discountPercent);
-      if (isNaN(pct) || pct <= 0 || pct > 100) throw new Error('Invalid percentage (1-100)');
 
       const payload: any = {
         organization_id: currentOrg.id,
         code: trimmedCode,
-        discount_percent: pct,
+        discount_type: discountType,
         created_by: user.id,
       };
+
+      if (discountType === 'percent') {
+        const pct = parseFloat(discountPercent);
+        if (isNaN(pct) || pct <= 0 || pct > 100) throw new Error('Invalid percentage (1-100)');
+        payload.discount_percent = pct;
+        payload.discount_amount = 0;
+      } else {
+        const amt = parseFloat(discountAmount);
+        if (isNaN(amt) || amt <= 0) throw new Error('Invalid amount');
+        payload.discount_amount = amt;
+        payload.discount_percent = 0;
+      }
       if (maxUses) payload.max_uses = parseInt(maxUses);
       if (expiresAt) payload.expires_at = new Date(expiresAt).toISOString();
       if (selectedProductId !== 'all') payload.product_id = selectedProductId;
@@ -82,7 +94,7 @@ export default function AdminPromoCodes() {
     },
     onSuccess: () => {
       toast({ title: `✅ ${t('admin_promo.created')}` });
-      setCode(''); setDiscountPercent('10'); setMaxUses(''); setExpiresAt(''); setSelectedProductId('all');
+      setCode(''); setDiscountType('percent'); setDiscountPercent('10'); setDiscountAmount(''); setMaxUses(''); setExpiresAt(''); setSelectedProductId('all');
       setShowForm(false);
       qc.invalidateQueries({ queryKey: ['admin-promo-codes', currentOrg?.id] });
     },
@@ -141,8 +153,24 @@ export default function AdminPromoCodes() {
                 <Input value={code} onChange={e => setCode(e.target.value.toUpperCase())} placeholder="EX: BIENVENUE20" className="h-8 text-xs font-mono uppercase" />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">{t('admin_promo.discount')}</Label>
-                <Input type="number" value={discountPercent} onChange={e => setDiscountPercent(e.target.value)} min="1" max="100" className="h-8 text-xs" />
+                <Label className="text-xs">Type de réduction</Label>
+                <Select value={discountType} onValueChange={(v) => setDiscountType(v as 'percent' | 'fixed')}>
+                  <SelectTrigger className="h-8 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="percent">Pourcentage (%)</SelectItem>
+                    <SelectItem value="fixed">Montant fixe</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">{discountType === 'percent' ? t('admin_promo.discount') : 'Montant de réduction'}</Label>
+                {discountType === 'percent' ? (
+                  <Input type="number" value={discountPercent} onChange={e => setDiscountPercent(e.target.value)} min="1" max="100" className="h-8 text-xs" placeholder="10" />
+                ) : (
+                  <Input type="number" value={discountAmount} onChange={e => setDiscountAmount(e.target.value)} min="1" className="h-8 text-xs" placeholder="1000" />
+                )}
               </div>
               <div className="space-y-1.5">
                 <Label className="text-xs">{t('admin_promo.product_label')}</Label>
@@ -195,7 +223,7 @@ export default function AdminPromoCodes() {
                       </button>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      -{pc.discount_percent}% · {pc.current_uses}{pc.max_uses ? `/${pc.max_uses}` : ''} {t('admin_promo.uses')}
+                      {pc.discount_type === 'fixed' ? `-${pc.discount_amount} fixe` : `-${pc.discount_percent}%`} · {pc.current_uses}{pc.max_uses ? `/${pc.max_uses}` : ''} {t('admin_promo.uses')}
                       {pc.expires_at && ` · ${t('admin_promo.expires_on')} ${new Date(pc.expires_at).toLocaleDateString(dateFmt)}`}
                     </p>
                     {pc.digital_products?.title && (
