@@ -18,11 +18,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { motion } from 'framer-motion';
-import { useDirectoryMode } from '@/hooks/useDirectoryMode';
 import { useI18n } from '@/i18n/I18nContext';
 import { PageTour } from '@/components/onboarding/PageTour';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { FeaturedSection } from '@/components/discover/FeaturedSection';
+import { NewThisWeek } from '@/components/discover/NewThisWeek';
+import { CheckCircle2 } from 'lucide-react';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
@@ -51,7 +53,6 @@ export default function DiscoverPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { userOrgs } = useOrg();
-  const { data: directoryMode = 'curated' } = useDirectoryMode();
   const { t, locale } = useI18n();
   const debouncedSearch = useDebounce(search, 300);
 
@@ -94,8 +95,8 @@ export default function DiscoverPage() {
       if (typeFilter === 'bundle') q = q.eq('is_bundle', true);
       else if (typeFilter) q = q.eq('product_type', typeFilter);
 
-      // Sort
-      if (sortBy === 'popular') q = q.order('sales_count', { ascending: false });
+      // Sort — featured_score first for popular, then fallback
+      if (sortBy === 'popular') q = q.order('featured_score', { ascending: false }).order('sales_count', { ascending: false });
       else if (sortBy === 'recent') q = q.order('created_at', { ascending: false });
       else if (sortBy === 'price_asc') q = q.order('price', { ascending: true });
       else if (sortBy === 'price_desc') q = q.order('price', { ascending: false });
@@ -134,9 +135,8 @@ export default function DiscoverPage() {
     enabled: tab === 'campaigns',
   });
 
-  const filteredOrgs = directoryMode === 'curated'
-    ? orgs.filter((o: any) => o.is_verified || o.is_featured)
-    : orgs;
+  // Show all orgs, no curated filter — verified ones get a badge via OrgCard
+  const isSearching = debouncedSearch.length > 0;
 
   return (
     <div className="bg-background min-h-screen">
@@ -159,6 +159,13 @@ export default function DiscoverPage() {
 
       <div className="container max-w-6xl py-6">
         <PageTour pageId="discover" steps={DISCOVER_TOUR_STEPS} />
+
+        {/* Featured section — only when not searching */}
+        {!isSearching && <FeaturedSection />}
+
+        {/* New this week — only on products tab when not searching */}
+        {!isSearching && tab === 'products' && <NewThisWeek />}
+
         <Tabs value={tab} onValueChange={(v) => { setTab(v); setPage(0); }}>
           <TabsList className="mb-4">
             <TabsTrigger value="products" className="gap-1.5">
@@ -174,7 +181,6 @@ export default function DiscoverPage() {
 
           {/* ═══ Products Tab ═══ */}
           <TabsContent value="products">
-            {/* Filters bar */}
             <div className="flex flex-wrap items-center gap-2 mb-4">
               <Select value={sortBy} onValueChange={(v) => setSortBy(v as ProductSort)}>
                 <SelectTrigger className="h-8 w-auto min-w-[130px] text-xs gap-1">
@@ -245,7 +251,6 @@ export default function DiscoverPage() {
 
           {/* ═══ Organizations Tab ═══ */}
           <TabsContent value="orgs">
-            {/* Category filters */}
             <div className="flex flex-wrap gap-1.5 mb-4">
               {CATEGORIES.map((cat) => (
                 <Button key={cat.value} size="sm" variant={category === cat.value ? 'default' : 'outline'} className="h-7 text-xs px-3" onClick={() => { setCategory(cat.value); setPage(0); }}>
@@ -254,12 +259,12 @@ export default function DiscoverPage() {
               ))}
             </div>
 
-            {isLoading ? <SkeletonList count={6} /> : filteredOrgs.length === 0 ? (
+            {isLoading ? <SkeletonList count={6} /> : orgs.length === 0 ? (
               <EmptyState variant="search" title={locale === 'fr' ? 'Aucune organisation trouvée' : 'No organizations found'} />
             ) : (
               <>
                 <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                  {filteredOrgs.map((o: any) => (
+                  {orgs.map((o: any) => (
                     <motion.div key={o.id} variants={fadeUp}>
                       <OrgCard org={o} />
                     </motion.div>
