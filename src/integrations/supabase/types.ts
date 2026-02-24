@@ -416,6 +416,42 @@ export type Database = {
           },
         ]
       }
+      client_events: {
+        Row: {
+          created_at: string
+          device_type: string | null
+          event_data: Json | null
+          event_name: string
+          id: string
+          page_url: string | null
+          referrer: string | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          device_type?: string | null
+          event_data?: Json | null
+          event_name: string
+          id?: string
+          page_url?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          device_type?: string | null
+          event_data?: Json | null
+          event_name?: string
+          id?: string
+          page_url?: string | null
+          referrer?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       contacts: {
         Row: {
           created_at: string
@@ -466,6 +502,50 @@ export type Database = {
           },
         ]
       }
+      content_comments: {
+        Row: {
+          body: string
+          content_id: string
+          content_type: string
+          created_at: string
+          id: string
+          is_hidden: boolean
+          parent_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          content_id: string
+          content_type: string
+          created_at?: string
+          id?: string
+          is_hidden?: boolean
+          parent_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          content_id?: string
+          content_type?: string
+          created_at?: string
+          id?: string
+          is_hidden?: boolean
+          parent_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "content_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_reports: {
         Row: {
           content_id: string
@@ -496,6 +576,36 @@ export type Database = {
           reason?: string
           reporter_user_id?: string
           status?: Database["public"]["Enums"]["report_status"] | null
+        }
+        Relationships: []
+      }
+      content_versions: {
+        Row: {
+          changed_by: string | null
+          content_id: string
+          content_type: string
+          created_at: string
+          id: string
+          snapshot: Json
+          version_number: number
+        }
+        Insert: {
+          changed_by?: string | null
+          content_id: string
+          content_type: string
+          created_at?: string
+          id?: string
+          snapshot?: Json
+          version_number?: number
+        }
+        Update: {
+          changed_by?: string | null
+          content_id?: string
+          content_type?: string
+          created_at?: string
+          id?: string
+          snapshot?: Json
+          version_number?: number
         }
         Relationships: []
       }
@@ -1303,6 +1413,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notification_preferences: {
+        Row: {
+          affiliate: boolean
+          announcements: boolean
+          comments: boolean
+          created_at: string
+          donations: boolean
+          email_enabled: boolean
+          events: boolean
+          id: string
+          marketing: boolean
+          programs: boolean
+          purchases: boolean
+          push_enabled: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          affiliate?: boolean
+          announcements?: boolean
+          comments?: boolean
+          created_at?: string
+          donations?: boolean
+          email_enabled?: boolean
+          events?: boolean
+          id?: string
+          marketing?: boolean
+          programs?: boolean
+          purchases?: boolean
+          push_enabled?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          affiliate?: boolean
+          announcements?: boolean
+          comments?: boolean
+          created_at?: string
+          donations?: boolean
+          email_enabled?: boolean
+          events?: boolean
+          id?: string
+          marketing?: boolean
+          programs?: boolean
+          purchases?: boolean
+          push_enabled?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       org_daily_metrics: {
         Row: {
@@ -2676,6 +2837,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_bookmarks: {
+        Row: {
+          content_id: string
+          content_type: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_notifications: {
         Row: {
