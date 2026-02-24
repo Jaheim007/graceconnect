@@ -35,16 +35,18 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     return detectBrowserLocale();
   });
 
-  // Set document lang on mount and locale change
+  // Set document lang and direction on mount and locale change
   useEffect(() => {
     document.documentElement.lang = locale;
+    document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
   }, [locale]);
 
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);
     localStorage.setItem('sv_locale', l);
-    localStorage.setItem('sv_locale_manual', '1'); // Mark as explicit user choice
+    localStorage.setItem('sv_locale_manual', '1');
     document.documentElement.lang = l;
+    document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr';
   }, []);
 
   const t = useCallback(
