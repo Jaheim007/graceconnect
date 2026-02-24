@@ -50,10 +50,13 @@ import UserDashboard from "@/pages/UserDashboard";
 import ResourcesPage from "@/pages/ResourcesPage";
 import CreateOrgPage from "@/pages/CreateOrgPage";
 // MarketplacePage merged into DiscoverPage
+// MarketplacePage merged into DiscoverPage
 import ProgramsPage from "@/pages/ProgramsPage";
 import ProgramViewPage from "@/pages/ProgramViewPage";
 import SupportPage from "@/pages/SupportPage";
 import AffiliationPage from "@/pages/AffiliationPage";
+import MessagesPage from "@/pages/MessagesPage";
+import LeaderboardPage from "@/pages/LeaderboardPage";
 
 // Admin layout + pages
 import AdminLayout from "@/pages/admin/AdminLayout";
@@ -171,6 +174,8 @@ const App = () => (
                   <Route path="/programs/:id" element={<ProgramViewPage />} />
                   <Route path="/support" element={<SupportPage />} />
                   <Route path="/affiliation" element={<AffiliationPage />} />
+                  <Route path="/messages" element={<MessagesPage />} />
+                  <Route path="/leaderboard" element={<LeaderboardPage />} />
                 </Route>
 
                 {/* Admin (org-scoped) */}
