@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Search, TrendingUp, Sparkles, ShoppingBag, Heart } from 'lucide-react';
+import { Search, TrendingUp, Sparkles, ShoppingBag, Heart, Star, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
@@ -12,6 +12,8 @@ import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useI18n } from '@/i18n/I18nContext';
 import { PageTour } from '@/components/onboarding/PageTour';
+import { Button } from '@/components/ui/button';
+import { formatCurrency } from '@/lib/currency';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.05 } } };
 const fadeUp = {
@@ -24,13 +26,45 @@ const TOUR_STEPS = [
   { titleKey: 'tour.explorer_2_title', descKey: 'tour.explorer_2_desc', icon: <ShoppingBag className="h-4 w-4" /> },
 ];
 
+const PRODUCT_TYPES = [
+  { key: 'all', label: 'Tous' },
+  { key: 'pdf', label: 'PDF' },
+  { key: 'ebook', label: 'eBook' },
+  { key: 'audio', label: 'Audio' },
+  { key: 'video', label: 'Vidéo' },
+  { key: 'course', label: 'Cours' },
+];
+
 export default function MarketplacePage() {
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState('products');
-  const { t } = useI18n();
+  const [typeFilter, setTypeFilter] = useState('all');
+  const { t, locale } = useI18n();
+  const isFr = locale === 'fr';
 
+  // Featured products
+  const { data: featured = [] } = useQuery({
+    queryKey: ['marketplace-featured'],
+    queryFn: async () => {
+      const { data } = await db
+        .from('digital_products')
+        .select('*, organizations(name, slug, logo_url, currency)')
+        .eq('is_published', true)
+        .eq('is_featured', true)
+        .order('featured_score', { ascending: false })
+        .limit(6);
+      return (data || []).map((p: any) => ({
+        ...p,
+        organization_name: p.organizations?.name,
+        organization_slug: p.organizations?.slug,
+        organization_logo: p.organizations?.logo_url,
+      }));
+    },
+  });
+
+  // All products with filter
   const { data: products = [], isLoading: loadingProducts } = useQuery({
-    queryKey: ['marketplace-products', search],
+    queryKey: ['marketplace-products', search, typeFilter],
     queryFn: async () => {
       let q = db
         .from('digital_products')
@@ -39,6 +73,7 @@ export default function MarketplacePage() {
         .order('sales_count', { ascending: false })
         .limit(50);
       if (search) q = q.ilike('title', `%${search}%`);
+      if (typeFilter !== 'all') q = q.eq('product_type', typeFilter);
       const { data } = await q;
       return (data || []).map((p: any) => ({
         ...p,
@@ -49,6 +84,7 @@ export default function MarketplacePage() {
     },
   });
 
+  // Campaigns
   const { data: campaigns = [], isLoading: loadingCampaigns } = useQuery({
     queryKey: ['marketplace-campaigns', search],
     queryFn: async () => {
@@ -66,6 +102,20 @@ export default function MarketplacePage() {
         organization_name: c.organizations?.name,
         organization_slug: c.organizations?.slug,
       }));
+    },
+  });
+
+  // Trending orgs
+  const { data: trendingOrgs = [] } = useQuery({
+    queryKey: ['marketplace-trending-orgs'],
+    queryFn: async () => {
+      const { data } = await db
+        .from('organizations')
+        .select('id, name, slug, logo_url, description, category')
+        .eq('is_active', true)
+        .eq('is_verified', true)
+        .limit(8);
+      return data || [];
     },
   });
 
@@ -92,20 +142,77 @@ export default function MarketplacePage() {
         </div>
       </div>
 
-      <div className="container max-w-6xl py-6 space-y-4">
+      <div className="container max-w-6xl py-6 space-y-6">
         <PageTour pageId="explorer" steps={TOUR_STEPS} />
 
-        <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="mb-6">
-            <TabsTrigger value="products" className="gap-1.5">
-              <ShoppingBag className="h-3.5 w-3.5" /> {t('page.explorer_products')} ({products.length})
-            </TabsTrigger>
-            <TabsTrigger value="campaigns" className="gap-1.5">
-              <Heart className="h-3.5 w-3.5" /> {t('page.explorer_campaigns')} ({campaigns.length})
-            </TabsTrigger>
-          </TabsList>
+        {/* Featured products carousel */}
+        {featured.length > 0 && tab === 'products' && !search && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <Star className="h-4 w-4 text-amber-500" />
+              <h2 className="font-semibold text-sm">{isFr ? 'Produits mis en avant' : 'Featured Products'}</h2>
+            </div>
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {featured.map((p: any) => (
+                <motion.div key={p.id} variants={fadeUp} initial="hidden" animate="visible">
+                  <ProductCard product={p} />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
 
-          <TabsContent value="products">
+        {/* Trending orgs */}
+        {trendingOrgs.length > 0 && !search && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              <h2 className="font-semibold text-sm">{isFr ? 'Organisations populaires' : 'Trending Organizations'}</h2>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+              {trendingOrgs.map((org: any) => (
+                <a key={org.id} href={`/org/${org.slug}`} className="shrink-0 w-36 bg-card border border-border rounded-xl p-3 hover:border-primary/50 transition-colors text-center">
+                  <div className="h-10 w-10 rounded-full bg-muted mx-auto mb-2 overflow-hidden">
+                    {org.logo_url ? <img src={org.logo_url} alt="" className="w-full h-full object-cover" /> : <span className="flex items-center justify-center h-full text-xs font-bold">{org.name[0]}</span>}
+                  </div>
+                  <p className="text-xs font-medium truncate">{org.name}</p>
+                  <Badge variant="outline" className="text-[9px] mt-1">{org.category}</Badge>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <Tabs value={tab} onValueChange={setTab}>
+          <div className="flex items-center gap-3 flex-wrap">
+            <TabsList className="mb-0">
+              <TabsTrigger value="products" className="gap-1.5">
+                <ShoppingBag className="h-3.5 w-3.5" /> {t('page.explorer_products')} ({products.length})
+              </TabsTrigger>
+              <TabsTrigger value="campaigns" className="gap-1.5">
+                <Heart className="h-3.5 w-3.5" /> {t('page.explorer_campaigns')} ({campaigns.length})
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Type filters for products */}
+            {tab === 'products' && (
+              <div className="flex gap-1 overflow-x-auto">
+                {PRODUCT_TYPES.map((pt) => (
+                  <Button
+                    key={pt.key}
+                    variant={typeFilter === pt.key ? 'default' : 'ghost'}
+                    size="sm"
+                    className="text-xs h-7 shrink-0"
+                    onClick={() => setTypeFilter(pt.key)}
+                  >
+                    {pt.label}
+                  </Button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <TabsContent value="products" className="mt-4">
             {loadingProducts ? <SkeletonList count={8} /> : products.length === 0 ? (
               <EmptyState variant="search" title={t('page.explorer_no_products')} />
             ) : (
@@ -117,7 +224,7 @@ export default function MarketplacePage() {
             )}
           </TabsContent>
 
-          <TabsContent value="campaigns">
+          <TabsContent value="campaigns" className="mt-4">
             {loadingCampaigns ? <SkeletonList count={6} /> : campaigns.length === 0 ? (
               <EmptyState variant="search" title={t('page.explorer_no_campaigns')} />
             ) : (

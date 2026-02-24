@@ -31,6 +31,8 @@ export function Sidebar() {
     { to: '/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard') },
     { to: '/feed', icon: Home, label: t('sidebar.my_network') },
     { to: '/marketplace', icon: Store, label: t('sidebar.explorer') },
+    { to: '/messages', icon: Megaphone, label: t('sidebar.messages') },
+    { to: '/leaderboard', icon: GraduationCap, label: t('sidebar.leaderboard') },
     { to: '/notifications', icon: Bell, label: t('sidebar.notifications') },
     { to: '/affiliation', icon: Link2, label: t('sidebar.affiliation') },
     { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases') },
