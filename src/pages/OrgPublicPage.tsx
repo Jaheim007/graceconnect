@@ -42,6 +42,7 @@ import { PixelInjector } from '@/components/org/PixelInjector';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { OrgBadges } from '@/components/org/OrgBadges';
+import { SmartPopup } from '@/components/org/SmartPopup';
 
 export default function OrgPublicPage() {
   useAffiliateCapture();
@@ -844,6 +845,11 @@ export default function OrgPublicPage() {
         open={lightboxIndex !== null}
         onClose={() => setLightboxIndex(null)}
       />
+
+      {/* Smart Popup */}
+      {pageSettings?.popup_config && (pageSettings.popup_config as any)?.enabled && (
+        <SmartPopup config={pageSettings.popup_config as any} orgName={org.name} />
+      )}
     </div>
   );
 }

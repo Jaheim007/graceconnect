@@ -11,6 +11,7 @@ export interface OrgPageSettings {
   facebook_pixel_id: string | null;
   tiktok_pixel_id: string | null;
   google_tag_id: string | null;
+  popup_config: Record<string, unknown> | null;
   updated_at: string;
 }
 
@@ -35,6 +36,7 @@ export function useOrgPageSettings(orgId: string | undefined) {
         facebook_pixel_id: null,
         tiktok_pixel_id: null,
         google_tag_id: null,
+        popup_config: null,
       } as OrgPageSettings;
     },
     enabled: !!orgId,
