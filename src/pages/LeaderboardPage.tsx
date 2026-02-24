@@ -1,15 +1,17 @@
+import { useMemo } from 'react';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { useOrgLeaderboard, useMyPoints, useMyBadges, useOrgBadges, getLevel } from '@/hooks/useGamificationEngine';
+import { useOrgLeaderboard, useMyPoints, useMyBadges, useOrgBadges } from '@/hooks/useGamificationEngine';
 import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { motion } from 'framer-motion';
-import { Trophy, Star, Zap, Medal, Award } from 'lucide-react';
+import { Trophy, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { XPProgressBar } from '@/components/gamification/XPProgressBar';
+import { BadgeShowcase } from '@/components/gamification/BadgeShowcase';
 
 const RANK_ICONS = ['🥇', '🥈', '🥉'];
 
@@ -25,8 +27,13 @@ export default function LeaderboardPage() {
   const { data: myBadges = [] } = useMyBadges(orgId);
   const { data: orgBadges = [] } = useOrgBadges(orgId);
 
-  const lvl = getLevel(myPoints?.points || 0);
   const isFr = locale === 'fr';
+  const myRank = leaderboard.findIndex((l: any) => l.user_id === user?.id) + 1;
+
+  const earnedBadgeIds = useMemo(
+    () => new Set<string>(myBadges.map((mb: any) => mb.badge_id as string)),
+    [myBadges],
+  );
 
   if (!orgId) {
     return (
@@ -42,54 +49,19 @@ export default function LeaderboardPage() {
     <>
       <SEOHead title={isFr ? 'Classement & Badges' : 'Leaderboard & Badges'} />
       <div className="container max-w-2xl py-6 space-y-6">
-        {/* My stats */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-2xl p-5 space-y-3">
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Zap className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <h2 className="font-bold text-lg">{isFr ? 'Niveau' : 'Level'} {lvl.level}</h2>
-              <p className="text-xs text-muted-foreground">{myPoints?.points || 0} {isFr ? 'points' : 'points'}</p>
-            </div>
-            <Badge variant="outline" className="ml-auto text-xs">
+        {/* XP progress */}
+        <div className="relative">
+          <XPProgressBar points={myPoints?.points || 0} />
+          {myRank > 0 && (
+            <Badge variant="outline" className="absolute top-4 right-4 text-xs">
               <Star className="h-3 w-3 mr-1" />
-              {isFr ? 'Rang' : 'Rank'} #{(leaderboard.findIndex((l: any) => l.user_id === user?.id) + 1) || '—'}
+              {isFr ? 'Rang' : 'Rank'} #{myRank}
             </Badge>
-          </div>
-          <div className="space-y-1">
-            <div className="flex justify-between text-[11px] text-muted-foreground">
-              <span>{isFr ? 'Niveau' : 'Level'} {lvl.level}</span>
-              <span>{isFr ? 'Niveau' : 'Level'} {lvl.level + 1}</span>
-            </div>
-            <Progress value={lvl.progress} className="h-2" />
-            <p className="text-[10px] text-muted-foreground text-right">
-              {lvl.nextMin - (myPoints?.points || 0)} {isFr ? 'pts restants' : 'pts remaining'}
-            </p>
-          </div>
-        </motion.div>
+          )}
+        </div>
 
-        {/* My badges */}
-        {(myBadges.length > 0 || orgBadges.length > 0) && (
-          <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-            <h3 className="font-semibold text-sm flex items-center gap-2">
-              <Award className="h-4 w-4 text-amber-500" />
-              {isFr ? 'Badges' : 'Badges'} ({myBadges.length}/{orgBadges.length})
-            </h3>
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
-              {orgBadges.map((badge: any) => {
-                const earned = myBadges.some((mb: any) => mb.badge_id === badge.id);
-                return (
-                  <div key={badge.id} className={`text-center p-3 rounded-xl border transition-all ${earned ? 'border-primary bg-primary/5' : 'border-border opacity-40'}`}>
-                    <span className="text-2xl">{badge.icon}</span>
-                    <p className="text-[11px] font-medium mt-1 truncate">{badge.name}</p>
-                    <p className="text-[9px] text-muted-foreground">{badge.condition_value} {badge.condition_type}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
+        {/* Badges */}
+        <BadgeShowcase allBadges={orgBadges} earnedBadgeIds={earnedBadgeIds} />
 
         {/* Leaderboard */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
