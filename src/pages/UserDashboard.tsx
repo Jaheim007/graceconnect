@@ -216,7 +216,7 @@ export default function UserDashboard() {
   });
 
   const affiliateLinkOrgIds = new Set(affiliateLinks.map(l => l.organization_id));
-  const orgsEligibleForAffiliate = userOrgs.filter(o => o.affiliation_enabled && !affiliateLinkOrgIds.has(o.id));
+  const orgsEligibleForAffiliate = userOrgs.filter(o => o.affiliation_enabled && !affiliateLinkOrgIds.has(o.id) && o.owner_id !== user?.id);
 
   const payableByOrg: Record<string, { orgId: string; amount: number; currency: string }> = {};
   for (const s of affiliateSales) {
