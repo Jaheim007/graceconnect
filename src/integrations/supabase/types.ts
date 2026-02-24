@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      abandoned_carts: {
+        Row: {
+          buyer_name: string | null
+          converted: boolean
+          converted_at: string | null
+          created_at: string
+          email: string | null
+          id: string
+          last_reminder_at: string | null
+          opened_at: string
+          organization_id: string
+          product_id: string
+          reminder_sent_count: number
+          user_id: string | null
+        }
+        Insert: {
+          buyer_name?: string | null
+          converted?: boolean
+          converted_at?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          last_reminder_at?: string | null
+          opened_at?: string
+          organization_id: string
+          product_id: string
+          reminder_sent_count?: number
+          user_id?: string | null
+        }
+        Update: {
+          buyer_name?: string | null
+          converted?: boolean
+          converted_at?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          last_reminder_at?: string | null
+          opened_at?: string
+          organization_id?: string
+          product_id?: string
+          reminder_sent_count?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "abandoned_carts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "abandoned_carts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "digital_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       affiliate_attributions: {
         Row: {
           affiliate_link_id: string | null
@@ -358,6 +418,7 @@ export type Database = {
       }
       digital_products: {
         Row: {
+          average_rating: number | null
           cover_image_url: string | null
           created_at: string | null
           created_by: string | null
@@ -375,12 +436,14 @@ export type Database = {
           organization_id: string
           price: number | null
           product_type: string | null
+          review_count: number | null
           sales_count: number | null
           slug: string | null
           title: string
           updated_at: string | null
         }
         Insert: {
+          average_rating?: number | null
           cover_image_url?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -398,12 +461,14 @@ export type Database = {
           organization_id: string
           price?: number | null
           product_type?: string | null
+          review_count?: number | null
           sales_count?: number | null
           slug?: string | null
           title: string
           updated_at?: string | null
         }
         Update: {
+          average_rating?: number | null
           cover_image_url?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -421,6 +486,7 @@ export type Database = {
           organization_id?: string
           price?: number | null
           product_type?: string | null
+          review_count?: number | null
           sales_count?: number | null
           slug?: string | null
           title?: string
@@ -1183,30 +1249,39 @@ export type Database = {
       }
       org_page_settings: {
         Row: {
+          facebook_pixel_id: string | null
+          google_tag_id: string | null
           hidden_sections: string[] | null
           id: string
           organization_id: string
           section_order: string[] | null
           theme_accent_color: string | null
           theme_primary_color: string | null
+          tiktok_pixel_id: string | null
           updated_at: string
         }
         Insert: {
+          facebook_pixel_id?: string | null
+          google_tag_id?: string | null
           hidden_sections?: string[] | null
           id?: string
           organization_id: string
           section_order?: string[] | null
           theme_accent_color?: string | null
           theme_primary_color?: string | null
+          tiktok_pixel_id?: string | null
           updated_at?: string
         }
         Update: {
+          facebook_pixel_id?: string | null
+          google_tag_id?: string | null
           hidden_sections?: string[] | null
           id?: string
           organization_id?: string
           section_order?: string[] | null
           theme_accent_color?: string | null
           theme_primary_color?: string | null
+          tiktok_pixel_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1621,6 +1696,60 @@ export type Database = {
             columns: ["promo_code_id"]
             isOneToOne: false
             referencedRelation: "promo_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          is_published: boolean
+          is_verified_purchase: boolean
+          organization_id: string
+          product_id: string
+          rating: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          is_verified_purchase?: boolean
+          organization_id: string
+          product_id: string
+          rating: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          is_verified_purchase?: boolean
+          organization_id?: string
+          product_id?: string
+          rating?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_reviews_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_reviews_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "digital_products"
             referencedColumns: ["id"]
           },
         ]
