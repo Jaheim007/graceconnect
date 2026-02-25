@@ -89,7 +89,7 @@ export default function UserDashboard() {
   const primaryCurrency = userOrgs[0]?.currency || DEFAULT_CURRENCY;
   const fmt = (n: number, currency?: string | null) => formatCurrency(n, currency || primaryCurrency, locale);
 
-  // Gamification
+  // Gamification — wrapped defensively so failures never crash the dashboard
   const { data: streak } = useStreak();
   const { data: badges = [] } = useBadges();
   const recordActivity = useRecordActivity();
@@ -97,8 +97,8 @@ export default function UserDashboard() {
 
   useEffect(() => {
     if (user) {
-      recordActivity.mutate();
-      checkBadges.mutate();
+      try { recordActivity.mutate(); } catch {}
+      try { checkBadges.mutate(); } catch {}
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
@@ -375,7 +375,7 @@ export default function UserDashboard() {
         {managedOrgIds.length === 0 && affiliateLinks.length === 0 && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="grid sm:grid-cols-2 gap-3">
             <button
-              onClick={() => navigate('/create')}
+              onClick={() => navigate('/create-org')}
               className="group bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/25 rounded-2xl p-5 text-left hover:border-primary/40 hover:shadow-elevated transition-all hover:-translate-y-0.5"
             >
               <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center mb-3 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">

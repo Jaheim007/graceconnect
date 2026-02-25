@@ -58,20 +58,30 @@ export function useBadges() {
     queryKey: ['user-badges', user?.id],
     queryFn: async () => {
       if (!user) return [];
-      const { data } = await db
-        .from('user_badges')
-        .select('id, user_id, earned_at, badge_id, badges(name, icon, description)')
-        .eq('user_id', user.id)
-        .order('earned_at', { ascending: false });
-      return (data || []).map((b: any) => ({
-        id: b.id,
-        user_id: b.user_id,
-        earned_at: b.earned_at,
-        badge_type: b.badges?.name || b.badge_id,
-        badge_label: b.badges?.name || 'Badge',
-      })) as UserBadge[];
+      try {
+        const { data, error } = await db
+          .from('user_badges')
+          .select('id, user_id, earned_at, badge_id, badges(name, icon, description)')
+          .eq('user_id', user.id)
+          .order('earned_at', { ascending: false });
+        if (error) {
+          console.warn('[useBadges] query error (non-fatal):', error.message);
+          return [];
+        }
+        return (data || []).map((b: any) => ({
+          id: b.id,
+          user_id: b.user_id,
+          earned_at: b.earned_at,
+          badge_type: b.badges?.name || b.badge_id || 'unknown',
+          badge_label: b.badges?.name || 'Badge',
+        })) as UserBadge[];
+      } catch (e) {
+        console.warn('[useBadges] unexpected error (non-fatal):', e);
+        return [];
+      }
     },
     enabled: !!user,
+    retry: false,
   });
 }
 
@@ -133,54 +143,55 @@ export function useCheckAndAwardBadges() {
     mutationFn: async () => {
       if (!user) return [];
       
-      // Fetch all needed data in parallel
-      const [streakRes, badgesRes, donationsRes, purchasesRes, referralsRes, orgsRes, affiliateSalesRes] = await Promise.all([
-        db.from('user_streaks').select('current_streak, longest_streak').eq('user_id', user.id).maybeSingle(),
-        db.from('user_badges').select('badge_id').eq('user_id', user.id),
-        db.from('donations').select('id').eq('user_id', user.id).eq('status', 'completed'),
-        db.from('product_purchases').select('id').eq('user_id', user.id).eq('status', 'completed'),
-        db.from('user_referrals').select('id').eq('referrer_id', user.id),
-        db.from('organizations').select('id').eq('owner_id', user.id),
-        db.from('affiliate_sales').select('id').eq('affiliate_user_id', user.id),
-      ]);
-      
-      const existingBadges = new Set((badgesRes.data || []).map((b: any) => b.badge_id));
-      const streak = streakRes.data?.longest_streak || 0;
-      const donations = donationsRes.data?.length || 0;
-      const purchases = purchasesRes.data?.length || 0;
-      const referrals = referralsRes.data?.length || 0;
-      const orgs = orgsRes.data?.length || 0;
-      const affiliateSales = affiliateSalesRes.data?.length || 0;
-      
-      const newBadges: string[] = [];
-      
-      // Check each badge
-      const checks: [string, boolean][] = [
-        ['first_login', true],
-        ['streak_3', streak >= 3],
-        ['streak_7', streak >= 7],
-        ['streak_30', streak >= 30],
-        ['first_donation', donations >= 1],
-        ['first_purchase', purchases >= 1],
-        ['donor_10', donations >= 10],
-        ['referrer_1', referrals >= 1],
-        ['referrer_10', referrals >= 10],
-        ['org_creator', orgs >= 1],
-        ['affiliate_first_sale', affiliateSales >= 1],
-        ['five_resources', purchases >= 5],
-      ];
-      
-      for (const [type, earned] of checks) {
-        if (earned && !existingBadges.has(type)) {
-          // Badge awarding requires a matching badge_id in the badges table.
-          // Since the gamification badges are platform-level and may not have
-          // corresponding rows in the org-scoped badges table, we skip inserts
-          // and just track which badges the user has earned conceptually.
-          newBadges.push(type);
+      try {
+        // Fetch all needed data in parallel
+        const [streakRes, badgesRes, donationsRes, purchasesRes, referralsRes, orgsRes, affiliateSalesRes] = await Promise.all([
+          db.from('user_streaks').select('current_streak, longest_streak').eq('user_id', user.id).maybeSingle(),
+          db.from('user_badges').select('badge_id').eq('user_id', user.id),
+          db.from('donations').select('id').eq('user_id', user.id).eq('status', 'completed'),
+          db.from('product_purchases').select('id').eq('user_id', user.id).eq('status', 'completed'),
+          db.from('user_referrals').select('id').eq('referrer_id', user.id),
+          db.from('organizations').select('id').eq('owner_id', user.id),
+          db.from('affiliate_sales').select('id').eq('affiliate_user_id', user.id),
+        ]);
+        
+        const existingBadges = new Set((badgesRes.data || []).map((b: any) => b.badge_id));
+        const streak = streakRes.data?.longest_streak || 0;
+        const donations = donationsRes.data?.length || 0;
+        const purchases = purchasesRes.data?.length || 0;
+        const referrals = referralsRes.data?.length || 0;
+        const orgs = orgsRes.data?.length || 0;
+        const affiliateSales = affiliateSalesRes.data?.length || 0;
+        
+        const newBadges: string[] = [];
+        
+        // Check each badge
+        const checks: [string, boolean][] = [
+          ['first_login', true],
+          ['streak_3', streak >= 3],
+          ['streak_7', streak >= 7],
+          ['streak_30', streak >= 30],
+          ['first_donation', donations >= 1],
+          ['first_purchase', purchases >= 1],
+          ['donor_10', donations >= 10],
+          ['referrer_1', referrals >= 1],
+          ['referrer_10', referrals >= 10],
+          ['org_creator', orgs >= 1],
+          ['affiliate_first_sale', affiliateSales >= 1],
+          ['five_resources', purchases >= 5],
+        ];
+        
+        for (const [type, earned] of checks) {
+          if (earned && !existingBadges.has(type)) {
+            newBadges.push(type);
+          }
         }
+        
+        return newBadges;
+      } catch (e) {
+        console.warn('[useCheckAndAwardBadges] non-fatal error:', e);
+        return [];
       }
-      
-      return newBadges;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['user-badges', user?.id] });

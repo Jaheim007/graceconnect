@@ -28,6 +28,25 @@ window.addEventListener('unhandledrejection', (event) => {
   event.preventDefault(); // prevent default console error & crash
 });
 
+// Auto-reload on stale chunk errors (e.g. after a new deploy when SW serves old bundles)
+window.addEventListener('error', (event) => {
+  const msg = event.message || '';
+  if (
+    msg.includes('Failed to fetch dynamically imported module') ||
+    msg.includes('Importing a module script failed') ||
+    msg.includes('Loading chunk') ||
+    msg.includes('Loading CSS chunk')
+  ) {
+    console.warn('[StaleCache] Chunk load failed — reloading page');
+    // Only reload once per session to avoid infinite loop
+    const key = 'sv_chunk_reload';
+    if (!sessionStorage.getItem(key)) {
+      sessionStorage.setItem(key, '1');
+      window.location.reload();
+    }
+  }
+});
+
 // Apply saved theme before first render to avoid FOUC
 const savedTheme = localStorage.getItem('gc_theme') || 'dark';
 document.documentElement.classList.add(savedTheme);

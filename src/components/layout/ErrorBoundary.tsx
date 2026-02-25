@@ -24,6 +24,25 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: ErrorInfo) {
     console.error('[ErrorBoundary]', error, info.componentStack);
+
+    // Auto-reload on chunk / module load errors (stale service worker)
+    const msg = error?.message || '';
+    if (
+      msg.includes('Failed to fetch dynamically imported module') ||
+      msg.includes('Importing a module script failed') ||
+      msg.includes('Loading chunk') ||
+      msg.includes('does not exist') // catches DB column mismatch from old code
+    ) {
+      const key = 'sv_eb_reload';
+      const last = sessionStorage.getItem(key);
+      const now = Date.now();
+      // Only auto-reload once every 30 seconds to avoid loops
+      if (!last || now - Number(last) > 30_000) {
+        sessionStorage.setItem(key, String(now));
+        window.location.reload();
+        return;
+      }
+    }
   }
 
   handleReset = () => {
