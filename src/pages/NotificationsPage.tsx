@@ -9,6 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
+import { SEOHead } from '@/components/seo/SEOHead';
 import { PageTour } from '@/components/onboarding/PageTour';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -72,6 +73,7 @@ export default function NotificationsPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead title="Notifications — Siteviral" noindex />
       <div className="sticky top-0 z-10 glass border-b border-border/40 px-4 h-12 flex items-center gap-3">
         <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4" />

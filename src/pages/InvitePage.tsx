@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Users, ArrowRight, ShoppingBag, Heart, Play, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -74,6 +75,7 @@ export default function InvitePage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead title="Invitation — Siteviral" description="Rejoignez Siteviral et découvrez des ressources numériques exclusives." />
       {/* Nav */}
       <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
         <div className="container flex items-center justify-between h-14 px-4">

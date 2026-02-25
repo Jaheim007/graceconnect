@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Building2, Share2, ShoppingBag, ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 const intents = [
   {
@@ -35,6 +36,7 @@ export default function WelcomeIntentPage() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <SEOHead title="Bienvenue — Siteviral" description="Choisissez comment vous souhaitez utiliser Siteviral : créer, partager ou acheter." noindex />
       <div className="w-full max-w-2xl">
         <motion.div
           initial={{ opacity: 0, y: 12 }}

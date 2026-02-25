@@ -11,6 +11,7 @@ import { CampaignCard } from '@/components/donations/CampaignCard';
 import { motion } from 'framer-motion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useI18n } from '@/i18n/I18nContext';
+import { SEOHead } from '@/components/seo/SEOHead';
 import { PageTour } from '@/components/onboarding/PageTour';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/currency';
@@ -121,6 +122,11 @@ export default function MarketplacePage() {
 
   return (
     <div className="bg-background min-h-screen">
+      <SEOHead
+        title="Marketplace — Siteviral"
+        description="Explorez les meilleurs produits numériques, formations et ressources sur Siteviral. E-books, cours, audio, vidéo et plus."
+        canonicalUrl="https://siteviral.com/marketplace"
+      />
       {/* Hero */}
       <div className="hero-gradient text-primary-foreground py-12 px-4 border-b border-border/40">
         <div className="container max-w-4xl">

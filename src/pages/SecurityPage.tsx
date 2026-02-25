@@ -1,9 +1,11 @@
 import LegalPageShell, { proseClasses } from '@/components/layout/LegalPageShell';
 import { Shield } from 'lucide-react';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function SecurityPage() {
   return (
     <LegalPageShell>
+      <SEOHead title="Security — Siteviral" description="How Siteviral protects your data. Encryption, SOC 2 compliance, infrastructure security." canonicalUrl="https://siteviral.com/security" locale="en_US" />
       <div className="flex items-center gap-3 mb-2">
         <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
           <Shield className="h-5 w-5 text-primary-foreground" />

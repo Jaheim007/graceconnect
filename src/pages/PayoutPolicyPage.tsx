@@ -1,8 +1,10 @@
 import LegalPageShell, { proseClasses } from '@/components/layout/LegalPageShell';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function PayoutPolicyPage() {
   return (
     <LegalPageShell>
+      <SEOHead title="Politique de Retrait — Siteviral" description="Conditions de retrait des fonds sur Siteviral. Délais, KYC, méthodes de paiement et seuils minimums." canonicalUrl="https://siteviral.com/payout-policy" />
       <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-foreground">Politique de Retrait (Payout Policy)</h1>
       <p className="text-sm text-muted-foreground mb-8 font-medium">Dernière mise à jour : 22 février 2026</p>
 

@@ -24,6 +24,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { AffiliateShareTools } from '@/components/affiliate/AffiliateShareTools';
 import { ProductAffiliateLinkGen } from '@/components/affiliate/ProductAffiliateLinkGen';
 import { useI18n } from '@/i18n/I18nContext';
+import { SEOHead } from '@/components/seo/SEOHead';
 import { PageTour } from '@/components/onboarding/PageTour';
 import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
 import { useStreak, useBadges, useRecordActivity, useCheckAndAwardBadges, BADGE_DEFINITIONS } from '@/hooks/useGamification';
@@ -274,7 +275,7 @@ export default function UserDashboard() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container max-w-5xl px-4 py-5 sm:py-6 space-y-5">
-        {/* Page description */}
+        <SEOHead title="Tableau de bord — Siteviral" description="Suivez vos ventes, commissions, donations et activités sur Siteviral." noindex />
         <div>
           <h1 className="sr-only">{t('page.dashboard')}</h1>
           <p className="text-xs sm:text-sm text-muted-foreground">{t('page.dashboard_desc')}</p>

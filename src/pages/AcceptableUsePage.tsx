@@ -1,8 +1,10 @@
 import LegalPageShell, { proseClasses } from '@/components/layout/LegalPageShell';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function AcceptableUsePage() {
   return (
     <LegalPageShell>
+      <SEOHead title="Politique d'Utilisation Acceptable — Siteviral" description="Règles de conduite sur Siteviral. Contenus autorisés, interdictions et sanctions." canonicalUrl="https://siteviral.com/acceptable-use" />
       <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-foreground">Politique d'Utilisation Acceptable</h1>
       <p className="text-sm text-muted-foreground mb-8 font-medium">Dernière mise à jour : 22 février 2026</p>
 

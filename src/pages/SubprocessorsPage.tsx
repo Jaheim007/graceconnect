@@ -1,4 +1,5 @@
 import LegalPageShell from '@/components/layout/LegalPageShell';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 const subprocessors = [
   {
@@ -30,6 +31,7 @@ const subprocessors = [
 export default function SubprocessorsPage() {
   return (
     <LegalPageShell>
+      <SEOHead title="Sub-Processors — Siteviral" description="List of third-party sub-processors used by Siteviral. Data processing, hosting, payments." canonicalUrl="https://siteviral.com/subprocessors" locale="en_US" />
       <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-foreground">Sub-Processors</h1>
       <p className="text-sm text-muted-foreground mb-8 font-medium">Last updated: February 2026</p>
 

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useI18n } from '@/i18n/I18nContext';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function InstallPage() {
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ export default function InstallPage() {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-10">
+      <SEOHead title="Installer l'app — Siteviral" description="Installez Siteviral sur votre téléphone, tablette ou ordinateur. Accès rapide, notifications push, mode hors ligne." canonicalUrl="https://siteviral.com/install" />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
