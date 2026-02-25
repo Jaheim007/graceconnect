@@ -1,6 +1,6 @@
 import { AdminPageShell } from './AdminPageShell';
 import { useOrg } from '@/contexts/OrgContext';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,12 +10,14 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
   Wallet, Clock, CheckCircle, XCircle, ArrowUpRight, AlertTriangle,
-  DollarSign, Shield, Download, Info
+  DollarSign, Shield, Download, Info, CreditCard, ExternalLink, Loader2
 } from 'lucide-react';
 import { downloadCSV } from '@/lib/csvExport';
 import { format } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import { useI18n } from '@/i18n/I18nContext';
+import { startStripeConnectOnboarding, checkStripeConnectStatus } from '@/lib/api';
+import { toast } from 'sonner';
 
 import { formatCurrency } from '@/lib/currency';
 const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
@@ -29,6 +31,7 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } }
 export default function AdminPayouts() {
   const { currentOrg } = useOrg();
   const { t, locale } = useI18n();
+  const queryClient = useQueryClient();
   const orgId = currentOrg?.id;
   const currency = currentOrg?.currency || 'XOF';
   const dateFnsLocale = locale === 'fr' ? fr : enUS;
@@ -85,6 +88,49 @@ export default function AdminPayouts() {
     enabled: !!orgId,
   });
 
+  // Stripe Connect status
+  const { data: stripeStatus, isLoading: stripeLoading } = useQuery({
+    queryKey: ['stripe-connect-status', orgId],
+    queryFn: async () => {
+      if (!orgId) return null;
+      try {
+        return await checkStripeConnectStatus(orgId);
+      } catch {
+        return null;
+      }
+    },
+    enabled: !!orgId,
+  });
+
+  const stripeOnboardingMutation = useMutation({
+    mutationFn: async () => {
+      if (!orgId) throw new Error('No org');
+      const currentUrl = window.location.origin;
+      const returnUrl = `${currentUrl}/admin/payouts?stripe_return=true`;
+      return startStripeConnectOnboarding(orgId, returnUrl, returnUrl);
+    },
+    onSuccess: (data) => {
+      if (data?.already_complete) {
+        toast.success('Votre compte Stripe Connect est déjà actif !');
+        queryClient.invalidateQueries({ queryKey: ['stripe-connect-status', orgId] });
+      } else if (data?.onboarding_url) {
+        window.location.href = data.onboarding_url;
+      }
+    },
+    onError: (err: Error) => {
+      toast.error(err.message || 'Erreur lors de la configuration Stripe');
+    },
+  });
+
+  // Check if returning from Stripe onboarding
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('stripe_return') === 'true') {
+    urlParams.delete('stripe_return');
+    const newUrl = window.location.pathname + (urlParams.toString() ? `?${urlParams}` : '');
+    window.history.replaceState({}, '', newUrl);
+    queryClient.invalidateQueries({ queryKey: ['stripe-connect-status', orgId] });
+  }
+
   const exportPayouts = () => {
     if (!payouts.length) return;
     downloadCSV(payouts.map((p: any) => ({
@@ -102,6 +148,63 @@ export default function AdminPayouts() {
             <p className="font-semibold text-sm">{t('payouts.processing_time')}</p>
             <p className="text-xs text-muted-foreground mt-0.5" dangerouslySetInnerHTML={{ __html: t('payouts.processing_desc') }} />
           </div>
+        </div>
+
+        {/* Stripe Connect Section */}
+        <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <CreditCard className="h-5 w-5 text-primary" />
+            <div>
+              <p className="font-semibold text-sm">Stripe Connect — Paiements internationaux</p>
+              <p className="text-xs text-muted-foreground">Recevez les paiements par carte bancaire du monde entier</p>
+            </div>
+          </div>
+
+          {stripeLoading ? (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Loader2 className="h-3 w-3 animate-spin" /> Vérification du statut Stripe...
+            </div>
+          ) : stripeStatus?.onboarding_complete ? (
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+              <CheckCircle className="h-4 w-4 text-emerald-600" />
+              <div>
+                <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">Compte Stripe Connect actif</p>
+                <p className="text-xs text-muted-foreground">Les paiements par carte sont automatiquement répartis vers votre compte.</p>
+              </div>
+            </div>
+          ) : stripeStatus?.has_account && stripeStatus?.details_submitted ? (
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
+              <Clock className="h-4 w-4 text-amber-600" />
+              <div>
+                <p className="text-sm font-medium text-amber-700 dark:text-amber-400">Vérification en cours par Stripe</p>
+                <p className="text-xs text-muted-foreground">Stripe vérifie vos informations. Cela peut prendre quelques minutes.</p>
+              </div>
+              <Button size="sm" variant="outline" className="ml-auto text-xs gap-1" onClick={() => stripeOnboardingMutation.mutate()} disabled={stripeOnboardingMutation.isPending}>
+                Rafraîchir
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {stripeStatus?.has_account && !stripeStatus?.details_submitted && (
+                <p className="text-xs text-amber-600">⚠️ Vous avez commencé l&apos;inscription mais ne l&apos;avez pas terminée.</p>
+              )}
+              <Button
+                onClick={() => stripeOnboardingMutation.mutate()}
+                disabled={stripeOnboardingMutation.isPending}
+                className="w-full gap-2"
+              >
+                {stripeOnboardingMutation.isPending ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <ExternalLink className="h-4 w-4" />
+                )}
+                {stripeStatus?.has_account ? "Reprendre l'inscription Stripe" : 'Configurer Stripe Connect'}
+              </Button>
+              <p className="text-[10px] text-muted-foreground text-center">
+                Vous serez redirigé vers Stripe pour compléter votre vérification d&apos;identité et vos coordonnées bancaires.
+              </p>
+            </div>
+          )}
         </div>
 
         {fundSummary && (

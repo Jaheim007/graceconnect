@@ -131,6 +131,15 @@ export async function processPartnerPayout(payout_request_id: string, action: 'a
   return callFn('process-partner-payout', { payout_request_id, action }, true);
 }
 
+// ── Stripe Connect ──
+export async function startStripeConnectOnboarding(organization_id: string, return_url: string, refresh_url?: string) {
+  return callFn('stripe-connect-onboarding', { organization_id, return_url, refresh_url }, true);
+}
+
+export async function checkStripeConnectStatus(organization_id: string) {
+  return callFn('stripe-connect-status', { organization_id }, true);
+}
+
 // ── Email sending ──
 export type EmailTemplate =
   // Auth & Onboarding
