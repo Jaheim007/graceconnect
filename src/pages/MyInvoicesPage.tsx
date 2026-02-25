@@ -24,7 +24,7 @@ export default function MyInvoicesPage() {
       if (!user) return [];
       const { data } = await db
         .from('product_purchases')
-        .select('id, amount, currency, status, completed_at, created_at, paystack_reference, organization_id, digital_products(title), organizations(name)')
+        .select('id, amount, currency, status, completed_at, created_at, paystack_reference, organization_id, product_id, digital_products!left(title), organizations!left(name)')
         .eq('user_id', user.id)
         .eq('status', 'completed')
         .order('completed_at', { ascending: false });
@@ -39,7 +39,7 @@ export default function MyInvoicesPage() {
       if (!user) return [];
       const { data } = await db
         .from('donations')
-        .select('id, amount, currency, status, completed_at, created_at, paystack_reference, organization_id, organizations(name), donation_campaigns(title)')
+        .select('id, amount, currency, status, completed_at, created_at, paystack_reference, organization_id, organizations!left(name), donation_campaigns!left(title)')
         .eq('user_id', user.id)
         .eq('status', 'completed')
         .order('completed_at', { ascending: false });
