@@ -41,9 +41,8 @@ export default function FeedPage() {
   const navigate = useNavigate();
   const { userOrgs } = useOrg();
   const { user } = useAuth();
-  // Only show content from orgs the user subscribes to, NOT orgs they own
-  const subscribedOrgs = userOrgs.filter(o => o.owner_id !== user?.id);
-  const orgIds = subscribedOrgs.map((o) => o.id);
+  // Show content from ALL orgs the user belongs to (subscribed + owned)
+  const orgIds = userOrgs.map((o) => o.id);
   const { t } = useI18n();
 
   const [tab, setTab] = useState<Tab>('all');

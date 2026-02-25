@@ -53,6 +53,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const [step, setStep] = useState<Step>('confirm');
   const [result, setResult] = useState<VerifyPaymentResult | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
@@ -220,27 +221,22 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
   const handlePurchase = async () => {
     if (!validateBuyerInfo()) return;
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     if (product.is_free || finalPrice === 0) {
       try {
-        // Create a purchase record for free products so it appears in My Purchases
-        await db.from('product_purchases').insert({
-          user_id: user!.id,
-          product_id: product.id,
-          organization_id: organizationId,
-          amount: 0,
-          currency: product.currency || 'XOF',
-          status: 'completed',
-          completed_at: new Date().toISOString(),
-          paystack_reference: `free-${Date.now()}`,
-          platform_fee: 0,
-          organization_amount: 0,
+        // Use edge function to securely claim free product (server verifies it's truly free)
+        const { data: claimData, error: claimErr } = await db.functions.invoke('claim-free-product', {
+          body: { product_id: product.id, organization_id: organizationId },
         });
+        if (claimErr) throw claimErr;
         // Invalidate purchases cache so My Purchases shows the new item
         await queryClient.invalidateQueries({ queryKey: ['my-purchases'] });
       } catch (e) {
-        console.warn('[ProductPurchaseModal] Free purchase insert error (may already exist):', e);
+        console.warn('[ProductPurchaseModal] Free claim error:', e);
       }
+      setIsSubmitting(false);
       setStep('success');
       onSuccess?.({ ok: true, transaction_id: 'free', breakdown: { amount: 0, currency: product.currency || 'XOF', platform_fee: 0, affiliate_commission: 0, organization_amount: 0, affiliate_attributed: false } });
       return;
@@ -304,6 +300,8 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
       const message = err instanceof Error ? err.message : 'Impossible d\'ouvrir le paiement.';
       console.error('[ProductPurchaseModal] openPayment error:', err);
       toast({ title: 'Erreur de paiement', description: message, variant: 'destructive' });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -499,7 +497,8 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => setStep('confirm')} className="flex-1">Retour</Button>
-              <Button onClick={handlePurchase} className="flex-1 bg-primary text-primary-foreground">
+              <Button onClick={handlePurchase} disabled={isSubmitting} className="flex-1 bg-primary text-primary-foreground">
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : null}
                 {product.is_free || finalPrice === 0 ? 'Confirmer' : `Payer ${fmt(finalPrice)}`}
               </Button>
             </div>

@@ -50,3 +50,9 @@ verify_jwt = false
 
 [functions.create-transfer-recipient]
 verify_jwt = false
+
+[functions.claim-free-product]
+verify_jwt = false
+
+[functions.settle-pre-subaccount]
+verify_jwt = false
