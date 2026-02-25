@@ -12,9 +12,10 @@ import { Heart, Lock, CheckCircle, AlertCircle, Loader2, EyeOff } from 'lucide-r
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePaystack } from '@/hooks/usePaystack';
+import { usePaymentGateway, PaymentMethod, PaymentGateway } from '@/hooks/usePaymentGateway';
+import { PaymentMethodSelector } from '@/components/payments/PaymentMethodSelector';
 import { getAffiliateCode, clearAffiliateCode } from '@/hooks/useAffiliateCapture';
-import { verifyPayment, VerifyPaymentResult } from '@/lib/api';
+import { verifyPayment, VerifyPaymentResult, callFn } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { onNewDonation } from '@/lib/notifications';
@@ -40,10 +41,11 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
   const [result, setResult] = useState<VerifyPaymentResult | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('mobile_money');
 
   const { toast } = useToast();
   const { user, profile } = useAuth();
-  const { openPayment } = usePaystack();
+  const { openPayment } = usePaymentGateway();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -85,12 +87,15 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
 
     try {
       await openPayment({
+        method: paymentMethod,
         email: resolvedEmail,
         amount: effectiveAmount,
         currency: campaign.currency || 'XOF',
-        // Split payment: route funds to org subaccount
-        // transaction_charge = platform_fee + affiliate_commission (if affiliate present)
-        // This ensures Siteviral holds affiliate funds to pay out later via Transfer API
+        type: 'donation',
+        organization_id: organizationId,
+        campaign_id: campaign.id,
+        buyer_name: isAnonymous ? 'Anonyme' : resolvedName,
+        affiliate_code: affiliateCode,
         subaccount: orgPayment?.paystack_subaccount_code || undefined,
         platformFeeAmount: orgPayment?.paystack_subaccount_code
           ? effectiveAmount * (
@@ -108,9 +113,12 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
           affiliate_code: affiliateCode || null,
         },
         onClose: () => {
-          // User closed the Paystack popup without paying — stay on form
+          // User closed the popup without paying — stay on form
         },
-        onSuccess: async (reference) => {
+        onSuccess: async (reference, gateway) => {
+          // For Stripe, the redirect handles success — this won't be called
+          if (gateway === 'stripe') return;
+          
           setStep('processing');
           try {
             const verifyResult = await verifyPayment({
@@ -126,7 +134,6 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
             setResult(verifyResult);
             setStep('success');
             onSuccess?.(verifyResult);
-            // Fire real-time notification to org owners/admins
             onNewDonation(organizationId, '', campaign.title, isAnonymous ? 'Anonyme' : resolvedName, verifyResult.breakdown.amount, campaign.currency || 'XOF');
             queryClient.invalidateQueries({ queryKey: ['feed-campaigns'] });
             queryClient.invalidateQueries({ queryKey: ['org-campaigns'] });
@@ -235,13 +242,20 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
                 </Label>
               </div>
 
+              {/* Payment method selector */}
+              <PaymentMethodSelector
+                value={paymentMethod}
+                onChange={setPaymentMethod}
+                currency={campaign.currency || 'XOF'}
+              />
+
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Lock className="h-3 w-3" />
-                  Secure payments powered by Paystack
+                  {paymentMethod === 'card' ? 'Paiement sécurisé par Stripe' : 'Paiement sécurisé par Paystack'}
                 </div>
                 <p className="text-[10px] text-muted-foreground">
-                  Payment methods depend on availability by country. Additional providers may be added.
+                  Les méthodes de paiement dépendent de la disponibilité par pays.
                 </p>
                 <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">
                   <a href="/refund-policy" target="_blank" className="underline hover:text-foreground">Refund Policy</a>

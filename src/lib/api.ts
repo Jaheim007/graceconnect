@@ -67,6 +67,10 @@ export async function verifyPayment(args: VerifyPaymentArgs): Promise<VerifyPaym
   return callFn('verify-payment', args, true);
 }
 
+export async function verifyStripePayment(reference: string): Promise<VerifyPaymentResult> {
+  return callFn('stripe-verify', { reference }, true);
+}
+
 export async function createPaystackSubaccount(args: {
   organization_id: string;
   business_name: string;

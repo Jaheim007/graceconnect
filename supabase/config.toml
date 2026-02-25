@@ -68,3 +68,12 @@ verify_jwt = false
 
 [functions.process-partner-payout]
 verify_jwt = false
+
+[functions.stripe-create-checkout]
+verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.stripe-verify]
+verify_jwt = false
