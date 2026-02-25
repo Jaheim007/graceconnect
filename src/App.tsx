@@ -64,6 +64,7 @@ const PartnerTermsPage = lazy(() => import("@/pages/PartnerTermsPage"));
 const CampaignDetailPage = lazy(() => import("@/pages/CampaignDetailPage"));
 const AnnouncementDetailPage = lazy(() => import("@/pages/AnnouncementDetailPage"));
 const EventDetailPage = lazy(() => import("@/pages/EventDetailPage"));
+const WelcomeIntentPage = lazy(() => import("@/pages/WelcomeIntentPage"));
 
 
 // Authenticated
@@ -206,6 +207,9 @@ const App = () => (
                 <Route path="/campaign/:campaignId" element={<CampaignDetailPage />} />
                 <Route path="/announcement/:announcementId" element={<AnnouncementDetailPage />} />
                 <Route path="/event/:eventId" element={<EventDetailPage />} />
+
+                {/* Welcome intent (post-signup) */}
+                <Route path="/welcome" element={<RequireAuth><WelcomeIntentPage /></RequireAuth>} />
 
                 {/* Authenticated shell */}
                 <Route element={<RequireAuth><AppLayout /></RequireAuth>}>

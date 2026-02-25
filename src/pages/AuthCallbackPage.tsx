@@ -7,17 +7,30 @@ export default function AuthCallbackPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Supabase will exchange the code/token from the URL hash automatically
+    const handleRedirect = async (session: any) => {
+      if (!session) return;
+
+      // Check if user is new (created within last 60 seconds)
+      const createdAt = new Date(session.user.created_at).getTime();
+      const now = Date.now();
+      const isNewUser = now - createdAt < 60_000;
+
+      if (isNewUser) {
+        navigate('/welcome', { replace: true });
+      } else {
+        navigate('/dashboard', { replace: true });
+      }
+    };
+
     supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        navigate('/dashboard', { replace: true });
+        handleRedirect(session);
       }
     });
 
-    // Fallback: if already authenticated, redirect immediately
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate('/dashboard', { replace: true });
+        handleRedirect(session);
       }
     });
   }, [navigate]);
