@@ -1878,6 +1878,54 @@ export type Database = {
         }
         Relationships: []
       }
+      payout_profiles: {
+        Row: {
+          created_at: string
+          id: string
+          payout_account_name: string | null
+          payout_account_number: string | null
+          payout_bank_code: string | null
+          payout_country: string | null
+          payout_currency: string | null
+          payout_method: string | null
+          payout_provider: string | null
+          paystack_recipient_code: string | null
+          recipient_locked: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          payout_account_name?: string | null
+          payout_account_number?: string | null
+          payout_bank_code?: string | null
+          payout_country?: string | null
+          payout_currency?: string | null
+          payout_method?: string | null
+          payout_provider?: string | null
+          paystack_recipient_code?: string | null
+          recipient_locked?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          payout_account_name?: string | null
+          payout_account_number?: string | null
+          payout_bank_code?: string | null
+          payout_country?: string | null
+          payout_currency?: string | null
+          payout_method?: string | null
+          payout_provider?: string | null
+          paystack_recipient_code?: string | null
+          recipient_locked?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       payout_requests: {
         Row: {
           amount: number
@@ -1914,6 +1962,42 @@ export type Database = {
           requested_at?: string | null
           status?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      platform_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          details: Json | null
+          id: string
+          resolved: boolean
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          title: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          title: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          title?: string
         }
         Relationships: []
       }

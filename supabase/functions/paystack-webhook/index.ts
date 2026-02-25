@@ -376,7 +376,8 @@ Deno.serve(async (req) => {
     let affiliateUserId: string | null = null;
     let affiliateCommission = 0;
 
-    if (affiliateCode && org.affiliation_enabled) {
+    // Affiliate commission: ONLY on products, NEVER on donations
+    if (affiliateCode && org.affiliation_enabled && type === 'product') {
       const { data: affLink } = await db.from('affiliate_links').select('id, user_id, is_active').eq('code', affiliateCode).eq('organization_id', organizationId).maybeSingle();
       if (affLink?.is_active && affLink.user_id !== userId) {
         affiliateLinkId = affLink.id;

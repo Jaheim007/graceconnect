@@ -116,9 +116,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    // ── Check recipient_locked ──
-    const { data: profile } = await db.from('profiles').select('paystack_recipient_code, recipient_locked').eq('id', user.id).single();
-    if (profile?.recipient_locked) {
+    // ── Check recipient_locked (from payout_profiles) ──
+    const { data: payoutProfile } = await db.from('payout_profiles').select('paystack_recipient_code, recipient_locked').eq('user_id', user.id).maybeSingle();
+    if (payoutProfile?.recipient_locked) {
       return new Response(JSON.stringify({ error: 'Your payout method is locked after a completed payout. Contact support to change it.' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
@@ -158,9 +158,10 @@ Deno.serve(async (req) => {
 
     const recipientCode = psData.data.recipient_code;
 
-    // ── Update profile ──
-    await db.from('profiles').update({
+    // ── Upsert payout_profiles (isolated from main profiles) ──
+    const payoutData = {
       paystack_recipient_code: recipientCode,
+      recipient_locked: false,
       payout_method: method,
       payout_country: country,
       payout_provider: method === 'mobile_money' ? provider : null,
@@ -168,7 +169,12 @@ Deno.serve(async (req) => {
       payout_account_number: account_number,
       payout_account_name: account_name,
       payout_currency: config.currency,
-    }).eq('id', user.id);
+    };
+    if (payoutProfile) {
+      await db.from('payout_profiles').update(payoutData).eq('user_id', user.id);
+    } else {
+      await db.from('payout_profiles').insert({ user_id: user.id, ...payoutData });
+    }
 
     // Audit log
     await db.from('audit_logs').insert({

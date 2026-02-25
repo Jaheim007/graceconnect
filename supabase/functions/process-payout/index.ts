@@ -119,11 +119,43 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Look up recipient code for the affiliate user
-      // For affiliates, we need their personal recipient code (stored in profiles or kyc)
-      const { data: recipientProfile } = await db.from('profiles')
+      // ── Balance check: verify Paystack main balance before affiliate payout ──
+      try {
+        const balanceRes = await fetch('https://api.paystack.co/balance', {
+          headers: { Authorization: `Bearer ${PAYSTACK_SECRET}` },
+        });
+        const balanceData = await balanceRes.json();
+        if (balanceData.status && balanceData.data?.length) {
+          const mainBalance = balanceData.data[0]; // First balance entry
+          const availableBalance = (mainBalance.balance || 0) / 100; // Convert from kobo
+          if (availableBalance < payout.amount) {
+            // Log critical alert
+            await db.from('platform_alerts').insert({
+              alert_type: 'insufficient_balance',
+              severity: 'critical',
+              title: `Insufficient platform balance for affiliate payout`,
+              details: { requested: payout.amount, available: availableBalance, currency: mainBalance.currency, payout_request_id },
+            });
+            return new Response(JSON.stringify({
+              error: `Insufficient platform balance. Available: ${availableBalance.toLocaleString('fr-FR')} ${mainBalance.currency}. Requested: ${payout.amount.toLocaleString('fr-FR')} ${payout.currency}.`,
+            }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+          }
+        }
+      } catch (balErr) {
+        console.error('Balance check failed (non-blocking for now):', balErr);
+        // Log warning but don't block — balance API might be temporarily unavailable
+        await db.from('platform_alerts').insert({
+          alert_type: 'balance_check_failed',
+          severity: 'warning',
+          title: 'Failed to verify platform balance before payout',
+          details: { error: String(balErr), payout_request_id },
+        });
+      }
+
+      // Look up recipient code from payout_profiles (isolated table)
+      const { data: recipientProfile } = await db.from('payout_profiles')
         .select('paystack_recipient_code')
-        .eq('id', payout.user_id)
+        .eq('user_id', payout.user_id)
         .maybeSingle();
 
       let transferResult: Record<string, unknown> = {};
@@ -170,7 +202,7 @@ Deno.serve(async (req) => {
 
       // Lock recipient after successful payout to prevent fraud
       if (recipientProfile?.paystack_recipient_code) {
-        await db.from('profiles').update({ recipient_locked: true }).eq('id', payout.user_id);
+        await db.from('payout_profiles').update({ recipient_locked: true }).eq('user_id', payout.user_id);
       }
     }
 
