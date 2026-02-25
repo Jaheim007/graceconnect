@@ -34,7 +34,7 @@ export default function AuthPage() {
 
   useEffect(() => {
     if (user) {
-      navigate(returnTo || '/feed', { replace: true });
+      navigate(returnTo || '/dashboard', { replace: true });
     }
   }, [user, userOrgs.length, navigate, returnTo]);
 

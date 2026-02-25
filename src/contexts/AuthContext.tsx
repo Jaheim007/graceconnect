@@ -135,7 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signInWithGoogle = async (returnTo?: string) => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}${returnTo || '/feed'}` },
+      options: { redirectTo: 'https://siteviral.com/auth/callback' },
     });
     return { error: error as Error | null };
   };

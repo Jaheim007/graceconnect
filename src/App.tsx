@@ -35,6 +35,7 @@ const PageLoader = () => (
 // Public
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const AuthPage = lazy(() => import("@/pages/AuthPage"));
+const AuthCallbackPage = lazy(() => import("@/pages/AuthCallbackPage"));
 const DiscoverPage = lazy(() => import("@/pages/DiscoverPage"));
 const OrgPublicPage = lazy(() => import("@/pages/OrgPublicPage"));
 const ProductDetailPage = lazy(() => import("@/pages/ProductDetailPage"));
@@ -181,6 +182,7 @@ const App = () => (
                 <Route path="/devenir-partenaire" element={<BecomePartnerPage />} />
                 <Route path="/partner-terms" element={<PartnerTermsPage />} />
                 <Route path="/auth" element={<AuthPage />} />
+                <Route path="/auth/callback" element={<AuthCallbackPage />} />
                 <Route path="/payment/success" element={<PaymentSuccessPage />} />
                 <Route path="/invite/:code" element={<InvitePage />} />
                 <Route path="/install" element={<InstallPage />} />
