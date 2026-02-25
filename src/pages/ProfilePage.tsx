@@ -183,6 +183,17 @@ export default function ProfilePage() {
     );
   }
 
+  // Profile completion
+  const completionSteps = [
+    { done: !!profile?.display_name, label: locale === 'fr' ? 'Nom' : 'Name' },
+    { done: !!avatarUrl, label: 'Avatar' },
+    { done: !!profile?.bio, label: 'Bio' },
+    { done: !!profile?.phone, label: locale === 'fr' ? 'Téléphone' : 'Phone' },
+    { done: userOrgs.length > 0, label: locale === 'fr' ? 'Communauté' : 'Community' },
+  ];
+  const completedCount = completionSteps.filter(s => s.done).length;
+  const completionPercent = Math.round((completedCount / completionSteps.length) * 100);
+
   return (
     <div className="min-h-screen bg-background">
       <div className="sticky top-0 z-10 glass border-b border-border/40 px-4 h-14 flex items-center gap-3">
@@ -200,9 +211,39 @@ export default function ProfilePage() {
           <div className="flex-1 min-w-0">
             <p className="font-semibold text-base truncate">{displayName}</p>
             <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+            {/* Completion bar */}
+            <div className="flex items-center gap-2 mt-2">
+              <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${completionPercent}%` }}
+                  transition={{ duration: 0.8, ease: 'easeOut' }}
+                  className={cn('h-full rounded-full', completionPercent === 100 ? 'bg-green-500' : 'bg-primary')}
+                />
+              </div>
+              <span className="text-[10px] font-semibold text-muted-foreground">{completionPercent}%</span>
+            </div>
           </div>
           <Button variant="ghost" size="icon" className="shrink-0 h-8 w-8" onClick={() => setActiveSection('edit-profile')}><ChevronRight className="h-4 w-4 text-muted-foreground" /></Button>
         </motion.div>
+
+        {/* Completion hints */}
+        {completionPercent < 100 && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="bg-primary/5 border border-primary/15 rounded-2xl p-3.5">
+            <p className="text-xs font-semibold mb-2">{locale === 'fr' ? '✨ Complétez votre profil' : '✨ Complete your profile'}</p>
+            <div className="flex flex-wrap gap-1.5">
+              {completionSteps.filter(s => !s.done).map(s => (
+                <button
+                  key={s.label}
+                  onClick={() => setActiveSection('edit-profile')}
+                  className="text-[10px] px-2.5 py-1 rounded-lg bg-primary/10 text-primary font-medium hover:bg-primary/20 transition-colors"
+                >
+                  + {s.label}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="bg-card border border-border rounded-2xl overflow-hidden shadow-card">
           <div className="px-4 pt-4 pb-2"><p className="text-xs font-semibold text-primary uppercase tracking-wider">{t('profile.account_section')}</p></div>
