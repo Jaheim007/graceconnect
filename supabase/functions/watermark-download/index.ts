@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { PDFDocument, rgb, StandardFonts, degrees } from "https://esm.sh/pdf-lib@1.17.1";
+import { zipSync } from "https://esm.sh/fflate@0.8.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -35,7 +36,6 @@ Deno.serve(async (req) => {
 
     const { file_url, product_id, product_title, inline } = await req.json();
 
-    // Input validation
     const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!file_url || typeof file_url !== 'string' || file_url.length > 2000) {
       return new Response(JSON.stringify({ error: "Invalid file_url" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
     }).then(() => {}).catch(() => {});
 
     // Fetch the organization name
-    let orgName = "Siteviral";
+    let orgName = "Platform";
     if (purchase.organization_id) {
       const { data: org } = await adminClient
         .from("organizations")
@@ -83,22 +83,19 @@ Deno.serve(async (req) => {
       if (org?.name) orgName = org.name;
     }
 
-    // ── Fetch the file (handle private bucket URLs) ──
+    // ── Fetch the file ──
     let fileBytes: Uint8Array;
     let contentType = "application/octet-stream";
 
     const privateMatch = file_url.match(/\/storage\/v1\/object\/(?:public\/|)(private-products)\/(.+)$/);
     if (privateMatch) {
       const filePath = decodeURIComponent(privateMatch[2].split('?')[0]);
-      console.log('[watermark-download] Downloading from private bucket:', filePath);
       const { data: blob, error: dlError } = await adminClient.storage
         .from('private-products')
         .download(filePath);
       if (dlError || !blob) {
-        console.error('[watermark-download] Private download error:', dlError);
         return new Response(JSON.stringify({ error: "Could not fetch file from storage" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       fileBytes = new Uint8Array(await blob.arrayBuffer());
@@ -106,10 +103,8 @@ Deno.serve(async (req) => {
     } else {
       const fileRes = await fetch(file_url);
       if (!fileRes.ok) {
-        console.error('[watermark-download] Public fetch failed:', fileRes.status);
         return new Response(JSON.stringify({ error: "Could not fetch file" }), {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       contentType = fileRes.headers.get("content-type") || "application/octet-stream";
@@ -117,37 +112,66 @@ Deno.serve(async (req) => {
     }
 
     const isPdf = contentType.includes("pdf") || file_url.toLowerCase().includes(".pdf");
+    const buyerEmail = user.email || "Unknown";
+    const title = product_title || "Document";
 
-    let outputBytes: Uint8Array;
+    const safeTitle = title
+      .replace(/[^\x20-\x7E]/g, "_")
+      .replace(/["\\/]/g, "_")
+      .substring(0, 60);
+    const ext = file_url.split('.').pop()?.split('?')[0] || 'bin';
 
     if (isPdf) {
+      // ── PDF: watermark directly ──
+      let outputBytes: Uint8Array;
       try {
-        outputBytes = await watermarkPdf(fileBytes, user.email || "Unknown", product_title || "Document", orgName);
+        outputBytes = await watermarkPdf(fileBytes, buyerEmail, title, orgName);
       } catch (err) {
         console.error("[watermark-download] PDF watermark failed, serving original:", err);
         outputBytes = fileBytes;
       }
+
+      const disposition = inline
+        ? `inline; filename="${safeTitle}.pdf"`
+        : `attachment; filename="${safeTitle}.pdf"`;
+
+      return new Response(outputBytes, {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/pdf",
+          "Content-Disposition": disposition,
+        },
+      });
     } else {
-      outputBytes = fileBytes;
+      // ── Non-PDF: bundle original file + license certificate PDF in a ZIP ──
+      let licensePdfBytes: Uint8Array;
+      try {
+        licensePdfBytes = await generateLicensePdf(buyerEmail, title, orgName, ext);
+      } catch (err) {
+        console.error("[watermark-download] License PDF generation failed:", err);
+        // Serve original file without license if generation fails
+        return new Response(fileBytes, {
+          headers: {
+            ...corsHeaders,
+            "Content-Type": contentType,
+            "Content-Disposition": `attachment; filename="${safeTitle}.${ext}"`,
+          },
+        });
+      }
+
+      const zipData = zipSync({
+        [`${safeTitle}.${ext}`]: fileBytes,
+        [`LICENSE-${safeTitle}.pdf`]: licensePdfBytes,
+      });
+
+      return new Response(zipData, {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "application/zip",
+          "Content-Disposition": `attachment; filename="${safeTitle}.zip"`,
+        },
+      });
     }
-
-    const safeTitle = (product_title || "document")
-      .replace(/[^\x20-\x7E]/g, "_")
-      .replace(/["\\/]/g, "_")
-      .substring(0, 60);
-    const ext = file_url.split('.').pop()?.split('?')[0] || 'pdf';
-
-    const disposition = inline
-      ? `inline; filename="${safeTitle}.${ext}"`
-      : `attachment; filename="${safeTitle}.${ext}"`;
-
-    return new Response(outputBytes, {
-      headers: {
-        ...corsHeaders,
-        "Content-Type": isPdf ? "application/pdf" : contentType,
-        "Content-Disposition": disposition,
-      },
-    });
   } catch (err) {
     console.error("[watermark-download] Error:", err);
     return new Response(JSON.stringify({ error: "Internal error" }), {
@@ -156,6 +180,94 @@ Deno.serve(async (req) => {
     });
   }
 });
+
+// ── Generate standalone License Certificate PDF for non-PDF files ────────────
+
+async function generateLicensePdf(
+  buyerEmail: string,
+  productTitle: string,
+  orgName: string,
+  fileType: string,
+): Promise<Uint8Array> {
+  const pdfDoc = await PDFDocument.create();
+  const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const helveticaOblique = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
+  const courier = await pdfDoc.embedFont(StandardFonts.Courier);
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" });
+  const licenseId = `SV-${purchaseShortId(buyerEmail, now)}`;
+  const fingerprint = generateFingerprint(buyerEmail, licenseId, now);
+
+  const gold = rgb(0.788, 0.659, 0.298);
+  const darkBg = rgb(0.07, 0.07, 0.07);
+
+  const page = pdfDoc.addPage([595, 842]);
+  const { width: cw, height: ch } = page.getSize();
+
+  // Header
+  page.drawRectangle({ x: 0, y: ch - 120, width: cw, height: 120, color: darkBg });
+  page.drawText(orgName, { x: 40, y: ch - 55, size: 28, font: helveticaBold, color: gold });
+  page.drawText("Digital License Certificate", { x: 40, y: ch - 80, size: 14, font: helvetica, color: rgb(0.8, 0.8, 0.8) });
+
+  page.drawRectangle({ x: 40, y: ch - 160, width: cw - 80, height: 2, color: gold });
+
+  const titleLines = wrapText(productTitle, 45);
+  let ty = ch - 200;
+  page.drawText("LICENSED PRODUCT", { x: 40, y: ty, size: 10, font: helvetica, color: rgb(0.5, 0.5, 0.5) });
+  ty -= 25;
+  for (const line of titleLines) {
+    page.drawText(line, { x: 40, y: ty, size: 20, font: helveticaBold, color: rgb(0.1, 0.1, 0.1) });
+    ty -= 28;
+  }
+
+  ty -= 20;
+  const fields = [
+    ["Licensed To", buyerEmail],
+    ["Purchased From", orgName],
+    ["License ID", licenseId],
+    ["File Type", fileType.toUpperCase()],
+    ["Date of Purchase", dateStr],
+    ["License Type", "Personal Use — Non-Transferable"],
+  ];
+
+  for (const [label, value] of fields) {
+    page.drawText(label.toUpperCase(), { x: 40, y: ty, size: 9, font: helvetica, color: rgb(0.5, 0.5, 0.5) });
+    ty -= 16;
+    page.drawText(value, { x: 40, y: ty, size: 13, font: helveticaBold, color: rgb(0.15, 0.15, 0.15) });
+    ty -= 30;
+  }
+
+  ty -= 10;
+  page.drawRectangle({ x: 30, y: ty - 115, width: cw - 60, height: 125, color: rgb(0.96, 0.96, 0.96), borderColor: rgb(0.85, 0.85, 0.85), borderWidth: 1 });
+
+  const terms = [
+    "This file is licensed for personal use only.",
+    "Redistribution, resale, or sharing is strictly prohibited.",
+    "This download is traceable to your account via a unique license ID.",
+    "Violation may result in account suspension and legal action.",
+    "This license certificate must be kept alongside the downloaded file.",
+  ];
+
+  let termY = ty - 15;
+  page.drawText("TERMS OF USE", { x: 45, y: termY, size: 9, font: helveticaBold, color: rgb(0.3, 0.3, 0.3) });
+  termY -= 18;
+  for (const t of terms) {
+    page.drawText(`•  ${t}`, { x: 50, y: termY, size: 9, font: helvetica, color: rgb(0.35, 0.35, 0.35) });
+    termY -= 15;
+  }
+
+  page.drawText(fingerprint, { x: 40, y: 55, size: 5, font: courier, color: rgb(0.88, 0.88, 0.88) });
+  page.drawText(`Generated on ${dateStr} — ${orgName}`, { x: 40, y: 40, size: 8, font: helvetica, color: rgb(0.6, 0.6, 0.6) });
+
+  pdfDoc.setTitle(`License — ${productTitle}`);
+  pdfDoc.setAuthor(orgName);
+  pdfDoc.setSubject(`Licensed to ${buyerEmail} — ${licenseId}`);
+  pdfDoc.setKeywords([licenseId, buyerEmail, orgName, 'license-certificate']);
+
+  return new Uint8Array(await pdfDoc.save());
+}
 
 // ── PDF Watermark Engine — Multi-Layer Tamper-Resistant ─────────────────────
 
@@ -176,20 +288,16 @@ async function watermarkPdf(
   const licenseId = `SV-${purchaseShortId(buyerEmail, now)}`;
   const fingerprint = generateFingerprint(buyerEmail, licenseId, now);
 
-  // Brand colors - gold accent
   const gold = rgb(0.788, 0.659, 0.298);
   const darkBg = rgb(0.07, 0.07, 0.07);
 
   // ── 1. License Cover Page ───────────────────────────────────────────────────
-  const coverPage = pdfDoc.insertPage(0, [595, 842]); // A4
+  const coverPage = pdfDoc.insertPage(0, [595, 842]);
   const { width: cw, height: ch } = coverPage.getSize();
 
-  // Header band with ORG NAME (not Siteviral)
   coverPage.drawRectangle({ x: 0, y: ch - 120, width: cw, height: 120, color: darkBg });
   coverPage.drawText(orgName, { x: 40, y: ch - 55, size: 28, font: helveticaBold, color: gold });
   coverPage.drawText("Digital License Certificate", { x: 40, y: ch - 80, size: 14, font: helvetica, color: rgb(0.8, 0.8, 0.8) });
-  // Powered by line
-  coverPage.drawText("Powered by Siteviral", { x: 40, y: ch - 105, size: 8, font: helveticaOblique, color: rgb(0.5, 0.5, 0.5) });
 
   coverPage.drawRectangle({ x: 40, y: ch - 160, width: cw - 80, height: 2, color: gold });
 
@@ -236,9 +344,8 @@ async function watermarkPdf(
     termY -= 15;
   }
 
-  // Fingerprint on cover page (hard to notice but traceable)
   coverPage.drawText(fingerprint, { x: 40, y: 55, size: 5, font: courier, color: rgb(0.88, 0.88, 0.88) });
-  coverPage.drawText(`Generated on ${dateStr} — ${orgName} via Siteviral Platform`, { x: 40, y: 40, size: 8, font: helvetica, color: rgb(0.6, 0.6, 0.6) });
+  coverPage.drawText(`Generated on ${dateStr} — ${orgName}`, { x: 40, y: 40, size: 8, font: helvetica, color: rgb(0.6, 0.6, 0.6) });
 
   // ── 2. Multi-Layer Watermarks on every content page ────────────────────────
   const pages = pdfDoc.getPages();
@@ -248,19 +355,19 @@ async function watermarkPdf(
     const page = pages[i];
     const { width, height } = page.getSize();
 
-    // --- Layer 1: Large diagonal email watermark (center) ---
+    // Layer 1: Large diagonal email watermark
     page.drawText(buyerEmail, {
       x: width * 0.05, y: height * 0.30, size: 42, font: helvetica,
       color: rgb(0.85, 0.85, 0.85), opacity: 0.06, rotate: degrees(45),
     });
 
-    // --- Layer 2: Second diagonal watermark (offset, different angle) ---
+    // Layer 2: Second diagonal watermark (offset, different angle)
     page.drawText(licenseId, {
       x: width * 0.55, y: height * 0.65, size: 36, font: helveticaBold,
       color: rgb(0.85, 0.85, 0.85), opacity: 0.04, rotate: degrees(-35),
     });
 
-    // --- Layer 3: Tiled micro-text grid (extremely hard to crop out) ---
+    // Layer 3: Tiled micro-text grid
     const microText = `${buyerEmail} | ${licenseId}`;
     const microSize = 4;
     for (let row = 0; row < 12; row++) {
@@ -274,24 +381,24 @@ async function watermarkPdf(
       }
     }
 
-    // --- Layer 4: Footer bar with license info ---
+    // Layer 4: Footer bar
     page.drawRectangle({ x: 0, y: 0, width, height: 24, color: rgb(0.95, 0.95, 0.95), opacity: 0.92 });
     page.drawText(footerLine, { x: 10, y: 8, size: 6.5, font: helvetica, color: rgb(0.5, 0.5, 0.5) });
 
-    // --- Layer 5: Top-right corner license ID ---
+    // Layer 5: Top-right license ID
     const idWidth = helvetica.widthOfTextAtSize(licenseId, 7);
     page.drawText(licenseId, {
       x: width - idWidth - 10, y: height - 15, size: 7, font: helvetica,
       color: rgb(0.75, 0.75, 0.75), opacity: 0.45,
     });
 
-    // --- Layer 6: Top-left org name ---
+    // Layer 6: Top-left org name
     page.drawText(orgName, {
       x: 10, y: height - 15, size: 6, font: helveticaOblique,
       color: rgb(0.8, 0.8, 0.8), opacity: 0.35,
     });
 
-    // --- Layer 7: Hidden fingerprint in margins (forensic tracing) ---
+    // Layer 7: Hidden fingerprints (forensic)
     page.drawText(fingerprint, {
       x: 5, y: 2, size: 3, font: courier,
       color: rgb(0.97, 0.97, 0.97), opacity: 0.02,
@@ -301,7 +408,7 @@ async function watermarkPdf(
       color: rgb(0.97, 0.97, 0.97), opacity: 0.02,
     });
 
-    // --- Layer 8: Vertical side watermark ---
+    // Layer 8: Vertical side watermarks
     page.drawText(buyerEmail, {
       x: 8, y: height * 0.2, size: 8, font: helvetica,
       color: rgb(0.9, 0.9, 0.9), opacity: 0.04, rotate: degrees(90),
@@ -312,13 +419,13 @@ async function watermarkPdf(
     });
   }
 
-  // ── 3. PDF Metadata embedding (forensic) ──────────────────────────────────
+  // ── 3. PDF Metadata ──
   pdfDoc.setTitle(productTitle);
   pdfDoc.setAuthor(orgName);
   pdfDoc.setSubject(`Licensed to ${buyerEmail} — ${licenseId}`);
-  pdfDoc.setKeywords([licenseId, buyerEmail, orgName, 'siteviral-watermarked']);
-  pdfDoc.setProducer(`Siteviral DRM v2 — ${fingerprint}`);
-  pdfDoc.setCreator(`${orgName} via Siteviral`);
+  pdfDoc.setKeywords([licenseId, buyerEmail, orgName, 'watermarked']);
+  pdfDoc.setProducer(`${orgName} DRM — ${fingerprint}`);
+  pdfDoc.setCreator(orgName);
 
   return new Uint8Array(await pdfDoc.save());
 }
@@ -334,7 +441,6 @@ function purchaseShortId(email: string, date: Date): string {
   return Math.abs(hash).toString(36).toUpperCase().slice(0, 8);
 }
 
-/** Unique forensic fingerprint embedded invisibly in every page */
 function generateFingerprint(email: string, licenseId: string, date: Date): string {
   const raw = `${email}::${licenseId}::${date.toISOString()}`;
   let h1 = 0, h2 = 0;

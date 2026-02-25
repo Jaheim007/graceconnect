@@ -39,7 +39,9 @@ export function SecureDownloadButton({
 
       if (res.error) throw new Error(res.error.message || 'Erreur de téléchargement');
 
-      const blob = new Blob([res.data], { type: inline ? 'application/pdf' : 'application/octet-stream' });
+      // Detect content type from response
+      const responseType = res.data instanceof Blob ? res.data.type : 'application/octet-stream';
+      const blob = res.data instanceof Blob ? res.data : new Blob([res.data], { type: responseType });
       const url = URL.createObjectURL(blob);
 
       if (inline) {
@@ -47,7 +49,10 @@ export function SecureDownloadButton({
       } else {
         const a = document.createElement('a');
         a.href = url;
-        a.download = `${productTitle.replace(/[^\w\s-]/g, '_').substring(0, 60)}.pdf`;
+        const safeName = productTitle.replace(/[^\w\s-]/g, '_').substring(0, 60);
+        // If it's a ZIP (non-PDF files are bundled with license), use .zip extension
+        const isZip = blob.type === 'application/zip' || (!isPdf && !inline);
+        a.download = `${safeName}.${isZip ? 'zip' : 'pdf'}`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
