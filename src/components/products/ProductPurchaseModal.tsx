@@ -21,6 +21,7 @@ import { db } from '@/lib/db';
 import { formatPrice } from '@/lib/currency';
 import { useAbandonedCart } from '@/hooks/useAbandonedCart';
 import { getAutoPromoCode, clearAutoPromoCode } from '@/hooks/usePromoCapture';
+import { onNewSale } from '@/lib/notifications';
 
 interface ProductPurchaseModalProps {
   product: DigitalProduct | null;
@@ -289,6 +290,8 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
             setResult(verifyResult);
             setStep('success');
             onSuccess?.(verifyResult);
+            // Fire real-time notification to org owners/admins
+            onNewSale(organizationId, '', product.title, buyerInfo.name.trim(), verifyResult.breakdown.amount, product.currency || 'XOF');
           } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Erreur lors de la vérification du paiement.';
             setErrorMsg(message);

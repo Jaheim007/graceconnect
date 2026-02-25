@@ -474,6 +474,41 @@ export async function onFirstDonationReceived(orgId: string, orgName: string, am
 
 export async function onFirstSale(orgId: string, orgName: string, productName: string, amount: number, currency: string) {
   emailOrgAdmins('first_sale_milestone', orgId, { org_name: orgName, product_name: productName, amount, currency });
+  notifyOrgMembers(orgId, '🎉 Première vente !', `${orgName} a réalisé sa première vente : "${productName}" — ${amount} ${currency}`, 'milestone');
+}
+
+// ── New sale (every purchase) ──
+export async function onNewSale(
+  orgId: string,
+  orgName: string,
+  productName: string,
+  buyerName: string,
+  amount: number,
+  currency: string,
+) {
+  notifyOrgMembers(
+    orgId,
+    '💰 Nouvelle vente !',
+    `${buyerName} a acheté "${productName}" — ${amount} ${currency}`,
+    'transaction',
+  );
+}
+
+// ── New donation received ──
+export async function onNewDonation(
+  orgId: string,
+  orgName: string,
+  campaignName: string,
+  donorName: string,
+  amount: number,
+  currency: string,
+) {
+  notifyOrgMembers(
+    orgId,
+    '🙏 Nouveau don !',
+    `${donorName} a fait un don de ${amount} ${currency} pour "${campaignName}"`,
+    'transaction',
+  );
 }
 
 export async function onCampaignGoalReached(orgId: string, orgName: string, campaignName: string, goalAmount: number, currentAmount: number, currency: string) {
