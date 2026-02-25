@@ -1,4 +1,3 @@
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Building2, Share2, ShoppingBag, CheckCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -57,7 +56,7 @@ export function LandingHowItWorks() {
   const tab = tabs.find((t) => t.id === activeTab)!;
 
   return (
-    <section className="py-24 px-4">
+    <section id="how-it-works" className="py-24 px-4 scroll-mt-16">
       <div className="container max-w-5xl">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-12">
           <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">Comment ça marche</Badge>
@@ -79,7 +78,8 @@ export function LandingHowItWorks() {
               }`}
             >
               <t.icon className="h-4 w-4" />
-              {t.label}
+              <span className="hidden sm:inline">{t.label}</span>
+              <span className="sm:hidden">{t.id === 'org' ? 'Créer' : t.id === 'ambassador' ? 'Partager' : 'Acheter'}</span>
             </button>
           ))}
         </div>
@@ -94,8 +94,8 @@ export function LandingHowItWorks() {
             className="space-y-4"
           >
             {tab.steps.map((step, i) => (
-              <div key={i} className="flex items-start gap-3">
-                <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+              <div key={i} className="flex items-start gap-3 group">
+                <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-primary/20 transition-colors">
                   <span className="text-xs font-bold text-primary">{i + 1}</span>
                 </div>
                 <p className="text-sm leading-relaxed">{step}</p>

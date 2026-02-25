@@ -1,37 +1,85 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+
+const navLinks = [
+  { to: '/features', label: 'Fonctionnalités' },
+  { to: '/ambassador-program', label: 'Ambassadeurs' },
+  { to: '/about', label: 'À propos' },
+  { to: '/faq', label: 'FAQ' },
+];
 
 export function LandingNav() {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
       <div className="container flex items-center justify-between h-14 px-4">
         <span className="text-xl font-extrabold tracking-tight text-foreground">Siteviral</span>
+        
+        {/* Desktop links */}
+        <div className="hidden md:flex items-center gap-1">
+          {navLinks.map(link => (
+            <Button key={link.to} variant="ghost" size="sm" asChild>
+              <Link to={link.to}>{link.label}</Link>
+            </Button>
+          ))}
+        </div>
+
         <div className="flex items-center gap-1 sm:gap-2">
-          <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
-            <Link to="/features">Fonctionnalités</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
-            <Link to="/ambassador-program">Ambassadeurs</Link>
-          </Button>
-          <Button variant="ghost" size="sm" asChild className="hidden md:inline-flex">
-            <Link to="/about">À propos</Link>
-          </Button>
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
             {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => navigate('/auth?mode=signin')} className="text-xs sm:text-sm px-2 sm:px-3">
+          <Button variant="ghost" size="sm" onClick={() => navigate('/auth?mode=signin')} className="hidden sm:inline-flex text-xs sm:text-sm px-2 sm:px-3">
             Connexion
           </Button>
           <Button size="sm" className="text-xs sm:text-sm px-3 sm:px-4" onClick={() => navigate('/auth?mode=signup')}>
             Commencer
           </Button>
+          {/* Mobile hamburger */}
+          <Button variant="ghost" size="icon" className="h-8 w-8 md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
+            {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </Button>
         </div>
       </div>
+
+      {/* Mobile dropdown menu */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden border-t border-border/40 bg-background/95 backdrop-blur-sm overflow-hidden"
+          >
+            <nav className="container px-4 py-4 space-y-1">
+              {navLinks.map(link => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-3 py-2.5 rounded-lg text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <div className="pt-2 border-t border-border/40 mt-2 space-y-1">
+                <Button variant="ghost" className="w-full justify-start" onClick={() => { navigate('/auth?mode=signin'); setMenuOpen(false); }}>
+                  Connexion
+                </Button>
+                <Button className="w-full" onClick={() => { navigate('/auth?mode=signup'); setMenuOpen(false); }}>
+                  Commencer gratuitement
+                </Button>
+              </div>
+            </nav>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }
