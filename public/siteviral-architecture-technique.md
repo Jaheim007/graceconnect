@@ -240,7 +240,7 @@ La plateforme agit comme facilitateur technique utilisant des processeurs de pai
 
 **`org_photos`** — Galerie photos
 **`programs`** / `program_modules` / `program_lessons` — LMS intégré
-**`org_messages`** — Messagerie intra-org
+
 
 #### 3.1.4 Transactions financières
 
