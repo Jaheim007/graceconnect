@@ -8,7 +8,7 @@ import {
   MessageCircle, Trophy, CreditCard, Clock, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
@@ -34,7 +34,7 @@ export function Sidebar() {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const { user, isSuperadmin } = useAuth();
-  const { currentOrg, canManage } = useOrg();
+  const { currentOrg, canManage, userOrgs, getRoleFor } = useOrg();
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const { theme, toggleTheme } = useTheme();
   const { t } = useI18n();
@@ -46,6 +46,12 @@ export function Sidebar() {
   const isAdmin = location.pathname.startsWith('/admin');
   const isSA = location.pathname.startsWith('/superadmin');
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
+
+  // Platforms the user owns or administrates (not just follows)
+  const ownedOrgs = useMemo(
+    () => userOrgs.filter(o => ['owner', 'admin'].includes(getRoleFor(o.id) || '')),
+    [userOrgs, getRoleFor]
+  );
 
   // ── Main nav grouped by category ──
   const mainGroups: NavGroup[] = [
@@ -78,7 +84,9 @@ export function Sidebar() {
         { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases'), desc: 'Accédez à tous vos achats et téléchargements' },
         { to: '/invoices', icon: CreditCard, label: 'Mes factures', desc: 'Téléchargez vos factures en PDF' },
         { to: '/my-analytics', icon: BarChart3, label: 'Mes stats', desc: 'Vos statistiques personnelles' },
-        ...(currentOrg ? [{ to: `/org/${currentOrg.slug}`, icon: Building2, label: t('sidebar.view_org'), desc: 'Voir la page publique de votre organisation' }] : []),
+        ...(ownedOrgs.length === 1
+          ? [{ to: `/org/${ownedOrgs[0].slug}`, icon: Building2, label: t('sidebar.view_org'), desc: 'Voir la page publique de votre plateforme' }]
+          : []),
       ],
     },
     {
@@ -264,7 +272,54 @@ export function Sidebar() {
             {renderGroups(adminGroups)}
           </>
         ) : (
-          renderGroups(mainGroups)
+          <>
+            {renderGroups(mainGroups)}
+            {/* Multi-platform picker when user owns 2+ platforms */}
+            {ownedOrgs.length > 1 && !collapsed && (
+              <div className="mt-3 mx-1">
+                <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                  🏢 Mes plateformes
+                </p>
+                <div className="space-y-0.5 mt-0.5">
+                  {ownedOrgs.map(org => (
+                    <Link
+                      key={org.id}
+                      to={`/org/${org.slug}`}
+                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    >
+                      {org.logo_url ? (
+                        <img src={org.logo_url} alt="" className="h-5 w-5 rounded object-cover shrink-0" />
+                      ) : (
+                        <Building2 className="h-4 w-4 shrink-0" />
+                      )}
+                      <span className="truncate">{org.name}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+            {ownedOrgs.length > 1 && collapsed && (
+              <div className="mt-3 space-y-0.5">
+                {ownedOrgs.map(org => (
+                  <Tooltip key={org.id} delayDuration={0}>
+                    <TooltipTrigger asChild>
+                      <Link
+                        to={`/org/${org.slug}`}
+                        className="flex items-center justify-center px-0 py-2.5 rounded-lg text-sm font-medium transition-all text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      >
+                        {org.logo_url ? (
+                          <img src={org.logo_url} alt="" className="h-5 w-5 rounded object-cover" />
+                        ) : (
+                          <Building2 className="h-4 w-4" />
+                        )}
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">{org.name}</TooltipContent>
+                  </Tooltip>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </nav>
 

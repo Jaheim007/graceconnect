@@ -113,7 +113,7 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
         <div>
           <label className="text-sm font-medium mb-2 block">Logo</label>
           <ImageUploader
-            value={logoUrl || currentOrg?.logo_url || ''}
+            value={logoUrl}
             onChange={setLogoUrl}
             folder={currentOrg?.id || 'temp'}
             aspectRatio="square"
@@ -124,7 +124,7 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
           <label className="text-sm font-medium mb-2 block">Description courte</label>
           <Input
             placeholder="En une phrase, décrivez votre plateforme…"
-            value={description || currentOrg?.description || ''}
+            value={description}
             onChange={e => setDescription(e.target.value)}
             className="h-11"
           />
