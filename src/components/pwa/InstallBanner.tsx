@@ -32,12 +32,14 @@ export function InstallBanner() {
   };
 
   const handleInstall = async () => {
-    if (isIOS) {
-      // Can't auto-prompt on iOS — just keep showing instructions
-      return;
+    if (isIOS) return;
+    try {
+      const accepted = await promptInstall();
+      if (accepted) setVisible(false);
+    } catch (error) {
+      console.error('[PWA] Install banner error:', error);
+      setVisible(false);
     }
-    const accepted = await promptInstall();
-    if (accepted) setVisible(false);
   };
 
   if (isInstalled || !visible) return null;
@@ -53,8 +55,8 @@ export function InstallBanner() {
       >
         <div className="bg-card border border-border rounded-2xl p-4 shadow-elevated">
           <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <Download className="h-5 w-5 text-primary" />
+            <div className="h-10 w-10 rounded-xl overflow-hidden shrink-0">
+              <img src="/logo-s.png" alt="Siteviral" className="h-full w-full object-contain" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-foreground">
