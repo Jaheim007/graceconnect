@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { getPaystackSecretKey } from '../_shared/paystack-key.ts';
 
 /**
  * create-transfer-recipient-partner
@@ -60,7 +61,7 @@ Deno.serve(async (req) => {
     });
   }
 
-  const PAYSTACK_SECRET = Deno.env.get('PAYSTACK_SECRET_KEY')!;
+  const PAYSTACK_SECRET = getPaystackSecretKey();
   const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
   const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
