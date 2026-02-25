@@ -1,19 +1,12 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { sendEmail, getUserEmail, sendEmailToOrgAdmins } from '../_shared/send-email-helper.ts';
+import { sendEmailToOrgAdmins } from '../_shared/send-email-helper.ts';
 
 /**
  * release-settlement: Release held funds for vendor payouts after 72h hold period.
  * 
- * Can be called:
- * 1. By superadmin manually for a specific org
- * 2. By a cron job to auto-release eligible settlements
- * 
- * Flow:
- * - Find completed transactions older than 72h with settlement_status = 'held'
- * - Verify no active disputes or freezes
- * - Update Paystack subaccount settlement_schedule to 'auto' temporarily to release
- * - Or initiate a transfer via Transfer API
- * - Mark transactions as 'released'
+ * Supports cursor-based pagination to handle 10k+ orgs without timeouts.
+ * Processes up to BATCH_SIZE transactions per invocation.
+ * Returns a cursor for the next batch if more remain.
  */
 
 const corsHeaders = {
@@ -21,50 +14,28 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-// Rate limiter
-const requestCounts = new Map<string, { count: number; windowStart: number }>();
-function checkRateLimit(ip: string | null, max = 10): boolean {
-  const key = ip || 'unknown';
-  const now = Date.now();
-  const entry = requestCounts.get(key);
-  if (!entry || now - entry.windowStart > 60000) {
-    requestCounts.set(key, { count: 1, windowStart: now });
-    return true;
-  }
-  entry.count++;
-  return entry.count <= max;
-}
+const BATCH_SIZE = 200; // Process max 200 transactions per invocation
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
-  const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('cf-connecting-ip');
-  if (!checkRateLimit(clientIp, 10)) {
-    return new Response(JSON.stringify({ error: 'Too many requests' }), {
-      status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
-  }
-
-  const PAYSTACK_SECRET = Deno.env.get('PAYSTACK_SECRET_KEY')!;
   const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
   const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
   try {
-    // Auth check — superadmin or cron (via anon key with special header)
+    // Auth check — superadmin or cron
     const authHeader = req.headers.get('Authorization');
     let isSuperadmin = false;
     let isCron = false;
 
     if (authHeader?.startsWith('Bearer ')) {
       const token = authHeader.replace('Bearer ', '');
-      // Check if it's a user token
       const { data: { user } } = await db.auth.getUser(token);
       if (user) {
         const { data: roleRow } = await db.from('user_platform_roles').select('role').eq('user_id', user.id).maybeSingle();
         isSuperadmin = roleRow?.role === 'superadmin';
       } else {
-        // Might be anon key for cron
         isCron = true;
       }
     }
@@ -75,44 +46,47 @@ Deno.serve(async (req) => {
       });
     }
 
-    let body: { organization_id?: string } = {};
+    let body: { organization_id?: string; cursor?: string } = {};
     try { body = await req.json(); } catch { /* empty body for cron */ }
 
     const holdCutoff = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
     const results: Array<{ type: string; id: string; org_id: string; amount: number; status: string }> = [];
+    const halfBatch = Math.floor(BATCH_SIZE / 2);
 
-    // Find eligible donations
+    // Fetch eligible donations with cursor-based pagination
     let donationQuery = db.from('donations')
       .select('id, organization_id, organization_amount, currency, completed_at')
       .eq('status', 'completed')
       .eq('settlement_status', 'held')
       .lte('completed_at', holdCutoff)
-      .is('dispute_status', null);
+      .is('dispute_status', null)
+      .order('completed_at', { ascending: true })
+      .limit(halfBatch);
 
-    if (body.organization_id) {
-      donationQuery = donationQuery.eq('organization_id', body.organization_id);
-    }
+    if (body.organization_id) donationQuery = donationQuery.eq('organization_id', body.organization_id);
+    if (body.cursor) donationQuery = donationQuery.gt('completed_at', body.cursor);
 
-    const { data: eligibleDonations } = await donationQuery.limit(100);
+    const { data: eligibleDonations } = await donationQuery;
 
-    // Find eligible purchases
+    // Fetch eligible purchases with same cursor
     let purchaseQuery = db.from('product_purchases')
       .select('id, organization_id, organization_amount, currency, completed_at')
       .eq('status', 'completed')
       .eq('settlement_status', 'held')
       .lte('completed_at', holdCutoff)
-      .is('dispute_status', null);
+      .is('dispute_status', null)
+      .order('completed_at', { ascending: true })
+      .limit(halfBatch);
 
-    if (body.organization_id) {
-      purchaseQuery = purchaseQuery.eq('organization_id', body.organization_id);
-    }
+    if (body.organization_id) purchaseQuery = purchaseQuery.eq('organization_id', body.organization_id);
+    if (body.cursor) purchaseQuery = purchaseQuery.gt('completed_at', body.cursor);
 
-    const { data: eligiblePurchases } = await purchaseQuery.limit(100);
+    const { data: eligiblePurchases } = await purchaseQuery;
 
     const allEligible = [
       ...(eligibleDonations || []).map(d => ({ ...d, type: 'donation' as const })),
       ...(eligiblePurchases || []).map(p => ({ ...p, type: 'product' as const })),
-    ];
+    ].sort((a, b) => (a.completed_at || '').localeCompare(b.completed_at || ''));
 
     if (!allEligible.length) {
       return new Response(JSON.stringify({ ok: true, message: 'No eligible settlements to release', released: 0 }), {
@@ -128,16 +102,21 @@ Deno.serve(async (req) => {
       byOrg.set(tx.organization_id, list);
     }
 
+    // Cache org lookups to avoid repeated queries
+    const orgCache = new Map<string, { payouts_frozen: boolean; name: string; is_active: boolean } | null>();
+
     for (const [orgId, txs] of byOrg) {
-      // Check org freeze
-      const { data: org } = await db.from('organizations')
-        .select('payouts_frozen, paystack_subaccount_code, name, is_active')
-        .eq('id', orgId)
-        .single();
+      let org = orgCache.get(orgId);
+      if (org === undefined) {
+        const { data } = await db.from('organizations')
+          .select('payouts_frozen, name, is_active')
+          .eq('id', orgId)
+          .single();
+        org = data;
+        orgCache.set(orgId, org);
+      }
 
       if (!org || org.payouts_frozen || !org.is_active) {
-        // Mark as frozen instead
-        const txIds = txs.map(t => t.id);
         for (const tx of txs) {
           const table = tx.type === 'donation' ? 'donations' : 'product_purchases';
           await db.from(table).update({ settlement_status: 'frozen' }).eq('id', tx.id);
@@ -146,20 +125,23 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      // Release settlement: For manual settlement subaccounts, we trigger a settlement
-      // by temporarily switching to auto then back, OR just mark as released
-      // and let the process-payout handle actual transfers
       const now = new Date().toISOString();
+      // Batch update per table per org for efficiency
+      const donationIds = txs.filter(t => t.type === 'donation').map(t => t.id);
+      const purchaseIds = txs.filter(t => t.type === 'product').map(t => t.id);
+
+      if (donationIds.length) {
+        await db.from('donations').update({ settlement_status: 'released', settlement_released_at: now }).in('id', donationIds);
+      }
+      if (purchaseIds.length) {
+        await db.from('product_purchases').update({ settlement_status: 'released', settlement_released_at: now }).in('id', purchaseIds);
+      }
+
       for (const tx of txs) {
-        const table = tx.type === 'donation' ? 'donations' : 'product_purchases';
-        await db.from(table).update({
-          settlement_status: 'released',
-          settlement_released_at: now,
-        }).eq('id', tx.id);
         results.push({ type: tx.type, id: tx.id, org_id: orgId, amount: tx.organization_amount, status: 'released' });
       }
 
-      // Audit log
+      // Single audit log per org batch
       const totalReleased = txs.reduce((s, t) => s + (t.organization_amount || 0), 0);
       await db.from('audit_logs').insert({
         organization_id: orgId,
@@ -172,7 +154,7 @@ Deno.serve(async (req) => {
         },
       });
 
-      // Notify org admins
+      // Notify org admins (fire-and-forget)
       sendEmailToOrgAdmins('payout_approved', orgId, {
         amount: totalReleased,
         currency: txs[0]?.currency || 'XOF',
@@ -181,10 +163,18 @@ Deno.serve(async (req) => {
       }).catch(() => {});
     }
 
+    // Compute next cursor for pagination
+    const lastTx = allEligible[allEligible.length - 1];
+    const hasMore = allEligible.length >= BATCH_SIZE;
+    const nextCursor = hasMore ? lastTx.completed_at : null;
+
     return new Response(JSON.stringify({
       ok: true,
       released: results.filter(r => r.status === 'released').length,
       frozen: results.filter(r => r.status === 'frozen').length,
+      processed: results.length,
+      has_more: hasMore,
+      next_cursor: nextCursor,
       details: results,
     }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 

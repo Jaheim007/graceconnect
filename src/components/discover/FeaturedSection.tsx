@@ -3,8 +3,7 @@ import { db } from '@/lib/db';
 import { motion } from 'framer-motion';
 import { ProductCard } from '@/components/products/ProductCard';
 import { CampaignCard } from '@/components/donations/CampaignCard';
-import { OrgCard } from '@/components/org/OrgCard';
-import { Sparkles, Heart, Users } from 'lucide-react';
+import { Sparkles, Heart } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 
 const fadeUp = {
@@ -104,24 +103,7 @@ export function FeaturedSection() {
         </div>
       )}
 
-      {/* Verified orgs */}
-      {hasOrgs && (
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <Users className="h-4 w-4 text-primary" />
-            <h2 className="text-sm font-bold">
-              {locale === 'fr' ? 'Plateformes vérifiées' : 'Verified platforms'}
-            </h2>
-          </div>
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {featured!.orgs.map((o: any, i: number) => (
-              <motion.div key={o.id} variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: i * 0.05 }}>
-                <OrgCard org={o} index={i} />
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Verified orgs removed — privacy by design: no public org directory */}
     </div>
   );
 }
