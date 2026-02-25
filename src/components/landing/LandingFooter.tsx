@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
-
+import { SiteLogo } from '@/components/ui/SiteLogo';
 export function LandingFooter() {
   const { t } = useI18n();
 
@@ -9,7 +9,7 @@ export function LandingFooter() {
       <div className="container px-4 py-14">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
           <div className="space-y-3">
-            <span className="text-xl font-extrabold text-foreground">Siteviral</span>
+            <SiteLogo size="md" linked={false} />
             <p className="text-sm text-muted-foreground leading-relaxed">{t('landing.footer_desc')}</p>
           </div>
           <div className="space-y-3">

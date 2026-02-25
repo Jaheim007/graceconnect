@@ -48,7 +48,7 @@ export default function LandingPage() {
           '@type': 'Organization',
           name: 'Siteviral',
           url: 'https://siteviral.com',
-          logo: 'https://siteviral.com/pwa-512x512.png',
+          logo: 'https://siteviral.com/logo-s.png',
           description: 'Plateforme digitale tout-en-un pour créer, vendre et partager du contenu numérique en Afrique et au-delà.',
           foundingDate: '2024',
           sameAs: ['https://wa.me/message/siteviral'],

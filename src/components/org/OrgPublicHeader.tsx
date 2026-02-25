@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Link } from 'react-router-dom';
+import { SiteLogo } from '@/components/ui/SiteLogo';
 
 interface OrgPublicHeaderProps {
   org: any;
@@ -111,7 +112,7 @@ export function OrgPublicHeader({
       {/* Top bar */}
       <div className="sticky top-0 z-20 border-b border-border/40 bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between">
         <Link to={user ? '/feed' : '/'}>
-          <span className="text-lg font-extrabold tracking-tight italic text-primary">Siteviral</span>
+          <SiteLogo size="sm" linked={false} animate />
         </Link>
         {!user ? (
           <Button size="sm" className="h-7 text-xs bg-primary text-primary-foreground" onClick={() => navigate('/auth')}>

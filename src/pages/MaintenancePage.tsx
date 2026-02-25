@@ -11,8 +11,8 @@ export default function MaintenancePage({ message }: MaintenancePageProps) {
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <SEOHead title="Maintenance — SiteViral" description="Le site est en maintenance." />
       <div className="text-center max-w-md space-y-6">
-        <div className="mx-auto h-20 w-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-          <Wrench className="h-10 w-10 text-primary animate-pulse" />
+        <div className="mx-auto h-20 w-20 rounded-3xl overflow-hidden">
+          <img src="/logo-s.png" alt="Siteviral" className="h-full w-full object-cover" />
         </div>
         <div>
           <h1 className="text-2xl font-bold">Maintenance en cours</h1>

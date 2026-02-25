@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { SiteLogo } from '@/components/ui/SiteLogo';
 import { formatCurrency, formatPrice } from '@/lib/currency';
 import { useI18n } from '@/i18n/I18nContext';
 import { FormattedText } from '@/lib/formatText';
@@ -252,7 +253,7 @@ export default function ProductDetailPage() {
           </Link>
         ) : (
           <Link to={user ? '/feed' : '/'}>
-            <span className="text-lg font-extrabold tracking-tight italic text-primary">Siteviral</span>
+            <SiteLogo size="sm" linked={false} animate />
           </Link>
         )}
         <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => navigate(-1)}>

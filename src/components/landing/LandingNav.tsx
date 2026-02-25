@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { SiteLogo } from '@/components/ui/SiteLogo';
 import { Sun, Moon, Menu, X, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -21,9 +22,7 @@ export function LandingNav() {
   return (
     <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
       <div className="container flex items-center justify-between h-14 px-4">
-        <Link to="/" className="text-xl font-extrabold tracking-tight text-foreground">
-          Siteviral
-        </Link>
+        <SiteLogo size="md" animate />
         
         {/* Desktop links */}
         <div className="hidden md:flex items-center gap-0.5">
