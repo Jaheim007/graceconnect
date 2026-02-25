@@ -25,8 +25,8 @@ export default function PublicAffiliationPage() {
   const navigate = useNavigate();
 
   const steps = [
-    { num: '1', title: 'Choisissez vos produits', desc: 'Parcourez les organisations et sélectionnez les produits qui correspondent à votre audience. Chaque produit inclut son taux de commission.', icon: Search },
-    { num: '2', title: 'Partagez vos liens', desc: 'Obtenez un lien de tracking unique pour chaque organisation ou produit. Partagez sur vos réseaux, site web ou par email.', icon: Link2 },
+    { num: '1', title: 'Choisissez vos plateformes', desc: 'Parcourez les plateformes et sélectionnez les produits qui correspondent à votre audience. Chaque produit inclut son taux de commission.', icon: Search },
+    { num: '2', title: 'Partagez vos liens', desc: 'Obtenez un lien de tracking unique pour chaque plateforme ou produit. Partagez sur vos réseaux, site web ou par email.', icon: Link2 },
     { num: '3', title: 'Gagnez des commissions', desc: 'Chaque vente réalisée via votre lien vous rapporte une commission. Suivez vos performances en temps réel.', icon: TrendingUp },
   ];
 
@@ -38,15 +38,15 @@ export default function PublicAffiliationPage() {
   ];
 
   const faq = [
-    { q: 'Combien puis-je gagner en tant qu\'affilié ?', a: 'Les commissions varient de 5% à 50% selon l\'organisation et le produit. Plus vous partagez, plus vous gagnez.' },
-    { q: 'Y a-t-il des frais pour rejoindre le réseau ?', a: 'Non, devenir affilié est entièrement gratuit. Il suffit de rejoindre une organisation et d\'activer l\'affiliation.' },
+    { q: 'Combien puis-je gagner en tant qu\'ambassadeur ?', a: 'Les commissions varient de 5% à 50% selon la plateforme et le produit. Plus vous partagez, plus vous gagnez.' },
+    { q: 'Y a-t-il des frais pour rejoindre le réseau ?', a: 'Non, devenir ambassadeur est entièrement gratuit. Il suffit de rejoindre une plateforme et d\'activer votre lien.' },
     { q: 'Comment sont versées les commissions ?', a: 'Les commissions deviennent disponibles 15 jours après la transaction. Vous pouvez demander un retrait par Mobile Money ou virement bancaire.' },
-    { q: 'Puis-je promouvoir plusieurs organisations ?', a: 'Oui ! Vous pouvez être affilié à autant d\'organisations que vous le souhaitez et avoir des liens pour chacune.' },
+    { q: 'Puis-je promouvoir plusieurs plateformes ?', a: 'Oui ! Vous pouvez être ambassadeur de autant de plateformes que vous le souhaitez et avoir des liens pour chacune.' },
   ];
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
-      <SEOHead title="Programme d'Affiliation — Siteviral" description="Gagnez des commissions en promouvant des produits numériques. Rejoignez le réseau d'affiliation Siteviral." />
+      <SEOHead title="Programme Ambassadeur — Siteviral" description="Gagnez des commissions en promouvant des produits numériques. Rejoignez le réseau d'ambassadeurs Siteviral." />
       <LandingNav />
 
       {/* Hero */}
@@ -54,14 +54,14 @@ export default function PublicAffiliationPage() {
         <div className="container max-w-5xl px-4 pt-20 pb-16 sm:pt-28 sm:pb-20">
           <motion.div initial="hidden" animate="visible" variants={stagger} className="text-center space-y-6">
             <motion.div variants={fadeUp} className="flex justify-center gap-3">
-              <Button variant="default" size="sm" className="rounded-full px-6">Devenir affilié</Button>
+              <Button variant="default" size="sm" className="rounded-full px-6">Devenir ambassadeur</Button>
               <Button variant="outline" size="sm" className="rounded-full px-6" onClick={() => navigate('/auth?mode=signup')}>Promouvoir mes produits</Button>
             </motion.div>
             <motion.h1 variants={fadeUp} className="text-3xl sm:text-5xl lg:text-6xl font-extrabold leading-tight">
               Gagnez en promouvant des produits<br /><span className="text-primary">que vous aimez.</span>
             </motion.h1>
             <motion.p variants={fadeUp} className="text-muted-foreground max-w-2xl mx-auto text-base sm:text-lg leading-relaxed">
-              Rejoignez le réseau d'affiliation dédié aux organisations digitales. Générez des revenus récurrents en recommandant des produits utiles et performants.
+              Rejoignez le réseau d'ambassadeurs dédié aux plateformes digitales. Générez des revenus récurrents en recommandant des produits utiles et performants.
             </motion.p>
             <motion.div variants={fadeUp}>
               <Button size="lg" className="px-8 gap-2 h-13 text-base" onClick={() => navigate('/auth?mode=signup')}>
@@ -76,7 +76,7 @@ export default function PublicAffiliationPage() {
       <section className="py-14 px-4 border-y border-border/40 bg-muted/30">
         <div className="container max-w-4xl">
           <div className="grid grid-cols-3 gap-6">
-            <AnimatedCounter value={500} suffix="+" label="Organisations" />
+            <AnimatedCounter value={500} suffix="+" label="Plateformes" />
             <AnimatedCounter value={50} suffix="%" label="Commission max" />
             <AnimatedCounter value={150} suffix="+" label="Pays" />
           </div>
@@ -117,7 +117,7 @@ export default function PublicAffiliationPage() {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-14">
             <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">Avantages</Badge>
             <h2 className="text-3xl sm:text-4xl font-extrabold">
-              Pourquoi devenir affilié <span className="text-primary">Siteviral ?</span>
+              Pourquoi devenir ambassadeur <span className="text-primary">Siteviral ?</span>
             </h2>
             <p className="text-muted-foreground max-w-lg mx-auto mt-3">Une plateforme pensée pour votre réussite</p>
           </motion.div>
@@ -142,18 +142,18 @@ export default function PublicAffiliationPage() {
         <div className="container max-w-5xl">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="space-y-6">
-              <Badge variant="secondary" className="text-xs px-3 py-1 rounded-full">Pour les organisations</Badge>
+              <Badge variant="secondary" className="text-xs px-3 py-1 rounded-full">Pour les plateformes</Badge>
               <h2 className="text-3xl sm:text-4xl font-extrabold leading-tight">
-                Développez vos ventes grâce à <span className="text-primary">notre réseau d'affiliés</span>
+                Développez vos ventes grâce à <span className="text-primary">notre réseau d'ambassadeurs</span>
               </h2>
               <p className="text-muted-foreground leading-relaxed">
-                Boostez vos ventes sans perdre le contrôle. Des affiliés promeuvent vos produits et campagnes. Siteviral gère les liens de tracking et le paiement des commissions automatiquement.
+                Boostez vos ventes sans perdre le contrôle. Des ambassadeurs promeuvent vos produits et campagnes. Siteviral gère les liens de tracking et le paiement des commissions automatiquement.
               </p>
               <ul className="space-y-3">
                 {[
-                  'Activez l\'affiliation en un clic depuis votre panneau admin',
+                  'Activez le programme ambassadeur en un clic depuis votre panneau admin',
                   'Définissez votre taux de commission (5% à 50%)',
-                  'Suivez les performances de chaque affilié en temps réel',
+                  'Suivez les performances de chaque ambassadeur en temps réel',
                   'Les commissions sont calculées et versées automatiquement',
                 ].map(item => (
                   <li key={item} className="flex items-start gap-2.5 text-sm">
@@ -165,17 +165,17 @@ export default function PublicAffiliationPage() {
                 ))}
               </ul>
               <Button className="gap-2 h-11 px-6" onClick={() => navigate('/auth?mode=signup')}>
-                Lancer mon programme d'affiliation <ArrowRight className="h-4 w-4" />
+                Lancer mon programme ambassadeur <ArrowRight className="h-4 w-4" />
               </Button>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} transition={{ delay: 0.1 }}
               className="bg-card border border-border rounded-2xl p-8 space-y-5"
             >
-              <h3 className="font-bold text-lg">Tableau de bord affiliés</h3>
+              <h3 className="font-bold text-lg">Tableau de bord ambassadeurs</h3>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { label: 'Affiliés actifs', value: '47', icon: Users },
-                  { label: 'Ventes via affiliés', value: '312', icon: TrendingUp },
+                  { label: 'Ambassadeurs actifs', value: '47', icon: Users },
+                  { label: 'Ventes via ambassadeurs', value: '312', icon: TrendingUp },
                   { label: 'Commissions versées', value: '$4,230', icon: Wallet },
                   { label: 'Taux de conversion', value: '8.2%', icon: BarChart3 },
                 ].map(s => (
@@ -224,17 +224,17 @@ export default function PublicAffiliationPage() {
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_70%)]" />
             <div className="relative z-10 p-8 sm:p-14 text-center space-y-6">
               <h2 className="text-3xl sm:text-4xl font-extrabold text-primary-foreground leading-tight">
-                Prêt à développer vos revenus avec l'affiliation ?
+                Prêt à développer vos revenus en tant qu'ambassadeur ?
               </h2>
               <p className="text-primary-foreground/70 max-w-md mx-auto">
-                Rejoignez le réseau d'affiliation pour organisations digitales et commencez à gagner dès aujourd'hui.
+                Rejoignez le réseau d'ambassadeurs pour plateformes digitales et commencez à gagner dès aujourd'hui.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Button size="lg" className="bg-background text-foreground hover:bg-background/90 border-0 px-8 h-13 text-base gap-2" onClick={() => navigate('/auth?mode=signup')}>
-                  Devenir affilié <ArrowRight className="h-4 w-4" />
+                  Devenir ambassadeur <ArrowRight className="h-4 w-4" />
                 </Button>
-                <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 px-8 h-13 text-base gap-2" onClick={() => navigate('/auth?mode=signup')}>
-                  Lancer mon programme
+                <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 px-8 h-13 text-base gap-2" onClick={() => navigate('/ambassador-terms')}>
+                  Voir les conditions
                 </Button>
               </div>
             </div>

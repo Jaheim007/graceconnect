@@ -135,7 +135,7 @@ export default function AffiliationPage() {
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
-      toast({ title: 'Vous êtes affilié !', description: 'Votre lien est prêt à être partagé.' });
+      toast({ title: 'Vous êtes ambassadeur !', description: 'Votre lien est prêt à être partagé.' });
       qc.invalidateQueries({ queryKey: ['user-affiliate-links'] });
       qc.invalidateQueries({ queryKey: ['user-memberships'] });
       qc.invalidateQueries({ queryKey: ['all-affiliate-orgs'] });
@@ -175,7 +175,7 @@ export default function AffiliationPage() {
     { key: 'mes-liens', label: 'Mes liens', icon: Link2 },
     { key: 'decouvrir', label: 'Découvrir', icon: Search },
     { key: 'resultats', label: 'Résultats', icon: TrendingUp },
-    { key: 'leaderboard', label: 'Top affiliés', icon: Trophy },
+    { key: 'leaderboard', label: 'Top ambassadeurs', icon: Trophy },
   ];
 
   return (
@@ -250,8 +250,8 @@ export default function AffiliationPage() {
             {aLoading ? <SkeletonRow count={3} /> : filteredAffiliateLinks.length === 0 ? (
               <div className="text-center py-12 space-y-3">
                 <Link2 className="h-10 w-10 text-muted-foreground/40 mx-auto" />
-                <p className="text-sm font-medium text-muted-foreground">Aucun lien d'affiliation</p>
-                <p className="text-xs text-muted-foreground max-w-xs mx-auto">Découvrez les organisations avec un programme d'affiliation et commencez à gagner des commissions.</p>
+                <p className="text-sm font-medium text-muted-foreground">Aucun lien ambassadeur</p>
+                <p className="text-xs text-muted-foreground max-w-xs mx-auto">Découvrez les plateformes avec un programme ambassadeur et commencez à gagner des commissions.</p>
                 <Button size="sm" onClick={() => setActiveTab('decouvrir')} className="mt-2 gap-1.5">
                   <Search className="h-3.5 w-3.5" /> Découvrir des programmes
                 </Button>
@@ -309,7 +309,7 @@ export default function AffiliationPage() {
             {Object.keys(payableByOrg).length > 0 && (
               <div className="bg-card border border-border rounded-2xl p-4 space-y-3 shadow-card">
                 <h2 className="font-semibold text-sm flex items-center gap-2"><DollarSign className="h-4 w-4 text-primary" /> Demander un retrait</h2>
-                <p className="text-xs text-muted-foreground">La vérification KYC est requise avant tout retrait.</p>
+                <p className="text-xs text-muted-foreground">La vérification KYC est requise avant tout retrait. <a href="/ambassador-terms" className="text-primary hover:underline">Voir les conditions</a></p>
                 <div className="space-y-2">
                   {Object.values(payableByOrg).map(({ orgId, amount, currency }) => {
                     const org = userOrgs.find(o => o.id === orgId) || allAffiliateOrgs.find(o => o.id === orgId);
@@ -351,8 +351,8 @@ export default function AffiliationPage() {
             {filteredSubscribed.length > 0 && (
               <div className="space-y-3">
                 <div>
-                  <h2 className="font-semibold text-sm flex items-center gap-2"><Sparkle className="h-4 w-4 text-primary" /> Vos abonnements avec affiliation</h2>
-                  <p className="text-[11px] text-muted-foreground">Organisations auxquelles vous êtes abonné et qui proposent un programme d'affiliation.</p>
+                  <h2 className="font-semibold text-sm flex items-center gap-2"><Sparkle className="h-4 w-4 text-primary" /> Vos abonnements avec programme ambassadeur</h2>
+                  <p className="text-[11px] text-muted-foreground">Plateformes auxquelles vous êtes abonné et qui proposent un programme ambassadeur.</p>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {filteredSubscribed.map((org: any) => (
@@ -375,13 +375,13 @@ export default function AffiliationPage() {
             {/* Other orgs */}
             <div className="space-y-3">
               <div>
-                <h2 className="font-semibold text-sm flex items-center gap-2"><Building2 className="h-4 w-4 text-muted-foreground" /> Tous les programmes d'affiliation</h2>
+                <h2 className="font-semibold text-sm flex items-center gap-2"><Building2 className="h-4 w-4 text-muted-foreground" /> Tous les programmes ambassadeur</h2>
                 <p className="text-[11px] text-muted-foreground">Classés par taux de commission décroissant. Rejoignez n'importe quel programme pour commencer à gagner.</p>
               </div>
               {discoverLoading ? <SkeletonRow count={4} /> : filteredOthers.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-sm text-muted-foreground">
-                    {search ? 'Aucune organisation trouvée.' : 'Aucun autre programme d\'affiliation disponible.'}
+                    {search ? 'Aucune plateforme trouvée.' : 'Aucun autre programme ambassadeur disponible.'}
                   </p>
                 </div>
               ) : (
@@ -472,7 +472,7 @@ export default function AffiliationPage() {
 
             <div className="bg-card border border-border rounded-2xl p-4 space-y-3 shadow-card">
               <h2 className="font-semibold text-sm flex items-center gap-2">
-                <Trophy className="h-4 w-4 text-primary" /> Top affiliés de la plateforme
+                <Trophy className="h-4 w-4 text-primary" /> Top ambassadeurs de la plateforme
               </h2>
               {leaderboard.length === 0 ? (
                 <p className="text-sm text-muted-foreground text-center py-6">Aucun classement disponible.</p>
@@ -548,7 +548,7 @@ function OrgAffiliateCard({ org, isSubscribed, onBecome, loading, onView }: {
       <div className="flex items-center gap-2">
         <Button size="sm" className="flex-1 h-8 text-xs gap-1.5" onClick={onBecome} disabled={loading}>
           <Link2 className="h-3.5 w-3.5" />
-          {loading ? 'En cours...' : 'Devenir affilié'}
+          {loading ? 'En cours...' : 'Devenir ambassadeur'}
         </Button>
         <Button size="sm" variant="outline" className="h-8 text-xs gap-1" onClick={onView}>
           <ExternalLink className="h-3 w-3" /> Voir
