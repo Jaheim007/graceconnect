@@ -47,11 +47,14 @@ export function RequireOrgManage({ children }: { children: ReactNode }) {
 export function FullPageLoader() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="flex flex-col items-center gap-3">
-        <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
-          <span className="text-sm font-bold text-primary-foreground">GC</span>
+      <div className="flex flex-col items-center gap-4">
+        <div className="relative">
+          <div className="h-14 w-14 rounded-full border-2 border-primary/30 flex items-center justify-center bg-background shadow-lg shadow-primary/10">
+            <img src="/logo-s.png" alt="Siteviral" className="h-9 w-9 object-contain animate-pulse" />
+          </div>
+          <div className="absolute inset-0 h-14 w-14 rounded-full border-2 border-transparent border-t-primary animate-spin" />
         </div>
-        <Loader2 className="h-5 w-5 animate-spin text-primary" />
+        <p className="text-xs text-muted-foreground font-medium animate-pulse">Chargement…</p>
       </div>
     </div>
   );
