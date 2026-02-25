@@ -12,7 +12,8 @@ import {
   ShoppingBag, Lock, CheckCircle, AlertCircle, Loader2, ExternalLink, Download, User, Mail, Phone, Tag, X, Gift,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePaystack } from '@/hooks/usePaystack';
+import { usePaymentGateway, PaymentMethod } from '@/hooks/usePaymentGateway';
+import { PaymentMethodSelector } from '@/components/payments/PaymentMethodSelector';
 import { getAffiliateCode, clearAffiliateCode } from '@/hooks/useAffiliateCapture';
 import { verifyPayment, VerifyPaymentResult } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
@@ -55,10 +56,11 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const [result, setResult] = useState<VerifyPaymentResult | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('mobile_money');
 
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
-  const { openPayment } = usePaystack();
+  const { openPayment } = usePaymentGateway();
   const { toast } = useToast();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -247,11 +249,16 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
     try {
       await openPayment({
+        method: paymentMethod,
         email: buyerInfo.email.trim(),
         amount: finalPrice,
         currency: product.currency || 'XOF',
-        // Split payment: route funds to org subaccount
-        // transaction_charge = platform_fee + affiliate_commission (if affiliate present)
+        type: 'product',
+        organization_id: organizationId,
+        product_id: product.id,
+        buyer_name: buyerInfo.name.trim(),
+        affiliate_code: affiliateCode,
+        promo_code: promo.applied ? promo.code.trim().toUpperCase() : undefined,
         subaccount: orgPayment?.paystack_subaccount_code || undefined,
         platformFeeAmount: orgPayment?.paystack_subaccount_code
           ? finalPrice * (
@@ -268,11 +275,12 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
           donor_name: buyerInfo.name.trim(),
           donor_email: buyerInfo.email.trim(),
           user_id: user?.id || null,
-          affiliate_code: getAffiliateCode() || null,
+          affiliate_code: affiliateCode || null,
           promo_code: promo.applied ? promo.code.trim().toUpperCase() : null,
         },
         onClose: () => {},
-        onSuccess: async (reference) => {
+        onSuccess: async (reference, gateway) => {
+          if (gateway === 'stripe') return; // Stripe redirects
           setStep('processing');
           try {
             const verifyResult = await verifyPayment({
@@ -290,7 +298,6 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
             setResult(verifyResult);
             setStep('success');
             onSuccess?.(verifyResult);
-            // Fire real-time notification to org owners/admins
             onNewSale(organizationId, '', product.title, buyerInfo.name.trim(), verifyResult.breakdown.amount, product.currency || 'XOF');
           } catch (err: unknown) {
             const message = err instanceof Error ? err.message : 'Erreur lors de la vérification du paiement.';
@@ -484,6 +491,15 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                 </div>
               </div>
 
+              {/* Payment method selector (only for paid products) */}
+              {!product.is_free && finalPrice > 0 && (
+                <PaymentMethodSelector
+                  value={paymentMethod}
+                  onChange={setPaymentMethod}
+                  currency={product.currency || 'XOF'}
+                />
+              )}
+
               <div className="rounded-lg bg-muted/50 p-3 text-sm">
                 {promo.applied && (
                   <div className="flex justify-between text-green-600 dark:text-green-400 text-xs mb-1">
@@ -495,6 +511,11 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                   <span>Total à payer</span>
                   <span className="text-primary">{product.is_free || finalPrice === 0 ? 'Gratuit' : fmt(finalPrice)}</span>
                 </div>
+                {!product.is_free && finalPrice > 0 && (
+                  <p className="text-[10px] text-muted-foreground mt-1.5">
+                    {paymentMethod === 'card' ? '🔒 Stripe — Carte bancaire internationale' : '🔒 Paystack — Mobile Money'}
+                  </p>
+                )}
               </div>
             </div>
 

@@ -37,6 +37,7 @@ export default function PaymentSuccessPage() {
   const { user } = useAuth();
 
   const reference = searchParams.get('reference') || searchParams.get('trxref') || '';
+  const gateway = searchParams.get('gateway') || 'paystack';
   const [tx, setTx] = useState<TransactionDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -349,7 +350,7 @@ export default function PaymentSuccessPage() {
               <DetailRow icon={CreditCard} label="Montant" value={fmt(tx.amount, tx.currency)} highlight />
               <DetailRow icon={Hash} label="Référence" value={tx.reference.length > 18 ? tx.reference.slice(0, 18) + '…' : tx.reference} />
               <DetailRow icon={Calendar} label="Date" value={fmtDate(tx.created_at)} />
-              <DetailRow icon={ShieldCheck} label="Sécurité" value="Paystack ✓" />
+              <DetailRow icon={ShieldCheck} label="Sécurité" value={gateway === 'stripe' ? 'Stripe ✓' : 'Paystack ✓'} />
             </div>
 
             {/* Leader / Org Watermark Banner */}
