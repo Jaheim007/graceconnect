@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Quote } from 'lucide-react';
+import { Quote, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface Testimonial {
@@ -7,12 +7,10 @@ interface Testimonial {
   role: string;
   text: string;
   flag?: string;
-  country?: string;
 }
 
 interface TestimonialCarouselProps {
   testimonials: Testimonial[];
-  /** If true, shows a stat card in the middle */
   statCard?: { value: string; label: string };
 }
 
@@ -25,7 +23,7 @@ export function TestimonialCarousel({ testimonials, statCard }: TestimonialCarou
     if (!el) return;
     let animFrame: number;
     let scrollPos = 0;
-    const speed = 0.5;
+    const speed = 0.4;
 
     const scroll = () => {
       if (!isPaused && el) {
@@ -39,7 +37,6 @@ export function TestimonialCarousel({ testimonials, statCard }: TestimonialCarou
     return () => cancelAnimationFrame(animFrame);
   }, [isPaused]);
 
-  // Duplicate for infinite scroll
   const items = [...testimonials, ...testimonials];
 
   return (
@@ -48,23 +45,29 @@ export function TestimonialCarousel({ testimonials, statCard }: TestimonialCarou
       className="flex gap-5 overflow-hidden"
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
+      onTouchStart={() => setIsPaused(true)}
+      onTouchEnd={() => setIsPaused(false)}
     >
       {items.map((tst, i) => {
-        // Insert stat card in the middle of first set
         const showStat = statCard && i === Math.floor(testimonials.length / 2);
         return (
           <div key={`${tst.name}-${i}`} className="flex gap-5 shrink-0">
             {showStat && (
-              <div className="w-[260px] shrink-0 rounded-2xl bg-primary p-8 flex flex-col items-center justify-center text-center">
+              <div className="w-[240px] shrink-0 rounded-2xl bg-primary p-8 flex flex-col items-center justify-center text-center shadow-elevated">
                 <p className="text-4xl font-black text-primary-foreground">{statCard.value}</p>
                 <p className="text-sm text-primary-foreground/70 mt-1 font-medium">{statCard.label}</p>
               </div>
             )}
             <div className={cn(
-              'w-[320px] shrink-0 bg-card rounded-2xl border border-border p-6 space-y-3 relative',
-              'hover:border-primary/20 transition-colors'
+              'w-[300px] sm:w-[340px] shrink-0 bg-card rounded-2xl border border-border p-6 space-y-3 relative',
+              'hover:border-primary/20 transition-colors shadow-card'
             )}>
-              <Quote className="h-6 w-6 text-primary/10 absolute top-5 right-5" />
+              <Quote className="h-5 w-5 text-primary/15 absolute top-5 right-5" />
+              <div className="flex gap-0.5">
+                {[1,2,3,4,5].map(s => (
+                  <Star key={s} className="h-3.5 w-3.5 fill-accent text-accent" />
+                ))}
+              </div>
               <p className="text-sm text-muted-foreground leading-relaxed italic line-clamp-4">"{tst.text}"</p>
               <div className="pt-2 border-t border-border/60 flex items-center gap-2">
                 {tst.flag && <span className="text-lg">{tst.flag}</span>}

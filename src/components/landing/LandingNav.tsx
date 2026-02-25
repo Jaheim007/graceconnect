@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { Sun, Moon, Menu, X } from 'lucide-react';
+import { Sun, Moon, Menu, X, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useState } from 'react';
@@ -8,6 +8,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 const navLinks = [
   { to: '/features', label: 'Fonctionnalités' },
   { to: '/ambassador-program', label: 'Ambassadeurs' },
+  { to: '/discover', label: 'Explorer' },
   { to: '/about', label: 'À propos' },
   { to: '/faq', label: 'FAQ' },
 ];
@@ -20,12 +21,14 @@ export function LandingNav() {
   return (
     <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
       <div className="container flex items-center justify-between h-14 px-4">
-        <span className="text-xl font-extrabold tracking-tight text-foreground">Siteviral</span>
+        <Link to="/" className="text-xl font-extrabold tracking-tight text-foreground">
+          Siteviral
+        </Link>
         
         {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-1">
+        <div className="hidden md:flex items-center gap-0.5">
           {navLinks.map(link => (
-            <Button key={link.to} variant="ghost" size="sm" asChild>
+            <Button key={link.to} variant="ghost" size="sm" asChild className="text-xs">
               <Link to={link.to}>{link.label}</Link>
             </Button>
           ))}
@@ -35,11 +38,11 @@ export function LandingNav() {
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
             {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => navigate('/auth?mode=signin')} className="hidden sm:inline-flex text-xs sm:text-sm px-2 sm:px-3">
+          <Button variant="ghost" size="sm" onClick={() => navigate('/auth?mode=signin')} className="hidden sm:inline-flex text-xs px-3">
             Connexion
           </Button>
-          <Button size="sm" className="text-xs sm:text-sm px-3 sm:px-4" onClick={() => navigate('/auth?mode=signup')}>
-            Commencer
+          <Button size="sm" className="text-xs px-4 gap-1.5" onClick={() => navigate('/auth?mode=signup')}>
+            Commencer <ArrowRight className="h-3 w-3 hidden sm:block" />
           </Button>
           {/* Mobile hamburger */}
           <Button variant="ghost" size="icon" className="h-8 w-8 md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
@@ -68,12 +71,12 @@ export function LandingNav() {
                   {link.label}
                 </Link>
               ))}
-              <div className="pt-2 border-t border-border/40 mt-2 space-y-1">
-                <Button variant="ghost" className="w-full justify-start" onClick={() => { navigate('/auth?mode=signin'); setMenuOpen(false); }}>
+              <div className="pt-2 border-t border-border/40 mt-2 space-y-2">
+                <Button variant="outline" className="w-full" onClick={() => { navigate('/auth?mode=signin'); setMenuOpen(false); }}>
                   Connexion
                 </Button>
-                <Button className="w-full" onClick={() => { navigate('/auth?mode=signup'); setMenuOpen(false); }}>
-                  Commencer gratuitement
+                <Button className="w-full gap-1.5" onClick={() => { navigate('/auth?mode=signup'); setMenuOpen(false); }}>
+                  Commencer gratuitement <ArrowRight className="h-3.5 w-3.5" />
                 </Button>
               </div>
             </nav>

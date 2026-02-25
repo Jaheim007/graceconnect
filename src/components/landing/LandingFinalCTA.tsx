@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, MessageCircle } from 'lucide-react';
+import { ArrowRight, MessageCircle, Share2, Building2, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const fadeUp = {
@@ -24,24 +24,29 @@ export function LandingFinalCTA() {
             <p className="text-primary-foreground/70 max-w-md mx-auto">
               Rejoignez des centaines de créateurs, églises et organisations qui monétisent déjà avec Siteviral.
             </p>
+            
+            {/* 3 persona CTAs */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Button size="lg" className="bg-background text-foreground hover:bg-background/90 border-0 px-8 h-13 text-base gap-2 shadow-lg group" onClick={() => navigate('/auth?mode=signup')}>
-                Créer ma plateforme <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              <Button size="lg" className="bg-background text-foreground hover:bg-background/90 border-0 px-6 h-12 text-sm gap-2 shadow-lg group w-full sm:w-auto" onClick={() => navigate('/auth?mode=signup')}>
+                <Building2 className="h-4 w-4" /> Créer ma plateforme <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 px-8 h-13 text-base gap-2" onClick={() => navigate('/ambassador-program')}>
-                Devenir ambassadeur <ArrowRight className="h-4 w-4" />
+              <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 px-6 h-12 text-sm gap-2 w-full sm:w-auto" onClick={() => navigate('/auth?mode=signup')}>
+                <Share2 className="h-4 w-4" /> Devenir ambassadeur
               </Button>
             </div>
+            <Button variant="link" className="text-primary-foreground/60 hover:text-primary-foreground text-sm gap-1.5" onClick={() => navigate('/discover')}>
+              <ShoppingBag className="h-3.5 w-3.5" /> Ou explorez les ressources disponibles
+            </Button>
           </div>
         </motion.div>
 
         {/* WhatsApp CTA */}
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mt-8">
+        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mt-8 space-y-2">
           <a
             href="https://wa.me/message/siteviral"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors bg-card border border-border rounded-full px-5 py-2.5 hover:shadow-card"
           >
             <MessageCircle className="h-4 w-4" />
             Une question ? Contactez-nous sur WhatsApp
