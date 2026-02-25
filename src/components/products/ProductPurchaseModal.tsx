@@ -62,12 +62,12 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const { pathname } = useLocation();
   const { trackCartOpen, markConverted } = useAbandonedCart();
 
-  // Fetch org subaccount for split payments
+  // Fetch org subaccount + fee config for split payments
   const { data: orgPayment } = useQuery({
     queryKey: ['org-payment-config', organizationId],
     queryFn: async () => {
       const { data } = await db.from('organizations')
-        .select('paystack_subaccount_code, platform_fee_percent')
+        .select('paystack_subaccount_code, platform_fee_percent, affiliation_enabled, affiliation_commission_percent')
         .eq('id', organizationId)
         .single();
       return data;
@@ -254,9 +254,13 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
         amount: finalPrice,
         currency: product.currency || 'XOF',
         // Split payment: route funds to org subaccount
+        // transaction_charge = platform_fee + affiliate_commission (if affiliate present)
         subaccount: orgPayment?.paystack_subaccount_code || undefined,
         platformFeeAmount: orgPayment?.paystack_subaccount_code
-          ? finalPrice * ((orgPayment?.platform_fee_percent ?? 10) / 100)
+          ? finalPrice * (
+              ((orgPayment?.platform_fee_percent ?? 10) +
+               (affiliateCode && orgPayment?.affiliation_enabled ? (orgPayment?.affiliation_commission_percent ?? 10) : 0)) / 100
+            )
           : undefined,
         metadata: {
           type: 'product',

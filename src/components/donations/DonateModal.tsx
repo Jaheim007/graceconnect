@@ -45,12 +45,12 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // Fetch org subaccount for split payments
+  // Fetch org subaccount + fee config for split payments
   const { data: orgPayment } = useQuery({
     queryKey: ['org-payment-config', organizationId],
     queryFn: async () => {
       const { data } = await db.from('organizations')
-        .select('paystack_subaccount_code, platform_fee_percent')
+        .select('paystack_subaccount_code, platform_fee_percent, affiliation_enabled, affiliation_commission_percent')
         .eq('id', organizationId)
         .single();
       return data;
@@ -85,9 +85,14 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
         amount: effectiveAmount,
         currency: campaign.currency || 'XOF',
         // Split payment: route funds to org subaccount
+        // transaction_charge = platform_fee + affiliate_commission (if affiliate present)
+        // This ensures Siteviral holds affiliate funds to pay out later via Transfer API
         subaccount: orgPayment?.paystack_subaccount_code || undefined,
         platformFeeAmount: orgPayment?.paystack_subaccount_code
-          ? effectiveAmount * ((orgPayment?.platform_fee_percent ?? 10) / 100)
+          ? effectiveAmount * (
+              ((orgPayment?.platform_fee_percent ?? 10) +
+               (affiliateCode && orgPayment?.affiliation_enabled ? (orgPayment?.affiliation_commission_percent ?? 10) : 0)) / 100
+            )
           : undefined,
         metadata: {
           type: 'donation',
