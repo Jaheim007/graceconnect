@@ -13,6 +13,7 @@ interface FileUploaderProps {
   hint?: string;
   accept?: string;
   bucket?: 'org-uploads' | 'private-products';
+  hideUrlMode?: boolean;
 }
 
 export function FileUploader({
@@ -23,6 +24,7 @@ export function FileUploader({
   hint,
   accept = '*/*',
   bucket = 'org-uploads',
+  hideUrlMode = false,
 }: FileUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -82,15 +84,17 @@ export function FileUploader({
           >
             <Upload className="h-3 w-3 mr-1" /> Upload
           </Button>
-          <Button
-            type="button"
-            variant={mode === 'url' ? 'secondary' : 'ghost'}
-            size="sm"
-            className="h-6 text-xs px-2"
-            onClick={() => setMode('url')}
-          >
-            <LinkIcon className="h-3 w-3 mr-1" /> URL
-          </Button>
+          {!hideUrlMode && (
+            <Button
+              type="button"
+              variant={mode === 'url' ? 'secondary' : 'ghost'}
+              size="sm"
+              className="h-6 text-xs px-2"
+              onClick={() => setMode('url')}
+            >
+              <LinkIcon className="h-3 w-3 mr-1" /> URL
+            </Button>
+          )}
         </div>
       </div>
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
