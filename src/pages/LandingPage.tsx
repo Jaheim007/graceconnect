@@ -14,6 +14,7 @@ import { Marquee } from '@/components/landing/Marquee';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
+import { LandingExitPopup } from '@/components/landing/LandingExitPopup';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
@@ -39,6 +40,21 @@ export default function LandingPage() {
         title="Siteviral — Créez, vendez, partagez, gagnez"
         description="Créez votre plateforme digitale, vendez vos ressources numériques, collectez des dons ou gagnez de l'argent en partageant du contenu. Mobile Money & Carte."
         canonicalUrl="https://siteviral.com"
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'Organization',
+          name: 'Siteviral',
+          url: 'https://siteviral.com',
+          logo: 'https://siteviral.com/pwa-512x512.png',
+          description: 'Plateforme digitale tout-en-un pour créer, vendre et partager du contenu numérique en Afrique et au-delà.',
+          foundingDate: '2024',
+          sameAs: ['https://wa.me/message/siteviral'],
+          potentialAction: {
+            '@type': 'SearchAction',
+            target: 'https://siteviral.com/discover?q={search_term_string}',
+            'query-input': 'required name=search_term_string',
+          },
+        }}
       />
       <LandingNav />
 
@@ -102,6 +118,7 @@ export default function LandingPage() {
       <LandingFinalCTA />
 
       <LandingFooter />
+      <LandingExitPopup />
     </div>
   );
 }

@@ -22,6 +22,7 @@ import { formatCurrency, formatPrice } from '@/lib/currency';
 import { useI18n } from '@/i18n/I18nContext';
 import { FormattedText } from '@/lib/formatText';
 import { ProductReviews } from '@/components/products/ProductReviews';
+import { AmbassadorBanner } from '@/components/products/AmbassadorBanner';
 import { useBundleItems, useProductRecommendations } from '@/hooks/useBundlesAndRecommendations';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ProductCard } from '@/components/products/ProductCard';
@@ -519,6 +520,11 @@ export default function ProductDetailPage() {
                 </motion.div>
               ))}
             </div>
+
+            {/* Ambassador Banner */}
+            {!isPurchased && org && slug && (
+              <AmbassadorBanner orgSlug={slug} orgName={org.name} />
+            )}
           </motion.div>
         </div>
 
