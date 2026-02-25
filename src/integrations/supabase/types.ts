@@ -2218,7 +2218,16 @@ export type Database = {
           created_at: string | null
           display_name: string | null
           id: string
+          payout_account_name: string | null
+          payout_account_number: string | null
+          payout_bank_code: string | null
+          payout_country: string | null
+          payout_currency: string | null
+          payout_method: string | null
+          payout_provider: string | null
+          paystack_recipient_code: string | null
           phone: string | null
+          recipient_locked: boolean | null
           referral_code: string | null
           updated_at: string | null
         }
@@ -2229,7 +2238,16 @@ export type Database = {
           created_at?: string | null
           display_name?: string | null
           id: string
+          payout_account_name?: string | null
+          payout_account_number?: string | null
+          payout_bank_code?: string | null
+          payout_country?: string | null
+          payout_currency?: string | null
+          payout_method?: string | null
+          payout_provider?: string | null
+          paystack_recipient_code?: string | null
           phone?: string | null
+          recipient_locked?: boolean | null
           referral_code?: string | null
           updated_at?: string | null
         }
@@ -2240,7 +2258,16 @@ export type Database = {
           created_at?: string | null
           display_name?: string | null
           id?: string
+          payout_account_name?: string | null
+          payout_account_number?: string | null
+          payout_bank_code?: string | null
+          payout_country?: string | null
+          payout_currency?: string | null
+          payout_method?: string | null
+          payout_provider?: string | null
+          paystack_recipient_code?: string | null
           phone?: string | null
+          recipient_locked?: boolean | null
           referral_code?: string | null
           updated_at?: string | null
         }
