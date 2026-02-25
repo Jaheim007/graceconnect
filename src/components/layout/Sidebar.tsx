@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import {
   Home, Play, Bell, User, BookOpen, Store,
-  Settings, ChevronLeft, ChevronRight, Shield,
+  Settings, ChevronLeft, ChevronRight, Shield, Handshake,
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, UsersRound, Sun, Moon,
   GraduationCap, UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, ShieldAlert, LayoutDashboard, Building2,
   MessageCircle, Trophy, Award, CreditCard, Clock
@@ -37,6 +37,7 @@ export function Sidebar() {
     // { to: '/certificates', icon: Award, label: t('sidebar.certificates'), desc: t('sidebar.desc.certificates') }, // DISABLED
     { to: '/notifications', icon: Bell, label: t('sidebar.notifications'), desc: t('sidebar.desc.notifications') },
     { to: '/affiliation', icon: Link2, label: t('sidebar.my_affiliations'), desc: t('sidebar.desc.my_affiliations') },
+    { to: '/partner', icon: Handshake, label: 'Espace Partenaire', desc: 'Programme Partenaires Officiel' },
     ...(canManageCurrentOrg ? [{ to: '/admin/affiliation', icon: UsersRound, label: t('sidebar.my_affiliates'), desc: t('sidebar.desc.my_affiliates') }] : []),
     { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases'), desc: t('sidebar.desc.my_purchases') },
     { to: '/support', icon: LifeBuoy, label: t('sidebar.help'), desc: t('sidebar.desc.help') },

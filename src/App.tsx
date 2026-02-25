@@ -74,6 +74,7 @@ const CreateOrgPage = lazy(() => import("@/pages/CreateOrgPage"));
 const ProgramViewPage = lazy(() => import("@/pages/ProgramViewPage"));
 const SupportPage = lazy(() => import("@/pages/SupportPage"));
 const AffiliationPage = lazy(() => import("@/pages/AffiliationPage"));
+const PartnerPortalPage = lazy(() => import("@/pages/PartnerPortalPage"));
 // const MessagesPage = lazy(() => import("@/pages/MessagesPage")); // DISABLED
 const LeaderboardPage = lazy(() => import("@/pages/LeaderboardPage"));
 // const CertificatesPage = lazy(() => import("@/pages/CertificatesPage")); // DISABLED
@@ -114,6 +115,7 @@ const SuperadminEmailLogs = lazy(() => import("@/pages/superadmin/SuperadminEmai
 const SuperadminPush = lazy(() => import("@/pages/superadmin/SuperadminPush"));
 const SuperadminSupport = lazy(() => import("@/pages/superadmin/SuperadminSupport"));
 const SuperadminSettlements = lazy(() => import("@/pages/superadmin/SuperadminSettlements"));
+const SuperadminPartners = lazy(() => import("@/pages/superadmin/SuperadminPartners"));
 // Wrap lazy components that export named exports
 const LazyAdminAnnouncements = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminAnnouncements })));
 const LazyAdminEvents = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminEvents })));
@@ -215,6 +217,7 @@ const App = () => (
                   <Route path="/leaderboard" element={<LeaderboardPage />} />
                   {/* <Route path="/certificates" element={<CertificatesPage />} /> DISABLED */}
                   <Route path="/bookmarks" element={<BookmarksPage />} />
+                  <Route path="/partner" element={<PartnerPortalPage />} />
                 </Route>
 
                 {/* Admin */}
@@ -269,6 +272,7 @@ const App = () => (
                   <Route path="push" element={<SuperadminPush />} />
                   <Route path="support" element={<SuperadminSupport />} />
                   <Route path="settlements" element={<SuperadminSettlements />} />
+                  <Route path="partners" element={<SuperadminPartners />} />
                   <Route path="ai" element={<SuperadminAIChat />} />
                 </Route>
 
