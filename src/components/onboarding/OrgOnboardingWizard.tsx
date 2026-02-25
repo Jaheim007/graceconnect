@@ -176,7 +176,7 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-card rounded-3xl border border-border shadow-elevated max-w-lg w-full p-6 sm:p-8 relative"
+        className="bg-card rounded-3xl border border-border shadow-elevated max-w-lg w-full p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto"
       >
         <button onClick={onClose} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground transition-colors">
           <X className="h-5 w-5" />
