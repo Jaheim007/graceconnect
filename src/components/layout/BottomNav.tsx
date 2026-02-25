@@ -25,7 +25,7 @@ export function BottomNav() {
   const primaryItems = [
     { to: '/feed', icon: Home, label: t('sidebar.my_network') },
     { to: '/marketplace', icon: Store, label: t('sidebar.explorer') },
-    // { to: '/messages', icon: MessageCircle, label: t('sidebar.messages') }, // DISABLED
+    
     { to: '/notifications', icon: Bell, label: t('bottom.alerts') },
   ];
 
