@@ -1,44 +1,21 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Download, Smartphone, CheckCircle, Share, ArrowRight, Wifi, BellRing, Zap } from 'lucide-react';
+import { Download, Smartphone, CheckCircle, Share, ArrowRight, Wifi, BellRing, Zap, Plus, Monitor, Tablet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useI18n } from '@/i18n/I18nContext';
-
-interface BeforeInstallPromptEvent extends Event {
-  prompt(): Promise<void>;
-  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
-}
+import { usePWAInstall } from '@/hooks/usePWAInstall';
 
 export default function InstallPage() {
   const navigate = useNavigate();
   const { t } = useI18n();
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstalled, setIsInstalled] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
-
-  useEffect(() => {
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsInstalled(true);
-    }
-    const ua = navigator.userAgent;
-    setIsIOS(/iPad|iPhone|iPod/.test(ua) && !(window as any).MSStream);
-
-    const handler = (e: Event) => {
-      e.preventDefault();
-      setDeferredPrompt(e as BeforeInstallPromptEvent);
-    };
-    window.addEventListener('beforeinstallprompt', handler);
-    return () => window.removeEventListener('beforeinstallprompt', handler);
-  }, []);
+  const { isInstalled, isIOS, canInstall, promptInstall } = usePWAInstall();
 
   const handleInstall = async () => {
-    if (!deferredPrompt) return;
-    await deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if (outcome === 'accepted') setIsInstalled(true);
-    setDeferredPrompt(null);
+    const accepted = await promptInstall();
+    if (!accepted) {
+      // User dismissed, that's okay
+    }
   };
 
   const benefits = [
@@ -47,6 +24,11 @@ export default function InstallPage() {
     { icon: BellRing, text: t('install.push') },
     { icon: Smartphone, text: t('install.native') },
   ];
+
+  const isChrome = /chrome/i.test(navigator.userAgent) && !/edg/i.test(navigator.userAgent);
+  const isEdge = /edg/i.test(navigator.userAgent);
+  const isFirefox = /firefox/i.test(navigator.userAgent);
+  const isSafariDesktop = /safari/i.test(navigator.userAgent) && !/chrome/i.test(navigator.userAgent) && !/mobile/i.test(navigator.userAgent);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4 py-10">
@@ -62,6 +44,19 @@ export default function InstallPage() {
         <div className="space-y-2">
           <h1 className="text-2xl font-extrabold tracking-tight">{t('install.title')}</h1>
           <p className="text-sm text-muted-foreground">{t('install.subtitle')}</p>
+        </div>
+
+        {/* Compatible devices */}
+        <div className="flex items-center justify-center gap-4 text-muted-foreground">
+          <div className="flex items-center gap-1.5 text-xs">
+            <Smartphone className="h-4 w-4" /> Mobile
+          </div>
+          <div className="flex items-center gap-1.5 text-xs">
+            <Tablet className="h-4 w-4" /> Tablette
+          </div>
+          <div className="flex items-center gap-1.5 text-xs">
+            <Monitor className="h-4 w-4" /> PC / Mac
+          </div>
         </div>
 
         {isInstalled ? (
@@ -86,39 +81,102 @@ export default function InstallPage() {
               ))}
             </div>
 
-            {deferredPrompt ? (
+            {/* Native install button (Chrome/Edge on Android/Desktop) */}
+            {canInstall && !isIOS && (
               <Button size="lg" className="w-full bg-primary text-primary-foreground h-12 text-base gap-2" onClick={handleInstall}>
                 <Download className="h-5 w-5" /> {t('install.install_now')}
               </Button>
-            ) : isIOS ? (
+            )}
+
+            {/* iOS Instructions */}
+            {isIOS && (
               <div className="bg-card border border-border rounded-2xl p-5 space-y-3 text-left">
                 <Badge variant="secondary" className="text-xs">iPhone / iPad</Badge>
                 <ol className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="font-bold text-foreground shrink-0">1.</span>
-                    {t('install.ios_step1')} <Share className="inline h-4 w-4 text-primary mx-0.5" /> {t('install.ios_step1b')}
+                    Appuyez sur <Share className="inline h-4 w-4 text-primary mx-0.5" /> en bas de Safari
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="font-bold text-foreground shrink-0">2.</span>
-                    {t('install.ios_step2')} <strong className="text-foreground">{t('install.ios_step2b')}</strong>
+                    Faites défiler et appuyez sur <strong className="text-foreground">« Sur l'écran d'accueil »</strong> <Plus className="inline h-4 w-4 text-primary mx-0.5" />
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="font-bold text-foreground shrink-0">3.</span>
-                    {t('install.ios_step3')} <strong className="text-foreground">{t('install.ios_step3b')}</strong>
+                    Confirmez avec <strong className="text-foreground">« Ajouter »</strong>
                   </li>
                 </ol>
               </div>
-            ) : (
+            )}
+
+            {/* Desktop browser instructions */}
+            {!canInstall && !isIOS && (
               <div className="bg-card border border-border rounded-2xl p-5 space-y-3 text-left">
-                <Badge variant="secondary" className="text-xs">Android / Desktop</Badge>
+                <Badge variant="secondary" className="text-xs">
+                  {isChrome ? 'Google Chrome' : isEdge ? 'Microsoft Edge' : isFirefox ? 'Firefox' : isSafariDesktop ? 'Safari' : 'Navigateur'}
+                </Badge>
+                <ol className="space-y-2 text-sm text-muted-foreground">
+                  {isChrome || isEdge ? (
+                    <>
+                      <li className="flex items-start gap-2">
+                        <span className="font-bold text-foreground shrink-0">1.</span>
+                        Cliquez sur l'icône d'installation <Download className="inline h-4 w-4 text-primary mx-0.5" /> dans la barre d'adresse
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="font-bold text-foreground shrink-0">2.</span>
+                        Cliquez sur <strong className="text-foreground">« Installer »</strong>
+                      </li>
+                    </>
+                  ) : isFirefox ? (
+                    <>
+                      <li className="flex items-start gap-2">
+                        <span className="font-bold text-foreground shrink-0">1.</span>
+                        Ouvrez le menu <strong className="text-foreground">(☰)</strong>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="font-bold text-foreground shrink-0">2.</span>
+                        Sélectionnez <strong className="text-foreground">« Installer cette application »</strong>
+                      </li>
+                    </>
+                  ) : isSafariDesktop ? (
+                    <>
+                      <li className="flex items-start gap-2">
+                        <span className="font-bold text-foreground shrink-0">1.</span>
+                        Cliquez sur <strong className="text-foreground">Fichier → Ajouter au Dock</strong>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="font-bold text-foreground shrink-0">2.</span>
+                        Confirmez avec <strong className="text-foreground">« Ajouter »</strong>
+                      </li>
+                    </>
+                  ) : (
+                    <>
+                      <li className="flex items-start gap-2">
+                        <span className="font-bold text-foreground shrink-0">1.</span>
+                        Ouvrez le menu du navigateur <strong className="text-foreground">(⋮)</strong>
+                      </li>
+                      <li className="flex items-start gap-2">
+                        <span className="font-bold text-foreground shrink-0">2.</span>
+                        Sélectionnez <strong className="text-foreground">« Installer l'application »</strong>
+                      </li>
+                    </>
+                  )}
+                </ol>
+              </div>
+            )}
+
+            {/* Android fallback instructions */}
+            {!canInstall && !isIOS && !isSafariDesktop && (
+              <div className="bg-card border border-border rounded-2xl p-5 space-y-3 text-left">
+                <Badge variant="secondary" className="text-xs">Android</Badge>
                 <ol className="space-y-2 text-sm text-muted-foreground">
                   <li className="flex items-start gap-2">
                     <span className="font-bold text-foreground shrink-0">1.</span>
-                    {t('install.android_step1')} <strong className="text-foreground">(⋮)</strong>
+                    Appuyez sur le menu <strong className="text-foreground">(⋮)</strong> du navigateur
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="font-bold text-foreground shrink-0">2.</span>
-                    {t('install.android_step2')} <strong className="text-foreground">{t('install.android_step2b')}</strong>
+                    Sélectionnez <strong className="text-foreground">« Ajouter à l'écran d'accueil »</strong>
                   </li>
                 </ol>
               </div>
