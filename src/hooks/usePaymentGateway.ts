@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { usePaystack } from './usePaystack';
 import { callFn } from '@/lib/api';
+import { resolveGateway } from '@/lib/paymentRouting';
 
 export type PaymentMethod = 'mobile_money' | 'card';
 export type PaymentGateway = 'paystack' | 'stripe';
@@ -28,8 +29,8 @@ interface PaymentParams {
 
 /**
  * Unified payment gateway hook.
- * - Mobile Money → Paystack (inline popup)
- * - Card → Stripe (redirect to Checkout)
+ * Gateway is auto-resolved: Paystack for supported countries/currencies,
+ * Stripe as fallback for the rest of the world.
  */
 export function usePaymentGateway() {
   const { openPayment: openPaystack, hasKey: hasPaystackKey } = usePaystack();
@@ -43,8 +44,11 @@ export function usePaymentGateway() {
       onSuccess, onClose,
     } = params;
 
-    if (method === 'mobile_money') {
-      // ── PAYSTACK (Mobile Money + local cards) ──
+    // Auto-resolve gateway based on currency/country
+    const gateway = resolveGateway(currency);
+
+    if (gateway === 'paystack' && hasPaystackKey) {
+      // ── PAYSTACK (primary for supported regions) ──
       await openPaystack({
         email,
         amount,
@@ -59,12 +63,13 @@ export function usePaymentGateway() {
           product_id: product_id || null,
           buyer_name: buyer_name || null,
           affiliate_code: affiliate_code || null,
+          payment_channel: method, // mobile_money or card — both via Paystack
         },
         onSuccess: (reference) => onSuccess(reference, 'paystack'),
         onClose,
       });
     } else {
-      // ── STRIPE (International cards) ──
+      // ── STRIPE (fallback for non-Paystack regions, or if Paystack key missing) ──
       const currentUrl = window.location.origin;
       const successUrl = `${currentUrl}/payment-success`;
       const cancelUrl = window.location.href;
@@ -85,13 +90,12 @@ export function usePaymentGateway() {
       }, true);
 
       if (result?.checkout_url) {
-        // Redirect to Stripe Checkout
         window.location.href = result.checkout_url;
       } else {
         throw new Error(result?.error || 'Failed to create Stripe checkout session');
       }
     }
-  }, [openPaystack]);
+  }, [openPaystack, hasPaystackKey]);
 
   return {
     openPayment,

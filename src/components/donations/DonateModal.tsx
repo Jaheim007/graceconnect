@@ -15,6 +15,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePaymentGateway, PaymentMethod, PaymentGateway } from '@/hooks/usePaymentGateway';
 import { PaymentMethodSelector } from '@/components/payments/PaymentMethodSelector';
 import { getAffiliateCode, clearAffiliateCode } from '@/hooks/useAffiliateCapture';
+import { resolveGateway, isMoMoAvailable, gatewayLabel } from '@/lib/paymentRouting';
 import { verifyPayment, VerifyPaymentResult, callFn } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
@@ -41,7 +42,9 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
   const [result, setResult] = useState<VerifyPaymentResult | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('mobile_money');
+  // Auto-select payment method based on detected gateway
+  const defaultMethod: PaymentMethod = isMoMoAvailable(campaign?.currency || 'XOF') ? 'mobile_money' : 'card';
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(defaultMethod);
 
   const { toast } = useToast();
   const { user, profile } = useAuth();
@@ -252,7 +255,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Lock className="h-3 w-3" />
-                  {paymentMethod === 'card' ? 'Paiement sécurisé par Stripe' : 'Paiement sécurisé par Paystack'}
+                  Paiement sécurisé par {gatewayLabel(resolveGateway(campaign.currency || 'XOF'))}
                 </div>
                 <p className="text-[10px] text-muted-foreground">
                   Les méthodes de paiement dépendent de la disponibilité par pays.
