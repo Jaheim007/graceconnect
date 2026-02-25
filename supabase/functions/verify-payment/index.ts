@@ -301,6 +301,76 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ── 8b. Partner commission (on platform fee, products only) ──
+    if (type === 'product' && platformFee > 0) {
+      try {
+        // Check if this org was referred by a partner
+        const { data: partnerRef } = await db.from('partner_referrals')
+          .select('partner_id, status')
+          .eq('organization_id', organization_id)
+          .eq('status', 'active')
+          .maybeSingle();
+
+        if (partnerRef) {
+          // Check partner is approved and not suspended
+          const { data: partner } = await db.from('partners')
+            .select('id, status, user_id, full_name')
+            .eq('id', partnerRef.partner_id)
+            .eq('status', 'approved')
+            .maybeSingle();
+
+          if (partner) {
+            // Get effective rate (custom_override > level-based)
+            const { data: partnerRate } = await db.rpc('get_partner_rate', { _partner_id: partner.id });
+            const effectiveRate = typeof partnerRate === 'number' ? partnerRate : 5;
+
+            // Commission = rate% of platform_fee (NOT of total amount)
+            const partnerCommission = parseFloat((platformFee * effectiveRate / 100).toFixed(2));
+
+            if (partnerCommission > 0) {
+              // Idempotency: unique(partner_id, payment_reference)
+              const { data: existingPartnerComm } = await db.from('partner_commissions')
+                .select('id')
+                .eq('partner_id', partner.id)
+                .eq('payment_reference', reference)
+                .maybeSingle();
+
+              if (!existingPartnerComm) {
+                const partnerPayableAt = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(); // 15 days hold
+
+                await db.from('partner_commissions').insert({
+                  partner_id: partner.id,
+                  organization_id,
+                  payment_reference: reference,
+                  platform_fee_amount: platformFee,
+                  commission_percent: effectiveRate,
+                  commission_amount: partnerCommission,
+                  currency,
+                  status: 'held',
+                  payable_at: partnerPayableAt,
+                });
+
+                // Notify partner
+                if (partner.user_id) {
+                  const commFmt = partnerCommission.toLocaleString('fr-FR');
+                  await db.from('user_notifications').insert({
+                    user_id: partner.user_id,
+                    organization_id,
+                    title: '🤝 Rémunération partenaire',
+                    body: `${commFmt} ${currency} de rémunération via ${org.name}. Disponible dans 15 jours.`,
+                    notification_type: 'partner_commission',
+                    action_url: '/partner',
+                  });
+                }
+              }
+            }
+          }
+        }
+      } catch (partnerErr) {
+        console.error('[verify-payment] Partner commission error (non-fatal):', partnerErr);
+      }
+    }
+
     // ── 9. Referral conversion ──
     if (userId) {
       const { data: pendingReferral } = await db.from('user_referrals')
@@ -418,6 +488,7 @@ Deno.serve(async (req) => {
         affiliate_attributed: !!affiliateLinkId,
         discount_amount: discountAmount,
         promo_applied: !!promoCodeId,
+        partner_commission_included: type === 'product' && platformFee > 0,
       },
     }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
