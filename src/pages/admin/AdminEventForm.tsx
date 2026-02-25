@@ -23,7 +23,7 @@ const schema = z.object({
   video_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   location: z.string().optional(),
   event_date: z.string().optional(),
-  is_featured: z.boolean().default(false),
+  
   is_published: z.boolean().default(false),
 });
 
@@ -50,7 +50,7 @@ export function EventForm() {
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { is_featured: false, is_published: false },
+    defaultValues: { is_published: false },
   });
 
   useEffect(() => {
@@ -62,7 +62,7 @@ export function EventForm() {
         video_url: item.video_url || '',
         location: item.location || '',
         event_date: item.event_date ? item.event_date.slice(0, 16) : '',
-        is_featured: item.is_featured || false,
+        
         is_published: item.is_published || false,
       });
     }
@@ -140,10 +140,6 @@ export function EventForm() {
           {errors.video_url && <p className="text-xs text-destructive">{errors.video_url.message}</p>}
         </div>
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <Switch checked={watch('is_featured')} onCheckedChange={v => setValue('is_featured', v)} />
-            <Label className="text-sm cursor-pointer">Featured</Label>
-          </div>
           <div className="flex items-center gap-2">
             <Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} />
             <Label className="text-sm cursor-pointer">Published</Label>

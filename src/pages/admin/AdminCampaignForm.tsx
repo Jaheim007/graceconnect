@@ -22,7 +22,7 @@ const schema = z.object({
   image_url: z.string().optional(),
   goal_amount: z.coerce.number().min(0).optional(),
   end_date: z.string().optional(),
-  is_featured: z.boolean().default(false),
+  
   is_active: z.boolean().default(true),
   is_published: z.boolean().default(true),
 });
@@ -49,7 +49,7 @@ export function CampaignForm() {
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { is_featured: false, is_active: true, is_published: true },
+    defaultValues: { is_active: true, is_published: true },
   });
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export function CampaignForm() {
         image_url: item.image_url || '',
         goal_amount: item.goal_amount ?? undefined,
         end_date: item.end_date ? item.end_date.slice(0, 10) : '',
-        is_featured: item.is_featured || false,
+        
         is_active: item.is_active ?? true,
         is_published: item.is_published ?? true,
       });
@@ -138,10 +138,6 @@ export function CampaignForm() {
         />
 
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <Switch checked={watch('is_featured')} onCheckedChange={v => setValue('is_featured', v)} />
-            <Label className="text-sm cursor-pointer">Featured</Label>
-          </div>
           <div className="flex items-center gap-2">
             <Switch checked={watch('is_active')} onCheckedChange={v => setValue('is_active', v)} />
             <Label className="text-sm cursor-pointer">Active</Label>

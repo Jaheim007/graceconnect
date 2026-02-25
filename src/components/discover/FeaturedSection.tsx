@@ -2,8 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { motion } from 'framer-motion';
 import { ProductCard } from '@/components/products/ProductCard';
-import { CampaignCard } from '@/components/donations/CampaignCard';
-import { Sparkles, Heart } from 'lucide-react';
+import { ShoppingCart, Eye, Clock, Layers } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 
 const fadeUp = {
@@ -11,99 +10,80 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 26 } },
 };
 
+function mapProducts(data: any[]) {
+  return data.map((p: any) => ({
+    ...p,
+    organization_name: p.organizations?.name,
+    organization_slug: p.organizations?.slug,
+    organization_logo: p.organizations?.logo_url,
+  }));
+}
+
+function ProductRow({ title, icon, products }: { title: string; icon: React.ReactNode; products: any[] }) {
+  if (products.length === 0) return null;
+  return (
+    <div className="mb-6">
+      <div className="flex items-center gap-2 mb-3">
+        {icon}
+        <h2 className="text-sm font-bold">{title}</h2>
+      </div>
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        {products.map((p: any, i: number) => (
+          <motion.div key={p.id} variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: i * 0.04 }}>
+            <ProductCard product={p} />
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function FeaturedSection() {
   const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
-  const { data: featured } = useQuery({
-    queryKey: ['discover-featured'],
+  const { data } = useQuery({
+    queryKey: ['discover-smart-sections'],
     queryFn: async () => {
-      const [prods, camps, orgs] = await Promise.all([
+      const [mostBought, mostRecent] = await Promise.all([
         db.from('digital_products')
           .select('*, organizations(name, slug, logo_url, currency)')
           .eq('is_published', true)
-          .eq('is_featured', true)
-          .order('featured_score', { ascending: false })
-          .limit(4),
-        db.from('donation_campaigns')
+          .order('sales_count', { ascending: false })
+          .limit(8),
+        db.from('digital_products')
           .select('*, organizations(name, slug, logo_url, currency)')
           .eq('is_published', true)
-          .eq('is_active', true)
-          .eq('is_featured', true)
-          .order('current_amount', { ascending: false })
-          .limit(2),
-        db.from('organizations')
-          .select('*')
-          .eq('is_active', true)
-          .eq('is_verified', true)
           .order('created_at', { ascending: false })
-          .limit(3),
+          .limit(8),
       ]);
 
       return {
-        products: (prods.data || []).map((p: any) => ({
-          ...p,
-          organization_name: p.organizations?.name,
-          organization_slug: p.organizations?.slug,
-          organization_logo: p.organizations?.logo_url,
-        })),
-        campaigns: (camps.data || []).map((c: any) => ({
-          ...c,
-          organization_name: c.organizations?.name,
-          organization_slug: c.organizations?.slug,
-        })),
-        orgs: orgs.data || [],
+        mostBought: mapProducts(mostBought.data || []),
+        mostRecent: mapProducts(mostRecent.data || []),
       };
     },
     staleTime: 1000 * 60 * 5,
   });
 
-  const hasProducts = (featured?.products?.length || 0) > 0;
-  const hasCampaigns = (featured?.campaigns?.length || 0) > 0;
-  const hasOrgs = (featured?.orgs?.length || 0) > 0;
+  if (!data) return null;
 
-  if (!hasProducts && !hasCampaigns && !hasOrgs) return null;
+  // Deduplicate: remove items already shown in mostBought from mostRecent
+  const boughtIds = new Set(data.mostBought.map((p: any) => p.id));
+  const recentFiltered = data.mostRecent.filter((p: any) => !boughtIds.has(p.id));
 
   return (
-    <div className="space-y-6 mb-8">
-      {/* Featured products */}
-      {hasProducts && (
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="h-4 w-4 text-accent" />
-            <h2 className="text-sm font-bold">
-              {locale === 'fr' ? 'En vedette' : 'Featured'}
-            </h2>
-          </div>
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-            {featured!.products.map((p: any, i: number) => (
-              <motion.div key={p.id} variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: i * 0.05 }}>
-                <ProductCard product={p} />
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Featured campaigns */}
-      {hasCampaigns && (
-        <div>
-          <div className="flex items-center gap-2 mb-3">
-            <Heart className="h-4 w-4 text-destructive" />
-            <h2 className="text-sm font-bold">
-              {locale === 'fr' ? 'Campagnes actives' : 'Active campaigns'}
-            </h2>
-          </div>
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2">
-            {featured!.campaigns.map((c: any, i: number) => (
-              <motion.div key={c.id} variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: i * 0.05 }}>
-                <CampaignCard campaign={c} />
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Verified orgs removed — privacy by design: no public org directory */}
+    <div className="space-y-2">
+      <ProductRow
+        title={isFr ? '🛒 Les plus achetés' : '🛒 Most Bought'}
+        icon={<ShoppingCart className="h-4 w-4 text-primary" />}
+        products={data.mostBought.slice(0, 4)}
+      />
+      <ProductRow
+        title={isFr ? '🕐 Ajoutés récemment' : '🕐 Recently Added'}
+        icon={<Clock className="h-4 w-4 text-accent" />}
+        products={recentFiltered.slice(0, 4)}
+      />
     </div>
   );
 }
