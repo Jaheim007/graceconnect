@@ -9,7 +9,7 @@ export function LandingFooter() {
       <div className="container px-4 py-14">
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
           <div className="space-y-3">
-            <SiteLogo size="md" linked={false} />
+            <SiteLogo size="lg" linked={false} />
             <p className="text-sm text-muted-foreground leading-relaxed">{t('landing.footer_desc')}</p>
           </div>
           <div className="space-y-3">

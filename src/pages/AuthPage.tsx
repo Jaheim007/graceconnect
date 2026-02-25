@@ -81,7 +81,7 @@ export default function AuthPage() {
       </div>
 
       <div className="hidden lg:flex flex-col justify-between w-1/2 p-12 relative z-10">
-        <SiteLogo size="lg" animate />
+        <SiteLogo size="xl" animate />
         <div className="space-y-4">
           <h1 className="text-4xl font-bold leading-tight">
             {t('auth.sign_in_title')}{' '}<span className="text-primary italic">{t('auth.grow_together')}</span>

@@ -243,11 +243,7 @@ export function Sidebar() {
     >
       {/* Logo */}
       <div className={cn('flex items-center h-16 px-4 border-b border-border', collapsed && 'justify-center px-0')}>
-        {!collapsed ? (
-          <SiteLogo size="md" animate />
-        ) : (
-          <SiteLogo size="sm" showText={false} animate />
-        )}
+        <SiteLogo size={collapsed ? 'sm' : 'md'} animate />
       </div>
 
       {/* Org context (admin only) */}

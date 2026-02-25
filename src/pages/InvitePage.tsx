@@ -220,7 +220,7 @@ export default function InvitePage() {
       {/* Footer */}
       <footer className="border-t border-border/60 py-6 px-4 bg-muted/20">
         <div className="container flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <SiteLogo size="xs" animate />
+          <SiteLogo size="sm" animate />
           <span>© {new Date().getFullYear()} Siteviral — Operated by HACKTUALIZ Inc.</span>
         </div>
       </footer>
