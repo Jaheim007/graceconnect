@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendEmail, getUserEmail } from '../_shared/send-email-helper.ts';
+import { getPaystackSecretKey } from '../_shared/paystack-key.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -19,7 +20,7 @@ const corsHeaders = {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
-  const PAYSTACK_SECRET = Deno.env.get('PAYSTACK_SECRET_KEY')!;
+  const PAYSTACK_SECRET = getPaystackSecretKey();
   const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
   const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
   const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
