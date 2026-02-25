@@ -1,4 +1,4 @@
-import { Bell, CheckCheck, ArrowLeft, BellRing } from 'lucide-react';
+import { Bell, CheckCheck, ArrowLeft, BellRing, Trash2 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { Button } from '@/components/ui/button';
@@ -11,10 +11,30 @@ import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
 import { PageTour } from '@/components/onboarding/PageTour';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useMemo, useState } from 'react';
 
 const TOUR_STEPS = [
   { titleKey: 'tour.notifications_1_title', descKey: 'tour.notifications_1_desc', icon: <Bell className="h-4 w-4" /> },
 ];
+
+function groupByDate(notifs: any[], locale: string) {
+  const groups: Record<string, any[]> = {};
+  const today = new Date().toDateString();
+  const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+  for (const n of notifs) {
+    const d = new Date(n.created_at).toDateString();
+    let label: string;
+    if (d === today) label = locale === 'fr' ? "Aujourd'hui" : 'Today';
+    else if (d === yesterday) label = locale === 'fr' ? 'Hier' : 'Yesterday';
+    else label = new Date(n.created_at).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long' });
+
+    if (!groups[label]) groups[label] = [];
+    groups[label].push(n);
+  }
+  return Object.entries(groups);
+}
 
 export default function NotificationsPage() {
   const { user } = useAuth();
@@ -23,6 +43,11 @@ export default function NotificationsPage() {
   const { t, locale } = useI18n();
   const { data: notifs = [], isLoading } = useNotifications(user?.id);
   const { isSupported: pushSupported, isSubscribed: pushSubscribed, subscribe: subscribePush, loading: pushLoading } = usePushNotifications();
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+
+  const visibleNotifs = useMemo(() => notifs.filter(n => !dismissed.has(n.id)), [notifs, dismissed]);
+  const grouped = useMemo(() => groupByDate(visibleNotifs, locale), [visibleNotifs, locale]);
+
   const markAllRead = async () => {
     if (!user) return;
     await db.from('user_notifications').update({ is_read: true }).eq('user_id', user.id);
@@ -36,7 +61,14 @@ export default function NotificationsPage() {
     qc.invalidateQueries({ queryKey: ['unread-count', user?.id] });
   };
 
-  const unreadCount = notifs.filter((n) => !n.is_read).length;
+  const dismissNotif = async (id: string) => {
+    setDismissed(prev => new Set(prev).add(id));
+    await db.from('user_notifications').delete().eq('id', id);
+    qc.invalidateQueries({ queryKey: ['notifications', user?.id] });
+    qc.invalidateQueries({ queryKey: ['unread-count', user?.id] });
+  };
+
+  const unreadCount = visibleNotifs.filter((n) => !n.is_read).length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -55,7 +87,11 @@ export default function NotificationsPage() {
       <div className="container max-w-2xl py-5 space-y-4">
         {/* Push notification toggle */}
         {pushSupported && !pushSubscribed && (
-          <div className="bg-primary/8 border border-primary/20 rounded-2xl p-4 flex items-center gap-3">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-primary/8 border border-primary/20 rounded-2xl p-4 flex items-center gap-3"
+          >
             <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
               <BellRing className="h-5 w-5 text-primary" />
             </div>
@@ -66,7 +102,7 @@ export default function NotificationsPage() {
             <Button size="sm" className="bg-primary text-primary-foreground shrink-0" onClick={subscribePush} disabled={pushLoading}>
               {pushLoading ? '...' : 'Activer'}
             </Button>
-          </div>
+          </motion.div>
         )}
 
         <p className="text-xs sm:text-sm text-muted-foreground">{t('page.notifications_desc')}</p>
@@ -74,35 +110,64 @@ export default function NotificationsPage() {
         <PageTour pageId="notifications" steps={TOUR_STEPS} />
 
         {unreadCount > 0 && (
-          <p className="text-xs text-muted-foreground">
-            {t('page.notifications_unread').replace('{count}', String(unreadCount))}
-          </p>
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+            <p className="text-xs text-muted-foreground">
+              {t('page.notifications_unread').replace('{count}', String(unreadCount))}
+            </p>
+          </div>
         )}
 
-        {isLoading ? <SkeletonRow count={5} /> : notifs.length === 0 ? (
+        {isLoading ? <SkeletonRow count={5} /> : visibleNotifs.length === 0 ? (
           <EmptyState variant="generic" title={t('page.notifications_empty')} description={t('page.notifications_empty_desc')} />
         ) : (
-          <div className="space-y-2">
-            {notifs.map((n) => (
-              <div
-                key={n.id}
-                onClick={() => !n.is_read && markRead(n.id)}
-                className={cn(
-                  'flex items-start gap-3 p-3.5 rounded-xl border transition-all cursor-pointer',
-                  n.is_read ? 'border-border bg-card' : 'border-primary/20 bg-primary/5 hover:bg-primary/8'
-                )}
-              >
-                <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center shrink-0', n.is_read ? 'bg-muted' : 'bg-primary')}>
-                  <Bell className={cn('h-4 w-4', n.is_read ? 'text-muted-foreground' : 'text-primary-foreground')} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className={cn('text-sm font-medium leading-snug', !n.is_read && 'text-foreground')}>{n.title}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{n.body}</p>
-                  <p className="text-[10px] text-muted-foreground mt-1.5">
-                    {new Date(n.created_at).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
-                  </p>
-                </div>
-                {!n.is_read && <div className="h-2 w-2 rounded-full bg-primary shrink-0 mt-2" />}
+          <div className="space-y-5">
+            {grouped.map(([dateLabel, items]) => (
+              <div key={dateLabel} className="space-y-2">
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-1">{dateLabel}</p>
+                <AnimatePresence mode="popLayout">
+                  {items.map((n) => (
+                    <motion.div
+                      key={n.id}
+                      layout
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 60, transition: { duration: 0.2 } }}
+                      className={cn(
+                        'group flex items-start gap-3 p-3.5 rounded-xl border transition-all',
+                        n.is_read ? 'border-border bg-card' : 'border-primary/20 bg-primary/5'
+                      )}
+                    >
+                      <div
+                        onClick={() => !n.is_read && markRead(n.id)}
+                        className={cn(
+                          'h-9 w-9 rounded-xl flex items-center justify-center shrink-0 cursor-pointer transition-transform hover:scale-105',
+                          n.is_read ? 'bg-muted' : 'bg-primary'
+                        )}
+                      >
+                        <Bell className={cn('h-4 w-4', n.is_read ? 'text-muted-foreground' : 'text-primary-foreground')} />
+                      </div>
+                      <div className="flex-1 min-w-0 cursor-pointer" onClick={() => !n.is_read && markRead(n.id)}>
+                        <p className={cn('text-sm font-medium leading-snug', !n.is_read && 'text-foreground')}>{n.title}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{n.body}</p>
+                        <p className="text-[10px] text-muted-foreground mt-1.5">
+                          {new Date(n.created_at).toLocaleTimeString(locale === 'fr' ? 'fr-FR' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1 shrink-0">
+                        {!n.is_read && <div className="h-2 w-2 rounded-full bg-primary" />}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
+                          onClick={() => dismissNotif(n.id)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </div>
             ))}
           </div>
