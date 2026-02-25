@@ -1244,7 +1244,7 @@ export type Database = {
           {
             foreignKeyName: "kyc_submissions_organization_id_fkey"
             columns: ["organization_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -3724,6 +3724,10 @@ export type Database = {
       }
       org_affiliation_allowed: { Args: { _org_id: string }; Returns: boolean }
       org_monetization_allowed: { Args: { _org_id: string }; Returns: boolean }
+      review_org_kyc: {
+        Args: { _action: string; _org_id: string; _reason?: string }
+        Returns: Json
+      }
       review_partner_kyc: {
         Args: { _action: string; _partner_id: string; _reason?: string }
         Returns: Json
@@ -3731,6 +3735,21 @@ export type Database = {
       self_enroll_affiliate: { Args: { _org_id: string }; Returns: undefined }
       set_partner_rate_override: {
         Args: { _partner_id: string; _rate: number }
+        Returns: Json
+      }
+      submit_org_kyc: {
+        Args: {
+          _bank_account_name?: string
+          _bank_account_number?: string
+          _bank_name?: string
+          _id_document_type?: string
+          _id_document_url?: string
+          _kyc_level: number
+          _org_document_type?: string
+          _org_document_url?: string
+          _org_id: string
+          _selfie_url?: string
+        }
         Returns: Json
       }
       submit_partner_kyc: {
