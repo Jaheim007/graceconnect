@@ -16,9 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 
 const GOALS = [
-  { id: 'sell', icon: ShoppingBag, title: 'Vendre des ressources', desc: 'Ebooks, formations, fichiers digitaux', color: 'from-violet-500/20 to-purple-500/20 border-violet-500/30' },
+  { id: 'sell', icon: ShoppingBag, title: 'Vendre des ressources', desc: 'Ebooks, fichiers digitaux', color: 'from-violet-500/20 to-purple-500/20 border-violet-500/30' },
   { id: 'donate', icon: Heart, title: 'Recevoir des dons', desc: 'Campagnes de collecte de fonds', color: 'from-rose-500/20 to-pink-500/20 border-rose-500/30' },
-  { id: 'program', icon: BookOpen, title: 'Lancer un programme', desc: 'Formations structurées avec modules', color: 'from-blue-500/20 to-cyan-500/20 border-blue-500/30' },
   { id: 'ambassador', icon: Users, title: 'Programme Ambassadeur', desc: 'Permettre à vos membres de promouvoir', color: 'from-amber-500/20 to-yellow-500/20 border-amber-500/30' },
 ];
 
@@ -68,7 +67,6 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
     onClose();
     if (selected.includes('sell')) navigate('/admin/products/new');
     else if (selected.includes('donate')) navigate('/admin/campaigns/new');
-    else if (selected.includes('program')) navigate('/admin/programs');
     else navigate('/admin');
   };
 
@@ -153,9 +151,6 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
           )}
           {selected.includes('donate') && (
             <div className="flex items-center gap-2"><Heart className="h-3.5 w-3.5 text-rose-500" /> Lancer une campagne de dons</div>
-          )}
-          {selected.includes('program') && (
-            <div className="flex items-center gap-2"><BookOpen className="h-3.5 w-3.5 text-blue-500" /> Créer votre premier programme</div>
           )}
           {selected.includes('ambassador') && (
             <div className="flex items-center gap-2"><Users className="h-3.5 w-3.5 text-amber-500" /> Activer le Programme Ambassadeur</div>

@@ -43,7 +43,7 @@ export const ORG_TEMPLATES: OrgTemplate[] = [
       platform_fee_percent: 10,
       affiliation_commission_percent: 15,
     },
-    suggestedFeatures: ['donations', 'programs', 'events', 'products'],
+    suggestedFeatures: ['donations', 'events', 'products'],
   },
   {
     category: 'leader',
@@ -56,7 +56,7 @@ export const ORG_TEMPLATES: OrgTemplate[] = [
       platform_fee_percent: 10,
       affiliation_commission_percent: 10,
     },
-    suggestedFeatures: ['products', 'programs', 'media', 'events'],
+    suggestedFeatures: ['products', 'media', 'events'],
   },
   {
     category: 'ngo',

@@ -64,7 +64,7 @@ const PartnerTermsPage = lazy(() => import("@/pages/PartnerTermsPage"));
 const CampaignDetailPage = lazy(() => import("@/pages/CampaignDetailPage"));
 const AnnouncementDetailPage = lazy(() => import("@/pages/AnnouncementDetailPage"));
 const EventDetailPage = lazy(() => import("@/pages/EventDetailPage"));
-// const ProgramsPage = lazy(() => import("@/pages/ProgramsPage")); // DISABLED
+
 
 // Authenticated
 const FeedPage = lazy(() => import("@/pages/FeedPage"));
@@ -75,13 +75,13 @@ const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const UserDashboard = lazy(() => import("@/pages/UserDashboard"));
 const ResourcesPage = lazy(() => import("@/pages/ResourcesPage"));
 const CreateOrgPage = lazy(() => import("@/pages/CreateOrgPage"));
-const ProgramViewPage = lazy(() => import("@/pages/ProgramViewPage"));
+
 const SupportPage = lazy(() => import("@/pages/SupportPage"));
 const AffiliationPage = lazy(() => import("@/pages/AffiliationPage"));
 const PartnerPortalPage = lazy(() => import("@/pages/PartnerPortalPage"));
 
 const LeaderboardPage = lazy(() => import("@/pages/LeaderboardPage"));
-// const CertificatesPage = lazy(() => import("@/pages/CertificatesPage")); // DISABLED
+
 const BookmarksPage = lazy(() => import("@/pages/BookmarksPage"));
 const NotificationPreferencesPage = lazy(() => import("@/pages/NotificationPreferencesPage"));
 
@@ -92,7 +92,7 @@ const AdminMedia = lazy(() => import("@/pages/admin/AdminMedia"));
 const AdminMediaForm = lazy(() => import("@/pages/admin/AdminMediaForm").then(m => ({ default: m.MediaForm })));
 const AdminAnalyticsPage = lazy(() => import("@/pages/admin/AdminAnalyticsPage"));
 const AdminCRM = lazy(() => import("@/pages/admin/AdminCRM"));
-// const AdminPrograms = lazy(() => import("@/pages/admin/AdminPrograms")); // DISABLED
+
 const AdminPromoCodes = lazy(() => import("@/pages/admin/AdminPromoCodes"));
 const AdminPhotos = lazy(() => import("@/pages/admin/AdminPhotos"));
 const AdminPayouts = lazy(() => import("@/pages/admin/AdminPayouts"));
@@ -192,7 +192,7 @@ const App = () => (
                 <Route path="/marketplace" element={<AppLayout />}>
                   <Route index element={<DiscoverPage />} />
                 </Route>
-                {/* Programs route DISABLED */}
+
 
                 {/* Org public pages */}
                 <Route path="/org/:slug" element={<OrgPublicPage />} />
@@ -219,12 +219,12 @@ const App = () => (
                   <Route path="/resources" element={<ResourcesPage />} />
                   <Route path="/dashboard" element={<UserDashboard />} />
                   <Route path="/create-org" element={<CreateOrgPage />} />
-                  {/* <Route path="/programs/:id" element={<ProgramViewPage />} /> DISABLED */}
+                  
                   <Route path="/support" element={<SupportPage />} />
                   <Route path="/affiliation" element={<AffiliationPage />} />
                   
                   <Route path="/leaderboard" element={<LeaderboardPage />} />
-                  {/* <Route path="/certificates" element={<CertificatesPage />} /> DISABLED */}
+                  
                   <Route path="/bookmarks" element={<BookmarksPage />} />
                   <Route path="/partner" element={<PartnerPortalPage />} />
                 </Route>
@@ -253,7 +253,7 @@ const App = () => (
                   <Route path="promo-codes" element={<AdminPromoCodes />} />
                   <Route path="analytics" element={<AdminAnalyticsPage />} />
                   <Route path="crm" element={<AdminCRM />} />
-                  {/* <Route path="programs" element={<AdminPrograms />} /> DISABLED */}
+                  
                   <Route path="kyc" element={<LazyAdminKYC />} />
                   <Route path="settings" element={<LazyAdminSettings />} />
                   <Route path="payouts" element={<AdminPayouts />} />

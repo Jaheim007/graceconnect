@@ -11,7 +11,6 @@ const TEMPLATE_CATEGORIES: Record<string, string[]> = {
   Auth: ['welcome'],
   Donations: ['donation_receipt', 'new_donation_received'],
   Purchases: ['purchase_confirmation', 'new_purchase_received', 'download_ready'],
-  Programs: ['program_enrolled', 'program_completed'],
   KYC: ['kyc_submitted', 'kyc_approved', 'kyc_rejected'],
   Org: ['org_created', 'org_deleted', 'org_suspended', 'org_unsuspended'],
   Members: ['new_member_joined', 'member_left', 'invite_to_org', 'role_changed'],
