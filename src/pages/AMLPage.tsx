@@ -1,8 +1,10 @@
 import LegalPageShell, { proseClasses } from '@/components/layout/LegalPageShell';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function AMLPage() {
   return (
     <LegalPageShell>
+      <SEOHead title="Politique Anti-Blanchiment (AML) — Siteviral" description="Engagement de Siteviral contre le blanchiment d'argent et le financement du terrorisme. KYC, surveillance des transactions." canonicalUrl="https://siteviral.com/aml" />
       <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-foreground">Politique Anti-Blanchiment (AML)</h1>
       <p className="text-sm text-muted-foreground mb-8 font-medium">Dernière mise à jour : 22 février 2026</p>
 

@@ -1,8 +1,10 @@
 import LegalPageShell, { proseClasses } from '@/components/layout/LegalPageShell';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function PrivacyPage() {
   return (
     <LegalPageShell>
+      <SEOHead title="Politique de Confidentialité — Siteviral" description="Découvrez comment Siteviral protège vos données personnelles. Transparence, RGPD, droits des utilisateurs." canonicalUrl="https://siteviral.com/privacy" />
       <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-foreground">Politique de Confidentialité</h1>
       <p className="text-sm text-muted-foreground mb-8 font-medium">Dernière mise à jour : 22 février 2026</p>
 

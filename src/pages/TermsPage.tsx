@@ -1,8 +1,10 @@
 import LegalPageShell, { proseClasses } from '@/components/layout/LegalPageShell';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function TermsPage() {
   return (
     <LegalPageShell>
+      <SEOHead title="Terms of Service — Siteviral" description="Read Siteviral's Terms of Service. Usage rules, rights and responsibilities for all users." canonicalUrl="https://siteviral.com/terms" locale="en_US" />
       <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-foreground">Terms of Service</h1>
       <p className="text-lg font-bold text-foreground mb-1">SITEVIRAL</p>
       <p className="text-sm text-muted-foreground mb-8 font-medium">Last updated: February 22, 2026</p>

@@ -10,6 +10,7 @@ import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { getLevel, useMyPoints } from '@/hooks/useGamificationEngine';
 import { useOrg } from '@/contexts/OrgContext';
 import { cn } from '@/lib/utils';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function UserAnalyticsPage() {
   const { user } = useAuth();
@@ -82,6 +83,7 @@ export default function UserAnalyticsPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead title="Mes statistiques — Siteviral" noindex />
       <div className="sticky top-0 z-10 glass border-b border-border/40 px-4 h-12 flex items-center gap-3">
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4" />

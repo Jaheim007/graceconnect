@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useMediaById, useTrackView } from '@/hooks/useMedia';
 import { useState, useMemo, useEffect, useRef } from 'react';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 /** Detect social media / YouTube / Vimeo / Facebook URLs and return embeddable iframe src */
 function getEmbedUrl(url: string): string | null {
@@ -166,6 +167,12 @@ export default function WatchPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={`${media.title} — Siteviral`}
+        description={media.description?.slice(0, 155) || `Regardez ${media.title} sur Siteviral`}
+        ogImage={media.thumbnail_url || undefined}
+        ogType="video.other"
+      />
       {/* Back bar */}
       <div className="sticky top-0 z-10 glass border-b border-border/40 px-4 h-12 flex items-center gap-3">
         <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground">

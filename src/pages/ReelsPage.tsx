@@ -8,6 +8,7 @@ import { ArrowLeft, Heart, Share2, Volume2, VolumeX, Play, ExternalLink } from '
 import { useState, useRef, useEffect } from 'react';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { toast } from 'sonner';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 function isDirectVideo(url: string) {
   return /\.(mp4|webm|mov|m3u8|ogg)(\?|$)/i.test(url);
@@ -104,6 +105,7 @@ export default function ReelsPage() {
 
   return (
     <div className="h-screen bg-black overflow-hidden relative">
+      <SEOHead title="Reels — Siteviral" description="Regardez les meilleurs contenus vidéo de la communauté Siteviral." noindex />
       {/* Top bar */}
       <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3 bg-gradient-to-b from-black/60 to-transparent">
         <button

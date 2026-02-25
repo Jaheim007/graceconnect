@@ -26,6 +26,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nContext';
 import { LOCALE_LABELS, SUPPORTED_LOCALES } from '@/i18n/locales';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 const schema = z.object({
   display_name: z.string().min(1),
@@ -196,6 +197,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead title="Mon profil — Siteviral" description="Gérez votre profil, vos préférences et vos communautés sur Siteviral." noindex />
       <div className="sticky top-0 z-10 glass border-b border-border/40 px-4 h-14 flex items-center gap-3">
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(-1)}><ArrowLeft className="h-4 w-4" /></Button>
         <span className="font-semibold text-sm">{t('profile.my_account')}</span>

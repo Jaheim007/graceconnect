@@ -2,6 +2,7 @@ import LegalPageShell from '@/components/layout/LegalPageShell';
 import { Shield, CheckCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function CompliancePage() {
   const { t } = useI18n();
@@ -27,6 +28,7 @@ export default function CompliancePage() {
 
   return (
     <LegalPageShell>
+      <SEOHead title="Compliance — Siteviral" description="Siteviral compliance: AML/KYC, GDPR, PCI-DSS, OFAC sanctions. Full regulatory transparency." canonicalUrl="https://siteviral.com/compliance" />
       <div className="flex items-center gap-3 mb-2">
         <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
           <Shield className="h-5 w-5 text-primary-foreground" />

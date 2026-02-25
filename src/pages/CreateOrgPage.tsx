@@ -17,6 +17,7 @@ import { ChevronRight, ChevronLeft, Building2, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OrgOnboardingWizard } from '@/components/onboarding/OrgOnboardingWizard';
 import { useI18n } from '@/i18n/I18nContext';
+import { SEOHead } from '@/components/seo/SEOHead';
 import { detectCurrencyFromTimezone } from '@/lib/countryDetect';
 
 const CATEGORIES = [
@@ -170,6 +171,7 @@ export default function CreateOrgPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
+      <SEOHead title="Créer ma plateforme — Siteviral" description="Créez votre plateforme digitale en quelques minutes. Vendez, collectez, formez." noindex />
       <OrgOnboardingWizard open={showOnboarding} onClose={() => { setShowOnboarding(false); navigate('/admin'); }} />
       <div className="w-full max-w-md">
         {/* Header */}

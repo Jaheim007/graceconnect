@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { db } from '@/lib/db';
 import { useAuth } from '@/contexts/AuthContext';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 interface TransactionDetails {
   type: 'product' | 'donation';
@@ -240,6 +241,7 @@ export default function PaymentSuccessPage() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
+      <SEOHead title="Paiement réussi — Siteviral" noindex />
       {/* Watermark Background */}
       <div className="absolute inset-0 pointer-events-none select-none overflow-hidden opacity-[0.03]">
         {[...Array(6)].map((_, i) => (

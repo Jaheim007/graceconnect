@@ -15,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { useI18n } from '@/i18n/I18nContext';
+import { SEOHead } from '@/components/seo/SEOHead';
 import { PageTour } from '@/components/onboarding/PageTour';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -115,6 +116,7 @@ export default function ResourcesPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-6">
+      <SEOHead title="Mes ressources — Siteviral" description="Accédez à vos achats et téléchargez vos ressources numériques." noindex />
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <ShoppingBag className="h-6 w-6 text-primary" />
