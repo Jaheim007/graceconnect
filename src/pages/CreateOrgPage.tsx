@@ -123,6 +123,7 @@ export default function CreateOrgPage() {
       toast({ title: '🎉 ' + t('org.created'), description: data.name });
       setShowOnboarding(true);
     } catch (err: any) {
+      console.error('[CreateOrg] Error creating organization:', err);
       const msg = err?.message || String(err);
       if (msg.includes('duplicate') || msg.includes('unique') || msg.includes('slug')) {
         toast({
