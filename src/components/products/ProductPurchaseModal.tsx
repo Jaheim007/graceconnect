@@ -15,6 +15,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePaymentGateway, PaymentMethod } from '@/hooks/usePaymentGateway';
 import { PaymentMethodSelector } from '@/components/payments/PaymentMethodSelector';
 import { getAffiliateCode, clearAffiliateCode } from '@/hooks/useAffiliateCapture';
+import { resolveGateway, isMoMoAvailable, gatewayLabel } from '@/lib/paymentRouting';
 import { verifyPayment, VerifyPaymentResult } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
@@ -56,7 +57,9 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const [result, setResult] = useState<VerifyPaymentResult | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('mobile_money');
+  // Auto-select payment method based on detected gateway
+  const defaultMethod: PaymentMethod = isMoMoAvailable(product?.currency || 'XOF') ? 'mobile_money' : 'card';
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(defaultMethod);
 
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
@@ -427,7 +430,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                     ? 'You will be redirected to an external link'
                     : product.is_free
                       ? 'Immediate access after download'
-                      : 'Secure payments powered by Paystack. Methods depend on availability by country.'}
+                      : `Paiement sécurisé par ${gatewayLabel(resolveGateway(product.currency || 'XOF'))}`}
                 </div>
                 {!product.external_link && !product.is_free && (
                   <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">
@@ -513,7 +516,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                 </div>
                 {!product.is_free && finalPrice > 0 && (
                   <p className="text-[10px] text-muted-foreground mt-1.5">
-                    {paymentMethod === 'card' ? '🔒 Stripe — Carte bancaire internationale' : '🔒 Paystack — Mobile Money'}
+                    🔒 Paiement sécurisé par {gatewayLabel(resolveGateway(product.currency || 'XOF'))}
                   </p>
                 )}
               </div>
