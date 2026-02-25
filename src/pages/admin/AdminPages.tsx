@@ -1,5 +1,6 @@
 // Generic stub for remaining admin pages
 import { AdminPageShell } from './AdminPageShell';
+import OrgKYCForm from '@/components/org/OrgKYCForm';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrgAnnouncements, useDeleteAnnouncement } from '@/hooks/useAnnouncements';
@@ -517,8 +518,6 @@ export function AdminAnalytics() {
 
 export function AdminKYC() {
   const { currentOrg } = useOrg();
-  const isApproved = currentOrg?.kyc_status === 'level1' || currentOrg?.kyc_status === 'level2';
-  const isPending = currentOrg?.kyc_status === 'pending';
   return (
     <AdminPageShell title="Vérification KYC" backRoute="/admin">
       <div className="space-y-4">
@@ -531,39 +530,12 @@ export function AdminKYC() {
           </p>
         </div>
 
-        <div className={cn(
-          'p-4 rounded-2xl border',
-          isApproved ? 'border-accent/30 bg-accent/8' : isPending ? 'border-primary/20 bg-primary/8' : 'border-border bg-muted/40'
-        )}>
-          <div className="flex items-center gap-2 mb-1">
-            <span>{isApproved ? '✅' : isPending ? '⏳' : '📋'}</span>
-            <p className="font-semibold text-sm">Statut KYC : <span className="capitalize">{currentOrg?.kyc_status || 'aucun'}</span></p>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {isApproved
-              ? 'KYC approuvé. Vous pouvez maintenant demander des retraits sur votre compte bancaire.'
-              : isPending
-              ? 'Votre soumission est en cours de vérification. Nous répondons généralement sous 48h.'
-              : 'Soumettez vos documents KYC pour activer les retraits.'}
-          </p>
-        </div>
-
-        {!isApproved && (
-          <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-            <h2 className="font-semibold text-sm">Documents requis pour les retraits</h2>
-            <ul className="space-y-2 text-xs text-muted-foreground">
-              <li className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold shrink-0">1</span> Pièce d'identité (passeport, carte nationale)</li>
-              <li className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold shrink-0">2</span> Certificat d'enregistrement de l'organisation</li>
-              <li className="flex items-center gap-2"><span className="h-5 w-5 rounded-full bg-muted flex items-center justify-center text-[10px] font-bold shrink-0">3</span> Coordonnées bancaires pour les retraits</li>
-            </ul>
-            <Button
-              size="sm"
-              className="bg-primary text-primary-foreground"
-              disabled={isPending}
-            >
-              {isPending ? '⏳ En cours de vérification…' : 'Soumettre les documents'}
-            </Button>
-          </div>
+        {currentOrg && (
+          <OrgKYCForm
+            orgId={currentOrg.id}
+            orgCategory={currentOrg.category}
+            kycStatus={currentOrg.kyc_status || 'none'}
+          />
         )}
       </div>
     </AdminPageShell>
