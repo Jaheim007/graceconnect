@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
+import { SiteLogo } from '@/components/ui/SiteLogo';
 import { Bell, Sun, Moon, LogOut, User, Settings, Shield, ChevronDown, Plus, BookOpen } from 'lucide-react';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -29,9 +30,9 @@ export function TopBar() {
 
   return (
     <header className="h-14 sticky top-0 z-40 glass border-b border-border flex items-center px-4 gap-3">
-      <Link to="/" className="flex lg:hidden items-center gap-2 mr-1">
-        <span className="text-lg font-extrabold tracking-tight text-foreground">Siteviral</span>
-      </Link>
+      <div className="flex lg:hidden items-center mr-1">
+        <SiteLogo size="sm" animate />
+      </div>
       <GlobalSearch />
       <div className="flex-1" />
 

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SiteLogo } from '@/components/ui/SiteLogo';
 import termsBg from '@/assets/terms-bg.jpg';
 import { ReactNode } from 'react';
 import { useI18n } from '@/i18n/I18nContext';
@@ -53,7 +54,7 @@ export function LegalFooter() {
           </div>
         </div>
         <div className="mt-8 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-          <Link to="/" className="font-extrabold italic text-sm text-primary">Siteviral</Link>
+          <SiteLogo size="xs" animate />
           <span className="text-center">© {new Date().getFullYear()} Hacktualiz Inc. · Delaware C-Corp, United States · 131 Continental Dr, Suite 305, Newark, DE 19713</span>
         </div>
       </div>
@@ -66,7 +67,7 @@ export function LegalHeader() {
   return (
     <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
       <div className="container flex items-center justify-between h-14 px-4">
-        <Link to="/" className="text-xl font-extrabold tracking-tight italic text-primary">Siteviral</Link>
+        <SiteLogo size="md" animate />
         <Button variant="ghost" size="sm" asChild>
           <Link to="/"><ArrowLeft className="h-4 w-4 mr-1" /> {t('legal.back')}</Link>
         </Button>

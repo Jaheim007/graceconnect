@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { SiteLogo } from '@/components/ui/SiteLogo';
 import { FormattedText } from '@/lib/formatText';
 import { Badge } from '@/components/ui/badge';
 import { CommentSection } from '@/components/comments/CommentSection';
@@ -86,7 +87,7 @@ export default function AnnouncementDetailPage() {
 
       <div className="sticky top-0 z-20 border-b border-border/40 bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between">
         <Link to={user ? '/feed' : '/'}>
-          <span className="text-lg font-extrabold tracking-tight italic text-primary">Siteviral</span>
+          <SiteLogo size="sm" linked={false} animate />
         </Link>
         <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4" /> Retour

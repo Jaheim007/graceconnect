@@ -8,6 +8,7 @@ import { Users, ArrowRight, ShoppingBag, Heart, Play, Loader2 } from 'lucide-rea
 import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { SiteLogo } from '@/components/ui/SiteLogo';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -219,7 +220,7 @@ export default function InvitePage() {
       {/* Footer */}
       <footer className="border-t border-border/60 py-6 px-4 bg-muted/20">
         <div className="container flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <Link to="/" className="font-extrabold italic text-sm text-primary">Siteviral</Link>
+          <SiteLogo size="xs" animate />
           <span>© {new Date().getFullYear()} Siteviral — Operated by HACKTUALIZ Inc.</span>
         </div>
       </footer>

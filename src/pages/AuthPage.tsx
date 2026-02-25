@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { SiteLogo } from '@/components/ui/SiteLogo';
 import authBg from '@/assets/auth-bg.jpg';
 
 export default function AuthPage() {
@@ -80,7 +81,7 @@ export default function AuthPage() {
       </div>
 
       <div className="hidden lg:flex flex-col justify-between w-1/2 p-12 relative z-10">
-        <Link to="/"><span className="text-2xl font-extrabold italic text-primary">Siteviral</span></Link>
+        <SiteLogo size="lg" animate />
         <div className="space-y-4">
           <h1 className="text-4xl font-bold leading-tight">
             {t('auth.sign_in_title')}{' '}<span className="text-primary italic">{t('auth.grow_together')}</span>
@@ -99,7 +100,7 @@ export default function AuthPage() {
         <div className="w-full max-w-md">
           <div className="bg-card/95 backdrop-blur-md rounded-3xl border border-border shadow-elevated p-7 space-y-6">
             <div className="flex lg:hidden items-center justify-center mb-2">
-              <Link to="/"><span className="text-xl font-extrabold italic text-primary">Siteviral</span></Link>
+              <SiteLogo size="md" animate />
             </div>
 
             <div className="text-center space-y-1">

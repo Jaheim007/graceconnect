@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
   Home, Play, Bell, User, BookOpen, Store,
   Settings, ChevronLeft, ChevronRight, Shield, Handshake,
@@ -243,11 +244,9 @@ export function Sidebar() {
       {/* Logo */}
       <div className={cn('flex items-center h-16 px-4 border-b border-border', collapsed && 'justify-center px-0')}>
         {!collapsed ? (
-          <Link to="/" className="flex items-center gap-2">
-            <span className="text-xl font-extrabold tracking-tight text-foreground">Siteviral</span>
-          </Link>
+          <SiteLogo size="md" animate />
         ) : (
-          <Link to="/" className="text-base font-extrabold text-foreground">S</Link>
+          <SiteLogo size="sm" showText={false} animate />
         )}
       </div>
 
