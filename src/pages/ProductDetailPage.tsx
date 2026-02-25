@@ -23,6 +23,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { FormattedText } from '@/lib/formatText';
 import { ProductReviews } from '@/components/products/ProductReviews';
 import { AmbassadorBanner } from '@/components/products/AmbassadorBanner';
+import { ShareButtons } from '@/components/social/ShareButtons';
 import { useBundleItems, useProductRecommendations } from '@/hooks/useBundlesAndRecommendations';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ProductCard } from '@/components/products/ProductCard';
@@ -487,17 +488,13 @@ export default function ProductDetailPage() {
                 </Button>
               )}
 
-              <div className="flex items-center justify-center gap-2 pt-2 border-t border-border/40">
-                <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={handleShare}>
-                  <Share2 className="h-3.5 w-3.5" /> {t('product.share')}
-                </Button>
-                <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={handleCopyLink}>
-                  {copied ? <CheckCircle className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
-                  {copied ? t('product.copied') : t('product.copy')}
-                </Button>
-                <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={handleShareWhatsApp}>
-                  <MessageCircle className="h-3.5 w-3.5 text-green-500" /> WhatsApp
-                </Button>
+              <div className="pt-2 border-t border-border/40">
+                <ShareButtons
+                  url={buildShareUrl()}
+                  title={product.title}
+                  description={product.description?.slice(0, 120) || ''}
+                  compact
+                />
               </div>
             </div>
 
