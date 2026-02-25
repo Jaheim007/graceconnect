@@ -107,6 +107,26 @@ export async function migrateSubaccounts(batch_size = 10, dry_run = false) {
   return callFn('migrate-subaccounts', { batch_size, dry_run }, true);
 }
 
+// ── Partner payouts ──
+export async function createPartnerTransferRecipient(args: {
+  country: string;
+  method: 'mobile_money' | 'bank';
+  provider?: string;
+  bank_code?: string;
+  account_number: string;
+  account_name: string;
+}) {
+  return callFn('create-transfer-recipient-partner', args, true);
+}
+
+export async function requestPartnerPayout(partner_id: string) {
+  return callFn('request-partner-payout', { partner_id }, true);
+}
+
+export async function processPartnerPayout(payout_request_id: string, action: 'approve' | 'reject') {
+  return callFn('process-partner-payout', { payout_request_id, action }, true);
+}
+
 // ── Email sending ──
 export type EmailTemplate =
   // Auth & Onboarding
