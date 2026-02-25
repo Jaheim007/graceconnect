@@ -23,6 +23,7 @@ import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist
 import { useI18n } from '@/i18n/I18nContext';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { downloadCSV } from '@/lib/csvExport';
+import { downloadDashboardPDF } from '@/lib/pdfExport';
 
 import { formatCurrency } from '@/lib/currency';
 const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
@@ -124,6 +125,28 @@ export default function AdminDashboard() {
     downloadCSV(rows, `revenus-${currentOrg?.slug || 'org'}`);
   };
 
+  const handleExportPDF = () => {
+    downloadDashboardPDF({
+      orgName: currentOrg?.name || 'Organisation',
+      logoUrl: currentOrg?.logo_url || undefined,
+      currency: orgCurrency,
+      stats: [
+        { label: 'Revenus totaux', value: fmt(totalRevenue, orgCurrency), color: '#3b82f6' },
+        { label: 'Reçu org', value: fmt(totalOrgReceived, orgCurrency), color: '#10b981' },
+        { label: 'Commissions', value: fmt(totalAffiliateCommission, orgCurrency), color: '#f59e0b' },
+        { label: 'Frais plateforme', value: fmt(totalPlatformFee, orgCurrency), color: '#94a3b8' },
+      ],
+      revenueData: chartData.map((d: any) => ({ label: d.date, value: d.revenue })),
+      topProducts: topProducts.map((p: any) => ({ title: p.title, sales: p.sales_count || 0, revenue: (p.sales_count || 0) * (p.price || 0) })),
+      transactions: allTxns.map((t: any) => ({
+        montant: t.amount || 0,
+        reçu_org: t.organization_amount || 0,
+        commission_affilié: t.affiliate_commission || 0,
+        frais_plateforme: t.platform_fee || 0,
+      })),
+    });
+  };
+
   const stats = [
     { label: t('admin.media'), value: media.length, published: media.filter(m => m.is_published).length, icon: Play, to: '/admin/media', colorClass: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
     { label: t('admin.announcements'), value: announcements.length, published: announcements.filter(a => a.is_published).length, icon: Megaphone, to: '/admin/announcements', colorClass: 'text-primary bg-primary/10 border-primary/20' },
@@ -165,6 +188,9 @@ export default function AdminDashboard() {
         <div className="flex items-center gap-2">
           <Button size="sm" variant="outline" onClick={handleExportCSV} className="gap-1.5 text-xs h-8 sm:h-9">
             <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> CSV
+          </Button>
+          <Button size="sm" variant="outline" onClick={handleExportPDF} className="gap-1.5 text-xs h-8 sm:h-9">
+            <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> PDF
           </Button>
           <Button size="sm" variant="outline" onClick={() => setShowQuickStart(true)} className="gap-1.5 text-xs h-8 sm:h-9">
             <Rocket className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> {t('admin.quickstart')}

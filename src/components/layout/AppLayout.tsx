@@ -27,9 +27,9 @@ export function AppLayout() {
     <div className="min-h-[100dvh] flex w-full bg-background overflow-x-hidden">
       {/* Desktop Sidebar */}
       {!hideNav && (
-        <div className="hidden lg:flex">
+        <nav className="hidden lg:flex" aria-label="Navigation principale">
           <Sidebar />
-        </div>
+        </nav>
       )}
 
       {/* Main content */}
@@ -52,9 +52,9 @@ export function AppLayout() {
 
       {/* Mobile Bottom Nav */}
       {!hideNav && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
+        <nav id="bottom-nav" aria-label="Navigation mobile" className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
           <BottomNav />
-        </div>
+        </nav>
       )}
 
       <FeedbackWidget />
