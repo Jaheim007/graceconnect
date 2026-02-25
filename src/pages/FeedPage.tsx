@@ -40,7 +40,7 @@ const staggerItem = {
 export default function FeedPage() {
   const navigate = useNavigate();
   const { userOrgs } = useOrg();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   // Show content from ALL orgs the user belongs to (subscribed + owned)
   const orgIds = userOrgs.map((o) => o.id);
   const { t } = useI18n();
@@ -148,9 +148,31 @@ export default function FeedPage() {
 
   const dateLocale = document.documentElement.lang === 'fr' ? 'fr-FR' : 'en-US';
 
+  const needsProfileCompletion = user && profile && !profile.display_name;
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container max-w-5xl px-4 py-5 sm:py-6 space-y-5 sm:space-y-6">
+
+        {/* Profile completion banner */}
+        {needsProfileCompletion && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-3 p-3 rounded-xl bg-primary/10 border border-primary/20"
+          >
+            <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center shrink-0">
+              <Users className="h-4 w-4 text-primary-foreground" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium">{t('feed.complete_profile') || 'Complétez votre profil'}</p>
+              <p className="text-xs text-muted-foreground">{t('feed.complete_profile_desc') || 'Ajoutez votre nom et photo pour une meilleure expérience.'}</p>
+            </div>
+            <Button size="sm" variant="outline" className="shrink-0 text-xs" onClick={() => navigate('/profile')}>
+              {t('feed.go_to_profile') || 'Mon profil'}
+            </Button>
+          </motion.div>
+        )}
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
           <div className="flex items-center justify-between gap-4">
             <div>

@@ -17,6 +17,7 @@ import { getAffiliateCode, clearAffiliateCode } from '@/hooks/useAffiliateCaptur
 import { verifyPayment, VerifyPaymentResult } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
+import { onNewDonation } from '@/lib/notifications';
 
 const PRESET_AMOUNTS = [500, 1000, 2500, 5000, 10000];
 
@@ -125,6 +126,8 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
             setResult(verifyResult);
             setStep('success');
             onSuccess?.(verifyResult);
+            // Fire real-time notification to org owners/admins
+            onNewDonation(organizationId, '', campaign.title, isAnonymous ? 'Anonyme' : resolvedName, verifyResult.breakdown.amount, campaign.currency || 'XOF');
             queryClient.invalidateQueries({ queryKey: ['feed-campaigns'] });
             queryClient.invalidateQueries({ queryKey: ['org-campaigns'] });
             queryClient.invalidateQueries({ queryKey: ['user-donations'] });
