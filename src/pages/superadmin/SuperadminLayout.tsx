@@ -3,7 +3,7 @@ import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield, Users, FileCheck, BarChart3, Megaphone, Sparkles, LayoutDashboard, Activity, Settings, Download,
-  UserCircle, Target, ShieldAlert, Mail, ChevronLeft, ChevronRight, ArrowLeft, Bell, HelpCircle
+  UserCircle, Target, ShieldAlert, Mail, ChevronLeft, ChevronRight, ArrowLeft, Bell, HelpCircle, Wallet
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,7 @@ const links = [
   { to: '/superadmin/risk', label: 'Risk & AML', icon: ShieldAlert },
   { to: '/superadmin/emails', label: 'Emails', icon: Mail },
   { to: '/superadmin/push', label: 'Push Notifs', icon: Bell },
+  { to: '/superadmin/settlements', label: 'Settlements', icon: Wallet },
   { to: '/superadmin/support', label: 'Support', icon: HelpCircle },
   { to: '/superadmin/settings', label: 'Settings', icon: Settings },
   { to: '/superadmin/ai', label: 'AI Insights', icon: Sparkles },

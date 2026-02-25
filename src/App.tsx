@@ -113,7 +113,7 @@ const SuperadminDirectory = lazy(() => import("@/pages/superadmin/SuperadminDire
 const SuperadminEmailLogs = lazy(() => import("@/pages/superadmin/SuperadminEmailLogs"));
 const SuperadminPush = lazy(() => import("@/pages/superadmin/SuperadminPush"));
 const SuperadminSupport = lazy(() => import("@/pages/superadmin/SuperadminSupport"));
-
+const SuperadminSettlements = lazy(() => import("@/pages/superadmin/SuperadminSettlements"));
 // Wrap lazy components that export named exports
 const LazyAdminAnnouncements = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminAnnouncements })));
 const LazyAdminEvents = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminEvents })));
@@ -268,6 +268,7 @@ const App = () => (
                   <Route path="emails" element={<SuperadminEmailLogs />} />
                   <Route path="push" element={<SuperadminPush />} />
                   <Route path="support" element={<SuperadminSupport />} />
+                  <Route path="settlements" element={<SuperadminSettlements />} />
                   <Route path="ai" element={<SuperadminAIChat />} />
                 </Route>
 

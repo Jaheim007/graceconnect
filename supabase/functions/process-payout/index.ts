@@ -42,15 +42,11 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
     const token = authHeader.replace('Bearer ', '');
-    const anonClient = createClient(SUPABASE_URL, Deno.env.get('SUPABASE_PUBLISHABLE_KEY') ?? SUPABASE_SERVICE_KEY, {
-      global: { headers: { Authorization: authHeader } }
-    });
-    const { data: claims } = await anonClient.auth.getClaims(token);
-    const userId = claims?.claims?.sub;
-    if (!userId) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    const { data: { user } } = await db.auth.getUser(token);
+    if (!user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
     // Only superadmin
-    const { data: roleRow } = await db.from('user_platform_roles').select('role').eq('user_id', userId).maybeSingle();
+    const { data: roleRow } = await db.from('user_platform_roles').select('role').eq('user_id', user.id).maybeSingle();
     if (roleRow?.role !== 'superadmin') {
       return new Response(JSON.stringify({ error: 'Superadmin only' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
@@ -89,66 +85,168 @@ Deno.serve(async (req) => {
       if (rejEmail) {
         sendEmail({ template: 'payout_rejected', to: rejEmail, data: { org_name: rejOrg?.name || '', reason: 'Request rejected by admin.' }, organization_id: payout.organization_id }).catch(() => {});
       }
+
+      // Audit log
+      await db.from('audit_logs').insert({
+        user_id: user.id,
+        organization_id: payout.organization_id,
+        action: 'payout_rejected',
+        resource_type: 'payout_request',
+        resource_id: payout_request_id,
+        metadata: { amount: payout.amount, currency: payout.currency, payout_type: payout.payout_type },
+      });
+
       return new Response(JSON.stringify({ ok: true, status: 'rejected' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    // action === 'approve'
-    // For org payouts: verify that the requested amount doesn't exceed cleared funds (72h hold)
-    if (payout.payout_type === 'org' && payout.organization_id) {
-      const holdCutoff = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
-      const [{ data: donations }, { data: purchases }, { data: otherPayouts }] = await Promise.all([
-        db.from('donations').select('organization_amount, completed_at').eq('organization_id', payout.organization_id).eq('status', 'completed').lte('completed_at', holdCutoff),
-        db.from('product_purchases').select('organization_amount, completed_at').eq('organization_id', payout.organization_id).eq('status', 'completed').lte('completed_at', holdCutoff),
-        db.from('payout_requests').select('amount, status').eq('organization_id', payout.organization_id).in('status', ['completed', 'paid', 'approved', 'processing']).neq('id', payout.id),
-      ]);
-      const clearedFunds = [...(donations || []), ...(purchases || [])].reduce((s: number, t: any) => s + (t.organization_amount || 0), 0);
-      const alreadyPaidOut = (otherPayouts || []).reduce((s: number, p: any) => s + (p.amount || 0), 0);
-      const availableBalance = clearedFunds - alreadyPaidOut;
-      if (payout.amount > availableBalance) {
-        return new Response(JSON.stringify({ error: `Insufficient cleared funds. Available after 72h hold: ${Math.max(0, availableBalance).toLocaleString('fr-FR')} ${payout.currency || 'XOF'}. Requested: ${payout.amount.toLocaleString('fr-FR')} ${payout.currency || 'XOF'}.` }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    // ── action === 'approve' ──
+
+    // For AFFILIATE payouts: commission is held by Siteviral (via transaction_charge).
+    // We pay affiliates from Siteviral's main Paystack balance via Transfer API.
+    if (payout.payout_type === 'affiliate') {
+      // Verify all referenced sales have payable_at in the past (15-day hold)
+      const saleIds = payout.metadata?.sale_ids || [];
+      if (saleIds.length) {
+        const now = new Date().toISOString();
+        const { data: immatureSales } = await db.from('affiliate_sales')
+          .select('id, payable_at')
+          .in('id', saleIds)
+          .gt('payable_at', now);
+        if (immatureSales?.length) {
+          return new Response(JSON.stringify({
+            error: `${immatureSales.length} commission(s) not yet payable. Earliest payable at: ${immatureSales[0].payable_at}`,
+          }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+        }
+      }
+
+      // Look up recipient code for the affiliate user
+      // For affiliates, we need their personal recipient code (stored in profiles or kyc)
+      const { data: recipientProfile } = await db.from('profiles')
+        .select('paystack_recipient_code')
+        .eq('id', payout.user_id)
+        .maybeSingle();
+
+      let transferResult: Record<string, unknown> = {};
+      if (recipientProfile?.paystack_recipient_code) {
+        const psRes = await fetch('https://api.paystack.co/transfer', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${PAYSTACK_SECRET}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            source: 'balance', // From Siteviral's main balance
+            amount: Math.round(payout.amount * 100),
+            recipient: recipientProfile.paystack_recipient_code,
+            reason: `Siteviral affiliate payout — request ${payout_request_id}`,
+          }),
+        });
+        transferResult = await psRes.json();
+
+        if (!(transferResult as any).status) {
+          // Transfer failed — don't mark as paid
+          await db.from('audit_logs').insert({
+            user_id: user.id,
+            organization_id: payout.organization_id,
+            action: 'payout_transfer_failed',
+            resource_type: 'payout_request',
+            resource_id: payout_request_id,
+            metadata: { error: (transferResult as any).message, amount: payout.amount },
+          });
+          return new Response(JSON.stringify({
+            error: 'Paystack transfer failed',
+            detail: (transferResult as any).message,
+          }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+        }
+      }
+
+      // Mark paid
+      await db.from('payout_requests').update({
+        status: recipientProfile?.paystack_recipient_code ? 'paid' : 'approved',
+        processed_at: new Date().toISOString(),
+        metadata: { ...payout.metadata, transfer_result: transferResult },
+      }).eq('id', payout_request_id);
+
+      if (saleIds.length) {
+        await db.from('affiliate_sales').update({ status: 'paid', paid_at: new Date().toISOString() }).in('id', saleIds);
       }
     }
 
-    // attempt Paystack transfer
-    // Lookup recipient code from kyc_submissions
-    const { data: kyc } = await db.from('kyc_submissions')
-      .select('paystack_recipient_code')
-      .eq('organization_id', payout.organization_id)
-      .eq('status', 'approved')
-      .order('submitted_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    // For ORG payouts: vendor funds sit in the org's Paystack subaccount.
+    // We release by switching settlement_schedule from 'manual' to 'auto'.
+    if (payout.payout_type === 'org' && payout.organization_id) {
+      // Verify settlement_status = 'released' for enough funds
+      const { data: releasedDonations } = await db.from('donations')
+        .select('organization_amount')
+        .eq('organization_id', payout.organization_id)
+        .eq('status', 'completed')
+        .eq('settlement_status', 'released');
 
-    let transferResult: Record<string, unknown> = {};
-    if (kyc?.paystack_recipient_code) {
-      // Amount: Paystack transfers in kobo/lowest denomination — XOF is zero-decimal, multiply by 100
-      const psRes = await fetch('https://api.paystack.co/transfer', {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${PAYSTACK_SECRET}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          source: 'balance',
-          amount: Math.round(payout.amount * 100),
-          recipient: kyc.paystack_recipient_code,
-          reason: `Siteviral affiliate payout — request ${payout_request_id}`,
-        }),
-      });
-      transferResult = await psRes.json();
+      const { data: releasedPurchases } = await db.from('product_purchases')
+        .select('organization_amount')
+        .eq('organization_id', payout.organization_id)
+        .eq('status', 'completed')
+        .eq('settlement_status', 'released');
+
+      const { data: otherPayouts } = await db.from('payout_requests')
+        .select('amount, status')
+        .eq('organization_id', payout.organization_id)
+        .in('status', ['completed', 'paid', 'approved', 'processing'])
+        .neq('id', payout.id);
+
+      const releasedFunds = [...(releasedDonations || []), ...(releasedPurchases || [])]
+        .reduce((s: number, t: any) => s + (t.organization_amount || 0), 0);
+      const alreadyPaidOut = (otherPayouts || []).reduce((s: number, p: any) => s + (p.amount || 0), 0);
+      const availableBalance = releasedFunds - alreadyPaidOut;
+
+      if (payout.amount > availableBalance) {
+        return new Response(JSON.stringify({
+          error: `Insufficient released funds. Available: ${Math.max(0, availableBalance).toLocaleString('fr-FR')} ${payout.currency || 'XOF'}. Requested: ${payout.amount.toLocaleString('fr-FR')} ${payout.currency || 'XOF'}.`,
+        }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+
+      // Trigger settlement by temporarily switching subaccount to 'auto'
+      const { data: org } = await db.from('organizations')
+        .select('paystack_subaccount_code')
+        .eq('id', payout.organization_id)
+        .single();
+
+      let transferResult: Record<string, unknown> = {};
+      if (org?.paystack_subaccount_code) {
+        // Update subaccount to auto settlement to release funds
+        const psRes = await fetch(`https://api.paystack.co/subaccount/${org.paystack_subaccount_code}`, {
+          method: 'PUT',
+          headers: { Authorization: `Bearer ${PAYSTACK_SECRET}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ settlement_schedule: 'auto' }),
+        });
+        const psData = await psRes.json();
+        transferResult = psData;
+
+        // Switch back to manual after a brief delay
+        setTimeout(async () => {
+          try {
+            await fetch(`https://api.paystack.co/subaccount/${org.paystack_subaccount_code}`, {
+              method: 'PUT',
+              headers: { Authorization: `Bearer ${PAYSTACK_SECRET}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ settlement_schedule: 'manual' }),
+            });
+          } catch (e) {
+            console.error('Failed to revert settlement_schedule to manual:', e);
+          }
+        }, 5000);
+      }
+
+      // Mark paid
+      await db.from('payout_requests').update({
+        status: 'paid',
+        processed_at: new Date().toISOString(),
+        metadata: { ...payout.metadata, transfer_result: transferResult, settlement_release: true },
+      }).eq('id', payout_request_id);
     }
 
-    // Mark paid regardless (manual if no recipient code)
-    await db.from('payout_requests').update({ status: 'paid', processed_at: new Date().toISOString(), metadata: { ...payout.metadata, transfer_result: transferResult } }).eq('id', payout_request_id);
-
-    const saleIds = payout.metadata?.sale_ids || [];
-    if (saleIds.length) {
-      await db.from('affiliate_sales').update({ status: 'paid', paid_at: new Date().toISOString() }).in('id', saleIds);
-    }
-
-    // Notify affiliate user
+    // Notify user
     await db.from('user_notifications').insert({
       user_id: payout.user_id,
       organization_id: payout.organization_id,
       title: '💸 Payout Processed',
-      body: `Your affiliate payout of ${payout.amount.toLocaleString('fr-FR')} ${payout.currency} has been approved and is being transferred.`,
+      body: `Your ${payout.payout_type} payout of ${payout.amount.toLocaleString('fr-FR')} ${payout.currency} has been approved and is being transferred.`,
       notification_type: 'payout',
     });
 
@@ -156,10 +254,21 @@ Deno.serve(async (req) => {
     const { data: payOrg } = await db.from('organizations').select('name').eq('id', payout.organization_id).maybeSingle();
     const payEmail = await getUserEmail(payout.user_id);
     if (payEmail) {
-      sendEmail({ template: 'affiliate_payout_completed', to: payEmail, data: { amount: payout.amount, currency: payout.currency, org_name: payOrg?.name || '' }, organization_id: payout.organization_id }).catch(() => {});
+      const template = payout.payout_type === 'affiliate' ? 'affiliate_payout_completed' : 'payout_approved';
+      sendEmail({ template, to: payEmail, data: { amount: payout.amount, currency: payout.currency, org_name: payOrg?.name || '' }, organization_id: payout.organization_id }).catch(() => {});
     }
 
-    return new Response(JSON.stringify({ ok: true, status: 'paid', transfer: transferResult }), {
+    // Audit log
+    await db.from('audit_logs').insert({
+      user_id: user.id,
+      organization_id: payout.organization_id,
+      action: 'payout_approved',
+      resource_type: 'payout_request',
+      resource_id: payout_request_id,
+      metadata: { amount: payout.amount, currency: payout.currency, payout_type: payout.payout_type },
+    });
+
+    return new Response(JSON.stringify({ ok: true, status: 'paid', payout_type: payout.payout_type }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
 
