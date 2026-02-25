@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
 interface SEOHeadProps {
   title: string;
@@ -16,6 +17,7 @@ interface SEOHeadProps {
   };
   noindex?: boolean;
   locale?: string;
+  keywords?: string;
 }
 
 const SITE_NAME = 'Siteviral';
@@ -34,10 +36,14 @@ export function SEOHead({
   article,
   noindex = false,
   locale = 'fr_FR',
+  keywords,
 }: SEOHeadProps) {
+  const { pathname } = useLocation();
+
   useEffect(() => {
     // Title
-    document.title = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
+    const fullTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
+    document.title = fullTitle;
 
     const setMeta = (attr: 'name' | 'property', key: string, content: string) => {
       let el = document.querySelector(`meta[${attr}="${key}"]`) as HTMLMetaElement | null;
@@ -49,8 +55,17 @@ export function SEOHead({
       el.setAttribute('content', content);
     };
 
+    const desc = description || DEFAULT_DESCRIPTION;
+    const image = ogImage || DEFAULT_OG_IMAGE;
+    const url = canonicalUrl || `${SITE_URL}${pathname}`;
+
     // Meta description
-    setMeta('name', 'description', description || DEFAULT_DESCRIPTION);
+    setMeta('name', 'description', desc);
+
+    // Keywords
+    if (keywords) {
+      setMeta('name', 'keywords', keywords);
+    }
 
     // Robots
     if (noindex) {
@@ -61,15 +76,13 @@ export function SEOHead({
     }
 
     // OG tags
-    setMeta('property', 'og:title', title);
-    setMeta('property', 'og:description', description || DEFAULT_DESCRIPTION);
-    setMeta('property', 'og:image', ogImage || DEFAULT_OG_IMAGE);
+    setMeta('property', 'og:title', fullTitle);
+    setMeta('property', 'og:description', desc);
+    setMeta('property', 'og:image', image);
     setMeta('property', 'og:type', ogType);
     setMeta('property', 'og:site_name', SITE_NAME);
     setMeta('property', 'og:locale', locale);
-    if (canonicalUrl) {
-      setMeta('property', 'og:url', canonicalUrl);
-    }
+    setMeta('property', 'og:url', url);
 
     // Article-specific OG tags
     if (article && ogType === 'article') {
@@ -77,28 +90,26 @@ export function SEOHead({
       if (article.modifiedTime) setMeta('property', 'article:modified_time', article.modifiedTime);
       if (article.author) setMeta('property', 'article:author', article.author);
       if (article.section) setMeta('property', 'article:section', article.section);
-      article.tags?.forEach((tag, i) => {
-        setMeta('property', `article:tag`, tag);
+      article.tags?.forEach((tag) => {
+        setMeta('property', 'article:tag', tag);
       });
     }
 
     // Twitter card
-    setMeta('name', 'twitter:card', ogImage ? 'summary_large_image' : 'summary');
+    setMeta('name', 'twitter:card', 'summary_large_image');
     setMeta('name', 'twitter:site', TWITTER_SITE);
-    setMeta('name', 'twitter:title', title);
-    setMeta('name', 'twitter:description', description || DEFAULT_DESCRIPTION);
-    setMeta('name', 'twitter:image', ogImage || DEFAULT_OG_IMAGE);
+    setMeta('name', 'twitter:title', fullTitle);
+    setMeta('name', 'twitter:description', desc);
+    setMeta('name', 'twitter:image', image);
 
-    // Canonical
-    if (canonicalUrl) {
-      let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-      if (!link) {
-        link = document.createElement('link');
-        link.setAttribute('rel', 'canonical');
-        document.head.appendChild(link);
-      }
-      link.setAttribute('href', canonicalUrl);
+    // Canonical — always set from url
+    let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!link) {
+      link = document.createElement('link');
+      link.setAttribute('rel', 'canonical');
+      document.head.appendChild(link);
     }
+    link.setAttribute('href', url);
 
     // JSON-LD
     if (jsonLd) {
@@ -115,7 +126,7 @@ export function SEOHead({
       const script = document.querySelector('script[data-seo-jsonld]');
       if (script) script.remove();
     };
-  }, [title, description, ogImage, ogType, canonicalUrl, jsonLd, article, noindex, locale]);
+  }, [title, description, ogImage, ogType, canonicalUrl, jsonLd, article, noindex, locale, pathname, keywords]);
 
   return null;
 }
