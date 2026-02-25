@@ -426,6 +426,52 @@ export default function PaymentSuccessPage() {
           transition={{ delay: 0.3 }}
           className="mt-6 space-y-3"
         >
+          {/* Share section */}
+          {isCompleted && (
+            <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
+              <p className="text-sm font-semibold text-center">Partagez votre expérience</p>
+              <div className="flex gap-2 justify-center">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5 text-xs"
+                  onClick={() => {
+                    const text = isProduct
+                      ? `Je viens d'acheter "${tx.product_title}" sur ${tx.org_name} via Siteviral ! 🎉`
+                      : `Je viens de soutenir "${tx.campaign_title || tx.org_name}" via Siteviral ! 🙏`;
+                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                  }}
+                >
+                  WhatsApp
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5 text-xs"
+                  onClick={() => {
+                    const text = isProduct
+                      ? `Je viens d'acheter "${tx.product_title}" sur ${tx.org_name} ! 🎉`
+                      : `Je viens de soutenir "${tx.campaign_title || tx.org_name}" ! 🙏`;
+                    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
+                  }}
+                >
+                  X / Twitter
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-1.5 text-xs"
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    alert('Lien copié !');
+                  }}
+                >
+                  Copier le lien
+                </Button>
+              </div>
+            </div>
+          )}
+
           {user && (
             <Button
               onClick={() => navigate('/resources')}
@@ -433,7 +479,7 @@ export default function PaymentSuccessPage() {
               className="w-full gap-2"
             >
               <Package className="h-4 w-4" />
-              Voir mes ressources
+              Accéder à mes achats
             </Button>
           )}
           <Button

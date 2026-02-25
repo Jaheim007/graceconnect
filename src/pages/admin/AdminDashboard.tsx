@@ -17,6 +17,7 @@ import {
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { OrgActivationChecklist } from '@/components/admin/OrgActivationChecklist';
+import { RevenueSimulator } from '@/components/admin/RevenueSimulator';
 import { QuickStartWizard } from '@/components/onboarding/QuickStartWizard';
 import { useI18n } from '@/i18n/I18nContext';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
@@ -238,6 +239,9 @@ export default function AdminDashboard() {
           </div>
         </motion.div>
       )}
+
+      {/* Revenue Simulator */}
+      <RevenueSimulator />
 
       {/* Stats grid */}
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 sm:grid-cols-3 gap-3">
