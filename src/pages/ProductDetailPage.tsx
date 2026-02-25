@@ -1,4 +1,4 @@
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ import {
   FileText, BookOpen, Music, Link2, ExternalLink, MessageCircle,
   Shield, HelpCircle, MessageSquareQuote, PackagePlus, Star
 } from 'lucide-react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -45,6 +45,7 @@ const coverAspectClass: Record<string, string> = {
 export default function ProductDetailPage() {
   const { slug, productId, productSlug } = useParams<{ slug: string; productId?: string; productSlug?: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { toast } = useToast();
   const { t } = useI18n();
@@ -115,6 +116,16 @@ export default function ProductDetailPage() {
   
   const { data: bundleItems = [] } = useBundleItems(product?.is_bundle ? product?.id : undefined);
   const { data: recommendations = [] } = useProductRecommendations(product?.id);
+
+  // Auto-open purchase modal when returning from auth with ?action=buy
+  useEffect(() => {
+    if (user && product && searchParams.get('action') === 'buy' && !purchaseProduct) {
+      setPurchaseProduct(product as DigitalProduct);
+      // Clean up the URL param
+      searchParams.delete('action');
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [user, product, searchParams]);
 
   const buildShareUrl = () => {
     const pSlug = (product as any)?.slug;

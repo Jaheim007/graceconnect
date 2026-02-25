@@ -205,7 +205,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const handleConfirmToBuyerInfo = () => {
     if (!user) {
       handleClose();
-      navigate(`/auth?returnTo=${encodeURIComponent(pathname)}`);
+      navigate(`/auth?returnTo=${encodeURIComponent(pathname + '?action=buy')}`);
       return;
     }
     // Track abandoned cart when user proceeds to buyer info
