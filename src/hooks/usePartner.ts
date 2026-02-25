@@ -20,6 +20,7 @@ export interface Partner {
   custom_rate_override: number | null;
   min_payout_threshold: number;
   payout_method: string | null;
+  payout_country: string | null;
   paystack_recipient_code: string | null;
   invite_code: string | null;
   invite_link_slug: string | null;
@@ -139,6 +140,38 @@ export function usePartnerPayouts(partnerId?: string) {
       if (error) throw error;
       return (data || []) as PartnerPayoutRequest[];
     },
+  });
+}
+
+// ── Hook: ALL partner payout requests (superadmin) ──
+export function useAllPartnerPayouts() {
+  const { isSuperadmin } = useAuth();
+  return useQuery({
+    queryKey: ['all-partner-payouts'],
+    enabled: isSuperadmin,
+    queryFn: async () => {
+      const { data, error } = await db.from('partner_payout_requests')
+        .select('*, partner:partners(full_name, email)')
+        .order('requested_at', { ascending: false });
+      if (error) throw error;
+      return (data || []) as (PartnerPayoutRequest & { partner?: { full_name: string; email: string } })[];
+    },
+  });
+}
+
+// ── Mutation: process partner payout (superadmin) ──
+export function useProcessPartnerPayout() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ payoutRequestId, action }: { payoutRequestId: string; action: 'approve' | 'reject' }) => {
+      return callFn('process-partner-payout', { payout_request_id: payoutRequestId, action }, true);
+    },
+    onSuccess: (_, vars) => {
+      toast.success(vars.action === 'approve' ? 'Paiement approuvé et envoyé' : 'Paiement rejeté');
+      qc.invalidateQueries({ queryKey: ['all-partner-payouts'] });
+      qc.invalidateQueries({ queryKey: ['all-partners'] });
+    },
+    onError: (err: Error) => toast.error(err.message),
   });
 }
 

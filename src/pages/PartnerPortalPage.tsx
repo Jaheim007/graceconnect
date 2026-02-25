@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Loader2, Copy, Users, TrendingUp, Wallet, Clock, CheckCircle, XCircle, AlertTriangle, Handshake } from 'lucide-react';
 import { toast } from 'sonner';
 import { SEOHead } from '@/components/seo/SEOHead';
+import PartnerPayoutConfig from '@/components/partner/PartnerPayoutConfig';
 
 const LEVEL_LABELS: Record<number, string> = { 1: 'Bronze', 2: 'Argent', 3: 'Or', 4: 'Platine', 5: 'Diamant' };
 const STATUS_MAP: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
@@ -218,6 +219,14 @@ export default function PartnerPortalPage() {
         {/* ── Payout ── */}
         <TabsContent value="payout">
           <div className="space-y-4">
+            {/* Payout method config */}
+            <PartnerPayoutConfig
+              hasRecipient={!!partner.paystack_recipient_code}
+              currentMethod={partner.payout_method}
+              currentCountry={partner.payout_country}
+            />
+
+            {/* Request payout */}
             <Card>
               <CardHeader>
                 <CardTitle>Demander un paiement</CardTitle>
@@ -228,9 +237,9 @@ export default function PartnerPortalPage() {
               </CardHeader>
               <CardContent>
                 {!partner.paystack_recipient_code ? (
-                  <div className="text-sm text-amber-600 dark:text-amber-400 flex items-center gap-2">
-                    <AlertTriangle className="h-4 w-4" />
-                    Configurez d'abord vos informations de paiement (banque ou mobile money) avant de demander un paiement.
+                  <div className="text-sm text-muted-foreground flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 text-amber-500" />
+                    Configurez d'abord votre méthode de paiement ci-dessus.
                   </div>
                 ) : stats.payable < partner.min_payout_threshold ? (
                   <p className="text-sm text-muted-foreground">Le seuil minimum de {formatCurrency(partner.min_payout_threshold, currency)} n'est pas encore atteint.</p>
@@ -243,6 +252,7 @@ export default function PartnerPortalPage() {
               </CardContent>
             </Card>
 
+            {/* Payout history */}
             <Card>
               <CardHeader><CardTitle>Historique des versements</CardTitle></CardHeader>
               <CardContent>
