@@ -11,6 +11,7 @@ import { ArrowLeft, CheckCircle, Circle, PlayCircle, Lock, GraduationCap, Award 
 import { cn } from '@/lib/utils';
 import { QuizWidget } from '@/components/programs/QuizWidget';
 import { useState } from 'react';
+import DOMPurify from 'dompurify';
 import { onProgramEnrolled, onProgramCompleted } from '@/lib/notifications';
 import { downloadCertificate } from '@/lib/certificate';
 import { useProgramCertificate, useIssueCertificate } from '@/hooks/useCertificates';
@@ -215,7 +216,7 @@ export default function ProgramViewPage() {
               )}
               <h2 className="font-semibold">{currentLessonData.title}</h2>
               {currentLessonData.content && (
-                <div className="prose prose-sm dark:prose-invert max-w-none text-sm" dangerouslySetInnerHTML={{ __html: currentLessonData.content }} />
+                <div className="prose prose-sm dark:prose-invert max-w-none text-sm" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(currentLessonData.content) }} />
               )}
               {enrollment && !completedIds.has(currentLessonData.id) && (
                 <Button size="sm" className="gap-1.5 text-xs" onClick={() => markComplete.mutate(currentLessonData.id)}>
