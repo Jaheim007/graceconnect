@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Sparkles, Play } from 'lucide-react';
+import { ArrowRight, Sparkles, Play, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import heroImg from '@/assets/landing-hero-new.jpg';
@@ -9,22 +9,28 @@ import { AnimatedCounter } from './AnimatedCounter';
 
 const personas = [
   {
+    badge: '🏢 Organisations',
     headline: 'Votre contenu est dispersé.\nVos revenus aussi.',
     sub: 'Centralisez tout sur une seule plateforme : vendez vos ressources, collectez des dons, gérez votre communauté. Zéro abonnement.',
-    cta: 'Créer ma plateforme',
+    cta: 'Créer ma plateforme gratuitement',
     ctaPath: '/auth?mode=signup',
+    bullets: ['Boutique numérique complète', 'Dons & offrandes Mobile Money', 'Réseau d\'ambassadeurs intégré'],
   },
   {
+    badge: '🚀 Ambassadeurs',
     headline: 'Zéro contenu à créer.\nJuste partager et gagner.',
     sub: 'Devenez ambassadeur : partagez les ressources d\'autres créateurs et touchez jusqu\'à 50% de commission sur chaque vente.',
-    cta: 'Devenir ambassadeur',
+    cta: 'Devenir ambassadeur maintenant',
     ctaPath: '/auth?mode=signup',
+    bullets: ['5% à 50% de commission', 'Lien de partage en 1 clic', 'Versement automatique'],
   },
   {
+    badge: '🛒 Acheteurs',
     headline: 'Des milliers de ressources.\nUn seul endroit.',
     sub: 'E-books, formations, audio, vidéos — achetez et soutenez des créateurs. Paiement Mobile Money ou carte en 1 clic.',
     cta: 'Explorer les ressources',
     ctaPath: '/discover',
+    bullets: ['Accès instantané après achat', 'Paiement Mobile Money & Carte', 'Bibliothèque personnelle'],
   },
 ];
 
@@ -39,7 +45,7 @@ export function LandingHero() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    const duration = 4000;
+    const duration = 4500;
     const tickMs = 40;
     let elapsed = 0;
     const timer = setInterval(() => {
@@ -60,18 +66,30 @@ export function LandingHero() {
     <section className="relative pt-14 overflow-hidden">
       <div className="absolute inset-0 z-0">
         <img src={heroImg} alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/80 to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/85 to-background" />
       </div>
       <div className="relative z-10 container max-w-5xl px-4 pt-20 pb-24 sm:pt-28 sm:pb-32">
-        <motion.div initial="hidden" animate="visible" variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05 } } }} className="text-center space-y-6">
+        <motion.div initial="hidden" animate="visible" variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05 } } }} className="text-center space-y-5">
+          
+          {/* Persona badge */}
           <motion.div variants={fadeUp}>
-            <Badge variant="secondary" className="text-xs px-4 py-1.5 rounded-full border border-border bg-card/50 text-muted-foreground gap-1.5">
-              <Sparkles className="h-3 w-3" /> Infrastructure SaaS — Propulsé par Hacktualiz Inc.
-            </Badge>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={`badge-${activeIdx}`}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.25 }}
+              >
+                <Badge variant="secondary" className="text-xs px-4 py-1.5 rounded-full border border-border bg-card/60 text-foreground gap-1.5 font-semibold">
+                  {persona.badge}
+                </Badge>
+              </motion.div>
+            </AnimatePresence>
           </motion.div>
 
           {/* Animated headline */}
-          <div className="min-h-[120px] sm:min-h-[140px] lg:min-h-[170px] flex items-center justify-center">
+          <div className="min-h-[110px] sm:min-h-[140px] lg:min-h-[160px] flex items-center justify-center">
             <AnimatePresence mode="wait">
               <motion.h1
                 key={activeIdx}
@@ -104,6 +122,24 @@ export function LandingHero() {
             </motion.p>
           </AnimatePresence>
 
+          {/* Quick bullets */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`bullets-${activeIdx}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5"
+            >
+              {persona.bullets.map((b) => (
+                <span key={b} className="flex items-center gap-1.5 text-xs sm:text-sm text-foreground/80">
+                  <CheckCircle className="h-3.5 w-3.5 text-primary shrink-0" /> {b}
+                </span>
+              ))}
+            </motion.div>
+          </AnimatePresence>
+
           {/* Social proof counters */}
           <motion.div variants={fadeUp} className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 pt-2">
             <div className="text-center">
@@ -124,7 +160,7 @@ export function LandingHero() {
 
           {/* CTAs */}
           <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <Button size="lg" className="px-8 gap-2 h-13 text-base w-full sm:w-auto group" onClick={() => navigate(persona.ctaPath)}>
+            <Button size="lg" className="px-8 gap-2 h-13 text-base w-full sm:w-auto group cta-glow" onClick={() => navigate(persona.ctaPath)}>
               {persona.cta} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Button size="lg" variant="outline" className="h-13 px-8 gap-2 text-base w-full sm:w-auto" onClick={() => {
@@ -136,13 +172,13 @@ export function LandingHero() {
 
           {/* Persona dots with progress */}
           <div className="flex items-center justify-center gap-2 pt-4">
-            {personas.map((_, i) => (
+            {personas.map((p, i) => (
               <button
                 key={i}
                 onClick={() => { setActiveIdx(i); setProgress(0); }}
-                className="relative h-2 rounded-full overflow-hidden transition-all duration-300"
-                style={{ width: i === activeIdx ? 32 : 8 }}
-                aria-label={`Voir persona ${i + 1}`}
+                className="relative h-2 rounded-full overflow-hidden transition-all duration-300 group"
+                style={{ width: i === activeIdx ? 40 : 10 }}
+                aria-label={p.badge}
               >
                 <div className="absolute inset-0 bg-muted-foreground/20 rounded-full" />
                 {i === activeIdx && (
@@ -154,6 +190,10 @@ export function LandingHero() {
               </button>
             ))}
           </div>
+          
+          <p className="text-[11px] text-muted-foreground/60 pt-1">
+            ✓ Pas de carte requise · ✓ Pas d'abonnement · ✓ Prêt en 2 minutes
+          </p>
         </motion.div>
       </div>
     </section>

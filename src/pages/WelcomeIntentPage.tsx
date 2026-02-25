@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Building2, Share2, ShoppingBag, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Building2, Share2, ShoppingBag, ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
 
 const intents = [
   {
@@ -9,21 +8,25 @@ const intents = [
     title: 'Créer ma plateforme',
     desc: 'Je suis une organisation, un créateur, un coach ou une église. Je veux vendre mes ressources et gérer ma communauté.',
     path: '/create-org',
-    color: 'primary',
+    color: 'primary' as const,
+    bullets: ['Boutique numérique', 'Collecte de dons', 'Gestion communautaire'],
   },
   {
     icon: Share2,
     title: 'Gagner en partageant',
     desc: 'Je n\'ai pas de contenu, mais je veux gagner de l\'argent en partageant les ressources d\'autres créateurs.',
-    path: '/ambassador-program',
-    color: 'accent',
+    path: '/discover',
+    color: 'accent' as const,
+    bullets: ['Jusqu\'à 50% de commission', 'Zéro investissement', 'Lien unique en 1 clic'],
+    popular: true,
   },
   {
     icon: ShoppingBag,
     title: 'Acheter du contenu',
     desc: 'Je veux découvrir et acheter des ressources numériques ou soutenir des communautés.',
     path: '/discover',
-    color: 'primary',
+    color: 'primary' as const,
+    bullets: ['Accès instantané', 'Mobile Money & Carte', 'Bibliothèque personnelle'],
   },
 ];
 
@@ -39,6 +42,14 @@ export default function WelcomeIntentPage() {
           transition={{ duration: 0.35 }}
           className="text-center mb-10"
         >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.1, type: 'spring', stiffness: 200, damping: 15 }}
+            className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5"
+          >
+            <Sparkles className="h-8 w-8 text-primary" />
+          </motion.div>
           <h1 className="text-3xl sm:text-4xl font-extrabold mb-3">
             Bienvenue sur <span className="text-primary">Siteviral</span> 🎉
           </h1>
@@ -51,16 +62,21 @@ export default function WelcomeIntentPage() {
           {intents.map((intent, i) => (
             <motion.button
               key={intent.title}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.08, duration: 0.35 }}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.15 + i * 0.1, duration: 0.35 }}
               onClick={() => navigate(intent.path)}
-              className={`w-full flex items-start gap-4 p-6 rounded-2xl border text-left transition-all duration-200 hover:shadow-md group ${
+              className={`w-full flex items-start gap-4 p-6 rounded-2xl border text-left transition-all duration-200 hover:shadow-elevated group relative ${
                 intent.color === 'accent'
                   ? 'border-accent/30 hover:border-accent bg-card'
                   : 'border-border hover:border-primary/30 bg-card'
               }`}
             >
+              {intent.popular && (
+                <span className="absolute -top-2.5 right-4 bg-accent text-accent-foreground text-[10px] font-bold px-3 py-0.5 rounded-full">
+                  🔥 Populaire
+                </span>
+              )}
               <div className={`h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 ${
                 intent.color === 'accent' ? 'bg-accent/10' : 'bg-primary/10'
               }`}>
@@ -68,16 +84,28 @@ export default function WelcomeIntentPage() {
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="text-lg font-bold mb-1">{intent.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{intent.desc}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-2">{intent.desc}</p>
+                <div className="flex flex-wrap gap-x-4 gap-y-1">
+                  {intent.bullets.map((b) => (
+                    <span key={b} className="flex items-center gap-1 text-xs text-foreground/70">
+                      <CheckCircle className={`h-3 w-3 ${intent.color === 'accent' ? 'text-accent' : 'text-primary'}`} /> {b}
+                    </span>
+                  ))}
+                </div>
               </div>
               <ArrowRight className="h-5 w-5 text-muted-foreground mt-1 shrink-0 group-hover:translate-x-1 transition-transform" />
             </motion.button>
           ))}
         </div>
 
-        <p className="text-center text-xs text-muted-foreground mt-8">
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="text-center text-xs text-muted-foreground mt-8"
+        >
           Vous pourrez toujours changer d'avis plus tard dans vos paramètres.
-        </p>
+        </motion.p>
       </div>
     </div>
   );
