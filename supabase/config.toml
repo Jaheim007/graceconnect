@@ -44,3 +44,6 @@ verify_jwt = false
 
 [functions.migrate-subaccounts]
 verify_jwt = false
+
+[functions.watermark-download]
+verify_jwt = false

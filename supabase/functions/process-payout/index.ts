@@ -219,18 +219,17 @@ Deno.serve(async (req) => {
         const psData = await psRes.json();
         transferResult = psData;
 
-        // Switch back to manual after a brief delay
-        setTimeout(async () => {
-          try {
-            await fetch(`https://api.paystack.co/subaccount/${org.paystack_subaccount_code}`, {
-              method: 'PUT',
-              headers: { Authorization: `Bearer ${PAYSTACK_SECRET}`, 'Content-Type': 'application/json' },
-              body: JSON.stringify({ settlement_schedule: 'manual' }),
-            });
-          } catch (e) {
-            console.error('Failed to revert settlement_schedule to manual:', e);
-          }
-        }, 5000);
+        // Immediately revert back to manual (must be synchronous — setTimeout won't fire after response)
+        try {
+          await fetch(`https://api.paystack.co/subaccount/${org.paystack_subaccount_code}`, {
+            method: 'PUT',
+            headers: { Authorization: `Bearer ${PAYSTACK_SECRET}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ settlement_schedule: 'manual' }),
+          });
+        } catch (e) {
+          console.error('Failed to revert settlement_schedule to manual:', e);
+          // Non-fatal: Paystack will still process the settlement
+        }
       }
 
       // Mark paid
