@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { sendEmail, getUserEmail, sendEmailToOrgAdmins } from '../_shared/send-email-helper.ts';
+import Stripe from 'https://esm.sh/stripe@18.5.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -39,6 +39,10 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Transaction not found' }), { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
+    if (tx.status === 'refunded') {
+      return new Response(JSON.stringify({ error: 'Already refunded' }), { status: 409, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     // Verify ownership/admin rights
     const { data: member } = await db.from('organization_members')
       .select('role')
@@ -56,7 +60,8 @@ Deno.serve(async (req) => {
 
     // 2. Process Refund via Gateway
     let refundRef = '';
-    const gateway = tx.paystack_reference?.startsWith('SV-STRIPE-') ? 'stripe' : 'paystack';
+    const isStripe = tx.paystack_reference?.startsWith('SV-STRIPE-');
+    const gateway = isStripe ? 'stripe' : 'paystack';
 
     if (gateway === 'paystack') {
       const res = await fetch('https://api.paystack.co/refund', {
@@ -66,48 +71,49 @@ Deno.serve(async (req) => {
       });
       const data = await res.json();
       if (!data.status) throw new Error(data.message || 'Paystack refund failed');
-      refundRef = data.data.id?.toString() || 'manual-paystack';
+      refundRef = data.data.id?.toString() || 'paystack-refund';
     } else {
-      // Stripe
-      // First need PaymentIntent ID. We might need to look it up via session if not stored.
-      // For now assuming we can refund via PaymentIntent if we had it, or we rely on portal.
-      // This is a placeholder for Stripe API call - needs PaymentIntent ID which verify-payment should ideally store.
-      // For MVP we'll mark as 'requested' internally and assume manual process if PI ID missing.
-      // IMPORTANT: In a real implementation, we'd store stripe_payment_intent_id.
-      
-      // If we have access to PI from metadata or similar:
-      // const res = await fetch('https://api.stripe.com/v1/refunds', ...);
-      
-      // For this audit fix, we'll mark it in DB and assume operational handling for Stripe if ID missing
-      refundRef = 'manual-stripe-pending';
+      // Stripe refund via Refunds API
+      const stripe = new Stripe(STRIPE_SECRET, { apiVersion: '2025-08-27.basil' });
+
+      // Extract Stripe payment intent ID from reference (format: SV-STRIPE-{pi_xxx})
+      const piId = tx.stripe_payment_intent_id || tx.paystack_reference?.replace('SV-STRIPE-', '');
+
+      if (!piId || !piId.startsWith('pi_')) {
+        // Cannot auto-refund without a valid PaymentIntent ID — mark for manual processing
+        refundRef = 'stripe-manual-required';
+        console.warn(`Stripe refund: no valid PI ID for tx ${transaction_id}, marking manual`);
+      } else {
+        const refund = await stripe.refunds.create({
+          payment_intent: piId,
+          reason: 'requested_by_customer',
+        });
+        refundRef = refund.id;
+      }
     }
 
     // 3. Update Database
-    await db.from(table).update({ 
-      status: 'refunded', 
+    await db.from(table).update({
+      status: 'refunded',
       settlement_status: 'refunded',
-      refunded_at: new Date().toISOString() 
     }).eq('id', transaction_id);
 
     // 4. Void Affiliate Commission
     if (tx.affiliate_link_id) {
       await db.from('affiliate_sales')
-        .update({ status: 'cancelled', commission_amount: 0 }) // Set amount to 0 to reverse earnings calc
+        .update({ status: 'cancelled', commission_amount: 0 })
         .eq('transaction_id', transaction_id);
-      
-      // Re-calculate affiliate total earned
-      // (Optional: strict re-calc loop)
     }
 
-    // 5. Create/Update Refund Request Record
+    // 5. Create Refund Request Record
     await db.from('refund_requests').insert({
       organization_id: tx.organization_id,
       [type === 'donation' ? 'donation_id' : 'purchase_id']: transaction_id,
       reason,
-      status: 'completed',
+      status: refundRef === 'stripe-manual-required' ? 'pending' : 'completed',
       refunded_amount: tx.amount,
       currency: tx.currency,
-      gateway_refund_id: refundRef
+      gateway_refund_id: refundRef,
     });
 
     // 6. Audit Log
@@ -117,13 +123,18 @@ Deno.serve(async (req) => {
       action: 'transaction_refunded',
       resource_type: 'transaction',
       resource_id: transaction_id,
-      metadata: { amount: tx.amount, currency: tx.currency, reason, gateway }
+      metadata: { amount: tx.amount, currency: tx.currency, reason, gateway, refund_ref: refundRef },
     });
 
-    return new Response(JSON.stringify({ ok: true, status: 'refunded' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({
+      ok: true,
+      status: refundRef === 'stripe-manual-required' ? 'pending_manual' : 'refunded',
+      gateway,
+      refund_ref: refundRef,
+    }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
-  } catch (err) {
+  } catch (err: any) {
     console.error('refund-transaction error:', err);
-    return new Response(JSON.stringify({ error: err.message }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    return new Response(JSON.stringify({ error: err.message || 'Internal error' }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
 });

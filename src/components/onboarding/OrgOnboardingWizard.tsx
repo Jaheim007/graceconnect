@@ -158,6 +158,16 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
           <div className="flex items-center gap-2"><Megaphone className="h-3.5 w-3.5 text-muted-foreground" /> Publier votre première annonce</div>
         </div>
       </div>
+      {/* KYC reassurance — funds are safe even without KYC */}
+      <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-3 text-left mt-3">
+        <p className="text-xs font-medium text-green-700 dark:text-green-400 flex items-center gap-1.5">
+          <Check className="h-3.5 w-3.5 shrink-0" />
+          Vérification KYC non requise pour démarrer
+        </p>
+        <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
+          Vous pouvez publier et recevoir des paiements immédiatement. Les fonds sont retenus en sécurité jusqu'à la vérification de votre compte (72h après chaque transaction). Complétez votre KYC à tout moment dans les paramètres.
+        </p>
+      </div>
     </motion.div>,
   ];
 

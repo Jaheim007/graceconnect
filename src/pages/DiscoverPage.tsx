@@ -2,18 +2,15 @@ import { useState } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Search, ShoppingBag, Heart, Users, SlidersHorizontal, ArrowUpDown, Star, TrendingUp } from 'lucide-react';
+import { Search, ShoppingBag, Heart, SlidersHorizontal, ArrowUpDown, Star, TrendingUp } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { OrgCard } from '@/components/org/OrgCard';
 import { ProductCard } from '@/components/products/ProductCard';
 import { CampaignCard } from '@/components/donations/CampaignCard';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
 import { EmptyState } from '@/components/ui/EmptyState';
-import { usePublicOrgs } from '@/hooks/useOrganizations';
-import { OrgCategory } from '@/types/database';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -24,7 +21,6 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FeaturedSection } from '@/components/discover/FeaturedSection';
 import { NewThisWeek } from '@/components/discover/NewThisWeek';
-import { CheckCircle2 } from 'lucide-react';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
@@ -44,8 +40,6 @@ type ProductTypeFilter = '' | 'pdf' | 'ebook' | 'audio' | 'video' | 'link' | 'bu
 
 export default function DiscoverPage() {
   const [search, setSearch] = useState('');
-  const [category, setCategory] = useState<OrgCategory | ''>('');
-  const [page, setPage] = useState(0);
   const [tab, setTab] = useState('products');
   const [sortBy, setSortBy] = useState<ProductSort>('popular');
   const [priceFilter, setPriceFilter] = useState<PriceFilter>('all');
@@ -56,16 +50,6 @@ export default function DiscoverPage() {
   const { t, locale } = useI18n();
   const debouncedSearch = useDebounce(search, 300);
 
-  const CATEGORIES: { value: OrgCategory | ''; label: string }[] = [
-    { value: '', label: t('discover.cat_all') },
-    { value: 'church', label: t('discover.cat_church') },
-    { value: 'ministry', label: t('discover.cat_ministry') },
-    { value: 'leader', label: t('discover.cat_leader') },
-    { value: 'ngo', label: t('discover.cat_ngo') },
-    { value: 'community', label: t('discover.cat_community') },
-    { value: 'other', label: t('discover.cat_other') },
-  ];
-
   const PRODUCT_TYPES = [
     { value: '', label: locale === 'fr' ? 'Tous types' : 'All types' },
     { value: 'pdf', label: 'PDF' },
@@ -75,11 +59,6 @@ export default function DiscoverPage() {
     { value: 'link', label: locale === 'fr' ? 'Lien' : 'Link' },
     { value: 'bundle', label: 'Bundle' },
   ];
-
-  const { data, isLoading } = usePublicOrgs({ search: debouncedSearch, category, page });
-  const orgs = data?.orgs || [];
-  const total = data?.total || 0;
-  const pageSize = 12;
 
   const { data: products = [], isLoading: loadingProducts } = useQuery({
     queryKey: ['discover-products', debouncedSearch, sortBy, priceFilter, typeFilter],
@@ -95,7 +74,6 @@ export default function DiscoverPage() {
       if (typeFilter === 'bundle') q = q.eq('is_bundle', true);
       else if (typeFilter) q = q.eq('product_type', typeFilter);
 
-      // Sort — featured_score first for popular, then fallback
       if (sortBy === 'popular') q = q.order('featured_score', { ascending: false }).order('sales_count', { ascending: false });
       else if (sortBy === 'recent') q = q.order('created_at', { ascending: false });
       else if (sortBy === 'price_asc') q = q.order('price', { ascending: true });
@@ -135,7 +113,6 @@ export default function DiscoverPage() {
     enabled: tab === 'campaigns',
   });
 
-  // Show all orgs, no curated filter — verified ones get a badge via OrgCard
   const isSearching = debouncedSearch.length > 0;
 
   return (
@@ -150,7 +127,7 @@ export default function DiscoverPage() {
             <Input
               placeholder={t('discover.search')}
               value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+              onChange={(e) => { setSearch(e.target.value); }}
               className="pl-10 h-11 bg-card/80"
             />
           </div>
@@ -160,22 +137,16 @@ export default function DiscoverPage() {
       <div className="container max-w-6xl py-6">
         <PageTour pageId="discover" steps={DISCOVER_TOUR_STEPS} />
 
-        {/* Featured section — only when not searching */}
         {!isSearching && <FeaturedSection />}
-
-        {/* New this week — only on products tab when not searching */}
         {!isSearching && tab === 'products' && <NewThisWeek />}
 
-        <Tabs value={tab} onValueChange={(v) => { setTab(v); setPage(0); }}>
+        <Tabs value={tab} onValueChange={(v) => setTab(v)}>
           <TabsList className="mb-4">
             <TabsTrigger value="products" className="gap-1.5">
               <ShoppingBag className="h-3.5 w-3.5" /> {t('discover.resources')}
             </TabsTrigger>
             <TabsTrigger value="campaigns" className="gap-1.5">
               <Heart className="h-3.5 w-3.5" /> {t('discover.campaigns')}
-            </TabsTrigger>
-            <TabsTrigger value="orgs" className="gap-1.5">
-              <Users className="h-3.5 w-3.5" /> {locale === 'fr' ? 'Organisations' : 'Organizations'}
             </TabsTrigger>
           </TabsList>
 
@@ -246,41 +217,6 @@ export default function DiscoverPage() {
                   </motion.div>
                 ))}
               </motion.div>
-            )}
-          </TabsContent>
-
-          {/* ═══ Organizations Tab ═══ */}
-          <TabsContent value="orgs">
-            <div className="flex flex-wrap gap-1.5 mb-4">
-              {CATEGORIES.map((cat) => (
-                <Button key={cat.value} size="sm" variant={category === cat.value ? 'default' : 'outline'} className="h-7 text-xs px-3" onClick={() => { setCategory(cat.value); setPage(0); }}>
-                  {cat.label}
-                </Button>
-              ))}
-            </div>
-
-            {isLoading ? <SkeletonList count={6} /> : orgs.length === 0 ? (
-              <EmptyState variant="search" title={locale === 'fr' ? 'Aucune organisation trouvée' : 'No organizations found'} />
-            ) : (
-              <>
-                <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                  {orgs.map((o: any) => (
-                    <motion.div key={o.id} variants={fadeUp}>
-                      <OrgCard org={o} />
-                    </motion.div>
-                  ))}
-                </motion.div>
-                {total > pageSize && (
-                  <div className="flex justify-center gap-2 mt-6">
-                    <Button size="sm" variant="outline" disabled={page === 0} onClick={() => setPage(p => p - 1)}>
-                      {locale === 'fr' ? '← Précédent' : '← Previous'}
-                    </Button>
-                    <Button size="sm" variant="outline" disabled={(page + 1) * pageSize >= total} onClick={() => setPage(p => p + 1)}>
-                      {locale === 'fr' ? 'Suivant →' : 'Next →'}
-                    </Button>
-                  </div>
-                )}
-              </>
             )}
           </TabsContent>
         </Tabs>
