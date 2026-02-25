@@ -33,7 +33,7 @@ export function BottomNav() {
   const moreItems = [
     { to: '/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard'), desc: t('sidebar.desc.dashboard') },
     { to: '/leaderboard', icon: Trophy, label: t('sidebar.leaderboard'), desc: t('sidebar.desc.leaderboard') },
-    // { to: '/certificates', icon: Award, label: t('sidebar.certificates'), desc: t('sidebar.desc.certificates') }, // DISABLED
+    
     { to: '/affiliation', icon: Link2, label: t('sidebar.my_affiliations'), desc: t('sidebar.desc.my_affiliations') },
     { to: '/admin/affiliation', icon: UsersRound, label: t('sidebar.my_affiliates'), desc: t('sidebar.desc.my_affiliates') },
     { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases'), desc: t('sidebar.desc.my_purchases') },
