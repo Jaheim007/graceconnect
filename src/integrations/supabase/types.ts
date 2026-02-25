@@ -1747,6 +1747,8 @@ export type Database = {
           platform_fee_percent: number | null
           settlement_released: boolean | null
           slug: string
+          stripe_account_id: string | null
+          stripe_onboarding_complete: boolean
           suspended_until: string | null
           suspension_reason: string | null
           updated_at: string | null
@@ -1791,6 +1793,8 @@ export type Database = {
           platform_fee_percent?: number | null
           settlement_released?: boolean | null
           slug: string
+          stripe_account_id?: string | null
+          stripe_onboarding_complete?: boolean
           suspended_until?: string | null
           suspension_reason?: string | null
           updated_at?: string | null
@@ -1835,6 +1839,8 @@ export type Database = {
           platform_fee_percent?: number | null
           settlement_released?: boolean | null
           slug?: string
+          stripe_account_id?: string | null
+          stripe_onboarding_complete?: boolean
           suspended_until?: string | null
           suspension_reason?: string | null
           updated_at?: string | null
