@@ -73,7 +73,22 @@ export async function createPaystackSubaccount(args: {
   settlement_bank: string;
   account_number: string;
 }) {
-  return callFn('create-paystack-subaccount', args, true);
+  const result = await callFn('create-paystack-subaccount', args, true);
+  // After successful subaccount creation, auto-settle any pre-subaccount funds
+  if (result?.ok && !result?.existing) {
+    try {
+      const settleResult = await callFn('settle-pre-subaccount', { organization_id: args.organization_id }, true);
+      result.pre_subaccount_settlement = settleResult;
+    } catch (err) {
+      console.warn('Pre-subaccount settlement failed (non-blocking):', err);
+      result.pre_subaccount_settlement = { error: 'Settlement will be retried' };
+    }
+  }
+  return result;
+}
+
+export async function settlePreSubaccount(organization_id: string) {
+  return callFn('settle-pre-subaccount', { organization_id }, true);
 }
 
 export async function requestAffiliatePayout(organization_id: string) {
@@ -123,6 +138,7 @@ export type EmailTemplate =
   | 'affiliate_sale' | 'affiliate_payout_requested' | 'affiliate_payout_completed'
   | 'affiliate_welcome' | 'affiliate_first_click' | 'affiliate_first_conversion'
   | 'affiliate_commission_payable' | 'affiliate_monthly_recap'
+  | 'pre_subaccount_settled'
   // Directory
   | 'directory_approved' | 'directory_rejected'
   // Support
