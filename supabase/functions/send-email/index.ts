@@ -35,6 +35,9 @@ type EmailTemplate =
   | 'affiliate_sale' | 'affiliate_payout_requested' | 'affiliate_payout_completed'
   | 'affiliate_welcome' | 'affiliate_first_click' | 'affiliate_first_conversion'
   | 'affiliate_commission_payable' | 'affiliate_monthly_recap'
+  // Partners
+  | 'partner_welcome' | 'partner_rejected' | 'partner_suspended' | 'partner_unsuspended'
+  | 'partner_kyc_approved' | 'partner_kyc_rejected' | 'partner_payout_sent'
   // Directory
   | 'directory_approved' | 'directory_rejected'
   // Support
@@ -205,8 +208,24 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
       return { subject: `🎯 First conversion! – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">🎯 First Conversion!</h1><p>Your first referral just converted on <strong>${d.org_name}</strong>!</p><p>Commission: <strong>${d.commission} ${d.currency}</strong></p>`) };
     case 'affiliate_commission_payable':
       return { subject: `💰 Commission now payable – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${green}">💰 Commission Payable</h1><p>Your commission of <strong>${d.amount} ${d.currency}</strong> from <strong>${d.org_name}</strong> has cleared the 15-day hold and is now payable.</p>${cta('https://siteviral.com/dashboard', 'Request Payout')}`) };
-    case 'affiliate_monthly_recap':
+     case 'affiliate_monthly_recap':
       return { subject: `📊 Affiliate Monthly Recap`, html: wrap(`<h1 style="color:${blue}">📊 Monthly Affiliate Recap</h1><p>Here's your affiliate summary for <strong>${d.month}</strong>:</p><ul style="color:#ccc"><li>Clicks: ${d.clicks || 0}</li><li>Conversions: ${d.conversions || 0}</li><li>Earnings: ${d.earnings || 0} ${d.currency || 'XOF'}</li></ul>`) };
+
+    // ═══ PARTNERS ═══
+    case 'partner_welcome':
+      return { subject: `🤝 Bienvenue, Partenaire ! – Siteviral`, html: wrap(`<h1 style="color:${green}">🤝 Bienvenue au Programme Partenaires !</h1><p>Bonjour <strong>${d.name}</strong>,</p><p>Votre candidature au Programme Partenaires Siteviral a été <strong>approuvée</strong> ! 🎉</p><p>Voici votre code d'invitation :</p><code style="display:block;background:#222;padding:16px;border-radius:8px;text-align:center;font-size:18px;letter-spacing:2px;margin:16px 0;color:${blue}">${d.invite_code}</code><p>Partagez ce code avec les responsables d'organisations. Chaque plateforme créée avec votre code vous génère des commissions récurrentes.</p><h3 style="color:#ccc;margin-top:24px">Prochaines étapes :</h3><ol style="color:#ccc"><li>Connectez-vous à votre <a href="https://siteviral.com/partner" style="color:${blue}">Espace Partenaire</a></li><li>Complétez votre <strong>vérification KYC</strong> (requise avant le premier paiement)</li><li>Configurez votre méthode de paiement</li><li>Commencez à inviter des organisations !</li></ol>${cta('https://siteviral.com/partner', 'Accéder à mon Espace Partenaire')}`) };
+    case 'partner_rejected':
+      return { subject: `Candidature Partenaire – Mise à jour`, html: wrap(`<h1 style="color:${red}">Candidature non retenue</h1><p>Bonjour <strong>${d.name}</strong>,</p><p>Après examen, votre candidature au Programme Partenaires n'a pas été retenue.</p>${d.reason ? `<p>Raison : ${d.reason}</p>` : ''}<p>Vous pouvez nous contacter à <a href="mailto:partners@siteviral.com" style="color:${blue}">partners@siteviral.com</a> pour plus d'informations.</p>`) };
+    case 'partner_suspended':
+      return { subject: `⚠️ Compte Partenaire suspendu`, html: wrap(`<h1 style="color:${red}">⚠️ Compte Suspendu</h1><p>Bonjour <strong>${d.name}</strong>,</p><p>Votre compte partenaire a été suspendu.</p>${d.reason ? `<p>Raison : ${d.reason}</p>` : ''}<p>Contact : <a href="mailto:partners@siteviral.com" style="color:${blue}">partners@siteviral.com</a></p>`) };
+    case 'partner_unsuspended':
+      return { subject: `✅ Compte Partenaire réactivé`, html: wrap(`<h1 style="color:${green}">✅ Compte Réactivé</h1><p>Bonjour <strong>${d.name}</strong>,</p><p>Votre compte partenaire est de nouveau actif. Vous pouvez continuer à inviter des organisations.</p>${cta('https://siteviral.com/partner', 'Mon Espace Partenaire')}`) };
+    case 'partner_kyc_approved':
+      return { subject: `✅ KYC Partenaire approuvé`, html: wrap(`<h1 style="color:${green}">✅ Vérification KYC Approuvée</h1><p>Bonjour <strong>${d.name}</strong>,</p><p>Votre identité a été vérifiée avec succès. Vous pouvez désormais demander des paiements depuis votre Espace Partenaire.</p>${cta('https://siteviral.com/partner', 'Configurer mon paiement')}`) };
+    case 'partner_kyc_rejected':
+      return { subject: `KYC Partenaire – Action requise`, html: wrap(`<h1 style="color:${red}">❌ KYC Non Approuvé</h1><p>Bonjour <strong>${d.name}</strong>,</p><p>Votre vérification KYC n'a pas été approuvée.</p>${d.reason ? `<p>Raison : ${d.reason}</p>` : ''}<p>Vous pouvez soumettre de nouveaux documents depuis votre Espace Partenaire.</p>${cta('https://siteviral.com/partner', 'Resoumettre')}`) };
+    case 'partner_payout_sent':
+      return { subject: `💸 Paiement envoyé – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${green}">💸 Paiement Envoyé</h1><p>Bonjour <strong>${d.name}</strong>,</p><p>Un paiement de <strong>${d.amount} ${d.currency}</strong> a été envoyé sur votre compte.</p><p>Les fonds seront disponibles sous 1–3 jours ouvrés.</p>`) };
 
     // ═══ DIRECTORY ═══
     case 'directory_approved':

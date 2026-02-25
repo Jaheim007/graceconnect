@@ -2023,9 +2023,16 @@ export type Database = {
           email: string
           full_name: string
           id: string
+          id_document_type: string | null
+          id_document_url: string | null
           invite_code: string | null
           invite_link_slug: string | null
           invite_uses_count: number
+          kyc_rejection_reason: string | null
+          kyc_reviewed_at: string | null
+          kyc_reviewed_by: string | null
+          kyc_status: string
+          kyc_submitted_at: string | null
           last_invite_used_at: string | null
           level: number
           min_payout_threshold: number
@@ -2035,6 +2042,7 @@ export type Database = {
           phone: string | null
           rate_percent: number
           scope: Database["public"]["Enums"]["partner_scope"]
+          selfie_url: string | null
           status: Database["public"]["Enums"]["partner_status"]
           suspended_at: string | null
           suspension_reason: string | null
@@ -2051,9 +2059,16 @@ export type Database = {
           email: string
           full_name: string
           id?: string
+          id_document_type?: string | null
+          id_document_url?: string | null
           invite_code?: string | null
           invite_link_slug?: string | null
           invite_uses_count?: number
+          kyc_rejection_reason?: string | null
+          kyc_reviewed_at?: string | null
+          kyc_reviewed_by?: string | null
+          kyc_status?: string
+          kyc_submitted_at?: string | null
           last_invite_used_at?: string | null
           level?: number
           min_payout_threshold?: number
@@ -2063,6 +2078,7 @@ export type Database = {
           phone?: string | null
           rate_percent?: number
           scope?: Database["public"]["Enums"]["partner_scope"]
+          selfie_url?: string | null
           status?: Database["public"]["Enums"]["partner_status"]
           suspended_at?: string | null
           suspension_reason?: string | null
@@ -2079,9 +2095,16 @@ export type Database = {
           email?: string
           full_name?: string
           id?: string
+          id_document_type?: string | null
+          id_document_url?: string | null
           invite_code?: string | null
           invite_link_slug?: string | null
           invite_uses_count?: number
+          kyc_rejection_reason?: string | null
+          kyc_reviewed_at?: string | null
+          kyc_reviewed_by?: string | null
+          kyc_status?: string
+          kyc_submitted_at?: string | null
           last_invite_used_at?: string | null
           level?: number
           min_payout_threshold?: number
@@ -2091,6 +2114,7 @@ export type Database = {
           phone?: string | null
           rate_percent?: number
           scope?: Database["public"]["Enums"]["partner_scope"]
+          selfie_url?: string | null
           status?: Database["public"]["Enums"]["partner_status"]
           suspended_at?: string | null
           suspension_reason?: string | null
@@ -3700,9 +3724,22 @@ export type Database = {
       }
       org_affiliation_allowed: { Args: { _org_id: string }; Returns: boolean }
       org_monetization_allowed: { Args: { _org_id: string }; Returns: boolean }
+      review_partner_kyc: {
+        Args: { _action: string; _partner_id: string; _reason?: string }
+        Returns: Json
+      }
       self_enroll_affiliate: { Args: { _org_id: string }; Returns: undefined }
       set_partner_rate_override: {
         Args: { _partner_id: string; _rate: number }
+        Returns: Json
+      }
+      submit_partner_kyc: {
+        Args: {
+          _id_document_type: string
+          _id_document_url: string
+          _partner_id: string
+          _selfie_url?: string
+        }
         Returns: Json
       }
       transfer_partner_referral: {
