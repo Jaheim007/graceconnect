@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FileUploader } from '@/components/ui/FileUploader';
+import { CameraCapture } from '@/components/ui/CameraCapture';
 import { db } from '@/lib/db';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
@@ -299,31 +300,29 @@ export default function OrgKYCForm({ orgId, orgCategory, kycStatus }: Props) {
                 </Select>
               </div>
 
-              {/* ID Document Upload */}
+              {/* ID Document Capture */}
               <div>
                 <Label>Pièce d'identité (recto/verso) *</Label>
-                <FileUploader
+                <CameraCapture
                   value={idDocUrl}
                   onChange={setIdDocUrl}
                   folder={`kyc/${orgId}/identity`}
                   bucket="org-uploads"
-                  accept="image/*,.pdf"
                   label="Document d'identité"
-                  hint="Photo ou scan de votre pièce d'identité (PDF ou image, max 100MB)"
+                  hint="Prenez une photo claire de votre pièce d'identité (recto puis verso)"
                 />
               </div>
 
-              {/* Selfie */}
+              {/* Selfie Capture */}
               <div>
                 <Label>Photo selfie (recommandé)</Label>
-                <FileUploader
+                <CameraCapture
                   value={selfieUrl}
                   onChange={setSelfieUrl}
                   folder={`kyc/${orgId}/selfie`}
                   bucket="org-uploads"
-                  accept="image/*"
-                  label="Selfie"
-                  hint="Photo récente vous montrant avec votre pièce d'identité visible"
+                  label="Selfie avec pièce d'identité"
+                  hint="Prenez un selfie en tenant votre pièce d'identité visible à côté de votre visage"
                 />
               </div>
 
@@ -423,6 +422,7 @@ export default function OrgKYCForm({ orgId, orgCategory, kycStatus }: Props) {
                   accept="image/*,.pdf"
                   label="Document de l'organisation"
                   hint="Récépissé, certificat, statuts ou autorisation officielle (PDF ou image)"
+                  hideUrlMode
                 />
               </div>
 
