@@ -167,6 +167,11 @@ Deno.serve(async (req) => {
       if (saleIds.length) {
         await db.from('affiliate_sales').update({ status: 'paid', paid_at: new Date().toISOString() }).in('id', saleIds);
       }
+
+      // Lock recipient after successful payout to prevent fraud
+      if (recipientProfile?.paystack_recipient_code) {
+        await db.from('profiles').update({ recipient_locked: true }).eq('id', payout.user_id);
+      }
     }
 
     // For ORG payouts: vendor funds sit in the org's Paystack subaccount.
