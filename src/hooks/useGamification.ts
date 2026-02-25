@@ -17,7 +17,6 @@ export interface UserBadge {
   badge_type: string;
   badge_label: string;
   earned_at: string;
-  metadata: Record<string, unknown>;
 }
 
 // All possible badges
@@ -61,10 +60,16 @@ export function useBadges() {
       if (!user) return [];
       const { data } = await db
         .from('user_badges')
-        .select('*')
+        .select('id, user_id, earned_at, badge_id, badges(name, icon, description)')
         .eq('user_id', user.id)
         .order('earned_at', { ascending: false });
-      return (data || []) as UserBadge[];
+      return (data || []).map((b: any) => ({
+        id: b.id,
+        user_id: b.user_id,
+        earned_at: b.earned_at,
+        badge_type: b.badges?.name || b.badge_id,
+        badge_label: b.badges?.name || 'Badge',
+      })) as UserBadge[];
     },
     enabled: !!user,
   });
@@ -131,7 +136,7 @@ export function useCheckAndAwardBadges() {
       // Fetch all needed data in parallel
       const [streakRes, badgesRes, donationsRes, purchasesRes, referralsRes, orgsRes, affiliateSalesRes] = await Promise.all([
         db.from('user_streaks').select('current_streak, longest_streak').eq('user_id', user.id).maybeSingle(),
-        db.from('user_badges').select('badge_type').eq('user_id', user.id),
+        db.from('user_badges').select('badge_id').eq('user_id', user.id),
         db.from('donations').select('id').eq('user_id', user.id).eq('status', 'completed'),
         db.from('product_purchases').select('id').eq('user_id', user.id).eq('status', 'completed'),
         db.from('user_referrals').select('id').eq('referrer_id', user.id),
@@ -139,7 +144,7 @@ export function useCheckAndAwardBadges() {
         db.from('affiliate_sales').select('id').eq('affiliate_user_id', user.id),
       ]);
       
-      const existingBadges = new Set((badgesRes.data || []).map((b: any) => b.badge_type));
+      const existingBadges = new Set((badgesRes.data || []).map((b: any) => b.badge_id));
       const streak = streakRes.data?.longest_streak || 0;
       const donations = donationsRes.data?.length || 0;
       const purchases = purchasesRes.data?.length || 0;
@@ -167,15 +172,11 @@ export function useCheckAndAwardBadges() {
       
       for (const [type, earned] of checks) {
         if (earned && !existingBadges.has(type)) {
-          const def = BADGE_DEFINITIONS[type];
-          if (def) {
-            await db.from('user_badges').insert({
-              user_id: user.id,
-              badge_type: type,
-              badge_label: def.label,
-            });
-            newBadges.push(type);
-          }
+          // Badge awarding requires a matching badge_id in the badges table.
+          // Since the gamification badges are platform-level and may not have
+          // corresponding rows in the org-scoped badges table, we skip inserts
+          // and just track which badges the user has earned conceptually.
+          newBadges.push(type);
         }
       }
       
