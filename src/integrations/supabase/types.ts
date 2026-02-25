@@ -1135,6 +1135,42 @@ export type Database = {
           },
         ]
       }
+      experiments: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          traffic_percent: number
+          updated_at: string
+          variants: Json
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          traffic_percent?: number
+          updated_at?: string
+          variants?: Json
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          traffic_percent?: number
+          updated_at?: string
+          variants?: Json
+        }
+        Relationships: []
+      }
       fraud_flags: {
         Row: {
           created_at: string

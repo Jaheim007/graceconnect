@@ -75,6 +75,8 @@ export function Sidebar() {
       key: 'myContent',
       items: [
         { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases'), desc: 'Accédez à tous vos achats et téléchargements' },
+        { to: '/invoices', icon: CreditCard, label: 'Mes factures', desc: 'Téléchargez vos factures en PDF' },
+        { to: '/my-analytics', icon: BarChart3, label: 'Mes stats', desc: 'Vos statistiques personnelles' },
         ...(currentOrg ? [{ to: `/org/${currentOrg.slug}`, icon: Building2, label: t('sidebar.view_org'), desc: 'Voir la page publique de votre organisation' }] : []),
       ],
     },
@@ -118,6 +120,7 @@ export function Sidebar() {
         { to: '/admin/promo-codes', icon: FileCheck, label: t('sidebar.promo_codes') },
         { to: '/admin/subscriptions', icon: CreditCard, label: t('sidebar.subscriptions') },
         { to: '/admin/waitlists', icon: Clock, label: t('sidebar.waitlists') },
+        { to: '/admin/webhooks', icon: Link2, label: 'Webhooks' },
       ],
     },
     {
@@ -132,6 +135,7 @@ export function Sidebar() {
         { to: '/admin/analytics', icon: BarChart3, label: t('sidebar.analytics') },
         { to: '/admin/kyc', icon: FileCheck, label: t('sidebar.verification') },
         { to: '/admin/settings', icon: Settings, label: t('sidebar.settings') },
+        { to: '/admin/experiments', icon: Sparkles, label: 'Tests A/B' },
       ],
     },
   ];

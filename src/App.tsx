@@ -66,6 +66,8 @@ const AnnouncementDetailPage = lazy(() => import("@/pages/AnnouncementDetailPage
 const EventDetailPage = lazy(() => import("@/pages/EventDetailPage"));
 const WelcomeIntentPage = lazy(() => import("@/pages/WelcomeIntentPage"));
 const AmbassadorPage = lazy(() => import("@/pages/AmbassadorPage"));
+const ChangelogPage = lazy(() => import("@/pages/ChangelogPage"));
+const MaintenancePage = lazy(() => import("@/pages/MaintenancePage"));
 
 
 // Authenticated
@@ -83,9 +85,10 @@ const AffiliationPage = lazy(() => import("@/pages/AffiliationPage"));
 const PartnerPortalPage = lazy(() => import("@/pages/PartnerPortalPage"));
 
 const LeaderboardPage = lazy(() => import("@/pages/LeaderboardPage"));
-
 const BookmarksPage = lazy(() => import("@/pages/BookmarksPage"));
 const NotificationPreferencesPage = lazy(() => import("@/pages/NotificationPreferencesPage"));
+const MyInvoicesPage = lazy(() => import("@/pages/MyInvoicesPage"));
+const UserAnalyticsPage = lazy(() => import("@/pages/UserAnalyticsPage"));
 
 // Admin
 const AdminLayout = lazy(() => import("@/pages/admin/AdminLayout"));
@@ -101,6 +104,8 @@ const AdminPayouts = lazy(() => import("@/pages/admin/AdminPayouts"));
 const AdminSubscriptions = lazy(() => import("@/pages/admin/AdminSubscriptions"));
 const AdminWaitlists = lazy(() => import("@/pages/admin/AdminWaitlists"));
 const AdminNotifications = lazy(() => import("@/pages/admin/AdminNotifications"));
+const AdminExperiments = lazy(() => import("@/pages/admin/AdminExperiments"));
+const AdminWebhooks = lazy(() => import("@/pages/admin/AdminWebhooks"));
 const AdminAnnouncementForm = lazy(() => import("@/pages/admin/AdminAnnouncementForm").then(m => ({ default: m.AnnouncementForm })));
 const AdminEventForm = lazy(() => import("@/pages/admin/AdminEventForm").then(m => ({ default: m.EventForm })));
 const AdminCampaignForm = lazy(() => import("@/pages/admin/AdminCampaignForm").then(m => ({ default: m.CampaignForm })));
@@ -189,6 +194,7 @@ const App = () => (
                 <Route path="/payment/success" element={<PaymentSuccessPage />} />
                 <Route path="/invite/:code" element={<InvitePage />} />
                 <Route path="/install" element={<InstallPage />} />
+                <Route path="/changelog" element={<ChangelogPage />} />
                 <Route path="/discover" element={<AppLayout />}>
                   <Route index element={<DiscoverPage />} />
                 </Route>
@@ -233,6 +239,8 @@ const App = () => (
                   
                   <Route path="/bookmarks" element={<BookmarksPage />} />
                   <Route path="/partner" element={<PartnerPortalPage />} />
+                  <Route path="/invoices" element={<MyInvoicesPage />} />
+                  <Route path="/my-analytics" element={<UserAnalyticsPage />} />
                 </Route>
 
                 {/* Admin */}
@@ -266,6 +274,8 @@ const App = () => (
                   <Route path="subscriptions" element={<AdminSubscriptions />} />
                   <Route path="waitlists" element={<AdminWaitlists />} />
                   <Route path="notifications" element={<AdminNotifications />} />
+                  <Route path="experiments" element={<AdminExperiments />} />
+                  <Route path="webhooks" element={<AdminWebhooks />} />
                 </Route>
 
                 {/* Superadmin */}

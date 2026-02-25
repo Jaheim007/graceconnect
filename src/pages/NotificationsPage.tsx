@@ -139,7 +139,10 @@ export default function NotificationsPage() {
                       )}
                     >
                       <div
-                        onClick={() => !n.is_read && markRead(n.id)}
+                        onClick={() => {
+                          if (!n.is_read) markRead(n.id);
+                          if (n.action_url) navigate(n.action_url);
+                        }}
                         className={cn(
                           'h-9 w-9 rounded-xl flex items-center justify-center shrink-0 cursor-pointer transition-transform hover:scale-105',
                           n.is_read ? 'bg-muted' : 'bg-primary'
@@ -147,7 +150,13 @@ export default function NotificationsPage() {
                       >
                         <Bell className={cn('h-4 w-4', n.is_read ? 'text-muted-foreground' : 'text-primary-foreground')} />
                       </div>
-                      <div className="flex-1 min-w-0 cursor-pointer" onClick={() => !n.is_read && markRead(n.id)}>
+                      <div
+                        className="flex-1 min-w-0 cursor-pointer"
+                        onClick={() => {
+                          if (!n.is_read) markRead(n.id);
+                          if (n.action_url) navigate(n.action_url);
+                        }}
+                      >
                         <p className={cn('text-sm font-medium leading-snug', !n.is_read && 'text-foreground')}>{n.title}</p>
                         <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{n.body}</p>
                         <p className="text-[10px] text-muted-foreground mt-1.5">
