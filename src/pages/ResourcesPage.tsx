@@ -11,7 +11,7 @@ import {
 import { downloadInvoice } from '@/lib/invoice';
 import { format } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
-import { supabase } from '@/integrations/supabase/client';
+import { fetchWatermarkedFile, isPdfLikeFile, openFileInline, triggerBrowserDownload } from '@/lib/secureDownload';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { useI18n } from '@/i18n/I18nContext';
@@ -66,40 +66,34 @@ export default function ResourcesPage() {
   const handleFileAction = async (purchase: (typeof purchases extends (infer T)[] | undefined ? T : never), mode: 'download' | 'inline') => {
     if (!purchase.product.file_url || !user) return;
     setDownloading(purchase.id);
+
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/watermark-download`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-          body: JSON.stringify({ file_url: purchase.product.file_url, product_id: purchase.product_id, product_title: purchase.product.title, inline: mode === 'inline' }),
-        }
-      );
-      if (!res.ok) { window.open(purchase.product.file_url, '_blank'); return; }
-      const blob = await res.blob();
+      const file = await fetchWatermarkedFile({
+        fileUrl: purchase.product.file_url,
+        productId: purchase.product_id,
+        productTitle: purchase.product.title,
+        inline: mode === 'inline',
+      });
+
       if (mode === 'inline') {
-        const url = URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
-        window.open(url, '_blank');
+        openFileInline(file);
       } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        // Extract original filename: strip timestamp prefix from stored name
-        const storedName = purchase.product.file_url!.split('/').pop()?.split('?')[0] || purchase.product.title;
-        const originalName = storedName.replace(/^\d+-/, '');
-        a.download = originalName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        triggerBrowserDownload(file);
       }
+
       toast({
         title: mode === 'inline' ? t('page.purchases_opened') : t('page.purchases_download_started'),
         description: mode === 'inline' ? t('page.purchases_opened_desc') : t('page.purchases_download_desc'),
       });
-    } catch {
-      window.open(purchase.product.file_url, '_blank');
+    } catch (error) {
+      console.error('[ResourcesPage] secure file action error:', error);
+      toast({
+        title: t('common.error'),
+        description: mode === 'inline'
+          ? 'La lecture directe est disponible uniquement pour les PDF sécurisés.'
+          : 'Impossible de télécharger le fichier sécurisé.',
+        variant: 'destructive',
+      });
     } finally {
       setDownloading(null);
     }
@@ -198,9 +192,11 @@ export default function ResourcesPage() {
                       <div className="shrink-0 flex flex-col gap-1.5 justify-center">
                         {purchase.product.file_url && (
                           <>
-                            <Button size="sm" variant="outline" className="gap-1 h-7 text-[11px]" onClick={() => handleFileAction(purchase, 'inline')} disabled={downloading === purchase.id}>
-                              <Eye className="h-3 w-3" /> {t('page.purchases_read')}
-                            </Button>
+                            {isPdfLikeFile(purchase.product.file_url, purchase.product.product_type) && (
+                              <Button size="sm" variant="outline" className="gap-1 h-7 text-[11px]" onClick={() => handleFileAction(purchase, 'inline')} disabled={downloading === purchase.id}>
+                                <Eye className="h-3 w-3" /> {t('page.purchases_read')}
+                              </Button>
+                            )}
                             <Button size="sm" className="gap-1 h-7 text-[11px] bg-primary text-primary-foreground" onClick={() => handleFileAction(purchase, 'download')} disabled={downloading === purchase.id}>
                               <Download className="h-3 w-3" /> {downloading === purchase.id ? '…' : t('page.purchases_download')}
                             </Button>

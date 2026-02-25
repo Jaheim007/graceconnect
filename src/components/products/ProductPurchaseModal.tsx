@@ -24,6 +24,7 @@ import { formatPrice } from '@/lib/currency';
 import { useAbandonedCart } from '@/hooks/useAbandonedCart';
 import { getAutoPromoCode, clearAutoPromoCode } from '@/hooks/usePromoCapture';
 import { onNewSale } from '@/lib/notifications';
+import { fetchWatermarkedFile, triggerBrowserDownload } from '@/lib/secureDownload';
 
 interface ProductPurchaseModalProps {
   product: DigitalProduct | null;
@@ -561,26 +562,19 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                   className="w-full gap-2 bg-primary text-primary-foreground"
                   onClick={async () => {
                     try {
-                      const { data: fnData, error: fnErr } = await db.functions.invoke('generate-signed-url', {
-                        body: { product_id: product.id },
+                      const file = await fetchWatermarkedFile({
+                        fileUrl: product.file_url!,
+                        productId: product.id,
+                        productTitle: product.title,
                       });
-                      const downloadUrl = (!fnErr && fnData?.url) ? fnData.url : product.file_url!;
-                      // Extract original filename from the stored URL (strip timestamp prefix)
-                      const storedName = product.file_url!.split('/').pop()?.split('?')[0] || product.title;
-                      // Remove leading timestamp- prefix (e.g. "1771937392498-from-zero-to-ai-expert.docx" → "from-zero-to-ai-expert.docx")
-                      const originalName = storedName.replace(/^\d+-/, '');
-                      const res = await fetch(downloadUrl);
-                      const blob = await res.blob();
-                      const blobUrl = URL.createObjectURL(blob);
-                      const a = document.createElement('a');
-                      a.href = blobUrl;
-                      a.download = originalName;
-                      document.body.appendChild(a);
-                      a.click();
-                      document.body.removeChild(a);
-                      URL.revokeObjectURL(blobUrl);
-                    } catch {
-                      window.open(product.file_url!, '_blank');
+                      triggerBrowserDownload(file);
+                    } catch (error) {
+                      console.error('[ProductPurchaseModal] secure download error:', error);
+                      toast({
+                        title: 'Erreur de téléchargement',
+                        description: "Impossible de récupérer la version protégée.",
+                        variant: 'destructive',
+                      });
                     }
                   }}
                 >
