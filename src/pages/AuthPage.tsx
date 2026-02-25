@@ -9,6 +9,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
+import { SEOHead } from '@/components/seo/SEOHead';
 import authBg from '@/assets/auth-bg.jpg';
 
 export default function AuthPage() {
@@ -72,6 +73,7 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen relative flex">
+      <SEOHead title="Connexion — Siteviral" description="Connectez-vous à Siteviral pour gérer votre plateforme, vos ressources et vos commissions." noindex />
       <div className="absolute inset-0 z-0">
         <img src={authBg} alt="" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-background/85 backdrop-blur-sm" />
