@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
     // Check KYC approved
     const { data: org } = await db.from('organizations').select('monetization_enabled, kyc_status, paystack_subaccount_code, country_code').eq('id', organization_id).single();
     if (!org?.monetization_enabled) {
-      return new Response(JSON.stringify({ error: 'KYC approval and monetization must be enabled first' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ error: 'Monetization must be enabled first' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
     // Check country support
