@@ -158,35 +158,6 @@ Deno.serve(async (req) => {
     }
     results['campaign_alerts'] = campaignAlerts;
 
-    // ═══════════════════════════════════════════
-    // 4. LESSON REMINDERS (enrolled but no progress in 3 days)
-    // ═══════════════════════════════════════════
-    let lessonReminders = 0;
-    const threeDaysAgo = new Date(now.getTime() - 3 * 86400000).toISOString();
-    const { data: staleEnrollments } = await db.from('program_enrollments')
-      .select('id, user_id, program_id, programs(title, organization_id)')
-      .eq('status', 'active')
-      .lte('created_at', threeDaysAgo)
-      .limit(50);
-    for (const e of staleEnrollments || []) {
-      // Check if user has recent progress
-      const { count } = await db.from('lesson_progress')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', e.user_id)
-        .gte('created_at', threeDaysAgo);
-      if ((count || 0) === 0) {
-        const email = await getUserEmail(e.user_id);
-        const prog = (e as any).programs;
-        if (email && prog) {
-          await sendEmail({ template: 'lesson_reminder' as any, to: email, data: {
-            program_name: prog.title,
-            program_link: `https://siteviral.com/programs/${e.program_id}`,
-          }});
-          lessonReminders++;
-        }
-      }
-    }
-    results['lesson_reminders'] = lessonReminders;
 
     // ═══════════════════════════════════════════
     // 5. DAILY ADMIN RECAPS (yesterday's metrics)
@@ -250,15 +221,11 @@ Deno.serve(async (req) => {
     for (const u of anniversaryUsers || []) {
       const email = await getUserEmail(u.id);
       if (email) {
-        // Count orgs and programs
         const { count: orgsCount } = await db.from('organization_members')
           .select('*', { count: 'exact', head: true }).eq('user_id', u.id);
-        const { count: progsCount } = await db.from('program_enrollments')
-          .select('*', { count: 'exact', head: true }).eq('user_id', u.id).eq('status', 'completed');
         await sendEmail({ template: 'anniversary_1y' as any, to: email, data: {
           name: u.display_name || '',
           orgs_count: orgsCount || 0,
-          programs_count: progsCount || 0,
         }});
         anniversaryCount++;
       }

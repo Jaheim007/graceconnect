@@ -3,8 +3,8 @@ import {
   Home, Play, Bell, User, BookOpen, Store,
   Settings, ChevronLeft, ChevronRight, Shield, Handshake,
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, UsersRound, Sun, Moon,
-  GraduationCap, UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, ShieldAlert, LayoutDashboard, Building2,
-  MessageCircle, Trophy, Award, CreditCard, Clock
+  UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, ShieldAlert, LayoutDashboard, Building2,
+  MessageCircle, Trophy, CreditCard, Clock
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -34,7 +34,6 @@ export function Sidebar() {
     { to: '/marketplace', icon: Store, label: t('sidebar.explorer'), desc: t('sidebar.desc.explorer') },
     
     { to: '/leaderboard', icon: Trophy, label: t('sidebar.leaderboard'), desc: t('sidebar.desc.leaderboard') },
-    // { to: '/certificates', icon: Award, label: t('sidebar.certificates'), desc: t('sidebar.desc.certificates') }, // DISABLED
     { to: '/notifications', icon: Bell, label: t('sidebar.notifications'), desc: t('sidebar.desc.notifications') },
     { to: '/affiliation', icon: Link2, label: t('sidebar.my_affiliations'), desc: t('sidebar.desc.my_affiliations') },
     { to: '/partner', icon: Handshake, label: 'Espace Partenaire', desc: 'Programme Partenaires Officiel' },
@@ -56,7 +55,6 @@ export function Sidebar() {
         { to: '/admin/photos', icon: Camera, label: t('sidebar.photos') },
         { to: '/admin/announcements', icon: Megaphone, label: t('sidebar.announcements') },
         { to: '/admin/events', icon: CalendarDays, label: t('sidebar.events') },
-        // { to: '/admin/programs', icon: GraduationCap, label: t('sidebar.programs') }, // DISABLED
       ],
     },
     {

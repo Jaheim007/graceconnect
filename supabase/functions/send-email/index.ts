@@ -18,9 +18,6 @@ type EmailTemplate =
   // Products & Purchases
   | 'purchase_confirmation' | 'new_purchase_received' | 'download_ready'
   | 'first_sale_milestone'
-  // Programs
-  | 'program_enrolled' | 'program_completed' | 'lesson_reminder'
-  | 'new_module_added' | 'certificate_ready'
   // KYC
   | 'kyc_submitted' | 'kyc_approved' | 'kyc_rejected'
   // Org lifecycle
@@ -48,7 +45,6 @@ type EmailTemplate =
   | 'content_report_resolved' | 'content_liked' | 'content_saved'
   | 'new_event_published' | 'new_announcement_published'
   | 'new_media_published' | 'new_product_published' | 'new_campaign_published'
-  | 'new_program_published'
   // Recaps
   | 'weekly_recap_user' | 'daily_recap_admin' | 'daily_recap_superadmin'
   // Superadmin alerts
@@ -111,7 +107,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
     case 'inactive_30d':
       return { subject: '❤️ Come back to Siteviral', html: wrap(`<h1 style="color:${red}">❤️ We'd Love You Back</h1><p>Hi ${d.name || 'there'},</p><p>It's been a month since your last visit. Your community misses you!</p><p>Need help? Reply to this email or contact <a href="mailto:support@siteviral.com" style="color:${blue}">support@siteviral.com</a>.</p>${cta('https://siteviral.com', 'Reconnect')}`) };
     case 'anniversary_1y':
-      return { subject: '🎂 Happy 1 Year on Siteviral!', html: wrap(`<h1 style="color:${green}">🎂 Happy Anniversary!</h1><p>Hi ${d.name || 'there'},</p><p>It's been <strong>1 year</strong> since you joined Siteviral! Here's your year in review:</p><ul style="color:#ccc"><li>Organizations joined: ${d.orgs_count || 0}</li><li>Programs completed: ${d.programs_count || 0}</li></ul><p>Thank you for being part of the community! 🎉</p>`) };
+      return { subject: '🎂 Happy 1 Year on Siteviral!', html: wrap(`<h1 style="color:${green}">🎂 Happy Anniversary!</h1><p>Hi ${d.name || 'there'},</p><p>It's been <strong>1 year</strong> since you joined Siteviral! Here's your year in review:</p><ul style="color:#ccc"><li>Organizations joined: ${d.orgs_count || 0}</li></ul><p>Thank you for being part of the community! 🎉</p>`) };
 
     // ═══ DONATIONS ═══
     case 'donation_receipt':
@@ -136,18 +132,6 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
       return { subject: `📥 Your download is ready – ${d.product_name}`, html: wrap(`<h1 style="color:${blue}">📥 Download Ready</h1><p>Your purchase of <strong>${d.product_name}</strong> is ready for download.</p>${cta(String(d.download_link), 'Download Now →')}<p style="font-size:12px;color:#999">This link expires in 24 hours.</p>`) };
     case 'first_sale_milestone':
       return { subject: `🎉 First sale! – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">🎉 First Sale!</h1><p>Congratulations! <strong>${d.org_name}</strong> made its first sale: <strong>${d.product_name}</strong> for <strong>${d.amount} ${d.currency}</strong>.</p><p>Keep it up! 🚀</p>`) };
-
-    // ═══ PROGRAMS ═══
-    case 'program_enrolled':
-      return { subject: `🎓 Enrolled – ${d.program_name}`, html: wrap(`<h1 style="color:${blue}">🎓 Enrollment Confirmed</h1><p>You are now enrolled in <strong>${d.program_name}</strong> by <strong>${d.org_name}</strong>.</p>${cta(String(d.program_link || '#'), 'Start Learning →')}`) };
-    case 'program_completed':
-      return { subject: `🏆 Congratulations! – ${d.program_name}`, html: wrap(`<h1 style="color:${green}">🏆 Program Completed</h1><p>Congratulations! You have completed <strong>${d.program_name}</strong>.</p><p>Keep up the great work!</p>`) };
-    case 'lesson_reminder':
-      return { subject: `📚 Continue your lesson – ${d.program_name}`, html: wrap(`<h1 style="color:${blue}">📚 Lesson Waiting</h1><p>You haven't continued <strong>${d.program_name}</strong> for a few days.</p><p>Pick up where you left off!</p>${cta(String(d.program_link || '#'), 'Continue Learning')}`) };
-    case 'new_module_added':
-      return { subject: `📖 New module – ${d.program_name}`, html: wrap(`<h1 style="color:${blue}">📖 New Module Added</h1><p>A new module <strong>"${d.module_name}"</strong> has been added to <strong>${d.program_name}</strong>.</p>${cta(String(d.program_link || '#'), 'Check It Out')}`) };
-    case 'certificate_ready':
-      return { subject: `🎖 Certificate ready – ${d.program_name}`, html: wrap(`<h1 style="color:${green}">🎖 Certificate Ready</h1><p>Your certificate for <strong>${d.program_name}</strong> is ready!</p>${cta(String(d.certificate_link || '#'), 'View Certificate')}`) };
 
     // ═══ KYC ═══
     case 'kyc_submitted':

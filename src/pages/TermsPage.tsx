@@ -43,7 +43,6 @@ export default function TermsPage() {
             <li>Publish and distribute digital content (videos, audio, media)</li>
             <li>Sell digital products</li>
             <li>Accept donations</li>
-            <li>Offer structured programs and courses</li>
             <li>Operate affiliate marketing programs</li>
             <li>Manage members and communications</li>
             <li>Process payouts subject to compliance and KYC review</li>
@@ -80,7 +79,7 @@ export default function TermsPage() {
 
         <section>
           <h2>5. Organizations & Content Responsibility</h2>
-          <p>Organizations may create public pages and offer products, donations, programs, and affiliate links.</p>
+          <p>Organizations may create public pages and offer products, donations, and affiliate links.</p>
           <p>Each Organization represents and warrants that:</p>
           <ul className="list-disc pl-5 space-y-1">
             <li>It has the legal right to offer its content, products, and services.</li>

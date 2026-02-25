@@ -11,7 +11,7 @@
 
 **Le problème** : Des millions d'organisations communautaires dans le monde, notamment en Afrique, n'ont aucun outil adapté pour monétiser leur audience, vendre des ressources numériques ou recevoir des dons en ligne de manière fiable et conforme.
 
-**La solution** : Siteviral fournit un espace complet — vitrine, boutique, dons, programmes de formation, messagerie, événements — avec un système de paiement intégré qui répartit automatiquement les revenus entre le vendeur, la plateforme et les apporteurs d'affaires.
+**La solution** : Siteviral fournit un espace complet — vitrine, boutique, dons, événements, médias — avec un système de paiement intégré qui répartit automatiquement les revenus entre le vendeur, la plateforme et les apporteurs d'affaires.
 
 **Modèle de revenus** : Commission de **10 %** sur chaque transaction (configurable). Zéro abonnement. Le vendeur ne paie que lorsqu'il gagne.
 
@@ -114,7 +114,7 @@ Siteviral fonctionne avec **cinq acteurs distincts**, chacun avec un rôle clair
 - Faire des dons (ponctuels ou vers une campagne spécifique)
 - Accéder à ses achats et téléchargements dans son espace personnel
 - Rejoindre des communautés et participer aux échanges
-- Suivre des programmes de formation et obtenir des certificats
+- Rejoindre des communautés et participer aux échanges
 
 **Ce qu'il gagne** : Accès à du contenu de qualité, soutien à sa communauté, expérience d'achat simple et sécurisée.
 
@@ -563,7 +563,7 @@ Le marché des technologies pour organisations religieuses représente **+10 mil
 
 - Expansion Afrique de l'Ouest francophone (Sénégal, Cameroun, Bénin, Togo)
 - Recrutement de 10+ partenaires stratégiques par pays
-- Lancement du programme de formation partenaires
+- Lancement de l'onboarding partenaires
 - Optimisation du taux de conversion acheteur
 - 🎯 **Objectif : 1 000 organisations actives**
 
