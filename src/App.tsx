@@ -65,6 +65,7 @@ const CampaignDetailPage = lazy(() => import("@/pages/CampaignDetailPage"));
 const AnnouncementDetailPage = lazy(() => import("@/pages/AnnouncementDetailPage"));
 const EventDetailPage = lazy(() => import("@/pages/EventDetailPage"));
 const WelcomeIntentPage = lazy(() => import("@/pages/WelcomeIntentPage"));
+const AmbassadorPage = lazy(() => import("@/pages/AmbassadorPage"));
 
 
 // Authenticated
@@ -179,6 +180,7 @@ const App = () => (
                 <Route path="/features" element={<FeaturesPage />} />
                 <Route path="/affiliate-program" element={<PublicAffiliationPage />} />
                 <Route path="/ambassador-program" element={<PublicAffiliationPage />} />
+                <Route path="/ambassador" element={<AmbassadorPage />} />
                 <Route path="/ambassador-terms" element={<AmbassadorTermsPage />} />
                 <Route path="/devenir-partenaire" element={<BecomePartnerPage />} />
                 <Route path="/partner-terms" element={<PartnerTermsPage />} />

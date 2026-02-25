@@ -4,7 +4,7 @@ import {
   Settings, ChevronLeft, ChevronRight, Shield, Handshake,
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, UsersRound, Sun, Moon,
   UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, ShieldAlert, LayoutDashboard, Building2,
-  MessageCircle, Trophy, CreditCard, Clock
+  MessageCircle, Trophy, CreditCard, Clock, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -13,6 +13,21 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useI18n } from '@/i18n/I18nContext';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+
+interface NavItem {
+  to: string;
+  icon: typeof Home;
+  label: string;
+  desc?: string;
+}
+
+interface NavGroup {
+  label: string;
+  icon: typeof Home;
+  key: string;
+  items: NavItem[];
+}
 
 export function Sidebar() {
   const location = useLocation();
@@ -22,33 +37,68 @@ export function Sidebar() {
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const { theme, toggleTheme } = useTheme();
   const { t } = useI18n();
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({ Content: true, Commerce: true, Management: true });
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
+    discover: true, myContent: true, revenue: true, community: true,
+    Content: true, Commerce: true, Management: true,
+  });
 
   const isAdmin = location.pathname.startsWith('/admin');
   const isSA = location.pathname.startsWith('/superadmin');
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
 
-  const mainNav = [
-    { to: '/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard'), desc: t('sidebar.desc.dashboard') },
-    { to: '/feed', icon: Home, label: t('sidebar.my_network'), desc: t('sidebar.desc.my_network') },
-    { to: '/marketplace', icon: Store, label: t('sidebar.explorer'), desc: t('sidebar.desc.explorer') },
-    
-    { to: '/leaderboard', icon: Trophy, label: t('sidebar.leaderboard'), desc: t('sidebar.desc.leaderboard') },
-    { to: '/notifications', icon: Bell, label: t('sidebar.notifications'), desc: t('sidebar.desc.notifications') },
-    { to: '/affiliation', icon: Link2, label: t('sidebar.my_affiliations'), desc: t('sidebar.desc.my_affiliations') },
-    { to: '/partner', icon: Handshake, label: 'Espace Partenaire', desc: 'Programme Partenaires Officiel' },
-    ...(canManageCurrentOrg ? [{ to: '/admin/affiliation', icon: UsersRound, label: t('sidebar.my_affiliates'), desc: t('sidebar.desc.my_affiliates') }] : []),
-    { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases'), desc: t('sidebar.desc.my_purchases') },
-    { to: '/support', icon: LifeBuoy, label: t('sidebar.help'), desc: t('sidebar.desc.help') },
-    { to: '/profile', icon: User, label: t('sidebar.account'), desc: t('sidebar.desc.account') },
-    ...(currentOrg ? [{ to: `/org/${currentOrg.slug}`, icon: Building2, label: t('sidebar.view_org'), desc: t('sidebar.desc.view_org') }] : []),
-    
-    ...(isSuperadmin && !isAdmin && !isSA ? [{ to: '/superadmin', icon: Shield, label: t('sidebar.superadmin'), desc: '' }] : []),
+  // ── Main nav grouped by category ──
+  const mainGroups: NavGroup[] = [
+    {
+      label: '🔍 Découvrir',
+      icon: Store,
+      key: 'discover',
+      items: [
+        { to: '/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard'), desc: 'Vue d\'ensemble de votre activité et statistiques clés' },
+        { to: '/feed', icon: Home, label: t('sidebar.my_network'), desc: 'Suivez l\'actualité des organisations que vous suivez' },
+        { to: '/marketplace', icon: Store, label: t('sidebar.explorer'), desc: 'Explorez des milliers de ressources et organisations' },
+        { to: '/leaderboard', icon: Trophy, label: t('sidebar.leaderboard'), desc: 'Classement des meilleurs ambassadeurs et créateurs' },
+      ],
+    },
+    {
+      label: '💰 Mes revenus',
+      icon: Wallet,
+      key: 'revenue',
+      items: [
+        { to: '/affiliation', icon: Link2, label: t('sidebar.my_affiliations'), desc: 'Gérez vos liens ambassadeur et suivez vos commissions' },
+        { to: '/partner', icon: Handshake, label: 'Espace Partenaire', desc: 'Programme Partenaires Officiel — recrutez des organisations' },
+        ...(canManageCurrentOrg ? [{ to: '/admin/affiliation', icon: UsersRound, label: t('sidebar.my_affiliates'), desc: 'Gérez les ambassadeurs de votre organisation' }] : []),
+      ],
+    },
+    {
+      label: '📚 Mon contenu',
+      icon: BookOpen,
+      key: 'myContent',
+      items: [
+        { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases'), desc: 'Accédez à tous vos achats et téléchargements' },
+        ...(currentOrg ? [{ to: `/org/${currentOrg.slug}`, icon: Building2, label: t('sidebar.view_org'), desc: 'Voir la page publique de votre organisation' }] : []),
+      ],
+    },
+    {
+      label: '⚙️ Mon compte',
+      icon: User,
+      key: 'community',
+      items: [
+        { to: '/notifications', icon: Bell, label: t('sidebar.notifications'), desc: 'Vos alertes : ventes, commissions, messages' },
+        { to: '/profile', icon: User, label: t('sidebar.account'), desc: 'Modifiez votre profil, email et préférences' },
+        { to: '/support', icon: LifeBuoy, label: t('sidebar.help'), desc: 'Besoin d\'aide ? Contactez notre équipe' },
+      ],
+    },
   ];
 
-  const adminGroups = [
+  // Add superadmin link if applicable
+  if (isSuperadmin && !isAdmin && !isSA) {
+    mainGroups[mainGroups.length - 1].items.push({ to: '/superadmin', icon: Shield, label: t('sidebar.superadmin'), desc: 'Panneau superadmin' });
+  }
+
+  const adminGroups: NavGroup[] = [
     {
       label: t('sidebar.content'),
+      icon: Play,
       key: 'Content',
       items: [
         { to: '/admin/media', icon: Play, label: t('sidebar.media') },
@@ -59,6 +109,7 @@ export function Sidebar() {
     },
     {
       label: t('sidebar.commerce'),
+      icon: ShoppingBag,
       key: 'Commerce',
       items: [
         { to: '/admin/products', icon: ShoppingBag, label: t('sidebar.products') },
@@ -71,6 +122,7 @@ export function Sidebar() {
     },
     {
       label: t('sidebar.management'),
+      icon: Settings,
       key: 'Management',
       items: [
         { to: '/admin/members', icon: Users, label: t('sidebar.members') },
@@ -84,7 +136,7 @@ export function Sidebar() {
     },
   ];
 
-  const superadminNav = [
+  const superadminNav: NavItem[] = [
     { to: '/superadmin', icon: Shield, label: t('sidebar.overview') },
     { to: '/superadmin/orgs', icon: Users, label: t('sidebar.organizations') },
     { to: '/superadmin/kyc', icon: FileCheck, label: t('sidebar.kyc') },
@@ -103,15 +155,15 @@ export function Sidebar() {
     setOpenGroups((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const renderNavItem = (item: { to: string; icon: typeof Home; label: string; desc?: string }) => {
+  const renderNavItem = (item: NavItem) => {
     const active = isActive(item.to);
     const showBadge = item.to === '/notifications' && unread > 0;
     const Icon = item.icon;
-    return (
+
+    const link = (
       <Link
         key={item.to}
         to={item.to}
-        title={collapsed ? item.label : item.desc || item.label}
         className={cn(
           'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 relative group',
           active
@@ -121,19 +173,61 @@ export function Sidebar() {
       >
         <div className="relative shrink-0">
           <Icon className="h-4 w-4" />
-          {showBadge && (
-            <span className="absolute -top-1 -right-1 h-1.5 w-1.5 rounded-full bg-destructive" />
-          )}
+          {showBadge && <span className="absolute -top-1 -right-1 h-1.5 w-1.5 rounded-full bg-destructive" />}
         </div>
         {!collapsed && <span className="truncate">{item.label}</span>}
-        {collapsed && (
-          <div className="absolute left-full ml-2 px-2 py-1 bg-popover border border-border rounded-md text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50 shadow-elevated">
-            {item.label}
-          </div>
-        )}
       </Link>
     );
+
+    // In collapsed mode or when desc exists, wrap in tooltip
+    if (collapsed || item.desc) {
+      return (
+        <Tooltip key={item.to} delayDuration={collapsed ? 0 : 400}>
+          <TooltipTrigger asChild>{link}</TooltipTrigger>
+          <TooltipContent side="right" className="max-w-[220px]">
+            <p className="font-semibold text-xs">{item.label}</p>
+            {item.desc && <p className="text-[11px] text-muted-foreground mt-0.5">{item.desc}</p>}
+          </TooltipContent>
+        </Tooltip>
+      );
+    }
+
+    return link;
   };
+
+  const renderGroups = (groups: NavGroup[]) => (
+    <>
+      {groups.map((group) => {
+        const hasActiveItem = group.items.some(i => isActive(i.to));
+        const isOpen = openGroups[group.key] ?? hasActiveItem;
+
+        return (
+          <div key={group.key} className="mt-3">
+            {!collapsed ? (
+              <>
+                <button
+                  onClick={() => toggleGroup(group.key)}
+                  className="flex items-center justify-between w-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {group.label}
+                  <ChevronDown className={cn('h-3 w-3 transition-transform', isOpen && 'rotate-180')} />
+                </button>
+                {isOpen && (
+                  <div className="space-y-0.5 mt-0.5">
+                    {group.items.map(renderNavItem)}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="space-y-0.5">
+                {group.items.map(renderNavItem)}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </>
+  );
 
   return (
     <aside
@@ -168,30 +262,10 @@ export function Sidebar() {
         ) : isAdmin ? (
           <>
             {renderNavItem({ to: '/admin', icon: BarChart3, label: t('sidebar.overview') })}
-            
-            {!collapsed ? (
-              adminGroups.map((group) => (
-                <div key={group.key} className="mt-3">
-                  <button
-                    onClick={() => toggleGroup(group.key)}
-                    className="flex items-center justify-between w-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {group.label}
-                    <ChevronDown className={cn('h-3 w-3 transition-transform', openGroups[group.key] && 'rotate-180')} />
-                  </button>
-                  {openGroups[group.key] && (
-                    <div className="space-y-0.5 mt-0.5">
-                      {group.items.map(renderNavItem)}
-                    </div>
-                  )}
-                </div>
-              ))
-            ) : (
-              adminGroups.flatMap((g) => g.items).map(renderNavItem)
-            )}
+            {renderGroups(adminGroups)}
           </>
         ) : (
-          mainNav.map(renderNavItem)
+          renderGroups(mainGroups)
         )}
       </nav>
 
@@ -199,7 +273,6 @@ export function Sidebar() {
       <div className={cn('border-t border-border space-y-0.5', collapsed ? 'px-1 py-2' : 'px-3 py-3')}>
         <button
           onClick={toggleTheme}
-          title={collapsed ? (theme === 'dark' ? t('sidebar.light_mode') : t('sidebar.dark_mode')) : undefined}
           className={cn(
             'flex items-center gap-3 rounded-lg text-sm font-medium transition-all w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
             collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
@@ -212,7 +285,6 @@ export function Sidebar() {
         {(isAdmin || isSA) && (
           <Link
             to="/feed"
-            title={collapsed ? t('sidebar.back_to_app') : undefined}
             className={cn(
               'flex items-center gap-3 rounded-lg text-sm font-medium transition-all text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
               collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
