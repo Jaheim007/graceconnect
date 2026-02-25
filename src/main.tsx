@@ -36,4 +36,40 @@ document.documentElement.classList.add(savedTheme);
 const savedLocale = localStorage.getItem('sv_locale') || navigator.language.slice(0, 2) || 'en';
 document.documentElement.lang = ['en', 'fr'].includes(savedLocale) ? savedLocale : 'en';
 
+// ── PWA Service Worker Registration with Update Prompt ──
+const registerSW = async () => {
+  if ('serviceWorker' in navigator && import.meta.env.PROD) {
+    try {
+      const { registerSW } = await import('virtual:pwa-register');
+      const updateSW = registerSW({
+        immediate: true,
+        onNeedRefresh() {
+          // Show update notification
+          if (confirm('Une nouvelle version de Siteviral est disponible. Mettre à jour maintenant ?')) {
+            updateSW(true);
+          }
+        },
+        onOfflineReady() {
+          console.log('[PWA] App prête pour utilisation hors ligne');
+        },
+        onRegisteredSW(swUrl, registration) {
+          console.log('[PWA] Service Worker enregistré:', swUrl);
+          // Check for updates every 60 minutes
+          if (registration) {
+            setInterval(() => {
+              registration.update();
+            }, 60 * 60 * 1000);
+          }
+        },
+        onRegisterError(error) {
+          console.error('[PWA] Erreur d\'enregistrement SW:', error);
+        },
+      });
+    } catch (e) {
+      console.warn('[PWA] SW registration skipped:', e);
+    }
+  }
+};
+registerSW();
+
 createRoot(document.getElementById("root")!).render(<App />);

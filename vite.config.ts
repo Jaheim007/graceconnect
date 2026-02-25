@@ -18,20 +18,68 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "offline.html"],
+      includeAssets: [
+        "favicon.ico",
+        "offline.html",
+        "pwa-72x72.png",
+        "pwa-96x96.png",
+        "pwa-128x128.png",
+        "pwa-144x144.png",
+        "pwa-152x152.png",
+        "pwa-192x192.png",
+        "pwa-384x384.png",
+        "pwa-512x512.png",
+      ],
       manifest: {
+        id: "/",
         name: "Siteviral",
         short_name: "Siteviral",
         description: "Infrastructure platform for digital organizations worldwide",
         start_url: "/",
         display: "standalone",
+        display_override: ["standalone", "minimal-ui", "window-controls-overlay"],
         background_color: "#0d1117",
         theme_color: "#d4920a",
         orientation: "any",
+        dir: "ltr",
+        lang: "fr",
+        scope: "/",
+        prefer_related_applications: false,
+        categories: ["social", "business", "productivity"],
         icons: [
+          {
+            src: "/pwa-72x72.png",
+            sizes: "72x72",
+            type: "image/png",
+          },
+          {
+            src: "/pwa-96x96.png",
+            sizes: "96x96",
+            type: "image/png",
+          },
+          {
+            src: "/pwa-128x128.png",
+            sizes: "128x128",
+            type: "image/png",
+          },
+          {
+            src: "/pwa-144x144.png",
+            sizes: "144x144",
+            type: "image/png",
+          },
+          {
+            src: "/pwa-152x152.png",
+            sizes: "152x152",
+            type: "image/png",
+          },
           {
             src: "/pwa-192x192.png",
             sizes: "192x192",
+            type: "image/png",
+          },
+          {
+            src: "/pwa-384x384.png",
+            sizes: "384x384",
             type: "image/png",
           },
           {
@@ -45,22 +93,62 @@ export default defineConfig(({ mode }) => ({
             type: "image/png",
             purpose: "maskable",
           },
+          {
+            src: "/pwa-192x192.png",
+            sizes: "192x192",
+            type: "image/png",
+            purpose: "maskable",
+          },
         ],
-        categories: ["social", "business", "productivity"],
-        lang: "fr",
-        scope: "/",
-        prefer_related_applications: false,
+        screenshots: [
+          {
+            src: "/og-image.png",
+            sizes: "1200x630",
+            type: "image/png",
+            form_factor: "wide",
+            label: "Siteviral Dashboard",
+          },
+          {
+            src: "/pwa-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+            form_factor: "narrow",
+            label: "Siteviral Mobile",
+          },
+        ],
         shortcuts: [
-          { name: "Feed", short_name: "Feed", url: "/feed", icons: [{ src: "/pwa-192x192.png", sizes: "192x192" }] },
-          { name: "Discover", short_name: "Discover", url: "/discover", icons: [{ src: "/pwa-192x192.png", sizes: "192x192" }] },
+          {
+            name: "Feed",
+            short_name: "Feed",
+            url: "/feed",
+            icons: [{ src: "/pwa-96x96.png", sizes: "96x96" }],
+          },
+          {
+            name: "Discover",
+            short_name: "Discover",
+            url: "/discover",
+            icons: [{ src: "/pwa-96x96.png", sizes: "96x96" }],
+          },
+          {
+            name: "Notifications",
+            short_name: "Notifs",
+            url: "/notifications",
+            icons: [{ src: "/pwa-96x96.png", sizes: "96x96" }],
+          },
         ],
+        handle_links: "preferred",
+        launch_handler: {
+          client_mode: "navigate-existing",
+        },
       },
       workbox: {
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,woff,woff2}"],
         navigateFallback: "/index.html",
         navigateFallbackDenylist: [/^\/~oauth/],
-        // Offline fallback for failed navigations
+        cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
         offlineGoogleAnalytics: false,
         runtimeCaching: [
           {
@@ -93,11 +181,12 @@ export default defineConfig(({ mode }) => ({
             handler: "NetworkOnly",
           },
           {
-            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp)$/i,
+            // External images (CDN, etc.)
+            urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|avif)$/i,
             handler: "CacheFirst",
             options: {
               cacheName: "images",
-              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              expiration: { maxEntries: 300, maxAgeSeconds: 60 * 60 * 24 * 30 },
             },
           },
           {
@@ -106,6 +195,15 @@ export default defineConfig(({ mode }) => ({
             options: {
               cacheName: "fonts",
               expiration: { maxEntries: 20, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            },
+          },
+          {
+            // Google Fonts
+            urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "google-fonts",
+              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
             },
           },
           {
@@ -118,6 +216,9 @@ export default defineConfig(({ mode }) => ({
             },
           },
         ],
+      },
+      devOptions: {
+        enabled: false,
       },
     }),
   ].filter(Boolean),

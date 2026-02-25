@@ -6,6 +6,7 @@ import { BottomNav } from './BottomNav';
 import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { useOrg } from '@/contexts/OrgContext';
 import { FeedbackWidget } from '@/components/feedback/FeedbackWidget';
+import { InstallBanner } from '@/components/pwa/InstallBanner';
 
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
 
@@ -58,6 +59,7 @@ export function AppLayout() {
       )}
 
       <FeedbackWidget />
+      <InstallBanner />
     </div>
   );
 }
