@@ -2,22 +2,24 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, useInView } from 'framer-motion';
 
 interface AnimatedCounterProps {
-  value: number;
+  target?: number;
+  value?: number;
   prefix?: string;
   suffix?: string;
-  label: string;
+  label?: string;
   duration?: number;
 }
 
-export function AnimatedCounter({ value, prefix = '', suffix = '', label, duration = 2 }: AnimatedCounterProps) {
+export function AnimatedCounter({ target, value, prefix = '', suffix = '', label, duration = 2 }: AnimatedCounterProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: '-50px' });
   const [count, setCount] = useState(0);
+  const finalValue = target ?? value ?? 0;
 
   useEffect(() => {
     if (!isInView) return;
     let start = 0;
-    const end = value;
+    const end = finalValue;
     const step = Math.max(1, Math.floor(end / (duration * 60)));
     const timer = setInterval(() => {
       start += step;
@@ -29,9 +31,14 @@ export function AnimatedCounter({ value, prefix = '', suffix = '', label, durati
       }
     }, 1000 / 60);
     return () => clearInterval(timer);
-  }, [isInView, value, duration]);
+  }, [isInView, finalValue, duration]);
 
-  const formatted = count >= 1000 ? `${(count / 1000).toFixed(count >= 10000 ? 0 : 1)}k` : count.toLocaleString();
+  const formatted = count >= 1000 ? `${(count / 1000).toFixed(count >= 10000 ? 0 : 1)}k` : count.toLocaleString('fr-FR');
+
+  // Inline mode (no label) — used in hero
+  if (!label) {
+    return <span ref={ref as any}>{prefix}{formatted}{suffix}</span>;
+  }
 
   return (
     <motion.div

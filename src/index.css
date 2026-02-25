@@ -229,6 +229,15 @@
   animation: shimmer 1.5s infinite;
 }
 
+/* CTA hover glow */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 hsla(var(--primary), 0.3); }
+  50% { box-shadow: 0 0 20px 4px hsla(var(--primary), 0.15); }
+}
+.cta-glow:hover {
+  animation: glow-pulse 1.5s ease-in-out infinite;
+}
+
 /* Ensure Paystack popup appears above ALL layers */
 #paystack-checkout,
 #paystack-checkout ~ div,

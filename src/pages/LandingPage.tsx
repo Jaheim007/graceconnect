@@ -3,8 +3,10 @@ import { LandingHero } from '@/components/landing/LandingHero';
 import { LandingPersonaCards } from '@/components/landing/LandingPersonaCards';
 import { LandingAmbassadorSection } from '@/components/landing/LandingAmbassadorSection';
 import { LandingHowItWorks } from '@/components/landing/LandingHowItWorks';
+import { LandingUseCases } from '@/components/landing/LandingUseCases';
 import { LandingPricing } from '@/components/landing/LandingPricing';
 import { LandingTrust } from '@/components/landing/LandingTrust';
+import { LandingFAQ } from '@/components/landing/LandingFAQ';
 import { LandingFinalCTA } from '@/components/landing/LandingFinalCTA';
 import { LandingFooter } from '@/components/landing/LandingFooter';
 import { TestimonialCarousel } from '@/components/landing/TestimonialCarousel';
@@ -40,7 +42,7 @@ export default function LandingPage() {
       />
       <LandingNav />
 
-      {/* Hero with rotating personas */}
+      {/* Hero with rotating personas + social proof */}
       <LandingHero />
 
       {/* 3 Persona Cards */}
@@ -51,6 +53,9 @@ export default function LandingPage() {
 
       {/* How it works (tabbed by persona) */}
       <LandingHowItWorks />
+
+      {/* Use Cases */}
+      <LandingUseCases />
 
       {/* Marquee: What you can sell */}
       <section className="py-16 px-4 bg-muted/30 overflow-hidden">
@@ -84,13 +89,16 @@ export default function LandingPage() {
         />
       </section>
 
-      {/* Pricing */}
+      {/* Pricing with comparison */}
       <LandingPricing />
 
       {/* Trust */}
       <LandingTrust />
 
-      {/* Final CTA */}
+      {/* FAQ inline */}
+      <LandingFAQ />
+
+      {/* Final CTA + WhatsApp */}
       <LandingFinalCTA />
 
       <LandingFooter />
