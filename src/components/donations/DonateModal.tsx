@@ -38,6 +38,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
   const [step, setStep] = useState<Step>('form');
   const [result, setResult] = useState<VerifyPaymentResult | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { toast } = useToast();
   const { user, profile } = useAuth();
@@ -68,6 +69,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
   const effectiveAmount = Number(amount);
 
   const handleDonate = async () => {
+    if (isSubmitting) return;
     if (!amount || Number(amount) < 100) {
       toast({ title: 'Montant invalide', description: 'Le don minimum est de 100 XOF.', variant: 'destructive' });
       return;
@@ -76,6 +78,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
       toast({ title: 'Email requis', description: 'Veuillez saisir votre email pour recevoir le reçu.', variant: 'destructive' });
       return;
     }
+    setIsSubmitting(true);
 
     const affiliateCode = getAffiliateCode();
 
@@ -136,6 +139,8 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
       const message = err instanceof Error ? err.message : 'Impossible d\'ouvrir le paiement.';
       console.error('[DonateModal] openPayment error:', err);
       toast({ title: 'Erreur de paiement', description: message, variant: 'destructive' });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -247,9 +252,10 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
               <Button variant="outline" onClick={handleClose} className="flex-1">Annuler</Button>
               <Button
                 onClick={handleDonate}
-                disabled={!amount || Number(amount) < 100}
+                disabled={!amount || Number(amount) < 100 || isSubmitting}
                 className="flex-1 bg-primary text-primary-foreground"
               >
+                {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : null}
                 Donner {amount ? fmt(effectiveAmount) : ''}
               </Button>
             </div>
