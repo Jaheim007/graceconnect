@@ -5,7 +5,7 @@ import { Donation, ProductPurchase, AffiliateLink } from '@/types/database';
 import {
   Heart, ShoppingBag, Link2, TrendingUp, Copy, ExternalLink, CheckCircle,
   AlertTriangle, DollarSign, Download, BookOpen, Eye, FileText, Music,
-  Wallet, ArrowUpRight, Sparkle, Gift, BarChart3, Clock, Users, Share2
+  Wallet, ArrowUpRight, Sparkle, Gift, BarChart3, Clock, Users, Share2, Rocket
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -360,6 +360,26 @@ export default function UserDashboard() {
         {/* ══ ROLE-ADAPTIVE CTA ══ */}
         {managedOrgIds.length === 0 && affiliateLinks.length === 0 && (
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="grid sm:grid-cols-2 gap-3">
+            <button
+              onClick={() => navigate('/create')}
+              className="group bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/25 rounded-2xl p-5 text-left hover:border-primary/40 hover:shadow-elevated transition-all hover:-translate-y-0.5"
+            >
+              <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center mb-3 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                <Rocket className="h-5 w-5 text-primary group-hover:text-primary-foreground transition-colors" />
+              </div>
+              <h3 className="font-bold text-sm">{locale === 'fr' ? 'Créer ma plateforme' : 'Create my platform'}</h3>
+              <p className="text-xs text-muted-foreground mt-1">{locale === 'fr' ? 'Vendez vos ressources et collectez des dons' : 'Sell your resources and collect donations'}</p>
+            </button>
+            <button
+              onClick={() => navigate('/ambassador')}
+              className="group bg-gradient-to-br from-amber-500/15 to-amber-500/5 border border-amber-500/25 rounded-2xl p-5 text-left hover:border-amber-500/40 hover:shadow-elevated transition-all hover:-translate-y-0.5"
+            >
+              <div className="h-10 w-10 rounded-xl bg-amber-500/15 flex items-center justify-center mb-3 group-hover:bg-amber-500 group-hover:text-white transition-colors">
+                <Share2 className="h-5 w-5 text-amber-500 group-hover:text-white transition-colors" />
+              </div>
+              <h3 className="font-bold text-sm">{locale === 'fr' ? 'Devenir ambassadeur' : 'Become ambassador'}</h3>
+              <p className="text-xs text-muted-foreground mt-1">{locale === 'fr' ? 'Partagez du contenu et gagnez des commissions' : 'Share content and earn commissions'}</p>
+            </button>
             <button onClick={() => navigate('/create-org')} className="flex items-center gap-3 p-4 rounded-2xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all text-left">
               <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shrink-0">
                 <Gift className="h-5 w-5 text-primary-foreground" />

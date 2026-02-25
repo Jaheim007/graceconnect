@@ -155,7 +155,20 @@ export default function OrgPublicPage() {
         description={org.description || (locale === 'fr' ? `Découvrez ${org.name} sur Siteviral` : `Discover ${org.name} on Siteviral`)}
         ogImage={org.banner_url || org.logo_url}
         canonicalUrl={`https://siteviral.com/org/${slug}`}
-        jsonLd={{ '@context': 'https://schema.org', '@type': 'Organization', name: org.name, description: org.description, url: `https://siteviral.com/org/${slug}`, image: org.logo_url }}
+        jsonLd={{
+          '@context': 'https://schema.org',
+          '@type': 'Organization',
+          name: org.name,
+          description: org.description,
+          url: `https://siteviral.com/org/${slug}`,
+          image: org.logo_url,
+          memberOf: { '@type': 'WebSite', name: 'Siteviral', url: 'https://siteviral.com' },
+          potentialAction: {
+            '@type': 'ViewAction',
+            target: `https://siteviral.com/org/${slug}/store`,
+            name: locale === 'fr' ? 'Voir la boutique' : 'View store',
+          },
+        }}
       />
 
       <OrgPublicHeader
