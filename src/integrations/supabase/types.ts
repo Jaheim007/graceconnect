@@ -1845,6 +1845,261 @@ export type Database = {
         }
         Relationships: []
       }
+      partner_commissions: {
+        Row: {
+          commission_amount: number
+          commission_percent: number
+          created_at: string
+          currency: string
+          id: string
+          organization_id: string
+          paid_at: string | null
+          partner_id: string
+          payable_at: string | null
+          payment_reference: string
+          payout_request_id: string | null
+          platform_fee_amount: number
+          status: Database["public"]["Enums"]["partner_commission_status"]
+        }
+        Insert: {
+          commission_amount: number
+          commission_percent: number
+          created_at?: string
+          currency?: string
+          id?: string
+          organization_id: string
+          paid_at?: string | null
+          partner_id: string
+          payable_at?: string | null
+          payment_reference: string
+          payout_request_id?: string | null
+          platform_fee_amount: number
+          status?: Database["public"]["Enums"]["partner_commission_status"]
+        }
+        Update: {
+          commission_amount?: number
+          commission_percent?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          organization_id?: string
+          paid_at?: string | null
+          partner_id?: string
+          payable_at?: string | null
+          payment_reference?: string
+          payout_request_id?: string | null
+          platform_fee_amount?: number
+          status?: Database["public"]["Enums"]["partner_commission_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_commission_payout"
+            columns: ["payout_request_id"]
+            isOneToOne: false
+            referencedRelation: "partner_payout_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_commissions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_commissions_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_payout_requests: {
+        Row: {
+          amount: number
+          currency: string
+          failure_reason: string | null
+          id: string
+          metadata: Json | null
+          paid_at: string | null
+          partner_id: string
+          paystack_transfer_code: string | null
+          requested_at: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["partner_payout_status"]
+        }
+        Insert: {
+          amount: number
+          currency?: string
+          failure_reason?: string | null
+          id?: string
+          metadata?: Json | null
+          paid_at?: string | null
+          partner_id: string
+          paystack_transfer_code?: string | null
+          requested_at?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["partner_payout_status"]
+        }
+        Update: {
+          amount?: number
+          currency?: string
+          failure_reason?: string | null
+          id?: string
+          metadata?: Json | null
+          paid_at?: string | null
+          partner_id?: string
+          paystack_transfer_code?: string | null
+          requested_at?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["partner_payout_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_payout_requests_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_referrals: {
+        Row: {
+          attributed_at: string
+          id: string
+          locked_at: string | null
+          notes: string | null
+          organization_id: string
+          partner_id: string
+          status: Database["public"]["Enums"]["partner_referral_status"]
+        }
+        Insert: {
+          attributed_at?: string
+          id?: string
+          locked_at?: string | null
+          notes?: string | null
+          organization_id: string
+          partner_id: string
+          status?: Database["public"]["Enums"]["partner_referral_status"]
+        }
+        Update: {
+          attributed_at?: string
+          id?: string
+          locked_at?: string | null
+          notes?: string | null
+          organization_id?: string
+          partner_id?: string
+          status?: Database["public"]["Enums"]["partner_referral_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_referrals_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_referrals_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partners: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          country: string
+          created_at: string
+          custom_rate_override: number | null
+          email: string
+          full_name: string
+          id: string
+          invite_code: string | null
+          invite_link_slug: string | null
+          invite_uses_count: number
+          last_invite_used_at: string | null
+          level: number
+          min_payout_threshold: number
+          notes: string | null
+          payout_method: string | null
+          paystack_recipient_code: string | null
+          phone: string | null
+          rate_percent: number
+          scope: Database["public"]["Enums"]["partner_scope"]
+          status: Database["public"]["Enums"]["partner_status"]
+          suspended_at: string | null
+          suspension_reason: string | null
+          terms_accepted_at: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          country?: string
+          created_at?: string
+          custom_rate_override?: number | null
+          email: string
+          full_name: string
+          id?: string
+          invite_code?: string | null
+          invite_link_slug?: string | null
+          invite_uses_count?: number
+          last_invite_used_at?: string | null
+          level?: number
+          min_payout_threshold?: number
+          notes?: string | null
+          payout_method?: string | null
+          paystack_recipient_code?: string | null
+          phone?: string | null
+          rate_percent?: number
+          scope?: Database["public"]["Enums"]["partner_scope"]
+          status?: Database["public"]["Enums"]["partner_status"]
+          suspended_at?: string | null
+          suspension_reason?: string | null
+          terms_accepted_at?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          country?: string
+          created_at?: string
+          custom_rate_override?: number | null
+          email?: string
+          full_name?: string
+          id?: string
+          invite_code?: string | null
+          invite_link_slug?: string | null
+          invite_uses_count?: number
+          last_invite_used_at?: string | null
+          level?: number
+          min_payout_threshold?: number
+          notes?: string | null
+          payout_method?: string | null
+          paystack_recipient_code?: string | null
+          phone?: string | null
+          rate_percent?: number
+          scope?: Database["public"]["Enums"]["partner_scope"]
+          status?: Database["public"]["Enums"]["partner_status"]
+          suspended_at?: string | null
+          suspension_reason?: string | null
+          terms_accepted_at?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       payment_events: {
         Row: {
           event_id: string
@@ -3401,6 +3656,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      attribute_org_to_partner: {
+        Args: { _org_id: string; _partner_code: string }
+        Returns: Json
+      }
       can_admin_org: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
@@ -3409,6 +3668,7 @@ export type Database = {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
       }
+      compute_partner_level: { Args: { _partner_id: string }; Returns: number }
       create_organization_with_owner: {
         Args: {
           _category?: Database["public"]["Enums"]["org_category"]
@@ -3425,16 +3685,30 @@ export type Database = {
         Args: { _org_id: string; _user_id: string }
         Returns: Database["public"]["Enums"]["org_member_role"]
       }
+      get_partner_rate: { Args: { _partner_id: string }; Returns: number }
       increment_like_count: { Args: { media_id: string }; Returns: undefined }
       increment_view_count: { Args: { media_id: string }; Returns: undefined }
       is_org_member: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
       }
+      is_partner_owner: { Args: { _partner_id: string }; Returns: boolean }
       is_superadmin: { Args: { _user_id: string }; Returns: boolean }
+      manage_partner: {
+        Args: { _action: string; _partner_id: string; _reason?: string }
+        Returns: Json
+      }
       org_affiliation_allowed: { Args: { _org_id: string }; Returns: boolean }
       org_monetization_allowed: { Args: { _org_id: string }; Returns: boolean }
       self_enroll_affiliate: { Args: { _org_id: string }; Returns: undefined }
+      set_partner_rate_override: {
+        Args: { _partner_id: string; _rate: number }
+        Returns: Json
+      }
+      transfer_partner_referral: {
+        Args: { _new_partner_id: string; _reason: string; _referral_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       affiliate_sale_status: "pending" | "payable" | "paid" | "cancelled"
@@ -3449,6 +3723,17 @@ export type Database = {
         | "other"
       org_member_role: "owner" | "admin" | "editor" | "member" | "affiliate"
       org_plan: "free" | "pro" | "growth" | "enterprise"
+      partner_commission_status: "held" | "payable" | "paid" | "reversed"
+      partner_payout_status:
+        | "requested"
+        | "approved"
+        | "processing"
+        | "paid"
+        | "failed"
+        | "rejected"
+      partner_referral_status: "pending" | "active" | "rejected"
+      partner_scope: "country" | "regional" | "international"
+      partner_status: "pending" | "approved" | "rejected" | "suspended"
       payment_status: "pending" | "completed" | "failed" | "refunded"
       platform_role: "superadmin" | "user"
       purchase_status: "pending" | "completed" | "failed"
@@ -3593,6 +3878,18 @@ export const Constants = {
       ],
       org_member_role: ["owner", "admin", "editor", "member", "affiliate"],
       org_plan: ["free", "pro", "growth", "enterprise"],
+      partner_commission_status: ["held", "payable", "paid", "reversed"],
+      partner_payout_status: [
+        "requested",
+        "approved",
+        "processing",
+        "paid",
+        "failed",
+        "rejected",
+      ],
+      partner_referral_status: ["pending", "active", "rejected"],
+      partner_scope: ["country", "regional", "international"],
+      partner_status: ["pending", "approved", "rejected", "suspended"],
       payment_status: ["pending", "completed", "failed", "refunded"],
       platform_role: ["superadmin", "user"],
       purchase_status: ["pending", "completed", "failed"],
