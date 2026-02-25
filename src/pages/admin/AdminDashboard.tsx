@@ -19,6 +19,7 @@ import { motion } from 'framer-motion';
 import { OrgActivationChecklist } from '@/components/admin/OrgActivationChecklist';
 import { RevenueSimulator } from '@/components/admin/RevenueSimulator';
 import { QuickStartWizard } from '@/components/onboarding/QuickStartWizard';
+import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist';
 import { useI18n } from '@/i18n/I18nContext';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { downloadCSV } from '@/lib/csvExport';
@@ -175,6 +176,9 @@ export default function AdminDashboard() {
           </Button>
         </div>
       </div>
+
+      {/* Onboarding checklist (persistent, data-driven) */}
+      <OnboardingChecklist />
 
       {/* Activation checklist */}
       <OrgActivationChecklist />

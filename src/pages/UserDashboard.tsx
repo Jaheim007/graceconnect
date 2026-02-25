@@ -357,17 +357,42 @@ export default function UserDashboard() {
           ))}
         </div>
 
+        {/* ══ ROLE-ADAPTIVE CTA ══ */}
+        {managedOrgIds.length === 0 && affiliateLinks.length === 0 && (
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="grid sm:grid-cols-2 gap-3">
+            <button onClick={() => navigate('/create-org')} className="flex items-center gap-3 p-4 rounded-2xl border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all text-left">
+              <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shrink-0">
+                <Gift className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div>
+                <p className="text-sm font-bold">{locale === 'fr' ? 'Créer ma plateforme' : 'Create my platform'}</p>
+                <p className="text-[11px] text-muted-foreground">{locale === 'fr' ? 'Vendez, collectez des dons, gérez votre communauté' : 'Sell, collect donations, manage your community'}</p>
+              </div>
+            </button>
+            <button onClick={() => navigate('/ambassador')} className="flex items-center gap-3 p-4 rounded-2xl border border-accent/20 bg-accent/5 hover:bg-accent/10 transition-all text-left">
+              <div className="h-10 w-10 rounded-xl bg-accent flex items-center justify-center shrink-0">
+                <Share2 className="h-5 w-5 text-accent-foreground" />
+              </div>
+              <div>
+                <p className="text-sm font-bold">{locale === 'fr' ? 'Devenir ambassadeur' : 'Become an ambassador'}</p>
+                <p className="text-[11px] text-muted-foreground">{locale === 'fr' ? 'Gagnez des commissions en partageant du contenu' : 'Earn commissions by sharing content'}</p>
+              </div>
+            </button>
+          </motion.div>
+        )}
+
         {/* ══ QUICK ACTIONS ══ */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {[
             { label: t('sidebar.my_purchases'), icon: BookOpen, onClick: () => navigate('/resources') },
             { label: t('sidebar.affiliation'), icon: Link2, onClick: () => navigate('/affiliation') },
-            { label: t('dash.create_org'), icon: Gift, onClick: () => navigate('/create-org') },
-            { label: t('dash.create_org'), icon: Gift, onClick: () => navigate('/create-org') },
+            ...(managedOrgIds.length > 0
+              ? [{ label: t('sidebar.manage_org'), icon: ArrowUpRight, onClick: () => navigate('/admin') }]
+              : [{ label: t('dash.create_org'), icon: Gift, onClick: () => navigate('/create-org') }]),
             { label: t('dash.my_account'), icon: ArrowUpRight, onClick: () => navigate('/profile') },
-          ].map((a) => (
+          ].map((a, i) => (
             <Button
-              key={a.label}
+              key={`${a.label}-${i}`}
               variant="outline"
               size="sm"
               onClick={a.onClick}
