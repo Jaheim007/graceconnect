@@ -183,13 +183,16 @@ export default function AdminDashboard() {
       {/* Activation checklist */}
       <OrgActivationChecklist />
 
-      {/* Quick actions */}
+      {/* Quick actions — contextual cards */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-card border border-border rounded-2xl p-5"
       >
-        <h2 className="font-semibold text-sm mb-4">{t('admin.quick_actions')}</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-semibold text-sm">{t('admin.quick_actions')}</h2>
+          <span className="text-[10px] text-muted-foreground">{quickActions.length} actions</span>
+        </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
           {quickActions.map((a) => (
             <Button
@@ -197,10 +200,12 @@ export default function AdminDashboard() {
               variant="outline"
               size="sm"
               onClick={() => navigate(a.to)}
-              className="gap-2 text-xs h-10 justify-start hover:bg-primary/5 hover:border-primary/30 transition-colors"
+              className="gap-2 text-xs h-12 justify-start hover:bg-primary/5 hover:border-primary/30 transition-all hover:-translate-y-0.5 group"
             >
-              <a.icon className="h-4 w-4 text-primary" />
-              {a.label}
+              <div className="h-7 w-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors shrink-0">
+                <a.icon className="h-3.5 w-3.5 text-primary group-hover:text-primary-foreground transition-colors" />
+              </div>
+              <span className="truncate">{a.label}</span>
             </Button>
           ))}
         </div>

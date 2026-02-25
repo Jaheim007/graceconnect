@@ -13,6 +13,7 @@ import { TestimonialCarousel } from '@/components/landing/TestimonialCarousel';
 import { Marquee } from '@/components/landing/Marquee';
 import { BeforeAfterSection } from '@/components/landing/BeforeAfterSection';
 import { PaymentLogos } from '@/components/landing/PaymentLogos';
+import { StatsBar } from '@/components/landing/AnimatedCounter';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
@@ -65,6 +66,9 @@ export default function LandingPage() {
 
       {/* 3 Persona Cards */}
       <LandingPersonaCards />
+
+      {/* Stats bar with animated counters */}
+      <StatsBar />
 
       {/* Ambassador Section (prominent) */}
       <LandingAmbassadorSection />
