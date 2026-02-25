@@ -7,7 +7,6 @@ interface SiteLogoProps {
   linked?: boolean;
   to?: string;
   className?: string;
-  showText?: boolean;
   animate?: boolean;
 }
 
@@ -19,24 +18,15 @@ const sizeMap = {
   xl: 'h-14 w-14',
 };
 
-const textSizeMap = {
-  xs: 'text-sm',
-  sm: 'text-base',
-  md: 'text-lg',
-  lg: 'text-xl',
-  xl: 'text-2xl',
-};
-
 export function SiteLogo({
   size = 'sm',
   linked = true,
   to = '/',
   className,
-  showText = true,
   animate = false,
 }: SiteLogoProps) {
   const content = (
-    <span className={cn('flex items-center gap-2', className)}>
+    <span className={cn('inline-flex items-center', className)}>
       <img
         src={logoS}
         alt="Siteviral"
@@ -46,11 +36,6 @@ export function SiteLogo({
           animate && 'hover:scale-110 transition-transform duration-200'
         )}
       />
-      {showText && (
-        <span className={cn('font-extrabold tracking-tight text-foreground', textSizeMap[size])}>
-          Siteviral
-        </span>
-      )}
     </span>
   );
 

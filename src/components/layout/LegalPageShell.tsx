@@ -54,7 +54,7 @@ export function LegalFooter() {
           </div>
         </div>
         <div className="mt-8 pt-6 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-          <SiteLogo size="xs" animate />
+          <SiteLogo size="sm" animate />
           <span className="text-center">© {new Date().getFullYear()} Hacktualiz Inc. · Delaware C-Corp, United States · 131 Continental Dr, Suite 305, Newark, DE 19713</span>
         </div>
       </div>
