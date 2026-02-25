@@ -57,6 +57,7 @@ const SecurityPage = lazy(() => import("@/pages/SecurityPage"));
 const SubprocessorsPage = lazy(() => import("@/pages/SubprocessorsPage"));
 const FeaturesPage = lazy(() => import("@/pages/FeaturesPage"));
 const PublicAffiliationPage = lazy(() => import("@/pages/PublicAffiliationPage"));
+const AmbassadorTermsPage = lazy(() => import("@/pages/AmbassadorTermsPage"));
 const BecomePartnerPage = lazy(() => import("@/pages/BecomePartnerPage"));
 const PartnerTermsPage = lazy(() => import("@/pages/PartnerTermsPage"));
 const CampaignDetailPage = lazy(() => import("@/pages/CampaignDetailPage"));
@@ -175,6 +176,8 @@ const App = () => (
                 <Route path="/subprocessors" element={<SubprocessorsPage />} />
                 <Route path="/features" element={<FeaturesPage />} />
                 <Route path="/affiliate-program" element={<PublicAffiliationPage />} />
+                <Route path="/ambassador-program" element={<PublicAffiliationPage />} />
+                <Route path="/ambassador-terms" element={<AmbassadorTermsPage />} />
                 <Route path="/devenir-partenaire" element={<BecomePartnerPage />} />
                 <Route path="/partner-terms" element={<PartnerTermsPage />} />
                 <Route path="/auth" element={<AuthPage />} />

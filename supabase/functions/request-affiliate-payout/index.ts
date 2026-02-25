@@ -43,9 +43,19 @@ Deno.serve(async (req) => {
     }
 
     // ── Payout freeze check ──
-    const { data: org } = await db.from('organizations').select('payouts_frozen, payout_freeze_reason, currency').eq('id', organization_id).single();
+    const { data: org } = await db.from('organizations').select('payouts_frozen, payout_freeze_reason, currency, name').eq('id', organization_id).single();
     if (org?.payouts_frozen) {
       return new Response(JSON.stringify({ error: `Payouts are currently frozen for this organization: ${org.payout_freeze_reason || 'Contact support'}` }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    // ── KYC check: verify org-level KYC is approved before payout ──
+    const { data: kycData } = await db.from('kyc_submissions')
+      .select('status')
+      .eq('organization_id', organization_id)
+      .in('status', ['level1', 'level2', 'approved'])
+      .limit(1);
+    if (!kycData?.length) {
+      return new Response(JSON.stringify({ error: 'KYC verification required before requesting a payout. Please complete KYC for this organization.' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
     // Find payable affiliate sales for this user in this org
