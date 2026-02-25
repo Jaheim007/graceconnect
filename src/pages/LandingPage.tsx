@@ -11,6 +11,8 @@ import { LandingFinalCTA } from '@/components/landing/LandingFinalCTA';
 import { LandingFooter } from '@/components/landing/LandingFooter';
 import { TestimonialCarousel } from '@/components/landing/TestimonialCarousel';
 import { Marquee } from '@/components/landing/Marquee';
+import { BeforeAfterSection } from '@/components/landing/BeforeAfterSection';
+import { PaymentLogos } from '@/components/landing/PaymentLogos';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
@@ -104,6 +106,12 @@ export default function LandingPage() {
           statCard={{ value: '10%', label: 'Commission unique — zéro abonnement' }}
         />
       </section>
+
+      {/* Before vs After */}
+      <BeforeAfterSection />
+
+      {/* Payment Logos */}
+      <PaymentLogos />
 
       {/* Pricing with comparison */}
       <LandingPricing />
