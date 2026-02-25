@@ -1536,51 +1536,6 @@ export type Database = {
           },
         ]
       }
-      org_messages: {
-        Row: {
-          content: string
-          created_at: string
-          id: string
-          is_pinned: boolean | null
-          organization_id: string
-          reply_to_id: string | null
-          sender_id: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          id?: string
-          is_pinned?: boolean | null
-          organization_id: string
-          reply_to_id?: string | null
-          sender_id: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          is_pinned?: boolean | null
-          organization_id?: string
-          reply_to_id?: string | null
-          sender_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "org_messages_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "org_messages_reply_to_id_fkey"
-            columns: ["reply_to_id"]
-            isOneToOne: false
-            referencedRelation: "org_messages"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       org_page_settings: {
         Row: {
           facebook_pixel_id: string | null

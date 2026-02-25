@@ -32,7 +32,7 @@ export function Sidebar() {
     { to: '/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard'), desc: t('sidebar.desc.dashboard') },
     { to: '/feed', icon: Home, label: t('sidebar.my_network'), desc: t('sidebar.desc.my_network') },
     { to: '/marketplace', icon: Store, label: t('sidebar.explorer'), desc: t('sidebar.desc.explorer') },
-    // { to: '/messages', icon: MessageCircle, label: t('sidebar.messages'), desc: t('sidebar.desc.messages') }, // DISABLED
+    
     { to: '/leaderboard', icon: Trophy, label: t('sidebar.leaderboard'), desc: t('sidebar.desc.leaderboard') },
     // { to: '/certificates', icon: Award, label: t('sidebar.certificates'), desc: t('sidebar.desc.certificates') }, // DISABLED
     { to: '/notifications', icon: Bell, label: t('sidebar.notifications'), desc: t('sidebar.desc.notifications') },

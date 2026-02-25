@@ -79,7 +79,7 @@ const ProgramViewPage = lazy(() => import("@/pages/ProgramViewPage"));
 const SupportPage = lazy(() => import("@/pages/SupportPage"));
 const AffiliationPage = lazy(() => import("@/pages/AffiliationPage"));
 const PartnerPortalPage = lazy(() => import("@/pages/PartnerPortalPage"));
-// const MessagesPage = lazy(() => import("@/pages/MessagesPage")); // DISABLED
+
 const LeaderboardPage = lazy(() => import("@/pages/LeaderboardPage"));
 // const CertificatesPage = lazy(() => import("@/pages/CertificatesPage")); // DISABLED
 const BookmarksPage = lazy(() => import("@/pages/BookmarksPage"));
@@ -222,7 +222,7 @@ const App = () => (
                   {/* <Route path="/programs/:id" element={<ProgramViewPage />} /> DISABLED */}
                   <Route path="/support" element={<SupportPage />} />
                   <Route path="/affiliation" element={<AffiliationPage />} />
-                  {/* <Route path="/messages" element={<MessagesPage />} /> DISABLED */}
+                  
                   <Route path="/leaderboard" element={<LeaderboardPage />} />
                   {/* <Route path="/certificates" element={<CertificatesPage />} /> DISABLED */}
                   <Route path="/bookmarks" element={<BookmarksPage />} />
