@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Download, Smartphone, CheckCircle, Share, ArrowRight, Wifi, BellRing, Zap, Plus, Monitor, Tablet } from 'lucide-react';
@@ -12,10 +13,16 @@ export default function InstallPage() {
   const { t } = useI18n();
   const { isInstalled, isIOS, canInstall, promptInstall } = usePWAInstall();
 
+  const [installing, setInstalling] = useState(false);
+
   const handleInstall = async () => {
-    const accepted = await promptInstall();
-    if (!accepted) {
-      // User dismissed, that's okay
+    setInstalling(true);
+    try {
+      await promptInstall();
+    } catch (error) {
+      console.error('[PWA] Install page error:', error);
+    } finally {
+      setInstalling(false);
     }
   };
 
@@ -39,9 +46,7 @@ export default function InstallPage() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-md space-y-6 text-center"
       >
-        <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center mx-auto">
-          <Download className="h-8 w-8 text-primary-foreground" />
-        </div>
+        <img src="/logo-s.png" alt="Siteviral" className="h-16 w-16 rounded-2xl mx-auto object-contain" />
 
         <div className="space-y-2">
           <h1 className="text-2xl font-extrabold tracking-tight">{t('install.title')}</h1>
@@ -85,8 +90,8 @@ export default function InstallPage() {
 
             {/* Native install button (Chrome/Edge on Android/Desktop) */}
             {canInstall && !isIOS && (
-              <Button size="lg" className="w-full bg-primary text-primary-foreground h-12 text-base gap-2" onClick={handleInstall}>
-                <Download className="h-5 w-5" /> {t('install.install_now')}
+              <Button size="lg" className="w-full bg-primary text-primary-foreground h-12 text-base gap-2" onClick={handleInstall} disabled={installing}>
+                <Download className="h-5 w-5" /> {installing ? 'Installation…' : t('install.install_now')}
               </Button>
             )}
 
