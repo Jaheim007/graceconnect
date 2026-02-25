@@ -47,7 +47,7 @@ Siteviral est une **plateforme SaaS multi-tenant** qui permet à toute organisat
 Concrètement, chaque organisation qui s'inscrit obtient instantanément :
 
 - **Une vitrine publique** personnalisable (page d'accueil, événements, galerie photos)
-- **Une boutique numérique** (ebooks, formations, fichiers audio/vidéo, programmes)
+- **Une boutique numérique** (ebooks, fichiers audio/vidéo)
 - **Un système de collecte de dons** (campagnes avec objectifs, dons libres)
 - **Un espace communautaire** (messagerie, annonces, fil d'actualité)
 - **Un tableau de bord analytique** (ventes, membres, performance)
@@ -95,10 +95,10 @@ Siteviral fonctionne avec **cinq acteurs distincts**, chacun avec un rôle clair
 
 **Ce qu'elle peut faire** :
 - Créer sa page publique personnalisée
-- Publier et vendre des produits numériques (ebooks, formations, audio, vidéo)
+- Publier et vendre des produits numériques (ebooks, audio, vidéo)
 - Lancer des campagnes de dons avec objectif et jauge de progression
 - Gérer ses membres et sa communauté
-- Publier des annonces, événements, programmes de formation
+- Publier des annonces et événements
 - Suivre ses ventes, revenus et performances en temps réel
 - Activer un programme ambassadeur pour que d'autres promeuvent ses produits
 

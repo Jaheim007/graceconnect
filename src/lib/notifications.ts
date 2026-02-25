@@ -133,47 +133,12 @@ export async function onInviteAccepted(
   );
 }
 
-// ── Program enrollment ──
-export async function onProgramEnrolled(
-  userId: string,
-  userEmail: string | undefined,
-  programName: string,
-  orgName: string,
-  orgId: string,
-  programId: string,
-) {
-  notifyAndEmail(
-    userId, userEmail,
-    '🎓 Inscription confirmée',
-    `Vous êtes inscrit au programme "${programName}" de ${orgName}.`,
-    'program_enrolled',
-    { program_name: programName, org_name: orgName, program_link: `https://siteviral.com/programs/${programId}` },
-    'program', orgId,
-  );
-}
 
-// ── Program completed ──
-export async function onProgramCompleted(
-  userId: string,
-  userEmail: string | undefined,
-  programName: string,
-  orgId: string,
-) {
-  notifyAndEmail(
-    userId, userEmail,
-    '🏆 Programme terminé !',
-    `Félicitations ! Vous avez terminé le programme "${programName}".`,
-    'program_completed',
-    { program_name: programName },
-    'program', orgId,
-  );
-}
-
-// ── Content published (events, announcements, media, products, campaigns, programs) ──
+// ── Content published (events, announcements, media, products, campaigns) ──
 export async function onContentPublished(
   orgId: string,
   orgName: string,
-  contentType: 'event' | 'announcement' | 'media' | 'product' | 'campaign' | 'program',
+  contentType: 'event' | 'announcement' | 'media' | 'product' | 'campaign',
   contentTitle: string,
   contentId: string,
   extraData?: Record<string, string | number>,
@@ -185,17 +150,16 @@ export async function onContentPublished(
     media: 'new_media_published',
     product: 'new_product_published',
     campaign: 'new_campaign_published',
-    program: 'new_program_published',
   };
 
   const icons: Record<string, string> = {
     event: '📅', announcement: '📢', media: '🎬',
-    product: '🛍', campaign: '🎯', program: '🎓',
+    product: '🛍', campaign: '🎯',
   };
 
   const labels: Record<string, string> = {
     event: 'événement', announcement: 'annonce', media: 'contenu',
-    product: 'produit', campaign: 'campagne', program: 'programme',
+    product: 'produit', campaign: 'campagne',
   };
 
   // In-app notification to all members
@@ -215,8 +179,6 @@ export async function onContentPublished(
     announcement_title: contentTitle,
     media_title: contentTitle,
     product_name: contentTitle,
-    campaign_name: contentTitle,
-    program_name: contentTitle,
     org_link: `https://siteviral.com/org/${orgId}`,
     ...extraData,
   });

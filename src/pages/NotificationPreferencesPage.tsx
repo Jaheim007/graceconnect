@@ -15,7 +15,7 @@ const PREFS: Array<{ key: keyof NotifPrefs; icon: typeof Bell; labelFr: string; 
   { key: 'events', icon: Calendar, labelFr: 'Événements', labelEn: 'Events', descFr: 'Rappels d\'événements', descEn: 'Event reminders' },
   { key: 'comments', icon: MessageSquare, labelFr: 'Commentaires', labelEn: 'Comments', descFr: 'Réponses à vos commentaires', descEn: 'Replies to your comments' },
   { key: 'affiliate', icon: Users, labelFr: 'Affiliation', labelEn: 'Affiliate', descFr: 'Commissions et ventes', descEn: 'Commissions and sales' },
-  { key: 'programs', icon: BookOpen, labelFr: 'Programmes', labelEn: 'Programs', descFr: 'Progression et certificats', descEn: 'Progress and certificates' },
+  { key: 'programs', icon: BookOpen, labelFr: 'Programmes', labelEn: 'Programs', descFr: 'Nouveautés des plateformes', descEn: 'Platform updates' },
   { key: 'marketing', icon: Sparkles, labelFr: 'Marketing', labelEn: 'Marketing', descFr: 'Promotions et nouveautés', descEn: 'Promotions and news' },
 ];
 

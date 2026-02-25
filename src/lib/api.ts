@@ -154,9 +154,6 @@ export type EmailTemplate =
   // Products
   | 'purchase_confirmation' | 'new_purchase_received' | 'download_ready'
   | 'first_sale_milestone'
-  // Programs
-  | 'program_enrolled' | 'program_completed' | 'lesson_reminder'
-  | 'new_module_added' | 'certificate_ready'
   // KYC
   | 'kyc_submitted' | 'kyc_approved' | 'kyc_rejected'
   // Org lifecycle
@@ -182,7 +179,6 @@ export type EmailTemplate =
   | 'content_report_resolved' | 'content_liked' | 'content_saved'
   | 'new_event_published' | 'new_announcement_published'
   | 'new_media_published' | 'new_product_published' | 'new_campaign_published'
-  | 'new_program_published'
   // Recaps
   | 'weekly_recap_user' | 'daily_recap_admin' | 'daily_recap_superadmin'
   // Superadmin
