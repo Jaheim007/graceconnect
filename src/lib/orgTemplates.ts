@@ -76,8 +76,8 @@ export const ORG_TEMPLATES: OrgTemplate[] = [
     label: 'Community',
     emoji: '🏘️',
     defaults: {
-      monetization_enabled: false,
-      affiliation_enabled: false,
+      monetization_enabled: true,
+      affiliation_enabled: true,
       currency: '',
       platform_fee_percent: 10,
       affiliation_commission_percent: 10,
