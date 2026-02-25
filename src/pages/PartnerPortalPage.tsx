@@ -11,6 +11,7 @@ import { Loader2, Copy, Users, TrendingUp, Wallet, Clock, CheckCircle, XCircle, 
 import { toast } from 'sonner';
 import { SEOHead } from '@/components/seo/SEOHead';
 import PartnerPayoutConfig from '@/components/partner/PartnerPayoutConfig';
+import PartnerKYCForm from '@/components/partner/PartnerKYCForm';
 
 const LEVEL_LABELS: Record<number, string> = { 1: 'Bronze', 2: 'Argent', 3: 'Or', 4: 'Platine', 5: 'Diamant' };
 const STATUS_MAP: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
@@ -97,10 +98,11 @@ export default function PartnerPortalPage() {
       </div>
 
       <Tabs defaultValue="invitations" className="space-y-4">
-        <TabsList className="grid grid-cols-4 w-full max-w-xl">
+        <TabsList className="grid grid-cols-5 w-full max-w-2xl">
           <TabsTrigger value="invitations">Invitations</TabsTrigger>
           <TabsTrigger value="orgs">Organisations</TabsTrigger>
           <TabsTrigger value="gains">Gains</TabsTrigger>
+          <TabsTrigger value="kyc">KYC</TabsTrigger>
           <TabsTrigger value="payout">Paiement</TabsTrigger>
         </TabsList>
 
@@ -214,6 +216,15 @@ export default function PartnerPortalPage() {
               )}
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* ── KYC ── */}
+        <TabsContent value="kyc">
+          <PartnerKYCForm
+            partnerId={partner.id}
+            kycStatus={(partner as any).kyc_status || 'none'}
+            rejectionReason={(partner as any).kyc_rejection_reason}
+          />
         </TabsContent>
 
         {/* ── Payout ── */}

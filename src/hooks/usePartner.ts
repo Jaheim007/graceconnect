@@ -236,9 +236,70 @@ export function useManagePartner() {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => {
+    onSuccess: async (_, vars) => {
       toast.success('Partenaire mis à jour');
       qc.invalidateQueries({ queryKey: ['all-partners'] });
+      // Send email notification
+      const templateMap: Record<string, string> = {
+        approve: 'partner_welcome',
+        reject: 'partner_rejected',
+        suspend: 'partner_suspended',
+        unsuspend: 'partner_unsuspended',
+      };
+      const template = templateMap[vars.action];
+      if (template) {
+        try {
+          // Fetch partner email & name
+          const { data: partner } = await db.from('partners')
+            .select('email, full_name, invite_code')
+            .eq('id', vars.partnerId)
+            .single();
+          if (partner?.email) {
+            await callFn('send-email', {
+              template,
+              to: partner.email,
+              data: { name: partner.full_name, invite_code: partner.invite_code || '', reason: vars.reason || '' },
+            }, true);
+          }
+        } catch {
+          // Email is best-effort
+        }
+      }
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}
+
+// ── Superadmin: review partner KYC ──
+export function useReviewPartnerKYC() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ partnerId, action, reason }: { partnerId: string; action: 'approve' | 'reject'; reason?: string }) => {
+      const { data, error } = await db.rpc('review_partner_kyc', {
+        _partner_id: partnerId,
+        _action: action,
+        _reason: reason || null,
+      });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: async (_, vars) => {
+      toast.success(vars.action === 'approve' ? 'KYC approuvé' : 'KYC rejeté');
+      qc.invalidateQueries({ queryKey: ['all-partners'] });
+      // Send email
+      try {
+        const { data: partner } = await db.from('partners')
+          .select('email, full_name')
+          .eq('id', vars.partnerId)
+          .single();
+        if (partner?.email) {
+          await callFn('send-email', {
+            template: vars.action === 'approve' ? 'partner_kyc_approved' : 'partner_kyc_rejected',
+            to: partner.email,
+            data: { name: partner.full_name, reason: vars.reason || '' },
+          }, true);
+        }
+      } catch { /* best-effort */ }
     },
     onError: (err: Error) => toast.error(err.message),
   });

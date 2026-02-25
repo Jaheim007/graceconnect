@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAllPartners, useManagePartner, useSetPartnerRate, useAllPartnerPayouts, useProcessPartnerPayout, type Partner } from '@/hooks/usePartner';
+import { useAllPartners, useManagePartner, useSetPartnerRate, useAllPartnerPayouts, useProcessPartnerPayout, useReviewPartnerKYC, type Partner } from '@/hooks/usePartner';
 import { formatCurrency } from '@/lib/currency';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Loader2, Handshake, CheckCircle, XCircle, Pause, Play, Percent, Wallet } from 'lucide-react';
+import { Loader2, Handshake, CheckCircle, XCircle, Pause, Play, Percent, Wallet, Shield } from 'lucide-react';
 import { db } from '@/lib/db';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
@@ -23,6 +23,7 @@ export default function SuperadminPartners() {
   const managePartner = useManagePartner();
   const setRate = useSetPartnerRate();
   const processPayout = useProcessPartnerPayout();
+  const reviewKYC = useReviewPartnerKYC();
   const qc = useQueryClient();
 
   const [actionDialog, setActionDialog] = useState<{ partner: Partner; action: string } | null>(null);
@@ -93,6 +94,15 @@ export default function SuperadminPartners() {
       <Tabs defaultValue="partners" className="space-y-4">
         <TabsList>
           <TabsTrigger value="partners">Partenaires</TabsTrigger>
+          <TabsTrigger value="kyc" className="gap-1.5">
+            <Shield className="h-3.5 w-3.5" />
+            KYC
+            {partners.filter(p => (p as any).kyc_status === 'pending').length > 0 && (
+              <Badge variant="destructive" className="ml-1 text-[10px] h-4 px-1">
+                {partners.filter(p => (p as any).kyc_status === 'pending').length}
+              </Badge>
+            )}
+          </TabsTrigger>
           <TabsTrigger value="payouts" className="gap-1.5">
             <Wallet className="h-3.5 w-3.5" />
             Versements
@@ -176,6 +186,79 @@ export default function SuperadminPartners() {
               </CardContent>
             </Card>
           )}
+        </TabsContent>
+
+        {/* ── KYC Tab ── */}
+        <TabsContent value="kyc">
+          <Card>
+            <CardHeader>
+              <CardTitle>Vérifications KYC partenaires</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {(() => {
+                const kycPartners = partners.filter(p => (p as any).kyc_status && (p as any).kyc_status !== 'none');
+                if (kycPartners.length === 0) return <p className="text-sm text-muted-foreground py-4 text-center">Aucune soumission KYC.</p>;
+                return (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Partenaire</TableHead>
+                        <TableHead>Document</TableHead>
+                        <TableHead>Statut</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {kycPartners.map(p => {
+                        const pa = p as any;
+                        return (
+                          <TableRow key={p.id}>
+                            <TableCell>
+                              <p className="font-medium text-sm">{p.full_name}</p>
+                              <p className="text-xs text-muted-foreground">{p.email}</p>
+                            </TableCell>
+                            <TableCell>
+                              <div className="space-y-1">
+                                <p className="text-xs">{pa.id_document_type || '—'}</p>
+                                {pa.id_document_url && (
+                                  <a href={pa.id_document_url} target="_blank" rel="noopener" className="text-xs text-primary underline">Voir document</a>
+                                )}
+                                {pa.selfie_url && (
+                                  <a href={pa.selfie_url} target="_blank" rel="noopener" className="text-xs text-primary underline block">Voir selfie</a>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={pa.kyc_status === 'approved' ? 'default' : pa.kyc_status === 'rejected' ? 'destructive' : 'secondary'}>
+                                {pa.kyc_status}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-xs">{pa.kyc_submitted_at ? new Date(pa.kyc_submitted_at).toLocaleDateString('fr-FR') : '—'}</TableCell>
+                            <TableCell className="text-right">
+                              {pa.kyc_status === 'pending' && (
+                                <div className="flex items-center gap-1 justify-end">
+                                  <Button size="sm" variant="default" onClick={() => reviewKYC.mutate({ partnerId: p.id, action: 'approve' })} disabled={reviewKYC.isPending}>
+                                    <CheckCircle className="h-3.5 w-3.5 mr-1" />Approuver
+                                  </Button>
+                                  <Button size="sm" variant="destructive" onClick={() => {
+                                    const reason = prompt('Raison du rejet (optionnel):');
+                                    reviewKYC.mutate({ partnerId: p.id, action: 'reject', reason: reason || undefined });
+                                  }} disabled={reviewKYC.isPending}>
+                                    <XCircle className="h-3.5 w-3.5 mr-1" />Rejeter
+                                  </Button>
+                                </div>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                );
+              })()}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* ── Payouts Tab ── */}
