@@ -43,16 +43,15 @@ export default function MarketplacePage() {
   const { t, locale } = useI18n();
   const isFr = locale === 'fr';
 
-  // Featured products
-  const { data: featured = [] } = useQuery({
-    queryKey: ['marketplace-featured'],
+  // Most bought products
+  const { data: mostBought = [] } = useQuery({
+    queryKey: ['marketplace-most-bought'],
     queryFn: async () => {
       const { data } = await db
         .from('digital_products')
         .select('*, organizations(name, slug, logo_url, currency)')
         .eq('is_published', true)
-        .eq('is_featured', true)
-        .order('featured_score', { ascending: false })
+        .order('sales_count', { ascending: false })
         .limit(6);
       return (data || []).map((p: any) => ({
         ...p,
@@ -152,14 +151,14 @@ export default function MarketplacePage() {
         <PageTour pageId="explorer" steps={TOUR_STEPS} />
 
         {/* Featured products carousel */}
-        {featured.length > 0 && tab === 'products' && !search && (
+        {mostBought.length > 0 && tab === 'products' && !search && (
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <Star className="h-4 w-4 text-amber-500" />
-              <h2 className="font-semibold text-sm">{isFr ? 'Produits mis en avant' : 'Featured Products'}</h2>
+              <ShoppingBag className="h-4 w-4 text-primary" />
+              <h2 className="font-semibold text-sm">{isFr ? 'Les plus achetés' : 'Most Bought'}</h2>
             </div>
             <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {featured.map((p: any) => (
+              {mostBought.map((p: any) => (
                 <motion.div key={p.id} variants={fadeUp} initial="hidden" animate="visible">
                   <ProductCard product={p} />
                 </motion.div>

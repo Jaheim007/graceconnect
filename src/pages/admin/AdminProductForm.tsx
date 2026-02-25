@@ -32,7 +32,7 @@ const schema = z.object({
   file_url: z.string().optional(),
   external_link: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   is_free: z.boolean().default(false),
-  is_featured: z.boolean().default(false),
+  
   is_published: z.boolean().default(false),
   is_bundle: z.boolean().default(false),
   guarantee_text: z.string().optional(),
@@ -80,7 +80,7 @@ export function ProductForm() {
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { product_type: 'pdf', price: 0, is_free: false, is_featured: false, is_published: false, is_bundle: false, guarantee_text: '' },
+    defaultValues: { product_type: 'pdf', price: 0, is_free: false, is_published: false, is_bundle: false, guarantee_text: '' },
   });
 
   useEffect(() => {
@@ -94,7 +94,6 @@ export function ProductForm() {
         file_url: item.file_url || '',
         external_link: item.external_link || '',
         is_free: item.is_free || false,
-        is_featured: item.is_featured || false,
         is_published: item.is_published || false,
         is_bundle: item.is_bundle || false,
         guarantee_text: item.guarantee_text || '',
@@ -207,7 +206,7 @@ export function ProductForm() {
             <Button variant="outline" className="gap-2" onClick={() => { if (navigator.share) navigator.share({ title: watch('title'), url: newProductUrl }); else { navigator.clipboard.writeText(newProductUrl); toast({ title: 'Lien copié ✅' }); } }}>
               <Share2 className="h-4 w-4" /> Partager
             </Button>
-            <Button className="gap-2 bg-primary text-primary-foreground" onClick={() => { setCreatedProduct(null); reset({ product_type: 'pdf', price: 0, is_free: false, is_featured: false, is_published: false }); }}>
+            <Button className="gap-2 bg-primary text-primary-foreground" onClick={() => { setCreatedProduct(null); reset({ product_type: 'pdf', price: 0, is_free: false, is_published: false }); }}>
               <Plus className="h-4 w-4" /> Nouveau produit
             </Button>
           </div>
@@ -335,10 +334,6 @@ export function ProductForm() {
           <div className="flex items-center gap-2">
             <Switch checked={watch('is_free')} onCheckedChange={v => setValue('is_free', v)} />
             <Label className="text-sm cursor-pointer">Free</Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <Switch checked={watch('is_featured')} onCheckedChange={v => setValue('is_featured', v)} />
-            <Label className="text-sm cursor-pointer">Featured</Label>
           </div>
           <div className="flex items-center gap-2">
             <Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} />
