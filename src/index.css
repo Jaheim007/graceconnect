@@ -4,108 +4,109 @@
 
 @layer base {
   :root {
-    /* Light mode — authority / institutional */
-    --background: 220 20% 97%;
-    --foreground: 222 30% 10%;
+    /* ── Light mode — Navy + Gold + White ── */
+    --background: 0 0% 100%;
+    --foreground: 225 70% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 30% 10%;
+    --card-foreground: 225 70% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 30% 10%;
+    --popover-foreground: 225 70% 12%;
 
-    --primary: 220 80% 50%;
-    --primary-foreground: 210 20% 98%;
+    --primary: 225 75% 22%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 92%;
-    --secondary-foreground: 222 25% 15%;
+    --secondary: 225 30% 94%;
+    --secondary-foreground: 225 70% 15%;
 
-    --muted: 220 14% 93%;
-    --muted-foreground: 215 15% 46%;
+    --muted: 225 20% 95%;
+    --muted-foreground: 225 15% 45%;
 
-    --accent: 45 90% 55%;
-    --accent-foreground: 222 47% 8%;
+    --accent: 40 85% 52%;
+    --accent-foreground: 225 75% 10%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 13% 88%;
-    --input: 220 13% 88%;
-    --ring: 220 80% 50%;
+    --border: 225 20% 90%;
+    --input: 225 20% 90%;
+    --ring: 225 75% 22%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 222 25% 15%;
-    --sidebar-primary: 220 80% 50%;
-    --sidebar-primary-foreground: 210 20% 98%;
-    --sidebar-accent: 220 14% 93%;
-    --sidebar-accent-foreground: 222 25% 15%;
-    --sidebar-border: 220 13% 88%;
-    --sidebar-ring: 220 80% 50%;
+    --sidebar-background: 225 75% 14%;
+    --sidebar-foreground: 225 15% 92%;
+    --sidebar-primary: 40 85% 52%;
+    --sidebar-primary-foreground: 225 75% 10%;
+    --sidebar-accent: 225 60% 20%;
+    --sidebar-accent-foreground: 225 15% 92%;
+    --sidebar-border: 225 55% 22%;
+    --sidebar-ring: 40 85% 52%;
 
     /* Custom tokens */
-    --gold: 45 90% 55%;
-    --gold-muted: 45 40% 88%;
-    --surface: 220 15% 95%;
+    --gold: 40 85% 52%;
+    --gold-muted: 40 40% 90%;
+    --surface: 225 20% 97%;
     --surface-elevated: 0 0% 100%;
-    --hero-gradient: linear-gradient(135deg, hsl(220 25% 8%) 0%, hsl(222 35% 15%) 100%);
-    --card-gradient: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(220 15% 98%) 100%);
-    --gold-gradient: linear-gradient(135deg, hsl(45 90% 55%) 0%, hsl(35 85% 50%) 100%);
-    --glass: hsla(0, 0%, 100%, 0.75);
-    --shadow-card: 0 1px 3px 0 hsla(222, 25%, 10%, 0.04), 0 1px 2px -1px hsla(222, 25%, 10%, 0.03);
-    --shadow-elevated: 0 4px 16px -4px hsla(222, 25%, 10%, 0.1), 0 2px 4px -2px hsla(222, 25%, 10%, 0.05);
+    --hero-gradient: linear-gradient(135deg, hsl(225 75% 10%) 0%, hsl(225 70% 18%) 100%);
+    --card-gradient: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(225 20% 97%) 100%);
+    --gold-gradient: linear-gradient(135deg, hsl(45 90% 55%) 0%, hsl(35 80% 48%) 100%);
+    --glass: hsla(0, 0%, 100%, 0.8);
+    --shadow-card: 0 1px 3px 0 hsla(225, 75%, 12%, 0.06), 0 1px 2px -1px hsla(225, 75%, 12%, 0.04);
+    --shadow-elevated: 0 4px 20px -4px hsla(225, 75%, 12%, 0.12), 0 2px 6px -2px hsla(225, 75%, 12%, 0.06);
   }
 
   .dark {
-    --background: 222 47% 7%;
-    --foreground: 210 20% 98%;
+    /* ── Dark mode — Deep navy base ── */
+    --background: 225 70% 7%;
+    --foreground: 225 15% 95%;
 
-    --card: 222 38% 11%;
-    --card-foreground: 210 20% 96%;
+    --card: 225 60% 11%;
+    --card-foreground: 225 15% 93%;
 
-    --popover: 222 38% 11%;
-    --popover-foreground: 210 20% 96%;
+    --popover: 225 60% 11%;
+    --popover-foreground: 225 15% 93%;
 
-    --primary: 220 80% 58%;
-    --primary-foreground: 210 20% 98%;
+    --primary: 40 85% 52%;
+    --primary-foreground: 225 75% 10%;
 
-    --secondary: 222 18% 17%;
-    --secondary-foreground: 210 30% 88%;
+    --secondary: 225 40% 16%;
+    --secondary-foreground: 225 15% 85%;
 
-    --muted: 222 18% 18%;
-    --muted-foreground: 215 15% 68%;
+    --muted: 225 35% 15%;
+    --muted-foreground: 225 15% 60%;
 
-    --accent: 45 90% 55%;
-    --accent-foreground: 222 47% 8%;
+    --accent: 40 85% 52%;
+    --accent-foreground: 225 75% 10%;
 
     --destructive: 0 72% 52%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 222 18% 20%;
-    --input: 222 18% 17%;
-    --ring: 220 80% 58%;
+    --border: 225 35% 18%;
+    --input: 225 35% 16%;
+    --ring: 40 85% 52%;
 
-    --sidebar-background: 222 40% 8%;
-    --sidebar-foreground: 210 20% 90%;
-    --sidebar-primary: 220 80% 58%;
-    --sidebar-primary-foreground: 210 20% 98%;
-    --sidebar-accent: 222 18% 17%;
-    --sidebar-accent-foreground: 210 20% 90%;
-    --sidebar-border: 222 18% 18%;
-    --sidebar-ring: 220 80% 58%;
+    --sidebar-background: 225 72% 8%;
+    --sidebar-foreground: 225 15% 88%;
+    --sidebar-primary: 40 85% 52%;
+    --sidebar-primary-foreground: 225 75% 10%;
+    --sidebar-accent: 225 45% 14%;
+    --sidebar-accent-foreground: 225 15% 88%;
+    --sidebar-border: 225 40% 15%;
+    --sidebar-ring: 40 85% 52%;
 
     /* Custom dark tokens */
-    --gold: 45 90% 58%;
-    --gold-muted: 45 25% 22%;
-    --surface: 222 32% 11%;
-    --surface-elevated: 222 30% 14%;
-    --hero-gradient: linear-gradient(135deg, hsl(222 47% 5%) 0%, hsl(222 40% 10%) 100%);
-    --card-gradient: linear-gradient(145deg, hsl(222 40% 10%) 0%, hsl(222 35% 12%) 100%);
-    --gold-gradient: linear-gradient(135deg, hsl(45 90% 55%) 0%, hsl(35 85% 50%) 100%);
-    --glass: hsla(222, 40%, 10%, 0.85);
-    --shadow-card: 0 1px 3px 0 hsla(222, 47%, 4%, 0.3), 0 1px 2px -1px hsla(222, 47%, 4%, 0.2);
-    --shadow-elevated: 0 4px 16px -4px hsla(222, 47%, 4%, 0.5), 0 2px 4px -2px hsla(222, 47%, 4%, 0.3);
+    --gold: 40 85% 55%;
+    --gold-muted: 40 30% 20%;
+    --surface: 225 55% 10%;
+    --surface-elevated: 225 50% 13%;
+    --hero-gradient: linear-gradient(135deg, hsl(225 72% 5%) 0%, hsl(225 65% 10%) 100%);
+    --card-gradient: linear-gradient(145deg, hsl(225 55% 10%) 0%, hsl(225 50% 12%) 100%);
+    --gold-gradient: linear-gradient(135deg, hsl(40 85% 55%) 0%, hsl(35 80% 48%) 100%);
+    --glass: hsla(225, 55%, 8%, 0.88);
+    --shadow-card: 0 1px 3px 0 hsla(225, 70%, 4%, 0.35), 0 1px 2px -1px hsla(225, 70%, 4%, 0.25);
+    --shadow-elevated: 0 4px 20px -4px hsla(225, 70%, 4%, 0.55), 0 2px 6px -2px hsla(225, 70%, 4%, 0.35);
   }
 }
 
