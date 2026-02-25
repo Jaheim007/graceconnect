@@ -180,7 +180,7 @@ export default function AffiliationPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Affiliation — Siteviral" description="Gagnez des commissions en partageant les ressources des organisations." />
+      <SEOHead title="Programme Ambassadeur — Siteviral" description="Gagnez des commissions en partageant les ressources des organisations." />
       <div className="container max-w-4xl px-4 py-5 sm:py-6 space-y-5">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>

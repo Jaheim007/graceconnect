@@ -14,7 +14,7 @@ const STEPS = [
   { id: 'announcement', icon: Megaphone, title: 'Create First Announcement', desc: 'Post your first announcement to welcome your community.', route: '/admin/announcements/new', cta: 'Create Announcement' },
   { id: 'product', icon: ShoppingBag, title: 'Add a Digital Product', desc: 'List your first ebook, course, or digital resource.', route: '/admin/products/new', cta: 'Add Product' },
   { id: 'campaign', icon: Heart, title: 'Launch a Campaign', desc: 'Set up a donation campaign for your community.', route: '/admin/campaigns/new', cta: 'Create Campaign' },
-  { id: 'affiliate', icon: Link2, title: 'Enable Affiliation', desc: 'Let your members promote and earn commissions.', route: '/admin/affiliation', cta: 'Setup Affiliation' },
+  { id: 'affiliate', icon: Link2, title: 'Programme Ambassadeur', desc: 'Permettez à vos membres de promouvoir vos ressources et gagner des commissions.', route: '/admin/affiliation', cta: 'Configurer' },
 ];
 
 interface QuickStartWizardProps {

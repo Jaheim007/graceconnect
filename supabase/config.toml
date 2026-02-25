@@ -56,3 +56,6 @@ verify_jwt = false
 
 [functions.settle-pre-subaccount]
 verify_jwt = false
+
+[functions.check-payout-capabilities]
+verify_jwt = false
