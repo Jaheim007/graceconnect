@@ -3032,10 +3032,12 @@ export type Database = {
           created_at: string
           currency: string | null
           donation_id: string | null
+          gateway_refund_id: string | null
           id: string
           organization_id: string
           purchase_id: string | null
           reason: string
+          refunded_amount: number | null
           resolved_at: string | null
           resolved_by: string | null
           status: string
@@ -3048,10 +3050,12 @@ export type Database = {
           created_at?: string
           currency?: string | null
           donation_id?: string | null
+          gateway_refund_id?: string | null
           id?: string
           organization_id: string
           purchase_id?: string | null
           reason: string
+          refunded_amount?: number | null
           resolved_at?: string | null
           resolved_by?: string | null
           status?: string
@@ -3064,10 +3068,12 @@ export type Database = {
           created_at?: string
           currency?: string | null
           donation_id?: string | null
+          gateway_refund_id?: string | null
           id?: string
           organization_id?: string
           purchase_id?: string | null
           reason?: string
+          refunded_amount?: number | null
           resolved_at?: string | null
           resolved_by?: string | null
           status?: string
