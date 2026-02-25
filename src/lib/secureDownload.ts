@@ -18,6 +18,9 @@ const EXT_BY_CONTENT_TYPE: Record<string, string> = {
   'application/pdf': 'pdf',
   'application/zip': 'zip',
   'application/x-zip-compressed': 'zip',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx',
 };
 
 function getExtensionFromUrl(fileUrl: string): string | null {
