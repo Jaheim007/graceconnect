@@ -11,6 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { db } from '@/lib/db';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { fetchWatermarkedFile, isPdfLikeFile, openFileInline, triggerBrowserDownload } from '@/lib/secureDownload';
 
 interface TransactionDetails {
   type: 'product' | 'donation';
@@ -136,33 +137,15 @@ export default function PaymentSuccessPage() {
     if (!tx?.product_id || !tx?.file_url) return;
     setDownloading(true);
     try {
-      const { data: { session } } = await db.auth.getSession();
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/watermark-download`;
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`,
-        },
-        body: JSON.stringify({
-          file_url: tx.file_url,
-          product_id: tx.product_id,
-          product_title: tx.product_title || 'Document',
-        }),
+      const file = await fetchWatermarkedFile({
+        fileUrl: tx.file_url,
+        productId: tx.product_id,
+        productTitle: tx.product_title || 'Document',
       });
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || 'Download failed');
-      }
-      const blob = await response.blob();
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `${tx.product_title || 'document'}.pdf`;
-      a.click();
-      URL.revokeObjectURL(a.href);
+      triggerBrowserDownload(file);
     } catch (err) {
       console.error('[PaymentSuccess] download error:', err);
-      alert('Erreur lors du téléchargement. Veuillez réessayer depuis "Mes Ressources".');
+      alert('Erreur lors du téléchargement sécurisé. Veuillez réessayer depuis "Mes Ressources".');
     } finally {
       setDownloading(false);
     }
@@ -172,31 +155,16 @@ export default function PaymentSuccessPage() {
     if (!tx?.product_id || !tx?.file_url) return;
     setReading(true);
     try {
-      const { data: { session } } = await db.auth.getSession();
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/watermark-download`;
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session?.access_token}`,
-        },
-        body: JSON.stringify({
-          file_url: tx.file_url,
-          product_id: tx.product_id,
-          product_title: tx.product_title || 'Document',
-          inline: true,
-        }),
+      const file = await fetchWatermarkedFile({
+        fileUrl: tx.file_url,
+        productId: tx.product_id,
+        productTitle: tx.product_title || 'Document',
+        inline: true,
       });
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        throw new Error(errData.error || 'Read failed');
-      }
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
-      window.open(blobUrl, '_blank');
+      openFileInline(file);
     } catch (err) {
       console.error('[PaymentSuccess] read error:', err);
-      alert('Erreur lors de l\'ouverture. Veuillez réessayer depuis "Mes Ressources".');
+      alert('Erreur lors de l\'ouverture. La lecture directe est disponible uniquement pour les PDF.');
     } finally {
       setReading(false);
     }
@@ -236,7 +204,7 @@ export default function PaymentSuccessPage() {
   }
 
   const isProduct = tx.type === 'product';
-  const isBook = tx.product_type === 'ebook' || tx.product_type === 'pdf' || tx.file_url?.toLowerCase().includes('.pdf');
+  const isBook = isPdfLikeFile(tx.file_url, tx.product_type);
   const isCompleted = tx.status === 'completed';
 
   return (

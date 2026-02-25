@@ -2,8 +2,13 @@ import { useState } from 'react';
 import { Download, Eye, Loader2, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import {
+  fetchWatermarkedFile,
+  isPdfLikeFile,
+  openFileInline,
+  triggerBrowserDownload,
+} from '@/lib/secureDownload';
 
 interface SecureDownloadButtonProps {
   fileUrl: string;
@@ -24,51 +29,40 @@ export function SecureDownloadButton({
   const { toast } = useToast();
   const [downloading, setDownloading] = useState(false);
   const [previewing, setPreviewing] = useState(false);
+  const isPdf = isPdfLikeFile(fileUrl);
 
   const handleAction = async (inline: boolean) => {
     if (!user) return;
+
     const setter = inline ? setPreviewing : setDownloading;
     setter(true);
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Non authentifié');
 
-      const res = await supabase.functions.invoke('watermark-download', {
-        body: { file_url: fileUrl, product_id: productId, product_title: productTitle, inline },
+    try {
+      const file = await fetchWatermarkedFile({
+        fileUrl,
+        productId,
+        productTitle,
+        inline,
       });
 
-      if (res.error) throw new Error(res.error.message || 'Erreur de téléchargement');
-
-      // Detect content type from response
-      const responseType = res.data instanceof Blob ? res.data.type : 'application/octet-stream';
-      const blob = res.data instanceof Blob ? res.data : new Blob([res.data], { type: responseType });
-      const url = URL.createObjectURL(blob);
-
       if (inline) {
-        window.open(url, '_blank');
+        openFileInline(file);
       } else {
-        const a = document.createElement('a');
-        a.href = url;
-        const safeName = productTitle.replace(/[^\w\s-]/g, '_').substring(0, 60);
-        // If it's a ZIP (non-PDF files are bundled with license), use .zip extension
-        const isZip = blob.type === 'application/zip' || (!isPdf && !inline);
-        a.download = `${safeName}.${isZip ? 'zip' : 'pdf'}`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        triggerBrowserDownload(file);
       }
-      
-      setTimeout(() => URL.revokeObjectURL(url), 30000);
+
       toast({ title: inline ? '📖 Document ouvert' : '✅ Téléchargement réussi' });
     } catch (err: any) {
       console.error('[SecureDownload]', err);
-      toast({ title: 'Erreur', description: err.message, variant: 'destructive' });
+      toast({
+        title: 'Erreur',
+        description: err?.message || 'Impossible de récupérer le fichier sécurisé.',
+        variant: 'destructive',
+      });
     } finally {
       setter(false);
     }
   };
-
-  const isPdf = fileUrl?.toLowerCase().includes('.pdf');
 
   return (
     <div className={`flex items-center gap-2 ${className || ''}`}>

@@ -20,7 +20,7 @@ import { useMyPurchases } from '@/hooks/usePurchases';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
-import { supabase } from '@/integrations/supabase/client';
+import { fetchWatermarkedFile, isPdfLikeFile, openFileInline, triggerBrowserDownload } from '@/lib/secureDownload';
 import { AffiliateShareTools } from '@/components/affiliate/AffiliateShareTools';
 import { ProductAffiliateLinkGen } from '@/components/affiliate/ProductAffiliateLinkGen';
 import { useI18n } from '@/i18n/I18nContext';
@@ -233,19 +233,32 @@ export default function UserDashboard() {
   const handleFileAction = async (purchase: NonNullable<typeof myResources>[number], mode: 'download' | 'inline') => {
     if (!purchase.product.file_url || !user) return;
     setDownloading(purchase.id);
+
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/watermark-download`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${session?.access_token}` },
-        body: JSON.stringify({ file_url: purchase.product.file_url, product_id: purchase.product_id, product_title: purchase.product.title, inline: mode === 'inline' }),
+      const file = await fetchWatermarkedFile({
+        fileUrl: purchase.product.file_url,
+        productId: purchase.product_id,
+        productTitle: purchase.product.title,
+        inline: mode === 'inline',
       });
-      if (!res.ok) { window.open(purchase.product.file_url, '_blank'); return; }
-      const blob = await res.blob();
-      if (mode === 'inline') { const url = URL.createObjectURL(new Blob([blob], { type: 'application/pdf' })); window.open(url, '_blank'); }
-      else { const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `${purchase.product.title}.pdf`; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
-    } catch { window.open(purchase.product.file_url, '_blank'); }
-    finally { setDownloading(null); }
+
+      if (mode === 'inline') {
+        openFileInline(file);
+      } else {
+        triggerBrowserDownload(file);
+      }
+    } catch (error) {
+      console.error('[UserDashboard] secure file action error:', error);
+      toast({
+        title: t('common.error'),
+        description: mode === 'inline'
+          ? 'La lecture directe est disponible uniquement pour les PDF sécurisés.'
+          : 'Impossible de télécharger le fichier sécurisé.',
+        variant: 'destructive',
+      });
+    } finally {
+      setDownloading(null);
+    }
   };
 
   // Greeting
@@ -449,7 +462,7 @@ export default function UserDashboard() {
                       <p className="text-sm font-medium truncate">{p.product.title}</p>
                       <p className="text-[10px] text-muted-foreground capitalize">{p.product.product_type}</p>
                     </div>
-                    {p.product.file_url && (
+                    {p.product.file_url && isPdfLikeFile(p.product.file_url, p.product.product_type) && (
                       <Button size="sm" variant="ghost" className="gap-1 text-[10px] h-7" onClick={() => handleFileAction(p, 'inline')}>
                         <Eye className="h-3 w-3" /> {t('dash.read')}
                       </Button>
