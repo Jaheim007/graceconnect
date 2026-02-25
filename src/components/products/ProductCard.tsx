@@ -130,11 +130,6 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
               <FlashSaleBadge saleEndsAt={saleEndsAt} salePrice={salePrice} originalPrice={product.price} />
             )}
           </div>
-          {product.is_featured && (
-            <Badge className="bg-accent text-accent-foreground border-0 text-[10px] font-bold">
-              En vedette
-            </Badge>
-          )}
         </div>
         <div className="absolute bottom-2.5 right-2.5">
           <span className={cn(
