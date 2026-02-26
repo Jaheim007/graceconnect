@@ -466,6 +466,11 @@ export default function ProductDetailPage() {
               title={product.title}
               isPurchased={isPurchased}
               autoOpen={shouldAutoOpenPreview}
+              onRequestClose={() => {
+                const nextParams = new URLSearchParams(searchParams);
+                nextParams.delete('preview');
+                setSearchParams(nextParams, { replace: true });
+              }}
             />
 
             <div className="md:hidden space-y-2">
