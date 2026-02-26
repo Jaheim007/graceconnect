@@ -2,7 +2,7 @@ import { DigitalProduct } from '@/types/database';
 import { formatPrice } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen, Share2, Copy, MessageCircle } from 'lucide-react';
+import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen, Share2, Copy, MessageCircle, Eye } from 'lucide-react';
 import { FlashSaleBadge } from './FlashSaleBadge';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
@@ -66,6 +66,9 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
 
   let shareUrl = `https://siteviral.com${detailPath}`;
   if (affiliateCode) shareUrl += `?ref=${affiliateCode}`;
+
+  const canPreview = !!(product as any).file_url && ['pdf', 'ebook'].includes((product.product_type || '').toLowerCase());
+  const previewPath = `${detailPath}?preview=1`;
 
   const handleCopyLink = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -170,6 +173,21 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
           </Badge>
 
           <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
+            {canPreview && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-[11px] px-2.5 gap-1"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(previewPath);
+                }}
+              >
+                <Eye className="h-3 w-3" />
+                Aperçu
+              </Button>
+            )}
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground">

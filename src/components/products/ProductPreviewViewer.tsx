@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,7 @@ interface ProductPreviewViewerProps {
   coverImageUrl?: string | null;
   title: string;
   isPurchased?: boolean;
+  autoOpen?: boolean;
 }
 
 function computePreviewLimit(total: number, previewPageCount?: number | null): number {
@@ -41,6 +42,7 @@ export function ProductPreviewViewer({
   coverImageUrl,
   title,
   isPurchased,
+  autoOpen,
 }: ProductPreviewViewerProps) {
   const [open, setOpen] = useState(false);
   const [pages, setPages] = useState<string[]>([]);
@@ -59,36 +61,49 @@ export function ProductPreviewViewer({
   const getSignedUrl = useCallback(async (): Promise<string | null> => {
     if (!fileUrl) return null;
 
-    if (fileUrl.includes('private-products')) {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-        const response = await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-signed-url`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({ product_id: productId, preview: true }),
-          }
-        );
-        if (response.ok) {
-          const data = await response.json();
-          return data.url;
-        }
-      } catch (e) {
-        console.error('Failed to get signed URL for preview:', e);
-      }
-      return null;
+    if (!fileUrl.includes('private-products')) {
+      return fileUrl;
     }
 
-    return fileUrl;
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const bearerToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+      const { data, error } = await supabase.functions.invoke('generate-signed-url', {
+        headers: { Authorization: `Bearer ${bearerToken}` },
+        body: { product_id: productId, preview: true },
+      });
+
+      if (!error && data?.url) {
+        return data.url;
+      }
+
+      if (error) {
+        console.error('Preview signed URL invoke failed:', error);
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-signed-url`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${bearerToken}`,
+        },
+        body: JSON.stringify({ product_id: productId, preview: true }),
+      });
+
+      if (response.ok) {
+        const fallbackData = await response.json();
+        return fallbackData?.url || null;
+      }
+    } catch (e) {
+      console.error('Preview signed URL failed:', e);
+    }
+
+    return null;
   }, [fileUrl, productId]);
 
   const loadPdfPreview = useCallback(async () => {
-    if (!isPdf || !fileUrl || loading || pages.length > 0) return;
+    if (!isPdf || !fileUrl || loading) return;
 
     setLoading(true);
     setError(null);
@@ -113,42 +128,56 @@ export function ProductPreviewViewer({
       const limit = isPurchased ? numPages : computePreviewLimit(numPages, previewPageCount);
       const pagesToRender = Math.min(limit, numPages);
       const renderedPages: string[] = [];
+      setPages([]);
 
       for (let i = 1; i <= pagesToRender; i++) {
         const page = await pdf.getPage(i);
-        const scale = 1.5;
-        const viewport = page.getViewport({ scale });
+        const viewport = page.getViewport({ scale: 1.2 });
 
         const canvas = document.createElement('canvas');
         canvas.width = viewport.width;
         canvas.height = viewport.height;
-        const ctx = canvas.getContext('2d')!;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) continue;
 
         await page.render({ canvasContext: ctx, viewport }).promise;
-        renderedPages.push(canvas.toDataURL('image/jpeg', 0.85));
+        renderedPages.push(canvas.toDataURL('image/jpeg', 0.82));
+        setPages([...renderedPages]);
       }
-
-      setPages(renderedPages);
     } catch (e: any) {
       console.error('PDF preview error:', e);
       setError("Erreur lors du chargement de l'aperçu");
     } finally {
       setLoading(false);
     }
-  }, [isPdf, fileUrl, previewPageCount, isPurchased, getSignedUrl, loading, pages.length]);
+  }, [isPdf, fileUrl, previewPageCount, isPurchased, getSignedUrl, loading]);
 
   const handleOpenPreview = useCallback(() => {
     setCurrentPage(0);
     setOpen(true);
-    // Load on demand when modal opens
     if (pages.length === 0 && !loading) {
       loadPdfPreview();
     }
   }, [pages.length, loading, loadPdfPreview]);
 
-  // Don't render anything if no file at all
-  if (!hasFile) return null;
-  // For non-PDF types without a cover, nothing to preview yet
+  useEffect(() => {
+    if (autoOpen && !open) {
+      handleOpenPreview();
+    }
+  }, [autoOpen, open, handleOpenPreview]);
+
+  if (!hasFile) {
+    if (!isPdf) return null;
+
+    return (
+      <div className="rounded-xl border border-dashed border-border bg-muted/30 p-3">
+        <p className="text-xs text-muted-foreground">
+          Aperçu indisponible : aucun fichier PDF n’a été ajouté pour ce produit.
+        </p>
+      </div>
+    );
+  }
+
   if (!isPdf && !coverImageUrl) return null;
 
   const displayPageCount = totalPages || pageCount;
@@ -158,7 +187,6 @@ export function ProductPreviewViewer({
 
   return (
     <>
-      {/* Always-visible preview button */}
       <div className="space-y-3">
         <div className="flex items-center gap-2 flex-wrap">
           {displayPageCount != null && displayPageCount > 0 && (
@@ -182,7 +210,6 @@ export function ProductPreviewViewer({
           )}
         </div>
 
-        {/* Thumbnail strip inline (only after loaded) */}
         {pages.length > 0 && !open && (
           <div className="flex gap-2 overflow-x-auto pb-1">
             {pages.map((src, i) => (
@@ -212,10 +239,8 @@ export function ProductPreviewViewer({
         )}
       </div>
 
-      {/* Fullscreen preview modal */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-4xl w-[95vw] h-[90vh] p-0 gap-0 overflow-hidden">
-          {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b bg-background/95 backdrop-blur-sm">
             <div className="flex items-center gap-3 min-w-0">
               <FileText className="h-4 w-4 text-primary shrink-0" />
@@ -260,7 +285,6 @@ export function ProductPreviewViewer({
             </div>
           </div>
 
-          {/* Content */}
           <ScrollArea className="flex-1 h-full">
             <div className="p-4 space-y-4">
               {loading && (
