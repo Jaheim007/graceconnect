@@ -39,9 +39,9 @@ import { useWaitlists } from '@/hooks/useWaitlists';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { cn } from '@/lib/utils';
 import {
-  Home, ShoppingBag, Heart, Play, Camera, CalendarDays, HandHeart
+  Home, ShoppingBag, Heart, Play, Camera, CalendarDays, HandHeart, Plus, ChevronDown, ChevronUp, Settings
 } from 'lucide-react';
-import React from 'react';
+import React, { useCallback } from 'react';
 
 export default function OrgPublicPage() {
   useAffiliateCapture();
@@ -200,191 +200,249 @@ export default function OrgPublicPage() {
         hasAffiliateRef={hasAffiliateRef}
       />
 
-      <div className="container max-w-5xl">
-        {/* Pinned announcement */}
-        {pinnedAnnouncement && (
-          <div className="mb-6 p-4 rounded-2xl bg-primary/10 border border-primary/20 cursor-pointer hover:bg-primary/15 transition-colors" onClick={() => navigate(`/announcement/${pinnedAnnouncement.id}`)}>
-            <div className="flex items-start gap-3">
-              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><span className="text-xs">📌</span></div>
-              <div>
-                <h3 className="font-semibold text-sm">{pinnedAnnouncement.title}</h3>
-                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-3">{pinnedAnnouncement.body}</p>
+      <div className={cn('container', isAdmin ? 'max-w-7xl' : 'max-w-5xl')}>
+        <div className={cn(isAdmin ? 'flex gap-6' : '')}>
+          {/* Main content */}
+          <div className="flex-1 min-w-0">
+            {/* Pinned announcement */}
+            {pinnedAnnouncement && (
+              <div className="mb-6 p-4 rounded-2xl bg-primary/10 border border-primary/20 cursor-pointer hover:bg-primary/15 transition-colors" onClick={() => navigate(`/announcement/${pinnedAnnouncement.id}`)}>
+                <div className="flex items-start gap-3">
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><span className="text-xs">📌</span></div>
+                  <div>
+                    <h3 className="font-semibold text-sm">{pinnedAnnouncement.title}</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-3">{pinnedAnnouncement.body}</p>
+                  </div>
+                </div>
               </div>
+            )}
+
+            {/* Tabs */}
+            <div ref={tabsRef} className="scroll-mt-14">
+              <Tabs value={activeTab} onValueChange={navigateTab} className="w-full">
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-6 pb-1 sticky top-12 z-10 bg-background/95 backdrop-blur-sm py-3 -mx-4 px-4">
+                  {[
+                    { value: 'home', label: t('org_public.home'), icon: Home, count: null },
+                    ...(products.length > 0 || isAdmin ? [{ value: 'store', label: t('org_public.store'), icon: ShoppingBag, count: products.length }] : []),
+                    ...(campaigns.length > 0 || isAdmin ? [{ value: 'donate', label: t('org_public.donations'), icon: Heart, count: campaigns.length }] : []),
+                    ...((offerings.length > 0 || isAdmin) && (orgAny.offerings_enabled) ? [{ value: 'offerings', label: locale === 'fr' ? 'Dons' : 'Donations', icon: HandHeart, count: offerings.length }] : []),
+                    ...(media.length > 0 || isAdmin ? [{ value: 'content', label: t('org_public.content'), icon: Play, count: media.length }] : []),
+                    ...(photos.length > 0 || isAdmin ? [{ value: 'photos', label: t('org_public.photos'), icon: Camera, count: photos.length }] : []),
+                    ...(events.length > 0 || isAdmin ? [{ value: 'events', label: t('org_public.events'), icon: CalendarDays, count: events.length }] : []),
+                  ].map((tab) => {
+                    const Icon = tab.icon;
+                    return (
+                      <button
+                        key={tab.value}
+                        onClick={() => navigateTab(tab.value)}
+                        className={cn(
+                          'shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-semibold transition-all border',
+                          activeTab === tab.value
+                            ? 'bg-primary text-primary-foreground border-primary'
+                            : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/20 bg-card'
+                        )}
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                        {tab.label}
+                        {tab.count !== null && <span className="text-[10px] opacity-70">({tab.count})</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* HOME */}
+                <TabsContent value="home" className="space-y-8">
+                  <OrgHomeSections
+                    slug={slug!}
+                    products={products}
+                    campaigns={campaigns}
+                    offerings={orgAny.offerings_enabled ? offerings : []}
+                    media={media}
+                    photos={photos}
+                    events={events}
+                    purchasedProductIds={purchasedProductIds}
+                    sectionOrder={sectionOrder}
+                    hiddenSections={hiddenSections}
+                    onPurchase={(p) => setPurchaseProduct(p)}
+                    onDonate={(c) => setDonateCampaign(c)}
+                    onSelectOffering={(o) => setSelectedOffering(o)}
+                    onPhotoClick={(i) => setLightboxIndex(i)}
+                  />
+                  {org?.id && <SubscriptionPlansWidget orgId={org.id} currency={org.currency || 'XOF'} />}
+
+                  {(waitlists as any[]).filter(w => w.is_active).length > 0 && (
+                    <div className="space-y-3">
+                      <h2 className="font-semibold text-sm">🚀 Bientôt disponible</h2>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        {(waitlists as any[]).filter(w => w.is_active).map(w => <WaitlistWidget key={w.id} waitlist={w} />)}
+                      </div>
+                    </div>
+                  )}
+
+                  {!hasAnyContent && (waitlists as any[]).filter(w => w.is_active).length === 0 && (
+                    <EmptyState variant="content" description={t('org_public.no_content')} />
+                  )}
+                </TabsContent>
+
+                {/* STORE */}
+                <TabsContent value="store">
+                  {isAdmin && (
+                    <div className="mb-4">
+                      <Button size="sm" className="gap-1.5" onClick={() => navigate('/admin/products/new')}>
+                        <Plus className="h-3.5 w-3.5" /> {locale === 'fr' ? 'Ajouter un produit' : 'Add product'}
+                      </Button>
+                    </div>
+                  )}
+                  {products.length === 0 ? (
+                    <EmptyState variant="purchases" description={t('org_public.no_products_desc')} />
+                  ) : (
+                    <>
+                      <div className="mb-4 p-4 rounded-2xl bg-primary/8 border border-primary/20 flex items-center gap-3">
+                        <ShoppingBag className="h-5 w-5 text-primary shrink-0" />
+                        <p className="text-sm text-muted-foreground">{t('org_public.store_info')}</p>
+                      </div>
+                      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                        {products.map((p, i) => <ProductCard key={p.id} product={p} index={i} onPurchase={() => setPurchaseProduct(p)} isPurchased={purchasedProductIds.has(p.id)} />)}
+                      </div>
+                    </>
+                  )}
+                </TabsContent>
+
+                {/* DONATE */}
+                <TabsContent value="donate">
+                  {isAdmin && (
+                    <div className="mb-4">
+                      <Button size="sm" className="gap-1.5" onClick={() => navigate('/admin/campaigns/new')}>
+                        <Plus className="h-3.5 w-3.5" /> {locale === 'fr' ? 'Ajouter une campagne' : 'Add campaign'}
+                      </Button>
+                    </div>
+                  )}
+                  {campaigns.length === 0 ? <EmptyState variant="campaigns" /> : (
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {campaigns.map((c, i) => <CampaignCard key={c.id} campaign={c} index={i} />)}
+                    </div>
+                  )}
+                </TabsContent>
+
+                {/* OFFERINGS */}
+                <TabsContent value="offerings">
+                  {offerings.length === 0 ? (
+                    <EmptyState variant="generic" title={locale === 'fr' ? 'Aucun don configuré' : 'No donations configured'} description={locale === 'fr' ? 'Aucun type de don configuré pour le moment.' : 'No donation types configured yet.'} />
+                  ) : (
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                      {offerings.map((o) => <OfferingCard key={o.id} offering={o} onSelect={setSelectedOffering} />)}
+                    </div>
+                  )}
+                </TabsContent>
+
+                {/* CONTENT */}
+                <TabsContent value="content">
+                  {isAdmin && (
+                    <div className="mb-4">
+                      <Button size="sm" className="gap-1.5" onClick={() => navigate('/admin/media/new')}>
+                        <Plus className="h-3.5 w-3.5" /> {locale === 'fr' ? 'Ajouter contenu' : 'Add content'}
+                      </Button>
+                    </div>
+                  )}
+                  {media.length === 0 ? <EmptyState variant="content" /> : (
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                      {media.map((m, i) => <MediaCard key={m.id} media={m} index={i} />)}
+                    </div>
+                  )}
+                </TabsContent>
+
+                {/* EVENTS */}
+                <TabsContent value="events">
+                  {isAdmin && (
+                    <div className="mb-4">
+                      <Button size="sm" className="gap-1.5" onClick={() => navigate('/admin/events/new')}>
+                        <Plus className="h-3.5 w-3.5" /> {locale === 'fr' ? 'Ajouter événement' : 'Add event'}
+                      </Button>
+                    </div>
+                  )}
+                  {events.length === 0 ? (
+                    <EmptyState variant="generic" title={t('org_public.no_events')} description={t('org_public.no_events_desc')} />
+                  ) : (
+                    <div className="space-y-3">
+                      {events.map((ev) => (
+                        <div key={ev.id} className="p-4 rounded-2xl border border-border bg-card shadow-card">
+                          {ev.image_url && <div className="h-40 rounded-xl overflow-hidden mb-3"><img src={ev.image_url} alt={ev.title} className="w-full h-full object-cover" /></div>}
+                          <h3 className="font-semibold">{ev.title}</h3>
+                          {ev.description && <p className="text-sm text-muted-foreground mt-1">{ev.description}</p>}
+                          <div className="flex gap-4 mt-2">
+                            {ev.event_date && <span className="text-xs text-muted-foreground">{new Date(ev.event_date).toLocaleDateString(dateFmt, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>}
+                            {ev.location && <span className="text-xs text-primary">{ev.location}</span>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </TabsContent>
+
+                {/* PHOTOS */}
+                <TabsContent value="photos">
+                  {isAdmin && (
+                    <div className="mb-4">
+                      <Button size="sm" className="gap-1.5" onClick={() => navigate('/admin/photos')}>
+                        <Plus className="h-3.5 w-3.5" /> {locale === 'fr' ? 'Ajouter photos' : 'Add photos'}
+                      </Button>
+                    </div>
+                  )}
+                  {photos.length === 0 ? (
+                    <EmptyState variant="generic" title={t('org_public.no_photos')} description={t('org_public.no_photos_desc')} />
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {photos.map((photo: any, i: number) => (
+                        <div key={photo.id} className="group relative rounded-xl overflow-hidden bg-card border border-border shadow-card hover:shadow-elevated transition-all cursor-pointer animate-in fade-in slide-in-from-bottom-2" style={{ animationDelay: `${i * 50}ms` }} onClick={() => setLightboxIndex(i)}>
+                          <div className="aspect-[4/3] overflow-hidden">
+                            <img src={photo.image_url} alt={photo.caption || 'Photo'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
+                          </div>
+                          {photo.caption && (
+                            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <p className="text-xs text-white/90 line-clamp-2">{photo.caption}</p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
-        )}
 
-        {/* Tabs */}
-        <div ref={tabsRef} className="scroll-mt-14">
-          <Tabs value={activeTab} onValueChange={navigateTab} className="w-full">
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide mb-6 pb-1 sticky top-12 z-10 bg-background/95 backdrop-blur-sm py-3 -mx-4 px-4">
-              {[
-                { value: 'home', label: t('org_public.home'), icon: Home, count: null },
-                ...(products.length > 0 || isAdmin ? [{ value: 'store', label: t('org_public.store'), icon: ShoppingBag, count: products.length }] : []),
-                ...(campaigns.length > 0 || isAdmin ? [{ value: 'donate', label: t('org_public.donations'), icon: Heart, count: campaigns.length }] : []),
-                ...((offerings.length > 0 || isAdmin) && (orgAny.offerings_enabled) ? [{ value: 'offerings', label: locale === 'fr' ? 'Dons' : 'Donations', icon: HandHeart, count: offerings.length }] : []),
-                ...(media.length > 0 || isAdmin ? [{ value: 'content', label: t('org_public.content'), icon: Play, count: media.length }] : []),
-                ...(photos.length > 0 || isAdmin ? [{ value: 'photos', label: t('org_public.photos'), icon: Camera, count: photos.length }] : []),
-                ...(events.length > 0 || isAdmin ? [{ value: 'events', label: t('org_public.events'), icon: CalendarDays, count: events.length }] : []),
-              ].map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <button
-                    key={tab.value}
-                    onClick={() => navigateTab(tab.value)}
-                    className={cn(
-                      'shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-semibold transition-all border',
-                      activeTab === tab.value
-                        ? 'bg-primary text-primary-foreground border-primary'
-                        : 'border-border text-muted-foreground hover:text-foreground hover:border-foreground/20 bg-card'
-                    )}
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                    {tab.label}
-                    {tab.count !== null && <span className="text-[10px] opacity-70">({tab.count})</span>}
-                  </button>
-                );
-              })}
-            </div>
+          {/* Admin inline panel — desktop sidebar, mobile collapsible */}
+          {isAdmin && org && (
+            <>
+              {/* Desktop: sticky sidebar */}
+              <aside className="hidden lg:block w-[320px] shrink-0">
+                <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto scrollbar-hide pb-6">
+                  <OrgAdminToolbar
+                    orgId={org.id}
+                    orgSlug={org.slug}
+                    isOwner={isOwner}
+                    affiliationEnabled={!!orgAny.affiliation_enabled}
+                    pageSettings={pageSettings || null}
+                    onStartTour={() => setTourOpen(true)}
+                    onToggleAffiliation={toggleAffiliation}
+                  />
+                </div>
+              </aside>
 
-            {/* HOME */}
-            <TabsContent value="home" className="space-y-8">
-              <OrgHomeSections
-                slug={slug!}
-                products={products}
-                campaigns={campaigns}
-                offerings={orgAny.offerings_enabled ? offerings : []}
-                media={media}
-                photos={photos}
-                events={events}
-                purchasedProductIds={purchasedProductIds}
-                sectionOrder={sectionOrder}
-                hiddenSections={hiddenSections}
-                onPurchase={(p) => setPurchaseProduct(p)}
-                onDonate={(c) => setDonateCampaign(c)}
-                onSelectOffering={(o) => setSelectedOffering(o)}
-                onPhotoClick={(i) => setLightboxIndex(i)}
+              {/* Mobile: collapsible panel at top */}
+              <MobileAdminPanel
+                orgId={org.id}
+                orgSlug={org.slug}
+                isOwner={isOwner}
+                affiliationEnabled={!!orgAny.affiliation_enabled}
+                pageSettings={pageSettings || null}
+                onStartTour={() => setTourOpen(true)}
+                onToggleAffiliation={toggleAffiliation}
               />
-              {org?.id && <SubscriptionPlansWidget orgId={org.id} currency={org.currency || 'XOF'} />}
-
-              {(waitlists as any[]).filter(w => w.is_active).length > 0 && (
-                <div className="space-y-3">
-                  <h2 className="font-semibold text-sm">🚀 Bientôt disponible</h2>
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    {(waitlists as any[]).filter(w => w.is_active).map(w => <WaitlistWidget key={w.id} waitlist={w} />)}
-                  </div>
-                </div>
-              )}
-
-              {!hasAnyContent && (waitlists as any[]).filter(w => w.is_active).length === 0 && (
-                <EmptyState variant="content" description={t('org_public.no_content')} />
-              )}
-            </TabsContent>
-
-            {/* STORE */}
-            <TabsContent value="store">
-              {products.length === 0 ? (
-                <EmptyState variant="purchases" description={t('org_public.no_products_desc')} />
-              ) : (
-                <>
-                  <div className="mb-4 p-4 rounded-2xl bg-primary/8 border border-primary/20 flex items-center gap-3">
-                    <ShoppingBag className="h-5 w-5 text-primary shrink-0" />
-                    <p className="text-sm text-muted-foreground">{t('org_public.store_info')}</p>
-                  </div>
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {products.map((p, i) => <ProductCard key={p.id} product={p} index={i} onPurchase={() => setPurchaseProduct(p)} isPurchased={purchasedProductIds.has(p.id)} />)}
-                  </div>
-                </>
-              )}
-            </TabsContent>
-
-            {/* DONATE */}
-            <TabsContent value="donate">
-              {campaigns.length === 0 ? <EmptyState variant="campaigns" /> : (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  {campaigns.map((c, i) => <CampaignCard key={c.id} campaign={c} index={i} />)}
-                </div>
-              )}
-            </TabsContent>
-
-            {/* OFFERINGS */}
-            <TabsContent value="offerings">
-              {offerings.length === 0 ? (
-                <EmptyState variant="generic" title={locale === 'fr' ? 'Aucun don configuré' : 'No donations configured'} description={locale === 'fr' ? 'Aucun type de don configuré pour le moment.' : 'No donation types configured yet.'} />
-              ) : (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {offerings.map((o) => <OfferingCard key={o.id} offering={o} onSelect={setSelectedOffering} />)}
-                </div>
-              )}
-            </TabsContent>
-
-            {/* CONTENT */}
-            <TabsContent value="content">
-              {media.length === 0 ? <EmptyState variant="content" /> : (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {media.map((m, i) => <MediaCard key={m.id} media={m} index={i} />)}
-                </div>
-              )}
-            </TabsContent>
-
-            {/* EVENTS */}
-            <TabsContent value="events">
-              {events.length === 0 ? (
-                <EmptyState variant="generic" title={t('org_public.no_events')} description={t('org_public.no_events_desc')} />
-              ) : (
-                <div className="space-y-3">
-                  {events.map((ev) => (
-                    <div key={ev.id} className="p-4 rounded-2xl border border-border bg-card shadow-card">
-                      {ev.image_url && <div className="h-40 rounded-xl overflow-hidden mb-3"><img src={ev.image_url} alt={ev.title} className="w-full h-full object-cover" /></div>}
-                      <h3 className="font-semibold">{ev.title}</h3>
-                      {ev.description && <p className="text-sm text-muted-foreground mt-1">{ev.description}</p>}
-                      <div className="flex gap-4 mt-2">
-                        {ev.event_date && <span className="text-xs text-muted-foreground">{new Date(ev.event_date).toLocaleDateString(dateFmt, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>}
-                        {ev.location && <span className="text-xs text-primary">{ev.location}</span>}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-
-            {/* PHOTOS */}
-            <TabsContent value="photos">
-              {photos.length === 0 ? (
-                <EmptyState variant="generic" title={t('org_public.no_photos')} description={t('org_public.no_photos_desc')} />
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {photos.map((photo: any, i: number) => (
-                    <div key={photo.id} className="group relative rounded-xl overflow-hidden bg-card border border-border shadow-card hover:shadow-elevated transition-all cursor-pointer animate-in fade-in slide-in-from-bottom-2" style={{ animationDelay: `${i * 50}ms` }} onClick={() => setLightboxIndex(i)}>
-                      <div className="aspect-[4/3] overflow-hidden">
-                        <img src={photo.image_url} alt={photo.caption || 'Photo'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
-                      </div>
-                      {photo.caption && (
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <p className="text-xs text-white/90 line-clamp-2">{photo.caption}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
+            </>
+          )}
         </div>
       </div>
-
-      {/* Admin toolbar */}
-      {isAdmin && org && (
-        <OrgAdminToolbar
-          orgId={org.id}
-          orgSlug={org.slug}
-          isOwner={isOwner}
-          affiliationEnabled={!!orgAny.affiliation_enabled}
-          pageSettings={pageSettings || null}
-          onStartTour={() => setTourOpen(true)}
-          onToggleAffiliation={toggleAffiliation}
-        />
-      )}
       <OrgPageTour open={tourOpen} onClose={() => setTourOpen(false)} />
 
       <DonateModal campaign={donateCampaign} organizationId={org?.id ?? ''} open={!!donateCampaign} onClose={() => setDonateCampaign(null)} />
@@ -394,6 +452,37 @@ export default function OrgPublicPage() {
 
       {pageSettings?.popup_config && (pageSettings.popup_config as any)?.enabled && (
         <SmartPopup config={pageSettings.popup_config as any} orgName={org.name} />
+      )}
+    </div>
+  );
+}
+
+function MobileAdminPanel(props: {
+  orgId: string; orgSlug: string; isOwner: boolean;
+  affiliationEnabled: boolean; pageSettings: any;
+  onStartTour: () => void; onToggleAffiliation: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const navigate = useNavigate();
+
+  return (
+    <div className="lg:hidden mb-6 -order-1 w-full">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center justify-between w-full p-3 rounded-xl border border-primary/30 bg-primary/5 text-sm font-semibold text-primary"
+      >
+        <span className="flex items-center gap-2">
+          <Settings className="h-4 w-4" />
+          {isFr ? '⚙️ Gérer ma page' : '⚙️ Manage page'}
+        </span>
+        {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+      </button>
+      {open && (
+        <div className="mt-3 animate-in fade-in slide-in-from-top-2 duration-200">
+          <OrgAdminToolbar {...props} />
+        </div>
       )}
     </div>
   );
