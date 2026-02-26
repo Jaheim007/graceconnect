@@ -1,9 +1,9 @@
 import { supabase } from '@/integrations/supabase/client';
 
-const SUPABASE_PROJECT_ID = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 
 function fnUrl(name: string) {
-  return `https://${SUPABASE_PROJECT_ID}.supabase.co/functions/v1/${name}`;
+  return `${SUPABASE_URL}/functions/v1/${name}`;
 }
 
 export async function callFn(name: string, body: unknown, requireAuth = true) {
