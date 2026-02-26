@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { Offering } from '@/hooks/useOfferings';
 import { Button } from '@/components/ui/button';
 import { HandHeart } from 'lucide-react';
@@ -8,6 +9,7 @@ interface OfferingCardProps {
 }
 
 export function OfferingCard({ offering, onSelect }: OfferingCardProps) {
+  const navigate = useNavigate();
   const presets = offering.preset_amounts || [1000, 2500, 5000, 10000];
   const currency = offering.currency || 'XOF';
 
@@ -15,7 +17,10 @@ export function OfferingCard({ offering, onSelect }: OfferingCardProps) {
     new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(n);
 
   return (
-    <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-card hover:shadow-elevated transition-shadow">
+    <div
+      className="rounded-2xl border border-border bg-card overflow-hidden shadow-card hover:shadow-elevated transition-shadow cursor-pointer"
+      onClick={() => navigate(`/offering/${offering.id}`)}
+    >
       {offering.image_url && (
         <div className="h-32 overflow-hidden">
           <img src={offering.image_url} alt={offering.title} className="w-full h-full object-cover" />
@@ -47,7 +52,7 @@ export function OfferingCard({ offering, onSelect }: OfferingCardProps) {
         </div>
 
         <Button
-          onClick={() => onSelect(offering)}
+          onClick={(e) => { e.stopPropagation(); onSelect(offering); }}
           className="w-full bg-primary text-primary-foreground"
           size="sm"
         >
