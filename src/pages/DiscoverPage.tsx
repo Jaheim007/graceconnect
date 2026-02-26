@@ -2,13 +2,15 @@ import { useState } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Search, ShoppingBag, Heart, SlidersHorizontal, ArrowUpDown, Star, TrendingUp } from 'lucide-react';
+import { Search, ShoppingBag, Heart, HandHeart, SlidersHorizontal, ArrowUpDown, Star, TrendingUp } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ProductCard } from '@/components/products/ProductCard';
 import { CampaignCard } from '@/components/donations/CampaignCard';
+import { OfferingCard } from '@/components/offerings/OfferingCard';
+import { OfferingModal } from '@/components/offerings/OfferingModal';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useNavigate } from 'react-router-dom';
@@ -23,6 +25,7 @@ import { FeaturedSection } from '@/components/discover/FeaturedSection';
 import { NewThisWeek } from '@/components/discover/NewThisWeek';
 import { TrendingBanner } from '@/components/discover/TrendingBanner';
 import { DiscoverCTABanner } from '@/components/discover/DiscoverCTABanner';
+import { Offering } from '@/hooks/useOfferings';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
@@ -46,6 +49,7 @@ export default function DiscoverPage() {
   const [sortBy, setSortBy] = useState<ProductSort>('popular');
   const [priceFilter, setPriceFilter] = useState<PriceFilter>('all');
   const [typeFilter, setTypeFilter] = useState<ProductTypeFilter>('');
+  const [selectedOffering, setSelectedOffering] = useState<Offering | null>(null);
   const navigate = useNavigate();
   const { user } = useAuth();
   const { userOrgs } = useOrg();
@@ -117,6 +121,27 @@ export default function DiscoverPage() {
     enabled: tab === 'campaigns',
   });
 
+  const { data: offerings = [], isLoading: loadingOfferings } = useQuery({
+    queryKey: ['discover-offerings', debouncedSearch],
+    queryFn: async () => {
+      let q = db
+        .from('offerings')
+        .select('*, organizations!inner(name, slug, logo_url, currency, offerings_enabled)')
+        .eq('is_active', true)
+        .eq('organizations.offerings_enabled', true)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      if (debouncedSearch) q = q.ilike('title', `%${debouncedSearch}%`);
+      const { data } = await q;
+      return (data || []).map((o: any) => ({
+        ...o,
+        organization_name: o.organizations?.name,
+        organization_slug: o.organizations?.slug,
+      }));
+    },
+    enabled: tab === 'offerings',
+  });
+
   const isSearching = debouncedSearch.length > 0;
 
   return (
@@ -153,6 +178,9 @@ export default function DiscoverPage() {
             </TabsTrigger>
             <TabsTrigger value="campaigns" className="gap-1.5">
               <Heart className="h-3.5 w-3.5" /> {t('discover.campaigns')}
+            </TabsTrigger>
+            <TabsTrigger value="offerings" className="gap-1.5">
+              <HandHeart className="h-3.5 w-3.5" /> {locale === 'fr' ? 'Dons' : 'Donations'}
             </TabsTrigger>
           </TabsList>
 
@@ -225,8 +253,37 @@ export default function DiscoverPage() {
               </motion.div>
             )}
           </TabsContent>
+
+          {/* ═══ Offerings/Dons Tab ═══ */}
+          <TabsContent value="offerings">
+            {loadingOfferings ? <SkeletonList count={6} /> : offerings.length === 0 ? (
+              <EmptyState variant="generic" title={locale === 'fr' ? 'Aucun don disponible' : 'No donations available'} description={locale === 'fr' ? 'Aucune organisation n\'a configuré de dons pour le moment.' : 'No organizations have configured donations yet.'} />
+            ) : (
+              <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {offerings.map((o: any) => (
+                  <motion.div key={o.id} variants={fadeUp}>
+                    <div className="relative">
+                      {o.organization_name && (
+                        <button onClick={() => navigate(`/org/${o.organization_slug}`)} className="text-[10px] text-muted-foreground hover:text-primary mb-1 block">{o.organization_name}</button>
+                      )}
+                      <OfferingCard offering={o} onSelect={setSelectedOffering} />
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            )}
+          </TabsContent>
         </Tabs>
       </div>
+
+      {selectedOffering && (
+        <OfferingModal
+          offering={selectedOffering}
+          organizationId={selectedOffering.organization_id}
+          open={!!selectedOffering}
+          onClose={() => setSelectedOffering(null)}
+        />
+      )}
     </div>
   );
 }
