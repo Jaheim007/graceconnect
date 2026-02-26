@@ -15,7 +15,7 @@ const corsHeaders = {
 // Simple HMAC-SHA256 for Stripe signature verification
 async function verifyStripeSignature(payload: string, sigHeader: string, secret: string): Promise<boolean> {
   try {
-    const elements = sigHeader.split(',');
+    const elements = sigHeader.split(',').map((e) => e.trim());
     const timestamp = elements.find(e => e.startsWith('t='))?.slice(2);
     const signatures = elements.filter(e => e.startsWith('v1=')).map(e => e.slice(3));
 
@@ -28,7 +28,7 @@ async function verifyStripeSignature(payload: string, sigHeader: string, secret:
     const signedPayload = `${timestamp}.${payload}`;
     const encoder = new TextEncoder();
     const key = await crypto.subtle.importKey(
-      'raw', encoder.encode(secret),
+      'raw', encoder.encode(secret.trim()),
       { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
     );
     const sig = await crypto.subtle.sign('HMAC', key, encoder.encode(signedPayload));
@@ -37,6 +37,19 @@ async function verifyStripeSignature(payload: string, sigHeader: string, secret:
     return signatures.some(s => s === expectedSig);
   } catch {
     return false;
+  }
+}
+
+async function fetchStripeEvent(eventId: string, stripeSecret: string) {
+  try {
+    const eventRes = await fetch(`https://api.stripe.com/v1/events/${eventId}`, {
+      headers: { 'Authorization': `Bearer ${stripeSecret}` },
+    });
+
+    if (!eventRes.ok) return null;
+    return await eventRes.json();
+  } catch {
+    return null;
   }
 }
 
@@ -54,18 +67,36 @@ Deno.serve(async (req) => {
     const rawBody = await req.text();
     const sigHeader = req.headers.get('stripe-signature') || '';
 
+    let event: any;
+
     // Verify signature if webhook secret is configured
     if (STRIPE_WEBHOOK_SECRET) {
       const valid = await verifyStripeSignature(rawBody, sigHeader, STRIPE_WEBHOOK_SECRET);
       if (!valid) {
-        console.error('[stripe-webhook] Invalid signature');
-        return new Response(JSON.stringify({ error: 'Invalid signature' }), {
-          status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-    }
+        console.error('[stripe-webhook] Invalid signature, trying Stripe API fallback');
 
-    const event = JSON.parse(rawBody);
+        const parsed = JSON.parse(rawBody);
+        const eventId = parsed?.id;
+        if (!eventId) {
+          return new Response(JSON.stringify({ error: 'Invalid signature' }), {
+            status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        const remoteEvent = await fetchStripeEvent(eventId, STRIPE_SECRET);
+        if (!remoteEvent) {
+          return new Response(JSON.stringify({ error: 'Invalid signature' }), {
+            status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        event = remoteEvent;
+      } else {
+        event = JSON.parse(rawBody);
+      }
+    } else {
+      event = JSON.parse(rawBody);
+    }
 
     // Only handle checkout.session.completed
     if (event.type !== 'checkout.session.completed') {
