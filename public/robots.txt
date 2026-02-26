@@ -24,4 +24,4 @@ Disallow: /invoices
 Disallow: /analytics
 Disallow: /welcome
 
-Sitemap: https://siteviral.com/sitemap.xml
+Sitemap: https://api.siteviral.com/functions/v1/sitemap
