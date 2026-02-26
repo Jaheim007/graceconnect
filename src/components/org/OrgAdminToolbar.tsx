@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
   Settings, Image, FileText, Play, CalendarDays,
-  Heart, ShoppingBag, Eye, EyeOff, GripVertical,
+  Heart, ShoppingBag, Eye, EyeOff, GripVertical, HandHeart,
   HelpCircle, Camera, Link2, Palette, Check, ChevronDown, ChevronUp, Plus
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
@@ -24,7 +24,8 @@ interface OrgAdminToolbarProps {
 
 const SECTION_META: Record<string, { icon: any; label_fr: string; label_en: string }> = {
   products: { icon: ShoppingBag, label_fr: 'Produits numériques', label_en: 'Digital Products' },
-  campaigns: { icon: Heart, label_fr: 'Campagnes de dons', label_en: 'Donation Campaigns' },
+  campaigns: { icon: Heart, label_fr: 'Campagnes de collecte', label_en: 'Fundraising Campaigns' },
+  offerings: { icon: HandHeart, label_fr: 'Dons', label_en: 'Donations' },
   content: { icon: Play, label_fr: 'Contenu média', label_en: 'Media Content' },
   photos: { icon: Camera, label_fr: 'Photos', label_en: 'Photos' },
   events: { icon: CalendarDays, label_fr: 'Événements', label_en: 'Events' },

@@ -174,7 +174,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Heart className="h-4 w-4 text-primary" />
-            Faire un don à {campaign.title}
+            Contribuer à {campaign.title}
           </DialogTitle>
           {step === 'form' && (
             <DialogDescription>

@@ -68,7 +68,7 @@ export function OrgHomeSections({
           <div className="flex items-center gap-2">
             <div className="h-9 w-9 rounded-xl bg-destructive/10 flex items-center justify-center"><Heart className="h-4 w-4 text-destructive" /></div>
             <div>
-              <h2 className="font-bold text-base">{t('org_public.active_campaigns')}</h2>
+              <h2 className="font-bold text-base">{locale === 'fr' ? 'Campagnes Actives' : 'Active Campaigns'}</h2>
               <p className="text-xs text-muted-foreground">{campaigns.length} {locale === 'fr' ? 'campagne(s)' : 'campaign(s)'}</p>
             </div>
           </div>

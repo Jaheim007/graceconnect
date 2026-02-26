@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
   Home, Play, Bell, User, BookOpen, Store,
-  Settings, ChevronLeft, ChevronRight, Shield, Handshake,
+  Settings, ChevronLeft, ChevronRight, Shield, Handshake, HandHeart,
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, UsersRound, Sun, Moon,
   UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, ShieldAlert, LayoutDashboard, Building2,
   MessageCircle, Trophy, CreditCard, Clock, Sparkles
@@ -124,7 +124,7 @@ export function Sidebar() {
       key: 'Commerce',
       items: [
         { to: '/admin/products', icon: ShoppingBag, label: t('sidebar.products') },
-        { to: '/admin/offerings', icon: Heart, label: 'Dons' },
+        { to: '/admin/offerings', icon: HandHeart, label: 'Dons' },
         { to: '/admin/campaigns', icon: Heart, label: t('sidebar.campaigns') },
         { to: '/admin/affiliation', icon: Link2, label: t('sidebar.affiliation') },
         { to: '/admin/promo-codes', icon: FileCheck, label: t('sidebar.promo_codes') },
