@@ -46,23 +46,26 @@ export function FeaturedSection() {
     queryKey: ['discover-smart-sections'],
     queryFn: async () => {
       const [mostBought, mostViewed, mostRecent] = await Promise.all([
-        // Most bought: ONLY products with at least 1 sale
+        // Most bought: ONLY products with at least 1 sale, exclude express demos
         db.from('digital_products')
           .select('*, organizations(name, slug, logo_url, currency)')
           .eq('is_published', true)
+          .eq('is_express_demo', false)
           .gt('sales_count', 0)
           .order('sales_count', { ascending: false })
           .limit(8),
-        // Most viewed: products ordered by featured_score (proxy for views/engagement)
+        // Most viewed: exclude express demos
         db.from('digital_products')
           .select('*, organizations(name, slug, logo_url, currency)')
           .eq('is_published', true)
+          .eq('is_express_demo', false)
           .order('featured_score', { ascending: false })
           .limit(8),
-        // Most recent
+        // Most recent: exclude express demos
         db.from('digital_products')
           .select('*, organizations(name, slug, logo_url, currency)')
           .eq('is_published', true)
+          .eq('is_express_demo', false)
           .order('created_at', { ascending: false })
           .limit(8),
       ]);

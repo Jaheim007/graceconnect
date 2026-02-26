@@ -632,6 +632,7 @@ export type Database = {
           guarantee_text: string | null
           id: string
           is_bundle: boolean | null
+          is_express_demo: boolean
           is_featured: boolean | null
           is_free: boolean | null
           is_published: boolean | null
@@ -666,6 +667,7 @@ export type Database = {
           guarantee_text?: string | null
           id?: string
           is_bundle?: boolean | null
+          is_express_demo?: boolean
           is_featured?: boolean | null
           is_free?: boolean | null
           is_published?: boolean | null
@@ -700,6 +702,7 @@ export type Database = {
           guarantee_text?: string | null
           id?: string
           is_bundle?: boolean | null
+          is_express_demo?: boolean
           is_featured?: boolean | null
           is_free?: boolean | null
           is_published?: boolean | null
@@ -782,6 +785,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_active: boolean | null
+          is_express_demo: boolean
           is_featured: boolean | null
           is_published: boolean | null
           organization_id: string
@@ -800,6 +804,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean | null
+          is_express_demo?: boolean
           is_featured?: boolean | null
           is_published?: boolean | null
           organization_id: string
@@ -818,6 +823,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_active?: boolean | null
+          is_express_demo?: boolean
           is_featured?: boolean | null
           is_published?: boolean | null
           organization_id?: string

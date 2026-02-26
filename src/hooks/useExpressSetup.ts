@@ -22,7 +22,7 @@ export function useExpressSetup() {
       const orgId = currentOrg.id;
       const ownerId = currentOrg.owner_id;
 
-      // 1. Create a free demo product
+      // 1. Create a free demo product (marked as express demo — hidden from Discover until edited)
       const { error: prodErr } = await db.from('digital_products').insert({
         organization_id: orgId,
         created_by: ownerId,
@@ -34,10 +34,11 @@ export function useExpressSetup() {
         is_published: true,
         currency: currentOrg.currency || 'XOF',
         product_type: 'digital',
+        is_express_demo: true,
       });
       if (prodErr) console.error('Express setup — product error:', prodErr);
 
-      // 2. Create a demo donation campaign
+      // 2. Create a demo donation campaign (marked as express demo — hidden from Discover until edited)
       const { error: campErr } = await db.from('donation_campaigns').insert({
         organization_id: orgId,
         created_by: ownerId,
@@ -49,6 +50,7 @@ export function useExpressSetup() {
         currency: currentOrg.currency || 'XOF',
         is_active: true,
         is_published: true,
+        is_express_demo: true,
       });
       if (campErr) console.error('Express setup — campaign error:', campErr);
 

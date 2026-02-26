@@ -68,7 +68,8 @@ export default function DiscoverPage() {
       let q = db
         .from('digital_products')
         .select('*, organizations(name, slug, logo_url, currency)')
-        .eq('is_published', true);
+        .eq('is_published', true)
+        .eq('is_express_demo', false);
 
       if (debouncedSearch) q = q.or(`title.ilike.%${debouncedSearch}%,description.ilike.%${debouncedSearch}%`);
       if (priceFilter === 'free') q = q.eq('is_free', true);
@@ -102,6 +103,7 @@ export default function DiscoverPage() {
         .select('*, organizations(name, slug, logo_url, currency)')
         .eq('is_published', true)
         .eq('is_active', true)
+        .eq('is_express_demo', false)
         .order('current_amount', { ascending: false })
         .limit(50);
       if (debouncedSearch) q = q.ilike('title', `%${debouncedSearch}%`);

@@ -20,6 +20,7 @@ export function NewThisWeek() {
         .from('digital_products')
         .select('*, organizations(name, slug, logo_url, currency)')
         .eq('is_published', true)
+        .eq('is_express_demo', false)
         .order('created_at', { ascending: false })
         .range(8, 24);
       return (data || []).map((p: any) => ({

@@ -154,6 +154,27 @@ export function AdminCampaigns() {
   const { currentOrg } = useOrg();
   const { data: items = [], isLoading } = useOrgCampaigns(currentOrg?.id, false);
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const qc = useQueryClient();
+
+  const handleToggleActive = async (c: any) => {
+    await db.from('donation_campaigns').update({ is_active: !c.is_active }).eq('id', c.id);
+    qc.invalidateQueries({ queryKey: ['org-campaigns'] });
+    toast({ title: c.is_active ? 'Campagne désactivée' : 'Campagne activée ✅' });
+  };
+
+  const handleDelete = async (c: any) => {
+    // Check if campaign has donations
+    const { count } = await db.from('donations').select('id', { count: 'exact', head: true }).eq('campaign_id', c.id);
+    if (count && count > 0) {
+      toast({ title: 'Suppression impossible', description: `Cette campagne a reçu ${count} don(s). Vous pouvez la désactiver à la place.`, variant: 'destructive' });
+      return;
+    }
+    await db.from('donation_campaigns').delete().eq('id', c.id);
+    qc.invalidateQueries({ queryKey: ['org-campaigns'] });
+    toast({ title: 'Campagne supprimée' });
+  };
+
   return (
     <AdminPageShell title="Campagnes de dons" newRoute="/admin/campaigns/new" newLabel="Nouvelle campagne" backRoute="/admin">
       {currentOrg?.kyc_status === 'none' && (
@@ -174,7 +195,10 @@ export function AdminCampaigns() {
             {items.map(c => (
               <motion.div key={c.id} variants={fadeUp} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all group">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{c.title}</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-sm font-medium truncate">{c.title}</p>
+                    {(c as any).is_express_demo && <Badge variant="outline" className="text-[9px] border-dashed">Démo</Badge>}
+                  </div>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <div className="h-1.5 flex-1 max-w-24 rounded-full bg-muted overflow-hidden">
                       <div className="h-full bg-primary rounded-full" style={{ width: c.goal_amount ? `${Math.min(100, (c.current_amount / c.goal_amount) * 100)}%` : '0%' }} />
@@ -187,9 +211,35 @@ export function AdminCampaigns() {
                 <Badge variant="outline" className={cn('text-[10px] border-0 shrink-0', c.is_active ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}>
                   {c.is_active ? 'Active' : 'Inactive'}
                 </Badge>
-                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity" onClick={() => navigate(`/admin/campaigns/${c.id}/edit`)}>
-                  <Pencil className="h-3.5 w-3.5" />
-                </Button>
+                <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate(`/admin/campaigns/${c.id}/edit`)} title="Modifier">
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => handleToggleActive(c)} title={c.is_active ? 'Désactiver' : 'Activer'}>
+                    {c.is_active ? <AlertTriangle className="h-3.5 w-3.5 text-amber-500" /> : <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />}
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" title="Supprimer">
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Supprimer cette campagne ?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Si la campagne a déjà reçu des dons, elle ne pourra pas être supprimée mais seulement désactivée.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDelete(c)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                          Supprimer
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               </motion.div>
             ))}
           </motion.div>
@@ -224,6 +274,24 @@ export function AdminProducts() {
     qc.invalidateQueries({ queryKey: ['org-products'] });
     bulk.clear();
     toast({ title: `${ids.length} produit(s) supprimé(s)` });
+  };
+
+  const handleTogglePublish = async (p: any) => {
+    await db.from('digital_products').update({ is_published: !p.is_published }).eq('id', p.id);
+    qc.invalidateQueries({ queryKey: ['org-products'] });
+    toast({ title: p.is_published ? 'Produit dépublié' : 'Produit publié ✅' });
+  };
+
+  const handleDeleteSingle = async (p: any) => {
+    // Check if product has purchases
+    const { count } = await db.from('product_purchases').select('id', { count: 'exact', head: true }).eq('product_id', p.id);
+    if (count && count > 0) {
+      toast({ title: 'Suppression impossible', description: `Ce produit a ${count} achat(s). Vous pouvez le dépublier à la place.`, variant: 'destructive' });
+      return;
+    }
+    await db.from('digital_products').delete().eq('id', p.id);
+    qc.invalidateQueries({ queryKey: ['org-products'] });
+    toast({ title: 'Produit supprimé' });
   };
 
   return (
@@ -263,7 +331,10 @@ export function AdminProducts() {
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{p.title}</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-sm font-medium truncate">{p.title}</p>
+                    {(p as any).is_express_demo && <Badge variant="outline" className="text-[9px] border-dashed">Démo</Badge>}
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     {p.is_free ? 'Gratuit' : `${p.price?.toLocaleString('fr-FR')} ${p.currency}`} · {p.sales_count || 0} vente{(p.sales_count || 0) > 1 ? 's' : ''}
                   </p>
@@ -271,10 +342,38 @@ export function AdminProducts() {
                 <Badge variant="outline" className={cn('text-[10px] border-0 shrink-0', p.is_published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}>
                   {p.is_published ? 'Publié' : 'Brouillon'}
                 </Badge>
-                <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 opacity-60 group-hover:opacity-100 transition-opacity"
-                  onClick={(e) => { e.stopPropagation(); navigate(`/admin/products/${p.id}/edit`); }}>
-                  <Pencil className="h-3.5 w-3.5" />
-                </Button>
+                <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" title="Modifier"
+                    onClick={(e) => { e.stopPropagation(); navigate(`/admin/products/${p.id}/edit`); }}>
+                    <Pencil className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" title={p.is_published ? 'Dépublier' : 'Publier'}
+                    onClick={(e) => { e.stopPropagation(); handleTogglePublish(p); }}>
+                    {p.is_published ? <AlertTriangle className="h-3.5 w-3.5 text-amber-500" /> : <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />}
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" title="Supprimer"
+                        onClick={(e) => e.stopPropagation()}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Supprimer ce produit ?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Si le produit a déjà été acheté, il ne pourra pas être supprimé mais seulement dépublié.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDeleteSingle(p)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                          Supprimer
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               </motion.div>
             ))}
           </motion.div>
