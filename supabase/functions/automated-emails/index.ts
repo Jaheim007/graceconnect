@@ -30,7 +30,7 @@ Deno.serve(async (req) => {
 
   try {
     // ═══════════════════════════════════════════
-    // 1. ONBOARDING DRIP EMAILS
+    // 1. USER ONBOARDING DRIP EMAILS
     // ═══════════════════════════════════════════
     const now = new Date();
 
@@ -78,6 +78,92 @@ Deno.serve(async (req) => {
       }
     }
     results['onboarding_drip'] = onboardingCount;
+
+    // ═══════════════════════════════════════════
+    // 1b. ORG CREATOR ONBOARDING SEQUENCE (J+0 instant, J+1, J+3)
+    // ═══════════════════════════════════════════
+    let orgOnboardingCount = 0;
+
+    // J+0: Orgs created in the last 2 hours → immediate welcome
+    const orgJ0Start = new Date(now.getTime() - 2 * 3600000).toISOString();
+    const { data: newOrgs } = await db.from('organizations')
+      .select('id, name, owner_id, slug, category')
+      .gte('created_at', orgJ0Start);
+    for (const org of newOrgs || []) {
+      const email = await getUserEmail(org.owner_id);
+      if (email) {
+        await sendEmail({
+          template: 'org_welcome_j0' as any,
+          to: email,
+          data: {
+            name: org.name,
+            slug: org.slug || '',
+            category: org.category || '',
+            dashboard_url: `https://siteviral.com/admin`,
+          },
+          organization_id: org.id,
+        });
+        orgOnboardingCount++;
+      }
+    }
+
+    // J+1: Orgs created ~24h ago — "Avez-vous ajouté votre premier contenu ?"
+    const orgJ1Start = new Date(now.getTime() - 26 * 3600000).toISOString();
+    const orgJ1End = new Date(now.getTime() - 22 * 3600000).toISOString();
+    const { data: j1Orgs } = await db.from('organizations')
+      .select('id, name, owner_id, slug')
+      .gte('created_at', orgJ1Start).lte('created_at', orgJ1End);
+    for (const org of j1Orgs || []) {
+      // Check if org has published any content yet
+      const { count: mediaCount } = await db.from('media_content')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', org.id).eq('is_published', true);
+      const { count: prodCount } = await db.from('digital_products')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', org.id).eq('is_published', true);
+      // Only send if they haven't published anything yet
+      if ((mediaCount || 0) === 0 && (prodCount || 0) === 0) {
+        const email = await getUserEmail(org.owner_id);
+        if (email) {
+          await sendEmail({
+            template: 'org_onboarding_j1' as any,
+            to: email,
+            data: {
+              org_name: org.name,
+              slug: org.slug || '',
+              tip: 'Astuce : utilisez le bouton « Démarrage Express » dans votre tableau de bord pour créer un produit et une campagne en 1 clic !',
+            },
+            organization_id: org.id,
+          });
+          orgOnboardingCount++;
+        }
+      }
+    }
+
+    // J+3: Orgs created ~72h ago — "Vos ambassadeurs vous attendent"
+    const orgJ3Start = new Date(now.getTime() - 74 * 3600000).toISOString();
+    const orgJ3End = new Date(now.getTime() - 70 * 3600000).toISOString();
+    const { data: j3Orgs } = await db.from('organizations')
+      .select('id, name, owner_id, slug, affiliation_enabled')
+      .gte('created_at', orgJ3Start).lte('created_at', orgJ3End);
+    for (const org of j3Orgs || []) {
+      const email = await getUserEmail(org.owner_id);
+      if (email) {
+        await sendEmail({
+          template: 'org_onboarding_j3' as any,
+          to: email,
+          data: {
+            org_name: org.name,
+            slug: org.slug || '',
+            affiliation_enabled: org.affiliation_enabled ? 'oui' : 'non',
+            tip: 'Activez le Programme Ambassadeur pour que chaque membre puisse vendre pour vous et gagner des commissions.',
+          },
+          organization_id: org.id,
+        });
+        orgOnboardingCount++;
+      }
+    }
+    results['org_onboarding_sequence'] = orgOnboardingCount;
 
     // ═══════════════════════════════════════════
     // 2. RE-ENGAGEMENT (inactive users)

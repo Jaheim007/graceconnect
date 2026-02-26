@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   ShoppingBag, Heart, BookOpen, Users, Check, ArrowRight, ArrowLeft,
-  X, Image, FileText, Megaphone, Sparkles, Rocket,
+  X, Image, FileText, Megaphone, Sparkles, Rocket, Zap, Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useOrg } from '@/contexts/OrgContext';
@@ -14,6 +14,7 @@ import { ImageUploader } from '@/components/ui/ImageUploader';
 import { db } from '@/lib/db';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
+import { useExpressSetup } from '@/hooks/useExpressSetup';
 
 const GOALS = [
   { id: 'sell', icon: ShoppingBag, title: 'Vendre des ressources', desc: 'Ebooks, fichiers digitaux', color: 'from-violet-500/20 to-purple-500/20 border-violet-500/30' },
@@ -36,6 +37,7 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
   const { currentOrg, refetchOrgs } = useOrg();
   const { toast } = useToast();
   const qc = useQueryClient();
+  const expressSetup = useExpressSetup();
 
   if (!open) return null;
 
@@ -143,6 +145,29 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
           ? `Commencez par ${selected.includes('sell') ? 'créer votre premier produit' : selected.includes('donate') ? 'lancer votre première campagne' : 'explorer votre espace admin'}.`
           : 'Explorez votre espace admin pour commencer.'}
       </p>
+
+      {/* Express Setup CTA */}
+      <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+            <Zap className="h-5 w-5 text-primary" />
+          </div>
+          <div className="text-left">
+            <p className="font-semibold text-sm">Démarrage Express</p>
+            <p className="text-[11px] text-muted-foreground">Crée automatiquement un produit gratuit + une campagne de dons pour démarrer en 1 clic.</p>
+          </div>
+        </div>
+        <Button
+          onClick={async () => { await expressSetup.run(); }}
+          disabled={expressSetup.loading}
+          size="sm"
+          className="w-full gap-2 bg-primary text-primary-foreground"
+        >
+          {expressSetup.loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
+          {expressSetup.loading ? 'Création…' : 'Lancer le Démarrage Express'}
+        </Button>
+      </div>
+
       <div className="bg-muted/50 rounded-xl p-4 text-left space-y-2">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Prochaines étapes</p>
         <div className="space-y-1.5 text-sm">
@@ -158,7 +183,7 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
           <div className="flex items-center gap-2"><Megaphone className="h-3.5 w-3.5 text-muted-foreground" /> Publier votre première annonce</div>
         </div>
       </div>
-      {/* KYC reassurance — funds are safe even without KYC */}
+      {/* KYC reassurance */}
       <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-3 text-left mt-3">
         <p className="text-xs font-medium text-green-700 dark:text-green-400 flex items-center gap-1.5">
           <Check className="h-3.5 w-3.5 shrink-0" />
