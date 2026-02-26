@@ -22,7 +22,7 @@ export function LandingFinalCTA() {
               Prêt à transformer votre contenu en revenus ?
             </h2>
             <p className="text-primary-foreground/70 max-w-md mx-auto">
-              Rejoignez des centaines de créateurs, églises et organisations qui monétisent déjà avec Siteviral.
+              Organisations, leaders, ambassadeurs — tout le monde gagne et tout le monde monétise, avec ou sans contenu.
             </p>
             
             {/* 3 persona CTAs */}

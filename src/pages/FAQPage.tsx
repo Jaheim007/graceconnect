@@ -58,7 +58,7 @@ const faqs_en = [
   {
     category: 'General',
     items: [
-      { q: 'What is Siteviral?', a: 'Siteviral is an all-in-one platform that allows organizations (NGOs, associations, creators, leaders) to create their digital platform to manage their community, sell digital products, and collect donations — and most importantly, to benefit from an army of ambassadors who share their resources and earn commissions of 5% to 50% on every sale. On Siteviral, everyone earns and everyone monetizes, with or without content.' },
+      { q: 'What is Siteviral?', a: 'Siteviral is an all-in-one platform that allows organizations and leaders to create their digital platform to manage their community, sell digital products, and collect donations — and most importantly, to benefit from an army of ambassadors who share their resources and earn commissions of 5% to 50% on every sale. On Siteviral, everyone earns and everyone monetizes, with or without content.' },
       { q: 'Is it free?', a: 'Yes. There is no subscription fee. Siteviral takes a 10% commission only when a sale is made or a donation is received. If you earn nothing, you pay nothing. No member limits.' },
       { q: 'In which countries is Siteviral available?', a: 'Siteviral is available in over 150 countries through Paystack (Africa: Nigeria, Ghana, Côte d\'Ivoire, Senegal, Kenya, etc.) and Stripe (rest of the world). Payment methods depend on your country.' },
       { q: 'How much does Siteviral take from my sales?', a: 'Siteviral takes a 10% commission on each transaction (sale or donation). This covers infrastructure, payment processing, and support. There are no fixed fees or subscriptions.' },

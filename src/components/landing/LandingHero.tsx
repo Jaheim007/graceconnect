@@ -9,24 +9,24 @@ import { useState, useEffect } from 'react';
 
 const personas = [
   {
-    badge: '🏢 Organisations',
+    badge: '🏢 Organisations & Leaders',
     headline: 'Votre plateforme digitale\nmonétisée, clé en main.',
-    sub: 'Centralisez tout sur une seule plateforme : vendez vos ressources, collectez des dons, gérez votre communauté. Zéro abonnement.',
+    sub: 'Organisations, leaders, créateurs : centralisez vos ressources, vendez, collectez des dons — et bénéficiez d\'une armée d\'ambassadeurs qui diffusent et vendent pour vous.',
     cta: 'Créer ma plateforme gratuitement',
     ctaPath: '/auth?mode=signup',
-    bullets: ['Boutique numérique complète', 'Dons & offrandes Mobile Money', 'Réseau d\'ambassadeurs intégré'],
+    bullets: ['Boutique numérique complète', 'Armée d\'ambassadeurs intégrée', 'Dons & offrandes Mobile Money'],
   },
   {
     badge: '🚀 Ambassadeurs',
     headline: 'Zéro contenu à créer.\nJuste partager et gagner.',
-    sub: 'Devenez ambassadeur : partagez les ressources d\'autres créateurs et touchez jusqu\'à 50% de commission sur chaque vente.',
+    sub: 'Partagez les ressources des autres et touchez de 5% à 50% de commission sur chaque vente. Sur Siteviral, tout le monde gagne.',
     cta: 'Devenir ambassadeur maintenant',
     ctaPath: '/auth?mode=signup',
     bullets: ['5% à 50% de commission', 'Lien de partage en 1 clic', 'Versement automatique'],
   },
   {
     badge: '🛒 Acheteurs',
-    headline: 'Des milliers de ressources.\nUn seul endroit.',
+    headline: 'Des ressources de qualité.\nUn seul endroit.',
     sub: 'E-books, audio, vidéos, documents — achetez et soutenez des créateurs. Paiement Mobile Money ou carte en 1 clic.',
     cta: 'Explorer les ressources',
     ctaPath: '/discover',

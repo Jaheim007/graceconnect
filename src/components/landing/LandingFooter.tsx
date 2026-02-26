@@ -16,7 +16,7 @@ export function LandingFooter() {
             <h4 className="font-semibold text-sm">{t('landing.footer_product')}</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link to="/features" className="hover:text-foreground transition-colors">Fonctionnalités</Link></li>
-              <li><Link to="/affiliate-program" className="hover:text-foreground transition-colors">Affiliation</Link></li>
+              <li><Link to="/ambassador-program" className="hover:text-foreground transition-colors">Ambassadeurs</Link></li>
               <li><Link to="/about" className="hover:text-foreground transition-colors">{t('landing.about')}</Link></li>
               <li><Link to="/auth?mode=signup" className="hover:text-foreground transition-colors">{t('landing.get_started')}</Link></li>
               <li><Link to="/faq" className="hover:text-foreground transition-colors">FAQ</Link></li>
