@@ -42,10 +42,17 @@ export default function PaymentSuccessPage() {
   const reference = searchParams.get('reference') || searchParams.get('trxref') || '';
   const gateway = searchParams.get('gateway') || 'paystack';
   const sessionId = searchParams.get('session_id') || '';
+  // Extra params for Paystack fallback verification
+  const urlType = searchParams.get('type') as 'donation' | 'product' | null;
+  const urlOrgId = searchParams.get('organization_id') || '';
+  const urlCampaignId = searchParams.get('campaign_id') || '';
+  const urlProductId = searchParams.get('product_id') || '';
   const [tx, setTx] = useState<TransactionDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [stripeVerified, setStripeVerified] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 4;
 
   useEffect(() => {
     if (!reference) {
@@ -124,7 +131,6 @@ export default function PaymentSuccessPage() {
         try {
           const result = await verifyStripePayment(reference, sessionId);
           if (result.ok) {
-            // Transaction recorded by stripe-verify, re-fetch from DB
             await fetchTransaction();
             return;
           }
@@ -133,11 +139,49 @@ export default function PaymentSuccessPage() {
         }
       }
 
-      setError('Transaction non trouvée. Elle peut être en cours de traitement.');
+      // Paystack fallback: if we have URL params, try calling verify-payment directly
+      if (reference.startsWith('SV-') && urlType && urlOrgId && retryCount === 0) {
+        setRetryCount(1);
+        try {
+          const { verifyPayment } = await import('@/lib/api');
+          const result = await verifyPayment({
+            reference,
+            type: urlType,
+            organization_id: urlOrgId,
+            campaign_id: urlCampaignId || undefined,
+            product_id: urlProductId || undefined,
+          });
+          if (result.ok) {
+            await fetchTransaction();
+            return;
+          }
+        } catch (verifyErr) {
+          console.error('[PaymentSuccess] paystack verify-payment fallback error:', verifyErr);
+        }
+      }
+
+      // Auto-retry with delay (webhook may be slow)
+      if (retryCount < MAX_RETRIES) {
+        const delay = (retryCount + 1) * 3000; // 3s, 6s, 9s, 12s
+        setRetryCount(prev => prev + 1);
+        setTimeout(() => fetchTransaction(), delay);
+        return;
+      }
+
+      setError('Votre paiement a bien été reçu par le processeur. La confirmation peut prendre quelques instants. Vous pouvez rafraîchir cette page ou vérifier dans "Mon espace".');
       setLoading(false);
     } catch (err) {
       console.error('[PaymentSuccess] fetch error:', err);
-      setError('Erreur lors de la récupération des détails.');
+
+      // Retry on network errors too
+      if (retryCount < MAX_RETRIES) {
+        const delay = (retryCount + 1) * 3000;
+        setRetryCount(prev => prev + 1);
+        setTimeout(() => fetchTransaction(), delay);
+        return;
+      }
+
+      setError('Erreur lors de la récupération des détails. Votre paiement a peut-être été traité — vérifiez dans "Mon espace".');
       setLoading(false);
     }
   }
@@ -194,13 +238,16 @@ export default function PaymentSuccessPage() {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-4">
           <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
-          <p className="text-muted-foreground">Chargement des détails…</p>
+          <p className="text-muted-foreground">
+            {retryCount > 0 ? `Vérification du paiement… (tentative ${retryCount}/${MAX_RETRIES})` : 'Chargement des détails…'}
+          </p>
+          <p className="text-xs text-muted-foreground">Ne fermez pas cette page.</p>
         </div>
       </div>
     );
   }
 
-  // Error state
+  // Error state — friendlier messaging (payment may have succeeded)
   if (error || !tx) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -208,13 +255,22 @@ export default function PaymentSuccessPage() {
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           className="max-w-md w-full text-center space-y-6"
         >
-          <AlertCircle className="h-16 w-16 text-destructive mx-auto" />
-          <h1 className="text-xl font-bold text-foreground">Transaction introuvable</h1>
+          <div className="relative inline-flex mb-2">
+            <div className="w-16 h-16 rounded-full bg-amber-500/10 flex items-center justify-center">
+              <Loader2 className="h-8 w-8 text-amber-500" />
+            </div>
+          </div>
+          <h1 className="text-xl font-bold text-foreground">Paiement en cours de traitement</h1>
           <p className="text-muted-foreground text-sm">{error}</p>
           <p className="text-xs text-muted-foreground">Référence : {reference}</p>
-          <div className="flex gap-3 justify-center">
-            <Button variant="outline" onClick={() => navigate('/')}>Accueil</Button>
-            {user && <Button onClick={() => navigate('/dashboard')}>Mon espace</Button>}
+          <div className="flex flex-col gap-2 items-center">
+            <Button onClick={() => { setLoading(true); setError(''); setRetryCount(0); fetchTransaction(); }} variant="outline" className="gap-2">
+              <Loader2 className="h-4 w-4" /> Vérifier à nouveau
+            </Button>
+            <div className="flex gap-3">
+              <Button variant="ghost" size="sm" onClick={() => navigate('/')}>Accueil</Button>
+              {user && <Button size="sm" onClick={() => navigate('/dashboard')}>Mon espace</Button>}
+            </div>
           </div>
         </motion.div>
       </div>
