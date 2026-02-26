@@ -5,11 +5,16 @@ import { Button } from '@/components/ui/button';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area } from 'recharts';
-import { TrendingUp, Users, DollarSign, BarChart3, Activity, ShoppingBag, Heart, Filter, Download, Search } from 'lucide-react';
+import { TrendingUp, Users, DollarSign, BarChart3, Activity, ShoppingBag, Heart, Filter, Download, Search, CalendarIcon } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useState, useMemo } from 'react';
 import { downloadCSV } from '@/lib/csvExport';
 import { Input } from '@/components/ui/input';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format, startOfDay, startOfWeek, startOfMonth, startOfYear, subDays, subMonths } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { cn } from '@/lib/utils';
 
 export function SuperadminDashboard() {
   const { data: stats } = useQuery({
@@ -175,6 +180,23 @@ export function SuperadminTransactions() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'pending' | 'failed'>('all');
   const [gatewayFilter, setGatewayFilter] = useState<'all' | 'stripe' | 'paystack' | 'free'>('all');
+  const [periodFilter, setPeriodFilter] = useState<'all' | 'today' | '7d' | '30d' | '90d' | 'this_month' | 'this_week' | 'custom'>('all');
+  const [customDateFrom, setCustomDateFrom] = useState<Date | undefined>();
+  const [customDateTo, setCustomDateTo] = useState<Date | undefined>();
+
+  const getDateRange = (): { from: Date | null; to: Date | null } => {
+    const now = new Date();
+    switch (periodFilter) {
+      case 'today': return { from: startOfDay(now), to: now };
+      case 'this_week': return { from: startOfWeek(now, { weekStartsOn: 1 }), to: now };
+      case 'this_month': return { from: startOfMonth(now), to: now };
+      case '7d': return { from: subDays(now, 7), to: now };
+      case '30d': return { from: subDays(now, 30), to: now };
+      case '90d': return { from: subMonths(now, 3), to: now };
+      case 'custom': return { from: customDateFrom || null, to: customDateTo || null };
+      default: return { from: null, to: null };
+    }
+  };
 
   const detectGateway = (ref: string | null): string => {
     if (!ref) return 'unknown';
@@ -189,7 +211,7 @@ export function SuperadminTransactions() {
       const { data, error } = await db.from('product_purchases')
         .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, settlement_status, user_id, organization_id, digital_products(title, organization_id, organizations(name))')
         .order('created_at', { ascending: false })
-        .limit(200);
+        .limit(500);
       if (error) { console.error('sa-purchases error:', error); return []; }
       return (data || []).map((r: any) => ({
         ...r,
@@ -207,7 +229,7 @@ export function SuperadminTransactions() {
       const { data, error } = await db.from('donations')
         .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, settlement_status, donor_name, donor_email, user_id, organizations(name), donation_campaigns(title)')
         .order('created_at', { ascending: false })
-        .limit(200);
+        .limit(500);
       if (error) { console.error('sa-donations error:', error); return []; }
       return (data || []).map((r: any) => ({
         ...r,
@@ -226,6 +248,12 @@ export function SuperadminTransactions() {
     if (filter !== 'all') merged = merged.filter(t => t.type === filter);
     if (statusFilter !== 'all') merged = merged.filter(t => t.status === statusFilter);
     if (gatewayFilter !== 'all') merged = merged.filter(t => t.gateway === gatewayFilter);
+    
+    // Date filtering
+    const { from, to } = getDateRange();
+    if (from) merged = merged.filter(t => new Date(t.created_at) >= from);
+    if (to) merged = merged.filter(t => new Date(t.created_at) <= to);
+
     if (search.trim()) {
       const q = search.toLowerCase();
       merged = merged.filter(t =>
@@ -237,7 +265,7 @@ export function SuperadminTransactions() {
       );
     }
     return merged;
-  }, [purchases, donations, filter, statusFilter, search]);
+  }, [purchases, donations, filter, statusFilter, gatewayFilter, search, periodFilter, customDateFrom, customDateTo]);
 
   const completedTx = allTx.filter(t => t.status === 'completed');
   const totalGMV = completedTx.reduce((s, t) => s + (t.amount || 0), 0);
@@ -338,6 +366,66 @@ export function SuperadminTransactions() {
           ))}
         </div>
       </div>
+
+      {/* Date/Period Filters */}
+      <div className="flex flex-wrap items-center gap-2">
+        <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+        <span className="text-xs text-muted-foreground font-medium">Période :</span>
+        {([
+          { key: 'all', label: 'Tout' },
+          { key: 'today', label: "Aujourd'hui" },
+          { key: 'this_week', label: 'Cette semaine' },
+          { key: 'this_month', label: 'Ce mois' },
+          { key: '7d', label: '7 jours' },
+          { key: '30d', label: '30 jours' },
+          { key: '90d', label: '90 jours' },
+          { key: 'custom', label: '📅 Personnalisé' },
+        ] as const).map(p => (
+          <Button
+            key={p.key}
+            size="sm"
+            variant={periodFilter === p.key ? 'default' : 'outline'}
+            onClick={() => setPeriodFilter(p.key)}
+            className="text-xs h-7"
+          >
+            {p.label}
+          </Button>
+        ))}
+      </div>
+
+      {periodFilter === 'custom' && (
+        <div className="flex flex-wrap items-center gap-3 p-3 rounded-xl border border-border bg-muted/30">
+          <span className="text-xs text-muted-foreground">Du :</span>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className={cn("h-8 text-xs gap-2 min-w-[140px] justify-start", !customDateFrom && "text-muted-foreground")}>
+                <CalendarIcon className="h-3.5 w-3.5" />
+                {customDateFrom ? format(customDateFrom, 'dd MMM yyyy', { locale: fr }) : 'Date début'}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar mode="single" selected={customDateFrom} onSelect={setCustomDateFrom} initialFocus className="p-3 pointer-events-auto" />
+            </PopoverContent>
+          </Popover>
+          <span className="text-xs text-muted-foreground">Au :</span>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className={cn("h-8 text-xs gap-2 min-w-[140px] justify-start", !customDateTo && "text-muted-foreground")}>
+                <CalendarIcon className="h-3.5 w-3.5" />
+                {customDateTo ? format(customDateTo, 'dd MMM yyyy', { locale: fr }) : 'Date fin'}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar mode="single" selected={customDateTo} onSelect={setCustomDateTo} initialFocus className="p-3 pointer-events-auto" />
+            </PopoverContent>
+          </Popover>
+          {(customDateFrom || customDateTo) && (
+            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => { setCustomDateFrom(undefined); setCustomDateTo(undefined); }}>
+              Réinitialiser
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* Table */}
       {isLoading ? <SkeletonRow count={8} /> : allTx.length === 0 ? (
