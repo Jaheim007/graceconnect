@@ -639,6 +639,9 @@ export type Database = {
           order_bump_discount_percent: number | null
           order_bump_product_id: string | null
           organization_id: string
+          page_count: number | null
+          preview_images: string[] | null
+          preview_page_count: number | null
           price: number | null
           product_type: string | null
           review_count: number | null
@@ -674,6 +677,9 @@ export type Database = {
           order_bump_discount_percent?: number | null
           order_bump_product_id?: string | null
           organization_id: string
+          page_count?: number | null
+          preview_images?: string[] | null
+          preview_page_count?: number | null
           price?: number | null
           product_type?: string | null
           review_count?: number | null
@@ -709,6 +715,9 @@ export type Database = {
           order_bump_discount_percent?: number | null
           order_bump_product_id?: string | null
           organization_id?: string
+          page_count?: number | null
+          preview_images?: string[] | null
+          preview_page_count?: number | null
           price?: number | null
           product_type?: string | null
           review_count?: number | null

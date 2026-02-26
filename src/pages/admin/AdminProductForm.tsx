@@ -144,6 +144,25 @@ export function ProductForm() {
         resultData = res.data;
       }
       if (error) throw error;
+
+      // Trigger preview generation in background if file is uploaded
+      const productIdForPreview = isEdit ? id : resultData?.id;
+      if (productIdForPreview && payload.file_url) {
+        const { data: { session } } = await db.auth.getSession();
+        if (session?.access_token) {
+          fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-preview`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({ product_id: productIdForPreview }),
+          }).then(res => {
+            if (res.ok) console.log('[Preview] Generation triggered');
+            else console.warn('[Preview] Generation failed');
+          }).catch(err => console.warn('[Preview] Error:', err));
+        }
+      }
       
       if (isEdit) {
         toast({ title: 'Mis à jour ✅' });

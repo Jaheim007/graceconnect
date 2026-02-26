@@ -83,3 +83,6 @@ verify_jwt = false
 
 [functions.stripe-connect-status]
 verify_jwt = false
+
+[functions.generate-preview]
+verify_jwt = false
