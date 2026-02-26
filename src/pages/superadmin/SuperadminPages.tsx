@@ -178,15 +178,16 @@ export function SuperadminTransactions() {
   const { data: purchases = [], isLoading: loadingP } = useQuery({
     queryKey: ['sa-all-purchases'],
     queryFn: async () => {
-      const { data } = await db.from('product_purchases')
-        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, settlement_status, user_id, digital_products(title), organizations(name)')
+      const { data, error } = await db.from('product_purchases')
+        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, settlement_status, user_id, organization_id, digital_products(title, organization_id, organizations(name))')
         .order('created_at', { ascending: false })
         .limit(200);
+      if (error) { console.error('sa-purchases error:', error); return []; }
       return (data || []).map((r: any) => ({
         ...r,
         type: 'purchase' as const,
         label: r.digital_products?.title || 'Produit',
-        org_name: r.organizations?.name || '—',
+        org_name: r.digital_products?.organizations?.name || '—',
       }));
     },
   });
@@ -194,10 +195,11 @@ export function SuperadminTransactions() {
   const { data: donations = [], isLoading: loadingD } = useQuery({
     queryKey: ['sa-all-donations'],
     queryFn: async () => {
-      const { data } = await db.from('donations')
+      const { data, error } = await db.from('donations')
         .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, settlement_status, donor_name, donor_email, user_id, organizations(name), donation_campaigns(title)')
         .order('created_at', { ascending: false })
         .limit(200);
+      if (error) { console.error('sa-donations error:', error); return []; }
       return (data || []).map((r: any) => ({
         ...r,
         type: 'donation' as const,
