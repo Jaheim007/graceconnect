@@ -237,8 +237,8 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
                       onChange={(e) => setIsRecurring(e.target.checked)}
                       className="rounded border-border"
                     />
-                    <Label htmlFor="recurring" className="text-xs cursor-pointer">
-                      Rendre cette offrande récurrente
+                     <Label htmlFor="recurring" className="text-xs cursor-pointer">
+                      Rendre ce don récurrent
                     </Label>
                   </div>
                   {isRecurring && (
@@ -306,7 +306,7 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
           <div className="py-6 flex flex-col items-center gap-4 text-center">
             <CheckCircle className="h-14 w-14 text-green-500" />
             <div>
-              <p className="font-semibold text-lg">🙏 Merci pour votre offrande !</p>
+              <p className="font-semibold text-lg">🙏 Merci pour votre don !</p>
               <p className="text-sm text-muted-foreground mt-1">
                 {fmt(result.breakdown.amount)} reçu avec succès.
               </p>

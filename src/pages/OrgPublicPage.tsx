@@ -62,8 +62,8 @@ export default function OrgPublicPage() {
 
   const hasAffiliateRef = !!searchParams.get('ref');
   const pathTab = pathname.split('/').pop();
-  const defaultTab = hasAffiliateRef && !['content', 'events', 'store', 'donate', 'offerings', 'photos'].includes(pathTab || '') ? 'store' : 'home';
-  const activeTab = ['content', 'events', 'store', 'donate', 'offerings', 'photos'].includes(pathTab || '') ? pathTab! : defaultTab;
+  const defaultTab = hasAffiliateRef && !['content', 'events', 'store', 'donate', 'offerings', 'dons', 'photos'].includes(pathTab || '') ? 'store' : 'home';
+  const activeTab = ['content', 'events', 'store', 'donate', 'offerings', 'dons', 'photos'].includes(pathTab || '') ? (pathTab === 'dons' ? 'offerings' : pathTab!) : defaultTab;
 
   const { data: org, isLoading: orgLoading } = useOrgBySlug(slug);
   const { data: media = [] } = useOrgMedia(org?.id);
@@ -146,7 +146,7 @@ export default function OrgPublicPage() {
     setTimeout(() => tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
 
-  const hasAnyContent = [products, campaigns, offerings, media, photos, events].some(arr => arr.length > 0);
+  const hasAnyContent = [products, campaigns, ...(orgAny.offerings_enabled ? [offerings] : []), media, photos, events].some(arr => arr.length > 0);
 
   const toggleAffiliation = async () => {
     // Handled inside OrgAdminToolbar — kept for backwards compat
@@ -222,7 +222,7 @@ export default function OrgPublicPage() {
                 { value: 'home', label: t('org_public.home'), icon: Home, count: null },
                 ...(products.length > 0 || isAdmin ? [{ value: 'store', label: t('org_public.store'), icon: ShoppingBag, count: products.length }] : []),
                 ...(campaigns.length > 0 || isAdmin ? [{ value: 'donate', label: t('org_public.donations'), icon: Heart, count: campaigns.length }] : []),
-                ...(offerings.length > 0 || isAdmin ? [{ value: 'offerings', label: locale === 'fr' ? 'Offrandes' : 'Offerings', icon: HandHeart, count: offerings.length }] : []),
+                ...((offerings.length > 0 || isAdmin) && (orgAny.offerings_enabled) ? [{ value: 'offerings', label: locale === 'fr' ? 'Dons' : 'Donations', icon: HandHeart, count: offerings.length }] : []),
                 ...(media.length > 0 || isAdmin ? [{ value: 'content', label: t('org_public.content'), icon: Play, count: media.length }] : []),
                 ...(photos.length > 0 || isAdmin ? [{ value: 'photos', label: t('org_public.photos'), icon: Camera, count: photos.length }] : []),
                 ...(events.length > 0 || isAdmin ? [{ value: 'events', label: t('org_public.events'), icon: CalendarDays, count: events.length }] : []),
@@ -253,7 +253,7 @@ export default function OrgPublicPage() {
                 slug={slug!}
                 products={products}
                 campaigns={campaigns}
-                offerings={offerings}
+                offerings={orgAny.offerings_enabled ? offerings : []}
                 media={media}
                 photos={photos}
                 events={events}
@@ -310,7 +310,7 @@ export default function OrgPublicPage() {
             {/* OFFERINGS */}
             <TabsContent value="offerings">
               {offerings.length === 0 ? (
-                <EmptyState variant="generic" title={locale === 'fr' ? 'Aucune offrande' : 'No offerings'} description={locale === 'fr' ? 'Aucune offrande configurée pour le moment.' : 'No offerings configured yet.'} />
+                <EmptyState variant="generic" title={locale === 'fr' ? 'Aucun don configuré' : 'No donations configured'} description={locale === 'fr' ? 'Aucun type de don configuré pour le moment.' : 'No donation types configured yet.'} />
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {offerings.map((o) => <OfferingCard key={o.id} offering={o} onSelect={setSelectedOffering} />)}

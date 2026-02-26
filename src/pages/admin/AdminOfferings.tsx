@@ -115,14 +115,14 @@ export default function AdminOfferings() {
 
       if (editingId) {
         await updateOffering.mutateAsync({ id: editingId, updates: payload });
-        toast({ title: 'Offrande mise à jour ✅' });
+        toast({ title: 'Don mis à jour ✅' });
       } else {
         await createOffering.mutateAsync({
           ...payload,
           organization_id: currentOrg!.id,
           display_order: offerings.length,
         });
-        toast({ title: 'Offrande créée ✅' });
+        toast({ title: 'Type de don créé ✅' });
       }
       setDialogOpen(false);
     } catch (e: any) {
@@ -135,34 +135,34 @@ export default function AdminOfferings() {
   const handleDelete = async (id: string) => {
     try {
       await deleteOffering.mutateAsync({ id, orgId: currentOrg!.id });
-      toast({ title: 'Offrande supprimée' });
+      toast({ title: 'Type de don supprimé' });
     } catch (e: any) {
       toast({ title: 'Erreur', description: e.message, variant: 'destructive' });
     }
   };
 
   return (
-    <AdminPageShell title="Offrandes" backRoute="/admin">
+    <AdminPageShell title="Dons" backRoute="/admin">
       <div className="space-y-4">
         {/* Header action */}
         <div className="flex justify-end">
           <Button size="sm" onClick={openNew} className="gap-1.5 text-xs h-9">
-            <Plus className="h-3.5 w-3.5" /> Nouvelle offrande
+            <Plus className="h-3.5 w-3.5" /> Nouveau type de don
           </Button>
         </div>
 
         {isLoading ? <SkeletonRow count={3} /> : offerings.length === 0 ? (
           <EmptyState
             variant="generic"
-            title="Aucune offrande configurée"
-            description="Créez des types d'offrandes (dîmes, offrandes spéciales, etc.) pour que vos membres puissent contribuer facilement."
-            action={{ label: 'Créer une offrande', onClick: openNew }}
+            title="Aucun type de don configuré"
+            description="Créez des types de dons (dîmes, offrandes, dons libres, etc.) pour que vos membres puissent contribuer facilement."
+            action={{ label: 'Créer un type de don', onClick: openNew }}
           />
         ) : (
           <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
             <h2 className="font-semibold text-sm flex items-center gap-2">
               <HandHeart className="h-4 w-4 text-primary" />
-              {offerings.length} offrande{offerings.length > 1 ? 's' : ''}
+              {offerings.length} type{offerings.length > 1 ? 's' : ''} de don
             </h2>
             <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
               {offerings.map((o: Offering) => (
@@ -199,7 +199,7 @@ export default function AdminOfferings() {
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Supprimer cette offrande ?</AlertDialogTitle>
+                          <AlertDialogTitle>Supprimer ce type de don ?</AlertDialogTitle>
                           <AlertDialogDescription>
                             Cette action est irréversible. Les transactions existantes seront conservées.
                           </AlertDialogDescription>
@@ -224,7 +224,7 @@ export default function AdminOfferings() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>{editingId ? 'Modifier l\'offrande' : 'Nouvelle offrande'}</DialogTitle>
+            <DialogTitle>{editingId ? 'Modifier le don' : 'Nouveau type de don'}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
@@ -232,7 +232,7 @@ export default function AdminOfferings() {
               <Label htmlFor="off-title">Titre *</Label>
               <Input
                 id="off-title"
-                placeholder="ex: Dîme, Offrande spéciale, Don libre…"
+                placeholder="ex: Dîme, Offrande spéciale, Don libre, Contribution…"
                 value={form.title}
                 onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
               />
