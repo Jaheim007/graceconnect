@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { motion } from 'framer-motion';
 import { ProductCard } from '@/components/products/ProductCard';
-import { ShoppingCart, Eye, Clock, Layers } from 'lucide-react';
+import { ShoppingCart, Eye, Clock } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 
 const fadeUp = {
@@ -45,12 +45,21 @@ export function FeaturedSection() {
   const { data } = useQuery({
     queryKey: ['discover-smart-sections'],
     queryFn: async () => {
-      const [mostBought, mostRecent] = await Promise.all([
+      const [mostBought, mostViewed, mostRecent] = await Promise.all([
+        // Most bought: ONLY products with at least 1 sale
         db.from('digital_products')
           .select('*, organizations(name, slug, logo_url, currency)')
           .eq('is_published', true)
+          .gt('sales_count', 0)
           .order('sales_count', { ascending: false })
           .limit(8),
+        // Most viewed: products ordered by featured_score (proxy for views/engagement)
+        db.from('digital_products')
+          .select('*, organizations(name, slug, logo_url, currency)')
+          .eq('is_published', true)
+          .order('featured_score', { ascending: false })
+          .limit(8),
+        // Most recent
         db.from('digital_products')
           .select('*, organizations(name, slug, logo_url, currency)')
           .eq('is_published', true)
@@ -60,6 +69,7 @@ export function FeaturedSection() {
 
       return {
         mostBought: mapProducts(mostBought.data || []),
+        mostViewed: mapProducts(mostViewed.data || []),
         mostRecent: mapProducts(mostRecent.data || []),
       };
     },
@@ -68,9 +78,11 @@ export function FeaturedSection() {
 
   if (!data) return null;
 
-  // Deduplicate: remove items already shown in mostBought from mostRecent
+  // Deduplicate across sections
   const boughtIds = new Set(data.mostBought.map((p: any) => p.id));
-  const recentFiltered = data.mostRecent.filter((p: any) => !boughtIds.has(p.id));
+  const viewedFiltered = data.mostViewed.filter((p: any) => !boughtIds.has(p.id));
+  const usedIds = new Set([...boughtIds, ...viewedFiltered.map((p: any) => p.id)]);
+  const recentFiltered = data.mostRecent.filter((p: any) => !usedIds.has(p.id));
 
   return (
     <div className="space-y-2">
@@ -80,8 +92,13 @@ export function FeaturedSection() {
         products={data.mostBought.slice(0, 4)}
       />
       <ProductRow
+        title={isFr ? '👀 Les plus consultés' : '👀 Most Viewed'}
+        icon={<Eye className="h-4 w-4 text-accent" />}
+        products={viewedFiltered.slice(0, 4)}
+      />
+      <ProductRow
         title={isFr ? '🕐 Ajoutés récemment' : '🕐 Recently Added'}
-        icon={<Clock className="h-4 w-4 text-accent" />}
+        icon={<Clock className="h-4 w-4 text-muted-foreground" />}
         products={recentFiltered.slice(0, 4)}
       />
     </div>
