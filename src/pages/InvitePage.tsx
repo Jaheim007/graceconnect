@@ -76,7 +76,7 @@ export default function InvitePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Invitation — Siteviral" description="Rejoignez Siteviral et découvrez des ressources numériques exclusives." />
+      <SEOHead title="Invitation — Rejoignez Siteviral" description="Vous êtes invité à rejoindre Siteviral. Découvrez des ressources numériques exclusives, achetez ou gagnez en partageant." />
       {/* Nav */}
       <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
         <div className="container flex items-center justify-between h-14 px-4">

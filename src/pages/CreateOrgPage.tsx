@@ -21,22 +21,22 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { detectCurrencyFromTimezone } from '@/lib/countryDetect';
 
 const CATEGORIES = [
-  { value: 'church', label: '🏢 Organization' },
+  { value: 'church', label: '🏢 Organisation' },
   { value: 'ministry', label: '🤝 Association' },
-  { value: 'leader', label: '👤 Leader / Creator' },
-  { value: 'ngo', label: '🌍 NGO / Nonprofit' },
-  { value: 'community', label: '🏘️ Community' },
-  { value: 'other', label: '🔷 Other' },
+  { value: 'leader', label: '👤 Leader / Créateur' },
+  { value: 'ngo', label: '🌍 ONG / Association' },
+  { value: 'community', label: '🏘️ Communauté' },
+  { value: 'other', label: '🔷 Autre' },
 ] as const;
 
 // Contextual labels & placeholders per category for step 2
 const CATEGORY_CONTEXT: Record<string, { nameLabel: string; namePlaceholder: string; stepTitle: string; descPlaceholder: string; slugPlaceholder: string }> = {
-  church:    { nameLabel: 'Platform name *', namePlaceholder: 'e.g. Grace Community Church', stepTitle: 'Name your platform', descPlaceholder: 'Briefly describe your platform...', slugPlaceholder: 'grace-community' },
-  ministry:  { nameLabel: 'Association name *', namePlaceholder: 'e.g. Hope for All Association', stepTitle: 'Name your association', descPlaceholder: 'Briefly describe your association...', slugPlaceholder: 'hope-for-all' },
-  leader:    { nameLabel: 'Your name *', namePlaceholder: 'e.g. John Doe', stepTitle: 'Put your name', descPlaceholder: 'Tell people about yourself and what you do...', slugPlaceholder: 'john-doe' },
-  ngo:       { nameLabel: 'NGO / Nonprofit name *', namePlaceholder: 'e.g. World Aid Foundation', stepTitle: 'Name your nonprofit', descPlaceholder: 'Briefly describe your nonprofit mission...', slugPlaceholder: 'world-aid' },
-  community: { nameLabel: 'Community name *', namePlaceholder: 'e.g. Tech Makers Community', stepTitle: 'Name your community', descPlaceholder: 'Briefly describe your community...', slugPlaceholder: 'tech-makers' },
-  other:     { nameLabel: 'Platform name *', namePlaceholder: 'e.g. My Platform', stepTitle: 'Name your platform', descPlaceholder: 'Briefly describe your platform...', slugPlaceholder: 'my-platform' },
+  church:    { nameLabel: 'Nom de la plateforme *', namePlaceholder: 'Ex. Église Grâce Communautaire', stepTitle: 'Nommez votre plateforme', descPlaceholder: 'Décrivez brièvement votre plateforme...', slugPlaceholder: 'grace-communautaire' },
+  ministry:  { nameLabel: 'Nom de l\'association *', namePlaceholder: 'Ex. Association Espoir Pour Tous', stepTitle: 'Nommez votre association', descPlaceholder: 'Décrivez brièvement votre association...', slugPlaceholder: 'espoir-pour-tous' },
+  leader:    { nameLabel: 'Votre nom *', namePlaceholder: 'Ex. Jean Dupont', stepTitle: 'Votre nom', descPlaceholder: 'Parlez de vous et de ce que vous faites...', slugPlaceholder: 'jean-dupont' },
+  ngo:       { nameLabel: 'Nom de l\'ONG *', namePlaceholder: 'Ex. Fondation Aide Mondiale', stepTitle: 'Nommez votre ONG', descPlaceholder: 'Décrivez brièvement la mission de votre ONG...', slugPlaceholder: 'aide-mondiale' },
+  community: { nameLabel: 'Nom de la communauté *', namePlaceholder: 'Ex. Communauté Tech Makers', stepTitle: 'Nommez votre communauté', descPlaceholder: 'Décrivez brièvement votre communauté...', slugPlaceholder: 'tech-makers' },
+  other:     { nameLabel: 'Nom de la plateforme *', namePlaceholder: 'Ex. Ma Plateforme', stepTitle: 'Nommez votre plateforme', descPlaceholder: 'Décrivez brièvement votre plateforme...', slugPlaceholder: 'ma-plateforme' },
 };
 
 const CURRENCIES = [
@@ -52,8 +52,8 @@ const CURRENCIES = [
 ] as const;
 
 const schema = z.object({
-  name: z.string().min(3, 'At least 3 characters').max(80),
-  slug: z.string().min(3, 'At least 3 characters').max(50).regex(/^[a-z0-9-]+$/, 'Lowercase letters, numbers and hyphens only'),
+  name: z.string().min(3, 'Au moins 3 caractères').max(80),
+  slug: z.string().min(3, 'Au moins 3 caractères').max(50).regex(/^[a-z0-9-]+$/, 'Lettres minuscules, chiffres et tirets uniquement'),
   category: z.enum(['church', 'ministry', 'leader', 'ngo', 'community', 'other']),
   currency: z.string().min(2),
   description: z.string().max(500).optional(),

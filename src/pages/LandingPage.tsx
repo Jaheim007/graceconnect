@@ -40,9 +40,10 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <SEOHead
-        title="Siteviral — Créez, vendez, partagez, gagnez"
-        description="Créez votre plateforme digitale, vendez vos ressources numériques, collectez des dons ou gagnez de l'argent en partageant du contenu. Mobile Money & Carte."
+        title="Siteviral — Créez votre plateforme digitale, vendez et gagnez"
+        description="Créez votre boutique en ligne, vendez ebooks, formations, audio et vidéos. Collectez des dons via Mobile Money. Devenez ambassadeur et gagnez des commissions en partageant du contenu. Gratuit."
         canonicalUrl="https://siteviral.com"
+        keywords="créer plateforme digitale gratuit, vendre ebook en ligne Afrique, formation en ligne Mobile Money, ambassadeur affiliation, gagner argent en partageant contenu, boutique numérique, collecte dons en ligne, produits numériques, Siteviral"
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'Organization',

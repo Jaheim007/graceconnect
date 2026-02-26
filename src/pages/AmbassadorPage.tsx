@@ -41,9 +41,10 @@ export default function AmbassadorPage() {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Devenir Ambassadeur — Gagnez de l'argent en partageant | Siteviral"
-        description="Zéro contenu à créer. Partagez des ressources numériques et gagnez jusqu'à 50% de commission sur chaque vente. Inscription gratuite."
+        title="Devenir Ambassadeur — Gagnez de l'argent en partageant du contenu | Siteviral"
+        description="Zéro contenu à créer. Partagez des produits numériques (ebooks, formations, audio) et gagnez jusqu'à 50% de commission sur chaque vente. Inscription 100% gratuite. Retrait Mobile Money."
         canonicalUrl="https://siteviral.com/ambassador"
+        keywords="devenir ambassadeur, gagner argent en partageant, affiliation produits numériques, commission Mobile Money, revenu passif Afrique, partager et gagner, ambassadeur digital"
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'WebPage',

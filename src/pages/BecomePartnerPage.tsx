@@ -68,8 +68,10 @@ export default function BecomePartnerPage() {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Devenir Partenaire – Siteviral"
-        description="Rejoignez le Programme Partenaires Siteviral et gagnez des commissions récurrentes en référant des organisations."
+        title="Devenir Partenaire — Gagnez des commissions récurrentes | Siteviral"
+        description="Rejoignez le Programme Partenaires Siteviral. Référez des organisations et gagnez jusqu'à 15% de commission récurrente. Inscription gratuite."
+        canonicalUrl="https://siteviral.com/become-partner"
+        keywords="devenir partenaire, programme partenaires, commissions récurrentes, référer organisations, Siteviral"
       />
       <LegalHeader />
 
