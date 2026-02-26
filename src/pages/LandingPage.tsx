@@ -85,9 +85,9 @@ export default function LandingPage() {
         <div className="container max-w-5xl mb-10">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center">
             <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">
-              Vendez tout ce que vous pouvez <span className="text-primary">imaginer</span>
+              Monétisez tout ce que vous pouvez <span className="text-accent">imaginer</span>
             </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">Ebooks, audio, vidéos, documents, templates — tout type de contenu numérique.</p>
+            <p className="text-muted-foreground max-w-xl mx-auto">Ebooks, audio, vidéos, documents, templates — <strong className="text-foreground">tout type de contenu numérique</strong>.</p>
           </motion.div>
         </div>
         <div className="space-y-4">

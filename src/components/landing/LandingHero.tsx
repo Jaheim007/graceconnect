@@ -11,7 +11,7 @@ const personas = [
   {
     badge: '🏢 Organisations & Leaders',
     headline: 'Votre plateforme digitale\nmonétisée, clé en main.',
-    sub: 'Organisations, leaders, créateurs : centralisez vos ressources, vendez, collectez des dons — et bénéficiez d\'une armée d\'ambassadeurs qui diffusent et vendent pour vous.',
+    sub: (<>Centralisez vos ressources, <strong className="text-foreground">vendez</strong>, <strong className="text-foreground">collectez des dons</strong> — et bénéficiez d'une <strong className="text-accent">armée d'ambassadeurs</strong> qui <strong className="text-accent">diffusent et vendent pour vous</strong>.</>),
     cta: 'Créer ma plateforme gratuitement',
     ctaPath: '/auth?mode=signup',
     bullets: ['Boutique numérique complète', 'Armée d\'ambassadeurs intégrée', 'Dons & offrandes Mobile Money'],
@@ -19,7 +19,7 @@ const personas = [
   {
     badge: '🚀 Ambassadeurs',
     headline: 'Zéro contenu à créer.\nJuste partager et gagner.',
-    sub: 'Partagez les ressources des autres et touchez de 5% à 50% de commission sur chaque vente. Sur Siteviral, tout le monde gagne.',
+    sub: (<><strong className="text-foreground">Partagez les ressources des autres</strong> et touchez de <strong className="text-accent">5% à 50% de commission</strong> sur <strong className="text-accent">chaque vente</strong>. Sur Siteviral, <strong className="text-foreground">tout le monde gagne</strong>.</>),
     cta: 'Devenir ambassadeur maintenant',
     ctaPath: '/auth?mode=signup',
     bullets: ['5% à 50% de commission', 'Lien de partage en 1 clic', 'Versement automatique'],
@@ -27,7 +27,7 @@ const personas = [
   {
     badge: '🛒 Acheteurs',
     headline: 'Des ressources de qualité.\nUn seul endroit.',
-    sub: 'E-books, audio, vidéos, documents — achetez et soutenez des créateurs. Paiement Mobile Money ou carte en 1 clic.',
+    sub: (<>E-books, audio, vidéos, documents — <strong className="text-foreground">achetez et soutenez</strong> des <strong className="text-accent">créateurs et organisations</strong>. Paiement <strong className="text-foreground">Mobile Money ou carte</strong> en 1 clic.</>),
     cta: 'Explorer les ressources',
     ctaPath: '/discover',
     bullets: ['Accès instantané après achat', 'Paiement Mobile Money & Carte', 'Bibliothèque personnelle'],

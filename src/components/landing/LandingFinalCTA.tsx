@@ -21,8 +21,8 @@ export function LandingFinalCTA() {
             <h2 className="text-3xl sm:text-4xl font-extrabold text-primary-foreground leading-tight">
               Prêt à transformer votre contenu en revenus ?
             </h2>
-            <p className="text-primary-foreground/70 max-w-md mx-auto">
-              Organisations, leaders, ambassadeurs — tout le monde gagne et tout le monde monétise, avec ou sans contenu.
+            <p className="text-primary-foreground/80 max-w-md mx-auto">
+              Organisations, leaders, ambassadeurs — <strong className="text-white">tout le monde gagne</strong> et <strong className="text-white">tout le monde monétise</strong>, avec ou sans contenu.
             </p>
             
             {/* 3 persona CTAs */}

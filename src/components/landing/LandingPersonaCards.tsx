@@ -13,7 +13,7 @@ const personas = [
     icon: Building2,
     label: 'Organisations & Leaders',
     title: 'Centralisez tout.\nMonétisez tout.',
-    desc: 'Organisations, leaders, créateurs : créez votre plateforme clé en main et bénéficiez d\'une armée d\'ambassadeurs qui diffusent vos ressources et gagnent des commissions.',
+    desc: (<>Créez votre plateforme clé en main et bénéficiez d'une <strong className="text-accent">armée d'ambassadeurs</strong> qui <strong className="text-accent">diffusent et vendent pour vous</strong>.</>),
     features: ['Vente de ressources numériques', 'Armée d\'ambassadeurs intégrée', 'Collecte de dons & offrandes', 'Paiement Mobile Money & Carte'],
     cta: 'Créer ma plateforme',
     ctaPath: '/auth?mode=signup',
@@ -23,7 +23,7 @@ const personas = [
     icon: Share2,
     label: 'Ambassadeurs',
     title: 'Partagez.\nGagnez.',
-    desc: 'Zéro contenu à créer. Partagez les ressources des autres et touchez de 5% à 50% de commission. Sur Siteviral, tout le monde monétise.',
+    desc: (<><strong className="text-foreground">Zéro contenu à créer.</strong> <strong className="text-foreground">Partagez les ressources des autres</strong> et touchez de <strong className="text-accent">5% à 50% de commission</strong>. Tout le monde monétise.</>),
     features: ['5% à 50% de commission', 'Zéro contenu à créer', 'Lien de partage en 1 clic', 'Versement automatique'],
     cta: 'Devenir ambassadeur',
     ctaPath: '/ambassador-program',
@@ -33,7 +33,7 @@ const personas = [
     icon: ShoppingBag,
     label: 'Acheteurs',
     title: 'Découvrez.\nSoutenez.',
-    desc: 'Accédez à des ebooks, audio, vidéos et ressources numériques. Soutenez vos communautés par des dons. Payez par Mobile Money ou carte.',
+    desc: (<>Accédez à des ebooks, audio, vidéos. <strong className="text-foreground">Soutenez des créateurs et organisations</strong>. Payez par <strong className="text-accent">Mobile Money ou carte</strong>.</>),
     features: ['Accès instantané après achat', 'Paiement sécurisé Paystack & Stripe', 'Bibliothèque personnelle', 'Dons avec suivi transparent'],
     cta: 'Explorer les ressources',
     ctaPath: '/discover',
@@ -51,7 +51,7 @@ export function LandingPersonaCards() {
           <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">
             Tout le monde gagne. <span className="text-primary">Tout le monde monétise.</span>
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">Organisations, leaders ou ambassadeurs — avec ou sans contenu, Siteviral vous permet de gagner.</p>
+          <p className="text-muted-foreground max-w-xl mx-auto">Organisations, leaders ou ambassadeurs — <strong className="text-foreground">avec ou sans contenu</strong>, Siteviral vous permet de <strong className="text-accent">gagner</strong>.</p>
         </motion.div>
 
         <div className="grid md:grid-cols-3 gap-6">
