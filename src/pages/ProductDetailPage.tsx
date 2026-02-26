@@ -208,28 +208,54 @@ export default function ProductDetailPage() {
         ogImage={product.cover_image_url || undefined}
         ogType="product"
         canonicalUrl={`https://siteviral.com/org/${slug}/p/${(product as any).slug || product.id}`}
-        jsonLd={{
-          '@context': 'https://schema.org',
-          '@type': 'Product',
-          name: product.title,
-          description: product.description,
-          image: product.cover_image_url,
-          offers: {
-            '@type': 'Offer',
-            price: product.is_free ? '0' : String(product.price || 0),
-            priceCurrency: product.currency || 'USD',
-            availability: 'https://schema.org/InStock',
-          },
-          ...(product.review_count && product.review_count > 0 ? {
-            aggregateRating: {
-              '@type': 'AggregateRating',
-              ratingValue: String(product.average_rating || 0),
-              reviewCount: String(product.review_count),
-              bestRating: '5',
-              worstRating: '1',
+        keywords={`${product.title}, ${org?.name || ''}, acheter ${product.product_type || 'produit numérique'}, ${product.currency || 'XOF'}, Siteviral`}
+        jsonLd={[
+          // Product schema
+          {
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: product.title,
+            description: product.description,
+            image: product.cover_image_url,
+            brand: { '@type': 'Organization', name: org?.name },
+            offers: {
+              '@type': 'Offer',
+              price: product.is_free ? '0' : String(product.price || 0),
+              priceCurrency: product.currency || 'USD',
+              availability: 'https://schema.org/InStock',
+              seller: { '@type': 'Organization', name: org?.name },
             },
-          } : {}),
-        }}
+            ...(product.review_count && product.review_count > 0 ? {
+              aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: String(product.average_rating || 0),
+                reviewCount: String(product.review_count),
+                bestRating: '5',
+                worstRating: '1',
+              },
+            } : {}),
+          },
+          // BreadcrumbList schema
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Siteviral', item: 'https://siteviral.com' },
+              { '@type': 'ListItem', position: 2, name: org?.name, item: `https://siteviral.com/org/${slug}` },
+              { '@type': 'ListItem', position: 3, name: product.title, item: `https://siteviral.com/org/${slug}/p/${(product as any).slug || product.id}` },
+            ],
+          },
+          // FAQ schema (if product has FAQ)
+          ...(faqItems.length > 0 ? [{
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: faqItems.map(f => ({
+              '@type': 'Question',
+              name: f.q,
+              acceptedAnswer: { '@type': 'Answer', text: f.a },
+            })),
+          }] : []),
+        ]}
       />
 
       {/* Org-branded top bar */}

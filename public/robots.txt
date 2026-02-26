@@ -15,5 +15,13 @@ Allow: /
 Disallow: /admin
 Disallow: /superadmin
 Disallow: /auth
+Disallow: /auth-callback
+Disallow: /profile
+Disallow: /dashboard
+Disallow: /notifications
+Disallow: /bookmarks
+Disallow: /invoices
+Disallow: /analytics
+Disallow: /welcome
 
 Sitemap: https://siteviral.com/sitemap.xml
