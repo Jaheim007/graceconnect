@@ -27,7 +27,7 @@ export default function AboutPage() {
           '@type': 'Organization',
           name: 'Siteviral',
           url: 'https://siteviral.com',
-          description: 'Plateforme d\'infrastructure digitale tout-en-un pour organisations, créateurs et ambassadeurs en Afrique et au-delà.',
+          description: 'Plateforme digitale tout-en-un pour organisations et leaders. Créez, vendez, et bénéficiez d\'une armée d\'ambassadeurs.',
           foundingDate: '2024',
         }}
       />
@@ -46,11 +46,11 @@ export default function AboutPage() {
               <Badge variant="secondary" className="text-xs px-4 py-1.5 rounded-full font-semibold">Notre mission</Badge>
             </motion.div>
             <motion.h1 variants={fadeUp} className="text-3xl sm:text-5xl font-extrabold leading-tight">
-              Donner à chacun le pouvoir de{' '}
-              <span className="text-primary">monétiser son savoir</span>
+              Donner à chacun le pouvoir{' '}
+              <span className="text-primary">d'avoir un impact et de monétiser</span>
             </motion.h1>
             <motion.p variants={fadeUp} className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Siteviral est né d'un constat simple : en Afrique, des millions de créateurs, leaders et organisations ont du contenu précieux mais aucune infrastructure pour le monétiser. Nous changeons ça.
+              Siteviral permet aux organisations et leaders de créer leur plateforme digitale clé en main — et de bénéficier d'une armée d'ambassadeurs qui diffusent leurs ressources et gagnent des commissions de 5% à 50%. Sur Siteviral, tout le monde gagne et tout le monde monétise, avec ou sans contenu.
             </motion.p>
           </motion.div>
         </div>
@@ -88,7 +88,7 @@ export default function AboutPage() {
           </div>
           <div className="grid sm:grid-cols-3 gap-5">
             {[
-              { icon: Target, title: '🏢 Organisations', desc: 'Créez votre plateforme digitale complète : boutique, dons, communauté, ambassadeurs. Zéro abonnement.', items: ['Boutique numérique', 'Collecte de dons', 'Gestion communautaire'] },
+              { icon: Target, title: '🏢 Organisations & Leaders', desc: 'Créez votre plateforme digitale clé en main et bénéficiez d\'une armée d\'ambassadeurs qui vendent pour vous. Zéro abonnement.', items: ['Boutique numérique', 'Armée d\'ambassadeurs', 'Collecte de dons'] },
               { icon: Rocket, title: '🚀 Ambassadeurs', desc: 'Zéro contenu à créer. Partagez les ressources des autres et touchez 5% à 50% de commission.', items: ['Lien unique', 'Commission automatique', 'Retrait Mobile Money'] },
               { icon: Eye, title: '🛒 Acheteurs', desc: 'Accédez à des milliers de ressources : e-books, audio, vidéos, documents. Paiement Mobile Money.', items: ['Accès instantané', 'Bibliothèque personnelle', 'Paiement sécurisé'] },
             ].map((item, i) => (
@@ -159,7 +159,7 @@ export default function AboutPage() {
         <div className="container max-w-2xl text-center">
           <div className="bg-card rounded-3xl border border-primary/20 p-8 sm:p-10 shadow-elevated space-y-5">
             <h2 className="text-2xl sm:text-3xl font-extrabold">Prêt à <span className="text-primary">transformer votre impact ?</span></h2>
-            <p className="text-muted-foreground text-sm">Que vous soyez créateur, leader ou simplement quelqu'un qui veut gagner en partageant — Siteviral est fait pour vous.</p>
+            <p className="text-muted-foreground text-sm">Organisations, leaders ou ambassadeurs — tout le monde gagne et tout le monde monétise, avec ou sans contenu.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button size="lg" className="px-10 h-12 gap-2 w-full sm:w-auto cta-glow" asChild>
                 <Link to="/auth?tab=signup">Créer mon compte gratuit <ArrowRight className="h-4 w-4" /></Link>

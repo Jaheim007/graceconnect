@@ -23,7 +23,7 @@ type Persona = 'all' | 'org' | 'ambassador' | 'buyer';
 
 const personaFilters: { key: Persona; label: string; icon: typeof Users; desc: string }[] = [
   { key: 'all', label: 'Tout voir', icon: Layers, desc: 'Toutes les fonctionnalités' },
-  { key: 'org', label: 'Organisations', icon: Church, desc: 'Pour créer et vendre' },
+  { key: 'org', label: 'Organisations & Leaders', icon: Church, desc: 'Pour créer et vendre' },
   { key: 'ambassador', label: 'Ambassadeurs', icon: Share2, desc: 'Pour partager et gagner' },
   { key: 'buyer', label: 'Acheteurs', icon: ShoppingBag, desc: 'Pour découvrir et acheter' },
 ];
@@ -69,9 +69,9 @@ export default function FeaturesPage() {
     <div className="min-h-screen bg-background overflow-x-hidden">
       <SEOHead
         title="Fonctionnalités — Siteviral"
-        description="Médiathèque, boutique de produits numériques, campagnes de dons, programme d'affiliation, CRM, analytics, notifications push — tout ce dont votre plateforme a besoin."
+        description="Boutique numérique, campagnes de dons, programme ambassadeur, CRM, analytics — tout ce dont votre plateforme a besoin."
         canonicalUrl="https://siteviral.com/features"
-        keywords="fonctionnalités plateforme digitale, boutique en ligne, médiathèque, campagne de dons, affiliation, CRM communautaire, analytics, notifications push, Siteviral"
+        keywords="fonctionnalités plateforme digitale, boutique en ligne, médiathèque, campagne de dons, programme ambassadeur, CRM, analytics, Siteviral"
       />
       <LandingNav />
 
@@ -84,7 +84,7 @@ export default function FeaturesPage() {
               Tout ce dont vous avez besoin.<br /><span className="text-primary">Selon qui vous êtes.</span>
             </h1>
             <p className="text-muted-foreground max-w-2xl mx-auto text-base sm:text-lg">
-              Organisation, ambassadeur ou acheteur — découvrez les outils pensés pour vous.
+              Organisation, leader, ambassadeur ou acheteur — tout le monde gagne, tout le monde monétise.
             </p>
           </motion.div>
         </div>

@@ -14,28 +14,28 @@ const fadeUp = {
 
 const faqs = [
   {
-    q: 'Combien coûte Siteviral ?',
-    a: 'Zéro franc d\'abonnement. Vous ne payez qu\'une commission de 10% uniquement quand vous réalisez une vente ou recevez un don. Si vous ne gagnez rien, vous ne payez rien.',
+    q: 'Qu\'est-ce que Siteviral ?',
+    a: 'Siteviral est une plateforme tout-en-un qui permet aux organisations et leaders de créer leur plateforme digitale pour vendre, collecter des dons et gérer leur communauté — et surtout de bénéficier d\'une armée d\'ambassadeurs qui diffusent leurs ressources et gagnent des commissions de 5% à 50%. Sur Siteviral, tout le monde gagne et tout le monde monétise, avec ou sans contenu.',
   },
   {
-    q: 'Comment fonctionne le programme ambassadeur ?',
-    a: 'Vous vous inscrivez gratuitement, vous parcourez les ressources disponibles, et vous générez votre lien unique. Chaque fois que quelqu\'un achète via votre lien, vous touchez entre 5% et 50% de commission selon le créateur. Aucun contenu à créer de votre côté.',
+    q: 'Combien coûte Siteviral ?',
+    a: 'Zéro franc d\'abonnement. Siteviral prend une commission de 10% uniquement quand une vente est réalisée ou un don reçu. Si vous ne gagnez rien, vous ne payez rien.',
+  },
+  {
+    q: 'Comment fonctionne le Programme Ambassadeur ?',
+    a: 'Inscrivez-vous gratuitement, parcourez les ressources disponibles, et générez votre lien unique. Chaque achat via votre lien vous rapporte entre 5% et 50% de commission fixée par l\'organisation. Aucun contenu à créer de votre côté.',
   },
   {
     q: 'Quels moyens de paiement sont acceptés ?',
-    a: 'Cartes bancaires (Visa, Mastercard) et Mobile Money (Orange Money, MTN MoMo, Wave, etc.). Les paiements sont traités par Paystack et Stripe, deux processeurs internationaux de confiance.',
+    a: 'Cartes bancaires (Visa, Mastercard) et Mobile Money (Orange Money, MTN MoMo, Wave) via Paystack pour l\'Afrique, et cartes bancaires internationales via Stripe pour le reste du monde.',
   },
   {
     q: 'Quand est-ce que je reçois mes paiements ?',
-    a: 'Les fonds sont disponibles après une période de sécurité de 72 heures. Vous pouvez ensuite demander un retrait par Mobile Money ou virement bancaire. Le KYC (vérification d\'identité) est requis pour les retraits mais pas pour commencer à vendre.',
+    a: 'Si vous êtes vendeur, vos revenus sont visibles immédiatement. Vous pouvez demander un retrait après 3 jours (72h). Si vous êtes ambassadeur, vos commissions sont disponibles après 15 jours de validation. Le retrait se fait par Mobile Money, virement bancaire ou carte, selon votre pays.',
   },
   {
     q: 'Est-ce que mon contenu est protégé ?',
-    a: 'Oui. Chaque document téléchargé inclut un watermark automatique avec le nom de l\'acheteur, empêchant la redistribution non autorisée. Vous pouvez aussi suivre les téléchargements dans votre tableau de bord.',
-  },
-  {
-    q: 'Puis-je utiliser Siteviral pour mon église ou mon ONG ?',
-    a: 'Absolument. Des centaines d\'églises et d\'ONG utilisent Siteviral pour recevoir des offrandes, vendre des prédications, lancer des campagnes de collecte de fonds et gérer leur communauté.',
+    a: 'Oui. Chaque document téléchargé inclut un watermark automatique avec le nom de l\'acheteur. Vous pouvez aussi suivre les téléchargements dans votre tableau de bord.',
   },
 ];
 

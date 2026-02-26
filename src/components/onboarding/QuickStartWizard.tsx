@@ -10,11 +10,11 @@ import {
 import { cn } from '@/lib/utils';
 
 const STEPS = [
-  { id: 'branding', icon: Image, title: 'Add Logo & Banner', desc: 'Upload your logo, banner, and add your WhatsApp number.', route: '/admin/settings', cta: 'Go to Settings' },
-  { id: 'announcement', icon: Megaphone, title: 'Create First Announcement', desc: 'Post your first announcement to welcome your community.', route: '/admin/announcements/new', cta: 'Create Announcement' },
-  { id: 'product', icon: ShoppingBag, title: 'Add a Digital Product', desc: 'List your first ebook, course, or digital resource.', route: '/admin/products/new', cta: 'Add Product' },
-  { id: 'campaign', icon: Heart, title: 'Launch a Campaign', desc: 'Set up a donation campaign for your community.', route: '/admin/campaigns/new', cta: 'Create Campaign' },
-  { id: 'affiliate', icon: Link2, title: 'Programme Ambassadeur', desc: 'Permettez à vos membres de promouvoir vos ressources et gagner des commissions.', route: '/admin/affiliation', cta: 'Configurer' },
+  { id: 'branding', icon: Image, title: 'Logo & Bannière', desc: 'Ajoutez votre logo, bannière et numéro WhatsApp.', route: '/admin/settings', cta: 'Paramètres' },
+  { id: 'announcement', icon: Megaphone, title: 'Première annonce', desc: 'Publiez une annonce pour accueillir votre communauté.', route: '/admin/announcements/new', cta: 'Créer' },
+  { id: 'product', icon: ShoppingBag, title: 'Ajouter un produit numérique', desc: 'Publiez votre premier ebook, audio, vidéo ou document. Vos ambassadeurs pourront le partager et gagner des commissions.', route: '/admin/products/new', cta: 'Ajouter un produit' },
+  { id: 'campaign', icon: Heart, title: 'Campagne de dons', desc: 'Lancez une collecte de dons pour votre communauté.', route: '/admin/campaigns/new', cta: 'Créer' },
+  { id: 'affiliate', icon: Link2, title: 'Programme Ambassadeur', desc: 'Activez votre armée d\'ambassadeurs. Ils partagent vos ressources et gagnent des commissions de 5% à 50%.', route: '/admin/affiliation', cta: 'Configurer' },
 ];
 
 interface QuickStartWizardProps {

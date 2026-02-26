@@ -7,18 +7,18 @@ const intents = [
   {
     icon: Building2,
     title: 'Créer ma plateforme',
-    desc: 'Je suis une organisation, un créateur, un coach ou une église. Je veux vendre mes ressources et gérer ma communauté.',
+    desc: 'Je suis une organisation ou un leader. Je veux créer ma plateforme digitale, vendre mes ressources, et bénéficier d\'ambassadeurs qui vendent pour moi.',
     path: '/create-org',
     color: 'primary' as const,
-    bullets: ['Boutique numérique', 'Collecte de dons', 'Gestion communautaire'],
+    bullets: ['Boutique numérique', 'Armée d\'ambassadeurs', 'Collecte de dons'],
   },
   {
     icon: Share2,
     title: 'Gagner en partageant',
-    desc: 'Je n\'ai pas de contenu, mais je veux gagner de l\'argent en partageant les ressources d\'autres créateurs.',
+    desc: 'Je n\'ai pas de contenu, mais je veux gagner de l\'argent en partageant les ressources des autres. Sur Siteviral, tout le monde monétise.',
     path: '/discover',
     color: 'accent' as const,
-    bullets: ['Jusqu\'à 50% de commission', 'Zéro investissement', 'Lien unique en 1 clic'],
+    bullets: ['5% à 50% de commission', 'Zéro contenu à créer', 'Lien unique en 1 clic'],
     popular: true,
   },
   {

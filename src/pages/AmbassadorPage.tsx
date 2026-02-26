@@ -70,7 +70,7 @@ export default function AmbassadorPage() {
               <span className="text-primary">Juste partager et gagner.</span>
             </motion.h1>
             <motion.p variants={fadeUp} className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-              Devenez ambassadeur : partagez les ressources d'autres créateurs sur WhatsApp, Facebook ou n'importe où — et touchez jusqu'à <strong className="text-foreground">50% de commission</strong> sur chaque vente.
+              Sur Siteviral, tout le monde gagne — même sans contenu. Partagez les ressources des organisations et leaders, et touchez de <strong className="text-foreground">5% à 50% de commission</strong> sur chaque vente.
             </motion.p>
             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button size="lg" className="px-8 gap-2 h-13 text-base w-full sm:w-auto cta-glow" onClick={() => navigate('/auth?mode=signup')}>

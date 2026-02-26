@@ -53,9 +53,9 @@ export function LandingUseCases() {
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-14">
           <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">Cas d'usage</Badge>
           <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">
-            Conçu pour <span className="text-primary">ceux qui créent</span>
+            Conçu pour les <span className="text-primary">organisations et les leaders</span>
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">Quelle que soit votre activité, Siteviral s'adapte à vos besoins.</p>
+          <p className="text-muted-foreground max-w-xl mx-auto">Quelle que soit votre activité, Siteviral s'adapte à vos besoins. Et vos ambassadeurs vendent pour vous.</p>
         </motion.div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">

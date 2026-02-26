@@ -11,10 +11,10 @@ const fadeUp = {
 const personas = [
   {
     icon: Building2,
-    label: 'Organisations',
+    label: 'Organisations & Leaders',
     title: 'Centralisez tout.\nMonétisez tout.',
-    desc: 'Créez votre plateforme complète : boutique numérique, dons, événements, communauté. Zéro abonnement, zéro compétence technique.',
-    features: ['Vente de ressources numériques', 'Collecte de dons & offrandes', 'Programme ambassadeur intégré', 'Paiement Mobile Money & Carte'],
+    desc: 'Organisations, leaders, créateurs : créez votre plateforme clé en main et bénéficiez d\'une armée d\'ambassadeurs qui diffusent vos ressources et gagnent des commissions.',
+    features: ['Vente de ressources numériques', 'Armée d\'ambassadeurs intégrée', 'Collecte de dons & offrandes', 'Paiement Mobile Money & Carte'],
     cta: 'Créer ma plateforme',
     ctaPath: '/auth?mode=signup',
     accent: 'primary',
@@ -23,7 +23,7 @@ const personas = [
     icon: Share2,
     label: 'Ambassadeurs',
     title: 'Partagez.\nGagnez.',
-    desc: 'Vous n\'avez aucun contenu ? Pas de problème. Partagez les ressources d\'autres créateurs et touchez une commission sur chaque vente.',
+    desc: 'Zéro contenu à créer. Partagez les ressources des autres et touchez de 5% à 50% de commission. Sur Siteviral, tout le monde monétise.',
     features: ['5% à 50% de commission', 'Zéro contenu à créer', 'Lien de partage en 1 clic', 'Versement automatique'],
     cta: 'Devenir ambassadeur',
     ctaPath: '/ambassador-program',
@@ -49,9 +49,9 @@ export function LandingPersonaCards() {
       <div className="container max-w-6xl">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-14">
           <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">
-            Une plateforme, <span className="text-primary">trois opportunités</span>
+            Tout le monde gagne. <span className="text-primary">Tout le monde monétise.</span>
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">Que vous soyez créateur, entrepreneur ou simple utilisateur, Siteviral a quelque chose pour vous.</p>
+          <p className="text-muted-foreground max-w-xl mx-auto">Organisations, leaders ou ambassadeurs — avec ou sans contenu, Siteviral vous permet de gagner.</p>
         </motion.div>
 
         <div className="grid md:grid-cols-3 gap-6">

@@ -171,7 +171,7 @@ export default function CreateOrgPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <SEOHead title="Créer ma plateforme — Siteviral" description="Créez votre plateforme digitale en quelques minutes. Vendez, collectez, formez." noindex />
+      <SEOHead title="Créer ma plateforme — Siteviral" description="Organisations et leaders : créez votre plateforme digitale clé en main. Vendez, collectez des dons, et bénéficiez d'ambassadeurs." noindex />
       <OrgOnboardingWizard open={showOnboarding} onClose={() => { setShowOnboarding(false); navigate('/admin'); }} />
       <div className="w-full max-w-md">
         {/* Header */}

@@ -41,16 +41,16 @@ export default function LandingPage() {
     <div className="min-h-screen bg-background overflow-x-hidden">
       <SEOHead
         title="Siteviral — Créez votre plateforme digitale, vendez et gagnez"
-        description="Créez votre boutique en ligne, vendez ebooks, audio et vidéos. Collectez des dons via Mobile Money. Devenez ambassadeur et gagnez des commissions en partageant du contenu. Gratuit."
+        description="Organisations et leaders : créez votre plateforme digitale clé en main. Vendez, collectez des dons et bénéficiez d'une armée d'ambassadeurs. Tout le monde gagne, avec ou sans contenu."
         canonicalUrl="https://siteviral.com"
-        keywords="créer plateforme digitale gratuit, vendre ebook en ligne Afrique, produits numériques Mobile Money, programme ambassadeur, gagner argent en partageant contenu, boutique numérique, collecte dons en ligne, Siteviral"
+        keywords="créer plateforme digitale gratuit, vendre ebook en ligne Afrique, produits numériques Mobile Money, programme ambassadeur, gagner argent en partageant, organisations et leaders, tout le monde monétise, Siteviral"
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'Organization',
           name: 'Siteviral',
           url: 'https://siteviral.com',
           logo: 'https://siteviral.com/logo-s.png',
-          description: 'Plateforme digitale tout-en-un pour créer, vendre et partager du contenu numérique en Afrique et au-delà.',
+          description: 'Plateforme digitale tout-en-un pour organisations et leaders. Créez, vendez, et bénéficiez d\'une armée d\'ambassadeurs. Tout le monde gagne.',
           foundingDate: '2024',
           sameAs: ['https://wa.me/message/siteviral'],
           potentialAction: {

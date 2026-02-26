@@ -34,7 +34,7 @@ export function LandingAmbassadorSection() {
               <span className="text-primary">sans créer de contenu</span>
             </h2>
             <p className="text-muted-foreground leading-relaxed">
-              Trouvez des ressources qui vous plaisent, partagez votre lien unique, et touchez une commission sur chaque vente. C'est aussi simple que partager un lien WhatsApp.
+              Sur Siteviral, tout le monde gagne — même sans contenu. Trouvez des ressources, partagez votre lien unique, et touchez de 5% à 50% de commission sur chaque vente. C'est aussi simple que partager un lien WhatsApp.
             </p>
 
             {/* Steps */}
