@@ -16,7 +16,7 @@ const intents = [
     icon: Share2,
     title: 'Gagner en partageant',
     desc: 'Je n\'ai pas de contenu, mais je veux gagner de l\'argent en partageant les ressources des autres. Sur Siteviral, tout le monde monétise.',
-    path: '/discover',
+    path: '/dashboard?mode=ambassador',
     color: 'accent' as const,
     bullets: ['5% à 50% de commission', 'Zéro contenu à créer', 'Lien unique en 1 clic'],
     popular: true,
