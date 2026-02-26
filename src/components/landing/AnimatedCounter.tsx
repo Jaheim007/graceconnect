@@ -62,14 +62,14 @@ export function AnimatedCounter({ target, value, prefix = '', suffix = '', label
   );
 }
 
-// Full stats bar for landing page
-import { ShoppingBag, Users, Globe, TrendingUp } from 'lucide-react';
+// Animated text highlights for landing page (replaces fake stats)
+import { Sparkles, Shield, Zap, Globe } from 'lucide-react';
 
-const STATS = [
-  { target: 15000, suffix: '+', label: 'Ressources vendues', icon: <ShoppingBag className="h-4 w-4" /> },
-  { target: 8500, suffix: '+', label: 'Créateurs actifs', icon: <Users className="h-4 w-4" /> },
-  { target: 25, suffix: '+', label: 'Pays couverts', icon: <Globe className="h-4 w-4" /> },
-  { target: 98, suffix: '%', label: 'Taux de satisfaction', icon: <TrendingUp className="h-4 w-4" /> },
+const VALUE_PROPS = [
+  { label: '0 FCFA d\'abonnement', desc: 'Commencez sans rien payer', icon: <Sparkles className="h-4 w-4" /> },
+  { label: 'Jusqu\'à 50% de commission', desc: 'Pour les ambassadeurs', icon: <Zap className="h-4 w-4" /> },
+  { label: 'Paystack & Stripe', desc: 'Paiements sécurisés internationaux', icon: <Shield className="h-4 w-4" /> },
+  { label: '150+ pays couverts', desc: 'Mobile Money & Carte bancaire', icon: <Globe className="h-4 w-4" /> },
 ];
 
 export function StatsBar() {
@@ -77,8 +77,21 @@ export function StatsBar() {
     <section className="py-16 px-4 bg-muted/30 border-y border-border/40">
       <div className="container max-w-5xl">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-          {STATS.map((s) => (
-            <AnimatedCounter key={s.label} target={s.target} suffix={s.suffix} label={s.label} icon={s.icon} />
+          {VALUE_PROPS.map((s) => (
+            <motion.div
+              key={s.label}
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.5, ease: 'easeOut' }}
+              className="text-center space-y-2"
+            >
+              <div className="h-10 w-10 mx-auto rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+                {s.icon}
+              </div>
+              <p className="text-lg sm:text-xl lg:text-2xl font-black text-primary">{s.label}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium">{s.desc}</p>
+            </motion.div>
           ))}
         </div>
       </div>

@@ -68,9 +68,17 @@ export function LegalHeader() {
     <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
       <div className="container flex items-center justify-between h-14 px-4">
         <SiteLogo size="md" animate />
-        <Button variant="ghost" size="sm" asChild>
-          <Link to="/"><ArrowLeft className="h-4 w-4 mr-1" /> {t('legal.back')}</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/"><ArrowLeft className="h-4 w-4 mr-1" /> {t('legal.back')}</Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild className="text-xs hidden sm:inline-flex">
+            <Link to="/features">Fonctionnalités</Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild className="text-xs hidden sm:inline-flex">
+            <Link to="/faq">FAQ</Link>
+          </Button>
+        </div>
       </div>
     </header>
   );

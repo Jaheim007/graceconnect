@@ -43,7 +43,7 @@ export default function PrivacyPage() {
           <ul className="list-disc pl-5 space-y-1">
             <li>Montants des dons et achats</li>
             <li>Références de paiement Paystack</li>
-            <li>Historique des transactions et commissions d'affiliation</li>
+            <li>Historique des transactions et commissions ambassadeur</li>
             <li>Adresse IP et empreinte appareil (device hash) pour la détection de fraude</li>
           </ul>
 
@@ -57,7 +57,7 @@ export default function PrivacyPage() {
           <h3 className="text-lg font-bold mt-4 mb-2">2.5 Cookies</h3>
           <ul className="list-disc pl-5 space-y-1">
             <li>Cookie de session (authentification)</li>
-            <li>Cookie d'affiliation (durée : 7 jours, attribution last-click)</li>
+            <li>Cookie ambassadeur (durée : 7 jours, attribution last-click)</li>
             <li>Cookies fonctionnels (langue, thème)</li>
           </ul>
 
@@ -77,7 +77,7 @@ export default function PrivacyPage() {
             <li>Sécurité, prévention de la fraude et détection d'activités suspectes</li>
             <li>Conformité AML (Anti-Money Laundering) et obligations légales</li>
             <li>Support client et résolution des litiges</li>
-            <li>Gestion du programme d'affiliation et attribution des commissions</li>
+            <li>Gestion du Programme Ambassadeur et attribution des commissions</li>
             <li>Amélioration de nos services</li>
           </ul>
         </section>

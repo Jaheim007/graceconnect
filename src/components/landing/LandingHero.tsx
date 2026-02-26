@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import heroImg from '@/assets/landing-hero-new.jpg';
 import { useState, useEffect } from 'react';
-import { AnimatedCounter } from './AnimatedCounter';
+
 
 const personas = [
   {
@@ -140,21 +140,21 @@ export function LandingHero() {
             </motion.div>
           </AnimatePresence>
 
-          {/* Social proof counters */}
+          {/* Value props instead of fake stats */}
           <motion.div variants={fadeUp} className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 pt-2">
             <div className="text-center">
-              <p className="text-2xl sm:text-3xl font-extrabold text-foreground"><AnimatedCounter target={1200} />+</p>
-              <p className="text-[11px] text-muted-foreground">Créateurs actifs</p>
+              <p className="text-lg sm:text-xl font-extrabold text-primary">0 FCFA</p>
+              <p className="text-[11px] text-muted-foreground">d'abonnement</p>
             </div>
             <div className="h-8 w-px bg-border hidden sm:block" />
             <div className="text-center">
-              <p className="text-2xl sm:text-3xl font-extrabold text-foreground"><AnimatedCounter target={15000} />+</p>
-              <p className="text-[11px] text-muted-foreground">Ressources vendues</p>
+              <p className="text-lg sm:text-xl font-extrabold text-primary">5-50%</p>
+              <p className="text-[11px] text-muted-foreground">de commission</p>
             </div>
             <div className="h-8 w-px bg-border hidden sm:block" />
             <div className="text-center">
-              <p className="text-2xl sm:text-3xl font-extrabold text-foreground"><AnimatedCounter target={8} /></p>
-              <p className="text-[11px] text-muted-foreground">Pays actifs</p>
+              <p className="text-lg sm:text-xl font-extrabold text-primary">150+ pays</p>
+              <p className="text-[11px] text-muted-foreground">Mobile Money & Carte</p>
             </div>
           </motion.div>
 
