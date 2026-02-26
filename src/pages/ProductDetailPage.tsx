@@ -77,8 +77,7 @@ export default function ProductDetailPage() {
     queryFn: async () => {
       let q = db
         .from('digital_products')
-        .select('*, organizations(name, slug, logo_url, currency, description, banner_url)')
-        .eq('is_published', true);
+        .select('*, organizations(name, slug, logo_url, currency, description, banner_url)');
       if (productId) {
         q = q.eq('id', productId);
       } else if (productSlug && slug) {
@@ -89,6 +88,8 @@ export default function ProductDetailPage() {
     },
     enabled: !!(productId || productSlug),
   });
+
+  const isUnpublished = product && !product.is_published;
 
   // Fetch org page settings for theme colors
   const orgId = product?.organization_id;
@@ -180,6 +181,17 @@ export default function ProductDetailPage() {
       <EmptyState
         title={t('product.not_found')}
         description={t('product.not_found_desc')}
+        action={{ label: t('product.back'), onClick: () => navigate(-1) }}
+        className="min-h-screen"
+      />
+    );
+  }
+
+  if (isUnpublished) {
+    return (
+      <EmptyState
+        title="Produit non publié"
+        description="Ce produit existe mais n'est pas encore publié. L'administrateur doit activer la publication depuis l'espace admin."
         action={{ label: t('product.back'), onClick: () => navigate(-1) }}
         className="min-h-screen"
       />

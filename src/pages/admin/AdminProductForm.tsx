@@ -83,7 +83,7 @@ export function ProductForm() {
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { product_type: 'pdf', price: 0, is_free: false, is_published: false, is_bundle: false, guarantee_text: '' },
+    defaultValues: { product_type: 'pdf', price: 0, is_free: false, is_published: true, is_bundle: false, guarantee_text: '' },
   });
 
   useEffect(() => {
@@ -210,7 +210,7 @@ export function ProductForm() {
             <Button variant="outline" className="gap-2" onClick={() => { if (navigator.share) navigator.share({ title: watch('title'), url: newProductUrl }); else { navigator.clipboard.writeText(newProductUrl); toast({ title: 'Lien copié ✅' }); } }}>
               <Share2 className="h-4 w-4" /> Partager
             </Button>
-            <Button className="gap-2 bg-primary text-primary-foreground" onClick={() => { setCreatedProduct(null); reset({ product_type: 'pdf', price: 0, is_free: false, is_published: false }); }}>
+            <Button className="gap-2 bg-primary text-primary-foreground" onClick={() => { setCreatedProduct(null); reset({ product_type: 'pdf', price: 0, is_free: false, is_published: true }); }}>
               <Plus className="h-4 w-4" /> Nouveau produit
             </Button>
           </div>
@@ -363,11 +363,11 @@ export function ProductForm() {
         <div className="flex flex-wrap items-center gap-6">
           <div className="flex items-center gap-2">
             <Switch checked={watch('is_free')} onCheckedChange={v => setValue('is_free', v)} />
-            <Label className="text-sm cursor-pointer">Free</Label>
+            <Label className="text-sm cursor-pointer">Gratuit</Label>
           </div>
           <div className="flex items-center gap-2">
             <Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} />
-            <Label className="text-sm cursor-pointer">Published</Label>
+            <Label className="text-sm cursor-pointer">Publié</Label>
           </div>
           <div className="flex items-center gap-2">
             <Switch checked={watch('is_bundle')} onCheckedChange={v => setValue('is_bundle', v)} />
