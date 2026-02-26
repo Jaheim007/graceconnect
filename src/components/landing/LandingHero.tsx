@@ -66,7 +66,7 @@ export function LandingHero() {
     <section className="relative pt-14 overflow-hidden">
       <div className="absolute inset-0 z-0">
         <img src={heroImg} alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/[0.96] via-background/[0.93] to-background dark:from-background/95 dark:via-background/85 dark:to-background" />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/[0.92] via-background/[0.88] to-background dark:from-background/95 dark:via-background/85 dark:to-background" />
       </div>
       <div className="relative z-10 container max-w-5xl px-4 pt-20 pb-24 sm:pt-28 sm:pb-32">
         <motion.div initial="hidden" animate="visible" variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.05 } } }} className="text-center space-y-5">
