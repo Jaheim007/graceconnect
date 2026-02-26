@@ -73,7 +73,7 @@ export function OrgAdminToolbar({
   const [dragOverSection, setDragOverSection] = useState<string | null>(null);
   const [colorsOpen, setColorsOpen] = useState(false);
 
-  const sectionOrder = pageSettings?.section_order || ['products', 'campaigns', 'content', 'photos', 'events'];
+  const sectionOrder = pageSettings?.section_order || ['products', 'offerings', 'campaigns', 'content', 'photos', 'events'];
   const hiddenSections = pageSettings?.hidden_sections || [];
   const currentPrimary = pageSettings?.theme_primary_color || '220 80% 50%';
   const currentAccent = pageSettings?.theme_accent_color || '45 90% 55%';

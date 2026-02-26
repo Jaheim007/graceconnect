@@ -15,7 +15,7 @@ export interface OrgPageSettings {
   updated_at: string;
 }
 
-const DEFAULT_SECTION_ORDER = ['products', 'campaigns', 'content', 'photos', 'events'];
+const DEFAULT_SECTION_ORDER = ['products', 'offerings', 'campaigns', 'content', 'photos', 'events'];
 
 export function useOrgPageSettings(orgId: string | undefined) {
   return useQuery({
