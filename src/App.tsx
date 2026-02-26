@@ -101,6 +101,7 @@ const AdminCRM = lazy(() => import("@/pages/admin/AdminCRM"));
 
 const AdminPromoCodes = lazy(() => import("@/pages/admin/AdminPromoCodes"));
 const AdminPhotos = lazy(() => import("@/pages/admin/AdminPhotos"));
+const AdminSales = lazy(() => import("@/pages/admin/AdminSales"));
 const AdminPayouts = lazy(() => import("@/pages/admin/AdminPayouts"));
 const AdminSubscriptions = lazy(() => import("@/pages/admin/AdminSubscriptions"));
 const AdminWaitlists = lazy(() => import("@/pages/admin/AdminWaitlists"));
@@ -275,6 +276,7 @@ const App = () => (
                   
                   <Route path="kyc" element={<LazyAdminKYC />} />
                   <Route path="settings" element={<LazyAdminSettings />} />
+                  <Route path="sales" element={<AdminSales />} />
                   <Route path="payouts" element={<AdminPayouts />} />
                   <Route path="subscriptions" element={<AdminSubscriptions />} />
                   <Route path="waitlists" element={<AdminWaitlists />} />
