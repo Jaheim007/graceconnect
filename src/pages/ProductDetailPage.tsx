@@ -135,6 +135,8 @@ export default function ProductDetailPage() {
 
   const { data: purchases = [] } = useMyPurchases();
   const isPurchased = purchases.some(p => p.product_id === (productId || product?.id));
+  const shouldAutoOpenPreview = searchParams.get('preview') === '1';
+  const canQuickPreview = !!(product as any)?.file_url && ['pdf', 'ebook'].includes(((product as any)?.product_type || '').toLowerCase());
   
   const { data: bundleItems = [] } = useBundleItems(product?.is_bundle ? product?.id : undefined);
   const { data: recommendations = [] } = useProductRecommendations(product?.id);
@@ -463,6 +465,7 @@ export default function ProductDetailPage() {
               coverImageUrl={product.cover_image_url}
               title={product.title}
               isPurchased={isPurchased}
+              autoOpen={shouldAutoOpenPreview}
             />
 
             <div className="md:hidden space-y-2">
@@ -601,6 +604,21 @@ export default function ProductDetailPage() {
                   {formatPrice(product.price || 0, product.is_free, product.currency)}
                 </span>
               </div>
+
+              {canQuickPreview && (
+                <Button
+                  variant="outline"
+                  className="w-full h-11 gap-2"
+                  onClick={() => {
+                    const nextParams = new URLSearchParams(searchParams);
+                    nextParams.set('preview', '1');
+                    setSearchParams(nextParams);
+                  }}
+                >
+                  <Eye className="h-4 w-4" />
+                  Aperçu gratuit
+                </Button>
+              )}
 
               {isPurchased ? (
                 <div className="space-y-2">
