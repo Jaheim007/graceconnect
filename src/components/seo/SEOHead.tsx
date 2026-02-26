@@ -22,7 +22,8 @@ interface SEOHeadProps {
 
 const SITE_NAME = 'Siteviral';
 const DEFAULT_OG_IMAGE = 'https://siteviral.com/og-image.png';
-const DEFAULT_DESCRIPTION = 'Siteviral — Plateforme d\'infrastructure pour organisations digitales. Vendez, collectez, formez et développez votre communauté.';
+const DEFAULT_DESCRIPTION = 'Créez votre plateforme digitale, vendez vos produits numériques, collectez des dons via Mobile Money ou gagnez de l\'argent en partageant du contenu. Gratuit et sans compétences techniques.';
+const DEFAULT_KEYWORDS = 'plateforme digitale, vendre produits numériques, Mobile Money, affiliation Afrique, gagner argent en ligne, ebook, formation en ligne, ambassadeur digital, contenu numérique, boutique en ligne, collecte de dons, créateur de contenu, monétisation, Siteviral';
 const TWITTER_SITE = '@siteviral';
 const SITE_URL = 'https://siteviral.com';
 
@@ -62,10 +63,8 @@ export function SEOHead({
     // Meta description
     setMeta('name', 'description', desc);
 
-    // Keywords
-    if (keywords) {
-      setMeta('name', 'keywords', keywords);
-    }
+    // Keywords — always set (use page-specific or default)
+    setMeta('name', 'keywords', keywords || DEFAULT_KEYWORDS);
 
     // Robots
     if (noindex) {

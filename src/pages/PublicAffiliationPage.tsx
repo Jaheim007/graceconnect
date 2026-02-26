@@ -46,7 +46,12 @@ export default function PublicAffiliationPage() {
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
-      <SEOHead title="Programme Ambassadeur — Siteviral" description="Gagnez des commissions en promouvant des produits numériques. Rejoignez le réseau d'ambassadeurs Siteviral." />
+      <SEOHead
+        title="Programme d'Affiliation — Gagnez des commissions en ligne | Siteviral"
+        description="Rejoignez le réseau d'ambassadeurs Siteviral. Partagez des produits numériques et gagnez des commissions de 5% à 50%. Inscription gratuite, retrait Mobile Money."
+        canonicalUrl="https://siteviral.com/affiliation"
+        keywords="programme affiliation, gagner commission en ligne, ambassadeur produits numériques, réseau affiliation Afrique, revenu passif, Mobile Money"
+      />
       <LandingNav />
 
       {/* Hero */}

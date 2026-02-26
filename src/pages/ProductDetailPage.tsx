@@ -203,8 +203,8 @@ export default function ProductDetailPage() {
   return (
     <div className="min-h-screen bg-background" style={orgThemeStyle}>
       <SEOHead
-        title={`${product.title} — Siteviral`}
-        description={product.description?.slice(0, 155) || `Buy ${product.title} on Siteviral`}
+        title={`${product.title} — ${org?.name || 'Siteviral'}`}
+        description={product.description?.slice(0, 155) || `Achetez ${product.title} sur Siteviral — ${product.is_free ? 'Gratuit' : `${product.price} ${product.currency || 'XOF'}`}. Paiement Mobile Money & Carte.`}
         ogImage={product.cover_image_url || undefined}
         ogType="product"
         canonicalUrl={`https://siteviral.com/org/${slug}/p/${(product as any).slug || product.id}`}

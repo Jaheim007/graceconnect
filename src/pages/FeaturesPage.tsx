@@ -67,7 +67,12 @@ export default function FeaturesPage() {
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
-      <SEOHead title="Fonctionnalités — Siteviral" description="Découvrez toutes les fonctionnalités de Siteviral : médiathèque, boutique, dons, affiliation, CRM, analytics et plus." />
+      <SEOHead
+        title="Fonctionnalités — Siteviral"
+        description="Médiathèque, boutique de produits numériques, campagnes de dons, programme d'affiliation, CRM, analytics, notifications push — tout ce dont votre plateforme a besoin."
+        canonicalUrl="https://siteviral.com/features"
+        keywords="fonctionnalités plateforme digitale, boutique en ligne, médiathèque, campagne de dons, affiliation, CRM communautaire, analytics, notifications push, Siteviral"
+      />
       <LandingNav />
 
       {/* Hero */}

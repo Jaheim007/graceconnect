@@ -151,10 +151,11 @@ export default function OrgPublicPage() {
     <div className="min-h-screen bg-background" style={themeStyle}>
       <PixelInjector facebookPixelId={fbPixel} tiktokPixelId={ttPixel} googleTagId={gTagId} />
       <SEOHead
-        title={`${org.name} — Siteviral`}
-        description={org.description || (locale === 'fr' ? `Découvrez ${org.name} sur Siteviral` : `Discover ${org.name} on Siteviral`)}
+        title={`${org.name} — Plateforme digitale sur Siteviral`}
+        description={org.description || `Découvrez ${org.name} sur Siteviral : produits numériques, formations, événements et plus. Achetez ou devenez ambassadeur.`}
         ogImage={org.banner_url || org.logo_url}
         canonicalUrl={`https://siteviral.com/org/${slug}`}
+        keywords={`${org.name}, plateforme digitale, produits numériques, ${org.category === 'church' ? 'église en ligne' : org.category === 'ngo' ? 'ONG' : 'créateur'}, Siteviral`}
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'Organization',

@@ -17,15 +17,16 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="À propos — Siteviral"
-        description="Siteviral démocratise la monétisation numérique en Afrique. Vendez, partagez et gagnez — sans compétences techniques."
+        title="À propos de Siteviral — La plateforme digitale pour l'Afrique"
+        description="Siteviral démocratise la monétisation numérique en Afrique. Créez votre plateforme, vendez, partagez et gagnez — sans compétences techniques, avec Mobile Money."
         canonicalUrl="https://siteviral.com/about"
+        keywords="à propos Siteviral, plateforme digitale Afrique, monétisation numérique, vendre en ligne Afrique, Mobile Money"
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'Organization',
           name: 'Siteviral',
           url: 'https://siteviral.com',
-          description: 'Infrastructure platform for digital organizations in Africa and beyond.',
+          description: 'Plateforme d\'infrastructure digitale tout-en-un pour organisations, créateurs et ambassadeurs en Afrique et au-delà.',
           foundingDate: '2024',
         }}
       />
