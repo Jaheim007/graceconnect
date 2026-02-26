@@ -7,7 +7,7 @@ interface SEOHeadProps {
   ogImage?: string;
   ogType?: string;
   canonicalUrl?: string;
-  jsonLd?: Record<string, any>;
+  jsonLd?: Record<string, any> | Record<string, any>[];
   article?: {
     publishedTime?: string;
     modifiedTime?: string;
@@ -110,20 +110,49 @@ export function SEOHead({
     }
     link.setAttribute('href', url);
 
-    // JSON-LD
+    // hreflang alternate links (fr primary, en alternate)
+    const hreflangFr = document.querySelector('link[hreflang="fr"]') as HTMLLinkElement || (() => {
+      const l = document.createElement('link');
+      l.setAttribute('rel', 'alternate');
+      l.setAttribute('hreflang', 'fr');
+      document.head.appendChild(l);
+      return l;
+    })();
+    hreflangFr.setAttribute('href', url);
+
+    const hreflangEn = document.querySelector('link[hreflang="en"]') as HTMLLinkElement || (() => {
+      const l = document.createElement('link');
+      l.setAttribute('rel', 'alternate');
+      l.setAttribute('hreflang', 'en');
+      document.head.appendChild(l);
+      return l;
+    })();
+    hreflangEn.setAttribute('href', url);
+
+    const hreflangDefault = document.querySelector('link[hreflang="x-default"]') as HTMLLinkElement || (() => {
+      const l = document.createElement('link');
+      l.setAttribute('rel', 'alternate');
+      l.setAttribute('hreflang', 'x-default');
+      document.head.appendChild(l);
+      return l;
+    })();
+    hreflangDefault.setAttribute('href', url);
+
+    // JSON-LD (supports multiple schemas)
+    document.querySelectorAll('script[data-seo-jsonld]').forEach(s => s.remove());
     if (jsonLd) {
-      const existingScript = document.querySelector('script[data-seo-jsonld]');
-      if (existingScript) existingScript.remove();
-      const script = document.createElement('script');
-      script.type = 'application/ld+json';
-      script.setAttribute('data-seo-jsonld', 'true');
-      script.textContent = JSON.stringify(jsonLd);
-      document.head.appendChild(script);
+      const schemas = Array.isArray(jsonLd) ? jsonLd : [jsonLd];
+      schemas.forEach((schema, i) => {
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.setAttribute('data-seo-jsonld', 'true');
+        script.textContent = JSON.stringify(schema);
+        document.head.appendChild(script);
+      });
     }
 
     return () => {
-      const script = document.querySelector('script[data-seo-jsonld]');
-      if (script) script.remove();
+      document.querySelectorAll('script[data-seo-jsonld]').forEach(s => s.remove());
     };
   }, [title, description, ogImage, ogType, canonicalUrl, jsonLd, article, noindex, locale, pathname, keywords]);
 

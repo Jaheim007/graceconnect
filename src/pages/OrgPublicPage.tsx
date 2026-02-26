@@ -156,20 +156,32 @@ export default function OrgPublicPage() {
         ogImage={org.banner_url || org.logo_url}
         canonicalUrl={`https://siteviral.com/org/${slug}`}
         keywords={`${org.name}, plateforme digitale, produits numériques, ${org.category === 'church' ? 'église en ligne' : org.category === 'ngo' ? 'ONG' : 'créateur'}, Siteviral`}
-        jsonLd={{
-          '@context': 'https://schema.org',
-          '@type': 'Organization',
-          name: org.name,
-          description: org.description,
-          url: `https://siteviral.com/org/${slug}`,
-          image: org.logo_url,
-          memberOf: { '@type': 'WebSite', name: 'Siteviral', url: 'https://siteviral.com' },
-          potentialAction: {
-            '@type': 'ViewAction',
-            target: `https://siteviral.com/org/${slug}/store`,
-            name: locale === 'fr' ? 'Voir la boutique' : 'View store',
+        jsonLd={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: org.name,
+            description: org.description,
+            url: `https://siteviral.com/org/${slug}`,
+            image: org.logo_url,
+            ...(org.website ? { sameAs: [org.website] } : {}),
+            memberOf: { '@type': 'WebSite', name: 'Siteviral', url: 'https://siteviral.com' },
+            potentialAction: {
+              '@type': 'ViewAction',
+              target: `https://siteviral.com/org/${slug}/store`,
+              name: locale === 'fr' ? 'Voir la boutique' : 'View store',
+            },
           },
-        }}
+          {
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Siteviral', item: 'https://siteviral.com' },
+              { '@type': 'ListItem', position: 2, name: 'Explorer', item: 'https://siteviral.com/discover' },
+              { '@type': 'ListItem', position: 3, name: org.name, item: `https://siteviral.com/org/${slug}` },
+            ],
+          },
+        ]}
       />
 
       <OrgPublicHeader
