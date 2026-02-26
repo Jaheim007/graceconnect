@@ -59,7 +59,7 @@ export default function AdminSales() {
     queryFn: async () => {
       if (!orgId) return [];
       const { data, error } = await db.from('product_purchases')
-        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, user_id, affiliate_link_id, buyer_email, buyer_name, digital_products(title)')
+        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, user_id, affiliate_link_id, product_id, digital_products(title)')
         .eq('organization_id', orgId)
         .order('created_at', { ascending: false })
         .limit(500);
@@ -92,7 +92,7 @@ export default function AdminSales() {
         type: 'purchase' as const,
         label: r.digital_products?.title || 'Produit',
         gateway: detectGateway(r.paystack_reference),
-        buyer_display: r.buyer_name || profileMap[r.user_id]?.display_name || r.buyer_email || '—',
+        buyer_display: profileMap[r.user_id]?.display_name || '—',
         buyer_phone: profileMap[r.user_id]?.phone || null,
         affiliate_name: r.affiliate_link_id ? (affLinkMap[r.affiliate_link_id]?.name || '—') : null,
       }));
