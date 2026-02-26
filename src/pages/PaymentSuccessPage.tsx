@@ -12,6 +12,7 @@ import { db } from '@/lib/db';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { fetchWatermarkedFile, isPdfLikeFile, openFileInline, triggerBrowserDownload } from '@/lib/secureDownload';
+import { verifyStripePayment } from '@/lib/api';
 
 interface TransactionDetails {
   type: 'product' | 'donation';
@@ -40,9 +41,11 @@ export default function PaymentSuccessPage() {
 
   const reference = searchParams.get('reference') || searchParams.get('trxref') || '';
   const gateway = searchParams.get('gateway') || 'paystack';
+  const sessionId = searchParams.get('session_id') || '';
   const [tx, setTx] = useState<TransactionDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [stripeVerified, setStripeVerified] = useState(false);
 
   useEffect(() => {
     if (!reference) {
@@ -113,6 +116,21 @@ export default function PaymentSuccessPage() {
         });
         setLoading(false);
         return;
+      }
+
+      // Not found in DB — if Stripe and not yet verified, call stripe-verify
+      if (gateway === 'stripe' && sessionId && !stripeVerified) {
+        setStripeVerified(true);
+        try {
+          const result = await verifyStripePayment(reference, sessionId);
+          if (result.ok) {
+            // Transaction recorded by stripe-verify, re-fetch from DB
+            await fetchTransaction();
+            return;
+          }
+        } catch (verifyErr) {
+          console.error('[PaymentSuccess] stripe-verify error:', verifyErr);
+        }
       }
 
       setError('Transaction non trouvée. Elle peut être en cours de traitement.');
