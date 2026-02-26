@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
-  Eye, FileText, ChevronLeft, ChevronRight, X, Lock, ZoomIn,
+  Eye, FileText, ChevronLeft, ChevronRight, X, Lock,
   Loader2, AlertTriangle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -25,6 +25,13 @@ interface ProductPreviewViewerProps {
   isPurchased?: boolean;
 }
 
+function computePreviewLimit(total: number, previewPageCount?: number | null): number {
+  if (previewPageCount && previewPageCount > 0) return previewPageCount;
+  if (total <= 5) return 1;
+  if (total <= 10) return 2;
+  return Math.max(1, Math.min(5, Math.ceil(total * 0.2)));
+}
+
 export function ProductPreviewViewer({
   productId,
   fileUrl,
@@ -41,27 +48,29 @@ export function ProductPreviewViewer({
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(pageCount || 0);
-  const canvasRefs = useRef<Map<number, HTMLCanvasElement>>(new Map());
+  const [autoLoaded, setAutoLoaded] = useState(false);
 
-  const isPdf = (productType || '').toLowerCase() === 'pdf' ||
+  const isPdf =
+    (productType || '').toLowerCase() === 'pdf' ||
+    (productType || '').toLowerCase() === 'ebook' ||
     /\.pdf($|\?)/i.test(fileUrl || '');
 
-  const maxPreviewPages = previewPageCount || Math.max(1, Math.min(5, Math.ceil((pageCount || 1) * 0.2)));
+  const hasFile = !!fileUrl;
 
   const getSignedUrl = useCallback(async (): Promise<string | null> => {
     if (!fileUrl) return null;
-    
-    // If file is in private bucket, get signed URL
+
     if (fileUrl.includes('private-products')) {
       try {
         const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
         const response = await fetch(
           `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-signed-url`,
           {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              Authorization: `Bearer ${session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({ product_id: productId }),
           }
@@ -75,20 +84,20 @@ export function ProductPreviewViewer({
       }
       return null;
     }
-    
+
     return fileUrl;
   }, [fileUrl, productId]);
 
   const loadPdfPreview = useCallback(async () => {
-    if (!isPdf || !fileUrl) return;
-    
+    if (!isPdf || !fileUrl || loading) return;
+
     setLoading(true);
     setError(null);
-    
+
     try {
       const url = await getSignedUrl();
       if (!url) {
-        setError('Impossible d\'accéder au fichier');
+        setError("Impossible d'accéder au fichier");
         return;
       }
 
@@ -97,11 +106,13 @@ export function ProductPreviewViewer({
         cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/cmaps/`,
         cMapPacked: true,
       });
-      
-      const pdf = await loadingTask.promise;
-      setTotalPages(pdf.numPages);
 
-      const pagesToRender = isPurchased ? pdf.numPages : Math.min(maxPreviewPages, pdf.numPages);
+      const pdf = await loadingTask.promise;
+      const numPages = pdf.numPages;
+      setTotalPages(numPages);
+
+      const limit = isPurchased ? numPages : computePreviewLimit(numPages, previewPageCount);
+      const pagesToRender = Math.min(limit, numPages);
       const renderedPages: string[] = [];
 
       for (let i = 1; i <= pagesToRender; i++) {
@@ -119,60 +130,103 @@ export function ProductPreviewViewer({
       }
 
       setPages(renderedPages);
+      setAutoLoaded(true);
     } catch (e: any) {
       console.error('PDF preview error:', e);
-      setError('Erreur lors du chargement de l\'aperçu');
+      setError("Erreur lors du chargement de l'aperçu");
     } finally {
       setLoading(false);
     }
-  }, [isPdf, fileUrl, maxPreviewPages, isPurchased, getSignedUrl]);
+  }, [isPdf, fileUrl, previewPageCount, isPurchased, getSignedUrl, loading]);
 
-  // Load preview when modal opens
+  // Auto-load preview eagerly when the component mounts (for any PDF product)
   useEffect(() => {
-    if (open && pages.length === 0 && isPdf) {
+    if (isPdf && hasFile && !autoLoaded && pages.length === 0 && !loading) {
       loadPdfPreview();
     }
-  }, [open, pages.length, isPdf, loadPdfPreview]);
+  }, [isPdf, hasFile, autoLoaded, pages.length, loading, loadPdfPreview]);
 
+  // Don't render anything if no file at all
+  if (!hasFile) return null;
+  // For non-PDF types without a cover, nothing to preview yet
   if (!isPdf && !coverImageUrl) return null;
 
-  const showPreviewButton = isPdf && fileUrl;
   const displayPageCount = totalPages || pageCount;
+  const previewLimit = displayPageCount
+    ? computePreviewLimit(displayPageCount, previewPageCount)
+    : null;
 
   return (
     <>
-      {/* Inline thumbnails strip */}
+      {/* Inline preview strip */}
       <div className="space-y-3">
-        {/* Page count badge */}
-        {displayPageCount && displayPageCount > 0 && (
+        {/* Loading state inline */}
+        {loading && !open && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            Chargement de l'aperçu…
+          </div>
+        )}
+
+        {/* Badges: page count + preview button */}
+        {!loading && (
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="secondary" className="text-xs gap-1.5">
-              <FileText className="h-3 w-3" />
-              {displayPageCount} page{displayPageCount > 1 ? 's' : ''}
-            </Badge>
-            {showPreviewButton && (
+            {displayPageCount != null && displayPageCount > 0 && (
+              <Badge variant="secondary" className="text-xs gap-1.5">
+                <FileText className="h-3 w-3" />
+                {displayPageCount} page{displayPageCount > 1 ? 's' : ''}
+              </Badge>
+            )}
+            {isPdf && pages.length > 0 && (
               <Badge
                 variant="outline"
                 className="text-xs gap-1.5 cursor-pointer hover:bg-primary/10 transition-colors"
-                onClick={() => setOpen(true)}
+                onClick={() => { setCurrentPage(0); setOpen(true); }}
               >
                 <Eye className="h-3 w-3" />
-                Aperçu ({maxPreviewPages} page{maxPreviewPages > 1 ? 's' : ''})
+                Aperçu{previewLimit ? ` (${previewLimit} page${previewLimit > 1 ? 's' : ''})` : ''}
               </Badge>
+            )}
+            {isPdf && !loading && pages.length === 0 && error && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs h-6"
+                onClick={loadPdfPreview}
+              >
+                <Eye className="h-3 w-3" /> Réessayer l'aperçu
+              </Button>
             )}
           </div>
         )}
 
-        {/* Preview button (if no page count but has file) */}
-        {showPreviewButton && !displayPageCount && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="gap-1.5 text-xs"
-            onClick={() => setOpen(true)}
-          >
-            <Eye className="h-3.5 w-3.5" /> Aperçu du contenu
-          </Button>
+        {/* Thumbnail strip inline (small) */}
+        {pages.length > 0 && !open && (
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {pages.map((src, i) => (
+              <button
+                key={i}
+                onClick={() => { setCurrentPage(i); setOpen(true); }}
+                className="relative shrink-0 w-14 rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all shadow-sm hover:shadow-md"
+              >
+                <img src={src} alt={`Page ${i + 1}`} className="w-full h-auto" />
+                <span className="absolute bottom-0 inset-x-0 text-[7px] text-center bg-background/80 py-px font-medium">
+                  {i + 1}
+                </span>
+              </button>
+            ))}
+            {!isPurchased && totalPages > pages.length && (
+              <div
+                className="shrink-0 w-14 h-[72px] rounded-lg border border-dashed border-border flex flex-col items-center justify-center bg-muted/50 gap-0.5 cursor-pointer hover:bg-muted transition-colors"
+                onClick={() => { setCurrentPage(pages.length - 1); setOpen(true); }}
+              >
+                <Lock className="h-3 w-3 text-muted-foreground" />
+                <span className="text-[7px] text-muted-foreground font-medium">
+                  +{totalPages - pages.length}
+                </span>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
@@ -186,11 +240,9 @@ export function ProductPreviewViewer({
               <div className="min-w-0">
                 <p className="text-sm font-semibold truncate">{title}</p>
                 <p className="text-[10px] text-muted-foreground">
-                  {isPurchased ? (
-                    `${totalPages || '?'} pages — Version complète`
-                  ) : (
-                    `Aperçu : ${pages.length} sur ${totalPages || '?'} pages`
-                  )}
+                  {isPurchased
+                    ? `${totalPages || '?'} pages — Version complète`
+                    : `Aperçu : ${pages.length} sur ${totalPages || '?'} pages`}
                 </p>
               </div>
             </div>
@@ -236,7 +288,7 @@ export function ProductPreviewViewer({
                 </div>
               )}
 
-              {error && (
+              {error && !loading && (
                 <div className="flex flex-col items-center justify-center py-20 gap-3">
                   <AlertTriangle className="h-8 w-8 text-destructive" />
                   <p className="text-sm text-destructive">{error}</p>
@@ -255,7 +307,6 @@ export function ProductPreviewViewer({
                       alt={`Page ${currentPage + 1}`}
                       className="w-full h-auto"
                     />
-                    {/* Blur overlay on last preview page if not purchased */}
                     {!isPurchased && currentPage === pages.length - 1 && totalPages > pages.length && (
                       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/95 flex items-end justify-center pb-8">
                         <div className="text-center space-y-2 bg-background/90 backdrop-blur-md rounded-2xl border border-border px-6 py-4 shadow-xl">
@@ -291,7 +342,6 @@ export function ProductPreviewViewer({
                           </span>
                         </button>
                       ))}
-                      {/* Locked pages indicator */}
                       {!isPurchased && totalPages > pages.length && (
                         <div className="shrink-0 w-16 h-20 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center bg-muted/50 gap-1">
                           <Lock className="h-3.5 w-3.5 text-muted-foreground" />
