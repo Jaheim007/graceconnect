@@ -124,6 +124,7 @@ export function Sidebar() {
       key: 'Commerce',
       items: [
         { to: '/admin/products', icon: ShoppingBag, label: t('sidebar.products') },
+        { to: '/admin/offerings', icon: Heart, label: 'Dons' },
         { to: '/admin/campaigns', icon: Heart, label: t('sidebar.campaigns') },
         { to: '/admin/affiliation', icon: Link2, label: t('sidebar.affiliation') },
         { to: '/admin/promo-codes', icon: FileCheck, label: t('sidebar.promo_codes') },

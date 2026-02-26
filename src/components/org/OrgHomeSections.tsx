@@ -86,7 +86,7 @@ export function OrgHomeSections({
           <div className="flex items-center gap-2">
             <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center"><HandHeart className="h-4 w-4 text-primary" /></div>
             <div>
-              <h2 className="font-bold text-base">{locale === 'fr' ? 'Offrandes' : 'Offerings'}</h2>
+              <h2 className="font-bold text-base">{locale === 'fr' ? 'Dons' : 'Donations'}</h2>
               <p className="text-xs text-muted-foreground">{offerings.length} {locale === 'fr' ? 'type(s)' : 'type(s)'}</p>
             </div>
           </div>

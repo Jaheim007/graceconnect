@@ -212,6 +212,7 @@ const App = () => (
                 <Route path="/org/:slug/donate" element={<OrgPublicPage />} />
                 <Route path="/org/:slug/photos" element={<OrgPublicPage />} />
                 <Route path="/org/:slug/offerings" element={<OrgPublicPage />} />
+                <Route path="/org/:slug/dons" element={<OrgPublicPage />} />
                 <Route path="/org/:slug/product/:productId" element={<ProductDetailPage />} />
                 <Route path="/org/:slug/p/:productSlug" element={<ProductDetailPage />} />
                 <Route path="/campaign/:campaignId" element={<CampaignDetailPage />} />

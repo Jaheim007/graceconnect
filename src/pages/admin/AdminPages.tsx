@@ -816,6 +816,27 @@ export function AdminSettings() {
   );
   const [savingAffiliation, setSavingAffiliation] = useState(false);
 
+  // Offerings (Dons) toggle
+  const orgAnySettings = currentOrg as any;
+  const [offeringsEnabled, setOfferingsEnabled] = useState(orgAnySettings?.offerings_enabled ?? false);
+  const [savingOfferings, setSavingOfferings] = useState(false);
+
+  const handleSaveOfferings = async () => {
+    if (!currentOrg) return;
+    setSavingOfferings(true);
+    const { error } = await supabase
+      .from('organizations')
+      .update({ offerings_enabled: offeringsEnabled } as any)
+      .eq('id', currentOrg.id);
+    setSavingOfferings(false);
+    if (error) {
+      toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: '✅ Module Dons sauvegardé' });
+      refetchOrgs();
+    }
+  };
+
 
   const handleSaveProfile = async () => {
     if (!currentOrg) return;
@@ -1139,6 +1160,28 @@ export function AdminSettings() {
 
         {/* ── POPUP CONFIG ── */}
         <PopupSettings orgId={currentOrg?.id} />
+
+        {/* ── MODULE DONS ── */}
+        <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+          <div>
+            <h2 className="font-semibold text-sm">Module Dons</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Activez cette fonctionnalité pour permettre à vos membres de faire des dons (dîmes, offrandes, contributions libres, etc.). Chaque type de don est personnalisable.
+            </p>
+          </div>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="offerings-toggle" className="text-xs font-medium">Activer le module Dons</Label>
+            <Switch id="offerings-toggle" checked={offeringsEnabled} onCheckedChange={setOfferingsEnabled} />
+          </div>
+          <Button
+            size="sm"
+            className="bg-primary text-primary-foreground"
+            onClick={handleSaveOfferings}
+            disabled={savingOfferings}
+          >
+            {savingOfferings ? 'Sauvegarde…' : 'Sauvegarder'}
+          </Button>
+        </div>
 
         {/* ── AFFILIATION ── */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-4">

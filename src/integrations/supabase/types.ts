@@ -1877,6 +1877,7 @@ export type Database = {
           momo_provider: string | null
           monetization_enabled: boolean | null
           name: string
+          offerings_enabled: boolean
           owner_id: string
           payout_freeze_reason: string | null
           payout_method: string | null
@@ -1923,6 +1924,7 @@ export type Database = {
           momo_provider?: string | null
           monetization_enabled?: boolean | null
           name: string
+          offerings_enabled?: boolean
           owner_id: string
           payout_freeze_reason?: string | null
           payout_method?: string | null
@@ -1969,6 +1971,7 @@ export type Database = {
           momo_provider?: string | null
           monetization_enabled?: boolean | null
           name?: string
+          offerings_enabled?: boolean
           owner_id?: string
           payout_freeze_reason?: string | null
           payout_method?: string | null

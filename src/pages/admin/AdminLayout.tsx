@@ -20,7 +20,7 @@ const adminLinks = [
   { to: '/admin/events', label: 'Événements', icon: CalendarDays, group: 'contenu' },
   // Commerce
   { to: '/admin/campaigns', label: 'Campagnes', icon: Heart, group: 'commerce' },
-  { to: '/admin/offerings', label: 'Offrandes', icon: HandHeart, group: 'commerce' },
+  { to: '/admin/offerings', label: 'Dons', icon: HandHeart, group: 'commerce' },
   { to: '/admin/products', label: 'Boutique', icon: ShoppingBag, group: 'commerce' },
   { to: '/admin/affiliation', label: 'Affiliation', icon: Link2, group: 'commerce' },
   { to: '/admin/promo-codes', label: 'Codes promo', icon: Tag, group: 'commerce' },
