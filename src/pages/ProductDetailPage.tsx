@@ -302,7 +302,7 @@ export default function ProductDetailPage() {
                 size="sm"
                 variant="outline"
                 className="gap-1.5 text-xs"
-                onClick={() => navigate(`/admin/products/edit/${product.id}`)}
+                onClick={() => navigate(`/admin/products/${product.id}/edit`)}
               >
                 <Pencil className="h-3.5 w-3.5" /> Modifier
               </Button>
@@ -337,7 +337,7 @@ export default function ProductDetailPage() {
               size="sm"
               variant="outline"
               className="gap-1.5 text-xs"
-              onClick={() => navigate(`/admin/products/edit/${product.id}`)}
+              onClick={() => navigate(`/admin/products/${product.id}/edit`)}
             >
               <Pencil className="h-3.5 w-3.5" /> Modifier ce produit
             </Button>
@@ -368,9 +368,21 @@ export default function ProductDetailPage() {
             <SiteLogo size="sm" linked={false} animate />
           </Link>
         )}
-        <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4" /> {t('product.back')}
-        </Button>
+        <div className="flex items-center gap-2">
+          {canManage && (
+            <Button
+              variant="secondary"
+              size="sm"
+              className="gap-1.5 text-xs"
+              onClick={() => navigate(`/admin/products/${product.id}/edit`)}
+            >
+              <Pencil className="h-3.5 w-3.5" /> Modifier
+            </Button>
+          )}
+          <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-4 w-4" /> {t('product.back')}
+          </Button>
+        </div>
       </div>
 
       {/* Org-branded banner with org colors */}
