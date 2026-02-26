@@ -587,8 +587,10 @@ const translations: Record<Locale, Record<string, string>> = {
     'checklist.campaign_desc': 'Set up a donation campaign.',
     'checklist.media': 'Add media content',
     'checklist.media_desc': 'Share a video, audio, or podcast.',
+    'checklist.offerings': 'Enable Donations module',
+    'checklist.offerings_desc': 'Receive donations, tithes or offerings from your community.',
     'checklist.affiliate': 'Enable affiliate program',
-    'checklist.affiliate_desc': 'Let members earn by promoting your content.',
+    'checklist.affiliate_desc': 'Let members earn by promoting your content (commissions on sales only, not donations).',
     // Sidebar
     'sidebar.dashboard': 'Dashboard',
     'sidebar.my_network': 'My Network',
@@ -1592,8 +1594,10 @@ const translations: Record<Locale, Record<string, string>> = {
     'checklist.campaign_desc': 'Créez une campagne de dons.',
     'checklist.media': 'Ajouter du contenu média',
     'checklist.media_desc': 'Partagez une vidéo, audio ou podcast.',
+    'checklist.offerings': 'Activer le module Dons',
+    'checklist.offerings_desc': 'Recevez des dons, offrandes ou dîmes de votre communauté.',
     'checklist.affiliate': 'Activer le programme ambassadeur',
-    'checklist.affiliate_desc': 'Permettez à vos membres de promouvoir votre contenu.',
+    'checklist.affiliate_desc': 'Permettez à vos membres de promouvoir votre contenu (commissions sur ventes uniquement, pas sur les dons).',
     // Sidebar
     'sidebar.dashboard': 'Tableau de bord',
     'sidebar.my_network': 'Mon Réseau',

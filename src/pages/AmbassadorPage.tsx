@@ -26,6 +26,7 @@ const faqs = [
   { q: 'Dois-je payer pour devenir ambassadeur ?', a: 'Non, c\'est 100% gratuit. Pas de frais d\'inscription, pas d\'abonnement.' },
   { q: 'Comment suis-je payé ?', a: 'Vos commissions sont automatiquement calculées. Vous pouvez retirer via Mobile Money, virement bancaire ou carte selon votre pays, dès que votre solde atteint le minimum.' },
   { q: 'Quel pourcentage de commission ?', a: 'C\'est chaque organisation qui fixe le taux de commission sur ses produits, entre 5% et 50%. Le taux est affiché clairement sur chaque produit.' },
+  { q: 'Est-ce que je gagne des commissions sur les dons et campagnes ?', a: 'Non. Les commissions ambassadeurs s\'appliquent exclusivement aux ventes de ressources numériques (ebooks, audio, vidéos, etc.). Aucune commission n\'est versée sur les dons, offrandes ou campagnes de collecte.' },
   { q: 'Dois-je créer du contenu ?', a: 'Non ! Vous partagez le contenu des autres. Zéro création nécessaire. Sauf si vous souhaitez aussi créer votre propre plateforme.' },
   { q: 'Combien puis-je gagner ?', a: 'Il n\'y a pas de limite. Certains ambassadeurs gagnent plus de 500 000 FCFA/mois en partageant activement.' },
 ];
@@ -70,7 +71,10 @@ export default function AmbassadorPage() {
               <span className="text-primary">Juste partager et gagner.</span>
             </motion.h1>
             <motion.p variants={fadeUp} className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-              Sur Siteviral, tout le monde gagne — même sans contenu. Partagez les ressources des organisations et leaders, et touchez de <strong className="text-foreground">5% à 50% de commission</strong> sur chaque vente.
+              Sur Siteviral, tout le monde gagne — même sans contenu. Partagez les ressources des organisations et leaders, et touchez de <strong className="text-foreground">5% à 50% de commission</strong> sur chaque vente de ressource.
+            </motion.p>
+            <motion.p variants={fadeUp} className="text-xs text-muted-foreground/80 italic max-w-xl mx-auto">
+              ⚠️ Les commissions s'appliquent uniquement aux ventes de ressources numériques. Aucune commission sur les dons et campagnes.
             </motion.p>
             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button size="lg" className="px-8 gap-2 h-13 text-base w-full sm:w-auto cta-glow" onClick={() => navigate('/auth?mode=signup')}>
