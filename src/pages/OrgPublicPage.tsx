@@ -10,11 +10,14 @@ import { useOrgMedia } from '@/hooks/useMedia';
 import { useOrgAnnouncements } from '@/hooks/useAnnouncements';
 import { useOrgEvents } from '@/hooks/useEvents';
 import { useOrgCampaigns, useOrgProducts } from '@/hooks/useMonetization';
+import { useOrgOfferings, Offering } from '@/hooks/useOfferings';
 import { MediaCard } from '@/components/media/MediaCard';
 import { CampaignCard } from '@/components/donations/CampaignCard';
 import { ProductCard } from '@/components/products/ProductCard';
 import { ProductPurchaseModal } from '@/components/products/ProductPurchaseModal';
 import { DonateModal } from '@/components/donations/DonateModal';
+import { OfferingModal } from '@/components/offerings/OfferingModal';
+import { OfferingCard } from '@/components/offerings/OfferingCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
 import { useOrg } from '@/contexts/OrgContext';
@@ -36,7 +39,7 @@ import { useWaitlists } from '@/hooks/useWaitlists';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { cn } from '@/lib/utils';
 import {
-  Home, ShoppingBag, Heart, Play, Camera, CalendarDays
+  Home, ShoppingBag, Heart, Play, Camera, CalendarDays, HandHeart
 } from 'lucide-react';
 import React from 'react';
 
@@ -52,14 +55,15 @@ export default function OrgPublicPage() {
 
   const [donateCampaign, setDonateCampaign] = useState<DonationCampaign | null>(null);
   const [purchaseProduct, setPurchaseProduct] = useState<DigitalProduct | null>(null);
+  const [selectedOffering, setSelectedOffering] = useState<Offering | null>(null);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [tourOpen, setTourOpen] = useState(false);
   const tabsRef = useRef<HTMLDivElement>(null);
 
   const hasAffiliateRef = !!searchParams.get('ref');
   const pathTab = pathname.split('/').pop();
-  const defaultTab = hasAffiliateRef && !['content', 'events', 'store', 'donate', 'photos'].includes(pathTab || '') ? 'store' : 'home';
-  const activeTab = ['content', 'events', 'store', 'donate', 'photos'].includes(pathTab || '') ? pathTab! : defaultTab;
+  const defaultTab = hasAffiliateRef && !['content', 'events', 'store', 'donate', 'offerings', 'photos'].includes(pathTab || '') ? 'store' : 'home';
+  const activeTab = ['content', 'events', 'store', 'donate', 'offerings', 'photos'].includes(pathTab || '') ? pathTab! : defaultTab;
 
   const { data: org, isLoading: orgLoading } = useOrgBySlug(slug);
   const { data: media = [] } = useOrgMedia(org?.id);
@@ -67,6 +71,7 @@ export default function OrgPublicPage() {
   const { data: events = [] } = useOrgEvents(org?.id);
   const { data: campaigns = [] } = useOrgCampaigns(org?.id);
   const { data: products = [] } = useOrgProducts(org?.id);
+  const { data: offerings = [] } = useOrgOfferings(org?.id);
   const { data: photos = [] } = useQuery({
     queryKey: ['org-photos-public', org?.id],
     queryFn: async () => {
@@ -110,7 +115,7 @@ export default function OrgPublicPage() {
   const isAdmin = org ? canManage(org.id) : false;
   const isOwner = org ? org.owner_id === user?.id : false;
   const orgAny = org as any;
-  const sectionOrder = pageSettings?.section_order || ['products', 'campaigns', 'content', 'photos', 'events'];
+  const sectionOrder = pageSettings?.section_order || ['products', 'campaigns', 'offerings', 'content', 'photos', 'events'];
   const hiddenSections = new Set(pageSettings?.hidden_sections || []);
 
   if (orgLoading) {
@@ -141,7 +146,7 @@ export default function OrgPublicPage() {
     setTimeout(() => tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
 
-  const hasAnyContent = [products, campaigns, media, photos, events].some(arr => arr.length > 0);
+  const hasAnyContent = [products, campaigns, offerings, media, photos, events].some(arr => arr.length > 0);
 
   const toggleAffiliation = async () => {
     // Handled inside OrgAdminToolbar — kept for backwards compat
@@ -217,6 +222,7 @@ export default function OrgPublicPage() {
                 { value: 'home', label: t('org_public.home'), icon: Home, count: null },
                 ...(products.length > 0 || isAdmin ? [{ value: 'store', label: t('org_public.store'), icon: ShoppingBag, count: products.length }] : []),
                 ...(campaigns.length > 0 || isAdmin ? [{ value: 'donate', label: t('org_public.donations'), icon: Heart, count: campaigns.length }] : []),
+                ...(offerings.length > 0 || isAdmin ? [{ value: 'offerings', label: locale === 'fr' ? 'Offrandes' : 'Offerings', icon: HandHeart, count: offerings.length }] : []),
                 ...(media.length > 0 || isAdmin ? [{ value: 'content', label: t('org_public.content'), icon: Play, count: media.length }] : []),
                 ...(photos.length > 0 || isAdmin ? [{ value: 'photos', label: t('org_public.photos'), icon: Camera, count: photos.length }] : []),
                 ...(events.length > 0 || isAdmin ? [{ value: 'events', label: t('org_public.events'), icon: CalendarDays, count: events.length }] : []),
@@ -247,6 +253,7 @@ export default function OrgPublicPage() {
                 slug={slug!}
                 products={products}
                 campaigns={campaigns}
+                offerings={offerings}
                 media={media}
                 photos={photos}
                 events={events}
@@ -255,6 +262,7 @@ export default function OrgPublicPage() {
                 hiddenSections={hiddenSections}
                 onPurchase={(p) => setPurchaseProduct(p)}
                 onDonate={(c) => setDonateCampaign(c)}
+                onSelectOffering={(o) => setSelectedOffering(o)}
                 onPhotoClick={(i) => setLightboxIndex(i)}
               />
               {org?.id && <SubscriptionPlansWidget orgId={org.id} currency={org.currency || 'XOF'} />}
@@ -295,6 +303,17 @@ export default function OrgPublicPage() {
               {campaigns.length === 0 ? <EmptyState variant="campaigns" /> : (
                 <div className="grid gap-4 sm:grid-cols-2">
                   {campaigns.map((c, i) => <CampaignCard key={c.id} campaign={c} index={i} />)}
+                </div>
+              )}
+            </TabsContent>
+
+            {/* OFFERINGS */}
+            <TabsContent value="offerings">
+              {offerings.length === 0 ? (
+                <EmptyState variant="generic" title={locale === 'fr' ? 'Aucune offrande' : 'No offerings'} description={locale === 'fr' ? 'Aucune offrande configurée pour le moment.' : 'No offerings configured yet.'} />
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {offerings.map((o) => <OfferingCard key={o.id} offering={o} onSelect={setSelectedOffering} />)}
                 </div>
               )}
             </TabsContent>
@@ -369,6 +388,7 @@ export default function OrgPublicPage() {
       <OrgPageTour open={tourOpen} onClose={() => setTourOpen(false)} />
 
       <DonateModal campaign={donateCampaign} organizationId={org?.id ?? ''} open={!!donateCampaign} onClose={() => setDonateCampaign(null)} />
+      <OfferingModal offering={selectedOffering} organizationId={org?.id ?? ''} open={!!selectedOffering} onClose={() => setSelectedOffering(null)} />
       <ProductPurchaseModal product={purchaseProduct} organizationId={org?.id ?? ''} open={!!purchaseProduct} onClose={() => setPurchaseProduct(null)} />
       <PhotoLightbox photos={photos} initialIndex={lightboxIndex ?? 0} open={lightboxIndex !== null} onClose={() => setLightboxIndex(null)} />
 

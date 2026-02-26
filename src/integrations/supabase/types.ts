@@ -1519,6 +1519,156 @@ export type Database = {
         }
         Relationships: []
       }
+      offering_transactions: {
+        Row: {
+          affiliate_commission: number | null
+          affiliate_link_id: string | null
+          amount: number
+          completed_at: string | null
+          created_at: string
+          currency: string
+          donor_email: string | null
+          donor_name: string | null
+          id: string
+          is_recurring: boolean
+          offering_id: string
+          organization_amount: number | null
+          organization_id: string
+          payment_gateway: string | null
+          payment_reference: string | null
+          platform_fee: number | null
+          recurring_interval: string | null
+          settlement_released_at: string | null
+          settlement_status: string | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          affiliate_commission?: number | null
+          affiliate_link_id?: string | null
+          amount: number
+          completed_at?: string | null
+          created_at?: string
+          currency?: string
+          donor_email?: string | null
+          donor_name?: string | null
+          id?: string
+          is_recurring?: boolean
+          offering_id: string
+          organization_amount?: number | null
+          organization_id: string
+          payment_gateway?: string | null
+          payment_reference?: string | null
+          platform_fee?: number | null
+          recurring_interval?: string | null
+          settlement_released_at?: string | null
+          settlement_status?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          affiliate_commission?: number | null
+          affiliate_link_id?: string | null
+          amount?: number
+          completed_at?: string | null
+          created_at?: string
+          currency?: string
+          donor_email?: string | null
+          donor_name?: string | null
+          id?: string
+          is_recurring?: boolean
+          offering_id?: string
+          organization_amount?: number | null
+          organization_id?: string
+          payment_gateway?: string | null
+          payment_reference?: string | null
+          platform_fee?: number | null
+          recurring_interval?: string | null
+          settlement_released_at?: string | null
+          settlement_status?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offering_transactions_affiliate_link_id_fkey"
+            columns: ["affiliate_link_id"]
+            isOneToOne: false
+            referencedRelation: "affiliate_links"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offering_transactions_offering_id_fkey"
+            columns: ["offering_id"]
+            isOneToOne: false
+            referencedRelation: "offerings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offering_transactions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      offerings: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          currency: string
+          description: string | null
+          display_order: number | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          is_recurring_allowed: boolean
+          organization_id: string
+          preset_amounts: number[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          is_recurring_allowed?: boolean
+          organization_id: string
+          preset_amounts?: number[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          is_recurring_allowed?: boolean
+          organization_id?: string
+          preset_amounts?: number[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offerings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_daily_metrics: {
         Row: {
           affiliate_commission_total: number | null
