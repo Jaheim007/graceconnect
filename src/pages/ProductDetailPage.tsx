@@ -11,7 +11,8 @@ import { DigitalProduct } from '@/types/database';
 import {
   ArrowLeft, ShoppingBag, Share2, Copy, CheckCircle,
   FileText, BookOpen, Music, Link2, ExternalLink, MessageCircle,
-  Shield, HelpCircle, MessageSquareQuote, PackagePlus, Star
+  Shield, HelpCircle, MessageSquareQuote, PackagePlus, Star,
+  Pencil, Eye, EyeOff
 } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -90,6 +91,22 @@ export default function ProductDetailPage() {
   });
 
   const isUnpublished = product && !product.is_published;
+
+  // Check if user can manage this org (owner/admin/editor)
+  const { data: canManage } = useQuery({
+    queryKey: ['can-manage-product', user?.id, product?.organization_id],
+    queryFn: async () => {
+      if (!user || !product?.organization_id) return false;
+      const { data } = await db
+        .from('organization_members')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('organization_id', product.organization_id)
+        .maybeSingle();
+      return data && ['owner', 'admin', 'editor'].includes(data.role);
+    },
+    enabled: !!user && !!product?.organization_id,
+  });
 
   // Fetch org page settings for theme colors
   const orgId = product?.organization_id;
@@ -187,7 +204,7 @@ export default function ProductDetailPage() {
     );
   }
 
-  if (isUnpublished) {
+  if (isUnpublished && !canManage) {
     return (
       <EmptyState
         title="Produit non publié"
@@ -270,7 +287,64 @@ export default function ProductDetailPage() {
         ]}
       />
 
-      {/* Org-branded top bar */}
+      {/* Draft banner for admins */}
+      {isUnpublished && canManage && (
+        <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 py-3">
+          <div className="container max-w-5xl flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-sm">
+              <EyeOff className="h-4 w-4 text-amber-600 shrink-0" />
+              <span className="font-medium text-amber-800 dark:text-amber-300">
+                Brouillon — Ce produit n'est pas visible par vos visiteurs.
+              </span>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5 text-xs"
+                onClick={() => navigate(`/admin/products/edit/${product.id}`)}
+              >
+                <Pencil className="h-3.5 w-3.5" /> Modifier
+              </Button>
+              <Button
+                size="sm"
+                className="gap-1.5 text-xs bg-amber-600 hover:bg-amber-700 text-white"
+                onClick={async () => {
+                  const { error } = await db
+                    .from('digital_products')
+                    .update({ is_published: true })
+                    .eq('id', product.id);
+                  if (!error) {
+                    toast({ title: '✅ Produit publié !', description: 'Votre produit est maintenant visible par tous.' });
+                    window.location.reload();
+                  } else {
+                    toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
+                  }
+                }}
+              >
+                <Eye className="h-3.5 w-3.5" /> Publier
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin edit button (even for published products) */}
+      {!isUnpublished && canManage && (
+        <div className="bg-muted/50 border-b border-border/50 px-4 py-2">
+          <div className="container max-w-5xl flex items-center justify-end gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5 text-xs"
+              onClick={() => navigate(`/admin/products/edit/${product.id}`)}
+            >
+              <Pencil className="h-3.5 w-3.5" /> Modifier ce produit
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div
         className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between"
         style={topBarStyle}
