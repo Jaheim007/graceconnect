@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { InlineEditableText } from '@/components/org/InlineEditableText';
@@ -18,7 +18,7 @@ import { motion } from 'framer-motion';
 import {
   Globe, MessageCircle, CheckCircle2, Users, CalendarDays,
   Share2, ShoppingBag, Heart, Camera, MapPin, ArrowLeft, MoreHorizontal,
-  Play, Pencil, Loader2, Link2
+  Play, Pencil, Loader2, Link2, Crown, UserPlus
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Link } from 'react-router-dom';
@@ -47,6 +47,7 @@ export function OrgPublicHeader({
   const updateOrg = useUpdateOrg();
 
   const [joining, setJoining] = useState(false);
+  const [enrollingAmbassador, setEnrollingAmbassador] = useState(false);
   const [cropSrc, setCropSrc] = useState<string | null>(null);
   const [cropField, setCropField] = useState<'banner_url' | 'logo_url'>('banner_url');
   const [cropAspect, setCropAspect] = useState<number | undefined>(3 / 1);
@@ -60,6 +61,45 @@ export function OrgPublicHeader({
   const isOwner = org.owner_id === user?.id;
   const isMember = isMemberOf(org.id);
   const orgAny = org as any;
+
+  // Check if user already has an affiliate link for this org
+  const { data: existingAffLink } = useQuery({
+    queryKey: ['affiliate-link-check', org.id, user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from('affiliate_links')
+        .select('id, code')
+        .eq('user_id', user.id)
+        .eq('organization_id', org.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user && !isOwner,
+  });
+
+  const isAmbassador = !!existingAffLink;
+
+  const handleBecomeAmbassador = async () => {
+    if (!user) { navigate('/auth'); return; }
+    setEnrollingAmbassador(true);
+    try {
+      const { error } = await supabase.rpc('self_enroll_affiliate', { _org_id: org.id });
+      if (error) throw error;
+      toast({ title: locale === 'fr' ? '🎉 Vous êtes maintenant Ambassadeur !' : '🎉 You are now an Ambassador!' });
+      qc.invalidateQueries({ queryKey: ['affiliate-link-check', org.id, user.id] });
+      qc.invalidateQueries({ queryKey: ['user-memberships', user.id] });
+      qc.invalidateQueries({ queryKey: ['org-member-count', org.id] });
+    } catch (err: any) {
+      const msg = err.message || '';
+      if (msg.includes('owner')) {
+        toast({ title: locale === 'fr' ? 'Les propriétaires ne peuvent pas être ambassadeurs de leur propre organisation' : 'Owners cannot be ambassadors of their own organization', variant: 'destructive' });
+      } else {
+        toast({ title: msg, variant: 'destructive' });
+      }
+    }
+    setEnrollingAmbassador(false);
+  };
 
   const saveOrgField = async (field: string, value: string) => {
     await updateOrg.mutateAsync({ id: org.id, updates: { [field]: value } });
@@ -262,9 +302,20 @@ export function OrgPublicHeader({
                   </a>
                 </Button>
               )}
-              {isMember && orgAny.affiliation_enabled && (
+              {/* Ambassador button logic */}
+              {orgAny.affiliation_enabled && !isOwner && !isAmbassador && (
+                <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs" onClick={handleBecomeAmbassador} disabled={enrollingAmbassador}>
+                  <UserPlus className="h-4 w-4 text-primary" /> {enrollingAmbassador ? '...' : (locale === 'fr' ? 'Devenir Ambassadeur' : 'Become Ambassador')}
+                </Button>
+              )}
+              {orgAny.affiliation_enabled && !isOwner && isAmbassador && (
                 <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs" onClick={() => navigate('/affiliation')}>
-                  <Link2 className="h-4 w-4 text-primary" /> {locale === 'fr' ? 'Affilier' : 'Affiliate'}
+                  <Crown className="h-4 w-4 text-primary" /> {locale === 'fr' ? 'Mon lien Ambassadeur' : 'My Ambassador Link'}
+                </Button>
+              )}
+              {orgAny.affiliation_enabled && isOwner && (
+                <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs" onClick={() => navigate('/admin/analytics')}>
+                  <Crown className="h-4 w-4 text-primary" /> {locale === 'fr' ? 'Mes Ambassadeurs' : 'My Ambassadors'}
                 </Button>
               )}
               <Button variant="outline" size="sm" onClick={shareWhatsApp} className="h-9 gap-1.5 text-xs">
