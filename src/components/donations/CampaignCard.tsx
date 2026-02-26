@@ -97,7 +97,7 @@ export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
           onClick={() => navigate(`/campaign/${campaign.id}`)}
           className="flex-1 gap-2 font-semibold"
         >
-          <Heart className="h-4 w-4" /> Faire un don
+          <Heart className="h-4 w-4" /> Contribuer
         </Button>
       </div>
     </div>

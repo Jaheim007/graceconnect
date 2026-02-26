@@ -226,6 +226,7 @@ export default function OrgPublicPage() {
                     ...(products.length > 0 || isAdmin ? [{ value: 'store', label: t('org_public.store'), icon: ShoppingBag, count: products.length }] : []),
                     ...(campaigns.length > 0 || isAdmin ? [{ value: 'donate', label: t('org_public.donations'), icon: Heart, count: campaigns.length }] : []),
                     ...((offerings.length > 0 || (isAdmin && orgAny.offerings_enabled)) ? [{ value: 'offerings', label: locale === 'fr' ? 'Dons' : 'Donations', icon: HandHeart, count: offerings.length }] : []),
+
                     ...(media.length > 0 || isAdmin ? [{ value: 'content', label: t('org_public.content'), icon: Play, count: media.length }] : []),
                     ...(photos.length > 0 || isAdmin ? [{ value: 'photos', label: t('org_public.photos'), icon: Camera, count: photos.length }] : []),
                     ...(events.length > 0 || isAdmin ? [{ value: 'events', label: t('org_public.events'), icon: CalendarDays, count: events.length }] : []),
