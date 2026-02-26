@@ -17,6 +17,7 @@ import {
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { OrgActivationChecklist } from '@/components/admin/OrgActivationChecklist';
+import { ExpressSetupButton } from '@/components/admin/ExpressSetupButton';
 import { RevenueSimulator } from '@/components/admin/RevenueSimulator';
 import { QuickStartWizard } from '@/components/onboarding/QuickStartWizard';
 import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist';
@@ -192,6 +193,7 @@ export default function AdminDashboard() {
           <Button size="sm" variant="outline" onClick={handleExportPDF} className="gap-1.5 text-xs h-8 sm:h-9">
             <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> PDF
           </Button>
+          <ExpressSetupButton />
           <Button size="sm" variant="outline" onClick={() => setShowQuickStart(true)} className="gap-1.5 text-xs h-8 sm:h-9">
             <Rocket className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> {t('admin.quickstart')}
           </Button>

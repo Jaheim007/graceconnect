@@ -48,7 +48,9 @@ type EmailTemplate =
   // Recaps
   | 'weekly_recap_user' | 'daily_recap_admin' | 'daily_recap_superadmin'
   // Superadmin alerts
-  | 'fraud_alert' | 'new_org_alert';
+  | 'fraud_alert' | 'new_org_alert'
+  // Org creator onboarding sequence
+  | 'org_welcome_j0' | 'org_onboarding_j1' | 'org_onboarding_j3';
 
 interface SendEmailBody {
   template: EmailTemplate;
@@ -154,6 +156,14 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
       return { subject: `📊 Your organization needs attention – ${d.org_name}`, html: wrap(`<h1 style="color:${orange}">📊 Inactive Organization</h1><p>Hi,</p><p>Your organization <strong>${d.org_name}</strong> has had no activity in the last 30 days.</p><p>Publish content, create events, or launch a campaign to re-engage your members!</p>${cta('https://siteviral.com/admin', 'Go to Dashboard')}`) };
     case 'member_milestone':
       return { subject: `🎉 ${d.count} members! – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">🎉 Milestone Reached!</h1><p><strong>${d.org_name}</strong> now has <strong>${d.count} members</strong>!</p><p>Keep growing! 🚀</p>`) };
+
+    // ═══ ORG CREATOR ONBOARDING SEQUENCE ═══
+    case 'org_welcome_j0':
+      return { subject: `🚀 Votre plateforme est prête – ${d.name}`, html: wrap(`<h1 style="color:${blue}">🚀 Bienvenue, créateur !</h1><p>Votre plateforme <strong>${d.name}</strong> vient d'être créée sur Siteviral.</p><p>Voici vos 3 premières étapes :</p><ol style="color:#ccc"><li><strong>Ajoutez votre logo</strong> – les visuels inspirent confiance</li><li><strong>Cliquez sur « Démarrage Express »</strong> pour créer un produit + campagne en 1 clic</li><li><strong>Partagez votre lien</strong> : <code>siteviral.com/org/${d.slug}</code></li></ol>${cta('https://siteviral.com/admin', 'Accéder à mon tableau de bord')}<p style="font-size:12px;color:#999">Vous pouvez publier et recevoir des paiements immédiatement. La vérification KYC n'est requise que pour les retraits.</p>`) };
+    case 'org_onboarding_j1':
+      return { subject: `📌 Avez-vous publié votre premier contenu ? – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📌 Jour 1 — Premiers pas</h1><p>Bonjour,</p><p>Votre plateforme <strong>${d.org_name}</strong> a été créée hier. Avez-vous ajouté votre premier contenu ?</p><p style="background:#222;padding:12px;border-radius:8px;color:#ffdd57;font-size:13px">💡 ${d.tip}</p><p>Voici ce que vous pouvez faire aujourd'hui :</p><ul style="color:#ccc"><li>Publier un média (vidéo, audio, article)</li><li>Créer un produit ou un ebook</li><li>Lancer votre première campagne de dons</li></ul>${cta('https://siteviral.com/admin', 'Ouvrir mon dashboard')}`) };
+    case 'org_onboarding_j3':
+      return { subject: `🤝 Activez vos ambassadeurs – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🤝 Jour 3 — Passez à la vitesse supérieure</h1><p>Bonjour,</p><p>Votre plateforme <strong>${d.org_name}</strong> a 3 jours. C'est le moment d'activer la croissance virale !</p><p style="background:#222;padding:12px;border-radius:8px;color:#ffdd57;font-size:13px">💡 ${d.tip}</p><p><strong>Le Programme Ambassadeur</strong> permet à chaque visiteur de devenir promoteur de vos ressources et de gagner des commissions sur chaque vente.</p><ul style="color:#ccc"><li>Commission par défaut : 10%</li><li>Lien unique pour chaque ambassadeur</li><li>Suivi en temps réel des ventes</li></ul>${cta('https://siteviral.com/admin/settings', 'Activer les Ambassadeurs')}<p style="font-size:12px;color:#999">Programme Ambassadeur actuellement : <strong>${d.affiliation_enabled === 'oui' ? '✅ Activé' : '❌ Désactivé'}</strong></p>`) };
 
     // ═══ MEMBERS ═══
     case 'new_member_joined':

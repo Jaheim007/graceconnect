@@ -15,12 +15,12 @@ export function OrgActivationChecklist() {
   const { data: members = [] } = useOrgMembers(currentOrg?.id);
 
   const steps = [
-    { label: 'Logo & bannière ajoutés', done: !!(currentOrg?.logo_url || currentOrg?.banner_url), route: '/admin/settings' },
-    { label: 'Description renseignée', done: !!(currentOrg?.description && currentOrg.description.length > 10), route: '/admin/settings' },
-    { label: 'Premier contenu publié', done: media.some(m => m.is_published), route: '/admin/media/new' },
-    { label: 'Premier produit ou campagne', done: products.length > 0, route: '/admin/products/new' },
-    { label: 'Au moins 2 membres', done: members.length >= 2, route: '/admin/members' },
-    { label: 'Vérification KYC', done: currentOrg?.kyc_status === 'level1' || currentOrg?.kyc_status === 'level2', route: '/admin/kyc' },
+    { label: 'Logo & bannière ajoutés', tip: 'Un bon visuel inspire confiance dès le premier regard.', done: !!(currentOrg?.logo_url || currentOrg?.banner_url), route: '/admin/settings' },
+    { label: 'Description renseignée', tip: 'En 1 phrase, dites ce que vous offrez. Ex : "Ressources digitales pour leaders."', done: !!(currentOrg?.description && currentOrg.description.length > 10), route: '/admin/settings' },
+    { label: 'Premier contenu publié', tip: 'Publiez une vidéo, un audio ou un article pour attirer vos premiers visiteurs.', done: media.some(m => m.is_published), route: '/admin/media/new' },
+    { label: 'Premier produit ou campagne', tip: 'Créez un ebook gratuit ou une campagne de dons pour commencer à monétiser.', done: products.length > 0, route: '/admin/products/new' },
+    { label: 'Au moins 2 membres', tip: 'Invitez un collaborateur — ensemble, vous irez plus vite !', done: members.length >= 2, route: '/admin/members' },
+    { label: 'Vérification KYC', tip: 'Obligatoire pour recevoir vos paiements. 5 minutes suffisent.', done: currentOrg?.kyc_status === 'level1' || currentOrg?.kyc_status === 'level2', route: '/admin/kyc' },
   ];
 
   const completed = steps.filter(s => s.done).length;
@@ -72,8 +72,13 @@ export function OrgActivationChecklist() {
             ) : (
               <Circle className="h-4 w-4 text-muted-foreground/40 shrink-0" />
             )}
-            <span className={cn(step.done && 'line-through')}>{step.label}</span>
-            {!step.done && <ChevronRight className="h-3.5 w-3.5 text-muted-foreground ml-auto" />}
+            <div className="flex-1 min-w-0">
+              <span className={cn(step.done && 'line-through')}>{step.label}</span>
+              {!step.done && step.tip && (
+                <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{step.tip}</p>
+              )}
+            </div>
+            {!step.done && <ChevronRight className="h-3.5 w-3.5 text-muted-foreground ml-auto shrink-0" />}
           </button>
         ))}
       </div>
