@@ -115,13 +115,14 @@ Deno.serve(async (req) => {
     if (affiliate_code) metadata.affiliate_code = affiliate_code;
     if (promo_code) metadata.promo_code = promo_code;
 
-    // Append reference to success URL
-    const successUrlWithRef = `${success_url}${success_url.includes('?') ? '&' : '?'}reference=${ref}&gateway=stripe`;
+    // Append reference and session_id to success URL (session_id added after creation)
+    // We'll update the success_url after session creation — for now build the base
+    const successBase = `${success_url}${success_url.includes('?') ? '&' : '?'}reference=${ref}&gateway=stripe`;
 
     // Create Stripe Checkout Session via API
     const stripeParams = new URLSearchParams();
     stripeParams.append('mode', 'payment');
-    stripeParams.append('success_url', successUrlWithRef);
+    stripeParams.append('success_url', successBase + '&session_id={CHECKOUT_SESSION_ID}');
     stripeParams.append('cancel_url', cancel_url);
     stripeParams.append('customer_email', buyer_email);
     stripeParams.append('line_items[0][price_data][currency]', currency.toLowerCase());
