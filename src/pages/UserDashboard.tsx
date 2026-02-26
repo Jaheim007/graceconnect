@@ -10,7 +10,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -31,6 +31,7 @@ import { useStreak, useBadges, useRecordActivity, useCheckAndAwardBadges, BADGE_
 import { useEffect } from 'react';
 import { Flame, Award as AwardIcon, Trophy, CreditCard, MessageCircle } from 'lucide-react';
 import { useMySubscriptions } from '@/hooks/useSubscriptions';
+import { AmbassadorOnlyDashboard } from '@/components/ambassador/AmbassadorOnlyDashboard';
 
 const statusColor: Record<string, string> = {
   completed: 'bg-green-500/15 text-green-600 dark:text-green-400',
@@ -80,6 +81,8 @@ export default function UserDashboard() {
   const { toast } = useToast();
   const { userOrgs } = useOrg();
   const { t, locale } = useI18n();
+  const [searchParams] = useSearchParams();
+  const ambassadorMode = searchParams.get('mode') === 'ambassador';
   const qc = useQueryClient();
   const [requestingPayout, setRequestingPayout] = useState<string | null>(null);
   const [requestingAffiliate, setRequestingAffiliate] = useState<string | null>(null);
@@ -284,6 +287,18 @@ export default function UserDashboard() {
     { label: t('dash.available'), value: fmt(payableCommission), icon: Wallet, colorClass: 'text-green-500 bg-green-500/10' },
     { label: t('sidebar.my_purchases'), value: String(myResources?.length || 0), icon: ShoppingBag, colorClass: 'text-amber-500 bg-amber-500/10' },
   ];
+
+  // Ambassador-only mode: simplified view
+  if (ambassadorMode && userOrgs.length === 0) {
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container max-w-5xl px-4 py-5 sm:py-6">
+          <SEOHead title="Espace Ambassadeur — Siteviral" description="Gérez vos liens d'ambassadeur et suivez vos commissions." noindex />
+          <AmbassadorOnlyDashboard />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">

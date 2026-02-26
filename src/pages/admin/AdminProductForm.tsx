@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Copy, ExternalLink, Share2, CheckCircle, Plus, Eye, Trash2, PackagePlus, ArrowUpRight, HelpCircle, Shield, MessageSquareQuote } from 'lucide-react';
+import { Copy, ExternalLink, Share2, CheckCircle, Plus, Eye, Trash2, PackagePlus, ArrowUpRight, HelpCircle, Shield, MessageSquareQuote, Sparkles } from 'lucide-react';
 import { z } from 'zod';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -22,6 +22,8 @@ import { Badge } from '@/components/ui/badge';
 import { useBundleItems, useAddBundleItem, useRemoveBundleItem, useProductRecommendations, useAddRecommendation, useRemoveRecommendation } from '@/hooks/useBundlesAndRecommendations';
 import { useOrgProducts } from '@/hooks/useMonetization';
 import { EmbedSnippetGen } from '@/components/products/EmbedSnippetGen';
+import { ContentTemplateSelector } from '@/components/admin/ContentTemplateSelector';
+import type { ProductTemplate } from '@/lib/contentTemplates';
 
 const schema = z.object({
   title: z.string().min(2, 'Required'),
@@ -54,6 +56,7 @@ export function ProductForm() {
   const [testimonials, setTestimonials] = useState<{ name: string; text: string }[]>([]);
   const [newFaq, setNewFaq] = useState({ q: '', a: '' });
   const [newTestimonial, setNewTestimonial] = useState({ name: '', text: '' });
+  const [showTemplates, setShowTemplates] = useState(!isEdit);
   const [salePrice, setSalePrice] = useState('');
   const [saleEndsAt, setSaleEndsAt] = useState('');
 
@@ -218,8 +221,34 @@ export function ProductForm() {
     );
   }
 
+  const applyProductTemplate = (tpl: ProductTemplate) => {
+    setValue('title', tpl.fields.title);
+    setValue('description', tpl.fields.description);
+    setValue('product_type', tpl.fields.product_type as any);
+    setValue('price', tpl.fields.price);
+    setValue('is_free', tpl.fields.is_free);
+    if (tpl.fields.guarantee_text) setValue('guarantee_text', tpl.fields.guarantee_text);
+    setShowTemplates(false);
+  };
+
   return (
     <AdminPageShell title={isEdit ? 'Modifier le produit' : 'Nouveau produit'} backRoute="/admin/products">
+      {/* Template selector for new products */}
+      {!isEdit && (
+        <ContentTemplateSelector
+          type="product"
+          open={showTemplates}
+          onClose={() => setShowTemplates(false)}
+          onSelect={(tpl) => applyProductTemplate(tpl as ProductTemplate)}
+        />
+      )}
+      {!isEdit && !showTemplates && (
+        <div className="mb-4">
+          <Button variant="outline" size="sm" onClick={() => setShowTemplates(true)} className="gap-1.5 text-xs">
+            <Sparkles className="h-3.5 w-3.5" /> Utiliser un modèle
+          </Button>
+        </div>
+      )}
       {/* Product link preview */}
       {productUrl && (
         <div className="mb-4 p-3 rounded-xl bg-muted/50 border border-border flex items-center gap-2 flex-wrap">

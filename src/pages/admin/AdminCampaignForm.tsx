@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { Sparkles } from 'lucide-react';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/db';
@@ -15,6 +16,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { useToast } from '@/hooks/use-toast';
+import { ContentTemplateSelector } from '@/components/admin/ContentTemplateSelector';
+import type { CampaignTemplate } from '@/lib/contentTemplates';
 
 const schema = z.object({
   title: z.string().min(2, 'Required'),
@@ -37,6 +40,7 @@ export function CampaignForm() {
   const { toast } = useToast();
   const isEdit = !!id;
   const [loading, setLoading] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(!isEdit);
 
   const { data: item } = useQuery({
     queryKey: ['campaign-item', id],
@@ -101,9 +105,31 @@ export function CampaignForm() {
     }
   };
 
+  const applyCampaignTemplate = (tpl: CampaignTemplate) => {
+    setValue('title', tpl.fields.title);
+    setValue('description', tpl.fields.description);
+    setValue('goal_amount', tpl.fields.goal_amount);
+    setShowTemplates(false);
+  };
+
   return (
     <AdminPageShell title={isEdit ? 'Edit Campaign' : 'New Donation Campaign'} backRoute="/admin/campaigns">
-
+      {/* Template selector for new campaigns */}
+      {!isEdit && (
+        <ContentTemplateSelector
+          type="campaign"
+          open={showTemplates}
+          onClose={() => setShowTemplates(false)}
+          onSelect={(tpl) => applyCampaignTemplate(tpl as CampaignTemplate)}
+        />
+      )}
+      {!isEdit && !showTemplates && (
+        <div className="mb-4">
+          <Button variant="outline" size="sm" onClick={() => setShowTemplates(true)} className="gap-1.5 text-xs">
+            <Sparkles className="h-3.5 w-3.5" /> Utiliser un modèle
+          </Button>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
