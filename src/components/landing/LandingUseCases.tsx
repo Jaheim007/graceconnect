@@ -11,14 +11,14 @@ const useCases = [
   {
     icon: Church,
     title: 'Églises & Ministères',
-    desc: 'Recevez des offrandes, vendez des prédications audio et des livres. Gérez votre communauté de fidèles.',
+    desc: 'Recevez des offrandes, offrez des prédications audio et des livres sécurisés par watermark. Gérez votre communauté de fidèles.',
     example: 'Prédications · Offrandes · Documents',
   },
   {
     icon: GraduationCap,
-    title: 'Coachs & Formateurs',
-    desc: 'Vendez vos formations, guides et documents PDF. Suivez vos ventes avec un tableau de bord complet.',
-    example: 'Cours · Certifications · Ebooks',
+    title: 'Coachs & Consultants',
+    desc: 'Vendez vos guides, documents PDF et ressources exclusives. Suivez vos ventes avec un tableau de bord complet.',
+    example: 'Guides · E-books · Ressources',
   },
   {
     icon: Heart,
@@ -28,9 +28,9 @@ const useCases = [
   },
   {
     icon: Music,
-    title: 'Artistes & Musiciens',
-    desc: 'Distribuez votre musique, vendez des albums et du contenu exclusif à votre audience.',
-    example: 'Albums · Singles · Contenu VIP',
+    title: 'Artistes & Influenceurs',
+    desc: 'Vendez du contenu exclusif à votre audience : e-books, audio, vidéos privées et ressources premium.',
+    example: 'Contenu VIP · Audio · Exclusivités',
   },
   {
     icon: Palette,

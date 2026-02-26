@@ -25,25 +25,25 @@ const fadeUp = {
 };
 
 const testimonials = [
-  { name: 'K. M.', role: 'Pasteur & Leader communautaire', text: 'En une semaine, notre église a vendu plus de 200 prédications audio. Les dons arrivent aussi par Mobile Money. C\'est révolutionnaire.', flag: '🇳🇬' },
-  { name: 'Marie-Claire B.', role: 'Coach & Formatrice', text: 'J\'ai centralisé tous mes documents de formation sur une seule plateforme. Mes étudiants achètent et téléchargent en un clic.', flag: '🇨🇲' },
+  { name: 'K. M.', role: 'Pasteur & Leader communautaire', text: 'En une semaine, notre église a monétisé plus de 200 prédications audio. Les dons arrivent aussi par Mobile Money. C\'est révolutionnaire.', flag: '🇳🇬' },
+  { name: 'Marie-Claire B.', role: 'Coach & Auteure', text: 'J\'ai centralisé tous mes documents et ressources sur une seule plateforme. Mes clients achètent et téléchargent en un clic.', flag: '🇨🇲' },
   { name: 'Ibrahim T.', role: 'Ambassadeur Siteviral', text: 'Je n\'ai aucun contenu à moi. Je partage les ressources des autres et je gagne des commissions chaque semaine. C\'est incroyable.', flag: '🇸🇳' },
   { name: 'Amara D.', role: 'Créatrice digitale', text: 'En 2 mois, j\'ai vendu plus de 500 ressources numériques. Les paiements sont automatiques et les retraits rapides.', flag: '🇨🇮' },
   { name: 'Sophie N.', role: 'Responsable communautaire', text: 'La gestion de notre communauté de 2000 membres est devenue simple. Contenu, dons, événements : tout est centralisé.', flag: '🇧🇯' },
   { name: 'David K.', role: 'Directeur ONG', text: 'Nos campagnes de collecte ont levé 3x plus qu\'avant. Les donateurs paient par Mobile Money en un clic.', flag: '🇬🇭' },
 ];
 
-const marqueeRow1 = ['E-books', 'Formations', 'Prédications', 'Podcasts', 'Vidéos', 'Guides', 'Coaching', 'Webinaires', 'Photos', 'Musique'];
-const marqueeRow2 = ['Cours en ligne', 'Documents PDF', 'Newsletters', 'Illustrations', 'Templates', 'Tutoriels', 'Audio', 'Manuels', 'Scripts', 'Ressources'];
+const marqueeRow1 = ['E-books', 'Prédications', 'Podcasts', 'Vidéos', 'Guides', 'Coaching', 'Webinaires', 'Photos', 'Musique', 'Documents'];
+const marqueeRow2 = ['Ressources PDF', 'Newsletters', 'Illustrations', 'Templates', 'Tutoriels', 'Audio', 'Manuels', 'Scripts', 'Contenus exclusifs', 'Albums'];
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <SEOHead
         title="Siteviral — Créez votre plateforme digitale, vendez et gagnez"
-        description="Créez votre boutique en ligne, vendez ebooks, formations, audio et vidéos. Collectez des dons via Mobile Money. Devenez ambassadeur et gagnez des commissions en partageant du contenu. Gratuit."
+        description="Créez votre boutique en ligne, vendez ebooks, audio et vidéos. Collectez des dons via Mobile Money. Devenez ambassadeur et gagnez des commissions en partageant du contenu. Gratuit."
         canonicalUrl="https://siteviral.com"
-        keywords="créer plateforme digitale gratuit, vendre ebook en ligne Afrique, formation en ligne Mobile Money, ambassadeur affiliation, gagner argent en partageant contenu, boutique numérique, collecte dons en ligne, produits numériques, Siteviral"
+        keywords="créer plateforme digitale gratuit, vendre ebook en ligne Afrique, produits numériques Mobile Money, ambassadeur affiliation, gagner argent en partageant contenu, boutique numérique, collecte dons en ligne, Siteviral"
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'Organization',
@@ -87,7 +87,7 @@ export default function LandingPage() {
             <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">
               Vendez tout ce que vous pouvez <span className="text-primary">imaginer</span>
             </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">Ebooks, formations, audio, vidéos, documents — tout type de contenu numérique.</p>
+            <p className="text-muted-foreground max-w-xl mx-auto">Ebooks, audio, vidéos, documents, templates — tout type de contenu numérique.</p>
           </motion.div>
         </div>
         <div className="space-y-4">

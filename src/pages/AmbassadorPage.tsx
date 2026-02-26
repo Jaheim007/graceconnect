@@ -18,15 +18,15 @@ const steps = [
 
 const testimonials = [
   { name: 'Ibrahim T.', flag: '🇸🇳', text: 'Je n\'ai aucun contenu. Je partage simplement et je gagne chaque semaine. C\'est incroyable.', earning: '120 000 FCFA/mois' },
-  { name: 'Amara D.', flag: '🇨🇮', text: 'En 2 mois, j\'ai gagné plus qu\'un salaire mensuel juste en partageant des formations.', earning: '250 000 FCFA/mois' },
+  { name: 'Amara D.', flag: '🇨🇮', text: 'En 2 mois, j\'ai gagné plus qu\'un salaire mensuel juste en partageant des ressources numériques.', earning: '250 000 FCFA/mois' },
   { name: 'Sophie N.', flag: '🇧🇯', text: 'Je partage des prédications audio sur WhatsApp. Les commissions tombent toutes seules.', earning: '85 000 FCFA/mois' },
 ];
 
 const faqs = [
   { q: 'Dois-je payer pour devenir ambassadeur ?', a: 'Non, c\'est 100% gratuit. Pas de frais d\'inscription, pas d\'abonnement.' },
-  { q: 'Comment suis-je payé ?', a: 'Vos commissions sont automatiquement calculées. Vous pouvez retirer via Mobile Money ou virement bancaire dès que votre solde atteint le minimum.' },
-  { q: 'Quel pourcentage de commission ?', a: 'Entre 5% et 50% selon le produit et l\'organisation. Chaque produit affiche clairement le taux de commission.' },
-  { q: 'Dois-je créer du contenu ?', a: 'Non ! Vous partagez le contenu des autres. Zéro création nécessaire.' },
+  { q: 'Comment suis-je payé ?', a: 'Vos commissions sont automatiquement calculées. Vous pouvez retirer via Mobile Money, virement bancaire ou carte selon votre pays, dès que votre solde atteint le minimum.' },
+  { q: 'Quel pourcentage de commission ?', a: 'C\'est chaque organisation qui fixe le taux de commission sur ses produits, entre 5% et 50%. Le taux est affiché clairement sur chaque produit.' },
+  { q: 'Dois-je créer du contenu ?', a: 'Non ! Vous partagez le contenu des autres. Zéro création nécessaire. Sauf si vous souhaitez aussi créer votre propre plateforme.' },
   { q: 'Combien puis-je gagner ?', a: 'Il n\'y a pas de limite. Certains ambassadeurs gagnent plus de 500 000 FCFA/mois en partageant activement.' },
 ];
 
@@ -42,7 +42,7 @@ export default function AmbassadorPage() {
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Devenir Ambassadeur — Gagnez de l'argent en partageant du contenu | Siteviral"
-        description="Zéro contenu à créer. Partagez des produits numériques (ebooks, formations, audio) et gagnez jusqu'à 50% de commission sur chaque vente. Inscription 100% gratuite. Retrait Mobile Money."
+        description="Zéro contenu à créer. Partagez des produits numériques (ebooks, audio, vidéos) et gagnez jusqu'à 50% de commission sur chaque vente. Inscription 100% gratuite."
         canonicalUrl="https://siteviral.com/ambassador"
         keywords="devenir ambassadeur, gagner argent en partageant, affiliation produits numériques, commission Mobile Money, revenu passif Afrique, partager et gagner, ambassadeur digital"
         jsonLd={{
@@ -81,7 +81,7 @@ export default function AmbassadorPage() {
               </Button>
             </motion.div>
             <motion.p variants={fadeUp} className="text-[11px] text-muted-foreground/60">
-              ✓ 100% gratuit · ✓ Pas de carte requise · ✓ Retrait Mobile Money
+              ✓ 100% gratuit · ✓ Pas de carte requise · ✓ Retrait flexible
             </motion.p>
           </motion.div>
         </div>
@@ -182,7 +182,7 @@ export default function AmbassadorPage() {
               { icon: Gift, title: '100% gratuit', desc: 'Pas d\'inscription payante, pas de frais cachés' },
               { icon: Zap, title: 'Aucun contenu à créer', desc: 'Vous partagez le contenu des autres et gagnez' },
               { icon: TrendingUp, title: 'Jusqu\'à 50% de commission', desc: 'Les taux les plus élevés du marché' },
-              { icon: DollarSign, title: 'Retrait Mobile Money', desc: 'Orange Money, MTN, Wave — retrait rapide' },
+              { icon: DollarSign, title: 'Retrait flexible', desc: 'Mobile Money, virement bancaire ou carte — selon votre pays' },
             ].map((item, i) => (
               <motion.div key={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} transition={{ delay: i * 0.06 }}
                 className="flex items-start gap-4 p-4 rounded-xl border border-border bg-card">

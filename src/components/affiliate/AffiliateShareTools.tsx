@@ -34,9 +34,9 @@ export function AffiliateShareTools({ shareUrl, orgName, affiliateCode, productT
         `Salut ! J'ai trouvé quelque chose d'intéressant pour vous :\n"${productTitle}" par ${orgName}\n\n${shareUrl}`,
       ]
     : [
-        `🌟 Rejoignez ${orgName} sur Siteviral !\n\nDécouvrez contenus, formations et bien plus.\n\n👉 ${shareUrl}`,
+        `🌟 Rejoignez ${orgName} sur Siteviral !\n\nDécouvrez contenus, ressources et bien plus.\n\n👉 ${shareUrl}`,
         `Salut ! Je fais partie de ${orgName} et je pense que ça pourrait vous intéresser.\n\nRejoignez-nous : ${shareUrl}`,
-        `📢 ${orgName} est sur Siteviral ! Contenus exclusifs, formations, communauté.\n\n${shareUrl}`,
+        `📢 ${orgName} est sur Siteviral ! Contenus exclusifs, ressources numériques, communauté.\n\n${shareUrl}`,
       ];
 
   const handleWhatsApp = (msg: string) => {

@@ -10,7 +10,7 @@ import { AnimatedCounter } from './AnimatedCounter';
 const personas = [
   {
     badge: '🏢 Organisations',
-    headline: 'Votre contenu est dispersé.\nVos revenus aussi.',
+    headline: 'Votre plateforme digitale\nmonétisée, clé en main.',
     sub: 'Centralisez tout sur une seule plateforme : vendez vos ressources, collectez des dons, gérez votre communauté. Zéro abonnement.',
     cta: 'Créer ma plateforme gratuitement',
     ctaPath: '/auth?mode=signup',
@@ -27,7 +27,7 @@ const personas = [
   {
     badge: '🛒 Acheteurs',
     headline: 'Des milliers de ressources.\nUn seul endroit.',
-    sub: 'E-books, formations, audio, vidéos — achetez et soutenez des créateurs. Paiement Mobile Money ou carte en 1 clic.',
+    sub: 'E-books, audio, vidéos, documents — achetez et soutenez des créateurs. Paiement Mobile Money ou carte en 1 clic.',
     cta: 'Explorer les ressources',
     ctaPath: '/discover',
     bullets: ['Accès instantané après achat', 'Paiement Mobile Money & Carte', 'Bibliothèque personnelle'],
