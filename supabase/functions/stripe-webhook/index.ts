@@ -389,18 +389,85 @@ Deno.serve(async (req) => {
       }
     }
 
-    // User notification
+    // ── Notifications & Emails ──
+    const date = new Date().toLocaleDateString('fr-FR');
+
+    // Buyer notification (in-app)
     if (userId) {
       await db.from('user_notifications').insert({
         user_id: userId,
         organization_id: organizationId,
         title: type === 'donation' ? '🙏 Don confirmé' : '✅ Achat confirmé',
         body: type === 'donation'
-          ? `Votre don de ${amountPaid} ${currency} a été confirmé via Stripe.`
-          : `Votre achat de ${amountPaid} ${currency} a été confirmé via Stripe.`,
+          ? `Votre don de ${amountPaid} ${currency} à ${org.name} a été confirmé via Stripe.`
+          : `Votre achat de ${amountPaid} ${currency} chez ${org.name} est confirmé via Stripe.`,
         notification_type: type === 'donation' ? 'donation' : 'purchase',
         action_url: `/payment-success?reference=${reference}`,
       });
+    }
+
+    // Admin notifications (in-app)
+    const { data: adminsNotif } = await db.from('organization_members')
+      .select('user_id')
+      .eq('organization_id', organizationId)
+      .in('role', ['owner', 'admin']);
+
+    if (adminsNotif?.length) {
+      const adminNotifs = adminsNotif.map((a: { user_id: string }) => ({
+        user_id: a.user_id,
+        organization_id: organizationId,
+        title: type === 'donation' ? '💰 Nouveau don reçu' : '🛍️ Nouvelle vente',
+        body: `${amountPaid.toLocaleString('fr-FR')} ${currency} — L'organisation reçoit ${organizationAmount.toLocaleString('fr-FR')} ${currency} (via Stripe)`,
+        notification_type: type === 'donation' ? 'donation_admin' : 'sale_admin',
+        action_url: '/admin/analytics',
+      }));
+      await db.from('user_notifications').insert(adminNotifs);
+    }
+
+    // Affiliate notification (in-app)
+    if (affiliateLinkId && affiliateUserId && affiliateCommission > 0) {
+      await db.from('user_notifications').insert({
+        user_id: affiliateUserId,
+        organization_id: organizationId,
+        title: '💰 Commission gagnée !',
+        body: `Vous avez gagné ${affiliateCommission.toLocaleString('fr-FR')} ${currency} de commission via ${org.name}. Disponible dans 15 jours.`,
+        notification_type: 'commission',
+        action_url: '/affiliation',
+      });
+    }
+
+    // ── Emails (fire-and-forget) ──
+    if (type === 'donation') {
+      const donorAddr = buyerEmail || (userId ? await getUserEmail(userId) : null);
+      if (donorAddr) {
+        sendEmail({ template: 'donation_receipt', to: donorAddr, data: { org_name: org.name, amount: amountPaid, currency, reference, date }, organization_id: organizationId }).catch(() => {});
+      }
+      sendEmailToOrgAdmins('new_donation_received', organizationId, {
+        donor_name: buyerName || 'Anonymous', amount: amountPaid, currency, org_name: org.name,
+        campaign_name: campaignId ? 'Campaign' : 'General', reference,
+      }).catch(() => {});
+    } else {
+      const buyerAddr = buyerEmail || (userId ? await getUserEmail(userId) : null);
+      const { data: productInfo } = await db.from('digital_products').select('title').eq('id', productId!).maybeSingle();
+      const productName = productInfo?.title || 'Product';
+      if (buyerAddr) {
+        sendEmail({ template: 'purchase_confirmation', to: buyerAddr, data: { product_name: productName, org_name: org.name, amount: amountPaid, currency, reference, access_link: 'https://siteviral.com/resources' }, organization_id: organizationId }).catch(() => {});
+      }
+      sendEmailToOrgAdmins('new_purchase_received', organizationId, {
+        buyer_name: buyerName || 'A customer', product_name: productName, amount: amountPaid, currency, reference,
+      }).catch(() => {});
+    }
+
+    // Affiliate email
+    if (affiliateLinkId && affiliateUserId && affiliateCommission > 0) {
+      const affEmail = await getUserEmail(affiliateUserId);
+      if (affEmail) {
+        sendEmail({ template: 'affiliate_sale', to: affEmail, data: {
+          commission: affiliateCommission, currency, org_name: org.name,
+          transaction_type: type, gross_amount: amountPaid,
+          commission_percent: org.affiliation_commission_percent ?? 10,
+        }, organization_id: organizationId }).catch(() => {});
+      }
     }
 
     // Audit log

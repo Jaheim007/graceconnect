@@ -96,6 +96,42 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Failed to claim product" }), { status: 500, headers: corsHeaders });
     }
 
+    // Get product title and org name for notifications
+    const { data: productInfo } = await supabaseAdmin.from('digital_products')
+      .select('title, organizations(name)')
+      .eq('id', product_id)
+      .maybeSingle();
+    const productTitle = (productInfo as any)?.title || 'Ressource gratuite';
+    const orgName = (productInfo as any)?.organizations?.name || 'Organisation';
+
+    // Buyer in-app notification
+    await supabaseAdmin.from('user_notifications').insert({
+      user_id: userId,
+      organization_id: organization_id,
+      title: '✅ Ressource récupérée',
+      body: `Vous avez récupéré "${productTitle}" de ${orgName}. Accédez-y dans vos ressources.`,
+      notification_type: 'purchase',
+      action_url: '/resources',
+    });
+
+    // Org admin notifications
+    const { data: admins } = await supabaseAdmin.from('organization_members')
+      .select('user_id')
+      .eq('organization_id', organization_id)
+      .in('role', ['owner', 'admin']);
+
+    if (admins?.length) {
+      const adminNotifs = admins.map((a: { user_id: string }) => ({
+        user_id: a.user_id,
+        organization_id: organization_id,
+        title: '🆓 Nouveau téléchargement gratuit',
+        body: `Un utilisateur a récupéré "${productTitle}"`,
+        notification_type: 'sale_admin',
+        action_url: '/admin/analytics',
+      }));
+      await supabaseAdmin.from('user_notifications').insert(adminNotifs);
+    }
+
     return new Response(
       JSON.stringify({ ok: true, already_claimed: false }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
