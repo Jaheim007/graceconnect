@@ -35,6 +35,7 @@ type EmailTemplate =
   // Partners
   | 'partner_welcome' | 'partner_rejected' | 'partner_suspended' | 'partner_unsuspended'
   | 'partner_kyc_approved' | 'partner_kyc_rejected' | 'partner_payout_sent'
+  | 'partner_new_referral' | 'partner_commission_earned'
   // Directory
   | 'directory_approved' | 'directory_rejected'
   // Support
@@ -45,10 +46,29 @@ type EmailTemplate =
   | 'content_report_resolved' | 'content_liked' | 'content_saved'
   | 'new_event_published' | 'new_announcement_published'
   | 'new_media_published' | 'new_product_published' | 'new_campaign_published'
+  | 'new_program_published'
+  // Comments
+  | 'new_comment_received' | 'comment_reply'
+  // Subscriptions
+  | 'subscription_renewed' | 'subscription_expiring' | 'subscription_cancelled'
+  // Offerings
+  | 'offering_received' | 'offering_receipt'
+  // Programs
+  | 'program_enrolled' | 'program_completed' | 'program_new_lesson'
+  // Gamification
+  | 'badge_earned'
+  // Abandoned cart
+  | 'abandoned_cart_reminder'
+  // Event reminders
+  | 'event_reminder_24h'
   // Recaps
   | 'weekly_recap_user' | 'daily_recap_admin' | 'daily_recap_superadmin'
+  | 'monthly_recap_org' | 'weekly_ambassador_recap'
   // Superadmin alerts
   | 'fraud_alert' | 'new_org_alert'
+  // Misc
+  | 'flash_sale_alert' | 'promo_code_used' | 'org_verified'
+  | 'waitlist_spot_available' | 'referral_reward'
   // Org creator onboarding sequence
   | 'org_welcome_j0' | 'org_onboarding_j1' | 'org_onboarding_j3';
 
@@ -274,6 +294,70 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
       return { subject: `🚨 Fraud Alert – ${d.org_name || 'Platform'}`, html: wrap(`<h1 style="color:${red}">🚨 Fraud Alert</h1><p>Suspicious activity detected:</p><p><strong>Type:</strong> ${d.reason}</p><p><strong>Organization:</strong> ${d.org_name || 'N/A'}</p><p><strong>User:</strong> ${d.user_email || 'N/A'}</p>${cta('https://siteviral.com/superadmin/risk', 'Review Now')}`) };
     case 'new_org_alert':
       return { subject: `🏢 New Organization Created – ${d.org_name}`, html: wrap(`<h1 style="color:${info}">🏢 New Organization</h1><p>A new organization has been created:</p><p><strong>Name:</strong> ${d.org_name}</p><p><strong>Category:</strong> ${d.category || 'N/A'}</p><p><strong>Owner:</strong> ${d.owner_email || 'N/A'}</p>${cta('https://siteviral.com/superadmin/directory', 'Review')}`) };
+
+    // ═══ COMMENTS ═══
+    case 'new_comment_received':
+      return { subject: `💬 Nouveau commentaire – ${d.content_title}`, html: wrap(`<h1 style="color:${blue}">💬 Nouveau Commentaire</h1><p><strong>${d.commenter_name || 'Quelqu\'un'}</strong> a commenté votre ${d.content_type || 'contenu'} : <strong>"${d.content_title}"</strong>.</p><div style="background:#222;border-radius:8px;padding:12px;margin:12px 0;border-left:3px solid ${blue};color:#ccc">${d.comment_preview || ''}</div>${cta('https://siteviral.com/feed', 'Voir le commentaire')}`) };
+    case 'comment_reply':
+      return { subject: `↩️ Réponse à votre commentaire`, html: wrap(`<h1 style="color:${blue}">↩️ Réponse à Votre Commentaire</h1><p><strong>${d.replier_name || 'Quelqu\'un'}</strong> a répondu à votre commentaire sur <strong>"${d.content_title}"</strong>.</p><div style="background:#222;border-radius:8px;padding:12px;margin:12px 0;border-left:3px solid ${blue};color:#ccc">${d.reply_preview || ''}</div>${cta('https://siteviral.com/feed', 'Voir la réponse')}`) };
+
+    // ═══ SUBSCRIPTIONS ═══
+    case 'subscription_renewed':
+      return { subject: `🔄 Abonnement renouvelé – ${d.plan_name}`, html: wrap(`<h1 style="color:${green}">🔄 Abonnement Renouvelé</h1><p>Votre abonnement <strong>"${d.plan_name}"</strong> sur <strong>${d.org_name}</strong> a été renouvelé.</p><p>Montant : ${d.amount} ${d.currency}</p><p>Prochain renouvellement : ${d.next_date}</p>`) };
+    case 'subscription_expiring':
+      return { subject: `⏰ Abonnement bientôt expiré – ${d.plan_name}`, html: wrap(`<h1 style="color:${orange}">⏰ Abonnement Bientôt Expiré</h1><p>Votre abonnement <strong>"${d.plan_name}"</strong> sur <strong>${d.org_name}</strong> expire le <strong>${d.expiry_date}</strong>.</p><p>Renouvelez maintenant pour ne pas perdre l'accès.</p>${cta('https://siteviral.com/dashboard', 'Renouveler')}`) };
+    case 'subscription_cancelled':
+      return { subject: `🚫 Abonnement annulé – ${d.plan_name}`, html: wrap(`<h1 style="color:${red}">🚫 Abonnement Annulé</h1><p>Votre abonnement <strong>"${d.plan_name}"</strong> sur <strong>${d.org_name}</strong> a été annulé.</p><p>Vous conservez l'accès jusqu'à la fin de la période en cours.</p>`) };
+
+    // ═══ OFFERINGS ═══
+    case 'offering_received':
+      return { subject: `🙏 Offrande reçue – ${d.offering_title}`, html: wrap(`<h1 style="color:${green}">🙏 Offrande Reçue</h1><p><strong>${d.donor_name || 'Quelqu\'un'}</strong> a fait une offrande de <strong>${d.amount} ${d.currency}</strong> pour <strong>"${d.offering_title}"</strong> sur <strong>${d.org_name}</strong>.</p>`) };
+    case 'offering_receipt':
+      return { subject: `Reçu d'offrande – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🙏 Reçu d'Offrande</h1><p>Merci pour votre offrande de <strong>${d.amount} ${d.currency}</strong> à <strong>${d.org_name}</strong> pour <strong>"${d.offering_title}"</strong>.</p><p>Que Dieu vous bénisse abondamment. 🙏</p>`) };
+
+    // ═══ PROGRAMS ═══
+    case 'program_enrolled':
+      return { subject: `🎓 Inscription confirmée – ${d.program_name}`, html: wrap(`<h1 style="color:${blue}">🎓 Inscription Confirmée</h1><p>Vous êtes inscrit au programme <strong>"${d.program_name}"</strong> de <strong>${d.org_name}</strong>.</p><p>Commencez dès maintenant à suivre les modules !</p>${cta('https://siteviral.com/dashboard', 'Commencer le programme')}`) };
+    case 'program_completed':
+      return { subject: `🏆 Programme terminé – ${d.program_name}`, html: wrap(`<h1 style="color:${green}">🏆 Félicitations !</h1><p>Vous avez complété le programme <strong>"${d.program_name}"</strong> de <strong>${d.org_name}</strong>.</p><p>Continuez à apprendre et grandir ! 🚀</p>`) };
+    case 'program_new_lesson':
+      return { subject: `📚 Nouvelle leçon – ${d.program_name}`, html: wrap(`<h1 style="color:${blue}">📚 Nouvelle Leçon Disponible</h1><p>Une nouvelle leçon <strong>"${d.lesson_title}"</strong> a été ajoutée au programme <strong>"${d.program_name}"</strong> de <strong>${d.org_name}</strong>.</p>${cta('https://siteviral.com/dashboard', 'Suivre la leçon')}`) };
+
+    // ═══ GAMIFICATION ═══
+    case 'badge_earned':
+      return { subject: `🏅 Badge obtenu – ${d.badge_name}`, html: wrap(`<h1 style="color:${green}">🏅 Nouveau Badge !</h1><p>Félicitations ! Vous avez obtenu le badge :</p><div style="text-align:center;padding:20px"><p style="font-size:28px;margin:0">🏅</p><p style="font-size:18px;font-weight:bold;color:${blue};margin:8px 0">${d.badge_name}</p><p style="color:#999">${d.badge_description || ''}</p></div>`) };
+
+    // ═══ ABANDONED CART ═══
+    case 'abandoned_cart_reminder':
+      return { subject: `🛒 Vous avez oublié quelque chose – ${d.product_name}`, html: wrap(`<h1 style="color:${orange}">🛒 Panier Abandonné</h1><p>Vous étiez sur le point d'acquérir <strong>"${d.product_name}"</strong> de <strong>${d.org_name}</strong>.</p><p>Ne manquez pas cette opportunité !</p>${cta(String(d.checkout_link || 'https://siteviral.com'), 'Finaliser mon achat →')}<p style="font-size:12px;color:#999">Si vous avez déjà finalisé votre achat, ignorez ce message.</p>`) };
+
+    // ═══ EVENT REMINDER ═══
+    case 'event_reminder_24h':
+      return { subject: `📅 Rappel – ${d.event_title} demain !`, html: wrap(`<h1 style="color:${blue}">📅 Événement Demain !</h1><p>L'événement <strong>"${d.event_title}"</strong> de <strong>${d.org_name}</strong> a lieu demain.</p><p>📍 Lieu : ${d.event_location || 'Non précisé'}</p><p>🕐 Date : ${d.event_date}</p>${cta('https://siteviral.com/feed', 'Voir les détails')}`) };
+
+    // ═══ PARTNERS (NEW) ═══
+    case 'partner_new_referral':
+      return { subject: `🤝 Nouveau referral – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">🤝 Nouveau Referral !</h1><p>Bonjour <strong>${d.partner_name}</strong>,</p><p>L'organisation <strong>"${d.org_name}"</strong> a été créée avec votre code d'invitation.</p><p>Elle génère désormais des commissions pour vous sur chaque transaction sur la plateforme.</p>${cta('https://siteviral.com/partner', 'Voir mon espace partenaire')}`) };
+    case 'partner_commission_earned':
+      return { subject: `💰 Commission partenaire – ${d.commission} ${d.currency}`, html: wrap(`<h1 style="color:${green}">💰 Commission Gagnée</h1><p>Vous avez gagné <strong>${d.commission} ${d.currency}</strong> de commission grâce à l'activité de <strong>${d.org_name}</strong>.</p><p>Votre solde est automatiquement mis à jour.</p>${cta('https://siteviral.com/partner', 'Voir mes gains')}`) };
+
+    // ═══ RECAPS (NEW) ═══
+    case 'monthly_recap_org':
+      return { subject: `📊 Récap mensuel – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📊 Récap Mensuel</h1><p><strong>${d.org_name}</strong> – ${d.month}</p><ul style="color:#ccc"><li>Revenus : ${d.revenue || 0} ${d.currency || 'XOF'}</li><li>Nouveaux membres : ${d.new_members || 0}</li><li>Ventes : ${d.sales || 0}</li><li>Dons : ${d.donations || 0}</li><li>Vues : ${d.page_views || 0}</li></ul>${cta('https://siteviral.com/admin/analytics', 'Voir les détails')}`) };
+    case 'weekly_ambassador_recap':
+      return { subject: `📊 Récap ambassadeur – Semaine`, html: wrap(`<h1 style="color:${blue}">📊 Récap Ambassadeur</h1><p>Voici votre résumé de la semaine :</p><ul style="color:#ccc"><li>Clics : ${d.clicks || 0}</li><li>Conversions : ${d.conversions || 0}</li><li>Gains : ${d.earnings || 0} ${d.currency || 'XOF'}</li><li>Classement : #${d.rank || 'N/A'}</li></ul>${cta('https://siteviral.com/affiliation', 'Mon espace ambassadeur')}`) };
+
+    // ═══ MISC ═══
+    case 'flash_sale_alert':
+      return { subject: `⚡ Promo flash – ${d.product_name}`, html: wrap(`<h1 style="color:${red}">⚡ Promo Flash !</h1><p><strong>"${d.product_name}"</strong> de <strong>${d.org_name}</strong> est en promotion !</p><p><span style="text-decoration:line-through;color:#999">${d.original_price} ${d.currency}</span> → <strong style="color:${green}">${d.sale_price} ${d.currency}</strong></p><p>Se termine le : ${d.ends_at}</p>${cta('https://siteviral.com', 'En profiter →')}`) };
+    case 'promo_code_used':
+      return { subject: `🎟️ Code promo utilisé – ${d.promo_code}`, html: wrap(`<h1 style="color:${blue}">🎟️ Code Promo Utilisé</h1><p><strong>${d.buyer_name || 'Un acheteur'}</strong> a utilisé le code promo <strong>"${d.promo_code}"</strong> sur <strong>${d.org_name}</strong>.</p><p>Réduction : ${d.discount}</p>`) };
+    case 'org_verified':
+      return { subject: `✅ Organisation vérifiée – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">✅ Organisation Vérifiée !</h1><p>Félicitations ! <strong>${d.org_name}</strong> est maintenant une organisation vérifiée sur Siteviral.</p><p>Le badge de vérification apparaîtra sur votre page publique.</p>`) };
+    case 'waitlist_spot_available':
+      return { subject: `🎉 Place disponible – ${d.item_name}`, html: wrap(`<h1 style="color:${green}">🎉 Place Disponible !</h1><p>Bonne nouvelle ! Une place est disponible pour <strong>"${d.item_name}"</strong>.</p><p>Ne tardez pas, les places sont limitées !</p>${cta('https://siteviral.com', 'Réserver maintenant')}`) };
+    case 'referral_reward':
+      return { subject: `🎁 Récompense de parrainage`, html: wrap(`<h1 style="color:${green}">🎁 Récompense !</h1><p><strong>${d.referred_name || 'Quelqu\'un'}</strong> s'est inscrit grâce à vous !</p><p>${d.reward_description || 'Votre récompense a été créditée.'}</p>`) };
 
     default:
       throw new Error(`Unknown template: ${template}`);

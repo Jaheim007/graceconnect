@@ -169,6 +169,10 @@ export type EmailTemplate =
   | 'affiliate_welcome' | 'affiliate_first_click' | 'affiliate_first_conversion'
   | 'affiliate_commission_payable' | 'affiliate_monthly_recap'
   | 'pre_subaccount_settled'
+  // Partners
+  | 'partner_welcome' | 'partner_rejected' | 'partner_suspended' | 'partner_unsuspended'
+  | 'partner_kyc_approved' | 'partner_kyc_rejected' | 'partner_payout_sent'
+  | 'partner_new_referral' | 'partner_commission_earned'
   // Directory
   | 'directory_approved' | 'directory_rejected'
   // Support
@@ -179,10 +183,29 @@ export type EmailTemplate =
   | 'content_report_resolved' | 'content_liked' | 'content_saved'
   | 'new_event_published' | 'new_announcement_published'
   | 'new_media_published' | 'new_product_published' | 'new_campaign_published'
+  | 'new_program_published'
+  // Comments
+  | 'new_comment_received' | 'comment_reply'
+  // Subscriptions
+  | 'subscription_renewed' | 'subscription_expiring' | 'subscription_cancelled'
+  // Offerings
+  | 'offering_received' | 'offering_receipt'
+  // Programs
+  | 'program_enrolled' | 'program_completed' | 'program_new_lesson'
+  // Gamification
+  | 'badge_earned'
+  // Abandoned cart
+  | 'abandoned_cart_reminder'
+  // Event reminders
+  | 'event_reminder_24h'
   // Recaps
   | 'weekly_recap_user' | 'daily_recap_admin' | 'daily_recap_superadmin'
+  | 'monthly_recap_org' | 'weekly_ambassador_recap'
   // Superadmin
-  | 'fraud_alert' | 'new_org_alert';
+  | 'fraud_alert' | 'new_org_alert'
+  // Misc
+  | 'flash_sale_alert' | 'promo_code_used' | 'org_verified'
+  | 'waitlist_spot_available' | 'referral_reward';
 
 export async function sendEmailNotification(
   template: EmailTemplate,
