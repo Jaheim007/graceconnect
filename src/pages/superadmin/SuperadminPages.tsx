@@ -209,16 +209,44 @@ export function SuperadminTransactions() {
     queryKey: ['sa-all-purchases'],
     queryFn: async () => {
       const { data, error } = await db.from('product_purchases')
-        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, settlement_status, user_id, organization_id, digital_products(title, organization_id, organizations(name))')
+        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, settlement_status, user_id, organization_id, affiliate_link_id, buyer_email, buyer_name, digital_products(title, organization_id, organizations(name))')
         .order('created_at', { ascending: false })
         .limit(500);
       if (error) { console.error('sa-purchases error:', error); return []; }
+
+      // Resolve buyer profiles for purchases with user_id
+      const userIds = [...new Set((data || []).map((r: any) => r.user_id).filter(Boolean))];
+      let profileMap: Record<string, any> = {};
+      if (userIds.length > 0) {
+        const { data: profiles } = await db.from('profiles').select('id, display_name, phone').in('id', userIds);
+        (profiles || []).forEach((p: any) => { profileMap[p.id] = p; });
+      }
+
+      // Resolve affiliate link IDs to get affiliate user info
+      const affLinkIds = [...new Set((data || []).map((r: any) => r.affiliate_link_id).filter(Boolean))];
+      let affLinkMap: Record<string, any> = {};
+      if (affLinkIds.length > 0) {
+        const { data: affLinks } = await db.from('affiliate_links').select('id, user_id, code').in('id', affLinkIds);
+        const affUserIds = [...new Set((affLinks || []).map((a: any) => a.user_id).filter(Boolean))];
+        let affProfileMap: Record<string, any> = {};
+        if (affUserIds.length > 0) {
+          const { data: affProfiles } = await db.from('profiles').select('id, display_name').in('id', affUserIds);
+          (affProfiles || []).forEach((p: any) => { affProfileMap[p.id] = p; });
+        }
+        (affLinks || []).forEach((a: any) => {
+          affLinkMap[a.id] = { code: a.code, name: affProfileMap[a.user_id]?.display_name || a.code };
+        });
+      }
+
       return (data || []).map((r: any) => ({
         ...r,
         type: 'purchase' as const,
         label: r.digital_products?.title || 'Produit',
         org_name: r.digital_products?.organizations?.name || '—',
         gateway: detectGateway(r.paystack_reference),
+        buyer_display: r.buyer_name || profileMap[r.user_id]?.display_name || r.buyer_email || '—',
+        buyer_phone: profileMap[r.user_id]?.phone || null,
+        affiliate_name: r.affiliate_link_id ? (affLinkMap[r.affiliate_link_id]?.name || '—') : null,
       }));
     },
   });
@@ -227,16 +255,44 @@ export function SuperadminTransactions() {
     queryKey: ['sa-all-donations'],
     queryFn: async () => {
       const { data, error } = await db.from('donations')
-        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, settlement_status, donor_name, donor_email, user_id, organizations(name), donation_campaigns(title)')
+        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, settlement_status, donor_name, donor_email, user_id, affiliate_link_id, organizations(name), donation_campaigns(title)')
         .order('created_at', { ascending: false })
         .limit(500);
       if (error) { console.error('sa-donations error:', error); return []; }
+
+      // Resolve donor profiles
+      const userIds = [...new Set((data || []).map((r: any) => r.user_id).filter(Boolean))];
+      let profileMap: Record<string, any> = {};
+      if (userIds.length > 0) {
+        const { data: profiles } = await db.from('profiles').select('id, display_name, phone').in('id', userIds);
+        (profiles || []).forEach((p: any) => { profileMap[p.id] = p; });
+      }
+
+      // Resolve affiliate links
+      const affLinkIds = [...new Set((data || []).map((r: any) => r.affiliate_link_id).filter(Boolean))];
+      let affLinkMap: Record<string, any> = {};
+      if (affLinkIds.length > 0) {
+        const { data: affLinks } = await db.from('affiliate_links').select('id, user_id, code').in('id', affLinkIds);
+        const affUserIds = [...new Set((affLinks || []).map((a: any) => a.user_id).filter(Boolean))];
+        let affProfileMap: Record<string, any> = {};
+        if (affUserIds.length > 0) {
+          const { data: affProfiles } = await db.from('profiles').select('id, display_name').in('id', affUserIds);
+          (affProfiles || []).forEach((p: any) => { affProfileMap[p.id] = p; });
+        }
+        (affLinks || []).forEach((a: any) => {
+          affLinkMap[a.id] = { code: a.code, name: affProfileMap[a.user_id]?.display_name || a.code };
+        });
+      }
+
       return (data || []).map((r: any) => ({
         ...r,
         type: 'donation' as const,
         label: r.donation_campaigns?.title || r.donor_name || 'Don anonyme',
         org_name: r.organizations?.name || '—',
         gateway: detectGateway(r.paystack_reference),
+        buyer_display: r.donor_name || profileMap[r.user_id]?.display_name || r.donor_email || 'Anonyme',
+        buyer_phone: profileMap[r.user_id]?.phone || null,
+        affiliate_name: r.affiliate_link_id ? (affLinkMap[r.affiliate_link_id]?.name || '—') : null,
       }));
     },
   });
@@ -261,7 +317,9 @@ export function SuperadminTransactions() {
         t.org_name?.toLowerCase().includes(q) ||
         t.paystack_reference?.toLowerCase().includes(q) ||
         t.donor_name?.toLowerCase().includes(q) ||
-        t.donor_email?.toLowerCase().includes(q)
+        t.donor_email?.toLowerCase().includes(q) ||
+        t.buyer_display?.toLowerCase().includes(q) ||
+        t.affiliate_name?.toLowerCase().includes(q)
       );
     }
     return merged;
@@ -298,10 +356,13 @@ export function SuperadminTransactions() {
       type: t.type,
       gateway: t.gateway,
       label: t.label,
+      acheteur: t.buyer_display,
+      telephone: t.buyer_phone || '',
       org: t.org_name,
       amount: t.amount,
       currency: t.currency,
       platform_fee: t.platform_fee,
+      affiliate_name: t.affiliate_name || '',
       affiliate_commission: t.affiliate_commission,
       organization_amount: t.organization_amount,
       status: t.status,
@@ -437,11 +498,12 @@ export function SuperadminTransactions() {
               <TableRow className="bg-muted/30">
                 <TableHead className="text-xs">Type</TableHead>
                 <TableHead className="text-xs">Détail</TableHead>
+                <TableHead className="text-xs">Acheteur / Donateur</TableHead>
                 <TableHead className="text-xs">Organisation</TableHead>
                 <TableHead className="text-xs">Passerelle</TableHead>
                 <TableHead className="text-xs text-right">Montant</TableHead>
                 <TableHead className="text-xs text-right">Frais</TableHead>
-                <TableHead className="text-xs text-right">Affilié</TableHead>
+                <TableHead className="text-xs">Affilié</TableHead>
                 <TableHead className="text-xs">Statut</TableHead>
                 <TableHead className="text-xs">Règlement</TableHead>
                 <TableHead className="text-xs">Date</TableHead>
@@ -459,6 +521,10 @@ export function SuperadminTransactions() {
                     <p className="text-sm font-medium truncate max-w-[200px]">{tx.label}</p>
                     <p className="text-[10px] text-muted-foreground font-mono">{tx.paystack_reference?.slice(0, 25)}</p>
                   </TableCell>
+                  <TableCell>
+                    <p className="text-sm font-medium truncate max-w-[150px]">{tx.buyer_display}</p>
+                    {tx.buyer_phone && <p className="text-[10px] text-muted-foreground">📞 {tx.buyer_phone}</p>}
+                  </TableCell>
                   <TableCell className="text-sm">{tx.org_name}</TableCell>
                   <TableCell>
                     <Badge variant="outline" className={`text-[10px] ${tx.gateway === 'stripe' ? 'border-violet-400/40 text-violet-400' : tx.gateway === 'paystack' ? 'border-cyan-400/40 text-cyan-400' : 'border-muted-foreground/40 text-muted-foreground'}`}>
@@ -467,7 +533,16 @@ export function SuperadminTransactions() {
                   </TableCell>
                   <TableCell className="text-right font-semibold text-sm">{(tx.amount || 0).toLocaleString('fr-FR')} {tx.currency}</TableCell>
                   <TableCell className="text-right text-xs text-muted-foreground">{(tx.platform_fee || 0).toLocaleString('fr-FR')}</TableCell>
-                  <TableCell className="text-right text-xs text-muted-foreground">{(tx.affiliate_commission || 0).toLocaleString('fr-FR')}</TableCell>
+                  <TableCell>
+                    {tx.affiliate_name ? (
+                      <div>
+                        <p className="text-xs font-medium">{tx.affiliate_name}</p>
+                        <p className="text-[10px] text-muted-foreground">{(tx.affiliate_commission || 0).toLocaleString('fr-FR')} XOF</p>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
                   <TableCell><Badge className={`text-[10px] border-0 ${statusBadge(tx.status)}`}>{tx.status}</Badge></TableCell>
                   <TableCell>
                     {tx.settlement_status && (
