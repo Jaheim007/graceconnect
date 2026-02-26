@@ -132,6 +132,7 @@ export function ProductForm() {
         testimonials_json: testimonials.length > 0 ? testimonials : [],
         sale_price: data.is_free ? null : (salePrice ? parseFloat(salePrice) : null),
         sale_ends_at: data.is_free ? null : (saleEndsAt ? new Date(saleEndsAt).toISOString() : null),
+        is_express_demo: false, // Clear express demo flag on manual save
       };
       let error;
       let resultData: any;

@@ -88,6 +88,7 @@ export function CampaignForm() {
         image_url: data.image_url || null,
         goal_amount: data.goal_amount || null,
         end_date: data.end_date ? new Date(data.end_date).toISOString() : null,
+        is_express_demo: false, // Clear express demo flag on manual save
       };
       let error;
       if (isEdit) {
