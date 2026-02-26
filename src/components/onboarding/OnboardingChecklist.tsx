@@ -59,12 +59,13 @@ export function OnboardingChecklist() {
     queryKey: ['onboarding-checklist', orgId],
     queryFn: async () => {
       if (!orgId) return null;
-      const [products, campaigns, announcements, media, members] = await Promise.all([
+      const [products, campaigns, announcements, media, members, offerings] = await Promise.all([
         db.from('digital_products').select('id', { count: 'exact', head: true }).eq('organization_id', orgId),
         db.from('donation_campaigns').select('id', { count: 'exact', head: true }).eq('organization_id', orgId),
         db.from('announcements').select('id', { count: 'exact', head: true }).eq('organization_id', orgId),
         db.from('media_content').select('id', { count: 'exact', head: true }).eq('organization_id', orgId),
         db.from('org_members').select('id', { count: 'exact', head: true }).eq('organization_id', orgId),
+        db.from('offerings').select('id', { count: 'exact', head: true }).eq('organization_id', orgId),
       ]);
       return {
         hasLogo: !!currentOrg?.logo_url,
@@ -75,7 +76,7 @@ export function OnboardingChecklist() {
         hasMedia: (media.count || 0) > 0,
         hasMember: (members.count || 0) > 1,
         affiliationEnabled: !!currentOrg?.affiliation_enabled,
-        offeringsEnabled: !!(currentOrg as any)?.offerings_enabled,
+        offeringsEnabled: !!(currentOrg as any)?.offerings_enabled || (offerings.count || 0) > 0,
       } as CheckContext;
     },
     enabled: !!orgId && isManager,
