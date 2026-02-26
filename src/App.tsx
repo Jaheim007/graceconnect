@@ -106,6 +106,7 @@ const AdminWaitlists = lazy(() => import("@/pages/admin/AdminWaitlists"));
 const AdminNotifications = lazy(() => import("@/pages/admin/AdminNotifications"));
 const AdminExperiments = lazy(() => import("@/pages/admin/AdminExperiments"));
 const AdminWebhooks = lazy(() => import("@/pages/admin/AdminWebhooks"));
+const AdminOfferings = lazy(() => import("@/pages/admin/AdminOfferings"));
 const AdminAnnouncementForm = lazy(() => import("@/pages/admin/AdminAnnouncementForm").then(m => ({ default: m.AnnouncementForm })));
 const AdminEventForm = lazy(() => import("@/pages/admin/AdminEventForm").then(m => ({ default: m.EventForm })));
 const AdminCampaignForm = lazy(() => import("@/pages/admin/AdminCampaignForm").then(m => ({ default: m.CampaignForm })));
@@ -277,6 +278,7 @@ const App = () => (
                   <Route path="notifications" element={<AdminNotifications />} />
                   <Route path="experiments" element={<AdminExperiments />} />
                   <Route path="webhooks" element={<AdminWebhooks />} />
+                  <Route path="offerings" element={<AdminOfferings />} />
                 </Route>
 
                 {/* Superadmin */}
