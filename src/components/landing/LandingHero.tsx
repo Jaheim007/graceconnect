@@ -66,8 +66,8 @@ export function LandingHero() {
     <section className="relative pt-14 overflow-hidden">
       <div className="absolute inset-0 z-0">
         <img src={heroImg} alt="" className="w-full h-full object-cover" />
-        {/* Light: softer overlay so the GIF shows through */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/50 to-white/80 dark:hidden" />
+        {/* Light: balanced overlay — GIF visible but text readable */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/65 to-white/90 dark:hidden" />
         {/* Dark: cobalt-tinted overlay */}
         <div className="absolute inset-0 hidden dark:block bg-gradient-to-b from-[hsl(220,55%,13%)]/80 via-[hsl(220,55%,13%)]/75 to-[hsl(220,55%,13%)]/95" />
       </div>
