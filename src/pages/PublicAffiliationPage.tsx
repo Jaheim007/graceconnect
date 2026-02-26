@@ -238,7 +238,7 @@ export default function PublicAffiliationPage() {
                 <Button size="lg" className="bg-background text-foreground hover:bg-background/90 border-0 px-8 h-13 text-base gap-2" onClick={() => navigate('/auth?mode=signup')}>
                   Devenir ambassadeur <ArrowRight className="h-4 w-4" />
                 </Button>
-                <Button size="lg" variant="outline" className="border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10 px-8 h-13 text-base gap-2" onClick={() => navigate('/ambassador-terms')}>
+                <Button size="lg" variant="outline" className="border-2 border-primary-foreground/70 text-primary-foreground hover:bg-primary-foreground/20 px-8 h-13 text-base gap-2 font-semibold" onClick={() => navigate('/ambassador-terms')}>
                   Voir les conditions
                 </Button>
               </div>
