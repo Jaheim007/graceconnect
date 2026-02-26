@@ -274,8 +274,10 @@ export function Sidebar() {
           </>
         ) : (
           <>
-            {renderGroups(mainGroups)}
-            {/* Multi-platform picker when user owns 2+ platforms */}
+            {/* Render Découvrir group first */}
+            {renderGroups([mainGroups[0]])}
+
+            {/* Mes plateformes — right after Découvrir */}
             {ownedOrgs.length > 1 && !collapsed && (
               <div className="mt-3 mx-1">
                 <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
@@ -320,6 +322,9 @@ export function Sidebar() {
                 ))}
               </div>
             )}
+
+            {/* Remaining groups: Mes revenus, Mon contenu, Mon compte */}
+            {renderGroups(mainGroups.slice(1))}
           </>
         )}
       </nav>
