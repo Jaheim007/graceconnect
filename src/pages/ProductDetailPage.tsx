@@ -25,6 +25,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { FormattedText } from '@/lib/formatText';
 import { ProductReviews } from '@/components/products/ProductReviews';
 import { AmbassadorBanner } from '@/components/products/AmbassadorBanner';
+import { ProductPreviewViewer } from '@/components/products/ProductPreviewViewer';
 import { ShareButtons } from '@/components/social/ShareButtons';
 import { useBundleItems, useProductRecommendations } from '@/hooks/useBundlesAndRecommendations';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -451,6 +452,18 @@ export default function ProductDetailPage() {
                 </div>
               )}
             </div>
+
+            {/* Product Preview Viewer */}
+            <ProductPreviewViewer
+              productId={product.id}
+              fileUrl={(product as any).file_url}
+              productType={product.product_type}
+              pageCount={(product as any).page_count}
+              previewPageCount={(product as any).preview_page_count}
+              coverImageUrl={product.cover_image_url}
+              title={product.title}
+              isPurchased={isPurchased}
+            />
 
             <div className="md:hidden space-y-2">
               <h1 className="text-2xl font-bold">{product.title}</h1>
