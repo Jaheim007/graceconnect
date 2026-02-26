@@ -174,6 +174,14 @@ export function SuperadminTransactions() {
   const [filter, setFilter] = useState<'all' | 'purchase' | 'donation'>('all');
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'pending' | 'failed'>('all');
+  const [gatewayFilter, setGatewayFilter] = useState<'all' | 'stripe' | 'paystack' | 'free'>('all');
+
+  const detectGateway = (ref: string | null): string => {
+    if (!ref) return 'unknown';
+    if (ref.startsWith('free-')) return 'free';
+    if (ref.includes('STRIPE')) return 'stripe';
+    return 'paystack';
+  };
 
   const { data: purchases = [], isLoading: loadingP } = useQuery({
     queryKey: ['sa-all-purchases'],
@@ -188,6 +196,7 @@ export function SuperadminTransactions() {
         type: 'purchase' as const,
         label: r.digital_products?.title || 'Produit',
         org_name: r.digital_products?.organizations?.name || '—',
+        gateway: detectGateway(r.paystack_reference),
       }));
     },
   });
@@ -205,6 +214,7 @@ export function SuperadminTransactions() {
         type: 'donation' as const,
         label: r.donation_campaigns?.title || r.donor_name || 'Don anonyme',
         org_name: r.organizations?.name || '—',
+        gateway: detectGateway(r.paystack_reference),
       }));
     },
   });
@@ -215,6 +225,7 @@ export function SuperadminTransactions() {
     let merged = [...purchases, ...donations].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     if (filter !== 'all') merged = merged.filter(t => t.type === filter);
     if (statusFilter !== 'all') merged = merged.filter(t => t.status === statusFilter);
+    if (gatewayFilter !== 'all') merged = merged.filter(t => t.gateway === gatewayFilter);
     if (search.trim()) {
       const q = search.toLowerCase();
       merged = merged.filter(t =>
@@ -257,6 +268,7 @@ export function SuperadminTransactions() {
   const handleExport = () => {
     downloadCSV(allTx.map(t => ({
       type: t.type,
+      gateway: t.gateway,
       label: t.label,
       org: t.org_name,
       amount: t.amount,
@@ -314,7 +326,14 @@ export function SuperadminTransactions() {
         <div className="flex gap-1">
           {(['all', 'completed', 'pending', 'failed'] as const).map(s => (
             <Button key={s} size="sm" variant={statusFilter === s ? 'default' : 'outline'} onClick={() => setStatusFilter(s)} className="text-xs h-8">
-              {s === 'all' ? 'Tous' : s === 'completed' ? '✅' : s === 'pending' ? '⏳' : '❌'}
+              {s === 'all' ? 'Tous' : s === 'completed' ? '✅ Succès' : s === 'pending' ? '⏳ En attente' : '❌ Échec'}
+            </Button>
+          ))}
+        </div>
+        <div className="flex gap-1">
+          {(['all', 'stripe', 'paystack', 'free'] as const).map(g => (
+            <Button key={g} size="sm" variant={gatewayFilter === g ? 'default' : 'outline'} onClick={() => setGatewayFilter(g)} className="text-xs h-8">
+              {g === 'all' ? '🌐 Tous' : g === 'stripe' ? '💳 Stripe' : g === 'paystack' ? '📱 Paystack' : '🆓 Gratuit'}
             </Button>
           ))}
         </div>
@@ -331,6 +350,7 @@ export function SuperadminTransactions() {
                 <TableHead className="text-xs">Type</TableHead>
                 <TableHead className="text-xs">Détail</TableHead>
                 <TableHead className="text-xs">Organisation</TableHead>
+                <TableHead className="text-xs">Passerelle</TableHead>
                 <TableHead className="text-xs text-right">Montant</TableHead>
                 <TableHead className="text-xs text-right">Frais</TableHead>
                 <TableHead className="text-xs text-right">Affilié</TableHead>
@@ -349,9 +369,14 @@ export function SuperadminTransactions() {
                   </TableCell>
                   <TableCell>
                     <p className="text-sm font-medium truncate max-w-[200px]">{tx.label}</p>
-                    <p className="text-[10px] text-muted-foreground font-mono">{tx.paystack_reference?.slice(0, 20)}</p>
+                    <p className="text-[10px] text-muted-foreground font-mono">{tx.paystack_reference?.slice(0, 25)}</p>
                   </TableCell>
                   <TableCell className="text-sm">{tx.org_name}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={`text-[10px] ${tx.gateway === 'stripe' ? 'border-violet-400/40 text-violet-400' : tx.gateway === 'paystack' ? 'border-cyan-400/40 text-cyan-400' : 'border-muted-foreground/40 text-muted-foreground'}`}>
+                      {tx.gateway === 'stripe' ? '💳 Stripe' : tx.gateway === 'paystack' ? '📱 Paystack' : '🆓 Gratuit'}
+                    </Badge>
+                  </TableCell>
                   <TableCell className="text-right font-semibold text-sm">{(tx.amount || 0).toLocaleString('fr-FR')} {tx.currency}</TableCell>
                   <TableCell className="text-right text-xs text-muted-foreground">{(tx.platform_fee || 0).toLocaleString('fr-FR')}</TableCell>
                   <TableCell className="text-right text-xs text-muted-foreground">{(tx.affiliate_commission || 0).toLocaleString('fr-FR')}</TableCell>
