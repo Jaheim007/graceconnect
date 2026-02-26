@@ -15,7 +15,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePaymentGateway, PaymentMethod } from '@/hooks/usePaymentGateway';
 import { PaymentMethodSelector } from '@/components/payments/PaymentMethodSelector';
 import { getAffiliateCode, clearAffiliateCode } from '@/hooks/useAffiliateCapture';
-import { resolveGateway, isMoMoAvailable, gatewayLabel } from '@/lib/paymentRouting';
+import { isMoMoAvailable } from '@/lib/paymentRouting';
 import { verifyPayment, VerifyPaymentResult } from '@/lib/api';
 import { db } from '@/lib/db';
 
@@ -277,7 +277,7 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
 
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Lock className="h-3 w-3" />
-                Paiement sécurisé par {gatewayLabel(resolveGateway(currency))}
+                Paiement sécurisé par {paymentMethod === 'mobile_money' ? 'Paystack' : 'Stripe'}
               </div>
             </div>
 

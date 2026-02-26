@@ -15,7 +15,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePaymentGateway, PaymentMethod } from '@/hooks/usePaymentGateway';
 import { PaymentMethodSelector } from '@/components/payments/PaymentMethodSelector';
 import { getAffiliateCode, clearAffiliateCode } from '@/hooks/useAffiliateCapture';
-import { resolveGateway, isMoMoAvailable, gatewayLabel } from '@/lib/paymentRouting';
+import { isMoMoAvailable } from '@/lib/paymentRouting';
 import { verifyPayment, VerifyPaymentResult } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
@@ -431,7 +431,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                     ? 'You will be redirected to an external link'
                     : product.is_free
                       ? 'Immediate access after download'
-                      : `Paiement sécurisé par ${gatewayLabel(resolveGateway(product.currency || 'XOF'))}`}
+                      : `Paiement sécurisé par ${paymentMethod === 'mobile_money' ? 'Paystack' : 'Stripe'}`}
                 </div>
                 {!product.external_link && !product.is_free && (
                   <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">
@@ -517,7 +517,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                 </div>
                 {!product.is_free && finalPrice > 0 && (
                   <p className="text-[10px] text-muted-foreground mt-1.5">
-                    🔒 Paiement sécurisé par {gatewayLabel(resolveGateway(product.currency || 'XOF'))}
+                    🔒 Paiement sécurisé par {paymentMethod === 'mobile_money' ? 'Paystack' : 'Stripe'}
                   </p>
                 )}
               </div>

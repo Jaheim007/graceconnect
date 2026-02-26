@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { usePaystack } from './usePaystack';
 import { callFn } from '@/lib/api';
-import { resolveGateway } from '@/lib/paymentRouting';
+// Gateway routing is now hybrid: MoMo→Paystack, Card→Stripe
 
 export type PaymentMethod = 'mobile_money' | 'card';
 export type PaymentGateway = 'paystack' | 'stripe';
@@ -44,11 +44,11 @@ export function usePaymentGateway() {
       onSuccess, onClose,
     } = params;
 
-    // Auto-resolve gateway based on currency/country
-    const gateway = resolveGateway(currency);
+    // Hybrid routing: Mobile Money → Paystack, Card → Stripe
+    const useMoMoViaPaystack = method === 'mobile_money' && hasPaystackKey;
 
-    if (gateway === 'paystack' && hasPaystackKey) {
-      // ── PAYSTACK (primary for supported regions) ──
+    if (useMoMoViaPaystack) {
+      // ── PAYSTACK (Mobile Money only) ──
       await openPaystack({
         email,
         amount,
@@ -63,13 +63,13 @@ export function usePaymentGateway() {
           product_id: product_id || null,
           buyer_name: buyer_name || null,
           affiliate_code: affiliate_code || null,
-          payment_channel: method, // mobile_money or card — both via Paystack
+          payment_channel: 'mobile_money',
         },
         onSuccess: (reference) => onSuccess(reference, 'paystack'),
         onClose,
       });
     } else {
-      // ── STRIPE (fallback for non-Paystack regions, or if Paystack key missing) ──
+      // ── STRIPE (all card payments + fallback) ──
       const currentUrl = window.location.origin;
       const successUrl = `${currentUrl}/payment-success`;
       const cancelUrl = window.location.href;
