@@ -44,7 +44,24 @@ export function useOneSignal() {
       await OneSignal.init({
         appId: ONESIGNAL_APP_ID,
         allowLocalhostAsSecureOrigin: true,
+        serviceWorkerParam: { scope: '/' },
         notifyButton: { enable: false },
+        promptOptions: {
+          slidedown: {
+            prompts: [
+              {
+                type: 'push',
+                autoPrompt: true,
+                text: {
+                  actionMessage: '🔔 Recevez les dernières nouvelles et offres de SiteViral directement sur votre appareil !',
+                  acceptButton: 'Autoriser',
+                  cancelButton: 'Plus tard',
+                },
+                delay: { pageViews: 1, timeDelay: 5 },
+              },
+            ],
+          },
+        },
       });
       setIsReady(true);
 
