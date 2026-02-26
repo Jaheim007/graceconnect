@@ -116,6 +116,16 @@ export function ProductForm() {
       return;
     }
 
+    // Validate: cannot publish without a file or external link
+    if (data.is_published && !data.file_url && !data.external_link) {
+      toast({
+        title: 'Fichier requis',
+        description: 'Impossible de publier un produit sans fichier ni lien externe. Ajoutez un fichier avant de publier.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const payload = {
