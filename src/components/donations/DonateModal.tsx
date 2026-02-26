@@ -142,9 +142,17 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
             queryClient.invalidateQueries({ queryKey: ['org-campaigns'] });
             queryClient.invalidateQueries({ queryKey: ['user-donations'] });
           } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Une erreur est survenue. Contactez le support avec votre référence.';
-            setErrorMsg(message);
-            setStep('error');
+            const message = err instanceof Error ? err.message : 'Une erreur est survenue.';
+            console.error('[DonateModal] verify error:', message);
+            // Payment succeeded on Paystack but verify failed — redirect to success page with params for retry
+            const params = new URLSearchParams({
+              reference,
+              gateway: 'paystack',
+              type: 'donation',
+              organization_id: organizationId,
+              ...(campaign.id ? { campaign_id: campaign.id } : {}),
+            });
+            window.location.href = `/payment-success?${params.toString()}`;
           }
         },
       });
