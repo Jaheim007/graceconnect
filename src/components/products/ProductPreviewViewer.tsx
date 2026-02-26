@@ -24,6 +24,7 @@ interface ProductPreviewViewerProps {
   title: string;
   isPurchased?: boolean;
   autoOpen?: boolean;
+  onRequestClose?: () => void;
 }
 
 function computePreviewLimit(total: number, previewPageCount?: number | null): number {
@@ -43,6 +44,7 @@ export function ProductPreviewViewer({
   title,
   isPurchased,
   autoOpen,
+  onRequestClose,
 }: ProductPreviewViewerProps) {
   const [open, setOpen] = useState(false);
   const [pages, setPages] = useState<string[]>([]);
@@ -160,6 +162,13 @@ export function ProductPreviewViewer({
     }
   }, [pages.length, loading, loadPdfPreview]);
 
+  const handleDialogOpenChange = useCallback((nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (!nextOpen) {
+      onRequestClose?.();
+    }
+  }, [onRequestClose]);
+
   useEffect(() => {
     if (autoOpen && !open) {
       handleOpenPreview();
@@ -239,7 +248,7 @@ export function ProductPreviewViewer({
         )}
       </div>
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog open={open} onOpenChange={handleDialogOpenChange}>
         <DialogContent className="max-w-4xl w-[95vw] h-[90vh] p-0 gap-0 overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b bg-background/95 backdrop-blur-sm">
             <div className="flex items-center gap-3 min-w-0">
@@ -279,7 +288,7 @@ export function ProductPreviewViewer({
                   </Button>
                 </div>
               )}
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setOpen(false)}>
+              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => handleDialogOpenChange(false)}>
                 <X className="h-4 w-4" />
               </Button>
             </div>
