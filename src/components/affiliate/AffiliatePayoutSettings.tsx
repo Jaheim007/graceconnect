@@ -64,7 +64,7 @@ export default function AffiliatePayoutSettings() {
     if (!user) return;
     (async () => {
       setLoading(true);
-      const { data } = await db.from('profiles').select('paystack_recipient_code, payout_method, payout_country, payout_provider, payout_account_number, payout_account_name, recipient_locked, payout_currency').eq('id', user.id).single();
+      const { data } = await db.from('payout_profiles').select('paystack_recipient_code, payout_method, payout_country, payout_provider, payout_account_number, payout_account_name, recipient_locked, payout_currency').eq('user_id', user.id).maybeSingle();
       if (data?.paystack_recipient_code) {
         setExistingRecipient({
           recipient_code: data.paystack_recipient_code,
