@@ -5,7 +5,11 @@ import { Button } from '@/components/ui/button';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area } from 'recharts';
-import { TrendingUp, Users, DollarSign, BarChart3, Activity } from 'lucide-react';
+import { TrendingUp, Users, DollarSign, BarChart3, Activity, ShoppingBag, Heart, Filter, Download, Search } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useState, useMemo } from 'react';
+import { downloadCSV } from '@/lib/csvExport';
+import { Input } from '@/components/ui/input';
 
 export function SuperadminDashboard() {
   const { data: stats } = useQuery({
@@ -167,25 +171,203 @@ export function SuperadminKYC() {
 }
 
 export function SuperadminTransactions() {
-  const { data = [], isLoading } = useQuery({
-    queryKey: ['sa-donations'],
-    queryFn: async () => { const { data } = await db.from('donations').select('*').order('created_at', { ascending: false }).limit(50); return data || []; },
+  const [filter, setFilter] = useState<'all' | 'purchase' | 'donation'>('all');
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'pending' | 'failed'>('all');
+
+  const { data: purchases = [], isLoading: loadingP } = useQuery({
+    queryKey: ['sa-all-purchases'],
+    queryFn: async () => {
+      const { data } = await db.from('product_purchases')
+        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, settlement_status, user_id, digital_products(title), organizations(name)')
+        .order('created_at', { ascending: false })
+        .limit(200);
+      return (data || []).map((r: any) => ({
+        ...r,
+        type: 'purchase' as const,
+        label: r.digital_products?.title || 'Produit',
+        org_name: r.organizations?.name || '—',
+      }));
+    },
   });
+
+  const { data: donations = [], isLoading: loadingD } = useQuery({
+    queryKey: ['sa-all-donations'],
+    queryFn: async () => {
+      const { data } = await db.from('donations')
+        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, settlement_status, donor_name, donor_email, user_id, organizations(name), donation_campaigns(title)')
+        .order('created_at', { ascending: false })
+        .limit(200);
+      return (data || []).map((r: any) => ({
+        ...r,
+        type: 'donation' as const,
+        label: r.donation_campaigns?.title || r.donor_name || 'Don anonyme',
+        org_name: r.organizations?.name || '—',
+      }));
+    },
+  });
+
+  const isLoading = loadingP || loadingD;
+
+  const allTx = useMemo(() => {
+    let merged = [...purchases, ...donations].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    if (filter !== 'all') merged = merged.filter(t => t.type === filter);
+    if (statusFilter !== 'all') merged = merged.filter(t => t.status === statusFilter);
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      merged = merged.filter(t =>
+        t.label?.toLowerCase().includes(q) ||
+        t.org_name?.toLowerCase().includes(q) ||
+        t.paystack_reference?.toLowerCase().includes(q) ||
+        t.donor_name?.toLowerCase().includes(q) ||
+        t.donor_email?.toLowerCase().includes(q)
+      );
+    }
+    return merged;
+  }, [purchases, donations, filter, statusFilter, search]);
+
+  const completedTx = allTx.filter(t => t.status === 'completed');
+  const totalGMV = completedTx.reduce((s, t) => s + (t.amount || 0), 0);
+  const totalFees = completedTx.reduce((s, t) => s + (t.platform_fee || 0), 0);
+  const totalAffComm = completedTx.reduce((s, t) => s + (t.affiliate_commission || 0), 0);
+
+  const fmt = (n: number) => n.toLocaleString('fr-FR') + ' XOF';
+
+  const statusBadge = (status: string) => {
+    const map: Record<string, string> = {
+      completed: 'bg-green-500/15 text-green-400',
+      pending: 'bg-yellow-500/15 text-yellow-400',
+      failed: 'bg-red-500/15 text-red-400',
+    };
+    return map[status] || 'bg-muted text-muted-foreground';
+  };
+
+  const settlementBadge = (s: string | null) => {
+    if (!s) return null;
+    const map: Record<string, string> = {
+      held: 'bg-orange-500/15 text-orange-400',
+      released: 'bg-blue-500/15 text-blue-400',
+      frozen: 'bg-red-500/15 text-red-400',
+    };
+    return map[s] || 'bg-muted text-muted-foreground';
+  };
+
+  const handleExport = () => {
+    downloadCSV(allTx.map(t => ({
+      type: t.type,
+      label: t.label,
+      org: t.org_name,
+      amount: t.amount,
+      currency: t.currency,
+      platform_fee: t.platform_fee,
+      affiliate_commission: t.affiliate_commission,
+      organization_amount: t.organization_amount,
+      status: t.status,
+      settlement: t.settlement_status,
+      reference: t.paystack_reference,
+      date: t.created_at,
+    })), 'transactions-superadmin');
+  };
+
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-bold">Transactions</h1>
-      {isLoading ? <SkeletonRow count={5} /> : (
-        <div className="space-y-2">
-          {data.map((d: any) => (
-            <div key={d.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card">
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium">{d.donor_name || 'Anonymous'}</p>
-                <p className="text-xs text-muted-foreground">{new Date(d.created_at).toLocaleDateString('fr-FR')} · {d.paystack_reference?.slice(0, 16)}...</p>
-              </div>
-              <span className="font-semibold text-sm">{d.amount?.toLocaleString()} {d.currency}</span>
-              <Badge className={`text-[10px] border-0 ${d.status === 'completed' ? 'bg-green-500/15 text-green-600' : 'bg-yellow-500/15 text-yellow-600'}`}>{d.status}</Badge>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h1 className="text-xl font-bold">Transactions</h1>
+        <Button size="sm" variant="outline" onClick={handleExport} className="gap-2">
+          <Download className="h-4 w-4" /> Export CSV
+        </Button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { label: 'Total GMV', value: fmt(totalGMV), icon: DollarSign },
+          { label: 'Frais Plateforme', value: fmt(totalFees), icon: TrendingUp },
+          { label: 'Comm. Affiliés', value: fmt(totalAffComm), icon: Users },
+          { label: 'Transactions', value: allTx.length.toString(), icon: BarChart3 },
+        ].map(c => (
+          <div key={c.label} className="p-4 rounded-xl border border-border bg-card">
+            <div className="flex items-center gap-2 mb-1">
+              <c.icon className="h-4 w-4 text-primary" />
+              <span className="text-xs text-muted-foreground">{c.label}</span>
             </div>
+            <p className="text-lg font-bold">{c.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="relative flex-1 min-w-[200px] max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input placeholder="Rechercher..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9" />
+        </div>
+        <div className="flex gap-1">
+          {(['all', 'purchase', 'donation'] as const).map(f => (
+            <Button key={f} size="sm" variant={filter === f ? 'default' : 'outline'} onClick={() => setFilter(f)} className="text-xs h-8">
+              {f === 'all' ? 'Tout' : f === 'purchase' ? '🛒 Achats' : '❤️ Dons'}
+            </Button>
           ))}
+        </div>
+        <div className="flex gap-1">
+          {(['all', 'completed', 'pending', 'failed'] as const).map(s => (
+            <Button key={s} size="sm" variant={statusFilter === s ? 'default' : 'outline'} onClick={() => setStatusFilter(s)} className="text-xs h-8">
+              {s === 'all' ? 'Tous' : s === 'completed' ? '✅' : s === 'pending' ? '⏳' : '❌'}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {/* Table */}
+      {isLoading ? <SkeletonRow count={8} /> : allTx.length === 0 ? (
+        <div className="p-12 text-center text-muted-foreground">Aucune transaction trouvée</div>
+      ) : (
+        <div className="rounded-xl border border-border overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/30">
+                <TableHead className="text-xs">Type</TableHead>
+                <TableHead className="text-xs">Détail</TableHead>
+                <TableHead className="text-xs">Organisation</TableHead>
+                <TableHead className="text-xs text-right">Montant</TableHead>
+                <TableHead className="text-xs text-right">Frais</TableHead>
+                <TableHead className="text-xs text-right">Affilié</TableHead>
+                <TableHead className="text-xs">Statut</TableHead>
+                <TableHead className="text-xs">Règlement</TableHead>
+                <TableHead className="text-xs">Date</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {allTx.map(tx => (
+                <TableRow key={tx.id}>
+                  <TableCell>
+                    <Badge variant="outline" className={`text-[10px] ${tx.type === 'purchase' ? 'border-primary/40 text-primary' : 'border-pink-400/40 text-pink-400'}`}>
+                      {tx.type === 'purchase' ? '🛒' : '❤️'} {tx.type === 'purchase' ? 'Achat' : 'Don'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <p className="text-sm font-medium truncate max-w-[200px]">{tx.label}</p>
+                    <p className="text-[10px] text-muted-foreground font-mono">{tx.paystack_reference?.slice(0, 20)}</p>
+                  </TableCell>
+                  <TableCell className="text-sm">{tx.org_name}</TableCell>
+                  <TableCell className="text-right font-semibold text-sm">{(tx.amount || 0).toLocaleString('fr-FR')} {tx.currency}</TableCell>
+                  <TableCell className="text-right text-xs text-muted-foreground">{(tx.platform_fee || 0).toLocaleString('fr-FR')}</TableCell>
+                  <TableCell className="text-right text-xs text-muted-foreground">{(tx.affiliate_commission || 0).toLocaleString('fr-FR')}</TableCell>
+                  <TableCell><Badge className={`text-[10px] border-0 ${statusBadge(tx.status)}`}>{tx.status}</Badge></TableCell>
+                  <TableCell>
+                    {tx.settlement_status && (
+                      <Badge className={`text-[10px] border-0 ${settlementBadge(tx.settlement_status)}`}>{tx.settlement_status}</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                    {new Date(tx.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: '2-digit' })}
+                    <br />
+                    <span className="text-[10px]">{new Date(tx.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       )}
     </div>
