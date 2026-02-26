@@ -71,7 +71,7 @@ export function ProductPreviewViewer({
               'Content-Type': 'application/json',
               Authorization: `Bearer ${token}`,
             },
-            body: JSON.stringify({ product_id: productId }),
+            body: JSON.stringify({ product_id: productId, preview: true }),
           }
         );
         if (response.ok) {

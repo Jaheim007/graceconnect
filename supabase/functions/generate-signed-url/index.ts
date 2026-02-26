@@ -2,7 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 Deno.serve(async (req) => {
@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
     // Verify user auth
     const authHeader = req.headers.get('Authorization');
     if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders });
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
     const supabaseUser = createClient(supabaseUrl, supabaseAnonKey, {
@@ -26,49 +26,21 @@ Deno.serve(async (req) => {
     });
 
     const { data: claimsData, error: claimsError } = await supabaseUser.auth.getUser();
-    if (claimsError || !claimsData?.user) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: corsHeaders });
-    }
+    // Allow anonymous access (anon key) for preview mode
+    const userId = claimsData?.user?.id || null;
 
-    const userId = claimsData.user.id;
-    const { product_id } = await req.json();
+    const { product_id, preview } = await req.json();
 
     if (!product_id) {
-      return new Response(JSON.stringify({ error: 'product_id required' }), { status: 400, headers: corsHeaders });
+      return new Response(JSON.stringify({ error: 'product_id required' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    // Use service role for admin queries
     const supabaseAdmin = createClient(supabaseUrl, serviceKey);
 
-    // Verify user has purchased this product
-    const { data: purchase } = await supabaseAdmin
-      .from('product_purchases')
-      .select('id')
-      .eq('product_id', product_id)
-      .eq('user_id', userId)
-      .eq('status', 'completed')
-      .maybeSingle();
-
-    if (!purchase) {
-      // Check if product is free
-      const { data: product } = await supabaseAdmin
-        .from('digital_products')
-        .select('is_free, file_url')
-        .eq('id', product_id)
-        .maybeSingle();
-
-      if (!product?.is_free) {
-        return new Response(
-          JSON.stringify({ error: 'Purchase required' }),
-          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-    }
-
-    // Get the product file path
+    // Get the product
     const { data: product } = await supabaseAdmin
       .from('digital_products')
-      .select('file_url, title')
+      .select('file_url, title, is_free')
       .eq('id', product_id)
       .maybeSingle();
 
@@ -79,15 +51,42 @@ Deno.serve(async (req) => {
       );
     }
 
+    // If NOT preview mode, enforce purchase check
+    if (!preview) {
+      if (userId) {
+        const { data: purchase } = await supabaseAdmin
+          .from('product_purchases')
+          .select('id')
+          .eq('product_id', product_id)
+          .eq('user_id', userId)
+          .eq('status', 'completed')
+          .maybeSingle();
+
+        if (!purchase && !product.is_free) {
+          return new Response(
+            JSON.stringify({ error: 'Purchase required' }),
+            { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+      } else if (!product.is_free) {
+        return new Response(
+          JSON.stringify({ error: 'Purchase required' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
     // If file is in private-products bucket, generate signed URL
     if (product.file_url.includes('private-products')) {
-      // Extract path from full URL
       const urlParts = product.file_url.split('/private-products/');
       const filePath = urlParts[1] || '';
 
+      // Preview gets shorter expiry
+      const expiry = preview ? 600 : 3600;
+
       const { data: signedUrl, error: signError } = await supabaseAdmin.storage
         .from('private-products')
-        .createSignedUrl(filePath, 3600); // 1 hour expiry
+        .createSignedUrl(filePath, expiry);
 
       if (signError) {
         return new Response(
