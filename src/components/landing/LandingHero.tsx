@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Sparkles, Play, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import heroImg from '@/assets/landing-hero-new.jpg';
+import heroImg from '@/assets/landing-hero-new.gif';
 import { useState, useEffect } from 'react';
 
 
