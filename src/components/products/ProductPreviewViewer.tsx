@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -48,7 +48,6 @@ export function ProductPreviewViewer({
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(pageCount || 0);
-  const [autoLoaded, setAutoLoaded] = useState(false);
 
   const isPdf =
     (productType || '').toLowerCase() === 'pdf' ||
@@ -89,7 +88,7 @@ export function ProductPreviewViewer({
   }, [fileUrl, productId]);
 
   const loadPdfPreview = useCallback(async () => {
-    if (!isPdf || !fileUrl || loading) return;
+    if (!isPdf || !fileUrl || loading || pages.length > 0) return;
 
     setLoading(true);
     setError(null);
@@ -130,21 +129,22 @@ export function ProductPreviewViewer({
       }
 
       setPages(renderedPages);
-      setAutoLoaded(true);
     } catch (e: any) {
       console.error('PDF preview error:', e);
       setError("Erreur lors du chargement de l'aperçu");
     } finally {
       setLoading(false);
     }
-  }, [isPdf, fileUrl, previewPageCount, isPurchased, getSignedUrl, loading]);
+  }, [isPdf, fileUrl, previewPageCount, isPurchased, getSignedUrl, loading, pages.length]);
 
-  // Auto-load preview eagerly when the component mounts (for any PDF product)
-  useEffect(() => {
-    if (isPdf && hasFile && !autoLoaded && pages.length === 0 && !loading) {
+  const handleOpenPreview = useCallback(() => {
+    setCurrentPage(0);
+    setOpen(true);
+    // Load on demand when modal opens
+    if (pages.length === 0 && !loading) {
       loadPdfPreview();
     }
-  }, [isPdf, hasFile, autoLoaded, pages.length, loading, loadPdfPreview]);
+  }, [pages.length, loading, loadPdfPreview]);
 
   // Don't render anything if no file at all
   if (!hasFile) return null;
@@ -158,49 +158,31 @@ export function ProductPreviewViewer({
 
   return (
     <>
-      {/* Inline preview strip */}
+      {/* Always-visible preview button */}
       <div className="space-y-3">
-        {/* Loading state inline */}
-        {loading && !open && (
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            Chargement de l'aperçu…
-          </div>
-        )}
+        <div className="flex items-center gap-2 flex-wrap">
+          {displayPageCount != null && displayPageCount > 0 && (
+            <Badge variant="secondary" className="text-xs gap-1.5">
+              <FileText className="h-3 w-3" />
+              {displayPageCount} page{displayPageCount > 1 ? 's' : ''}
+            </Badge>
+          )}
 
-        {/* Badges: page count + preview button */}
-        {!loading && (
-          <div className="flex items-center gap-2 flex-wrap">
-            {displayPageCount != null && displayPageCount > 0 && (
-              <Badge variant="secondary" className="text-xs gap-1.5">
-                <FileText className="h-3 w-3" />
-                {displayPageCount} page{displayPageCount > 1 ? 's' : ''}
-              </Badge>
-            )}
-            {isPdf && pages.length > 0 && (
-              <Badge
-                variant="outline"
-                className="text-xs gap-1.5 cursor-pointer hover:bg-primary/10 transition-colors"
-                onClick={() => { setCurrentPage(0); setOpen(true); }}
-              >
-                <Eye className="h-3 w-3" />
-                Aperçu{previewLimit ? ` (${previewLimit} page${previewLimit > 1 ? 's' : ''})` : ''}
-              </Badge>
-            )}
-            {isPdf && !loading && pages.length === 0 && error && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="gap-1.5 text-xs h-6"
-                onClick={loadPdfPreview}
-              >
-                <Eye className="h-3 w-3" /> Réessayer l'aperçu
-              </Button>
-            )}
-          </div>
-        )}
+          {isPdf && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 text-xs h-8 border-primary/30 text-primary hover:bg-primary/10 font-semibold"
+              onClick={handleOpenPreview}
+            >
+              <Eye className="h-3.5 w-3.5" />
+              👁️ Aperçu gratuit
+              {previewLimit ? ` (${previewLimit} page${previewLimit > 1 ? 's' : ''})` : ''}
+            </Button>
+          )}
+        </div>
 
-        {/* Thumbnail strip inline (small) */}
+        {/* Thumbnail strip inline (only after loaded) */}
         {pages.length > 0 && !open && (
           <div className="flex gap-2 overflow-x-auto pb-1">
             {pages.map((src, i) => (
@@ -292,7 +274,7 @@ export function ProductPreviewViewer({
                 <div className="flex flex-col items-center justify-center py-20 gap-3">
                   <AlertTriangle className="h-8 w-8 text-destructive" />
                   <p className="text-sm text-destructive">{error}</p>
-                  <Button size="sm" variant="outline" onClick={loadPdfPreview}>
+                  <Button size="sm" variant="outline" onClick={() => { setError(null); loadPdfPreview(); }}>
                     Réessayer
                   </Button>
                 </div>
@@ -300,7 +282,6 @@ export function ProductPreviewViewer({
 
               {!loading && !error && pages.length > 0 && (
                 <div className="space-y-4">
-                  {/* Current page (large) */}
                   <div className="relative rounded-xl overflow-hidden border border-border shadow-lg bg-white mx-auto max-w-2xl">
                     <img
                       src={pages[currentPage]}
@@ -322,7 +303,6 @@ export function ProductPreviewViewer({
                     )}
                   </div>
 
-                  {/* Thumbnail strip */}
                   {pages.length > 1 && (
                     <div className="flex gap-2 overflow-x-auto pb-2 px-1">
                       {pages.map((src, i) => (

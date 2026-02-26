@@ -13,7 +13,7 @@ export function useOrgCampaigns(orgId: string | undefined, publishedOnly = true)
         .select('*')
         .eq('organization_id', orgId)
         .order('created_at', { ascending: false });
-      if (publishedOnly) q = q.eq('is_published', true).eq('is_active', true);
+      if (publishedOnly) q = q.eq('is_published', true).eq('is_active', true).eq('is_express_demo', false);
       const { data } = await q;
       return (data || []) as DonationCampaign[];
     },
@@ -32,6 +32,7 @@ export function useFeedCampaigns(orgIds: string[]) {
         .in('organization_id', orgIds)
         .eq('is_published', true)
         .eq('is_active', true)
+        .eq('is_express_demo', false)
         .order('created_at', { ascending: false })
         .limit(10);
       return (data || []).map((c: any) => ({
@@ -89,7 +90,9 @@ export function useOrgProducts(orgId: string | undefined, publishedOnly = true) 
         .eq('organization_id', orgId)
         .order('display_order', { ascending: true })
         .order('created_at', { ascending: false });
-      if (publishedOnly) q = q.eq('is_published', true);
+      if (publishedOnly) {
+        q = q.eq('is_published', true).eq('is_express_demo', false);
+      }
       const { data } = await q;
       return (data || []) as DigitalProduct[];
     },
@@ -107,6 +110,7 @@ export function useFeedProducts(orgIds: string[]) {
         .select('*, organizations(name, slug, logo_url)')
         .in('organization_id', orgIds)
         .eq('is_published', true)
+        .eq('is_express_demo', false)
         .order('display_order', { ascending: true })
         .order('created_at', { ascending: false })
         .limit(10);
