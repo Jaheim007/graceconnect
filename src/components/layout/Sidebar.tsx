@@ -129,6 +129,7 @@ export function Sidebar() {
         { to: '/admin/affiliation', icon: Link2, label: t('sidebar.affiliation') },
         { to: '/admin/promo-codes', icon: FileCheck, label: t('sidebar.promo_codes') },
         { to: '/admin/subscriptions', icon: CreditCard, label: t('sidebar.subscriptions') },
+        { to: '/admin/sales', icon: Wallet, label: 'Mes Ventes' },
         { to: '/admin/waitlists', icon: Clock, label: t('sidebar.waitlists') },
         { to: '/admin/webhooks', icon: Link2, label: 'Webhooks' },
       ],
