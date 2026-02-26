@@ -62,6 +62,7 @@ const AmbassadorTermsPage = lazy(() => import("@/pages/AmbassadorTermsPage"));
 const BecomePartnerPage = lazy(() => import("@/pages/BecomePartnerPage"));
 const PartnerTermsPage = lazy(() => import("@/pages/PartnerTermsPage"));
 const CampaignDetailPage = lazy(() => import("@/pages/CampaignDetailPage"));
+const OfferingDetailPage = lazy(() => import("@/pages/OfferingDetailPage"));
 const AnnouncementDetailPage = lazy(() => import("@/pages/AnnouncementDetailPage"));
 const EventDetailPage = lazy(() => import("@/pages/EventDetailPage"));
 const WelcomeIntentPage = lazy(() => import("@/pages/WelcomeIntentPage"));
@@ -216,6 +217,7 @@ const App = () => (
                 <Route path="/org/:slug/product/:productId" element={<ProductDetailPage />} />
                 <Route path="/org/:slug/p/:productSlug" element={<ProductDetailPage />} />
                 <Route path="/campaign/:campaignId" element={<CampaignDetailPage />} />
+                <Route path="/offering/:offeringId" element={<OfferingDetailPage />} />
                 <Route path="/announcement/:announcementId" element={<AnnouncementDetailPage />} />
                 <Route path="/event/:eventId" element={<EventDetailPage />} />
 

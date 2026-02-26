@@ -201,7 +201,7 @@ export default function CampaignDetailPage() {
                   className="w-full h-12 text-base bg-primary text-primary-foreground gap-2 font-semibold"
                   onClick={() => setDonateOpen(true)}
                 >
-                  <Heart className="h-5 w-5" /> Faire un don
+                  <Heart className="h-5 w-5" /> Contribuer
                 </Button>
               ) : (
                 <Badge variant="secondary" className="w-full justify-center py-2">
