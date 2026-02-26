@@ -1,14 +1,11 @@
-import { useState, useRef, DragEvent } from 'react';
+import { useState, DragEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
   Settings, Image, FileText, Play, CalendarDays,
   Heart, ShoppingBag, Eye, EyeOff, GripVertical,
-  HelpCircle, Camera, Link2, Palette, Check
+  HelpCircle, Camera, Link2, Palette, Check, ChevronDown, ChevronUp, Plus
 } from 'lucide-react';
-import {
-  Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger
-} from '@/components/ui/sheet';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nContext';
@@ -73,38 +70,29 @@ export function OrgAdminToolbar({
   const upsert = useUpsertOrgPageSettings();
   const [draggedSection, setDraggedSection] = useState<string | null>(null);
   const [dragOverSection, setDragOverSection] = useState<string | null>(null);
+  const [colorsOpen, setColorsOpen] = useState(false);
 
   const sectionOrder = pageSettings?.section_order || ['products', 'campaigns', 'content', 'photos', 'events'];
   const hiddenSections = pageSettings?.hidden_sections || [];
   const currentPrimary = pageSettings?.theme_primary_color || '220 80% 50%';
   const currentAccent = pageSettings?.theme_accent_color || '45 90% 55%';
+  const isFr = locale === 'fr';
 
-  // Drag & Drop handlers
   const handleDragStart = (e: DragEvent, section: string) => {
     setDraggedSection(section);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', section);
   };
-
   const handleDragOver = (e: DragEvent, section: string) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    if (section !== draggedSection) {
-      setDragOverSection(section);
-    }
+    if (section !== draggedSection) setDragOverSection(section);
   };
-
-  const handleDragLeave = () => {
-    setDragOverSection(null);
-  };
-
+  const handleDragLeave = () => setDragOverSection(null);
   const handleDrop = async (e: DragEvent, targetSection: string) => {
     e.preventDefault();
     setDragOverSection(null);
-    if (!draggedSection || draggedSection === targetSection) {
-      setDraggedSection(null);
-      return;
-    }
+    if (!draggedSection || draggedSection === targetSection) { setDraggedSection(null); return; }
     const arr = [...sectionOrder];
     const fromIdx = arr.indexOf(draggedSection);
     const toIdx = arr.indexOf(targetSection);
@@ -115,11 +103,7 @@ export function OrgAdminToolbar({
     await upsert.mutateAsync({ orgId, updates: { section_order: arr } });
     toast({ title: isFr ? 'Ordre mis à jour ✓' : 'Order updated ✓' });
   };
-
-  const handleDragEnd = () => {
-    setDraggedSection(null);
-    setDragOverSection(null);
-  };
+  const handleDragEnd = () => { setDraggedSection(null); setDragOverSection(null); };
 
   const toggleSectionVisibility = async (section: string) => {
     const hidden = hiddenSections.includes(section)
@@ -133,206 +117,183 @@ export function OrgAdminToolbar({
     toast({ title: isFr ? 'Couleur mise à jour ✓' : 'Color updated ✓' });
   };
 
-  const isFr = locale === 'fr';
-
   return (
-    <>
-      {/* Floating toolbar */}
-      <div className="fixed bottom-20 sm:bottom-6 right-4 z-50 flex flex-col gap-2 items-end">
-        <Button
-          size="icon"
-          variant="outline"
-          className="h-10 w-10 rounded-full shadow-elevated bg-card border-border"
-          onClick={onStartTour}
-          title={isFr ? "Aide interactive" : "Interactive help"}
-        >
-          <HelpCircle className="h-4 w-4" />
-        </Button>
+    <div className="space-y-5">
+      {/* Gestion complète — TOP */}
+      <Button className="w-full gap-2" onClick={() => navigate('/admin')}>
+        <Settings className="h-4 w-4" />
+        {isFr ? 'Gestion complète' : 'Full management'}
+      </Button>
 
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button
-              size="lg"
-              className="rounded-full shadow-elevated gap-2 h-12 px-5 bg-primary text-primary-foreground"
-            >
-              <Settings className="h-4 w-4" />
-              {isFr ? 'Gérer ma page' : 'Manage page'}
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-[340px] sm:w-[400px] overflow-y-auto">
-            <SheetHeader>
-              <SheetTitle className="text-lg">{isFr ? '⚙️ Gérer ma page' : '⚙️ Manage my page'}</SheetTitle>
-            </SheetHeader>
+      {/* Quick Actions */}
+      <section>
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+          {isFr ? 'Actions rapides' : 'Quick Actions'}
+        </h3>
+        <div className="grid grid-cols-2 gap-2">
+          <QuickAction icon={Image} label={isFr ? 'Modifier bannière' : 'Edit banner'} onClick={() => navigate(`/admin/settings`)} />
+          <QuickAction icon={Image} label={isFr ? 'Modifier logo' : 'Edit logo'} onClick={() => navigate(`/admin/settings`)} />
+          <QuickAction icon={FileText} label={isFr ? 'Modifier description' : 'Edit description'} onClick={() => navigate(`/admin/settings`)} />
+          <QuickAction icon={ShoppingBag} label={isFr ? 'Ajouter produit' : 'Add product'} onClick={() => navigate(`/admin/products/new`)} />
+          <QuickAction icon={Play} label={isFr ? 'Ajouter contenu' : 'Add content'} onClick={() => navigate(`/admin/media/new`)} />
+          <QuickAction icon={CalendarDays} label={isFr ? 'Ajouter événement' : 'Add event'} onClick={() => navigate(`/admin/events/new`)} />
+          <QuickAction icon={Heart} label={isFr ? 'Ajouter campagne' : 'Add campaign'} onClick={() => navigate(`/admin/campaigns/new`)} />
+          <QuickAction icon={Camera} label={isFr ? 'Ajouter photos' : 'Add photos'} onClick={() => navigate(`/admin/photos`)} />
+        </div>
+      </section>
 
-            <div className="space-y-6 mt-6">
-              {/* Quick Actions */}
-              <section>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                  {isFr ? 'Actions rapides' : 'Quick Actions'}
-                </h3>
-                <div className="grid grid-cols-2 gap-2">
-                  <QuickAction icon={Image} label={isFr ? 'Modifier bannière' : 'Edit banner'} onClick={() => navigate(`/admin/settings`)} />
-                  <QuickAction icon={Image} label={isFr ? 'Modifier logo' : 'Edit logo'} onClick={() => navigate(`/admin/settings`)} />
-                  <QuickAction icon={FileText} label={isFr ? 'Modifier description' : 'Edit description'} onClick={() => navigate(`/admin/settings`)} />
-                  <QuickAction icon={ShoppingBag} label={isFr ? 'Ajouter produit' : 'Add product'} onClick={() => navigate(`/admin/products/new`)} />
-                  <QuickAction icon={Play} label={isFr ? 'Ajouter contenu' : 'Add content'} onClick={() => navigate(`/admin/media/new`)} />
-                  <QuickAction icon={CalendarDays} label={isFr ? 'Ajouter événement' : 'Add event'} onClick={() => navigate(`/admin/events/new`)} />
-                  <QuickAction icon={Heart} label={isFr ? 'Ajouter campagne' : 'Add campaign'} onClick={() => navigate(`/admin/campaigns/new`)} />
-                  <QuickAction icon={Camera} label={isFr ? 'Ajouter photos' : 'Add photos'} onClick={() => navigate(`/admin/photos`)} />
-                </div>
-              </section>
+      {/* Section Management */}
+      <section>
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+          {isFr ? 'Organiser les sections' : 'Organize sections'}
+        </h3>
+        <p className="text-[11px] text-muted-foreground mb-3">
+          {isFr ? '↕ Glissez-déposez pour réorganiser' : '↕ Drag and drop to reorder'}
+        </p>
+        <div className="space-y-1.5">
+          {sectionOrder.map((section) => {
+            const meta = SECTION_META[section];
+            if (!meta) return null;
+            const Icon = meta.icon;
+            const isHidden = hiddenSections.includes(section);
+            const isDragging = draggedSection === section;
+            const isDragOver = dragOverSection === section;
+            return (
+              <div
+                key={section}
+                draggable
+                onDragStart={(e) => handleDragStart(e, section)}
+                onDragOver={(e) => handleDragOver(e, section)}
+                onDragLeave={handleDragLeave}
+                onDrop={(e) => handleDrop(e, section)}
+                onDragEnd={handleDragEnd}
+                className={cn(
+                  'flex items-center gap-2 p-2.5 rounded-xl border transition-all cursor-grab active:cursor-grabbing',
+                  isHidden ? 'border-border/50 bg-muted/30 opacity-60' : 'border-border bg-card',
+                  isDragging && 'opacity-40 scale-95',
+                  isDragOver && 'border-primary bg-primary/5 scale-[1.02]'
+                )}
+              >
+                <GripVertical className="h-4 w-4 text-muted-foreground shrink-0" />
+                <Icon className="h-4 w-4 text-primary shrink-0" />
+                <span className="flex-1 text-sm font-medium truncate">
+                  {isFr ? meta.label_fr : meta.label_en}
+                </span>
+                <button
+                  className="h-7 w-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
+                  onClick={() => toggleSectionVisibility(section)}
+                  title={isHidden ? (isFr ? 'Afficher' : 'Show') : (isFr ? 'Masquer' : 'Hide')}
+                >
+                  {isHidden ? <EyeOff className="h-3.5 w-3.5 text-muted-foreground" /> : <Eye className="h-3.5 w-3.5 text-primary" />}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      </section>
 
-              {/* Section Management with Drag & Drop */}
-              <section>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-                  {isFr ? 'Organiser les sections' : 'Organize sections'}
-                </h3>
-                <p className="text-[11px] text-muted-foreground mb-3">
-                  {isFr ? '↕ Glissez-déposez pour réorganiser' : '↕ Drag and drop to reorder'}
-                </p>
-                <div className="space-y-1.5">
-                  {sectionOrder.map((section) => {
-                    const meta = SECTION_META[section];
-                    if (!meta) return null;
-                    const Icon = meta.icon;
-                    const isHidden = hiddenSections.includes(section);
-                    const isDragging = draggedSection === section;
-                    const isDragOver = dragOverSection === section;
-                    return (
-                      <div
-                        key={section}
-                        draggable
-                        onDragStart={(e) => handleDragStart(e, section)}
-                        onDragOver={(e) => handleDragOver(e, section)}
-                        onDragLeave={handleDragLeave}
-                        onDrop={(e) => handleDrop(e, section)}
-                        onDragEnd={handleDragEnd}
-                        className={cn(
-                          'flex items-center gap-2 p-2.5 rounded-xl border transition-all cursor-grab active:cursor-grabbing',
-                          isHidden ? 'border-border/50 bg-muted/30 opacity-60' : 'border-border bg-card',
-                          isDragging && 'opacity-40 scale-95',
-                          isDragOver && 'border-primary bg-primary/5 scale-[1.02]'
-                        )}
-                      >
-                        <GripVertical className="h-4 w-4 text-muted-foreground shrink-0" />
-                        <Icon className="h-4 w-4 text-primary shrink-0" />
-                        <span className="flex-1 text-sm font-medium truncate">
-                          {isFr ? meta.label_fr : meta.label_en}
-                        </span>
-                        <button
-                          className="h-7 w-7 rounded-lg flex items-center justify-center hover:bg-muted transition-colors"
-                          onClick={() => toggleSectionVisibility(section)}
-                          title={isHidden ? (isFr ? 'Afficher' : 'Show') : (isFr ? 'Masquer' : 'Hide')}
-                        >
-                          {isHidden ? <EyeOff className="h-3.5 w-3.5 text-muted-foreground" /> : <Eye className="h-3.5 w-3.5 text-primary" />}
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-
-              {/* Color Customization */}
-              <section>
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
-                  <Palette className="h-3.5 w-3.5" />
-                  {isFr ? 'Personnaliser les couleurs' : 'Customize colors'}
-                </h3>
-                
-                {/* Primary color */}
-                <div className="mb-4">
-                  <label className="text-xs font-medium text-foreground mb-2 block">
-                    {isFr ? 'Couleur principale' : 'Primary color'}
-                  </label>
-                  <div className="grid grid-cols-6 gap-1.5">
-                    {PRESET_COLORS.map((color) => (
-                      <button
-                        key={color.value}
-                        onClick={() => setThemeColor('theme_primary_color', color.value)}
-                        className={cn(
-                          'h-8 w-full rounded-lg border-2 transition-all hover:scale-110 relative',
-                          currentPrimary === color.value ? 'border-foreground ring-1 ring-foreground/20' : 'border-transparent'
-                        )}
-                        style={{ backgroundColor: `hsl(${color.value})` }}
-                        title={color.name}
-                      >
-                        {currentPrimary === color.value && (
-                          <Check className="h-3.5 w-3.5 text-white absolute inset-0 m-auto drop-shadow-md" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Accent color */}
-                <div>
-                  <label className="text-xs font-medium text-foreground mb-2 block">
-                    {isFr ? 'Couleur d\'accent' : 'Accent color'}
-                  </label>
-                  <div className="grid grid-cols-6 gap-1.5">
-                    {ACCENT_COLORS.map((color) => (
-                      <button
-                        key={color.value}
-                        onClick={() => setThemeColor('theme_accent_color', color.value)}
-                        className={cn(
-                          'h-8 w-full rounded-lg border-2 transition-all hover:scale-110 relative',
-                          currentAccent === color.value ? 'border-foreground ring-1 ring-foreground/20' : 'border-transparent'
-                        )}
-                        style={{ backgroundColor: `hsl(${color.value})` }}
-                        title={color.name}
-                      >
-                        {currentAccent === color.value && (
-                          <Check className="h-3.5 w-3.5 text-white absolute inset-0 m-auto drop-shadow-md" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Preview */}
-                <div className="mt-3 p-3 rounded-xl border border-border bg-muted/30">
-                  <p className="text-[11px] text-muted-foreground mb-2">{isFr ? 'Aperçu' : 'Preview'}</p>
-                  <div className="flex items-center gap-2">
-                    <div className="h-8 flex-1 rounded-lg flex items-center justify-center text-xs font-semibold text-white" style={{ backgroundColor: `hsl(${currentPrimary})` }}>
-                      {isFr ? 'Bouton primaire' : 'Primary button'}
-                    </div>
-                    <div className="h-8 flex-1 rounded-lg flex items-center justify-center text-xs font-semibold" style={{ backgroundColor: `hsl(${currentAccent})`, color: 'hsl(222 47% 8%)' }}>
-                      {isFr ? 'Accent' : 'Accent'}
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              {/* Affiliation Toggle */}
-              {isOwner && (
-                <section>
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-                    {isFr ? 'Programme d\'affiliation' : 'Affiliate Program'}
-                  </h3>
-                  <div className="flex items-center justify-between p-3 rounded-xl border border-border bg-card">
-                    <div className="flex items-center gap-2">
-                      <Link2 className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-medium">
-                        {isFr ? 'Affiliation activée' : 'Affiliation enabled'}
-                      </span>
-                    </div>
-                    <Switch checked={affiliationEnabled} onCheckedChange={onToggleAffiliation} />
-                  </div>
-                </section>
-              )}
-
-              {/* Go to full admin */}
-              <section>
-                <Button variant="outline" className="w-full gap-2" onClick={() => navigate('/admin')}>
-                  <Settings className="h-4 w-4" />
-                  {isFr ? 'Gestion complète' : 'Full management'}
-                </Button>
-              </section>
+      {/* Affiliation Toggle — visible directly */}
+      {isOwner && (
+        <section>
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+            {isFr ? 'Programme d\'affiliation' : 'Affiliate Program'}
+          </h3>
+          <div className="flex items-center justify-between p-3 rounded-xl border border-border bg-card">
+            <div className="flex items-center gap-2">
+              <Link2 className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">
+                {isFr ? 'Affiliation activée' : 'Affiliation enabled'}
+              </span>
             </div>
-          </SheetContent>
-        </Sheet>
-      </div>
-    </>
+            <Switch checked={affiliationEnabled} onCheckedChange={onToggleAffiliation} />
+          </div>
+        </section>
+      )}
+
+      {/* Color Customization — collapsible */}
+      <section>
+        <button
+          onClick={() => setColorsOpen(!colorsOpen)}
+          className="flex items-center justify-between w-full text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 hover:text-foreground transition-colors"
+        >
+          <span className="flex items-center gap-1.5">
+            <Palette className="h-3.5 w-3.5" />
+            {isFr ? 'Personnaliser les couleurs' : 'Customize colors'}
+          </span>
+          {colorsOpen ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+        </button>
+
+        {colorsOpen && (
+          <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div>
+              <label className="text-xs font-medium text-foreground mb-2 block">
+                {isFr ? 'Couleur principale' : 'Primary color'}
+              </label>
+              <div className="grid grid-cols-6 gap-1.5">
+                {PRESET_COLORS.map((color) => (
+                  <button
+                    key={color.value}
+                    onClick={() => setThemeColor('theme_primary_color', color.value)}
+                    className={cn(
+                      'h-8 w-full rounded-lg border-2 transition-all hover:scale-110 relative',
+                      currentPrimary === color.value ? 'border-foreground ring-1 ring-foreground/20' : 'border-transparent'
+                    )}
+                    style={{ backgroundColor: `hsl(${color.value})` }}
+                    title={color.name}
+                  >
+                    {currentPrimary === color.value && (
+                      <Check className="h-3.5 w-3.5 text-white absolute inset-0 m-auto drop-shadow-md" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-foreground mb-2 block">
+                {isFr ? 'Couleur d\'accent' : 'Accent color'}
+              </label>
+              <div className="grid grid-cols-6 gap-1.5">
+                {ACCENT_COLORS.map((color) => (
+                  <button
+                    key={color.value}
+                    onClick={() => setThemeColor('theme_accent_color', color.value)}
+                    className={cn(
+                      'h-8 w-full rounded-lg border-2 transition-all hover:scale-110 relative',
+                      currentAccent === color.value ? 'border-foreground ring-1 ring-foreground/20' : 'border-transparent'
+                    )}
+                    style={{ backgroundColor: `hsl(${color.value})` }}
+                    title={color.name}
+                  >
+                    {currentAccent === color.value && (
+                      <Check className="h-3.5 w-3.5 text-white absolute inset-0 m-auto drop-shadow-md" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="p-3 rounded-xl border border-border bg-muted/30">
+              <p className="text-[11px] text-muted-foreground mb-2">{isFr ? 'Aperçu' : 'Preview'}</p>
+              <div className="flex items-center gap-2">
+                <div className="h-8 flex-1 rounded-lg flex items-center justify-center text-xs font-semibold text-white" style={{ backgroundColor: `hsl(${currentPrimary})` }}>
+                  {isFr ? 'Bouton primaire' : 'Primary button'}
+                </div>
+                <div className="h-8 flex-1 rounded-lg flex items-center justify-center text-xs font-semibold" style={{ backgroundColor: `hsl(${currentAccent})`, color: 'hsl(222 47% 8%)' }}>
+                  {isFr ? 'Accent' : 'Accent'}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Help button */}
+      <Button variant="outline" size="sm" className="w-full gap-2" onClick={onStartTour}>
+        <HelpCircle className="h-4 w-4" />
+        {isFr ? 'Aide interactive' : 'Interactive help'}
+      </Button>
+    </div>
   );
 }
 
