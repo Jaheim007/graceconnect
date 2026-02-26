@@ -33,7 +33,7 @@ const personas = [
     icon: ShoppingBag,
     label: 'Acheteurs',
     title: 'Découvrez.\nSoutenez.',
-    desc: 'Accédez à des ebooks, formations, audio, vidéos. Soutenez vos communautés par des dons. Payez par Mobile Money ou carte.',
+    desc: 'Accédez à des ebooks, audio, vidéos et ressources numériques. Soutenez vos communautés par des dons. Payez par Mobile Money ou carte.',
     features: ['Accès instantané après achat', 'Paiement sécurisé Paystack & Stripe', 'Bibliothèque personnelle', 'Dons avec suivi transparent'],
     cta: 'Explorer les ressources',
     ctaPath: '/discover',

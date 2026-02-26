@@ -38,7 +38,7 @@ interface Feature {
 const features: Feature[] = [
   { icon: Play, title: 'Médiathèque complète', desc: 'Vidéos, podcasts, musique, replays. Diffusez du contenu gratuit ou premium à votre communauté.', persona: ['org'] },
   { icon: Heart, title: 'Campagnes de dons', desc: 'Lancez des collectes avec objectifs et suivi en temps réel. Vos donateurs paient par Mobile Money en un clic.', persona: ['org', 'buyer'] },
-  { icon: ShoppingBag, title: 'Boutique numérique', desc: 'Vendez ebooks, formations, templates. Livraison automatique et paiement sécurisé.', persona: ['org', 'buyer'] },
+  { icon: ShoppingBag, title: 'Boutique numérique', desc: 'Vendez ebooks, audio, vidéos, templates. Livraison automatique et paiement sécurisé.', persona: ['org', 'buyer'] },
   { icon: Zap, title: 'Programme Ambassadeur', desc: 'Réseau d\'ambassadeurs intégré. 5% à 50% de commission, tracking, liens personnalisés, versement auto.', persona: ['org', 'ambassador'] },
   { icon: Share2, title: 'Partage en 1 clic', desc: 'Générez votre lien unique, partagez sur WhatsApp, Facebook, partout. Chaque vente est trackée.', persona: ['ambassador'] },
   { icon: Download, title: 'Accès instantané', desc: 'Après achat, téléchargez immédiatement. Watermark automatique pour protéger le créateur.', persona: ['buyer', 'org'] },
@@ -47,7 +47,7 @@ const features: Feature[] = [
   { icon: BarChart3, title: 'Analytics avancés', desc: 'Tableau de bord complet : revenus, transactions, taux de conversion, top produits. Export CSV.', persona: ['org', 'ambassador'] },
   { icon: Mail, title: 'CRM & Campagnes email', desc: 'Contacts, segmentation par tags, campagnes email ciblées directement depuis l\'admin.', persona: ['org'] },
   { icon: Link2, title: 'Codes promo', desc: 'Réductions en % ou montant fixe avec date d\'expiration et limite d\'utilisation.', persona: ['org'] },
-  { icon: BookOpen, title: 'Formations en ligne', desc: 'Parcours structurés avec modules, leçons vidéo et suivi de progression.', persona: ['org', 'buyer'] },
+  
   { icon: Palette, title: 'Page personnalisable', desc: 'Éditez textes, images, couleurs. Réordonnez les sections. Votre identité, votre plateforme.', persona: ['org'] },
   { icon: Bell, title: 'Notifications push', desc: 'Envoyez des notifications en temps réel pour garder votre audience engagée.', persona: ['org'] },
   { icon: Smartphone, title: 'App PWA installable', desc: 'Installable depuis le navigateur, fonctionne hors ligne, chargement ultra-rapide.', persona: ['org', 'buyer'] },
@@ -55,7 +55,7 @@ const features: Feature[] = [
   { icon: Search, title: 'SEO intégré', desc: 'Balises meta, slugs personnalisés, pages optimisées pour Google.', persona: ['org'] },
   { icon: Award, title: 'Badges de confiance', desc: 'Badges organisation vérifiée, featured, certifiée. Renforcez la confiance.', persona: ['org'] },
   { icon: FileText, title: 'Export de données', desc: 'Exportez membres, transactions, affiliés en CSV. Vos données vous appartiennent.', persona: ['org'] },
-  { icon: Bot, title: 'IA intégrée', desc: 'Chat IA pour analyser les métriques, détecter les anomalies et optimiser.', persona: ['org'] },
+  
   { icon: Settings, title: 'Support 7j/7', desc: 'FAQ intégrée, tickets de support et accompagnement personnalisé.', persona: ['org', 'buyer', 'ambassador'] },
 ];
 

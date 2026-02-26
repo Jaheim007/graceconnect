@@ -40,17 +40,15 @@ export function LandingFinalCTA() {
           </div>
         </motion.div>
 
-        {/* WhatsApp CTA */}
+        {/* Support CTA */}
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mt-8 space-y-2">
-          <a
-            href="https://wa.me/message/siteviral"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={() => navigate('/support')}
             className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors bg-card border border-border rounded-full px-5 py-2.5 hover:shadow-card"
           >
             <MessageCircle className="h-4 w-4" />
-            Une question ? Contactez-nous sur WhatsApp
-          </a>
+            Une question ? Contactez notre support
+          </button>
         </motion.div>
       </div>
     </section>

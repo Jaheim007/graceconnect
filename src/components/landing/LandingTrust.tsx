@@ -9,13 +9,13 @@ const fadeUp = {
 
 const trustItems = [
   { icon: Lock, label: 'Chiffrement SSL/TLS' },
-  { icon: CreditCard, label: 'Certifié Paystack & Stripe' },
+  { icon: CreditCard, label: 'Paystack & Stripe' },
   { icon: Shield, label: 'Conforme GDPR' },
   { icon: Globe, label: 'Delaware C-Corp (USA)' },
 ];
 
 const paymentBadges = [
-  'Visa', 'Mastercard', 'Orange Money', 'MTN MoMo', 'Wave', 'Moov Money',
+  'Visa', 'Mastercard', 'Orange Money', 'MTN MoMo', 'Wave', 'Mobile Money',
 ];
 
 export function LandingTrust() {
@@ -58,7 +58,7 @@ export function LandingTrust() {
             {[
               { label: 'Paiement sécurisé', desc: 'Transactions chiffrées bout en bout' },
               { label: 'Données protégées', desc: 'Hébergement conforme aux normes internationales' },
-              { label: 'Support réactif', desc: 'Assistance par email et WhatsApp' },
+              { label: 'Support réactif', desc: 'Assistance par email et formulaire de contact' },
             ].map((item) => (
               <div key={item.label} className="flex items-start gap-2 text-left bg-muted/30 rounded-xl p-4 border border-border">
                 <CheckCircle className="h-4 w-4 text-primary shrink-0 mt-0.5" />

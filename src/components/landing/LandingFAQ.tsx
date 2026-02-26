@@ -23,7 +23,7 @@ const faqs = [
   },
   {
     q: 'Quels moyens de paiement sont acceptés ?',
-    a: 'Mobile Money (Orange Money, MTN MoMo, Moov Money, Wave), cartes bancaires (Visa, Mastercard), et virements. Les paiements sont traités par Paystack et Stripe, deux processeurs certifiés internationaux.',
+    a: 'Cartes bancaires (Visa, Mastercard) et Mobile Money (Orange Money, MTN MoMo, Wave, etc.). Les paiements sont traités par Paystack et Stripe, deux processeurs internationaux de confiance.',
   },
   {
     q: 'Quand est-ce que je reçois mes paiements ?',

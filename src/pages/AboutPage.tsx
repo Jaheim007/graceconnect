@@ -76,7 +76,7 @@ export default function AboutPage() {
                 Du contenu <span className="text-primary">dispersé et non monétisé</span>
               </h2>
               <div className="space-y-4 text-muted-foreground text-sm leading-relaxed">
-                <p>Des pasteurs enregistrent des prédications qui ne sont jamais rééditées. Des coachs créent des documents de formation qui dorment sur un disque dur. Des ONG collectent des dons par des moyens artisanaux.</p>
+                <p>Des pasteurs enregistrent des prédications qui ne sont jamais rééditées. Des coachs créent des documents et ressources qui dorment sur un disque dur. Des ONG collectent des dons par des moyens artisanaux.</p>
                 <p>Le contenu est là. Les compétences sont là. Ce qui manque, c'est <strong className="text-foreground">l'infrastructure</strong> — une plateforme simple qui permet de centraliser, monétiser et distribuer.</p>
                 <p>Et pour ceux qui n'ont aucun contenu ? Ils peuvent gagner en <strong className="text-foreground">partageant celui des autres</strong>. C'est le Programme Ambassadeur.</p>
               </div>
@@ -100,7 +100,7 @@ export default function AboutPage() {
             {[
               { icon: Target, title: '🏢 Organisations', desc: 'Créez votre plateforme digitale complète : boutique, dons, communauté, ambassadeurs. Zéro abonnement.', items: ['Boutique numérique', 'Collecte de dons', 'Gestion communautaire'] },
               { icon: Rocket, title: '🚀 Ambassadeurs', desc: 'Zéro contenu à créer. Partagez les ressources des autres et touchez 5% à 50% de commission.', items: ['Lien unique', 'Commission automatique', 'Retrait Mobile Money'] },
-              { icon: Eye, title: '🛒 Acheteurs', desc: 'Accédez à des milliers de ressources : e-books, formations, audio, vidéos. Paiement Mobile Money.', items: ['Accès instantané', 'Bibliothèque personnelle', 'Paiement sécurisé'] },
+              { icon: Eye, title: '🛒 Acheteurs', desc: 'Accédez à des milliers de ressources : e-books, audio, vidéos, documents. Paiement Mobile Money.', items: ['Accès instantané', 'Bibliothèque personnelle', 'Paiement sécurisé'] },
             ].map((item, i) => (
               <motion.div key={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} transition={{ delay: i * 0.08 }}
                 className="bg-card rounded-2xl border border-border p-6 space-y-4">

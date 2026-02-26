@@ -42,7 +42,7 @@ export function LandingAmbassadorSection() {
               {[
                 { icon: Share2, text: 'Trouvez un produit et générez votre lien' },
                 { icon: TrendingUp, text: 'Partagez sur WhatsApp, Facebook, partout' },
-                { icon: DollarSign, text: 'Touchez 5% à 50% sur chaque vente' },
+                { icon: DollarSign, text: 'Touchez une commission sur chaque vente' },
               ].map((step, i) => (
                 <div key={i} className="flex items-center gap-3 text-sm">
                   <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">

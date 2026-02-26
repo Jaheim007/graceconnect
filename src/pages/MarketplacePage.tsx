@@ -122,10 +122,10 @@ export default function MarketplacePage() {
   return (
     <div className="bg-background min-h-screen">
       <SEOHead
-        title="Marketplace — Acheter ebooks, formations et contenus numériques | Siteviral"
-        description="Explorez et achetez les meilleurs produits numériques : ebooks, formations vidéo, audio, cours en ligne et ressources exclusives. Paiement Mobile Money et carte."
+        title="Marketplace — Acheter ebooks et contenus numériques | Siteviral"
+        description="Explorez et achetez les meilleurs produits numériques : ebooks, audio, vidéos et ressources exclusives. Paiement Mobile Money et carte."
         canonicalUrl="https://siteviral.com/marketplace"
-        keywords="acheter ebook, formation en ligne, produits numériques, cours vidéo, audio, marketplace Afrique, contenu digital, Mobile Money"
+        keywords="acheter ebook, produits numériques, audio, vidéo, marketplace Afrique, contenu digital, Mobile Money"
       />
       {/* Hero */}
       <div className="hero-gradient text-primary-foreground py-12 px-4 border-b border-border/40">

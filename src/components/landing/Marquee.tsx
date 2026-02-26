@@ -3,7 +3,7 @@ import { BookOpen, Headphones, Video, FileText, Image, Mic, Presentation, Music,
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   'E-books': BookOpen,
-  'Formations': Presentation,
+  'Documents': FileText,
   'Prédications': Mic,
   'Podcasts': Headphones,
   'Vidéos': Video,
@@ -12,8 +12,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   'Webinaires': Presentation,
   'Photos': Image,
   'Musique': Music,
-  'Cours en ligne': BookOpen,
-  'Documents PDF': FileText,
+  'Ressources PDF': FileText,
   'Newsletters': FileText,
   'Illustrations': Image,
   'Templates': Notebook,
@@ -21,7 +20,8 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   'Audio': Headphones,
   'Manuels': BookOpen,
   'Scripts': FileText,
-  'Ressources': Notebook,
+  'Contenus exclusifs': BookOpen,
+  'Albums': Music,
 };
 
 interface MarqueeProps {
