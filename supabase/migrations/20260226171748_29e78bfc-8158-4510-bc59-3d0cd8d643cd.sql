@@ -1,0 +1,2 @@
+-- Fix: publish the product that was created with is_published=false by default
+UPDATE public.digital_products SET is_published = true WHERE id = '0c0d8125-0689-4ea7-83ba-1aba1cee829d' AND is_published = false;
