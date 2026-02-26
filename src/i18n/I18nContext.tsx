@@ -20,7 +20,7 @@ function detectBrowserLocale(): Locale {
     const short = lang?.slice(0, 2).toLowerCase() as Locale;
     if (SUPPORTED_LOCALES.includes(short)) return short;
   }
-  return DEFAULT_LOCALE;
+  return 'fr';
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
