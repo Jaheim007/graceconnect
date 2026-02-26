@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Circle, ChevronDown, ChevronUp, Sparkles, X, Rocket, Image, Megaphone, ShoppingBag, Heart, Link2, Users } from 'lucide-react';
+import { CheckCircle2, Circle, ChevronDown, ChevronUp, Sparkles, X, Rocket, Image, Megaphone, ShoppingBag, Heart, Link2, Users, HandHeart } from 'lucide-react';
 import { ConfettiCelebration } from '@/components/gamification/ConfettiCelebration';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -30,6 +30,7 @@ interface CheckContext {
   hasMedia: boolean;
   hasMember: boolean;
   affiliationEnabled: boolean;
+  offeringsEnabled: boolean;
 }
 
 const CHECKLIST: ChecklistItem[] = [
@@ -37,6 +38,7 @@ const CHECKLIST: ChecklistItem[] = [
   { id: 'announcement', icon: Megaphone, titleKey: 'checklist.announcement', descKey: 'checklist.announcement_desc', route: '/admin/announcements/new', check: (c) => c.hasAnnouncement },
   { id: 'product', icon: ShoppingBag, titleKey: 'checklist.product', descKey: 'checklist.product_desc', route: '/admin/products/new', check: (c) => c.hasProduct },
   { id: 'campaign', icon: Heart, titleKey: 'checklist.campaign', descKey: 'checklist.campaign_desc', route: '/admin/campaigns/new', check: (c) => c.hasCampaign },
+  { id: 'offerings', icon: HandHeart, titleKey: 'checklist.offerings', descKey: 'checklist.offerings_desc', route: '/admin/offerings', check: (c) => c.offeringsEnabled },
   { id: 'media', icon: Users, titleKey: 'checklist.media', descKey: 'checklist.media_desc', route: '/admin/media/new', check: (c) => c.hasMedia },
   { id: 'affiliate', icon: Link2, titleKey: 'checklist.affiliate', descKey: 'checklist.affiliate_desc', route: '/admin/affiliation', check: (c) => c.affiliationEnabled },
 ];
@@ -73,6 +75,7 @@ export function OnboardingChecklist() {
         hasMedia: (media.count || 0) > 0,
         hasMember: (members.count || 0) > 1,
         affiliationEnabled: !!currentOrg?.affiliation_enabled,
+        offeringsEnabled: !!(currentOrg as any)?.offerings_enabled,
       } as CheckContext;
     },
     enabled: !!orgId && isManager,

@@ -22,8 +22,16 @@ const faqs = [
     a: 'Zéro franc d\'abonnement. Siteviral prend une commission de 10% uniquement quand une vente est réalisée ou un don reçu. Si vous ne gagnez rien, vous ne payez rien.',
   },
   {
+    q: 'Comment fonctionne le module Dons & Offrandes ?',
+    a: 'Chaque organisation peut activer le module « Dons » depuis ses paramètres. Elle choisit son propre vocabulaire (dons, offrandes, dîmes, contributions…), configure des montants suggérés ou libres, et propose des dons ponctuels ou récurrents (hebdomadaire, mensuel, annuel). Les donateurs paient par Mobile Money ou carte bancaire.',
+  },
+  {
     q: 'Comment fonctionne le Programme Ambassadeur ?',
     a: 'Inscrivez-vous gratuitement, parcourez les ressources disponibles, et générez votre lien unique. Chaque achat via votre lien vous rapporte entre 5% et 50% de commission fixée par l\'organisation. Aucun contenu à créer de votre côté.',
+  },
+  {
+    q: 'Les ambassadeurs gagnent-ils des commissions sur les dons ?',
+    a: 'Non. Les commissions ambassadeurs et partenaires s\'appliquent uniquement aux ventes de ressources numériques (ebooks, audio, vidéos, etc.). Il n\'y a aucune commission sur les dons, les offrandes et les campagnes de collecte. Seule la plateforme prend ses 10% de frais de service sur ces transactions.',
   },
   {
     q: 'Quels moyens de paiement sont acceptés ?',

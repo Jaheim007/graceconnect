@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useOrg } from '@/contexts/OrgContext';
 import {
-  Image, Megaphone, ShoppingBag, Heart, Link2,
+  Image, Megaphone, ShoppingBag, Heart, Link2, HandHeart,
   ArrowRight, ArrowLeft, CheckCircle, Sparkles, X, Rocket
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -14,7 +14,8 @@ const STEPS = [
   { id: 'announcement', icon: Megaphone, title: 'Première annonce', desc: 'Publiez une annonce pour accueillir votre communauté.', route: '/admin/announcements/new', cta: 'Créer' },
   { id: 'product', icon: ShoppingBag, title: 'Ajouter un produit numérique', desc: 'Publiez votre premier ebook, audio, vidéo ou document. Vos ambassadeurs pourront le partager et gagner des commissions.', route: '/admin/products/new', cta: 'Ajouter un produit' },
   { id: 'campaign', icon: Heart, title: 'Campagne de dons', desc: 'Lancez une collecte de dons pour votre communauté.', route: '/admin/campaigns/new', cta: 'Créer' },
-  { id: 'affiliate', icon: Link2, title: 'Programme Ambassadeur', desc: 'Activez votre armée d\'ambassadeurs. Ils partagent vos ressources et gagnent des commissions de 5% à 50%.', route: '/admin/affiliation', cta: 'Configurer' },
+  { id: 'offerings', icon: HandHeart, title: 'Module Dons & Offrandes', desc: 'Activez le module pour recevoir des dons, offrandes ou dîmes. Vous choisissez le nom et les montants.', route: '/admin/offerings', cta: 'Configurer' },
+  { id: 'affiliate', icon: Link2, title: 'Programme Ambassadeur', desc: 'Activez votre armée d\'ambassadeurs. Ils partagent vos ressources et gagnent des commissions de 5% à 50% (uniquement sur les ventes, pas les dons).', route: '/admin/affiliation', cta: 'Configurer' },
 ];
 
 interface QuickStartWizardProps {

@@ -11,8 +11,8 @@ const useCases = [
   {
     icon: Church,
     title: 'Églises & Ministères',
-    desc: 'Recevez des offrandes, offrez des prédications audio et des livres sécurisés par watermark. Gérez votre communauté de fidèles.',
-    example: 'Prédications · Offrandes · Documents',
+    desc: 'Recevez des dons, offrandes et dîmes via le module configurable. Offrez des prédications audio et des livres sécurisés par watermark. Gérez votre communauté.',
+    example: 'Dons · Offrandes · Dîmes · Prédications',
   },
   {
     icon: GraduationCap,
@@ -23,8 +23,8 @@ const useCases = [
   {
     icon: Heart,
     title: 'ONG & Associations',
-    desc: 'Lancez des campagnes de collecte. Vos donateurs paient par Mobile Money en un clic.',
-    example: 'Collectes · Rapports · Membres',
+    desc: 'Lancez des campagnes de collecte et activez le module Dons pour recevoir des contributions ponctuelles ou récurrentes. Paiement Mobile Money en un clic.',
+    example: 'Dons · Collectes · Contributions · Rapports',
   },
   {
     icon: Music,
