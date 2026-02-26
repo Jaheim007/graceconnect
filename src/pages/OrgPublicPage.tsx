@@ -146,7 +146,7 @@ export default function OrgPublicPage() {
     setTimeout(() => tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
 
-  const hasAnyContent = [products, campaigns, ...(orgAny.offerings_enabled ? [offerings] : []), media, photos, events].some(arr => arr.length > 0);
+  const hasAnyContent = [products, campaigns, offerings, media, photos, events].some(arr => arr.length > 0);
 
   const toggleAffiliation = async () => {
     // Handled inside OrgAdminToolbar — kept for backwards compat
@@ -225,7 +225,7 @@ export default function OrgPublicPage() {
                     { value: 'home', label: t('org_public.home'), icon: Home, count: null },
                     ...(products.length > 0 || isAdmin ? [{ value: 'store', label: t('org_public.store'), icon: ShoppingBag, count: products.length }] : []),
                     ...(campaigns.length > 0 || isAdmin ? [{ value: 'donate', label: t('org_public.donations'), icon: Heart, count: campaigns.length }] : []),
-                    ...((offerings.length > 0 || isAdmin) && (orgAny.offerings_enabled) ? [{ value: 'offerings', label: locale === 'fr' ? 'Dons' : 'Donations', icon: HandHeart, count: offerings.length }] : []),
+                    ...((offerings.length > 0 || (isAdmin && orgAny.offerings_enabled)) ? [{ value: 'offerings', label: locale === 'fr' ? 'Dons' : 'Donations', icon: HandHeart, count: offerings.length }] : []),
                     ...(media.length > 0 || isAdmin ? [{ value: 'content', label: t('org_public.content'), icon: Play, count: media.length }] : []),
                     ...(photos.length > 0 || isAdmin ? [{ value: 'photos', label: t('org_public.photos'), icon: Camera, count: photos.length }] : []),
                     ...(events.length > 0 || isAdmin ? [{ value: 'events', label: t('org_public.events'), icon: CalendarDays, count: events.length }] : []),
@@ -256,7 +256,7 @@ export default function OrgPublicPage() {
                     slug={slug!}
                     products={products}
                     campaigns={campaigns}
-                    offerings={orgAny.offerings_enabled ? offerings : []}
+                    offerings={offerings}
                     media={media}
                     photos={photos}
                     events={events}
