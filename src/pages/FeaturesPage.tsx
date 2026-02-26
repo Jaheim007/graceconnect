@@ -39,7 +39,7 @@ const features: Feature[] = [
   { icon: Play, title: 'Médiathèque complète', desc: 'Vidéos, podcasts, musique, replays. Diffusez du contenu gratuit ou premium à votre communauté.', persona: ['org'] },
   { icon: Heart, title: 'Campagnes de dons', desc: 'Lancez des collectes avec objectifs et suivi en temps réel. Vos donateurs paient par Mobile Money en un clic.', persona: ['org', 'buyer'] },
   { icon: ShoppingBag, title: 'Boutique numérique', desc: 'Vendez ebooks, audio, vidéos, templates. Livraison automatique et paiement sécurisé.', persona: ['org', 'buyer'] },
-  { icon: Zap, title: 'Programme Ambassadeur', desc: 'Réseau d\'ambassadeurs intégré. 5% à 50% de commission, tracking, liens personnalisés, versement auto.', persona: ['org', 'ambassador'] },
+  { icon: Zap, title: 'Programme Ambassadeur', desc: 'Réseau d\'ambassadeurs intégré. 5% à 50% de commission, tracking, liens personnalisés, versement automatique.', persona: ['org', 'ambassador'] },
   { icon: Share2, title: 'Partage en 1 clic', desc: 'Générez votre lien unique, partagez sur WhatsApp, Facebook, partout. Chaque vente est trackée.', persona: ['ambassador'] },
   { icon: Download, title: 'Accès instantané', desc: 'Après achat, téléchargez immédiatement. Watermark automatique pour protéger le créateur.', persona: ['buyer', 'org'] },
   { icon: Globe, title: 'Paiements internationaux', desc: 'Mobile Money (Orange, MTN, Wave, Moov) + Cartes bancaires via Paystack & Stripe. 150+ pays.', persona: ['org', 'buyer', 'ambassador'] },

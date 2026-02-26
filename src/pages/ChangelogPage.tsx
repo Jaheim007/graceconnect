@@ -41,7 +41,7 @@ const CHANGELOG = [
     date: '2026-02-15',
     entries: [
       { type: 'feature', text: 'Superadmin AI Chat avec insights intelligents' },
-      { type: 'feature', text: 'Système d\'affiliation multi-niveaux' },
+      { type: 'feature', text: 'Programme Ambassadeur avec commissions' },
       { type: 'feature', text: 'Bundles et upsells de produits' },
       { type: 'improvement', text: 'Internationalisation FR/EN complète' },
       { type: 'fix', text: 'Correction de l\'affichage des devises sur mobile' },

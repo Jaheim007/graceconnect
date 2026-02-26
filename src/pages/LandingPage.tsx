@@ -25,7 +25,7 @@ const fadeUp = {
 };
 
 const testimonials = [
-  { name: 'K. M.', role: 'Pasteur & Leader communautaire', text: 'En une semaine, notre église a monétisé plus de 200 prédications audio. Les dons arrivent aussi par Mobile Money. C\'est révolutionnaire.', flag: '🇳🇬' },
+  { name: 'K. M.', role: 'Pasteur & Leader communautaire', text: 'En une semaine, notre communauté a pu offrir plus de 200 prédications audio. Les dons arrivent aussi par Mobile Money. C\'est révolutionnaire.', flag: '🇳🇬' },
   { name: 'Marie-Claire B.', role: 'Coach & Auteure', text: 'J\'ai centralisé tous mes documents et ressources sur une seule plateforme. Mes clients achètent et téléchargent en un clic.', flag: '🇨🇲' },
   { name: 'Ibrahim T.', role: 'Ambassadeur Siteviral', text: 'Je n\'ai aucun contenu à moi. Je partage les ressources des autres et je gagne des commissions chaque semaine. C\'est incroyable.', flag: '🇸🇳' },
   { name: 'Amara D.', role: 'Créatrice digitale', text: 'En 2 mois, j\'ai vendu plus de 500 ressources numériques. Les paiements sont automatiques et les retraits rapides.', flag: '🇨🇮' },
@@ -43,7 +43,7 @@ export default function LandingPage() {
         title="Siteviral — Créez votre plateforme digitale, vendez et gagnez"
         description="Créez votre boutique en ligne, vendez ebooks, audio et vidéos. Collectez des dons via Mobile Money. Devenez ambassadeur et gagnez des commissions en partageant du contenu. Gratuit."
         canonicalUrl="https://siteviral.com"
-        keywords="créer plateforme digitale gratuit, vendre ebook en ligne Afrique, produits numériques Mobile Money, ambassadeur affiliation, gagner argent en partageant contenu, boutique numérique, collecte dons en ligne, Siteviral"
+        keywords="créer plateforme digitale gratuit, vendre ebook en ligne Afrique, produits numériques Mobile Money, programme ambassadeur, gagner argent en partageant contenu, boutique numérique, collecte dons en ligne, Siteviral"
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'Organization',

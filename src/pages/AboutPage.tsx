@@ -4,6 +4,7 @@ import { Heart, Users, Globe, Shield, Target, Zap, ArrowRight, Rocket, Eye, Chec
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { LegalFooter } from '@/components/layout/LegalPageShell';
+import { LandingNav } from '@/components/landing/LandingNav';
 import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import communityImg from '@/assets/landing-community.png';
@@ -31,18 +32,7 @@ export default function AboutPage() {
         }}
       />
 
-      {/* Nav */}
-      <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
-        <div className="container flex items-center justify-between h-14 px-4">
-          <Link to="/">
-            <span className="text-xl font-extrabold tracking-tight text-foreground">Siteviral</span>
-          </Link>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" asChild><Link to="/auth">Se connecter</Link></Button>
-            <Button size="sm" asChild><Link to="/auth?tab=signup">Commencer</Link></Button>
-          </div>
-        </div>
-      </header>
+      <LandingNav />
 
       {/* Hero */}
       <section className="relative pt-14 overflow-hidden">
@@ -145,15 +135,15 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Chiffres */}
+      {/* Valeurs clés */}
       <section className="py-16 px-4 bg-muted/30">
         <div className="container max-w-4xl">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
             {[
-              { value: '8+', label: 'Pays actifs' },
-              { value: '1 200+', label: 'Créateurs' },
-              { value: '15 000+', label: 'Ressources vendues' },
-              { value: '0 FCFA', label: 'Abonnement' },
+              { value: '0 FCFA', label: 'd\'abonnement' },
+              { value: '10%', label: 'commission unique' },
+              { value: '5-50%', label: 'pour les ambassadeurs' },
+              { value: '150+ pays', label: 'couverts' },
             ].map((stat, i) => (
               <motion.div key={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} transition={{ delay: i * 0.06 }}>
                 <p className="text-2xl sm:text-3xl font-extrabold text-primary">{stat.value}</p>

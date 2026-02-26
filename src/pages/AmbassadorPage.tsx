@@ -44,7 +44,7 @@ export default function AmbassadorPage() {
         title="Devenir Ambassadeur — Gagnez de l'argent en partageant du contenu | Siteviral"
         description="Zéro contenu à créer. Partagez des produits numériques (ebooks, audio, vidéos) et gagnez jusqu'à 50% de commission sur chaque vente. Inscription 100% gratuite."
         canonicalUrl="https://siteviral.com/ambassador"
-        keywords="devenir ambassadeur, gagner argent en partageant, affiliation produits numériques, commission Mobile Money, revenu passif Afrique, partager et gagner, ambassadeur digital"
+        keywords="devenir ambassadeur, gagner argent en partageant, programme ambassadeur produits numériques, commission Mobile Money, revenu passif Afrique, partager et gagner, ambassadeur digital"
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'WebPage',
