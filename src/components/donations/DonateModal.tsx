@@ -15,7 +15,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { usePaymentGateway, PaymentMethod, PaymentGateway } from '@/hooks/usePaymentGateway';
 import { PaymentMethodSelector } from '@/components/payments/PaymentMethodSelector';
 import { getAffiliateCode, clearAffiliateCode } from '@/hooks/useAffiliateCapture';
-import { resolveGateway, isMoMoAvailable, gatewayLabel } from '@/lib/paymentRouting';
+import { isMoMoAvailable } from '@/lib/paymentRouting';
 import { verifyPayment, VerifyPaymentResult, callFn } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
@@ -255,7 +255,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Lock className="h-3 w-3" />
-                  Paiement sécurisé par {gatewayLabel(resolveGateway(campaign.currency || 'XOF'))}
+                  Paiement sécurisé par {paymentMethod === 'mobile_money' ? 'Paystack' : 'Stripe'}
                 </div>
                 <p className="text-[10px] text-muted-foreground">
                   Les méthodes de paiement dépendent de la disponibilité par pays.
