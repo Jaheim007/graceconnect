@@ -52,8 +52,8 @@ const savedTheme = localStorage.getItem('gc_theme') || 'dark';
 document.documentElement.classList.add(savedTheme);
 
 // Apply saved locale
-const savedLocale = localStorage.getItem('sv_locale') || navigator.language.slice(0, 2) || 'en';
-document.documentElement.lang = ['en', 'fr'].includes(savedLocale) ? savedLocale : 'en';
+const savedLocale = localStorage.getItem('sv_locale') || navigator.language.slice(0, 2) || 'fr';
+document.documentElement.lang = ['en', 'fr'].includes(savedLocale) ? savedLocale : 'fr';
 
 // ── PWA Service Worker Registration with Update Prompt ──
 const registerSW = async () => {

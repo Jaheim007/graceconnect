@@ -34,7 +34,7 @@ export default defineConfig(({ mode }) => ({
         id: "/",
         name: "Siteviral",
         short_name: "Siteviral",
-        description: "Infrastructure platform for digital organizations worldwide",
+        description: "Plateforme d'infrastructure pour organisations digitales — communauté, produits, dons, affiliation",
         start_url: "/",
         display: "standalone",
         display_override: ["standalone", "minimal-ui", "window-controls-overlay"],
@@ -106,7 +106,7 @@ export default defineConfig(({ mode }) => ({
             sizes: "1200x630",
             type: "image/png",
             form_factor: "wide",
-            label: "Siteviral Dashboard",
+            label: "Tableau de bord Siteviral",
           },
           {
             src: "/pwa-512x512.png",
@@ -118,14 +118,14 @@ export default defineConfig(({ mode }) => ({
         ],
         shortcuts: [
           {
-            name: "Feed",
-            short_name: "Feed",
+            name: "Fil d'actualité",
+            short_name: "Fil",
             url: "/feed",
             icons: [{ src: "/pwa-96x96.png", sizes: "96x96" }],
           },
           {
-            name: "Discover",
-            short_name: "Discover",
+            name: "Explorer",
+            short_name: "Explorer",
             url: "/discover",
             icons: [{ src: "/pwa-96x96.png", sizes: "96x96" }],
           },

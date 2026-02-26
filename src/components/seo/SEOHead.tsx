@@ -22,7 +22,7 @@ interface SEOHeadProps {
 
 const SITE_NAME = 'Siteviral';
 const DEFAULT_OG_IMAGE = 'https://siteviral.com/og-image.png';
-const DEFAULT_DESCRIPTION = 'Siteviral — Infrastructure Platform for Digital Platforms. Vendez, collectez, formez et développez votre communauté.';
+const DEFAULT_DESCRIPTION = 'Siteviral — Plateforme d\'infrastructure pour organisations digitales. Vendez, collectez, formez et développez votre communauté.';
 const TWITTER_SITE = '@siteviral';
 const SITE_URL = 'https://siteviral.com';
 
