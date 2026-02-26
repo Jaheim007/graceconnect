@@ -3,15 +3,18 @@ import { Button } from '@/components/ui/button';
 import { MediaCard } from '@/components/media/MediaCard';
 import { CampaignCard } from '@/components/donations/CampaignCard';
 import { ProductCard } from '@/components/products/ProductCard';
+import { OfferingCard } from '@/components/offerings/OfferingCard';
 import { useI18n } from '@/i18n/I18nContext';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Heart, Play, Camera, CalendarDays } from 'lucide-react';
+import { ShoppingBag, Heart, Play, Camera, CalendarDays, HandHeart } from 'lucide-react';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
+import { Offering } from '@/hooks/useOfferings';
 
 interface OrgHomeSectionsProps {
   slug: string;
   products: any[];
   campaigns: any[];
+  offerings: Offering[];
   media: any[];
   photos: any[];
   events: any[];
@@ -20,13 +23,14 @@ interface OrgHomeSectionsProps {
   hiddenSections: Set<string>;
   onPurchase: (p: DigitalProduct) => void;
   onDonate: (c: DonationCampaign) => void;
+  onSelectOffering: (o: Offering) => void;
   onPhotoClick: (index: number) => void;
 }
 
 export function OrgHomeSections({
-  slug, products, campaigns, media, photos, events,
+  slug, products, campaigns, offerings, media, photos, events,
   purchasedProductIds, sectionOrder, hiddenSections,
-  onPurchase, onDonate, onPhotoClick,
+  onPurchase, onDonate, onSelectOffering, onPhotoClick,
 }: OrgHomeSectionsProps) {
   const navigate = useNavigate();
   const { t, locale } = useI18n();
@@ -72,6 +76,24 @@ export function OrgHomeSections({
         </div>
         <div className="grid gap-3 sm:grid-cols-2 px-5 pb-5">
           {campaigns.slice(0, 2).map((c, i) => <CampaignCard key={c.id} campaign={c} index={i} />)}
+        </div>
+      </motion.section>
+    ) : null,
+
+    offerings: () => offerings.length > 0 ? (
+      <motion.section key="offerings" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.12 }} className="rounded-2xl border border-border bg-card overflow-hidden shadow-card">
+        <div className="flex items-center justify-between px-5 pt-5 pb-3">
+          <div className="flex items-center gap-2">
+            <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center"><HandHeart className="h-4 w-4 text-primary" /></div>
+            <div>
+              <h2 className="font-bold text-base">{locale === 'fr' ? 'Offrandes' : 'Offerings'}</h2>
+              <p className="text-xs text-muted-foreground">{offerings.length} {locale === 'fr' ? 'type(s)' : 'type(s)'}</p>
+            </div>
+          </div>
+          {offerings.length > 3 && <Button variant="outline" size="sm" className="text-xs h-8 rounded-full gap-1" onClick={() => navigateTab('offerings')}>{t('org_public.view_all')} →</Button>}
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 px-5 pb-5">
+          {offerings.slice(0, 4).map((o) => <OfferingCard key={o.id} offering={o} onSelect={onSelectOffering} />)}
         </div>
       </motion.section>
     ) : null,
