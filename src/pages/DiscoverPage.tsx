@@ -22,6 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { FeaturedSection } from '@/components/discover/FeaturedSection';
 import { NewThisWeek } from '@/components/discover/NewThisWeek';
 import { TrendingBanner } from '@/components/discover/TrendingBanner';
+import { DiscoverCTABanner } from '@/components/discover/DiscoverCTABanner';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
@@ -138,6 +139,7 @@ export default function DiscoverPage() {
       <div className="container max-w-6xl py-6">
         <PageTour pageId="discover" steps={DISCOVER_TOUR_STEPS} />
 
+        {!isSearching && !user && <DiscoverCTABanner />}
         {!isSearching && <TrendingBanner />}
         {!isSearching && <FeaturedSection />}
         {!isSearching && tab === 'products' && <NewThisWeek />}
