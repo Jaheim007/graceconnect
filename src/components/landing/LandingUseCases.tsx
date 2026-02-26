@@ -55,7 +55,7 @@ export function LandingUseCases() {
           <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">
             Conçu pour les <span className="text-primary">organisations et les leaders</span>
           </h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">Quelle que soit votre activité, Siteviral s'adapte à vos besoins. Et vos ambassadeurs vendent pour vous.</p>
+          <p className="text-muted-foreground max-w-xl mx-auto">Quelle que soit votre activité, Siteviral s'adapte à vos besoins. Et vos <strong className="text-accent">ambassadeurs vendent pour vous</strong>.</p>
         </motion.div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
