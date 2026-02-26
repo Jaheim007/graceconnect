@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import {
   BarChart3, Play, Megaphone, CalendarDays, Heart, ShoppingBag,
   Users, Link2, FileCheck, Settings, ChevronDown, ArrowLeft, Loader2,
-  Camera, Tag, Clock, CreditCard, TrendingUp, MailCheck, Bell, HandHeart
+  Camera, Tag, Clock, CreditCard, TrendingUp, MailCheck, Bell, HandHeart, Receipt
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -25,6 +25,7 @@ const adminLinks = [
   { to: '/admin/affiliation', label: 'Affiliation', icon: Link2, group: 'commerce' },
   { to: '/admin/promo-codes', label: 'Codes promo', icon: Tag, group: 'commerce' },
   { to: '/admin/subscriptions', label: 'Abonnements', icon: CreditCard, group: 'commerce' },
+  { to: '/admin/sales', label: 'Mes Ventes', icon: Receipt, group: 'commerce' },
   { to: '/admin/payouts', label: 'Retraits', icon: TrendingUp, group: 'commerce' },
   { to: '/admin/waitlists', label: 'Waitlists', icon: Clock, group: 'commerce' },
   // Gestion
