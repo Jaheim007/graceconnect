@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Copy, CheckCircle, ChevronDown, ChevronUp, Link2, ShoppingBag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { buildSocialShareUrl } from '@/lib/shareMeta';
+import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
 
 interface Props {
   orgId: string;
@@ -69,7 +69,13 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
     },
   });
 
-  const handleCopy = async (url: string, id: string) => {
+  const handleCopy = async (productPath: string, id: string, title: string, image?: string) => {
+    let url: string;
+    try {
+      url = await getOrCreateShortLink({ targetPath: productPath, title, image });
+    } catch {
+      url = buildSocialShareUrl({ targetUrl: `https://siteviral.com${productPath}`, title });
+    }
     await navigator.clipboard.writeText(url);
     setCopiedId(id);
     toast({ title: 'Lien copié !' });
@@ -103,15 +109,9 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
             products.map((p: any) => {
               const hasLink = existingProductIds.has(p.id);
               const code = linkByProduct[p.id];
-              const productUrl = p.slug
-                ? `https://siteviral.com/org/${orgSlug}/p/${p.slug}?ref=${code || affiliateCode}`
-                : `https://siteviral.com/org/${orgSlug}/product/${p.id}?ref=${code || affiliateCode}`;
-              const socialShareUrl = buildSocialShareUrl({
-                targetUrl: productUrl,
-                title: p.title,
-                description: `Découvrez ${p.title} sur Siteviral`,
-                image: p.cover_image_url || undefined,
-              });
+              const productPath = p.slug
+                ? `/org/${orgSlug}/p/${p.slug}?ref=${code || affiliateCode}`
+                : `/org/${orgSlug}/product/${p.id}?ref=${code || affiliateCode}`;
 
               return (
                 <div key={p.id} className="flex items-center gap-3 p-2.5 rounded-lg border border-border/50 bg-muted/20">
@@ -135,7 +135,7 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
                       variant="ghost"
                       size="sm"
                       className="h-7 text-[10px] gap-1 shrink-0"
-                      onClick={() => handleCopy(socialShareUrl, p.id)}
+                      onClick={() => handleCopy(productPath, p.id, p.title, p.cover_image_url)}
                     >
                       {copiedId === p.id ? <CheckCircle className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
                       {copiedId === p.id ? 'Copié' : 'Copier'}

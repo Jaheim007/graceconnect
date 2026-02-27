@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { buildShareUrlForPath } from '@/lib/shareMeta';
+import { getOrCreateShortLink, buildShareUrlForPath } from '@/lib/shareMeta';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
@@ -62,9 +62,14 @@ export function AmbassadorOnlyDashboard() {
   const totalClicks = affiliateLinks.reduce((sum, l) => sum + (l.clicks || 0), 0);
   const totalConversions = affiliateLinks.reduce((sum, l) => sum + (l.conversions || 0), 0);
 
-  const copyLink = (code: string, slug: string) => {
-    const proxyUrl = buildShareUrlForPath(`/org/${slug}?ref=${code}`);
-    navigator.clipboard.writeText(proxyUrl);
+  const copyLink = async (code: string, slug: string) => {
+    const path = `/org/${slug}?ref=${code}`;
+    try {
+      const shortUrl = await getOrCreateShortLink({ targetPath: path });
+      navigator.clipboard.writeText(shortUrl);
+    } catch {
+      navigator.clipboard.writeText(buildShareUrlForPath(path));
+    }
     toast({ title: 'Lien copié ✅' });
   };
 

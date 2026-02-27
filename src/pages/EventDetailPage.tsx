@@ -14,7 +14,7 @@ import { FormattedText } from '@/lib/formatText';
 import { Badge } from '@/components/ui/badge';
 import { CommentSection } from '@/components/comments/CommentSection';
 import { BookmarkButton } from '@/components/bookmarks/BookmarkButton';
-import { buildSocialShareUrl } from '@/lib/shareMeta';
+import { useShortLink } from '@/hooks/useShortLink';
 
 export default function EventDetailPage() {
   const { eventId } = useParams<{ eventId: string }>();
@@ -37,9 +37,8 @@ export default function EventDetailPage() {
     enabled: !!eventId,
   });
 
-  const shareUrl = `${window.location.origin}/event/${eventId}`;
-  const socialShareUrl = buildSocialShareUrl({
-    targetUrl: shareUrl,
+  const { shareUrl: socialShareUrl } = useShortLink({
+    targetPath: `/event/${eventId}`,
     title: event?.title || 'Événement Siteviral',
     description: event?.description?.slice(0, 155) || '',
     image: event?.image_url || undefined,

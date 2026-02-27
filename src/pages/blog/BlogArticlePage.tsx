@@ -8,7 +8,7 @@ import { ArrowLeft, ArrowRight, Clock, Share2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getArticleBySlug, blogArticles } from '@/lib/blogArticles';
 import { useToast } from '@/hooks/use-toast';
-import { buildSocialShareUrl } from '@/lib/shareMeta';
+import { useShortLink } from '@/hooks/useShortLink';
 
 export default function BlogArticlePage() {
   const { slug } = useParams<{ slug: string }>();
@@ -34,9 +34,8 @@ export default function BlogArticlePage() {
   const prevArticle = currentIndex > 0 ? blogArticles[currentIndex - 1] : null;
   const nextArticle = currentIndex < blogArticles.length - 1 ? blogArticles[currentIndex + 1] : null;
 
-  const shareUrl = `https://siteviral.com/blog/${article.slug}`;
-  const socialShareUrl = buildSocialShareUrl({
-    targetUrl: shareUrl,
+  const { shareUrl: socialShareUrl } = useShortLink({
+    targetPath: `/blog/${article.slug}`,
     title: article.title,
     description: article.description,
   });
@@ -55,7 +54,7 @@ export default function BlogArticlePage() {
       <SEOHead
         title={`${article.title} — Blog Siteviral`}
         description={article.description}
-        canonicalUrl={shareUrl}
+        canonicalUrl={`https://siteviral.com/blog/${article.slug}`}
       />
       <LandingNav />
 

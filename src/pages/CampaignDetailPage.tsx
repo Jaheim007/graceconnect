@@ -18,7 +18,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { ShareButtons } from '@/components/social/ShareButtons';
 import { formatCurrency } from '@/lib/currency';
-import { buildSocialShareUrl } from '@/lib/shareMeta';
+import { useShortLink } from '@/hooks/useShortLink';
 import { FormattedText } from '@/lib/formatText';
 
 export default function CampaignDetailPage() {
@@ -64,9 +64,8 @@ export default function CampaignDetailPage() {
   }, [orgPrimary]);
 
   const fmt = (n: number) => formatCurrency(n, campaign?.currency);
-  const shareUrl = `${window.location.origin}/campaign/${campaignId}`;
-  const socialShareUrl = buildSocialShareUrl({
-    targetUrl: shareUrl,
+  const { shareUrl: socialShareUrl } = useShortLink({
+    targetPath: `/campaign/${campaignId}`,
     title: campaign?.title || 'Campagne Siteviral',
     description: campaign?.description?.slice(0, 155) || '',
     image: campaign?.image_url || undefined,
@@ -245,7 +244,7 @@ export default function CampaignDetailPage() {
             <div className="p-4 rounded-2xl border border-border bg-card shadow-card">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Partager cette campagne</p>
               <ShareButtons
-                url={shareUrl}
+                url={`/campaign/${campaignId}`}
                 title={campaign.title}
                 description={campaign.description || `Soutenez ${campaign.title}`}
               />

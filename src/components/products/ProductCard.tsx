@@ -1,5 +1,5 @@
 import { DigitalProduct } from '@/types/database';
-import { buildSocialShareUrl } from '@/lib/shareMeta';
+import { useShortLink } from '@/hooks/useShortLink';
 import { formatPrice } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -65,11 +65,11 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
     ? `/org/${resolvedSlug}/p/${pSlug}`
     : `/org/${resolvedSlug}/product/${product.id}`;
 
-  let rawShareUrl = `https://siteviral.com${detailPath}`;
-  if (affiliateCode) rawShareUrl += `?ref=${affiliateCode}`;
+  const refSuffix = affiliateCode ? `?ref=${affiliateCode}` : '';
+  const shareTargetPath = `${detailPath}${refSuffix}`;
 
-  const socialShareUrl = buildSocialShareUrl({
-    targetUrl: rawShareUrl,
+  const { shareUrl: socialShareUrl } = useShortLink({
+    targetPath: shareTargetPath,
     title: product.title,
     description: product.description?.slice(0, 155) || undefined,
     image: product.cover_image_url || undefined,

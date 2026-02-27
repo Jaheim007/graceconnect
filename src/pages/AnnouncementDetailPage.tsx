@@ -14,7 +14,7 @@ import { FormattedText } from '@/lib/formatText';
 import { Badge } from '@/components/ui/badge';
 import { CommentSection } from '@/components/comments/CommentSection';
 import { BookmarkButton } from '@/components/bookmarks/BookmarkButton';
-import { buildSocialShareUrl } from '@/lib/shareMeta';
+import { useShortLink } from '@/hooks/useShortLink';
 
 export default function AnnouncementDetailPage() {
   const { announcementId } = useParams<{ announcementId: string }>();
@@ -37,9 +37,8 @@ export default function AnnouncementDetailPage() {
     enabled: !!announcementId,
   });
 
-  const shareUrl = `${window.location.origin}/announcement/${announcementId}`;
-  const socialShareUrl = buildSocialShareUrl({
-    targetUrl: shareUrl,
+  const { shareUrl: socialShareUrl } = useShortLink({
+    targetPath: `/announcement/${announcementId}`,
     title: announcement?.title || 'Annonce Siteviral',
     description: announcement?.body?.slice(0, 155) || '',
     image: announcement?.image_url || undefined,

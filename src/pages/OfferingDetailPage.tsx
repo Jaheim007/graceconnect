@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { buildSocialShareUrl } from '@/lib/shareMeta';
+import { useShortLink } from '@/hooks/useShortLink';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
@@ -61,8 +61,8 @@ export default function OfferingDetailPage() {
     return { '--org-primary': orgPrimary } as React.CSSProperties;
   }, [orgPrimary]);
 
-  const socialShareUrl = buildSocialShareUrl({
-    targetUrl: `${window.location.origin}/offering/${offeringId}`,
+  const { shareUrl: socialShareUrl } = useShortLink({
+    targetPath: `/offering/${offeringId}`,
     title: offering?.title || 'Offering Siteviral',
     description: offering?.description?.slice(0, 155) || undefined,
     image: offering?.image_url || undefined,
