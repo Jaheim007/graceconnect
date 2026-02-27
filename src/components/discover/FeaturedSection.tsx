@@ -81,18 +81,18 @@ export function FeaturedSection() {
 
   if (!data) return null;
 
-  // Deduplicate across sections
-  const boughtIds = new Set(data.mostBought.map((p: any) => p.id));
-  const viewedFiltered = data.mostViewed.filter((p: any) => !boughtIds.has(p.id));
-  const usedIds = new Set([...boughtIds, ...viewedFiltered.map((p: any) => p.id)]);
-  const recentFiltered = data.mostRecent.filter((p: any) => !usedIds.has(p.id));
+  // Deduplicate: recent first, then viewed, then bought
+  const recentIds = new Set(data.mostRecent.map((p: any) => p.id));
+  const viewedFiltered = data.mostViewed.filter((p: any) => !recentIds.has(p.id));
+  const usedIds = new Set([...recentIds, ...viewedFiltered.map((p: any) => p.id)]);
+  const boughtFiltered = data.mostBought.filter((p: any) => !usedIds.has(p.id));
 
   return (
     <div className="space-y-2">
       <ProductRow
-        title={isFr ? '🛒 Les plus achetés' : '🛒 Most Bought'}
-        icon={<ShoppingCart className="h-4 w-4 text-primary" />}
-        products={data.mostBought.slice(0, 4)}
+        title={isFr ? '🕐 Ajoutés récemment' : '🕐 Recently Added'}
+        icon={<Clock className="h-4 w-4 text-muted-foreground" />}
+        products={data.mostRecent.slice(0, 4)}
       />
       <ProductRow
         title={isFr ? '👀 Les plus consultés' : '👀 Most Viewed'}
@@ -100,9 +100,9 @@ export function FeaturedSection() {
         products={viewedFiltered.slice(0, 4)}
       />
       <ProductRow
-        title={isFr ? '🕐 Ajoutés récemment' : '🕐 Recently Added'}
-        icon={<Clock className="h-4 w-4 text-muted-foreground" />}
-        products={recentFiltered.slice(0, 4)}
+        title={isFr ? '🛒 Les plus achetés' : '🛒 Most Bought'}
+        icon={<ShoppingCart className="h-4 w-4 text-primary" />}
+        products={boughtFiltered.slice(0, 4)}
       />
     </div>
   );
