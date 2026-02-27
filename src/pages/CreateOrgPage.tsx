@@ -92,7 +92,10 @@ export default function CreateOrgPage() {
   const steps = [t('org.category'), t('org.name'), t('org.confirm_create')];
 
   const onSubmit = async (data: FormData) => {
-    if (!user) return;
+    if (!user) {
+      toast({ title: t('org.creation_error'), description: 'Vous devez être connecté pour créer une plateforme.', variant: 'destructive' });
+      return;
+    }
     setLoading(true);
     try {
       const { data: orgId, error } = await db.rpc('create_organization_with_owner', {
@@ -193,7 +196,7 @@ export default function CreateOrgPage() {
         </div>
 
         {/* Step content */}
-        <div className="relative overflow-hidden min-h-[280px]">
+        <div className="relative min-h-[280px]">
           <AnimatePresence custom={direction} mode="wait">
             <motion.div key={step} custom={direction} variants={slideVariants}
               initial="enter" animate="center" exit="exit"
@@ -293,7 +296,14 @@ export default function CreateOrgPage() {
             </Button>
           ) : (
             <Button type="button" className="flex-1"
-              onClick={form.handleSubmit(onSubmit)} disabled={loading}>
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                form.handleSubmit(onSubmit, (errors) => {
+                  console.error('[CreateOrg] Validation errors:', errors);
+                  toast({ title: t('org.creation_error'), description: 'Veuillez vérifier les champs du formulaire.', variant: 'destructive' });
+                })();
+              }} disabled={loading}>
               {loading ? t('org.creating') : <><Check className="h-4 w-4 mr-1" /> {t('org.create_organization')}</>}
             </Button>
           )}
