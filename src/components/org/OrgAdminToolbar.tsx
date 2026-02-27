@@ -1,4 +1,4 @@
-import { useState, DragEvent } from 'react';
+import { useState, DragEvent, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nContext';
 import { OrgPageSettings, useUpsertOrgPageSettings } from '@/hooks/useOrgPageSettings';
 import { useToast } from '@/hooks/use-toast';
+import { useOrg } from '@/contexts/OrgContext';
 
 interface OrgAdminToolbarProps {
   orgId: string;
@@ -69,9 +70,19 @@ export function OrgAdminToolbar({
   const { locale } = useI18n();
   const { toast } = useToast();
   const upsert = useUpsertOrgPageSettings();
+  const { currentOrg, userOrgs, setCurrentOrg } = useOrg();
   const [draggedSection, setDraggedSection] = useState<string | null>(null);
   const [dragOverSection, setDragOverSection] = useState<string | null>(null);
   const [colorsOpen, setColorsOpen] = useState(false);
+
+  // Ensure currentOrg matches the org being viewed before navigating to admin routes
+  const adminNavigate = useCallback((path: string) => {
+    if (currentOrg?.id !== orgId) {
+      const targetOrg = userOrgs.find(o => o.id === orgId);
+      if (targetOrg) setCurrentOrg(targetOrg);
+    }
+    navigate(path);
+  }, [currentOrg, orgId, userOrgs, setCurrentOrg, navigate]);
 
   const sectionOrder = pageSettings?.section_order || ['products', 'offerings', 'campaigns', 'content', 'photos', 'events'];
   const hiddenSections = pageSettings?.hidden_sections || [];
@@ -121,7 +132,7 @@ export function OrgAdminToolbar({
   return (
     <div className="space-y-5">
       {/* Gestion complète — TOP */}
-      <Button className="w-full gap-2" onClick={() => navigate('/admin')}>
+      <Button className="w-full gap-2" onClick={() => adminNavigate('/admin')}>
         <Settings className="h-4 w-4" />
         {isFr ? 'Gestion complète' : 'Full management'}
       </Button>
@@ -132,14 +143,14 @@ export function OrgAdminToolbar({
           {isFr ? 'Actions rapides' : 'Quick Actions'}
         </h3>
         <div className="grid grid-cols-2 gap-2">
-          <QuickAction icon={Image} label={isFr ? 'Modifier bannière' : 'Edit banner'} onClick={() => navigate(`/admin/settings`)} />
-          <QuickAction icon={Image} label={isFr ? 'Modifier logo' : 'Edit logo'} onClick={() => navigate(`/admin/settings`)} />
-          <QuickAction icon={FileText} label={isFr ? 'Modifier description' : 'Edit description'} onClick={() => navigate(`/admin/settings`)} />
-          <QuickAction icon={ShoppingBag} label={isFr ? 'Ajouter produit' : 'Add product'} onClick={() => navigate(`/admin/products/new`)} />
-          <QuickAction icon={Play} label={isFr ? 'Ajouter contenu' : 'Add content'} onClick={() => navigate(`/admin/media/new`)} />
-          <QuickAction icon={CalendarDays} label={isFr ? 'Ajouter événement' : 'Add event'} onClick={() => navigate(`/admin/events/new`)} />
-          <QuickAction icon={Heart} label={isFr ? 'Ajouter campagne' : 'Add campaign'} onClick={() => navigate(`/admin/campaigns/new`)} />
-          <QuickAction icon={Camera} label={isFr ? 'Ajouter photos' : 'Add photos'} onClick={() => navigate(`/admin/photos`)} />
+          <QuickAction icon={Image} label={isFr ? 'Modifier bannière' : 'Edit banner'} onClick={() => adminNavigate(`/admin/settings`)} />
+          <QuickAction icon={Image} label={isFr ? 'Modifier logo' : 'Edit logo'} onClick={() => adminNavigate(`/admin/settings`)} />
+          <QuickAction icon={FileText} label={isFr ? 'Modifier description' : 'Edit description'} onClick={() => adminNavigate(`/admin/settings`)} />
+          <QuickAction icon={ShoppingBag} label={isFr ? 'Ajouter produit' : 'Add product'} onClick={() => adminNavigate(`/admin/products/new`)} />
+          <QuickAction icon={Play} label={isFr ? 'Ajouter contenu' : 'Add content'} onClick={() => adminNavigate(`/admin/media/new`)} />
+          <QuickAction icon={CalendarDays} label={isFr ? 'Ajouter événement' : 'Add event'} onClick={() => adminNavigate(`/admin/events/new`)} />
+          <QuickAction icon={Heart} label={isFr ? 'Ajouter campagne' : 'Add campaign'} onClick={() => adminNavigate(`/admin/campaigns/new`)} />
+          <QuickAction icon={Camera} label={isFr ? 'Ajouter photos' : 'Add photos'} onClick={() => adminNavigate(`/admin/photos`)} />
         </div>
       </section>
 

@@ -41,7 +41,7 @@ export function OrgPublicHeader({
 }: OrgPublicHeaderProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { joinOrg, leaveOrg, isMemberOf, canManage } = useOrg();
+  const { joinOrg, leaveOrg, isMemberOf, canManage, setCurrentOrg, userOrgs, currentOrg } = useOrg();
   const { toast } = useToast();
   const { t, locale } = useI18n();
   const qc = useQueryClient();
@@ -316,7 +316,13 @@ export function OrgPublicHeader({
                 </Button>
               )}
               {orgAny.affiliation_enabled && isOwner && (
-                <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs" onClick={() => navigate('/admin/analytics')}>
+                <Button variant="outline" size="sm" className="h-9 gap-1.5 text-xs" onClick={() => {
+                  if (currentOrg?.id !== org.id) {
+                    const targetOrg = userOrgs.find(o => o.id === org.id);
+                    if (targetOrg) setCurrentOrg(targetOrg);
+                  }
+                  navigate('/admin/analytics');
+                }}>
                   <Crown className="h-4 w-4 text-primary" /> {locale === 'fr' ? 'Mes Ambassadeurs' : 'My Ambassadors'}
                 </Button>
               )}
