@@ -69,6 +69,12 @@ const WelcomeIntentPage = lazy(() => import("@/pages/WelcomeIntentPage"));
 const AmbassadorPage = lazy(() => import("@/pages/AmbassadorPage"));
 const ChangelogPage = lazy(() => import("@/pages/ChangelogPage"));
 const MaintenancePage = lazy(() => import("@/pages/MaintenancePage"));
+const TemoignagesPage = lazy(() => import("@/pages/TemoignagesPage"));
+const CalculateurPage = lazy(() => import("@/pages/CalculateurPage"));
+const PourEglisesPage = lazy(() => import("@/pages/persona/PourEglisesPage"));
+const PourOngPage = lazy(() => import("@/pages/persona/PourOngPage"));
+const PourFormateursPage = lazy(() => import("@/pages/persona/PourFormateursPage"));
+const PourEtudiantsPage = lazy(() => import("@/pages/persona/PourEtudiantsPage"));
 
 
 // Authenticated
@@ -198,6 +204,12 @@ const App = () => (
                 <Route path="/invite/:code" element={<InvitePage />} />
                 <Route path="/install" element={<InstallPage />} />
                 <Route path="/changelog" element={<ChangelogPage />} />
+                <Route path="/temoignages" element={<TemoignagesPage />} />
+                <Route path="/calculateur" element={<CalculateurPage />} />
+                <Route path="/pour/eglises" element={<PourEglisesPage />} />
+                <Route path="/pour/ong" element={<PourOngPage />} />
+                <Route path="/pour/formateurs" element={<PourFormateursPage />} />
+                <Route path="/pour/etudiants" element={<PourEtudiantsPage />} />
                 <Route path="/discover" element={<AppLayout />}>
                   <Route index element={<DiscoverPage />} />
                 </Route>
