@@ -30,7 +30,7 @@ import { ShareButtons } from '@/components/social/ShareButtons';
 import { useBundleItems, useProductRecommendations } from '@/hooks/useBundlesAndRecommendations';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ProductCard } from '@/components/products/ProductCard';
-import { buildSocialShareUrl } from '@/lib/shareMeta';
+import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -161,25 +161,48 @@ export default function ProductDetailPage() {
   };
 
   const handleCopyLink = async () => {
-    const socialShareUrl = buildSocialShareUrl({
-      targetUrl: buildShareUrl(),
-      title: product?.title || 'Produit Siteviral',
-      description: product?.description?.slice(0, 155) || '',
-      image: product?.cover_image_url || undefined,
-    });
-    await navigator.clipboard.writeText(socialShareUrl);
+    const path = buildShareUrl().replace('https://siteviral.com', '').replace(window.location.origin, '');
+    let url: string;
+    try {
+      url = await getOrCreateShortLink({
+        targetPath: path,
+        title: product?.title || 'Produit Siteviral',
+        description: product?.description?.slice(0, 155) || '',
+        image: product?.cover_image_url || undefined,
+      });
+    } catch {
+      url = buildSocialShareUrl({
+        targetUrl: buildShareUrl(),
+        title: product?.title || 'Produit Siteviral',
+        description: product?.description?.slice(0, 155) || '',
+        image: product?.cover_image_url || undefined,
+      });
+    }
+    await navigator.clipboard.writeText(url);
     setCopied(true);
     toast({ title: t('product.link_copied') });
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleShareWhatsApp = () => {
-    const socialShareUrl = buildSocialShareUrl({ targetUrl: buildShareUrl(), title: product?.title || 'Produit Siteviral', description: product?.description?.slice(0, 155) || '', image: product?.cover_image_url || undefined });
-    window.open(`https://wa.me/?text=${encodeURIComponent(`${product?.title} — ${socialShareUrl}`)}`, '_blank');
+  const handleShareWhatsApp = async () => {
+    const path = buildShareUrl().replace('https://siteviral.com', '').replace(window.location.origin, '');
+    let url: string;
+    try {
+      url = await getOrCreateShortLink({ targetPath: path, title: product?.title || 'Produit Siteviral' });
+    } catch {
+      url = buildSocialShareUrl({ targetUrl: buildShareUrl(), title: product?.title || 'Produit Siteviral' });
+    }
+    window.open(`https://wa.me/?text=${encodeURIComponent(`${product?.title} — ${url}`)}`, '_blank');
   };
 
   const handleShare = async () => {
-    const url = buildSocialShareUrl({ targetUrl: buildShareUrl(), title: product?.title || 'Produit Siteviral', description: product?.description?.slice(0, 155) || '', image: product?.cover_image_url || undefined });
+    const path = buildShareUrl().replace('https://siteviral.com', '').replace(window.location.origin, '');
+    let url: string;
+    try {
+      url = await getOrCreateShortLink({ targetPath: path, title: product?.title || 'Produit Siteviral' });
+    } catch {
+      url = buildSocialShareUrl({ targetUrl: buildShareUrl(), title: product?.title || 'Produit Siteviral' });
+    }
     if (navigator.share) {
       await navigator.share({ title: product?.title, url });
     } else {

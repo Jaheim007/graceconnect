@@ -153,13 +153,23 @@ export default function ReelsPage() {
                 );
               }}
               onShare={async () => {
-                const { buildSocialShareUrl } = await import('@/lib/shareMeta');
-                const shareUrl = buildSocialShareUrl({
-                  targetUrl: `${window.location.origin}/reels/${reel.id}`,
-                  title: reel.title,
-                  description: reel.description?.slice(0, 155) || undefined,
-                  image: reel.thumbnail_url || undefined,
-                });
+                const { getOrCreateShortLink, buildSocialShareUrl } = await import('@/lib/shareMeta');
+                let shareUrl: string;
+                try {
+                  shareUrl = await getOrCreateShortLink({
+                    targetPath: `/reels/${reel.id}`,
+                    title: reel.title,
+                    description: reel.description?.slice(0, 155) || undefined,
+                    image: reel.thumbnail_url || undefined,
+                  });
+                } catch {
+                  shareUrl = buildSocialShareUrl({
+                    targetUrl: `${window.location.origin}/reels/${reel.id}`,
+                    title: reel.title,
+                    description: reel.description?.slice(0, 155) || undefined,
+                    image: reel.thumbnail_url || undefined,
+                  });
+                }
                 if (navigator.share) {
                   try { await navigator.share({ title: reel.title, url: shareUrl }); } catch {}
                 } else {

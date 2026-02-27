@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger
 } from '@/components/ui/dialog';
-import { buildSocialShareUrl } from '@/lib/shareMeta';
+import { useShortLink } from '@/hooks/useShortLink';
 
 interface AffiliateShareToolsProps {
   shareUrl: string;
@@ -20,8 +20,11 @@ export function AffiliateShareTools({ shareUrl, orgName, affiliateCode, productT
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
 
-  const socialShareUrl = buildSocialShareUrl({
-    targetUrl: shareUrl,
+  const targetPath = (() => {
+    try { return new URL(shareUrl).pathname + new URL(shareUrl).search; } catch { return shareUrl; }
+  })();
+  const { shareUrl: socialShareUrl } = useShortLink({
+    targetPath,
     title: productTitle || orgName,
     description: productTitle ? `Découvrez ${productTitle} sur ${orgName}` : `Rejoignez ${orgName} sur Siteviral`,
   });

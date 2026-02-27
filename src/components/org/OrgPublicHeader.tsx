@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { buildShareUrlForPath } from '@/lib/shareMeta';
+import { useShortLink } from '@/hooks/useShortLink';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -123,11 +123,17 @@ export function OrgPublicHeader({
     setJoining(false);
   };
 
+  const { shareUrl: orgShareUrl } = useShortLink({
+    targetPath: `/org/${org.slug}`,
+    title: org.name,
+    description: org.description?.slice(0, 155) || undefined,
+    image: org.banner_url || org.logo_url || undefined,
+  });
+
   const shareWhatsApp = () => {
-    const shareUrl = buildShareUrlForPath(`/org/${org.slug}`);
     const msg = locale === 'fr'
-      ? `Découvrez ${org.name} sur Siteviral: ${shareUrl}`
-      : `Discover ${org.name} on Siteviral: ${shareUrl}`;
+      ? `Découvrez ${org.name} sur Siteviral: ${orgShareUrl}`
+      : `Discover ${org.name} on Siteviral: ${orgShareUrl}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
