@@ -66,9 +66,12 @@ export async function getOrCreateShortLink(opts: {
   // 3. Create new short link
   const code = generateShortCode();
   try {
+    // Get current user for RLS compliance
+    const { data: { user } } = await supabase.auth.getUser();
     const insertData: Record<string, unknown> = {
       id: code,
       target_path: cleanPath,
+      created_by: user?.id ?? null,
     };
     if (opts.title?.trim()) insertData.title = opts.title.trim().slice(0, 180);
     if (opts.description?.trim()) insertData.description = opts.description.trim().slice(0, 300);
