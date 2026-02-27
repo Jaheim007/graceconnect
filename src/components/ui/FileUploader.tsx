@@ -34,9 +34,9 @@ export function FileUploader({
 
   const handleFile = async (file: File) => {
     if (!file) return;
-    const MAX = 100 * 1024 * 1024; // 100 MB
+    const MAX = 50 * 1024 * 1024; // 50 MB — Supabase Storage limit
     if (file.size > MAX) {
-      setError('File too large. Max 100MB.');
+      setError('Fichier trop volumineux. Maximum 50 Mo.');
       return;
     }
     setError(null);
@@ -132,7 +132,7 @@ export function FileUploader({
                 <Upload className="h-5 w-5" />
               </div>
               <p className="text-xs font-medium">Click to upload file</p>
-              <p className="text-[10px] text-muted-foreground">PDF, Word, PowerPoint, Audio, Video · Max 100MB</p>
+              <p className="text-[10px] text-muted-foreground">PDF, Word, PowerPoint, Audio, Video · Max 50 Mo</p>
             </>
           )}
         </div>

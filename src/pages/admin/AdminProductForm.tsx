@@ -404,7 +404,7 @@ export function ProductForm() {
           onChange={(url) => setValue('file_url', url)}
           folder="products"
           label="Product File"
-          hint="Upload a PDF, Word, PowerPoint, audio, or video file (max 100MB), or switch to URL mode to paste a hosted link."
+          hint="Upload a PDF, Word, PowerPoint, audio, or video file (max 50 Mo), or switch to URL mode to paste a hosted link."
           accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.epub,.zip,.mp3,.mp4,.wav,.aac,.m4a,.ogg,.webm,.mov,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.ms-powerpoint,application/vnd.ms-excel,application/epub+zip,application/zip,audio/*,video/*"
           bucket="private-products"
         />
