@@ -3677,6 +3677,689 @@ export const blogArticles: BlogArticle[] = [
 </ul>
 `,
   },
+
+  // ────────── BATCH 7 : Verticales, avancé & inspiration (22 articles) ──────────
+
+  {
+    slug: 'designer-vendre-templates-en-ligne',
+    title: 'Designer : vendez vos templates et mockups en ligne (guide complet)',
+    description: 'Vos créations Canva, Figma ou Photoshop valent de l\'argent. Voici comment les packager et les vendre.',
+    personas: ['Designers', 'Créateurs'],
+    category: 'Tutoriel',
+    readTime: '4 min',
+    publishedAt: '2026-04-09',
+    content: `
+<h2>Le marché des templates explose</h2>
+<p>Les entrepreneurs, influenceurs et PME ont besoin de visuels professionnels mais n'ont pas le budget pour un designer à temps plein. Les templates pré-faits sont la solution parfaite — et votre opportunité.</p>
+
+<h2>Ce que vous pouvez vendre</h2>
+<ul>
+<li><strong>Templates de posts réseaux sociaux</strong> (Instagram, Facebook)</li>
+<li><strong>Templates de stories</strong></li>
+<li><strong>Kits de branding</strong> (logo + couleurs + typographies)</li>
+<li><strong>Mockups produits</strong></li>
+<li><strong>Templates de présentation</strong> (PowerPoint, Google Slides)</li>
+<li><strong>CV et lettres de motivation</strong></li>
+<li><strong>Menus de restaurant, flyers événementiels</strong></li>
+</ul>
+
+<h2>Comment packager</h2>
+<p>Vendez des packs thématiques, pas des fichiers individuels. « Pack Social Media — 30 templates Instagram » à 5 000 FCFA vaut mieux que 30 templates à 200 FCFA chacun.</p>
+
+<h2>Formats à proposer</h2>
+<p>Canva (le plus populaire en Afrique), Figma, PSD, AI. Précisez les formats dans la description pour éviter les retours.</p>
+
+<h2>L'astuce clé</h2>
+<p>Montrez le résultat final dans vos visuels de vente. Les gens achètent le résultat, pas le fichier source.</p>
+`,
+  },
+  {
+    slug: 'podcast-monetiser-afrique',
+    title: 'Comment monétiser votre podcast en Afrique',
+    description: 'Votre podcast a des auditeurs fidèles ? Voici 6 façons de le transformer en source de revenus.',
+    personas: ['Podcasters', 'Créateurs'],
+    category: 'Stratégie',
+    readTime: '5 min',
+    publishedAt: '2026-04-10',
+    content: `
+<h2>Le podcast en Afrique : un marché en croissance</h2>
+<p>Le nombre de podcasters africains a doublé en 2 ans. Mais la monétisation reste le défi #1 : pas de marché pub structuré, pas de Patreon adapté, pas de sponsoring facile.</p>
+
+<h2>Méthode 1 : Épisodes premium</h2>
+<p>Gardez vos épisodes réguliers gratuits. Vendez des épisodes bonus, des interviews exclusives ou des deep-dives sur Siteviral.</p>
+
+<h2>Méthode 2 : Produits dérivés numériques</h2>
+<p>Compilez vos meilleurs épisodes en un e-book. Créez un guide basé sur vos interviews. Vendez les transcriptions annotées.</p>
+
+<h2>Méthode 3 : Formations tirées du podcast</h2>
+<p>Si votre podcast est éducatif, structurez le contenu en formation vendue sur Siteviral. Les auditeurs connaissent déjà votre style.</p>
+
+<h2>Méthode 4 : Communauté payante</h2>
+<p>Créez un groupe WhatsApp/Telegram premium pour vos auditeurs les plus engagés. Accès via achat mensuel sur Siteviral.</p>
+
+<h2>Méthode 5 : Collecte de soutien</h2>
+<p>Vos auditeurs veulent vous soutenir. Créez une campagne « Soutenez le podcast » avec des paliers et des contreparties.</p>
+
+<h2>Méthode 6 : Programme ambassadeur</h2>
+<p>Créez des produits numériques et laissez vos auditeurs devenir ambassadeurs. Ils partagent, vous gagnez, ils gagnent.</p>
+`,
+  },
+  {
+    slug: 'femme-entrepreneur-digital-afrique',
+    title: 'Femme entrepreneur : lancez votre business digital en Afrique',
+    description: 'Les femmes africaines sont au cœur de l\'économie informelle. Voici comment passer au digital et multiplier vos revenus.',
+    personas: ['Femmes entrepreneurs', 'Créateurs'],
+    category: 'Découverte',
+    readTime: '5 min',
+    publishedAt: '2026-04-11',
+    content: `
+<h2>Les femmes africaines, moteurs de l'économie</h2>
+<p>Les femmes représentent <strong>58% des travailleurs indépendants</strong> en Afrique. Commerce, artisanat, formation, services — elles sont partout. Mais souvent limitées au marché local et au bouche-à-oreille.</p>
+
+<h2>Pourquoi passer au digital</h2>
+<ul>
+<li><strong>Portée illimitée</strong> : vendez au-delà de votre quartier, votre ville, votre pays</li>
+<li><strong>Flexibilité</strong> : gérez votre business depuis votre téléphone, à votre rythme</li>
+<li><strong>Revenus passifs</strong> : un produit numérique se vend 24h/24 sans votre présence</li>
+<li><strong>Zéro investissement</strong> : pas de local, pas de stock, pas d'employés</li>
+</ul>
+
+<h2>Les idées de produits numériques pour les femmes entrepreneurs</h2>
+<ul>
+<li><strong>Recettes de cuisine</strong> : compilez vos recettes en e-book illustré</li>
+<li><strong>Guides beauté/coiffure</strong> : tutoriels de tresses, soins naturels, cosmétiques maison</li>
+<li><strong>Formation couture/artisanat</strong> : vidéos de vos techniques</li>
+<li><strong>Gestion financière</strong> : templates de budget et comptabilité simplifiée</li>
+<li><strong>Conseils parentalité</strong> : guides pratiques pour mamans</li>
+</ul>
+
+<h2>Par où commencer</h2>
+<ol>
+<li>Identifiez votre expertise (ce que les gens vous demandent souvent)</li>
+<li>Créez un premier produit simple (PDF de 20-30 pages)</li>
+<li>Publiez-le sur Siteviral (gratuit, 5 minutes)</li>
+<li>Partagez dans vos groupes WhatsApp</li>
+<li>Réinvestissez dans du meilleur contenu</li>
+</ol>
+`,
+  },
+  {
+    slug: 'juriste-vendre-modeles-juridiques',
+    title: 'Juriste : vendez vos modèles de contrats et documents juridiques',
+    description: 'Vos modèles de contrats, statuts et actes juridiques sont recherchés. Voici comment les vendre en ligne.',
+    personas: ['Juristes', 'Professionnels'],
+    category: 'Tutoriel',
+    readTime: '4 min',
+    publishedAt: '2026-04-12',
+    content: `
+<h2>Un marché sous-exploité</h2>
+<p>Les entrepreneurs, associations et PME ont besoin de documents juridiques mais ne peuvent pas toujours payer un avocat. Des modèles à prix accessible comblent ce gap.</p>
+
+<h2>Documents à vendre</h2>
+<ul>
+<li><strong>Statuts de société</strong> (SARL, SAS, association)</li>
+<li><strong>Contrats de travail</strong> (CDI, CDD, stage)</li>
+<li><strong>Contrats commerciaux</strong> (prestation, partenariat, NDA)</li>
+<li><strong>Baux</strong> (habitation, commercial)</li>
+<li><strong>Mises en demeure</strong> types</li>
+<li><strong>Guides juridiques</strong> : comment créer une entreprise, les obligations fiscales</li>
+</ul>
+
+<h2>Comment structurer votre offre</h2>
+<ul>
+<li><strong>Document unitaire</strong> : 2 000 - 10 000 FCFA</li>
+<li><strong>Pack thématique</strong> : « Kit de création d'entreprise » (statuts + PV + registre) : 15 000 - 30 000 FCFA</li>
+<li><strong>Guide juridique complet</strong> : 5 000 - 20 000 FCFA</li>
+</ul>
+
+<h2>Mentions importantes</h2>
+<p>Précisez que vos modèles sont des <strong>bases de travail</strong> et ne remplacent pas un conseil juridique personnalisé. Indiquez la juridiction applicable. Cela vous protège et renforce votre crédibilité.</p>
+
+<h2>L'effet levier</h2>
+<p>Chaque modèle vendu est un client potentiel pour vos services de consultation. Le produit numérique est votre carte de visite premium.</p>
+`,
+  },
+  {
+    slug: 'agence-digitale-revendre-siteviral',
+    title: 'Agence digitale : comment revendre les services Siteviral à vos clients',
+    description: 'Créez et gérez des pages Siteviral pour vos clients. Nouvelle source de revenus récurrents pour votre agence.',
+    personas: ['Agences', 'Professionnels'],
+    category: 'Stratégie',
+    readTime: '4 min',
+    publishedAt: '2026-04-13',
+    content: `
+<h2>L'opportunité pour les agences</h2>
+<p>Vos clients (églises, ONG, formateurs, artistes) ont besoin d'une présence en ligne pour vendre et collecter des fonds. Siteviral est l'outil parfait — et vous pouvez facturer la mise en place.</p>
+
+<h2>Services à proposer</h2>
+<ul>
+<li><strong>Création de la page</strong> : organisation, logo, bannière, bio (50 000 - 150 000 FCFA)</li>
+<li><strong>Upload et configuration produits</strong> : descriptions, prix, couvertures (30 000 - 100 000 FCFA)</li>
+<li><strong>Campagnes de collecte</strong> : setup + visuels + stratégie de partage (50 000 - 200 000 FCFA)</li>
+<li><strong>Gestion mensuelle</strong> : publications, analytics, optimisation (50 000 - 200 000 FCFA/mois)</li>
+<li><strong>Formation du client</strong> : apprenez-lui à gérer sa page (30 000 - 100 000 FCFA)</li>
+</ul>
+
+<h2>Pourquoi ça marche</h2>
+<ul>
+<li>Le client n'a pas besoin de compétences techniques</li>
+<li>Vous facturez votre expertise, pas un outil</li>
+<li>Les revenus sont récurrents (gestion mensuelle)</li>
+<li>Siteviral est gratuit pour vous — toute votre facturation est de la marge pure</li>
+</ul>
+
+<h2>Comment commencer</h2>
+<p>Créez 2-3 pages démo impressionnantes. Montrez-les à vos prospects. Le visuel convainc mieux que n'importe quel argumentaire.</p>
+`,
+  },
+  {
+    slug: 'centre-formation-vendre-cours-distance',
+    title: 'Centre de formation : comment vendre vos cours à distance',
+    description: 'Votre centre de formation peut toucher 10x plus d\'étudiants en ligne. Voici le plan d\'action.',
+    personas: ['Centres de formation', 'Enseignants'],
+    category: 'Tutoriel',
+    readTime: '5 min',
+    publishedAt: '2026-04-14',
+    content: `
+<h2>Le plafond du présentiel</h2>
+<p>Votre centre peut accueillir 30, 50, 100 personnes. Mais votre expertise peut toucher des <strong>milliers</strong> de personnes en ligne. Le digital ne remplace pas le présentiel — il le complète et le multiplie.</p>
+
+<h2>Quoi mettre en ligne</h2>
+<ul>
+<li><strong>Modules d'introduction</strong> : donnez un avant-goût de vos formations</li>
+<li><strong>Formations complètes</strong> : pour ceux qui ne peuvent pas se déplacer</li>
+<li><strong>Supports de cours</strong> : PDF, exercices, fiches récapitulatives</li>
+<li><strong>Certifications courtes</strong> : modules spécialisés de 3-5h</li>
+<li><strong>Replay de séminaires</strong> : vos événements passés ont encore de la valeur</li>
+</ul>
+
+<h2>La stratégie hybride</h2>
+<p>Offrez un cours en ligne à prix réduit et un cours présentiel à prix premium. Le cours en ligne attire des prospects qui finissent par s'inscrire au présentiel.</p>
+
+<h2>Configuration sur Siteviral</h2>
+<ol>
+<li>Créez votre organisation avec le nom du centre</li>
+<li>Ajoutez chaque formation comme produit numérique</li>
+<li>Fixez les prix (souvent 30-50% du prix présentiel)</li>
+<li>Activez le programme ambassadeur : vos anciens étudiants promeuvent</li>
+<li>Utilisez les événements pour annoncer les sessions présentielles</li>
+</ol>
+
+<h2>Revenus potentiels</h2>
+<p>Si votre centre forme 200 personnes/an en présentiel, en ligne vous pouvez toucher <strong>2 000+ personnes</strong> dans tout le pays et la diaspora.</p>
+`,
+  },
+  {
+    slug: 'seo-page-siteviral-google',
+    title: 'Comment faire apparaître votre page Siteviral sur Google',
+    description: 'Votre page Siteviral peut apparaître dans les résultats Google. Voici les optimisations SEO à faire.',
+    personas: ['Créateurs', 'Professionnels'],
+    category: 'Tutoriel',
+    readTime: '4 min',
+    publishedAt: '2026-04-15',
+    content: `
+<h2>Pourquoi le SEO compte</h2>
+<p>Des milliers de personnes cherchent sur Google des termes comme « acheter formation marketing digital Afrique » ou « e-book cuisine africaine ». Si votre page apparaît, vous obtenez du trafic <strong>gratuit et qualifié</strong>.</p>
+
+<h2>Optimisation #1 : Le nom de votre organisation</h2>
+<p>Incluez des mots-clés dans votre nom. « Coach Marie — Marketing Digital » est mieux que juste « Marie ».</p>
+
+<h2>Optimisation #2 : La description</h2>
+<p>Utilisez les termes que vos clients tapent sur Google. « Formation marketing digital pour entrepreneurs africains » est un mot-clé que les gens recherchent.</p>
+
+<h2>Optimisation #3 : Les titres de produits</h2>
+<p>« Guide complet du marketing WhatsApp en Afrique » est bien meilleur que « Mon guide marketing » pour le SEO.</p>
+
+<h2>Optimisation #4 : Partagez votre lien partout</h2>
+<p>Plus votre lien Siteviral est partagé et cliqué, plus Google le considère comme pertinent. Partagez-le sur vos réseaux, dans votre signature email, sur vos profils.</p>
+
+<h2>Optimisation #5 : Du contenu régulier</h2>
+<p>Google favorise les pages actives. Publiez des annonces, ajoutez des produits, mettez à jour vos descriptions régulièrement.</p>
+
+<h2>Résultat attendu</h2>
+<p>Après 2-3 mois d'optimisation, votre page peut apparaître pour des recherches spécifiques liées à votre niche. C'est du trafic gratuit à vie.</p>
+`,
+  },
+  {
+    slug: 'storytelling-vendre-plus',
+    title: 'Le storytelling : l\'arme secrète pour vendre plus (avec exemples)',
+    description: 'Les histoires vendent mieux que les arguments. Voici comment utiliser le storytelling pour vos produits numériques.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Stratégie',
+    readTime: '5 min',
+    publishedAt: '2026-04-16',
+    content: `
+<h2>Pourquoi les histoires vendent</h2>
+<p>Le cerveau humain retient 22x mieux une information présentée sous forme d'histoire que sous forme de faits. Les grandes marques ne vendent pas des produits — elles racontent des histoires.</p>
+
+<h2>La structure narrative qui convertit</h2>
+
+<h3>1. Le héros (votre client)</h3>
+<p>Ce n'est pas vous le héros. C'est votre client. Il a un problème, un rêve, une frustration.</p>
+
+<h3>2. Le problème</h3>
+<p>Décrivez le problème avec empathie. « Vous avez une expertise incroyable mais personne ne sait que vous existez. Vous voyez des gens moins compétents réussir parce qu'ils savent se vendre. »</p>
+
+<h3>3. Le guide (vous)</h3>
+<p>Vous êtes le mentor qui a la solution. Pas le héros — le guide. « J'ai aidé 500+ entrepreneurs à transformer leur expertise en revenus digitaux. »</p>
+
+<h3>4. Le plan</h3>
+<p>Votre produit est le plan d'action. « Ce guide en 7 étapes vous montre exactement comment faire. »</p>
+
+<h3>5. La transformation</h3>
+<p>Peignez le résultat. « Dans 30 jours, vous aurez votre première vente en ligne. Dans 90 jours, un revenu complémentaire régulier. »</p>
+
+<h2>Exemple concret</h2>
+<p><strong>❌ Sans storytelling :</strong> « E-book de marketing digital. 80 pages. 5 000 FCFA. »</p>
+<p><strong>✅ Avec storytelling :</strong> « Amara avait un talent incroyable pour le marketing mais gagnait à peine 100 000 FCFA/mois. Après avoir appliqué ces 7 stratégies, elle a atteint 500 000 FCFA en 3 mois. Ce guide contient exactement ce qu'elle a fait. »</p>
+`,
+  },
+  {
+    slug: 'creer-programme-fidelite-clients',
+    title: 'Comment créer un programme de fidélité pour vos clients',
+    description: 'Un client fidèle achète 5x plus qu\'un nouveau client. Voici comment les garder engagés avec la gamification.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Stratégie',
+    readTime: '4 min',
+    publishedAt: '2026-04-17',
+    content: `
+<h2>Le coût d'acquisition vs fidélisation</h2>
+<p>Acquérir un nouveau client coûte <strong>5 à 7 fois plus</strong> que garder un client existant. Pourtant, la plupart des créateurs se concentrent uniquement sur l'acquisition. Erreur.</p>
+
+<h2>La gamification sur Siteviral</h2>
+<p>Siteviral intègre un système de gamification que vous pouvez activer :</p>
+<ul>
+<li><strong>Points XP</strong> : les clients gagnent des points à chaque achat, partage, commentaire</li>
+<li><strong>Badges</strong> : récompenses visuelles pour des actions spécifiques</li>
+<li><strong>Classement</strong> : les clients les plus engagés apparaissent dans le leaderboard</li>
+<li><strong>Niveaux</strong> : progression visible qui encourage l'engagement continu</li>
+</ul>
+
+<h2>Stratégies de fidélisation simples</h2>
+
+<h3>1. L'offre de bienvenue retour</h3>
+<p>Un client a acheté il y a 2 mois ? Envoyez-lui un code promo « FIDELE » avec -15% sur son prochain achat.</p>
+
+<h3>2. L'accès anticipé</h3>
+<p>Prévenez vos clients existants 48h avant le lancement public d'un nouveau produit. Ils se sentent privilégiés.</p>
+
+<h3>3. Le contenu exclusif</h3>
+<p>Offrez un bonus gratuit (checklist, template) aux clients qui ont déjà acheté 2+ produits.</p>
+
+<h3>4. La communauté</h3>
+<p>Créez un groupe WhatsApp VIP réservé aux clients. C'est gratuit et ça crée un sentiment d'appartenance.</p>
+
+<h2>L'impact</h2>
+<p>Un programme de fidélité bien exécuté augmente la valeur vie client de <strong>25 à 100%</strong>.</p>
+`,
+  },
+  {
+    slug: 'leader-musulman-monetiser-contenu',
+    title: 'Leaders musulmans : comment monétiser votre contenu religieux',
+    description: 'Sermons, cours de Coran, tafsir : voici comment partager et monétiser votre savoir islamique en ligne.',
+    personas: ['Leaders musulmans', 'Leaders religieux'],
+    category: 'Tutoriel',
+    readTime: '5 min',
+    publishedAt: '2026-04-18',
+    content: `
+<h2>Le contenu islamique en ligne : une demande énorme</h2>
+<p>Des millions de musulmans francophones cherchent du contenu islamique de qualité en ligne : cours de Coran, tafsir, fiqh, histoires des prophètes. L'offre structurée et accessible est <strong>très insuffisante</strong>.</p>
+
+<h2>Ce que vous pouvez proposer</h2>
+<ul>
+<li><strong>Cours de Coran</strong> : récitation, tajwid, mémorisation (audio/vidéo)</li>
+<li><strong>Tafsir</strong> : explications des sourates en format PDF ou audio</li>
+<li><strong>Cours de fiqh</strong> : jurisprudence islamique pratique</li>
+<li><strong>Guides spirituels</strong> : Ramadan, Hajj, prières, invocations</li>
+<li><strong>Conférences enregistrées</strong> : vos prêches et séminaires passés</li>
+</ul>
+
+<h2>Modèle économique respectueux</h2>
+<p>Combinez gratuit et payant : les bases gratuites (attirer), le contenu approfondi payant (monétiser), les dons (soutenir). Ce modèle est éthique et durable.</p>
+
+<h2>Collecte de Zakat et Sadaqa</h2>
+<p>Utilisez les campagnes de collecte Siteviral pour la zakat, la sadaqa et les projets communautaires. Mobile Money + carte pour toucher toute la communauté.</p>
+
+<h2>Programme ambassadeur</h2>
+<p>Vos fidèles partagent vos cours et touchent une commission. C'est du da'wa (prédication) rémunéré — tout le monde y gagne spirituellement et matériellement.</p>
+`,
+  },
+  {
+    slug: 'missionnaire-financer-mission',
+    title: 'Missionnaire : financez votre mission avec le numérique',
+    description: 'Comment les missionnaires et évangélistes peuvent financer leur mission grâce aux dons en ligne et la vente de contenu.',
+    personas: ['Missionnaires', 'Leaders religieux'],
+    category: 'Découverte',
+    readTime: '4 min',
+    publishedAt: '2026-04-19',
+    content: `
+<h2>Le défi du financement missionnaire</h2>
+<p>Les missionnaires dépendent souvent de soutiens irréguliers, de quêtes ponctuelles et de la générosité individuelle. Le numérique offre une <strong>stabilité financière</strong> sans compromettre la mission.</p>
+
+<h2>3 sources de revenus numériques</h2>
+
+<h3>1. Collecte de soutien régulier</h3>
+<p>Créez une page de soutien permanent. Partagez-la avec vos partenaires de prière. Les dons arrivent par Mobile Money et carte, de l'Afrique et de la diaspora.</p>
+
+<h3>2. Vente de contenu</h3>
+<p>Vos prédications, études bibliques, témoignages et livres ont une valeur immense. Vendez-les à prix accessible pour financer la mission tout en touchant plus de vies.</p>
+
+<h3>3. Campagnes de projet</h3>
+<p>Construction d'une église, achat de matériel, voyage missionnaire — créez des campagnes avec objectif, photos et mises à jour. La transparence multiplie la générosité.</p>
+
+<h2>Communication avec les supporters</h2>
+<p>Utilisez les annonces Siteviral pour donner des nouvelles de votre mission. Photos, témoignages, résultats — vos supporters veulent savoir que leur argent change des vies.</p>
+
+<h2>L'effet diaspora</h2>
+<p>Des chrétiens de la diaspora VEULENT soutenir des missions en Afrique. Siteviral leur donne un moyen simple de le faire par carte bancaire en EUR/USD.</p>
+`,
+  },
+  {
+    slug: 'ministere-gerer-dons-offrandes-ligne',
+    title: 'Ministère : gérez dons, offrandes et dîmes en ligne',
+    description: 'Un guide complet pour les ministères chrétiens qui veulent digitaliser la gestion de leurs finances.',
+    personas: ['Ministères', 'Leaders religieux'],
+    category: 'Tutoriel',
+    readTime: '5 min',
+    publishedAt: '2026-04-20',
+    content: `
+<h2>La transformation numérique des ministères</h2>
+<p>Les ministères les plus dynamiques d'Afrique adoptent le numérique. Pas par mode, mais par nécessité : toucher plus de fidèles, collecter plus efficacement, et gérer avec transparence.</p>
+
+<h2>Configuration multi-campagnes</h2>
+<p>Créez des campagnes séparées pour chaque type de collecte :</p>
+<ul>
+<li><strong>Dîmes mensuelles</strong> : campagne récurrente avec rappel</li>
+<li><strong>Offrandes du dimanche</strong> : partagez le lien pendant le culte</li>
+<li><strong>Projets de construction</strong> : objectif + barre de progression</li>
+<li><strong>Missions et évangélisation</strong></li>
+<li><strong>Aide aux nécessiteux</strong></li>
+</ul>
+
+<h2>Pendant le culte</h2>
+<p>Affichez le QR code ou le lien court sur l'écran de projection. Les fidèles paient par Mobile Money pendant l'offrande. Simple, rapide, tracé.</p>
+
+<h2>Rapports pour le conseil</h2>
+<p>Exportez les rapports CSV mensuels pour votre conseil d'administration. Chaque don est documenté : montant, date, donateur (si non anonyme).</p>
+
+<h2>Vente de contenu du ministère</h2>
+<p>Prédications audio/vidéo, livres du pasteur, séminaires enregistrés — tout peut être vendu sur la même page. Les revenus financent directement le ministère.</p>
+
+<h2>Résultat type</h2>
+<p>Des ministères qui utilisent Siteviral voient leurs collectes augmenter de <strong>30 à 60%</strong> grâce à la facilité de paiement et la portée diaspora.</p>
+`,
+  },
+  {
+    slug: 'retraite-partager-experience-en-ligne',
+    title: 'Retraité : partagez votre expérience et gagnez un complément de revenus',
+    description: 'Après 30+ ans de carrière, votre expérience est un trésor. Voici comment la transformer en revenus numériques.',
+    personas: ['Retraités', 'Professionnels'],
+    category: 'Découverte',
+    readTime: '4 min',
+    publishedAt: '2026-04-21',
+    content: `
+<h2>Votre expertise vaut de l'or</h2>
+<p>Après des décennies d'expérience, vous avez accumulé un savoir que les jeunes générations recherchent désespérément. Gestion, leadership, comptabilité, droit, enseignement, agriculture — votre vécu est irremplaçable.</p>
+
+<h2>Idées de produits pour les retraités</h2>
+<ul>
+<li><strong>Mémoires professionnelles</strong> : compilez vos leçons de carrière en e-book</li>
+<li><strong>Guides métier</strong> : « 30 ans dans la banque : ce que j'aurais aimé savoir au début »</li>
+<li><strong>Mentorat packagé</strong> : vos conseils structurés en mini-formation</li>
+<li><strong>Templates professionnels</strong> : modèles de documents que vous avez perfectionnés</li>
+<li><strong>Histoires et récits</strong> : témoignages de vie, récits historiques locaux</li>
+</ul>
+
+<h2>Pas besoin d'être tech-savvy</h2>
+<p>Siteviral est conçu pour être aussi simple que WhatsApp. Si vous savez envoyer un message, vous savez publier un produit. Et un petit-fils ou un voisin peut vous aider pour le premier setup.</p>
+
+<h2>Le complément de revenus</h2>
+<p>Un guide à 5 000 FCFA vendu à 50 personnes = 250 000 FCFA. Ce n'est pas un rêve — c'est réaliste avec du contenu de qualité et un peu de partage dans votre réseau.</p>
+
+<h2>L'héritage numérique</h2>
+<p>Au-delà des revenus, c'est un héritage. Vos petits-enfants pourront lire vos écrits dans 20 ans. Votre expérience ne sera pas perdue.</p>
+`,
+  },
+  {
+    slug: 'sante-professionnel-vendre-guides',
+    title: 'Professionnel de santé : vendez vos guides de prévention et bien-être',
+    description: 'Médecins, infirmiers, nutritionnistes : voici comment partager votre expertise santé et générer des revenus.',
+    personas: ['Santé', 'Professionnels'],
+    category: 'Tutoriel',
+    readTime: '4 min',
+    publishedAt: '2026-04-22',
+    content: `
+<h2>L'information santé en Afrique</h2>
+<p>Les Africains cherchent massivement des informations santé en ligne, mais trouvent souvent du contenu en anglais, non contextualisé, ou de sources douteuses. Les professionnels de santé locaux peuvent combler ce gap.</p>
+
+<h2>Produits numériques santé</h2>
+<ul>
+<li><strong>Guides de prévention</strong> : diabète, hypertension, paludisme, VIH</li>
+<li><strong>Plans nutritionnels</strong> : adaptés aux aliments locaux et au budget africain</li>
+<li><strong>Guides de grossesse</strong> : suivi mois par mois en français simple</li>
+<li><strong>Premiers secours</strong> : que faire en cas d'urgence avant d'arriver à l'hôpital</li>
+<li><strong>Exercices physiques</strong> : programmes adaptés sans salle de sport</li>
+<li><strong>Santé mentale</strong> : gestion du stress, méditation, sommeil</li>
+</ul>
+
+<h2>Précautions importantes</h2>
+<ul>
+<li>Mentionnez vos qualifications professionnelles</li>
+<li>Précisez que vos guides ne remplacent pas une consultation médicale</li>
+<li>Basez-vous sur des sources médicales reconnues</li>
+<li>Adaptez au contexte local (médicaments disponibles, système de santé)</li>
+</ul>
+
+<h2>Impact social + revenus</h2>
+<p>Un guide de prévention du diabète à 2 000 FCFA peut sauver des vies tout en vous générant des revenus. C'est le modèle win-win par excellence.</p>
+`,
+  },
+  {
+    slug: 'finance-expert-vendre-formations',
+    title: 'Expert finance : vendez vos formations et outils financiers en ligne',
+    description: 'Comptabilité, fiscalité, investissement : les Africains ont soif d\'éducation financière. Positionnez-vous.',
+    personas: ['Finance', 'Professionnels'],
+    category: 'Tutoriel',
+    readTime: '4 min',
+    publishedAt: '2026-04-23',
+    content: `
+<h2>L'éducation financière : un besoin critique</h2>
+<p>Moins de 15% des Africains ont accès à une éducation financière de base. Le résultat : mauvaises décisions d'investissement, surendettement, opportunités manquées. Votre expertise peut changer ça.</p>
+
+<h2>Produits à fort potentiel</h2>
+<ul>
+<li><strong>Guide de comptabilité simplifiée</strong> pour PME et indépendants</li>
+<li><strong>Templates Excel</strong> : budget personnel, comptabilité, prévisionnel</li>
+<li><strong>Formation fiscalité</strong> : obligations et optimisation par pays</li>
+<li><strong>Guide d'investissement</strong> : immobilier, tontines, épargne</li>
+<li><strong>Plan financier personnel</strong> : comment sortir des dettes et épargner</li>
+<li><strong>Cours de trading</strong> : bases du marché boursier pour débutants</li>
+</ul>
+
+<h2>Pourquoi le format numérique</h2>
+<p>Une formation en présentiel touche 30 personnes à Abidjan. Un cours en ligne touche <strong>3 000 personnes</strong> dans 15 pays. Même contenu, 100x plus d'impact.</p>
+
+<h2>Stratégie de prix</h2>
+<ul>
+<li><strong>Template Excel gratuit</strong> : pour attirer et démontrer votre expertise</li>
+<li><strong>Guide PDF</strong> : 3 000 - 10 000 FCFA</li>
+<li><strong>Formation vidéo complète</strong> : 15 000 - 50 000 FCFA</li>
+<li><strong>Pack complet</strong> (formation + templates + coaching groupe) : 50 000 - 100 000 FCFA</li>
+</ul>
+`,
+  },
+  {
+    slug: 'media-en-ligne-paywall-contenu-premium',
+    title: 'Média en ligne : monétisez votre contenu avec un paywall simple',
+    description: 'Journalistes et médias : voici comment vendre des articles premium, dossiers et enquêtes avec Siteviral.',
+    personas: ['Médias', 'Journalistes'],
+    category: 'Stratégie',
+    readTime: '4 min',
+    publishedAt: '2026-04-24',
+    content: `
+<h2>Le modèle gratuit ne paie pas les journalistes</h2>
+<p>Les médias en ligne africains dépendent presque exclusivement de la publicité (qui paie mal) ou de subventions (qui sont incertaines). Le contenu premium payant est la troisième voie.</p>
+
+<h2>Ce que vous pouvez vendre</h2>
+<ul>
+<li><strong>Dossiers d'investigation</strong> exclusifs</li>
+<li><strong>Analyses approfondies</strong> de l'actualité économique/politique</li>
+<li><strong>Rapports sectoriels</strong> : immobilier, tech, agriculture, énergie</li>
+<li><strong>Newsletters premium</strong> hebdomadaires</li>
+<li><strong>Archives et compilations</strong> thématiques</li>
+</ul>
+
+<h2>Le modèle hybride</h2>
+<p>Gardez 80% de votre contenu gratuit pour le trafic et la notoriété. Mettez les 20% les plus approfondis derrière un achat. C'est le modèle du New York Times et du Financial Times, adapté à l'Afrique.</p>
+
+<h2>Pourquoi Siteviral pour les médias</h2>
+<ul>
+<li><strong>Mobile Money</strong> : vos lecteurs africains peuvent payer facilement</li>
+<li><strong>Micro-prix</strong> : un article à 500 FCFA est accessible à tous</li>
+<li><strong>Pas d'abonnement forcé</strong> : les lecteurs achètent à l'unité</li>
+<li><strong>Ambassadeurs</strong> : vos lecteurs partagent et touchent une commission</li>
+</ul>
+
+<h2>Le calcul</h2>
+<p>Un dossier exclusif à 1 000 FCFA, lu par 500 personnes = 500 000 FCFA. Pour un seul article. C'est viable et durable.</p>
+`,
+  },
+  {
+    slug: 'diaspora-creer-entreprise-distance',
+    title: 'Diaspora : créez votre entreprise digitale en Afrique à distance',
+    description: 'Vous vivez en Europe ou en Amérique ? Voici comment lancer un business numérique en Afrique sans y être physiquement.',
+    personas: ['Diaspora', 'Créateurs'],
+    category: 'Tutoriel',
+    readTime: '5 min',
+    publishedAt: '2026-04-25',
+    content: `
+<h2>L'avantage de la diaspora</h2>
+<p>Vous avez un double avantage : la connaissance du marché africain ET l'exposition aux tendances internationales. Vous voyez des opportunités que ceux sur place ne voient pas toujours.</p>
+
+<h2>Les business numériques à lancer depuis l'étranger</h2>
+<ul>
+<li><strong>Formations professionnelles</strong> : partagez les compétences acquises à l'étranger</li>
+<li><strong>Guides d'expatriation</strong> : visa, logement, travail, intégration</li>
+<li><strong>Coaching carrière</strong> : aidez les Africains à décrocher des postes internationaux</li>
+<li><strong>Templates business</strong> : business plans, CV internationaux, lettres de motivation</li>
+<li><strong>Contenu culturel</strong> : musique, art, littérature de la diaspora</li>
+</ul>
+
+<h2>Comment opérer à distance</h2>
+<ol>
+<li><strong>Créez votre page Siteviral</strong> depuis n'importe où (juste un navigateur)</li>
+<li><strong>Publiez vos produits</strong> : upload, description, prix en FCFA ou EUR</li>
+<li><strong>Marketing</strong> : utilisez vos réseaux en Europe ET vos contacts en Afrique</li>
+<li><strong>Paiements</strong> : vos clients africains paient par Mobile Money, la diaspora par carte</li>
+<li><strong>Retraits</strong> : recevez vos revenus sur votre compte en Afrique ou via virement</li>
+</ol>
+
+<h2>Le pont diaspora-continent</h2>
+<p>Votre business crée un pont économique. Vous gagnez un revenu, vos clients africains accèdent à du contenu de qualité internationale, et l'argent circule dans les deux sens.</p>
+`,
+  },
+  {
+    slug: 'etudiant-creer-premier-ebook',
+    title: 'Étudiant : créez et vendez votre premier e-book en 7 jours',
+    description: 'Un plan d\'action jour par jour pour écrire, publier et vendre votre premier e-book en une semaine seulement.',
+    personas: ['Étudiants', 'Créateurs'],
+    category: 'Tutoriel',
+    readTime: '5 min',
+    publishedAt: '2026-04-26',
+    content: `
+<h2>Jour 1 : Choisissez votre sujet</h2>
+<p>Qu'est-ce que vos camarades vous demandent souvent ? Résumés de cours, techniques d'étude, astuces pour les examens, guide de recherche de stage ? Choisissez UN sujet précis.</p>
+
+<h2>Jour 2 : Créez votre plan</h2>
+<p>5 à 7 chapitres, chacun répondant à une question. Pas plus. Votre e-book doit être court, pratique et actionnable. 25-40 pages suffisent.</p>
+
+<h2>Jour 3-4 : Écrivez</h2>
+<p>2 chapitres par jour. Écrivez comme vous expliquez à un ami. Simple, direct, avec des exemples. Utilisez Google Docs sur votre téléphone si vous n'avez pas d'ordinateur.</p>
+
+<h2>Jour 5 : Mettez en forme</h2>
+<p>Utilisez Canva pour créer la couverture et mettre en page votre PDF. Ajoutez des sous-titres, des listes à puces, des encadrés pour les astuces clés.</p>
+
+<h2>Jour 6 : Publiez sur Siteviral</h2>
+<p>Inscrivez-vous (gratuit), créez votre organisation, uploadez votre e-book, rédigez la description (méthode PAS), fixez le prix (1 500 - 3 000 FCFA pour un premier e-book).</p>
+
+<h2>Jour 7 : Lancez</h2>
+<p>Partagez dans vos groupes WhatsApp de promo, sur votre statut, sur Facebook. Demandez à 3 amis de le lire et de laisser un avis. Activez le programme ambassadeur.</p>
+
+<h2>Et après ?</h2>
+<p>Votre premier e-book ne sera pas parfait. C'est normal. Mais il vous apprendra plus que n'importe quel cours sur l'entrepreneuriat. Et les revenus, même modestes, sont un début réel.</p>
+`,
+  },
+  {
+    slug: 'contenu-evergreen-vs-actualite',
+    title: 'Contenu evergreen vs actualité : quoi créer pour vendre longtemps',
+    description: 'Certains contenus se vendent pendant des années, d\'autres perdent leur valeur en 1 semaine. Voici comment choisir.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Stratégie',
+    readTime: '4 min',
+    publishedAt: '2026-04-27',
+    content: `
+<h2>Deux types de contenu</h2>
+<p><strong>Evergreen</strong> : reste pertinent pendant des mois/années. « Comment écrire un CV professionnel », « Guide de gestion financière personnelle ». <br><strong>Actualité</strong> : pertinent quelques jours/semaines. « Les nouveautés de la loi de finances 2026 ».</p>
+
+<h2>Pourquoi privilégier l'evergreen</h2>
+<ul>
+<li>Se vend pendant <strong>des années</strong> sans mise à jour majeure</li>
+<li>Le SEO fonctionne mieux (les gens cherchent ces sujets en permanence)</li>
+<li>Les ambassadeurs peuvent le promouvoir indéfiniment</li>
+<li>Le rapport effort/revenu est imbattable</li>
+</ul>
+
+<h2>Les meilleurs sujets evergreen par niche</h2>
+<ul>
+<li><strong>Formation</strong> : compétences fondamentales (communication, leadership, Excel)</li>
+<li><strong>Religion</strong> : études bibliques/coraniques, guides spirituels</li>
+<li><strong>Business</strong> : création d'entreprise, marketing, gestion</li>
+<li><strong>Santé</strong> : nutrition, prévention, exercice physique</li>
+<li><strong>Éducation</strong> : exercices corrigés, méthodes d'étude</li>
+</ul>
+
+<h2>Quand créer du contenu d'actualité</h2>
+<p>L'actualité est utile pour le marketing gratuit (posts réseaux sociaux, articles de blog) qui attire vers vos produits evergreen. Mais ne vendez pas de l'actualité — elle périme vite.</p>
+
+<h2>La stratégie idéale</h2>
+<p>80% de produits evergreen (votre fond de commerce) + 20% de contenu gratuit d'actualité (votre marketing). Le meilleur des deux mondes.</p>
+`,
+  },
+  {
+    slug: 'protection-contenu-numerique-piratage',
+    title: 'Comment protéger votre contenu numérique contre le piratage',
+    description: 'Le piratage est une réalité. Voici les mesures pratiques pour protéger vos e-books, cours et fichiers.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Confiance',
+    readTime: '4 min',
+    publishedAt: '2026-04-28',
+    content: `
+<h2>La réalité du piratage</h2>
+<p>Oui, quelqu'un va probablement partager votre e-book gratuitement. C'est frustrant mais ne doit pas vous empêcher de vendre. La majorité des acheteurs préfèrent <strong>la voie légitime</strong> quand elle est simple et abordable.</p>
+
+<h2>Mesures de protection sur Siteviral</h2>
+<ul>
+<li><strong>Téléchargement sécurisé</strong> : liens temporaires qui expirent</li>
+<li><strong>Watermark</strong> : ajout automatique du nom de l'acheteur sur les PDFs</li>
+<li><strong>Limite de téléchargements</strong> : nombre maximum de downloads par achat</li>
+<li><strong>Logs de téléchargement</strong> : traçabilité complète</li>
+</ul>
+
+<h2>Stratégies complémentaires</h2>
+
+<h3>1. Rendez l'achat plus facile que le piratage</h3>
+<p>À 2 000 FCFA avec paiement Mobile Money en 1 clic, acheter est plus rapide que chercher une version piratée.</p>
+
+<h3>2. Ajoutez de la valeur au-delà du fichier</h3>
+<p>Accès à un groupe WhatsApp, mises à jour gratuites, bonus exclusifs — ces éléments ne peuvent pas être piratés.</p>
+
+<h3>3. Acceptez une part de piratage</h3>
+<p>Certains « pirates » n'auraient jamais acheté. Mais ils peuvent devenir des fans qui recommandent votre contenu payant à d'autres. C'est du marketing involontaire.</p>
+
+<h2>Le vrai ennemi</h2>
+<p>Ce n'est pas le piratage. C'est l'<strong>obscurité</strong>. Mieux vaut avoir un e-book partagé illégalement par 100 personnes que personne ne connaisse votre existence.</p>
+`,
+  },
 ];
 
 export function getArticleBySlug(slug: string): BlogArticle | undefined {
