@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Copy, CheckCircle, ChevronDown, ChevronUp, Link2, ShoppingBag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { buildSocialShareUrl } from '@/lib/shareMeta';
 
 interface Props {
   orgId: string;
@@ -105,6 +106,12 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
               const productUrl = p.slug
                 ? `https://siteviral.com/org/${orgSlug}/p/${p.slug}?ref=${code || affiliateCode}`
                 : `https://siteviral.com/org/${orgSlug}/product/${p.id}?ref=${code || affiliateCode}`;
+              const socialShareUrl = buildSocialShareUrl({
+                targetUrl: productUrl,
+                title: p.title,
+                description: `Découvrez ${p.title} sur Siteviral`,
+                image: p.cover_image_url || undefined,
+              });
 
               return (
                 <div key={p.id} className="flex items-center gap-3 p-2.5 rounded-lg border border-border/50 bg-muted/20">
@@ -128,7 +135,7 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
                       variant="ghost"
                       size="sm"
                       className="h-7 text-[10px] gap-1 shrink-0"
-                      onClick={() => handleCopy(productUrl, p.id)}
+                      onClick={() => handleCopy(socialShareUrl, p.id)}
                     >
                       {copiedId === p.id ? <CheckCircle className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
                       {copiedId === p.id ? 'Copié' : 'Copier'}

@@ -8,6 +8,7 @@ import { ArrowLeft, ArrowRight, Clock, Share2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getArticleBySlug, blogArticles } from '@/lib/blogArticles';
 import { useToast } from '@/hooks/use-toast';
+import { buildSocialShareUrl } from '@/lib/shareMeta';
 
 export default function BlogArticlePage() {
   const { slug } = useParams<{ slug: string }>();
@@ -34,12 +35,17 @@ export default function BlogArticlePage() {
   const nextArticle = currentIndex < blogArticles.length - 1 ? blogArticles[currentIndex + 1] : null;
 
   const shareUrl = `https://siteviral.com/blog/${article.slug}`;
+  const socialShareUrl = buildSocialShareUrl({
+    targetUrl: shareUrl,
+    title: article.title,
+    description: article.description,
+  });
 
   const handleShare = async () => {
     if (navigator.share) {
-      await navigator.share({ title: article.title, text: article.description, url: shareUrl });
+      await navigator.share({ title: article.title, text: article.description, url: socialShareUrl });
     } else {
-      await navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(socialShareUrl);
       toast({ title: 'Lien copié ✅' });
     }
   };

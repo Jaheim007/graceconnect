@@ -3,6 +3,7 @@ import { Share2, Copy, CheckCircle, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { buildSocialShareUrl } from '@/lib/shareMeta';
 
 interface ShareButtonsProps {
   url: string;
@@ -17,7 +18,8 @@ export function ShareButtons({ url, title, description = '', className, compact 
   const { toast } = useToast();
 
   const fullUrl = url.startsWith('http') ? url : `${window.location.origin}${url}`;
-  const encodedUrl = encodeURIComponent(fullUrl);
+  const socialUrl = buildSocialShareUrl({ targetUrl: fullUrl, title, description });
+  const encodedUrl = encodeURIComponent(socialUrl);
   const encodedTitle = encodeURIComponent(title);
   const encodedDesc = encodeURIComponent(description);
 
@@ -49,7 +51,7 @@ export function ShareButtons({ url, title, description = '', className, compact 
   ];
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(fullUrl);
+    await navigator.clipboard.writeText(socialUrl);
     setCopied(true);
     toast({ title: '🔗 Lien copié !' });
     setTimeout(() => setCopied(false), 2000);
@@ -58,7 +60,7 @@ export function ShareButtons({ url, title, description = '', className, compact 
   const handleNativeShare = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title, text: description, url: fullUrl });
+        await navigator.share({ title, text: description, url: socialUrl });
       } catch { /* user cancelled */ }
     }
   };

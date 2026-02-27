@@ -30,6 +30,7 @@ import { ShareButtons } from '@/components/social/ShareButtons';
 import { useBundleItems, useProductRecommendations } from '@/hooks/useBundlesAndRecommendations';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ProductCard } from '@/components/products/ProductCard';
+import { buildSocialShareUrl } from '@/lib/shareMeta';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -160,18 +161,25 @@ export default function ProductDetailPage() {
   };
 
   const handleCopyLink = async () => {
-    await navigator.clipboard.writeText(buildShareUrl());
+    const socialShareUrl = buildSocialShareUrl({
+      targetUrl: buildShareUrl(),
+      title: product?.title || 'Produit Siteviral',
+      description: product?.description?.slice(0, 155) || '',
+      image: product?.cover_image_url || undefined,
+    });
+    await navigator.clipboard.writeText(socialShareUrl);
     setCopied(true);
     toast({ title: t('product.link_copied') });
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleShareWhatsApp = () => {
-    window.open(`https://wa.me/?text=${encodeURIComponent(`${product?.title} — ${buildShareUrl()}`)}`, '_blank');
+    const socialShareUrl = buildSocialShareUrl({ targetUrl: buildShareUrl(), title: product?.title || 'Produit Siteviral', description: product?.description?.slice(0, 155) || '', image: product?.cover_image_url || undefined });
+    window.open(`https://wa.me/?text=${encodeURIComponent(`${product?.title} — ${socialShareUrl}`)}`, '_blank');
   };
 
   const handleShare = async () => {
-    const url = buildShareUrl();
+    const url = buildSocialShareUrl({ targetUrl: buildShareUrl(), title: product?.title || 'Produit Siteviral', description: product?.description?.slice(0, 155) || '', image: product?.cover_image_url || undefined });
     if (navigator.share) {
       await navigator.share({ title: product?.title, url });
     } else {

@@ -14,6 +14,7 @@ import { FormattedText } from '@/lib/formatText';
 import { Badge } from '@/components/ui/badge';
 import { CommentSection } from '@/components/comments/CommentSection';
 import { BookmarkButton } from '@/components/bookmarks/BookmarkButton';
+import { buildSocialShareUrl } from '@/lib/shareMeta';
 
 export default function AnnouncementDetailPage() {
   const { announcementId } = useParams<{ announcementId: string }>();
@@ -37,16 +38,22 @@ export default function AnnouncementDetailPage() {
   });
 
   const shareUrl = `${window.location.origin}/announcement/${announcementId}`;
+  const socialShareUrl = buildSocialShareUrl({
+    targetUrl: shareUrl,
+    title: announcement?.title || 'Annonce Siteviral',
+    description: announcement?.body?.slice(0, 155) || '',
+    image: announcement?.image_url || undefined,
+  });
 
   const handleCopyLink = async () => {
-    await navigator.clipboard.writeText(shareUrl);
+    await navigator.clipboard.writeText(socialShareUrl);
     setCopied(true);
     toast({ title: 'Lien copié !' });
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleShareWhatsApp = () => {
-    window.open(`https://wa.me/?text=${encodeURIComponent(`${announcement?.title} — ${shareUrl}`)}`, '_blank');
+    window.open(`https://wa.me/?text=${encodeURIComponent(`${announcement?.title} — ${socialShareUrl}`)}`, '_blank');
   };
 
   if (isLoading) {

@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger
 } from '@/components/ui/dialog';
+import { buildSocialShareUrl } from '@/lib/shareMeta';
 
 interface AffiliateShareToolsProps {
   shareUrl: string;
@@ -19,8 +20,14 @@ export function AffiliateShareTools({ shareUrl, orgName, affiliateCode, productT
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
 
+  const socialShareUrl = buildSocialShareUrl({
+    targetUrl: shareUrl,
+    title: productTitle || orgName,
+    description: productTitle ? `Découvrez ${productTitle} sur ${orgName}` : `Rejoignez ${orgName} sur Siteviral`,
+  });
+
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(shareUrl);
+    await navigator.clipboard.writeText(socialShareUrl);
     setCopied(true);
     toast({ title: 'Lien copié !', description: 'Votre code affilié est inclus.' });
     setTimeout(() => setCopied(false), 2000);
@@ -29,14 +36,14 @@ export function AffiliateShareTools({ shareUrl, orgName, affiliateCode, productT
   // Pre-written WhatsApp messages
   const whatsappMessages = productTitle
     ? [
-        `🔥 Découvrez "${productTitle}" sur ${orgName} !\n\n👉 ${shareUrl}`,
-        `📚 Je vous recommande ce contenu exceptionnel : "${productTitle}"\n\nAccédez-y ici : ${shareUrl}`,
-        `Salut ! J'ai trouvé quelque chose d'intéressant pour vous :\n"${productTitle}" par ${orgName}\n\n${shareUrl}`,
+        `🔥 Découvrez "${productTitle}" sur ${orgName} !\n\n👉 ${socialShareUrl}`,
+        `📚 Je vous recommande ce contenu exceptionnel : "${productTitle}"\n\nAccédez-y ici : ${socialShareUrl}`,
+        `Salut ! J'ai trouvé quelque chose d'intéressant pour vous :\n"${productTitle}" par ${orgName}\n\n${socialShareUrl}`,
       ]
     : [
-        `🌟 Rejoignez ${orgName} sur Siteviral !\n\nDécouvrez contenus, ressources et bien plus.\n\n👉 ${shareUrl}`,
-        `Salut ! Je fais partie de ${orgName} et je pense que ça pourrait vous intéresser.\n\nRejoignez-nous : ${shareUrl}`,
-        `📢 ${orgName} est sur Siteviral ! Contenus exclusifs, ressources numériques, communauté.\n\n${shareUrl}`,
+        `🌟 Rejoignez ${orgName} sur Siteviral !\n\nDécouvrez contenus, ressources et bien plus.\n\n👉 ${socialShareUrl}`,
+        `Salut ! Je fais partie de ${orgName} et je pense que ça pourrait vous intéresser.\n\nRejoignez-nous : ${socialShareUrl}`,
+        `📢 ${orgName} est sur Siteviral ! Contenus exclusifs, ressources numériques, communauté.\n\n${socialShareUrl}`,
       ];
 
   const handleWhatsApp = (msg: string) => {
@@ -48,7 +55,7 @@ export function AffiliateShareTools({ shareUrl, orgName, affiliateCode, productT
       await navigator.share({
         title: productTitle || orgName,
         text: productTitle ? `Découvrez "${productTitle}" sur ${orgName}` : `Rejoignez ${orgName} sur Siteviral`,
-        url: shareUrl,
+        url: socialShareUrl,
       });
     } else {
       handleCopy();
