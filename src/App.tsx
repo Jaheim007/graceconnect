@@ -81,7 +81,11 @@ const PourDiasporaPage = lazy(() => import("@/pages/persona/PourDiasporaPage"));
 const PourPhotographesPage = lazy(() => import("@/pages/persona/PourPhotographesPage"));
 const PourPodcastersPage = lazy(() => import("@/pages/persona/PourPodcastersPage"));
 const PourAssociationsPage = lazy(() => import("@/pages/persona/PourAssociationsPage"));
+const PourCoachesPage = lazy(() => import("@/pages/persona/PourCoachesPage"));
+const PourDesignersPage = lazy(() => import("@/pages/persona/PourDesignersPage"));
+const PourEntrepreneursPage = lazy(() => import("@/pages/persona/PourEntrepreneursPage"));
 const ComparerPage = lazy(() => import("@/pages/ComparerPage"));
+const PressePage = lazy(() => import("@/pages/PressePage"));
 const BlogIndexPage = lazy(() => import("@/pages/blog/BlogIndexPage"));
 const BlogArticlePage = lazy(() => import("@/pages/blog/BlogArticlePage"));
 
@@ -226,6 +230,10 @@ const App = () => (
                 <Route path="/pour/podcasters" element={<PourPodcastersPage />} />
                 <Route path="/pour/associations" element={<PourAssociationsPage />} />
                 <Route path="/comparer" element={<ComparerPage />} />
+                <Route path="/pour/coaches" element={<PourCoachesPage />} />
+                <Route path="/pour/designers" element={<PourDesignersPage />} />
+                <Route path="/pour/entrepreneurs" element={<PourEntrepreneursPage />} />
+                <Route path="/presse" element={<PressePage />} />
                 <Route path="/blog" element={<BlogIndexPage />} />
                 <Route path="/blog/:slug" element={<BlogArticlePage />} />
                 <Route path="/discover" element={<AppLayout />}>

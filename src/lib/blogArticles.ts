@@ -1683,6 +1683,580 @@ export const blogArticles: BlogArticle[] = [
 <p>Si vous créez du contenu de valeur et le vendez via une plateforme adaptée (Mobile Money + ambassadeurs + français), vous êtes positionné sur <strong>la plus grande vague de création de richesse numérique de l'histoire africaine</strong>.</p>
 `,
   },
+  // ─── PHASE 4: 15 articles finaux ───
+  {
+    slug: 'coach-transformer-expertise-revenus-passifs',
+    title: 'Coach : Comment transformer votre expertise en revenus passifs',
+    description: 'Guide pour les coachs africains qui veulent créer des produits numériques vendables 24h/24 à partir de leur méthodologie.',
+    personas: ['Coachs', 'Mentors'],
+    category: 'Guide pratique',
+    readTime: '7 min',
+    publishedAt: '2026-04-08',
+    content: `
+<h2>Le piège du temps contre argent</h2>
+<p>En tant que coach, votre revenu est plafonné par le nombre d'heures dans une journée. 5 clients/jour × 20 000 FCFA = 100 000 FCFA/jour max. Mais si vous tombez malade ou partez en vacances ? <strong>Zéro revenu.</strong></p>
+
+<h2>La solution : productiser votre expertise</h2>
+<p>Prenez votre meilleure méthode de coaching et transformez-la en produit numérique :</p>
+
+<h3>Le workbook</h3>
+<p>Un PDF de 20-50 pages avec exercices, réflexions guidées et plans d'action. Vos clients le suivent en autonomie. Prix : 3 000-8 000 FCFA.</p>
+
+<h3>La masterclass enregistrée</h3>
+<p>Filmez votre meilleur atelier (2-3 heures). Éditez minimalement. Vendez l'accès. Prix : 10 000-25 000 FCFA.</p>
+
+<h3>Le programme complet</h3>
+<p>Workbook + vidéos + exercices audio. Un parcours de transformation en 4-8 semaines. Prix : 20 000-50 000 FCFA.</p>
+
+<h2>L'effet multiplicateur</h2>
+<p>Un programme créé en 2 semaines peut générer des revenus pendant des années. Un coach avec 30 ventes/mois à 10 000 FCFA = <strong>300 000 FCFA de revenus passifs</strong>, en plus de ses sessions live.</p>
+
+<h2>Commencez petit</h2>
+<p>Ne créez pas le programme parfait. Créez un workbook de 20 pages ce week-end. Publiez-le sur Siteviral. Améliorez-le avec les retours clients.</p>
+`,
+  },
+  {
+    slug: 'designer-vendre-templates-afrique',
+    title: 'Designer : Les 5 types de templates qui se vendent le mieux en Afrique',
+    description: 'Découvrez les templates graphiques les plus demandés par les entreprises et entrepreneurs africains.',
+    personas: ['Designers', 'Graphistes'],
+    category: 'Stratégie',
+    readTime: '6 min',
+    publishedAt: '2026-04-09',
+    content: `
+<h2>Un marché sous-exploité</h2>
+<p>Les PME africaines ont besoin de supports visuels professionnels mais n'ont pas les moyens d'engager un designer à temps plein. Les templates prêts à l'emploi sont la solution parfaite.</p>
+
+<h2>Top 5 des templates demandés</h2>
+
+<h3>1. 📱 Templates Social Media</h3>
+<p>Posts Instagram, stories, couvertures Facebook adaptées aux entreprises locales. Pack de 20-50 templates : 5 000-10 000 FCFA. <strong>Le best-seller absolu.</strong></p>
+
+<h3>2. 📄 Templates Business</h3>
+<p>Cartes de visite, en-têtes, factures, devis, présentations PowerPoint. Essentiels pour les PME. Pack : 3 000-8 000 FCFA.</p>
+
+<h3>3. 🍽️ Templates Restauration</h3>
+<p>Menus, flyers de promotion, cartes de fidélité pour restaurants et maquis. Niche très rentable. Pack : 5 000-12 000 FCFA.</p>
+
+<h3>4. ⛪ Templates Religieux</h3>
+<p>Programmes de culte, annonces d'événements, flyers de conférence pour églises. Marché fidèle et récurrent. Pack : 4 000-8 000 FCFA.</p>
+
+<h3>5. 🎓 Templates Éducation</h3>
+<p>CV étudiants, présentations académiques, affiches d'événements universitaires. Prix accessible : 2 000-5 000 FCFA.</p>
+
+<h2>Conseil de pro</h2>
+<p>Créez des templates en <strong>format Canva</strong> (pas seulement PSD). La majorité de vos clients utilisent Canva. Un template Canva se vend 2x plus qu'un PSD.</p>
+`,
+  },
+  {
+    slug: 'siteviral-what-is-it-english',
+    title: 'What is Siteviral? The Digital Platform Empowering African Creators',
+    description: 'Discover Siteviral: the all-in-one platform for selling digital products, collecting donations, and building communities in Africa with Mobile Money.',
+    personas: ['All'],
+    category: 'Discovery',
+    readTime: '5 min',
+    publishedAt: '2026-04-10',
+    content: `
+<h2>The Problem</h2>
+<p>In francophone Africa, millions of creators, churches, NGOs, and entrepreneurs produce valuable digital content — but have <strong>no simple way to monetize it</strong>. Western platforms like Shopify, Gumroad, and Patreon don't support Mobile Money, charge expensive subscriptions in USD, and aren't adapted to the local context.</p>
+
+<h2>The Solution: Siteviral</h2>
+<p>Siteviral is an <strong>all-in-one platform</strong> that enables anyone to:</p>
+<ul>
+<li><strong>Sell digital products</strong> (ebooks, courses, music, templates) with instant delivery</li>
+<li><strong>Collect donations</strong> with transparent tracking and progress bars</li>
+<li><strong>Build a community</strong> with events, announcements, and member management</li>
+<li><strong>Grow virally</strong> through a built-in ambassador/affiliate program</li>
+</ul>
+
+<h2>Why It's Different</h2>
+<ul>
+<li><strong>Mobile Money native</strong>: MTN, Orange Money, Wave, Airtel — the payment methods Africans actually use</li>
+<li><strong>Zero subscription</strong>: Only 7% commission per sale. No sale = no fee.</li>
+<li><strong>Ambassador program</strong>: Buyers become promoters and earn commissions on referrals</li>
+<li><strong>French-first</strong>: Built for francophone Africa, with full French interface</li>
+<li><strong>International payments</strong>: Stripe integration for diaspora and international buyers</li>
+</ul>
+
+<h2>Who Uses Siteviral?</h2>
+<ul>
+<li>Churches & religious organizations (sermons, donations, tithes)</li>
+<li>NGOs & associations (fundraising, member management)</li>
+<li>Trainers & coaches (courses, programs, workshops)</li>
+<li>Musicians & artists (beats, albums, exclusive content)</li>
+<li>Authors & writers (ebooks, guides)</li>
+<li>Students & youth (ambassador earnings, zero investment)</li>
+<li>African diaspora (donate and buy from abroad by card)</li>
+</ul>
+
+<h2>How It Works</h2>
+<ol>
+<li>Sign up free (2 minutes)</li>
+<li>Create your organization page</li>
+<li>Upload your products or launch a donation campaign</li>
+<li>Share the link on WhatsApp, Facebook, Instagram</li>
+<li>Receive payments in Mobile Money or bank transfer</li>
+</ol>
+`,
+  },
+  {
+    slug: 'ambassador-program-earn-money-africa',
+    title: 'How to Earn Money Online in Africa with the Siteviral Ambassador Program',
+    description: 'Learn how to earn commissions by sharing digital products online. No investment, no MLM — just share and earn.',
+    personas: ['All'],
+    category: 'Discovery',
+    readTime: '5 min',
+    publishedAt: '2026-04-11',
+    content: `
+<h2>What is the Ambassador Program?</h2>
+<p>The Siteviral Ambassador Program is a <strong>simple affiliate system</strong>: you share product links, and when someone buys through your link, you earn a commission (5-50% depending on the product).</p>
+
+<h2>How It Works</h2>
+<ol>
+<li><strong>Sign up free</strong> on Siteviral</li>
+<li><strong>Browse the marketplace</strong> and find products you want to promote</li>
+<li><strong>Generate your unique link</strong> for any product</li>
+<li><strong>Share on WhatsApp, Facebook, TikTok, Instagram</strong></li>
+<li><strong>Earn commissions</strong> on every sale through your link</li>
+</ol>
+
+<h2>How Much Can You Earn?</h2>
+<p>Example: An ebook at 5,000 XOF with 25% commission:</p>
+<ul>
+<li>5 sales/week = 6,250 XOF/week = <strong>25,000 XOF/month</strong></li>
+<li>15 sales/week = 18,750 XOF/week = <strong>75,000 XOF/month</strong></li>
+<li>30 sales/week = 37,500 XOF/week = <strong>150,000 XOF/month</strong></li>
+</ul>
+
+<h2>This is NOT MLM</h2>
+<p>Key differences from pyramid schemes:</p>
+<ul>
+<li>✅ Free to join (no kit to buy)</li>
+<li>✅ You earn on product sales, NOT recruitment</li>
+<li>✅ Single-level commission (no cascade)</li>
+<li>✅ Real products with real value</li>
+<li>✅ You can stop anytime with no penalty</li>
+</ul>
+
+<h2>Best Practices</h2>
+<ul>
+<li>Only promote products you genuinely believe in</li>
+<li>Post WhatsApp statuses 2-3 times/day with product previews</li>
+<li>Share in targeted Facebook groups (don't spam!)</li>
+<li>Create short TikTok/Reels reviews of the products</li>
+</ul>
+`,
+  },
+  {
+    slug: 'entrepreneur-lancer-saas-produit-numerique',
+    title: 'Entrepreneur : Lancer un micro-SaaS ou un produit numérique ? Le comparatif',
+    description: 'Pour les entrepreneurs africains : faut-il créer un SaaS complexe ou commencer par vendre des produits numériques simples ?',
+    personas: ['Entrepreneurs'],
+    category: 'Stratégie',
+    readTime: '7 min',
+    publishedAt: '2026-04-12',
+    content: `
+<h2>Le dilemme de l'entrepreneur digital</h2>
+<p>Vous voulez créer un business en ligne. Deux options : développer un SaaS (application web) ou vendre des produits numériques. Voici le comparatif honnête.</p>
+
+<h2>Micro-SaaS</h2>
+<ul>
+<li>⏱️ <strong>Temps de développement</strong> : 3-12 mois</li>
+<li>💰 <strong>Coût initial</strong> : 1-10 millions FCFA (développeur + serveurs)</li>
+<li>📈 <strong>Revenus</strong> : Récurrents (abonnements mensuels)</li>
+<li>🔧 <strong>Maintenance</strong> : Continue (bugs, mises à jour, support)</li>
+<li>📊 <strong>Risque</strong> : Élevé (le produit peut ne pas trouver de marché)</li>
+</ul>
+
+<h2>Produits numériques</h2>
+<ul>
+<li>⏱️ <strong>Temps de création</strong> : 1-7 jours</li>
+<li>💰 <strong>Coût initial</strong> : 0 FCFA (juste votre temps)</li>
+<li>📈 <strong>Revenus</strong> : Par vente (pas récurrents mais scalables)</li>
+<li>🔧 <strong>Maintenance</strong> : Quasi nulle</li>
+<li>📊 <strong>Risque</strong> : Très faible (pas d'investissement perdu)</li>
+</ul>
+
+<h2>Notre recommandation</h2>
+<p><strong>Commencez par les produits numériques.</strong> Validez votre marché, construisez une audience, générez des revenus. Puis investissez ces revenus dans un SaaS si le marché le justifie.</p>
+
+<h2>Le parcours idéal</h2>
+<ol>
+<li>Créez un ebook/guide sur votre expertise (semaine 1)</li>
+<li>Vendez-le sur Siteviral avec le programme ambassadeur (mois 1-3)</li>
+<li>Créez des produits complémentaires (mois 3-6)</li>
+<li>Avec les revenus et la connaissance client, décidez si un SaaS est pertinent</li>
+</ol>
+`,
+  },
+  {
+    slug: 'cas-etude-photographe-dakar',
+    title: 'Étude de cas : Une photographe de Dakar vend 900 000 FCFA de presets en 4 mois',
+    description: 'Comment Fatou a transformé ses presets Lightroom en business rentable sur Siteviral.',
+    personas: ['Photographes', 'Créateurs'],
+    category: 'Étude de cas',
+    readTime: '5 min',
+    publishedAt: '2026-04-13',
+    content: `
+<h2>Profil</h2>
+<p>Fatou, 26 ans, photographe de mariage à Dakar. Connue pour son style lumineux et chaleureux sur Instagram (8 000 abonnés).</p>
+
+<h2>L'idée</h2>
+<p>Ses abonnés lui demandaient constamment "Tu utilises quels filtres ?" Elle a décidé de vendre ses presets Lightroom au lieu de les donner.</p>
+
+<h2>Ce qu'elle a créé</h2>
+<ul>
+<li><strong>"Pack Mariage Doré"</strong> : 12 presets — 5 000 FCFA</li>
+<li><strong>"Pack Portrait Naturel"</strong> : 8 presets — 3 500 FCFA</li>
+<li><strong>"Collection Complète"</strong> : 25 presets — 10 000 FCFA</li>
+</ul>
+
+<h2>Sa stratégie</h2>
+<ol>
+<li>Post Instagram avec avant/après de chaque preset (1 par jour)</li>
+<li>Story avec le lien Siteviral en swipe-up</li>
+<li>Activation de 15 ambassadeurs (autres photographes et influenceurs)</li>
+<li>Statuts WhatsApp quotidiens</li>
+</ol>
+
+<h2>Résultats sur 4 mois</h2>
+<ul>
+<li><strong>180 ventes</strong> du Pack Mariage (900 000 FCFA)</li>
+<li><strong>95 ventes</strong> du Pack Portrait (332 500 FCFA)</li>
+<li><strong>42 ventes</strong> de la Collection Complète (420 000 FCFA)</li>
+<li><strong>Total : 1 652 500 FCFA</strong> (dont 93% conservé = 1 536 825 FCFA net)</li>
+</ul>
+
+<h2>Ce qu'elle dit</h2>
+<p>"C'est surréaliste. Je gagne plus avec mes presets qu'avec certains shootings. Et ça continue de vendre même quand je suis en séance photo."</p>
+`,
+  },
+  {
+    slug: 'cas-etude-ong-burkina-education',
+    title: 'Étude de cas : Une ONG au Burkina finance 200 manuels scolaires en 3 semaines',
+    description: 'Comment l\'ONG "Lire pour Grandir" a utilisé Siteviral pour sa campagne de rentrée scolaire.',
+    personas: ['ONG', 'Associations'],
+    category: 'Étude de cas',
+    readTime: '5 min',
+    publishedAt: '2026-04-14',
+    content: `
+<h2>Le contexte</h2>
+<p>"Lire pour Grandir" est une ONG basée à Ouagadougou qui fournit des manuels scolaires aux enfants défavorisés. Chaque rentrée, ils collectent des fonds par événements physiques — coûteux et limités en portée.</p>
+
+<h2>Le défi 2026</h2>
+<p>Objectif : collecter 1,5 million FCFA en 30 jours pour acheter 200 manuels. Budget marketing : 0 FCFA.</p>
+
+<h2>La stratégie Siteviral</h2>
+<ol>
+<li>Création de la page ONG avec photos des enfants et de l'école</li>
+<li>Campagne "200 manuels pour la rentrée" avec jauge de progression</li>
+<li>Partage dans 5 groupes WhatsApp communautaires</li>
+<li>10 ambassadeurs dans la diaspora (France, Canada, Belgique)</li>
+<li>Mises à jour tous les 3 jours avec nombre de manuels financés</li>
+</ol>
+
+<h2>Résultats</h2>
+<ul>
+<li><strong>Semaine 1</strong> : 420 000 FCFA (cercle proche, premières donations locales)</li>
+<li><strong>Semaine 2</strong> : 890 000 FCFA (diaspora activée, effet viral WhatsApp)</li>
+<li><strong>Semaine 3</strong> : 1 780 000 FCFA (objectif dépassé de 18% !)</li>
+<li><strong>112 donateurs</strong> au total (58 locaux, 54 diaspora)</li>
+<li><strong>Don moyen</strong> : 15 900 FCFA</li>
+</ul>
+
+<h2>La clé du succès</h2>
+<p>"Les mises à jour régulières avec les photos des manuels achetés ont créé un effet boule de neige. Les gens voyaient l'impact concret et partageaient la campagne."</p>
+`,
+  },
+  {
+    slug: 'fiscalite-vente-en-ligne-afrique',
+    title: 'Fiscalité de la vente en ligne en Afrique : Ce que vous devez savoir',
+    description: 'Guide simplifié sur les obligations fiscales des vendeurs de produits numériques en Afrique francophone.',
+    personas: ['Tous'],
+    category: 'Confiance',
+    readTime: '6 min',
+    publishedAt: '2026-04-15',
+    content: `
+<h2>La question que personne ne pose (mais devrait)</h2>
+<p>"Est-ce que je dois déclarer mes revenus Siteviral ?" La réponse courte : <strong>oui, techniquement</strong>. La réponse longue dépend de votre pays et de vos montants.</p>
+
+<h2>Principes généraux (UEMOA/CEMAC)</h2>
+<ul>
+<li>Tout revenu régulier devrait être déclaré aux impôts</li>
+<li>Dans la plupart des pays francophones, il existe un <strong>régime simplifié</strong> pour les petits revenus</li>
+<li>Les seuils varient : 30-50 millions FCFA/an pour le régime normal dans la zone UEMOA</li>
+<li>En dessous de ces seuils, vous êtes souvent au <strong>régime forfaitaire</strong> (impôt fixe et bas)</li>
+</ul>
+
+<h2>Cas par pays</h2>
+
+<h3>🇨🇮 Côte d'Ivoire</h3>
+<p>Régime de l'entreprenant : imposition simplifiée sous 50M FCFA/an de CA. Taux de 2% sur le CA.</p>
+
+<h3>🇸🇳 Sénégal</h3>
+<p>Contribution globale unique (CGU) pour les petits contribuables. Taux progressif de 1% à 5%.</p>
+
+<h3>🇨🇲 Cameroun</h3>
+<p>Régime de l'impôt libératoire pour les petites activités. Forfait annuel de 20 000 à 100 000 FCFA selon la commune.</p>
+
+<h2>Recommandations pratiques</h2>
+<ol>
+<li><strong>Gardez vos relevés</strong> : Siteviral fournit un historique exportable de toutes vos transactions</li>
+<li><strong>Consultez un comptable local</strong> quand vos revenus dépassent 500 000 FCFA/mois</li>
+<li><strong>Formalisez-vous progressivement</strong> : commencez informellement, formalisez quand ça grandit</li>
+<li><strong>Les reçus Siteviral</strong> servent de justificatifs comptables</li>
+</ol>
+
+<h2>Disclaimer</h2>
+<p>Cet article est informatif et ne constitue pas un conseil fiscal. Consultez un professionnel comptable dans votre pays pour votre situation spécifique.</p>
+`,
+  },
+  {
+    slug: 'email-marketing-vendeurs-siteviral',
+    title: 'Email marketing pour vendeurs Siteviral : Transformez vos acheteurs en fans',
+    description: 'Comment utiliser l\'email pour fidéliser vos clients, annoncer vos nouveaux produits et augmenter vos ventes.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Stratégie',
+    readTime: '7 min',
+    publishedAt: '2026-04-16',
+    content: `
+<h2>Votre liste d'acheteurs est votre actif #1</h2>
+<p>Chaque personne qui achète sur votre boutique Siteviral vous donne son email. Cette liste est <strong>le bien le plus précieux de votre business</strong>. Les réseaux sociaux peuvent changer leurs algorithmes, WhatsApp peut limiter les groupes — mais votre liste d'emails est à vous.</p>
+
+<h2>Quand envoyer des emails</h2>
+
+<h3>1. Après l'achat (automatique)</h3>
+<p>Siteviral envoie déjà un email de confirmation. Mais ajoutez une touche personnelle dans la description de votre produit : "Après votre achat, consultez votre email pour un bonus surprise."</p>
+
+<h3>2. Nouveau produit</h3>
+<p>Quand vous publiez un nouveau cours/ebook, utilisez les annonces Siteviral pour informer vos membres. Les clients existants sont vos acheteurs les plus probables.</p>
+
+<h3>3. Promotion flash</h3>
+<p>Créez un code promo limité dans le temps. Envoyez l'annonce à vos membres. Urgence + exclusivité = conversions.</p>
+
+<h2>Bonnes pratiques</h2>
+<ul>
+<li><strong>Fréquence</strong> : 1-2 emails/semaine max. Ne spammez pas.</li>
+<li><strong>Valeur d'abord</strong> : Chaque email doit apporter quelque chose d'utile, même si vous faites de la promotion</li>
+<li><strong>Personnalisation</strong> : Utilisez le prénom du client quand possible</li>
+<li><strong>Objet accrocheur</strong> : L'objet de l'email détermine 80% du taux d'ouverture</li>
+</ul>
+
+<h2>Résultat typique</h2>
+<p>Un vendeur avec 500 acheteurs qui envoie une annonce de nouveau produit peut attendre <strong>5-15% de conversion</strong> = 25-75 nouvelles ventes. Sans aucun budget pub.</p>
+`,
+  },
+  {
+    slug: 'creer-bundle-augmenter-panier-moyen',
+    title: 'Comment créer des bundles qui doublent votre panier moyen',
+    description: 'La stratégie des bundles (packs) pour augmenter le montant de chaque vente. Exemples concrets et formules de prix.',
+    personas: ['Créateurs', 'Formateurs', 'Entrepreneurs'],
+    category: 'Stratégie',
+    readTime: '6 min',
+    publishedAt: '2026-04-17',
+    content: `
+<h2>Qu'est-ce qu'un bundle ?</h2>
+<p>Un bundle est un <strong>pack de plusieurs produits vendus ensemble à prix réduit</strong>. Au lieu de vendre 3 ebooks à 5 000 FCFA chacun (15 000 FCFA total), vous les vendez en pack à 10 000 FCFA.</p>
+
+<h2>Pourquoi les bundles marchent</h2>
+<ul>
+<li><strong>Perception de valeur</strong> : "3 produits pour le prix de 2" est irrésistible</li>
+<li><strong>Panier moyen plus élevé</strong> : Au lieu de 5 000 FCFA, le client dépense 10 000 FCFA</li>
+<li><strong>Découverte</strong> : Le client découvre des produits qu'il n'aurait pas achetés seuls</li>
+<li><strong>Réduction des choix</strong> : "Prenez tout" est plus simple que de choisir</li>
+</ul>
+
+<h2>Formules de prix qui marchent</h2>
+
+<h3>La règle des 70%</h3>
+<p>Prix du bundle = 70% du prix total des produits séparés. Ex : 3 produits à 5 000 FCFA = 15 000 FCFA → Bundle à 10 000 FCFA.</p>
+
+<h3>Le bundle progressif</h3>
+<ul>
+<li>1 produit : 5 000 FCFA</li>
+<li>3 produits : 12 000 FCFA (au lieu de 15 000)</li>
+<li>Tous les produits (7) : 25 000 FCFA (au lieu de 35 000)</li>
+</ul>
+
+<h2>Exemples concrets</h2>
+<ul>
+<li><strong>Formateur</strong> : "Pack Transformation Complète" = 5 modules + workbook + bonus audio</li>
+<li><strong>Photographe</strong> : "Mega Collection" = tous les presets + tutoriel vidéo</li>
+<li><strong>Auteur</strong> : "Bibliothèque Complète" = tous les ebooks de l'auteur</li>
+<li><strong>Designer</strong> : "Kit Business Total" = templates social + business + restaurant</li>
+</ul>
+
+<h2>Sur Siteviral</h2>
+<p>Créez un produit "bundle" et ajoutez les produits inclus. Siteviral gère la livraison de tous les fichiers en une seule transaction.</p>
+`,
+  },
+  {
+    slug: 'optimiser-page-vendeur-conversions',
+    title: '10 astuces pour optimiser votre page vendeur et doubler vos conversions',
+    description: 'Les techniques de copywriting et de design qui transforment les visiteurs en acheteurs sur votre page Siteviral.',
+    personas: ['Tous'],
+    category: 'Stratégie',
+    readTime: '8 min',
+    publishedAt: '2026-04-18',
+    content: `
+<h2>Votre page vendeur est votre vitrine</h2>
+<p>Quand un prospect clique sur votre lien, il a <strong>3 secondes</strong> pour décider s'il reste ou part. Voici 10 astuces pour maximiser vos conversions.</p>
+
+<h3>1. Titre produit clair et spécifique</h3>
+<p>Mauvais : "Mon guide". Bon : "Guide complet du freelance en Afrique — 120 pages, 50 templates inclus".</p>
+
+<h3>2. Image de couverture professionnelle</h3>
+<p>Utilisez Canva pour créer un mockup attractif. Un bon visuel augmente les conversions de 40%.</p>
+
+<h3>3. Description orientée bénéfices</h3>
+<p>Ne décrivez pas ce que contient votre produit. Décrivez ce que le client <strong>va pouvoir faire</strong> après l'achat.</p>
+
+<h3>4. Preuve sociale</h3>
+<p>Nombre de ventes, avis clients, témoignages. "Déjà acheté par 200+ personnes" crée de la confiance.</p>
+
+<h3>5. Prix barré + prix actuel</h3>
+<p>Montrez la valeur totale et le prix réduit. "Valeur : 15 000 FCFA → Aujourd'hui : 8 000 FCFA".</p>
+
+<h3>6. Garantie</h3>
+<p>"Satisfait ou remboursé sous 7 jours" — élimine la peur du risque.</p>
+
+<h3>7. Urgence</h3>
+<p>Utilisez les promotions limitées dans le temps. "Prix de lancement valable encore 48h".</p>
+
+<h3>8. FAQ dans la description</h3>
+<p>Répondez aux objections courantes directement dans la description du produit.</p>
+
+<h3>9. Bonus</h3>
+<p>Ajoutez un bonus gratuit ("+ checklist offerte", "+ template bonus"). La valeur perçue augmente.</p>
+
+<h3>10. CTA clair</h3>
+<p>Le bouton d'achat doit être évident. Pas de confusion sur comment acheter.</p>
+`,
+  },
+  {
+    slug: 'partenaire-siteviral-b2b-guide',
+    title: 'Devenir Partenaire Siteviral : Le programme B2B pour les agences et consultants',
+    description: 'Comment gagner 5% à 15% de commission récurrente en référant des organisations sur Siteviral.',
+    personas: ['Partenaires', 'Agences'],
+    category: 'Guide pratique',
+    readTime: '6 min',
+    publishedAt: '2026-04-19',
+    content: `
+<h2>Le programme partenaire en bref</h2>
+<p>Le programme Partenaire Siteviral est un programme B2B pour les agences digitales, consultants, community managers et influenceurs qui recommandent Siteviral à des organisations.</p>
+
+<h2>Comment ça marche</h2>
+<ol>
+<li>Inscrivez-vous comme partenaire sur /devenir-partenaire</li>
+<li>Recevez votre lien d'invitation unique</li>
+<li>Recommandez Siteviral à des églises, ONG, formateurs, créateurs</li>
+<li>Pour chaque organisation active référée, vous gagnez une commission sur les frais de plateforme</li>
+</ol>
+
+<h2>Les 5 niveaux</h2>
+<ul>
+<li><strong>🥉 Bronze</strong> : 1-4 organisations → 5% de commission</li>
+<li><strong>🥈 Argent</strong> : 5-14 organisations → 8%</li>
+<li><strong>🥇 Or</strong> : 15-29 organisations → 10%</li>
+<li><strong>💎 Platine</strong> : 30-49 organisations → 12%</li>
+<li><strong>👑 Diamant</strong> : 50+ organisations → 15%</li>
+</ul>
+
+<h2>Ce qui est commissionné</h2>
+<p>Vous gagnez un pourcentage des <strong>frais de plateforme</strong> (pas du montant total) sur les ventes de produits et les abonnements. Les dons purs ne sont pas commissionnés.</p>
+
+<h2>Profils idéaux de partenaires</h2>
+<ul>
+<li><strong>Agences web</strong> : Proposez Siteviral à vos clients qui veulent vendre en ligne</li>
+<li><strong>Consultants digitaux</strong> : Ajoutez Siteviral à votre offre d'accompagnement</li>
+<li><strong>Community managers</strong> : Migrez vos clients de WhatsApp vers Siteviral</li>
+<li><strong>Pasteurs influents</strong> : Recommandez à d'autres ministères</li>
+</ul>
+
+<h2>Paiement</h2>
+<p>Commissions versées via Mobile Money après KYC, avec un seuil minimum de 5 000 FCFA et un délai de rétention de 15 jours.</p>
+`,
+  },
+  {
+    slug: 'accessibilite-inclusion-numerique-afrique',
+    title: 'Accessibilité et inclusion numérique : Comment Siteviral rend la tech accessible à tous',
+    description: 'Comment Siteviral a été conçu pour être utilisable par tous, même avec une connexion lente, un vieux smartphone ou peu d\'expérience tech.',
+    personas: ['Tous'],
+    category: 'Confiance',
+    readTime: '5 min',
+    publishedAt: '2026-04-20',
+    content: `
+<h2>La fracture numérique est réelle</h2>
+<p>En Afrique, la majorité des utilisateurs accèdent à Internet via un <strong>smartphone d'entrée de gamme avec une connexion 3G instable</strong>. Les plateformes occidentales, conçues pour la fibre optique et les derniers iPhones, sont inutilisables dans ce contexte.</p>
+
+<h2>Comment Siteviral est conçu pour l'Afrique</h2>
+
+<h3>📱 Mobile-first</h3>
+<p>L'interface est conçue pour le mobile d'abord. Chaque fonctionnalité fonctionne parfaitement sur un écran de 5 pouces.</p>
+
+<h3>⚡ Performant sur 3G</h3>
+<p>Pages optimisées pour charger en moins de 3 secondes, même sur une connexion lente. Images compressées, code minimal.</p>
+
+<h3>📶 Mode hors-ligne</h3>
+<p>En tant que PWA (Progressive Web App), Siteviral peut fonctionner partiellement hors-ligne et se met à jour quand la connexion revient.</p>
+
+<h3>🌐 Français natif</h3>
+<p>Pas de traduction approximative. L'interface est conçue en français dès le départ, avec des termes adaptés au contexte africain.</p>
+
+<h3>🎓 Interface intuitive</h3>
+<p>Si vous savez utiliser WhatsApp, vous savez utiliser Siteviral. Pas de courbe d'apprentissage. Pas de jargon technique.</p>
+
+<h3>📲 Installable comme une app</h3>
+<p>Siteviral s'installe sur l'écran d'accueil comme une app native, sans passer par le Play Store. Pas besoin de 100 Mo d'espace.</p>
+
+<h2>L'inclusion par le paiement</h2>
+<p>Le Mobile Money n'est pas un "mode de paiement alternatif" chez Siteviral. C'est le <strong>mode de paiement principal</strong>. Parce que c'est celui que la majorité des Africains utilisent.</p>
+`,
+  },
+  {
+    slug: 'avenir-economie-numerique-afrique-2030',
+    title: 'L\'économie numérique africaine en 2030 : Pourquoi les créateurs doivent agir maintenant',
+    description: 'Projection sur l\'avenir de l\'économie des créateurs en Afrique et pourquoi le moment d\'agir est maintenant.',
+    personas: ['Tous'],
+    category: 'Stratégie',
+    readTime: '7 min',
+    publishedAt: '2026-04-22',
+    content: `
+<h2>Les chiffres de 2030</h2>
+<ul>
+<li><strong>800 millions</strong> d'utilisateurs Internet en Afrique (vs 600M en 2026)</li>
+<li><strong>1 500 milliards USD</strong> de transactions Mobile Money/an</li>
+<li><strong>20 milliards USD</strong> : taille estimée de l'économie des créateurs africains</li>
+<li><strong>2 milliards</strong> d'Africains (la population la plus jeune du monde)</li>
+</ul>
+
+<h2>Pourquoi agir MAINTENANT</h2>
+
+<h3>1. L'avantage du premier arrivé</h3>
+<p>Le marché de la vente de contenu numérique via Mobile Money en est à ses <strong>tout débuts</strong>. Les créateurs qui se positionnent maintenant seront les leaders de demain.</p>
+
+<h3>2. La confiance se construit dans le temps</h3>
+<p>Les créateurs qui vendent depuis 2-3 ans auront des centaines d'avis, des milliers de clients, et une réputation solide. Impossible à rattraper en 6 mois.</p>
+
+<h3>3. L'effet composé des ambassadeurs</h3>
+<p>Un ambassadeur recruté aujourd'hui continuera de vendre pour vous pendant des années. Plus vous commencez tôt, plus votre réseau d'ambassadeurs grandit.</p>
+
+<h3>4. Le contenu en français est rare</h3>
+<p>Alors que le contenu en anglais est saturé, le <strong>contenu numérique de qualité en français</strong> est encore rare. C'est votre fenêtre d'opportunité.</p>
+
+<h2>Les secteurs qui vont exploser</h2>
+<ul>
+<li><strong>EdTech</strong> : Formations professionnelles en langues locales</li>
+<li><strong>FinTech éducation</strong> : Guides de gestion financière pour les PME</li>
+<li><strong>Contenu religieux</strong> : Le marché le plus fidèle et le plus sous-numérisé</li>
+<li><strong>Musique</strong> : Vente directe artiste-fan sans intermédiaire</li>
+<li><strong>Templates business</strong> : Outils prêts à l'emploi pour entrepreneurs</li>
+</ul>
+
+<h2>La conclusion</h2>
+<p>En 2030, vous serez soit un créateur qui a construit un business numérique solide, soit un spectateur qui regrettera de ne pas avoir commencé en 2026. <strong>Le meilleur moment pour planter un arbre était il y a 10 ans. Le deuxième meilleur moment, c'est maintenant.</strong></p>
+`,
+  },
 ];
 
 export function getArticleBySlug(slug: string): BlogArticle | undefined {
