@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { getOrgCategoryLabel } from '@/lib/categoryLabels';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { requestAffiliatePayout } from '@/lib/api';
@@ -536,7 +537,7 @@ function OrgAffiliateCard({ org, isSubscribed, onBecome, loading, onView }: {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold truncate">{org.name}</p>
-          {org.category && <p className="text-[10px] text-muted-foreground capitalize">{org.category}</p>}
+          {org.category && <p className="text-[10px] text-muted-foreground">{getOrgCategoryLabel(org.category)}</p>}
         </div>
         <Badge className="bg-primary text-primary-foreground border-0 text-xs font-bold shrink-0">
           {org.affiliation_commission_percent || 10}%

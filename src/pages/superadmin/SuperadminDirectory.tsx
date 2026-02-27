@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getOrgCategoryLabel } from '@/lib/categoryLabels';
 import { db } from '@/lib/db';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -96,7 +97,7 @@ export default function SuperadminDirectory() {
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-sm truncate">{org?.name || 'Unknown'}</p>
-                      <p className="text-xs text-muted-foreground">/{org?.slug} · {org?.category}</p>
+                      <p className="text-xs text-muted-foreground">/{org?.slug} · {getOrgCategoryLabel(org?.category)}</p>
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {new Date(app.submitted_at).toLocaleDateString('fr-FR')}

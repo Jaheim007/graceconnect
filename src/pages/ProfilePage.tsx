@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { getOrgCategoryLabel } from '@/lib/categoryLabels';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -270,7 +271,7 @@ export default function ProfilePage() {
                       <p className="text-sm font-medium truncate">{org.name}</p>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <span className={cn('text-[10px] px-1.5 py-0.5 rounded-md font-medium', roleColor)}>{roleLabel}</span>
-                        <span className="text-[10px] text-muted-foreground capitalize">{org.category}</span>
+                        <span className="text-[10px] text-muted-foreground">{getOrgCategoryLabel(org.category)}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-1 shrink-0">

@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { getOrgCategoryLabel } from '@/lib/categoryLabels';
 import { db } from '@/lib/db';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -112,7 +113,7 @@ export function SuperadminOrgs() {
             <div key={o.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card">
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{o.name}</p>
-                <p className="text-xs text-muted-foreground">{o.slug} · {o.country} · {o.category}</p>
+                <p className="text-xs text-muted-foreground">{o.slug} · {o.country} · {getOrgCategoryLabel(o.category)}</p>
               </div>
               <Badge variant="outline" className="text-[10px] capitalize">{o.plan_type}</Badge>
               <Badge className={`text-[10px] border-0 ${o.kyc_status === 'level1' ? 'bg-green-500/15 text-green-600' : o.kyc_status === 'level2' ? 'bg-emerald-500/15 text-emerald-600' : 'bg-yellow-500/15 text-yellow-600'}`}>
