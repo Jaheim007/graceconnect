@@ -11,11 +11,11 @@ interface ImageUploaderProps {
   folder?: string;
   label?: string;
   hint?: string;
-  aspectRatio?: 'square' | 'video' | 'banner' | 'free';
+  aspectRatio?: 'square' | 'video' | 'banner' | 'free' | 'book';
   disableCrop?: boolean;
 }
 
-const ASPECT_MAP = { square: 1, video: 16 / 9, banner: 3 / 1, free: undefined } as const;
+const ASPECT_MAP = { square: 1, video: 16 / 9, banner: 3 / 1, book: 2 / 3, free: undefined } as const;
 
 export function ImageUploader({
   value,
@@ -37,6 +37,7 @@ export function ImageUploader({
     square: 'aspect-square',
     video: 'aspect-video',
     banner: 'aspect-[3/1]',
+    book: 'aspect-[2/3]',
     free: 'aspect-video',
   }[aspectRatio];
 
