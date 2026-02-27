@@ -34,7 +34,7 @@ export function LandingPricing() {
   const navigate = useNavigate();
 
   return (
-    <section className="py-24 px-4 bg-muted/30">
+    <section id="pricing" className="py-24 px-4 bg-muted/30 scroll-mt-16">
       <div className="container max-w-4xl">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-14">
           <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">Tarification</Badge>
