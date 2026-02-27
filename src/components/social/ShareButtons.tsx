@@ -1,25 +1,39 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Share2, Copy, CheckCircle, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { buildSocialShareUrl } from '@/lib/shareMeta';
+import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
 
 interface ShareButtonsProps {
   url: string;
   title: string;
   description?: string;
+  image?: string;
   className?: string;
   compact?: boolean;
 }
 
-export function ShareButtons({ url, title, description = '', className, compact = false }: ShareButtonsProps) {
+export function ShareButtons({ url, title, description = '', image, className, compact = false }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
   const { toast } = useToast();
 
   const fullUrl = url.startsWith('http') ? url : `${window.location.origin}${url}`;
-  const socialUrl = buildSocialShareUrl({ targetUrl: fullUrl, title, description });
-  const encodedUrl = encodeURIComponent(socialUrl);
+
+  // Immediately set a sync fallback, then upgrade to short link
+  useEffect(() => {
+    const fallback = buildSocialShareUrl({ targetUrl: fullUrl, title, description, image });
+    setShareUrl(fallback);
+
+    // Try to create a branded short link
+    const path = url.startsWith('/') ? url : new URL(fullUrl).pathname;
+    getOrCreateShortLink({ targetPath: path, title, description, image })
+      .then((shortUrl) => setShareUrl(shortUrl))
+      .catch(() => { /* keep fallback */ });
+  }, [fullUrl, url, title, description, image]);
+
+  const encodedUrl = encodeURIComponent(shareUrl);
   const encodedTitle = encodeURIComponent(title);
   const encodedDesc = encodeURIComponent(description);
 
@@ -51,7 +65,7 @@ export function ShareButtons({ url, title, description = '', className, compact 
   ];
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(socialUrl);
+    await navigator.clipboard.writeText(shareUrl);
     setCopied(true);
     toast({ title: '🔗 Lien copié !' });
     setTimeout(() => setCopied(false), 2000);
@@ -60,7 +74,7 @@ export function ShareButtons({ url, title, description = '', className, compact 
   const handleNativeShare = async () => {
     if (navigator.share) {
       try {
-        await navigator.share({ title, text: description, url: socialUrl });
+        await navigator.share({ title, text: description, url: shareUrl });
       } catch { /* user cancelled */ }
     }
   };

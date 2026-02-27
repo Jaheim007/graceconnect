@@ -3915,6 +3915,10 @@ export type Database = {
       }
       get_partner_rate: { Args: { _partner_id: string }; Returns: number }
       increment_like_count: { Args: { media_id: string }; Returns: undefined }
+      increment_short_link_clicks: {
+        Args: { _code: string }
+        Returns: undefined
+      }
       increment_view_count: { Args: { media_id: string }; Returns: undefined }
       is_org_member: {
         Args: { _org_id: string; _user_id: string }

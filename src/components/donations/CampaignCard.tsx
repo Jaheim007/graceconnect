@@ -1,10 +1,11 @@
+import { useState, useEffect } from 'react';
 import { DonationCampaign } from '@/types/database';
 import { formatCurrency } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { Heart, Target, Share2, Copy, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { buildSocialShareUrl } from '@/lib/shareMeta';
+import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -17,21 +18,38 @@ interface CampaignCardProps {
 export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [shareUrl, setShareUrl] = useState('');
 
-  const socialShareUrl = buildSocialShareUrl({
-    targetUrl: `${window.location.origin}/campaign/${campaign.id}`,
-    title: campaign.title,
-    description: campaign.description?.slice(0, 155) || undefined,
-    image: campaign.image_url || undefined,
-  });
+  const targetPath = `/campaign/${campaign.id}`;
+
+  useEffect(() => {
+    // Set sync fallback immediately
+    const fallback = buildSocialShareUrl({
+      targetUrl: `${window.location.origin}${targetPath}`,
+      title: campaign.title,
+      description: campaign.description?.slice(0, 155) || undefined,
+      image: campaign.image_url || undefined,
+    });
+    setShareUrl(fallback);
+
+    // Upgrade to short link
+    getOrCreateShortLink({
+      targetPath,
+      title: campaign.title,
+      description: campaign.description?.slice(0, 155) || undefined,
+      image: campaign.image_url || undefined,
+    })
+      .then((url) => setShareUrl(url))
+      .catch(() => { /* keep fallback */ });
+  }, [campaign.id, campaign.title, campaign.description, campaign.image_url, targetPath]);
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(socialShareUrl);
+    navigator.clipboard.writeText(shareUrl);
     toast({ title: 'Lien copié !' });
   };
 
   const handleShareWhatsApp = () => {
-    window.open(`https://wa.me/?text=${encodeURIComponent(`${campaign.title} — ${socialShareUrl}`)}`, '_blank');
+    window.open(`https://wa.me/?text=${encodeURIComponent(`${campaign.title} — ${shareUrl}`)}`, '_blank');
   };
 
   const progress = campaign.goal_amount
@@ -42,7 +60,7 @@ export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
 
   return (
     <div className="bg-card border border-border rounded-2xl overflow-hidden hover:border-primary/30 transition-all duration-200">
-      <div className="cursor-pointer" onClick={() => navigate(`/campaign/${campaign.id}`)}>
+      <div className="cursor-pointer" onClick={() => navigate(targetPath)}>
         {campaign.image_url && (
           <div className="h-44 overflow-hidden">
             <img src={campaign.image_url} alt={campaign.title} className="w-full h-full object-cover" />
@@ -101,7 +119,7 @@ export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
         </DropdownMenu>
         <Button
           size="default"
-          onClick={() => navigate(`/campaign/${campaign.id}`)}
+          onClick={() => navigate(targetPath)}
           className="flex-1 gap-2 font-semibold"
         >
           <Heart className="h-4 w-4" /> Contribuer
