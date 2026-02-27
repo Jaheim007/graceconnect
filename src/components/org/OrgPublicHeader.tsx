@@ -15,6 +15,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { getOrgCategoryLabel } from '@/lib/categoryLabels';
 import { motion } from 'framer-motion';
 import {
   Globe, MessageCircle, CheckCircle2, Users, CalendarDays,
@@ -261,7 +262,7 @@ export function OrgPublicHeader({
                 </div>
                 <OrgBadges isVerified={org.is_verified} kycStatus={orgAny.kyc_status} isSuspended={orgAny.is_suspended} size="sm" className="mt-1" />
                 <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                  <Badge variant="secondary" className="text-xs">{({ church: 'Organisation', ministry: 'Association', leader: 'Leader', ngo: 'ONG', community: 'Communauté', other: 'Autre' } as Record<string, string>)[org.category] || org.category}</Badge>
+                  <Badge variant="secondary" className="text-xs">{getOrgCategoryLabel(org.category)}</Badge>
                   <span className="flex items-center gap-1">
                     <Users className="h-3.5 w-3.5" /> {memberCount} {memberCount !== 1 ? t('org_public.members_plural') : t('org_public.members')}
                   </span>

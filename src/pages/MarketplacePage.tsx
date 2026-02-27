@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { PageTour } from '@/components/onboarding/PageTour';
+import { getOrgCategoryLabel } from '@/lib/categoryLabels';
 import { Button } from '@/components/ui/button';
 import { formatCurrency } from '@/lib/currency';
 
@@ -182,7 +183,7 @@ export default function MarketplacePage() {
                     {org.logo_url ? <img src={org.logo_url} alt="" className="w-full h-full object-cover" /> : <span className="flex items-center justify-center h-full text-xs font-bold">{org.name[0]}</span>}
                   </div>
                   <p className="text-xs font-medium truncate">{org.name}</p>
-                  <Badge variant="outline" className="text-[9px] mt-1">{org.category}</Badge>
+                  <Badge variant="outline" className="text-[9px] mt-1">{getOrgCategoryLabel(org.category)}</Badge>
                 </a>
               ))}
             </div>

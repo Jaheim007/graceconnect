@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { SiteLogo } from '@/components/ui/SiteLogo';
+import { getOrgCategoryLabel } from '@/lib/categoryLabels';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -178,7 +179,7 @@ export default function InvitePage() {
                       )}
                       <div className="min-w-0">
                         <p className="font-semibold text-sm truncate">{org.name}</p>
-                        <Badge variant="secondary" className="text-[10px]">{org.category}</Badge>
+                        <Badge variant="secondary" className="text-[10px]">{getOrgCategoryLabel(org.category)}</Badge>
                       </div>
                     </div>
                     {org.description && (

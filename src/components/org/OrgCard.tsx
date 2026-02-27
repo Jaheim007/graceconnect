@@ -8,15 +8,7 @@ import { CheckCircle2, MapPin } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-
-const categoryLabels: Record<string, string> = {
-  church: 'Organisation',
-  ministry: 'Association',
-  leader: 'Leader',
-  ngo: 'ONG',
-  community: 'Communauté',
-  other: 'Autre',
-};
+import { ORG_CATEGORY_LABELS as categoryLabels } from '@/lib/categoryLabels';
 
 const categoryColors: Record<string, string> = {
   church: 'bg-blue-500/15 text-blue-600 dark:text-blue-400',
