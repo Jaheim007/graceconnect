@@ -105,7 +105,19 @@ const ComparerPage = lazy(() => import("@/pages/ComparerPage"));
 const PressePage = lazy(() => import("@/pages/PressePage"));
 const BlogIndexPage = lazy(() => import("@/pages/blog/BlogIndexPage"));
 const BlogArticlePage = lazy(() => import("@/pages/blog/BlogArticlePage"));
-
+const EtudesDeCasPage = lazy(() => import("@/pages/EtudesDeCasPage"));
+const StatusPage = lazy(() => import("@/pages/StatusPage"));
+const HelpPage = lazy(() => import("@/pages/HelpPage"));
+const PartenairesPage = lazy(() => import("@/pages/PartenairesPage"));
+const GuideVendreEbookPage = lazy(() => import("@/pages/guides/GuideVendreEbookPage"));
+const GuidePlateformeDonsPage = lazy(() => import("@/pages/guides/GuidePlateformeDonsPage"));
+const GuideGagnerSansContenuPage = lazy(() => import("@/pages/guides/GuideGagnerSansContenuPage"));
+const GuideVendreCoursPage = lazy(() => import("@/pages/guides/GuideVendreCoursPage"));
+const GuideMobileMoneyPage = lazy(() => import("@/pages/guides/GuideMobileMoneyPage"));
+const GuideAlternativeGofundmePage = lazy(() => import("@/pages/guides/GuideAlternativeGofundmePage"));
+const GuideBoutiqueDigitalePage = lazy(() => import("@/pages/guides/GuideBoutiqueDigitalePage"));
+const GuideMonetiserContenuReligieuxPage = lazy(() => import("@/pages/guides/GuideMonetiserContenuReligieuxPage"));
+const GuideAffiliationSansInvestissementPage = lazy(() => import("@/pages/guides/GuideAffiliationSansInvestissementPage"));
 
 // Authenticated
 const FeedPage = lazy(() => import("@/pages/FeedPage"));
@@ -270,6 +282,19 @@ const App = () => (
                 <Route path="/presse" element={<PressePage />} />
                 <Route path="/blog" element={<BlogIndexPage />} />
                 <Route path="/blog/:slug" element={<BlogArticlePage />} />
+                <Route path="/etudes-de-cas" element={<EtudesDeCasPage />} />
+                <Route path="/status" element={<StatusPage />} />
+                <Route path="/help" element={<HelpPage />} />
+                <Route path="/partenaires" element={<PartenairesPage />} />
+                <Route path="/guide/vendre-ebook-afrique" element={<GuideVendreEbookPage />} />
+                <Route path="/guide/plateforme-dons-afrique" element={<GuidePlateformeDonsPage />} />
+                <Route path="/guide/gagner-sans-contenu" element={<GuideGagnerSansContenuPage />} />
+                <Route path="/guide/vendre-cours-en-ligne" element={<GuideVendreCoursPage />} />
+                <Route path="/guide/mobile-money-ecommerce" element={<GuideMobileMoneyPage />} />
+                <Route path="/guide/alternative-gofundme" element={<GuideAlternativeGofundmePage />} />
+                <Route path="/guide/boutique-digitale-gratuite" element={<GuideBoutiqueDigitalePage />} />
+                <Route path="/guide/monetiser-contenu-religieux" element={<GuideMonetiserContenuReligieuxPage />} />
+                <Route path="/guide/affiliation-sans-investissement" element={<GuideAffiliationSansInvestissementPage />} />
                 <Route path="/discover" element={<AppLayout />}>
                   <Route index element={<DiscoverPage />} />
                 </Route>
