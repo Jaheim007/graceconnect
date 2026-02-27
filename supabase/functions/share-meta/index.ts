@@ -19,7 +19,7 @@ const escapeHtml = (v: string) =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 
-/* ─── Static page meta map (blogs, guides, personas handled client-side with explicit params) ─── */
+/* ─── Static page meta map ─── */
 
 const STATIC_META: Record<string, { title: string; description: string }> = {
   '/': { title: DEFAULT_TITLE, description: DEFAULT_DESCRIPTION },
@@ -36,6 +36,40 @@ const STATIC_META: Record<string, { title: string; description: string }> = {
   '/temoignages': { title: 'Témoignages — Siteviral', description: 'Découvrez les témoignages de créateurs et organisations qui utilisent Siteviral.' },
 };
 
+/* ─── Supabase client helper ─── */
+
+function getSupabase() {
+  return createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  );
+}
+
+/* ─── Short code resolution ─── */
+
+interface ShortLinkRow {
+  target_path: string;
+  title: string | null;
+  description: string | null;
+  image: string | null;
+}
+
+async function resolveShortCode(code: string): Promise<{ targetPath: string; meta: ShortLinkRow } | null> {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from('short_links')
+    .select('target_path, title, description, image')
+    .eq('id', code)
+    .maybeSingle();
+
+  if (error || !data) return null;
+
+  // Increment clicks (fire-and-forget)
+  supabase.rpc('increment_short_link_clicks', { _code: code }).catch(() => {});
+
+  return { targetPath: data.target_path, meta: data };
+}
+
 /* ─── DB resolution for dynamic content ─── */
 
 interface MetaResult {
@@ -45,10 +79,7 @@ interface MetaResult {
 }
 
 async function resolveFromPath(path: string): Promise<MetaResult | null> {
-  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-  const supabase = createClient(supabaseUrl, serviceKey);
-
+  const supabase = getSupabase();
   let m: RegExpMatchArray | null;
 
   // /org/:slug
@@ -68,7 +99,7 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
       };
   }
 
-  // /product/:id  (standalone product detail)
+  // /product/:id
   m = path.match(/^\/product\/([^\/\?#]+)/);
   if (m) {
     const id = decodeURIComponent(m[1]);
@@ -92,14 +123,12 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
   m = path.match(/^\/org\/[^\/]+\/(?:product|p)\/([^\/\?#]+)/);
   if (m) {
     const identifier = decodeURIComponent(m[1]);
-    // Try by ID first
     let { data } = await supabase
       .from('digital_products')
       .select('title, description, cover_image_url, organizations(name)')
       .eq('id', identifier)
       .eq('is_published', true)
       .maybeSingle();
-    // Fallback to slug
     if (!data) {
       ({ data } = await supabase
         .from('digital_products')
@@ -211,64 +240,15 @@ const isAllowedTarget = (target: URL) => {
   return host === 'siteviral.com' || host === 'www.siteviral.com' || host.endsWith('.lovable.app');
 };
 
-/* ─── Main handler ─── */
+/* ─── HTML renderer ─── */
 
-Deno.serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
-  }
-
-  const reqUrl = new URL(req.url);
-  const pathParam = reqUrl.searchParams.get('path');
-
-  // Resolve target URL
-  let targetUrl = SITE_URL;
-  if (pathParam) {
-    const cleanPath = pathParam.startsWith('/') ? pathParam : `/${pathParam}`;
-    targetUrl = `${SITE_URL}${cleanPath}`;
-  } else {
-    const targetParam = reqUrl.searchParams.get('target');
-    if (targetParam) {
-      try {
-        const t = new URL(targetParam);
-        if (isAllowedTarget(t)) targetUrl = t.toString();
-      } catch {
-        /* use default */
-      }
-    }
-  }
-
-  // Try DB resolution from path
-  let meta: MetaResult | null = null;
-  if (pathParam) {
-    try {
-      meta = await resolveFromPath(pathParam);
-    } catch {
-      /* fallback to explicit params */
-    }
-  }
-
-  // Build final meta — explicit params override DB results
-  const explicitTitle = reqUrl.searchParams.get('title');
-  const explicitDesc = reqUrl.searchParams.get('description');
-  const explicitImg = reqUrl.searchParams.get('image');
-
-  const title = (explicitTitle || meta?.title || DEFAULT_TITLE).slice(0, 180);
-  const description = (explicitDesc || meta?.description || DEFAULT_DESCRIPTION).slice(0, 300);
-
-  let image = explicitImg || meta?.image || DEFAULT_IMAGE;
-  try {
-    image = new URL(image).toString();
-  } catch {
-    image = DEFAULT_IMAGE;
-  }
-
+function renderMetaHtml(title: string, description: string, image: string, targetUrl: string): string {
   const safeTitle = escapeHtml(title);
   const safeDesc = escapeHtml(description);
   const safeImage = escapeHtml(image);
   const safeTarget = escapeHtml(targetUrl);
 
-  const html = `<!doctype html>
+  return `<!doctype html>
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
@@ -291,12 +271,86 @@ Deno.serve(async (req) => {
   </head>
   <body></body>
 </html>`;
+}
 
-  return new Response(html, {
-    headers: {
-      ...corsHeaders,
-      'Content-Type': 'text/html; charset=utf-8',
-      'Cache-Control': 'public, max-age=300',
-    },
+/* ─── Main handler ─── */
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  const reqUrl = new URL(req.url);
+
+  // ─── Short code resolution: ?code=xxx ───
+  const codeParam = reqUrl.searchParams.get('code');
+  if (codeParam) {
+    const resolved = await resolveShortCode(codeParam);
+    if (!resolved) {
+      // Unknown code → redirect to homepage
+      return new Response(renderMetaHtml(DEFAULT_TITLE, DEFAULT_DESCRIPTION, DEFAULT_IMAGE, SITE_URL), {
+        headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=60' },
+      });
+    }
+
+    const targetUrl = `${SITE_URL}${resolved.targetPath}`;
+
+    // Use stored overrides OR resolve from DB
+    let meta: MetaResult | null = null;
+    if (resolved.meta.title || resolved.meta.description || resolved.meta.image) {
+      meta = {
+        title: resolved.meta.title || DEFAULT_TITLE,
+        description: resolved.meta.description || DEFAULT_DESCRIPTION,
+        image: resolved.meta.image || DEFAULT_IMAGE,
+      };
+    }
+    if (!meta) {
+      try { meta = await resolveFromPath(resolved.targetPath); } catch { /* fallback */ }
+    }
+
+    const title = (meta?.title || DEFAULT_TITLE).slice(0, 180);
+    const description = (meta?.description || DEFAULT_DESCRIPTION).slice(0, 300);
+    let image = meta?.image || DEFAULT_IMAGE;
+    try { image = new URL(image).toString(); } catch { image = DEFAULT_IMAGE; }
+
+    return new Response(renderMetaHtml(title, description, image, targetUrl), {
+      headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=300' },
+    });
+  }
+
+  // ─── Legacy path-based resolution ───
+  const pathParam = reqUrl.searchParams.get('path');
+
+  let targetUrl = SITE_URL;
+  if (pathParam) {
+    const cleanPath = pathParam.startsWith('/') ? pathParam : `/${pathParam}`;
+    targetUrl = `${SITE_URL}${cleanPath}`;
+  } else {
+    const targetParam = reqUrl.searchParams.get('target');
+    if (targetParam) {
+      try {
+        const t = new URL(targetParam);
+        if (isAllowedTarget(t)) targetUrl = t.toString();
+      } catch { /* use default */ }
+    }
+  }
+
+  let meta: MetaResult | null = null;
+  if (pathParam) {
+    try { meta = await resolveFromPath(pathParam); } catch { /* fallback */ }
+  }
+
+  const explicitTitle = reqUrl.searchParams.get('title');
+  const explicitDesc = reqUrl.searchParams.get('description');
+  const explicitImg = reqUrl.searchParams.get('image');
+
+  const title = (explicitTitle || meta?.title || DEFAULT_TITLE).slice(0, 180);
+  const description = (explicitDesc || meta?.description || DEFAULT_DESCRIPTION).slice(0, 300);
+
+  let image = explicitImg || meta?.image || DEFAULT_IMAGE;
+  try { image = new URL(image).toString(); } catch { image = DEFAULT_IMAGE; }
+
+  return new Response(renderMetaHtml(title, description, image, targetUrl), {
+    headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=300' },
   });
 });

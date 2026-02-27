@@ -3301,6 +3301,39 @@ export type Database = {
           },
         ]
       }
+      short_links: {
+        Row: {
+          clicks: number
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          image: string | null
+          target_path: string
+          title: string | null
+        }
+        Insert: {
+          clicks?: number
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id: string
+          image?: string | null
+          target_path: string
+          title?: string | null
+        }
+        Update: {
+          clicks?: number
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          image?: string | null
+          target_path?: string
+          title?: string | null
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           created_at: string
