@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Heart, Target, Share2, Copy, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { buildSocialShareUrl } from '@/lib/shareMeta';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -16,15 +17,21 @@ interface CampaignCardProps {
 export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const shareUrl = `${window.location.origin}/campaign/${campaign.id}`;
+
+  const socialShareUrl = buildSocialShareUrl({
+    targetUrl: `${window.location.origin}/campaign/${campaign.id}`,
+    title: campaign.title,
+    description: campaign.description?.slice(0, 155) || undefined,
+    image: campaign.image_url || undefined,
+  });
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(shareUrl);
+    navigator.clipboard.writeText(socialShareUrl);
     toast({ title: 'Lien copié !' });
   };
 
   const handleShareWhatsApp = () => {
-    window.open(`https://wa.me/?text=${encodeURIComponent(`${campaign.title} — ${shareUrl}`)}`, '_blank');
+    window.open(`https://wa.me/?text=${encodeURIComponent(`${campaign.title} — ${socialShareUrl}`)}`, '_blank');
   };
 
   const progress = campaign.goal_amount

@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { buildShareUrlForPath } from '@/lib/shareMeta';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -123,9 +124,10 @@ export function OrgPublicHeader({
   };
 
   const shareWhatsApp = () => {
+    const shareUrl = buildShareUrlForPath(`/org/${org.slug}`);
     const msg = locale === 'fr'
-      ? `Découvrez ${org.name} sur Siteviral: ${window.location.href}`
-      : `Discover ${org.name} on Siteviral: ${window.location.href}`;
+      ? `Découvrez ${org.name} sur Siteviral: ${shareUrl}`
+      : `Discover ${org.name} on Siteviral: ${shareUrl}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
   };
 

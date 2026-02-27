@@ -1,4 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { buildSocialShareUrl } from '@/lib/shareMeta';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
@@ -60,17 +61,22 @@ export default function OfferingDetailPage() {
     return { '--org-primary': orgPrimary } as React.CSSProperties;
   }, [orgPrimary]);
 
-  const shareUrl = `${window.location.origin}/offering/${offeringId}`;
+  const socialShareUrl = buildSocialShareUrl({
+    targetUrl: `${window.location.origin}/offering/${offeringId}`,
+    title: offering?.title || 'Offering Siteviral',
+    description: offering?.description?.slice(0, 155) || undefined,
+    image: offering?.image_url || undefined,
+  });
 
   const handleCopyLink = async () => {
-    await navigator.clipboard.writeText(shareUrl);
+    await navigator.clipboard.writeText(socialShareUrl);
     setCopied(true);
     toast({ title: 'Lien copié !' });
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleShareWhatsApp = () => {
-    window.open(`https://wa.me/?text=${encodeURIComponent(`${offering?.title} — ${shareUrl}`)}`, '_blank');
+    window.open(`https://wa.me/?text=${encodeURIComponent(`${offering?.title} — ${socialShareUrl}`)}`, '_blank');
   };
 
   const fmt = (n: number) =>
@@ -233,7 +239,7 @@ export default function OfferingDetailPage() {
             <div className="p-4 rounded-2xl border border-border bg-card shadow-card">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Partager ce don</p>
               <ShareButtons
-                url={shareUrl}
+                url={`/offering/${offeringId}`}
                 title={offering.title}
                 description={offering.description || `Soutenez ${offering.title}`}
               />

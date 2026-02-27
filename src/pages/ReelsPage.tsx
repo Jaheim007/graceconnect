@@ -153,11 +153,17 @@ export default function ReelsPage() {
                 );
               }}
               onShare={async () => {
-                const url = `${window.location.origin}/reels/${reel.id}`;
+                const { buildSocialShareUrl } = await import('@/lib/shareMeta');
+                const shareUrl = buildSocialShareUrl({
+                  targetUrl: `${window.location.origin}/reels/${reel.id}`,
+                  title: reel.title,
+                  description: reel.description?.slice(0, 155) || undefined,
+                  image: reel.thumbnail_url || undefined,
+                });
                 if (navigator.share) {
-                  try { await navigator.share({ title: reel.title, url }); } catch {}
+                  try { await navigator.share({ title: reel.title, url: shareUrl }); } catch {}
                 } else {
-                  await navigator.clipboard.writeText(url);
+                  await navigator.clipboard.writeText(shareUrl);
                   toast.success('Lien copié !');
                 }
               }}
