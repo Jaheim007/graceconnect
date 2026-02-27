@@ -81,11 +81,11 @@ export function FeaturedSection() {
 
   if (!data) return null;
 
-  // Deduplicate: recent first, then viewed, then bought
+  // Deduplicate: recent first, then bought, then viewed
   const recentIds = new Set(data.mostRecent.map((p: any) => p.id));
-  const viewedFiltered = data.mostViewed.filter((p: any) => !recentIds.has(p.id));
-  const usedIds = new Set([...recentIds, ...viewedFiltered.map((p: any) => p.id)]);
-  const boughtFiltered = data.mostBought.filter((p: any) => !usedIds.has(p.id));
+  const boughtFiltered = data.mostBought.filter((p: any) => !recentIds.has(p.id));
+  const usedIds = new Set([...recentIds, ...boughtFiltered.map((p: any) => p.id)]);
+  const viewedFiltered = data.mostViewed.filter((p: any) => !usedIds.has(p.id));
 
   return (
     <div className="space-y-2">
@@ -95,14 +95,14 @@ export function FeaturedSection() {
         products={data.mostRecent.slice(0, 4)}
       />
       <ProductRow
+        title={isFr ? '🛒 Les plus vendus' : '🛒 Best Sellers'}
+        icon={<ShoppingCart className="h-4 w-4 text-primary" />}
+        products={boughtFiltered.slice(0, 4)}
+      />
+      <ProductRow
         title={isFr ? '👀 Les plus consultés' : '👀 Most Viewed'}
         icon={<Eye className="h-4 w-4 text-accent" />}
         products={viewedFiltered.slice(0, 4)}
-      />
-      <ProductRow
-        title={isFr ? '🛒 Les plus achetés' : '🛒 Most Bought'}
-        icon={<ShoppingCart className="h-4 w-4 text-primary" />}
-        products={boughtFiltered.slice(0, 4)}
       />
     </div>
   );
