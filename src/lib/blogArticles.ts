@@ -2257,6 +2257,733 @@ export const blogArticles: BlogArticle[] = [
 <p>En 2030, vous serez soit un créateur qui a construit un business numérique solide, soit un spectateur qui regrettera de ne pas avoir commencé en 2026. <strong>Le meilleur moment pour planter un arbre était il y a 10 ans. Le deuxième meilleur moment, c'est maintenant.</strong></p>
 `,
   },
+
+  // ────────── BATCH 5 : Tutoriels & Stratégies (20 articles) ──────────
+
+  {
+    slug: 'comment-fixer-prix-produit-numerique',
+    title: 'Comment fixer le prix de votre produit numérique (guide pratique)',
+    description: 'Trop cher ? Trop bon marché ? Voici la méthode pour trouver le bon prix pour vos e-books, cours et templates en Afrique.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Tutoriel',
+    readTime: '5 min',
+    publishedAt: '2026-03-01',
+    content: `
+<h2>Le piège du « pas cher »</h2>
+<p>Beaucoup de créateurs africains fixent des prix trop bas par peur de ne pas vendre. Résultat : ils vendent, mais ne gagnent pas assez pour continuer. Un prix trop bas <strong>dévalue votre expertise</strong> et décourage vos ambassadeurs (commission trop faible).</p>
+
+<h2>La méthode en 4 étapes</h2>
+
+<h3>1. Évaluez la valeur perçue</h3>
+<p>Posez-vous la question : combien votre client <strong>économise ou gagne</strong> grâce à votre produit ? Un guide qui aide à décrocher un emploi vaut bien plus que 2 000 FCFA.</p>
+
+<h3>2. Analysez le marché</h3>
+<p>Regardez ce que coûtent les alternatives : une formation en présentiel, un livre physique, un coaching individuel. Votre produit numérique sera toujours moins cher — c'est votre avantage.</p>
+
+<h3>3. Testez 3 niveaux de prix</h3>
+<p>Créez 3 versions : basique (PDF seul), standard (PDF + bonus), premium (PDF + bonus + accès groupe). Laissez le marché vous dire quel prix fonctionne.</p>
+
+<h3>4. Ajustez avec les données</h3>
+<p>Utilisez les analytics Siteviral pour voir vos taux de conversion. Si beaucoup de gens visitent mais peu achètent, le prix est peut-être trop élevé. Si tout le monde achète instantanément, vous êtes probablement trop bas.</p>
+
+<h2>Grille de prix indicative</h2>
+<ul>
+<li><strong>E-book court (20-50 pages)</strong> : 1 500 – 5 000 FCFA</li>
+<li><strong>Guide complet (100+ pages)</strong> : 5 000 – 15 000 FCFA</li>
+<li><strong>Formation vidéo</strong> : 10 000 – 50 000 FCFA</li>
+<li><strong>Template/outil</strong> : 2 000 – 10 000 FCFA</li>
+<li><strong>Pack/bundle</strong> : 15 000 – 75 000 FCFA</li>
+</ul>
+
+<h2>L'astuce finale</h2>
+<p>Commencez avec un prix de lancement réduit pendant 7 jours, puis passez au prix normal. Cela crée l'urgence et vous donne des premiers avis clients.</p>
+`,
+  },
+  {
+    slug: 'ecrire-description-produit-qui-vend',
+    title: 'Comment écrire une description de produit qui vend (avec exemples)',
+    description: 'Votre produit est bon mais personne n\'achète ? Le problème est peut-être votre description. Voici comment la réécrire.',
+    personas: ['Créateurs', 'Formateurs', 'Professionnels'],
+    category: 'Tutoriel',
+    readTime: '4 min',
+    publishedAt: '2026-03-02',
+    content: `
+<h2>Le problème #1 des vendeurs</h2>
+<p>95% des descriptions de produits numériques sont ennuyeuses. Elles décrivent le contenu au lieu de vendre le <strong>résultat</strong>. Personne n'achète un e-book de 150 pages. Les gens achètent la transformation promise.</p>
+
+<h2>La formule PAS (Problème-Agitation-Solution)</h2>
+
+<h3>1. Problème</h3>
+<p>Commencez par nommer le problème que votre client vit. « Vous avez essayé de lancer votre business en ligne mais vous ne savez pas par où commencer ? »</p>
+
+<h3>2. Agitation</h3>
+<p>Amplifiez la douleur. « Chaque jour qui passe, des opportunités sont perdues. Vos concurrents avancent pendant que vous cherchez encore. »</p>
+
+<h3>3. Solution</h3>
+<p>Présentez votre produit comme LA réponse. « Ce guide de 80 pages vous donne un plan d'action jour par jour pour lancer votre business en 30 jours. »</p>
+
+<h2>Les 5 éléments obligatoires</h2>
+<ul>
+<li><strong>Titre accrocheur</strong> : bénéfice principal en moins de 10 mots</li>
+<li><strong>3 bullet points</strong> : ce que le client va apprendre/obtenir</li>
+<li><strong>Preuve sociale</strong> : « Déjà 200+ exemplaires vendus » ou un témoignage</li>
+<li><strong>Garantie</strong> : « Satisfait ou remboursé sous 7 jours »</li>
+<li><strong>Appel à l'action clair</strong> : « Téléchargez maintenant »</li>
+</ul>
+
+<h2>Exemple avant/après</h2>
+<p><strong>❌ Avant :</strong> « E-book sur le marketing digital. 120 pages. Format PDF. »</p>
+<p><strong>✅ Après :</strong> « Doublez vos ventes en 30 jours : le guide pas à pas qui a aidé 500+ entrepreneurs africains à transformer leur présence en ligne en machine à revenus. »</p>
+`,
+  },
+  {
+    slug: 'lancer-programme-ambassadeur-guide',
+    title: 'Comment lancer un programme ambassadeur qui cartonne (étape par étape)',
+    description: 'Le programme ambassadeur est votre arme secrète pour la croissance virale. Voici comment le configurer et le lancer efficacement.',
+    personas: ['Créateurs', 'Leaders religieux', 'ONG'],
+    category: 'Tutoriel',
+    readTime: '6 min',
+    publishedAt: '2026-03-03',
+    content: `
+<h2>Pourquoi les ambassadeurs changent tout</h2>
+<p>La publicité Facebook coûte cher et les résultats sont incertains. Les ambassadeurs, eux, ne vous coûtent rien tant qu'ils ne vendent pas. C'est le modèle <strong>zéro risque</strong> par excellence.</p>
+
+<h2>Étape 1 : Préparez vos produits</h2>
+<p>Avant d'activer les ambassadeurs, assurez-vous d'avoir au moins 2-3 produits avec des descriptions convaincantes, des prix cohérents et de belles images de couverture.</p>
+
+<h2>Étape 2 : Fixez les commissions</h2>
+<p>Les taux recommandés :</p>
+<ul>
+<li><strong>E-books/PDFs</strong> : 20-30% (marge élevée, fichier livré automatiquement)</li>
+<li><strong>Formations vidéo</strong> : 15-25% (prix plus élevé = commission intéressante)</li>
+<li><strong>Templates/outils</strong> : 25-40% (coût de production quasi nul)</li>
+</ul>
+
+<h2>Étape 3 : Recrutez vos premiers ambassadeurs</h2>
+<p>Commencez par vos <strong>clients satisfaits</strong>. Ils ont déjà testé et apprécié vos produits. Envoyez-leur un message personnalisé leur proposant de rejoindre le programme.</p>
+
+<h2>Étape 4 : Équipez-les</h2>
+<p>Préparez des visuels, des textes types et des argumentaires que vos ambassadeurs peuvent copier-coller sur WhatsApp ou Facebook. Plus c'est facile pour eux, plus ils partagent.</p>
+
+<h2>Étape 5 : Célébrez les succès</h2>
+<p>Publiez les résultats des meilleurs ambassadeurs (avec leur accord). Rien ne motive plus qu'un pair qui montre ses gains. Le classement sur Siteviral crée une compétition saine.</p>
+
+<h2>L'erreur fatale</h2>
+<p>Ne lancez PAS le programme sans produits de qualité. Un ambassadeur déçu par ce qu'il promeut arrêtera et ternira votre réputation.</p>
+`,
+  },
+  {
+    slug: 'collecter-dons-eglise-en-ligne',
+    title: 'Comment collecter des dons pour votre église en ligne (guide complet)',
+    description: 'Dîmes, offrandes, projets spéciaux : voici comment digitaliser la collecte de fonds de votre communauté religieuse.',
+    personas: ['Leaders religieux', 'Églises'],
+    category: 'Tutoriel',
+    readTime: '5 min',
+    publishedAt: '2026-03-04',
+    content: `
+<h2>Le défi des églises africaines</h2>
+<p>La majorité des églises collectent encore les offrandes en espèces. Problèmes : pas de traçabilité, risques de vol, impossibilité de recevoir des dons de la diaspora, et pas de reçus automatiques.</p>
+
+<h2>La solution numérique</h2>
+<p>Avec Siteviral, votre église peut créer une <strong>page professionnelle</strong> avec plusieurs campagnes de collecte actives simultanément :</p>
+<ul>
+<li>Dîmes mensuelles</li>
+<li>Offrandes du dimanche</li>
+<li>Projet de construction</li>
+<li>Mission évangélique</li>
+<li>Aide aux nécessiteux</li>
+</ul>
+
+<h2>Configuration en 5 minutes</h2>
+<ol>
+<li>Créez votre organisation sur Siteviral (gratuit)</li>
+<li>Ajoutez le nom de votre église, le logo et une description</li>
+<li>Créez vos campagnes de collecte avec objectif et image</li>
+<li>Complétez le KYC pour recevoir les fonds</li>
+<li>Partagez les liens dans vos groupes WhatsApp</li>
+</ol>
+
+<h2>Engager la diaspora</h2>
+<p>Les membres de la diaspora VEULENT contribuer mais n'ont pas de moyen simple de le faire. Avec Siteviral, ils paient par <strong>carte bancaire en EUR/USD/GBP</strong> et l'argent arrive sur votre Mobile Money.</p>
+
+<h2>Transparence et confiance</h2>
+<p>Chaque don est enregistré. Vous pouvez exporter un rapport CSV montrant qui a donné quoi et quand. Cette transparence <strong>augmente la confiance</strong> et encourage les donations.</p>
+`,
+  },
+  {
+    slug: 'vendre-formation-en-ligne-afrique',
+    title: 'Comment vendre une formation en ligne en Afrique (de A à Z)',
+    description: 'De la création du contenu à la première vente : le guide complet pour vendre vos cours en ligne avec Mobile Money.',
+    personas: ['Formateurs', 'Coachs', 'Enseignants'],
+    category: 'Tutoriel',
+    readTime: '7 min',
+    publishedAt: '2026-03-05',
+    content: `
+<h2>Le marché des formations en ligne en Afrique</h2>
+<p>Le marché de l'e-learning en Afrique croît de 15% par an. La demande est énorme : langues, compétences techniques, développement personnel, business. Mais l'offre en français et en langues locales est <strong>très insuffisante</strong>.</p>
+
+<h2>Étape 1 : Choisissez votre sujet</h2>
+<p>Le meilleur sujet est celui qui se trouve à l'intersection de <strong>votre expertise</strong> et d'une <strong>demande réelle</strong>. Posez-vous : « Qu'est-ce que les gens me demandent souvent ? »</p>
+
+<h2>Étape 2 : Structurez votre formation</h2>
+<p>Divisez en modules de 5-10 leçons. Chaque leçon = un concept + un exercice. Durée totale idéale : 3 à 10 heures.</p>
+
+<h2>Étape 3 : Enregistrez simplement</h2>
+<p>Pas besoin de studio. Un smartphone, une bonne lumière et un micro-cravate à 5 000 FCFA suffisent. L'important c'est la <strong>qualité du contenu</strong>, pas la qualité cinématographique.</p>
+
+<h2>Étape 4 : Publiez sur Siteviral</h2>
+<p>Uploadez vos vidéos ou PDFs comme produit numérique. Fixez votre prix. Activez le programme ambassadeur pour que d'autres promeuvent votre formation.</p>
+
+<h2>Étape 5 : Lancez avec impact</h2>
+<ul>
+<li>Offrez un <strong>extrait gratuit</strong> (1ère leçon) pour convaincre</li>
+<li>Créez un <strong>prix de lancement</strong> valable 7 jours</li>
+<li>Partagez dans vos <strong>groupes WhatsApp</strong> avec un témoignage</li>
+<li>Demandez à vos premiers acheteurs de <strong>laisser un avis</strong></li>
+</ul>
+
+<h2>Les revenus potentiels</h2>
+<p>Une formation à 15 000 FCFA vendue à 100 personnes = <strong>1 500 000 FCFA</strong>. Avec des ambassadeurs qui partagent, atteindre 100 ventes en quelques mois est tout à fait réaliste.</p>
+`,
+  },
+  {
+    slug: 'creer-ebook-qui-se-vend',
+    title: 'Comment créer un e-book qui se vend vraiment (même sans être écrivain)',
+    description: 'Vous n\'avez pas besoin d\'être auteur pour créer un e-book rentable. Voici la méthode simple en 7 étapes.',
+    personas: ['Créateurs', 'Formateurs', 'Professionnels'],
+    category: 'Tutoriel',
+    readTime: '5 min',
+    publishedAt: '2026-03-06',
+    content: `
+<h2>L'e-book n'est pas un roman</h2>
+<p>Oubliez l'idée d'écrire 300 pages. Un e-book qui se vend est un <strong>guide pratique</strong> de 30 à 80 pages qui résout un problème précis. C'est un outil, pas une œuvre littéraire.</p>
+
+<h2>Les 7 étapes</h2>
+
+<h3>1. Identifiez le problème</h3>
+<p>Quel problème votre audience rencontre-t-elle ? « Comment trouver un emploi au Cameroun ? », « Comment démarrer un petit commerce ? », « Comment préparer le BEPC ? »</p>
+
+<h3>2. Créez le plan</h3>
+<p>5 à 10 chapitres, chacun avec un sous-problème et une solution concrète. Le plan EST la structure de votre e-book.</p>
+
+<h3>3. Écrivez un chapitre par jour</h3>
+<p>3 à 5 pages par chapitre. En 10 jours, votre e-book est terminé. Écrivez comme vous parlez — simple, direct, sans jargon.</p>
+
+<h3>4. Ajoutez de la valeur</h3>
+<p>Checklists, templates, exemples concrets, liens utiles. Ces bonus augmentent la valeur perçue de 200%.</p>
+
+<h3>5. Mettez en forme</h3>
+<p>Utilisez Canva ou Google Docs pour créer un PDF professionnel. Ajoutez une couverture attractive — c'est votre vitrine.</p>
+
+<h3>6. Publiez sur Siteviral</h3>
+<p>Uploadez le PDF, ajoutez la couverture, rédigez une description qui vend (méthode PAS), fixez le prix.</p>
+
+<h3>7. Lancez et itérez</h3>
+<p>Partagez, récoltez les retours, améliorez. Votre deuxième e-book se vendra 3x mieux que le premier.</p>
+`,
+  },
+  {
+    slug: 'erreurs-debutants-vente-en-ligne',
+    title: 'Les 10 erreurs qui tuent vos ventes en ligne (et comment les éviter)',
+    description: 'Vous vendez peu ou pas du tout ? Voici les 10 erreurs les plus fréquentes des débutants et leurs solutions.',
+    personas: ['Tous'],
+    category: 'Stratégie',
+    readTime: '5 min',
+    publishedAt: '2026-03-07',
+    content: `
+<h2>Erreur #1 : Pas de niche claire</h2>
+<p>Vouloir plaire à tout le monde = plaire à personne. Choisissez une niche précise et devenez LA référence.</p>
+
+<h2>Erreur #2 : Prix trop bas</h2>
+<p>Un prix bas ne compense pas un manque de marketing. Il dévalue votre produit et démotive vos ambassadeurs.</p>
+
+<h2>Erreur #3 : Description ennuyeuse</h2>
+<p>« E-book de 100 pages sur le marketing » ne donne envie à personne. Vendez le résultat, pas le format.</p>
+
+<h2>Erreur #4 : Pas de couverture professionnelle</h2>
+<p>La couverture est la première chose que les gens voient. Une couverture amateur = une perception amateur du contenu.</p>
+
+<h2>Erreur #5 : Abandonner après 7 jours</h2>
+<p>Les premières ventes prennent du temps. La plupart des créateurs à succès n'ont rien vendu pendant 2-3 semaines avant le déclic.</p>
+
+<h2>Erreur #6 : Ignorer le programme ambassadeur</h2>
+<p>Vous essayez de tout faire seul. Activez les ambassadeurs et laissez-les multiplier votre portée.</p>
+
+<h2>Erreur #7 : Pas de preuve sociale</h2>
+<p>Demandez à vos premiers clients un témoignage. Affichez-le. Rien ne convainc plus qu'un pair satisfait.</p>
+
+<h2>Erreur #8 : Un seul produit</h2>
+<p>Diversifiez. Un e-book + un template + une formation courte = 3 sources de revenus au lieu d'une.</p>
+
+<h2>Erreur #9 : Pas de suivi</h2>
+<p>Utilisez les analytics pour comprendre d'où viennent vos visiteurs, quels produits intéressent le plus, quels ambassadeurs performent.</p>
+
+<h2>Erreur #10 : Ne pas réinvestir</h2>
+<p>Vos premiers revenus doivent servir à créer du meilleur contenu. C'est un cercle vertueux.</p>
+`,
+  },
+  {
+    slug: 'monetiser-groupe-whatsapp',
+    title: 'Comment monétiser votre groupe WhatsApp (5 méthodes légitimes)',
+    description: 'Vous avez un groupe WhatsApp actif ? Voici 5 façons de le transformer en source de revenus sans spammer vos membres.',
+    personas: ['Créateurs', 'Leaders religieux', 'Formateurs'],
+    category: 'Stratégie',
+    readTime: '4 min',
+    publishedAt: '2026-03-08',
+    content: `
+<h2>Votre groupe WhatsApp est une mine d'or</h2>
+<p>Si vous avez un groupe WhatsApp de 50, 100 ou 500 personnes engagées, vous avez déjà une <strong>audience qualifiée</strong>. La question n'est pas SI vous pouvez monétiser, mais COMMENT le faire intelligemment.</p>
+
+<h2>Méthode 1 : Vendez un e-book exclusif</h2>
+<p>Créez un guide sur un sujet que votre groupe demande souvent. Publiez-le sur Siteviral et partagez le lien dans le groupe avec un prix de lancement « membre du groupe ».</p>
+
+<h2>Méthode 2 : Lancez une formation</h2>
+<p>Transformez vos meilleurs conseils en une formation structurée. Vos membres vous connaissent déjà et vous font confiance — le taux de conversion sera élevé.</p>
+
+<h2>Méthode 3 : Devenez ambassadeur</h2>
+<p>Trouvez des produits de qualité sur Siteviral qui intéressent votre audience. Partagez-les avec votre lien ambassadeur et touchez une commission sur chaque vente.</p>
+
+<h2>Méthode 4 : Collectez des dons</h2>
+<p>Si votre groupe est une communauté (église, association, club), lancez des collectes thématiques avec objectif et transparence.</p>
+
+<h2>Méthode 5 : Créez un groupe premium</h2>
+<p>Gardez votre groupe gratuit mais créez un deuxième groupe « VIP » avec du contenu exclusif. L'accès coûte X FCFA/mois via un achat sur Siteviral.</p>
+
+<h2>La règle d'or</h2>
+<p>La valeur d'abord, la vente ensuite. Si 90% de ce que vous partagez est utile et gratuit, les 10% de promotion seront bien accueillis.</p>
+`,
+  },
+  {
+    slug: 'strategie-contenu-reseaux-sociaux-createurs',
+    title: 'Stratégie de contenu réseaux sociaux pour créateurs africains',
+    description: 'Comment utiliser Facebook, Instagram et TikTok pour vendre vos produits numériques sans payer de publicité.',
+    personas: ['Créateurs', 'Influenceurs'],
+    category: 'Stratégie',
+    readTime: '6 min',
+    publishedAt: '2026-03-09',
+    content: `
+<h2>Le contenu gratuit qui vend</h2>
+<p>La meilleure stratégie marketing ne ressemble pas à du marketing. Elle ressemble à du <strong>contenu utile</strong>. Partagez 80% de valeur gratuite et 20% de promotion.</p>
+
+<h2>Facebook : votre canal #1 en Afrique</h2>
+<ul>
+<li>Publiez des <strong>carrousels éducatifs</strong> (5-7 slides avec des conseils)</li>
+<li>Racontez votre <strong>histoire personnelle</strong> (les posts authentiques performent 3x mieux)</li>
+<li>Utilisez les <strong>groupes</strong> pour vous positionner comme expert</li>
+<li>Publiez 3-5 fois par semaine à des heures de forte affluence (12h-14h, 19h-21h)</li>
+</ul>
+
+<h2>Instagram : le visuel d'abord</h2>
+<ul>
+<li><strong>Reels courts</strong> (15-30 sec) avec un conseil + appel à l'action</li>
+<li><strong>Stories quotidiennes</strong> : behind-the-scenes, témoignages clients, process de création</li>
+<li>Bio optimisée avec lien vers votre page Siteviral</li>
+</ul>
+
+<h2>TikTok : la viralité organique</h2>
+<ul>
+<li>TikTok favorise les nouveaux créateurs — c'est votre chance</li>
+<li>Formats qui marchent : « 3 choses que j'aurais aimé savoir sur… », « POV : vous êtes… »</li>
+<li>Postez 1-2 fois par jour pendant 30 jours. L'algorithme récompense la régularité</li>
+</ul>
+
+<h2>La formule magique</h2>
+<p>Contenu gratuit → Confiance → Lien vers Siteviral → Vente. C'est un tunnel de vente naturel qui ne coûte rien sauf votre temps.</p>
+`,
+  },
+  {
+    slug: 'mobile-money-avenir-paiement-afrique',
+    title: 'Pourquoi le Mobile Money est l\'avenir du paiement en Afrique',
+    description: 'Plus de 600 millions de comptes Mobile Money en Afrique. Voici pourquoi c\'est la révolution silencieuse qui change tout.',
+    personas: ['Tous'],
+    category: 'Découverte',
+    readTime: '5 min',
+    publishedAt: '2026-03-10',
+    content: `
+<h2>Les chiffres qui parlent</h2>
+<ul>
+<li><strong>600+ millions</strong> de comptes Mobile Money en Afrique subsaharienne</li>
+<li><strong>1 000 milliards USD</strong> de transactions en 2025</li>
+<li><strong>5%</strong> seulement de la population a une carte bancaire</li>
+<li><strong>52%</strong> ont un compte Mobile Money</li>
+</ul>
+
+<h2>Pourquoi le Mobile Money a gagné</h2>
+
+<h3>1. Pas besoin de compte bancaire</h3>
+<p>Ouvrir un compte Mobile Money prend 5 minutes avec une pièce d'identité et un numéro de téléphone. Ouvrir un compte bancaire peut prendre des semaines.</p>
+
+<h3>2. Accessible partout</h3>
+<p>Des agents Mobile Money sont présents dans chaque quartier, chaque village. Les agences bancaires sont concentrées dans les grandes villes.</p>
+
+<h3>3. Instantané</h3>
+<p>L'argent est transféré en secondes. Pas de délai de traitement, pas de jour ouvré à attendre.</p>
+
+<h3>4. Micro-transactions possibles</h3>
+<p>Vous pouvez envoyer 100 FCFA. Essayez de faire un virement bancaire de 100 FCFA — les frais seront supérieurs au montant.</p>
+
+<h2>Ce que ça change pour les créateurs</h2>
+<p>Avant le Mobile Money, vendre un e-book à 3 000 FCFA en ligne était <strong>impossible</strong> pour la majorité des Africains. Aujourd'hui, c'est un simple USSD ou un clic sur Orange Money. <strong>C'est cette révolution que Siteviral exploite.</strong></p>
+`,
+  },
+  {
+    slug: 'optimiser-page-organisation-siteviral',
+    title: 'Comment optimiser votre page organisation sur Siteviral',
+    description: 'Votre page est créée mais elle ne convertit pas ? Voici les 8 optimisations qui font la différence.',
+    personas: ['Créateurs', 'ONG', 'Leaders religieux'],
+    category: 'Tutoriel',
+    readTime: '4 min',
+    publishedAt: '2026-03-11',
+    content: `
+<h2>Votre page = votre vitrine</h2>
+<p>Votre page organisation est la première chose que vos visiteurs voient. En 3 secondes, ils décident de rester ou de partir. Voici comment maximiser l'impact.</p>
+
+<h2>1. Photo de profil professionnelle</h2>
+<p>Pas de selfie. Un logo clair ou une photo professionnelle sur fond neutre. C'est votre marque.</p>
+
+<h2>2. Bannière attractive</h2>
+<p>Utilisez Canva pour créer une bannière aux bonnes dimensions. Incluez votre proposition de valeur en gros.</p>
+
+<h2>3. Bio orientée bénéfice</h2>
+<p>Ne dites pas « Je suis formateur depuis 10 ans ». Dites « J'aide les entrepreneurs à tripler leurs ventes grâce au marketing digital ». Bénéfice > CV.</p>
+
+<h2>4. Produits bien organisés</h2>
+<p>Mettez votre produit vedette en premier. Utilisez l'ordre d'affichage pour guider le regard du visiteur.</p>
+
+<h2>5. Couvertures cohérentes</h2>
+<p>Utilisez les mêmes couleurs, la même typographie pour toutes vos couvertures de produits. La cohérence visuelle = professionnalisme.</p>
+
+<h2>6. Activez les sections pertinentes</h2>
+<p>Produits, dons, événements, annonces, médias — n'activez que ce que vous utilisez vraiment.</p>
+
+<h2>7. Publiez régulièrement</h2>
+<p>Une page avec 1 produit et aucune annonce depuis 3 mois semble abandonnée. Ajoutez du contenu régulièrement.</p>
+
+<h2>8. Partagez le bon lien</h2>
+<p>Utilisez votre lien court personnalisé. Un lien propre inspire plus confiance qu'une URL à rallonge.</p>
+`,
+  },
+  {
+    slug: 'gagner-argent-etudiant-ambassadeur',
+    title: 'Comment gagner de l\'argent en tant qu\'étudiant ambassadeur (guide réaliste)',
+    description: 'Zéro investissement, zéro contenu à créer. Voici comment les étudiants peuvent gagner avec le programme ambassadeur.',
+    personas: ['Étudiants', 'Ambassadeurs'],
+    category: 'Tutoriel',
+    readTime: '5 min',
+    publishedAt: '2026-03-12',
+    content: `
+<h2>Pourquoi c'est parfait pour les étudiants</h2>
+<p>En tant qu'étudiant, vous avez du <strong>temps</strong>, un <strong>réseau social actif</strong> et vous maîtrisez les outils numériques. C'est exactement ce qu'il faut pour être ambassadeur.</p>
+
+<h2>Comment ça marche concrètement</h2>
+<ol>
+<li>Inscrivez-vous gratuitement sur Siteviral</li>
+<li>Parcourez les produits disponibles (formations, e-books, guides)</li>
+<li>Cliquez sur « Devenir ambassadeur » sur un produit qui vous plaît</li>
+<li>Vous recevez un lien unique</li>
+<li>Partagez ce lien sur WhatsApp, Facebook, Instagram, TikTok</li>
+<li>Chaque achat via votre lien = commission pour vous (5% à 50%)</li>
+</ol>
+
+<h2>Combien peut-on gagner ?</h2>
+<p>Exemple concret :</p>
+<ul>
+<li>Vous partagez un e-book à 5 000 FCFA avec 25% de commission</li>
+<li>10 ventes par mois = 12 500 FCFA</li>
+<li>Avec 5 produits différents et un bon réseau = 50 000 – 100 000 FCFA/mois</li>
+</ul>
+
+<h2>Les stratégies qui marchent</h2>
+<ul>
+<li><strong>Ciblez les bons produits</strong> : choisissez des produits utiles pour votre entourage</li>
+<li><strong>Soyez authentique</strong> : partagez pourquoi VOUS trouvez ce produit utile</li>
+<li><strong>Utilisez les stories</strong> : un story Instagram avec un témoignage convertit mieux qu'un post</li>
+<li><strong>Créez de la rareté</strong> : « Ce guide est en promo encore 3 jours »</li>
+</ul>
+
+<h2>L'erreur à éviter</h2>
+<p>Ne spammez pas. Si vous envoyez 10 liens par jour dans un groupe, vous serez bloqué. <strong>Qualité > quantité.</strong></p>
+`,
+  },
+  {
+    slug: 'siteviral-vs-teachable',
+    title: 'Siteviral vs Teachable : quelle plateforme pour vendre vos cours ?',
+    description: 'Teachable est excellent pour les formations en anglais. Mais pour l\'Afrique francophone, Siteviral a des avantages décisifs.',
+    personas: ['Formateurs', 'Coachs'],
+    category: 'Comparaison',
+    readTime: '4 min',
+    publishedAt: '2026-03-13',
+    content: `
+<h2>Teachable : le standard américain</h2>
+<p>Teachable est l'une des plateformes de cours en ligne les plus populaires. Interface propre, outils de marketing intégrés, analytics détaillées. Mais elle est conçue pour le marché américain.</p>
+
+<h3>Les limites pour l'Afrique</h3>
+<ul>
+<li><strong>Abonnement</strong> : 39 à 199 $/mois pour les fonctions essentielles</li>
+<li><strong>Pas de Mobile Money</strong> : uniquement Stripe et PayPal</li>
+<li><strong>Retrait</strong> : PayPal ou virement bancaire international — frais importants</li>
+<li><strong>Langue</strong> : interface en anglais uniquement</li>
+<li><strong>Pas de programme ambassadeur natif</strong> : nécessite un outil tiers</li>
+</ul>
+
+<h2>Siteviral : l'alternative adaptée</h2>
+<ul>
+<li><strong>0 FCFA d'abonnement</strong> : commission uniquement sur les ventes</li>
+<li><strong>Mobile Money natif</strong> : vos étudiants paient comme ils veulent</li>
+<li><strong>Retrait Mobile Money</strong> : l'argent arrive sur votre compte en jours</li>
+<li><strong>Interface en français</strong> : pensée pour l'Afrique francophone</li>
+<li><strong>Ambassadeurs intégrés</strong> : vos étudiants deviennent vos promoteurs</li>
+</ul>
+
+<h2>Verdict</h2>
+<p>Si vous vendez des cours à un public américain ou européen bancarisé, Teachable est excellent. Si votre audience est en Afrique francophone, <strong>Siteviral élimine toutes les frictions</strong> qui empêchent vos étudiants de payer.</p>
+`,
+  },
+  {
+    slug: 'diaspora-soutenir-afrique-numeriquement',
+    title: 'Comment la diaspora peut soutenir l\'Afrique avec le numérique',
+    description: 'De l\'achat de contenu aux dons ciblés : 5 façons concrètes pour la diaspora de contribuer au développement via Siteviral.',
+    personas: ['Diaspora'],
+    category: 'Découverte',
+    readTime: '4 min',
+    publishedAt: '2026-03-14',
+    content: `
+<h2>Le pouvoir économique de la diaspora</h2>
+<p>La diaspora africaine envoie plus de <strong>90 milliards USD</strong> par an vers l'Afrique — plus que l'aide au développement. Mais la majorité passe par des transferts d'argent classiques. Il existe un moyen plus ciblé et plus impactant.</p>
+
+<h2>5 façons de contribuer via Siteviral</h2>
+
+<h3>1. Achetez du contenu de créateurs africains</h3>
+<p>E-books, formations, musique, photos — chaque achat soutient directement un créateur local. Paiement par carte en EUR/USD/GBP.</p>
+
+<h3>2. Donnez à des causes précises</h3>
+<p>Plutôt qu'un virement générique, donnez à une campagne de collecte spécifique : construction d'école, aide médicale, bourse d'études. Tracé et transparent.</p>
+
+<h3>3. Devenez ambassadeur depuis l'étranger</h3>
+<p>Partagez les produits de créateurs africains avec votre réseau en Europe/Amérique. Vous gagnez une commission tout en faisant connaître le contenu africain.</p>
+
+<h3>4. Offrez des produits numériques</h3>
+<p>Achetez un cours pour un neveu, un e-book pour un ami. Le transfert est instantané et le bénéficiaire reçoit un contenu de valeur.</p>
+
+<h3>5. Financez un créateur émergent</h3>
+<p>Identifiez un jeune créateur prometteur et aidez-le à créer son premier produit. C'est un investissement dans le capital humain.</p>
+`,
+  },
+  {
+    slug: 'securite-paiement-siteviral',
+    title: 'La sécurité des paiements sur Siteviral : tout ce que vous devez savoir',
+    description: 'Comment vos paiements sont protégés, pourquoi le KYC est important et ce qui se passe en cas de problème.',
+    personas: ['Tous'],
+    category: 'Confiance',
+    readTime: '4 min',
+    publishedAt: '2026-03-15',
+    content: `
+<h2>Une question légitime</h2>
+<p>Payer en ligne peut faire peur, surtout dans un contexte où les arnaques existent. Voici comment Siteviral protège votre argent.</p>
+
+<h2>Infrastructure de paiement</h2>
+<p>Siteviral utilise <strong>Paystack</strong> (acquis par Stripe), le leader du paiement en ligne en Afrique. Paystack traite des milliards de dollars et est régulé par les banques centrales.</p>
+
+<h2>Le processus KYC (Know Your Customer)</h2>
+<p>Avant de recevoir des paiements, chaque vendeur doit vérifier son identité :</p>
+<ul>
+<li>Pièce d'identité officielle</li>
+<li>Numéro Mobile Money ou compte bancaire</li>
+<li>Validation par notre équipe</li>
+</ul>
+<p>Cela garantit que les vendeurs sont de <strong>vraies personnes avec de vraies coordonnées</strong>.</p>
+
+<h2>Protection des acheteurs</h2>
+<ul>
+<li><strong>Livraison garantie</strong> : les fichiers numériques sont livrés automatiquement après paiement</li>
+<li><strong>Politique de remboursement</strong> : en cas de problème, notre support intervient</li>
+<li><strong>Données cryptées</strong> : aucune information de carte n'est stockée sur nos serveurs</li>
+</ul>
+
+<h2>Anti-fraude</h2>
+<p>Siteviral intègre un système de détection de fraude : achats suspects, comptes dupliqués, demandes de remboursement abusives. Les comptes frauduleux sont suspendus.</p>
+`,
+  },
+  {
+    slug: 'ong-digitaliser-collecte-fonds',
+    title: 'ONG : pourquoi et comment digitaliser votre collecte de fonds',
+    description: 'Les ONG qui digitalisent leurs collectes récoltent 3x plus. Voici le guide pour moderniser votre fundraising.',
+    personas: ['ONG', 'Associations'],
+    category: 'Stratégie',
+    readTime: '5 min',
+    publishedAt: '2026-03-16',
+    content: `
+<h2>Le constat</h2>
+<p>La plupart des ONG africaines collectent encore les fonds en espèces, par virement bancaire ou via des plateformes occidentales inadaptées. Résultat : <strong>80% du potentiel de collecte est perdu</strong>.</p>
+
+<h2>Les avantages de la digitalisation</h2>
+<ul>
+<li><strong>Portée illimitée</strong> : touchez des donateurs dans tout le pays et dans la diaspora</li>
+<li><strong>24h/24</strong> : les gens peuvent donner à tout moment, pas uniquement lors d'événements</li>
+<li><strong>Traçabilité</strong> : chaque don est enregistré, datés, attribué</li>
+<li><strong>Rapports automatiques</strong> : exportez des CSV pour vos bailleurs et audits</li>
+<li><strong>Transparence</strong> : barre de progression visible = confiance des donateurs</li>
+</ul>
+
+<h2>Comment démarrer avec Siteviral</h2>
+<ol>
+<li><strong>Créez votre organisation</strong> avec logo et mission</li>
+<li><strong>Lancez 2-3 campagnes</strong> thématiques (éducation, santé, urgences)</li>
+<li><strong>Partagez sur vos canaux</strong> : WhatsApp, Facebook, email, site web</li>
+<li><strong>Activez les ambassadeurs</strong> : vos bénévoles partagent les liens</li>
+<li><strong>Publiez des mises à jour</strong> : photos et annonces pour maintenir l'élan</li>
+</ol>
+
+<h2>Cas réel</h2>
+<p>Une association de jeunes a récolté <strong>2 millions FCFA en 3 semaines</strong> pour un projet d'eau potable en utilisant Siteviral + WhatsApp. 70% des dons venaient de Mobile Money.</p>
+`,
+  },
+  {
+    slug: 'creer-contenu-numerique-smartphone',
+    title: 'Comment créer du contenu numérique de qualité avec juste un smartphone',
+    description: 'Pas besoin d\'ordinateur ni de matériel coûteux. Voici comment créer e-books, vidéos et audio pro avec votre téléphone.',
+    personas: ['Créateurs', 'Étudiants'],
+    category: 'Tutoriel',
+    readTime: '5 min',
+    publishedAt: '2026-03-17',
+    content: `
+<h2>Le mythe du matériel coûteux</h2>
+<p>« Je n'ai pas d'ordinateur, je ne peux pas créer de contenu. » FAUX. Votre smartphone est un studio de production complet. Voici comment l'utiliser.</p>
+
+<h2>Pour les e-books et PDFs</h2>
+<ul>
+<li><strong>Google Docs</strong> (gratuit) : écrivez et mettez en page depuis votre téléphone</li>
+<li><strong>Canva Mobile</strong> : créez des couvertures pro et des mises en page attrayantes</li>
+<li>Exportez en PDF directement depuis l'app</li>
+</ul>
+
+<h2>Pour les vidéos</h2>
+<ul>
+<li><strong>Caméra du téléphone</strong> : mode paysage, lumière naturelle face à vous</li>
+<li><strong>Micro-cravate</strong> : 3 000-5 000 FCFA sur le marché — transforme la qualité audio</li>
+<li><strong>CapCut</strong> (gratuit) : montage, sous-titres, transitions — tout sur mobile</li>
+</ul>
+
+<h2>Pour l'audio</h2>
+<ul>
+<li><strong>Enregistreur vocal</strong> du téléphone dans un endroit calme</li>
+<li><strong>Anchor/Spotify for Podcasters</strong> : pour les podcasts</li>
+<li>Astuce : placez le téléphone sur une surface dure (pas dans la main) pour éviter les bruits</li>
+</ul>
+
+<h2>Pour les visuels et designs</h2>
+<ul>
+<li><strong>Canva</strong> : templates pro gratuits pour tout (présentations, flyers, posts)</li>
+<li><strong>Remove.bg</strong> : supprimez les arrière-plans de vos photos</li>
+<li><strong>Pexels/Unsplash</strong> : images gratuites et libres de droit</li>
+</ul>
+
+<h2>Le workflow complet</h2>
+<p>Idée → Google Docs (rédaction) → Canva (mise en page + couverture) → Siteviral (publication + vente). Total investi : 0 FCFA.</p>
+`,
+  },
+  {
+    slug: 'siteviral-vs-gumroad',
+    title: 'Siteviral vs Gumroad : comparaison pour les créateurs',
+    description: 'Gumroad est populaire chez les créateurs occidentaux mais inadapté à l\'Afrique. Voici pourquoi Siteviral est la meilleure alternative.',
+    personas: ['Créateurs', 'Auteurs'],
+    category: 'Comparaison',
+    readTime: '4 min',
+    publishedAt: '2026-03-18',
+    content: `
+<h2>Gumroad : le favori des créateurs indépendants</h2>
+<p>Gumroad est une plateforme simple et populaire pour vendre des produits numériques. Des milliers d'auteurs, designers et musiciens l'utilisent aux USA.</p>
+
+<h3>Ce qui bloque en Afrique</h3>
+<ul>
+<li><strong>Pas de Mobile Money</strong> : paiement uniquement par carte bancaire</li>
+<li><strong>Retrait en USD</strong> : via PayPal ou Stripe — inaccessible dans de nombreux pays africains</li>
+<li><strong>Frais élevés</strong> : 10% de commission + frais de traitement + conversion USD</li>
+<li><strong>Pas de dons</strong> : aucune fonctionnalité de collecte de fonds</li>
+<li><strong>Interface en anglais</strong> : pas d'option française</li>
+<li><strong>Pas d'ambassadeurs</strong> : aucun système d'affiliation natif</li>
+</ul>
+
+<h2>Siteviral : Gumroad adapté pour l'Afrique</h2>
+<ul>
+<li><strong>Mobile Money natif</strong> : Orange, MTN, Wave — vos clients paient en 1 clic</li>
+<li><strong>Retrait local</strong> : argent sur votre Mobile Money ou compte bancaire</li>
+<li><strong>10% de commission</strong> : pas de frais cachés supplémentaires</li>
+<li><strong>Dons + ventes</strong> : deux sources de revenus sur une plateforme</li>
+<li><strong>Français natif</strong> : pensé pour l'Afrique francophone</li>
+<li><strong>Ambassadeurs intégrés</strong> : viralité gratuite et native</li>
+</ul>
+
+<h2>En résumé</h2>
+<p>Gumroad est excellent si vous vendez à un public américain. Pour vendre en Afrique, <strong>Siteviral supprime toutes les barrières</strong> que Gumroad ne peut pas résoudre.</p>
+`,
+  },
+  {
+    slug: 'psychology-achat-afrique',
+    title: 'La psychologie de l\'achat en ligne en Afrique : ce que tout vendeur doit savoir',
+    description: 'Pourquoi les Africains achètent-ils (ou n\'achètent-ils pas) en ligne ? Comprendre la psychologie pour mieux vendre.',
+    personas: ['Tous'],
+    category: 'Stratégie',
+    readTime: '5 min',
+    publishedAt: '2026-03-19',
+    content: `
+<h2>Le contexte est tout</h2>
+<p>Vendre en ligne en Afrique n'est pas la même chose qu'aux USA ou en France. Les motivations, les freins et les déclencheurs d'achat sont <strong>fondamentalement différents</strong>.</p>
+
+<h2>Les freins principaux</h2>
+
+<h3>1. La confiance</h3>
+<p>Le frein #1. Trop d'arnaques en ligne ont rendu les gens méfiants. Solution : <strong>preuve sociale</strong> (avis, témoignages, nombre de ventes), <strong>identité vérifiée</strong> (badge KYC), <strong>garantie de remboursement</strong>.</p>
+
+<h3>2. La complexité du paiement</h3>
+<p>Si le paiement prend plus de 30 secondes, vous perdez le client. C'est pourquoi le <strong>Mobile Money en 1 clic</strong> est essentiel.</p>
+
+<h3>3. La valeur perçue du numérique</h3>
+<p>Beaucoup de gens ne comprennent pas pourquoi un PDF coûte de l'argent. Il faut <strong>éduquer</strong> : montrer la valeur, offrir un extrait, comparer avec le coût de l'alternative (formation en présentiel, déplacement, etc.).</p>
+
+<h2>Les déclencheurs d'achat</h2>
+<ul>
+<li><strong>Recommandation personnelle</strong> : « Mon ami a acheté et il m'a dit que c'est bien » → programme ambassadeur</li>
+<li><strong>Urgence</strong> : prix de lancement, offre limitée dans le temps → ventes flash</li>
+<li><strong>Preuve de résultat</strong> : témoignages concrets → avis clients</li>
+<li><strong>Facilité</strong> : 1 clic pour payer → Mobile Money natif</li>
+</ul>
+
+<h2>La leçon</h2>
+<p>En Afrique, la vente en ligne est d'abord une question de <strong>confiance</strong> et de <strong>simplicité</strong>. Si vous maîtrisez ces deux éléments, les ventes suivront.</p>
+`,
+  },
+  {
+    slug: 'automatiser-ventes-siteviral',
+    title: 'Comment automatiser vos ventes sur Siteviral (vendez pendant que vous dormez)',
+    description: 'Configurez votre boutique une fois et laissez-la tourner. Voici comment mettre vos ventes en pilote automatique.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Tutoriel',
+    readTime: '4 min',
+    publishedAt: '2026-03-20',
+    content: `
+<h2>Le rêve du revenu passif</h2>
+<p>Le vrai pouvoir des produits numériques : vous les créez UNE FOIS et ils se vendent INDÉFINIMENT. Pas de stock, pas de livraison manuelle, pas de limite. Mais il faut bien configurer le système.</p>
+
+<h2>Étape 1 : Produits en pilote automatique</h2>
+<p>Uploadez vos fichiers sur Siteviral. Quand un client paie, le fichier est livré <strong>automatiquement et instantanément</strong>. Vous n'avez rien à faire.</p>
+
+<h2>Étape 2 : Ambassadeurs en continu</h2>
+<p>Activez le programme ambassadeur. Vos promoteurs partagent vos produits 24h/24. Ils vendent, vous gagnez, ils gagnent. <strong>Sans votre intervention.</strong></p>
+
+<h2>Étape 3 : Contenu evergreen</h2>
+<p>Créez du contenu sur les réseaux sociaux qui reste pertinent dans le temps (pas des actualités). Un post Facebook utile partagé il y a 3 mois peut encore générer des ventes aujourd'hui.</p>
+
+<h2>Étape 4 : Codes promo programmés</h2>
+<p>Configurez des codes promo avec dates d'expiration. Partagez-les à l'avance et laissez l'urgence faire le travail.</p>
+
+<h2>Étape 5 : Analytics pour optimiser</h2>
+<p>Consultez vos statistiques une fois par semaine. Identifiez ce qui marche, doublez dessus. Supprimez ce qui ne marche pas.</p>
+
+<h2>Résultat</h2>
+<p>Des créateurs sur Siteviral gagnent des ventes à 3h du matin, pendant les week-ends, pendant les vacances. Le système travaille pour vous.</p>
+`,
+  },
 ];
 
 export function getArticleBySlug(slug: string): BlogArticle | undefined {
