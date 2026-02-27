@@ -1,100 +1,142 @@
-interface BuildSocialShareUrlInput {
+import { supabase } from '@/integrations/supabase/client';
+
+const SITE_ORIGIN = 'https://siteviral.com';
+const FUNCTIONS_BASE = 'https://api.siteviral.com/functions/v1';
+
+// ─── Short code generator (Base62, 7 chars → ~3.5 trillion combos) ───
+
+const BASE62 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+function generateShortCode(len = 7): string {
+  const arr = crypto.getRandomValues(new Uint8Array(len));
+  return Array.from(arr, (b) => BASE62[b % 62]).join('');
+}
+
+// ─── Helpers ───
+
+const toAbsoluteUrl = (value: string): string => {
+  try { return new URL(value).toString(); } catch {
+    try { return new URL(value, typeof window !== 'undefined' ? window.location.origin : SITE_ORIGIN).toString(); } catch { return ''; }
+  }
+};
+
+const extractPath = (url: string): string | null => {
+  try { return new URL(url).pathname + new URL(url).search; } catch { return null; }
+};
+
+// ─── In-memory cache to avoid duplicate DB inserts for the same path in one session ───
+const shortLinkCache = new Map<string, string>();
+
+/**
+ * Create (or retrieve) a short link for the given path.
+ * Returns the clean branded URL: https://siteviral.com/go/x7kQ9
+ *
+ * - First checks session cache
+ * - Then checks DB for existing link with same target_path
+ * - Finally creates a new one
+ */
+export async function getOrCreateShortLink(opts: {
+  targetPath: string;
+  title?: string;
+  description?: string;
+  image?: string;
+}): Promise<string> {
+  const cleanPath = opts.targetPath.startsWith('/') ? opts.targetPath : `/${opts.targetPath}`;
+
+  // 1. Session cache
+  const cached = shortLinkCache.get(cleanPath);
+  if (cached) return `${SITE_ORIGIN}/go/${cached}`;
+
+  // 2. Check DB for existing
+  try {
+    const { data: existing } = await supabase
+      .from('short_links')
+      .select('id')
+      .eq('target_path', cleanPath)
+      .limit(1)
+      .maybeSingle();
+
+    if (existing) {
+      shortLinkCache.set(cleanPath, existing.id);
+      return `${SITE_ORIGIN}/go/${existing.id}`;
+    }
+  } catch {
+    // DB read failed — fall through to create
+  }
+
+  // 3. Create new short link
+  const code = generateShortCode();
+  try {
+    const insertData: Record<string, unknown> = {
+      id: code,
+      target_path: cleanPath,
+    };
+    if (opts.title?.trim()) insertData.title = opts.title.trim().slice(0, 180);
+    if (opts.description?.trim()) insertData.description = opts.description.trim().slice(0, 300);
+    if (opts.image) {
+      const absImg = toAbsoluteUrl(opts.image);
+      if (absImg) insertData.image = absImg;
+    }
+
+    const { error } = await supabase.from('short_links').insert(insertData);
+
+    if (error) {
+      // Collision or RLS issue — fallback to legacy URL
+      console.warn('[shareMeta] short link insert failed:', error.message);
+      return buildLegacyShareUrl(cleanPath, opts.title, opts.description, opts.image);
+    }
+
+    shortLinkCache.set(cleanPath, code);
+    return `${SITE_ORIGIN}/go/${code}`;
+  } catch {
+    return buildLegacyShareUrl(cleanPath, opts.title, opts.description, opts.image);
+  }
+}
+
+/**
+ * Legacy fallback: direct edge function URL with ?path= param.
+ * Used when short link creation fails (e.g. not authenticated).
+ */
+function buildLegacyShareUrl(
+  path: string,
+  title?: string,
+  description?: string,
+  image?: string,
+): string {
+  const params = new URLSearchParams({ path });
+  if (title?.trim()) params.set('title', title.trim().slice(0, 180));
+  if (description?.trim()) params.set('description', description.trim().slice(0, 300));
+  if (image) {
+    const abs = toAbsoluteUrl(image);
+    if (abs) params.set('image', abs);
+  }
+  return `${FUNCTIONS_BASE}/share-meta?${params.toString()}`;
+}
+
+/**
+ * Synchronous share URL builder (legacy compat).
+ * Returns the edge function URL immediately — no DB call.
+ * Use getOrCreateShortLink() for the clean branded URL.
+ */
+export function buildSocialShareUrl(opts: {
   targetUrl: string;
   title?: string;
   description?: string;
   image?: string;
-}
-
-const DEFAULT_SITE_ORIGIN = 'https://siteviral.com';
-
-const getFunctionsBase = () => 'https://api.siteviral.com/functions/v1';
-
-const toAbsoluteUrl = (value: string) => {
-  try {
-    return new URL(value).toString();
-  } catch {
-    try {
-      return new URL(value, typeof window !== 'undefined' ? window.location.origin : DEFAULT_SITE_ORIGIN).toString();
-    } catch {
-      return '';
-    }
-  }
-};
-
-/**
- * Paths where the edge function can resolve meta tags from the database.
- * For these paths, we pass `path` instead of explicit params so the server
- * fetches the real title / description / image from Supabase.
- */
-const DB_RESOLVABLE_PREFIXES = [
-  '/org/',
-  '/product/',
-  '/campagne/',
-  '/campaign/',
-  '/event/',
-  '/annonce/',
-  '/offering/',
-];
-
-const extractPath = (url: string): string | null => {
-  try {
-    const u = new URL(url);
-    return u.pathname + u.search;
-  } catch {
-    return null;
-  }
-};
-
-const isDbResolvable = (path: string) =>
-  DB_RESOLVABLE_PREFIXES.some((p) => path.startsWith(p));
-
-/**
- * Build a social-share-friendly URL that goes through the `share-meta`
- * edge function so crawlers (WhatsApp, Facebook, Twitter) receive the
- * correct OG meta tags + a redirect to the real page.
- *
- * • For DB content (orgs, products, campaigns…) → passes `path` so the
- *   server auto-resolves metadata. Explicit params serve as overrides.
- * • For static content (blogs, guides…) → passes explicit params.
- */
-export const buildSocialShareUrl = ({
-  targetUrl,
-  title,
-  description,
-  image,
-}: BuildSocialShareUrlInput): string => {
-  const absoluteTarget = toAbsoluteUrl(targetUrl);
-  if (!absoluteTarget) return targetUrl;
+}): string {
+  const absoluteTarget = toAbsoluteUrl(opts.targetUrl);
+  if (!absoluteTarget) return opts.targetUrl;
 
   const path = extractPath(absoluteTarget);
-  const params = new URLSearchParams();
+  if (!path) return opts.targetUrl;
 
-  if (path && isDbResolvable(path)) {
-    // Let the server fetch meta from DB — much more reliable
-    params.set('path', path);
-    // Explicit params as optional overrides (e.g. affiliate code in title)
-    if (title?.trim()) params.set('title', title.trim().slice(0, 180));
-    if (description?.trim()) params.set('description', description.trim().slice(0, 300));
-    const absoluteImage = image ? toAbsoluteUrl(image) : '';
-    if (absoluteImage) params.set('image', absoluteImage);
-  } else {
-    // Static content — pass all params explicitly
-    params.set('target', absoluteTarget);
-    if (title?.trim()) params.set('title', title.trim().slice(0, 180));
-    if (description?.trim()) params.set('description', description.trim().slice(0, 300));
-    const absoluteImage = image ? toAbsoluteUrl(image) : '';
-    if (absoluteImage) params.set('image', absoluteImage);
-  }
-
-  return `${getFunctionsBase()}/share-meta?${params.toString()}`;
-};
+  return buildLegacyShareUrl(path, opts.title, opts.description, opts.image);
+}
 
 /**
  * Shorthand: build a share URL for a known internal path.
- * The edge function resolves all meta from the database.
  */
 export const buildShareUrlForPath = (path: string): string => {
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   const params = new URLSearchParams({ path: cleanPath });
-  return `${getFunctionsBase()}/share-meta?${params.toString()}`;
+  return `${FUNCTIONS_BASE}/share-meta?${params.toString()}`;
 };
