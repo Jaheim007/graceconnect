@@ -48,7 +48,7 @@ export async function getOrCreateShortLink(opts: {
 
   // 2. Check DB for existing
   try {
-    const { data: existing } = await supabase
+    const { data: existing } = await (supabase as any)
       .from('short_links')
       .select('id')
       .eq('target_path', cleanPath)
@@ -77,7 +77,7 @@ export async function getOrCreateShortLink(opts: {
       if (absImg) insertData.image = absImg;
     }
 
-    const { error } = await supabase.from('short_links').insert(insertData);
+    const { error } = await (supabase as any).from('short_links').insert(insertData);
 
     if (error) {
       // Collision or RLS issue — fallback to legacy URL

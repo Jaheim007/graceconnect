@@ -20,7 +20,7 @@ export default function GoRedirectPage() {
 
     (async () => {
       try {
-        const { data } = await supabase
+        const { data } = await (supabase as any)
           .from('short_links')
           .select('target_path')
           .eq('id', code)
@@ -28,7 +28,7 @@ export default function GoRedirectPage() {
 
         if (data?.target_path) {
           // Increment clicks (fire-and-forget)
-          supabase.rpc('increment_short_link_clicks', { _code: code }).catch(() => {});
+          (supabase as any).rpc('increment_short_link_clicks', { _code: code }).then(() => {}).catch(() => {});
           window.location.replace(data.target_path);
         } else {
           setError(true);
