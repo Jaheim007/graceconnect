@@ -76,8 +76,8 @@ export default function LandingPage() {
       {/* Stats bar with animated counters */}
       <StatsBar />
 
-      {/* White Paper / Livre Blanc — prominent lead capture */}
-      <LandingWhitePaper />
+      {/* White Paper / Livre Blanc — disabled until guide is ready */}
+      {/* <LandingWhitePaper /> */}
 
       {/* Ambassador Section (prominent) */}
       <LandingAmbassadorSection />
