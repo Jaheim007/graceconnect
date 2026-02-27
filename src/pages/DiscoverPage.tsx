@@ -19,10 +19,8 @@ import { useOrg } from '@/contexts/OrgContext';
 import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
 import { PageTour } from '@/components/onboarding/PageTour';
-import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FeaturedSection } from '@/components/discover/FeaturedSection';
-import { NewThisWeek } from '@/components/discover/NewThisWeek';
 import { TrendingBanner } from '@/components/discover/TrendingBanner';
 import { DiscoverCTABanner } from '@/components/discover/DiscoverCTABanner';
 import { Offering } from '@/hooks/useOfferings';
@@ -166,10 +164,9 @@ export default function DiscoverPage() {
       <div className="container max-w-6xl py-6">
         <PageTour pageId="discover" steps={DISCOVER_TOUR_STEPS} />
 
-        {!isSearching && tab === 'products' && <NewThisWeek />}
+        {!isSearching && <FeaturedSection />}
         {!isSearching && !user && <DiscoverCTABanner />}
         {!isSearching && <TrendingBanner />}
-        {!isSearching && <FeaturedSection />}
 
         <Tabs value={tab} onValueChange={(v) => setTab(v)}>
           <TabsList className="mb-4">
@@ -221,9 +218,6 @@ export default function DiscoverPage() {
                 </SelectContent>
               </Select>
 
-              {products.length > 0 && (
-                <Badge variant="secondary" className="text-[10px] ml-auto">{products.length} {locale === 'fr' ? 'résultats' : 'results'}</Badge>
-              )}
             </div>
 
             {loadingProducts ? <SkeletonList count={8} /> : products.length === 0 ? (
