@@ -50,7 +50,7 @@ export default function OrgPublicPage() {
   const { pathname } = useLocation();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const { canManage } = useOrg();
+  const { canManage, setCurrentOrg, userOrgs, currentOrg } = useOrg();
   const { t, locale } = useI18n();
 
   const [donateCampaign, setDonateCampaign] = useState<DonationCampaign | null>(null);
@@ -117,6 +117,15 @@ export default function OrgPublicPage() {
   const orgAny = org as any;
   const sectionOrder = pageSettings?.section_order || ['products', 'campaigns', 'offerings', 'content', 'photos', 'events'];
   const hiddenSections = new Set(pageSettings?.hidden_sections || []);
+
+  // Ensure currentOrg is set to viewed org before navigating to admin
+  const adminNavigate = useCallback((path: string) => {
+    if (org && currentOrg?.id !== org.id) {
+      const targetOrg = userOrgs.find(o => o.id === org.id);
+      if (targetOrg) setCurrentOrg(targetOrg);
+    }
+    navigate(path);
+  }, [org, currentOrg, userOrgs, setCurrentOrg, navigate]);
 
   if (orgLoading) {
     return (
@@ -289,7 +298,7 @@ export default function OrgPublicPage() {
                 <TabsContent value="store">
                   {isAdmin && (
                     <div className="mb-4">
-                      <Button size="sm" className="gap-1.5" onClick={() => navigate('/admin/products/new')}>
+                      <Button size="sm" className="gap-1.5" onClick={() => adminNavigate('/admin/products/new')}>
                         <Plus className="h-3.5 w-3.5" /> {locale === 'fr' ? 'Ajouter un produit' : 'Add product'}
                       </Button>
                     </div>
@@ -313,7 +322,7 @@ export default function OrgPublicPage() {
                 <TabsContent value="donate">
                   {isAdmin && (
                     <div className="mb-4">
-                      <Button size="sm" className="gap-1.5" onClick={() => navigate('/admin/campaigns/new')}>
+                      <Button size="sm" className="gap-1.5" onClick={() => adminNavigate('/admin/campaigns/new')}>
                         <Plus className="h-3.5 w-3.5" /> {locale === 'fr' ? 'Ajouter une campagne' : 'Add campaign'}
                       </Button>
                     </div>
@@ -340,7 +349,7 @@ export default function OrgPublicPage() {
                 <TabsContent value="content">
                   {isAdmin && (
                     <div className="mb-4">
-                      <Button size="sm" className="gap-1.5" onClick={() => navigate('/admin/media/new')}>
+                      <Button size="sm" className="gap-1.5" onClick={() => adminNavigate('/admin/media/new')}>
                         <Plus className="h-3.5 w-3.5" /> {locale === 'fr' ? 'Ajouter contenu' : 'Add content'}
                       </Button>
                     </div>
@@ -356,7 +365,7 @@ export default function OrgPublicPage() {
                 <TabsContent value="events">
                   {isAdmin && (
                     <div className="mb-4">
-                      <Button size="sm" className="gap-1.5" onClick={() => navigate('/admin/events/new')}>
+                      <Button size="sm" className="gap-1.5" onClick={() => adminNavigate('/admin/events/new')}>
                         <Plus className="h-3.5 w-3.5" /> {locale === 'fr' ? 'Ajouter événement' : 'Add event'}
                       </Button>
                     </div>
@@ -384,7 +393,7 @@ export default function OrgPublicPage() {
                 <TabsContent value="photos">
                   {isAdmin && (
                     <div className="mb-4">
-                      <Button size="sm" className="gap-1.5" onClick={() => navigate('/admin/photos')}>
+                      <Button size="sm" className="gap-1.5" onClick={() => adminNavigate('/admin/photos')}>
                         <Plus className="h-3.5 w-3.5" /> {locale === 'fr' ? 'Ajouter photos' : 'Add photos'}
                       </Button>
                     </div>
