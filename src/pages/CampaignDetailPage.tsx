@@ -18,6 +18,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { ShareButtons } from '@/components/social/ShareButtons';
 import { formatCurrency } from '@/lib/currency';
+import { buildSocialShareUrl } from '@/lib/shareMeta';
 import { FormattedText } from '@/lib/formatText';
 
 export default function CampaignDetailPage() {
@@ -64,16 +65,22 @@ export default function CampaignDetailPage() {
 
   const fmt = (n: number) => formatCurrency(n, campaign?.currency);
   const shareUrl = `${window.location.origin}/campaign/${campaignId}`;
+  const socialShareUrl = buildSocialShareUrl({
+    targetUrl: shareUrl,
+    title: campaign?.title || 'Campagne Siteviral',
+    description: campaign?.description?.slice(0, 155) || '',
+    image: campaign?.image_url || undefined,
+  });
 
   const handleCopyLink = async () => {
-    await navigator.clipboard.writeText(shareUrl);
+    await navigator.clipboard.writeText(socialShareUrl);
     setCopied(true);
     toast({ title: 'Lien copié !' });
     setTimeout(() => setCopied(false), 2000);
   };
 
   const handleShareWhatsApp = () => {
-    window.open(`https://wa.me/?text=${encodeURIComponent(`${campaign?.title} — ${shareUrl}`)}`, '_blank');
+    window.open(`https://wa.me/?text=${encodeURIComponent(`${campaign?.title} — ${socialShareUrl}`)}`, '_blank');
   };
 
   if (isLoading) {
