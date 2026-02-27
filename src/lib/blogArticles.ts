@@ -2984,6 +2984,699 @@ export const blogArticles: BlogArticle[] = [
 <p>Des créateurs sur Siteviral gagnent des ventes à 3h du matin, pendant les week-ends, pendant les vacances. Le système travaille pour vous.</p>
 `,
   },
+
+  // ────────── BATCH 6 : Niches, cas d'usage & avancé (20 articles) ──────────
+
+  {
+    slug: 'vendre-musique-en-ligne-afrique',
+    title: 'Comment vendre votre musique en ligne en Afrique (sans label)',
+    description: 'Spotify paie des centimes. Voici comment vendre vos albums, singles et instrumentales directement à vos fans via Mobile Money.',
+    personas: ['Musiciens', 'Créateurs'],
+    category: 'Tutoriel',
+    readTime: '5 min',
+    publishedAt: '2026-03-21',
+    content: `
+<h2>Le problème du streaming</h2>
+<p>Spotify paie environ <strong>0,003 $ par écoute</strong>. Pour gagner 100 000 FCFA, il faut 50 000 écoutes. Pour un artiste africain émergent, c'est pratiquement impossible. Et le streaming n'est même pas disponible dans tous les pays.</p>
+
+<h2>L'alternative : la vente directe</h2>
+<p>Vendez vos morceaux, albums et instrumentales directement à vos fans. Pas d'intermédiaire, pas de label, pas de plateforme qui prend 70% de vos revenus.</p>
+
+<h2>Ce que vous pouvez vendre</h2>
+<ul>
+<li><strong>Singles et albums</strong> en MP3/FLAC</li>
+<li><strong>Instrumentales</strong> pour d'autres artistes ou créateurs de contenu</li>
+<li><strong>Packs de beats</strong> avec licence d'utilisation</li>
+<li><strong>Cours de musique</strong> : apprenez la guitare, le piano, le mixage</li>
+<li><strong>Partitions et tablatures</strong></li>
+</ul>
+
+<h2>La stratégie qui marche</h2>
+<ol>
+<li>Publiez vos morceaux gratuitement sur YouTube/SoundCloud pour la visibilité</li>
+<li>Vendez la version HD/complète/album sur Siteviral</li>
+<li>Activez les ambassadeurs : vos fans deviennent vos promoteurs</li>
+<li>Créez de l'exclusivité : versions acoustiques, remixes, behind-the-scenes</li>
+</ol>
+
+<h2>Exemple de revenus</h2>
+<p>Un album à 3 000 FCFA vendu à 500 fans = <strong>1 500 000 FCFA</strong>. Avec des ambassadeurs qui touchent 15%, la portée se multiplie naturellement.</p>
+`,
+  },
+  {
+    slug: 'photographe-vendre-photos-en-ligne',
+    title: 'Photographe : comment vendre vos photos en ligne (guide pratique)',
+    description: 'Arrêtez de donner vos photos gratuitement. Voici comment monétiser votre talent de photographe avec Siteviral.',
+    personas: ['Photographes', 'Créateurs'],
+    category: 'Tutoriel',
+    readTime: '4 min',
+    publishedAt: '2026-03-22',
+    content: `
+<h2>Votre talent mérite d'être rémunéré</h2>
+<p>Des milliers de photographes africains talentueux partagent leur travail gratuitement sur Instagram et Facebook. Pendant ce temps, des banques d'images vendent des photos génériques de l'Afrique prises par des étrangers.</p>
+
+<h2>Ce que vous pouvez vendre</h2>
+<ul>
+<li><strong>Packs de photos thématiques</strong> : paysages, portraits, architecture, culture</li>
+<li><strong>Presets Lightroom</strong> : vos filtres et réglages personnalisés</li>
+<li><strong>Formations photo</strong> : techniques de prise de vue, retouche, composition</li>
+<li><strong>Photos haute résolution</strong> : pour les entreprises, médias, blogs</li>
+<li><strong>Templates de portfolio</strong> : aidez d'autres photographes à se lancer</li>
+</ul>
+
+<h2>Comment structurer votre offre</h2>
+<ol>
+<li><strong>Gratuit</strong> : partagez 10% de vos photos sur les réseaux pour attirer</li>
+<li><strong>Pack découverte</strong> : 10 photos à 2 000 FCFA</li>
+<li><strong>Pack pro</strong> : 50 photos HD à 10 000 FCFA</li>
+<li><strong>Presets</strong> : pack de 5-10 presets à 5 000 FCFA</li>
+<li><strong>Formation complète</strong> : 15 000 - 30 000 FCFA</li>
+</ol>
+
+<h2>La clé du succès</h2>
+<p>Montrez le <strong>avant/après</strong>. Rien ne convainc plus qu'une photo ordinaire transformée par votre preset ou votre technique.</p>
+`,
+  },
+  {
+    slug: 'coach-vendre-services-en-ligne',
+    title: 'Coach : 5 produits numériques à vendre pour compléter vos séances',
+    description: 'Ne limitez pas vos revenus à vos heures de coaching. Créez des produits numériques qui travaillent pour vous 24h/24.',
+    personas: ['Coachs', 'Consultants'],
+    category: 'Stratégie',
+    readTime: '4 min',
+    publishedAt: '2026-03-23',
+    content: `
+<h2>Le plafond du coaching individuel</h2>
+<p>Si vous facturez 25 000 FCFA/h et travaillez 30h/semaine, vous plafonnez à <strong>3 millions FCFA/mois</strong>. Et si vous êtes malade, en vacances ou fatigué ? Zéro revenu. Les produits numériques brisent ce plafond.</p>
+
+<h2>Produit #1 : Le workbook</h2>
+<p>Compilez vos exercices de coaching dans un PDF interactif. Vos clients actuels l'utilisent entre les séances. De nouveaux clients le découvrent et finissent par réserver du coaching.</p>
+
+<h2>Produit #2 : La mini-formation</h2>
+<p>3 à 5 vidéos de 15 minutes sur votre spécialité. Prix accessible (5 000 - 15 000 FCFA). C'est votre carte de visite premium.</p>
+
+<h2>Produit #3 : Les templates</h2>
+<p>Plan d'action, fiche d'objectifs, grille d'évaluation, modèle de CV — tout ce que vous utilisez avec vos clients, packagé et vendable.</p>
+
+<h2>Produit #4 : Le programme d'auto-coaching</h2>
+<p>Un parcours complet en 21 ou 30 jours. Chaque jour = une leçon + un exercice. Prix premium (20 000 - 50 000 FCFA).</p>
+
+<h2>Produit #5 : L'accès groupe</h2>
+<p>Un groupe WhatsApp ou Telegram premium avec coaching de groupe hebdomadaire. Accès mensuel via achat sur Siteviral.</p>
+
+<h2>L'effet multiplicateur</h2>
+<p>Chaque produit est une porte d'entrée vers vos services premium. Un client qui achète un e-book à 3 000 FCFA peut devenir un client coaching à 200 000 FCFA.</p>
+`,
+  },
+  {
+    slug: 'enseignant-monetiser-cours-vacances',
+    title: 'Enseignant : monétisez vos cours pendant les vacances (et toute l\'année)',
+    description: 'Vos cours, exercices et corrections valent de l\'or. Voici comment les transformer en revenus complémentaires.',
+    personas: ['Enseignants', 'Formateurs'],
+    category: 'Tutoriel',
+    readTime: '4 min',
+    publishedAt: '2026-03-24',
+    content: `
+<h2>Le trésor que vous possédez déjà</h2>
+<p>Après des années d'enseignement, vous avez accumulé des <strong>centaines de pages</strong> de cours, exercices corrigés, fiches de révision, sujets d'examen. Ce contenu a une valeur immense pour les élèves et étudiants.</p>
+
+<h2>Les produits qui marchent</h2>
+<ul>
+<li><strong>Recueil d'exercices corrigés</strong> par matière et niveau (BEPC, BAC, BTS)</li>
+<li><strong>Fiches de révision synthétiques</strong> pour les examens</li>
+<li><strong>Cours complets</strong> en PDF bien structuré</li>
+<li><strong>Vidéos explicatives</strong> sur les chapitres difficiles</li>
+<li><strong>Sujets d'examen avec corrigés types</strong></li>
+</ul>
+
+<h2>Pourquoi les élèves achèteront</h2>
+<p>Les parents dépensent des fortunes en cours de soutien (10 000 - 50 000 FCFA/mois). Un recueil d'exercices corrigés à 3 000 FCFA est un investissement minuscule en comparaison.</p>
+
+<h2>La stratégie saisonnière</h2>
+<ul>
+<li><strong>Septembre-octobre</strong> : vendez des fiches de cours pour la rentrée</li>
+<li><strong>Décembre-janvier</strong> : exercices de révision pour le premier trimestre</li>
+<li><strong>Mars-mai</strong> : sujets d'examen et corrigés (pic de ventes)</li>
+<li><strong>Juillet-août</strong> : cours de mise à niveau et révisions d'été</li>
+</ul>
+
+<h2>Revenus potentiels</h2>
+<p>Un pack de 50 exercices corrigés à 2 500 FCFA, vendu à 200 élèves = <strong>500 000 FCFA</strong>. Créé une fois, vendu chaque année.</p>
+`,
+  },
+  {
+    slug: 'association-gerer-cotisations-en-ligne',
+    title: 'Association : gérez vos cotisations en ligne (fini les cahiers)',
+    description: 'Traçabilité, transparence, simplicité : voici comment digitaliser les cotisations de votre association ou tontine.',
+    personas: ['Associations', 'ONG'],
+    category: 'Tutoriel',
+    readTime: '4 min',
+    publishedAt: '2026-03-25',
+    content: `
+<h2>Le cauchemar des cotisations en espèces</h2>
+<p>Qui a payé ? Qui n'a pas payé ? Où est le cahier ? Qui garde l'argent ? Les cotisations en espèces créent des <strong>conflits, des soupçons et du stress</strong> inutiles.</p>
+
+<h2>La solution numérique</h2>
+<p>Avec Siteviral, chaque cotisation est un paiement traçable :</p>
+<ul>
+<li><strong>Nom du payeur</strong> enregistré automatiquement</li>
+<li><strong>Date et montant</strong> horodatés</li>
+<li><strong>Reçu automatique</strong> pour chaque membre</li>
+<li><strong>Export CSV</strong> pour le trésorier</li>
+<li><strong>Barre de progression</strong> visible par tous</li>
+</ul>
+
+<h2>Comment configurer</h2>
+<ol>
+<li>Créez votre association comme organisation sur Siteviral</li>
+<li>Créez une campagne « Cotisation Janvier 2026 » avec l'objectif total</li>
+<li>Partagez le lien dans le groupe WhatsApp de l'association</li>
+<li>Chaque membre paie par Mobile Money</li>
+<li>Le trésorier voit tout en temps réel dans le dashboard</li>
+</ol>
+
+<h2>Les avantages</h2>
+<ul>
+<li><strong>Transparence totale</strong> : plus de soupçons</li>
+<li><strong>Rappels faciles</strong> : partagez le lien avec le compteur pour montrer qui manque</li>
+<li><strong>Historique</strong> : tout est archivé, consultable à tout moment</li>
+<li><strong>Multi-campagnes</strong> : cotisations + projets spéciaux + événements</li>
+</ul>
+`,
+  },
+  {
+    slug: 'whatsapp-marketing-vendre-plus',
+    title: 'WhatsApp Marketing : 7 techniques pour vendre plus sans spammer',
+    description: 'WhatsApp est le canal #1 en Afrique. Voici comment l\'utiliser intelligemment pour promouvoir vos produits.',
+    personas: ['Créateurs', 'Formateurs', 'Leaders religieux'],
+    category: 'Stratégie',
+    readTime: '5 min',
+    publishedAt: '2026-03-26',
+    content: `
+<h2>WhatsApp = votre meilleur canal de vente</h2>
+<p>En Afrique, WhatsApp a plus d'utilisateurs actifs que Facebook, Instagram et TikTok combinés. C'est là que les gens passent du temps, discutent et prennent des décisions d'achat.</p>
+
+<h2>Technique #1 : Le statut WhatsApp quotidien</h2>
+<p>Publiez un statut utile chaque jour : conseil, citation, témoignage client. 1 statut sur 5 peut être promotionnel. Les gens regardent les statuts plus qu'ils ne lisent les posts Facebook.</p>
+
+<h2>Technique #2 : Le message personnalisé</h2>
+<p>Au lieu d'envoyer un message copié-collé à 200 personnes, envoyez un message personnalisé à 20 personnes ciblées. Le taux de réponse est 10x supérieur.</p>
+
+<h2>Technique #3 : L'audio WhatsApp</h2>
+<p>Enregistrez un message vocal de 60 secondes expliquant votre produit. C'est personnel, authentique et beaucoup plus engageant qu'un texte.</p>
+
+<h2>Technique #4 : Le témoignage client</h2>
+<p>Demandez à un client satisfait de vous envoyer un court audio ou texte. Partagez-le (avec son accord) dans vos groupes et en statut.</p>
+
+<h2>Technique #5 : La liste de diffusion</h2>
+<p>Créez une liste de diffusion de vos contacts intéressés. Envoyez des mises à jour 2-3 fois par semaine maximum.</p>
+
+<h2>Technique #6 : Le groupe communautaire</h2>
+<p>Créez un groupe autour de votre thématique (pas de votre produit). Partagez de la valeur, devenez la référence. Les ventes suivent naturellement.</p>
+
+<h2>Technique #7 : Le lien dans la bio</h2>
+<p>Mettez votre lien Siteviral dans votre bio WhatsApp Business. Chaque personne qui visite votre profil le voit.</p>
+`,
+  },
+  {
+    slug: 'code-promo-strategie-boost-ventes',
+    title: 'Comment utiliser les codes promo pour booster vos ventes (stratégie complète)',
+    description: 'Les codes promo ne sont pas juste des réductions. C\'est un outil stratégique puissant. Voici comment les utiliser intelligemment.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Stratégie',
+    readTime: '4 min',
+    publishedAt: '2026-03-27',
+    content: `
+<h2>Le pouvoir psychologique des codes promo</h2>
+<p>Un code promo ne fait pas qu'offrir une réduction. Il crée un sentiment d'<strong>exclusivité</strong> (« j'ai accès à quelque chose de spécial »), d'<strong>urgence</strong> (« ça expire bientôt ») et de <strong>réciprocité</strong> (« on me fait une faveur, je dois en profiter »).</p>
+
+<h2>Stratégie #1 : Le code de lancement</h2>
+<p>Nouveau produit ? Offrez -20% pendant 48h avec un code « LANCEMENT ». Les premiers acheteurs deviennent vos ambassadeurs naturels.</p>
+
+<h2>Stratégie #2 : Le code ambassadeur</h2>
+<p>Donnez à chaque ambassadeur un code unique qu'il peut partager. Ses contacts bénéficient de -10% et il touche sa commission. Tout le monde gagne.</p>
+
+<h2>Stratégie #3 : Le code de récupération</h2>
+<p>Quelqu'un a visité votre page sans acheter ? Envoyez-lui un code -15% par message privé. Taux de conversion : 20-30%.</p>
+
+<h2>Stratégie #4 : Le code événementiel</h2>
+<p>Ramadan, Noël, rentrée scolaire, fête des mères — créez des codes thématiques. Les gens sont en mode achat pendant ces périodes.</p>
+
+<h2>Stratégie #5 : Le code fidélité</h2>
+<p>Un client a déjà acheté ? Envoyez-lui un code pour son prochain achat. Un client fidèle coûte 5x moins cher qu'un nouveau client.</p>
+
+<h2>Les règles d'or</h2>
+<ul>
+<li>Ne faites PAS de promo permanente (ça dévalue votre marque)</li>
+<li>Limitez dans le temps (7 jours max)</li>
+<li>Limitez le nombre d'utilisations si possible</li>
+<li>Mesurez les résultats via les analytics</li>
+</ul>
+`,
+  },
+  {
+    slug: 'siteviral-vs-stripe-link',
+    title: 'Siteviral vs Stripe Payment Links : la différence pour l\'Afrique',
+    description: 'Stripe Payment Links est simple mais pas adapté à l\'Afrique. Voici pourquoi Siteviral est plus complet.',
+    personas: ['Professionnels', 'Créateurs'],
+    category: 'Comparaison',
+    readTime: '3 min',
+    publishedAt: '2026-03-28',
+    content: `
+<h2>Stripe Payment Links : simple et rapide</h2>
+<p>Stripe permet de créer des liens de paiement en quelques clics. C'est pratique pour vendre un produit ou service en Europe/USA. Mais pour l'Afrique, les limites sont importantes.</p>
+
+<h3>Les limites de Stripe en Afrique</h3>
+<ul>
+<li><strong>Disponibilité limitée</strong> : Stripe n'opère que dans quelques pays africains</li>
+<li><strong>Carte bancaire uniquement</strong> : pas de Mobile Money</li>
+<li><strong>Pas de page vendeur</strong> : juste un lien de paiement, pas de vitrine</li>
+<li><strong>Pas de programme ambassadeur</strong></li>
+<li><strong>Pas de collecte de dons</strong></li>
+<li><strong>Frais en devises</strong> : conversion USD/EUR ajoutant des coûts</li>
+</ul>
+
+<h2>Siteviral : bien plus qu'un lien de paiement</h2>
+<ul>
+<li><strong>Page organisation complète</strong> avec logo, bannière, bio</li>
+<li><strong>Catalogue de produits</strong> organisé</li>
+<li><strong>Mobile Money + carte</strong></li>
+<li><strong>Ambassadeurs intégrés</strong></li>
+<li><strong>Dons, événements, annonces</strong></li>
+<li><strong>Analytics et CRM</strong></li>
+</ul>
+
+<h2>Verdict</h2>
+<p>Stripe Payment Links = un outil de paiement. Siteviral = une plateforme de commerce complète adaptée à l'Afrique.</p>
+`,
+  },
+  {
+    slug: 'creer-vente-flash-siteviral',
+    title: 'Comment créer une vente flash irrésistible sur Siteviral',
+    description: 'Les ventes flash créent l\'urgence et boostent les conversions. Voici la recette étape par étape.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Tutoriel',
+    readTime: '4 min',
+    publishedAt: '2026-03-29',
+    content: `
+<h2>Pourquoi les ventes flash marchent</h2>
+<p>La psychologie est simple : quand on sait qu'une offre disparaît bientôt, on agit vite. Une vente flash bien exécutée peut générer <strong>plus de ventes en 48h qu'en 2 semaines normales</strong>.</p>
+
+<h2>La préparation (J-7)</h2>
+<ul>
+<li>Choisissez un produit populaire ou un nouveau produit à lancer</li>
+<li>Décidez de la réduction (20-50% — assez pour être attractif)</li>
+<li>Fixez la durée : 24 à 72h maximum</li>
+<li>Créez les visuels d'annonce sur Canva</li>
+</ul>
+
+<h2>Le teasing (J-3 à J-1)</h2>
+<ul>
+<li>Annoncez la vente flash à venir sans révéler le prix</li>
+<li>« Dans 3 jours, une offre exceptionnelle sur [produit]… »</li>
+<li>Publiez des statuts WhatsApp, posts Facebook, stories Instagram</li>
+</ul>
+
+<h2>Le lancement (Jour J)</h2>
+<ol>
+<li>Activez le prix promotionnel sur Siteviral</li>
+<li>Envoyez le message à votre liste de diffusion WhatsApp</li>
+<li>Publiez sur tous vos réseaux</li>
+<li>Alertez vos ambassadeurs (leur commission reste la même = motivation)</li>
+</ol>
+
+<h2>Le rappel (dernier jour)</h2>
+<p>« Plus que 6 heures ! » — le rappel de fin est souvent le moment où 40% des ventes se font. Ne le ratez pas.</p>
+
+<h2>Après la vente flash</h2>
+<p>Remerciez les acheteurs. Publiez le nombre de ventes réalisées (preuve sociale). Annoncez que le prix revient à la normale.</p>
+`,
+  },
+  {
+    slug: 'bundle-produits-augmenter-panier-moyen',
+    title: 'Comment créer des bundles pour augmenter votre panier moyen',
+    description: 'Vendez 2-3 produits ensemble à prix réduit. Le bundle est la technique #1 pour augmenter vos revenus par client.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Stratégie',
+    readTime: '4 min',
+    publishedAt: '2026-03-30',
+    content: `
+<h2>Le bundle : plus de valeur, plus de revenus</h2>
+<p>Au lieu de vendre un e-book à 5 000 FCFA, vendez un pack de 3 e-books à 10 000 FCFA. Le client économise 5 000 FCFA et vous gagnez 2x plus par transaction.</p>
+
+<h2>Les types de bundles qui marchent</h2>
+
+<h3>1. Le bundle thématique</h3>
+<p>Regroupez des produits sur le même sujet. Ex : « Pack Marketing Complet » = guide réseaux sociaux + templates + checklist.</p>
+
+<h3>2. Le bundle niveau</h3>
+<p>Débutant + Intermédiaire + Avancé dans un seul pack à prix réduit.</p>
+
+<h3>3. Le bundle format</h3>
+<p>Le même contenu en PDF + audio + vidéo pour ceux qui veulent tout.</p>
+
+<h3>4. Le bundle collaboratif</h3>
+<p>Associez-vous avec un autre créateur. Chacun apporte un produit. Vous vendez le pack ensemble et partagez les revenus.</p>
+
+<h2>Comment fixer le prix du bundle</h2>
+<p>Règle simple : le bundle doit coûter <strong>60-70% du prix total des produits séparés</strong>. Assez pour que la réduction soit attractive, assez pour que votre marge reste bonne.</p>
+
+<h2>Astuce avancée : l'order bump</h2>
+<p>Sur Siteviral, vous pouvez configurer un produit complémentaire proposé au moment de l'achat. « Ajoutez le workbook pour seulement 2 000 FCFA de plus ». 30% des acheteurs acceptent.</p>
+`,
+  },
+  {
+    slug: 'construire-marque-personnelle-afrique',
+    title: 'Comment construire votre marque personnelle en Afrique (guide stratégique)',
+    description: 'Votre marque personnelle est votre meilleur atout. Voici comment la construire méthodiquement pour vendre plus.',
+    personas: ['Créateurs', 'Coachs', 'Formateurs'],
+    category: 'Stratégie',
+    readTime: '6 min',
+    publishedAt: '2026-03-31',
+    content: `
+<h2>Pourquoi la marque personnelle est tout</h2>
+<p>Les gens n'achètent pas des produits. Ils achètent à des <strong>personnes en qui ils ont confiance</strong>. Votre marque personnelle = votre capital confiance. C'est ce qui fait la différence entre vendre 10 et vendre 1 000.</p>
+
+<h2>Les 5 piliers de votre marque</h2>
+
+<h3>1. Votre expertise</h3>
+<p>Dans quel domaine êtes-vous LA référence ? Choisissez un créneau étroit et devenez incontournable. « Expert en marketing digital » est vague. « Expert en marketing WhatsApp pour les PME africaines » est puissant.</p>
+
+<h3>2. Votre histoire</h3>
+<p>D'où venez-vous ? Quel problème avez-vous surmonté ? Les gens se connectent aux histoires, pas aux CV. Partagez votre parcours authentiquement.</p>
+
+<h3>3. Votre cohérence visuelle</h3>
+<p>Mêmes couleurs, même style de photos, même ton sur tous vos supports. Sur Siteviral, utilisez une bannière et un logo professionnels cohérents avec vos réseaux sociaux.</p>
+
+<h3>4. Votre régularité</h3>
+<p>Publiez du contenu utile 3 à 5 fois par semaine. La régularité bat la perfection. Un post imparfait publié vaut mieux qu'un post parfait jamais publié.</p>
+
+<h3>5. Votre preuve sociale</h3>
+<p>Témoignages, nombre de ventes, résultats de vos clients. Chaque preuve renforce votre crédibilité.</p>
+
+<h2>Le cercle vertueux</h2>
+<p>Marque forte → Plus de confiance → Plus de ventes → Plus de témoignages → Marque encore plus forte. Commencez le cycle maintenant.</p>
+`,
+  },
+  {
+    slug: 'erreurs-couverture-ebook',
+    title: '7 erreurs de couverture d\'e-book qui tuent vos ventes (avec exemples)',
+    description: 'On juge un livre à sa couverture. Voici les erreurs les plus fréquentes et comment créer une couverture qui convertit.',
+    personas: ['Créateurs', 'Auteurs'],
+    category: 'Tutoriel',
+    readTime: '4 min',
+    publishedAt: '2026-04-01',
+    content: `
+<h2>La couverture est votre pub gratuite</h2>
+<p>C'est la première chose que vos clients voient. En moins de 2 secondes, ils décident si votre e-book a l'air professionnel ou amateur. Une mauvaise couverture = des ventes perdues.</p>
+
+<h2>Erreur #1 : Trop de texte</h2>
+<p>La couverture n'est pas la quatrième de couverture. Titre + sous-titre + votre nom. C'est tout.</p>
+
+<h2>Erreur #2 : Polices illisibles</h2>
+<p>Les polices décoratives sont jolies en grand mais illisibles en miniature. Or votre couverture sera souvent vue en petit (feed Facebook, WhatsApp).</p>
+
+<h2>Erreur #3 : Images de mauvaise qualité</h2>
+<p>Photos pixelisées, images étirées, fonds flous. Utilisez des images haute résolution de Pexels ou Unsplash (gratuites).</p>
+
+<h2>Erreur #4 : Trop de couleurs</h2>
+<p>Maximum 3 couleurs. Une couleur dominante, une secondaire, une d'accent. La cohérence visuelle = professionnalisme.</p>
+
+<h2>Erreur #5 : Pas de contraste</h2>
+<p>Texte clair sur fond clair = illisible. Assurez-vous que votre titre se détache nettement du fond.</p>
+
+<h2>Erreur #6 : Copier un design occidental</h2>
+<p>Les tendances de couverture américaines ne résonnent pas toujours en Afrique. Utilisez des couleurs et des visuels qui parlent à votre audience.</p>
+
+<h2>Erreur #7 : Ne pas tester</h2>
+<p>Montrez 2-3 versions à 10 personnes avant de publier. La couverture qu'ILS préfèrent est souvent différente de celle que VOUS préférez.</p>
+
+<h2>L'outil gratuit</h2>
+<p>Canva propose des centaines de templates de couvertures d'e-book. Choisissez-en un et personnalisez-le en 15 minutes.</p>
+`,
+  },
+  {
+    slug: 'temoignages-clients-booster-ventes',
+    title: 'Comment collecter et utiliser les témoignages pour booster vos ventes',
+    description: 'Les témoignages sont votre arme marketing #1. Voici comment les obtenir et les afficher stratégiquement.',
+    personas: ['Créateurs', 'Formateurs', 'ONG'],
+    category: 'Stratégie',
+    readTime: '4 min',
+    publishedAt: '2026-04-02',
+    content: `
+<h2>Pourquoi les témoignages sont si puissants</h2>
+<p>92% des consommateurs font confiance aux recommandations de pairs plutôt qu'à la publicité. En Afrique, où la confiance est le frein #1 à l'achat en ligne, les témoignages sont <strong>indispensables</strong>.</p>
+
+<h2>Comment obtenir des témoignages</h2>
+
+<h3>1. Demandez au bon moment</h3>
+<p>Juste après l'achat, quand le client est enthousiaste. « Comment avez-vous trouvé [produit] ? Votre avis m'aiderait beaucoup ! »</p>
+
+<h3>2. Facilitez la tâche</h3>
+<p>Envoyez 3 questions simples : « Quel était votre problème ? Comment le produit vous a aidé ? Le recommanderiez-vous ? »</p>
+
+<h3>3. Acceptez tous les formats</h3>
+<p>Texte, audio WhatsApp, capture d'écran de conversation. L'authenticité compte plus que la perfection.</p>
+
+<h2>Comment les utiliser</h2>
+<ul>
+<li><strong>Sur votre page Siteviral</strong> : dans la description de chaque produit</li>
+<li><strong>En statut WhatsApp</strong> : screenshot du témoignage</li>
+<li><strong>En post Facebook</strong> : avec le contexte (permission du client)</li>
+<li><strong>En story Instagram</strong> : format visuel attractif</li>
+</ul>
+
+<h2>Le témoignage parfait</h2>
+<p>Il contient : le nom du client (ou prénom + ville), le problème qu'il avait, comment votre produit l'a résolu, et un résultat concret (chiffre, durée, émotion).</p>
+
+<h2>Astuce avancée</h2>
+<p>Utilisez les avis produits sur Siteviral. Les étoiles et commentaires visibles directement sur la page de vente augmentent les conversions de 25%.</p>
+`,
+  },
+  {
+    slug: 'cooperatives-gestion-numerique',
+    title: 'Coopératives : digitalisez votre gestion avec Siteviral',
+    description: 'Cotisations, projets collectifs, communication : voici comment une coopérative peut utiliser Siteviral au quotidien.',
+    personas: ['Coopératives', 'Associations'],
+    category: 'Découverte',
+    readTime: '4 min',
+    publishedAt: '2026-04-03',
+    content: `
+<h2>Les défis des coopératives</h2>
+<p>Les coopératives agricoles, artisanales et d'épargne font face à des défis communs : gestion des cotisations en espèces, communication difficile avec les membres, manque de transparence financière.</p>
+
+<h2>Ce que Siteviral peut faire pour votre coopérative</h2>
+
+<h3>1. Collecter les cotisations</h3>
+<p>Créez une campagne mensuelle. Chaque membre paie par Mobile Money. Le trésorier voit tout en temps réel. Fini les cahiers et les soupçons.</p>
+
+<h3>2. Vendre les productions</h3>
+<p>Si votre coopérative produit du contenu éducatif (guides agricoles, formations artisanales), vendez-le en ligne. Nouvelle source de revenus.</p>
+
+<h3>3. Communiquer efficacement</h3>
+<p>Utilisez les annonces pour informer tous les membres : réunions, décisions, événements. Archivé et consultable.</p>
+
+<h3>4. Gérer les événements</h3>
+<p>Assemblées générales, formations, marchés — créez des événements avec inscriptions en ligne.</p>
+
+<h3>5. Recevoir des soutiens extérieurs</h3>
+<p>Des sympathisants ou la diaspora veulent soutenir votre coopérative ? Ils peuvent donner directement via votre page.</p>
+
+<h2>Mise en place en 1 jour</h2>
+<p>Un seul membre suffit pour créer la page. En 1 heure, votre coopérative a une présence en ligne professionnelle avec collecte de cotisations intégrée.</p>
+`,
+  },
+  {
+    slug: 'analytics-comprendre-donnees-ventes',
+    title: 'Comment lire vos analytics et prendre de meilleures décisions',
+    description: 'Les données sont un trésor inexploité. Voici comment comprendre vos analytics Siteviral pour vendre plus intelligemment.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Tutoriel',
+    readTime: '5 min',
+    publishedAt: '2026-04-04',
+    content: `
+<h2>Les analytics ne sont pas réservées aux experts</h2>
+<p>Vous n'avez pas besoin d'être data scientist. Il suffit de comprendre <strong>5 métriques clés</strong> pour transformer vos résultats.</p>
+
+<h2>Métrique #1 : Vues de page</h2>
+<p>Combien de personnes visitent votre page ? Si ce nombre est bas, votre problème est la <strong>visibilité</strong>. Solution : partagez plus, activez plus d'ambassadeurs.</p>
+
+<h2>Métrique #2 : Taux de conversion</h2>
+<p>Sur 100 visiteurs, combien achètent ? Un bon taux est 2-5%. Si c'est en dessous, votre problème est la <strong>page de vente</strong> (description, prix, couverture).</p>
+
+<h2>Métrique #3 : Produit le plus vendu</h2>
+<p>Quel produit génère le plus de revenus ? Doublez dessus. Créez des produits similaires. C'est votre « vache à lait ».</p>
+
+<h2>Métrique #4 : Source du trafic</h2>
+<p>D'où viennent vos visiteurs ? WhatsApp ? Facebook ? Ambassadeurs ? Concentrez vos efforts sur le canal qui fonctionne le mieux.</p>
+
+<h2>Métrique #5 : Ambassadeurs performants</h2>
+<p>Qui sont vos meilleurs ambassadeurs ? Chouchoutez-les. Donnez-leur du contenu exclusif à partager. Ils sont votre force de vente gratuite.</p>
+
+<h2>La routine hebdomadaire</h2>
+<p>Chaque lundi, consacrez 15 minutes à vos analytics. Notez ce qui a marché, ce qui n'a pas marché, et une action à prendre cette semaine. C'est simple et transformateur.</p>
+`,
+  },
+  {
+    slug: 'email-marketing-createurs-africains',
+    title: 'Email marketing pour créateurs africains : le guide essentiel',
+    description: 'L\'email reste le canal marketing le plus rentable. Voici comment l\'utiliser efficacement même avec une petite liste.',
+    personas: ['Créateurs', 'Formateurs', 'Professionnels'],
+    category: 'Stratégie',
+    readTime: '5 min',
+    publishedAt: '2026-04-05',
+    content: `
+<h2>L'email n'est pas mort</h2>
+<p>Contrairement à ce qu'on entend, l'email marketing reste le canal avec le <strong>meilleur retour sur investissement</strong> : 42$ pour chaque 1$ investi. Et en Afrique, de plus en plus de professionnels utilisent l'email quotidiennement.</p>
+
+<h2>Construire votre liste</h2>
+<ul>
+<li><strong>Lead magnet</strong> : offrez un contenu gratuit (checklist, mini-guide) en échange de l'email</li>
+<li><strong>Acheteurs existants</strong> : chaque client sur Siteviral est un contact email potentiel</li>
+<li><strong>Formulaire sur votre page</strong> : collectez les emails des visiteurs intéressés</li>
+</ul>
+
+<h2>Les 4 types d'emails qui marchent</h2>
+
+<h3>1. L'email de bienvenue</h3>
+<p>Envoyé automatiquement à chaque nouvel inscrit. Présentez-vous, livrez le contenu gratuit promis, annoncez ce qu'ils recevront.</p>
+
+<h3>2. L'email de valeur</h3>
+<p>Un conseil pratique, une histoire inspirante, une ressource utile. Pas de vente. Juste de la valeur. Envoyez-en 2-3 avant de vendre.</p>
+
+<h3>3. L'email de promotion</h3>
+<p>Nouveau produit, vente flash, code promo. Direct et clair. Après avoir donné de la valeur, vous avez le droit de vendre.</p>
+
+<h3>4. L'email témoignage</h3>
+<p>Partagez l'histoire d'un client qui a obtenu des résultats avec votre produit. C'est la preuve sociale qui convertit.</p>
+
+<h2>Fréquence idéale</h2>
+<p>1-2 emails par semaine. Assez pour rester présent, pas assez pour agacer. Siteviral intègre l'envoi de campagnes email directement depuis votre dashboard.</p>
+`,
+  },
+  {
+    slug: 'produit-gratuit-strategie-acquisition',
+    title: 'Pourquoi offrir un produit gratuit est votre meilleure stratégie d\'acquisition',
+    description: 'Un produit gratuit bien pensé peut générer plus de ventes que n\'importe quelle publicité payante.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Stratégie',
+    readTime: '4 min',
+    publishedAt: '2026-04-06',
+    content: `
+<h2>Le paradoxe du gratuit</h2>
+<p>Donner pour vendre plus ? Ça semble contre-intuitif, mais c'est la stratégie utilisée par les meilleurs vendeurs. Le produit gratuit est un <strong>investissement marketing</strong>, pas une perte.</p>
+
+<h2>Comment ça marche</h2>
+<ol>
+<li>Le client découvre votre produit gratuit</li>
+<li>Il le télécharge et découvre votre expertise</li>
+<li>Il vous fait confiance</li>
+<li>Il achète vos produits payants</li>
+</ol>
+
+<h2>Les types de produits gratuits efficaces</h2>
+<ul>
+<li><strong>Le chapitre 1</strong> : offrez le premier chapitre de votre e-book</li>
+<li><strong>La checklist</strong> : un PDF d'une page, ultra-actionnable</li>
+<li><strong>Le mini-cours</strong> : 3 vidéos de 5 minutes</li>
+<li><strong>Le template</strong> : un outil prêt à l'emploi</li>
+<li><strong>Le webinaire replay</strong> : une présentation enregistrée</li>
+</ul>
+
+<h2>Sur Siteviral</h2>
+<p>Créez un produit et cochez « gratuit ». Les clients le « clament » en un clic. Vous récupérez leur email et ils découvrent votre page avec vos produits payants.</p>
+
+<h2>L'entonnoir parfait</h2>
+<p>Produit gratuit → Email de remerciement → 2-3 emails de valeur → Offre produit payant. Ce tunnel convertit à 5-15% — bien plus que le trafic froid.</p>
+
+<h2>La règle</h2>
+<p>Votre produit gratuit doit être <strong>suffisamment bon</strong> pour que les gens se disent « Si le gratuit est aussi bien, le payant doit être incroyable ».</p>
+`,
+  },
+  {
+    slug: 'siteviral-vs-flutterwave-store',
+    title: 'Siteviral vs Flutterwave Store : quelle solution pour vendre en Afrique ?',
+    description: 'Flutterwave Store permet de vendre en ligne en Afrique, mais Siteviral offre une approche plus complète. Comparaison détaillée.',
+    personas: ['Créateurs', 'Professionnels'],
+    category: 'Comparaison',
+    readTime: '4 min',
+    publishedAt: '2026-04-07',
+    content: `
+<h2>Flutterwave Store : le paiement d'abord</h2>
+<p>Flutterwave est un géant du paiement en Afrique. Leur fonctionnalité « Store » permet de créer une page de vente basique. C'est un ajout à leur service de paiement, pas un produit à part entière.</p>
+
+<h3>Ce que fait Flutterwave Store</h3>
+<ul>
+<li>Page de vente simple avec photo et description</li>
+<li>Paiement par carte et Mobile Money (via Flutterwave)</li>
+<li>Lien de paiement partageable</li>
+</ul>
+
+<h3>Ce qui manque</h3>
+<ul>
+<li><strong>Pas de programme ambassadeur</strong></li>
+<li><strong>Pas de collecte de dons</strong> avec campagnes et objectifs</li>
+<li><strong>Pas d'analytics avancées</strong></li>
+<li><strong>Pas de CRM</strong> pour gérer vos contacts</li>
+<li><strong>Pas de gamification</strong> (badges, XP, classements)</li>
+<li><strong>Pas de section événements, annonces, médias</strong></li>
+</ul>
+
+<h2>Siteviral : la plateforme complète</h2>
+<p>Siteviral n'est pas juste un outil de paiement. C'est un <strong>écosystème complet</strong> : boutique + dons + ambassadeurs + CRM + analytics + événements + email marketing. Tout sur une seule plateforme, sans code, sans abonnement.</p>
+
+<h2>Verdict</h2>
+<p>Flutterwave Store convient pour une vente ponctuelle. Siteviral convient pour <strong>construire un business numérique durable</strong> avec une communauté engagée.</p>
+`,
+  },
+  {
+    slug: 'reussir-lancement-produit-numerique',
+    title: 'La checklist du lancement parfait : 15 étapes pour réussir votre sortie produit',
+    description: 'Ne lancez plus vos produits dans le vide. Voici la checklist en 15 points pour un lancement qui génère des ventes dès le jour 1.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Tutoriel',
+    readTime: '6 min',
+    publishedAt: '2026-04-08',
+    content: `
+<h2>Pourquoi la plupart des lancements échouent</h2>
+<p>Parce qu'ils sont improvisés. Le créateur finit son produit, le publie, partage un lien sur Facebook et… silence. Un bon lancement se prépare <strong>2 semaines à l'avance</strong>.</p>
+
+<h2>Semaine -2 : Préparation</h2>
+<ol>
+<li>✅ Produit finalisé et testé (faites-le relire par 2-3 personnes)</li>
+<li>✅ Couverture professionnelle créée sur Canva</li>
+<li>✅ Description de vente rédigée (méthode PAS)</li>
+<li>✅ 3 visuels de promotion créés (pour réseaux sociaux)</li>
+<li>✅ Prix fixé avec prix de lancement (-20 à -30%)</li>
+</ol>
+
+<h2>Semaine -1 : Teasing</h2>
+<ol start="6">
+<li>✅ Annoncez que « quelque chose arrive » sur vos réseaux</li>
+<li>✅ Partagez des extraits ou behind-the-scenes</li>
+<li>✅ Prévenez vos ambassadeurs avec les visuels et arguments</li>
+<li>✅ Préparez votre message de lancement pour WhatsApp</li>
+<li>✅ Créez un code promo « LANCEMENT »</li>
+</ol>
+
+<h2>Jour J : Lancement</h2>
+<ol start="11">
+<li>✅ Publiez le produit sur Siteviral</li>
+<li>✅ Envoyez le message à votre liste WhatsApp/email</li>
+<li>✅ Publiez sur Facebook, Instagram, TikTok</li>
+<li>✅ Ambassadeurs partagent simultanément</li>
+<li>✅ Répondez à chaque question et commentaire en temps réel</li>
+</ol>
+
+<h2>Après le lancement</h2>
+<ul>
+<li>Demandez des avis aux premiers acheteurs</li>
+<li>Publiez les témoignages reçus</li>
+<li>Envoyez un rappel « dernier jour du prix de lancement »</li>
+<li>Analysez les résultats et notez les leçons pour le prochain lancement</li>
+</ul>
+`,
+  },
 ];
 
 export function getArticleBySlug(slug: string): BlogArticle | undefined {
