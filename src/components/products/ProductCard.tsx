@@ -1,4 +1,5 @@
 import { DigitalProduct } from '@/types/database';
+import { buildSocialShareUrl } from '@/lib/shareMeta';
 import { formatPrice } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -64,21 +65,28 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
     ? `/org/${resolvedSlug}/p/${pSlug}`
     : `/org/${resolvedSlug}/product/${product.id}`;
 
-  let shareUrl = `https://siteviral.com${detailPath}`;
-  if (affiliateCode) shareUrl += `?ref=${affiliateCode}`;
+  let rawShareUrl = `https://siteviral.com${detailPath}`;
+  if (affiliateCode) rawShareUrl += `?ref=${affiliateCode}`;
+
+  const socialShareUrl = buildSocialShareUrl({
+    targetUrl: rawShareUrl,
+    title: product.title,
+    description: product.description?.slice(0, 155) || undefined,
+    image: product.cover_image_url || undefined,
+  });
 
   const canPreview = !!(product as any).file_url && ['pdf', 'ebook'].includes((product.product_type || '').toLowerCase());
   const previewPath = `${detailPath}?preview=1`;
 
   const handleCopyLink = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard.writeText(shareUrl);
+    navigator.clipboard.writeText(socialShareUrl);
     toast({ title: 'Lien copié !' });
   };
 
   const handleShareWhatsApp = (e: React.MouseEvent) => {
     e.stopPropagation();
-    window.open(`https://wa.me/?text=${encodeURIComponent(`${product.title} — ${shareUrl}`)}`, '_blank');
+    window.open(`https://wa.me/?text=${encodeURIComponent(`${product.title} — ${socialShareUrl}`)}`, '_blank');
   };
 
   const handleCardClick = () => {
