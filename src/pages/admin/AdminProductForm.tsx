@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { buildSocialShareUrl } from '@/lib/shareMeta';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -193,17 +194,21 @@ export function ProductForm() {
     ? `${window.location.origin}/org/${currentOrg.slug}/product/${id}`
     : null;
 
+  const getProductShareUrl = (rawUrl: string) =>
+    buildSocialShareUrl({ targetUrl: rawUrl, title: watch('title') || 'Produit Siteviral' });
+
   const copyLink = () => {
     if (productUrl) {
-      navigator.clipboard.writeText(productUrl);
+      navigator.clipboard.writeText(getProductShareUrl(productUrl));
       toast({ title: 'Lien copié ✅' });
     }
   };
 
   const shareLink = () => {
     if (productUrl) {
+      const shareUrl = getProductShareUrl(productUrl);
       if (navigator.share) {
-        navigator.share({ title: watch('title'), url: productUrl });
+        navigator.share({ title: watch('title'), url: shareUrl });
       } else {
         copyLink();
       }
@@ -213,6 +218,7 @@ export function ProductForm() {
   // Success screen after product creation
   if (createdProduct) {
     const newProductUrl = `${window.location.origin}/org/${currentOrg?.slug}/product/${createdProduct.id}`;
+    const newShareUrl = buildSocialShareUrl({ targetUrl: newProductUrl, title: watch('title') || 'Produit Siteviral' });
     return (
       <AdminPageShell title="Produit créé !" backRoute="/admin/products">
         <div className="max-w-md mx-auto text-center space-y-6 py-8">
@@ -227,7 +233,7 @@ export function ProductForm() {
             <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Lien du produit</p>
             <div className="flex items-center gap-2">
               <p className="text-xs font-mono text-foreground truncate flex-1">{newProductUrl}</p>
-              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 shrink-0" onClick={() => { navigator.clipboard.writeText(newProductUrl); toast({ title: 'Lien copié ✅' }); }}>
+              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 shrink-0" onClick={() => { navigator.clipboard.writeText(newShareUrl); toast({ title: 'Lien copié ✅' }); }}>
                 <Copy className="h-3.5 w-3.5" />
               </Button>
             </div>
@@ -236,7 +242,7 @@ export function ProductForm() {
             <Button variant="outline" className="gap-2" onClick={() => window.open(newProductUrl, '_blank')}>
               <Eye className="h-4 w-4" /> Voir le produit
             </Button>
-            <Button variant="outline" className="gap-2" onClick={() => { if (navigator.share) navigator.share({ title: watch('title'), url: newProductUrl }); else { navigator.clipboard.writeText(newProductUrl); toast({ title: 'Lien copié ✅' }); } }}>
+            <Button variant="outline" className="gap-2" onClick={() => { if (navigator.share) navigator.share({ title: watch('title'), url: newShareUrl }); else { navigator.clipboard.writeText(newShareUrl); toast({ title: 'Lien copié ✅' }); } }}>
               <Share2 className="h-4 w-4" /> Partager
             </Button>
             <Button className="gap-2 bg-primary text-primary-foreground" onClick={() => { setCreatedProduct(null); reset({ product_type: 'pdf', price: 0, is_free: false, is_published: true }); }}>

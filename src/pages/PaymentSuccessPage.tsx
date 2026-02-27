@@ -484,7 +484,7 @@ export default function PaymentSuccessPage() {
                     const text = isProduct
                       ? `Je viens d'acheter "${tx.product_title}" sur ${tx.org_name} via Siteviral ! 🎉`
                       : `Je viens de soutenir "${tx.campaign_title || tx.org_name}" via Siteviral ! 🙏`;
-                    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+                    window.open(`https://wa.me/?text=${encodeURIComponent(`${text}\nhttps://siteviral.com`)}`, '_blank');
                   }}
                 >
                   WhatsApp

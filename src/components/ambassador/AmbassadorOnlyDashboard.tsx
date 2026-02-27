@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { buildShareUrlForPath } from '@/lib/shareMeta';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
@@ -62,8 +63,8 @@ export function AmbassadorOnlyDashboard() {
   const totalConversions = affiliateLinks.reduce((sum, l) => sum + (l.conversions || 0), 0);
 
   const copyLink = (code: string, slug: string) => {
-    const url = `${window.location.origin}/org/${slug}?ref=${code}`;
-    navigator.clipboard.writeText(url);
+    const proxyUrl = buildShareUrlForPath(`/org/${slug}?ref=${code}`);
+    navigator.clipboard.writeText(proxyUrl);
     toast({ title: 'Lien copié ✅' });
   };
 
