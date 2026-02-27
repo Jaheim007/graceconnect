@@ -7,10 +7,7 @@ interface BuildSocialShareUrlInput {
 
 const DEFAULT_SITE_ORIGIN = 'https://siteviral.com';
 
-const getFunctionsBase = () => {
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-  return supabaseUrl ? `${supabaseUrl}/functions/v1` : 'https://api.siteviral.com/functions/v1';
-};
+const getFunctionsBase = () => 'https://api.siteviral.com/functions/v1';
 
 const toAbsoluteUrl = (value: string) => {
   try {
