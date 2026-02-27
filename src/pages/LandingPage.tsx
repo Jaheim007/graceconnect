@@ -14,6 +14,8 @@ import { Marquee } from '@/components/landing/Marquee';
 import { BeforeAfterSection } from '@/components/landing/BeforeAfterSection';
 import { PaymentLogos } from '@/components/landing/PaymentLogos';
 import { StatsBar } from '@/components/landing/AnimatedCounter';
+import { LandingVideoPromo } from '@/components/landing/LandingVideoPromo';
+import { LandingWhitePaper } from '@/components/landing/LandingWhitePaper';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
@@ -65,11 +67,17 @@ export default function LandingPage() {
       {/* Hero with rotating personas + social proof */}
       <LandingHero />
 
+      {/* Promo video (hidden until YouTube ID is set) */}
+      <LandingVideoPromo />
+
       {/* 3 Persona Cards */}
       <LandingPersonaCards />
 
       {/* Stats bar with animated counters */}
       <StatsBar />
+
+      {/* White Paper / Livre Blanc — prominent lead capture */}
+      <LandingWhitePaper />
 
       {/* Ambassador Section (prominent) */}
       <LandingAmbassadorSection />

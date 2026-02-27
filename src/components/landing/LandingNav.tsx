@@ -5,19 +5,21 @@ import { Button } from '@/components/ui/button';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-
-const navLinks = [
-  { to: '/features', label: 'Fonctionnalités' },
-  { to: '/ambassador-program', label: 'Ambassadeurs' },
-  { to: '/discover', label: 'Explorer' },
-  { to: '/about', label: 'À propos' },
-  { to: '/faq', label: 'FAQ' },
-];
+import { useI18n } from '@/i18n/I18nContext';
 
 export function LandingNav() {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t } = useI18n();
+
+  const navLinks = [
+    { to: '/features', label: t('landing.footer_features') },
+    { to: '/ambassador-program', label: t('landing.footer_ambassadors') },
+    { to: '/discover', label: t('nav.discover') },
+    { to: '/about', label: t('landing.about') },
+    { to: '/faq', label: 'FAQ' },
+  ];
 
   return (
     <header className="fixed top-0 w-full z-50 glass border-b border-border/40">
@@ -38,10 +40,10 @@ export function LandingNav() {
             {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
           <Button variant="ghost" size="sm" onClick={() => navigate('/auth?mode=signin')} className="hidden sm:inline-flex text-xs px-3">
-            Connexion
+            {t('nav.sign_in')}
           </Button>
           <Button size="sm" className="text-xs px-4 gap-1.5" onClick={() => navigate('/auth?mode=signup')}>
-            Commencer <ArrowRight className="h-3 w-3 hidden sm:block" />
+            {t('nav.get_started')} <ArrowRight className="h-3 w-3 hidden sm:block" />
           </Button>
           {/* Mobile hamburger */}
           <Button variant="ghost" size="icon" className="h-8 w-8 md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
@@ -72,10 +74,10 @@ export function LandingNav() {
               ))}
               <div className="pt-2 border-t border-border/40 mt-2 space-y-2">
                 <Button variant="outline" className="w-full" onClick={() => { navigate('/auth?mode=signin'); setMenuOpen(false); }}>
-                  Connexion
+                  {t('nav.sign_in')}
                 </Button>
                 <Button className="w-full gap-1.5" onClick={() => { navigate('/auth?mode=signup'); setMenuOpen(false); }}>
-                  Commencer gratuitement <ArrowRight className="h-3.5 w-3.5" />
+                  {t('nav.get_started')} <ArrowRight className="h-3.5 w-3.5" />
                 </Button>
               </div>
             </nav>
