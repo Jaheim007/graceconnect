@@ -100,10 +100,9 @@ export default function CreateOrgPage() {
         _slug: data.slug,
         _category: data.category,
         _description: data.description || null,
+        _currency: data.currency,
       });
       if (error) throw error;
-
-      await db.from('organizations').update({ currency: data.currency }).eq('id', orgId);
 
       const { data: newOrg, error: fetchError } = await db
         .from('organizations')

@@ -3897,15 +3897,26 @@ export type Database = {
         Returns: boolean
       }
       compute_partner_level: { Args: { _partner_id: string }; Returns: number }
-      create_organization_with_owner: {
-        Args: {
-          _category?: Database["public"]["Enums"]["org_category"]
-          _description?: string
-          _name: string
-          _slug: string
-        }
-        Returns: string
-      }
+      create_organization_with_owner:
+        | {
+            Args: {
+              _category?: Database["public"]["Enums"]["org_category"]
+              _description?: string
+              _name: string
+              _slug: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              _category?: Database["public"]["Enums"]["org_category"]
+              _currency?: string
+              _description?: string
+              _name: string
+              _slug: string
+            }
+            Returns: string
+          }
       decrement_like_count: { Args: { media_id: string }; Returns: undefined }
       delete_organization: { Args: { _org_id: string }; Returns: Json }
       delete_user_account: { Args: { _user_id: string }; Returns: undefined }
