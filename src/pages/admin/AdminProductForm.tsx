@@ -378,9 +378,9 @@ export function ProductForm() {
         {/* Cover image upload — hint adapts to product type */}
         {(() => {
           const pt = watch('product_type');
-          const coverHints: Record<string, { hint: string; aspect: 'square' | 'video' | 'banner' | 'free' }> = {
-            pdf:    { hint: 'Book cover: 1000×1600px (2:3 portrait) · JPG/PNG/WEBP · Max 10MB', aspect: 'free' },
-            ebook:  { hint: 'eBook cover: 1000×1600px (2:3 portrait) · JPG/PNG/WEBP · Max 10MB', aspect: 'free' },
+          const coverHints: Record<string, { hint: string; aspect: 'square' | 'video' | 'banner' | 'free' | 'book' }> = {
+            pdf:    { hint: 'Book cover: 1000×1600px (2:3 portrait) · JPG/PNG/WEBP · Max 10MB', aspect: 'book' },
+            ebook:  { hint: 'eBook cover: 1000×1600px (2:3 portrait) · JPG/PNG/WEBP · Max 10MB', aspect: 'book' },
             audio:  { hint: 'Album art: 3000×3000px (1:1 square) · JPG/PNG/WEBP · Max 10MB', aspect: 'square' },
             video:  { hint: 'Video cover: 1280×720px (16:9 horizontal) · JPG/PNG/WEBP · Max 10MB', aspect: 'video' },
             course: { hint: 'Course cover: 1280×720px (16:9 horizontal) · JPG/PNG/WEBP · Max 10MB', aspect: 'video' },
