@@ -44,7 +44,7 @@ export async function getOrCreateShortLink(opts: {
 
   // 1. Session cache
   const cached = shortLinkCache.get(cleanPath);
-  if (cached) return `${SITE_ORIGIN}/go/${cached}`;
+  if (cached) return `${FUNCTIONS_BASE}/share-meta?code=${cached}`;
 
   // 2. Check DB for existing
   try {
@@ -57,7 +57,7 @@ export async function getOrCreateShortLink(opts: {
 
     if (existing) {
       shortLinkCache.set(cleanPath, existing.id);
-      return `${SITE_ORIGIN}/go/${existing.id}`;
+      return `${FUNCTIONS_BASE}/share-meta?code=${existing.id}`;
     }
   } catch {
     // DB read failed — fall through to create
@@ -86,7 +86,7 @@ export async function getOrCreateShortLink(opts: {
     }
 
     shortLinkCache.set(cleanPath, code);
-    return `${SITE_ORIGIN}/go/${code}`;
+    return `${FUNCTIONS_BASE}/share-meta?code=${code}`;
   } catch {
     return buildLegacyShareUrl(cleanPath, opts.title, opts.description, opts.image);
   }
