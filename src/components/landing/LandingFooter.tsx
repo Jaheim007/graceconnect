@@ -15,8 +15,8 @@ export function LandingFooter() {
           <div className="space-y-3">
             <h4 className="font-semibold text-sm">{t('landing.footer_product')}</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li><Link to="/features" className="hover:text-foreground transition-colors">Fonctionnalités</Link></li>
-              <li><Link to="/ambassador-program" className="hover:text-foreground transition-colors">Ambassadeurs</Link></li>
+              <li><Link to="/features" className="hover:text-foreground transition-colors">{t('landing.footer_features')}</Link></li>
+              <li><Link to="/ambassador-program" className="hover:text-foreground transition-colors">{t('landing.footer_ambassadors')}</Link></li>
               <li><Link to="/about" className="hover:text-foreground transition-colors">{t('landing.about')}</Link></li>
               <li><Link to="/auth?mode=signup" className="hover:text-foreground transition-colors">{t('landing.get_started')}</Link></li>
               <li><Link to="/faq" className="hover:text-foreground transition-colors">FAQ</Link></li>
@@ -27,7 +27,7 @@ export function LandingFooter() {
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li><Link to="/terms" className="hover:text-foreground transition-colors">{t('auth.terms_of_service')}</Link></li>
               <li><Link to="/privacy" className="hover:text-foreground transition-colors">{t('auth.privacy_policy')}</Link></li>
-              <li><Link to="/aml" className="hover:text-foreground transition-colors">AML</Link></li>
+              <li><Link to="/aml" className="hover:text-foreground transition-colors">{t('landing.footer_aml')}</Link></li>
               <li><Link to="/refund-policy" className="hover:text-foreground transition-colors">{t('landing.footer_refund')}</Link></li>
               <li><Link to="/payout-policy" className="hover:text-foreground transition-colors">{t('landing.footer_payout')}</Link></li>
               <li><Link to="/acceptable-use" className="hover:text-foreground transition-colors">{t('landing.footer_acceptable')}</Link></li>

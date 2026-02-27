@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   ShoppingBag, Heart, BookOpen, Users, Check, ArrowRight, ArrowLeft,
-  X, Image, FileText, Megaphone, Sparkles, Rocket, Zap, Loader2,
+  X, Image, FileText, Megaphone, Sparkles, Rocket, Zap, Loader2, Play,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useOrg } from '@/contexts/OrgContext';
@@ -22,6 +22,9 @@ const GOALS = [
   { id: 'ambassador', icon: Users, title: 'Programme Ambassadeur', desc: 'Permettre à vos membres de promouvoir', color: 'from-amber-500/20 to-yellow-500/20 border-amber-500/30' },
 ];
 
+// Replace with actual YouTube video ID for onboarding demo
+const ONBOARDING_VIDEO_ID = '';
+
 interface OrgOnboardingWizardProps {
   open: boolean;
   onClose: () => void;
@@ -33,8 +36,10 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
   const [description, setDescription] = useState('');
   const [logoUrl, setLogoUrl] = useState('');
   const [saving, setSaving] = useState(false);
+  const [videoSkipped, setVideoSkipped] = useState(!ONBOARDING_VIDEO_ID);
   const navigate = useNavigate();
   const { currentOrg, refetchOrgs } = useOrg();
+  const { t } = useI18n();
   const { toast } = useToast();
   const qc = useQueryClient();
   const expressSetup = useExpressSetup();
@@ -45,7 +50,10 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
     setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
   };
 
-  const totalSteps = 3;
+  // If video is available, we have 4 steps; otherwise 3
+  const hasVideo = !!ONBOARDING_VIDEO_ID && !videoSkipped;
+  const totalSteps = hasVideo ? 4 : 3;
+  const adjustedStep = hasVideo ? step : (step === 0 ? 0 : step); // step mapping stays the same
 
   const handleSaveAndContinue = async () => {
     if (!currentOrg) return;
@@ -62,7 +70,7 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
       console.error(err);
     }
     setSaving(false);
-    setStep(2);
+    setStep(hasVideo ? 3 : 2);
   };
 
   const handleFinish = () => {
@@ -72,8 +80,40 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
     else navigate('/admin');
   };
 
-  const stepContent = [
-    // Step 0: Goals
+  const stepContent: React.ReactNode[] = [];
+
+  // Step 0: Demo video (only if video ID is set)
+  if (hasVideo) {
+    stepContent.push(
+      <motion.div key="video" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
+        <div className="text-center">
+          <div className="h-12 w-12 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
+            <Play className="h-6 w-6 text-primary" />
+          </div>
+          <h2 className="text-lg font-bold">{t('onboarding.video_title')}</h2>
+          <p className="text-sm text-muted-foreground mt-1">{t('onboarding.video_desc')}</p>
+        </div>
+        <div className="rounded-2xl overflow-hidden aspect-video bg-muted border border-border">
+          <iframe
+            src={`https://www.youtube.com/embed/${ONBOARDING_VIDEO_ID}?rel=0`}
+            title="Siteviral Demo"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="w-full h-full"
+          />
+        </div>
+        <button
+          onClick={() => { setVideoSkipped(true); setStep(0); }}
+          className="text-xs text-muted-foreground underline hover:text-foreground transition-colors mx-auto block"
+        >
+          {t('onboarding.video_skip')}
+        </button>
+      </motion.div>
+    );
+  }
+
+  // Goals step
+  stepContent.push(
     <motion.div key="goals" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
       <div className="text-center">
         <div className="h-12 w-12 mx-auto rounded-2xl bg-primary flex items-center justify-center mb-3">
@@ -100,9 +140,11 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
           </button>
         ))}
       </div>
-    </motion.div>,
+    </motion.div>
+  );
 
-    // Step 1: Branding
+  // Branding step
+  stepContent.push(
     <motion.div key="brand" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
       <div className="text-center">
         <div className="h-12 w-12 mx-auto rounded-2xl bg-primary/10 flex items-center justify-center mb-3">
@@ -132,9 +174,11 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
           />
         </div>
       </div>
-    </motion.div>,
+    </motion.div>
+  );
 
-    // Step 2: Ready
+  // Ready step
+  stepContent.push(
     <motion.div key="ready" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} className="space-y-5 text-center">
       <div className="h-16 w-16 mx-auto rounded-full bg-green-500/10 flex items-center justify-center">
         <Sparkles className="h-8 w-8 text-green-500" />
@@ -193,8 +237,11 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
           Vous pouvez publier et recevoir des paiements immédiatement. Les fonds sont retenus en sécurité jusqu'à la vérification de votre compte (72h après chaque transaction). Complétez votre KYC à tout moment dans les paramètres.
         </p>
       </div>
-    </motion.div>,
-  ];
+    </motion.div>
+  );
+
+  const lastStepIndex = stepContent.length - 1;
+  const secondToLastIndex = stepContent.length - 2;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm">
@@ -220,23 +267,23 @@ export function OrgOnboardingWizard({ open, onClose }: OrgOnboardingWizardProps)
 
         {/* Navigation */}
         <div className="flex gap-3 mt-6">
-          {step > 0 && step < 2 && (
+          {step > 0 && step < lastStepIndex && (
             <Button variant="outline" onClick={() => setStep(s => s - 1)} className="gap-1.5">
               <ArrowLeft className="h-4 w-4" /> Retour
             </Button>
           )}
           <div className="flex-1" />
-          {step === 0 && (
-            <Button onClick={() => setStep(1)} className="bg-primary text-primary-foreground gap-1.5">
+          {step < secondToLastIndex && (
+            <Button onClick={() => setStep(s => s + 1)} className="bg-primary text-primary-foreground gap-1.5">
               Continuer <ArrowRight className="h-4 w-4" />
             </Button>
           )}
-          {step === 1 && (
+          {step === secondToLastIndex && (
             <Button onClick={handleSaveAndContinue} disabled={saving} className="bg-primary text-primary-foreground gap-1.5">
               {saving ? 'Enregistrement…' : 'Continuer'} <ArrowRight className="h-4 w-4" />
             </Button>
           )}
-          {step === 2 && (
+          {step === lastStepIndex && (
             <Button onClick={handleFinish} className="bg-primary text-primary-foreground gap-1.5">
               C'est parti ! <Rocket className="h-4 w-4" />
             </Button>
