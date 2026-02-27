@@ -1110,6 +1110,579 @@ export const blogArticles: BlogArticle[] = [
 <p>Un programme ambassadeur est simplement du <strong>bouche-à-oreille récompensé</strong>. Vous recommandez un produit que vous aimez, et si quelqu'un l'achète, vous gagnez une commission. C'est le modèle utilisé par Amazon, Booking.com, et des milliers d'entreprises légitimes.</p>
 `,
   },
+  // ─── PHASE 3: 15 articles supplémentaires ───
+  {
+    slug: 'photographe-vendre-presets-en-ligne',
+    title: 'Photographe : Comment vendre vos presets et gagner un revenu passif',
+    description: 'Guide pour les photographes qui veulent monétiser leurs presets Lightroom, packs de photos et formations en ligne.',
+    personas: ['Photographes', 'Créateurs'],
+    category: 'Guide pratique',
+    readTime: '7 min',
+    publishedAt: '2026-03-22',
+    content: `
+<h2>Les presets : la mine d'or des photographes</h2>
+<p>Vous avez passé des années à développer votre style de retouche. Vos presets Lightroom sont uniques. Mais au lieu de les garder pour vous, <strong>vendez-les à d'autres photographes et créateurs de contenu</strong>.</p>
+
+<h2>Pourquoi les presets se vendent si bien</h2>
+<ul>
+<li><strong>Création unique</strong> : Vous créez le preset UNE fois, vous le vendez à l'infini</li>
+<li><strong>Demande forte</strong> : Les influenceurs et marques cherchent constamment des styles visuels uniques</li>
+<li><strong>Prix accessible</strong> : 3 000-10 000 FCFA — un prix que beaucoup peuvent se permettre</li>
+<li><strong>Zéro logistique</strong> : Fichier numérique, livraison automatique</li>
+</ul>
+
+<h2>Comment packager vos presets</h2>
+<h3>Option 1 : Pack thématique</h3>
+<p>"Pack Mariage Doré" — 10 presets pour des photos de mariage chaleureuses. Prix : 5 000 FCFA.</p>
+
+<h3>Option 2 : Collection complète</h3>
+<p>"Studio Collection" — 30 presets pour portrait, paysage et lifestyle. Prix : 12 000 FCFA.</p>
+
+<h3>Option 3 : Preset + tutoriel</h3>
+<p>Incluez une vidéo montrant comment utiliser et adapter vos presets. Prix : 8 000 FCFA. Valeur perçue x3.</p>
+
+<h2>Vendre sur Siteviral</h2>
+<p>Uploadez vos fichiers .dng ou .xmp dans un ZIP. Ajoutez des photos avant/après comme couverture. Partagez le lien sur votre Instagram. Les ambassadeurs font le reste.</p>
+`,
+  },
+  {
+    slug: 'podcaster-monetiser-episodes',
+    title: 'Comment monétiser votre podcast en Afrique (sans pub ni Patreon)',
+    description: 'Stratégies concrètes pour les podcasters africains qui veulent transformer leurs épisodes en source de revenus.',
+    personas: ['Podcasters', 'Créateurs'],
+    category: 'Guide pratique',
+    readTime: '8 min',
+    publishedAt: '2026-03-23',
+    content: `
+<h2>Le podcast en Afrique : un marché en explosion</h2>
+<p>Le nombre de podcasts africains a <strong>triplé en 3 ans</strong>. Mais la monétisation reste le défi #1. La publicité ne paie presque rien pour les petites audiences, et Patreon ne supporte pas le Mobile Money.</p>
+
+<h2>5 modèles de monétisation qui marchent</h2>
+
+<h3>1. Épisodes premium</h3>
+<p>Gardez 80% de vos épisodes gratuits sur Spotify/Apple. Vendez les 20% premium (interviews exclusives, séries spéciales) sur Siteviral.</p>
+
+<h3>2. Transcriptions & résumés</h3>
+<p>Beaucoup d'auditeurs préfèrent lire. Vendez les transcriptions de vos épisodes en PDF. Facile à produire, forte valeur ajoutée.</p>
+
+<h3>3. Guides compagnons</h3>
+<p>Si votre podcast est éducatif, créez des guides PDF qui approfondissent les sujets. Ex : "Les 50 ressources mentionnées dans la saison 2".</p>
+
+<h3>4. Crowdfunding de saison</h3>
+<p>Lancez une campagne de dons pour financer votre prochaine saison. Vos auditeurs contribuent et deviennent investis dans votre succès.</p>
+
+<h3>5. Événements en ligne payants</h3>
+<p>Organisez des sessions live Q&A avec vos invités. Vendez les billets via Siteviral.</p>
+
+<h2>Cas concret</h2>
+<p>Un podcaster togolais vend ses épisodes "Masterclass" à 2 000 FCFA. 40 ventes/mois = <strong>80 000 FCFA de revenus passifs</strong>, en plus des dons mensuels de ses fans.</p>
+`,
+  },
+  {
+    slug: 'association-gerer-cotisations-en-ligne',
+    title: 'Comment gérer les cotisations de votre association en ligne (fini le cash)',
+    description: 'Guide pour les associations et clubs qui veulent digitaliser la collecte des cotisations et améliorer la transparence.',
+    personas: ['Associations', 'Clubs'],
+    category: 'Guide pratique',
+    readTime: '6 min',
+    publishedAt: '2026-03-24',
+    content: `
+<h2>Le problème des cotisations en cash</h2>
+<p>Si vous gérez une association, vous connaissez ce scénario :</p>
+<ul>
+<li>Le trésorier court après les membres pour les cotisations</li>
+<li>30-50% des membres ne paient pas régulièrement</li>
+<li>Les comptes sont sur un cahier ou un fichier Excel jamais à jour</li>
+<li>Les bilans financiers créent de la méfiance</li>
+</ul>
+
+<h2>La solution numérique</h2>
+<p>En passant aux cotisations en ligne via Mobile Money, vous résolvez tous ces problèmes d'un coup :</p>
+<ul>
+<li><strong>Paiement en 2 clics</strong> : Le membre reçoit le lien, paie en Orange Money/MTN, c'est fait</li>
+<li><strong>Traçabilité 100%</strong> : Chaque paiement est enregistré automatiquement</li>
+<li><strong>Rappels automatiques</strong> : Plus besoin de courir après les retardataires</li>
+<li><strong>Export comptable</strong> : Bilan en 1 clic au format Excel ou PDF</li>
+</ul>
+
+<h2>Mise en place sur Siteviral</h2>
+<ol>
+<li>Créez l'espace de votre association (2 minutes)</li>
+<li>Créez un "produit" appelé "Cotisation mensuelle" au montant fixé</li>
+<li>Partagez le lien dans le groupe WhatsApp de l'association</li>
+<li>Suivez les paiements en temps réel dans le tableau de bord</li>
+</ol>
+
+<h2>Résultat typique</h2>
+<p>Les associations qui passent au numérique voient leur <strong>taux de cotisation passer de 40% à 80%+</strong> dans les 3 premiers mois.</p>
+`,
+  },
+  {
+    slug: 'seo-siteviral-referencer-page',
+    title: 'Comment référencer votre page Siteviral sur Google (guide SEO simple)',
+    description: 'Les bases du SEO pour que votre page vendeur Siteviral apparaisse dans les résultats de recherche Google.',
+    personas: ['Tous'],
+    category: 'Stratégie',
+    readTime: '7 min',
+    publishedAt: '2026-03-25',
+    content: `
+<h2>Pourquoi le SEO est important</h2>
+<p>Si quelqu'un cherche "ebook développement personnel Côte d'Ivoire" sur Google, votre page Siteviral devrait apparaître. C'est du <strong>trafic gratuit et qualifié</strong> — des gens qui cherchent exactement ce que vous vendez.</p>
+
+<h2>Les bases du SEO pour votre page</h2>
+
+<h3>1. Titre de page optimisé</h3>
+<p>Le nom de votre organisation doit contenir des mots-clés. Au lieu de "Ministère de la Parole", essayez "Ministère de la Parole — Prédications et livres chrétiens".</p>
+
+<h3>2. Description riche</h3>
+<p>Décrivez votre activité en 2-3 phrases avec les mots que vos clients utiliseraient sur Google. Soyez spécifique.</p>
+
+<h3>3. Titres de produits descriptifs</h3>
+<p>Mauvais : "Mon ebook". Bon : "Guide complet de gestion financière pour PME en Afrique (PDF, 120 pages)".</p>
+
+<h3>4. Partagez votre lien partout</h3>
+<p>Plus votre lien est partagé et cliqué (réseaux sociaux, WhatsApp, forums), plus Google le considère comme pertinent.</p>
+
+<h3>5. Publiez régulièrement</h3>
+<p>Les pages actives (nouveaux produits, annonces) sont mieux référencées que les pages statiques.</p>
+
+<h2>Ce que Siteviral fait automatiquement</h2>
+<p>Siteviral génère automatiquement les <strong>balises meta, le sitemap, les URLs propres et le schema.org</strong>. Vous n'avez qu'à bien remplir vos contenus.</p>
+`,
+  },
+  {
+    slug: 'whatsapp-marketing-siteviral',
+    title: 'Comment utiliser WhatsApp pour vendre vos produits Siteviral',
+    description: 'Stratégies de marketing WhatsApp pour les vendeurs Siteviral. Statuts, groupes, messages directs — tout ce qui marche.',
+    personas: ['Tous'],
+    category: 'Stratégie',
+    readTime: '6 min',
+    publishedAt: '2026-03-26',
+    content: `
+<h2>WhatsApp = Canal de vente #1 en Afrique</h2>
+<p>En Afrique, WhatsApp n'est pas juste une app de messagerie. C'est <strong>LE canal de vente principal</strong>. 90% des transactions informelles passent par WhatsApp. Voici comment l'utiliser intelligemment avec Siteviral.</p>
+
+<h2>Les 3 tactiques qui marchent</h2>
+
+<h3>1. Statuts WhatsApp (la plus efficace)</h3>
+<p>Publiez 2-3 statuts par jour :</p>
+<ul>
+<li><strong>Matin</strong> : Extrait/aperçu de votre produit avec un call-to-action</li>
+<li><strong>Midi</strong> : Témoignage d'un client satisfait</li>
+<li><strong>Soir</strong> : Rappel avec le lien direct vers votre produit Siteviral</li>
+</ul>
+<p>Les statuts WhatsApp ont un <strong>taux de vue de 50-70%</strong> — bien supérieur à Facebook ou Instagram.</p>
+
+<h3>2. Groupes ciblés</h3>
+<p>Créez un groupe "VIP" pour vos clients et fans. Partagez des exclusivités, des aperçus, et des promotions. Ne spammez pas les groupes publics.</p>
+
+<h3>3. Message direct personnalisé</h3>
+<p>Quand vous identifiez quelqu'un qui pourrait être intéressé, envoyez un message personnalisé avec le lien. "Salut Jean, j'ai pensé à toi en créant ce guide sur [sujet]. Voici le lien : ..."</p>
+
+<h2>La règle d'or</h2>
+<p><strong>80% de valeur, 20% de promotion.</strong> Donnez du contenu utile gratuitement (conseils, astuces, inspiration), et de temps en temps, proposez votre produit payant.</p>
+
+<h2>Automatiser avec les ambassadeurs</h2>
+<p>Chaque ambassadeur fait ce même travail sur SON réseau WhatsApp. Si vous avez 20 ambassadeurs, c'est 20 réseaux WhatsApp qui voient vos produits. <strong>Multiplication virale.</strong></p>
+`,
+  },
+  {
+    slug: 'creer-premier-produit-numerique',
+    title: 'Créez votre premier produit numérique en 1 week-end (même sans expérience)',
+    description: 'Un guide pas à pas pour créer et publier votre premier ebook, cours ou template numérique en un week-end.',
+    personas: ['Tous'],
+    category: 'Guide pratique',
+    readTime: '9 min',
+    publishedAt: '2026-03-27',
+    content: `
+<h2>Vous savez des choses que d'autres veulent apprendre</h2>
+<p>Chaque personne a une expertise que d'autres paieraient pour acquérir. Cuisiner un plat spécial, créer un CV qui décroche des entretiens, gérer ses finances, apprendre l'anglais… <strong>Votre savoir a de la valeur.</strong></p>
+
+<h2>Samedi matin : Choisissez votre sujet</h2>
+<p>Répondez à ces 3 questions :</p>
+<ol>
+<li>Qu'est-ce que les gens me demandent souvent conseil sur ?</li>
+<li>Qu'est-ce que je sais faire que 90% des gens ne savent pas ?</li>
+<li>Quel problème puis-je résoudre concrètement ?</li>
+</ol>
+<p><strong>Exemples</strong> : "Comment préparer le concours ENAM", "10 recettes ivoiriennes faciles", "Guide du freelance en Afrique".</p>
+
+<h2>Samedi après-midi : Rédigez</h2>
+<p>Ouvrez Google Docs. Écrivez 15-30 pages :</p>
+<ul>
+<li>Introduction (le problème que vous résolvez)</li>
+<li>5-10 chapitres courts et actionnables</li>
+<li>Conclusion (prochaines étapes)</li>
+</ul>
+<p>Ne cherchez pas la perfection. Un guide imparfait mais publié vaut mieux qu'un chef-d'œuvre jamais terminé.</p>
+
+<h2>Dimanche matin : Mettez en forme</h2>
+<p>Ajoutez des titres, des listes, des images si possible. Exportez en PDF. Créez une couverture simple avec Canva (gratuit).</p>
+
+<h2>Dimanche après-midi : Publiez sur Siteviral</h2>
+<ol>
+<li>Inscrivez-vous sur Siteviral (2 minutes)</li>
+<li>Créez votre organisation</li>
+<li>Ajoutez votre produit : titre, description, fichier, prix</li>
+<li>Partagez le lien sur WhatsApp</li>
+</ol>
+
+<h2>Voilà, vous êtes vendeur 🎉</h2>
+<p>Votre premier produit est en ligne. Les prochains seront plus faciles. La clé : <strong>commencez maintenant, améliorez plus tard</strong>.</p>
+`,
+  },
+  {
+    slug: 'mobile-money-vs-carte-bancaire-afrique',
+    title: 'Mobile Money vs Carte Bancaire : Pourquoi le choix du paiement détermine vos ventes',
+    description: 'Analyse des taux de conversion selon les moyens de paiement en Afrique. Pourquoi ne proposer que la carte vous fait perdre 80% de ventes.',
+    personas: ['Tous'],
+    category: 'Stratégie',
+    readTime: '5 min',
+    publishedAt: '2026-03-28',
+    content: `
+<h2>Les chiffres parlent d'eux-mêmes</h2>
+<ul>
+<li><strong>Taux de bancarisation en Afrique subsaharienne</strong> : ~30%</li>
+<li><strong>Taux de pénétration Mobile Money</strong> : ~65%</li>
+<li><strong>Transactions Mobile Money en 2025</strong> : 800+ milliards USD</li>
+</ul>
+<p>Si vous ne proposez que le paiement par carte bancaire, vous excluez <strong>70% de vos clients potentiels</strong>.</p>
+
+<h2>Le parcours d'achat type en Afrique</h2>
+<ol>
+<li>Le client voit votre produit sur WhatsApp/Facebook</li>
+<li>Il clique sur le lien → arrive sur votre page Siteviral</li>
+<li>Il veut acheter → cherche l'option Mobile Money</li>
+<li>Si pas de Mobile Money → il abandonne (80% des cas)</li>
+<li>Si Mobile Money disponible → il paie en 30 secondes ✅</li>
+</ol>
+
+<h2>Taux de conversion comparés</h2>
+<ul>
+<li><strong>Carte seule</strong> : 2-5% de conversion</li>
+<li><strong>Mobile Money seul</strong> : 8-15% de conversion</li>
+<li><strong>Carte + Mobile Money</strong> : 12-20% de conversion</li>
+</ul>
+<p>Siteviral propose les deux par défaut. <strong>Zéro configuration nécessaire.</strong></p>
+
+<h2>Et pour la diaspora ?</h2>
+<p>C'est l'inverse : la diaspora paie par carte (Stripe). D'où l'importance de proposer les deux. Siteviral gère automatiquement le bon moyen de paiement selon la localisation.</p>
+`,
+  },
+  {
+    slug: 'siteviral-vs-sendowl',
+    title: 'Siteviral vs SendOwl : Quelle plateforme pour vendre en Afrique ?',
+    description: 'Comparaison entre Siteviral et SendOwl pour les créateurs de produits numériques ciblant le marché africain.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Comparaison',
+    readTime: '5 min',
+    publishedAt: '2026-03-29',
+    content: `
+<h2>SendOwl en bref</h2>
+<p>SendOwl est une plateforme spécialisée dans la vente de produits numériques. Simple et efficace pour le marché occidental. Mais convient-elle à l'Afrique ?</p>
+
+<h2>Comparaison clé</h2>
+
+<h3>💳 Paiement</h3>
+<ul>
+<li><strong>SendOwl</strong> : Stripe + PayPal uniquement</li>
+<li><strong>Siteviral</strong> : Mobile Money + Stripe ✅</li>
+</ul>
+
+<h3>💰 Prix</h3>
+<ul>
+<li><strong>SendOwl</strong> : À partir de 9$/mois (~5 400 FCFA/mois)</li>
+<li><strong>Siteviral</strong> : 0 FCFA/mois, 7% par vente ✅</li>
+</ul>
+
+<h3>📢 Marketing</h3>
+<ul>
+<li><strong>SendOwl</strong> : Affiliation basique disponible (plan payant)</li>
+<li><strong>Siteviral</strong> : Programme ambassadeur complet inclus ✅</li>
+</ul>
+
+<h3>🌍 Localisation</h3>
+<ul>
+<li><strong>SendOwl</strong> : Anglais uniquement, USD/EUR</li>
+<li><strong>Siteviral</strong> : Français, 15+ devises (XOF, XAF, NGN…) ✅</li>
+</ul>
+
+<h3>💒 Communauté</h3>
+<ul>
+<li><strong>SendOwl</strong> : Aucune fonctionnalité communautaire</li>
+<li><strong>Siteviral</strong> : Dons, événements, annonces, membres ✅</li>
+</ul>
+
+<h2>Verdict</h2>
+<p>SendOwl est un bon outil pour les créateurs occidentaux. <strong>Pour l'Afrique, Siteviral est incomparablement mieux adapté</strong> : Mobile Money, zéro abonnement, français natif, et programme ambassadeur inclus.</p>
+`,
+  },
+  {
+    slug: 'cas-etude-etudiant-ambassadeur-senegal',
+    title: 'Étude de cas : Un étudiant sénégalais gagne 150K FCFA/mois comme ambassadeur',
+    description: 'Comment Moussa, étudiant à Dakar, a construit un revenu complémentaire en partageant des produits numériques sur les réseaux sociaux.',
+    personas: ['Étudiants', 'Jeunes'],
+    category: 'Étude de cas',
+    readTime: '5 min',
+    publishedAt: '2026-03-30',
+    content: `
+<h2>Profil</h2>
+<p>Moussa, 22 ans, étudiant en informatique à l'UCAD (Dakar). Budget mensuel serré, cherche un revenu complémentaire légitime sans investissement.</p>
+
+<h2>Découverte de Siteviral</h2>
+<p>Un ami lui montre le programme ambassadeur. Inscription gratuite, pas de kit à acheter, pas de recrutement. Juste partager des liens de produits et gagner des commissions.</p>
+
+<h2>Sa stratégie</h2>
+<ol>
+<li><strong>Sélection</strong> : Il choisit 5 produits populaires (ebooks business, formations tech) avec des commissions de 20-30%</li>
+<li><strong>WhatsApp Status</strong> : 3 statuts/jour avec des extraits accrocheurs + lien ambassadeur</li>
+<li><strong>Groupes Facebook</strong> : Partage ciblé dans 10 groupes d'étudiants et d'entrepreneurs</li>
+<li><strong>TikTok</strong> : Courtes vidéos de review des produits qu'il recommande</li>
+</ol>
+
+<h2>Résultats</h2>
+<ul>
+<li><strong>Mois 1</strong> : 23 000 FCFA (découverte, premiers tests)</li>
+<li><strong>Mois 2</strong> : 67 000 FCFA (WhatsApp Status optimisés)</li>
+<li><strong>Mois 3</strong> : 148 000 FCFA (TikTok + communauté fidèle)</li>
+<li><strong>Mois 4</strong> : 155 000 FCFA (revenus stables)</li>
+</ul>
+
+<h2>Ce qu'il a appris</h2>
+<p>"Le secret c'est la régularité. Je publie tous les jours. Et je ne recommande que des produits que j'ai lus moi-même. Mes abonnés me font confiance parce que je suis honnête."</p>
+`,
+  },
+  {
+    slug: 'cas-etude-musicien-kinshasa',
+    title: 'Étude de cas : Un beatmaker de Kinshasa vend 200 beats en 3 mois',
+    description: 'Comment DJ Kenzo a digitalisé la vente de ses instrumentales et créé un revenu stable grâce à Siteviral.',
+    personas: ['Musiciens', 'Créateurs'],
+    category: 'Étude de cas',
+    readTime: '5 min',
+    publishedAt: '2026-03-31',
+    content: `
+<h2>Le problème</h2>
+<p>Kenzo, 28 ans, produit des beats afrobeat et ndombolo à Kinshasa. Avant Siteviral, il vendait par WhatsApp : le client envoyait un screenshot de paiement, Kenzo vérifiait, puis envoyait le fichier manuellement. Résultat :</p>
+<ul>
+<li>Ventes perdues la nuit (pas dispo pour répondre)</li>
+<li>Clients qui disparaissent après le screenshot</li>
+<li>Pas de catalogue organisé</li>
+<li>Négociations de prix interminables</li>
+</ul>
+
+<h2>La transformation</h2>
+<ol>
+<li>Création de sa page "Kenzo Beats" sur Siteviral (15 minutes)</li>
+<li>Upload de 50 beats en 3 catégories : Afrobeat, Ndombolo, Amapiano</li>
+<li>3 niveaux de prix : Lease MP3 (3 000 FCFA), WAV (8 000 FCFA), Exclusive (100 000 FCFA)</li>
+<li>Activation du programme ambassadeur (15% de commission)</li>
+</ol>
+
+<h2>Résultats en 3 mois</h2>
+<ul>
+<li><strong>214 beats vendus</strong> (dont 3 exclusifs)</li>
+<li><strong>1,8 million FCFA</strong> de chiffre d'affaires</li>
+<li><strong>42 ambassadeurs</strong> actifs qui partagent son catalogue</li>
+<li><strong>0 heure</strong> de gestion manuelle (tout est automatisé)</li>
+</ul>
+
+<h2>La clé du succès</h2>
+<p>"Maintenant je vends pendant que je dors. Un client au Nigeria a acheté un beat exclusif à 3h du matin. Avant, j'aurais perdu cette vente."</p>
+`,
+  },
+  {
+    slug: 'prix-optimal-produit-numerique-afrique',
+    title: 'Comment fixer le prix parfait pour votre produit numérique en Afrique',
+    description: 'Les stratégies de pricing qui maximisent vos ventes sur le marché africain. Erreurs à éviter et fourchettes recommandées.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Stratégie',
+    readTime: '7 min',
+    publishedAt: '2026-04-01',
+    content: `
+<h2>Le pricing, c'est stratégique</h2>
+<p>Fixer le bon prix est l'une des décisions les plus importantes. Trop cher = pas de ventes. Trop bon marché = pas de revenus ET perception de basse qualité.</p>
+
+<h2>Les fourchettes qui marchent</h2>
+
+<h3>🟢 Entrée de gamme : 500 - 2 000 FCFA</h3>
+<p>Templates, résumés de livres, petits guides. Volume élevé, faible marge. Idéal pour des produits d'appel.</p>
+
+<h3>🟡 Milieu de gamme : 2 000 - 10 000 FCFA</h3>
+<p>Ebooks complets, presets photo, formations courtes. <strong>Le sweet spot du marché africain.</strong> Volume correct + marge intéressante.</p>
+
+<h3>🔴 Premium : 10 000 - 50 000 FCFA</h3>
+<p>Formations complètes, bundles, beats exclusifs. Volume plus faible mais marge élevée. Nécessite une forte preuve de valeur.</p>
+
+<h2>5 règles de pricing</h2>
+<ol>
+<li><strong>Testez 2-3 prix</strong> : Commencez à un prix, observez les ventes, ajustez</li>
+<li><strong>Utilisez les prix psychologiques</strong> : 4 990 FCFA au lieu de 5 000 FCFA</li>
+<li><strong>Offrez un produit gratuit</strong> : Créez la confiance avant de vendre</li>
+<li><strong>Créez des bundles</strong> : "3 ebooks pour 8 000 FCFA" au lieu de "3 x 4 000 FCFA"</li>
+<li><strong>Flash sales</strong> : Réductions limitées dans le temps pour créer l'urgence</li>
+</ol>
+
+<h2>L'erreur #1</h2>
+<p>Comparer vos prix aux plateformes occidentales. Un ebook à 15$ (9 000 FCFA) est accessible aux USA mais cher en Afrique. <strong>Adaptez vos prix au pouvoir d'achat local.</strong></p>
+`,
+  },
+  {
+    slug: 'construire-audience-zero-afrique',
+    title: 'Construire une audience de 1 000 personnes en partant de zéro en Afrique',
+    description: 'Plan d\'action pour les créateurs africains qui démarrent sans audience. De 0 à 1 000 followers engagés en 90 jours.',
+    personas: ['Tous'],
+    category: 'Stratégie',
+    readTime: '8 min',
+    publishedAt: '2026-04-02',
+    content: `
+<h2>Pas d'audience = pas de ventes. Ou pas ?</h2>
+<p>La bonne nouvelle : vous n'avez PAS besoin d'une grosse audience pour commencer à vendre. <strong>100 personnes engagées valent mieux que 10 000 followers passifs.</strong> Mais construisons quand même.</p>
+
+<h2>Semaines 1-4 : Les fondations</h2>
+<ul>
+<li>Définissez votre niche précisément (pas "formation" mais "formation marketing digital pour PME ivoiriennes")</li>
+<li>Créez vos profils sur WhatsApp Business, Facebook, Instagram, TikTok</li>
+<li>Publiez 1 contenu de valeur par jour (conseil, astuce, inspiration)</li>
+<li>Rejoignez 10 groupes Facebook de votre niche</li>
+</ul>
+
+<h2>Semaines 5-8 : L'accélération</h2>
+<ul>
+<li>Publiez un contenu gratuit de haute valeur (mini-guide, checklist) en échange d'emails</li>
+<li>Commencez les collaborations : interviewez d'autres experts de votre domaine</li>
+<li>Lancez vos premières vidéos TikTok/Reels (les formats courts explosent en Afrique)</li>
+<li>Activez vos premiers ambassadeurs Siteviral</li>
+</ul>
+
+<h2>Semaines 9-12 : La conversion</h2>
+<ul>
+<li>Lancez votre premier produit payant</li>
+<li>Utilisez les témoignages de vos premiers clients</li>
+<li>Doublez les ambassadeurs</li>
+<li>Publiez votre premier case study / résultat client</li>
+</ul>
+
+<h2>Objectif réaliste</h2>
+<p>En 90 jours avec cette méthode, vous pouvez atteindre :</p>
+<ul>
+<li><strong>500-1 500 followers</strong> sur les réseaux sociaux</li>
+<li><strong>100-300 contacts WhatsApp</strong> qualifiés</li>
+<li><strong>50-200 emails</strong> collectés</li>
+<li><strong>Premières ventes</strong> réalisées</li>
+</ul>
+`,
+  },
+  {
+    slug: 'protection-contenu-numerique-piratage',
+    title: 'Comment protéger votre contenu numérique contre le piratage',
+    description: 'Stratégies et outils pour empêcher le partage illégal de vos ebooks, formations et fichiers numériques.',
+    personas: ['Créateurs', 'Formateurs', 'Auteurs'],
+    category: 'Confiance',
+    readTime: '6 min',
+    publishedAt: '2026-04-03',
+    content: `
+<h2>Le piratage est une réalité</h2>
+<p>En Afrique, le partage de fichiers est culturellement normalisé. Votre ebook acheté par une personne peut se retrouver dans 20 groupes WhatsApp. Comment s'en protéger ?</p>
+
+<h2>Les protections Siteviral</h2>
+
+<h3>1. Filigrane personnalisé</h3>
+<p>Chaque PDF téléchargé est automatiquement marqué avec le nom et email de l'acheteur. Si le fichier est partagé, <strong>vous savez exactement qui l'a fait</strong>.</p>
+
+<h3>2. Limitation des téléchargements</h3>
+<p>Limitez le nombre de téléchargements par achat (3 par défaut). Empêche le partage massif.</p>
+
+<h3>3. Liens d'accès uniques</h3>
+<p>Chaque acheteur reçoit un lien unique et temporaire. Impossible de partager l'URL de téléchargement.</p>
+
+<h2>Stratégies complémentaires</h2>
+<ul>
+<li><strong>Valeur ajoutée continue</strong> : Proposez des mises à jour régulières. Les pirates n'auront que la version obsolète.</li>
+<li><strong>Communauté exclusive</strong> : Offrez l'accès à un groupe WhatsApp VIP aux acheteurs. Impossible à pirater.</li>
+<li><strong>Prix accessibles</strong> : Plus votre prix est bas, moins les gens sont tentés de pirater.</li>
+<li><strong>Contenu gratuit généreux</strong> : Donnez 80% gratuitement, vendez les 20% premium.</li>
+</ul>
+
+<h2>La vérité sur le piratage</h2>
+<p>Vous ne pourrez jamais l'éliminer à 100%. Mais les protections de Siteviral réduisent le piratage de <strong>80%+</strong>. Et souvent, les gens qui piratent n'auraient jamais acheté de toute façon.</p>
+`,
+  },
+  {
+    slug: 'lancer-campagne-dons-reussie',
+    title: 'Comment lancer une campagne de dons qui atteint son objectif (guide complet)',
+    description: 'Les 10 étapes pour créer et promouvoir une campagne de collecte de fonds efficace sur Siteviral.',
+    personas: ['Églises', 'ONG', 'Associations'],
+    category: 'Guide pratique',
+    readTime: '8 min',
+    publishedAt: '2026-04-04',
+    content: `
+<h2>90% des campagnes échouent. Voici pourquoi.</h2>
+<p>La plupart des campagnes de dons échouent non pas par manque de générosité, mais par <strong>manque de préparation et de communication</strong>. Voici le processus qui fonctionne.</p>
+
+<h2>Les 10 étapes</h2>
+
+<h3>1. Définissez un objectif SMART</h3>
+<p>"Collecter 2 millions FCFA en 30 jours pour acheter 200 manuels scolaires" — c'est SMART. "Collecter de l'argent pour aider" — ce n'est pas SMART.</p>
+
+<h3>2. Racontez une histoire</h3>
+<p>Les gens donnent pour des histoires, pas pour des chiffres. Montrez l'impact concret de chaque don.</p>
+
+<h3>3. Fixez une date limite</h3>
+<p>Les campagnes sans date limite traînent et meurent. 21-30 jours est idéal.</p>
+
+<h3>4. Préparez le contenu visuel</h3>
+<p>Photos du projet, vidéo courte, infographie de l'objectif. Le visuel augmente les dons de 40%.</p>
+
+<h3>5. Mobilisez votre cercle interne d'abord</h3>
+<p>Vos 10-20 supporters les plus proches donnent en premier. La preuve sociale (barre de progression) motive les suivants.</p>
+
+<h3>6. Publiez des mises à jour</h3>
+<p>Tous les 3-5 jours, partagez la progression et remerciez les donateurs. La transparence génère la confiance.</p>
+
+<h3>7. Utilisez les ambassadeurs</h3>
+<p>Vos membres les plus engagés partagent la campagne dans leurs réseaux. Chaque ambassadeur multiplie votre portée.</p>
+
+<h3>8. Relancez à 50% et 80%</h3>
+<p>Les deux moments critiques : quand vous atteignez la moitié (effet de momentum) et quand vous êtes proche (urgence finale).</p>
+
+<h3>9. Remerciez publiquement</h3>
+<p>Après la campagne, publiez un rapport transparent et remerciez chaque donateur.</p>
+
+<h3>10. Montrez l'impact</h3>
+<p>Photos/vidéos du résultat final. Les donateurs qui voient l'impact donneront à nouveau.</p>
+`,
+  },
+  {
+    slug: 'tendances-economie-creatrice-afrique-2026',
+    title: 'Économie des créateurs en Afrique : 5 tendances majeures en 2026',
+    description: 'Les grandes tendances qui façonnent l\'économie des créateurs africains en 2026. Mobile Money, IA, vidéo courte et plus.',
+    personas: ['Tous'],
+    category: 'Stratégie',
+    readTime: '7 min',
+    publishedAt: '2026-04-05',
+    content: `
+<h2>L'Afrique, prochain épicentre de l'économie créative</h2>
+<p>Avec la plus jeune population du monde et une adoption technologique fulgurante, l'Afrique est en train de devenir le <strong>terrain de jeu le plus excitant pour les créateurs de contenu</strong>.</p>
+
+<h2>Tendance 1 : Le Mobile Money dépasse la carte bancaire</h2>
+<p>En 2026, le Mobile Money représente <strong>plus de 1 000 milliards USD de transactions</strong> en Afrique. Les plateformes qui ne le supportent pas sont hors-jeu. Siteviral l'a intégré nativement dès le jour 1.</p>
+
+<h2>Tendance 2 : La vidéo courte explose</h2>
+<p>TikTok et Instagram Reels dominent l'attention. Les créateurs africains qui maîtrisent le format court (15-60 secondes) gagnent en visibilité à une vitesse record. C'est aussi le meilleur outil pour promouvoir ses produits numériques.</p>
+
+<h2>Tendance 3 : L'affiliation communautaire</h2>
+<p>Le modèle "créateur solo" évolue vers les <strong>communautés de créateurs qui se soutiennent mutuellement</strong>. Le programme ambassadeur Siteviral incarne cette tendance : chacun promeut le contenu des autres.</p>
+
+<h2>Tendance 4 : Le contenu en langues locales</h2>
+<p>Le français et l'anglais restent dominants, mais les contenus en wolof, yoruba, swahili, lingala gagnent du terrain. Le marché le plus inexploité est le contenu éducatif en langues africaines.</p>
+
+<h2>Tendance 5 : La diaspora comme marché premium</h2>
+<p>Les africains de la diaspora (40 millions+) ont un pouvoir d'achat élevé et une forte connexion culturelle. Ils sont prêts à <strong>payer plus pour du contenu africain de qualité</strong>. C'est un marché que beaucoup ignorent encore.</p>
+
+<h2>Ce que ça signifie pour vous</h2>
+<p>Si vous créez du contenu de valeur et le vendez via une plateforme adaptée (Mobile Money + ambassadeurs + français), vous êtes positionné sur <strong>la plus grande vague de création de richesse numérique de l'histoire africaine</strong>.</p>
+`,
+  },
 ];
 
 export function getArticleBySlug(slug: string): BlogArticle | undefined {
