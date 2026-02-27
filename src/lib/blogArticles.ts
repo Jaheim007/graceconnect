@@ -4360,6 +4360,682 @@ export const blogArticles: BlogArticle[] = [
 <p>Ce n'est pas le piratage. C'est l'<strong>obscurité</strong>. Mieux vaut avoir un e-book partagé illégalement par 100 personnes que personne ne connaisse votre existence.</p>
 `,
   },
+
+  // ────────── BATCH 8 : Final — Compléter 140 articles ──────────
+
+  {
+    slug: 'siteviral-vs-sendowl',
+    title: 'Siteviral vs SendOwl : vendre des fichiers numériques en Afrique',
+    description: 'SendOwl est spécialisé dans la livraison de fichiers numériques. Mais pour l\'Afrique, il manque l\'essentiel.',
+    personas: ['Créateurs'],
+    category: 'Comparaison',
+    readTime: '3 min',
+    publishedAt: '2026-04-29',
+    content: `
+<h2>SendOwl en bref</h2>
+<p>SendOwl est un outil simple pour vendre et livrer des fichiers numériques. Il s'intègre à votre site existant et gère la livraison automatique après paiement.</p>
+
+<h3>Les limites pour l'Afrique</h3>
+<ul>
+<li><strong>Abonnement obligatoire</strong> : 9 à 39 $/mois</li>
+<li><strong>Pas de Mobile Money</strong> : Stripe et PayPal uniquement</li>
+<li><strong>Pas de page vendeur</strong> : vous avez besoin d'un site web séparé</li>
+<li><strong>Pas de programme ambassadeur</strong></li>
+<li><strong>Pas de collecte de dons</strong></li>
+<li><strong>Interface en anglais</strong></li>
+</ul>
+
+<h2>Siteviral : tout inclus</h2>
+<p>Page vendeur + livraison automatique + Mobile Money + ambassadeurs + dons + analytics + CRM. Zéro abonnement. En français. Pensé pour l'Afrique.</p>
+
+<h2>Verdict</h2>
+<p>SendOwl est un composant technique. Siteviral est une plateforme complète. Si votre audience est en Afrique, le choix est évident.</p>
+`,
+  },
+  {
+    slug: 'siteviral-vs-ko-fi',
+    title: 'Siteviral vs Ko-fi : recevoir du soutien de votre audience',
+    description: 'Ko-fi permet de recevoir des "cafés" de vos fans. Mais en Afrique, les gens ne paient pas en dollars par PayPal.',
+    personas: ['Créateurs', 'Leaders religieux'],
+    category: 'Comparaison',
+    readTime: '3 min',
+    publishedAt: '2026-04-30',
+    content: `
+<h2>Ko-fi : le pourboire digital</h2>
+<p>Ko-fi est populaire chez les créateurs occidentaux. Le concept est simple : vos fans vous offrent un « café » (don ponctuel) ou s'abonnent mensuellement.</p>
+
+<h3>Pourquoi ça bloque en Afrique</h3>
+<ul>
+<li><strong>PayPal/Stripe uniquement</strong> : pas de Mobile Money</li>
+<li><strong>Montants en dollars</strong> : inadaptés au pouvoir d'achat local</li>
+<li><strong>Retrait PayPal</strong> : impossible ou coûteux dans beaucoup de pays africains</li>
+<li><strong>Pas de programme ambassadeur</strong></li>
+</ul>
+
+<h2>Siteviral : le soutien adapté</h2>
+<ul>
+<li>Dons par <strong>Mobile Money en FCFA</strong></li>
+<li>Campagnes avec <strong>objectifs et transparence</strong></li>
+<li>Carte bancaire pour la <strong>diaspora</strong></li>
+<li>Vente de produits <strong>en parallèle des dons</strong></li>
+<li>Ambassadeurs qui <strong>amplifient la portée</strong></li>
+</ul>
+
+<h2>En résumé</h2>
+<p>Ko-fi = pourboires en dollars pour fans occidentaux. Siteviral = soutien + vente + communauté pour l'Afrique.</p>
+`,
+  },
+  {
+    slug: 'creer-offre-irresistible',
+    title: 'Comment créer une offre irrésistible (la méthode du stack)',
+    description: 'Une offre irrésistible n\'est pas un produit pas cher. C\'est un produit dont la valeur perçue dépasse largement le prix.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Stratégie',
+    readTime: '5 min',
+    publishedAt: '2026-05-01',
+    content: `
+<h2>La méthode du stack (empilement de valeur)</h2>
+<p>Au lieu de vendre un seul produit, empilez des éléments de valeur jusqu'à ce que le prix semble ridiculement bas par rapport à ce que le client reçoit.</p>
+
+<h2>Exemple concret</h2>
+<p>Au lieu de vendre un e-book de marketing à 5 000 FCFA :</p>
+<ul>
+<li>✅ E-book complet (80 pages) — valeur 5 000 FCFA</li>
+<li>✅ 10 templates de posts réseaux sociaux — valeur 3 000 FCFA</li>
+<li>✅ Checklist marketing en 30 jours — valeur 2 000 FCFA</li>
+<li>✅ Accès au groupe WhatsApp VIP (1 mois) — valeur 5 000 FCFA</li>
+<li>✅ Bonus : 5 scripts de vente prêts à l'emploi — valeur 3 000 FCFA</li>
+</ul>
+<p><strong>Valeur totale : 18 000 FCFA → Prix : 7 500 FCFA</strong></p>
+
+<h2>Pourquoi ça marche</h2>
+<p>Le client ne compare plus votre offre à d'autres e-books. Il compare la <strong>valeur totale</strong> (18 000) au <strong>prix demandé</strong> (7 500). La décision devient évidente.</p>
+
+<h2>Comment créer vos bonus</h2>
+<p>Les bonus ne doivent pas être du remplissage. Chaque élément doit avoir une <strong>valeur réelle et mesurable</strong>. Checklists, templates, accès communauté — des éléments concrets et utiles.</p>
+
+<h2>Sur Siteviral</h2>
+<p>Créez un produit principal et ajoutez les bonus dans le fichier ZIP. Décrivez chaque élément du stack dans votre description de vente. Le client voit la valeur empilée et clique sur « Acheter ».</p>
+`,
+  },
+  {
+    slug: 'recurrence-revenus-createurs',
+    title: 'Comment créer des revenus récurrents en tant que créateur',
+    description: 'Les ventes ponctuelles c\'est bien. Les revenus mensuels récurrents, c\'est mieux. Voici 5 modèles.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Stratégie',
+    readTime: '5 min',
+    publishedAt: '2026-05-02',
+    content: `
+<h2>Le problème des revenus ponctuels</h2>
+<p>Vous vendez un e-book, vous gagnez une fois. Le mois suivant, vous repartez de zéro. Les revenus récurrents résolvent ce problème : chaque mois, une base de revenus <strong>prévisible</strong>.</p>
+
+<h2>Modèle #1 : L'abonnement communauté</h2>
+<p>Groupe WhatsApp/Telegram premium avec du contenu exclusif chaque semaine. Accès à 3 000-10 000 FCFA/mois via Siteviral.</p>
+
+<h2>Modèle #2 : Le contenu mensuel</h2>
+<p>Publiez un nouveau contenu chaque mois (newsletter premium, rapport, pack de ressources). Les clients s'y habituent et reviennent.</p>
+
+<h2>Modèle #3 : Le coaching de groupe mensuel</h2>
+<p>Une session de coaching de groupe par mois via Zoom ou WhatsApp. Accès via achat mensuel sur Siteviral.</p>
+
+<h2>Modèle #4 : La série de produits</h2>
+<p>Créez une série de guides (tome 1, 2, 3…). Chaque sortie ramène les clients précédents et en attire de nouveaux.</p>
+
+<h2>Modèle #5 : Les ambassadeurs fidèles</h2>
+<p>Vos ambassadeurs génèrent des ventes en continu. Plus vous en avez, plus vos revenus mensuels sont stables et prévisibles.</p>
+
+<h2>L'objectif</h2>
+<p>Visez un « plancher mensuel » : le montant minimum que vous gagnez même sans effort actif. Commencez par 50 000 FCFA, puis augmentez progressivement.</p>
+`,
+  },
+  {
+    slug: 'gerer-service-client-createur',
+    title: 'Comment gérer le service client quand on est créateur solo',
+    description: 'Questions, plaintes, demandes de remboursement : voici comment gérer sans perdre la tête ni votre temps.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Tutoriel',
+    readTime: '4 min',
+    publishedAt: '2026-05-03',
+    content: `
+<h2>Le service client, ce mal nécessaire</h2>
+<p>Quand vous commencez à vendre, les messages arrivent : « Je n'ai pas reçu mon fichier », « Comment télécharger ? », « Je veux un remboursement ». C'est normal et gérable.</p>
+
+<h2>Les 3 questions les plus fréquentes</h2>
+
+<h3>1. « Je n'ai pas reçu mon fichier »</h3>
+<p>99% du temps, le fichier est bien livré mais le client ne sait pas où le trouver. Préparez un message type avec les instructions étape par étape.</p>
+
+<h3>2. « Ça ne marche pas sur mon téléphone »</h3>
+<p>Souvent un problème de lecteur PDF ou de connexion. Recommandez des apps gratuites (Adobe Reader, WPS Office) et proposez un renvoi du lien.</p>
+
+<h3>3. « Je veux un remboursement »</h3>
+<p>Restez calme et professionnel. Si la demande est légitime, remboursez rapidement. Un client mécontent non traité = mauvais avis public.</p>
+
+<h2>Les bonnes pratiques</h2>
+<ul>
+<li><strong>FAQ dans la description</strong> : anticipez les questions fréquentes</li>
+<li><strong>Délai de réponse</strong> : répondez sous 24h maximum</li>
+<li><strong>Messages types</strong> : préparez des réponses pour les cas fréquents</li>
+<li><strong>Ton chaleureux</strong> : chaque interaction est une opportunité de fidéliser</li>
+</ul>
+
+<h2>L'astuce du créateur malin</h2>
+<p>Chaque question reçue = une amélioration à apporter. Si 10 clients posent la même question, ajoutez la réponse dans votre description ou créez un PDF « Guide de démarrage » inclus automatiquement.</p>
+`,
+  },
+  {
+    slug: 'diversifier-sources-revenus-numeriques',
+    title: 'Les 7 sources de revenus numériques que tout créateur devrait avoir',
+    description: 'Ne mettez pas tous vos œufs dans le même panier. Voici comment diversifier vos revenus en ligne.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Stratégie',
+    readTime: '5 min',
+    publishedAt: '2026-05-04',
+    content: `
+<h2>Pourquoi diversifier</h2>
+<p>Si 100% de vos revenus viennent d'un seul produit, vous êtes vulnérable. Si ce produit ne se vend plus, tout s'effondre. La diversification crée de la <strong>résilience financière</strong>.</p>
+
+<h2>Source #1 : E-books et guides PDF</h2>
+<p>Le format le plus simple à créer. Coût de production : 0 FCFA. Marge : quasi 100%. Créez-en plusieurs sur des sujets complémentaires.</p>
+
+<h2>Source #2 : Formations vidéo</h2>
+<p>Prix plus élevé (10 000-50 000 FCFA). Perçues comme plus premium. Un smartphone et un micro suffisent.</p>
+
+<h2>Source #3 : Templates et outils</h2>
+<p>Excel, Canva, Google Docs — des outils prêts à l'emploi que vos clients utilisent immédiatement.</p>
+
+<h2>Source #4 : Commissions ambassadeur</h2>
+<p>Promouvez les produits d'autres créateurs. Zéro contenu à créer, juste partager des liens.</p>
+
+<h2>Source #5 : Dons et soutien</h2>
+<p>Si vous avez une communauté fidèle, certains voudront simplement vous soutenir. Créez une campagne de soutien.</p>
+
+<h2>Source #6 : Coaching/consulting</h2>
+<p>Vos produits numériques attirent des clients qui veulent un accompagnement personnalisé. Prix premium.</p>
+
+<h2>Source #7 : Contenu sous licence</h2>
+<p>D'autres organisations veulent utiliser votre contenu. Vendez des licences de reproduction ou d'adaptation.</p>
+
+<h2>L'objectif</h2>
+<p>Visez au moins 3 sources actives. Si une baisse, les autres compensent. C'est la clé de la pérennité.</p>
+`,
+  },
+  {
+    slug: 'preparer-ramadan-collecte-ventes',
+    title: 'Comment préparer le Ramadan pour maximiser vos collectes et ventes',
+    description: 'Le Ramadan est la période de générosité #1 pour les musulmans. Voici comment en profiter avec votre page Siteviral.',
+    personas: ['Leaders musulmans', 'ONG'],
+    category: 'Stratégie',
+    readTime: '4 min',
+    publishedAt: '2026-05-05',
+    content: `
+<h2>Le Ramadan : pic de générosité</h2>
+<p>Pendant le Ramadan, les dons (zakat, sadaqa, iftars) augmentent de <strong>300 à 500%</strong>. C'est le moment idéal pour lancer vos campagnes de collecte et vos produits spirituels.</p>
+
+<h2>Préparez vos campagnes (J-30)</h2>
+<ul>
+<li>Créez les campagnes de collecte : zakat, sadaqa, iftar collectif, aide aux orphelins</li>
+<li>Préparez les visuels Ramadan (Canva propose des templates)</li>
+<li>Rédigez les descriptions avec des rappels spirituels</li>
+</ul>
+
+<h2>Produits à lancer pendant le Ramadan</h2>
+<ul>
+<li><strong>Guide du Ramadan</strong> : programme jour par jour</li>
+<li><strong>Recueil d'invocations</strong> (duas) illustré</li>
+<li><strong>Cours de tajwid</strong> : perfectionnez votre récitation</li>
+<li><strong>Tafsir des dernières sourates</strong></li>
+<li><strong>Guide alimentaire</strong> : nutrition pendant le jeûne</li>
+</ul>
+
+<h2>Calendrier de communication</h2>
+<ul>
+<li><strong>Avant Ramadan</strong> : annoncez les campagnes et produits à venir</li>
+<li><strong>1ère semaine</strong> : lancez tout, partagez massivement</li>
+<li><strong>Derniers 10 jours</strong> : intensifiez (Laylat al-Qadr = pic absolu de dons)</li>
+<li><strong>Eid</strong> : remerciez, partagez les résultats</li>
+</ul>
+`,
+  },
+  {
+    slug: 'preparer-noel-ventes-numeriques',
+    title: 'Comment préparer Noël pour booster vos ventes numériques',
+    description: 'Noël est une période d\'achat massive. Voici comment en profiter pour vos produits numériques et collectes.',
+    personas: ['Créateurs', 'Leaders religieux'],
+    category: 'Stratégie',
+    readTime: '4 min',
+    publishedAt: '2026-05-06',
+    content: `
+<h2>Noël : la saison des cadeaux (numériques aussi)</h2>
+<p>Les gens cherchent des cadeaux originaux et utiles. Un e-book, une formation ou un abonnement premium est un cadeau <strong>instantané, utile et original</strong>.</p>
+
+<h2>Produits « cadeaux » à préparer</h2>
+<ul>
+<li><strong>Packs cadeaux</strong> : bundles thématiques à prix spécial Noël</li>
+<li><strong>Cartes cadeaux</strong> : « Offrez [produit] à un proche »</li>
+<li><strong>Éditions spéciales</strong> : versions enrichies de vos best-sellers</li>
+<li><strong>Calendrier de l'Avent digital</strong> : un contenu par jour pendant 24 jours</li>
+</ul>
+
+<h2>Collectes de fin d'année</h2>
+<p>Les églises et ONG peuvent lancer des campagnes spéciales : cadeau pour les orphelins, réveillon solidaire, bilan annuel avec objectifs pour l'année suivante.</p>
+
+<h2>Le calendrier</h2>
+<ul>
+<li><strong>1er décembre</strong> : lancez vos offres de Noël</li>
+<li><strong>15 décembre</strong> : rappel « dernière chance pour les cadeaux »</li>
+<li><strong>24-25 décembre</strong> : offre flash de dernière minute</li>
+<li><strong>26-31 décembre</strong> : offre « Nouveau départ » pour la nouvelle année</li>
+</ul>
+
+<h2>La diaspora à Noël</h2>
+<p>C'est la période où la diaspora envoie le plus d'argent. Vos campagnes de collecte et produits doivent être visibles sur vos canaux internationaux.</p>
+`,
+  },
+  {
+    slug: 'rentrée-scolaire-vendre-contenus-educatifs',
+    title: 'Rentrée scolaire : le moment idéal pour vendre du contenu éducatif',
+    description: 'La rentrée est une période de forte demande. Voici comment positionner vos contenus éducatifs.',
+    personas: ['Enseignants', 'Formateurs'],
+    category: 'Stratégie',
+    readTime: '3 min',
+    publishedAt: '2026-05-07',
+    content: `
+<h2>La rentrée = pic de demande éducative</h2>
+<p>Parents, étudiants et enseignants cherchent des ressources. C'est LE moment pour lancer ou promouvoir vos contenus éducatifs.</p>
+
+<h2>Produits à préparer pour la rentrée</h2>
+<ul>
+<li><strong>Résumés de cours</strong> par matière et par classe</li>
+<li><strong>Méthodologie d'étude</strong> : comment réussir son année scolaire</li>
+<li><strong>Planners étudiants</strong> : emploi du temps, to-do lists, trackers</li>
+<li><strong>Guides parents</strong> : comment accompagner votre enfant</li>
+<li><strong>Kits de rentrée numériques</strong> : pack de ressources à prix groupé</li>
+</ul>
+
+<h2>Le timing</h2>
+<ul>
+<li><strong>Août</strong> : préparez et annoncez vos produits</li>
+<li><strong>Première semaine de septembre</strong> : lancement + prix spécial rentrée</li>
+<li><strong>Septembre-octobre</strong> : promotion continue via ambassadeurs</li>
+</ul>
+
+<h2>L'angle parents</h2>
+<p>Les parents dépensent 50 000-200 000 FCFA pour la rentrée. Un guide à 3 000 FCFA qui aide leur enfant à réussir est un investissement minuscule qu'ils feront volontiers.</p>
+`,
+  },
+  {
+    slug: 'collaborer-entre-createurs',
+    title: 'Comment collaborer avec d\'autres créateurs pour vendre plus',
+    description: 'La collaboration entre créateurs multiplie la portée. Voici 5 façons de collaborer efficacement.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Stratégie',
+    readTime: '4 min',
+    publishedAt: '2026-05-08',
+    content: `
+<h2>Seul on va vite, ensemble on va loin</h2>
+<p>Chaque créateur a son audience. En collaborant, vous <strong>accédez à l'audience de l'autre</strong>. C'est le growth hack le plus sous-utilisé.</p>
+
+<h2>Collaboration #1 : Le bundle croisé</h2>
+<p>Associez votre produit à celui d'un autre créateur complémentaire. Vendez le pack ensemble et partagez les revenus 50/50.</p>
+
+<h2>Collaboration #2 : L'interview croisée</h2>
+<p>Interviewez un autre créateur et il vous interviewe. Chacun partage l'interview avec son audience. Double exposition.</p>
+
+<h2>Collaboration #3 : Le partage ambassadeur</h2>
+<p>Devenez ambassadeur des produits de l'autre. Vous promouvez ses produits à votre audience, il fait pareil. Vous gagnez des commissions mutuelles.</p>
+
+<h2>Collaboration #4 : Le webinaire commun</h2>
+<p>Organisez un live Facebook/Instagram/Zoom ensemble. Chacun amène son audience. Le webinaire lance un produit commun ou individuel.</p>
+
+<h2>Collaboration #5 : La série de contenu</h2>
+<p>Créez une série d'articles, vidéos ou posts avec un autre créateur. « 5 jours, 5 experts, 5 conseils » crée du buzz et de l'engagement.</p>
+
+<h2>Comment trouver des collaborateurs</h2>
+<p>Cherchez des créateurs dans des niches <strong>complémentaires</strong> (pas concurrentes). Un coach business + un designer = collaboration parfaite.</p>
+`,
+  },
+  {
+    slug: 'transformer-expertise-en-revenus',
+    title: 'De l\'expertise gratuite aux revenus : le parcours en 5 étapes',
+    description: 'Vous donnez des conseils gratuitement depuis des années. Voici comment transformer cette expertise en business.',
+    personas: ['Professionnels', 'Consultants'],
+    category: 'Découverte',
+    readTime: '5 min',
+    publishedAt: '2026-05-09',
+    content: `
+<h2>Le syndrome de l'expert gratuit</h2>
+<p>Vous répondez aux questions WhatsApp, donnez des conseils dans les groupes, aidez vos proches... gratuitement. Pendant ce temps, des gens moins compétents vendent leurs conseils. Il est temps de changer ça.</p>
+
+<h2>Étape 1 : Reconnaître votre valeur</h2>
+<p>Si les gens vous sollicitent, c'est que votre expertise a de la valeur. Ce qui est gratuit est souvent moins respecté que ce qui est payant. <strong>Facturer n'est pas être avide — c'est respecter votre travail.</strong></p>
+
+<h2>Étape 2 : Documentez votre savoir</h2>
+<p>Commencez à noter vos conseils les plus fréquents. En 2 semaines, vous aurez la matière pour un premier e-book ou guide.</p>
+
+<h2>Étape 3 : Créez votre premier produit</h2>
+<p>Un PDF de 30 pages sur votre sujet principal. Pas parfait — juste utile. Publiez-le sur Siteviral à un prix accessible.</p>
+
+<h2>Étape 4 : Redirigez les demandes gratuites</h2>
+<p>Quand quelqu'un vous demande un conseil, répondez brièvement et ajoutez : « Pour aller plus loin, j'ai créé un guide complet ici : [lien] ».</p>
+
+<h2>Étape 5 : Montez en gamme</h2>
+<p>E-book → Formation vidéo → Coaching individuel → Programme premium. Chaque niveau augmente votre prix et votre impact.</p>
+
+<h2>Le déclic</h2>
+<p>Votre première vente changera votre mentalité pour toujours. Quelqu'un a payé pour votre expertise. Vous êtes officiellement un expert rémunéré.</p>
+`,
+  },
+  {
+    slug: 'creer-page-de-vente-convertit',
+    title: 'Anatomie d\'une page de vente qui convertit (checklist)',
+    description: 'Les 12 éléments qu\'une page de vente efficace doit contenir, dans le bon ordre, pour maximiser les conversions.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Tutoriel',
+    readTime: '5 min',
+    publishedAt: '2026-05-10',
+    content: `
+<h2>Une page de vente n'est pas une description</h2>
+<p>C'est un <strong>argumentaire de vente structuré</strong> qui guide le visiteur du doute à l'achat. Voici les 12 éléments dans l'ordre optimal.</p>
+
+<h2>1. Titre accrocheur</h2>
+<p>Le bénéfice principal en une phrase. « Doublez vos ventes en 30 jours sans publicité payante. »</p>
+
+<h2>2. Sous-titre</h2>
+<p>Qui c'est pour + comment. « Le guide étape par étape pour les entrepreneurs africains. »</p>
+
+<h2>3. Image de couverture</h2>
+<p>Professionnelle, claire, qui donne envie d'ouvrir le produit.</p>
+
+<h2>4. Le problème</h2>
+<p>Décrivez le problème que votre client vit. Avec empathie et précision.</p>
+
+<h2>5. L'agitation</h2>
+<p>Montrez les conséquences de ne rien faire.</p>
+
+<h2>6. La solution</h2>
+<p>Présentez votre produit comme la réponse.</p>
+
+<h2>7. Ce qu'il contient (le stack)</h2>
+<p>Listez chaque élément avec sa valeur individuelle.</p>
+
+<h2>8. Témoignages</h2>
+<p>2-3 avis clients concrets et spécifiques.</p>
+
+<h2>9. Le prix</h2>
+<p>Montrez la valeur totale, puis le prix réel. Le contraste crée l'évidence.</p>
+
+<h2>10. Garantie</h2>
+<p>« Satisfait ou remboursé sous 7 jours. » Réduit le risque perçu.</p>
+
+<h2>11. FAQ</h2>
+<p>3-5 questions fréquentes qui éliminent les dernières objections.</p>
+
+<h2>12. Appel à l'action final</h2>
+<p>Un bouton clair : « Télécharger maintenant » ou « Acheter pour [prix] ».</p>
+`,
+  },
+  {
+    slug: 'utiliser-urgence-rarete-ethiquement',
+    title: 'Comment utiliser l\'urgence et la rareté de façon éthique',
+    description: 'L\'urgence fait vendre. Mais comment l\'utiliser sans manipuler ni mentir ? Voici le guide éthique.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Stratégie',
+    readTime: '4 min',
+    publishedAt: '2026-05-11',
+    content: `
+<h2>Pourquoi l'urgence fonctionne</h2>
+<p>Le cerveau humain est câblé pour éviter la perte. « Cette offre expire demain » active la peur de rater quelque chose (FOMO). C'est un levier puissant — et il doit être utilisé <strong>honnêtement</strong>.</p>
+
+<h2>L'urgence éthique</h2>
+<ul>
+<li><strong>Prix de lancement réel</strong> : offrez un prix réduit pendant 7 jours, puis augmentez vraiment</li>
+<li><strong>Ventes flash réelles</strong> : durée limitée annoncée à l'avance</li>
+<li><strong>Stock limité réel</strong> : places limitées dans un coaching de groupe (vous ne pouvez pas coacher 500 personnes)</li>
+<li><strong>Bonus temporaire</strong> : un bonus offert les 50 premiers acheteurs (puis retiré vraiment)</li>
+</ul>
+
+<h2>L'urgence toxique (à éviter)</h2>
+<ul>
+<li>❌ Compteurs qui se réinitialisent à chaque visite</li>
+<li>❌ « Plus que 3 places ! » quand c'est faux</li>
+<li>❌ Prix « barré » qui n'a jamais existé</li>
+<li>❌ « Dernière chance ! » répété chaque semaine</li>
+</ul>
+
+<h2>La confiance avant tout</h2>
+<p>En Afrique, la confiance est tout. Si vos clients découvrent que votre urgence est fausse, vous perdez votre réputation. Et la réputation, une fois perdue, est quasi impossible à reconstruire.</p>
+`,
+  },
+  {
+    slug: 'mesurer-roi-ambassadeurs',
+    title: 'Comment mesurer le ROI de votre programme ambassadeur',
+    description: 'Votre programme ambassadeur fonctionne-t-il vraiment ? Voici les métriques à suivre et comment les interpréter.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Tutoriel',
+    readTime: '4 min',
+    publishedAt: '2026-05-12',
+    content: `
+<h2>Les métriques essentielles</h2>
+
+<h3>1. Nombre d'ambassadeurs actifs</h3>
+<p>Un ambassadeur « actif » = au moins 1 clic généré sur les 30 derniers jours. Si 90% sont inactifs, le problème est l'engagement.</p>
+
+<h3>2. Taux de conversion ambassadeur</h3>
+<p>Nombre de ventes / nombre de clics. Un bon taux est 2-5%. En dessous, vos ambassadeurs ciblent mal ou votre page de vente n'est pas convaincante.</p>
+
+<h3>3. Revenu par ambassadeur</h3>
+<p>Revenu total généré par les ambassadeurs / nombre d'ambassadeurs actifs. Identifiez vos top performers et comprenez ce qu'ils font différemment.</p>
+
+<h3>4. Coût d'acquisition client (CAC)</h3>
+<p>Commission totale payée / nombre de clients acquis. Comparez avec d'autres canaux (publicité, contenu organique).</p>
+
+<h3>5. Viralité</h3>
+<p>Combien de nouveaux ambassadeurs rejoignent chaque mois ? Un programme sain croît organiquement.</p>
+
+<h2>Dashboard Siteviral</h2>
+<p>Toutes ces métriques sont disponibles dans votre dashboard admin. Consultez-les chaque semaine pour piloter votre programme.</p>
+
+<h2>Actions selon les résultats</h2>
+<ul>
+<li><strong>Peu de clics</strong> → fournissez de meilleurs visuels et textes à vos ambassadeurs</li>
+<li><strong>Clics mais peu de ventes</strong> → améliorez votre page de vente</li>
+<li><strong>Peu d'ambassadeurs actifs</strong> → communiquez plus, célébrez les succès</li>
+<li><strong>Top performers identifiés</strong> → récompensez-les, étudiez leur méthode</li>
+</ul>
+`,
+  },
+  {
+    slug: 'tontine-numerique-mobile-money',
+    title: 'Comment digitaliser votre tontine avec Mobile Money',
+    description: 'La tontine est une tradition africaine puissante. Le numérique la rend plus transparente et plus facile à gérer.',
+    personas: ['Associations', 'Tous'],
+    category: 'Découverte',
+    readTime: '4 min',
+    publishedAt: '2026-05-13',
+    content: `
+<h2>La tontine : un système financier ancestral</h2>
+<p>Des millions d'Africains participent à des tontines : un groupe de personnes qui cotisent régulièrement et chacun reçoit le pot à tour de rôle. C'est un système de micro-finance communautaire brillant.</p>
+
+<h2>Les problèmes de la tontine traditionnelle</h2>
+<ul>
+<li>Collecte en espèces = risques de perte, vol, oubli</li>
+<li>Cahier papier = erreurs, litiges, soupçons</li>
+<li>Membres éloignés = difficulté à participer</li>
+<li>Pas de trace formelle = conflits de mémoire</li>
+</ul>
+
+<h2>La tontine digitale avec Siteviral</h2>
+<ul>
+<li><strong>Collecte par Mobile Money</strong> : chaque membre paie depuis son téléphone</li>
+<li><strong>Traçabilité totale</strong> : qui a payé, quand, combien</li>
+<li><strong>Export CSV</strong> : rapport pour tous les membres</li>
+<li><strong>Membres éloignés</strong> : la diaspora peut participer par carte</li>
+<li><strong>Barre de progression</strong> : tout le monde voit l'avancement</li>
+</ul>
+
+<h2>Configuration</h2>
+<p>Créez une organisation pour votre tontine. Chaque tour = une campagne de collecte avec le montant attendu. Le gestionnaire a une vue complète de toutes les contributions.</p>
+
+<h2>La confiance numérique</h2>
+<p>Quand chaque franc est tracé et visible, la confiance augmente. Les litiges disparaissent. Et votre tontine peut accueillir plus de membres sans chaos organisationnel.</p>
+`,
+  },
+  {
+    slug: 'intelligence-artificielle-createurs-africains',
+    title: 'Comment utiliser l\'IA pour créer du contenu plus vite (guide pour créateurs africains)',
+    description: 'ChatGPT, Canva AI, CapCut AI : les outils d\'intelligence artificielle qui accélèrent la création de contenu.',
+    personas: ['Créateurs', 'Tous'],
+    category: 'Tutoriel',
+    readTime: '5 min',
+    publishedAt: '2026-05-14',
+    content: `
+<h2>L'IA ne remplace pas — elle accélère</h2>
+<p>L'IA ne va pas écrire votre e-book à votre place. Mais elle peut vous aider à structurer vos idées, rédiger des brouillons, créer des visuels et éditer vos vidéos <strong>10x plus vite</strong>.</p>
+
+<h2>Pour l'écriture</h2>
+<ul>
+<li><strong>ChatGPT</strong> : brainstorming, plans d'e-books, brouillons de chapitres, descriptions de produits</li>
+<li><strong>Astuce</strong> : donnez-lui le contexte africain. « Écris pour un public camerounais francophone » donne de meilleurs résultats</li>
+<li><strong>Important</strong> : relisez et personnalisez TOUJOURS. L'IA écrit du générique, votre touche personnelle fait la différence</li>
+</ul>
+
+<h2>Pour les visuels</h2>
+<ul>
+<li><strong>Canva AI</strong> : génération de designs, suppression d'arrière-plan, redimensionnement automatique</li>
+<li><strong>Ideogram/DALL-E</strong> : création d'illustrations uniques pour vos couvertures</li>
+</ul>
+
+<h2>Pour la vidéo</h2>
+<ul>
+<li><strong>CapCut</strong> : sous-titres automatiques, effets, transitions — tout gratuit sur mobile</li>
+<li><strong>Descript</strong> : transcription et édition vidéo par le texte</li>
+</ul>
+
+<h2>Pour le marketing</h2>
+<ul>
+<li><strong>ChatGPT</strong> : rédiger des posts réseaux sociaux, des emails, des scripts de vente</li>
+<li><strong>Astuce</strong> : demandez-lui de rédiger 10 variations d'un message. Choisissez la meilleure et personnalisez-la</li>
+</ul>
+
+<h2>L'avantage compétitif</h2>
+<p>Les créateurs qui utilisent l'IA produisent 3-5x plus de contenu que ceux qui ne l'utilisent pas. À qualité égale, la quantité gagne. Et l'IA vous permet d'avoir les deux.</p>
+`,
+  },
+  {
+    slug: 'erreurs-juridiques-createurs-eviter',
+    title: 'Les 5 erreurs juridiques que les créateurs font (et comment les éviter)',
+    description: 'Droits d\'auteur, CGV, RGPD : les pièges juridiques les plus courants et comment vous protéger simplement.',
+    personas: ['Créateurs', 'Tous'],
+    category: 'Confiance',
+    readTime: '4 min',
+    publishedAt: '2026-05-15',
+    content: `
+<h2>Erreur #1 : Pas de CGV (Conditions Générales de Vente)</h2>
+<p>Quand vous vendez, vous avez un contrat implicite avec votre acheteur. Sans CGV, en cas de litige, vous n'avez aucune protection. Rédigez des CGV simples ou utilisez un modèle.</p>
+
+<h2>Erreur #2 : Utiliser des images protégées</h2>
+<p>Prendre une photo sur Google et l'utiliser pour votre couverture = violation de droits d'auteur. Utilisez des sites gratuits et légaux : <strong>Pexels, Unsplash, Pixabay</strong>.</p>
+
+<h2>Erreur #3 : Plagier du contenu</h2>
+<p>Compiler des articles trouvés sur Internet n'est pas « créer un e-book ». C'est du plagiat. Inspirez-vous, citez vos sources, et ajoutez votre propre expertise et perspective.</p>
+
+<h2>Erreur #4 : Pas de politique de remboursement</h2>
+<p>Définissez clairement vos conditions : remboursement sous 7 jours ? Pas de remboursement pour les produits numériques ? Quelle que soit votre politique, <strong>affichez-la clairement</strong>.</p>
+
+<h2>Erreur #5 : Négliger la protection des données</h2>
+<p>Vous collectez des emails et noms de clients. Vous êtes responsable de leur protection. Ne partagez pas ces données, stockez-les de façon sécurisée.</p>
+
+<h2>La bonne nouvelle</h2>
+<p>Siteviral gère une grande partie de la conformité pour vous : paiements sécurisés, politique de confidentialité, conditions d'utilisation. Mais pour vos produits spécifiquement, ces 5 points sont votre responsabilité.</p>
+`,
+  },
+  {
+    slug: 'scalabilite-business-numerique-afrique',
+    title: 'Comment scaler votre business numérique de 0 à 1 million FCFA/mois',
+    description: 'Le plan d\'action phase par phase pour passer de zéro à un million FCFA de revenus mensuels en produits numériques.',
+    personas: ['Créateurs', 'Formateurs'],
+    category: 'Stratégie',
+    readTime: '6 min',
+    publishedAt: '2026-05-16',
+    content: `
+<h2>Phase 1 : 0 à 50 000 FCFA/mois (Mois 1-2)</h2>
+<ul>
+<li>Créez votre premier produit (e-book ou guide)</li>
+<li>Publiez sur Siteviral avec une bonne description</li>
+<li>Partagez dans 5-10 groupes WhatsApp</li>
+<li>Activez 3-5 premiers ambassadeurs (amis, clients)</li>
+<li>Objectif : 10-15 ventes</li>
+</ul>
+
+<h2>Phase 2 : 50 000 à 200 000 FCFA/mois (Mois 3-4)</h2>
+<ul>
+<li>Créez un deuxième produit (formation vidéo ou bundle)</li>
+<li>Collectez et publiez 5+ témoignages</li>
+<li>Développez votre présence sur Facebook et Instagram</li>
+<li>Recrutez 10-20 ambassadeurs actifs</li>
+<li>Lancez votre première vente flash</li>
+</ul>
+
+<h2>Phase 3 : 200 000 à 500 000 FCFA/mois (Mois 5-8)</h2>
+<ul>
+<li>Créez un produit premium (30 000+ FCFA)</li>
+<li>Construisez une liste email de 500+ contacts</li>
+<li>Publiez du contenu gratuit régulier (3-5 fois/semaine)</li>
+<li>Développez des collaborations avec d'autres créateurs</li>
+<li>Optimisez vos descriptions avec les données analytics</li>
+</ul>
+
+<h2>Phase 4 : 500 000 à 1 000 000 FCFA/mois (Mois 9-12)</h2>
+<ul>
+<li>Catalogue de 5+ produits couvrant différents prix</li>
+<li>50+ ambassadeurs actifs qui vendent en continu</li>
+<li>Funnel automatisé : produit gratuit → email → vente</li>
+<li>Lancement mensuel de nouveaux produits ou bundles</li>
+<li>Revenus récurrents via communauté payante ou contenu mensuel</li>
+</ul>
+
+<h2>La clé</h2>
+<p>Ce n'est pas un schéma magique. C'est du <strong>travail constant et intelligent</strong> sur 12 mois. Mais si vous suivez ce plan, 1 million FCFA/mois est un objectif réaliste et atteignable.</p>
+`,
+  },
+  {
+    slug: 'pourquoi-commencer-maintenant',
+    title: 'Pourquoi vous devez commencer MAINTENANT (pas demain, pas lundi)',
+    description: 'Le perfectionnisme tue plus de projets que l\'échec. Voici pourquoi le meilleur moment pour commencer est aujourd\'hui.',
+    personas: ['Tous'],
+    category: 'Découverte',
+    readTime: '3 min',
+    publishedAt: '2026-05-17',
+    content: `
+<h2>Les excuses classiques</h2>
+<ul>
+<li>« Mon contenu n'est pas encore parfait » → Il ne le sera jamais. Publiez et améliorez.</li>
+<li>« Je n'ai pas assez de followers » → Vos premiers clients viendront de WhatsApp, pas d'Instagram.</li>
+<li>« Je ne sais pas par où commencer » → Créez un compte Siteviral. C'est gratuit et ça prend 2 minutes.</li>
+<li>« Et si personne n'achète ? » → Et si 10 personnes achètent ? Vous ne le saurez pas sans essayer.</li>
+<li>« J'attends d'avoir un ordinateur » → Votre smartphone suffit pour tout.</li>
+</ul>
+
+<h2>Le coût de l'inaction</h2>
+<p>Chaque jour que vous n'avez pas de produit en ligne, vous perdez des ventes potentielles. Un e-book publié il y a 6 mois aurait pu se vendre 100 fois entre-temps.</p>
+
+<h2>L'action minimale viable</h2>
+<p>Aujourd'hui :</p>
+<ol>
+<li>Inscrivez-vous sur Siteviral (2 minutes)</li>
+<li>Créez votre organisation (3 minutes)</li>
+<li>Uploadez un contenu que vous avez déjà (PDF, audio, vidéo)</li>
+<li>Fixez un prix</li>
+<li>Partagez le lien à 5 personnes</li>
+</ol>
+<p>Temps total : <strong>15 minutes</strong>. C'est tout. Le reste vient après.</p>
+
+<h2>La citation</h2>
+<p><strong>« Le meilleur moment pour planter un arbre était il y a 20 ans. Le deuxième meilleur moment, c'est maintenant. »</strong> — Proverbe africain</p>
+`,
+  },
 ];
 
 export function getArticleBySlug(slug: string): BlogArticle | undefined {
