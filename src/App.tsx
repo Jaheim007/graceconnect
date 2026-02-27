@@ -84,6 +84,12 @@ const PourAssociationsPage = lazy(() => import("@/pages/persona/PourAssociations
 const PourCoachesPage = lazy(() => import("@/pages/persona/PourCoachesPage"));
 const PourDesignersPage = lazy(() => import("@/pages/persona/PourDesignersPage"));
 const PourEntrepreneursPage = lazy(() => import("@/pages/persona/PourEntrepreneursPage"));
+const PourMinisteresPage = lazy(() => import("@/pages/persona/PourMinisteresPage"));
+const PourLeadersMusulmansPage = lazy(() => import("@/pages/persona/PourLeadersMusulmansPage"));
+const PourMissionnairesPage = lazy(() => import("@/pages/persona/PourMissionnairesPage"));
+const PourCooperativesPage = lazy(() => import("@/pages/persona/PourCooperativesPage"));
+const PourEnseignantsPage = lazy(() => import("@/pages/persona/PourEnseignantsPage"));
+const PourCentresFormationPage = lazy(() => import("@/pages/persona/PourCentresFormationPage"));
 const ComparerPage = lazy(() => import("@/pages/ComparerPage"));
 const PressePage = lazy(() => import("@/pages/PressePage"));
 const BlogIndexPage = lazy(() => import("@/pages/blog/BlogIndexPage"));
@@ -233,6 +239,12 @@ const App = () => (
                 <Route path="/pour/coaches" element={<PourCoachesPage />} />
                 <Route path="/pour/designers" element={<PourDesignersPage />} />
                 <Route path="/pour/entrepreneurs" element={<PourEntrepreneursPage />} />
+                <Route path="/pour/ministeres" element={<PourMinisteresPage />} />
+                <Route path="/pour/leaders-musulmans" element={<PourLeadersMusulmansPage />} />
+                <Route path="/pour/missionnaires" element={<PourMissionnairesPage />} />
+                <Route path="/pour/cooperatives" element={<PourCooperativesPage />} />
+                <Route path="/pour/enseignants" element={<PourEnseignantsPage />} />
+                <Route path="/pour/centres-formation" element={<PourCentresFormationPage />} />
                 <Route path="/presse" element={<PressePage />} />
                 <Route path="/blog" element={<BlogIndexPage />} />
                 <Route path="/blog/:slug" element={<BlogArticlePage />} />
