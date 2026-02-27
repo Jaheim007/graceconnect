@@ -81,6 +81,14 @@ export default function SuperadminExports() {
     toast({ title: 'Export payouts téléchargé ✅' });
   };
 
+  const downloadStrategicDoc = (filename: string) => {
+    const a = document.createElement('a');
+    a.href = `/${filename}`;
+    a.download = filename;
+    a.click();
+    toast({ title: 'Document téléchargé ✅' });
+  };
+
   const exports = [
     { label: 'Organisations', desc: 'Toutes les organisations avec statut, KYC, plan', icon: Building2, action: exportOrgs, color: 'text-blue-500' },
     { label: 'Utilisateurs', desc: 'Tous les profils utilisateurs', icon: Users, action: exportUsers, color: 'text-emerald-500' },
@@ -88,6 +96,11 @@ export default function SuperadminExports() {
     { label: 'Achats produits', desc: 'Historique des ventes de produits', icon: ShoppingBag, action: exportPurchases, color: 'text-cyan-500' },
     { label: 'Soumissions KYC', desc: 'Toutes les demandes de vérification', icon: Shield, action: exportKYC, color: 'text-amber-500' },
     { label: 'Demandes de payout', desc: 'Historique des retraits', icon: CreditCard, action: exportPayouts, color: 'text-violet-500' },
+  ];
+
+  const strategicDocs = [
+    { label: 'Playbook Marketing & Growth', desc: 'Positionnement, personas, objections, funnels, scripts — le guide complet pour vendre Siteviral', filename: 'siteviral-marketing-playbook.md', color: 'text-orange-500' },
+    { label: 'Stratégie de Contenu Exhaustive', desc: '52 personas, 140 articles, 90 pages, calendrier éditorial 16 semaines', filename: 'siteviral-content-strategy-exhaustive.md', color: 'text-pink-500' },
   ];
 
   return (
@@ -114,6 +127,32 @@ export default function SuperadminExports() {
             </div>
             <Button variant="outline" size="sm" className="gap-1.5 text-xs shrink-0" onClick={exp.action}>
               <Download className="h-3.5 w-3.5" /> CSV
+            </Button>
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="flex items-center gap-2 pt-6">
+        <FileText className="h-5 w-5 text-primary" />
+        <h2 className="text-lg font-bold">Documents stratégiques</h2>
+      </div>
+      <p className="text-sm text-muted-foreground">
+        Guides marketing et contenus stratégiques téléchargeables.
+      </p>
+      <div className="space-y-3">
+        {strategicDocs.map((doc, i) => (
+          <motion.div key={doc.filename} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05 }}
+            className="flex items-center gap-4 p-4 rounded-2xl border border-border bg-card hover:bg-muted/30 transition-colors">
+            <div className="w-10 h-10 rounded-xl bg-muted/50 flex items-center justify-center shrink-0">
+              <FileText className={`h-5 w-5 ${doc.color}`} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium">{doc.label}</p>
+              <p className="text-xs text-muted-foreground">{doc.desc}</p>
+            </div>
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs shrink-0" onClick={() => downloadStrategicDoc(doc.filename)}>
+              <Download className="h-3.5 w-3.5" /> Télécharger
             </Button>
           </motion.div>
         ))}
