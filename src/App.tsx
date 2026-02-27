@@ -75,6 +75,9 @@ const PourEglisesPage = lazy(() => import("@/pages/persona/PourEglisesPage"));
 const PourOngPage = lazy(() => import("@/pages/persona/PourOngPage"));
 const PourFormateursPage = lazy(() => import("@/pages/persona/PourFormateursPage"));
 const PourEtudiantsPage = lazy(() => import("@/pages/persona/PourEtudiantsPage"));
+const PourAuteursPage = lazy(() => import("@/pages/persona/PourAuteursPage"));
+const PourMusiciensPage = lazy(() => import("@/pages/persona/PourMusiciensPage"));
+const PourDiasporaPage = lazy(() => import("@/pages/persona/PourDiasporaPage"));
 const BlogIndexPage = lazy(() => import("@/pages/blog/BlogIndexPage"));
 const BlogArticlePage = lazy(() => import("@/pages/blog/BlogArticlePage"));
 
@@ -212,6 +215,9 @@ const App = () => (
                 <Route path="/pour/ong" element={<PourOngPage />} />
                 <Route path="/pour/formateurs" element={<PourFormateursPage />} />
                 <Route path="/pour/etudiants" element={<PourEtudiantsPage />} />
+                <Route path="/pour/auteurs" element={<PourAuteursPage />} />
+                <Route path="/pour/musiciens" element={<PourMusiciensPage />} />
+                <Route path="/pour/diaspora" element={<PourDiasporaPage />} />
                 <Route path="/blog" element={<BlogIndexPage />} />
                 <Route path="/blog/:slug" element={<BlogArticlePage />} />
                 <Route path="/discover" element={<AppLayout />}>
