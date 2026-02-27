@@ -166,10 +166,10 @@ export default function DiscoverPage() {
       <div className="container max-w-6xl py-6">
         <PageTour pageId="discover" steps={DISCOVER_TOUR_STEPS} />
 
+        {!isSearching && tab === 'products' && <NewThisWeek />}
         {!isSearching && !user && <DiscoverCTABanner />}
         {!isSearching && <TrendingBanner />}
         {!isSearching && <FeaturedSection />}
-        {!isSearching && tab === 'products' && <NewThisWeek />}
 
         <Tabs value={tab} onValueChange={(v) => setTab(v)}>
           <TabsList className="mb-4">
