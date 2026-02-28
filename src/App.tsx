@@ -159,6 +159,9 @@ const AdminNotifications = lazy(() => import("@/pages/admin/AdminNotifications")
 const AdminExperiments = lazy(() => import("@/pages/admin/AdminExperiments"));
 const AdminWebhooks = lazy(() => import("@/pages/admin/AdminWebhooks"));
 const AdminOfferings = lazy(() => import("@/pages/admin/AdminOfferings"));
+const AdminPrograms = lazy(() => import("@/pages/admin/AdminPrograms"));
+const AdminProgramForm = lazy(() => import("@/pages/admin/AdminProgramForm").then(m => ({ default: m.ProgramForm })));
+const ProgramDetailPage = lazy(() => import("@/pages/ProgramDetailPage"));
 const AdminAnnouncementForm = lazy(() => import("@/pages/admin/AdminAnnouncementForm").then(m => ({ default: m.AnnouncementForm })));
 const AdminEventForm = lazy(() => import("@/pages/admin/AdminEventForm").then(m => ({ default: m.EventForm })));
 const AdminCampaignForm = lazy(() => import("@/pages/admin/AdminCampaignForm").then(m => ({ default: m.CampaignForm })));
@@ -322,6 +325,7 @@ const App = () => (
                 <Route path="/offering/:offeringId" element={<OfferingDetailPage />} />
                 <Route path="/announcement/:announcementId" element={<AnnouncementDetailPage />} />
                 <Route path="/event/:eventId" element={<EventDetailPage />} />
+                <Route path="/program/:programId" element={<ProgramDetailPage />} />
 
                 {/* Welcome intent (post-signup) */}
                 <Route path="/welcome" element={<RequireAuth><WelcomeIntentPage /></RequireAuth>} />
@@ -385,6 +389,9 @@ const App = () => (
                   <Route path="experiments" element={<AdminExperiments />} />
                   <Route path="webhooks" element={<AdminWebhooks />} />
                   <Route path="offerings" element={<AdminOfferings />} />
+                  <Route path="programs" element={<AdminPrograms />} />
+                  <Route path="programs/new" element={<AdminProgramForm />} />
+                  <Route path="programs/:id/edit" element={<AdminProgramForm />} />
                 </Route>
 
                 {/* Superadmin */}

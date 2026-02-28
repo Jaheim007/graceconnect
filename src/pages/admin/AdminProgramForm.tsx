@@ -193,10 +193,11 @@ export function ProgramForm() {
             <div>
               <Label className="text-xs">Image de couverture</Label>
               <ImageUploader
-                bucket="org-uploads"
+                value={coverUrl}
+                onChange={setCoverUrl}
                 folder={`programs/${currentOrg?.id}`}
-                currentUrl={coverUrl}
-                onUploaded={setCoverUrl}
+                label=""
+                aspectRatio="video"
               />
             </div>
             <div className="flex items-center justify-between">

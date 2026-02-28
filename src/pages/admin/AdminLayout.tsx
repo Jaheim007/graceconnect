@@ -33,7 +33,7 @@ const adminLinks = [
   { to: '/admin/crm', label: 'CRM', icon: MailCheck, group: 'gestion' },
   { to: '/admin/notifications', label: 'Notifications', icon: Bell, group: 'gestion' },
   { to: '/admin/analytics', label: 'Analytics', icon: BarChart3, group: 'gestion' },
-  // { to: '/admin/programs', label: 'Programmes', icon: CalendarDays, group: 'gestion' }, // DISABLED
+  { to: '/admin/programs', label: 'Programmes', icon: CalendarDays, group: 'gestion' },
   { to: '/admin/kyc', label: 'Vérification', icon: FileCheck, group: 'gestion' },
   { to: '/admin/settings', label: 'Paramètres', icon: Settings, group: 'gestion' },
 ];
