@@ -32,6 +32,7 @@ import { MonthlyChallenges } from '@/components/admin/MonthlyChallenges';
 import { AdminRevenueGoals } from '@/components/admin/AdminRevenueGoals';
 import { ContentSuggestionEngine } from '@/components/admin/ContentSuggestionEngine';
 import { SmartPricingHelper } from '@/components/admin/SmartPricingHelper';
+import { SmartCRMInsights } from '@/components/admin/SmartCRMInsights';
 import { useBehavioralNotifications } from '@/hooks/useBehavioralNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
@@ -323,6 +324,9 @@ export default function AdminDashboard() {
 
       {/* Monthly Challenges */}
       <MonthlyChallenges />
+
+      {/* CRM Intelligence */}
+      <SmartCRMInsights />
 
       {/* Stats grid */}
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 sm:grid-cols-3 gap-3">
