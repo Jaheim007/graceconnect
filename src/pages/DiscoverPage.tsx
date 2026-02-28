@@ -20,7 +20,6 @@ import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
 import { PageTour } from '@/components/onboarding/PageTour';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FeaturedSection } from '@/components/discover/FeaturedSection';
 import { TrendingBanner } from '@/components/discover/TrendingBanner';
 import { DiscoverCTABanner } from '@/components/discover/DiscoverCTABanner';
 import { Offering } from '@/hooks/useOfferings';
@@ -37,14 +36,40 @@ const DISCOVER_TOUR_STEPS = [
   { titleKey: 'tour.discover_3_title', descKey: 'tour.discover_3_desc', icon: <Heart className="h-4 w-4" /> },
 ];
 
-type ProductSort = 'popular' | 'recent' | 'price_asc' | 'price_desc' | 'rating';
+type ProductSort = 'mixed' | 'popular' | 'recent' | 'price_asc' | 'price_desc' | 'rating' | 'best_selling' | 'most_viewed';
+
+/** Interleave products so no single org dominates consecutive slots */
+function mixByOrg(products: any[]): any[] {
+  if (products.length === 0) return [];
+  // Group by org
+  const byOrg = new Map<string, any[]>();
+  for (const p of products) {
+    const key = p.organization_id || 'unknown';
+    if (!byOrg.has(key)) byOrg.set(key, []);
+    byOrg.get(key)!.push(p);
+  }
+  // Round-robin interleave, largest orgs first
+  const queues = [...byOrg.values()].sort((a, b) => b.length - a.length);
+  const result: any[] = [];
+  let remaining = true;
+  while (remaining) {
+    remaining = false;
+    for (const queue of queues) {
+      if (queue.length > 0) {
+        result.push(queue.shift()!);
+        remaining = remaining || queue.length > 0;
+      }
+    }
+  }
+  return result;
+}
 type PriceFilter = 'all' | 'free' | 'paid';
 type ProductTypeFilter = '' | 'pdf' | 'ebook' | 'audio' | 'video' | 'link' | 'bundle';
 
 export default function DiscoverPage() {
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState('products');
-  const [sortBy, setSortBy] = useState<ProductSort>('popular');
+  const [sortBy, setSortBy] = useState<ProductSort>('mixed');
   const [priceFilter, setPriceFilter] = useState<PriceFilter>('all');
   const [typeFilter, setTypeFilter] = useState<ProductTypeFilter>('');
   const [selectedOffering, setSelectedOffering] = useState<Offering | null>(null);
@@ -79,20 +104,25 @@ export default function DiscoverPage() {
       if (typeFilter === 'bundle') q = q.eq('is_bundle', true);
       else if (typeFilter) q = q.eq('product_type', typeFilter);
 
-      if (sortBy === 'popular') q = q.order('featured_score', { ascending: false }).order('sales_count', { ascending: false });
+      // For 'mixed', fetch by featured_score but we'll interleave client-side
+      if (sortBy === 'mixed' || sortBy === 'popular') q = q.order('featured_score', { ascending: false }).order('sales_count', { ascending: false });
       else if (sortBy === 'recent') q = q.order('created_at', { ascending: false });
       else if (sortBy === 'price_asc') q = q.order('price', { ascending: true });
       else if (sortBy === 'price_desc') q = q.order('price', { ascending: false });
       else if (sortBy === 'rating') q = q.order('average_rating', { ascending: false });
+      else if (sortBy === 'best_selling') q = q.order('sales_count', { ascending: false });
+      else if (sortBy === 'most_viewed') q = q.order('featured_score', { ascending: false });
 
       q = q.limit(60);
       const { data } = await q;
-      return (data || []).map((p: any) => ({
+      const mapped = (data || []).map((p: any) => ({
         ...p,
         organization_name: p.organizations?.name,
         organization_slug: p.organizations?.slug,
         organization_logo: p.organizations?.logo_url,
       }));
+      // Apply mix algorithm for default view
+      return sortBy === 'mixed' ? mixByOrg(mapped) : mapped;
     },
     enabled: tab === 'products',
   });
@@ -164,7 +194,6 @@ export default function DiscoverPage() {
       <div className="container max-w-6xl py-6">
         <PageTour pageId="discover" steps={DISCOVER_TOUR_STEPS} />
 
-        {!isSearching && <FeaturedSection />}
         {!isSearching && !user && <DiscoverCTABanner />}
         {!isSearching && <TrendingBanner />}
 
@@ -190,11 +219,14 @@ export default function DiscoverPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="mixed">{locale === 'fr' ? '🔀 Mix' : '🔀 Mix'}</SelectItem>
                   <SelectItem value="popular"><TrendingUp className="h-3 w-3 inline mr-1" />{locale === 'fr' ? 'Populaires' : 'Popular'}</SelectItem>
                   <SelectItem value="recent">{locale === 'fr' ? 'Récents' : 'Recent'}</SelectItem>
+                  <SelectItem value="best_selling">{locale === 'fr' ? 'Plus vendus' : 'Best selling'}</SelectItem>
+                  <SelectItem value="most_viewed">{locale === 'fr' ? 'Plus consultés' : 'Most viewed'}</SelectItem>
+                  <SelectItem value="rating"><Star className="h-3 w-3 inline mr-1" />{locale === 'fr' ? 'Mieux notés' : 'Top rated'}</SelectItem>
                   <SelectItem value="price_asc">{locale === 'fr' ? 'Prix ↑' : 'Price ↑'}</SelectItem>
                   <SelectItem value="price_desc">{locale === 'fr' ? 'Prix ↓' : 'Price ↓'}</SelectItem>
-                  <SelectItem value="rating"><Star className="h-3 w-3 inline mr-1" />{locale === 'fr' ? 'Mieux notés' : 'Top rated'}</SelectItem>
                 </SelectContent>
               </Select>
 
