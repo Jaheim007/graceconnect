@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import {
   BarChart3, Play, Megaphone, CalendarDays, Heart, ShoppingBag,
   Users, Link2, FileCheck, Settings, ChevronDown, ArrowLeft, Loader2,
-  Camera, Tag, Clock, CreditCard, TrendingUp, MailCheck, Bell, HandHeart, Receipt
+  Camera, Tag, Clock, CreditCard, TrendingUp, MailCheck, Bell, HandHeart, Receipt, GraduationCap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -33,7 +33,7 @@ const adminLinks = [
   { to: '/admin/crm', label: 'CRM', icon: MailCheck, group: 'gestion' },
   { to: '/admin/notifications', label: 'Notifications', icon: Bell, group: 'gestion' },
   { to: '/admin/analytics', label: 'Analytics', icon: BarChart3, group: 'gestion' },
-  { to: '/admin/programs', label: 'Programmes', icon: CalendarDays, group: 'gestion' },
+  { to: '/admin/programs', label: 'Programmes', icon: GraduationCap, group: 'gestion' },
   { to: '/admin/kyc', label: 'Vérification', icon: FileCheck, group: 'gestion' },
   { to: '/admin/settings', label: 'Paramètres', icon: Settings, group: 'gestion' },
 ];

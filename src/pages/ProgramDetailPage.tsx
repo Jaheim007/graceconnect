@@ -106,8 +106,8 @@ export default function ProgramDetailPage() {
               ) : (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-emerald-500" />
-                    <span className="text-sm font-medium text-emerald-600">Inscrit</span>
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium text-primary">Inscrit</span>
                     <span className="text-xs text-muted-foreground ml-2">{completedLessons}/{totalLessons} leçons complétées</span>
                   </div>
                   <Progress value={progressPercent} className="h-2" />
@@ -137,7 +137,7 @@ export default function ProgramDetailPage() {
                 <CollapsibleTrigger className="w-full flex items-center gap-3 p-4 hover:bg-muted/30 transition-colors">
                   <div className={cn(
                     'h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0',
-                    isModuleComplete ? 'bg-emerald-500/15 text-emerald-600' : 'bg-primary/10 text-primary'
+                    isModuleComplete ? 'bg-primary/15 text-primary' : 'bg-primary/10 text-primary'
                   )}>
                     {isModuleComplete ? <CheckCircle className="h-4 w-4" /> : `${mi + 1}`}
                   </div>
