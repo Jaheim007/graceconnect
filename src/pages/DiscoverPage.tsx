@@ -22,6 +22,8 @@ import { PageTour } from '@/components/onboarding/PageTour';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TrendingBanner } from '@/components/discover/TrendingBanner';
 import { DiscoverCTABanner } from '@/components/discover/DiscoverCTABanner';
+import { LiveActivityTicker } from '@/components/discover/LiveActivityTicker';
+import { PlatformStats } from '@/components/discover/PlatformStats';
 import { Offering } from '@/hooks/useOfferings';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
@@ -194,6 +196,8 @@ export default function DiscoverPage() {
       <div className="container max-w-6xl py-6">
         <PageTour pageId="discover" steps={DISCOVER_TOUR_STEPS} />
 
+        <LiveActivityTicker />
+        <PlatformStats />
         {!isSearching && !user && <DiscoverCTABanner />}
         {!isSearching && <TrendingBanner />}
 
