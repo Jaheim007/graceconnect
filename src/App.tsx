@@ -17,6 +17,7 @@ import { GDPRBanner } from "@/components/layout/GDPRBanner";
 import { ErrorBoundary } from "@/components/layout/ErrorBoundary";
 import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import { SkipLink } from "@/components/layout/SkipLink";
+import { FloatingProofToast } from "@/components/social-proof/FloatingProofToast";
 
 // Lazy-loaded fallback — branded splash
 const PageLoader = () => (
@@ -215,6 +216,7 @@ const App = () => (
               <OfflineBanner />
               <ScrollToTop />
               <GDPRBanner />
+              <FloatingProofToast />
               
               <Suspense fallback={<PageLoader />}>
               <Routes>

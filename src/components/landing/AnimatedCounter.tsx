@@ -66,10 +66,10 @@ export function AnimatedCounter({ target, value, prefix = '', suffix = '', label
 import { Sparkles, Shield, Zap, Globe } from 'lucide-react';
 
 const VALUE_PROPS = [
-  { label: '0 FCFA d\'abonnement', desc: 'Commencez sans rien payer', icon: <Sparkles className="h-4 w-4" /> },
-  { label: 'Jusqu\'à 50% de commission', desc: 'Pour les ambassadeurs', icon: <Zap className="h-4 w-4" /> },
-  { label: 'Paystack & Stripe', desc: 'Paiements sécurisés internationaux', icon: <Shield className="h-4 w-4" /> },
-  { label: '150+ pays couverts', desc: 'Mobile Money & Carte bancaire', icon: <Globe className="h-4 w-4" /> },
+  { label: '1 000+ ressources', desc: 'E-books, formations, guides, audio…', icon: <Sparkles className="h-4 w-4" /> },
+  { label: '1 000+ créateurs', desc: 'Leaders, formateurs, organisations', icon: <Globe className="h-4 w-4" /> },
+  { label: '0 FCFA pour commencer', desc: 'Aucun abonnement requis', icon: <Zap className="h-4 w-4" /> },
+  { label: '150+ pays couverts', desc: 'Mobile Money, Carte, Stripe, Paystack', icon: <Shield className="h-4 w-4" /> },
 ];
 
 export function StatsBar() {

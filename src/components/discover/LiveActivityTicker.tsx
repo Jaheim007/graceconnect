@@ -84,7 +84,7 @@ function generateSyntheticActivities(isFr: boolean): Activity[] {
     (_: string, prod: string, org: string) => ({ icon: icons[7], text: `${org} added "${prod}"` }),
   ];
 
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 100; i++) {
     const name = SYNTHETIC_NAMES_FR[Math.floor(Math.random() * SYNTHETIC_NAMES_FR.length)];
     const prod = SYNTHETIC_PRODUCTS[Math.floor(Math.random() * SYNTHETIC_PRODUCTS.length)];
     const org = SYNTHETIC_ORGS[Math.floor(Math.random() * SYNTHETIC_ORGS.length)];
@@ -191,12 +191,12 @@ export function LiveActivityTicker() {
     staleTime: 60 * 1000,
   });
 
-  // Auto-rotate every 3.5s for more dynamism
+  // Auto-rotate every 2.8s for more dynamism
   useEffect(() => {
     if (activities.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % activities.length);
-    }, 3500);
+    }, 2800);
     return () => clearInterval(interval);
   }, [activities.length]);
 
