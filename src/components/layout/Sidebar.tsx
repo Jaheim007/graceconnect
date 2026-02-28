@@ -5,7 +5,7 @@ import {
   Settings, ChevronLeft, ChevronRight, Shield, Handshake, HandHeart,
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, UsersRound, Sun, Moon,
   UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, ShieldAlert, LayoutDashboard, Building2,
-  MessageCircle, Trophy, CreditCard, Clock, Sparkles
+  MessageCircle, Trophy, CreditCard, Clock, Sparkles, GraduationCap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useMemo } from 'react';
@@ -82,6 +82,7 @@ export function Sidebar() {
       key: 'myContent',
       items: [
         { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases'), desc: 'Accédez à tous vos achats et téléchargements' },
+        { to: '/my-programs', icon: GraduationCap, label: 'Mes programmes', desc: 'Vos cours et formations en ligne' },
         { to: '/invoices', icon: CreditCard, label: 'Mes factures', desc: 'Téléchargez vos factures en PDF' },
         { to: '/my-analytics', icon: BarChart3, label: 'Mes stats', desc: 'Vos statistiques personnelles' },
         ...(ownedOrgs.length === 1
@@ -147,6 +148,7 @@ export function Sidebar() {
         { to: '/admin/kyc', icon: FileCheck, label: t('sidebar.verification') },
         { to: '/admin/settings', icon: Settings, label: t('sidebar.settings') },
         { to: '/admin/experiments', icon: Sparkles, label: 'Tests A/B' },
+        { to: '/admin/programs', icon: GraduationCap, label: 'Programmes' },
       ],
     },
   ];
