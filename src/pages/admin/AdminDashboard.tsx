@@ -27,6 +27,10 @@ import { SmartNextAction } from '@/components/admin/SmartNextAction';
 import { WeeklyMissions } from '@/components/admin/WeeklyMissions';
 import { OrgBenchmark } from '@/components/admin/OrgBenchmark';
 import { WhatsAppShareNudge } from '@/components/admin/WhatsAppShareNudge';
+import { SmartProductIdeas } from '@/components/admin/SmartProductIdeas';
+import { MonthlyChallenges } from '@/components/admin/MonthlyChallenges';
+import { SmartPricingHelper } from '@/components/admin/SmartPricingHelper';
+import { useBehavioralNotifications } from '@/hooks/useBehavioralNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { downloadCSV } from '@/lib/csvExport';
@@ -49,6 +53,7 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const { t } = useI18n();
   const [showQuickStart, setShowQuickStart] = useState(false);
+  useBehavioralNotifications(); // Fire behavioral in-app notifications
   const { data: media = [] } = useOrgMedia(currentOrg?.id, false);
   const { data: announcements = [] } = useOrgAnnouncements(currentOrg?.id, false);
   const { data: events = [] } = useOrgEvents(currentOrg?.id, false);
@@ -301,6 +306,15 @@ export default function AdminDashboard() {
         <RevenueSimulator />
         <OrgBenchmark />
       </div>
+
+      {/* Smart Product Ideas + Pricing Helper */}
+      <div className="grid lg:grid-cols-2 gap-3">
+        <SmartProductIdeas />
+        <SmartPricingHelper />
+      </div>
+
+      {/* Monthly Challenges */}
+      <MonthlyChallenges />
 
       {/* Stats grid */}
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 sm:grid-cols-3 gap-3">

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/lib/currency';
+import { AmbassadorGoalTracker } from './AmbassadorGoalTracker';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
@@ -103,6 +104,9 @@ export function AmbassadorOnlyDashboard() {
           </div>
         ))}
       </motion.div>
+
+      {/* Goal Tracker & Tiers */}
+      <AmbassadorGoalTracker />
 
       {/* Active links */}
       <motion.div initial="hidden" animate="visible" variants={fadeUp}>
