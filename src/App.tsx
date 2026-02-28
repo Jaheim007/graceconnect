@@ -71,6 +71,8 @@ const WelcomeIntentPage = lazy(() => import("@/pages/WelcomeIntentPage"));
 const AmbassadorPage = lazy(() => import("@/pages/AmbassadorPage"));
 const ChangelogPage = lazy(() => import("@/pages/ChangelogPage"));
 const MaintenancePage = lazy(() => import("@/pages/MaintenancePage"));
+const GoRedirectPage = lazy(() => import("@/pages/GoRedirectPage"));
+const MarketplacePage = lazy(() => import("@/pages/MarketplacePage"));
 const TemoignagesPage = lazy(() => import("@/pages/TemoignagesPage"));
 const CalculateurPage = lazy(() => import("@/pages/CalculateurPage"));
 const PourEglisesPage = lazy(() => import("@/pages/persona/PourEglisesPage"));
@@ -139,6 +141,7 @@ const LeaderboardPage = lazy(() => import("@/pages/LeaderboardPage"));
 const BookmarksPage = lazy(() => import("@/pages/BookmarksPage"));
 const NotificationPreferencesPage = lazy(() => import("@/pages/NotificationPreferencesPage"));
 const MyInvoicesPage = lazy(() => import("@/pages/MyInvoicesPage"));
+const MyProgramsPage = lazy(() => import("@/pages/MyProgramsPage"));
 const UserAnalyticsPage = lazy(() => import("@/pages/UserAnalyticsPage"));
 
 // Admin
@@ -302,11 +305,13 @@ const App = () => (
                 <Route path="/guide/boutique-digitale-gratuite" element={<GuideBoutiqueDigitalePage />} />
                 <Route path="/guide/monetiser-contenu-religieux" element={<GuideMonetiserContenuReligieuxPage />} />
                 <Route path="/guide/affiliation-sans-investissement" element={<GuideAffiliationSansInvestissementPage />} />
+                <Route path="/go/:code" element={<GoRedirectPage />} />
+                <Route path="/maintenance" element={<MaintenancePage />} />
                 <Route path="/discover" element={<AppLayout />}>
                   <Route index element={<DiscoverPage />} />
                 </Route>
                 <Route path="/marketplace" element={<AppLayout />}>
-                  <Route index element={<DiscoverPage />} />
+                  <Route index element={<MarketplacePage />} />
                 </Route>
 
 
@@ -352,6 +357,7 @@ const App = () => (
                   <Route path="/partner" element={<PartnerPortalPage />} />
                   <Route path="/invoices" element={<MyInvoicesPage />} />
                   <Route path="/my-analytics" element={<UserAnalyticsPage />} />
+                  <Route path="/my-programs" element={<MyProgramsPage />} />
                 </Route>
 
                 {/* Admin */}
