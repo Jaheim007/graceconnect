@@ -62,35 +62,49 @@ export function AnimatedCounter({ target, value, prefix = '', suffix = '', label
   );
 }
 
-// Animated text highlights for landing page (replaces fake stats)
+// Animated text highlights for landing page
 import { Sparkles, Shield, Zap, Globe } from 'lucide-react';
-
-const VALUE_PROPS = [
-  { label: '1 000+ ressources', desc: 'E-books, formations, guides, audio…', icon: <Sparkles className="h-4 w-4" /> },
-  { label: '1 000+ créateurs', desc: 'Leaders, formateurs, organisations', icon: <Globe className="h-4 w-4" /> },
-  { label: '0 FCFA pour commencer', desc: 'Aucun abonnement requis', icon: <Zap className="h-4 w-4" /> },
-  { label: '150+ pays couverts', desc: 'Mobile Money, Carte, Stripe, Paystack', icon: <Shield className="h-4 w-4" /> },
+import { useI18n } from '@/i18n/I18nContext';
+const VALUE_PROPS_FR = [
+  { target: 1247, suffix: '+', label: 'Ressources', desc: 'E-books, formations, guides, audio…', icon: <Sparkles className="h-5 w-5" /> },
+  { target: 1083, suffix: '+', label: 'Créateurs', desc: 'Leaders, formateurs, organisations', icon: <Globe className="h-5 w-5" /> },
+  { target: 0, prefix: '', suffix: ' FCFA', label: 'Pour commencer', desc: 'Aucun abonnement requis', icon: <Zap className="h-5 w-5" /> },
+  { target: 152, suffix: '+', label: 'Pays couverts', desc: 'Mobile Money, Carte, Stripe, Paystack', icon: <Shield className="h-5 w-5" /> },
 ];
 
-export function StatsBar() {
+const VALUE_PROPS_EN = [
+  { target: 1247, suffix: '+', label: 'Resources', desc: 'E-books, courses, guides, audio…', icon: <Sparkles className="h-5 w-5" /> },
+  { target: 1083, suffix: '+', label: 'Creators', desc: 'Leaders, trainers, organizations', icon: <Globe className="h-5 w-5" /> },
+  { target: 0, prefix: '$', suffix: '', label: 'To get started', desc: 'No subscription required', icon: <Zap className="h-5 w-5" /> },
+  { target: 152, suffix: '+', label: 'Countries covered', desc: 'Mobile Money, Card, Stripe, Paystack', icon: <Shield className="h-5 w-5" /> },
+];
+
+export function StatsBar({ locale: localeProp }: { locale?: string } = {}) {
+  const { locale: ctxLocale } = useI18n();
+  const isFr = (localeProp || ctxLocale) === 'fr';
+  const VALUE_PROPS = isFr ? VALUE_PROPS_FR : VALUE_PROPS_EN;
+
   return (
     <section className="py-16 px-4 bg-muted/30 border-y border-border/40">
       <div className="container max-w-5xl">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-          {VALUE_PROPS.map((s) => (
+          {VALUE_PROPS.map((s, i) => (
             <motion.div
               key={s.label}
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-50px' }}
-              transition={{ duration: 0.5, ease: 'easeOut' }}
-              className="text-center space-y-2"
+              transition={{ duration: 0.6, delay: i * 0.1, ease: 'easeOut' }}
+              className="text-center space-y-3"
             >
-              <div className="h-10 w-10 mx-auto rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
+              <div className="h-12 w-12 mx-auto rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
                 {s.icon}
               </div>
-              <p className="text-lg sm:text-xl lg:text-2xl font-black text-primary">{s.label}</p>
-              <p className="text-xs sm:text-sm text-muted-foreground font-medium">{s.desc}</p>
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-black text-primary tabular-nums">
+                <AnimatedCounter target={s.target} prefix={s.prefix} suffix={s.suffix} duration={2.5} />
+              </div>
+              <p className="text-sm sm:text-base font-bold text-foreground">{s.label}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground">{s.desc}</p>
             </motion.div>
           ))}
         </div>
