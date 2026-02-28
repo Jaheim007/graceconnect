@@ -828,6 +828,148 @@ Deno.serve(async (req) => {
     }
     results['abandoned_cart_recovery'] = abandonedCartCount;
 
+    // ═══════════════════════════════════════════
+    // 22. WEEKLY PERFORMANCE DIGEST FOR ORG OWNERS (Monday 8AM)
+    // ═══════════════════════════════════════════
+    let weeklyOwnerDigestCount = 0;
+    const dayOfWeek = now.getUTCDay();
+    const hourOfDay = now.getUTCHours();
+    // Run on Monday between 7-9 UTC
+    if (dayOfWeek === 1 && hourOfDay >= 7 && hourOfDay <= 9) {
+      const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000).toISOString();
+      const fourteenDaysAgo = new Date(now.getTime() - 14 * 86400000).toISOString();
+
+      const { data: allOrgs } = await db.from('organizations')
+        .select('id, name, slug, owner_id, currency')
+        .eq('is_active', true)
+        .limit(200);
+
+      for (const org of allOrgs || []) {
+        // Check if already sent this week
+        const { count: alreadySent } = await db.from('email_logs')
+          .select('*', { count: 'exact', head: true })
+          .eq('template', 'weekly_owner_digest')
+          .eq('organization_id', org.id)
+          .gte('created_at', sevenDaysAgo);
+        if ((alreadySent || 0) > 0) continue;
+
+        // This week's stats
+        const [weekPurchases, weekDonations, weekMembers] = await Promise.all([
+          db.from('product_purchases').select('amount').eq('organization_id', org.id).eq('status', 'completed').gte('created_at', sevenDaysAgo),
+          db.from('donations').select('amount').eq('organization_id', org.id).eq('status', 'completed').gte('created_at', sevenDaysAgo),
+          db.from('organization_members').select('id').eq('organization_id', org.id).gte('joined_at', sevenDaysAgo),
+        ]);
+
+        // Previous week's stats for comparison
+        const [prevPurchases, prevDonations] = await Promise.all([
+          db.from('product_purchases').select('amount').eq('organization_id', org.id).eq('status', 'completed').gte('created_at', fourteenDaysAgo).lt('created_at', sevenDaysAgo),
+          db.from('donations').select('amount').eq('organization_id', org.id).eq('status', 'completed').gte('created_at', fourteenDaysAgo).lt('created_at', sevenDaysAgo),
+        ]);
+
+        const weekRevenue = (weekPurchases.data || []).reduce((s: number, t: any) => s + (t.amount || 0), 0)
+          + (weekDonations.data || []).reduce((s: number, t: any) => s + (t.amount || 0), 0);
+        const prevRevenue = (prevPurchases.data || []).reduce((s: number, t: any) => s + (t.amount || 0), 0)
+          + (prevDonations.data || []).reduce((s: number, t: any) => s + (t.amount || 0), 0);
+        const weekTx = (weekPurchases.data?.length || 0) + (weekDonations.data?.length || 0);
+        const newMembersCount = weekMembers.data?.length || 0;
+        const revenueChange = prevRevenue > 0 ? (((weekRevenue - prevRevenue) / prevRevenue) * 100).toFixed(1) : weekRevenue > 0 ? '+100' : '0';
+
+        // Only send if org has any activity
+        if (weekRevenue === 0 && weekTx === 0 && newMembersCount === 0) continue;
+
+        const ownerEmail = await getUserEmail(org.owner_id);
+        if (ownerEmail) {
+          await sendEmail({
+            template: 'weekly_owner_digest' as any,
+            to: ownerEmail,
+            data: {
+              org_name: org.name,
+              org_slug: org.slug,
+              currency: org.currency || 'XOF',
+              week_revenue: weekRevenue,
+              week_transactions: weekTx,
+              week_new_members: newMembersCount,
+              revenue_change: revenueChange,
+              week_purchases: weekPurchases.data?.length || 0,
+              week_donations: weekDonations.data?.length || 0,
+            },
+            organization_id: org.id,
+          });
+          weeklyOwnerDigestCount++;
+        }
+      }
+    }
+    results['weekly_owner_digest'] = weeklyOwnerDigestCount;
+
+    // ═══════════════════════════════════════════
+    // 23. WIN-BACK EMAIL (members inactive 30+ days with previous purchases)
+    // ═══════════════════════════════════════════
+    let winBackCount = 0;
+    const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString();
+    const { data: inactiveOrgs } = await db.from('organizations')
+      .select('id, name, slug, currency')
+      .eq('is_active', true)
+      .limit(50);
+
+    for (const org of inactiveOrgs || []) {
+      // Find members who purchased before but not in last 30 days
+      const { data: oldBuyers } = await db.from('product_purchases')
+        .select('user_id')
+        .eq('organization_id', org.id)
+        .eq('status', 'completed')
+        .lt('created_at', thirtyDaysAgo)
+        .limit(50);
+      const oldBuyerIds = [...new Set((oldBuyers || []).map((b: any) => b.user_id).filter(Boolean))];
+      if (oldBuyerIds.length === 0) continue;
+
+      // Exclude those who purchased recently
+      const { data: recentBuyers } = await db.from('product_purchases')
+        .select('user_id')
+        .eq('organization_id', org.id)
+        .eq('status', 'completed')
+        .gte('created_at', thirtyDaysAgo)
+        .in('user_id', oldBuyerIds);
+      const recentSet = new Set((recentBuyers || []).map((b: any) => b.user_id));
+      const churned = oldBuyerIds.filter(id => !recentSet.has(id));
+
+      for (const userId of churned.slice(0, 10)) {
+        // Check not already sent win-back in last 30 days
+        const { count: sent } = await db.from('email_logs')
+          .select('*', { count: 'exact', head: true })
+          .eq('recipient', userId)
+          .eq('template', 'win_back')
+          .gte('created_at', thirtyDaysAgo);
+        if ((sent || 0) > 0) continue;
+
+        const email = await getUserEmail(userId);
+        if (email) {
+          const { data: profile } = await db.from('profiles').select('display_name').eq('id', userId).maybeSingle();
+          // Get latest products from org for re-engagement
+          const { data: latestProducts } = await db.from('digital_products')
+            .select('title')
+            .eq('organization_id', org.id)
+            .eq('is_published', true)
+            .order('created_at', { ascending: false })
+            .limit(3);
+          const productNames = (latestProducts || []).map((p: any) => p.title).join(', ');
+
+          await sendEmail({
+            template: 'win_back' as any,
+            to: email,
+            data: {
+              name: profile?.display_name || '',
+              org_name: org.name,
+              org_slug: org.slug,
+              new_products: productNames || 'de nouvelles ressources',
+            },
+            organization_id: org.id,
+          });
+          winBackCount++;
+        }
+      }
+    }
+    results['win_back_emails'] = winBackCount;
+
     return new Response(JSON.stringify({ ok: true, results }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
