@@ -31,6 +31,8 @@ import { useBundleItems, useProductRecommendations } from '@/hooks/useBundlesAnd
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ProductCard } from '@/components/products/ProductCard';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
+import { CrossSellWidget } from '@/components/products/CrossSellWidget';
+import { SubscriptionUpsellPrompt } from '@/components/subscriptions/SubscriptionUpsellPrompt';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -732,6 +734,20 @@ export default function ProductDetailPage() {
             </div>
           </div>
         )}
+
+        {/* Cross-sell: Buyers also purchased */}
+        <CrossSellWidget
+          productId={product.id}
+          organizationId={product.organization_id}
+          productType={product.product_type}
+        />
+
+        {/* Subscription upsell for repeat buyers */}
+        <SubscriptionUpsellPrompt
+          organizationId={product.organization_id}
+          organizationSlug={slug}
+          organizationName={product.organizations?.name}
+        />
       </div>
 
       <ProductPurchaseModal
