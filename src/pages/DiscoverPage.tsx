@@ -23,6 +23,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TrendingBanner } from '@/components/discover/TrendingBanner';
 import { DiscoverCTABanner } from '@/components/discover/DiscoverCTABanner';
 import { LiveActivityTicker } from '@/components/discover/LiveActivityTicker';
+import { FlashSaleCountdown } from '@/components/discover/FlashSaleCountdown';
+import { FeaturedSection } from '@/components/discover/FeaturedSection';
+import { PlatformStats } from '@/components/discover/PlatformStats';
+import { PersonalizedRecommendations } from '@/components/discover/PersonalizedRecommendations';
+import { BuyerStreakWidget } from '@/components/discover/BuyerStreakWidget';
 
 import { Offering } from '@/hooks/useOfferings';
 
@@ -217,7 +222,10 @@ export default function DiscoverPage() {
         <PageTour pageId="discover" steps={DISCOVER_TOUR_STEPS} />
 
         <LiveActivityTicker />
+        {!isSearching && <PlatformStats />}
+        {!isSearching && <FlashSaleCountdown />}
         {!isSearching && !user && <DiscoverCTABanner />}
+        {!isSearching && user && <BuyerStreakWidget />}
         {!isSearching && <TrendingBanner />}
 
         <Tabs value={tab} onValueChange={(v) => setTab(v)}>
@@ -323,6 +331,10 @@ export default function DiscoverPage() {
             )}
           </TabsContent>
         </Tabs>
+
+        {/* Smart sections below main grid */}
+        {!isSearching && <FeaturedSection />}
+        {!isSearching && user && <PersonalizedRecommendations />}
       </div>
 
       {selectedOffering && (
