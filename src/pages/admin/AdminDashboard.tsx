@@ -22,6 +22,11 @@ import { YouTubeImportButton } from '@/components/admin/YouTubeImportButton';
 import { RevenueSimulator } from '@/components/admin/RevenueSimulator';
 import { QuickStartWizard } from '@/components/onboarding/QuickStartWizard';
 import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist';
+import { OrgProgressScore } from '@/components/admin/OrgProgressScore';
+import { SmartNextAction } from '@/components/admin/SmartNextAction';
+import { WeeklyMissions } from '@/components/admin/WeeklyMissions';
+import { OrgBenchmark } from '@/components/admin/OrgBenchmark';
+import { WhatsAppShareNudge } from '@/components/admin/WhatsAppShareNudge';
 import { useI18n } from '@/i18n/I18nContext';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { downloadCSV } from '@/lib/csvExport';
@@ -210,7 +215,19 @@ export default function AdminDashboard() {
       {/* Onboarding checklist (persistent, data-driven) */}
       <OnboardingChecklist />
 
-      {/* Activation checklist */}
+      {/* Org Progress Score & Smart Next Action — side by side */}
+      <div className="grid lg:grid-cols-2 gap-3">
+        <OrgProgressScore />
+        <SmartNextAction />
+      </div>
+
+      {/* Weekly Missions + WhatsApp Nudge */}
+      <div className="grid lg:grid-cols-2 gap-3">
+        <WeeklyMissions />
+        <WhatsAppShareNudge />
+      </div>
+
+      {/* Activation checklist (legacy — will hide when score is 100%) */}
       <OrgActivationChecklist />
 
       {/* Quick actions — contextual cards */}
@@ -279,8 +296,11 @@ export default function AdminDashboard() {
         </motion.div>
       )}
 
-      {/* Revenue Simulator */}
-      <RevenueSimulator />
+      {/* Revenue Simulator + Benchmark */}
+      <div className="grid lg:grid-cols-2 gap-3">
+        <RevenueSimulator />
+        <OrgBenchmark />
+      </div>
 
       {/* Stats grid */}
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 sm:grid-cols-3 gap-3">
