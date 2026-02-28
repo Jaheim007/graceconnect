@@ -33,6 +33,11 @@ import { AdminRevenueGoals } from '@/components/admin/AdminRevenueGoals';
 import { ContentSuggestionEngine } from '@/components/admin/ContentSuggestionEngine';
 import { SmartPricingHelper } from '@/components/admin/SmartPricingHelper';
 import { SmartCRMInsights } from '@/components/admin/SmartCRMInsights';
+import { AbandonedCartRecovery } from '@/components/admin/AbandonedCartRecovery';
+import { BundleManager } from '@/components/admin/BundleManager';
+import { RevenueForecast } from '@/components/admin/RevenueForecast';
+import { EngagementHeatmap } from '@/components/admin/EngagementHeatmap';
+import { ConversionFunnel } from '@/components/admin/ConversionFunnel';
 import { useBehavioralNotifications } from '@/hooks/useBehavioralNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
@@ -304,10 +309,22 @@ export default function AdminDashboard() {
         </motion.div>
       )}
 
-      {/* Revenue Goals + Simulator */}
+      {/* Revenue Goals + Forecast */}
       <div className="grid lg:grid-cols-2 gap-3">
         <AdminRevenueGoals />
+        <RevenueForecast />
+      </div>
+
+      {/* Simulator + Funnel */}
+      <div className="grid lg:grid-cols-2 gap-3">
         <RevenueSimulator />
+        <ConversionFunnel />
+      </div>
+
+      {/* Abandoned Carts + Bundles */}
+      <div className="grid lg:grid-cols-2 gap-3">
+        <AbandonedCartRecovery />
+        <BundleManager />
       </div>
 
       {/* Content Suggestions + Benchmark */}
@@ -322,8 +339,11 @@ export default function AdminDashboard() {
         <SmartPricingHelper />
       </div>
 
-      {/* Monthly Challenges */}
-      <MonthlyChallenges />
+      {/* Monthly Challenges + Engagement Heatmap */}
+      <div className="grid lg:grid-cols-2 gap-3">
+        <MonthlyChallenges />
+        <EngagementHeatmap />
+      </div>
 
       {/* CRM Intelligence */}
       <SmartCRMInsights />
