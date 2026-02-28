@@ -573,6 +573,141 @@ Deno.serve(async (req) => {
     }
     results['first_sale_celebrations'] = firstSaleCount;
 
+    // ═══════════════════════════════════════════
+    // 16. SALES MILESTONE CELEBRATIONS (10th, 50th, 100th, 500th, 1000th sale)
+    // ═══════════════════════════════════════════
+    let salesMilestoneCount = 0;
+    const salesMilestones = [10, 50, 100, 500, 1000];
+    const { data: activeOrgsForMilestones } = await db.from('organizations')
+      .select('id, name, owner_id, currency')
+      .eq('is_active', true)
+      .limit(100);
+    for (const org of activeOrgsForMilestones || []) {
+      const { count: totalOrgSales } = await db.from('product_purchases')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', org.id)
+        .eq('status', 'completed');
+      if (totalOrgSales && salesMilestones.includes(totalOrgSales)) {
+        // Anti-spam: check not already sent for this milestone
+        const { count: alreadySent } = await db.from('email_logs')
+          .select('*', { count: 'exact', head: true })
+          .eq('organization_id', org.id)
+          .eq('template', `sales_milestone_${totalOrgSales}`);
+        if ((alreadySent || 0) === 0) {
+          const email = await getUserEmail(org.owner_id);
+          if (email) {
+            await sendEmail({
+              template: `sales_milestone_${totalOrgSales}` as any,
+              to: email,
+              data: {
+                org_name: org.name,
+                milestone: totalOrgSales,
+                currency: org.currency || 'XOF',
+                message: totalOrgSales >= 100
+                  ? '🏆 Vous faites partie des top vendeurs de Siteviral !'
+                  : `🎉 Félicitations pour vos ${totalOrgSales} premières ventes !`,
+              },
+              organization_id: org.id,
+            });
+            salesMilestoneCount++;
+          }
+        }
+      }
+    }
+    results['sales_milestones'] = salesMilestoneCount;
+
+    // ═══════════════════════════════════════════
+    // 17. ORG REACTIVATION SEQUENCE (no content in 14d, 21d)
+    // ═══════════════════════════════════════════
+    let orgReactivationCount = 0;
+    for (const daysSince of [14, 21]) {
+      const targetDate = new Date(now.getTime() - daysSince * 86400000);
+      const rangeStart = new Date(targetDate.getTime() - 12 * 3600000).toISOString();
+      const rangeEnd = new Date(targetDate.getTime() + 12 * 3600000).toISOString();
+      const { data: staleOrgs } = await db.from('organizations')
+        .select('id, name, owner_id, updated_at')
+        .eq('is_active', true)
+        .gte('updated_at', rangeStart)
+        .lte('updated_at', rangeEnd)
+        .limit(20);
+      for (const org of staleOrgs || []) {
+        const templateName = `org_reactivation_${daysSince}d`;
+        const { count: alreadySent } = await db.from('email_logs')
+          .select('*', { count: 'exact', head: true })
+          .eq('organization_id', org.id)
+          .eq('template', templateName)
+          .gte('created_at', new Date(now.getTime() - 30 * 86400000).toISOString());
+        if ((alreadySent || 0) === 0) {
+          const email = await getUserEmail(org.owner_id);
+          if (email) {
+            await sendEmail({
+              template: templateName as any,
+              to: email,
+              data: {
+                org_name: org.name,
+                days_inactive: daysSince,
+                tip: daysSince >= 21
+                  ? 'Vos visiteurs cherchent du contenu frais. Publiez une ressource ou un message pour les réengager.'
+                  : 'Astuce : ajoutez un nouveau produit ou annonce pour redonner vie à votre page.',
+              },
+              organization_id: org.id,
+            });
+            orgReactivationCount++;
+          }
+        }
+      }
+    }
+    results['org_reactivation'] = orgReactivationCount;
+
+    // ═══════════════════════════════════════════
+    // 18. WEEKLY DIGEST FOR BUYERS (purchases, new products from followed orgs)
+    // ═══════════════════════════════════════════
+    let weeklyDigestCount = 0;
+    // Only send on Mondays
+    if (now.getDay() === 1) {
+      const oneWeekAgo = new Date(now.getTime() - 7 * 86400000).toISOString();
+      const { data: activeBuyers } = await db.from('product_purchases')
+        .select('user_id')
+        .eq('status', 'completed')
+        .gte('completed_at', oneWeekAgo)
+        .limit(50);
+      const seenUsers = new Set<string>();
+      for (const purchase of activeBuyers || []) {
+        if (!purchase.user_id || seenUsers.has(purchase.user_id)) continue;
+        seenUsers.add(purchase.user_id);
+        const email = await getUserEmail(purchase.user_id);
+        if (email) {
+          // Count their orgs and new products
+          const { data: memberships } = await db.from('organization_members')
+            .select('organization_id')
+            .eq('user_id', purchase.user_id)
+            .limit(10);
+          const orgIds = (memberships || []).map((m: any) => m.organization_id);
+          let newProductCount = 0;
+          if (orgIds.length > 0) {
+            const { count } = await db.from('digital_products')
+              .select('*', { count: 'exact', head: true })
+              .in('organization_id', orgIds)
+              .eq('is_published', true)
+              .gte('created_at', oneWeekAgo);
+            newProductCount = count || 0;
+          }
+          if (newProductCount > 0) {
+            await sendEmail({
+              template: 'weekly_buyer_digest' as any,
+              to: email,
+              data: {
+                new_products: newProductCount,
+                orgs_followed: orgIds.length,
+              },
+            });
+            weeklyDigestCount++;
+          }
+        }
+      }
+    }
+    results['weekly_buyer_digest'] = weeklyDigestCount;
+
     return new Response(JSON.stringify({ ok: true, results }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });

@@ -32,6 +32,7 @@ import { useEffect } from 'react';
 import { Flame, Award as AwardIcon, Trophy, CreditCard, MessageCircle } from 'lucide-react';
 import { useMySubscriptions } from '@/hooks/useSubscriptions';
 import { AmbassadorOnlyDashboard } from '@/components/ambassador/AmbassadorOnlyDashboard';
+import { BuyerLoyaltyCard } from '@/components/gamification/BuyerLoyaltyCard';
 
 const statusColor: Record<string, string> = {
   completed: 'bg-green-500/15 text-green-600 dark:text-green-400',
@@ -429,6 +430,9 @@ export default function UserDashboard() {
             </button>
           </motion.div>
         )}
+
+        {/* ══ BUYER LOYALTY ══ */}
+        <BuyerLoyaltyCard />
 
         {/* ══ QUICK ACTIONS ══ */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
