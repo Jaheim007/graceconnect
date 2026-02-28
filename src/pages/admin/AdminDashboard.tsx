@@ -29,6 +29,8 @@ import { OrgBenchmark } from '@/components/admin/OrgBenchmark';
 import { WhatsAppShareNudge } from '@/components/admin/WhatsAppShareNudge';
 import { SmartProductIdeas } from '@/components/admin/SmartProductIdeas';
 import { MonthlyChallenges } from '@/components/admin/MonthlyChallenges';
+import { AdminRevenueGoals } from '@/components/admin/AdminRevenueGoals';
+import { ContentSuggestionEngine } from '@/components/admin/ContentSuggestionEngine';
 import { SmartPricingHelper } from '@/components/admin/SmartPricingHelper';
 import { useBehavioralNotifications } from '@/hooks/useBehavioralNotifications';
 import { useI18n } from '@/i18n/I18nContext';
@@ -301,9 +303,15 @@ export default function AdminDashboard() {
         </motion.div>
       )}
 
-      {/* Revenue Simulator + Benchmark */}
+      {/* Revenue Goals + Simulator */}
       <div className="grid lg:grid-cols-2 gap-3">
+        <AdminRevenueGoals />
         <RevenueSimulator />
+      </div>
+
+      {/* Content Suggestions + Benchmark */}
+      <div className="grid lg:grid-cols-2 gap-3">
+        <ContentSuggestionEngine />
         <OrgBenchmark />
       </div>
 
