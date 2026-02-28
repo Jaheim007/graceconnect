@@ -38,6 +38,10 @@ import { BundleManager } from '@/components/admin/BundleManager';
 import { RevenueForecast } from '@/components/admin/RevenueForecast';
 import { EngagementHeatmap } from '@/components/admin/EngagementHeatmap';
 import { ConversionFunnel } from '@/components/admin/ConversionFunnel';
+import { CustomerLifetimeValue } from '@/components/admin/CustomerLifetimeValue';
+import { RevenueAttribution } from '@/components/admin/RevenueAttribution';
+import { AffiliateLeaderboard } from '@/components/admin/AffiliateLeaderboard';
+import { SmartReEngagement } from '@/components/admin/SmartReEngagement';
 import { useBehavioralNotifications } from '@/hooks/useBehavioralNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
@@ -343,6 +347,18 @@ export default function AdminDashboard() {
       <div className="grid lg:grid-cols-2 gap-3">
         <MonthlyChallenges />
         <EngagementHeatmap />
+      </div>
+
+      {/* CLV + Revenue Attribution */}
+      <div className="grid lg:grid-cols-2 gap-3">
+        <CustomerLifetimeValue />
+        <RevenueAttribution />
+      </div>
+
+      {/* Affiliate Leaderboard + Re-engagement */}
+      <div className="grid lg:grid-cols-2 gap-3">
+        <AffiliateLeaderboard />
+        <SmartReEngagement />
       </div>
 
       {/* CRM Intelligence */}
