@@ -708,6 +708,126 @@ Deno.serve(async (req) => {
     }
     results['weekly_buyer_digest'] = weeklyDigestCount;
 
+    // ═══════════════════════════════════════════
+    // 19. FLASH SALE STARTING (products with sale_ends_at set in last 2h)
+    // ═══════════════════════════════════════════
+    let flashSaleCount = 0;
+    const twoHoursAgo = new Date(now.getTime() - 2 * 3600000).toISOString();
+    const { data: flashProducts } = await db.from('digital_products')
+      .select('id, title, price, sale_price, sale_ends_at, organization_id, organizations(name, currency)')
+      .eq('is_published', true)
+      .not('sale_price', 'is', null)
+      .not('sale_ends_at', 'is', null)
+      .gt('sale_ends_at', now.toISOString())
+      .gte('updated_at', twoHoursAgo)
+      .limit(10);
+    for (const prod of flashProducts || []) {
+      const org = (prod as any).organizations;
+      if (!org) continue;
+      // Get members of this org to notify them
+      const { data: orgMembers } = await db.from('organization_members')
+        .select('user_id')
+        .eq('organization_id', prod.organization_id)
+        .limit(100);
+      for (const member of orgMembers || []) {
+        const email = await getUserEmail(member.user_id);
+        if (email) {
+          const discount = prod.price && prod.sale_price
+            ? Math.round(((prod.price - prod.sale_price) / prod.price) * 100)
+            : 0;
+          await sendEmail({
+            template: 'flash_sale_alert' as any,
+            to: email,
+            data: {
+              product_title: prod.title,
+              org_name: org.name,
+              discount: `${discount}%`,
+              sale_price: prod.sale_price,
+              original_price: prod.price,
+              currency: org.currency || 'XOF',
+              ends_at: prod.sale_ends_at,
+            },
+            organization_id: prod.organization_id,
+          });
+          flashSaleCount++;
+        }
+      }
+    }
+    results['flash_sale_alerts'] = flashSaleCount;
+
+    // ═══════════════════════════════════════════
+    // 20. STREAK MILESTONE (7, 30, 100 day streaks)
+    // ═══════════════════════════════════════════
+    let streakMilestoneCount = 0;
+    const streakMilestones = [7, 30, 100];
+    const { data: activeStreaks } = await db.from('user_streaks')
+      .select('user_id, current_streak')
+      .in('current_streak', streakMilestones)
+      .limit(50);
+    for (const s of activeStreaks || []) {
+      const { count: alreadySent } = await db.from('email_logs')
+        .select('*', { count: 'exact', head: true })
+        .eq('recipient', s.user_id)
+        .eq('template', `streak_milestone_${s.current_streak}`)
+        .gte('created_at', new Date(now.getTime() - 30 * 86400000).toISOString());
+      if ((alreadySent || 0) === 0) {
+        const email = await getUserEmail(s.user_id);
+        if (email) {
+          await sendEmail({
+            template: `streak_milestone_${s.current_streak}` as any,
+            to: email,
+            data: {
+              streak: s.current_streak,
+              message: s.current_streak >= 100
+                ? '👑 Vous êtes un utilisateur légendaire ! 100 jours de suite !'
+                : s.current_streak >= 30
+                ? '🔥 30 jours consécutifs ! Vous êtes incroyable !'
+                : '⚡ 7 jours d\'affilée — vous êtes en feu !',
+            },
+          });
+          streakMilestoneCount++;
+        }
+      }
+    }
+    results['streak_milestones'] = streakMilestoneCount;
+
+    // ═══════════════════════════════════════════
+    // 21. ABANDONED CART RECOVERY (opened but not purchased in 1h)
+    // ═══════════════════════════════════════════
+    let abandonedCartCount = 0;
+    const oneHourAgo = new Date(now.getTime() - 60 * 60000).toISOString();
+    const twoHoursAgoCart = new Date(now.getTime() - 2 * 3600000).toISOString();
+    const { data: abandonedCarts } = await db.from('abandoned_carts')
+      .select('id, email, buyer_name, product_id, organization_id, reminder_sent_count, digital_products(title), organizations(name, currency)')
+      .eq('converted', false)
+      .eq('reminder_sent_count', 0)
+      .lte('opened_at', oneHourAgo)
+      .gte('opened_at', twoHoursAgoCart)
+      .limit(30);
+    for (const cart of abandonedCarts || []) {
+      const cartEmail = cart.email || (cart.user_id ? await getUserEmail(cart.user_id) : null);
+      const prod = (cart as any).digital_products;
+      const org = (cart as any).organizations;
+      if (cartEmail && prod && org) {
+        await sendEmail({
+          template: 'abandoned_cart_reminder' as any,
+          to: cartEmail,
+          data: {
+            buyer_name: cart.buyer_name || '',
+            product_title: prod.title,
+            org_name: org.name,
+            currency: org.currency || 'XOF',
+          },
+          organization_id: cart.organization_id,
+        });
+        await db.from('abandoned_carts')
+          .update({ reminder_sent_count: 1, last_reminder_at: now.toISOString() })
+          .eq('id', cart.id);
+        abandonedCartCount++;
+      }
+    }
+    results['abandoned_cart_recovery'] = abandonedCartCount;
+
     return new Response(JSON.stringify({ ok: true, results }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });

@@ -31,8 +31,10 @@ import { useStreak, useBadges, useRecordActivity, useCheckAndAwardBadges, BADGE_
 import { useEffect } from 'react';
 import { Flame, Award as AwardIcon, Trophy, CreditCard, MessageCircle } from 'lucide-react';
 import { useMySubscriptions } from '@/hooks/useSubscriptions';
-import { AmbassadorOnlyDashboard } from '@/components/ambassador/AmbassadorOnlyDashboard';
 import { BuyerLoyaltyCard } from '@/components/gamification/BuyerLoyaltyCard';
+import { ReferralWidget } from '@/components/referral/ReferralWidget';
+import { UserMilestoneTracker } from '@/components/gamification/UserMilestoneTracker';
+import { AmbassadorOnlyDashboard } from '@/components/ambassador/AmbassadorOnlyDashboard';
 
 const statusColor: Record<string, string> = {
   completed: 'bg-green-500/15 text-green-600 dark:text-green-400',
@@ -431,8 +433,21 @@ export default function UserDashboard() {
           </motion.div>
         )}
 
-        {/* ══ BUYER LOYALTY ══ */}
-        <BuyerLoyaltyCard />
+        {/* ══ BUYER LOYALTY + MILESTONES ══ */}
+        <div className="grid lg:grid-cols-2 gap-3">
+          <BuyerLoyaltyCard />
+          <UserMilestoneTracker
+            purchases={purchases.filter(p => p.status === 'completed').length}
+            donations={donations.filter(d => d.status === 'completed').length}
+            orgsJoined={userOrgs.length}
+            streak={streak?.current_streak || 0}
+            badges={badges.length}
+            affiliateLinks={affiliateLinks.length}
+          />
+        </div>
+
+        {/* ══ REFERRAL PROGRAM ══ */}
+        <ReferralWidget />
 
         {/* ══ QUICK ACTIONS ══ */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
