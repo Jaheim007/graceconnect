@@ -68,12 +68,11 @@ function mixByOrg(products: any[]): any[] {
 /** Multiply content: shuffle and repeat to create an endless-feeling feed */
 function multiplyContent(items: any[]): any[] {
   if (items.length === 0) return [];
-  if (items.length >= 40) return items; // Already enough
-  const target = Math.max(60, items.length * 3);
+  if (items.length >= 200) return items;
+  const target = Math.max(200, items.length * 5);
   const result = [...items];
   let round = 1;
   while (result.length < target) {
-    // Shuffle a copy and append with unique keys
     const shuffled = [...items].sort(() => Math.random() - 0.5);
     for (const item of shuffled) {
       if (result.length >= target) break;
