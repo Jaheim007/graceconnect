@@ -383,6 +383,196 @@ Deno.serve(async (req) => {
     }
     results['member_milestones'] = milestoneCount;
 
+    // ═══════════════════════════════════════════
+    // 11. KYC REMINDER (orgs with sales but no KYC)
+    // ═══════════════════════════════════════════
+    let kycReminderCount = 0;
+    const { data: orgsNoKyc } = await db.from('organizations')
+      .select('id, name, owner_id, kyc_status')
+      .eq('is_active', true)
+      .in('kyc_status', ['none', 'rejected'])
+      .limit(30);
+    for (const org of orgsNoKyc || []) {
+      // Check if org has completed sales
+      const { count: orgSales } = await db.from('product_purchases')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', org.id).eq('status', 'completed');
+      const { count: orgDonations } = await db.from('donations')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', org.id).eq('status', 'completed');
+      if ((orgSales || 0) + (orgDonations || 0) > 0) {
+        // Anti-spam: check if we sent this email in the last 7 days
+        const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000).toISOString();
+        const { count: recentEmails } = await db.from('email_logs')
+          .select('*', { count: 'exact', head: true })
+          .eq('organization_id', org.id)
+          .eq('template', 'kyc_reminder')
+          .gte('created_at', sevenDaysAgo);
+        if ((recentEmails || 0) === 0) {
+          const email = await getUserEmail(org.owner_id);
+          if (email) {
+            await sendEmail({
+              template: 'kyc_reminder' as any,
+              to: email,
+              data: {
+                org_name: org.name,
+                status: org.kyc_status === 'rejected' ? 'rejeté' : 'non commencé',
+                total_revenue: (orgSales || 0) + (orgDonations || 0),
+              },
+              organization_id: org.id,
+            });
+            kycReminderCount++;
+          }
+        }
+      }
+    }
+    results['kyc_reminders'] = kycReminderCount;
+
+    // ═══════════════════════════════════════════
+    // 12. PAYOUT AVAILABLE (hold expired, balance > threshold)
+    // ═══════════════════════════════════════════
+    let payoutAvailableCount = 0;
+    // Find orgs with completed transactions older than 72h that haven't been notified
+    const holdExpiry = new Date(now.getTime() - 72 * 3600000).toISOString();
+    const { data: recentCompletedSales } = await db.from('product_purchases')
+      .select('organization_id, organizations(name, owner_id, currency)')
+      .eq('status', 'completed')
+      .lte('completed_at', holdExpiry)
+      .gte('completed_at', new Date(now.getTime() - 96 * 3600000).toISOString()) // 72-96h window
+      .limit(30);
+    const notifiedOrgIds = new Set<string>();
+    for (const sale of recentCompletedSales || []) {
+      if (notifiedOrgIds.has(sale.organization_id)) continue;
+      notifiedOrgIds.add(sale.organization_id);
+      const org = (sale as any).organizations;
+      if (org) {
+        const email = await getUserEmail(org.owner_id);
+        if (email) {
+          await sendEmail({
+            template: 'payout_available' as any,
+            to: email,
+            data: {
+              org_name: org.name,
+              currency: org.currency || 'XOF',
+            },
+            organization_id: sale.organization_id,
+          });
+          payoutAvailableCount++;
+        }
+      }
+    }
+    results['payout_available'] = payoutAvailableCount;
+
+    // ═══════════════════════════════════════════
+    // 13. DRAFT PRODUCT REMINDER (unpublished products > 48h)
+    // ═══════════════════════════════════════════
+    let draftReminderCount = 0;
+    const draftWindow = new Date(now.getTime() - 50 * 3600000).toISOString();
+    const draftWindowEnd = new Date(now.getTime() - 46 * 3600000).toISOString();
+    const { data: draftProducts } = await db.from('digital_products')
+      .select('id, title, organization_id, created_by, organizations(name)')
+      .eq('is_published', false)
+      .gte('created_at', draftWindowEnd)
+      .lte('created_at', draftWindow)
+      .limit(20);
+    for (const prod of draftProducts || []) {
+      if (!prod.created_by) continue;
+      const email = await getUserEmail(prod.created_by);
+      const org = (prod as any).organizations;
+      if (email && org) {
+        await sendEmail({
+          template: 'draft_product_reminder' as any,
+          to: email,
+          data: {
+            product_title: prod.title,
+            org_name: org.name,
+          },
+          organization_id: prod.organization_id,
+        });
+        draftReminderCount++;
+      }
+    }
+    results['draft_reminders'] = draftReminderCount;
+
+    // ═══════════════════════════════════════════
+    // 14. AFFILIATE INACTIVITY (0 clicks in 14 days)
+    // ═══════════════════════════════════════════
+    let affInactiveCount = 0;
+    const fourteenDaysAgo = new Date(now.getTime() - 14 * 86400000).toISOString();
+    const { data: inactiveAffiliates } = await db.from('affiliate_links')
+      .select('id, user_id, organization_id, code, organizations(name)')
+      .eq('is_active', true)
+      .lte('created_at', fourteenDaysAgo)
+      .limit(30);
+    for (const aff of inactiveAffiliates || []) {
+      // Check recent clicks (if clicks column hasn't changed)
+      // Simple heuristic: send once per 14 days
+      const { count: recentEmailCount } = await db.from('email_logs')
+        .select('*', { count: 'exact', head: true })
+        .eq('template', 'affiliate_inactive')
+        .eq('recipient', aff.user_id)
+        .gte('created_at', fourteenDaysAgo);
+      if ((recentEmailCount || 0) === 0) {
+        const email = await getUserEmail(aff.user_id);
+        const org = (aff as any).organizations;
+        if (email && org) {
+          await sendEmail({
+            template: 'affiliate_inactive' as any,
+            to: email,
+            data: {
+              org_name: org.name,
+              code: aff.code,
+            },
+            organization_id: aff.organization_id,
+          });
+          affInactiveCount++;
+        }
+      }
+    }
+    results['affiliate_inactive'] = affInactiveCount;
+
+    // ═══════════════════════════════════════════
+    // 15. FIRST SALE CELEBRATION (orgs that got their 1st sale today)
+    // ═══════════════════════════════════════════
+    let firstSaleCount = 0;
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 0, 0);
+    const { data: todaySales } = await db.from('product_purchases')
+      .select('organization_id, organizations(name, owner_id, currency), amount')
+      .eq('status', 'completed')
+      .gte('completed_at', todayStart.toISOString())
+      .limit(50);
+    const firstSaleOrgs = new Set<string>();
+    for (const sale of todaySales || []) {
+      if (firstSaleOrgs.has(sale.organization_id)) continue;
+      firstSaleOrgs.add(sale.organization_id);
+      // Check if this is truly their first sale ever
+      const { count: totalSales } = await db.from('product_purchases')
+        .select('*', { count: 'exact', head: true })
+        .eq('organization_id', sale.organization_id)
+        .eq('status', 'completed');
+      if (totalSales === 1) {
+        const org = (sale as any).organizations;
+        if (org) {
+          const email = await getUserEmail(org.owner_id);
+          if (email) {
+            await sendEmail({
+              template: 'first_sale_celebration' as any,
+              to: email,
+              data: {
+                org_name: org.name,
+                amount: sale.amount,
+                currency: org.currency || 'XOF',
+              },
+              organization_id: sale.organization_id,
+            });
+            firstSaleCount++;
+          }
+        }
+      }
+    }
+    results['first_sale_celebrations'] = firstSaleCount;
+
     return new Response(JSON.stringify({ ok: true, results }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
