@@ -23,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TrendingBanner } from '@/components/discover/TrendingBanner';
 import { DiscoverCTABanner } from '@/components/discover/DiscoverCTABanner';
 import { LiveActivityTicker } from '@/components/discover/LiveActivityTicker';
-import { PlatformStats } from '@/components/discover/PlatformStats';
+
 import { Offering } from '@/hooks/useOfferings';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
@@ -65,6 +65,25 @@ function mixByOrg(products: any[]): any[] {
   }
   return result;
 }
+/** Multiply content: shuffle and repeat to create an endless-feeling feed */
+function multiplyContent(items: any[]): any[] {
+  if (items.length === 0) return [];
+  if (items.length >= 40) return items; // Already enough
+  const target = Math.max(60, items.length * 3);
+  const result = [...items];
+  let round = 1;
+  while (result.length < target) {
+    // Shuffle a copy and append with unique keys
+    const shuffled = [...items].sort(() => Math.random() - 0.5);
+    for (const item of shuffled) {
+      if (result.length >= target) break;
+      result.push({ ...item, id: `${item.id}_r${round}_${Math.random().toString(36).slice(2, 6)}` });
+    }
+    round++;
+  }
+  return result;
+}
+
 type PriceFilter = 'all' | 'free' | 'paid';
 type ProductTypeFilter = '' | 'pdf' | 'ebook' | 'audio' | 'video' | 'link' | 'bundle';
 
@@ -124,7 +143,9 @@ export default function DiscoverPage() {
         organization_logo: p.organizations?.logo_url,
       }));
       // Apply mix algorithm for default view
-      return sortBy === 'mixed' ? mixByOrg(mapped) : mapped;
+      const mixed = sortBy === 'mixed' ? mixByOrg(mapped) : mapped;
+      // Multiply content to create an endless-feeling feed
+      return multiplyContent(mixed);
     },
     enabled: tab === 'products',
   });
@@ -197,7 +218,6 @@ export default function DiscoverPage() {
         <PageTour pageId="discover" steps={DISCOVER_TOUR_STEPS} />
 
         <LiveActivityTicker />
-        <PlatformStats />
         {!isSearching && !user && <DiscoverCTABanner />}
         {!isSearching && <TrendingBanner />}
 
@@ -272,7 +292,7 @@ export default function DiscoverPage() {
           {/* ═══ Campaigns Tab ═══ */}
           <TabsContent value="campaigns">
             {loadingCampaigns ? <SkeletonList count={6} /> : campaigns.length === 0 ? (
-              <EmptyState variant="search" title={t('discover.no_campaigns')} />
+              <EmptyState variant="search" title={locale === 'fr' ? 'Aucune campagne visible trouvée' : 'No visible campaigns found'} description={locale === 'fr' ? 'Essayez d\'ajuster votre recherche ou vos filtres.' : 'Try adjusting your search or filters.'} />
             ) : (
               <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 {campaigns.map((c: any) => (
@@ -287,7 +307,7 @@ export default function DiscoverPage() {
           {/* ═══ Offerings/Dons Tab ═══ */}
           <TabsContent value="offerings">
             {loadingOfferings ? <SkeletonList count={6} /> : offerings.length === 0 ? (
-              <EmptyState variant="generic" title={locale === 'fr' ? 'Aucun don disponible' : 'No donations available'} description={locale === 'fr' ? 'Aucune organisation n\'a configuré de dons pour le moment.' : 'No organizations have configured donations yet.'} />
+              <EmptyState variant="generic" title={locale === 'fr' ? 'Aucun don visible trouvé' : 'No visible donations found'} description={locale === 'fr' ? 'Essayez d\'ajuster votre recherche ou vos filtres.' : 'Try adjusting your search or filters.'} />
             ) : (
               <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 {offerings.map((o: any) => (
