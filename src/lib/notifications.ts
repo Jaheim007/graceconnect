@@ -221,10 +221,10 @@ export async function onContentPublished(
   });
 
   // Notify all affiliates about new promotable content
-  if (['product', 'campaign', 'program'].includes(contentType)) {
+  // IMPORTANT: No commissions on donations/campaigns — only products and paid programs
+  if (['product', 'program'].includes(contentType)) {
     const affiliateTemplates: Record<string, EmailTemplate> = {
       product: 'affiliate_new_product',
-      campaign: 'affiliate_new_campaign',
       program: 'affiliate_new_program',
     };
     notifyOrgAffiliates(
@@ -243,13 +243,14 @@ export async function onContentPublished(
 }
 
 // ── Notify affiliates: content unpublished ──
+// Only for products and programs — no commissions on campaigns/donations
 export async function onContentUnpublished(
   orgId: string,
   orgName: string,
-  contentType: 'product' | 'campaign' | 'program',
+  contentType: 'product' | 'program',
   contentTitle: string,
 ) {
-  const labels: Record<string, string> = { product: 'produit', campaign: 'campagne', program: 'programme' };
+  const labels: Record<string, string> = { product: 'produit', program: 'programme' };
   notifyOrgAffiliates(
     orgId, orgName,
     `⚠️ ${labels[contentType].charAt(0).toUpperCase() + labels[contentType].slice(1)} retiré`,

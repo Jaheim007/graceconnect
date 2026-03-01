@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Sparkles } from 'lucide-react';
-import { onContentPublished, onContentUnpublished } from '@/lib/notifications';
+import { onContentPublished } from '@/lib/notifications';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/db';
@@ -110,9 +110,7 @@ export function CampaignForm() {
         if (!item.is_published && payload.is_published) {
           onContentPublished(currentOrg.id, currentOrg.name, 'campaign', payload.title, id!, {}, user.id);
         }
-        if (item.is_published && !payload.is_published) {
-          onContentUnpublished(currentOrg.id, currentOrg.name, 'campaign', payload.title);
-        }
+        // No affiliate unpublish notification for campaigns — no commissions on donations
       }
 
       toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
