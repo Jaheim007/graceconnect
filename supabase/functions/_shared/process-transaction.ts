@@ -215,17 +215,9 @@ export async function processTransaction(
       }
     }
 
-    // Update campaign amount (non-atomic — noted as known risk)
+    // Update campaign amount (atomic via DB function)
     if (campaign_id) {
-      const { data: campaign } = await db.from('donation_campaigns')
-        .select('current_amount')
-        .eq('id', campaign_id)
-        .single();
-      if (campaign) {
-        await db.from('donation_campaigns')
-          .update({ current_amount: (campaign.current_amount || 0) + amountPaid })
-          .eq('id', campaign_id);
-      }
+      await db.rpc('increment_campaign_amount', { _campaign_id: campaign_id, _amount: amountPaid });
     }
   } else {
     // Product purchase
@@ -285,16 +277,8 @@ export async function processTransaction(
       }
     }
 
-    // Increment sales_count (non-atomic — known risk, acceptable for now)
-    const { data: prod } = await db.from('digital_products')
-      .select('sales_count')
-      .eq('id', product_id)
-      .single();
-    if (prod) {
-      await db.from('digital_products')
-        .update({ sales_count: (prod.sales_count || 0) + 1 })
-        .eq('id', product_id);
-    }
+    // Increment sales_count (atomic via DB function)
+    await db.rpc('increment_sales_count', { _product_id: product_id });
   }
 
   // ── 7. Affiliate sales record + notification ──

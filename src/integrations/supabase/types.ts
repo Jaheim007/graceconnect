@@ -3235,6 +3235,24 @@ export type Database = {
           },
         ]
       }
+      rate_limits: {
+        Row: {
+          count: number
+          key: string
+          window_start: string
+        }
+        Insert: {
+          count?: number
+          key: string
+          window_start?: string
+        }
+        Update: {
+          count?: number
+          key?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       refund_requests: {
         Row: {
           admin_notes: string | null
@@ -3902,6 +3920,11 @@ export type Database = {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
       }
+      check_rate_limit: {
+        Args: { _key: string; _max?: number; _window_seconds?: number }
+        Returns: Json
+      }
+      cleanup_rate_limits: { Args: never; Returns: undefined }
       compute_partner_level: { Args: { _partner_id: string }; Returns: number }
       create_organization_with_owner:
         | {
@@ -3931,7 +3954,15 @@ export type Database = {
         Returns: Database["public"]["Enums"]["org_member_role"]
       }
       get_partner_rate: { Args: { _partner_id: string }; Returns: number }
+      increment_campaign_amount: {
+        Args: { _amount: number; _campaign_id: string }
+        Returns: undefined
+      }
       increment_like_count: { Args: { media_id: string }; Returns: undefined }
+      increment_sales_count: {
+        Args: { _product_id: string }
+        Returns: undefined
+      }
       increment_short_link_clicks: {
         Args: { _code: string }
         Returns: undefined
