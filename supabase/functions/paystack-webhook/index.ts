@@ -2,25 +2,13 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { createHmac } from 'node:crypto';
 import { getPaystackSecretKey } from '../_shared/paystack-key.ts';
 import { processTransaction, TransactionError } from '../_shared/process-transaction.ts';
+import { rateLimit } from '../_shared/rate-limit.ts';
 
 /**
  * paystack-webhook: Receives Paystack webhook events.
  * Handles charge.success, disputes, transfers.
  * Delegates transaction recording to shared processTransaction().
  */
-
-const requestCounts = new Map<string, { count: number; windowStart: number }>();
-function checkRateLimit(ip: string | null, max = 60): boolean {
-  const key = ip || 'unknown';
-  const now = Date.now();
-  const entry = requestCounts.get(key);
-  if (!entry || now - entry.windowStart > 60000) {
-    requestCounts.set(key, { count: 1, windowStart: now });
-    return true;
-  }
-  entry.count++;
-  return entry.count <= max;
-}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -31,7 +19,8 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('cf-connecting-ip');
-  if (!checkRateLimit(clientIp, 60)) {
+  const rl = await rateLimit(clientIp, 60);
+  if (!rl.allowed) {
     return new Response('Rate limited', { status: 429 });
   }
 
