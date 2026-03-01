@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import {
   Settings, Image, FileText, Play, CalendarDays,
   Heart, ShoppingBag, Eye, EyeOff, GripVertical, HandHeart,
-  HelpCircle, Camera, Link2, Palette, Check, ChevronDown, ChevronUp, Plus
+  HelpCircle, Camera, Link2, Palette, Check, ChevronDown, ChevronUp, Plus, GraduationCap
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
@@ -30,6 +30,7 @@ const SECTION_META: Record<string, { icon: any; label_fr: string; label_en: stri
   content: { icon: Play, label_fr: 'Contenu média', label_en: 'Media Content' },
   photos: { icon: Camera, label_fr: 'Photos', label_en: 'Photos' },
   events: { icon: CalendarDays, label_fr: 'Événements', label_en: 'Events' },
+  programs: { icon: GraduationCap, label_fr: 'Formations', label_en: 'Programs' },
 };
 
 const PRESET_COLORS = [
@@ -84,7 +85,7 @@ export function OrgAdminToolbar({
     navigate(path);
   }, [currentOrg, orgId, userOrgs, setCurrentOrg, navigate]);
 
-  const sectionOrder = pageSettings?.section_order || ['products', 'offerings', 'campaigns', 'content', 'photos', 'events'];
+  const sectionOrder = pageSettings?.section_order || ['products', 'offerings', 'campaigns', 'content', 'programs', 'photos', 'events'];
   const hiddenSections = pageSettings?.hidden_sections || [];
   const currentPrimary = pageSettings?.theme_primary_color || '220 80% 50%';
   const currentAccent = pageSettings?.theme_accent_color || '45 90% 55%';
@@ -147,7 +148,9 @@ export function OrgAdminToolbar({
           <QuickAction icon={Image} label={isFr ? 'Modifier logo' : 'Edit logo'} onClick={() => adminNavigate(`/admin/settings`)} />
           <QuickAction icon={FileText} label={isFr ? 'Modifier description' : 'Edit description'} onClick={() => adminNavigate(`/admin/settings`)} />
           <QuickAction icon={ShoppingBag} label={isFr ? 'Ajouter produit' : 'Add product'} onClick={() => adminNavigate(`/admin/products/new`)} />
+          <QuickAction icon={HandHeart} label={isFr ? 'Ajouter don' : 'Add donation'} onClick={() => adminNavigate(`/admin/offerings`)} />
           <QuickAction icon={Play} label={isFr ? 'Ajouter contenu' : 'Add content'} onClick={() => adminNavigate(`/admin/media/new`)} />
+          <QuickAction icon={GraduationCap} label={isFr ? 'Ajouter formation' : 'Add program'} onClick={() => adminNavigate(`/admin/programs/new`)} />
           <QuickAction icon={CalendarDays} label={isFr ? 'Ajouter événement' : 'Add event'} onClick={() => adminNavigate(`/admin/events/new`)} />
           <QuickAction icon={Heart} label={isFr ? 'Ajouter campagne' : 'Add campaign'} onClick={() => adminNavigate(`/admin/campaigns/new`)} />
           <QuickAction icon={Camera} label={isFr ? 'Ajouter photos' : 'Add photos'} onClick={() => adminNavigate(`/admin/photos`)} />
