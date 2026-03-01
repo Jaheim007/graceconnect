@@ -114,7 +114,7 @@ export function LiveActivityTicker() {
       // Real purchases
       const { data: purchases } = await db
         .from('product_purchases')
-        .select('id, created_at, digital_products(title), organizations(name)')
+        .select('id, created_at, digital_products(title, organizations(name))')
         .eq('status', 'completed')
         .order('created_at', { ascending: false })
         .limit(10);
@@ -122,7 +122,7 @@ export function LiveActivityTicker() {
       if (purchases) {
         for (const p of purchases) {
           const prod = (p as any).digital_products?.title;
-          const org = (p as any).organizations?.name;
+          const org = (p as any).digital_products?.organizations?.name;
           if (prod && org) {
             results.push({
               id: `purchase-${p.id}`,

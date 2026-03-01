@@ -229,7 +229,7 @@ export function GlobalActivityBar() {
 
       const { data: purchases } = await db
         .from('product_purchases')
-        .select('id, created_at, digital_products(title), organizations(name)')
+        .select('id, created_at, digital_products(title, organizations(name))')
         .eq('status', 'completed')
         .order('created_at', { ascending: false })
         .limit(15);
