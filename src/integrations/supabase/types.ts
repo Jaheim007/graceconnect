@@ -864,6 +864,7 @@ export type Database = {
           dispute_status: string | null
           donor_email: string | null
           donor_name: string | null
+          gateway: string | null
           id: string
           is_recurring: boolean | null
           organization_amount: number | null
@@ -890,6 +891,7 @@ export type Database = {
           dispute_status?: string | null
           donor_email?: string | null
           donor_name?: string | null
+          gateway?: string | null
           id?: string
           is_recurring?: boolean | null
           organization_amount?: number | null
@@ -916,6 +918,7 @@ export type Database = {
           dispute_status?: string | null
           donor_email?: string | null
           donor_name?: string | null
+          gateway?: string | null
           id?: string
           is_recurring?: boolean | null
           organization_amount?: number | null
@@ -2562,6 +2565,7 @@ export type Database = {
           discount_amount: number | null
           dispute_id: string | null
           dispute_status: string | null
+          gateway: string | null
           id: string
           invoice_number: string | null
           organization_amount: number | null
@@ -2587,6 +2591,7 @@ export type Database = {
           discount_amount?: number | null
           dispute_id?: string | null
           dispute_status?: string | null
+          gateway?: string | null
           id?: string
           invoice_number?: string | null
           organization_amount?: number | null
@@ -2612,6 +2617,7 @@ export type Database = {
           discount_amount?: number | null
           dispute_id?: string | null
           dispute_status?: string | null
+          gateway?: string | null
           id?: string
           invoice_number?: string | null
           organization_amount?: number | null
