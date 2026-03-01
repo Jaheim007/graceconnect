@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Sparkles } from 'lucide-react';
+import { onContentPublished, onContentUnpublished } from '@/lib/notifications';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/db';
@@ -97,6 +98,23 @@ export function CampaignForm() {
         ({ error } = await db.from('donation_campaigns').insert(payload));
       }
       if (error) throw error;
+
+      // Fire notifications
+      if (!isEdit && payload.is_published) {
+        onContentPublished(currentOrg.id, currentOrg.name, 'campaign', payload.title, '', {
+          goal_amount: String(payload.goal_amount || 0),
+          currency: payload.currency,
+        }, user.id);
+      }
+      if (isEdit && item) {
+        if (!item.is_published && payload.is_published) {
+          onContentPublished(currentOrg.id, currentOrg.name, 'campaign', payload.title, id!, {}, user.id);
+        }
+        if (item.is_published && !payload.is_published) {
+          onContentUnpublished(currentOrg.id, currentOrg.name, 'campaign', payload.title);
+        }
+      }
+
       toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
       navigate('/admin/campaigns');
     } catch (err: any) {

@@ -65,6 +65,44 @@ async function notifyOrgMembers(
   }
 }
 
+// ── Notify all affiliates of an org (in-app + email) ──
+async function notifyOrgAffiliates(
+  orgId: string,
+  orgName: string,
+  title: string,
+  body: string,
+  template: EmailTemplate,
+  emailData: Record<string, string | number>,
+  type: string = 'affiliate',
+) {
+  try {
+    const { data: links } = await db.from('affiliate_links')
+      .select('user_id')
+      .eq('organization_id', orgId)
+      .eq('is_active', true);
+    if (!links?.length) return;
+
+    // Deduplicate user_ids
+    const uniqueUserIds = Array.from(new Set<string>(links.map(l => String(l.user_id))));
+
+    // Fetch emails for all affiliates
+    const { data: profiles } = await db.from('profiles')
+      .select('id, email')
+      .in('id', uniqueUserIds);
+    const emailMap = new Map<string, string>((profiles || []).map(p => [p.id as string, p.email as string]));
+
+    for (const userId of uniqueUserIds) {
+      notify(userId, title, body, type, orgId);
+      const email = emailMap.get(userId);
+      if (email) {
+        sendEmailNotification(template, email, { ...emailData, org_name: orgName }, orgId).catch(() => {});
+      }
+    }
+  } catch (e) {
+    console.error('notifyOrgAffiliates failed:', e);
+  }
+}
+
 // ── Email to org members (via edge function) ──
 function emailOrgAdmins(template: EmailTemplate, orgId: string, data: Record<string, string | number>) {
   sendEmailNotification(template, '', data, orgId).catch(() => {});
@@ -163,14 +201,11 @@ export async function onContentPublished(
     product: 'produit', campaign: 'campagne', program: 'programme',
   };
 
+  const notifTitle = `${icons[contentType]} Nouveau ${labels[contentType]}`;
+  const notifBody = `${orgName} a publié : "${contentTitle}"`;
+
   // In-app notification to all members
-  notifyOrgMembers(
-    orgId,
-    `${icons[contentType]} Nouveau ${labels[contentType]}`,
-    `${orgName} a publié : "${contentTitle}"`,
-    'org',
-    publisherId,
-  );
+  notifyOrgMembers(orgId, notifTitle, notifBody, 'org', publisherId);
 
   // Email to org admins with the right template
   emailOrgAdmins(templates[contentType], orgId, {
@@ -184,6 +219,62 @@ export async function onContentPublished(
     org_link: `https://siteviral.com/org/${orgId}`,
     ...extraData,
   });
+
+  // Notify all affiliates about new promotable content
+  if (['product', 'campaign', 'program'].includes(contentType)) {
+    const affiliateTemplates: Record<string, EmailTemplate> = {
+      product: 'affiliate_new_product',
+      campaign: 'affiliate_new_campaign',
+      program: 'affiliate_new_program',
+    };
+    notifyOrgAffiliates(
+      orgId, orgName,
+      `🚀 Nouveau ${labels[contentType]} à promouvoir !`,
+      `${orgName} vient d'ajouter un nouveau ${labels[contentType]} : "${contentTitle}". Partagez-le avec votre audience pour gagner des commissions !`,
+      affiliateTemplates[contentType],
+      {
+        content_title: contentTitle,
+        content_type: labels[contentType],
+        org_link: `https://siteviral.com/org/${orgId}`,
+        ...extraData,
+      },
+    );
+  }
+}
+
+// ── Notify affiliates: content unpublished ──
+export async function onContentUnpublished(
+  orgId: string,
+  orgName: string,
+  contentType: 'product' | 'campaign' | 'program',
+  contentTitle: string,
+) {
+  const labels: Record<string, string> = { product: 'produit', campaign: 'campagne', program: 'programme' };
+  notifyOrgAffiliates(
+    orgId, orgName,
+    `⚠️ ${labels[contentType].charAt(0).toUpperCase() + labels[contentType].slice(1)} retiré`,
+    `Le ${labels[contentType]} "${contentTitle}" de ${orgName} a été dépublié. Retirez-le de vos promotions.`,
+    'affiliate_content_unpublished',
+    { content_title: contentTitle, content_type: labels[contentType] },
+  );
+}
+
+// ── Notify affiliates: price changed ──
+export async function onProductPriceChanged(
+  orgId: string,
+  orgName: string,
+  productTitle: string,
+  oldPrice: number,
+  newPrice: number,
+  currency: string,
+) {
+  notifyOrgAffiliates(
+    orgId, orgName,
+    '💲 Prix modifié',
+    `Le prix de "${productTitle}" est passé de ${oldPrice} à ${newPrice} ${currency}. Mettez à jour vos communications !`,
+    'affiliate_price_changed',
+    { content_title: productTitle, old_price: oldPrice, new_price: newPrice, currency },
+  );
 }
 
 // ── Content liked ──
