@@ -168,6 +168,8 @@ export type EmailTemplate =
   | 'affiliate_sale' | 'affiliate_payout_requested' | 'affiliate_payout_completed'
   | 'affiliate_welcome' | 'affiliate_first_click' | 'affiliate_first_conversion'
   | 'affiliate_commission_payable' | 'affiliate_monthly_recap'
+  | 'affiliate_new_product' | 'affiliate_new_campaign' | 'affiliate_new_program'
+  | 'affiliate_price_changed' | 'affiliate_content_unpublished'
   | 'pre_subaccount_settled'
   // Partners
   | 'partner_welcome' | 'partner_rejected' | 'partner_suspended' | 'partner_unsuspended'

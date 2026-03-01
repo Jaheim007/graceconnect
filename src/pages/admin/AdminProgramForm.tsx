@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { onContentPublished, onContentUnpublished } from '@/lib/notifications';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProgram, useProgramModules, useCreateProgram, useUpdateProgram, useCreateModule, useDeleteModule, useCreateLesson, useDeleteLesson } from '@/hooks/usePrograms';
@@ -77,6 +78,7 @@ export function ProgramForm() {
     setSaving(true);
     try {
       if (isEdit) {
+        const wasPublished = existingProgram?.is_published;
         await updateProgram.mutateAsync({
           id: id!,
           title: title.trim(),
@@ -84,6 +86,15 @@ export function ProgramForm() {
           cover_image_url: coverUrl || undefined,
           is_published: isPublished,
         });
+        // Detect publish/unpublish changes
+        if (currentOrg) {
+          if (!wasPublished && isPublished) {
+            onContentPublished(currentOrg.id, currentOrg.name, 'program', title.trim(), id!, {}, user.id);
+          }
+          if (wasPublished && !isPublished) {
+            onContentUnpublished(currentOrg.id, currentOrg.name, 'program', title.trim());
+          }
+        }
         toast({ title: '✅ Programme mis à jour' });
       } else {
         const result = await createProgram.mutateAsync({
@@ -94,6 +105,10 @@ export function ProgramForm() {
           is_published: isPublished,
           created_by: user.id,
         });
+        // Notify on new published program
+        if (isPublished && currentOrg) {
+          onContentPublished(currentOrg.id, currentOrg.name, 'program', title.trim(), result.id, {}, user.id);
+        }
         toast({ title: '✅ Programme créé' });
         navigate(`/admin/programs/${result.id}/edit`, { replace: true });
       }

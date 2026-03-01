@@ -32,6 +32,8 @@ type EmailTemplate =
   | 'affiliate_sale' | 'affiliate_payout_requested' | 'affiliate_payout_completed'
   | 'affiliate_welcome' | 'affiliate_first_click' | 'affiliate_first_conversion'
   | 'affiliate_commission_payable' | 'affiliate_monthly_recap'
+  | 'affiliate_new_product' | 'affiliate_new_campaign' | 'affiliate_new_program'
+  | 'affiliate_price_changed' | 'affiliate_content_unpublished'
   // Partners
   | 'partner_welcome' | 'partner_rejected' | 'partner_suspended' | 'partner_unsuspended'
   | 'partner_kyc_approved' | 'partner_kyc_rejected' | 'partner_payout_sent'
@@ -224,6 +226,18 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
       return { subject: `💰 Commission disponible – ${d.amount} ${d.currency}`, html: wrap(`<h1 style="color:${green}">💰 Commission Disponible</h1><p>Votre commission de <strong>${d.amount} ${d.currency}</strong> depuis <strong>${d.org_name}</strong> a passé le délai de sécurité de 15 jours et est maintenant disponible pour retrait.</p>${cta('https://siteviral.com/affiliation', 'Demander un retrait')}`) };
      case 'affiliate_monthly_recap':
       return { subject: `📊 Récap mensuel ambassadeur`, html: wrap(`<h1 style="color:${blue}">📊 Récap Mensuel Ambassadeur</h1><p>Voici votre résumé pour <strong>${d.month}</strong> :</p><ul style="color:#ccc"><li>Clics : ${d.clicks || 0}</li><li>Conversions : ${d.conversions || 0}</li><li>Gains : ${d.earnings || 0} ${d.currency || 'XOF'}</li></ul>`) };
+
+    // ═══ AFFILIATE CONTENT NOTIFICATIONS ═══
+    case 'affiliate_new_product':
+      return { subject: `🚀 Nouveau produit à promouvoir – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🚀 Nouveau Produit Disponible !</h1><p><strong>${d.org_name}</strong> vient d'ajouter un nouveau produit :</p><p style="font-size:18px;font-weight:bold;color:#fff">"${d.content_title}"</p>${d.price ? `<p>Prix : <strong>${d.price} ${d.currency || 'XOF'}</strong></p>` : ''}<p>Partagez-le avec votre audience pour gagner des commissions sur chaque vente !</p>${cta(d.org_link || 'https://siteviral.com', 'Voir le produit')}`) };
+    case 'affiliate_new_campaign':
+      return { subject: `🎯 Nouvelle campagne à promouvoir – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🎯 Nouvelle Campagne de Dons</h1><p><strong>${d.org_name}</strong> a lancé une nouvelle campagne :</p><p style="font-size:18px;font-weight:bold;color:#fff">"${d.content_title}"</p><p>Partagez cette campagne avec votre réseau pour aider à atteindre l'objectif et gagner des commissions !</p>${cta(d.org_link || 'https://siteviral.com', 'Voir la campagne')}`) };
+    case 'affiliate_new_program':
+      return { subject: `🎓 Nouvelle formation à promouvoir – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🎓 Nouvelle Formation Disponible</h1><p><strong>${d.org_name}</strong> propose une nouvelle formation :</p><p style="font-size:18px;font-weight:bold;color:#fff">"${d.content_title}"</p><p>Partagez-la pour gagner des commissions sur chaque inscription !</p>${cta(d.org_link || 'https://siteviral.com', 'Voir la formation')}`) };
+    case 'affiliate_price_changed':
+      return { subject: `💲 Changement de prix – "${d.content_title}"`, html: wrap(`<h1 style="color:${orange}">💲 Prix Modifié</h1><p>Le prix de <strong>"${d.content_title}"</strong> chez <strong>${d.org_name}</strong> a changé :</p><p style="font-size:16px">Ancien prix : <span style="text-decoration:line-through">${d.old_price} ${d.currency}</span></p><p style="font-size:18px;color:${green}">Nouveau prix : <strong>${d.new_price} ${d.currency}</strong></p><p>Mettez à jour vos communications en conséquence.</p>`) };
+    case 'affiliate_content_unpublished':
+      return { subject: `⚠️ Contenu retiré – "${d.content_title}"`, html: wrap(`<h1 style="color:${orange}">⚠️ Contenu Dépublié</h1><p>Le ${d.content_type} <strong>"${d.content_title}"</strong> de <strong>${d.org_name}</strong> a été retiré de la vente.</p><p>Veuillez retirer ce contenu de vos promotions et liens de partage.</p>`) };
 
     // ═══ PARTNERS ═══
     case 'partner_welcome':

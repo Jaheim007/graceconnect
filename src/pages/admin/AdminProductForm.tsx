@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Copy, ExternalLink, Share2, CheckCircle, Plus, Eye, Trash2, PackagePlus, ArrowUpRight, HelpCircle, Shield, MessageSquareQuote, Sparkles } from 'lucide-react';
+import { onContentPublished, onContentUnpublished, onProductPriceChanged } from '@/lib/notifications';
 import { z } from 'zod';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -155,6 +156,29 @@ export function ProductForm() {
         resultData = res.data;
       }
       if (error) throw error;
+
+      // Fire notifications for new products or status changes
+      if (!isEdit && resultData && payload.is_published) {
+        onContentPublished(currentOrg.id, currentOrg.name, 'product', payload.title, resultData.id, {
+          price: String(payload.price || 0),
+          currency: payload.currency,
+        }, user.id);
+      }
+      // For edits: detect publish/unpublish and price changes
+      if (isEdit && item) {
+        if (!item.is_published && payload.is_published) {
+          onContentPublished(currentOrg.id, currentOrg.name, 'product', payload.title, id!, {
+            price: String(payload.price || 0),
+            currency: payload.currency,
+          }, user.id);
+        }
+        if (item.is_published && !payload.is_published) {
+          onContentUnpublished(currentOrg.id, currentOrg.name, 'product', payload.title);
+        }
+        if (item.price !== payload.price && payload.is_published) {
+          onProductPriceChanged(currentOrg.id, currentOrg.name, payload.title, item.price || 0, payload.price, payload.currency);
+        }
+      }
 
       // Trigger preview generation in background if file is uploaded
       const productIdForPreview = isEdit ? id : resultData?.id;
