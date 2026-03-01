@@ -77,7 +77,62 @@ Deno.serve(async (req) => {
       event = JSON.parse(rawBody);
     }
 
-    // Only handle checkout.session.completed
+    // ── Handle dispute events ──
+    if (event.type === 'charge.dispute.created' || event.type === 'charge.dispute.updated' || event.type === 'charge.dispute.closed') {
+      const dispute = event.data.object;
+      const chargeId = dispute.charge;
+      const disputeStatus = dispute.status; // needs_response, under_review, won, lost
+      const disputeId = dispute.id;
+      const reason = dispute.reason || 'unknown';
+
+      console.log(`[stripe-webhook] Dispute ${event.type}: ${disputeId} status=${disputeStatus} reason=${reason}`);
+
+      // Find transaction by stripe charge — check both tables
+      for (const tbl of ['donations', 'product_purchases'] as const) {
+        const { data: txn } = await db.from(tbl)
+          .select('id, paystack_reference')
+          .eq('gateway', 'stripe')
+          .like('paystack_reference', `%${chargeId}%`)
+          .maybeSingle();
+
+        if (!txn) {
+          // Also try via payment_intent on the charge
+          if (dispute.payment_intent) {
+            const { data: txn2 } = await db.from(tbl)
+              .select('id, paystack_reference')
+              .eq('gateway', 'stripe')
+              .like('paystack_reference', `%${dispute.payment_intent}%`)
+              .maybeSingle();
+            if (txn2) {
+              await db.from(tbl).update({
+                dispute_id: disputeId,
+                dispute_status: disputeStatus,
+              }).eq('id', txn2.id);
+            }
+          }
+          continue;
+        }
+
+        await db.from(tbl).update({
+          dispute_id: disputeId,
+          dispute_status: disputeStatus,
+        }).eq('id', txn.id);
+      }
+
+      // Audit log
+      await db.from('audit_logs').insert({
+        action: `stripe.dispute.${disputeStatus}`,
+        resource_type: 'dispute',
+        resource_id: disputeId,
+        metadata: { reason, charge: chargeId, amount: dispute.amount, currency: dispute.currency },
+      });
+
+      return new Response(JSON.stringify({ received: true, dispute: disputeId }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Only handle checkout.session.completed for payments
     if (event.type !== 'checkout.session.completed') {
       return new Response(JSON.stringify({ received: true, skipped: event.type }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
