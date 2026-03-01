@@ -209,6 +209,7 @@ Deno.serve(async (req) => {
 
     // For ORG payouts: vendor funds sit in the org's Paystack subaccount.
     // We release by switching settlement_schedule from 'manual' to 'auto'.
+    // SAFETY: Use a DB lock flag to prevent stuck 'auto' state on crash.
     if (payout.payout_type === 'org' && payout.organization_id) {
       // Verify settlement_status = 'released' for enough funds
       const { data: releasedDonations } = await db.from('donations')
@@ -248,7 +249,17 @@ Deno.serve(async (req) => {
 
       let transferResult: Record<string, unknown> = {};
       if (org?.paystack_subaccount_code) {
-        // Update subaccount to auto settlement to release funds
+        // ── SAFETY LOCK: Set processing state BEFORE switching to auto ──
+        await db.from('payout_requests').update({
+          status: 'processing',
+          metadata: {
+            ...payout.metadata,
+            settlement_switch_started: new Date().toISOString(),
+            expected_settlement_mode: 'manual',
+          },
+        }).eq('id', payout_request_id);
+
+        // Switch to auto to release funds
         const psRes = await fetch(`https://api.paystack.co/subaccount/${org.paystack_subaccount_code}`, {
           method: 'PUT',
           headers: { Authorization: `Bearer ${PAYSTACK_SECRET}`, 'Content-Type': 'application/json' },
@@ -257,16 +268,40 @@ Deno.serve(async (req) => {
         const psData = await psRes.json();
         transferResult = psData;
 
-        // Immediately revert back to manual (must be synchronous — setTimeout won't fire after response)
-        try {
-          await fetch(`https://api.paystack.co/subaccount/${org.paystack_subaccount_code}`, {
-            method: 'PUT',
-            headers: { Authorization: `Bearer ${PAYSTACK_SECRET}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ settlement_schedule: 'manual' }),
+        // Immediately revert back to manual
+        let revertSuccess = false;
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            const revertRes = await fetch(`https://api.paystack.co/subaccount/${org.paystack_subaccount_code}`, {
+              method: 'PUT',
+              headers: { Authorization: `Bearer ${PAYSTACK_SECRET}`, 'Content-Type': 'application/json' },
+              body: JSON.stringify({ settlement_schedule: 'manual' }),
+            });
+            const revertData = await revertRes.json();
+            if (revertData.status) {
+              revertSuccess = true;
+              break;
+            }
+          } catch (e) {
+            console.error(`Failed to revert settlement_schedule to manual (attempt ${attempt + 1}):`, e);
+            if (attempt < 2) await new Promise(r => setTimeout(r, 1000)); // Wait 1s before retry
+          }
+        }
+
+        if (!revertSuccess) {
+          // Critical: log alert for manual intervention
+          await db.from('platform_alerts').insert({
+            alert_type: 'settlement_mode_stuck',
+            severity: 'critical',
+            title: `Subaccount ${org.paystack_subaccount_code} stuck in AUTO mode`,
+            details: {
+              organization_id: payout.organization_id,
+              payout_request_id,
+              subaccount_code: org.paystack_subaccount_code,
+              action_required: 'Manually revert settlement_schedule to manual via Paystack dashboard',
+            },
           });
-        } catch (e) {
-          console.error('Failed to revert settlement_schedule to manual:', e);
-          // Non-fatal: Paystack will still process the settlement
+          console.error(`CRITICAL: Subaccount ${org.paystack_subaccount_code} may be stuck in auto mode!`);
         }
       }
 
