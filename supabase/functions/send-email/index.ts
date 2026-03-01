@@ -230,8 +230,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
     // ═══ AFFILIATE CONTENT NOTIFICATIONS ═══
     case 'affiliate_new_product':
       return { subject: `🚀 Nouveau produit à promouvoir – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🚀 Nouveau Produit Disponible !</h1><p><strong>${d.org_name}</strong> vient d'ajouter un nouveau produit :</p><p style="font-size:18px;font-weight:bold;color:#fff">"${d.content_title}"</p>${d.price ? `<p>Prix : <strong>${d.price} ${d.currency || 'XOF'}</strong></p>` : ''}<p>Partagez-le avec votre audience pour gagner des commissions sur chaque vente !</p>${cta(d.org_link || 'https://siteviral.com', 'Voir le produit')}`) };
-    case 'affiliate_new_campaign':
-      return { subject: `🎯 Nouvelle campagne à promouvoir – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🎯 Nouvelle Campagne de Dons</h1><p><strong>${d.org_name}</strong> a lancé une nouvelle campagne :</p><p style="font-size:18px;font-weight:bold;color:#fff">"${d.content_title}"</p><p>Partagez cette campagne avec votre réseau pour aider à atteindre l'objectif et gagner des commissions !</p>${cta(d.org_link || 'https://siteviral.com', 'Voir la campagne')}`) };
+    // affiliate_new_campaign intentionally removed — no commissions on donations/campaigns
     case 'affiliate_new_program':
       return { subject: `🎓 Nouvelle formation à promouvoir – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">🎓 Nouvelle Formation Disponible</h1><p><strong>${d.org_name}</strong> propose une nouvelle formation :</p><p style="font-size:18px;font-weight:bold;color:#fff">"${d.content_title}"</p><p>Partagez-la pour gagner des commissions sur chaque inscription !</p>${cta(d.org_link || 'https://siteviral.com', 'Voir la formation')}`) };
     case 'affiliate_price_changed':
