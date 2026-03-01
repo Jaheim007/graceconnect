@@ -65,7 +65,7 @@ async function resolveShortCode(code: string): Promise<{ targetPath: string; met
   if (error || !data) return null;
 
   // Increment clicks (fire-and-forget)
-  supabase.rpc('increment_short_link_clicks', { _code: code }).catch(() => {});
+  supabase.rpc('increment_short_link_clicks', { _code: code }).then(() => {}, () => {});
 
   return { targetPath: data.target_path, meta: data };
 }
