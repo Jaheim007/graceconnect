@@ -20,10 +20,37 @@ Deno.serve(async (req) => {
   const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
 
   try {
-    const { reference, session_id } = await req.json();
+    const body = await req.json();
+    let reference = body.reference;
+    const session_id = body.session_id;
+
+    // ── If no reference but we have session_id, resolve reference from Stripe ──
+    if (!reference && session_id) {
+      const sessionRes = await fetch(`https://api.stripe.com/v1/checkout/sessions/${session_id}`, {
+        headers: { 'Authorization': `Bearer ${STRIPE_SECRET}` },
+      });
+      if (sessionRes.ok) {
+        const session = await sessionRes.json();
+        // Try payment_intent metadata first
+        let meta = session.metadata || {};
+        if (session.payment_intent && typeof session.payment_intent === 'string') {
+          try {
+            const piRes = await fetch(`https://api.stripe.com/v1/payment_intents/${session.payment_intent}`, {
+              headers: { 'Authorization': `Bearer ${STRIPE_SECRET}` },
+            });
+            const pi = await piRes.json();
+            if (pi.metadata?.sv_reference) meta = pi.metadata;
+          } catch { /* use session metadata */ }
+        }
+        if (meta.sv_reference) {
+          reference = meta.sv_reference;
+          console.log('[stripe-verify] Resolved reference from session_id:', reference);
+        }
+      }
+    }
 
     if (!reference) {
-      return new Response(JSON.stringify({ error: 'Missing reference' }), {
+      return new Response(JSON.stringify({ error: 'Missing reference', hint: 'No reference could be resolved from URL or Stripe session' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
@@ -31,6 +58,8 @@ Deno.serve(async (req) => {
     // ── Step 1: Check if already in DB (webhook already processed) ──
     const existingResult = await checkDatabase(db, reference);
     if (existingResult) {
+      // Include the resolved reference so frontend can use it
+      existingResult.reference = reference;
       return new Response(JSON.stringify(existingResult), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -39,7 +68,7 @@ Deno.serve(async (req) => {
     // ── Step 2: Verify with Stripe API ──
     if (!session_id) {
       return new Response(JSON.stringify({
-        ok: false, pending: true,
+        ok: false, pending: true, reference,
         message: 'Transaction is being processed. Please wait a moment.',
       }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
@@ -52,7 +81,7 @@ Deno.serve(async (req) => {
     if (!sessionRes.ok) {
       console.error('[stripe-verify] Failed to fetch session from Stripe');
       return new Response(JSON.stringify({
-        ok: false, pending: true,
+        ok: false, pending: true, reference,
         message: 'Unable to verify with Stripe. Please wait.',
       }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
@@ -62,7 +91,7 @@ Deno.serve(async (req) => {
     // Verify payment status
     if (session.payment_status !== 'paid') {
       return new Response(JSON.stringify({
-        ok: false, pending: true,
+        ok: false, pending: true, reference,
         message: 'Payment not yet confirmed by Stripe.',
       }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
@@ -80,11 +109,10 @@ Deno.serve(async (req) => {
     }
 
     // Validate metadata matches our reference
-    if (meta.sv_reference !== reference) {
+    if (meta.sv_reference && meta.sv_reference !== reference) {
       console.error('[stripe-verify] Reference mismatch:', meta.sv_reference, reference);
-      return new Response(JSON.stringify({ error: 'Reference mismatch' }), {
-        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      // Use the reference from Stripe metadata as source of truth
+      reference = meta.sv_reference;
     }
 
     const type = meta.type as 'donation' | 'product';
@@ -409,6 +437,7 @@ Deno.serve(async (req) => {
 
     return new Response(JSON.stringify({
       ok: true,
+      reference,
       transaction_id: transactionId,
       breakdown: {
         amount: amountPaid,

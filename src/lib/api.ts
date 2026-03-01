@@ -50,7 +50,10 @@ export interface VerifyPaymentArgs {
 export interface VerifyPaymentResult {
   ok: boolean;
   transaction_id: string;
+  reference?: string;
   idempotent?: boolean;
+  pending?: boolean;
+  message?: string;
   breakdown: {
     amount: number;
     currency: string;

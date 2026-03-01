@@ -42,7 +42,7 @@ export default function PaymentSuccessPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const reference = searchParams.get('reference') || searchParams.get('trxref') || '';
+  const rawReference = searchParams.get('reference') || searchParams.get('trxref') || '';
   const gateway = searchParams.get('gateway') || 'paystack';
   const sessionId = searchParams.get('session_id') || '';
   const urlType = searchParams.get('type') as 'donation' | 'product' | null;
@@ -55,73 +55,147 @@ export default function PaymentSuccessPage() {
   const [error, setError] = useState('');
   const [retryCount, setRetryCount] = useState(0);
 
+  // Mutable reference that can be updated by stripe-verify
+  const referenceRef = useRef(rawReference);
+  const reference = rawReference;
+
   // Use refs to avoid stale closure issues in the polling loop
   const abortRef = useRef(false);
-  const MAX_RETRIES = 6;
+  const MAX_RETRIES = 8;
 
-  /** Try to find the transaction in the DB. Returns the details or null. */
-  const lookupTransaction = useCallback(async (): Promise<TransactionDetails | null> => {
-    // Try product purchase first
-    const { data: purchase } = await db
-      .from('product_purchases')
-      .select('*, digital_products(id, title, product_type, file_url, external_link, cover_image_url, organization_id, organizations(name, logo_url, leader_name, leader_title))')
-      .eq('paystack_reference', reference)
-      .limit(1)
-      .maybeSingle();
+  /** Try to find the transaction in the DB by reference or user_id. */
+  const lookupTransaction = useCallback(async (ref?: string): Promise<TransactionDetails | null> => {
+    const searchRef = ref || referenceRef.current;
+    
+    // Strategy 1: Lookup by reference
+    if (searchRef) {
+      const { data: purchase } = await db
+        .from('product_purchases')
+        .select('*, digital_products(id, title, product_type, file_url, external_link, cover_image_url, organization_id, organizations(name, logo_url, leader_name, leader_title))')
+        .eq('paystack_reference', searchRef)
+        .limit(1)
+        .maybeSingle();
 
-    if (purchase) {
-      const product = purchase.digital_products;
-      const org = product?.organizations;
-      return {
-        type: 'product',
-        reference: purchase.paystack_reference,
-        amount: purchase.amount,
-        currency: purchase.currency || 'XOF',
-        status: purchase.status,
-        created_at: purchase.completed_at || purchase.created_at,
-        product_title: product?.title,
-        product_type: product?.product_type,
-        product_id: product?.id,
-        file_url: product?.file_url,
-        external_link: product?.external_link,
-        cover_image_url: product?.cover_image_url,
-        org_name: org?.name || 'Organisation',
-        org_logo: org?.logo_url,
-        leader_name: org?.leader_name,
-        leader_title: org?.leader_title,
-      };
+      if (purchase) {
+        const product = purchase.digital_products;
+        const org = product?.organizations;
+        return {
+          type: 'product',
+          reference: purchase.paystack_reference,
+          amount: purchase.amount,
+          currency: purchase.currency || 'XOF',
+          status: purchase.status,
+          created_at: purchase.completed_at || purchase.created_at,
+          product_title: product?.title,
+          product_type: product?.product_type,
+          product_id: product?.id,
+          file_url: product?.file_url,
+          external_link: product?.external_link,
+          cover_image_url: product?.cover_image_url,
+          org_name: org?.name || 'Organisation',
+          org_logo: org?.logo_url,
+          leader_name: org?.leader_name,
+          leader_title: org?.leader_title,
+        };
+      }
+
+      const { data: donation } = await db
+        .from('donations')
+        .select('*, donation_campaigns(title), organizations(name, logo_url, leader_name, leader_title)')
+        .eq('paystack_reference', searchRef)
+        .limit(1)
+        .maybeSingle();
+
+      if (donation) {
+        const org = donation.organizations;
+        return {
+          type: 'donation',
+          reference: donation.paystack_reference,
+          amount: donation.amount,
+          currency: donation.currency || 'XOF',
+          status: donation.status,
+          created_at: donation.completed_at || donation.created_at,
+          campaign_title: donation.donation_campaigns?.title,
+          org_name: org?.name || 'Organisation',
+          org_logo: org?.logo_url,
+          leader_name: org?.leader_name,
+          leader_title: org?.leader_title,
+        };
+      }
     }
 
-    // Try donation
-    const { data: donation } = await db
-      .from('donations')
-      .select('*, donation_campaigns(title), organizations(name, logo_url, leader_name, leader_title)')
-      .eq('paystack_reference', reference)
-      .limit(1)
-      .maybeSingle();
+    // Strategy 2: Fallback — lookup most recent completed purchase by user (last 5 min)
+    if (user?.id) {
+      const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+      const { data: recentPurchase } = await db
+        .from('product_purchases')
+        .select('*, digital_products(id, title, product_type, file_url, external_link, cover_image_url, organization_id, organizations(name, logo_url, leader_name, leader_title))')
+        .eq('user_id', user.id)
+        .eq('status', 'completed')
+        .gte('completed_at', fiveMinAgo)
+        .order('completed_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-    if (donation) {
-      const org = donation.organizations;
-      return {
-        type: 'donation',
-        reference: donation.paystack_reference,
-        amount: donation.amount,
-        currency: donation.currency || 'XOF',
-        status: donation.status,
-        created_at: donation.completed_at || donation.created_at,
-        campaign_title: donation.donation_campaigns?.title,
-        org_name: org?.name || 'Organisation',
-        org_logo: org?.logo_url,
-        leader_name: org?.leader_name,
-        leader_title: org?.leader_title,
-      };
+      if (recentPurchase) {
+        const product = recentPurchase.digital_products;
+        const org = product?.organizations;
+        referenceRef.current = recentPurchase.paystack_reference;
+        return {
+          type: 'product',
+          reference: recentPurchase.paystack_reference,
+          amount: recentPurchase.amount,
+          currency: recentPurchase.currency || 'XOF',
+          status: recentPurchase.status,
+          created_at: recentPurchase.completed_at || recentPurchase.created_at,
+          product_title: product?.title,
+          product_type: product?.product_type,
+          product_id: product?.id,
+          file_url: product?.file_url,
+          external_link: product?.external_link,
+          cover_image_url: product?.cover_image_url,
+          org_name: org?.name || 'Organisation',
+          org_logo: org?.logo_url,
+          leader_name: org?.leader_name,
+          leader_title: org?.leader_title,
+        };
+      }
+
+      const { data: recentDonation } = await db
+        .from('donations')
+        .select('*, donation_campaigns(title), organizations(name, logo_url, leader_name, leader_title)')
+        .eq('user_id', user.id)
+        .eq('status', 'completed')
+        .gte('completed_at', fiveMinAgo)
+        .order('completed_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (recentDonation) {
+        const org = recentDonation.organizations;
+        referenceRef.current = recentDonation.paystack_reference;
+        return {
+          type: 'donation',
+          reference: recentDonation.paystack_reference,
+          amount: recentDonation.amount,
+          currency: recentDonation.currency || 'XOF',
+          status: recentDonation.status,
+          created_at: recentDonation.completed_at || recentDonation.created_at,
+          campaign_title: recentDonation.donation_campaigns?.title,
+          org_name: org?.name || 'Organisation',
+          org_logo: org?.logo_url,
+          leader_name: org?.leader_name,
+          leader_title: org?.leader_title,
+        };
+      }
     }
 
     return null;
-  }, [reference]);
+  }, [reference, user?.id]);
 
   useEffect(() => {
-    if (!reference) {
+    // Allow proceeding with session_id alone for Stripe
+    if (!reference && !sessionId) {
       setError('Aucune référence de transaction trouvée.');
       setLoading(false);
       return;
@@ -158,13 +232,16 @@ export default function PaymentSuccessPage() {
         if (!verifierCalled) {
           verifierCalled = true;
 
-          if (gateway === 'stripe' && sessionId) {
+          if ((gateway === 'stripe' || sessionId) && sessionId) {
             try {
-              const result = await verifyStripePayment(reference, sessionId);
+              const result = await verifyStripePayment(referenceRef.current || '', sessionId);
+              // Update reference if resolved from Stripe
+              if (result?.reference && !referenceRef.current) {
+                referenceRef.current = result.reference;
+              }
               if (result?.ok) {
-                // Give DB a moment to commit, then re-check
                 await wait(1500);
-                const found2 = await lookupTransaction();
+                const found2 = await lookupTransaction(referenceRef.current);
                 if (found2) {
                   setTx(found2);
                   setLoading(false);
@@ -174,11 +251,11 @@ export default function PaymentSuccessPage() {
             } catch (verifyErr) {
               console.error('[PaymentSuccess] stripe-verify error:', verifyErr);
             }
-          } else if (reference.startsWith('SV-') && urlType && urlOrgId) {
+          } else if (referenceRef.current.startsWith('SV-') && urlType && urlOrgId) {
             try {
               const { verifyPayment } = await import('@/lib/api');
               const result = await verifyPayment({
-                reference,
+                reference: referenceRef.current,
                 type: urlType,
                 organization_id: urlOrgId,
                 campaign_id: urlCampaignId || undefined,
