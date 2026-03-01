@@ -1,20 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { sendEmail, getUserEmail } from '../_shared/send-email-helper.ts';
 import { getPaystackSecretKey } from '../_shared/paystack-key.ts';
-
-// Simple in-memory rate limiter
-const requestCounts = new Map<string, { count: number; windowStart: number }>();
-function checkRateLimit(ip: string | null, max = 10): boolean {
-  const key = ip || 'unknown';
-  const now = Date.now();
-  const entry = requestCounts.get(key);
-  if (!entry || now - entry.windowStart > 60000) {
-    requestCounts.set(key, { count: 1, windowStart: now });
-    return true;
-  }
-  entry.count++;
-  return entry.count <= max;
-}
+import { rateLimit } from '../_shared/rate-limit.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -26,7 +13,8 @@ Deno.serve(async (req) => {
 
   // Rate limiting (strict for payouts)
   const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('cf-connecting-ip');
-  if (!checkRateLimit(clientIp, 10)) {
+  const rl = await rateLimit(clientIp, 10);
+  if (!rl.allowed) {
     return new Response(JSON.stringify({ error: 'Too many requests' }), {
       status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });

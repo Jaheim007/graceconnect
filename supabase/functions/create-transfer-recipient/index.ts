@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getPaystackSecretKey } from '../_shared/paystack-key.ts';
+import { rateLimit } from '../_shared/rate-limit.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -43,25 +44,12 @@ const COUNTRY_CONFIG: Record<string, { currency: string; momo_providers: { code:
   RW: { currency: 'RWF', momo_providers: [{ code: 'mtn-rw', label: 'MTN MoMo' }], bank_type: 'mobile_money' },
 };
 
-// Rate limiter
-const requestCounts = new Map<string, { count: number; windowStart: number }>();
-function checkRateLimit(ip: string | null, max = 5): boolean {
-  const key = ip || 'unknown';
-  const now = Date.now();
-  const entry = requestCounts.get(key);
-  if (!entry || now - entry.windowStart > 60000) {
-    requestCounts.set(key, { count: 1, windowStart: now });
-    return true;
-  }
-  entry.count++;
-  return entry.count <= max;
-}
-
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('cf-connecting-ip');
-  if (!checkRateLimit(clientIp, 5)) {
+  const rl = await rateLimit(clientIp, 5);
+  if (!rl.allowed) {
     return new Response(JSON.stringify({ error: 'Too many requests' }), {
       status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
