@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -34,6 +34,9 @@ interface TransactionDetails {
   campaign_title?: string;
 }
 
+/** Small helper: wait ms */
+const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
+
 export default function PaymentSuccessPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -42,17 +45,80 @@ export default function PaymentSuccessPage() {
   const reference = searchParams.get('reference') || searchParams.get('trxref') || '';
   const gateway = searchParams.get('gateway') || 'paystack';
   const sessionId = searchParams.get('session_id') || '';
-  // Extra params for Paystack fallback verification
   const urlType = searchParams.get('type') as 'donation' | 'product' | null;
   const urlOrgId = searchParams.get('organization_id') || '';
   const urlCampaignId = searchParams.get('campaign_id') || '';
   const urlProductId = searchParams.get('product_id') || '';
+
   const [tx, setTx] = useState<TransactionDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [stripeVerified, setStripeVerified] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
-  const MAX_RETRIES = 4;
+
+  // Use refs to avoid stale closure issues in the polling loop
+  const abortRef = useRef(false);
+  const MAX_RETRIES = 6;
+
+  /** Try to find the transaction in the DB. Returns the details or null. */
+  const lookupTransaction = useCallback(async (): Promise<TransactionDetails | null> => {
+    // Try product purchase first
+    const { data: purchase } = await db
+      .from('product_purchases')
+      .select('*, digital_products(id, title, product_type, file_url, external_link, cover_image_url, organization_id, organizations(name, logo_url, leader_name, leader_title))')
+      .eq('paystack_reference', reference)
+      .limit(1)
+      .maybeSingle();
+
+    if (purchase) {
+      const product = purchase.digital_products;
+      const org = product?.organizations;
+      return {
+        type: 'product',
+        reference: purchase.paystack_reference,
+        amount: purchase.amount,
+        currency: purchase.currency || 'XOF',
+        status: purchase.status,
+        created_at: purchase.completed_at || purchase.created_at,
+        product_title: product?.title,
+        product_type: product?.product_type,
+        product_id: product?.id,
+        file_url: product?.file_url,
+        external_link: product?.external_link,
+        cover_image_url: product?.cover_image_url,
+        org_name: org?.name || 'Organisation',
+        org_logo: org?.logo_url,
+        leader_name: org?.leader_name,
+        leader_title: org?.leader_title,
+      };
+    }
+
+    // Try donation
+    const { data: donation } = await db
+      .from('donations')
+      .select('*, donation_campaigns(title), organizations(name, logo_url, leader_name, leader_title)')
+      .eq('paystack_reference', reference)
+      .limit(1)
+      .maybeSingle();
+
+    if (donation) {
+      const org = donation.organizations;
+      return {
+        type: 'donation',
+        reference: donation.paystack_reference,
+        amount: donation.amount,
+        currency: donation.currency || 'XOF',
+        status: donation.status,
+        created_at: donation.completed_at || donation.created_at,
+        campaign_title: donation.donation_campaigns?.title,
+        org_name: org?.name || 'Organisation',
+        org_logo: org?.logo_url,
+        leader_name: org?.leader_name,
+        leader_title: org?.leader_title,
+      };
+    }
+
+    return null;
+  }, [reference]);
 
   useEffect(() => {
     if (!reference) {
@@ -60,132 +126,103 @@ export default function PaymentSuccessPage() {
       setLoading(false);
       return;
     }
-    fetchTransaction();
+    abortRef.current = false;
+    runVerificationLoop();
+    return () => { abortRef.current = true; };
   }, [reference]);
 
-  async function fetchTransaction() {
-    try {
-      // Try product purchase first
-      const { data: purchase } = await db
-        .from('product_purchases')
-        .select('*, digital_products(id, title, product_type, file_url, external_link, cover_image_url, organization_id, organizations(name, logo_url, leader_name, leader_title))')
-        .eq('paystack_reference', reference)
-        .limit(1)
-        .maybeSingle();
+  /**
+   * Main verification loop — runs sequentially with proper retry logic.
+   * 1. Check DB
+   * 2. If not found & Stripe: call stripe-verify (which creates the record)
+   * 3. If not found & Paystack: call verify-payment (which creates the record)
+   * 4. Poll DB with increasing delays
+   */
+  async function runVerificationLoop() {
+    let attempt = 0;
+    let verifierCalled = false;
 
-      if (purchase) {
-        const product = purchase.digital_products;
-        const org = product?.organizations;
-        setTx({
-          type: 'product',
-          reference: purchase.paystack_reference,
-          amount: purchase.amount,
-          currency: purchase.currency || 'XOF',
-          status: purchase.status,
-          created_at: purchase.completed_at || purchase.created_at,
-          product_title: product?.title,
-          product_type: product?.product_type,
-          product_id: product?.id,
-          file_url: product?.file_url,
-          external_link: product?.external_link,
-          cover_image_url: product?.cover_image_url,
-          org_name: org?.name || 'Organisation',
-          org_logo: org?.logo_url,
-          leader_name: org?.leader_name,
-          leader_title: org?.leader_title,
-        });
-        setLoading(false);
-        return;
-      }
+    while (attempt <= MAX_RETRIES && !abortRef.current) {
+      setRetryCount(attempt);
 
-      // Try donation
-      const { data: donation } = await db
-        .from('donations')
-        .select('*, donation_campaigns(title), organizations(name, logo_url, leader_name, leader_title)')
-        .eq('paystack_reference', reference)
-        .limit(1)
-        .maybeSingle();
+      try {
+        // ── Step A: Look up in DB ──
+        const found = await lookupTransaction();
+        if (found) {
+          setTx(found);
+          setLoading(false);
+          return;
+        }
 
-      if (donation) {
-        const org = donation.organizations;
-        setTx({
-          type: 'donation',
-          reference: donation.paystack_reference,
-          amount: donation.amount,
-          currency: donation.currency || 'XOF',
-          status: donation.status,
-          created_at: donation.completed_at || donation.created_at,
-          campaign_title: donation.donation_campaigns?.title,
-          org_name: org?.name || 'Organisation',
-          org_logo: org?.logo_url,
-          leader_name: org?.leader_name,
-          leader_title: org?.leader_title,
-        });
-        setLoading(false);
-        return;
-      }
+        // ── Step B: Call the appropriate verifier (only once) ──
+        if (!verifierCalled) {
+          verifierCalled = true;
 
-      // Not found in DB — if Stripe and not yet verified, call stripe-verify
-      if (gateway === 'stripe' && sessionId && !stripeVerified) {
-        setStripeVerified(true);
-        try {
-          const result = await verifyStripePayment(reference, sessionId);
-          if (result.ok) {
-            await fetchTransaction();
-            return;
+          if (gateway === 'stripe' && sessionId) {
+            try {
+              const result = await verifyStripePayment(reference, sessionId);
+              if (result?.ok) {
+                // Give DB a moment to commit, then re-check
+                await wait(1500);
+                const found2 = await lookupTransaction();
+                if (found2) {
+                  setTx(found2);
+                  setLoading(false);
+                  return;
+                }
+              }
+            } catch (verifyErr) {
+              console.error('[PaymentSuccess] stripe-verify error:', verifyErr);
+            }
+          } else if (reference.startsWith('SV-') && urlType && urlOrgId) {
+            try {
+              const { verifyPayment } = await import('@/lib/api');
+              const result = await verifyPayment({
+                reference,
+                type: urlType,
+                organization_id: urlOrgId,
+                campaign_id: urlCampaignId || undefined,
+                product_id: urlProductId || undefined,
+              });
+              if (result?.ok) {
+                await wait(1500);
+                const found2 = await lookupTransaction();
+                if (found2) {
+                  setTx(found2);
+                  setLoading(false);
+                  return;
+                }
+              }
+            } catch (verifyErr) {
+              console.error('[PaymentSuccess] paystack verify fallback error:', verifyErr);
+            }
           }
-        } catch (verifyErr) {
-          console.error('[PaymentSuccess] stripe-verify error:', verifyErr);
+        }
+
+        // ── Step C: Wait before next poll ──
+        attempt++;
+        if (attempt <= MAX_RETRIES) {
+          const delay = Math.min(2000 * attempt, 8000); // 2s, 4s, 6s, 8s, 8s, 8s
+          await wait(delay);
+        }
+      } catch (err) {
+        console.error('[PaymentSuccess] poll error:', err);
+        attempt++;
+        if (attempt <= MAX_RETRIES) {
+          await wait(3000);
         }
       }
+    }
 
-      // Paystack fallback: if we have URL params, try calling verify-payment directly
-      if (reference.startsWith('SV-') && urlType && urlOrgId && retryCount === 0) {
-        setRetryCount(1);
-        try {
-          const { verifyPayment } = await import('@/lib/api');
-          const result = await verifyPayment({
-            reference,
-            type: urlType,
-            organization_id: urlOrgId,
-            campaign_id: urlCampaignId || undefined,
-            product_id: urlProductId || undefined,
-          });
-          if (result.ok) {
-            await fetchTransaction();
-            return;
-          }
-        } catch (verifyErr) {
-          console.error('[PaymentSuccess] paystack verify-payment fallback error:', verifyErr);
-        }
-      }
-
-      // Auto-retry with delay (webhook may be slow)
-      if (retryCount < MAX_RETRIES) {
-        const delay = (retryCount + 1) * 3000; // 3s, 6s, 9s, 12s
-        setRetryCount(prev => prev + 1);
-        setTimeout(() => fetchTransaction(), delay);
-        return;
-      }
-
-      setError('Votre paiement a bien été reçu par le processeur. La confirmation peut prendre quelques instants. Vous pouvez rafraîchir cette page ou vérifier dans "Mon espace".');
-      setLoading(false);
-    } catch (err) {
-      console.error('[PaymentSuccess] fetch error:', err);
-
-      // Retry on network errors too
-      if (retryCount < MAX_RETRIES) {
-        const delay = (retryCount + 1) * 3000;
-        setRetryCount(prev => prev + 1);
-        setTimeout(() => fetchTransaction(), delay);
-        return;
-      }
-
-      setError('Erreur lors de la récupération des détails. Votre paiement a peut-être été traité — vérifiez dans "Mon espace".');
+    // All retries exhausted
+    if (!abortRef.current) {
+      setError(
+        'Votre paiement a bien été traité. La confirmation peut prendre quelques instants. ' +
+        'Vous pouvez vérifier dans "Mes Ressources" ou rafraîchir cette page.'
+      );
       setLoading(false);
     }
   }
-
   const fmt = (n: number, cur: string) =>
     new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(n) + ` ${cur}`;
 
@@ -264,7 +301,7 @@ export default function PaymentSuccessPage() {
           <p className="text-muted-foreground text-sm">{error}</p>
           <p className="text-xs text-muted-foreground">Référence : {reference}</p>
           <div className="flex flex-col gap-2 items-center">
-            <Button onClick={() => { setLoading(true); setError(''); setRetryCount(0); fetchTransaction(); }} variant="outline" className="gap-2">
+            <Button onClick={() => { setLoading(true); setError(''); abortRef.current = false; runVerificationLoop(); }} variant="outline" className="gap-2">
               <Loader2 className="h-4 w-4" /> Vérifier à nouveau
             </Button>
             <div className="flex gap-3">
