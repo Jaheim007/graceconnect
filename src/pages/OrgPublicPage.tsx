@@ -10,6 +10,7 @@ import { useOrgMedia } from '@/hooks/useMedia';
 import { useOrgAnnouncements } from '@/hooks/useAnnouncements';
 import { useOrgEvents } from '@/hooks/useEvents';
 import { useOrgCampaigns, useOrgProducts } from '@/hooks/useMonetization';
+import { useOrgPrograms } from '@/hooks/usePrograms';
 import { useOrgOfferings, Offering } from '@/hooks/useOfferings';
 import { MediaCard } from '@/components/media/MediaCard';
 import { CampaignCard } from '@/components/donations/CampaignCard';
@@ -39,7 +40,7 @@ import { useWaitlists } from '@/hooks/useWaitlists';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { cn } from '@/lib/utils';
 import {
-  Home, ShoppingBag, Heart, Play, Camera, CalendarDays, HandHeart, Plus, ChevronDown, ChevronUp, Settings
+  Home, ShoppingBag, Heart, Play, Camera, CalendarDays, HandHeart, Plus, ChevronDown, ChevronUp, Settings, GraduationCap
 } from 'lucide-react';
 import React, { useCallback } from 'react';
 
@@ -62,8 +63,8 @@ export default function OrgPublicPage() {
 
   const hasAffiliateRef = !!searchParams.get('ref');
   const pathTab = pathname.split('/').pop();
-  const defaultTab = hasAffiliateRef && !['content', 'events', 'store', 'donate', 'offerings', 'dons', 'photos'].includes(pathTab || '') ? 'store' : 'home';
-  const activeTab = ['content', 'events', 'store', 'donate', 'offerings', 'dons', 'photos'].includes(pathTab || '') ? (pathTab === 'dons' ? 'offerings' : pathTab!) : defaultTab;
+  const defaultTab = hasAffiliateRef && !['content', 'events', 'store', 'donate', 'offerings', 'dons', 'photos', 'programs'].includes(pathTab || '') ? 'store' : 'home';
+  const activeTab = ['content', 'events', 'store', 'donate', 'offerings', 'dons', 'photos', 'programs'].includes(pathTab || '') ? (pathTab === 'dons' ? 'offerings' : pathTab!) : defaultTab;
 
   const { data: org, isLoading: orgLoading } = useOrgBySlug(slug);
   const { data: media = [] } = useOrgMedia(org?.id);
@@ -72,6 +73,8 @@ export default function OrgPublicPage() {
   const { data: campaigns = [] } = useOrgCampaigns(org?.id);
   const { data: products = [] } = useOrgProducts(org?.id);
   const { data: offerings = [] } = useOrgOfferings(org?.id);
+  const { data: programs = [] } = useOrgPrograms(org?.id);
+  const publishedPrograms = (programs as any[]).filter((p: any) => p.is_published);
   const { data: photos = [] } = useQuery({
     queryKey: ['org-photos-public', org?.id],
     queryFn: async () => {
@@ -115,7 +118,7 @@ export default function OrgPublicPage() {
   const isAdmin = org ? canManage(org.id) : false;
   const isOwner = org ? org.owner_id === user?.id : false;
   const orgAny = org as any;
-  const sectionOrder = pageSettings?.section_order || ['products', 'campaigns', 'offerings', 'content', 'photos', 'events'];
+  const sectionOrder = pageSettings?.section_order || ['products', 'offerings', 'campaigns', 'content', 'programs', 'photos', 'events'];
   const hiddenSections = new Set(pageSettings?.hidden_sections || []);
 
   // Ensure currentOrg is set to viewed org before navigating to admin
@@ -155,7 +158,7 @@ export default function OrgPublicPage() {
     setTimeout(() => tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
   };
 
-  const hasAnyContent = [products, campaigns, offerings, media, photos, events].some(arr => arr.length > 0);
+  const hasAnyContent = [products, campaigns, offerings, media, photos, events, publishedPrograms].some(arr => arr.length > 0);
 
   const toggleAffiliation = async () => {
     // Handled inside OrgAdminToolbar — kept for backwards compat
@@ -237,6 +240,7 @@ export default function OrgPublicPage() {
                     ...((offerings.length > 0 || (isAdmin && orgAny.offerings_enabled)) ? [{ value: 'offerings', label: locale === 'fr' ? 'Dons' : 'Donations', icon: HandHeart, count: offerings.length }] : []),
 
                     ...(media.length > 0 || isAdmin ? [{ value: 'content', label: t('org_public.content'), icon: Play, count: media.length }] : []),
+                    ...(publishedPrograms.length > 0 || isAdmin ? [{ value: 'programs', label: locale === 'fr' ? 'Formations' : 'Programs', icon: GraduationCap, count: publishedPrograms.length }] : []),
                     ...(photos.length > 0 || isAdmin ? [{ value: 'photos', label: t('org_public.photos'), icon: Camera, count: photos.length }] : []),
                     ...(events.length > 0 || isAdmin ? [{ value: 'events', label: t('org_public.events'), icon: CalendarDays, count: events.length }] : []),
                   ].map((tab) => {
@@ -270,6 +274,7 @@ export default function OrgPublicPage() {
                     media={media}
                     photos={photos}
                     events={events}
+                    programs={publishedPrograms}
                     purchasedProductIds={purchasedProductIds}
                     sectionOrder={sectionOrder}
                     hiddenSections={hiddenSections}
@@ -382,6 +387,42 @@ export default function OrgPublicPage() {
                           <div className="flex gap-4 mt-2">
                             {ev.event_date && <span className="text-xs text-muted-foreground">{new Date(ev.event_date).toLocaleDateString(dateFmt, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>}
                             {ev.location && <span className="text-xs text-primary">{ev.location}</span>}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </TabsContent>
+
+                {/* PROGRAMS */}
+                <TabsContent value="programs">
+                  {isAdmin && (
+                    <div className="mb-4">
+                      <Button size="sm" className="gap-1.5" onClick={() => adminNavigate('/admin/programs/new')}>
+                        <Plus className="h-3.5 w-3.5" /> {locale === 'fr' ? 'Ajouter formation' : 'Add program'}
+                      </Button>
+                    </div>
+                  )}
+                  {publishedPrograms.length === 0 ? (
+                    <EmptyState variant="generic" title={locale === 'fr' ? 'Aucune formation' : 'No programs'} description={locale === 'fr' ? 'Aucune formation disponible pour le moment.' : 'No programs available yet.'} />
+                  ) : (
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                      {publishedPrograms.map((prog: any) => (
+                        <div key={prog.id} className="rounded-2xl border border-border bg-card shadow-card hover:shadow-elevated transition-all cursor-pointer overflow-hidden" onClick={() => navigate(`/program/${prog.id}`)}>
+                          {prog.cover_image_url && (
+                            <div className="aspect-video overflow-hidden">
+                              <img src={prog.cover_image_url} alt={prog.title} className="w-full h-full object-cover" />
+                            </div>
+                          )}
+                          <div className="p-4">
+                            <h3 className="font-semibold text-sm mb-1">{prog.title}</h3>
+                            {prog.description && <p className="text-xs text-muted-foreground line-clamp-2 mb-2">{prog.description}</p>}
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <GraduationCap className="h-3.5 w-3.5" />
+                              <span>{prog.module_count || 0} {locale === 'fr' ? 'module(s)' : 'module(s)'}</span>
+                              <span>·</span>
+                              <span className="font-semibold text-primary">{prog.price > 0 ? `${prog.price} ${prog.currency || 'XOF'}` : locale === 'fr' ? 'Gratuit' : 'Free'}</span>
+                            </div>
                           </div>
                         </div>
                       ))}

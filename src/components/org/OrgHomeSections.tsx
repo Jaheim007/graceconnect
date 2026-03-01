@@ -6,7 +6,7 @@ import { ProductCard } from '@/components/products/ProductCard';
 import { OfferingCard } from '@/components/offerings/OfferingCard';
 import { useI18n } from '@/i18n/I18nContext';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Heart, Play, Camera, CalendarDays, HandHeart } from 'lucide-react';
+import { ShoppingBag, Heart, Play, Camera, CalendarDays, HandHeart, GraduationCap } from 'lucide-react';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { Offering } from '@/hooks/useOfferings';
 
@@ -18,6 +18,7 @@ interface OrgHomeSectionsProps {
   media: any[];
   photos: any[];
   events: any[];
+  programs: any[];
   purchasedProductIds: Set<string>;
   sectionOrder: string[];
   hiddenSections: Set<string>;
@@ -28,7 +29,7 @@ interface OrgHomeSectionsProps {
 }
 
 export function OrgHomeSections({
-  slug, products, campaigns, offerings, media, photos, events,
+  slug, products, campaigns, offerings, media, photos, events, programs,
   purchasedProductIds, sectionOrder, hiddenSections,
   onPurchase, onDonate, onSelectOffering, onPhotoClick,
 }: OrgHomeSectionsProps) {
@@ -166,6 +167,40 @@ export function OrgHomeSections({
                 <p className="text-xs text-muted-foreground">{ev.event_date ? new Date(ev.event_date).toLocaleDateString(dateFmt, { weekday: 'long' }) : t('org_public.date_tbc')}</p>
               </div>
               {ev.location && <span className="text-xs text-muted-foreground hidden sm:block">{ev.location}</span>}
+            </div>
+          ))}
+        </div>
+      </motion.section>
+    ) : null,
+
+    programs: () => programs.length > 0 ? (
+      <motion.section key="programs" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.28 }} className="rounded-2xl border border-border bg-card overflow-hidden shadow-card">
+        <div className="flex items-center justify-between px-5 pt-5 pb-3">
+          <div className="flex items-center gap-2">
+            <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center"><GraduationCap className="h-4 w-4 text-primary" /></div>
+            <div>
+              <h2 className="font-bold text-base">{locale === 'fr' ? 'Formations' : 'Programs'}</h2>
+              <p className="text-xs text-muted-foreground">{programs.length} {locale === 'fr' ? 'formation(s)' : 'program(s)'}</p>
+            </div>
+          </div>
+          {programs.length > 3 && <Button variant="outline" size="sm" className="text-xs h-8 rounded-full gap-1" onClick={() => navigateTab('programs')}>{t('org_public.view_all')} →</Button>}
+        </div>
+        <div className="space-y-2 px-5 pb-5">
+          {programs.slice(0, 3).map((prog: any) => (
+            <div key={prog.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/30 hover:bg-muted/60 transition-colors cursor-pointer" onClick={() => navigate(`/program/${prog.id}`)}>
+              {prog.cover_image_url ? (
+                <div className="h-12 w-12 rounded-xl overflow-hidden shrink-0">
+                  <img src={prog.cover_image_url} alt={prog.title} className="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <GraduationCap className="h-5 w-5 text-primary" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm truncate">{prog.title}</p>
+                <p className="text-xs text-muted-foreground">{prog.module_count || 0} {locale === 'fr' ? 'module(s)' : 'module(s)'}{prog.price > 0 ? ` · ${prog.price} ${prog.currency || 'XOF'}` : locale === 'fr' ? ' · Gratuit' : ' · Free'}</p>
+              </div>
             </div>
           ))}
         </div>
