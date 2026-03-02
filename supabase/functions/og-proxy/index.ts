@@ -3,18 +3,8 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 /**
  * og-proxy — Universal bot-aware OG proxy for SPA social previews.
  *
- * Deployment:
- *   Point your CDN (Cloudflare Worker, Vercel Edge Middleware, etc.) to route
- *   requests from social-crawler User-Agents to:
- *     https://api.siteviral.com/functions/v1/og-proxy/<path>
- *
- *   Human users are 302-redirected to the SPA at siteviral.com/<path>.
- *   Bots receive a full OG HTML page, then are also meta-refreshed to the SPA.
- *
- * Can also be called directly:
- *     /og-proxy/org/my-church
- *     /og-proxy/campaign/abc-123
- *     /og-proxy/blog/comment-vendre-ebook-afrique
+ * Bots receive a static OG HTML page (200) with proper tags.
+ * Human users are 302-redirected to the SPA at siteviral.com/<path>.
  */
 
 const SITE_URL = 'https://siteviral.com';
@@ -26,37 +16,12 @@ const DEFAULT_IMAGE = 'https://siteviral.com/og-image.png';
 // ─── Bot detection ───
 
 const BOT_UA_PATTERNS = [
-  'facebookexternalhit',
-  'facebot',
-  'whatsapp',
-  'twitterbot',
-  'linkedinbot',
-  'slackbot',
-  'slack-imgproxy',
-  'discordbot',
-  'telegrambot',
-  'googlebot',
-  'bingbot',
-  'yandexbot',
-  'baiduspider',
-  'duckduckbot',
-  'applebot',
-  'pinterestbot',
-  'redditbot',
-  'rogerbot',
-  'embedly',
-  'quora link preview',
-  'outbrain',
-  'vkshare',
-  'w3c_validator',
-  'ia_archiver',
-  'semrushbot',
-  'ahrefsbot',
-  'mj12bot',
-  'dotbot',
-  'petalbot',
-  'seznambot',
-  'megaindex',
+  'facebookexternalhit', 'facebot', 'whatsapp', 'twitterbot', 'linkedinbot',
+  'slackbot', 'slack-imgproxy', 'discordbot', 'telegrambot', 'googlebot',
+  'bingbot', 'yandexbot', 'baiduspider', 'duckduckbot', 'applebot',
+  'pinterestbot', 'redditbot', 'rogerbot', 'embedly', 'quora link preview',
+  'outbrain', 'vkshare', 'w3c_validator', 'ia_archiver', 'semrushbot',
+  'ahrefsbot', 'mj12bot', 'dotbot', 'petalbot', 'seznambot', 'megaindex',
 ];
 
 function isBot(userAgent: string): boolean {
@@ -79,6 +44,7 @@ function renderOgHtml(title: string, description: string, image: string, canonic
   const d = escapeHtml(description);
   const img = escapeHtml(image);
   const url = escapeHtml(canonicalUrl);
+  const fbAppId = Deno.env.get('FB_APP_ID') || '';
 
   return `<!doctype html>
 <html lang="fr">
@@ -95,7 +61,7 @@ function renderOgHtml(title: string, description: string, image: string, canonic
     <meta property="og:image:height" content="630" />
     <meta property="og:url" content="${url}" />
     <meta property="og:site_name" content="Siteviral" />
-    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:locale" content="fr_FR" />${fbAppId ? `\n    <meta property="fb:app_id" content="${escapeHtml(fbAppId)}" />` : ''}
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@siteviral" />
     <meta name="twitter:title" content="${t}" />
@@ -125,7 +91,6 @@ function getSupabase() {
   );
 }
 
-// Blog articles meta (hardcoded since they're in client code — mirrors blogArticles.ts)
 const BLOG_META: Record<string, { title: string; description: string }> = {
   'quest-ce-que-siteviral': { title: "Qu'est-ce que Siteviral ? Le guide complet", description: "Découvrez ce qu'est Siteviral, comment ça marche, pour qui c'est fait et pourquoi c'est différent." },
   'comment-vendre-ebook-afrique': { title: 'Comment vendre un ebook en Afrique', description: 'Guide complet pour vendre vos ebooks en Afrique avec Mobile Money via Siteviral.' },
@@ -273,11 +238,9 @@ Deno.serve(async (req) => {
   const reqUrl = new URL(req.url);
   const userAgent = req.headers.get('user-agent') || '';
 
-  // Extract the path after /og-proxy (or use ?path= param)
-  // Edge function path: /og-proxy/org/my-slug → contentPath = /org/my-slug
+  // Extract the path after /og-proxy
   let contentPath = reqUrl.searchParams.get('path');
   if (!contentPath) {
-    // Strip the function prefix from the URL path
     const fullPath = reqUrl.pathname;
     const proxyIdx = fullPath.indexOf('/og-proxy');
     if (proxyIdx !== -1) {
@@ -287,7 +250,6 @@ Deno.serve(async (req) => {
     }
   }
 
-  // Ensure leading slash
   if (!contentPath.startsWith('/')) contentPath = `/${contentPath}`;
 
   const canonicalUrl = `${SITE_URL}${contentPath}`;
@@ -303,7 +265,7 @@ Deno.serve(async (req) => {
     });
   }
 
-  // ─── Bot → serve OG HTML ───
+  // ─── Bot → serve static OG HTML (200, no redirects) ───
   let meta: MetaResult | null = null;
   try {
     meta = await resolveFromPath(contentPath);

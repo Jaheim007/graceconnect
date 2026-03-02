@@ -19,6 +19,21 @@ const escapeHtml = (v: string) =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 
+// ─── Bot detection ───
+
+const BOT_UA_PATTERNS = [
+  'facebookexternalhit', 'facebot', 'whatsapp', 'twitterbot', 'linkedinbot',
+  'slackbot', 'slack-imgproxy', 'discordbot', 'telegrambot', 'googlebot',
+  'bingbot', 'yandexbot', 'applebot', 'pinterestbot', 'redditbot',
+  'embedly', 'quora link preview', 'outbrain', 'vkshare', 'w3c_validator',
+  'semrushbot', 'ahrefsbot', 'petalbot', 'seznambot',
+];
+
+function isBot(userAgent: string): boolean {
+  const ua = userAgent.toLowerCase();
+  return BOT_UA_PATTERNS.some((p) => ua.includes(p));
+}
+
 /* ─── Static page meta map ─── */
 
 const STATIC_META: Record<string, { title: string; description: string }> = {
@@ -262,32 +277,61 @@ const isAllowedTarget = (target: URL) => {
   return host === 'siteviral.com' || host === 'www.siteviral.com' || host.endsWith('.lovable.app');
 };
 
-/* ─── HTML renderer ─── */
+/* ─── HTML renderers ─── */
 
-function renderMetaHtml(title: string, description: string, image: string, targetUrl: string): string {
-  const safeTitle = escapeHtml(title);
-  const safeDesc = escapeHtml(description);
-  const safeImage = escapeHtml(image);
-  const safeTarget = escapeHtml(targetUrl);
+/** Static OG HTML for bots — NO redirects */
+function renderBotHtml(title: string, description: string, image: string, canonicalUrl: string): string {
+  const t = escapeHtml(title);
+  const d = escapeHtml(description);
+  const img = escapeHtml(image);
+  const url = escapeHtml(canonicalUrl);
 
   return `<!doctype html>
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>${safeTitle}</title>
-    <meta name="description" content="${safeDesc}" />
+    <title>${t}</title>
+    <meta name="description" content="${d}" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="${safeTitle}" />
-    <meta property="og:description" content="${safeDesc}" />
-    <meta property="og:image" content="${safeImage}" />
-    <meta property="og:url" content="${safeTarget}" />
+    <meta property="og:title" content="${t}" />
+    <meta property="og:description" content="${d}" />
+    <meta property="og:image" content="${img}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:url" content="${url}" />
     <meta property="og:site_name" content="Siteviral" />
+    <meta property="og:locale" content="fr_FR" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="${safeTitle}" />
-    <meta name="twitter:description" content="${safeDesc}" />
-    <meta name="twitter:image" content="${safeImage}" />
-    <link rel="canonical" href="${safeTarget}" />
+    <meta name="twitter:site" content="@siteviral" />
+    <meta name="twitter:title" content="${t}" />
+    <meta name="twitter:description" content="${d}" />
+    <meta name="twitter:image" content="${img}" />
+    <link rel="canonical" href="${url}" />
+  </head>
+  <body>
+    <h1>${t}</h1>
+    <p>${d}</p>
+  </body>
+</html>`;
+}
+
+/** Human redirect HTML — meta refresh + JS for instant redirect */
+function renderHumanHtml(title: string, description: string, image: string, targetUrl: string): string {
+  const t = escapeHtml(title);
+  const d = escapeHtml(description);
+  const img = escapeHtml(image);
+  const safeTarget = escapeHtml(targetUrl);
+
+  return `<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>${t}</title>
+    <meta property="og:title" content="${t}" />
+    <meta property="og:description" content="${d}" />
+    <meta property="og:image" content="${img}" />
+    <meta property="og:url" content="${safeTarget}" />
     <meta http-equiv="refresh" content="0;url=${safeTarget}" />
     <script>window.location.replace(${JSON.stringify(targetUrl)});</script>
   </head>
@@ -303,50 +347,37 @@ Deno.serve(async (req) => {
   }
 
   const reqUrl = new URL(req.url);
+  const userAgent = req.headers.get('user-agent') || '';
+  const botRequest = isBot(userAgent);
 
-  // ─── Short code resolution: ?code=xxx ───
-  const codeParam = reqUrl.searchParams.get('code');
-  if (codeParam) {
-    const resolved = await resolveShortCode(codeParam);
-    if (!resolved) {
-      // Unknown code → redirect to homepage
-      return new Response(renderMetaHtml(DEFAULT_TITLE, DEFAULT_DESCRIPTION, DEFAULT_IMAGE, SITE_URL), {
-        headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=60' },
-      });
-    }
-
-    const targetUrl = `${SITE_URL}${resolved.targetPath}`;
-
-    // Use stored overrides OR resolve from DB
-    let meta: MetaResult | null = null;
-    if (resolved.meta.title || resolved.meta.description || resolved.meta.image) {
-      meta = {
-        title: resolved.meta.title || DEFAULT_TITLE,
-        description: resolved.meta.description || DEFAULT_DESCRIPTION,
-        image: resolved.meta.image || DEFAULT_IMAGE,
-      };
-    }
-    if (!meta) {
-      try { meta = await resolveFromPath(resolved.targetPath); } catch { /* fallback */ }
-    }
-
-    const title = (meta?.title || DEFAULT_TITLE).slice(0, 180);
-    const description = (meta?.description || DEFAULT_DESCRIPTION).slice(0, 300);
-    let image = meta?.image || DEFAULT_IMAGE;
-    try { image = new URL(image).toString(); } catch { image = DEFAULT_IMAGE; }
-
-    return new Response(renderMetaHtml(title, description, image, targetUrl), {
-      headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=300' },
-    });
-  }
-
-  // ─── Legacy path-based resolution ───
-  const pathParam = reqUrl.searchParams.get('path');
+  // ─── Resolve target URL + meta ───
 
   let targetUrl = SITE_URL;
-  if (pathParam) {
+  let meta: MetaResult | null = null;
+
+  const codeParam = reqUrl.searchParams.get('code');
+  const pathParam = reqUrl.searchParams.get('path');
+
+  if (codeParam) {
+    const resolved = await resolveShortCode(codeParam);
+    if (resolved) {
+      targetUrl = `${SITE_URL}${resolved.targetPath}`;
+      // Use stored overrides OR resolve from DB
+      if (resolved.meta.title || resolved.meta.description || resolved.meta.image) {
+        meta = {
+          title: resolved.meta.title || DEFAULT_TITLE,
+          description: resolved.meta.description || DEFAULT_DESCRIPTION,
+          image: resolved.meta.image || DEFAULT_IMAGE,
+        };
+      }
+      if (!meta) {
+        try { meta = await resolveFromPath(resolved.targetPath); } catch { /* fallback */ }
+      }
+    }
+  } else if (pathParam) {
     const cleanPath = pathParam.startsWith('/') ? pathParam : `/${pathParam}`;
     targetUrl = `${SITE_URL}${cleanPath}`;
+    try { meta = await resolveFromPath(cleanPath); } catch { /* fallback */ }
   } else {
     const targetParam = reqUrl.searchParams.get('target');
     if (targetParam) {
@@ -357,22 +388,35 @@ Deno.serve(async (req) => {
     }
   }
 
-  let meta: MetaResult | null = null;
-  if (pathParam) {
-    try { meta = await resolveFromPath(pathParam); } catch { /* fallback */ }
-  }
-
+  // Apply explicit overrides from query params
   const explicitTitle = reqUrl.searchParams.get('title');
   const explicitDesc = reqUrl.searchParams.get('description');
   const explicitImg = reqUrl.searchParams.get('image');
 
   const title = (explicitTitle || meta?.title || DEFAULT_TITLE).slice(0, 180);
   const description = (explicitDesc || meta?.description || DEFAULT_DESCRIPTION).slice(0, 300);
-
   let image = explicitImg || meta?.image || DEFAULT_IMAGE;
   try { image = new URL(image).toString(); } catch { image = DEFAULT_IMAGE; }
 
-  return new Response(renderMetaHtml(title, description, image, targetUrl), {
-    headers: { ...corsHeaders, 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=300' },
+  // ─── Bot → static OG HTML (200, no redirect) ───
+  if (botRequest) {
+    return new Response(renderBotHtml(title, description, image, targetUrl), {
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'public, max-age=300, s-maxage=600',
+        'Vary': 'User-Agent',
+      },
+    });
+  }
+
+  // ─── Human → 302 redirect ───
+  return new Response(null, {
+    status: 302,
+    headers: {
+      ...corsHeaders,
+      'Location': targetUrl,
+      'Cache-Control': 'no-cache, no-store',
+    },
   });
 });
