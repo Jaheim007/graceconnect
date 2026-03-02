@@ -71,8 +71,10 @@ export function BottomNav() {
             <Link
               key={to}
               to={to}
+              aria-current={active ? 'page' : undefined}
+              aria-label={label}
               className={cn(
-                'flex flex-col items-center justify-center gap-0.5 flex-1 py-2 min-h-[48px] transition-colors relative',
+                'flex flex-col items-center justify-center gap-0.5 flex-1 py-2 min-h-[48px] min-w-[48px] transition-colors relative',
                 active ? 'text-primary' : 'text-muted-foreground'
               )}
             >

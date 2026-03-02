@@ -205,6 +205,13 @@ const LazySuperadminMetrics = lazy(() => import("@/pages/superadmin/SuperadminPa
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { staleTime: 1000 * 60 * 2, retry: 1 },
+    mutations: {
+      onError: (error: unknown) => {
+        // I14: Global mutation error handler — prevents silent failures
+        const message = error instanceof Error ? error.message : 'Une erreur est survenue.';
+        console.error('[Mutation Error]', message);
+      },
+    },
   },
 });
 
