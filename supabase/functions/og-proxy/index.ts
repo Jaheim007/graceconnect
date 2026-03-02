@@ -107,34 +107,21 @@ const BLOG_META: Record<string, { title: string; description: string }> = {
 async function resolveFromPath(path: string): Promise<MetaResult | null> {
   const supabase = getSupabase();
   let m: RegExpMatchArray | null;
+  const isUuid = (s: string) => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(s);
 
-  // /org/:slug
-  m = path.match(/^\/org\/([^\/\?#]+)/);
-  if (m) {
-    const { data } = await supabase
-      .from('organizations')
-      .select('name, description, logo_url, banner_url')
-      .eq('slug', decodeURIComponent(m[1]))
-      .eq('is_active', true)
-      .maybeSingle();
-    if (data)
-      return {
-        title: `${data.name} — Siteviral`,
-        description: (data.description || `Découvrez ${data.name} sur Siteviral`).slice(0, 300),
-        image: data.banner_url || data.logo_url || DEFAULT_IMAGE,
-      };
-  }
-
-  // /org/:slug/product/:id  OR  /org/:slug/p/:productSlug
+  // /org/:slug/product/:id  OR  /org/:slug/p/:productSlug  (MUST be before /org/:slug)
   m = path.match(/^\/org\/[^\/]+\/(?:product|p)\/([^\/\?#]+)/);
   if (m) {
     const identifier = decodeURIComponent(m[1]);
-    let { data } = await supabase
-      .from('digital_products')
-      .select('title, description, cover_image_url, organizations(name)')
-      .eq('id', identifier)
-      .eq('is_published', true)
-      .maybeSingle();
+    let data: any = null;
+    if (isUuid(identifier)) {
+      ({ data } = await supabase
+        .from('digital_products')
+        .select('title, description, cover_image_url, organizations(name)')
+        .eq('id', identifier)
+        .eq('is_published', true)
+        .maybeSingle());
+    }
     if (!data) {
       ({ data } = await supabase
         .from('digital_products')
@@ -151,6 +138,23 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
         image: data.cover_image_url || DEFAULT_IMAGE,
       };
     }
+  }
+
+  // /org/:slug (only if not matched above)
+  m = path.match(/^\/org\/([^\/\?#]+)$/);
+  if (m) {
+    const { data } = await supabase
+      .from('organizations')
+      .select('name, description, logo_url, banner_url')
+      .eq('slug', decodeURIComponent(m[1]))
+      .eq('is_active', true)
+      .maybeSingle();
+    if (data)
+      return {
+        title: `${data.name} — Siteviral`,
+        description: (data.description || `Découvrez ${data.name} sur Siteviral`).slice(0, 300),
+        image: data.banner_url || data.logo_url || DEFAULT_IMAGE,
+      };
   }
 
   // /product/:id
