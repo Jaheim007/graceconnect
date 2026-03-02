@@ -73,6 +73,7 @@ const ChangelogPage = lazy(() => import("@/pages/ChangelogPage"));
 const MaintenancePage = lazy(() => import("@/pages/MaintenancePage"));
 const GoRedirectPage = lazy(() => import("@/pages/GoRedirectPage"));
 const MarketplacePage = lazy(() => import("@/pages/MarketplacePage"));
+const QuickStartPage = lazy(() => import("@/pages/QuickStartPage"));
 const TemoignagesPage = lazy(() => import("@/pages/TemoignagesPage"));
 const CalculateurPage = lazy(() => import("@/pages/CalculateurPage"));
 const PourEglisesPage = lazy(() => import("@/pages/persona/PourEglisesPage"));
@@ -353,6 +354,7 @@ const App = () => (
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/resources" element={<ResourcesPage />} />
                   <Route path="/dashboard" element={<UserDashboard />} />
+                  <Route path="/quick-start" element={<QuickStartPage />} />
                   <Route path="/create-org" element={<CreateOrgPage />} />
                   
                   <Route path="/support" element={<SupportPage />} />
