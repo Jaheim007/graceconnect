@@ -102,8 +102,6 @@ function renderOgHtml(title: string, description: string, image: string, canonic
     <meta name="twitter:description" content="${d}" />
     <meta name="twitter:image" content="${img}" />
     <link rel="canonical" href="${url}" />
-    <meta http-equiv="refresh" content="0;url=${url}" />
-    <script>window.location.replace(${JSON.stringify(canonicalUrl)});</script>
   </head>
   <body>
     <h1>${t}</h1>
