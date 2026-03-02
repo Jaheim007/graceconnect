@@ -35,7 +35,7 @@ const FAQS_EN = [
     ],
   },
   {
-    category: 'Affiliation',
+    category: 'Ambassadeur',
     items: [
       { q: 'How does affiliation work?', a: 'Generate unique referral links. Each sale or donation made via your link earns you a configurable commission. Last-click attribution, 7-day cookie.' },
       { q: 'When are my commissions available?', a: 'Commissions move from "pending" to "available" after 15 days of validation. You can then request a withdrawal.' },

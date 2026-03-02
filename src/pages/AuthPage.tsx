@@ -88,7 +88,7 @@ export default function AuthPage() {
           </h1>
           <p className="text-muted-foreground text-lg max-w-md">{t('auth.infra_platform')}</p>
           <div className="flex gap-3 mt-4">
-            {['Media', 'Donations', 'Store', 'Affiliation'].map((tag) => (
+            {['Media', 'Donations', 'Store', 'Ambassadeur'].map((tag) => (
               <span key={tag} className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium border border-primary/20">{tag}</span>
             ))}
           </div>
