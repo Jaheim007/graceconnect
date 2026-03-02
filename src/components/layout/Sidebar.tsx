@@ -204,8 +204,8 @@ export function Sidebar() {
     </>
   );
 
-  // Choose nav based on context
-  const showCreatorAdmin = mode === 'creator' && canManageCurrentOrg;
+  // Choose nav based on mode ONLY — no org presence check
+  const showCreatorAdmin = mode === 'creator';
 
   return (
     <aside

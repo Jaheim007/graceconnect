@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Share2, Wallet, Users, CheckCircle, Zap, TrendingUp, MessageCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { lazy, Suspense } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useMode } from '@/contexts/ModeContext';
 
 const LandingFooterCompact = lazy(() => import('@/components/landing/LandingFooterCompact').then(m => ({ default: m.LandingFooterCompact })));
 
@@ -29,6 +31,17 @@ const testimonials = [
 
 export default function GagnerLandingPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { setMode } = useMode();
+
+  const handleStart = () => {
+    if (user) {
+      setMode('ambassador');
+      navigate('/dashboard');
+    } else {
+      navigate('/auth?intent=ambassador');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -55,7 +68,7 @@ export default function GagnerLandingPage() {
               Zéro contenu à créer. Choisis un produit, partage ton lien WhatsApp, touche ta commission.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button size="lg" className="gap-2 text-sm" onClick={() => navigate('/auth?mode=signup&intent=ambassador')}>
+              <Button size="lg" className="gap-2 text-sm" onClick={handleStart}>
                 💰 Commencer à gagner <ArrowRight className="h-4 w-4" />
               </Button>
               <Button variant="outline" size="lg" className="text-sm" onClick={() => navigate('/marketplace')}>
@@ -131,7 +144,7 @@ export default function GagnerLandingPage() {
         <div className="container max-w-md">
           <h2 className="text-xl sm:text-2xl font-extrabold mb-3">Ta 1ère vente peut tomber aujourd'hui</h2>
           <p className="text-sm text-muted-foreground mb-6">Inscris-toi, choisis un produit, partage. C'est tout.</p>
-          <Button size="lg" className="gap-2" onClick={() => navigate('/auth?mode=signup&intent=ambassador')}>
+          <Button size="lg" className="gap-2" onClick={handleStart}>
             💰 Je veux gagner <ArrowRight className="h-4 w-4" />
           </Button>
         </div>

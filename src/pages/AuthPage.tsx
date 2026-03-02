@@ -29,16 +29,33 @@ export default function AuthPage() {
 
   const returnTo = searchParams.get('returnTo');
   const inviteCode = searchParams.get('invite');
+  const intent = searchParams.get('intent'); // 'ambassador' | 'creator'
 
   useEffect(() => {
     if (inviteCode) sessionStorage.setItem('sv_invite_code', inviteCode);
   }, [inviteCode]);
 
+  // Store intent for post-login redirect
+  useEffect(() => {
+    if (intent === 'ambassador' || intent === 'creator') {
+      sessionStorage.setItem('sv_auth_intent', intent);
+    }
+  }, [intent]);
+
   useEffect(() => {
     if (user) {
-      navigate(returnTo || '/dashboard', { replace: true });
+      const savedIntent = sessionStorage.getItem('sv_auth_intent');
+      if (savedIntent === 'ambassador' || savedIntent === 'creator') {
+        sessionStorage.removeItem('sv_auth_intent');
+        // Import dynamically to avoid circular deps - just set localStorage directly
+        const modeKey = 'sv_app_mode';
+        try { localStorage.setItem(modeKey, savedIntent); } catch {}
+        navigate(returnTo || '/dashboard', { replace: true });
+      } else {
+        navigate(returnTo || '/dashboard', { replace: true });
+      }
     }
-  }, [user, userOrgs.length, navigate, returnTo]);
+  }, [user, navigate, returnTo]);
 
   const [googleLoading, setGoogleLoading] = useState(false);
 
