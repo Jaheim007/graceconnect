@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import {
   CheckCircle, Download, BookOpen, ArrowRight, ShieldCheck,
@@ -40,6 +41,7 @@ const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
 export default function PaymentSuccessPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { user } = useAuth();
 
   const rawReference = searchParams.get('reference') || searchParams.get('trxref') || '';
@@ -223,6 +225,8 @@ export default function PaymentSuccessPage() {
         // ── Step A: Look up in DB ──
         const found = await lookupTransaction();
         if (found) {
+          // Invalidate purchases cache so /resources shows the new item immediately
+          await queryClient.invalidateQueries({ queryKey: ['my-purchases'] });
           setTx(found);
           setLoading(false);
           return;
@@ -243,6 +247,7 @@ export default function PaymentSuccessPage() {
                 await wait(1500);
                 const found2 = await lookupTransaction(referenceRef.current);
                 if (found2) {
+                  await queryClient.invalidateQueries({ queryKey: ['my-purchases'] });
                   setTx(found2);
                   setLoading(false);
                   return;
@@ -265,6 +270,7 @@ export default function PaymentSuccessPage() {
                 await wait(1500);
                 const found2 = await lookupTransaction();
                 if (found2) {
+                  await queryClient.invalidateQueries({ queryKey: ['my-purchases'] });
                   setTx(found2);
                   setLoading(false);
                   return;
