@@ -5,7 +5,7 @@ import {
   Settings, ChevronLeft, ChevronRight, Shield, Handshake, HandHeart,
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, UsersRound, Sun, Moon,
   UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, ShieldAlert, LayoutDashboard, Building2,
-  MessageCircle, Trophy, CreditCard, Clock, Sparkles, GraduationCap
+  MessageCircle, Trophy, CreditCard, Clock, Sparkles, GraduationCap, ChevronUp
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useMemo } from 'react';
@@ -38,8 +38,8 @@ export function Sidebar() {
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const { theme, toggleTheme } = useTheme();
   const { t } = useI18n();
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
-    discover: true, myContent: true, revenue: true, community: true,
     Content: true, Commerce: true, Management: true,
   });
 
@@ -47,65 +47,33 @@ export function Sidebar() {
   const isSA = location.pathname.startsWith('/superadmin');
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
 
-  // Platforms the user owns or administrates (not just follows)
   const ownedOrgs = useMemo(
     () => userOrgs.filter(o => ['owner', 'admin'].includes(getRoleFor(o.id) || '')),
     [userOrgs, getRoleFor]
   );
 
-  // ── Main nav grouped by category ──
-  const mainGroups: NavGroup[] = [
-    {
-      label: '🔍 Découvrir',
-      icon: Store,
-      key: 'discover',
-      items: [
-        { to: '/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard'), desc: 'Vue d\'ensemble de votre activité et statistiques clés' },
-        { to: '/feed', icon: Home, label: t('sidebar.my_network'), desc: 'Suivez l\'actualité des organisations que vous suivez' },
-        { to: '/marketplace', icon: Store, label: t('sidebar.explorer'), desc: 'Explorez des milliers de ressources et organisations' },
-        { to: '/leaderboard', icon: Trophy, label: t('sidebar.leaderboard'), desc: 'Classement des meilleurs ambassadeurs et créateurs' },
-      ],
-    },
-    {
-      label: '💰 Mes revenus',
-      icon: Wallet,
-      key: 'revenue',
-      items: [
-        { to: '/affiliation', icon: Link2, label: t('sidebar.my_affiliations'), desc: 'Gérez vos liens ambassadeur et suivez vos commissions' },
-        { to: '/partner', icon: Handshake, label: 'Espace Partenaire', desc: 'Programme Partenaires Officiel — recrutez des organisations' },
-        ...(canManageCurrentOrg ? [{ to: '/admin/affiliation', icon: UsersRound, label: t('sidebar.my_affiliates'), desc: 'Gérez les ambassadeurs de votre organisation' }] : []),
-      ],
-    },
-    {
-      label: '📚 Mon contenu',
-      icon: BookOpen,
-      key: 'myContent',
-      items: [
-        { to: '/resources', icon: BookOpen, label: t('sidebar.my_purchases'), desc: 'Accédez à tous vos achats et téléchargements' },
-        { to: '/my-programs', icon: GraduationCap, label: 'Mes programmes', desc: 'Vos cours et formations en ligne' },
-        { to: '/invoices', icon: CreditCard, label: 'Mes factures', desc: 'Téléchargez vos factures en PDF' },
-        { to: '/my-analytics', icon: BarChart3, label: 'Mes stats', desc: 'Vos statistiques personnelles' },
-        ...(ownedOrgs.length === 1
-          ? [{ to: `/org/${ownedOrgs[0].slug}`, icon: Building2, label: t('sidebar.view_org'), desc: 'Voir la page publique de votre plateforme' }]
-          : []),
-      ],
-    },
-    {
-      label: '⚙️ Mon compte',
-      icon: User,
-      key: 'community',
-      items: [
-        { to: '/notifications', icon: Bell, label: t('sidebar.notifications'), desc: 'Vos alertes : ventes, commissions, messages' },
-        { to: '/profile', icon: User, label: t('sidebar.account'), desc: 'Modifiez votre profil, email et préférences' },
-        { to: '/support', icon: LifeBuoy, label: t('sidebar.help'), desc: 'Besoin d\'aide ? Contactez notre équipe' },
-      ],
-    },
+  // ── SIMPLIFIED main nav: 4 primary items ──
+  const primaryItems: NavItem[] = [
+    { to: '/marketplace', icon: Store, label: 'Marketplace', desc: 'Explorez et partagez des produits numériques' },
+    { to: '/affiliation', icon: Link2, label: 'Gagner', desc: 'Vos liens ambassadeur et commissions' },
+    { to: '/resources', icon: BookOpen, label: 'Mes achats', desc: 'Accédez à vos achats et téléchargements' },
+    { to: '/profile', icon: User, label: 'Profil', desc: 'Modifiez votre profil et préférences' },
   ];
 
-  // Add superadmin link if applicable
-  if (isSuperadmin && !isAdmin && !isSA) {
-    mainGroups[mainGroups.length - 1].items.push({ to: '/superadmin', icon: Shield, label: t('sidebar.superadmin'), desc: 'Panneau superadmin' });
-  }
+  // ── Advanced items (hidden by default) ──
+  const advancedItems: NavItem[] = [
+    { to: '/dashboard', icon: LayoutDashboard, label: 'Tableau de bord', desc: 'Vue d\'ensemble de votre activité' },
+    { to: '/notifications', icon: Bell, label: 'Notifications', desc: 'Vos alertes : ventes, commissions, messages' },
+    { to: '/my-programs', icon: GraduationCap, label: 'Mes programmes', desc: 'Vos cours et formations' },
+    { to: '/invoices', icon: CreditCard, label: 'Mes factures', desc: 'Téléchargez vos factures' },
+    { to: '/leaderboard', icon: Trophy, label: 'Classement', desc: 'Top ambassadeurs et créateurs' },
+    { to: '/my-analytics', icon: BarChart3, label: 'Mes stats', desc: 'Statistiques personnelles' },
+    { to: '/partner', icon: Handshake, label: 'Espace Partenaire', desc: 'Programme Partenaires Officiel' },
+    { to: '/support', icon: LifeBuoy, label: 'Aide', desc: 'Besoin d\'aide ? Contactez-nous' },
+  ];
+
+  // Auto-expand advanced if user is on an advanced route
+  const isOnAdvancedRoute = advancedItems.some(i => location.pathname.startsWith(i.to));
 
   const adminGroups: NavGroup[] = [
     {
@@ -127,7 +95,7 @@ export function Sidebar() {
         { to: '/admin/products', icon: ShoppingBag, label: t('sidebar.products') },
         { to: '/admin/offerings', icon: HandHeart, label: 'Dons' },
         { to: '/admin/campaigns', icon: Heart, label: t('sidebar.campaigns') },
-        { to: '/admin/affiliation', icon: Link2, label: t('sidebar.affiliation') },
+        { to: '/admin/affiliation', icon: Link2, label: 'Ambassadeurs' },
         { to: '/admin/promo-codes', icon: FileCheck, label: t('sidebar.promo_codes') },
         { to: '/admin/subscriptions', icon: CreditCard, label: t('sidebar.subscriptions') },
         { to: '/admin/sales', icon: Wallet, label: 'Mes Ventes' },
@@ -197,7 +165,6 @@ export function Sidebar() {
       </Link>
     );
 
-    // In collapsed mode or when desc exists, wrap in tooltip
     if (collapsed || item.desc) {
       return (
         <Tooltip key={item.to} delayDuration={collapsed ? 0 : 400}>
@@ -278,10 +245,27 @@ export function Sidebar() {
           </>
         ) : (
           <>
-            {/* Render Découvrir group first */}
-            {renderGroups([mainGroups[0]])}
+            {/* Primary navigation — always visible */}
+            <div className="space-y-0.5">
+              {primaryItems.map(renderNavItem)}
+            </div>
 
-            {/* Mes plateformes — right after Découvrir */}
+            {/* Creator shortcut: Admin button */}
+            {canManageCurrentOrg && !collapsed && (
+              <div className="mt-3 mx-1">
+                <Link
+                  to="/admin"
+                  className={cn(
+                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20',
+                  )}
+                >
+                  <Settings className="h-4 w-4 shrink-0" />
+                  <span className="truncate">Gérer ma plateforme</span>
+                </Link>
+              </div>
+            )}
+
+            {/* Owned orgs */}
             {ownedOrgs.length > 1 && !collapsed && (
               <div className="mt-3 mx-1">
                 <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
@@ -327,8 +311,29 @@ export function Sidebar() {
               </div>
             )}
 
-            {/* Remaining groups: Mes revenus, Mon contenu, Mon compte */}
-            {renderGroups(mainGroups.slice(1))}
+            {/* Advanced section — collapsible */}
+            {!collapsed && (
+              <div className="mt-4">
+                <button
+                  onClick={() => setShowAdvanced(!showAdvanced)}
+                  className="flex items-center justify-between w-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  ⚙️ Avancé
+                  <ChevronDown className={cn('h-3 w-3 transition-transform', (showAdvanced || isOnAdvancedRoute) && 'rotate-180')} />
+                </button>
+                {(showAdvanced || isOnAdvancedRoute) && (
+                  <div className="space-y-0.5 mt-0.5">
+                    {advancedItems.map(renderNavItem)}
+                    {isSuperadmin && renderNavItem({ to: '/superadmin', icon: Shield, label: t('sidebar.superadmin'), desc: 'Panneau superadmin' })}
+                  </div>
+                )}
+              </div>
+            )}
+            {collapsed && (
+              <div className="mt-3 space-y-0.5">
+                {advancedItems.map(renderNavItem)}
+              </div>
+            )}
           </>
         )}
       </nav>
@@ -348,7 +353,7 @@ export function Sidebar() {
 
         {(isAdmin || isSA) && (
           <Link
-            to="/feed"
+            to="/marketplace"
             className={cn(
               'flex items-center gap-3 rounded-lg text-sm font-medium transition-all text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
               collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'

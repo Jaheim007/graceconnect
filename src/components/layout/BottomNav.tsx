@@ -1,10 +1,9 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, LogIn, UserPlus, LayoutDashboard, Bell, User, Store, MoreHorizontal, Trophy, Link2, UsersRound, BookOpen, LifeBuoy, Handshake } from 'lucide-react';
+import { Home, LogIn, UserPlus, Store, MoreHorizontal, User, Link2, BookOpen, LifeBuoy, Handshake, Trophy, LayoutDashboard, Bell, CreditCard, BarChart3, GraduationCap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
 import { Badge } from '@/components/ui/badge';
-import { useI18n } from '@/i18n/I18nContext';
 import { useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
@@ -12,37 +11,39 @@ export function BottomNav() {
   const location = useLocation();
   const { user } = useAuth();
   const { data: unread = 0 } = useUnreadCount(user?.id);
-  const { t } = useI18n();
   const [open, setOpen] = useState(false);
 
   const guestItems = [
     { to: '/', icon: Home, label: 'Accueil' },
-    { to: '/discover', icon: Store, label: 'Explorer' },
+    { to: '/marketplace', icon: Store, label: 'Marketplace' },
     { to: '/auth?mode=signin', icon: LogIn, label: 'Connexion' },
     { to: '/auth?mode=signup', icon: UserPlus, label: 'S\'inscrire' },
   ];
 
+  // Simplified: 4 primary items for authenticated users
   const primaryItems = [
-    { to: '/feed', icon: Home, label: 'Accueil' },
-    { to: '/marketplace', icon: Store, label: 'Explorer' },
-    { to: '/notifications', icon: Bell, label: 'Alertes', showBadge: true },
+    { to: '/marketplace', icon: Store, label: 'Marketplace' },
+    { to: '/affiliation', icon: Link2, label: 'Gagner' },
+    { to: '/resources', icon: BookOpen, label: 'Mes achats' },
     { to: '/profile', icon: User, label: 'Profil' },
   ];
 
-  // Items shown in "More" sheet — grouped
+  // "Plus" / Advanced items
   const moreGroups = [
     {
       label: '📊 Mon activité',
       items: [
-        { to: '/dashboard', icon: LayoutDashboard, label: t('sidebar.dashboard') },
-        { to: '/leaderboard', icon: Trophy, label: t('sidebar.leaderboard') },
-        { to: '/resources', icon: BookOpen, label: 'Mes achats' },
+        { to: '/dashboard', icon: LayoutDashboard, label: 'Tableau de bord' },
+        { to: '/notifications', icon: Bell, label: 'Notifications', showBadge: true },
+        { to: '/my-programs', icon: GraduationCap, label: 'Mes programmes' },
+        { to: '/invoices', icon: CreditCard, label: 'Mes factures' },
       ],
     },
     {
-      label: '💰 Mes revenus',
+      label: '💰 Avancé',
       items: [
-        { to: '/affiliation', icon: Link2, label: 'Mes affiliations' },
+        { to: '/leaderboard', icon: Trophy, label: 'Classement' },
+        { to: '/my-analytics', icon: BarChart3, label: 'Mes stats' },
         { to: '/partner', icon: Handshake, label: 'Partenaire' },
       ],
     },
@@ -61,11 +62,10 @@ export function BottomNav() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur-sm lg:hidden">
       <div className="flex items-center justify-around h-14 px-1 max-w-lg mx-auto">
-        {navItems.map(({ to, icon: Icon, label, ...rest }) => {
+        {navItems.map(({ to, icon: Icon, label }) => {
           const active = to === '/'
             ? location.pathname === '/'
             : location.pathname.startsWith(to.split('?')[0]);
-          const showBadge = 'showBadge' in rest && (rest as any).showBadge;
 
           return (
             <Link
@@ -80,11 +80,7 @@ export function BottomNav() {
             >
               <div className="relative">
                 <Icon className={cn('h-5 w-5', active && 'stroke-[2.5]')} />
-                {showBadge && unread > 0 && (
-                  <Badge variant="destructive" className="absolute -top-1.5 -right-2.5 h-4 min-w-4 px-1 text-[9px] flex items-center justify-center">
-                    {unread > 9 ? '9+' : unread}
-                  </Badge>
-                )}
+                {to === '/affiliation' && false /* no badge needed here */}
               </div>
               <span className="text-[10px] font-medium leading-none">{label}</span>
               {active && <div className="absolute -bottom-0.5 w-6 h-0.5 rounded-full bg-primary" />}
@@ -116,20 +112,26 @@ export function BottomNav() {
                   <div key={group.label}>
                     <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2 px-1">{group.label}</p>
                     <div className="grid grid-cols-3 gap-2">
-                      {group.items.map(({ to, icon: Icon, label }) => {
+                      {group.items.map(({ to, icon: Icon, label, ...rest }) => {
                         const active = location.pathname.startsWith(to);
+                        const showBadge = 'showBadge' in rest && (rest as any).showBadge;
                         return (
                           <Link
                             key={to}
                             to={to}
                             onClick={() => setOpen(false)}
                             className={cn(
-                              'flex flex-col items-center gap-1.5 p-3 rounded-xl transition-colors text-center',
+                              'flex flex-col items-center gap-1.5 p-3 rounded-xl transition-colors text-center relative',
                               active ? 'bg-primary/10 text-primary' : 'text-muted-foreground hover:bg-muted'
                             )}
                           >
-                            <div className="h-10 w-10 rounded-xl bg-muted/60 flex items-center justify-center">
+                            <div className="h-10 w-10 rounded-xl bg-muted/60 flex items-center justify-center relative">
                               <Icon className="h-5 w-5" />
+                              {showBadge && unread > 0 && (
+                                <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 min-w-4 px-1 text-[9px] flex items-center justify-center">
+                                  {unread > 9 ? '9+' : unread}
+                                </Badge>
+                              )}
                             </div>
                             <span className="text-[11px] font-medium leading-tight">{label}</span>
                           </Link>
