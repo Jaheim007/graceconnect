@@ -315,9 +315,7 @@ const App = () => (
                 <Route path="/guide/affiliation-sans-investissement" element={<GuideAffiliationSansInvestissementPage />} />
                 <Route path="/go/:code" element={<GoRedirectPage />} />
                 <Route path="/maintenance" element={<MaintenancePage />} />
-                <Route path="/discover" element={<AppLayout />}>
-                  <Route index element={<DiscoverPage />} />
-                </Route>
+                <Route path="/discover" element={<Navigate to="/marketplace" replace />} />
                 <Route path="/marketplace" element={<AppLayout />}>
                   <Route index element={<MarketplacePage />} />
                 </Route>
