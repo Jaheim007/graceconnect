@@ -139,7 +139,32 @@ Deno.serve(async (req) => {
       });
     }
 
+    // ── Idempotency via payment_events table ──
+    const stripeEventId = event.id || `stripe-${Date.now()}`;
+    const { data: existingEvent } = await db.from('payment_events')
+      .select('id, status')
+      .eq('event_id', String(stripeEventId))
+      .maybeSingle();
+
+    if (existingEvent?.status === 'processed') {
+      console.log('[stripe-webhook] Event already processed:', stripeEventId);
+      return new Response(JSON.stringify({ ok: true, idempotent: true }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     const session = event.data.object;
+
+    // Log the event
+    if (!existingEvent) {
+      await db.from('payment_events').insert({
+        event_id: String(stripeEventId),
+        provider: 'stripe',
+        reference: session.metadata?.sv_reference || null,
+        payload: event,
+        status: 'received',
+      });
+    }
 
     // Get PaymentIntent metadata (more reliable)
     let meta = session.metadata || {};
@@ -159,21 +184,9 @@ Deno.serve(async (req) => {
 
     if (!reference || !type || !organizationId) {
       console.error('[stripe-webhook] Missing metadata:', meta);
+      await db.from('payment_events').update({ status: 'skipped', processed_at: new Date().toISOString() }).eq('event_id', String(stripeEventId));
       return new Response(JSON.stringify({ error: 'Missing metadata' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Idempotency check
-    const table = type === 'donation' ? 'donations' : 'product_purchases';
-    const { data: existing } = await db.from(table)
-      .select('id, status')
-      .eq('paystack_reference', reference)
-      .maybeSingle();
-
-    if (existing?.status === 'completed') {
-      return new Response(JSON.stringify({ ok: true, idempotent: true }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
@@ -199,6 +212,9 @@ Deno.serve(async (req) => {
       affiliate_code: meta.affiliate_code,
       promo_code: meta.promo_code,
     });
+
+    // Mark event processed
+    await db.from('payment_events').update({ status: 'processed', processed_at: new Date().toISOString() }).eq('event_id', String(stripeEventId));
 
     console.log(`[stripe-webhook] ✅ ${type} processed: ${reference} — ${amountPaid} ${currency}`);
 

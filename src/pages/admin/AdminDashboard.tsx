@@ -229,6 +229,30 @@ export default function AdminDashboard() {
         </div>
       </div>
 
+      {/* KYC Nudge — TOP priority banner */}
+      {currentOrg?.kyc_status !== 'level1' && currentOrg?.kyc_status !== 'level2' && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-col sm:flex-row items-start gap-3 p-4 rounded-2xl bg-destructive/10 border border-destructive/30"
+        >
+          <div className="flex items-start gap-3 flex-1 min-w-0">
+            <div className="h-10 w-10 rounded-xl bg-destructive/15 flex items-center justify-center shrink-0">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm">{t('admin.complete_verification')}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {t('admin.accept_payments')} — Les fonds sont retenus jusqu'à la vérification KYC.
+              </p>
+            </div>
+          </div>
+          <Button size="sm" variant="destructive" onClick={() => navigate('/admin/kyc')} className="h-8 text-xs shrink-0 w-full sm:w-auto gap-1.5">
+            <AlertTriangle className="h-3.5 w-3.5" /> {t('admin.verify_account')}
+          </Button>
+        </motion.div>
+      )}
+
       {/* Onboarding checklist (persistent, data-driven) */}
       <OnboardingChecklist />
 
@@ -409,26 +433,6 @@ export default function AdminDashboard() {
         )}
       </div>
 
-      {currentOrg?.kyc_status === 'none' && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row items-start gap-3 p-4 rounded-2xl bg-primary/8 border border-primary/20"
-        >
-          <div className="flex items-start gap-3 flex-1 min-w-0">
-            <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
-              <AlertTriangle className="h-5 w-5 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm">{t('admin.complete_verification')}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{t('admin.accept_payments')}</p>
-            </div>
-          </div>
-          <Button size="sm" variant="outline" onClick={() => navigate('/admin/kyc')} className="h-8 text-xs shrink-0 w-full sm:w-auto">
-            {t('admin.verify_account')}
-          </Button>
-        </motion.div>
-      )}
     </div>
   );
 }
