@@ -216,7 +216,7 @@ export default function CampaignDetailPage() {
             )}
 
             <div className="md:hidden space-y-2">
-              <h1 className="text-2xl font-bold">{campaign.title}</h1>
+              <p className="text-2xl font-bold" role="heading" aria-level={1}>{campaign.title}</p>
               {endDate && (
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Calendar className="h-3.5 w-3.5" />

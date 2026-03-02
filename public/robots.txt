@@ -34,5 +34,9 @@ Disallow: /analytics
 Disallow: /welcome
 Disallow: /partner
 Disallow: /maintenance
+Disallow: /go/
+Disallow: /payment/
+Disallow: /invite/
+Disallow: /leaderboard
 
 Sitemap: https://api.siteviral.com/functions/v1/sitemap

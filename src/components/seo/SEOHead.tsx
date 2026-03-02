@@ -110,33 +110,7 @@ export function SEOHead({
     }
     link.setAttribute('href', url);
 
-    // hreflang alternate links (fr primary, en alternate)
-    const hreflangFr = document.querySelector('link[hreflang="fr"]') as HTMLLinkElement || (() => {
-      const l = document.createElement('link');
-      l.setAttribute('rel', 'alternate');
-      l.setAttribute('hreflang', 'fr');
-      document.head.appendChild(l);
-      return l;
-    })();
-    hreflangFr.setAttribute('href', url);
-
-    const hreflangEn = document.querySelector('link[hreflang="en"]') as HTMLLinkElement || (() => {
-      const l = document.createElement('link');
-      l.setAttribute('rel', 'alternate');
-      l.setAttribute('hreflang', 'en');
-      document.head.appendChild(l);
-      return l;
-    })();
-    hreflangEn.setAttribute('href', url);
-
-    const hreflangDefault = document.querySelector('link[hreflang="x-default"]') as HTMLLinkElement || (() => {
-      const l = document.createElement('link');
-      l.setAttribute('rel', 'alternate');
-      l.setAttribute('hreflang', 'x-default');
-      document.head.appendChild(l);
-      return l;
-    })();
-    hreflangDefault.setAttribute('href', url);
+    // hreflang: removed — single-language site, no alternates needed
 
     // JSON-LD (supports multiple schemas)
     document.querySelectorAll('script[data-seo-jsonld]').forEach(s => s.remove());
