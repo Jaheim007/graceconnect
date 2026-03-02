@@ -97,8 +97,40 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
   const supabase = getSupabase();
   let m: RegExpMatchArray | null;
 
+  // /org/:slug/product/:id  OR  /org/:slug/p/:productSlug  (MUST be before /org/:slug)
+  m = path.match(/^\/org\/[^\/]+\/(?:product|p)\/([^\/\?#]+)/);
+  if (m) {
+    const identifier = decodeURIComponent(m[1]);
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(identifier);
+    let data: any = null;
+    if (isUuid) {
+      ({ data } = await supabase
+        .from('digital_products')
+        .select('title, description, cover_image_url, organizations(name)')
+        .eq('id', identifier)
+        .eq('is_published', true)
+        .maybeSingle());
+    }
+    if (!data) {
+      ({ data } = await supabase
+        .from('digital_products')
+        .select('title, description, cover_image_url, organizations(name)')
+        .eq('slug', identifier)
+        .eq('is_published', true)
+        .maybeSingle());
+    }
+    if (data) {
+      const orgName = (data as any).organizations?.name || 'Siteviral';
+      return {
+        title: `${data.title} — ${orgName}`,
+        description: (data.description || `Découvrez ${data.title}`).slice(0, 300),
+        image: data.cover_image_url || DEFAULT_IMAGE,
+      };
+    }
+  }
+
   // /org/:slug
-  m = path.match(/^\/org\/([^\/\?#]+)/);
+  m = path.match(/^\/org\/([^\/\?#]+)$/);
   if (m) {
     const { data } = await supabase
       .from('organizations')
@@ -118,47 +150,22 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
   m = path.match(/^\/product\/([^\/\?#]+)/);
   if (m) {
     const id = decodeURIComponent(m[1]);
-    const { data } = await supabase
-      .from('digital_products')
-      .select('title, description, cover_image_url, organizations(name)')
-      .eq('id', id)
-      .eq('is_published', true)
-      .maybeSingle();
-    if (data) {
-      const orgName = (data as any).organizations?.name || 'Siteviral';
-      return {
-        title: `${data.title} — ${orgName}`,
-        description: (data.description || `Découvrez ${data.title}`).slice(0, 300),
-        image: data.cover_image_url || DEFAULT_IMAGE,
-      };
-    }
-  }
-
-  // /org/:slug/product/:id  OR  /org/:slug/p/:productSlug
-  m = path.match(/^\/org\/[^\/]+\/(?:product|p)\/([^\/\?#]+)/);
-  if (m) {
-    const identifier = decodeURIComponent(m[1]);
-    let { data } = await supabase
-      .from('digital_products')
-      .select('title, description, cover_image_url, organizations(name)')
-      .eq('id', identifier)
-      .eq('is_published', true)
-      .maybeSingle();
-    if (!data) {
-      ({ data } = await supabase
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+    if (isUuid) {
+      const { data } = await supabase
         .from('digital_products')
         .select('title, description, cover_image_url, organizations(name)')
-        .eq('slug', identifier)
+        .eq('id', id)
         .eq('is_published', true)
-        .maybeSingle());
-    }
-    if (data) {
-      const orgName = (data as any).organizations?.name || 'Siteviral';
-      return {
-        title: `${data.title} — ${orgName}`,
-        description: (data.description || `Découvrez ${data.title}`).slice(0, 300),
-        image: data.cover_image_url || DEFAULT_IMAGE,
-      };
+        .maybeSingle();
+      if (data) {
+        const orgName = (data as any).organizations?.name || 'Siteviral';
+        return {
+          title: `${data.title} — ${orgName}`,
+          description: (data.description || `Découvrez ${data.title}`).slice(0, 300),
+          image: data.cover_image_url || DEFAULT_IMAGE,
+        };
+      }
     }
   }
 
@@ -362,17 +369,17 @@ Deno.serve(async (req) => {
     const resolved = await resolveShortCode(codeParam);
     if (resolved) {
       targetUrl = `${SITE_URL}${resolved.targetPath}`;
-      // Use stored overrides OR resolve from DB
-      if (resolved.meta.title || resolved.meta.description || resolved.meta.image) {
-        meta = {
-          title: resolved.meta.title || DEFAULT_TITLE,
-          description: resolved.meta.description || DEFAULT_DESCRIPTION,
-          image: resolved.meta.image || DEFAULT_IMAGE,
-        };
-      }
-      if (!meta) {
-        try { meta = await resolveFromPath(resolved.targetPath); } catch { /* fallback */ }
-      }
+
+      // Always try DB resolution first for complete metadata
+      let dbMeta: MetaResult | null = null;
+      try { dbMeta = await resolveFromPath(resolved.targetPath); } catch { /* fallback */ }
+
+      // Merge: short_link overrides take priority, DB fills gaps, defaults as last resort
+      meta = {
+        title: resolved.meta.title || dbMeta?.title || DEFAULT_TITLE,
+        description: resolved.meta.description || dbMeta?.description || DEFAULT_DESCRIPTION,
+        image: resolved.meta.image || dbMeta?.image || DEFAULT_IMAGE,
+      };
     }
   } else if (pathParam) {
     const cleanPath = pathParam.startsWith('/') ? pathParam : `/${pathParam}`;
