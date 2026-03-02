@@ -11,6 +11,7 @@ export function GDPRBanner() {
   const [visible, setVisible] = useState(false);
   const i18n = useContext(I18nContext);
   const t = i18n?.t ?? ((key: string) => key);
+  const isFr = (i18n as any)?.locale === 'fr';
 
   useEffect(() => {
     const consent = localStorage.getItem(CONSENT_KEY);
@@ -43,6 +44,7 @@ export function GDPRBanner() {
                 <Link to="/privacy" className="underline text-foreground hover:text-primary transition-colors">{t('gdpr.privacy')}</Link>.
               </p>
               <p className="mt-1 text-[10px] text-muted-foreground/70">{t('gdpr.processor')}</p>
+              <p className="mt-0.5"><Link to="/privacy#cookies" className="underline text-[10px] text-muted-foreground hover:text-foreground">{isFr ? 'Gérer les préférences cookies' : 'Manage cookie preferences'}</Link></p>
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
