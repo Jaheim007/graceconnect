@@ -2,9 +2,31 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowRight, Share2, Building2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { useMode } from '@/contexts/ModeContext';
 
 export function LandingHeroSplit() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { setMode } = useMode();
+
+  const handleGagner = () => {
+    if (user) {
+      setMode('ambassador');
+      navigate('/dashboard');
+    } else {
+      navigate('/auth?intent=ambassador');
+    }
+  };
+
+  const handleVendre = () => {
+    if (user) {
+      setMode('creator');
+      navigate('/dashboard');
+    } else {
+      navigate('/auth?intent=creator');
+    }
+  };
 
   return (
     <section className="relative pt-14">
@@ -42,7 +64,7 @@ export function LandingHeroSplit() {
             <Button
               size="lg"
               className="px-8 gap-2 h-13 text-base w-full sm:w-auto group cta-glow"
-              onClick={() => navigate('/auth?mode=signup&intent=ambassador')}
+              onClick={handleGagner}
             >
               <Share2 className="h-4 w-4" />
               💰 Je veux gagner
@@ -52,7 +74,7 @@ export function LandingHeroSplit() {
               size="lg"
               variant="outline"
               className="h-13 px-8 gap-2 text-base w-full sm:w-auto"
-              onClick={() => navigate('/auth?mode=signup&intent=creator')}
+              onClick={handleVendre}
             >
               <Building2 className="h-4 w-4" />
               🏢 Je veux vendre

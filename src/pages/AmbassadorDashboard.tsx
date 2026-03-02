@@ -49,16 +49,29 @@ export default function AmbassadorDashboard() {
     enabled: !!user,
   });
 
-  // Top commission products for sharing
+  // Top commission products for sharing — fallback chain
   const { data: topProducts = [] } = useQuery({
     queryKey: ['top-commission-products'],
     queryFn: async () => {
+      // Try ordering by org commission (joined)
       const { data } = await db.from('digital_products')
         .select('id, title, price, cover_image_url, slug, currency, organization_id, organizations(name, slug, commission_percent)')
         .eq('is_published', true)
-        .order('featured_score', { ascending: false })
+        .order('sales_count', { ascending: false })
+        .limit(6);
+      if (data && data.length > 0) {
+        // Sort by commission_percent desc client-side, take top 3
+        return [...data]
+          .sort((a: any, b: any) => (b.organizations?.commission_percent || 0) - (a.organizations?.commission_percent || 0))
+          .slice(0, 3);
+      }
+      // Fallback: newest products
+      const { data: fallback } = await db.from('digital_products')
+        .select('id, title, price, cover_image_url, slug, currency, organization_id, organizations(name, slug, commission_percent)')
+        .eq('is_published', true)
+        .order('created_at', { ascending: false })
         .limit(3);
-      return data || [];
+      return fallback || [];
     },
   });
 
@@ -191,7 +204,12 @@ export default function AmbassadorDashboard() {
 
           <div className="space-y-3">
             {topProducts.length === 0 ? (
-              <p className="text-xs text-muted-foreground text-center py-4">Aucun produit disponible pour le moment.</p>
+              <div className="text-center py-6">
+                <p className="text-sm text-muted-foreground mb-3">Aucun produit disponible pour le moment.</p>
+                <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate('/marketplace')}>
+                  <Store className="h-3.5 w-3.5" /> Explorer la marketplace
+                </Button>
+              </div>
             ) : topProducts.map((product: any) => {
               const commission = product.organizations?.commission_percent || 10;
               const estimatedGain = product.price ? Math.round((product.price * commission) / 100) : 0;

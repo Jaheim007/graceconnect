@@ -42,13 +42,8 @@ export function ModeProvider({ children }: { children: ReactNode }) {
     setMode(mode === 'ambassador' ? 'creator' : 'ambassador');
   }, [mode, setMode]);
 
-  // If user has no orgs and is in creator mode, switch back
-  useEffect(() => {
-    if (!user) return;
-    if (mode === 'creator' && !hasOrgs) {
-      // Keep creator mode - they'll see a "create org" CTA
-    }
-  }, [user, mode, hasOrgs]);
+  // NEVER auto-switch mode based on org presence.
+  // Mode only changes via explicit user action (ModeSwitch click).
 
   return (
     <ModeContext.Provider value={{ mode, setMode, toggleMode, hasOrgs }}>

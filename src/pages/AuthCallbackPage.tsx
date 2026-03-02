@@ -10,6 +10,13 @@ export default function AuthCallbackPage() {
     const handleRedirect = async (session: any) => {
       if (!session) return;
 
+      // Apply saved intent from pre-auth flow
+      const savedIntent = sessionStorage.getItem('sv_auth_intent');
+      if (savedIntent === 'ambassador' || savedIntent === 'creator') {
+        sessionStorage.removeItem('sv_auth_intent');
+        try { localStorage.setItem('sv_app_mode', savedIntent); } catch {}
+      }
+
       // Check if user is new (created within last 60 seconds)
       const createdAt = new Date(session.user.created_at).getTime();
       const now = Date.now();
