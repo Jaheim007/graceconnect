@@ -15,13 +15,13 @@ const DEFAULT_IMAGE = 'https://siteviral.com/og-image.png';
 
 // ─── Bot detection ───
 
+// Only social-preview bots — keep this list minimal to avoid catching
+// mobile WebViews or unusual browser UAs that could break payment flows.
 const BOT_UA_PATTERNS = [
-  'facebookexternalhit', 'facebot', 'whatsapp', 'twitterbot', 'linkedinbot',
-  'slackbot', 'slack-imgproxy', 'discordbot', 'telegrambot', 'googlebot',
-  'bingbot', 'yandexbot', 'baiduspider', 'duckduckbot', 'applebot',
-  'pinterestbot', 'redditbot', 'rogerbot', 'embedly', 'quora link preview',
-  'outbrain', 'vkshare', 'w3c_validator', 'ia_archiver', 'semrushbot',
-  'ahrefsbot', 'mj12bot', 'dotbot', 'petalbot', 'seznambot', 'megaindex',
+  'facebookexternalhit', 'facebot', 'meta-externalagent', 'meta-externalfetcher',
+  'whatsapp', 'twitterbot', 'linkedinbot',
+  'slackbot', 'slack-imgproxy', 'discordbot', 'telegrambot',
+  'pinterestbot', 'redditbot', 'vkshare',
 ];
 
 function isBot(userAgent: string): boolean {
@@ -253,6 +253,19 @@ Deno.serve(async (req) => {
 
   // Extract the path after /og-proxy
   let contentPath = reqUrl.searchParams.get('path');
+
+  // ── Safety: never intercept payment/checkout routes ──
+  const rawPath = contentPath || reqUrl.pathname;
+  if (/\/(payment|checkout|success|cancel|pay\b)/i.test(rawPath)) {
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: `${SITE_URL}${rawPath.startsWith('/') ? rawPath : `/${rawPath}`}`,
+        'Cache-Control': 'no-cache, no-store',
+        'X-OG-Proxy-Mode': 'payment-bypass',
+      },
+    });
+  }
   if (!contentPath) {
     const fullPath = reqUrl.pathname;
     const proxyIdx = fullPath.indexOf('/og-proxy');
