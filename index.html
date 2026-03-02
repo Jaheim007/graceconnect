@@ -90,4 +90,6 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
+  <!-- I16: CSP meta tag for XSS protection -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.onesignal.com https://onesignal.com https://js.stripe.com https://js.paystack.co; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https: http:; connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co https://api.siteviral.com https://api.stripe.com https://api.paystack.co https://onesignal.com https://cdn.onesignal.com; frame-src https://js.stripe.com https://js.paystack.co https://onesignal.com; media-src 'self' blob: https:;" />
 </html>

@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { useI18n } from '@/i18n/I18nContext';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, UserPlus, Flame, Eye, Download, Heart, Star, Globe } from 'lucide-react';
+import { ShoppingBag, UserPlus, Flame } from 'lucide-react';
 
 interface Activity {
   id: string;
@@ -23,84 +23,10 @@ function timeAgo(dateStr: string, isFr: boolean): string {
   return isFr ? `il y a ${days}j` : `${days}d ago`;
 }
 
-function randomTimeAgo(isFr: boolean): string {
-  const options = isFr
-    ? ['à l\'instant', 'il y a 1min', 'il y a 2min', 'il y a 3min', 'il y a 5min', 'il y a 8min', 'il y a 12min', 'il y a 15min', 'il y a 22min', 'il y a 30min', 'il y a 45min', 'il y a 1h', 'il y a 2h']
-    : ['just now', '1m ago', '2m ago', '3m ago', '5m ago', '8m ago', '12m ago', '15m ago', '22m ago', '30m ago', '45m ago', '1h ago', '2h ago'];
-  return options[Math.floor(Math.random() * options.length)];
-}
-
-const SYNTHETIC_NAMES_FR = [
-  'Marie K.', 'Aimé T.', 'Grâce M.', 'Samuel O.', 'Joséphine N.', 'Patrick D.', 'Esther B.', 'David L.',
-  'Ruth A.', 'Emmanuel S.', 'Carine W.', 'Yannick P.', 'Béatrice F.', 'Olivier H.', 'Sarah J.', 'Jean-Paul R.',
-  'Abigaïl C.', 'Thierry M.', 'Naomi K.', 'François T.', 'Prisca D.', 'Charles E.', 'Lydia N.', 'Marc A.',
-  'Rachel B.', 'Christophe G.', 'Deborah L.', 'André V.', 'Miriam S.', 'Benjamin O.',
-];
-
-const SYNTHETIC_PRODUCTS = [
-  'Guide de prière quotidienne', 'E-book leadership', 'Formation gestion financière', 'Pack méditations',
-  'Cours de musique worship', 'Guide entrepreneuriat', 'Templates réseaux sociaux', 'E-book développement personnel',
-  'Formation marketing digital', 'Guide de croissance spirituelle', 'Pack design graphique', 'Cours de langues',
-  'Guide nutrition et santé', 'Templates business plan', 'Formation prise de parole', 'E-book cuisine africaine',
-  'Guide photographie mobile', 'Pack beats instrumentaux', 'Formation Excel avancé', 'Guide rédaction web',
-];
-
-const SYNTHETIC_ORGS = [
-  'Église La Grâce', 'Ministère Lumière', 'Association Espoir', 'Centre Bethel', 'Fondation Victoire',
-  'Communauté Shalom', 'Mission Agapé', 'Institut Excellence', 'Académie du Savoir', 'Centre de Formation Alpha',
-  'Église du Réveil', 'Ministère des Nations', 'Association Impact', 'Fondation Nouvelle Vision', 'Communauté Élohim',
-];
-
-function generateSyntheticActivities(isFr: boolean): Activity[] {
-  const activities: Activity[] = [];
-  const icons = [
-    <ShoppingBag className="h-3.5 w-3.5 text-emerald-500" />,
-    <Download className="h-3.5 w-3.5 text-blue-500" />,
-    <Heart className="h-3.5 w-3.5 text-rose-500" />,
-    <Star className="h-3.5 w-3.5 text-amber-500" />,
-    <Eye className="h-3.5 w-3.5 text-violet-500" />,
-    <Globe className="h-3.5 w-3.5 text-teal-500" />,
-    <UserPlus className="h-3.5 w-3.5 text-blue-500" />,
-    <Flame className="h-3.5 w-3.5 text-orange-500" />,
-  ];
-
-  const templates = isFr ? [
-    (name: string, prod: string) => ({ icon: icons[0], text: `${name} a acheté « ${prod} »` }),
-    (name: string, prod: string) => ({ icon: icons[1], text: `${name} a téléchargé « ${prod} »` }),
-    (_: string, prod: string) => ({ icon: icons[2], text: `Quelqu'un a fait un don pour « ${prod} »` }),
-    (name: string, prod: string) => ({ icon: icons[3], text: `${name} a noté 5⭐ « ${prod} »` }),
-    (_: string, prod: string) => ({ icon: icons[4], text: `${prod} consulté par 12 personnes` }),
-    (_: string, __: string, org: string) => ({ icon: icons[5], text: `${org} a publié une nouvelle ressource` }),
-    (name: string, __: string, org: string) => ({ icon: icons[6], text: `${name} a rejoint ${org}` }),
-    (_: string, prod: string, org: string) => ({ icon: icons[7], text: `${org} a ajouté « ${prod} »` }),
-  ] : [
-    (name: string, prod: string) => ({ icon: icons[0], text: `${name} purchased "${prod}"` }),
-    (name: string, prod: string) => ({ icon: icons[1], text: `${name} downloaded "${prod}"` }),
-    (_: string, prod: string) => ({ icon: icons[2], text: `Someone donated for "${prod}"` }),
-    (name: string, prod: string) => ({ icon: icons[3], text: `${name} rated 5⭐ "${prod}"` }),
-    (_: string, prod: string) => ({ icon: icons[4], text: `${prod} viewed by 12 people` }),
-    (_: string, __: string, org: string) => ({ icon: icons[5], text: `${org} published a new resource` }),
-    (name: string, __: string, org: string) => ({ icon: icons[6], text: `${name} joined ${org}` }),
-    (_: string, prod: string, org: string) => ({ icon: icons[7], text: `${org} added "${prod}"` }),
-  ];
-
-  for (let i = 0; i < 100; i++) {
-    const name = SYNTHETIC_NAMES_FR[Math.floor(Math.random() * SYNTHETIC_NAMES_FR.length)];
-    const prod = SYNTHETIC_PRODUCTS[Math.floor(Math.random() * SYNTHETIC_PRODUCTS.length)];
-    const org = SYNTHETIC_ORGS[Math.floor(Math.random() * SYNTHETIC_ORGS.length)];
-    const tpl = templates[Math.floor(Math.random() * templates.length)];
-    const result = tpl(name, prod, org);
-    activities.push({
-      id: `synth-${i}-${Math.random().toString(36).slice(2, 6)}`,
-      icon: result.icon,
-      text: result.text,
-      time: randomTimeAgo(isFr),
-    });
-  }
-
-  return activities;
-}
-
+/**
+ * LiveActivityTicker — shows ONLY real platform activity.
+ * Synthetic/fake activities removed per audit C2 (no fake data).
+ */
 export function LiveActivityTicker() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
@@ -111,13 +37,13 @@ export function LiveActivityTicker() {
     queryFn: async () => {
       const results: Activity[] = [];
 
-      // Real purchases
+      // Real purchases (anonymized)
       const { data: purchases } = await db
         .from('product_purchases')
         .select('id, created_at, digital_products(title, organizations(name))')
         .eq('status', 'completed')
         .order('created_at', { ascending: false })
-        .limit(10);
+        .limit(15);
 
       if (purchases) {
         for (const p of purchases) {
@@ -141,7 +67,7 @@ export function LiveActivityTicker() {
         .eq('is_published', true)
         .eq('is_express_demo', false)
         .order('created_at', { ascending: false })
-        .limit(6);
+        .limit(10);
 
       if (newProducts) {
         for (const p of newProducts) {
@@ -163,7 +89,7 @@ export function LiveActivityTicker() {
         .select('id, created_at, name')
         .eq('is_active', true)
         .order('created_at', { ascending: false })
-        .limit(5);
+        .limit(8);
 
       if (newOrgs) {
         for (const o of newOrgs) {
@@ -176,27 +102,22 @@ export function LiveActivityTicker() {
         }
       }
 
-      // Add synthetic activities to bulk up the feed
-      const synthetic = generateSyntheticActivities(isFr);
-
-      // Merge real first, then synthetic, then shuffle everything
-      const all = [...results, ...synthetic];
-      for (let i = all.length - 1; i > 0; i--) {
+      // Shuffle real activities
+      for (let i = results.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [all[i], all[j]] = [all[j], all[i]];
+        [results[i], results[j]] = [results[j], results[i]];
       }
 
-      return all;
+      return results;
     },
-    staleTime: 60 * 1000,
+    staleTime: 2 * 60 * 1000,
   });
 
-  // Auto-rotate every 2.8s for more dynamism
   useEffect(() => {
     if (activities.length <= 1) return;
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % activities.length);
-    }, 2800);
+    }, 3500);
     return () => clearInterval(interval);
   }, [activities.length]);
 
@@ -231,15 +152,6 @@ export function LiveActivityTicker() {
             <span className="text-xs text-muted-foreground shrink-0">{current?.time}</span>
           </motion.div>
         </AnimatePresence>
-
-        <div className="flex gap-1 shrink-0">
-          {activities.slice(0, 6).map((_, i) => (
-            <div
-              key={i}
-              className={`h-1.5 w-1.5 rounded-full transition-colors ${i === currentIndex % 6 ? 'bg-primary' : 'bg-muted-foreground/20'}`}
-            />
-          ))}
-        </div>
       </div>
     </div>
   );

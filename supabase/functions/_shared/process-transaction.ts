@@ -116,14 +116,17 @@ export async function processTransaction(
       const productMatch = !promoData.product_id || promoData.product_id === product_id;
 
       if (withinUsageLimit && notExpired && productMatch) {
-        promoCodeId = promoData.id;
-        discountPercent = promoData.discount_percent || 0;
-        const originalPrice = amountPaid / (1 - discountPercent / 100);
-        discountAmount = parseFloat((originalPrice - amountPaid).toFixed(2));
-        // Atomic increment would be better, but Supabase JS doesn't support it natively
-        await db.from('promo_codes')
-          .update({ current_uses: promoData.current_uses + 1 })
-          .eq('id', promoData.id);
+        // Atomic increment via DB function (prevents race conditions)
+        const { data: incrementOk } = await db.rpc('increment_promo_uses', { _promo_id: promoData.id });
+        if (incrementOk === false) {
+          // Promo limit reached between check and increment — skip promo
+          console.warn('[process-transaction] Promo code limit reached atomically:', promo_code);
+        } else {
+          promoCodeId = promoData.id;
+          discountPercent = promoData.discount_percent || 0;
+          const originalPrice = amountPaid / (1 - discountPercent / 100);
+          discountAmount = parseFloat((originalPrice - amountPaid).toFixed(2));
+        }
       }
     }
   }

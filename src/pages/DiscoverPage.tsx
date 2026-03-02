@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Search, ShoppingBag, Heart, HandHeart, SlidersHorizontal, ArrowUpDown, Star, TrendingUp } from 'lucide-react';
+import { Search, ShoppingBag, Heart, HandHeart, SlidersHorizontal, ArrowUpDown, Star, TrendingUp, Loader2 } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,7 @@ import { FeaturedSection } from '@/components/discover/FeaturedSection';
 import { PlatformStats } from '@/components/discover/PlatformStats';
 import { PersonalizedRecommendations } from '@/components/discover/PersonalizedRecommendations';
 import { BuyerStreakWidget } from '@/components/discover/BuyerStreakWidget';
+import { useCallback, useRef, useEffect } from 'react';
 
 import { Offering } from '@/hooks/useOfferings';
 
@@ -48,14 +49,12 @@ type ProductSort = 'mixed' | 'popular' | 'recent' | 'price_asc' | 'price_desc' |
 /** Interleave products so no single org dominates consecutive slots */
 function mixByOrg(products: any[]): any[] {
   if (products.length === 0) return [];
-  // Group by org
   const byOrg = new Map<string, any[]>();
   for (const p of products) {
     const key = p.organization_id || 'unknown';
     if (!byOrg.has(key)) byOrg.set(key, []);
     byOrg.get(key)!.push(p);
   }
-  // Round-robin interleave, largest orgs first
   const queues = [...byOrg.values()].sort((a, b) => b.length - a.length);
   const result: any[] = [];
   let remaining = true;
@@ -70,26 +69,11 @@ function mixByOrg(products: any[]): any[] {
   }
   return result;
 }
-/** Multiply content: shuffle and repeat to create an endless-feeling feed */
-function multiplyContent(items: any[]): any[] {
-  if (items.length === 0) return [];
-  if (items.length >= 200) return items;
-  const target = Math.max(200, items.length * 5);
-  const result = [...items];
-  let round = 1;
-  while (result.length < target) {
-    const shuffled = [...items].sort(() => Math.random() - 0.5);
-    for (const item of shuffled) {
-      if (result.length >= target) break;
-      result.push({ ...item, id: `${item.id}_r${round}_${Math.random().toString(36).slice(2, 6)}` });
-    }
-    round++;
-  }
-  return result;
-}
 
 type PriceFilter = 'all' | 'free' | 'paid';
 type ProductTypeFilter = '' | 'pdf' | 'ebook' | 'audio' | 'video' | 'link' | 'bundle';
+
+const PAGE_SIZE = 20;
 
 export default function DiscoverPage() {
   const [search, setSearch] = useState('');
@@ -103,20 +87,22 @@ export default function DiscoverPage() {
   const { userOrgs } = useOrg();
   const { t, locale } = useI18n();
   const debouncedSearch = useDebounce(search, 300);
+  const isFr = locale === 'fr';
 
   const PRODUCT_TYPES = [
-    { value: '', label: locale === 'fr' ? 'Tous types' : 'All types' },
+    { value: '', label: isFr ? 'Tous types' : 'All types' },
     { value: 'pdf', label: 'PDF' },
     { value: 'ebook', label: 'E-book' },
     { value: 'audio', label: 'Audio' },
     { value: 'video', label: 'Vidéo' },
-    { value: 'link', label: locale === 'fr' ? 'Lien' : 'Link' },
+    { value: 'link', label: isFr ? 'Lien' : 'Link' },
     { value: 'bundle', label: 'Bundle' },
   ];
 
-  const { data: products = [], isLoading: loadingProducts } = useQuery({
+  // C2+C5: Real infinite scroll pagination (removed multiplyContent)
+  const productsQuery = useInfiniteQuery({
     queryKey: ['discover-products', debouncedSearch, sortBy, priceFilter, typeFilter],
-    queryFn: async () => {
+    queryFn: async ({ pageParam = 0 }) => {
       let q = db
         .from('digital_products')
         .select('*, organizations(name, slug, logo_url, currency)')
@@ -129,7 +115,6 @@ export default function DiscoverPage() {
       if (typeFilter === 'bundle') q = q.eq('is_bundle', true);
       else if (typeFilter) q = q.eq('product_type', typeFilter);
 
-      // For 'mixed', fetch by featured_score but we'll interleave client-side
       if (sortBy === 'mixed' || sortBy === 'popular') q = q.order('featured_score', { ascending: false }).order('sales_count', { ascending: false });
       else if (sortBy === 'recent') q = q.order('created_at', { ascending: false });
       else if (sortBy === 'price_asc') q = q.order('price', { ascending: true });
@@ -138,7 +123,7 @@ export default function DiscoverPage() {
       else if (sortBy === 'best_selling') q = q.order('sales_count', { ascending: false });
       else if (sortBy === 'most_viewed') q = q.order('featured_score', { ascending: false });
 
-      q = q.limit(60);
+      q = q.range(pageParam * PAGE_SIZE, (pageParam + 1) * PAGE_SIZE - 1);
       const { data } = await q;
       const mapped = (data || []).map((p: any) => ({
         ...p,
@@ -146,17 +131,43 @@ export default function DiscoverPage() {
         organization_slug: p.organizations?.slug,
         organization_logo: p.organizations?.logo_url,
       }));
-      // Apply mix algorithm for default view
-      const mixed = sortBy === 'mixed' ? mixByOrg(mapped) : mapped;
-      // Multiply content to create an endless-feeling feed
-      return multiplyContent(mixed);
+      return { items: sortBy === 'mixed' ? mixByOrg(mapped) : mapped, page: pageParam };
     },
+    getNextPageParam: (lastPage) => {
+      if (lastPage.items.length < PAGE_SIZE) return undefined;
+      return lastPage.page + 1;
+    },
+    initialPageParam: 0,
     enabled: tab === 'products',
+    staleTime: 2 * 60 * 1000, // A2: 2min cache
   });
 
-  const { data: campaigns = [], isLoading: loadingCampaigns } = useQuery({
+  const products = productsQuery.data?.pages.flatMap(p => p.items) || [];
+  const loadingProducts = productsQuery.isLoading;
+
+  // Infinite scroll sentinel
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const sentinelRef = useCallback(
+    (node: HTMLElement | null) => {
+      if (observerRef.current) observerRef.current.disconnect();
+      if (!node || !productsQuery.hasNextPage || productsQuery.isFetchingNextPage) return;
+      observerRef.current = new IntersectionObserver((entries) => {
+        if (entries[0]?.isIntersecting && productsQuery.hasNextPage) {
+          productsQuery.fetchNextPage();
+        }
+      }, { rootMargin: '300px' });
+      observerRef.current.observe(node);
+    },
+    [productsQuery.hasNextPage, productsQuery.isFetchingNextPage, productsQuery.fetchNextPage]
+  );
+
+  useEffect(() => {
+    return () => observerRef.current?.disconnect();
+  }, []);
+
+  const campaignsQuery = useInfiniteQuery({
     queryKey: ['discover-campaigns', debouncedSearch],
-    queryFn: async () => {
+    queryFn: async ({ pageParam = 0 }) => {
       let q = db
         .from('donation_campaigns')
         .select('*, organizations(name, slug, logo_url, currency)')
@@ -164,38 +175,54 @@ export default function DiscoverPage() {
         .eq('is_active', true)
         .eq('is_express_demo', false)
         .order('current_amount', { ascending: false })
-        .limit(50);
+        .range(pageParam * PAGE_SIZE, (pageParam + 1) * PAGE_SIZE - 1);
       if (debouncedSearch) q = q.ilike('title', `%${debouncedSearch}%`);
       const { data } = await q;
-      return (data || []).map((c: any) => ({
-        ...c,
-        organization_name: c.organizations?.name,
-        organization_slug: c.organizations?.slug,
-      }));
+      return {
+        items: (data || []).map((c: any) => ({
+          ...c,
+          organization_name: c.organizations?.name,
+          organization_slug: c.organizations?.slug,
+        })),
+        page: pageParam,
+      };
     },
+    getNextPageParam: (lastPage: any) => lastPage.items.length < PAGE_SIZE ? undefined : lastPage.page + 1,
+    initialPageParam: 0,
     enabled: tab === 'campaigns',
+    staleTime: 2 * 60 * 1000,
   });
+  const campaigns = campaignsQuery.data?.pages.flatMap((p: any) => p.items) ?? [];
+  const loadingCampaigns = campaignsQuery.isLoading;
 
-  const { data: offerings = [], isLoading: loadingOfferings } = useQuery({
+  const offeringsQuery = useInfiniteQuery({
     queryKey: ['discover-offerings', debouncedSearch],
-    queryFn: async () => {
+    queryFn: async ({ pageParam = 0 }) => {
       let q = db
         .from('offerings')
         .select('*, organizations!inner(name, slug, logo_url, currency, offerings_enabled)')
         .eq('is_active', true)
         .eq('organizations.offerings_enabled', true)
         .order('created_at', { ascending: false })
-        .limit(50);
+        .range(pageParam * PAGE_SIZE, (pageParam + 1) * PAGE_SIZE - 1);
       if (debouncedSearch) q = q.ilike('title', `%${debouncedSearch}%`);
       const { data } = await q;
-      return (data || []).map((o: any) => ({
-        ...o,
-        organization_name: o.organizations?.name,
-        organization_slug: o.organizations?.slug,
-      }));
+      return {
+        items: (data || []).map((o: any) => ({
+          ...o,
+          organization_name: o.organizations?.name,
+          organization_slug: o.organizations?.slug,
+        })),
+        page: pageParam,
+      };
     },
+    getNextPageParam: (lastPage: any) => lastPage.items.length < PAGE_SIZE ? undefined : lastPage.page + 1,
+    initialPageParam: 0,
     enabled: tab === 'offerings',
+    staleTime: 2 * 60 * 1000,
   });
+  const offerings = offeringsQuery.data?.pages.flatMap((p: any) => p.items) ?? [];
+  const loadingOfferings = offeringsQuery.isLoading;
 
   const isSearching = debouncedSearch.length > 0;
 
@@ -237,7 +264,7 @@ export default function DiscoverPage() {
               <Heart className="h-3.5 w-3.5" /> {t('discover.campaigns')}
             </TabsTrigger>
             <TabsTrigger value="offerings" className="gap-1.5">
-              <HandHeart className="h-3.5 w-3.5" /> {locale === 'fr' ? 'Dons' : 'Donations'}
+              <HandHeart className="h-3.5 w-3.5" /> {isFr ? 'Dons' : 'Donations'}
             </TabsTrigger>
           </TabsList>
 
@@ -250,21 +277,21 @@ export default function DiscoverPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="mixed">{locale === 'fr' ? '🔀 Mix' : '🔀 Mix'}</SelectItem>
-                  <SelectItem value="popular"><TrendingUp className="h-3 w-3 inline mr-1" />{locale === 'fr' ? 'Populaires' : 'Popular'}</SelectItem>
-                  <SelectItem value="recent">{locale === 'fr' ? 'Récents' : 'Recent'}</SelectItem>
-                  <SelectItem value="best_selling">{locale === 'fr' ? 'Plus vendus' : 'Best selling'}</SelectItem>
-                  <SelectItem value="most_viewed">{locale === 'fr' ? 'Plus consultés' : 'Most viewed'}</SelectItem>
-                  <SelectItem value="rating"><Star className="h-3 w-3 inline mr-1" />{locale === 'fr' ? 'Mieux notés' : 'Top rated'}</SelectItem>
-                  <SelectItem value="price_asc">{locale === 'fr' ? 'Prix ↑' : 'Price ↑'}</SelectItem>
-                  <SelectItem value="price_desc">{locale === 'fr' ? 'Prix ↓' : 'Price ↓'}</SelectItem>
+                  <SelectItem value="mixed">🔀 Mix</SelectItem>
+                  <SelectItem value="popular"><TrendingUp className="h-3 w-3 inline mr-1" />{isFr ? 'Populaires' : 'Popular'}</SelectItem>
+                  <SelectItem value="recent">{isFr ? 'Récents' : 'Recent'}</SelectItem>
+                  <SelectItem value="best_selling">{isFr ? 'Plus vendus' : 'Best selling'}</SelectItem>
+                  <SelectItem value="most_viewed">{isFr ? 'Plus consultés' : 'Most viewed'}</SelectItem>
+                  <SelectItem value="rating"><Star className="h-3 w-3 inline mr-1" />{isFr ? 'Mieux notés' : 'Top rated'}</SelectItem>
+                  <SelectItem value="price_asc">{isFr ? 'Prix ↑' : 'Price ↑'}</SelectItem>
+                  <SelectItem value="price_desc">{isFr ? 'Prix ↓' : 'Price ↓'}</SelectItem>
                 </SelectContent>
               </Select>
 
               <div className="flex gap-1">
                 {(['all', 'free', 'paid'] as PriceFilter[]).map((pf) => (
                   <Button key={pf} size="sm" variant={priceFilter === pf ? 'default' : 'outline'} className="h-8 text-xs px-3" onClick={() => setPriceFilter(pf)}>
-                    {pf === 'all' ? (locale === 'fr' ? 'Tous' : 'All') : pf === 'free' ? (locale === 'fr' ? 'Gratuit' : 'Free') : (locale === 'fr' ? 'Payant' : 'Paid')}
+                    {pf === 'all' ? (isFr ? 'Tous' : 'All') : pf === 'free' ? (isFr ? 'Gratuit' : 'Free') : (isFr ? 'Payant' : 'Paid')}
                   </Button>
                 ))}
               </div>
@@ -272,7 +299,7 @@ export default function DiscoverPage() {
               <Select value={typeFilter || '_all'} onValueChange={(v) => setTypeFilter(v === '_all' ? '' : v as ProductTypeFilter)}>
                 <SelectTrigger className="h-8 w-auto min-w-[110px] text-xs gap-1">
                   <SlidersHorizontal className="h-3 w-3" />
-                  <SelectValue placeholder={locale === 'fr' ? 'Type' : 'Type'} />
+                  <SelectValue placeholder="Type" />
                 </SelectTrigger>
                 <SelectContent>
                   {PRODUCT_TYPES.map((pt) => (
@@ -280,26 +307,39 @@ export default function DiscoverPage() {
                   ))}
                 </SelectContent>
               </Select>
-
             </div>
 
             {loadingProducts ? <SkeletonList count={8} /> : products.length === 0 ? (
               <EmptyState variant="search" title={t('discover.no_products')} />
             ) : (
-              <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {products.map((p: any) => (
-                  <motion.div key={p.id} variants={fadeUp}>
-                    <ProductCard product={p} />
-                  </motion.div>
-                ))}
-              </motion.div>
+              <>
+                <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {products.map((p: any) => (
+                    <motion.div key={p.id} variants={fadeUp}>
+                      <ProductCard product={p} />
+                    </motion.div>
+                  ))}
+                </motion.div>
+                {/* Infinite scroll sentinel */}
+                <div ref={sentinelRef} className="h-10" />
+                {productsQuery.isFetchingNextPage && (
+                  <div className="flex justify-center py-6">
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  </div>
+                )}
+                {!productsQuery.hasNextPage && products.length > 0 && (
+                  <p className="text-center text-xs text-muted-foreground py-6">
+                    {isFr ? '— Fin des résultats —' : '— End of results —'}
+                  </p>
+                )}
+              </>
             )}
           </TabsContent>
 
           {/* ═══ Campaigns Tab ═══ */}
           <TabsContent value="campaigns">
             {loadingCampaigns ? <SkeletonList count={6} /> : campaigns.length === 0 ? (
-              <EmptyState variant="search" title={locale === 'fr' ? 'Aucune campagne visible trouvée' : 'No visible campaigns found'} description={locale === 'fr' ? 'Essayez d\'ajuster votre recherche ou vos filtres.' : 'Try adjusting your search or filters.'} />
+              <EmptyState variant="search" title={isFr ? 'Aucune campagne visible trouvée' : 'No visible campaigns found'} description={isFr ? 'Essayez d\'ajuster votre recherche ou vos filtres.' : 'Try adjusting your search or filters.'} />
             ) : (
               <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 {campaigns.map((c: any) => (
@@ -314,7 +354,7 @@ export default function DiscoverPage() {
           {/* ═══ Offerings/Dons Tab ═══ */}
           <TabsContent value="offerings">
             {loadingOfferings ? <SkeletonList count={6} /> : offerings.length === 0 ? (
-              <EmptyState variant="generic" title={locale === 'fr' ? 'Aucun don visible trouvé' : 'No visible donations found'} description={locale === 'fr' ? 'Essayez d\'ajuster votre recherche ou vos filtres.' : 'Try adjusting your search or filters.'} />
+              <EmptyState variant="generic" title={isFr ? 'Aucun don visible trouvé' : 'No visible donations found'} description={isFr ? 'Essayez d\'ajuster votre recherche ou vos filtres.' : 'Try adjusting your search or filters.'} />
             ) : (
               <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 {offerings.map((o: any) => (

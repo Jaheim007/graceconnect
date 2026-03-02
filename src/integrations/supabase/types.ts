@@ -3959,6 +3959,7 @@ export type Database = {
         Returns: undefined
       }
       increment_like_count: { Args: { media_id: string }; Returns: undefined }
+      increment_promo_uses: { Args: { _promo_id: string }; Returns: boolean }
       increment_sales_count: {
         Args: { _product_id: string }
         Returns: undefined

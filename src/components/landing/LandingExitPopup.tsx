@@ -15,22 +15,16 @@ export function LandingExitPopup() {
   }, [dismissed]);
 
   useEffect(() => {
-    // Exit intent on desktop
+    // Exit intent on desktop only (mouse leaves viewport)
+    // I2: Removed aggressive scroll trigger on mobile to avoid irritation
     const handleMouseLeave = (e: MouseEvent) => {
       if (e.clientY <= 5) show();
     };
-    // Scroll 60% on mobile
-    const handleScroll = () => {
-      const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
-      if (pct >= 60) show();
-    };
 
     document.addEventListener('mouseleave', handleMouseLeave);
-    window.addEventListener('scroll', handleScroll, { passive: true });
 
     return () => {
       document.removeEventListener('mouseleave', handleMouseLeave);
-      window.removeEventListener('scroll', handleScroll);
     };
   }, [show]);
 
