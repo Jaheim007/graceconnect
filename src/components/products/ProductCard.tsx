@@ -137,6 +137,18 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
                 <CheckCircle className="h-3 w-3" /> Acheté
               </Badge>
             )}
+            {/* A3: "Nouveau" badge for products < 7 days old */}
+            {!isPurchased && product.created_at && (Date.now() - new Date(product.created_at).getTime()) < 7 * 86400000 && (
+              <Badge className="bg-blue-500/90 text-white border-0 text-[10px] font-semibold w-fit">
+                ✨ Nouveau
+              </Badge>
+            )}
+            {/* A3: "Bestseller" badge for 10+ sales */}
+            {!isPurchased && (product.sales_count || 0) >= 10 && (
+              <Badge className="bg-amber-500/90 text-white border-0 text-[10px] font-semibold w-fit">
+                🔥 Bestseller
+              </Badge>
+            )}
             {isFlashSale && (
               <FlashSaleBadge saleEndsAt={saleEndsAt} salePrice={salePrice} originalPrice={product.price} />
             )}

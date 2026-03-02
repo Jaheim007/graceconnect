@@ -1,25 +1,28 @@
+import { lazy, Suspense } from 'react';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { LandingHero } from '@/components/landing/LandingHero';
 import { LandingPersonaCards } from '@/components/landing/LandingPersonaCards';
-import { LandingAmbassadorSection } from '@/components/landing/LandingAmbassadorSection';
-import { LandingHowItWorks } from '@/components/landing/LandingHowItWorks';
-import { LandingUseCases } from '@/components/landing/LandingUseCases';
-import { LandingPricing } from '@/components/landing/LandingPricing';
-import { LandingTrust } from '@/components/landing/LandingTrust';
-import { LandingFAQ } from '@/components/landing/LandingFAQ';
-import { LandingFinalCTA } from '@/components/landing/LandingFinalCTA';
-import { LandingFooter } from '@/components/landing/LandingFooter';
-import { TestimonialCarousel } from '@/components/landing/TestimonialCarousel';
-import { Marquee } from '@/components/landing/Marquee';
-import { BeforeAfterSection } from '@/components/landing/BeforeAfterSection';
-import { PaymentLogos } from '@/components/landing/PaymentLogos';
 import { StatsBar } from '@/components/landing/AnimatedCounter';
 import { LandingVideoPromo } from '@/components/landing/LandingVideoPromo';
-import { LandingWhitePaper } from '@/components/landing/LandingWhitePaper';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { LandingExitPopup } from '@/components/landing/LandingExitPopup';
+
+// A9: Lazy-load below-the-fold sections to reduce initial bundle
+const LandingAmbassadorSection = lazy(() => import('@/components/landing/LandingAmbassadorSection').then(m => ({ default: m.LandingAmbassadorSection })));
+const LandingHowItWorks = lazy(() => import('@/components/landing/LandingHowItWorks').then(m => ({ default: m.LandingHowItWorks })));
+const LandingUseCases = lazy(() => import('@/components/landing/LandingUseCases').then(m => ({ default: m.LandingUseCases })));
+const LandingPricing = lazy(() => import('@/components/landing/LandingPricing').then(m => ({ default: m.LandingPricing })));
+const LandingTrust = lazy(() => import('@/components/landing/LandingTrust').then(m => ({ default: m.LandingTrust })));
+const LandingFAQ = lazy(() => import('@/components/landing/LandingFAQ').then(m => ({ default: m.LandingFAQ })));
+const LandingFinalCTA = lazy(() => import('@/components/landing/LandingFinalCTA').then(m => ({ default: m.LandingFinalCTA })));
+const LandingFooter = lazy(() => import('@/components/landing/LandingFooter').then(m => ({ default: m.LandingFooter })));
+const TestimonialCarousel = lazy(() => import('@/components/landing/TestimonialCarousel').then(m => ({ default: m.TestimonialCarousel })));
+const Marquee = lazy(() => import('@/components/landing/Marquee').then(m => ({ default: m.Marquee })));
+const BeforeAfterSection = lazy(() => import('@/components/landing/BeforeAfterSection').then(m => ({ default: m.BeforeAfterSection })));
+const PaymentLogos = lazy(() => import('@/components/landing/PaymentLogos').then(m => ({ default: m.PaymentLogos })));
+const LandingWhitePaper = lazy(() => import('@/components/landing/LandingWhitePaper').then(m => ({ default: m.LandingWhitePaper })));
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
@@ -93,78 +96,55 @@ export default function LandingPage() {
       {/* Hero with rotating personas + social proof */}
       <LandingHero />
 
-      {/* Promo video (hidden until YouTube ID is set) */}
-      <LandingVideoPromo />
+      {/* A9: Lazy load below-fold sections */}
+      <Suspense fallback={null}>
+        <LandingVideoPromo />
+        <LandingPersonaCards />
+        <StatsBar />
+        <LandingAmbassadorSection />
+        <LandingHowItWorks />
+        <LandingUseCases />
 
-      {/* 3 Persona Cards */}
-      <LandingPersonaCards />
+        {/* Marquee: What you can sell */}
+        <section className="py-16 px-4 bg-muted/30 overflow-hidden">
+          <div className="container max-w-5xl mb-10">
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center">
+              <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">
+                Monétisez tout ce que vous pouvez <span className="text-accent">imaginer</span>
+              </h2>
+              <p className="text-muted-foreground max-w-xl mx-auto">Ebooks, audio, vidéos, documents, templates — <strong className="text-foreground">tout type de contenu numérique</strong>.</p>
+            </motion.div>
+          </div>
+          <div className="space-y-4">
+            <Marquee items={marqueeRow1} direction="left" speed={35} />
+            <Marquee items={marqueeRow2} direction="right" speed={40} />
+          </div>
+        </section>
 
-      {/* Stats bar with animated counters */}
-      <StatsBar />
+        {/* Testimonials */}
+        <section className="py-20 px-4 overflow-hidden">
+          <div className="container max-w-6xl">
+            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-12">
+              <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">Témoignages</Badge>
+              <h2 className="text-3xl sm:text-4xl font-extrabold">
+                Ils ont déjà <span className="text-primary">transformé leur impact</span>
+              </h2>
+            </motion.div>
+          </div>
+          <TestimonialCarousel
+            testimonials={testimonials}
+            statCard={{ value: '10%', label: 'Commission unique — zéro abonnement' }}
+          />
+        </section>
 
-      {/* White Paper / Livre Blanc — disabled until guide is ready */}
-      {/* <LandingWhitePaper /> */}
-
-      {/* Ambassador Section (prominent) */}
-      <LandingAmbassadorSection />
-
-      {/* How it works (tabbed by persona) */}
-      <LandingHowItWorks />
-
-      {/* Use Cases */}
-      <LandingUseCases />
-
-      {/* Marquee: What you can sell */}
-      <section className="py-16 px-4 bg-muted/30 overflow-hidden">
-        <div className="container max-w-5xl mb-10">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center">
-            <h2 className="text-3xl sm:text-4xl font-extrabold mb-3">
-              Monétisez tout ce que vous pouvez <span className="text-accent">imaginer</span>
-            </h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">Ebooks, audio, vidéos, documents, templates — <strong className="text-foreground">tout type de contenu numérique</strong>.</p>
-          </motion.div>
-        </div>
-        <div className="space-y-4">
-          <Marquee items={marqueeRow1} direction="left" speed={35} />
-          <Marquee items={marqueeRow2} direction="right" speed={40} />
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-20 px-4 overflow-hidden">
-        <div className="container max-w-6xl">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-12">
-            <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">Témoignages</Badge>
-            <h2 className="text-3xl sm:text-4xl font-extrabold">
-              Ils ont déjà <span className="text-primary">transformé leur impact</span>
-            </h2>
-          </motion.div>
-        </div>
-        <TestimonialCarousel
-          testimonials={testimonials}
-          statCard={{ value: '10%', label: 'Commission unique — zéro abonnement' }}
-        />
-      </section>
-
-      {/* Before vs After */}
-      <BeforeAfterSection />
-
-      {/* Payment Logos */}
-      <PaymentLogos />
-
-      {/* Pricing with comparison */}
-      <LandingPricing />
-
-      {/* Trust */}
-      <LandingTrust />
-
-      {/* FAQ inline */}
-      <LandingFAQ />
-
-      {/* Final CTA + WhatsApp */}
-      <LandingFinalCTA />
-
-      <LandingFooter />
+        <BeforeAfterSection />
+        <PaymentLogos />
+        <LandingPricing />
+        <LandingTrust />
+        <LandingFAQ />
+        <LandingFinalCTA />
+        <LandingFooter />
+      </Suspense>
       <LandingExitPopup />
     </div>
   );
