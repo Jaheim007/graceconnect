@@ -46,21 +46,47 @@ export default function LandingPage() {
         description="Organisations et leaders : créez votre plateforme digitale clé en main. Vendez, collectez des dons et bénéficiez d'une armée d'ambassadeurs. Tout le monde gagne, avec ou sans contenu."
         canonicalUrl="https://siteviral.com"
         keywords="créer plateforme digitale gratuit, vendre ebook en ligne Afrique, produits numériques Mobile Money, programme ambassadeur, gagner argent en partageant, organisations et leaders, tout le monde monétise, Siteviral"
-        jsonLd={{
-          '@context': 'https://schema.org',
-          '@type': 'Organization',
-          name: 'Siteviral',
-          url: 'https://siteviral.com',
-          logo: 'https://siteviral.com/logo-s.png',
-          description: 'Plateforme digitale tout-en-un pour organisations et leaders. Créez, vendez, et bénéficiez d\'une armée d\'ambassadeurs. Tout le monde gagne.',
-          foundingDate: '2024',
-          sameAs: ['https://wa.me/message/siteviral'],
-          potentialAction: {
-            '@type': 'SearchAction',
-            target: 'https://siteviral.com/discover?q={search_term_string}',
-            'query-input': 'required name=search_term_string',
+        jsonLd={[
+          {
+            '@context': 'https://schema.org',
+            '@type': 'Organization',
+            name: 'Siteviral',
+            url: 'https://siteviral.com',
+            logo: 'https://siteviral.com/logo-s.png',
+            description: 'Plateforme digitale tout-en-un pour organisations et leaders. Créez, vendez, et bénéficiez d\'une armée d\'ambassadeurs. Tout le monde gagne.',
+            foundingDate: '2024',
+            sameAs: ['https://wa.me/message/siteviral'],
+            potentialAction: {
+              '@type': 'SearchAction',
+              target: 'https://siteviral.com/discover?q={search_term_string}',
+              'query-input': 'required name=search_term_string',
+            },
           },
-        }}
+          {
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: 'Siteviral',
+            url: 'https://siteviral.com',
+            potentialAction: {
+              '@type': 'SearchAction',
+              target: 'https://siteviral.com/discover?q={search_term_string}',
+              'query-input': 'required name=search_term_string',
+            },
+          },
+          {
+            '@context': 'https://schema.org',
+            '@type': 'SoftwareApplication',
+            name: 'Siteviral',
+            applicationCategory: 'BusinessApplication',
+            operatingSystem: 'Web',
+            offers: {
+              '@type': 'Offer',
+              price: '0',
+              priceCurrency: 'USD',
+              description: 'Plan gratuit avec toutes les fonctionnalités de base',
+            },
+          },
+        ]}
       />
       <LandingNav />
 

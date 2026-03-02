@@ -51,6 +51,7 @@ export function MediaCard({ media, index = 0, compact = false }: MediaCardProps)
           <img
             src={media.thumbnail_url}
             alt={media.title}
+            loading="lazy"
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
           />
         ) : (

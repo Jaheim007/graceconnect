@@ -32,11 +32,31 @@ export function FileUploader({
   const [mode, setMode] = useState<'upload' | 'url'>(value && value.startsWith('http') ? 'url' : 'upload');
   const [urlInput, setUrlInput] = useState(value || '');
 
+  // Allowed MIME types for upload security
+  const ALLOWED_MIMES = new Set([
+    'application/pdf', 'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.ms-powerpoint',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    'application/vnd.ms-excel',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/mp4', 'audio/aac',
+    'video/mp4', 'video/webm', 'video/quicktime',
+    'image/jpeg', 'image/png', 'image/webp', 'image/gif',
+    'application/zip', 'application/x-zip-compressed',
+    'text/plain', 'text/csv',
+  ]);
+
   const handleFile = async (file: File) => {
     if (!file) return;
     const MAX = 50 * 1024 * 1024; // 50 MB — Supabase Storage limit
     if (file.size > MAX) {
       setError('Fichier trop volumineux. Maximum 50 Mo.');
+      return;
+    }
+    // MIME type validation
+    if (!ALLOWED_MIMES.has(file.type)) {
+      setError(`Type de fichier non autorisé : ${file.type || 'inconnu'}. Formats acceptés : PDF, Word, PowerPoint, Excel, Audio, Vidéo, Images.`);
       return;
     }
     setError(null);

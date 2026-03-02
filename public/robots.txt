@@ -1,8 +1,10 @@
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 2
 
 User-agent: Twitterbot
 Allow: /
@@ -10,8 +12,15 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
+User-agent: WhatsApp
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
 User-agent: *
 Allow: /
+Crawl-delay: 5
 Disallow: /admin
 Disallow: /superadmin
 Disallow: /auth
@@ -23,5 +32,7 @@ Disallow: /bookmarks
 Disallow: /invoices
 Disallow: /analytics
 Disallow: /welcome
+Disallow: /partner
+Disallow: /maintenance
 
 Sitemap: https://api.siteviral.com/functions/v1/sitemap

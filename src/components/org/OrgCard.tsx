@@ -59,6 +59,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
           <img
             src={org.banner_url}
             alt=""
+            loading="lazy"
             className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
           />
         ) : (
@@ -83,7 +84,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
         <div className="flex items-start gap-3 mb-2">
           <div className="h-14 w-14 rounded-xl border-2 border-border shadow-sm overflow-hidden bg-card shrink-0">
             {org.logo_url ? (
-              <img src={org.logo_url} alt={org.name} className="w-full h-full object-cover" />
+              <img src={org.logo_url} alt={org.name} loading="lazy" className="w-full h-full object-cover" />
             ) : (
               <div className="w-full h-full bg-primary flex items-center justify-center">
                 <span className="text-sm font-bold text-primary-foreground">
