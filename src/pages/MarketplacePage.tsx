@@ -19,19 +19,20 @@ const fadeUp = {
 export default function MarketplacePage() {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('popular');
-
+  const [typeFilter, setTypeFilter] = useState('');
   // Products
   const { data: products = [], isLoading } = useQuery({
-    queryKey: ['marketplace-products', search, sortBy],
+    queryKey: ['marketplace-products', search, sortBy, typeFilter],
     queryFn: async () => {
-      const orderCol = sortBy === 'commission' ? 'price' : sortBy === 'newest' ? 'created_at' : 'sales_count';
+      const orderCol = sortBy === 'commission' ? 'price' : sortBy === 'newest' ? 'created_at' : sortBy === 'bestseller' ? 'sales_count' : 'sales_count';
       let q = db
         .from('digital_products')
         .select('*, organizations(name, slug, logo_url, currency, affiliation_commission_percent)')
         .eq('is_published', true)
         .order(orderCol, { ascending: false })
-        .limit(50);
+        .limit(60);
       if (search) q = q.ilike('title', `%${search}%`);
+      if (typeFilter) q = q.eq('product_type', typeFilter);
       const { data } = await q;
       return (data || []).map((p: any) => ({
         ...p,
@@ -86,24 +87,33 @@ export default function MarketplacePage() {
                 className="pl-9 h-10"
               />
             </div>
-            {/* 2 filters only */}
-            <div className="flex gap-1.5">
-              <Button
-                variant={sortBy === 'commission' ? 'default' : 'outline'}
-                size="sm"
-                className="text-xs h-10 gap-1"
-                onClick={() => setSortBy(sortBy === 'commission' ? 'popular' : 'commission')}
-              >
-                <TrendingUp className="h-3.5 w-3.5" /> Meilleure commission
-              </Button>
-              <Button
-                variant={sortBy === 'newest' ? 'default' : 'outline'}
-                size="sm"
-                className="text-xs h-10 gap-1"
-                onClick={() => setSortBy(sortBy === 'newest' ? 'popular' : 'newest')}
-              >
-                <Sparkles className="h-3.5 w-3.5" /> Nouveautés
-              </Button>
+            <div className="flex flex-wrap gap-1.5">
+              {[
+                { key: 'commission', label: '💰 Meilleure commission', icon: TrendingUp },
+                { key: 'newest', label: '✨ Nouveautés', icon: Sparkles },
+                { key: 'bestseller', label: '🔥 Meilleures ventes', icon: TrendingUp },
+              ].map(f => (
+                <Button
+                  key={f.key}
+                  variant={sortBy === f.key ? 'default' : 'outline'}
+                  size="sm"
+                  className="text-xs h-9 gap-1"
+                  onClick={() => setSortBy(sortBy === f.key ? 'popular' : f.key)}
+                >
+                  {f.label}
+                </Button>
+              ))}
+              {['pdf', 'ebook', 'video', 'course', 'audio'].map(t => (
+                <Button
+                  key={t}
+                  variant={typeFilter === t ? 'default' : 'outline'}
+                  size="sm"
+                  className="text-xs h-9 capitalize"
+                  onClick={() => setTypeFilter(typeFilter === t ? '' : t)}
+                >
+                  {t === 'pdf' ? 'PDF' : t === 'ebook' ? 'eBook' : t === 'video' ? 'Vidéo' : t === 'course' ? 'Cours' : 'Audio'}
+                </Button>
+              ))}
             </div>
           </div>
         </div>

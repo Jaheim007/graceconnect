@@ -3,17 +3,15 @@ import { useShortLink } from '@/hooks/useShortLink';
 import { formatPrice } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen, Share2, Copy, MessageCircle, Eye } from 'lucide-react';
+import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen, Eye } from 'lucide-react';
 import { FlashSaleBadge } from './FlashSaleBadge';
+import { ShareWidget } from './ShareWidget';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 
 interface ProductCardProps {
   product: DigitalProduct & { slug?: string };
@@ -78,16 +76,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
   const canPreview = !!(product as any).file_url && ['pdf', 'ebook'].includes((product.product_type || '').toLowerCase());
   const previewPath = `${detailPath}?preview=1`;
 
-  const handleCopyLink = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    navigator.clipboard.writeText(socialShareUrl);
-    toast({ title: 'Lien copié !' });
-  };
-
-  const handleShareWhatsApp = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    window.open(`https://wa.me/?text=${encodeURIComponent(`${product.title} — ${socialShareUrl}`)}`, '_blank');
-  };
+  const commissionPercent = (product as any).commission_percent;
 
   const handleCardClick = () => {
     if (resolvedSlug) navigate(detailPath);
@@ -173,17 +162,24 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
           {product.description && (
             <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{product.description}</p>
           )}
-          {(product as any).organization_name && (
-            <p className="text-[11px] text-muted-foreground mt-1.5">
-              Publié par{' '}
-              <span
-                className="font-semibold text-primary hover:underline cursor-pointer"
-                onClick={(e) => { e.stopPropagation(); navigate(`/org/${resolvedSlug}`); }}
-              >
-                {(product as any).organization_name}
-              </span>
-            </p>
-          )}
+          <div className="flex items-center gap-2 mt-1.5">
+            {(product as any).organization_name && (
+              <p className="text-[11px] text-muted-foreground">
+                par{' '}
+                <span
+                  className="font-semibold text-primary hover:underline cursor-pointer"
+                  onClick={(e) => { e.stopPropagation(); navigate(`/org/${resolvedSlug}`); }}
+                >
+                  {(product as any).organization_name}
+                </span>
+              </p>
+            )}
+            {commissionPercent != null && commissionPercent > 0 && (
+              <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 text-accent border-accent/30">
+                {commissionPercent}% commission
+              </Badge>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center justify-between gap-2">
@@ -208,21 +204,8 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
               </Button>
             )}
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground">
-                  <Share2 className="h-3.5 w-3.5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-44">
-                <DropdownMenuItem onClick={handleCopyLink} className="gap-2 text-xs">
-                  <Copy className="h-3.5 w-3.5" /> Copier le lien
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleShareWhatsApp} className="gap-2 text-xs">
-                  <MessageCircle className="h-3.5 w-3.5 text-green-500" /> WhatsApp
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <ShareWidget url={socialShareUrl} title={product.title} description={product.description || undefined} />
+
             {isPurchased ? (
               <Button
                 size="sm"

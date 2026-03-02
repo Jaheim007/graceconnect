@@ -12,8 +12,8 @@ export function LandingNav() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navItems = [
-    { to: '/auth?mode=signup&intent=ambassador', label: 'Gagner' },
-    { to: '/auth?mode=signup&intent=creator', label: 'Vendre' },
+    { to: '/gagner', label: 'Gagner' },
+    { to: '/vendre', label: 'Vendre' },
     { to: '/marketplace', label: 'Explorer' },
     { to: '#pricing', label: 'Tarifs', isAnchor: true },
   ];

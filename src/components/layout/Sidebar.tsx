@@ -3,14 +3,15 @@ import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
   Home, Play, Bell, User, BookOpen, Store,
   Settings, ChevronLeft, ChevronRight, Shield, Handshake, HandHeart,
-  Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, UsersRound, Sun, Moon,
+  Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, Sun, Moon,
   UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, ShieldAlert, LayoutDashboard, Building2,
-  MessageCircle, Trophy, CreditCard, Clock, Sparkles, GraduationCap, ChevronUp
+  Trophy, CreditCard, Clock, Sparkles, GraduationCap, Share2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useMemo } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
+import { useMode } from '@/contexts/ModeContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useI18n } from '@/i18n/I18nContext';
@@ -35,10 +36,10 @@ export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { user, isSuperadmin } = useAuth();
   const { currentOrg, canManage, userOrgs, getRoleFor } = useOrg();
+  const { mode } = useMode();
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const { theme, toggleTheme } = useTheme();
   const { t } = useI18n();
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
     Content: true, Commerce: true, Management: true,
   });
@@ -52,28 +53,23 @@ export function Sidebar() {
     [userOrgs, getRoleFor]
   );
 
-  // ── SIMPLIFIED main nav: 4 primary items ──
-  const primaryItems: NavItem[] = [
-    { to: '/marketplace', icon: Store, label: 'Marketplace', desc: 'Explorez et partagez des produits numériques' },
-    { to: '/affiliation', icon: Link2, label: 'Gagner', desc: 'Vos liens ambassadeur et commissions' },
-    { to: '/resources', icon: BookOpen, label: 'Mes achats', desc: 'Accédez à vos achats et téléchargements' },
-    { to: '/profile', icon: User, label: 'Profil', desc: 'Modifiez votre profil et préférences' },
+  // ── MODE AMBASSADOR nav ──
+  const ambassadorItems: NavItem[] = [
+    { to: '/marketplace', icon: Store, label: 'Marketplace', desc: 'Explorez et partagez des produits' },
+    { to: '/affiliation', icon: Link2, label: 'Mes liens', desc: 'Vos liens de partage et commissions' },
+    { to: '/dashboard', icon: Wallet, label: 'Mes gains', desc: 'Commissions et retraits' },
+    { to: '/resources', icon: BookOpen, label: 'Mes achats', desc: 'Vos téléchargements' },
+    { to: '/leaderboard', icon: Trophy, label: 'Classement', desc: 'Top ambassadeurs' },
+    { to: '/profile', icon: User, label: 'Profil', desc: 'Votre compte' },
+    { to: '/support', icon: LifeBuoy, label: 'Aide', desc: 'Besoin d\'aide ?' },
   ];
 
-  // ── Advanced items (hidden by default) ──
-  const advancedItems: NavItem[] = [
-    { to: '/dashboard', icon: LayoutDashboard, label: 'Tableau de bord', desc: 'Vue d\'ensemble de votre activité' },
-    { to: '/notifications', icon: Bell, label: 'Notifications', desc: 'Vos alertes : ventes, commissions, messages' },
-    { to: '/my-programs', icon: GraduationCap, label: 'Mes programmes', desc: 'Vos cours et formations' },
-    { to: '/invoices', icon: CreditCard, label: 'Mes factures', desc: 'Téléchargez vos factures' },
-    { to: '/leaderboard', icon: Trophy, label: 'Classement', desc: 'Top ambassadeurs et créateurs' },
-    { to: '/my-analytics', icon: BarChart3, label: 'Mes stats', desc: 'Statistiques personnelles' },
-    { to: '/partner', icon: Handshake, label: 'Espace Partenaire', desc: 'Programme Partenaires Officiel' },
-    { to: '/support', icon: LifeBuoy, label: 'Aide', desc: 'Besoin d\'aide ? Contactez-nous' },
+  // ── MODE CREATOR nav (no org selected → CTA) ──
+  const creatorItemsNoOrg: NavItem[] = [
+    { to: '/create-org', icon: Building2, label: 'Créer mon centre', desc: 'Lancez votre plateforme' },
+    { to: '/marketplace', icon: Store, label: 'Marketplace', desc: 'Explorer les produits' },
+    { to: '/profile', icon: User, label: 'Profil', desc: 'Votre compte' },
   ];
-
-  // Auto-expand advanced if user is on an advanced route
-  const isOnAdvancedRoute = advancedItems.some(i => location.pathname.startsWith(i.to));
 
   const adminGroups: NavGroup[] = [
     {
@@ -214,6 +210,18 @@ export function Sidebar() {
     </>
   );
 
+  // Determine which items to show based on mode
+  const getMainItems = () => {
+    if (mode === 'creator') {
+      if (canManageCurrentOrg) return []; // Show admin groups instead
+      return creatorItemsNoOrg;
+    }
+    return ambassadorItems;
+  };
+
+  const mainItems = getMainItems();
+  const showAdminInCreatorMode = mode === 'creator' && canManageCurrentOrg;
+
   return (
     <aside
       className={cn(
@@ -226,9 +234,28 @@ export function Sidebar() {
         <SiteLogo size={collapsed ? 'sm' : 'md'} animate />
       </div>
 
-      {/* Org context (admin only) */}
-      {isAdmin && currentOrg && !collapsed && (
-        <div className="mx-3 mt-3 p-2 rounded-lg bg-primary/10 border border-primary/20">
+      {/* Mode label */}
+      {!collapsed && !isAdmin && !isSA && (
+        <div className="mx-3 mt-3 px-3 py-1.5">
+          <div className="flex items-center gap-2">
+            {mode === 'ambassador' ? (
+              <>
+                <Share2 className="h-3.5 w-3.5 text-accent" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-accent">Espace Ambassadeur</span>
+              </>
+            ) : (
+              <>
+                <Building2 className="h-3.5 w-3.5 text-primary" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Espace Créateur</span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Org context (admin/creator mode) */}
+      {(isAdmin || showAdminInCreatorMode) && currentOrg && !collapsed && (
+        <div className="mx-3 mt-2 p-2 rounded-lg bg-primary/10 border border-primary/20">
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{t('sidebar.managing')}</p>
           <p className="text-xs font-semibold text-primary truncate">{currentOrg.name}</p>
         </div>
@@ -243,21 +270,28 @@ export function Sidebar() {
             {renderNavItem({ to: '/admin', icon: BarChart3, label: t('sidebar.overview') })}
             {renderGroups(adminGroups)}
           </>
+        ) : showAdminInCreatorMode ? (
+          <>
+            {/* Creator mode with org: show admin nav directly */}
+            {renderNavItem({ to: '/admin', icon: LayoutDashboard, label: 'Vue d\'ensemble' })}
+            {renderGroups(adminGroups)}
+            <div className="mt-4 space-y-0.5">
+              {renderNavItem({ to: '/marketplace', icon: Store, label: 'Marketplace' })}
+              {renderNavItem({ to: '/profile', icon: User, label: 'Profil' })}
+            </div>
+          </>
         ) : (
           <>
-            {/* Primary navigation — always visible */}
             <div className="space-y-0.5">
-              {primaryItems.map(renderNavItem)}
+              {mainItems.map(renderNavItem)}
             </div>
 
-            {/* Creator shortcut: Admin button */}
-            {canManageCurrentOrg && !collapsed && (
+            {/* In ambassador mode, show "Gérer ma plateforme" shortcut if has org */}
+            {mode === 'ambassador' && canManageCurrentOrg && !collapsed && (
               <div className="mt-3 mx-1">
                 <Link
                   to="/admin"
-                  className={cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20',
-                  )}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20"
                 >
                   <Settings className="h-4 w-4 shrink-0" />
                   <span className="truncate">Gérer ma plateforme</span>
@@ -265,8 +299,8 @@ export function Sidebar() {
               </div>
             )}
 
-            {/* Owned orgs */}
-            {ownedOrgs.length > 1 && !collapsed && (
+            {/* Owned orgs list (creator mode only, no active org) */}
+            {mode === 'creator' && ownedOrgs.length > 0 && !canManageCurrentOrg && !collapsed && (
               <div className="mt-3 mx-1">
                 <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                   🏢 Mes plateformes
@@ -289,49 +323,11 @@ export function Sidebar() {
                 </div>
               </div>
             )}
-            {ownedOrgs.length > 1 && collapsed && (
-              <div className="mt-3 space-y-0.5">
-                {ownedOrgs.map(org => (
-                  <Tooltip key={org.id} delayDuration={0}>
-                    <TooltipTrigger asChild>
-                      <Link
-                        to={`/org/${org.slug}`}
-                        className="flex items-center justify-center px-0 py-2.5 rounded-lg text-sm font-medium transition-all text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                      >
-                        {org.logo_url ? (
-                          <img src={org.logo_url} alt="" className="h-5 w-5 rounded object-cover" />
-                        ) : (
-                          <Building2 className="h-4 w-4" />
-                        )}
-                      </Link>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">{org.name}</TooltipContent>
-                  </Tooltip>
-                ))}
-              </div>
-            )}
 
-            {/* Advanced section — collapsible */}
-            {!collapsed && (
-              <div className="mt-4">
-                <button
-                  onClick={() => setShowAdvanced(!showAdvanced)}
-                  className="flex items-center justify-between w-full px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  ⚙️ Avancé
-                  <ChevronDown className={cn('h-3 w-3 transition-transform', (showAdvanced || isOnAdvancedRoute) && 'rotate-180')} />
-                </button>
-                {(showAdvanced || isOnAdvancedRoute) && (
-                  <div className="space-y-0.5 mt-0.5">
-                    {advancedItems.map(renderNavItem)}
-                    {isSuperadmin && renderNavItem({ to: '/superadmin', icon: Shield, label: t('sidebar.superadmin'), desc: 'Panneau superadmin' })}
-                  </div>
-                )}
-              </div>
-            )}
-            {collapsed && (
-              <div className="mt-3 space-y-0.5">
-                {advancedItems.map(renderNavItem)}
+            {/* Superadmin link */}
+            {isSuperadmin && !collapsed && (
+              <div className="mt-3">
+                {renderNavItem({ to: '/superadmin', icon: Shield, label: 'Superadmin', desc: 'Panneau superadmin' })}
               </div>
             )}
           </>

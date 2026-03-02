@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { OrgProvider } from "@/contexts/OrgContext";
+import { ModeProvider } from "@/contexts/ModeContext";
 import { I18nProvider } from "@/i18n/I18nContext";
 
 // Layout (always loaded)
@@ -74,6 +75,8 @@ const MaintenancePage = lazy(() => import("@/pages/MaintenancePage"));
 const GoRedirectPage = lazy(() => import("@/pages/GoRedirectPage"));
 const MarketplacePage = lazy(() => import("@/pages/MarketplacePage"));
 const QuickStartPage = lazy(() => import("@/pages/QuickStartPage"));
+const GagnerLandingPage = lazy(() => import("@/pages/GagnerLandingPage"));
+const VendreLandingPage = lazy(() => import("@/pages/VendreLandingPage"));
 const TemoignagesPage = lazy(() => import("@/pages/TemoignagesPage"));
 const CalculateurPage = lazy(() => import("@/pages/CalculateurPage"));
 const PourEglisesPage = lazy(() => import("@/pages/persona/PourEglisesPage"));
@@ -223,6 +226,7 @@ const App = () => (
       <TooltipProvider>
         <AuthProvider>
           <OrgProvider>
+            <ModeProvider>
             <ErrorBoundary>
             <Toaster />
             <Sonner />
@@ -315,6 +319,8 @@ const App = () => (
                 <Route path="/guide/affiliation-sans-investissement" element={<GuideAffiliationSansInvestissementPage />} />
                 <Route path="/go/:code" element={<GoRedirectPage />} />
                 <Route path="/maintenance" element={<MaintenancePage />} />
+                <Route path="/gagner" element={<GagnerLandingPage />} />
+                <Route path="/vendre" element={<VendreLandingPage />} />
                 <Route path="/discover" element={<Navigate to="/marketplace" replace />} />
                 <Route path="/marketplace" element={<AppLayout />}>
                   <Route index element={<MarketplacePage />} />
@@ -435,6 +441,7 @@ const App = () => (
               </Suspense>
             </BrowserRouter>
             </ErrorBoundary>
+            </ModeProvider>
           </OrgProvider>
         </AuthProvider>
       </TooltipProvider>

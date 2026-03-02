@@ -11,6 +11,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
 import { useI18n } from '@/i18n/I18nContext';
+import { ModeSwitch } from './ModeSwitch';
 
 
 export function TopBar() {
@@ -36,7 +37,8 @@ export function TopBar() {
       <GlobalSearch />
       <div className="flex-1" />
 
-      {/* Org switcher removed — org management is in user dropdown */}
+      {/* Mode Switch — visible only when logged in */}
+      {user && <ModeSwitch />}
 
       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
         {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -74,7 +76,7 @@ export function TopBar() {
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigate('/profile')}><User className="h-3.5 w-3.5 mr-2" /> {t('topbar.my_account')}</DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/marketplace')}><BookOpen className="h-3.5 w-3.5 mr-2" /> Marketplace</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate('/affiliation')}><Link2 className="h-3.5 w-3.5 mr-2" /> Gagner</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/affiliation')}><Link2 className="h-3.5 w-3.5 mr-2" /> Mes gains</DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/create-org')}><Plus className="h-3.5 w-3.5 mr-2" /> {t('topbar.create_org')}</DropdownMenuItem>
             {canManageCurrentOrg && (
               <DropdownMenuItem onClick={() => navigate('/admin')}><Settings className="h-3.5 w-3.5 mr-2" /> {t('topbar.manage_org')}</DropdownMenuItem>
