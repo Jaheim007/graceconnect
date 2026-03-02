@@ -57,6 +57,7 @@ function renderOgHtml(title: string, description: string, image: string, canonic
     <meta property="og:title" content="${t}" />
     <meta property="og:description" content="${d}" />
     <meta property="og:image" content="${img}" />
+    <meta property="og:image:secure_url" content="${img}" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:url" content="${url}" />
@@ -240,7 +241,15 @@ Deno.serve(async (req) => {
   }
 
   const reqUrl = new URL(req.url);
-  const userAgent = req.headers.get('user-agent') || '';
+
+  const forwardedUserAgent =
+    req.headers.get('x-original-user-agent') ||
+    req.headers.get('x-bot-user-agent') ||
+    '';
+  const userAgent = forwardedUserAgent || req.headers.get('user-agent') || '';
+  const forceBot =
+    req.headers.get('x-force-og-bot') === '1' ||
+    reqUrl.searchParams.get('bot') === '1';
 
   // Extract the path after /og-proxy
   let contentPath = reqUrl.searchParams.get('path');
@@ -254,17 +263,28 @@ Deno.serve(async (req) => {
     }
   }
 
+  // Normalize content path (supports encoded absolute URL passed by upstream proxies)
+  try {
+    contentPath = decodeURIComponent(contentPath);
+  } catch {
+    // keep raw value
+  }
+  if (/^https?:\/\//i.test(contentPath)) {
+    const parsed = new URL(contentPath);
+    contentPath = `${parsed.pathname}${parsed.search}`;
+  }
   if (!contentPath.startsWith('/')) contentPath = `/${contentPath}`;
 
   const canonicalUrl = `${SITE_URL}${contentPath}`;
 
   // ─── Human user → 302 redirect to SPA ───
-  if (!isBot(userAgent)) {
+  if (!forceBot && !isBot(userAgent)) {
     return new Response(null, {
       status: 302,
       headers: {
         Location: canonicalUrl,
         'Cache-Control': 'no-cache, no-store',
+        'X-OG-Proxy-Mode': 'human-redirect',
       },
     });
   }
@@ -288,6 +308,7 @@ Deno.serve(async (req) => {
       'Cache-Control': 'public, max-age=300, s-maxage=600',
       'Vary': 'User-Agent',
       'X-Robots-Tag': 'noindex',
+      'X-OG-Proxy-Mode': forceBot ? 'forced-bot' : 'bot-html',
     },
   });
 });
