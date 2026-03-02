@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, LogIn, UserPlus, Store, MoreHorizontal, User, Link2, BookOpen, LifeBuoy, Handshake, Trophy, LayoutDashboard, Bell, CreditCard, BarChart3, GraduationCap, Building2, Settings, Wallet, Share2 } from 'lucide-react';
+import { Home, LogIn, UserPlus, Store, MoreHorizontal, User, Link2, BookOpen, LifeBuoy, Trophy, LayoutDashboard, Bell, BarChart3, Building2, Settings, Wallet, Share2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -25,44 +25,34 @@ export function BottomNav() {
     { to: '/auth?mode=signup', icon: UserPlus, label: 'S\'inscrire' },
   ];
 
-  // Ambassador mode: 4 primary items
+  // Ambassador: zero creator items
   const ambassadorPrimary = [
     { to: '/marketplace', icon: Store, label: 'Marketplace' },
     { to: '/affiliation', icon: Link2, label: 'Mes liens' },
     { to: '/dashboard', icon: Wallet, label: 'Gains' },
-    { to: '/resources', icon: BookOpen, label: 'Achats' },
   ];
 
-  // Creator mode: 4 primary items
+  // Creator: zero ambassador items
   const creatorPrimary = canManageCurrentOrg ? [
-    { to: '/admin', icon: LayoutDashboard, label: 'Vue d\'ensemble' },
+    { to: '/admin', icon: LayoutDashboard, label: 'Gérer' },
     { to: '/admin/products', icon: Store, label: 'Produits' },
     { to: '/admin/sales', icon: Wallet, label: 'Ventes' },
-    { to: '/admin/members', icon: User, label: 'Membres' },
   ] : [
     { to: '/create-org', icon: Building2, label: 'Créer' },
-    { to: '/marketplace', icon: Store, label: 'Explorer' },
-    { to: '/resources', icon: BookOpen, label: 'Achats' },
-    { to: '/profile', icon: User, label: 'Profil' },
+    { to: '/dashboard', icon: LayoutDashboard, label: 'Espace' },
   ];
 
   const primaryItems = mode === 'ambassador' ? ambassadorPrimary : creatorPrimary;
 
-  // "Plus" / Advanced items
+  // "Plus" items
   const ambassadorMore = [
     {
       label: '💰 Ambassadeur',
       items: [
         { to: '/leaderboard', icon: Trophy, label: 'Classement' },
+        { to: '/resources', icon: BookOpen, label: 'Mes achats' },
         { to: '/notifications', icon: Bell, label: 'Notifications', showBadge: true },
         { to: '/profile', icon: User, label: 'Profil' },
-      ],
-    },
-    {
-      label: '⚙️ Autre',
-      items: [
-        { to: '/my-programs', icon: GraduationCap, label: 'Programmes' },
-        { to: '/invoices', icon: CreditCard, label: 'Factures' },
         { to: '/support', icon: LifeBuoy, label: 'Aide' },
       ],
     },
@@ -70,16 +60,11 @@ export function BottomNav() {
 
   const creatorMore = canManageCurrentOrg ? [
     {
-      label: '🏢 Gestion',
+      label: '🏢 Créateur',
       items: [
+        { to: '/dashboard', icon: LayoutDashboard, label: 'Mon espace' },
         { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
-        { to: '/admin/notifications', icon: Bell, label: 'Notifs' },
         { to: '/admin/payouts', icon: Wallet, label: 'Retraits' },
-      ],
-    },
-    {
-      label: '⚙️ Autre',
-      items: [
         { to: '/admin/settings', icon: Settings, label: 'Paramètres' },
         { to: '/profile', icon: User, label: 'Profil' },
         { to: '/support', icon: LifeBuoy, label: 'Aide' },
@@ -89,7 +74,8 @@ export function BottomNav() {
     {
       label: '⚙️ Autre',
       items: [
-        { to: '/notifications', icon: Bell, label: 'Notifications', showBadge: true },
+        { to: '/marketplace', icon: Store, label: 'Explorer' },
+        { to: '/profile', icon: User, label: 'Profil' },
         { to: '/support', icon: LifeBuoy, label: 'Aide' },
       ],
     },
@@ -126,7 +112,7 @@ export function BottomNav() {
           );
         })}
 
-        {/* More button for authenticated users */}
+        {/* More button */}
         {user && (
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -145,7 +131,7 @@ export function BottomNav() {
               <SheetHeader>
                 <SheetTitle className="text-sm flex items-center gap-2">
                   {mode === 'ambassador' ? (
-                    <><Share2 className="h-3.5 w-3.5 text-accent" /> Espace Ambassadeur</>
+                    <><Share2 className="h-3.5 w-3.5 text-emerald-500" /> Espace Ambassadeur</>
                   ) : (
                     <><Building2 className="h-3.5 w-3.5 text-primary" /> Espace Créateur</>
                   )}

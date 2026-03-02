@@ -2,10 +2,10 @@ import { Link, useLocation } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
   Home, Play, Bell, User, BookOpen, Store,
-  Settings, ChevronLeft, ChevronRight, Shield, Handshake, HandHeart,
+  Settings, ChevronLeft, ChevronRight, Shield, HandHeart,
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, Sun, Moon,
   UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, ShieldAlert, LayoutDashboard, Building2,
-  Trophy, CreditCard, Clock, Sparkles, GraduationCap, Share2
+  Trophy, CreditCard, Clock, Sparkles, GraduationCap, Share2, Target
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState, useMemo } from 'react';
@@ -48,29 +48,25 @@ export function Sidebar() {
   const isSA = location.pathname.startsWith('/superadmin');
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
 
-  const ownedOrgs = useMemo(
-    () => userOrgs.filter(o => ['owner', 'admin'].includes(getRoleFor(o.id) || '')),
-    [userOrgs, getRoleFor]
-  );
-
-  // ── MODE AMBASSADOR nav ──
+  // ── AMBASSADOR NAV ──
   const ambassadorItems: NavItem[] = [
-    { to: '/marketplace', icon: Store, label: 'Marketplace', desc: 'Explorez et partagez des produits' },
-    { to: '/affiliation', icon: Link2, label: 'Mes liens', desc: 'Vos liens de partage et commissions' },
+    { to: '/marketplace', icon: Store, label: 'Marketplace', desc: 'Trouve des produits à partager' },
+    { to: '/affiliation', icon: Link2, label: 'Mes liens', desc: 'Tes liens de partage' },
     { to: '/dashboard', icon: Wallet, label: 'Mes gains', desc: 'Commissions et retraits' },
-    { to: '/resources', icon: BookOpen, label: 'Mes achats', desc: 'Vos téléchargements' },
     { to: '/leaderboard', icon: Trophy, label: 'Classement', desc: 'Top ambassadeurs' },
-    { to: '/profile', icon: User, label: 'Profil', desc: 'Votre compte' },
+    { to: '/resources', icon: BookOpen, label: 'Mes achats', desc: 'Tes téléchargements' },
+    { to: '/profile', icon: User, label: 'Profil', desc: 'Ton compte' },
     { to: '/support', icon: LifeBuoy, label: 'Aide', desc: 'Besoin d\'aide ?' },
   ];
 
-  // ── MODE CREATOR nav (no org selected → CTA) ──
+  // ── CREATOR NAV (no org) ──
   const creatorItemsNoOrg: NavItem[] = [
-    { to: '/create-org', icon: Building2, label: 'Créer mon centre', desc: 'Lancez votre plateforme' },
-    { to: '/marketplace', icon: Store, label: 'Marketplace', desc: 'Explorer les produits' },
-    { to: '/profile', icon: User, label: 'Profil', desc: 'Votre compte' },
+    { to: '/create-org', icon: Building2, label: 'Créer mon centre', desc: 'Lance ta plateforme' },
+    { to: '/dashboard', icon: LayoutDashboard, label: 'Mon espace', desc: 'Vue d\'ensemble' },
+    { to: '/profile', icon: User, label: 'Profil', desc: 'Ton compte' },
   ];
 
+  // ── CREATOR ADMIN GROUPS ──
   const adminGroups: NavGroup[] = [
     {
       label: t('sidebar.content'),
@@ -94,9 +90,8 @@ export function Sidebar() {
         { to: '/admin/affiliation', icon: Link2, label: 'Ambassadeurs' },
         { to: '/admin/promo-codes', icon: FileCheck, label: t('sidebar.promo_codes') },
         { to: '/admin/subscriptions', icon: CreditCard, label: t('sidebar.subscriptions') },
-        { to: '/admin/sales', icon: Wallet, label: 'Mes Ventes' },
+        { to: '/admin/sales', icon: Wallet, label: 'Ventes' },
         { to: '/admin/waitlists', icon: Clock, label: t('sidebar.waitlists') },
-        { to: '/admin/webhooks', icon: Link2, label: 'Webhooks' },
       ],
     },
     {
@@ -111,7 +106,6 @@ export function Sidebar() {
         { to: '/admin/analytics', icon: BarChart3, label: t('sidebar.analytics') },
         { to: '/admin/kyc', icon: FileCheck, label: t('sidebar.verification') },
         { to: '/admin/settings', icon: Settings, label: t('sidebar.settings') },
-        { to: '/admin/experiments', icon: Sparkles, label: 'Tests A/B' },
         { to: '/admin/programs', icon: GraduationCap, label: 'Programmes' },
       ],
     },
@@ -210,17 +204,8 @@ export function Sidebar() {
     </>
   );
 
-  // Determine which items to show based on mode
-  const getMainItems = () => {
-    if (mode === 'creator') {
-      if (canManageCurrentOrg) return []; // Show admin groups instead
-      return creatorItemsNoOrg;
-    }
-    return ambassadorItems;
-  };
-
-  const mainItems = getMainItems();
-  const showAdminInCreatorMode = mode === 'creator' && canManageCurrentOrg;
+  // Choose nav based on context
+  const showCreatorAdmin = mode === 'creator' && canManageCurrentOrg;
 
   return (
     <aside
@@ -240,8 +225,8 @@ export function Sidebar() {
           <div className="flex items-center gap-2">
             {mode === 'ambassador' ? (
               <>
-                <Share2 className="h-3.5 w-3.5 text-accent" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-accent">Espace Ambassadeur</span>
+                <Share2 className="h-3.5 w-3.5 text-emerald-500" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Espace Ambassadeur</span>
               </>
             ) : (
               <>
@@ -253,8 +238,8 @@ export function Sidebar() {
         </div>
       )}
 
-      {/* Org context (admin/creator mode) */}
-      {(isAdmin || showAdminInCreatorMode) && currentOrg && !collapsed && (
+      {/* Org context (creator mode) */}
+      {(isAdmin || showCreatorAdmin) && currentOrg && !collapsed && (
         <div className="mx-3 mt-2 p-2 rounded-lg bg-primary/10 border border-primary/20">
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{t('sidebar.managing')}</p>
           <p className="text-xs font-semibold text-primary truncate">{currentOrg.name}</p>
@@ -270,67 +255,27 @@ export function Sidebar() {
             {renderNavItem({ to: '/admin', icon: BarChart3, label: t('sidebar.overview') })}
             {renderGroups(adminGroups)}
           </>
-        ) : showAdminInCreatorMode ? (
+        ) : showCreatorAdmin ? (
           <>
-            {/* Creator mode with org: show admin nav directly */}
-            {renderNavItem({ to: '/admin', icon: LayoutDashboard, label: 'Vue d\'ensemble' })}
+            {renderNavItem({ to: '/dashboard', icon: LayoutDashboard, label: 'Mon espace' })}
+            {renderNavItem({ to: '/admin', icon: BarChart3, label: 'Vue d\'ensemble' })}
             {renderGroups(adminGroups)}
-            <div className="mt-4 space-y-0.5">
-              {renderNavItem({ to: '/marketplace', icon: Store, label: 'Marketplace' })}
-              {renderNavItem({ to: '/profile', icon: User, label: 'Profil' })}
-            </div>
           </>
+        ) : mode === 'ambassador' ? (
+          <div className="space-y-0.5">
+            {ambassadorItems.map(renderNavItem)}
+          </div>
         ) : (
-          <>
-            <div className="space-y-0.5">
-              {mainItems.map(renderNavItem)}
-            </div>
+          <div className="space-y-0.5">
+            {creatorItemsNoOrg.map(renderNavItem)}
+          </div>
+        )}
 
-            {/* In ambassador mode, show "Gérer ma plateforme" shortcut if has org */}
-            {mode === 'ambassador' && canManageCurrentOrg && !collapsed && (
-              <div className="mt-3 mx-1">
-                <Link
-                  to="/admin"
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20"
-                >
-                  <Settings className="h-4 w-4 shrink-0" />
-                  <span className="truncate">Gérer ma plateforme</span>
-                </Link>
-              </div>
-            )}
-
-            {/* Owned orgs list (creator mode only, no active org) */}
-            {mode === 'creator' && ownedOrgs.length > 0 && !canManageCurrentOrg && !collapsed && (
-              <div className="mt-3 mx-1">
-                <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                  🏢 Mes plateformes
-                </p>
-                <div className="space-y-0.5 mt-0.5">
-                  {ownedOrgs.map(org => (
-                    <Link
-                      key={org.id}
-                      to={`/org/${org.slug}`}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                    >
-                      {org.logo_url ? (
-                        <img src={org.logo_url} alt="" className="h-5 w-5 rounded object-cover shrink-0" />
-                      ) : (
-                        <Building2 className="h-4 w-4 shrink-0" />
-                      )}
-                      <span className="truncate">{org.name}</span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Superadmin link */}
-            {isSuperadmin && !collapsed && (
-              <div className="mt-3">
-                {renderNavItem({ to: '/superadmin', icon: Shield, label: 'Superadmin', desc: 'Panneau superadmin' })}
-              </div>
-            )}
-          </>
+        {/* Superadmin link — role gated */}
+        {isSuperadmin && !isSA && !collapsed && (
+          <div className="mt-3">
+            {renderNavItem({ to: '/superadmin', icon: Shield, label: 'Superadmin', desc: 'Panneau superadmin' })}
+          </div>
         )}
       </nav>
 
@@ -349,7 +294,7 @@ export function Sidebar() {
 
         {(isAdmin || isSA) && (
           <Link
-            to="/marketplace"
+            to="/dashboard"
             className={cn(
               'flex items-center gap-3 rounded-lg text-sm font-medium transition-all text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
               collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'

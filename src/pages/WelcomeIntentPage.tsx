@@ -2,9 +2,21 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Share2, Building2, ArrowRight, Sparkles } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { useMode } from '@/contexts/ModeContext';
 
 export default function WelcomeIntentPage() {
   const navigate = useNavigate();
+  const { setMode } = useMode();
+
+  const chooseAmbassador = () => {
+    setMode('ambassador');
+    navigate('/quick-start');
+  };
+
+  const chooseCreator = () => {
+    setMode('creator');
+    navigate('/create-org');
+  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -38,20 +50,20 @@ export default function WelcomeIntentPage() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.15, duration: 0.35 }}
-            onClick={() => navigate('/quick-start')}
-            className="relative w-full flex items-center gap-4 p-6 rounded-2xl border border-accent/30 hover:border-accent bg-card text-left transition-all duration-200 hover:shadow-elevated group"
+            onClick={chooseAmbassador}
+            className="relative w-full flex items-center gap-4 p-6 rounded-2xl border-2 border-emerald-500/30 hover:border-emerald-500 bg-card text-left transition-all duration-200 hover:shadow-elevated group"
           >
-            <span className="absolute -top-2.5 right-4 bg-accent text-accent-foreground text-[10px] font-bold px-3 py-0.5 rounded-full">
+            <span className="absolute -top-2.5 right-4 bg-emerald-500 text-white text-[10px] font-bold px-3 py-0.5 rounded-full">
               🔥 Populaire
             </span>
-            <div className="h-12 w-12 rounded-2xl bg-accent/10 flex items-center justify-center shrink-0">
-              <Share2 className="h-6 w-6 text-accent" />
+            <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 flex items-center justify-center shrink-0">
+              <Share2 className="h-6 w-6 text-emerald-500" />
             </div>
             <div className="flex-1 min-w-0">
               <h3 className="text-lg font-bold">💰 Gagner de l'argent</h3>
-              <p className="text-xs font-semibold text-accent mb-1">Ambassadeur</p>
+              <p className="text-xs font-semibold text-emerald-500 mb-1">Ambassadeur</p>
               <p className="text-sm text-muted-foreground">
-                Partage des produits, gagne 5-50% de commission. Zéro contenu à créer.
+                Partage des produits. Touche des commissions.
               </p>
             </div>
             <ArrowRight className="h-5 w-5 text-muted-foreground shrink-0 group-hover:translate-x-1 transition-transform" />
@@ -62,8 +74,8 @@ export default function WelcomeIntentPage() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.25, duration: 0.35 }}
-            onClick={() => navigate('/create-org')}
-            className="w-full flex items-center gap-4 p-6 rounded-2xl border border-border hover:border-primary/30 bg-card text-left transition-all duration-200 hover:shadow-elevated group"
+            onClick={chooseCreator}
+            className="w-full flex items-center gap-4 p-6 rounded-2xl border-2 border-border hover:border-primary/40 bg-card text-left transition-all duration-200 hover:shadow-elevated group"
           >
             <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
               <Building2 className="h-6 w-6 text-primary" />
@@ -72,7 +84,7 @@ export default function WelcomeIntentPage() {
               <h3 className="text-lg font-bold">🏢 Vendre mon contenu</h3>
               <p className="text-xs font-semibold text-primary mb-1">Créateur</p>
               <p className="text-sm text-muted-foreground">
-                Crée ta plateforme, vends tes ressources, active des ambassadeurs.
+                Crée ton centre digital. Active des ambassadeurs.
               </p>
             </div>
             <ArrowRight className="h-5 w-5 text-muted-foreground shrink-0 group-hover:translate-x-1 transition-transform" />
