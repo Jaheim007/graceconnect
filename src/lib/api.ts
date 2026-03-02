@@ -1,9 +1,10 @@
 import { supabase } from '@/integrations/supabase/client';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const FUNCTIONS_BASE = 'https://api.siteviral.com/functions/v1';
 
 function fnUrl(name: string) {
-  return `${SUPABASE_URL}/functions/v1/${name}`;
+  return `${FUNCTIONS_BASE}/${name}`;
 }
 
 export async function callFn(name: string, body: unknown, requireAuth = true) {
