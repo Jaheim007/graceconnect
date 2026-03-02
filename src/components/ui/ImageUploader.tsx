@@ -17,6 +17,14 @@ interface ImageUploaderProps {
 
 const ASPECT_MAP = { square: 1, video: 16 / 9, banner: 3 / 1, book: 2 / 3, free: undefined } as const;
 
+const DIMENSION_HINTS: Record<string, string> = {
+  square: 'Recommandé : 500×500 px',
+  video: 'Recommandé : 1280×720 px',
+  banner: 'Recommandé : 1200×400 px',
+  book: 'Recommandé : 600×900 px',
+  free: 'Max 10 Mo · JPG, PNG, WEBP',
+};
+
 export function ImageUploader({
   value,
   onChange,
@@ -101,6 +109,7 @@ export function ImageUploader({
     <div className="space-y-1.5">
       <p className="text-sm font-medium leading-none">{label}</p>
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+      {!hint && <p className="text-xs text-muted-foreground">{DIMENSION_HINTS[aspectRatio] || DIMENSION_HINTS.free}</p>}
       <div
         className={cn(
           'relative w-full rounded-xl border-2 border-dashed border-border bg-muted/30 overflow-hidden transition-colors hover:border-primary/50 cursor-pointer',
@@ -128,8 +137,8 @@ export function ImageUploader({
                 <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center">
                   <ImageIcon className="h-5 w-5" />
                 </div>
-                <p className="text-xs font-medium">Click to upload</p>
-                <p className="text-[10px]">JPG, PNG, WEBP · Max 10MB</p>
+                <p className="text-xs font-medium">Cliquez pour importer</p>
+                <p className="text-[10px]">JPG, PNG, WEBP · Max 10 Mo</p>
               </>
             )}
           </div>

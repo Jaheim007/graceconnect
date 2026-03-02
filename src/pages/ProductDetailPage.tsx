@@ -33,6 +33,7 @@ import { ProductCard } from '@/components/products/ProductCard';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
 import { CrossSellWidget } from '@/components/products/CrossSellWidget';
 import { SubscriptionUpsellPrompt } from '@/components/subscriptions/SubscriptionUpsellPrompt';
+import { Breadcrumb } from '@/components/layout/Breadcrumb';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -380,6 +381,14 @@ export default function ProductDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Breadcrumb */}
+      <div className="container max-w-5xl px-4 pt-4">
+        <Breadcrumb items={[
+          { label: org?.name || 'Organisation', href: `/org/${slug}` },
+          { label: product.title },
+        ]} />
+      </div>
 
       <div
         className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between"

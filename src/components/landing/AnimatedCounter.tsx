@@ -65,24 +65,40 @@ export function AnimatedCounter({ target, value, prefix = '', suffix = '', label
 // Animated text highlights for landing page
 import { Sparkles, Shield, Zap, Globe } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
-const VALUE_PROPS_FR = [
-  { target: 1247, suffix: '+', label: 'Ressources', desc: 'E-books, formations, guides, audio…', icon: <Sparkles className="h-5 w-5" /> },
-  { target: 1083, suffix: '+', label: 'Créateurs', desc: 'Leaders, formateurs, organisations', icon: <Globe className="h-5 w-5" /> },
-  { target: 0, prefix: '', suffix: ' FCFA', label: 'Pour commencer', desc: 'Aucun abonnement requis', icon: <Zap className="h-5 w-5" /> },
-  { target: 152, suffix: '+', label: 'Pays couverts', desc: 'Mobile Money, Carte, Stripe, Paystack', icon: <Shield className="h-5 w-5" /> },
-];
+// Stats are fetched from DB to avoid fake/misleading numbers
+import { useQuery } from '@tanstack/react-query';
+import { db } from '@/lib/db';
 
-const VALUE_PROPS_EN = [
-  { target: 1247, suffix: '+', label: 'Resources', desc: 'E-books, courses, guides, audio…', icon: <Sparkles className="h-5 w-5" /> },
-  { target: 1083, suffix: '+', label: 'Creators', desc: 'Leaders, trainers, organizations', icon: <Globe className="h-5 w-5" /> },
-  { target: 0, prefix: '$', suffix: '', label: 'To get started', desc: 'No subscription required', icon: <Zap className="h-5 w-5" /> },
-  { target: 152, suffix: '+', label: 'Countries covered', desc: 'Mobile Money, Card, Stripe, Paystack', icon: <Shield className="h-5 w-5" /> },
-];
+function usePlatformStats() {
+  return useQuery({
+    queryKey: ['platform-stats-landing'],
+    queryFn: async () => {
+      const [{ count: orgCount }, { count: productCount }] = await Promise.all([
+        db.from('organizations').select('id', { count: 'exact', head: true }).eq('is_active', true),
+        db.from('digital_products').select('id', { count: 'exact', head: true }).eq('is_published', true),
+      ]);
+      return { orgs: orgCount || 0, products: productCount || 0 };
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
 
 export function StatsBar({ locale: localeProp }: { locale?: string } = {}) {
   const { locale: ctxLocale } = useI18n();
   const isFr = (localeProp || ctxLocale) === 'fr';
-  const VALUE_PROPS = isFr ? VALUE_PROPS_FR : VALUE_PROPS_EN;
+  const { data: stats } = usePlatformStats();
+
+  const VALUE_PROPS = isFr ? [
+    { target: stats?.products || 0, suffix: '+', label: 'Ressources', desc: 'E-books, formations, guides, audio…', icon: <Sparkles className="h-5 w-5" /> },
+    { target: stats?.orgs || 0, suffix: '+', label: 'Créateurs', desc: 'Leaders, formateurs, organisations', icon: <Globe className="h-5 w-5" /> },
+    { target: 0, prefix: '', suffix: ' FCFA', label: 'Pour commencer', desc: 'Aucun abonnement requis', icon: <Zap className="h-5 w-5" /> },
+    { target: 46, suffix: '+', label: 'Pays couverts', desc: 'Mobile Money, Carte, Stripe, Paystack', icon: <Shield className="h-5 w-5" /> },
+  ] : [
+    { target: stats?.products || 0, suffix: '+', label: 'Resources', desc: 'E-books, courses, guides, audio…', icon: <Sparkles className="h-5 w-5" /> },
+    { target: stats?.orgs || 0, suffix: '+', label: 'Creators', desc: 'Leaders, trainers, organizations', icon: <Globe className="h-5 w-5" /> },
+    { target: 0, prefix: '$', suffix: '', label: 'To get started', desc: 'No subscription required', icon: <Zap className="h-5 w-5" /> },
+    { target: 46, suffix: '+', label: 'Countries covered', desc: 'Mobile Money, Card, Stripe, Paystack', icon: <Shield className="h-5 w-5" /> },
+  ];
 
   return (
     <section className="py-16 px-4 bg-muted/30 border-y border-border/40">
