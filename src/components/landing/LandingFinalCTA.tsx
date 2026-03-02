@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, MessageCircle, Share2, Building2, ShoppingBag } from 'lucide-react';
+import { ArrowRight, Share2, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const fadeUp = {
@@ -12,43 +12,27 @@ export function LandingFinalCTA() {
   const navigate = useNavigate();
 
   return (
-    <section className="py-28 px-4">
-      <div className="container max-w-3xl">
+    <section className="py-20 px-4">
+      <div className="container max-w-2xl">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="relative rounded-3xl overflow-hidden">
           <div className="absolute inset-0 bg-primary" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_70%)]" />
-          <div className="relative z-10 p-8 sm:p-14 text-center space-y-6">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-primary-foreground leading-tight">
-              Prêt à transformer votre contenu en revenus ?
+          <div className="relative z-10 p-8 sm:p-12 text-center space-y-5">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-primary-foreground">
+              Prêt à gagner ?
             </h2>
-            <p className="text-primary-foreground/80 max-w-md mx-auto">
-              Organisations, leaders, ambassadeurs — <strong className="text-white">tout le monde gagne</strong> et <strong className="text-white">tout le monde monétise</strong>, avec ou sans contenu.
+            <p className="text-primary-foreground/80 text-sm max-w-sm mx-auto">
+              Choisis ta voie. Commence en 60 secondes.
             </p>
-            
-            {/* 3 persona CTAs */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Button size="lg" className="bg-background text-foreground hover:bg-background/90 border-0 px-6 h-12 text-sm gap-2 shadow-lg group w-full sm:w-auto" onClick={() => navigate('/auth?mode=signup')}>
-                <Building2 className="h-4 w-4" /> Créer ma plateforme <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+              <Button size="lg" className="bg-background text-foreground hover:bg-background/90 border-0 px-6 h-12 text-sm gap-2 group w-full sm:w-auto" onClick={() => navigate('/auth?mode=signup&intent=ambassador')}>
+                <Share2 className="h-4 w-4" /> 💰 Gagner <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button size="lg" variant="outline" className="border-2 border-primary-foreground/70 text-primary-foreground hover:bg-primary-foreground/20 px-6 h-12 text-sm gap-2 w-full sm:w-auto font-semibold" onClick={() => navigate('/auth?mode=signup')}>
-                <Share2 className="h-4 w-4" /> Devenir ambassadeur
+              <Button size="lg" variant="outline" className="border-2 border-primary-foreground/70 text-primary-foreground hover:bg-primary-foreground/20 px-6 h-12 text-sm gap-2 w-full sm:w-auto" onClick={() => navigate('/auth?mode=signup&intent=creator')}>
+                <Building2 className="h-4 w-4" /> 🏢 Vendre
               </Button>
             </div>
-            <Button variant="link" className="text-primary-foreground/60 hover:text-primary-foreground text-sm gap-1.5" onClick={() => navigate('/discover')}>
-              <ShoppingBag className="h-3.5 w-3.5" /> Ou explorez les ressources disponibles
-            </Button>
           </div>
-        </motion.div>
-
-        {/* Support CTA */}
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mt-8 space-y-2">
-          <button
-            onClick={() => navigate('/support')}
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors bg-card border border-border rounded-full px-5 py-2.5 hover:shadow-card"
-          >
-            <MessageCircle className="h-4 w-4" />
-            Une question ? Contactez notre support
-          </button>
         </motion.div>
       </div>
     </section>

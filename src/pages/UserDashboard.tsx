@@ -5,12 +5,12 @@ import { Donation, ProductPurchase, AffiliateLink } from '@/types/database';
 import {
   Heart, ShoppingBag, Link2, TrendingUp, Copy, ExternalLink, CheckCircle,
   AlertTriangle, DollarSign, Download, BookOpen, Eye, FileText, Music,
-  Wallet, ArrowUpRight, Sparkle, Gift, BarChart3, Clock, Users, Share2, Rocket
+  Wallet, ArrowUpRight, Share2, Rocket, ChevronDown
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -18,53 +18,24 @@ import { requestAffiliatePayout } from '@/lib/api';
 import { useOrg } from '@/contexts/OrgContext';
 import { useMyPurchases } from '@/hooks/usePurchases';
 import { motion } from 'framer-motion';
-import { format } from 'date-fns';
-import { fr, enUS } from 'date-fns/locale';
 import { fetchWatermarkedFile, isPdfLikeFile, openFileInline, triggerBrowserDownload } from '@/lib/secureDownload';
 import { AffiliateShareTools } from '@/components/affiliate/AffiliateShareTools';
-import { ProductAffiliateLinkGen } from '@/components/affiliate/ProductAffiliateLinkGen';
 import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
-import { PageTour } from '@/components/onboarding/PageTour';
 import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
-import { useStreak, useBadges, useRecordActivity, useCheckAndAwardBadges, BADGE_DEFINITIONS } from '@/hooks/useGamification';
+import { useStreak, useBadges, useRecordActivity, useCheckAndAwardBadges } from '@/hooks/useGamification';
 import { useEffect } from 'react';
-import { Flame, Award as AwardIcon, Trophy, CreditCard, MessageCircle } from 'lucide-react';
-import { useMySubscriptions } from '@/hooks/useSubscriptions';
+import { AmbassadorOnlyDashboard } from '@/components/ambassador/AmbassadorOnlyDashboard';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { BuyerLoyaltyCard } from '@/components/gamification/BuyerLoyaltyCard';
 import { ReferralWidget } from '@/components/referral/ReferralWidget';
 import { UserMilestoneTracker } from '@/components/gamification/UserMilestoneTracker';
-import { AmbassadorOnlyDashboard } from '@/components/ambassador/AmbassadorOnlyDashboard';
 
 const statusColor: Record<string, string> = {
   completed: 'bg-green-500/15 text-green-600 dark:text-green-400',
   pending: 'bg-primary/10 text-primary',
   failed: 'bg-destructive/10 text-destructive',
 };
-
-const saleStatusColor: Record<string, string> = {
-  pending: 'bg-primary/10 text-primary',
-  payable: 'bg-green-500/15 text-green-600 dark:text-green-400',
-  paid: 'bg-green-500/15 text-green-600 dark:text-green-400',
-  cancelled: 'bg-destructive/10 text-destructive',
-};
-
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false);
-  const { toast } = useToast();
-  const { t } = useI18n();
-  const handleCopy = async () => {
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    toast({ title: t('dash.link_copied'), description: t('dash.link_copied_desc') });
-    setTimeout(() => setCopied(false), 2000);
-  };
-  return (
-    <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={handleCopy}>
-      {copied ? <CheckCircle className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
-    </Button>
-  );
-}
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -73,29 +44,21 @@ const typeIcons: Record<string, React.ReactNode> = {
   link: <Link2 className="h-4 w-4" />,
 };
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 26 } },
-};
-
 export default function UserDashboard() {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { userOrgs } = useOrg();
   const { t, locale } = useI18n();
-  const [searchParams] = useSearchParams();
-  const ambassadorMode = searchParams.get('mode') === 'ambassador';
   const qc = useQueryClient();
   const [requestingPayout, setRequestingPayout] = useState<string | null>(null);
-  const [requestingAffiliate, setRequestingAffiliate] = useState<string | null>(null);
   const [downloading, setDownloading] = useState<string | null>(null);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
-  const dateFnsLocale = locale === 'fr' ? fr : enUS;
   const primaryCurrency = userOrgs[0]?.currency || DEFAULT_CURRENCY;
   const fmt = (n: number, currency?: string | null) => formatCurrency(n, currency || primaryCurrency, locale);
 
-  // Gamification — wrapped defensively so failures never crash the dashboard
+  // Gamification
   const { data: streak } = useStreak();
   const { data: badges = [] } = useBadges();
   const recordActivity = useRecordActivity();
@@ -109,8 +72,8 @@ export default function UserDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
-  // Data queries
-  const { data: donations = [], isLoading: dLoading } = useQuery({
+  // Data
+  const { data: donations = [] } = useQuery({
     queryKey: ['user-donations', user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -120,7 +83,7 @@ export default function UserDashboard() {
     enabled: !!user,
   });
 
-  const { data: purchases = [], isLoading: pLoading } = useQuery({
+  const { data: purchases = [] } = useQuery({
     queryKey: ['user-purchases', user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -130,7 +93,7 @@ export default function UserDashboard() {
     enabled: !!user,
   });
 
-  const { data: affiliateLinks = [], isLoading: aLoading } = useQuery({
+  const { data: affiliateLinks = [] } = useQuery({
     queryKey: ['user-affiliate-links', user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -166,66 +129,8 @@ export default function UserDashboard() {
   const totalDonated = donations.filter(d => d.status === 'completed').reduce((s, d) => s + d.amount, 0);
   const totalEarned = affiliateLinks.reduce((s, l) => s + (l.total_earned || 0), 0);
   const payableCommission = affiliateSales.filter((s: { status: string }) => s.status === 'payable').reduce((sum: number, s: { commission_amount: number }) => sum + s.commission_amount, 0);
-  const pendingCommission = affiliateSales.filter((s: { status: string }) => s.status === 'pending').reduce((sum: number, s: { commission_amount: number }) => sum + s.commission_amount, 0);
 
   const managedOrgIds = userOrgs.filter(o => o.owner_id === user?.id).map(o => o.id);
-
-  const { data: orgDonationRevenue = [] } = useQuery({
-    queryKey: ['user-org-donations-rev', user?.id, managedOrgIds],
-    queryFn: async () => {
-      if (!managedOrgIds.length) return [];
-      const { data } = await db.from('donations').select('amount, organization_amount, currency').in('organization_id', managedOrgIds).eq('status', 'completed');
-      return data || [];
-    },
-    enabled: managedOrgIds.length > 0,
-  });
-
-  const { data: orgPurchaseRevenue = [] } = useQuery({
-    queryKey: ['user-org-purchases-rev', user?.id, managedOrgIds],
-    queryFn: async () => {
-      if (!managedOrgIds.length) return [];
-      const { data } = await db.from('product_purchases').select('amount, organization_amount, currency').in('organization_id', managedOrgIds).eq('status', 'completed');
-      return data || [];
-    },
-    enabled: managedOrgIds.length > 0,
-  });
-
-  const allOrgTxns = [...orgDonationRevenue, ...orgPurchaseRevenue];
-  const totalOrgRevenue = allOrgTxns.reduce((s, t2) => s + (t2.amount || 0), 0);
-  const totalOrgReceived = allOrgTxns.reduce((s, t2) => s + (t2.organization_amount || 0), 0);
-
-  const handleRequestPayout = async (orgId: string, orgKycStatus: string) => {
-    if (orgKycStatus === 'none' || orgKycStatus === 'pending') {
-      toast({ title: t('dash.kyc_required_title'), description: t('dash.kyc_required_desc') });
-      navigate('/admin/kyc');
-      return;
-    }
-    setRequestingPayout(orgId);
-    try {
-      const result = await requestAffiliatePayout(orgId);
-      toast({ title: t('dash.payout_requested'), description: t('dash.payout_desc').replace('{amount}', result.amount?.toLocaleString() || '0') });
-      qc.invalidateQueries({ queryKey: ['user-affiliate-sales', user?.id] });
-    } catch (err: unknown) {
-      toast({ title: t('dash.request_failed'), description: err instanceof Error ? err.message : '', variant: 'destructive' });
-    } finally { setRequestingPayout(null); }
-  };
-
-  const requestAffiliateRole = useMutation({
-    mutationFn: async ({ orgId }: { orgId: string; orgSlug: string }) => {
-      if (!user) throw new Error('Not authenticated');
-      const { error } = await db.rpc('self_enroll_affiliate', { _org_id: orgId });
-      if (error) throw new Error(error.message);
-    },
-    onSuccess: () => {
-      toast({ title: t('dash.you_are_affiliate'), description: t('dash.affiliate_ready') });
-      qc.invalidateQueries({ queryKey: ['user-affiliate-links', user?.id] });
-      qc.invalidateQueries({ queryKey: ['user-memberships', user?.id] });
-    },
-    onError: (err: Error) => { toast({ title: t('common.error'), description: err.message, variant: 'destructive' }); },
-  });
-
-  const affiliateLinkOrgIds = new Set(affiliateLinks.map(l => l.organization_id));
-  const orgsEligibleForAffiliate = userOrgs.filter(o => o.affiliation_enabled && !affiliateLinkOrgIds.has(o.id) && o.owner_id !== user?.id);
 
   const payableByOrg: Record<string, { orgId: string; amount: number; currency: string }> = {};
   for (const s of affiliateSales) {
@@ -236,10 +141,25 @@ export default function UserDashboard() {
     }
   }
 
+  const handleRequestPayout = async (orgId: string, orgKycStatus: string) => {
+    if (orgKycStatus === 'none' || orgKycStatus === 'pending') {
+      toast({ title: t('dash.kyc_required_title'), description: t('dash.kyc_required_desc') });
+      navigate('/admin/kyc');
+      return;
+    }
+    setRequestingPayout(orgId);
+    try {
+      const result = await requestAffiliatePayout(orgId);
+      toast({ title: t('dash.payout_requested'), description: `${result.amount?.toLocaleString()} disponible.` });
+      qc.invalidateQueries({ queryKey: ['user-affiliate-sales', user?.id] });
+    } catch (err: unknown) {
+      toast({ title: t('dash.request_failed'), description: err instanceof Error ? err.message : '', variant: 'destructive' });
+    } finally { setRequestingPayout(null); }
+  };
+
   const handleFileAction = async (purchase: NonNullable<typeof myResources>[number], mode: 'download' | 'inline') => {
     if (!purchase.product.file_url || !user) return;
     setDownloading(purchase.id);
-
     try {
       const file = await fetchWatermarkedFile({
         fileUrl: purchase.product.file_url,
@@ -247,56 +167,29 @@ export default function UserDashboard() {
         productTitle: purchase.product.title,
         inline: mode === 'inline',
       });
-
-      if (mode === 'inline') {
-        openFileInline(file);
-      } else {
-        triggerBrowserDownload(file);
-      }
-    } catch (error) {
-      console.error('[UserDashboard] secure file action error:', error);
-      toast({
-        title: t('common.error'),
-        description: mode === 'inline'
-          ? 'La lecture directe est disponible uniquement pour les PDF sécurisés.'
-          : 'Impossible de télécharger le fichier sécurisé.',
-        variant: 'destructive',
-      });
-    } finally {
-      setDownloading(null);
-    }
+      if (mode === 'inline') openFileInline(file);
+      else triggerBrowserDownload(file);
+    } catch {
+      toast({ title: 'Erreur', description: 'Impossible de charger le fichier.', variant: 'destructive' });
+    } finally { setDownloading(null); }
   };
 
   // Greeting
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? t('dash.good_morning') : hour < 18 ? t('dash.good_afternoon') : t('dash.good_evening');
+  const greeting = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir';
+  const displayName = profile?.display_name?.split(' ')[0] || 'User';
   const googleAvatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
   const avatarUrl = profile?.avatar_url || googleAvatar;
-  const displayName = profile?.display_name?.split(' ')[0] || 'User';
   const initials = profile?.display_name
     ? profile.display_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
     : 'U';
 
-  // Build stat cards
-  const statCards = [
-    ...(managedOrgIds.length > 0
-      ? [
-          { label: t('dash.sales'), value: fmt(totalOrgRevenue), icon: DollarSign, colorClass: 'text-primary bg-primary/10' },
-          { label: t('dash.received'), value: fmt(totalOrgReceived), icon: TrendingUp, colorClass: 'text-green-500 bg-green-500/10' },
-        ]
-      : []),
-    { label: t('dash.donations'), value: fmt(totalDonated), icon: Heart, colorClass: 'text-rose-500 bg-rose-500/10' },
-    { label: t('dash.commissions'), value: fmt(totalEarned), icon: Link2, colorClass: 'text-primary bg-primary/10' },
-    { label: t('dash.available'), value: fmt(payableCommission), icon: Wallet, colorClass: 'text-green-500 bg-green-500/10' },
-    { label: t('sidebar.my_purchases'), value: String(myResources?.length || 0), icon: ShoppingBag, colorClass: 'text-amber-500 bg-amber-500/10' },
-  ];
-
-  // Ambassador-only mode: simplified view
-  if (ambassadorMode && userOrgs.length === 0) {
+  // Ambassador-only mode
+  if (userOrgs.length === 0 && affiliateLinks.length > 0) {
     return (
       <div className="min-h-screen bg-background">
         <div className="container max-w-5xl px-4 py-5 sm:py-6">
-          <SEOHead title="Espace Ambassadeur — Siteviral" description="Gérez vos liens d'ambassadeur et suivez vos commissions." noindex />
+          <SEOHead title="Mon espace — Siteviral" noindex />
           <AmbassadorOnlyDashboard />
         </div>
       </div>
@@ -305,329 +198,219 @@ export default function UserDashboard() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container max-w-5xl px-4 py-5 sm:py-6 space-y-5">
-        <SEOHead title="Tableau de bord — Siteviral" description="Suivez vos ventes, commissions, donations et activités sur Siteviral." noindex />
-        <div>
-          <h1 className="sr-only">{t('page.dashboard')}</h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">{t('page.dashboard_desc')}</p>
-        </div>
+      <div className="container max-w-4xl px-4 py-5 sm:py-6 space-y-5">
+        <SEOHead title="Mon espace — Siteviral" noindex />
 
-        <PageTour pageId="dashboard" steps={[
-          { titleKey: 'tour.dashboard_1_title', descKey: 'tour.dashboard_1_desc', icon: <BarChart3 className="h-4 w-4" /> },
-          { titleKey: 'tour.dashboard_2_title', descKey: 'tour.dashboard_2_desc', icon: <Sparkle className="h-4 w-4" /> },
-          { titleKey: 'tour.dashboard_3_title', descKey: 'tour.dashboard_3_desc', icon: <BookOpen className="h-4 w-4" /> },
-        ]} />
-
-        {/* ══ GREETING HEADER ══ */}
+        {/* ═══ GREETING ═══ */}
         <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/20">
+          <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center overflow-hidden border border-primary/20">
             {avatarUrl ? (
               <img src={avatarUrl} alt={initials} className="h-full w-full object-cover" />
             ) : (
               <span className="text-sm font-bold text-primary">{initials}</span>
             )}
           </div>
-          <div className="flex-1 min-w-0">
-            <h2 className="text-lg sm:text-xl font-bold text-foreground truncate">
-              {greeting}, {displayName}
-            </h2>
-            <p className="text-xs text-muted-foreground">{userOrgs.length} {userOrgs.length > 1 ? t('feed.organizations') : t('feed.organization')}</p>
+          <div>
+            <h1 className="text-lg font-bold">{greeting}, {displayName}</h1>
+            <p className="text-xs text-muted-foreground">Ton espace Siteviral</p>
           </div>
         </div>
 
-        {/* ══ GAMIFICATION: Streak + Badges ══ */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {/* Streak */}
-          <div className="bg-card border border-border rounded-2xl p-4 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-xl bg-orange-500/10 flex items-center justify-center shrink-0">
-              <Flame className="h-6 w-6 text-orange-500" />
+        {/* ═══ BLOCK A: MES GAINS ═══ */}
+        <div className="bg-card border border-border rounded-2xl p-5">
+          <h2 className="font-bold text-sm flex items-center gap-2 mb-4">
+            <Wallet className="h-4 w-4 text-accent" /> Mes gains
+          </h2>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="text-center">
+              <p className="text-xl font-bold text-accent">{fmt(totalEarned)}</p>
+              <p className="text-[10px] text-muted-foreground uppercase">Total gagné</p>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-2xl font-bold">{streak?.current_streak || 0} <span className="text-sm font-normal text-muted-foreground">{locale === 'fr' ? 'jours' : 'days'}</span></p>
-              <p className="text-[11px] text-muted-foreground">{locale === 'fr' ? 'Série en cours' : 'Current streak'} · {locale === 'fr' ? 'Record' : 'Best'}: {streak?.longest_streak || 0}</p>
+            <div className="text-center">
+              <p className="text-xl font-bold text-green-500">{fmt(payableCommission)}</p>
+              <p className="text-[10px] text-muted-foreground uppercase">À retirer</p>
+            </div>
+            <div className="text-center">
+              <p className="text-xl font-bold">{affiliateLinks.length}</p>
+              <p className="text-[10px] text-muted-foreground uppercase">Liens de partage</p>
             </div>
           </div>
-          {/* Badges */}
-          <div className="bg-card border border-border rounded-2xl p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Trophy className="h-4 w-4 text-amber-500" />
-              <p className="text-sm font-semibold">{badges.length} {locale === 'fr' ? 'badges' : 'badges'}</p>
-            </div>
-            {badges.length === 0 ? (
-              <p className="text-xs text-muted-foreground">{locale === 'fr' ? 'Continuez pour débloquer des badges !' : 'Keep going to unlock badges!'}</p>
-            ) : (
-              <div className="flex flex-wrap gap-1.5">
-                {badges.slice(0, 8).map((b) => {
-                  const def = BADGE_DEFINITIONS[b.badge_type];
-                  return (
-                    <span key={b.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/10 text-[11px] font-medium" title={def?.description || b.badge_label}>
-                      {def?.emoji || '🏅'} {b.badge_label}
-                    </span>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </div>
 
-        {/* ══ STAT CARDS — clean grid like reference ══ */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {statCards.map((card, i) => (
-            <motion.div
-              key={card.label}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.04 }}
-              className="bg-card border border-border rounded-2xl p-4"
-            >
-              <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center mb-3', card.colorClass)}>
-                <card.icon className="h-4 w-4" />
-              </div>
-              <p className="text-xl sm:text-2xl font-bold tracking-tight">{card.value}</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5 uppercase tracking-wide font-medium">{card.label}</p>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* ══ ROLE-ADAPTIVE CTA ══ */}
-        {managedOrgIds.length === 0 && affiliateLinks.length === 0 && (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="grid sm:grid-cols-2 gap-3">
-            <button
-              onClick={() => navigate('/quick-start')}
-              className="group bg-gradient-to-br from-amber-500/15 to-amber-500/5 border border-amber-500/25 rounded-2xl p-5 text-left hover:border-amber-500/40 hover:shadow-elevated transition-all hover:-translate-y-0.5"
-            >
-              <div className="h-10 w-10 rounded-xl bg-amber-500/15 flex items-center justify-center mb-3 group-hover:bg-amber-500 group-hover:text-white transition-colors">
-                <Share2 className="h-5 w-5 text-amber-500 group-hover:text-white transition-colors" />
-              </div>
-              <h3 className="font-bold text-sm">{locale === 'fr' ? 'Devenir ambassadeur' : 'Become ambassador'}</h3>
-              <p className="text-xs text-muted-foreground mt-1">{locale === 'fr' ? 'Partagez du contenu et gagnez des commissions' : 'Share content and earn commissions'}</p>
-            </button>
-            <button
-              onClick={() => navigate('/create-org')}
-              className="group bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/25 rounded-2xl p-5 text-left hover:border-primary/40 hover:shadow-elevated transition-all hover:-translate-y-0.5"
-            >
-              <div className="h-10 w-10 rounded-xl bg-primary/15 flex items-center justify-center mb-3 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                <Rocket className="h-5 w-5 text-primary group-hover:text-primary-foreground transition-colors" />
-              </div>
-              <h3 className="font-bold text-sm">{locale === 'fr' ? 'Créer ma plateforme' : 'Create my platform'}</h3>
-              <p className="text-xs text-muted-foreground mt-1">{locale === 'fr' ? 'Vendez vos ressources et collectez des dons' : 'Sell your resources and collect donations'}</p>
-            </button>
-          </motion.div>
-        )}
-
-        {/* ══ BUYER LOYALTY + MILESTONES ══ */}
-        <div className="grid lg:grid-cols-2 gap-3">
-          <BuyerLoyaltyCard />
-          <UserMilestoneTracker
-            purchases={purchases.filter(p => p.status === 'completed').length}
-            donations={donations.filter(d => d.status === 'completed').length}
-            orgsJoined={userOrgs.length}
-            streak={streak?.current_streak || 0}
-            badges={badges.length}
-            affiliateLinks={affiliateLinks.length}
-          />
-        </div>
-
-        {/* ══ REFERRAL PROGRAM ══ */}
-        <ReferralWidget />
-
-        {/* ══ QUICK ACTIONS ══ */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {[
-            { label: t('sidebar.my_purchases'), icon: BookOpen, onClick: () => navigate('/resources') },
-            { label: 'Gagner', icon: Link2, onClick: () => navigate('/affiliation') },
-            ...(managedOrgIds.length > 0
-              ? [{ label: t('sidebar.manage_org'), icon: ArrowUpRight, onClick: () => navigate('/admin') }]
-              : [{ label: t('dash.create_org'), icon: Gift, onClick: () => navigate('/create-org') }]),
-            { label: t('dash.my_account'), icon: ArrowUpRight, onClick: () => navigate('/profile') },
-          ].map((a, i) => (
-            <Button
-              key={`${a.label}-${i}`}
-              variant="outline"
-              size="sm"
-              onClick={a.onClick}
-              className="gap-2 text-xs h-10 justify-start hover:bg-primary/5 hover:border-primary/30 transition-colors"
-            >
-              <a.icon className="h-4 w-4 text-primary" />
-              {a.label}
-            </Button>
-          ))}
-        </div>
-
-        {/* ══ MAIN CONTENT GRID ══ */}
-        <div className="grid lg:grid-cols-2 gap-4">
-          {/* Recent Resources */}
-          <div className="bg-card border border-border rounded-2xl overflow-hidden">
-            <div className="flex items-center justify-between px-5 pt-5 pb-3">
-              <h3 className="font-semibold text-sm flex items-center gap-2"><BookOpen className="h-4 w-4 text-primary" /> {t('dash.latest_resources')}</h3>
-              <button onClick={() => navigate('/resources')} className="text-xs text-primary font-medium hover:underline">{t('dash.view_all')}</button>
-            </div>
-            {resLoading ? <div className="px-5 pb-5"><SkeletonRow count={3} /></div> : !myResources?.length ? (
-              <div className="text-center py-8 px-5">
-                <ShoppingBag className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
-                <p className="text-xs text-muted-foreground">{t('dash.no_purchases')}</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-border/50">
-                {myResources.slice(0, 4).map((p) => (
-                  <div key={p.id} className="flex items-center gap-3 px-5 py-3 hover:bg-muted/30 transition-colors">
-                    <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0 overflow-hidden">
-                      {p.product.cover_image_url ? <img src={p.product.cover_image_url} alt="" className="w-full h-full object-cover" /> : (typeIcons[p.product.product_type] || <FileText className="h-4 w-4 text-muted-foreground" />)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{p.product.title}</p>
-                      <p className="text-[10px] text-muted-foreground capitalize">{p.product.product_type}</p>
-                    </div>
-                    {p.product.file_url && isPdfLikeFile(p.product.file_url, p.product.product_type) && (
-                      <Button size="sm" variant="ghost" className="gap-1 text-[10px] h-7" onClick={() => handleFileAction(p, 'inline')}>
-                        <Eye className="h-3 w-3" /> {t('dash.read')}
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Affiliate summary */}
-          <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-sm flex items-center gap-2"><Link2 className="h-4 w-4 text-primary" /> {t('dash.affiliation')}</h3>
-              <button onClick={() => navigate('/affiliation')} className="text-xs text-primary font-medium hover:underline">{t('dash.details')}</button>
-            </div>
-            {affiliateLinks.length === 0 ? (
-              <div className="text-center py-6">
-                <Link2 className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
-                <p className="text-xs text-muted-foreground">{t('dash.no_links')}</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-3 gap-2">
-                {[
-                  { label: t('dash.links'), value: affiliateLinks.length, colorClass: '' },
-                  { label: t('dash.total_earned'), value: fmt(totalEarned), colorClass: 'text-primary' },
-                  { label: t('dash.withdrawable'), value: fmt(payableCommission), colorClass: 'text-green-500' },
-                ].map((s) => (
-                  <div key={s.label} className="rounded-xl bg-muted/50 p-3 text-center">
-                    <p className={cn('text-base font-bold', s.colorClass)}>{s.value}</p>
-                    <p className="text-[10px] text-muted-foreground">{s.label}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Eligible orgs for affiliate */}
-            {orgsEligibleForAffiliate.length > 0 && (
-              <div className="space-y-2 pt-2 border-t border-border/50">
-                <p className="text-xs font-semibold text-muted-foreground">{t('dash.become_affiliate')}</p>
-                {orgsEligibleForAffiliate.slice(0, 3).map((org) => (
-                  <div key={org.id} className="flex items-center gap-2 p-2 rounded-lg border border-primary/20 bg-primary/5">
-                    <div className="h-7 w-7 rounded-md bg-primary flex items-center justify-center shrink-0">
-                      {org.logo_url ? <img src={org.logo_url} alt={org.name} className="w-full h-full object-cover rounded-md" /> : <span className="text-[10px] font-bold text-primary-foreground">{org.name.slice(0, 2).toUpperCase()}</span>}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium truncate">{org.name}</p>
-                      <p className="text-[10px] text-primary">{t('dash.earn_percent').replace('{percent}', String(org.affiliation_commission_percent))}</p>
-                    </div>
-                    <Button size="sm" className="h-6 text-[10px] px-2 bg-primary text-primary-foreground border-0" disabled={requestingAffiliate === org.id || requestAffiliateRole.isPending} onClick={async () => { setRequestingAffiliate(org.id); await requestAffiliateRole.mutateAsync({ orgId: org.id, orgSlug: org.slug }); setRequestingAffiliate(null); }}>
-                      {requestingAffiliate === org.id ? '...' : t('dash.become')}
+          {/* Payout actions */}
+          {Object.keys(payableByOrg).length > 0 && (
+            <div className="mt-4 pt-3 border-t border-border/50 space-y-2">
+              {Object.values(payableByOrg).map(({ orgId, amount, currency }) => {
+                const org = userOrgs.find(o => o.id === orgId);
+                const kycStatus = kycStatuses[orgId] || 'none';
+                return (
+                  <div key={orgId} className="flex items-center gap-2">
+                    <span className="text-xs flex-1">{org?.name}: <strong className="text-green-500">{fmt(amount, currency)}</strong></span>
+                    <Button size="sm" className="h-7 text-xs" disabled={requestingPayout === orgId} onClick={() => handleRequestPayout(orgId, kycStatus)}>
+                      {requestingPayout === orgId ? '...' : 'Retirer'}
                     </Button>
                   </div>
-                ))}
-              </div>
-            )}
+                );
+              })}
+            </div>
+          )}
+
+          <div className="mt-4 flex gap-2">
+            <Button variant="outline" size="sm" className="flex-1 text-xs gap-1" onClick={() => navigate('/quick-start')}>
+              <Share2 className="h-3.5 w-3.5" /> Partage maintenant
+            </Button>
+            <Button variant="outline" size="sm" className="flex-1 text-xs gap-1" onClick={() => navigate('/affiliation')}>
+              <TrendingUp className="h-3.5 w-3.5" /> Voir mes liens
+            </Button>
           </div>
         </div>
 
-        {/* ══ RECENT TRANSACTIONS ══ */}
-        <div className="grid lg:grid-cols-2 gap-4">
-          {/* Donation history */}
-          <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-            <h3 className="font-semibold text-sm flex items-center gap-2"><Heart className="h-4 w-4 text-destructive" /> {t('dash.donation_history')}</h3>
-            {dLoading ? <SkeletonRow count={3} /> : donations.length === 0 ? (
-              <p className="text-xs text-muted-foreground py-4 text-center">{t('dash.no_donations')}</p>
-            ) : (
-              <div className="space-y-1">
-                {donations.slice(0, 5).map((d) => (
-                  <div key={d.id} className="flex items-center gap-3 py-2 border-b border-border/50 last:border-0">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium">{d.donor_name || t('dash.anonymous')}</p>
-                      <p className="text-[10px] text-muted-foreground">{new Date(d.created_at).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US')}</p>
-                    </div>
-                    <span className="font-semibold text-sm">{fmt(d.amount, d.currency)}</span>
-                    <Badge variant="outline" className={cn('text-[10px] border-0', statusColor[d.status] || '')}>{d.status === 'completed' ? t('dash.completed') : t('dash.pending')}</Badge>
+        {/* ═══ BLOCK B: MES PARTAGES (summary) ═══ */}
+        {affiliateLinks.length > 0 && (
+          <div className="bg-card border border-border rounded-2xl p-5">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="font-bold text-sm flex items-center gap-2">
+                <Link2 className="h-4 w-4 text-primary" /> Mes liens de partage
+              </h2>
+              <button onClick={() => navigate('/affiliation')} className="text-xs text-primary font-medium hover:underline">Tout voir</button>
+            </div>
+            <div className="space-y-2">
+              {affiliateLinks.slice(0, 3).map((link) => (
+                <div key={link.id} className="flex items-center gap-3 p-2 rounded-lg bg-muted/30">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{link.organizations?.name || 'Organisation'}</p>
+                    <p className="text-[10px] text-muted-foreground">{link.clicks || 0} clics · {link.conversions || 0} ventes</p>
                   </div>
-                ))}
-              </div>
-            )}
+                  <AffiliateShareTools
+                    shareUrl={`${window.location.origin}/org/${link.organizations?.slug}?ref=${link.code}`}
+                    orgName={link.organizations?.name || ''}
+                    affiliateCode={link.code}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
+        )}
 
-          {/* Purchase history */}
-          <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-            <h3 className="font-semibold text-sm flex items-center gap-2"><ShoppingBag className="h-4 w-4 text-amber-500" /> {t('dash.purchase_history')}</h3>
-            {pLoading ? <SkeletonRow count={3} /> : purchases.length === 0 ? (
-              <p className="text-xs text-muted-foreground py-4 text-center">{t('dash.no_purchases_hist')}</p>
-            ) : (
-              <div className="space-y-1">
-                {purchases.slice(0, 5).map((p) => (
-                  <div key={p.id} className="flex items-center gap-3 py-2 border-b border-border/50 last:border-0">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium">{t('dash.product_purchase')}</p>
-                      <p className="text-[10px] text-muted-foreground">{new Date(p.created_at).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US')}</p>
-                    </div>
-                    <span className="font-semibold text-sm">{fmt(p.amount, p.currency)}</span>
-                    <Badge variant="outline" className={cn('text-[10px] border-0', statusColor[p.status] || '')}>{p.status === 'completed' ? t('dash.completed') : t('dash.pending')}</Badge>
+        {/* ═══ BLOCK C: MES ACHATS ═══ */}
+        <div className="bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="flex items-center justify-between px-5 pt-5 pb-3">
+            <h2 className="font-bold text-sm flex items-center gap-2">
+              <ShoppingBag className="h-4 w-4 text-amber-500" /> Mes achats
+            </h2>
+            <button onClick={() => navigate('/resources')} className="text-xs text-primary font-medium hover:underline">Bibliothèque</button>
+          </div>
+          {resLoading ? <div className="px-5 pb-5"><SkeletonRow count={3} /></div> : !myResources?.length ? (
+            <div className="text-center py-8 px-5">
+              <ShoppingBag className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
+              <p className="text-xs text-muted-foreground">Aucun achat pour le moment.</p>
+              <Button variant="outline" size="sm" className="mt-2 text-xs" onClick={() => navigate('/marketplace')}>Explorer la marketplace</Button>
+            </div>
+          ) : (
+            <div className="divide-y divide-border/50">
+              {myResources.slice(0, 4).map((p) => (
+                <div key={p.id} className="flex items-center gap-3 px-5 py-3 hover:bg-muted/30 transition-colors">
+                  <div className="h-10 w-10 rounded-lg bg-muted flex items-center justify-center shrink-0 overflow-hidden">
+                    {p.product.cover_image_url ? <img src={p.product.cover_image_url} alt="" className="w-full h-full object-cover" /> : (typeIcons[p.product.product_type] || <FileText className="h-4 w-4 text-muted-foreground" />)}
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ══ PAYOUT ══ */}
-        <div className="grid lg:grid-cols-2 gap-4">
-          {/* Payout requests */}
-          {Object.keys(payableByOrg).length > 0 && (
-            <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-              <h3 className="font-semibold text-sm flex items-center gap-2"><DollarSign className="h-4 w-4 text-primary" /> {t('dash.request_payout')}</h3>
-              <p className="text-xs text-muted-foreground">{t('dash.kyc_required')}</p>
-              <div className="space-y-2">
-                {Object.values(payableByOrg).map(({ orgId, amount, currency }) => {
-                  const org = userOrgs.find(o => o.id === orgId);
-                  const kycStatus = kycStatuses[orgId] || 'none';
-                  const kycApproved = kycStatus === 'level1' || kycStatus === 'level2';
-                  return (
-                    <div key={orgId} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/30">
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">{org?.name || orgId}</p>
-                        <p className="text-xs text-primary font-semibold">{fmt(amount, currency)} {t('dash.available_amount')}</p>
-                      </div>
-                      {!kycApproved && <div className="flex items-center gap-1 text-[10px] text-primary"><AlertTriangle className="h-3 w-3" /><span>{t('dash.kyc_required_short')}</span></div>}
-                      <Button size="sm" className="h-7 text-xs bg-primary text-primary-foreground border-0" disabled={requestingPayout === orgId} onClick={() => handleRequestPayout(orgId, kycStatus)}>
-                        {requestingPayout === orgId ? t('dash.requesting') : kycApproved ? t('dash.request_withdrawal') : t('dash.submit_kyc')}
-                      </Button>
-                    </div>
-                  );
-                })}
-              </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{p.product.title}</p>
+                    <p className="text-[10px] text-muted-foreground capitalize">{p.product.product_type}</p>
+                  </div>
+                  {p.product.file_url && isPdfLikeFile(p.product.file_url, p.product.product_type) && (
+                    <Button size="sm" variant="ghost" className="gap-1 text-[10px] h-7" onClick={() => handleFileAction(p, 'inline')}>
+                      <Eye className="h-3 w-3" /> Lire
+                    </Button>
+                  )}
+                </div>
+              ))}
             </div>
           )}
         </div>
 
-        {/* KYC banner */}
-        {userOrgs.some(o => o.owner_id === user?.id && (o.kyc_status === 'none')) && (
-          <div className="flex flex-col sm:flex-row items-start gap-3 p-4 rounded-2xl bg-primary/5 border border-primary/20">
-            <div className="flex items-start gap-3 flex-1 min-w-0">
-              <div className="h-9 w-9 rounded-xl bg-primary/15 flex items-center justify-center shrink-0">
-                <AlertTriangle className="h-4 w-4 text-primary" />
+        {/* ═══ ROLE CTA for new users ═══ */}
+        {managedOrgIds.length === 0 && affiliateLinks.length === 0 && (
+          <div className="grid sm:grid-cols-2 gap-3">
+            <button
+              onClick={() => navigate('/quick-start')}
+              className="group bg-accent/5 border border-accent/20 rounded-xl p-4 text-left hover:border-accent/40 transition-all"
+            >
+              <Share2 className="h-5 w-5 text-accent mb-2" />
+              <h3 className="font-bold text-sm">💰 Gagner de l'argent</h3>
+              <p className="text-xs text-muted-foreground mt-1">Partage et gagne des commissions</p>
+            </button>
+            <button
+              onClick={() => navigate('/create-org')}
+              className="group bg-primary/5 border border-primary/20 rounded-xl p-4 text-left hover:border-primary/40 transition-all"
+            >
+              <Rocket className="h-5 w-5 text-primary mb-2" />
+              <h3 className="font-bold text-sm">🏢 Vendre mon contenu</h3>
+              <p className="text-xs text-muted-foreground mt-1">Crée ta plateforme digitale</p>
+            </button>
+          </div>
+        )}
+
+        {/* ═══ ADVANCED (collapsible) ═══ */}
+        <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
+          <CollapsibleTrigger asChild>
+            <button className="w-full flex items-center justify-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors py-2">
+              <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', showAdvanced && 'rotate-180')} />
+              {showAdvanced ? 'Masquer les détails' : 'Voir plus (gains, dons, badges...)'}
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="space-y-4 pt-2">
+            {/* Gamification */}
+            <div className="grid lg:grid-cols-2 gap-3">
+              <BuyerLoyaltyCard />
+              <UserMilestoneTracker
+                purchases={purchases.filter(p => p.status === 'completed').length}
+                donations={donations.filter(d => d.status === 'completed').length}
+                orgsJoined={userOrgs.length}
+                streak={streak?.current_streak || 0}
+                badges={badges.length}
+                affiliateLinks={affiliateLinks.length}
+              />
+            </div>
+
+            <ReferralWidget />
+
+            {/* Transactions */}
+            <div className="grid lg:grid-cols-2 gap-4">
+              <div className="bg-card border border-border rounded-xl p-4 space-y-2">
+                <h3 className="font-semibold text-xs flex items-center gap-2"><Heart className="h-3.5 w-3.5 text-destructive" /> Dons</h3>
+                {donations.length === 0 ? (
+                  <p className="text-xs text-muted-foreground py-3 text-center">Aucun don</p>
+                ) : donations.slice(0, 3).map((d) => (
+                  <div key={d.id} className="flex items-center gap-2 text-xs py-1 border-b border-border/50 last:border-0">
+                    <span className="flex-1 truncate">{d.donor_name || 'Anonyme'}</span>
+                    <span className="font-semibold">{fmt(d.amount, d.currency)}</span>
+                    <Badge variant="outline" className={cn('text-[9px] border-0', statusColor[d.status])}>{d.status === 'completed' ? '✓' : '⏳'}</Badge>
+                  </div>
+                ))}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm">{t('dash.kyc_required_title')}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{t('dash.kyc_required_desc')}</p>
+              <div className="bg-card border border-border rounded-xl p-4 space-y-2">
+                <h3 className="font-semibold text-xs flex items-center gap-2"><ShoppingBag className="h-3.5 w-3.5 text-amber-500" /> Achats</h3>
+                {purchases.length === 0 ? (
+                  <p className="text-xs text-muted-foreground py-3 text-center">Aucun achat</p>
+                ) : purchases.slice(0, 3).map((p) => (
+                  <div key={p.id} className="flex items-center gap-2 text-xs py-1 border-b border-border/50 last:border-0">
+                    <span className="flex-1 truncate">Achat</span>
+                    <span className="font-semibold">{fmt(p.amount, p.currency)}</span>
+                    <Badge variant="outline" className={cn('text-[9px] border-0', statusColor[p.status])}>{p.status === 'completed' ? '✓' : '⏳'}</Badge>
+                  </div>
+                ))}
               </div>
             </div>
-            <Button size="sm" variant="outline" onClick={() => navigate('/admin/kyc')} className="h-8 text-xs shrink-0 w-full sm:w-auto">
-              {t('dash.submit_kyc')}
-            </Button>
+          </CollapsibleContent>
+        </Collapsible>
+
+        {/* KYC banner */}
+        {userOrgs.some(o => o.owner_id === user?.id && (o.kyc_status === 'none')) && (
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/20">
+            <AlertTriangle className="h-4 w-4 text-primary shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium">KYC requis pour les retraits</p>
+            </div>
+            <Button size="sm" variant="outline" onClick={() => navigate('/admin/kyc')} className="h-7 text-xs">Soumettre</Button>
           </div>
         )}
       </div>
