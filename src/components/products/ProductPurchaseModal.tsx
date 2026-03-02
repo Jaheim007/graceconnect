@@ -58,13 +58,15 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const [result, setResult] = useState<VerifyPaymentResult | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // Auto-select payment method based on detected gateway
-  const defaultMethod: PaymentMethod = isMoMoAvailable(product?.currency || 'XOF') ? 'mobile_money' : 'card';
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(defaultMethod);
 
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
-  const { openPayment } = usePaymentGateway();
+  const { openPayment, hasPaystackKey } = usePaymentGateway();
+
+  // Auto-select payment method based on availability (region + Paystack key)
+  const defaultMethod: PaymentMethod =
+    isMoMoAvailable(product?.currency || 'XOF') && hasPaystackKey ? 'mobile_money' : 'card';
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(defaultMethod);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -497,11 +499,19 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
               {/* Payment method selector (only for paid products) */}
               {!product.is_free && finalPrice > 0 && (
-                <PaymentMethodSelector
-                  value={paymentMethod}
-                  onChange={setPaymentMethod}
-                  currency={product.currency || 'XOF'}
-                />
+                <>
+                  <PaymentMethodSelector
+                    value={paymentMethod}
+                    onChange={setPaymentMethod}
+                    currency={product.currency || 'XOF'}
+                    paystackEnabled={hasPaystackKey}
+                  />
+                  {!hasPaystackKey && isMoMoAvailable(product.currency || 'XOF') && (
+                    <p className="text-[10px] text-muted-foreground">
+                      Mobile Money est temporairement indisponible. Utilisez Carte bancaire pour continuer.
+                    </p>
+                  )}
+                </>
               )}
 
               <div className="rounded-lg bg-muted/50 p-3 text-sm">

@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { usePaystack } from './usePaystack';
 import { callFn } from '@/lib/api';
-// Gateway routing is now hybrid: MoMo→Paystack, Card→Stripe
 
 export type PaymentMethod = 'mobile_money' | 'card';
 export type PaymentGateway = 'paystack' | 'stripe';
@@ -29,8 +28,9 @@ interface PaymentParams {
 
 /**
  * Unified payment gateway hook.
- * Gateway is auto-resolved: Paystack for supported countries/currencies,
- * Stripe as fallback for the rest of the world.
+ * Routing policy:
+ * - Mobile Money => Paystack
+ * - Card => Stripe
  */
 export function usePaymentGateway() {
   const { openPayment: openPaystack, hasKey: hasPaystackKey } = usePaystack();
@@ -44,10 +44,13 @@ export function usePaymentGateway() {
       onSuccess, onClose,
     } = params;
 
-    // Hybrid routing: Mobile Money → Paystack, Card → Stripe
-    const useMoMoViaPaystack = method === 'mobile_money' && hasPaystackKey;
+    const wantsMoMo = method === 'mobile_money';
 
-    if (useMoMoViaPaystack) {
+    if (wantsMoMo && !hasPaystackKey) {
+      throw new Error('Mobile Money est temporairement indisponible. Choisissez Carte bancaire ou réessayez dans quelques instants.');
+    }
+
+    if (wantsMoMo) {
       // ── PAYSTACK (Mobile Money only) ──
       await openPaystack({
         email,
@@ -68,32 +71,33 @@ export function usePaymentGateway() {
         onSuccess: (reference) => onSuccess(reference, 'paystack'),
         onClose,
       });
+      return;
+    }
+
+    // ── STRIPE (all card payments) ──
+    const currentUrl = window.location.origin;
+    const successUrl = `${currentUrl}/payment-success`;
+    const cancelUrl = window.location.href;
+
+    const result = await callFn('stripe-create-checkout', {
+      type,
+      organization_id,
+      campaign_id,
+      product_id,
+      amount,
+      currency,
+      buyer_name,
+      buyer_email: email,
+      affiliate_code,
+      promo_code,
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+    }, true);
+
+    if (result?.checkout_url) {
+      window.location.href = result.checkout_url;
     } else {
-      // ── STRIPE (all card payments + fallback) ──
-      const currentUrl = window.location.origin;
-      const successUrl = `${currentUrl}/payment-success`;
-      const cancelUrl = window.location.href;
-
-      const result = await callFn('stripe-create-checkout', {
-        type,
-        organization_id,
-        campaign_id,
-        product_id,
-        amount,
-        currency,
-        buyer_name,
-        buyer_email: email,
-        affiliate_code,
-        promo_code,
-        success_url: successUrl,
-        cancel_url: cancelUrl,
-      }, true);
-
-      if (result?.checkout_url) {
-        window.location.href = result.checkout_url;
-      } else {
-        throw new Error(result?.error || 'Failed to create Stripe checkout session');
-      }
+      throw new Error(result?.error || 'Failed to create Stripe checkout session');
     }
   }, [openPaystack, hasPaystackKey]);
 
@@ -102,3 +106,4 @@ export function usePaymentGateway() {
     hasPaystackKey,
   };
 }
+

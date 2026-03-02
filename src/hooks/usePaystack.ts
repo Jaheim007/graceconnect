@@ -12,14 +12,14 @@ declare global {
 interface PaystackConfig {
   key: string;
   email: string;
-  amount: number; // in kobo (XOF is zero-decimal so multiply by 100)
+  amount: number; // in subunits
   currency?: string;
   ref?: string;
   callback: (response: { reference: string }) => void;
   onClose: () => void;
   metadata?: Record<string, unknown>;
   subaccount?: string; // Subaccount code for split payments
-  transaction_charge?: number; // Platform fee in kobo
+  transaction_charge?: number; // Platform fee in subunits
   bearer?: 'account' | 'subaccount'; // Who bears Paystack fees
 }
 
@@ -33,15 +33,74 @@ if (!PAYSTACK_PUBLIC_KEY) {
   console.warn(`[usePaystack] No Paystack key found for mode "${PAYSTACK_MODE}". Payments will fail.`);
 }
 
-function loadPaystackScript(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    if (window.PaystackPop) { resolve(); return; }
-    const script = document.createElement('script');
-    script.src = 'https://js.paystack.co/v1/inline.js';
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Failed to load Paystack script. Check your internet connection.'));
-    document.body.appendChild(script);
+let paystackScriptPromise: Promise<void> | null = null;
+
+function loadPaystackScript(timeoutMs = 12000): Promise<void> {
+  if (window.PaystackPop?.setup) return Promise.resolve();
+  if (paystackScriptPromise) return paystackScriptPromise;
+
+  paystackScriptPromise = new Promise((resolve, reject) => {
+    const existingScript = document.querySelector<HTMLScriptElement>('script[data-paystack-inline="true"]');
+    const script = existingScript ?? document.createElement('script');
+    const createdNow = !existingScript;
+
+    const cleanup = (onLoad: () => void, onError: () => void, timer: number) => {
+      script.removeEventListener('load', onLoad);
+      script.removeEventListener('error', onError);
+      window.clearTimeout(timer);
+    };
+
+    const fail = (message: string, onLoad: () => void, onError: () => void, timer: number) => {
+      cleanup(onLoad, onError, timer);
+      paystackScriptPromise = null;
+      if (createdNow) script.remove();
+      reject(new Error(message));
+    };
+
+    const onLoad = () => {
+      script.setAttribute('data-loaded', 'true');
+      cleanup(onLoad, onError, timer);
+      if (!window.PaystackPop?.setup) {
+        paystackScriptPromise = null;
+        reject(new Error('Paystack loaded but API is unavailable.'));
+        return;
+      }
+      resolve();
+    };
+
+    const onError = () => {
+      fail('Failed to load Paystack script. Check your internet connection.', onLoad, onError, timer);
+    };
+
+    const timer = window.setTimeout(() => {
+      fail('Paystack is taking too long to load. Please retry in a moment.', onLoad, onError, timer);
+    }, timeoutMs);
+
+    script.addEventListener('load', onLoad, { once: true });
+    script.addEventListener('error', onError, { once: true });
+
+    if (createdNow) {
+      script.src = 'https://js.paystack.co/v1/inline.js';
+      script.async = true;
+      script.dataset.paystackInline = 'true';
+      document.body.appendChild(script);
+    }
   });
+
+  return paystackScriptPromise;
+}
+
+function forcePaystackIframeOnTop() {
+  let attempts = 0;
+  const timer = window.setInterval(() => {
+    document.querySelectorAll<HTMLIFrameElement>('iframe[src*="paystack"], iframe[title*="Paystack"], iframe[name*="paystack"]').forEach((iframe) => {
+      iframe.style.zIndex = '2147483647';
+      iframe.style.position = iframe.style.position || 'fixed';
+    });
+
+    attempts += 1;
+    if (attempts >= 10) window.clearInterval(timer);
+  }, 200);
 }
 
 export function usePaystack() {
@@ -63,7 +122,7 @@ export function usePaystack() {
     metadata?: Record<string, unknown>;
     /** Paystack subaccount code for split payment */
     subaccount?: string;
-    /** Platform fee in currency units (NOT kobo). Will be converted to kobo internally. */
+    /** Platform fee in currency units. Will be converted to subunits internally. */
     platformFeeAmount?: number;
   }) => {
     await loadPaystackScript();
@@ -78,7 +137,6 @@ export function usePaystack() {
     const config: PaystackConfig = {
       key: PAYSTACK_PUBLIC_KEY,
       email,
-      // XOF is zero-decimal: amount * 100 to convert to Paystack's lowest unit
       amount: Math.round(amount * 100),
       currency,
       ref,
@@ -90,7 +148,6 @@ export function usePaystack() {
     // Split payment: route funds to org subaccount, keep platform fee
     if (subaccount) {
       config.subaccount = subaccount;
-      // transaction_charge = platform fee in kobo (what Siteviral keeps)
       if (platformFeeAmount && platformFeeAmount > 0) {
         config.transaction_charge = Math.round(platformFeeAmount * 100);
       }
@@ -100,7 +157,9 @@ export function usePaystack() {
 
     const handler = window.PaystackPop.setup(config);
     handler.openIframe();
+    forcePaystackIframeOnTop();
   }, []);
 
   return { openPayment, hasKey: !!PAYSTACK_PUBLIC_KEY };
 }
+

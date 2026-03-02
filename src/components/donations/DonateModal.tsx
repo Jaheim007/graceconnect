@@ -42,13 +42,14 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
   const [result, setResult] = useState<VerifyPaymentResult | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  // Auto-select payment method based on detected gateway
-  const defaultMethod: PaymentMethod = isMoMoAvailable(campaign?.currency || 'XOF') ? 'mobile_money' : 'card';
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(defaultMethod);
-
   const { toast } = useToast();
   const { user, profile } = useAuth();
-  const { openPayment } = usePaymentGateway();
+  const { openPayment, hasPaystackKey } = usePaymentGateway();
+
+  // Auto-select payment method based on availability (region + Paystack key)
+  const defaultMethod: PaymentMethod =
+    isMoMoAvailable(campaign?.currency || 'XOF') && hasPaystackKey ? 'mobile_money' : 'card';
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(defaultMethod);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -258,7 +259,13 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
                 value={paymentMethod}
                 onChange={setPaymentMethod}
                 currency={campaign.currency || 'XOF'}
+                paystackEnabled={hasPaystackKey}
               />
+              {!hasPaystackKey && isMoMoAvailable(campaign.currency || 'XOF') && (
+                <p className="text-[10px] text-muted-foreground">
+                  Mobile Money est temporairement indisponible. Utilisez Carte bancaire pour finaliser le paiement.
+                </p>
+              )}
 
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">

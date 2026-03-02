@@ -8,10 +8,13 @@ interface PaymentMethodSelectorProps {
   onChange: (method: PaymentMethod) => void;
   currency?: string;
   className?: string;
+  paystackEnabled?: boolean;
 }
 
-export function PaymentMethodSelector({ value, onChange, currency, className }: PaymentMethodSelectorProps) {
-  const showMoMo = isMoMoAvailable(currency);
+export function PaymentMethodSelector({ value, onChange, currency, className, paystackEnabled = true }: PaymentMethodSelectorProps) {
+  const moMoRegionAvailable = isMoMoAvailable(currency);
+  const showMoMo = moMoRegionAvailable && paystackEnabled;
+  const effectiveValue: PaymentMethod = showMoMo ? value : 'card';
 
   return (
     <div className={cn('space-y-2', className)}>
@@ -24,7 +27,7 @@ export function PaymentMethodSelector({ value, onChange, currency, className }: 
             onClick={() => onChange('mobile_money')}
             className={cn(
               'flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all text-xs',
-              value === 'mobile_money'
+              effectiveValue === 'mobile_money'
                 ? 'border-primary bg-primary/5 text-primary font-medium'
                 : 'border-border hover:border-primary/40 text-muted-foreground'
             )}
@@ -40,7 +43,7 @@ export function PaymentMethodSelector({ value, onChange, currency, className }: 
           onClick={() => onChange('card')}
           className={cn(
             'flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all text-xs',
-            value === 'card'
+            effectiveValue === 'card'
               ? 'border-primary bg-primary/5 text-primary font-medium'
               : 'border-border hover:border-primary/40 text-muted-foreground',
             !showMoMo && 'col-span-2'
@@ -53,8 +56,11 @@ export function PaymentMethodSelector({ value, onChange, currency, className }: 
       </div>
 
       <p className="text-[10px] text-muted-foreground">
-        Paiement sécurisé par {value === 'mobile_money' ? 'Paystack' : 'Stripe'}
+        {!showMoMo && moMoRegionAvailable
+          ? 'Mobile Money temporairement indisponible. Utilisez Carte bancaire.'
+          : `Paiement sécurisé par ${effectiveValue === 'mobile_money' ? 'Paystack' : 'Stripe'}`}
       </p>
     </div>
   );
 }
+
