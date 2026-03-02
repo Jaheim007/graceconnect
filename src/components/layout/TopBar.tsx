@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import { Bell, Sun, Moon, LogOut, User, Settings, Shield, Plus, BookOpen } from 'lucide-react';
+import { Bell, Sun, Moon, LogOut, User, Settings, Shield, Plus, BookOpen, Link2 } from 'lucide-react';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
@@ -73,7 +73,8 @@ export function TopBar() {
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigate('/profile')}><User className="h-3.5 w-3.5 mr-2" /> {t('topbar.my_account')}</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate('/dashboard')}><BookOpen className="h-3.5 w-3.5 mr-2" /> {t('topbar.my_dashboard')}</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/marketplace')}><BookOpen className="h-3.5 w-3.5 mr-2" /> Marketplace</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/affiliation')}><Link2 className="h-3.5 w-3.5 mr-2" /> Gagner</DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/create-org')}><Plus className="h-3.5 w-3.5 mr-2" /> {t('topbar.create_org')}</DropdownMenuItem>
             {canManageCurrentOrg && (
               <DropdownMenuItem onClick={() => navigate('/admin')}><Settings className="h-3.5 w-3.5 mr-2" /> {t('topbar.manage_org')}</DropdownMenuItem>

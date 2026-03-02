@@ -12,7 +12,7 @@ export function AmbassadorBanner({ orgSlug, orgName }: AmbassadorBannerProps) {
     <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 space-y-3">
       <div className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-primary" />
-        <h3 className="font-bold text-sm">Gagnez de l'argent avec ce contenu</h3>
+        <h3 className="font-bold text-sm">Devenez ambassadeur et gagnez de l'argent</h3>
       </div>
       <p className="text-xs text-muted-foreground leading-relaxed">
         Devenez ambassadeur de <strong>{orgName}</strong> : partagez ce produit et touchez une commission sur chaque vente. Aucun contenu à créer.

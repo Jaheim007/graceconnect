@@ -37,10 +37,17 @@ const PRODUCT_TYPES = [
   { key: 'course', label: 'Cours' },
 ];
 
+const SORT_OPTIONS = [
+  { key: 'popular', label: 'Populaire' },
+  { key: 'commission', label: 'Meilleure commission' },
+  { key: 'newest', label: 'Récent' },
+];
+
 export default function MarketplacePage() {
   const [search, setSearch] = useState('');
   const [tab, setTab] = useState('products');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [sortBy, setSortBy] = useState('popular');
   const { t, locale } = useI18n();
   const isFr = locale === 'fr';
 
@@ -65,13 +72,14 @@ export default function MarketplacePage() {
 
   // All products with filter
   const { data: products = [], isLoading: loadingProducts } = useQuery({
-    queryKey: ['marketplace-products', search, typeFilter],
+    queryKey: ['marketplace-products', search, typeFilter, sortBy],
     queryFn: async () => {
+      const orderCol = sortBy === 'commission' ? 'price' : sortBy === 'newest' ? 'created_at' : 'sales_count';
       let q = db
         .from('digital_products')
-        .select('*, organizations(name, slug, logo_url, currency)')
+        .select('*, organizations(name, slug, logo_url, currency, affiliation_commission_percent)')
         .eq('is_published', true)
-        .order('sales_count', { ascending: false })
+        .order(orderCol, { ascending: sortBy === 'newest' ? false : false })
         .limit(50);
       if (search) q = q.ilike('title', `%${search}%`);
       if (typeFilter !== 'all') q = q.eq('product_type', typeFilter);
@@ -81,6 +89,7 @@ export default function MarketplacePage() {
         organization_name: p.organizations?.name,
         organization_slug: p.organizations?.slug,
         organization_logo: p.organizations?.logo_url,
+        commission_percent: p.organizations?.affiliation_commission_percent,
       }));
     },
   });
@@ -201,9 +210,9 @@ export default function MarketplacePage() {
               </TabsTrigger>
             </TabsList>
 
-            {/* Type filters for products */}
+            {/* Type filters + Sort for products */}
             {tab === 'products' && (
-              <div className="flex gap-1 overflow-x-auto">
+              <div className="flex gap-1 overflow-x-auto items-center">
                 {PRODUCT_TYPES.map((pt) => (
                   <Button
                     key={pt.key}
@@ -213,6 +222,18 @@ export default function MarketplacePage() {
                     onClick={() => setTypeFilter(pt.key)}
                   >
                     {pt.label}
+                  </Button>
+                ))}
+                <span className="w-px h-5 bg-border mx-1" />
+                {SORT_OPTIONS.map((s) => (
+                  <Button
+                    key={s.key}
+                    variant={sortBy === s.key ? 'secondary' : 'ghost'}
+                    size="sm"
+                    className="text-xs h-7 shrink-0"
+                    onClick={() => setSortBy(s.key)}
+                  >
+                    {s.label}
                   </Button>
                 ))}
               </div>
