@@ -40,12 +40,13 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const currency = offering?.currency || 'XOF';
-  const defaultMethod: PaymentMethod = isMoMoAvailable(currency) ? 'mobile_money' : 'card';
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(defaultMethod);
 
   const { toast } = useToast();
   const { user, profile } = useAuth();
-  const { openPayment } = usePaymentGateway();
+  const { openPayment, hasPaystackKey } = usePaymentGateway();
+
+  const defaultMethod: PaymentMethod = isMoMoAvailable(currency) && hasPaystackKey ? 'mobile_money' : 'card';
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(defaultMethod);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -273,7 +274,13 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
                 value={paymentMethod}
                 onChange={setPaymentMethod}
                 currency={currency}
+                paystackEnabled={hasPaystackKey}
               />
+              {!hasPaystackKey && isMoMoAvailable(currency) && (
+                <p className="text-[10px] text-muted-foreground">
+                  Mobile Money est temporairement indisponible. Utilisez Carte bancaire pour finaliser le paiement.
+                </p>
+              )}
 
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Lock className="h-3 w-3" />
