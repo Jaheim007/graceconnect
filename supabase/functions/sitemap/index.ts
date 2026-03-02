@@ -19,6 +19,17 @@ const staticPages = [
   { loc: "/terms", priority: "0.3", changefreq: "yearly" },
   { loc: "/privacy", priority: "0.3", changefreq: "yearly" },
   { loc: "/refund-policy", priority: "0.3", changefreq: "yearly" },
+  { loc: "/blog", priority: "0.7", changefreq: "weekly" },
+  { loc: "/blog/quest-ce-que-siteviral", priority: "0.6", changefreq: "monthly" },
+  { loc: "/blog/comment-vendre-ebook-afrique", priority: "0.6", changefreq: "monthly" },
+  { loc: "/blog/mobile-money-paiement-en-ligne", priority: "0.6", changefreq: "monthly" },
+  { loc: "/blog/affiliation-sans-investissement", priority: "0.6", changefreq: "monthly" },
+  { loc: "/blog/creer-boutique-digitale", priority: "0.6", changefreq: "monthly" },
+  { loc: "/blog/monetiser-contenu-religieux", priority: "0.6", changefreq: "monthly" },
+  { loc: "/blog/plateforme-dons-afrique", priority: "0.6", changefreq: "monthly" },
+  { loc: "/blog/alternative-gofundme-afrique", priority: "0.6", changefreq: "monthly" },
+  { loc: "/blog/gagner-argent-sans-contenu", priority: "0.6", changefreq: "monthly" },
+  { loc: "/blog/vendre-cours-en-ligne", priority: "0.6", changefreq: "monthly" },
 ];
 
 Deno.serve(async () => {
