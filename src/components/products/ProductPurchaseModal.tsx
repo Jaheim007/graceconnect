@@ -301,6 +301,8 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
             });
             clearAffiliateCode();
             if (product) markConverted(product.id);
+            // Invalidate purchases cache so /resources shows the new item immediately
+            await queryClient.invalidateQueries({ queryKey: ['my-purchases'] });
             setResult(verifyResult);
             setStep('success');
             onSuccess?.(verifyResult);
@@ -622,7 +624,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
             <p className="text-xs text-muted-foreground">Un reçu a été envoyé à votre email.</p>
             <Button onClick={() => { handleClose(); navigate('/resources'); }} className="w-full bg-primary text-primary-foreground gap-1.5">
-              Accéder à mon livre
+              Accéder à mes ressources
             </Button>
             <Button variant="ghost" onClick={handleClose} className="text-muted-foreground">Fermer</Button>
           </div>
