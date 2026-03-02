@@ -223,6 +223,28 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
     }
   }
 
+  // /blog/:slug
+  m = path.match(/^\/blog\/([^\/\?#]+)/);
+  if (m) {
+    const slug = decodeURIComponent(m[1]);
+    const BLOG_META: Record<string, { title: string; description: string }> = {
+      'quest-ce-que-siteviral': { title: "Qu'est-ce que Siteviral ? Le guide complet", description: "Découvrez ce qu'est Siteviral, comment ça marche, pour qui c'est fait et pourquoi c'est différent." },
+      'comment-vendre-ebook-afrique': { title: 'Comment vendre un ebook en Afrique', description: 'Guide complet pour vendre vos ebooks en Afrique avec Mobile Money via Siteviral.' },
+      'mobile-money-paiement-en-ligne': { title: 'Mobile Money : paiement en ligne en Afrique', description: 'Comment accepter les paiements Mobile Money pour vos produits numériques.' },
+      'affiliation-sans-investissement': { title: 'Affiliation sans investissement', description: "Gagnez de l'argent en partageant des liens sans investir un centime." },
+      'creer-boutique-digitale': { title: 'Créer une boutique digitale', description: 'Comment créer votre boutique en ligne de produits numériques en 5 minutes.' },
+      'monetiser-contenu-religieux': { title: 'Monétiser du contenu religieux', description: 'Comment les églises et ministères peuvent monétiser prédications, livres et formations.' },
+      'plateforme-dons-afrique': { title: 'Plateforme de dons en Afrique', description: 'La meilleure plateforme pour collecter des dons en Afrique via Mobile Money.' },
+      'alternative-gofundme-afrique': { title: 'Alternative à GoFundMe en Afrique', description: 'Siteviral : la meilleure alternative à GoFundMe pour collecter des fonds en Afrique.' },
+      'gagner-argent-sans-contenu': { title: "Gagner de l'argent sans créer de contenu", description: "Comment gagner de l'argent en ligne sans produire de contenu grâce à l'affiliation." },
+      'vendre-cours-en-ligne': { title: 'Vendre des cours en ligne', description: 'Guide pour créer et vendre vos formations en ligne avec Siteviral.' },
+    };
+    const blogMeta = BLOG_META[slug];
+    if (blogMeta) {
+      return { title: `${blogMeta.title} — Siteviral`, description: blogMeta.description, image: DEFAULT_IMAGE };
+    }
+  }
+
   // Static pages
   const cleanPath = path.split('?')[0].split('#')[0].replace(/\/$/, '') || '/';
   const staticMeta = STATIC_META[cleanPath];
