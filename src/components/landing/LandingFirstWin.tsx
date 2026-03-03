@@ -3,9 +3,9 @@ import { UserPlus, Share2, Bell, PartyPopper } from 'lucide-react';
 
 const winSteps = [
   { icon: UserPlus, label: 'Inscris-toi', desc: '30 secondes, gratuit' },
-  { icon: Share2, label: 'Choisis & Partage', desc: 'Un produit, un lien WhatsApp' },
-  { icon: Bell, label: 'Confirmation', desc: '"Lien prêt ! Badge 1er partage"' },
-  { icon: PartyPopper, label: 'Encaisse', desc: 'Ta 1ère vente peut tomber aujourd\'hui' },
+  { icon: Share2, label: 'Choisis ton rôle', desc: 'Créateur, ambassadeur ou acheteur' },
+  { icon: Bell, label: 'Lance-toi', desc: 'Publie, partage ou achète en 1 clic' },
+  { icon: PartyPopper, label: 'Résultats', desc: 'Revenus, commissions ou ressources' },
 ];
 
 const fadeUp = {

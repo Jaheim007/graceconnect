@@ -25,11 +25,11 @@ export function BottomNav() {
     { to: '/auth?mode=signup', icon: UserPlus, label: 'S\'inscrire' },
   ];
 
-  // Ambassador: zero creator items
+  // Ambassador: focus on discover → share → earn
   const ambassadorPrimary = [
-    { to: '/marketplace', icon: Store, label: 'Marketplace' },
+    { to: '/marketplace', icon: Store, label: 'Explorer' },
     { to: '/affiliation', icon: Link2, label: 'Mes liens' },
-    { to: '/dashboard', icon: Wallet, label: 'Gains' },
+    { to: '/dashboard', icon: Wallet, label: 'Mes gains' },
   ];
 
   // Creator: zero ambassador items
@@ -44,16 +44,14 @@ export function BottomNav() {
 
   const primaryItems = mode === 'ambassador' ? ambassadorPrimary : creatorPrimary;
 
-  // "Plus" items
+  // "Plus" items — ambassador focused
   const ambassadorMore = [
     {
       label: '💰 Ambassadeur',
       items: [
         { to: '/leaderboard', icon: Trophy, label: 'Classement' },
-        { to: '/resources', icon: BookOpen, label: 'Mes achats' },
         { to: '/notifications', icon: Bell, label: 'Notifications', showBadge: true },
         { to: '/profile', icon: User, label: 'Profil' },
-        { to: '/support', icon: LifeBuoy, label: 'Aide' },
       ],
     },
   ];

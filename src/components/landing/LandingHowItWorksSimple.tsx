@@ -4,18 +4,18 @@ import { Search, Share2, Banknote, CheckCircle } from 'lucide-react';
 const steps = [
   {
     icon: Search,
-    title: 'Choisis une ressource',
-    desc: 'Parcours la marketplace et trouve un produit à promouvoir.',
+    title: 'Découvrez ou publiez',
+    desc: 'Explorez des ressources numériques ou publiez les vôtres sur votre plateforme.',
   },
   {
     icon: Share2,
-    title: 'Partage ton lien WhatsApp',
-    desc: 'Un clic pour générer ton lien. Envoie-le à tes contacts.',
+    title: 'Partagez & vendez',
+    desc: 'Vendez directement ou laissez des ambassadeurs partager pour vous.',
   },
   {
     icon: Banknote,
-    title: 'Tu touches ta commission',
-    desc: 'Chaque vente via ton lien = 5% à 50% de commission automatique.',
+    title: 'Tout le monde gagne',
+    desc: 'Créateurs, ambassadeurs et acheteurs — chacun y trouve son compte.',
   },
 ];
 
@@ -30,7 +30,7 @@ export function LandingHowItWorksSimple() {
       <div className="container max-w-4xl">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-10">
           <h2 className="text-2xl sm:text-3xl font-extrabold">
-            Comment tu gagnes en <span className="text-accent">3 étapes</span>
+            Comment ça marche en <span className="text-accent">3 étapes</span>
           </h2>
         </motion.div>
 
@@ -59,7 +59,7 @@ export function LandingHowItWorksSimple() {
 
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mt-8 flex items-center gap-2 justify-center bg-accent/5 border border-accent/20 rounded-xl p-3 max-w-md mx-auto">
           <CheckCircle className="h-4 w-4 text-accent shrink-0" />
-          <p className="text-sm font-medium text-accent">Aucun contenu à créer. Tu gagnes juste en partageant.</p>
+          <p className="text-sm font-medium text-accent">Zéro abonnement. Zéro risque. Commencez en 60 secondes.</p>
         </motion.div>
       </div>
     </section>
