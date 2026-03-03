@@ -28,7 +28,7 @@ export function LandingFinalCTA() {
               <Button size="lg" className="bg-background text-foreground hover:bg-background/90 border-0 px-6 h-12 text-sm gap-2 group w-full sm:w-auto" onClick={() => navigate('/auth?mode=signup&intent=ambassador')}>
                 <Share2 className="h-4 w-4" /> 💰 Gagner en partageant <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
               </Button>
-              <Button size="lg" variant="outline" className="border-2 border-primary-foreground/70 text-primary-foreground hover:bg-primary-foreground/20 px-6 h-12 text-sm gap-2 w-full sm:w-auto" onClick={() => navigate('/auth?mode=signup&intent=creator')}>
+              <Button size="lg" className="bg-primary-foreground/20 text-primary-foreground border-2 border-primary-foreground hover:bg-primary-foreground/30 px-6 h-12 text-sm gap-2 w-full sm:w-auto" onClick={() => navigate('/auth?mode=signup&intent=creator')}>
                 <Building2 className="h-4 w-4" /> 🏢 Créer ma plateforme
               </Button>
             </div>
