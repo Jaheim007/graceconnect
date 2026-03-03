@@ -269,7 +269,7 @@ export default function FeedPage() {
                     <SectionHeader icon={<ShoppingBag className="h-4 w-4 text-primary" />} title={t('feed.store')} action={{ label: t('common.view_all'), onClick: () => setTab('store') }} />
                     <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                       {filteredProducts.slice(0, 6).map((p, i) => (
-                        <motion.div key={p.id} variants={staggerItem}><ProductCard product={p} index={i} onPurchase={() => setBuyProduct(p)} isPurchased={purchasedProductIds.has(p.id)} /></motion.div>
+                        <motion.div key={p.id} variants={staggerItem}><ProductCard product={p} index={i} onPurchase={() => setBuyProduct(p)} isPurchased={purchasedProductIds.has(p.id)} hideCommission hideShare /></motion.div>
                       ))}
                     </motion.div>
                   </section>
@@ -309,7 +309,7 @@ export default function FeedPage() {
                 {productsLoading ? <SkeletonList count={4} /> : filteredProducts.length === 0 ? <EmptyState variant="generic" title={t('feed.no_products')} description={t('feed.no_products_desc')} /> : (
                   <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                     {filteredProducts.map((p, i) => (
-                      <motion.div key={p.id} variants={staggerItem}><ProductCard product={p} index={i} onPurchase={() => setBuyProduct(p)} isPurchased={purchasedProductIds.has(p.id)} /></motion.div>
+                      <motion.div key={p.id} variants={staggerItem}><ProductCard product={p} index={i} onPurchase={() => setBuyProduct(p)} isPurchased={purchasedProductIds.has(p.id)} hideCommission hideShare /></motion.div>
                     ))}
                   </motion.div>
                 )}

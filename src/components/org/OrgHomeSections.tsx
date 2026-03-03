@@ -57,7 +57,7 @@ export function OrgHomeSections({
         </div>
         <div className="px-5 pb-5">
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {products.slice(0, 6).map((p, i) => <ProductCard key={p.id} product={p} index={i} onPurchase={() => onPurchase(p)} isPurchased={purchasedProductIds.has(p.id)} />)}
+            {products.slice(0, 6).map((p, i) => <ProductCard key={p.id} product={p} index={i} onPurchase={() => onPurchase(p)} isPurchased={purchasedProductIds.has(p.id)} hideCommission hideShare />)}
           </div>
         </div>
       </motion.section>

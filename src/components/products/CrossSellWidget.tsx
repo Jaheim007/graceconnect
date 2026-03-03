@@ -163,7 +163,7 @@ export function CrossSellWidget({ productId, organizationId, productType }: Cros
             animate="visible"
             transition={{ delay: i * 0.05 }}
           >
-            <ProductCard product={p} />
+            <ProductCard product={p} hideCommission hideShare />
           </motion.div>
         ))}
       </div>

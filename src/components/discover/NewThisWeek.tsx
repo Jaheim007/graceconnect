@@ -46,7 +46,7 @@ export function NewThisWeek() {
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {others.map((p: any, i: number) => (
           <motion.div key={p.id} variants={fadeUp} initial="hidden" animate="visible" transition={{ delay: i * 0.04 }}>
-            <ProductCard product={p} />
+            <ProductCard product={p} hideCommission hideShare />
           </motion.div>
         ))}
       </div>
