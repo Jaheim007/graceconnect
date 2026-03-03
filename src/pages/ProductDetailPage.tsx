@@ -673,7 +673,7 @@ export default function ProductDetailPage() {
                   <Badge className="w-full justify-center py-2 bg-emerald-500/10 text-emerald-600 border-emerald-500/20 gap-1.5">
                     <CheckCircle className="h-4 w-4" /> {t('product.already_purchased')}
                   </Badge>
-                  <Button variant="outline" className="w-full gap-2" onClick={() => navigate('/dashboard')}>
+                  <Button variant="outline" className="w-full gap-2" onClick={() => navigate('/resources')}>
                     <BookOpen className="h-4 w-4" /> {t('product.access_resources')}
                   </Button>
                 </div>

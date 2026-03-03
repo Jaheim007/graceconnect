@@ -40,7 +40,7 @@ const PageLoader = () => (
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const AuthPage = lazy(() => import("@/pages/AuthPage"));
 const AuthCallbackPage = lazy(() => import("@/pages/AuthCallbackPage"));
-const DiscoverPage = lazy(() => import("@/pages/DiscoverPage"));
+// DiscoverPage removed — /discover redirects to /marketplace
 const OrgPublicPage = lazy(() => import("@/pages/OrgPublicPage"));
 const ProductDetailPage = lazy(() => import("@/pages/ProductDetailPage"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
