@@ -486,7 +486,7 @@ export default function ProductDetailPage() {
         </motion.div>
       )}
 
-      <div className="container max-w-5xl px-4 py-6">
+      <div className="container max-w-5xl px-4 py-6 pb-24 md:pb-6">
         <div className="grid md:grid-cols-[1fr_340px] gap-6 md:gap-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             <div className={cn('rounded-2xl overflow-hidden border border-border shadow-card bg-muted/30 max-w-md mx-auto md:max-w-none', aspectClass)}>
@@ -634,7 +634,7 @@ export default function ProductDetailPage() {
 
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="md:sticky md:top-14 md:self-start space-y-4 md:max-h-[calc(100vh-4rem)] md:overflow-y-auto">
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="md:sticky md:top-14 md:self-start space-y-4 md:max-h-[calc(100vh-4rem)] md:overflow-y-auto scrollbar-hide">
             <div className="p-5 rounded-2xl border border-border bg-card shadow-card space-y-4">
               <div className="hidden md:block space-y-2">
                 <h1 className="text-xl font-bold leading-snug">{product.title}</h1>
@@ -769,6 +769,29 @@ export default function ProductDetailPage() {
           organizationName={product.organizations?.name}
         />
       </div>
+
+      {/* Mobile sticky buy bar */}
+      {!isPurchased && (
+        <div className="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-background/95 backdrop-blur-md border-t border-border px-4 py-3 flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-medium truncate">{product.title}</p>
+            <p className={cn('text-lg font-bold', product.is_free ? 'text-emerald-500' : 'text-primary')}>
+              {formatPrice(product.price || 0, product.is_free, product.currency)}
+            </p>
+          </div>
+          <Button
+            className="h-11 px-6 text-sm font-semibold text-white shrink-0 gap-2"
+            style={{ backgroundColor: orgPrimary || 'hsl(var(--primary))' }}
+            onClick={() => {
+              if (!user) { navigate(`/auth?returnTo=${encodeURIComponent(buildShareUrl())}`); return; }
+              setPurchaseProduct(product as DigitalProduct);
+            }}
+          >
+            <ShoppingBag className="h-4 w-4" />
+            {product.is_free ? t('product.get_free') : t('product.buy_now')}
+          </Button>
+        </div>
+      )}
 
       <ProductPurchaseModal
         product={purchaseProduct}

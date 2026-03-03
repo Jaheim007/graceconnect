@@ -138,7 +138,7 @@ export default function CreatorDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="bg-background">
       <div className="container max-w-3xl px-4 py-5 sm:py-6 space-y-5">
         <SEOHead title="Espace Créateur — Siteviral" noindex />
 
