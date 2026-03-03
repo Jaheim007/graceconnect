@@ -249,8 +249,8 @@ export function ProductPreviewViewer({
       </div>
 
       <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-        <DialogContent className="max-w-4xl w-[95vw] h-[90vh] p-0 gap-0 overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b bg-background/95 backdrop-blur-sm">
+        <DialogContent className="max-w-4xl w-[95vw] max-h-[90dvh] p-0 gap-0 overflow-hidden">
+          <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 border-b bg-background/95 backdrop-blur-sm">
             <div className="flex items-center gap-3 min-w-0">
               <FileText className="h-4 w-4 text-primary shrink-0" />
               <div className="min-w-0">
@@ -319,7 +319,7 @@ export function ProductPreviewViewer({
                     <img
                       src={pages[currentPage]}
                       alt={`Page ${currentPage + 1}`}
-                      className="w-full h-auto"
+                      className="w-full h-auto max-h-[70dvh] object-contain"
                     />
                     {!isPurchased && currentPage === pages.length - 1 && totalPages > pages.length && (
                       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background/95 flex items-end justify-center pb-8">

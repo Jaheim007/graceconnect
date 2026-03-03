@@ -182,13 +182,13 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-1.5 flex-wrap">
           <Badge variant="outline" className="text-[10px] px-1.5 py-0.5 h-5 gap-1 capitalize">
             {typeIcons[product.product_type] || typeIcons.default}
             {typeLabels[product.product_type] || product.product_type}
           </Badge>
 
-          <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
+          <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
             {canPreview && (
               <Button
                 variant="outline"
@@ -218,7 +218,14 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
             ) : (
               <Button
                 size="sm"
-                onClick={(e) => { e.stopPropagation(); onPurchase?.(); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onPurchase) {
+                    onPurchase();
+                  } else if (resolvedSlug) {
+                    navigate(detailPath);
+                  }
+                }}
                 className="h-7 text-[11px] px-3 font-semibold"
               >
                 {product.is_free ? 'Obtenir' : 'Acheter'}
