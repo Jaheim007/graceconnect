@@ -393,7 +393,7 @@ export default function ProductDetailPage() {
       </div>
 
       <div
-        className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between"
+        className="sticky top-14 z-20 border-b bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between"
         style={topBarStyle}
       >
         {org ? (
@@ -634,7 +634,7 @@ export default function ProductDetailPage() {
 
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="md:sticky md:top-14 md:self-start space-y-4 md:max-h-[calc(100vh-4rem)] md:overflow-y-auto scrollbar-hide">
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="md:sticky md:top-[6.5rem] md:self-start space-y-4 md:max-h-[calc(100vh-7rem)] md:overflow-y-auto scrollbar-hide">
             <div className="p-5 rounded-2xl border border-border bg-card shadow-card space-y-4">
               <div className="hidden md:block space-y-2">
                 <h1 className="text-xl font-bold leading-snug">{product.title}</h1>

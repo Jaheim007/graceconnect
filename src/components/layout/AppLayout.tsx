@@ -31,18 +31,18 @@ export function AppLayout() {
   useRealtimeNotifications(userOrgs.map(o => o.id));
 
   return (
-    <div className="min-h-[100dvh] flex w-full bg-background overflow-x-hidden">
+    <div className="h-[100dvh] flex w-full bg-background overflow-hidden">
       {/* Desktop Sidebar — only for ambassador/creator, never public */}
       {!hideNav && mode !== 'public' && (
-        <nav className="hidden lg:flex" aria-label="Navigation principale">
+        <nav className="hidden lg:flex shrink-0" aria-label="Navigation principale">
           <Sidebar />
         </nav>
       )}
 
       {/* Main content */}
-      <div className="flex flex-col flex-1 min-w-0">
+      <div className="flex flex-col flex-1 min-w-0 h-full">
         {!hideNav && <TopBar />}
-        <main id="main-content" role="main" className={`flex-1 overflow-x-hidden ${!hideNav ? 'pb-16 lg:pb-0' : ''}`}>
+        <main id="main-content" role="main" className={`flex-1 overflow-y-auto overflow-x-hidden ${!hideNav ? 'pb-16 lg:pb-0' : ''}`}>
           <AnimatePresence mode="wait">
             <motion.div
               key={location.pathname}
