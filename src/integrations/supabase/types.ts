@@ -2086,13 +2086,17 @@ export type Database = {
       partner_payout_requests: {
         Row: {
           amount: number
+          commission_ids: string[] | null
           currency: string
           failure_reason: string | null
           id: string
           metadata: Json | null
           paid_at: string | null
           partner_id: string
+          paystack_reference: string | null
           paystack_transfer_code: string | null
+          processed_at: string | null
+          processed_by: string | null
           requested_at: string
           reviewed_at: string | null
           reviewed_by: string | null
@@ -2100,13 +2104,17 @@ export type Database = {
         }
         Insert: {
           amount: number
+          commission_ids?: string[] | null
           currency?: string
           failure_reason?: string | null
           id?: string
           metadata?: Json | null
           paid_at?: string | null
           partner_id: string
+          paystack_reference?: string | null
           paystack_transfer_code?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
           requested_at?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -2114,13 +2122,17 @@ export type Database = {
         }
         Update: {
           amount?: number
+          commission_ids?: string[] | null
           currency?: string
           failure_reason?: string | null
           id?: string
           metadata?: Json | null
           paid_at?: string | null
           partner_id?: string
+          paystack_reference?: string | null
           paystack_transfer_code?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
           requested_at?: string
           reviewed_at?: string | null
           reviewed_by?: string | null
