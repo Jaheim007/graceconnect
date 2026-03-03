@@ -4,9 +4,9 @@ import { LandingFooter } from '@/components/landing/LandingFooter';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Clock, BookOpen } from 'lucide-react';
+import { ArrowRight, Clock, BookOpen, Users, Megaphone, Palette } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { blogArticles } from '@/lib/blogArticles';
+import { blogArticles, BlogUniverse } from '@/lib/blogArticles';
 import { useState } from 'react';
 
 const fadeUp = {
@@ -17,9 +17,41 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.06 } }
 
 const categories = ['Tous', ...Array.from(new Set(blogArticles.map(a => a.category)))];
 
+/** Infer universe from personas when no explicit universe tag is set */
+function inferUniverse(personas: string[]): BlogUniverse {
+  const joined = personas.join(' ').toLowerCase();
+  if (personas.includes('Tous')) return 'all';
+  // Ambassador-oriented
+  if (joined.includes('ambassadeur') || joined.includes('étudiant') || joined.includes('jeune')) return 'ambassador';
+  // Creator-oriented
+  const creatorKeywords = ['créateur', 'formateur', 'coach', 'auteur', 'musicien', 'photographe', 'designer', 'consultant', 'agence', 'professionnel'];
+  if (creatorKeywords.some(k => joined.includes(k))) return 'creator';
+  // Buyer-oriented (ONG, associations, churches looking to buy/collect)
+  const buyerKeywords = ['ong', 'association', 'église', 'diaspora', 'leader'];
+  if (buyerKeywords.some(k => joined.includes(k))) return 'buyer';
+  return 'all';
+}
+
+const universeFilters: { value: BlogUniverse | 'all'; label: string; icon: React.ReactNode }[] = [
+  { value: 'all', label: 'Tous', icon: <BookOpen className="h-3 w-3" /> },
+  { value: 'buyer', label: 'Acheteurs', icon: <Users className="h-3 w-3" /> },
+  { value: 'ambassador', label: 'Ambassadeurs', icon: <Megaphone className="h-3 w-3" /> },
+  { value: 'creator', label: 'Créateurs', icon: <Palette className="h-3 w-3" /> },
+];
+
 export default function BlogIndexPage() {
   const [activeCategory, setActiveCategory] = useState('Tous');
-  const filtered = activeCategory === 'Tous' ? blogArticles : blogArticles.filter(a => a.category === activeCategory);
+  const [activeUniverse, setActiveUniverse] = useState<BlogUniverse | 'all'>('all');
+
+  const filtered = blogArticles.filter(a => {
+    if (activeCategory !== 'Tous' && a.category !== activeCategory) return false;
+    if (activeUniverse !== 'all') {
+      // Use explicit universe tag, or infer from personas
+      const articleUniverse = a.universe || inferUniverse(a.personas);
+      if (articleUniverse !== 'all' && articleUniverse !== activeUniverse) return false;
+    }
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -44,9 +76,26 @@ export default function BlogIndexPage() {
         </div>
       </section>
 
-      {/* Category filter */}
+      {/* Universe + Category filters */}
       <section className="sticky top-14 z-20 bg-background/80 backdrop-blur-md border-b border-border py-3">
-        <div className="container max-w-5xl px-4">
+        <div className="container max-w-5xl px-4 space-y-2">
+          {/* Universe tabs */}
+          <div className="flex gap-2 overflow-x-auto no-scrollbar">
+            {universeFilters.map(u => (
+              <button
+                key={u.value}
+                onClick={() => setActiveUniverse(u.value)}
+                className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors border flex items-center gap-1.5 ${
+                  activeUniverse === u.value
+                    ? 'bg-accent text-accent-foreground border-accent'
+                    : 'bg-card border-border text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {u.icon} {u.label}
+              </button>
+            ))}
+          </div>
+          {/* Category pills */}
           <div className="flex gap-2 overflow-x-auto no-scrollbar">
             {categories.map(cat => (
               <button
