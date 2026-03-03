@@ -2,10 +2,14 @@ import { createRoot } from "react-dom/client";
 import * as Sentry from "@sentry/react";
 import App from "./App.tsx";
 import { capturePromoFromUrl } from './hooks/usePromoCapture';
+import { prefetchRates } from './lib/currencyConvert';
 import "./index.css";
 
 // Capture promo code from URL params on page load
 capturePromoFromUrl();
+
+// Pre-warm currency conversion rates cache
+prefetchRates();
 
 // Sentry error tracking (production only)
 if (import.meta.env.PROD) {

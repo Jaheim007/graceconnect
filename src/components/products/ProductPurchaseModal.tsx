@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { db } from '@/lib/db';
 import { formatPrice } from '@/lib/currency';
+import { LocalPriceHint } from '@/components/payments/LocalPriceHint';
 import { useAbandonedCart } from '@/hooks/useAbandonedCart';
 import { getAutoPromoCode, clearAutoPromoCode } from '@/hooks/usePromoCapture';
 import { onNewSale } from '@/lib/notifications';
@@ -357,6 +358,9 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                 </div>
                 <span className={`text-xl font-bold ${product.is_free ? 'text-green-500' : 'text-primary'}`}>
                   {fmt(product.price)}
+                  {!product.is_free && (product.price ?? 0) > 0 && (
+                    <LocalPriceHint amount={product.price ?? 0} currency={product.currency || 'XOF'} className="block text-right" />
+                  )}
                 </span>
               </div>
 

@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen, Eye } from 'lucide-react';
 import { FlashSaleBadge } from './FlashSaleBadge';
 import { ShareWidget } from './ShareWidget';
+import { LocalPriceHint } from '@/components/payments/LocalPriceHint';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -176,13 +177,18 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
         </div>
         <div className="absolute bottom-2.5 right-2.5">
           <span className={cn(
-            'inline-block px-2.5 py-1 rounded-lg text-sm font-bold shadow-sm',
+            'inline-flex flex-col items-end px-2.5 py-1 rounded-lg text-sm font-bold shadow-sm',
             product.is_free
               ? 'bg-emerald-600 text-white'
               : 'bg-background/90 backdrop-blur-sm text-foreground border border-border/50'
           )}>
-            {isFlashSale && <span className="text-[10px] line-through text-muted-foreground mr-1">{fmt(product.price)}</span>}
-            {fmt(displayPrice)}
+            <span>
+              {isFlashSale && <span className="text-[10px] line-through text-muted-foreground mr-1">{fmt(product.price)}</span>}
+              {fmt(displayPrice)}
+            </span>
+            {!product.is_free && displayPrice > 0 && (
+              <LocalPriceHint amount={displayPrice} currency={product.currency || 'XOF'} />
+            )}
           </span>
         </div>
       </div>

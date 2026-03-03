@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { Offering } from '@/hooks/useOfferings';
 import { Button } from '@/components/ui/button';
 import { HandHeart } from 'lucide-react';
+import { useLocalCurrency } from '@/hooks/useLocalCurrency';
 
 interface OfferingCardProps {
   offering: Offering;
@@ -10,8 +11,10 @@ interface OfferingCardProps {
 
 export function OfferingCard({ offering, onSelect }: OfferingCardProps) {
   const navigate = useNavigate();
+  const { formatLocal, needsConversion } = useLocalCurrency();
   const presets = offering.preset_amounts || [1000, 2500, 5000, 10000];
   const currency = offering.currency || 'XOF';
+  const showLocal = needsConversion(currency);
 
   const fmt = (n: number) =>
     new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(n);
@@ -47,6 +50,7 @@ export function OfferingCard({ offering, onSelect }: OfferingCardProps) {
           {presets.slice(0, 4).map((p) => (
             <span key={p} className="text-[10px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
               {fmt(p)} {currency}
+              {showLocal && <span className="block text-[9px] opacity-70">{formatLocal(p, currency)}</span>}
             </span>
           ))}
         </div>
