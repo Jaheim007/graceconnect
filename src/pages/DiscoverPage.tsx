@@ -316,7 +316,7 @@ export default function DiscoverPage() {
                 <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {products.map((p: any) => (
                     <motion.div key={p.id} variants={fadeUp}>
-                      <ProductCard product={p} />
+                      <ProductCard product={p} hideCommission hideShare />
                     </motion.div>
                   ))}
                 </motion.div>
