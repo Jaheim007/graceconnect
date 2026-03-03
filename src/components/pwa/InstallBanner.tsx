@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Download, X, Share, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePWAInstall } from '@/hooks/usePWAInstall';
+import { useI18n } from '@/i18n/I18nContext';
 
 const DISMISS_KEY = 'sv_install_banner_dismissed';
 const DISMISS_DAYS = 7;
@@ -10,18 +11,17 @@ const DISMISS_DAYS = 7;
 export function InstallBanner() {
   const { isInstalled, isIOS, canInstall, promptInstall } = usePWAInstall();
   const [visible, setVisible] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     if (isInstalled || !canInstall) return;
 
-    // Check if previously dismissed
     const dismissed = localStorage.getItem(DISMISS_KEY);
     if (dismissed) {
       const dismissedAt = parseInt(dismissed, 10);
       if (Date.now() - dismissedAt < DISMISS_DAYS * 24 * 60 * 60 * 1000) return;
     }
 
-    // Show after 5 seconds
     const timer = setTimeout(() => setVisible(true), 5000);
     return () => clearTimeout(timer);
   }, [isInstalled, canInstall]);
@@ -55,29 +55,29 @@ export function InstallBanner() {
       >
         <div className="bg-card border border-border rounded-2xl p-4 shadow-elevated">
           <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-xl overflow-hidden shrink-0">
+            <div className="h-10 w-10 rounded-xl overflow-hidden shrink-0 bg-muted">
               <img src="/logo-s.png" alt="Siteviral" className="h-full w-full object-contain" />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-foreground">
-                Installer Siteviral
+                {t('pwa.install_title')}
               </p>
               {isIOS ? (
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Appuyez sur <Share className="inline h-3 w-3 mx-0.5" /> puis{' '}
-                  <strong>« Sur l'écran d'accueil »</strong>{' '}
+                  {t('pwa.ios_tap')} <Share className="inline h-3 w-3 mx-0.5" /> {t('pwa.ios_then')}{' '}
+                  <strong>{t('pwa.ios_add_home')}</strong>{' '}
                   <Plus className="inline h-3 w-3 mx-0.5" />
                 </p>
               ) : (
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Ajoutez l'app sur votre appareil pour un accès rapide et hors ligne
+                  {t('pwa.install_desc')}
                 </p>
               )}
             </div>
             <button
               onClick={handleDismiss}
               className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
-              aria-label="Fermer"
+              aria-label={t('common.close')}
             >
               <X className="h-4 w-4" />
             </button>
@@ -89,7 +89,7 @@ export function InstallBanner() {
               className="w-full mt-3 bg-primary text-primary-foreground gap-2"
               onClick={handleInstall}
             >
-              <Download className="h-4 w-4" /> Installer maintenant
+              <Download className="h-4 w-4" /> {t('pwa.install_now')}
             </Button>
           )}
         </div>

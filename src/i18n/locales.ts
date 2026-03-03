@@ -68,6 +68,14 @@ const translations: Record<Locale, Record<string, string>> = {
     'common.error': 'Error',
     'common.view_all': 'View all',
     'common.search_placeholder': 'Search...',
+    'common.close': 'Close',
+    // PWA
+    'pwa.install_title': 'Install Siteviral',
+    'pwa.install_desc': 'Add the app to your device for quick & offline access',
+    'pwa.install_now': 'Install now',
+    'pwa.ios_tap': 'Tap',
+    'pwa.ios_then': 'then',
+    'pwa.ios_add_home': 'Add to Home Screen',
     // Org
     'org.create': 'Create platform',
     'org.category': 'Category',
@@ -1134,6 +1142,14 @@ const translations: Record<Locale, Record<string, string>> = {
     'common.error': 'Erreur',
     'common.view_all': 'Tout voir',
     'common.search_placeholder': 'Rechercher...',
+    'common.close': 'Fermer',
+    // PWA
+    'pwa.install_title': 'Installer Siteviral',
+    'pwa.install_desc': 'Ajoutez l\'app sur votre appareil pour un accès rapide et hors ligne',
+    'pwa.install_now': 'Installer maintenant',
+    'pwa.ios_tap': 'Appuyez sur',
+    'pwa.ios_then': 'puis',
+    'pwa.ios_add_home': 'Sur l\'écran d\'accueil',
     // Org
     'org.create': 'Créer une plateforme',
     'org.category': 'Catégorie',
@@ -2200,6 +2216,14 @@ const translations: Record<Locale, Record<string, string>> = {
     'common.error': 'خطأ',
     'common.view_all': 'عرض الكل',
     'common.search_placeholder': 'بحث...',
+    'common.close': 'إغلاق',
+    // PWA
+    'pwa.install_title': 'تثبيت Siteviral',
+    'pwa.install_desc': 'أضف التطبيق إلى جهازك للوصول السريع وبدون إنترنت',
+    'pwa.install_now': 'تثبيت الآن',
+    'pwa.ios_tap': 'اضغط على',
+    'pwa.ios_then': 'ثم',
+    'pwa.ios_add_home': 'إضافة إلى الشاشة الرئيسية',
     // Org
     'org.create': 'إنشاء منصة',
     'org.category': 'الفئة',

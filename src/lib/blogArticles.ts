@@ -1,8 +1,12 @@
+export type BlogUniverse = 'all' | 'buyer' | 'ambassador' | 'creator';
+
 export interface BlogArticle {
   slug: string;
   title: string;
   description: string;
   personas: string[];
+  /** Which user universe this article is most relevant for */
+  universe?: BlogUniverse;
   category: string;
   readTime: string;
   publishedAt: string;
