@@ -68,6 +68,11 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const defaultMethod: PaymentMethod =
     isMoMoAvailable(product?.currency || 'XOF') && hasPaystackKey ? 'mobile_money' : 'card';
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(defaultMethod);
+
+  // Reset payment method when product/currency changes to avoid stale MoMo selection on non-MoMo currencies
+  useEffect(() => {
+    setPaymentMethod(defaultMethod);
+  }, [product?.id, product?.currency]);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { pathname } = useLocation();
