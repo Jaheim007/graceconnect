@@ -58,12 +58,14 @@ export function usePaymentGateway() {
 
     if (wantsMoMo) {
       // ── PAYSTACK (Mobile Money only) ──
+      // NOTE: subaccount is intentionally omitted for MoMo payments.
+      // Paystack subaccounts are currency-specific (e.g. NGN-only) and will
+      // reject transactions in other currencies ("Currency not supported by merchant").
+      // The platform collects centrally and handles payouts separately.
       await openPaystack({
         email,
         amount,
         currency,
-        subaccount,
-        platformFeeAmount,
         metadata: {
           ...metadata,
           type,
