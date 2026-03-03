@@ -12,6 +12,7 @@ import { I18nProvider } from "@/i18n/I18nContext";
 
 // Layout (always loaded)
 import { AppLayout } from "@/components/layout/AppLayout";
+import { PublicLayout } from "@/components/layout/PublicLayout";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { RequireAuth, RequireSuperadmin, RequireOrgManage } from "@/components/layout/RouteGuard";
 import { GDPRBanner } from "@/components/layout/GDPRBanner";
@@ -322,27 +323,25 @@ const App = () => (
                 <Route path="/gagner" element={<GagnerLandingPage />} />
                 <Route path="/vendre" element={<VendreLandingPage />} />
                 <Route path="/discover" element={<Navigate to="/marketplace" replace />} />
-                <Route path="/marketplace" element={<AppLayout />}>
-                  <Route index element={<MarketplacePage />} />
+                {/* Public / Buyer Universe — uses PublicLayout (minimal chrome) */}
+                <Route element={<PublicLayout />}>
+                  <Route path="/marketplace" element={<MarketplacePage />} />
+                  <Route path="/org/:slug" element={<OrgPublicPage />} />
+                  <Route path="/org/:slug/content" element={<OrgPublicPage />} />
+                  <Route path="/org/:slug/events" element={<OrgPublicPage />} />
+                  <Route path="/org/:slug/store" element={<OrgPublicPage />} />
+                  <Route path="/org/:slug/donate" element={<OrgPublicPage />} />
+                  <Route path="/org/:slug/photos" element={<OrgPublicPage />} />
+                  <Route path="/org/:slug/offerings" element={<OrgPublicPage />} />
+                  <Route path="/org/:slug/dons" element={<OrgPublicPage />} />
+                  <Route path="/org/:slug/product/:productId" element={<ProductDetailPage />} />
+                  <Route path="/org/:slug/p/:productSlug" element={<ProductDetailPage />} />
+                  <Route path="/campaign/:campaignId" element={<CampaignDetailPage />} />
+                  <Route path="/offering/:offeringId" element={<OfferingDetailPage />} />
+                  <Route path="/announcement/:announcementId" element={<AnnouncementDetailPage />} />
+                  <Route path="/event/:eventId" element={<EventDetailPage />} />
+                  <Route path="/program/:programId" element={<ProgramDetailPage />} />
                 </Route>
-
-
-                {/* Org public pages */}
-                <Route path="/org/:slug" element={<OrgPublicPage />} />
-                <Route path="/org/:slug/content" element={<OrgPublicPage />} />
-                <Route path="/org/:slug/events" element={<OrgPublicPage />} />
-                <Route path="/org/:slug/store" element={<OrgPublicPage />} />
-                <Route path="/org/:slug/donate" element={<OrgPublicPage />} />
-                <Route path="/org/:slug/photos" element={<OrgPublicPage />} />
-                <Route path="/org/:slug/offerings" element={<OrgPublicPage />} />
-                <Route path="/org/:slug/dons" element={<OrgPublicPage />} />
-                <Route path="/org/:slug/product/:productId" element={<ProductDetailPage />} />
-                <Route path="/org/:slug/p/:productSlug" element={<ProductDetailPage />} />
-                <Route path="/campaign/:campaignId" element={<CampaignDetailPage />} />
-                <Route path="/offering/:offeringId" element={<OfferingDetailPage />} />
-                <Route path="/announcement/:announcementId" element={<AnnouncementDetailPage />} />
-                <Route path="/event/:eventId" element={<EventDetailPage />} />
-                <Route path="/program/:programId" element={<ProgramDetailPage />} />
 
                 {/* Welcome intent (post-signup) */}
                 <Route path="/welcome" element={<RequireAuth><WelcomeIntentPage /></RequireAuth>} />
