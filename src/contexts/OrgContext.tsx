@@ -92,10 +92,15 @@ export function OrgProvider({ children }: { children: ReactNode }) {
   }, [user]);
 
   const setCurrentOrg = useCallback((org: Organization | null) => {
+    const prev = currentOrg;
     setCurrentOrgState(org);
     if (org) localStorage.setItem('sv_current_org_id', org.id);
     else localStorage.removeItem('sv_current_org_id');
-  }, []);
+    // Invalidate all org-scoped queries when switching to a different org
+    if (org && prev && org.id !== prev.id) {
+      qc.invalidateQueries();
+    }
+  }, [currentOrg, qc]);
 
   const refetchOrgs = useCallback(() => {
     refetchMembers();

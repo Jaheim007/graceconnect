@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import { Bell, Sun, Moon, LogOut, User, Settings, Shield, Plus } from 'lucide-react';
+import { Bell, Sun, Moon, LogOut, User, Settings, Shield, Plus, ChevronDown, Building2 } from 'lucide-react';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
@@ -13,11 +13,12 @@ import { useUnreadCount } from '@/hooks/useNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { ModeSwitch } from './ModeSwitch';
 import { useMode } from '@/contexts/ModeContext';
+import { cn } from '@/lib/utils';
 
 export function TopBar() {
   const { theme, toggleTheme } = useTheme();
   const { user, profile, isSuperadmin, signOut } = useAuth();
-  const { currentOrg, canManage } = useOrg();
+  const { currentOrg, canManage, userOrgs, setCurrentOrg } = useOrg();
   const { mode } = useMode();
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
   const { data: unread = 0 } = useUnreadCount(user?.id);
@@ -37,6 +38,30 @@ export function TopBar() {
       </div>
       <GlobalSearch />
       <div className="flex-1" />
+
+      {/* Org switcher (mobile, creator mode with multiple orgs) */}
+      {user && mode === 'creator' && currentOrg && userOrgs.length > 1 && (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-7 text-[11px] font-semibold gap-1 max-w-[120px] lg:hidden">
+              <Building2 className="h-3 w-3 shrink-0" />
+              <span className="truncate">{currentOrg.name}</span>
+              <ChevronDown className="h-3 w-3 shrink-0" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            {userOrgs.map((o) => (
+              <DropdownMenuItem
+                key={o.id}
+                onClick={() => setCurrentOrg(o)}
+                className={cn('text-xs', o.id === currentOrg.id && 'text-primary font-semibold')}
+              >
+                {o.name}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )}
 
       {/* Mode Switch */}
       {user && <ModeSwitch />}
