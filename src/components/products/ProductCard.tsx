@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
+import { useMode } from '@/contexts/ModeContext';
 
 interface ProductCardProps {
   product: DigitalProduct & { slug?: string };
@@ -33,10 +34,15 @@ const coverAspectClass: Record<string, string> = {
   other: 'aspect-video',
 };
 
-export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideCommission, hideShare }: ProductCardProps) {
+export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideCommission: hideCommissionProp, hideShare: hideShareProp }: ProductCardProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { mode } = useMode();
+
+  // Auto-hide commission/share for buyers (public mode) unless explicitly overridden
+  const hideCommission = hideCommissionProp ?? mode !== 'ambassador';
+  const hideShare = hideShareProp ?? mode !== 'ambassador';
 
   const organizationId = (product as any).organization_id;
   const orgSlug = (product as any).organization_slug || '';
