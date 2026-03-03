@@ -10,6 +10,8 @@ export interface BlogArticle {
   category: string;
   readTime: string;
   publishedAt: string;
+  /** Optional OG image URL for social sharing (1200x630 recommended) */
+  ogImage?: string;
   content: string; // markdown-like HTML
 }
 

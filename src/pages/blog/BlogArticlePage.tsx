@@ -54,7 +54,14 @@ export default function BlogArticlePage() {
       <SEOHead
         title={`${article.title} — Blog Siteviral`}
         description={article.description}
+        ogImage={article.ogImage}
+        ogType="article"
         canonicalUrl={`https://siteviral.com/blog/${article.slug}`}
+        article={{
+          publishedTime: article.publishedAt,
+          section: article.category,
+          tags: article.personas,
+        }}
       />
       <LandingNav />
 
