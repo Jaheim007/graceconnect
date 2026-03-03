@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { LegalHeader, LegalFooter } from '@/components/layout/LegalPageShell';
+import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -32,6 +33,8 @@ const BENEFITS = [
 ];
 
 export default function BecomePartnerPage() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [form, setForm] = useState({ full_name: '', email: '', phone: '', country: 'CI', motivation: '' });
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -39,6 +42,11 @@ export default function BecomePartnerPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) {
+      toast.error('Vous devez être connecté pour postuler.');
+      navigate('/auth?redirect=/devenir-partenaire');
+      return;
+    }
     if (!form.full_name || !form.email || !termsAccepted) return;
 
     setSubmitting(true);
@@ -55,6 +63,7 @@ export default function BecomePartnerPage() {
         status: 'pending',
         notes: form.motivation || null,
         terms_accepted_at: new Date().toISOString(),
+        user_id: user.id,
       });
       if (error) throw error;
       setSubmitted(true);
@@ -70,7 +79,7 @@ export default function BecomePartnerPage() {
       <SEOHead
         title="Devenir Partenaire — Gagnez des commissions récurrentes | Siteviral"
         description="Rejoignez le Programme Partenaires Siteviral. Référez des organisations et gagnez jusqu'à 15% de commission récurrente. Inscription gratuite."
-        canonicalUrl="https://siteviral.com/become-partner"
+        canonicalUrl="https://siteviral.com/devenir-partenaire"
         keywords="devenir partenaire, programme partenaires, commissions récurrentes, référer organisations, Siteviral"
       />
       <LegalHeader />
