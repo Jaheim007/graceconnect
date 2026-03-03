@@ -22,7 +22,7 @@ interface SEOHeadProps {
 
 const SITE_NAME = 'Siteviral';
 const DEFAULT_OG_IMAGE = 'https://siteviral.com/og-image.png';
-const DEFAULT_DESCRIPTION = 'Vendez vos produits numériques, collectez des dons via Mobile Money et gagnez de l\'argent en partageant. Zéro abonnement. Votre centre digital tout-en-un.';
+const DEFAULT_DESCRIPTION = 'Votre centre digital tout-en-un. Gratuit. Vendez vos produits numériques, collectez des dons via Mobile Money et cartes, et gagnez en partageant.';
 const DEFAULT_KEYWORDS = 'plateforme digitale, vendre produits numériques, Mobile Money, affiliation Afrique, gagner argent en ligne, ebook, formation en ligne, ambassadeur digital, contenu numérique, boutique en ligne, collecte de dons, créateur de contenu, monétisation, Siteviral';
 const TWITTER_SITE = '@siteviral';
 const SITE_URL = 'https://siteviral.com';
