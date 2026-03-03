@@ -3,22 +3,23 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 const SITE_URL = "https://siteviral.com";
 
 const staticPages = [
+  // Core pages
   { loc: "/", priority: "1.0", changefreq: "daily" },
-  { loc: "/discover", priority: "0.9", changefreq: "daily" },
   { loc: "/marketplace", priority: "0.9", changefreq: "daily" },
   { loc: "/ambassador", priority: "0.8", changefreq: "weekly" },
   { loc: "/affiliation", priority: "0.8", changefreq: "weekly" },
   { loc: "/features", priority: "0.7", changefreq: "monthly" },
   { loc: "/about", priority: "0.6", changefreq: "monthly" },
   { loc: "/install", priority: "0.6", changefreq: "monthly" },
-  { loc: "/become-partner", priority: "0.7", changefreq: "monthly" },
+  { loc: "/devenir-partenaire", priority: "0.7", changefreq: "monthly" },
   { loc: "/faq", priority: "0.5", changefreq: "monthly" },
   { loc: "/contact", priority: "0.5", changefreq: "monthly" },
   { loc: "/resources", priority: "0.5", changefreq: "monthly" },
   { loc: "/changelog", priority: "0.4", changefreq: "monthly" },
-  { loc: "/terms", priority: "0.3", changefreq: "yearly" },
-  { loc: "/privacy", priority: "0.3", changefreq: "yearly" },
-  { loc: "/refund-policy", priority: "0.3", changefreq: "yearly" },
+  { loc: "/gagner", priority: "0.7", changefreq: "monthly" },
+  { loc: "/vendre", priority: "0.7", changefreq: "monthly" },
+
+  // Blog
   { loc: "/blog", priority: "0.7", changefreq: "weekly" },
   { loc: "/blog/quest-ce-que-siteviral", priority: "0.6", changefreq: "monthly" },
   { loc: "/blog/comment-vendre-ebook-afrique", priority: "0.6", changefreq: "monthly" },
@@ -30,6 +31,7 @@ const staticPages = [
   { loc: "/blog/alternative-gofundme-afrique", priority: "0.6", changefreq: "monthly" },
   { loc: "/blog/gagner-argent-sans-contenu", priority: "0.6", changefreq: "monthly" },
   { loc: "/blog/vendre-cours-en-ligne", priority: "0.6", changefreq: "monthly" },
+
   // Persona pages
   { loc: "/pour/influenceurs", priority: "0.6", changefreq: "monthly" },
   { loc: "/pour/formateurs", priority: "0.6", changefreq: "monthly" },
@@ -40,7 +42,7 @@ const staticPages = [
   { loc: "/pour/auteurs", priority: "0.6", changefreq: "monthly" },
   { loc: "/pour/musiciens", priority: "0.6", changefreq: "monthly" },
   { loc: "/pour/podcasters", priority: "0.6", changefreq: "monthly" },
-  { loc: "/pour/bloggeurs", priority: "0.6", changefreq: "monthly" },
+  { loc: "/pour/blogueurs", priority: "0.6", changefreq: "monthly" },
   { loc: "/pour/photographes", priority: "0.6", changefreq: "monthly" },
   { loc: "/pour/designers", priority: "0.6", changefreq: "monthly" },
   { loc: "/pour/consultants", priority: "0.6", changefreq: "monthly" },
@@ -53,7 +55,7 @@ const staticPages = [
   { loc: "/pour/cooperatives", priority: "0.6", changefreq: "monthly" },
   { loc: "/pour/diaspora", priority: "0.6", changefreq: "monthly" },
   { loc: "/pour/enseignants", priority: "0.6", changefreq: "monthly" },
-  { loc: "/pour/femmes-entrepreneur", priority: "0.6", changefreq: "monthly" },
+  { loc: "/pour/femmes-entrepreneures", priority: "0.6", changefreq: "monthly" },
   { loc: "/pour/finance", priority: "0.6", changefreq: "monthly" },
   { loc: "/pour/juristes", priority: "0.6", changefreq: "monthly" },
   { loc: "/pour/leaders-musulmans", priority: "0.6", changefreq: "monthly" },
@@ -61,17 +63,19 @@ const staticPages = [
   { loc: "/pour/missionnaires", priority: "0.6", changefreq: "monthly" },
   { loc: "/pour/retraites", priority: "0.6", changefreq: "monthly" },
   { loc: "/pour/sante", priority: "0.6", changefreq: "monthly" },
-  // Guide pages
+
+  // Guide pages (corrected to match actual routes)
   { loc: "/guide/affiliation-sans-investissement", priority: "0.5", changefreq: "monthly" },
   { loc: "/guide/alternative-gofundme", priority: "0.5", changefreq: "monthly" },
-  { loc: "/guide/boutique-digitale", priority: "0.5", changefreq: "monthly" },
+  { loc: "/guide/boutique-digitale-gratuite", priority: "0.5", changefreq: "monthly" },
   { loc: "/guide/gagner-sans-contenu", priority: "0.5", changefreq: "monthly" },
-  { loc: "/guide/mobile-money", priority: "0.5", changefreq: "monthly" },
+  { loc: "/guide/mobile-money-ecommerce", priority: "0.5", changefreq: "monthly" },
   { loc: "/guide/monetiser-contenu-religieux", priority: "0.5", changefreq: "monthly" },
-  { loc: "/guide/plateforme-dons", priority: "0.5", changefreq: "monthly" },
-  { loc: "/guide/vendre-cours", priority: "0.5", changefreq: "monthly" },
-  { loc: "/guide/vendre-ebook", priority: "0.5", changefreq: "monthly" },
-  // Additional static pages
+  { loc: "/guide/plateforme-dons-afrique", priority: "0.5", changefreq: "monthly" },
+  { loc: "/guide/vendre-cours-en-ligne", priority: "0.5", changefreq: "monthly" },
+  { loc: "/guide/vendre-ebook-afrique", priority: "0.5", changefreq: "monthly" },
+
+  // Additional content pages
   { loc: "/comparer", priority: "0.5", changefreq: "monthly" },
   { loc: "/calculateur", priority: "0.5", changefreq: "monthly" },
   { loc: "/temoignages", priority: "0.5", changefreq: "monthly" },
@@ -80,11 +84,20 @@ const staticPages = [
   { loc: "/partenaires", priority: "0.4", changefreq: "monthly" },
   { loc: "/status", priority: "0.3", changefreq: "daily" },
   { loc: "/help", priority: "0.4", changefreq: "monthly" },
+
+  // Legal pages
+  { loc: "/terms", priority: "0.3", changefreq: "yearly" },
+  { loc: "/privacy", priority: "0.3", changefreq: "yearly" },
+  { loc: "/refund-policy", priority: "0.3", changefreq: "yearly" },
   { loc: "/security", priority: "0.3", changefreq: "yearly" },
   { loc: "/compliance", priority: "0.3", changefreq: "yearly" },
   { loc: "/acceptable-use", priority: "0.3", changefreq: "yearly" },
   { loc: "/payout-policy", priority: "0.3", changefreq: "yearly" },
-  { loc: "/seo-guide", priority: "0.4", changefreq: "monthly" },
+  { loc: "/aml", priority: "0.3", changefreq: "yearly" },
+  { loc: "/dpa", priority: "0.3", changefreq: "yearly" },
+  { loc: "/subprocessors", priority: "0.3", changefreq: "yearly" },
+  { loc: "/ambassador-terms", priority: "0.3", changefreq: "yearly" },
+  { loc: "/partner-terms", priority: "0.3", changefreq: "yearly" },
 ];
 
 Deno.serve(async () => {
