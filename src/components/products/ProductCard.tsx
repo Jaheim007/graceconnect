@@ -34,37 +34,39 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
   const { toast } = useToast();
   const { user } = useAuth();
 
+  const organizationId = (product as any).organization_id;
   const orgSlug = (product as any).organization_slug || '';
 
   const { data: affiliateCode } = useQuery({
-    queryKey: ['my-aff-code', user?.id, (product as any).organization_id],
+    queryKey: ['my-aff-code', user?.id, organizationId],
     queryFn: async () => {
       if (!user) return null;
-      const { data: link } = await db.from('affiliate_links').select('code').eq('user_id', user.id).eq('organization_id', (product as any).organization_id).eq('is_active', true).maybeSingle();
+      const { data: link } = await db.from('affiliate_links').select('code').eq('user_id', user.id).eq('organization_id', organizationId).eq('is_active', true).maybeSingle();
       return link?.code || null;
     },
-    enabled: !!user && !!(product as any).organization_id,
+    enabled: !!user && !!organizationId,
     staleTime: 1000 * 60 * 10,
   });
 
   const { data: orgData } = useQuery({
-    queryKey: ['org-slug-for-card', (product as any).organization_id],
+    queryKey: ['org-slug-for-card', organizationId],
     queryFn: async () => {
-      const { data } = await db.from('organizations').select('slug').eq('id', (product as any).organization_id).maybeSingle();
+      const { data } = await db.from('organizations').select('slug').eq('id', organizationId).maybeSingle();
       return data;
     },
-    enabled: !orgSlug && !!(product as any).organization_id,
+    enabled: !orgSlug && !!organizationId,
     staleTime: 1000 * 60 * 30,
   });
 
   const resolvedSlug = orgSlug || orgData?.slug || '';
   const pSlug = (product as any).slug;
-  const detailPath = pSlug
-    ? `/org/${resolvedSlug}/p/${pSlug}`
-    : `/org/${resolvedSlug}/product/${product.id}`;
+  const buildDetailPath = (orgSlugValue: string) => (
+    pSlug ? `/org/${orgSlugValue}/p/${pSlug}` : `/org/${orgSlugValue}/product/${product.id}`
+  );
+  const detailPath = resolvedSlug ? buildDetailPath(resolvedSlug) : '';
 
   const refSuffix = affiliateCode ? `?ref=${affiliateCode}` : '';
-  const shareTargetPath = `${detailPath}${refSuffix}`;
+  const shareTargetPath = `${detailPath || '/marketplace'}${refSuffix}`;
 
   const { shareUrl: socialShareUrl } = useShortLink({
     targetPath: shareTargetPath,
@@ -74,12 +76,31 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
   });
 
   const canPreview = !!(product as any).file_url && ['pdf', 'ebook'].includes((product.product_type || '').toLowerCase());
-  const previewPath = `${detailPath}?preview=1`;
-
   const commissionPercent = (product as any).commission_percent;
 
+  const openProductPage = async (withPreview = false) => {
+    let finalSlug = resolvedSlug;
+
+    if (!finalSlug && organizationId) {
+      const { data } = await db.from('organizations').select('slug').eq('id', organizationId).maybeSingle();
+      finalSlug = data?.slug || '';
+    }
+
+    if (!finalSlug) {
+      toast({
+        title: 'Produit indisponible',
+        description: 'Impossible d’ouvrir ce produit pour le moment.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const path = buildDetailPath(finalSlug);
+    navigate(withPreview ? `${path}?preview=1` : path);
+  };
+
   const handleCardClick = () => {
-    if (resolvedSlug) navigate(detailPath);
+    void openProductPage(false);
   };
 
   const salePrice = (product as any).sale_price;
@@ -188,7 +209,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
             {typeLabels[product.product_type] || product.product_type}
           </Badge>
 
-          <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+          <div className="flex items-center gap-1 flex-wrap justify-end" onClick={e => e.stopPropagation()}>
             {canPreview && (
               <Button
                 variant="outline"
@@ -196,7 +217,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
                 className="h-7 text-[11px] px-2.5 gap-1"
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(previewPath);
+                  void openProductPage(true);
                 }}
               >
                 <Eye className="h-3 w-3" />
@@ -222,8 +243,8 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
                   e.stopPropagation();
                   if (onPurchase) {
                     onPurchase();
-                  } else if (resolvedSlug) {
-                    navigate(detailPath);
+                  } else {
+                    void openProductPage(false);
                   }
                 }}
                 className="h-7 text-[11px] px-3 font-semibold"
