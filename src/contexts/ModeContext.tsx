@@ -13,7 +13,6 @@ const PUBLIC_ROUTE_EXACT = ['/', '/auth', '/welcome'];
 
 const PUBLIC_ROUTE_PREFIXES = [
   '/org/', '/campaign/', '/offering/', '/event/', '/program/',
-  '/marketplace', '/explorer',
   '/go/', '/invite/',
   '/gagner', '/vendre',
   '/checkout', '/payment/', '/success', '/cancel',

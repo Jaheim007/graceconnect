@@ -389,7 +389,7 @@ export default function PaymentSuccessPage() {
             </Button>
             <div className="flex gap-3">
               <Button variant="ghost" size="sm" onClick={() => navigate('/')}>Accueil</Button>
-              {user && <Button size="sm" onClick={() => navigate('/dashboard')}>Mon espace</Button>}
+              {user && <Button size="sm" onClick={() => navigate('/resources')}>Mes achats</Button>}
             </div>
           </div>
         </motion.div>
@@ -577,9 +577,9 @@ export default function PaymentSuccessPage() {
                 size="sm"
                 variant="ghost"
                 className="text-xs gap-1 text-primary"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate('/resources')}
               >
-                Mon espace <ArrowRight className="h-3 w-3" />
+                Mes achats <ArrowRight className="h-3 w-3" />
               </Button>
             )}
           </div>
