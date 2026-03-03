@@ -1,27 +1,58 @@
-// Hook to load Paystack inline script and open the popup
+// Hook to load Paystack inline script (v2) and open the popup
 import { useCallback } from 'react';
 
 declare global {
   interface Window {
     PaystackPop: {
-      setup: (config: PaystackConfig) => { openIframe: () => void };
+      // v1 legacy
+      setup: (config: PaystackConfigV1) => { openIframe: () => void };
+      // v2 constructor
+      new (): PaystackPopInstance;
     };
   }
 }
 
-interface PaystackConfig {
+interface PaystackPopInstance {
+  checkout(config: PaystackConfigV2): Promise<void>;
+  paymentRequest(config: PaystackPaymentRequestConfig): Promise<void>;
+}
+
+interface PaystackConfigV1 {
   key: string;
   email: string;
-  amount: number; // in subunits
+  amount: number;
   currency?: string;
   ref?: string;
   callback: (response: { reference: string }) => void;
   onClose: () => void;
   metadata?: Record<string, unknown>;
-  subaccount?: string; // Subaccount code for split payments
-  transaction_charge?: number; // Platform fee in subunits
-  bearer?: 'account' | 'subaccount'; // Who bears Paystack fees
-  channels?: string[]; // Restrict to specific payment channels
+  subaccount?: string;
+  transaction_charge?: number;
+  bearer?: 'account' | 'subaccount';
+  channels?: string[];
+}
+
+interface PaystackConfigV2 {
+  key: string;
+  email: string;
+  amount: number;
+  currency?: string;
+  ref?: string;
+  onSuccess: (response: { reference: string }) => void;
+  onCancel: () => void;
+  metadata?: Record<string, unknown>;
+  subaccount?: string;
+  transaction_charge?: number;
+  bearer?: 'account' | 'subaccount';
+  channels?: string[];
+}
+
+interface PaystackPaymentRequestConfig extends PaystackConfigV2 {
+  container: string;
+  loadPaystackCheckoutButton?: string;
+  style?: Record<string, unknown>;
+  onError?: () => void;
+  onElementsMount?: (elements: { applePay: boolean } | null) => void;
 }
 
 // Automatically select test or live key based on VITE_PAYSTACK_MODE env var
@@ -37,7 +68,7 @@ if (!PAYSTACK_PUBLIC_KEY) {
 let paystackScriptPromise: Promise<void> | null = null;
 
 function loadPaystackScript(timeoutMs = 12000): Promise<void> {
-  if (window.PaystackPop?.setup) return Promise.resolve();
+  if (window.PaystackPop) return Promise.resolve();
   if (paystackScriptPromise) return paystackScriptPromise;
 
   paystackScriptPromise = new Promise((resolve, reject) => {
@@ -61,7 +92,7 @@ function loadPaystackScript(timeoutMs = 12000): Promise<void> {
     const onLoad = () => {
       script.setAttribute('data-loaded', 'true');
       cleanup(onLoad, onError, timer);
-      if (!window.PaystackPop?.setup) {
+      if (!window.PaystackPop) {
         paystackScriptPromise = null;
         reject(new Error('Paystack loaded but API is unavailable.'));
         return;
@@ -81,7 +112,8 @@ function loadPaystackScript(timeoutMs = 12000): Promise<void> {
     script.addEventListener('error', onError, { once: true });
 
     if (createdNow) {
-      script.src = 'https://js.paystack.co/v1/inline.js';
+      // Use v2 of InlineJS — required for Apple Pay support
+      script.src = 'https://js.paystack.co/v2/inline.js';
       script.async = true;
       script.dataset.paystackInline = 'true';
       document.body.appendChild(script);
@@ -115,6 +147,7 @@ export function usePaystack() {
     subaccount,
     platformFeeAmount,
     channels,
+    useApplePay = false,
   }: {
     email: string;
     amount: number;
@@ -128,6 +161,8 @@ export function usePaystack() {
     platformFeeAmount?: number;
     /** Restrict to specific Paystack channels (e.g. ['apple_pay']) */
     channels?: string[];
+    /** Use Apple Pay via v2 checkout() method */
+    useApplePay?: boolean;
   }) => {
     await loadPaystackScript();
 
@@ -144,14 +179,17 @@ export function usePaystack() {
       throw new Error('Paystack public key is not configured. Please set VITE_PAYSTACK_PUBLIC_KEY.');
     }
 
-    const config: PaystackConfig = {
+    // Use v2 checkout() method — supports Apple Pay natively on Safari/iOS
+    const pop = new window.PaystackPop();
+
+    const config: PaystackConfigV2 = {
       key: PAYSTACK_PUBLIC_KEY,
       email,
       amount: Math.round(amount * 100),
       currency,
       ref,
-      callback: (response) => onSuccess(response.reference),
-      onClose,
+      onSuccess: (response) => onSuccess(response.reference),
+      onCancel: onClose,
       metadata,
     };
 
@@ -170,11 +208,9 @@ export function usePaystack() {
       config.bearer = 'subaccount';
     }
 
-    const handler = window.PaystackPop.setup(config);
-    handler.openIframe();
+    await pop.checkout(config);
     forcePaystackIframeOnTop();
   }, []);
 
   return { openPayment, hasKey: !!PAYSTACK_PUBLIC_KEY };
 }
-
