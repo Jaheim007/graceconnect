@@ -236,7 +236,6 @@ const App = () => (
               <OfflineBanner />
               <ScrollToTop />
               <GDPRBanner />
-              <GlobalActivityBar />
               <FloatingProofToast />
               
               <Suspense fallback={<PageLoader />}>
