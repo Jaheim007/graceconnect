@@ -39,6 +39,7 @@ export default function GagnerLandingPage() {
       setMode('ambassador');
       navigate('/dashboard');
     } else {
+      sessionStorage.setItem('sv_auth_intent', 'ambassador');
       navigate('/auth?intent=ambassador');
     }
   };
