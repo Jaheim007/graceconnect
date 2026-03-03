@@ -447,7 +447,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                     ? 'You will be redirected to an external link'
                     : product.is_free
                       ? 'Immediate access after download'
-                      : `Paiement sécurisé par ${paymentMethod === 'mobile_money' ? 'Paystack' : 'Stripe'}`}
+                      : `Paiement sécurisé par ${paymentMethod === 'card' ? 'Stripe' : 'Paystack'}`}
                 </div>
                 {!product.external_link && !product.is_free && (
                   <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">
@@ -541,7 +541,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                 </div>
                 {!product.is_free && finalPrice > 0 && (
                   <p className="text-[10px] text-muted-foreground mt-1.5">
-                    🔒 Paiement sécurisé par {paymentMethod === 'mobile_money' ? 'Paystack' : 'Stripe'}
+                    🔒 Paiement sécurisé par {paymentMethod === 'card' ? 'Stripe' : 'Paystack'}
                   </p>
                 )}
               </div>

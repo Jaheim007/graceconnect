@@ -277,7 +277,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Lock className="h-3 w-3" />
-                  Paiement sécurisé par {paymentMethod === 'mobile_money' ? 'Paystack' : 'Stripe'}
+                  Paiement sécurisé par {paymentMethod === 'card' ? 'Stripe' : 'Paystack'}
                 </div>
                 <p className="text-[10px] text-muted-foreground">
                   Les méthodes de paiement dépendent de la disponibilité par pays.
