@@ -91,28 +91,6 @@ export function LandingPricing() {
           </div>
         </motion.div>
 
-        {/* Before vs After comparison */}
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mt-10">
-          <h3 className="text-center font-bold text-lg mb-6">Avant vs Avec Siteviral</h3>
-          <div className="rounded-2xl border border-border overflow-hidden bg-card">
-            <div className="grid grid-cols-3 text-xs font-bold text-muted-foreground uppercase tracking-wider bg-muted/50 p-3">
-              <span />
-              <span className="text-center">Autres plateformes</span>
-              <span className="text-center text-primary">Siteviral</span>
-            </div>
-            {comparison.map((row, i) => (
-              <div key={row.label} className={`grid grid-cols-3 items-center text-sm p-3 ${i < comparison.length - 1 ? 'border-b border-border' : ''}`}>
-                <span className="font-medium">{row.label}</span>
-                <span className="text-center text-muted-foreground flex items-center justify-center gap-1">
-                  <X className="h-3 w-3 text-destructive/60" /> {row.before}
-                </span>
-                <span className="text-center font-semibold text-primary flex items-center justify-center gap-1">
-                  <CheckCircle className="h-3 w-3" /> {row.after}
-                </span>
-              </div>
-            ))}
-          </div>
-        </motion.div>
       </div>
     </section>
   );
