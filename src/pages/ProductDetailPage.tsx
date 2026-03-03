@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { formatCurrency, formatPrice } from '@/lib/currency';
+import { LocalPriceHint } from '@/components/payments/LocalPriceHint';
 import { useI18n } from '@/i18n/I18nContext';
 import { FormattedText } from '@/lib/formatText';
 import { ProductReviews } from '@/components/products/ProductReviews';
@@ -651,6 +652,11 @@ export default function ProductDetailPage() {
                 <span className={cn('text-3xl font-bold', product.is_free ? 'text-emerald-500' : 'text-primary')}>
                   {formatPrice(product.price || 0, product.is_free, product.currency)}
                 </span>
+                {!product.is_free && (product.price ?? 0) > 0 && (
+                  <div className="mt-0.5">
+                    <LocalPriceHint amount={product.price ?? 0} currency={product.currency || 'XOF'} className="text-xs" />
+                  </div>
+                )}
               </div>
 
               {canQuickPreview && (

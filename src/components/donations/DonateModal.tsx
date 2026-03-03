@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Heart, Lock, CheckCircle, AlertCircle, Loader2, EyeOff } from 'lucide-react';
+import { LocalPriceHint } from '@/components/payments/LocalPriceHint';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
@@ -298,6 +299,9 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
               >
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : null}
                 Donner {amount ? fmt(effectiveAmount) : ''}
+                {amount && effectiveAmount > 0 && (
+                  <LocalPriceHint amount={effectiveAmount} currency={campaignCurrency} className="ml-1" />
+                )}
               </Button>
             </div>
           </>
