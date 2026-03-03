@@ -154,7 +154,7 @@ export function FloatingProofToast() {
   if (isSuperadmin) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 z-50 max-w-xs sm:max-w-sm pointer-events-none">
+    <div className="fixed bottom-20 lg:bottom-4 left-4 z-50 max-w-xs sm:max-w-sm pointer-events-none">
       <AnimatePresence>
         {visible && notification && (
           <motion.div
@@ -163,12 +163,20 @@ export function FloatingProofToast() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-            className="pointer-events-auto bg-card border border-border/60 rounded-xl shadow-xl shadow-black/10 p-3.5 flex items-start gap-3 backdrop-blur-md"
+            className="pointer-events-auto bg-card/95 border border-border/60 rounded-xl shadow-2xl shadow-black/15 p-3.5 flex items-start gap-3 backdrop-blur-xl"
           >
-            <div className="h-9 w-9 rounded-lg bg-muted/80 flex items-center justify-center shrink-0">
+            {/* Live indicator */}
+            <div className="h-9 w-9 rounded-lg bg-muted/80 flex items-center justify-center shrink-0 relative">
               {notification.icon}
+              <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+              </span>
             </div>
             <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5 mb-0.5">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-500">Live</span>
+              </div>
               {notification.link ? (
                 <Link to={notification.link} className="text-sm font-medium leading-snug truncate block hover:underline">{notification.text}</Link>
               ) : (
