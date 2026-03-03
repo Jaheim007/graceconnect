@@ -227,11 +227,11 @@ const App = () => (
       <TooltipProvider>
         <AuthProvider>
           <OrgProvider>
-            <ModeProvider>
             <ErrorBoundary>
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <ModeProvider>
               <SkipLink />
               <OfflineBanner />
               <ScrollToTop />
@@ -323,6 +323,7 @@ const App = () => (
                 <Route path="/gagner" element={<GagnerLandingPage />} />
                 <Route path="/vendre" element={<VendreLandingPage />} />
                 <Route path="/discover" element={<Navigate to="/marketplace" replace />} />
+                <Route path="/explorer" element={<Navigate to="/marketplace" replace />} />
                 {/* Public / Buyer Universe — uses PublicLayout (minimal chrome) */}
                 <Route element={<PublicLayout />}>
                   <Route path="/marketplace" element={<MarketplacePage />} />
@@ -438,9 +439,9 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
               </Suspense>
+            </ModeProvider>
             </BrowserRouter>
             </ErrorBoundary>
-            </ModeProvider>
           </OrgProvider>
         </AuthProvider>
       </TooltipProvider>
