@@ -126,7 +126,7 @@ export default function CreatorDashboard() {
             <Rocket className="h-12 w-12 text-primary mx-auto mb-4" />
             <h2 className="text-xl font-bold mb-2">Crée ton centre digital</h2>
             <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
-              Vends tes produits, collecte des dons, et active une armée d'ambassadeurs. En 10 minutes.
+              Vends tes produits, collecte des dons, et active tes ambassadeurs. En 10 minutes.
             </p>
             <Button size="lg" onClick={() => navigate('/create-org')} className="gap-2">
               <Building2 className="h-4 w-4" /> Commencer maintenant

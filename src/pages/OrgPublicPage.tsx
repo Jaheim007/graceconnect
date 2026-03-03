@@ -317,7 +317,7 @@ export default function OrgPublicPage() {
                         <p className="text-sm text-muted-foreground">{t('org_public.store_info')}</p>
                       </div>
                       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        {products.map((p, i) => <ProductCard key={p.id} product={p} index={i} onPurchase={() => setPurchaseProduct(p)} isPurchased={purchasedProductIds.has(p.id)} />)}
+                        {products.map((p, i) => <ProductCard key={p.id} product={p} index={i} onPurchase={() => setPurchaseProduct(p)} isPurchased={purchasedProductIds.has(p.id)} hideCommission hideShare />)}
                       </div>
                     </>
                   )}

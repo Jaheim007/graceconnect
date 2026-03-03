@@ -12,7 +12,7 @@ const LandingFooterCompact = lazy(() => import('@/components/landing/LandingFoot
 
 const features = [
   { icon: ShoppingBag, title: 'Boutique digitale', desc: 'Vends eBooks, PDFs, cours, audio, vidéos. Paiement Mobile Money & carte.' },
-  { icon: Users, title: 'Armée d\'ambassadeurs', desc: 'Active l\'affiliation et laisse des milliers de personnes vendre pour toi.' },
+  { icon: Users, title: 'Réseau d\'ambassadeurs', desc: 'Active l\'affiliation et laisse des milliers de personnes vendre pour toi.' },
   { icon: Heart, title: 'Campagnes de dons', desc: 'Collecte des fonds pour tes projets et causes. Suivi en temps réel.' },
   { icon: BarChart3, title: 'Analytics puissants', desc: 'Ventes, clics, conversions, CRM. Tout dans un seul tableau de bord.' },
   { icon: Shield, title: 'KYC & conformité', desc: 'Vérification intégrée. Retraits sécurisés après validation.' },
@@ -59,7 +59,7 @@ export default function VendreLandingPage() {
             </span>
             <h1 className="text-3xl sm:text-5xl font-extrabold leading-[1.1] mb-4">
               Vendez plus grâce à<br />
-              <span className="text-primary">une armée d'ambassadeurs.</span>
+              <span className="text-primary">vos ambassadeurs.</span>
             </h1>
             <p className="text-base sm:text-lg text-muted-foreground max-w-lg mx-auto mb-8">
               Créez votre centre digital en 10 minutes. Vos ambassadeurs partagent, vous encaissez.
