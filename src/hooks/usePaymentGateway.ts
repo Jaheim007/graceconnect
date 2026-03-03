@@ -68,6 +68,7 @@ export function usePaymentGateway() {
         email,
         amount,
         currency,
+        channels: method === 'apple_pay' ? ['apple_pay'] : undefined,
         metadata: {
           ...metadata,
           type,
