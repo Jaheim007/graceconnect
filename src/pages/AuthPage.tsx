@@ -62,6 +62,10 @@ export default function AuthPage() {
   const handleGoogle = async () => {
     setError('');
     setGoogleLoading(true);
+    // Persist returnTo for Google OAuth (callback page will read it)
+    if (returnTo) {
+      try { sessionStorage.setItem('sv_auth_returnTo', returnTo); } catch {}
+    }
     const { error: err } = await signInWithGoogle(returnTo || undefined);
     if (err) { setError(err.message); setGoogleLoading(false); }
   };
