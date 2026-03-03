@@ -32,7 +32,7 @@ export function TopBar() {
     : user?.email?.[0]?.toUpperCase() || 'U';
 
   return (
-    <header className="h-14 sticky top-0 z-40 glass border-b border-border flex items-center px-4 gap-3">
+    <header className="h-14 shrink-0 z-40 glass border-b border-border flex items-center px-4 gap-3">
       <div className="flex lg:hidden items-center mr-1">
         <SiteLogo size="sm" animate />
       </div>
