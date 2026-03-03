@@ -17,6 +17,14 @@ export default function AuthCallbackPage() {
         try { localStorage.setItem('sv_app_mode', savedIntent); } catch {}
       }
 
+      // Retrieve saved returnTo (e.g. product page with ?action=buy)
+      const savedReturnTo = sessionStorage.getItem('sv_auth_returnTo');
+      if (savedReturnTo) {
+        sessionStorage.removeItem('sv_auth_returnTo');
+        navigate(savedReturnTo, { replace: true });
+        return;
+      }
+
       // Check if user is new (created within last 60 seconds)
       const createdAt = new Date(session.user.created_at).getTime();
       const now = Date.now();

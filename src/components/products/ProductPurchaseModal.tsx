@@ -215,7 +215,10 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const handleConfirmToBuyerInfo = () => {
     if (!user) {
       handleClose();
-      navigate(`/auth?returnTo=${encodeURIComponent(pathname + '?action=buy')}`);
+      const returnPath = pathname + '?action=buy';
+      // Persist returnTo for Google OAuth (which goes through /auth/callback)
+      try { sessionStorage.setItem('sv_auth_returnTo', returnPath); } catch {}
+      navigate(`/auth?returnTo=${encodeURIComponent(returnPath)}`);
       return;
     }
     // Track abandoned cart when user proceeds to buyer info
