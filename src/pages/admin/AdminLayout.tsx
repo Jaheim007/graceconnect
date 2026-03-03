@@ -46,7 +46,7 @@ const groupLabels: Record<string, string> = {
 };
 
 export default function AdminLayout() {
-  const { currentOrg, userOrgs, setCurrentOrg, isLoadingOrgs } = useOrg();
+  const { currentOrg, userOrgs, setCurrentOrg, isLoadingOrgs, getRoleFor } = useOrg();
   const navigate = useNavigate();
 
   // Show spinner only while loading AND we have no org yet to show
@@ -95,7 +95,10 @@ export default function AdminLayout() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
-            {userOrgs.map((o) => (
+            {userOrgs.filter((o) => {
+              const role = getRoleFor(o.id);
+              return role === 'owner' || role === 'admin';
+            }).map((o) => (
               <DropdownMenuItem
                 key={o.id}
                 onClick={() => setCurrentOrg(o)}

@@ -239,10 +239,16 @@ export function Sidebar() {
         </div>
       )}
 
-      {/* Org context (creator mode) — with org switcher */}
+      {/* Org context (creator mode) — with org switcher, only owned/admin orgs */}
       {(isAdmin || showCreatorAdmin) && currentOrg && !collapsed && (
         <div className="mx-3 mt-2">
-          {userOrgs.length > 1 ? (
+          {(() => {
+            // Only show orgs where user is owner or admin (not just member)
+            const managedOrgs = userOrgs.filter((o) => {
+              const role = getRoleFor(o.id);
+              return role === 'owner' || role === 'admin';
+            });
+            return managedOrgs.length > 1 ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button className="w-full p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/15 transition-colors text-left group">
@@ -254,7 +260,7 @@ export function Sidebar() {
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-52">
-                {userOrgs.map((o) => (
+                {managedOrgs.map((o) => (
                   <DropdownMenuItem
                     key={o.id}
                     onClick={() => setCurrentOrg(o)}
@@ -270,7 +276,8 @@ export function Sidebar() {
               <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{t('sidebar.managing')}</p>
               <p className="text-xs font-semibold text-primary truncate">{currentOrg.name}</p>
             </div>
-          )}
+          );
+          })()}
         </div>
       )}
 
