@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Search, TrendingUp, Sparkles } from 'lucide-react';
+import { Search, TrendingUp, Sparkles, Store, ArrowRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -10,6 +10,9 @@ import { CampaignCard } from '@/components/donations/CampaignCard';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Button } from '@/components/ui/button';
+import { useMode } from '@/contexts/ModeContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -20,6 +23,13 @@ export default function MarketplacePage() {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('popular');
   const [typeFilter, setTypeFilter] = useState('');
+  const { mode } = useMode();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const isPublic = mode === 'public';
+  const isAmbassador = mode === 'ambassador';
+
   // Products
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['marketplace-products', search, sortBy, typeFilter],
@@ -65,18 +75,58 @@ export default function MarketplacePage() {
     },
   });
 
+  // Sort filters differ by universe
+  const publicSortFilters = [
+    { key: 'newest', label: '✨ Nouveautés' },
+    { key: 'bestseller', label: '🔥 Meilleures ventes' },
+  ];
+
+  const ambassadorSortFilters = [
+    { key: 'commission', label: '💰 Meilleure commission' },
+    { key: 'newest', label: '✨ Nouveautés' },
+    { key: 'bestseller', label: '🔥 Meilleures ventes' },
+  ];
+
+  const sortFilters = isAmbassador ? ambassadorSortFilters : publicSortFilters;
+
+  const pageTitle = isAmbassador ? 'Marketplace Ambassadeur' : 'Explorer';
+  const pageDescription = isAmbassador
+    ? 'Trouve des produits à partager et gagne des commissions.'
+    : 'Explorez les meilleurs produits numériques.';
+
   return (
     <div className="bg-background min-h-screen">
       <SEOHead
-        title="Marketplace — Produits numériques | Siteviral"
-        description="Explorez les meilleurs produits numériques. Partagez et gagnez des commissions."
+        title={`${pageTitle} — Produits numériques | Siteviral`}
+        description={pageDescription}
         canonicalUrl="https://siteviral.com/marketplace"
       />
 
-      {/* Clean header */}
+      {/* Header */}
       <div className="border-b border-border bg-muted/30 py-8 px-4">
         <div className="container max-w-4xl space-y-4">
-          <h1 className="text-xl sm:text-2xl font-extrabold">Marketplace</h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl sm:text-2xl font-extrabold">{pageTitle}</h1>
+            {isAmbassador && (
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-full">
+                Mode Ambassadeur
+              </span>
+            )}
+          </div>
+          
+          {/* Public CTA for non-logged users */}
+          {isPublic && !user && (
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/20">
+              <Store className="h-5 w-5 text-primary shrink-0" />
+              <p className="text-sm text-muted-foreground flex-1">
+                Connectez-vous pour acheter ou voir vos achats.
+              </p>
+              <Button size="sm" className="text-xs h-8 shrink-0" onClick={() => navigate('/auth')}>
+                Se connecter
+              </Button>
+            </div>
+          )}
+
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -88,11 +138,7 @@ export default function MarketplacePage() {
               />
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {[
-                { key: 'commission', label: '💰 Meilleure commission', icon: TrendingUp },
-                { key: 'newest', label: '✨ Nouveautés', icon: Sparkles },
-                { key: 'bestseller', label: '🔥 Meilleures ventes', icon: TrendingUp },
-              ].map(f => (
+              {sortFilters.map(f => (
                 <Button
                   key={f.key}
                   variant={sortBy === f.key ? 'default' : 'outline'}
@@ -131,7 +177,13 @@ export default function MarketplacePage() {
             className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
           >
             {products.map((p: any) => (
-              <motion.div key={p.id} variants={fadeUp}><ProductCard product={p} /></motion.div>
+              <motion.div key={p.id} variants={fadeUp}>
+                <ProductCard
+                  product={p}
+                  hideCommission={isPublic}
+                  hideShare={isPublic}
+                />
+              </motion.div>
             ))}
           </motion.div>
         )}
@@ -147,6 +199,18 @@ export default function MarketplacePage() {
                 </motion.div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Ambassador CTA at bottom for public users */}
+        {isPublic && (
+          <div className="pt-6 border-t border-border text-center space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Vous souhaitez gagner des commissions en partageant ces produits ?
+            </p>
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => navigate('/gagner')}>
+              Devenir ambassadeur <ArrowRight className="h-3.5 w-3.5" />
+            </Button>
           </div>
         )}
       </div>

@@ -3,19 +3,31 @@ import { motion } from 'framer-motion';
 import { Share2, Building2, ArrowRight, Sparkles } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useMode } from '@/contexts/ModeContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function WelcomeIntentPage() {
   const navigate = useNavigate();
   const { setMode } = useMode();
+  const { user } = useAuth();
 
   const chooseAmbassador = () => {
     setMode('ambassador');
-    navigate('/quick-start');
+    if (user) {
+      navigate('/quick-start');
+    } else {
+      sessionStorage.setItem('sv_auth_intent', 'ambassador');
+      navigate('/auth?intent=ambassador');
+    }
   };
 
   const chooseCreator = () => {
     setMode('creator');
-    navigate('/create-org');
+    if (user) {
+      navigate('/create-org');
+    } else {
+      sessionStorage.setItem('sv_auth_intent', 'creator');
+      navigate('/auth?intent=creator');
+    }
   };
 
   return (

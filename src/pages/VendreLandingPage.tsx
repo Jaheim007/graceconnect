@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Building2, ShoppingBag, Users, BarChart3, Shield, Wallet, Heart, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { lazy, Suspense } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useMode } from '@/contexts/ModeContext';
 
 const LandingFooterCompact = lazy(() => import('@/components/landing/LandingFooterCompact').then(m => ({ default: m.LandingFooterCompact })));
 
@@ -25,6 +27,18 @@ const steps = [
 
 export default function VendreLandingPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { setMode } = useMode();
+
+  const handleStart = () => {
+    if (user) {
+      setMode('creator');
+      navigate('/create-org');
+    } else {
+      sessionStorage.setItem('sv_auth_intent', 'creator');
+      navigate('/auth?intent=creator');
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -51,7 +65,7 @@ export default function VendreLandingPage() {
               Créez votre centre digital en 10 minutes. Vos ambassadeurs partagent, vous encaissez.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button size="lg" className="gap-2 text-sm" onClick={() => navigate('/auth?mode=signup&intent=creator')}>
+              <Button size="lg" className="gap-2 text-sm" onClick={handleStart}>
                 🏢 Créer mon centre <ArrowRight className="h-4 w-4" />
               </Button>
               <Button variant="outline" size="lg" className="text-sm" onClick={() => navigate('/marketplace')}>
@@ -117,7 +131,7 @@ export default function VendreLandingPage() {
         <div className="container max-w-md">
           <h2 className="text-xl sm:text-2xl font-extrabold mb-3">Lance ta plateforme maintenant</h2>
           <p className="text-sm text-muted-foreground mb-6">Inscription gratuite. Commence à vendre en quelques minutes.</p>
-          <Button size="lg" className="gap-2" onClick={() => navigate('/auth?mode=signup&intent=creator')}>
+          <Button size="lg" className="gap-2" onClick={handleStart}>
             🏢 Créer mon centre digital <ArrowRight className="h-4 w-4" />
           </Button>
         </div>

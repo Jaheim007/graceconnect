@@ -1,25 +1,44 @@
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 
 export type AppMode = 'public' | 'ambassador' | 'creator';
 
-/** Routes that force public mode regardless of user preference */
+/**
+ * Single source of truth for public route detection.
+ * These routes force public mode regardless of user preference.
+ */
+const PUBLIC_ROUTE_EXACT = ['/', '/auth', '/welcome'];
+
 const PUBLIC_ROUTE_PREFIXES = [
-  '/org/',
-  '/campaign/',
-  '/offering/',
-  '/announcement/',
-  '/event/',
-  '/program/',
-  '/go/',
-  '/marketplace',
+  '/org/', '/campaign/', '/offering/', '/event/', '/program/',
+  '/marketplace', '/explorer',
+  '/go/', '/invite/',
+  '/gagner', '/vendre',
+  '/checkout', '/payment/', '/success', '/cancel',
+  '/auth/', '/login', '/signup',
+  '/resources',
+  // Static/legal/content pages
+  '/terms', '/privacy', '/about', '/aml', '/refund-policy', '/payout-policy',
+  '/acceptable-use', '/faq', '/contact', '/compliance', '/dpa', '/security',
+  '/subprocessors', '/features', '/affiliate-program', '/ambassador-program',
+  '/ambassador', '/ambassador-terms', '/devenir-partenaire', '/partner-terms',
+  '/install', '/changelog', '/temoignages', '/calculateur',
+  '/pour/', '/comparer', '/presse', '/blog', '/etudes-de-cas',
+  '/status', '/help', '/partenaires', '/guide/', '/maintenance',
 ];
+
+/** Determine if a pathname should force public mode */
+export function isPublicPath(pathname: string): boolean {
+  if (PUBLIC_ROUTE_EXACT.includes(pathname)) return true;
+  return PUBLIC_ROUTE_PREFIXES.some(prefix => pathname.startsWith(prefix));
+}
 
 interface ModeContextValue {
   mode: AppMode;
   /** The persisted user preference (ambassador or creator), ignoring route overrides */
-  preferredMode: AppMode;
+  preferredMode: Exclude<AppMode, 'public'>;
   setMode: (m: AppMode) => void;
   toggleMode: () => void;
   hasOrgs: boolean;
@@ -42,8 +61,9 @@ export function ModeProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const { userOrgs } = useOrg();
   const hasOrgs = userOrgs.length > 0;
+  const location = useLocation();
 
-  const [preferredMode, setPreferredRaw] = useState<AppMode>(() => {
+  const [preferredMode, setPreferredRaw] = useState<Exclude<AppMode, 'public'>>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored === 'creator' || stored === 'ambassador') return stored;
@@ -51,39 +71,9 @@ export function ModeProvider({ children }: { children: ReactNode }) {
     return 'ambassador';
   });
 
-  const [routeOverride, setRouteOverride] = useState<AppMode | null>(null);
-
-  // Listen to pathname changes to detect public routes
-  useEffect(() => {
-    const checkRoute = () => {
-      const path = window.location.pathname;
-      const isPublicRoute = PUBLIC_ROUTE_PREFIXES.some(prefix => path.startsWith(prefix));
-      setRouteOverride(isPublicRoute ? 'public' : null);
-    };
-
-    checkRoute();
-
-    // Listen for popstate (back/forward) and custom navigation events
-    window.addEventListener('popstate', checkRoute);
-
-    // MutationObserver-based approach: watch for URL changes via pushState
-    const origPushState = history.pushState;
-    const origReplaceState = history.replaceState;
-    history.pushState = function (...args) {
-      origPushState.apply(this, args);
-      checkRoute();
-    };
-    history.replaceState = function (...args) {
-      origReplaceState.apply(this, args);
-      checkRoute();
-    };
-
-    return () => {
-      window.removeEventListener('popstate', checkRoute);
-      history.pushState = origPushState;
-      history.replaceState = origReplaceState;
-    };
-  }, []);
+  // Route-based override using React Router's useLocation — no window patching
+  const isRouteOverride = useMemo(() => isPublicPath(location.pathname), [location.pathname]);
+  const mode: AppMode = isRouteOverride ? 'public' : preferredMode;
 
   const setMode = useCallback((m: AppMode) => {
     if (m === 'public') return; // public is route-driven only
@@ -95,14 +85,11 @@ export function ModeProvider({ children }: { children: ReactNode }) {
     setMode(preferredMode === 'ambassador' ? 'creator' : 'ambassador');
   }, [preferredMode, setMode]);
 
-  // Effective mode: route override wins
-  const mode = routeOverride ?? preferredMode;
-
   // NEVER auto-switch mode based on org presence.
   // Mode only changes via explicit user action (ModeSwitch click).
 
   return (
-    <ModeContext.Provider value={{ mode, preferredMode, setMode, toggleMode, hasOrgs, isRouteOverride: !!routeOverride }}>
+    <ModeContext.Provider value={{ mode, preferredMode, setMode, toggleMode, hasOrgs, isRouteOverride }}>
       {children}
     </ModeContext.Provider>
   );

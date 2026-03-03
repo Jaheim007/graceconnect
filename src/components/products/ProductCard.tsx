@@ -18,6 +18,10 @@ interface ProductCardProps {
   onPurchase?: () => void;
   index?: number;
   isPurchased?: boolean;
+  /** Hide commission badge (for public/buyer universe) */
+  hideCommission?: boolean;
+  /** Hide share widget (for public/buyer universe) */
+  hideShare?: boolean;
 }
 
 const coverAspectClass: Record<string, string> = {
@@ -29,7 +33,7 @@ const coverAspectClass: Record<string, string> = {
   other: 'aspect-video',
 };
 
-export function ProductCard({ product, onPurchase, index = 0, isPurchased }: ProductCardProps) {
+export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideCommission, hideShare }: ProductCardProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -195,7 +199,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
                 </span>
               </p>
             )}
-            {commissionPercent != null && commissionPercent > 0 && (
+            {!hideCommission && commissionPercent != null && commissionPercent > 0 && (
               <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 text-accent border-accent/30">
                 {commissionPercent}% commission
               </Badge>
@@ -225,7 +229,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased }: Pro
               </Button>
             )}
 
-            <ShareWidget url={socialShareUrl} title={product.title} description={product.description || undefined} />
+            {!hideShare && <ShareWidget url={socialShareUrl} title={product.title} description={product.description || undefined} />}
 
             {isPurchased ? (
               <Button
