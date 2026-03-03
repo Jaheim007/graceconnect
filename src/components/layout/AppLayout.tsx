@@ -5,7 +5,7 @@ import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
 import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { useOrg } from '@/contexts/OrgContext';
-
+import { useMode } from '@/contexts/ModeContext';
 import { InstallBanner } from '@/components/pwa/InstallBanner';
 
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
@@ -16,9 +16,15 @@ const pageVariants = {
   exit: { opacity: 0, y: -4, transition: { duration: 0.12 } },
 };
 
+/**
+ * AppLayout — Used for Ambassador (Universe 2) and Creator (Universe 3) shells.
+ * Public pages (Universe 1) use PublicLayout instead.
+ * Layout selection depends ONLY on mode from ModeContext.
+ */
 export function AppLayout() {
   const location = useLocation();
   const { userOrgs } = useOrg();
+  const { mode } = useMode();
   const hideNav = HIDE_NAV_ROUTES.some((r) => location.pathname.startsWith(r));
 
   // Realtime subscriptions for messages & notifications
@@ -26,8 +32,8 @@ export function AppLayout() {
 
   return (
     <div className="min-h-[100dvh] flex w-full bg-background overflow-x-hidden">
-      {/* Desktop Sidebar */}
-      {!hideNav && (
+      {/* Desktop Sidebar — only for ambassador/creator, never public */}
+      {!hideNav && mode !== 'public' && (
         <nav className="hidden lg:flex" aria-label="Navigation principale">
           <Sidebar />
         </nav>
@@ -51,16 +57,14 @@ export function AppLayout() {
         </main>
       </div>
 
-      {/* Mobile Bottom Nav */}
-      {!hideNav && (
+      {/* Mobile Bottom Nav — only for ambassador/creator, never public */}
+      {!hideNav && mode !== 'public' && (
         <nav id="bottom-nav" aria-label="Navigation mobile" className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
           <BottomNav />
         </nav>
       )}
 
-      
       <InstallBanner />
     </div>
   );
 }
-
