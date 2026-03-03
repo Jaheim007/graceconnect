@@ -21,6 +21,7 @@ interface PaystackConfig {
   subaccount?: string; // Subaccount code for split payments
   transaction_charge?: number; // Platform fee in subunits
   bearer?: 'account' | 'subaccount'; // Who bears Paystack fees
+  channels?: string[]; // Restrict to specific payment channels
 }
 
 // Automatically select test or live key based on VITE_PAYSTACK_MODE env var
@@ -113,6 +114,7 @@ export function usePaystack() {
     metadata,
     subaccount,
     platformFeeAmount,
+    channels,
   }: {
     email: string;
     amount: number;
@@ -124,6 +126,8 @@ export function usePaystack() {
     subaccount?: string;
     /** Platform fee in currency units. Will be converted to subunits internally. */
     platformFeeAmount?: number;
+    /** Restrict to specific Paystack channels (e.g. ['apple_pay']) */
+    channels?: string[];
   }) => {
     await loadPaystackScript();
 
@@ -150,6 +154,11 @@ export function usePaystack() {
       onClose,
       metadata,
     };
+
+    // Restrict to specific channels (e.g. Apple Pay only)
+    if (channels && channels.length > 0) {
+      config.channels = channels;
+    }
 
     // Split payment: route funds to org subaccount, keep platform fee
     if (subaccount) {
