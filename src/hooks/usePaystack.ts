@@ -127,6 +127,12 @@ export function usePaystack() {
   }) => {
     await loadPaystackScript();
 
+    // Validate currency is Paystack-supported before opening popup
+    const PAYSTACK_SUPPORTED = new Set(['NGN', 'GHS', 'ZAR', 'KES', 'XOF', 'EGP', 'RWF', 'XAF']);
+    if (!PAYSTACK_SUPPORTED.has(currency.toUpperCase())) {
+      throw new Error(`La devise ${currency} n'est pas supportée par Mobile Money. Veuillez utiliser Carte bancaire.`);
+    }
+
     // Generate unique reference
     const ref = `SV-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 

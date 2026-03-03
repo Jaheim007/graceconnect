@@ -50,6 +50,12 @@ export function usePaymentGateway() {
       throw new Error('Mobile Money est temporairement indisponible. Choisissez Carte bancaire ou réessayez dans quelques instants.');
     }
 
+    // Defensive: validate currency is Paystack-compatible for MoMo
+    const PAYSTACK_SUPPORTED = new Set(['NGN', 'GHS', 'ZAR', 'KES', 'XOF', 'EGP', 'RWF', 'XAF']);
+    if (wantsMoMo && currency && !PAYSTACK_SUPPORTED.has(currency.toUpperCase())) {
+      throw new Error(`La devise ${currency} n'est pas supportée par Mobile Money. Veuillez choisir Carte bancaire.`);
+    }
+
     if (wantsMoMo) {
       // ── PAYSTACK (Mobile Money only) ──
       await openPaystack({

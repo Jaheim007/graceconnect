@@ -68,8 +68,14 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
 
   if (!campaign) return null;
 
-  const fmt = (n: number) =>
-    new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(n) + ' XOF';
+  const campaignCurrency = campaign.currency || 'XOF';
+  const fmt = (n: number) => {
+    try {
+      return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: campaignCurrency, maximumFractionDigits: 0 }).format(n);
+    } catch {
+      return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(n) + ` ${campaignCurrency}`;
+    }
+  };
 
   const resolvedEmail = email || user?.email || '';
   const resolvedName = name || profile?.display_name || '';
@@ -78,7 +84,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
   const handleDonate = async () => {
     if (isSubmitting) return;
     if (!amount || Number(amount) < 100) {
-      toast({ title: 'Montant invalide', description: 'Le don minimum est de 100 XOF.', variant: 'destructive' });
+      toast({ title: 'Montant invalide', description: `Le don minimum est de 100 ${campaignCurrency}.`, variant: 'destructive' });
       return;
     }
     if (!resolvedEmail) {
@@ -186,9 +192,9 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
             Contribuer à {campaign.title}
           </DialogTitle>
           {step === 'form' && (
-            <DialogDescription>
-              Votre contribution soutient cette campagne. Devise : {campaign.currency || 'XOF'}.
-            </DialogDescription>
+           <DialogDescription>
+190:              Votre contribution soutient cette campagne. Devise : {campaignCurrency}.
+191:            </DialogDescription>
           )}
         </DialogHeader>
 
@@ -216,7 +222,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
               </div>
 
               <div>
-                <Label htmlFor="amount" className="text-xs">Ou montant personnalisé (XOF)</Label>
+                <Label htmlFor="amount" className="text-xs">Ou montant personnalisé ({campaignCurrency})</Label>
                 <Input
                   id="amount"
                   type="number"
