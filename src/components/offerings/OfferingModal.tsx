@@ -284,7 +284,7 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
 
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Lock className="h-3 w-3" />
-                Paiement sécurisé par {paymentMethod === 'mobile_money' ? 'Paystack' : 'Stripe'}
+                Paiement sécurisé par {paymentMethod === 'card' ? 'Stripe' : 'Paystack'}
               </div>
             </div>
 

@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { usePaystack } from './usePaystack';
 import { callFn } from '@/lib/api';
 
-export type PaymentMethod = 'mobile_money' | 'card';
+export type PaymentMethod = 'mobile_money' | 'card' | 'apple_pay';
 export type PaymentGateway = 'paystack' | 'stripe';
 
 interface PaymentParams {
@@ -44,19 +44,21 @@ export function usePaymentGateway() {
       onSuccess, onClose,
     } = params;
 
-    const wantsMoMo = method === 'mobile_money';
+    const usePaystack = method === 'mobile_money' || method === 'apple_pay';
 
-    if (wantsMoMo && !hasPaystackKey) {
-      throw new Error('Mobile Money est temporairement indisponible. Choisissez Carte bancaire ou réessayez dans quelques instants.');
+    if (usePaystack && !hasPaystackKey) {
+      throw new Error(method === 'apple_pay'
+        ? 'Apple Pay est temporairement indisponible. Choisissez Carte bancaire ou réessayez dans quelques instants.'
+        : 'Mobile Money est temporairement indisponible. Choisissez Carte bancaire ou réessayez dans quelques instants.');
     }
 
-    // Defensive: validate currency is Paystack-compatible for MoMo
+    // Defensive: validate currency is Paystack-compatible
     const PAYSTACK_SUPPORTED = new Set(['NGN', 'GHS', 'ZAR', 'KES', 'XOF', 'EGP', 'RWF', 'XAF']);
-    if (wantsMoMo && currency && !PAYSTACK_SUPPORTED.has(currency.toUpperCase())) {
-      throw new Error(`La devise ${currency} n'est pas supportée par Mobile Money. Veuillez choisir Carte bancaire.`);
+    if (usePaystack && currency && !PAYSTACK_SUPPORTED.has(currency.toUpperCase())) {
+      throw new Error(`La devise ${currency} n'est pas supportée par ${method === 'apple_pay' ? 'Apple Pay' : 'Mobile Money'}. Veuillez choisir Carte bancaire.`);
     }
 
-    if (wantsMoMo) {
+    if (usePaystack) {
       // ── PAYSTACK (Mobile Money only) ──
       // NOTE: subaccount is intentionally omitted for MoMo payments.
       // Paystack subaccounts are currency-specific (e.g. NGN-only) and will
@@ -74,7 +76,7 @@ export function usePaymentGateway() {
           product_id: product_id || null,
           buyer_name: buyer_name || null,
           affiliate_code: affiliate_code || null,
-          payment_channel: 'mobile_money',
+          payment_channel: method === 'apple_pay' ? 'apple_pay' : 'mobile_money',
         },
         onSuccess: (reference) => onSuccess(reference, 'paystack'),
         onClose,
