@@ -1,7 +1,6 @@
 import { useCallback } from 'react';
 import { usePaystack } from './usePaystack';
 import { callFn } from '@/lib/api';
-import { convertCurrency } from '@/lib/currencyConvert';
 
 export type PaymentMethod = 'mobile_money' | 'card';
 export type PaymentGateway = 'paystack' | 'stripe';
@@ -59,27 +58,12 @@ export function usePaymentGateway() {
 
     if (wantsMoMo) {
       // ── PAYSTACK (Mobile Money only) ──
-      // Convert to XOF if merchant only supports XOF (Paystack account currency)
-      let paystackAmount = amount;
-      let paystackCurrency = currency;
-      const MERCHANT_CURRENCY = 'XOF';
-      if (currency && currency.toUpperCase() !== MERCHANT_CURRENCY) {
-        const converted = convertCurrency(amount, currency, MERCHANT_CURRENCY);
-        if (converted === null) {
-          throw new Error(`Impossible de convertir ${currency} en ${MERCHANT_CURRENCY}. Veuillez choisir Carte bancaire.`);
-        }
-        paystackAmount = converted;
-        paystackCurrency = MERCHANT_CURRENCY;
-      }
-
       await openPaystack({
         email,
-        amount: paystackAmount,
-        currency: paystackCurrency,
+        amount,
+        currency,
         subaccount,
-        platformFeeAmount: platformFeeAmount
-          ? Math.round(platformFeeAmount * (paystackAmount / amount))
-          : undefined,
+        platformFeeAmount,
         metadata: {
           ...metadata,
           type,
@@ -89,8 +73,6 @@ export function usePaymentGateway() {
           buyer_name: buyer_name || null,
           affiliate_code: affiliate_code || null,
           payment_channel: 'mobile_money',
-          original_currency: currency !== paystackCurrency ? currency : undefined,
-          original_amount: currency !== paystackCurrency ? amount : undefined,
         },
         onSuccess: (reference) => onSuccess(reference, 'paystack'),
         onClose,
