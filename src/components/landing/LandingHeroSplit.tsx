@@ -51,7 +51,7 @@ export function LandingHeroSplit() {
             <span className="text-accent">en partageant</span>.
             <br />
             Vendez plus grâce à{' '}
-            <span className="text-primary">une armée</span>.
+            <span className="text-primary">vos ambassadeurs</span>.
           </h1>
 
           <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto">
