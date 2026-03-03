@@ -208,10 +208,10 @@ export default function MarketplacePage() {
         {isPublic && (
           <div className="pt-6 border-t border-border text-center space-y-3">
             <p className="text-sm text-muted-foreground">
-              Vous souhaitez gagner des commissions en partageant ces produits ?
+              Vous avez du contenu à vendre ? Créez votre espace en quelques minutes.
             </p>
-            <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => navigate('/gagner')}>
-              Devenir ambassadeur <ArrowRight className="h-3.5 w-3.5" />
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => navigate('/vendre')}>
+              En savoir plus <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           </div>
         )}

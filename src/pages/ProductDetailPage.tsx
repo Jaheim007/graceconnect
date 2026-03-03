@@ -741,6 +741,8 @@ export default function ProductDetailPage() {
                   key={rec.id}
                   product={{ ...rec.recommended_product, organization_slug: slug }}
                   isPurchased={purchases.some(p => p.product_id === rec.recommended_product.id)}
+                  hideCommission
+                  hideShare
                 />
               ))}
             </div>
