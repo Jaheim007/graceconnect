@@ -2205,7 +2205,12 @@ export type Database = {
           level: number
           min_payout_threshold: number
           notes: string | null
+          payout_account_name: string | null
+          payout_account_number: string | null
+          payout_bank_code: string | null
+          payout_country: string | null
           payout_method: string | null
+          payout_provider: string | null
           paystack_recipient_code: string | null
           phone: string | null
           rate_percent: number
@@ -2241,7 +2246,12 @@ export type Database = {
           level?: number
           min_payout_threshold?: number
           notes?: string | null
+          payout_account_name?: string | null
+          payout_account_number?: string | null
+          payout_bank_code?: string | null
+          payout_country?: string | null
           payout_method?: string | null
+          payout_provider?: string | null
           paystack_recipient_code?: string | null
           phone?: string | null
           rate_percent?: number
@@ -2277,7 +2287,12 @@ export type Database = {
           level?: number
           min_payout_threshold?: number
           notes?: string | null
+          payout_account_name?: string | null
+          payout_account_number?: string | null
+          payout_bank_code?: string | null
+          payout_country?: string | null
           payout_method?: string | null
+          payout_provider?: string | null
           paystack_recipient_code?: string | null
           phone?: string | null
           rate_percent?: number

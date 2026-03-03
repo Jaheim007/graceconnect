@@ -16,7 +16,7 @@ const partners = [
     title: 'Proposez Siteviral à vos clients',
     desc: 'Créez des boutiques digitales pour vos clients en 10 minutes. Commission récurrente sur chaque transaction.',
     cta: 'Devenir partenaire agence',
-    path: '/become-partner',
+    path: '/devenir-partenaire',
   },
   {
     icon: Wifi, category: 'Télécoms & Fintechs',

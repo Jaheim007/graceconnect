@@ -51,7 +51,7 @@ export default function PourAgencesPage() {
         { q: 'Quels services puis-je ajouter ?', a: 'Produits digitaux, dons, événements, médias, abonnements — tout ce que Siteviral offre est disponible.' },
         { q: 'Comment recevoir mes commissions ?', a: 'Par Mobile Money ou virement bancaire. Tableau de bord partenaire avec suivi en temps réel.' },
       ]}
-      cta={{ label: 'Devenir partenaire agence', path: '/become-partner' }}
+      cta={{ label: 'Devenir partenaire agence', path: '/devenir-partenaire' }}
       secondaryCta={{ label: 'Voir le programme partenaire', path: '/partner-terms' }}
     />
   );
