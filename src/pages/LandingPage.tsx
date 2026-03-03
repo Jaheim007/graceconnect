@@ -15,8 +15,8 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       <SEOHead
-        title="Siteviral — Vendez, partagez, gagnez"
-        description="Vendez vos produits numériques, collectez des dons via Mobile Money et gagnez en partageant. Zéro abonnement. Votre centre digital tout-en-un."
+        title="Siteviral — Votre Centre Digital tout-en-un Gratuit"
+        description="Votre centre digital tout-en-un. Gratuit. Vendez vos produits numériques, collectez des dons via Mobile Money et cartes, et gagnez en partageant."
         canonicalUrl="https://siteviral.com"
         keywords="gagner argent en partageant, vendre ebook Afrique, programme ambassadeur, Mobile Money, produits numériques, Siteviral"
         jsonLd={[
