@@ -44,11 +44,24 @@ export function resolveGateway(currency?: string): PaymentGateway {
   return 'stripe';
 }
 
-/** Check if Mobile Money is available (only in Paystack African corridors) */
-export function isMoMoAvailable(currency?: string): boolean {
-  const moMoCurrencies = new Set(['XOF', 'GHS', 'KES', 'XAF']);
-  if (currency && moMoCurrencies.has(currency.toUpperCase())) return true;
+/** Currencies that support Mobile Money via Paystack */
+const MOMO_CURRENCIES = new Set(['XOF', 'GHS', 'KES', 'XAF']);
 
+/**
+ * Check if Mobile Money is available for a given transaction currency.
+ * 
+ * CRITICAL: When a product/campaign has an explicit currency, MoMo is ONLY
+ * available if that currency is a MoMo-supported one. We must NOT fall back
+ * to country detection because Paystack will reject currencies it doesn't
+ * support (e.g. EUR, USD) even if the user is in a MoMo country.
+ */
+export function isMoMoAvailable(currency?: string): boolean {
+  // If an explicit currency is provided, it MUST be a MoMo currency
+  if (currency) {
+    return MOMO_CURRENCIES.has(currency.toUpperCase());
+  }
+
+  // No currency specified — infer from user's country (legacy fallback)
   const moMoCountries = new Set([
     'CI', 'SN', 'ML', 'BF', 'TG', 'BJ', 'NE', 'GN', 'GW', // XOF
     'GH', // GHS
@@ -57,6 +70,11 @@ export function isMoMoAvailable(currency?: string): boolean {
   ]);
   const country = detectCountryFromTimezone();
   return !!country && moMoCountries.has(country);
+}
+
+/** Check if a currency is supported by Paystack for any payment method */
+export function isPaystackCurrency(currency: string): boolean {
+  return PAYSTACK_CURRENCIES.has(currency.toUpperCase());
 }
 
 /** Get a human-readable label for the active gateway */
