@@ -25,6 +25,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { FormattedText } from '@/lib/formatText';
 import { ProductReviews } from '@/components/products/ProductReviews';
 import { AmbassadorBanner } from '@/components/products/AmbassadorBanner';
+import { UniverseGate } from '@/components/universe/UniverseGate';
 import { ProductPreviewViewer } from '@/components/products/ProductPreviewViewer';
 import { ShareButtons } from '@/components/social/ShareButtons';
 import { useBundleItems, useProductRecommendations } from '@/hooks/useBundlesAndRecommendations';
@@ -721,10 +722,12 @@ export default function ProductDetailPage() {
               ))}
             </div>
 
-            {/* Ambassador Banner */}
-            {!isPurchased && org && slug && (
-              <AmbassadorBanner orgSlug={slug} orgName={org.name} />
-            )}
+            {/* Ambassador Banner — only visible in ambassador universe */}
+            <UniverseGate universe="ambassador">
+              {!isPurchased && org && slug && (
+                <AmbassadorBanner orgSlug={slug} orgName={org.name} />
+              )}
+            </UniverseGate>
           </motion.div>
         </div>
 

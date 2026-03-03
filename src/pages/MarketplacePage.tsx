@@ -27,8 +27,10 @@ export default function MarketplacePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const isPublic = mode === 'public';
-  const isAmbassador = mode === 'ambassador';
+  // Use auth state (not mode) to determine buyer vs ambassador experience
+  // This prevents anonymous users from seeing commissions even when localStorage defaults to 'ambassador'
+  const isPublic = !user;
+  const isAmbassador = !!user && mode === 'ambassador';
 
   // Products
   const { data: products = [], isLoading } = useQuery({

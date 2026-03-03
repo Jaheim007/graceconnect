@@ -55,8 +55,8 @@ export function LandingHeroSplit() {
           </h1>
 
           <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto">
-            Siteviral transforme chaque ressource digitale en{' '}
-            <strong className="text-foreground">opportunité de commission</strong>.
+            La plateforme où chaque ressource digitale devient une{' '}
+            <strong className="text-foreground">source de revenu</strong>.
           </p>
 
           {/* 2 CTAs — primary personas */}
