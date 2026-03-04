@@ -371,8 +371,7 @@ export async function processTransaction(
           }
         }
 
-        // Now compute commission (only for products)
-        if (type === 'product') {
+        // Compute commission for all transaction types (products AND donations)
           const { data: partner } = await db.from('partners')
             .select('id, status, user_id, full_name, level')
             .eq('id', pendingRef.partner_id)
@@ -462,7 +461,6 @@ export async function processTransaction(
               }
             }
           }
-        }
       }
     } catch (partnerErr) {
       console.error('[process-transaction] Partner commission error (non-fatal):', partnerErr);

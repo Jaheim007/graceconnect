@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAllPartners, useManagePartner, useSetPartnerRate, useDeletePartner, useAllPartnerPayouts, useProcessPartnerPayout, useReviewPartnerKYC, useAllPartnerReferrals, type Partner } from '@/hooks/usePartner';
 import { formatCurrency } from '@/lib/currency';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -12,10 +12,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Handshake, CheckCircle, XCircle, Pause, Play, Percent, Wallet, Shield, Eye, Globe, Briefcase, Phone, Mail, MapPin, Users, Trash2 } from 'lucide-react';
+import { Loader2, Handshake, CheckCircle, XCircle, Pause, Play, Percent, Wallet, Shield, Eye, Globe, Briefcase, Phone, Mail, MapPin, Users, Trash2, Building2, ArrowRight, CircleDollarSign } from 'lucide-react';
 import { db } from '@/lib/db';
 import { toast } from 'sonner';
-import { useAuth } from '@/contexts/AuthContext';
+import { motion } from 'framer-motion';
 
 const LEVEL_LABELS: Record<number, string> = { 1: 'Bronze', 2: 'Argent', 3: 'Or', 4: 'Platine', 5: 'Diamant' };
 
@@ -79,7 +79,6 @@ export default function SuperadminPartners() {
   };
 
   const pendingPayouts = payoutRequests.filter(pr => pr.status === 'requested').length;
-
   const statusCounts = {
     pending: partners.filter(p => p.status === 'pending').length,
     approved: partners.filter(p => p.status === 'approved').length,
@@ -87,196 +86,236 @@ export default function SuperadminPartners() {
   };
 
   return (
-    <div className="space-y-6">
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35 }}
+      className="space-y-5"
+    >
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2"><Handshake className="h-6 w-6 text-primary" /> Partenaires</h1>
-          <p className="text-sm text-muted-foreground">{partners.length} partenaires — {statusCounts.pending} en attente, {statusCounts.approved} actifs</p>
+          <h1 className="text-xl font-bold flex items-center gap-2"><Handshake className="h-5 w-5 text-primary" /> Partenaires</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">{partners.length} partenaires — {statusCounts.pending} en attente, {statusCounts.approved} actifs</p>
         </div>
-        <Button onClick={() => setCreateDialog(true)}>+ Ajouter un partenaire</Button>
+        <Button size="sm" onClick={() => setCreateDialog(true)} className="gap-1.5 text-xs">
+          + Ajouter
+        </Button>
+      </div>
+
+      {/* KPI row */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <MiniKPI label="Total" value={partners.length} icon={Users} />
+        <MiniKPI label="En attente" value={statusCounts.pending} icon={Loader2} accent={statusCounts.pending > 0} />
+        <MiniKPI label="Actifs" value={statusCounts.approved} icon={CheckCircle} />
+        <MiniKPI label="Versements en attente" value={pendingPayouts} icon={Wallet} accent={pendingPayouts > 0} />
       </div>
 
       <Tabs defaultValue="partners" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="partners">
-            Partenaires
-            {statusCounts.pending > 0 && <Badge variant="destructive" className="ml-1.5 text-[10px] h-4 px-1">{statusCounts.pending}</Badge>}
+        <TabsList className="bg-muted/40 p-1 rounded-xl h-auto flex-wrap">
+          <TabsTrigger value="partners" className="rounded-lg text-xs gap-1.5">
+            <Users className="h-3.5 w-3.5" /> Partenaires
+            {statusCounts.pending > 0 && <Badge variant="destructive" className="ml-1 text-[10px] h-4 px-1">{statusCounts.pending}</Badge>}
           </TabsTrigger>
-          <TabsTrigger value="kyc" className="gap-1.5">
-            <Shield className="h-3.5 w-3.5" />
-            KYC
-            {partners.filter(p => (p as any).kyc_status === 'pending').length > 0 && (
-              <Badge variant="destructive" className="ml-1 text-[10px] h-4 px-1">
-                {partners.filter(p => (p as any).kyc_status === 'pending').length}
-              </Badge>
-            )}
+          <TabsTrigger value="referrals" className="rounded-lg text-xs gap-1.5">
+            <Building2 className="h-3.5 w-3.5" /> Organisations référées
           </TabsTrigger>
-          <TabsTrigger value="payouts" className="gap-1.5">
-            <Wallet className="h-3.5 w-3.5" />
-            Versements
+          <TabsTrigger value="kyc" className="rounded-lg text-xs gap-1.5">
+            <Shield className="h-3.5 w-3.5" /> KYC
+          </TabsTrigger>
+          <TabsTrigger value="payouts" className="rounded-lg text-xs gap-1.5">
+            <Wallet className="h-3.5 w-3.5" /> Versements
             {pendingPayouts > 0 && <Badge variant="destructive" className="ml-1 text-[10px] h-4 px-1">{pendingPayouts}</Badge>}
-          </TabsTrigger>
-          <TabsTrigger value="referrals" className="gap-1.5">
-            <Users className="h-3.5 w-3.5" />
-            Referrals
           </TabsTrigger>
         </TabsList>
 
+        {/* ── Partners Tab ── */}
         <TabsContent value="partners">
           {isLoading ? (
             <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin" /></div>
+          ) : partners.length === 0 ? (
+            <Card><CardContent className="py-12 text-center text-sm text-muted-foreground">Aucun partenaire.</CardContent></Card>
           ) : (
-            <Card>
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Partenaire</TableHead>
-                      <TableHead>Profession</TableHead>
-                      <TableHead>Pays</TableHead>
-                      <TableHead>Statut</TableHead>
-                      <TableHead>Niveau</TableHead>
-                      <TableHead>Code</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {partners.map(p => {
-                      const pa = p as any;
-                      return (
-                        <TableRow key={p.id} className={p.status === 'pending' ? 'bg-amber-50/50 dark:bg-amber-950/10' : ''}>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium text-sm">{p.full_name}</p>
-                              <p className="text-xs text-muted-foreground">{p.email}</p>
-                              {p.phone && <p className="text-xs text-muted-foreground">{p.phone}</p>}
+            <div className="space-y-2">
+              {partners.map(p => {
+                const pa = p as any;
+                return (
+                  <Card key={p.id} className={`border-border/40 hover:border-border/80 transition-colors ${p.status === 'pending' ? 'border-amber-500/30 bg-amber-500/[0.02]' : ''}`}>
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between gap-4">
+                        {/* Left: identity */}
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary shrink-0">
+                            {p.full_name.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <p className="text-sm font-semibold truncate">{p.full_name}</p>
+                              <Badge variant={p.status === 'approved' ? 'default' : p.status === 'pending' ? 'secondary' : 'destructive'} className="text-[10px] h-5">
+                                {p.status === 'approved' ? 'Actif' : p.status === 'pending' ? 'En attente' : p.status}
+                              </Badge>
+                              <Badge variant="outline" className="text-[10px] h-5">{LEVEL_LABELS[p.level] || `L${p.level}`}</Badge>
                             </div>
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">{pa.profession || '—'}</TableCell>
-                          <TableCell className="text-sm">{p.country}</TableCell>
-                          <TableCell>
-                            <Badge variant={p.status === 'approved' ? 'default' : p.status === 'pending' ? 'secondary' : 'destructive'}>
-                              {p.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-sm">{LEVEL_LABELS[p.level] || `L${p.level}`}</TableCell>
-                          <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">{p.invite_code || '—'}</code></TableCell>
-                          <TableCell className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleDateString('fr-FR')}</TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex items-center gap-1 justify-end">
-                              <Button size="sm" variant="ghost" onClick={() => setDetailDialog(p)} title="Voir détails">
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              {p.status === 'pending' && (
-                                <>
-                                  <Button size="sm" variant="ghost" onClick={() => setActionDialog({ partner: p, action: 'approve' })} title="Approuver">
-                                    <CheckCircle className="h-4 w-4 text-green-600" />
-                                  </Button>
-                                  <Button size="sm" variant="ghost" onClick={() => setActionDialog({ partner: p, action: 'reject' })} title="Rejeter">
-                                    <XCircle className="h-4 w-4 text-destructive" />
-                                  </Button>
-                                </>
-                              )}
-                              {p.status === 'approved' && (
-                                <Button size="sm" variant="ghost" onClick={() => setActionDialog({ partner: p, action: 'suspend' })} title="Suspendre">
-                                  <Pause className="h-4 w-4 text-amber-600" />
-                                </Button>
-                              )}
-                              {p.status === 'suspended' && (
-                                <Button size="sm" variant="ghost" onClick={() => setActionDialog({ partner: p, action: 'unsuspend' })} title="Réactiver">
-                                  <Play className="h-4 w-4 text-green-600" />
-                                </Button>
-                              )}
-                              <Button size="sm" variant="ghost" onClick={() => { setRateDialog(p); setNewRate(String(p.custom_rate_override ?? p.rate_percent)); }} title="Modifier taux">
-                                <Percent className="h-4 w-4" />
-                              </Button>
-                              <Button size="sm" variant="ghost" onClick={() => {
-                                if (confirm(`Supprimer définitivement le partenaire ${p.full_name} ? Cette action est irréversible.`)) {
-                                  deletePartner.mutate(p.id);
-                                }
-                              }} title="Supprimer">
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
+                            <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
+                              <span>{p.email}</span>
+                              <span>{p.country}</span>
+                              {pa.profession && <span>{pa.profession}</span>}
                             </div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+                            <div className="flex items-center gap-2 mt-1">
+                              <code className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-mono">{p.invite_code || '—'}</code>
+                              <span className="text-[10px] text-muted-foreground">{new Date(p.created_at).toLocaleDateString('fr-FR')}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right: actions */}
+                        <div className="flex items-center gap-1 shrink-0">
+                          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setDetailDialog(p)} title="Détails">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          {p.status === 'pending' && (
+                            <>
+                              <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setActionDialog({ partner: p, action: 'approve' })} title="Approuver">
+                                <CheckCircle className="h-4 w-4 text-green-600" />
+                              </Button>
+                              <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setActionDialog({ partner: p, action: 'reject' })} title="Rejeter">
+                                <XCircle className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </>
+                          )}
+                          {p.status === 'approved' && (
+                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setActionDialog({ partner: p, action: 'suspend' })} title="Suspendre">
+                              <Pause className="h-4 w-4 text-amber-600" />
+                            </Button>
+                          )}
+                          {p.status === 'suspended' && (
+                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => setActionDialog({ partner: p, action: 'unsuspend' })} title="Réactiver">
+                              <Play className="h-4 w-4 text-green-600" />
+                            </Button>
+                          )}
+                          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => { setRateDialog(p); setNewRate(String(p.custom_rate_override ?? p.rate_percent)); }} title="Taux">
+                            <Percent className="h-4 w-4" />
+                          </Button>
+                          <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => {
+                            if (confirm(`Supprimer définitivement ${p.full_name} ? Cette action est irréversible.`)) {
+                              deletePartner.mutate(p.id);
+                            }
+                          }} title="Supprimer">
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                          </Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
           )}
+        </TabsContent>
+
+        {/* ── Referrals Tab ── */}
+        <TabsContent value="referrals">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Organisations référées par les partenaires</CardTitle>
+              <CardDescription className="text-xs">
+                ⚡ Le statut passe automatiquement de « En attente » à « Active » au 1er paiement. Les commissions sont créées et libérées automatiquement après 15 jours.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isLoadingRefs ? (
+                <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div>
+              ) : allReferrals.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-8 text-center">Aucun referral pour le moment.</p>
+              ) : (
+                <div className="space-y-2">
+                  {allReferrals.map(ref => (
+                    <div key={ref.id} className="flex items-center gap-3 p-3 rounded-lg border border-border/40 hover:bg-muted/20 transition-colors">
+                      {/* Partner */}
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">
+                          {((ref as any).partner?.full_name || '?').charAt(0)}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate">{(ref as any).partner?.full_name || '—'}</p>
+                          <p className="text-[10px] text-muted-foreground font-mono">{(ref as any).partner?.invite_code}</p>
+                        </div>
+                      </div>
+
+                      {/* Arrow */}
+                      <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
+
+                      {/* Organization */}
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                        <div className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                          <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate">{ref.organization?.name || '—'}</p>
+                          <p className="text-[10px] text-muted-foreground">{ref.organization?.slug}</p>
+                        </div>
+                      </div>
+
+                      {/* Status + Date */}
+                      <div className="flex items-center gap-3 shrink-0">
+                        <Badge variant={ref.status === 'active' ? 'default' : ref.status === 'rejected' ? 'destructive' : 'secondary'} className="text-[10px]">
+                          {ref.status === 'active' ? '✓ Active' : ref.status === 'rejected' ? 'Rejetée' : '⏳ En attente'}
+                        </Badge>
+                        <span className="text-[10px] text-muted-foreground whitespace-nowrap">{new Date(ref.attributed_at).toLocaleDateString('fr-FR')}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* ── KYC Tab ── */}
         <TabsContent value="kyc">
           <Card>
             <CardHeader>
-              <CardTitle>Vérifications KYC partenaires</CardTitle>
+              <CardTitle className="text-base">Vérifications KYC</CardTitle>
             </CardHeader>
             <CardContent>
               {(() => {
                 const kycPartners = partners.filter(p => (p as any).kyc_status && (p as any).kyc_status !== 'none');
-                if (kycPartners.length === 0) return <p className="text-sm text-muted-foreground py-4 text-center">Aucune soumission KYC.</p>;
+                if (kycPartners.length === 0) return <p className="text-sm text-muted-foreground py-8 text-center">Aucune soumission KYC.</p>;
                 return (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Partenaire</TableHead>
-                        <TableHead>Document</TableHead>
-                        <TableHead>Statut</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {kycPartners.map(p => {
-                        const pa = p as any;
-                        return (
-                          <TableRow key={p.id}>
-                            <TableCell>
-                              <p className="font-medium text-sm">{p.full_name}</p>
-                              <p className="text-xs text-muted-foreground">{p.email}</p>
-                            </TableCell>
-                            <TableCell>
-                              <div className="space-y-1">
-                                <p className="text-xs">{pa.id_document_type || '—'}</p>
-                                {pa.id_document_url && (
-                                  <a href={pa.id_document_url} target="_blank" rel="noopener" className="text-xs text-primary underline">Voir document</a>
-                                )}
-                                {pa.selfie_url && (
-                                  <a href={pa.selfie_url} target="_blank" rel="noopener" className="text-xs text-primary underline block">Voir selfie</a>
-                                )}
+                  <div className="space-y-2">
+                    {kycPartners.map(p => {
+                      const pa = p as any;
+                      return (
+                        <div key={p.id} className="flex items-center justify-between p-3 rounded-lg border border-border/40">
+                          <div className="flex items-center gap-3">
+                            <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-xs font-bold">{p.full_name.charAt(0)}</div>
+                            <div>
+                              <p className="text-sm font-medium">{p.full_name}</p>
+                              <p className="text-xs text-muted-foreground">{pa.id_document_type || '—'}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Badge variant={pa.kyc_status === 'approved' ? 'default' : pa.kyc_status === 'rejected' ? 'destructive' : 'secondary'} className="text-[10px]">
+                              {pa.kyc_status}
+                            </Badge>
+                            {pa.kyc_status === 'pending' && (
+                              <div className="flex gap-1">
+                                <Button size="sm" variant="default" className="h-7 text-xs" onClick={() => reviewKYC.mutate({ partnerId: p.id, action: 'approve' })} disabled={reviewKYC.isPending}>
+                                  <CheckCircle className="h-3 w-3 mr-1" />OK
+                                </Button>
+                                <Button size="sm" variant="destructive" className="h-7 text-xs" onClick={() => {
+                                  const r = prompt('Raison du rejet:');
+                                  reviewKYC.mutate({ partnerId: p.id, action: 'reject', reason: r || undefined });
+                                }} disabled={reviewKYC.isPending}>
+                                  <XCircle className="h-3 w-3 mr-1" />Non
+                                </Button>
                               </div>
-                            </TableCell>
-                            <TableCell>
-                              <Badge variant={pa.kyc_status === 'approved' ? 'default' : pa.kyc_status === 'rejected' ? 'destructive' : 'secondary'}>
-                                {pa.kyc_status}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-xs">{pa.kyc_submitted_at ? new Date(pa.kyc_submitted_at).toLocaleDateString('fr-FR') : '—'}</TableCell>
-                            <TableCell className="text-right">
-                              {pa.kyc_status === 'pending' && (
-                                <div className="flex items-center gap-1 justify-end">
-                                  <Button size="sm" variant="default" onClick={() => reviewKYC.mutate({ partnerId: p.id, action: 'approve' })} disabled={reviewKYC.isPending}>
-                                    <CheckCircle className="h-3.5 w-3.5 mr-1" />Approuver
-                                  </Button>
-                                  <Button size="sm" variant="destructive" onClick={() => {
-                                    const reason = prompt('Raison du rejet (optionnel):');
-                                    reviewKYC.mutate({ partnerId: p.id, action: 'reject', reason: reason || undefined });
-                                  }} disabled={reviewKYC.isPending}>
-                                    <XCircle className="h-3.5 w-3.5 mr-1" />Rejeter
-                                  </Button>
-                                </div>
-                              )}
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 );
               })()}
             </CardContent>
@@ -287,115 +326,51 @@ export default function SuperadminPartners() {
         <TabsContent value="payouts">
           <Card>
             <CardHeader>
-              <CardTitle>Demandes de versement partenaires</CardTitle>
+              <CardTitle className="text-base">Demandes de versement</CardTitle>
             </CardHeader>
             <CardContent>
               {payoutRequests.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">Aucune demande de versement.</p>
+                <p className="text-sm text-muted-foreground py-8 text-center">Aucune demande.</p>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Partenaire</TableHead>
-                      <TableHead>Montant</TableHead>
-                      <TableHead>Statut</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {payoutRequests.map(pr => (
-                      <TableRow key={pr.id}>
-                        <TableCell className="text-xs">{new Date(pr.requested_at).toLocaleDateString('fr-FR')}</TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="text-sm font-medium">{(pr as any).partner?.full_name || '—'}</p>
-                            <p className="text-xs text-muted-foreground">{(pr as any).partner?.email}</p>
+                <div className="space-y-2">
+                  {payoutRequests.map(pr => (
+                    <div key={pr.id} className="flex items-center justify-between p-3 rounded-lg border border-border/40">
+                      <div className="flex items-center gap-3">
+                        <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center">
+                          <CircleDollarSign className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">{(pr as any).partner?.full_name || '—'}</p>
+                          <p className="text-xs text-muted-foreground">{(pr as any).partner?.email} • {new Date(pr.requested_at).toLocaleDateString('fr-FR')}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <p className="text-sm font-bold">{formatCurrency(pr.amount, pr.currency)}</p>
+                        <Badge variant={pr.status === 'paid' ? 'default' : pr.status === 'rejected' || pr.status === 'failed' ? 'destructive' : 'secondary'} className="text-[10px]">
+                          {pr.status}
+                        </Badge>
+                        {pr.status === 'requested' && (
+                          <div className="flex gap-1">
+                            <Button size="sm" variant="default" className="h-7 text-xs" onClick={() => processPayout.mutate({ payoutRequestId: pr.id, action: 'approve' })} disabled={processPayout.isPending}>
+                              {processPayout.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle className="h-3 w-3 mr-1" />}
+                              Payer
+                            </Button>
+                            <Button size="sm" variant="destructive" className="h-7 text-xs" onClick={() => processPayout.mutate({ payoutRequestId: pr.id, action: 'reject' })} disabled={processPayout.isPending}>
+                              <XCircle className="h-3 w-3" />
+                            </Button>
                           </div>
-                        </TableCell>
-                        <TableCell className="font-medium">{formatCurrency(pr.amount, pr.currency)}</TableCell>
-                        <TableCell>
-                          <Badge variant={pr.status === 'paid' ? 'default' : pr.status === 'rejected' || pr.status === 'failed' ? 'destructive' : 'secondary'}>
-                            {pr.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          {pr.status === 'requested' && (
-                            <div className="flex items-center gap-1 justify-end">
-                              <Button size="sm" variant="default" onClick={() => processPayout.mutate({ payoutRequestId: pr.id, action: 'approve' })} disabled={processPayout.isPending}>
-                                {processPayout.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle className="h-3.5 w-3.5 mr-1" />}
-                                Approuver
-                              </Button>
-                              <Button size="sm" variant="destructive" onClick={() => processPayout.mutate({ payoutRequestId: pr.id, action: 'reject' })} disabled={processPayout.isPending}>
-                                <XCircle className="h-3.5 w-3.5 mr-1" />
-                                Rejeter
-                              </Button>
-                            </div>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* ── Referrals Tab (read-only monitoring — activation is automatic on first payment) ── */}
-        <TabsContent value="referrals">
-          <Card>
-            <CardHeader>
-              <CardTitle>Organisations référées par les partenaires</CardTitle>
-              <p className="text-xs text-muted-foreground mt-1">
-                ⚡ Les referrals passent automatiquement de « En attente » à « Active » dès le premier paiement reçu par l'organisation. Les commissions sont créées et libérées automatiquement après 15 jours.
-              </p>
-            </CardHeader>
-            <CardContent>
-              {isLoadingRefs ? (
-                <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div>
-              ) : allReferrals.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">Aucun referral pour le moment.</p>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Partenaire</TableHead>
-                      <TableHead>Organisation</TableHead>
-                      <TableHead>Statut</TableHead>
-                      <TableHead>Date</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {allReferrals.map(ref => (
-                      <TableRow key={ref.id}>
-                        <TableCell>
-                          <div>
-                            <p className="text-sm font-medium">{(ref as any).partner?.full_name || '—'}</p>
-                            <p className="text-xs text-muted-foreground">{(ref as any).partner?.invite_code}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <p className="text-sm font-medium">{ref.organization?.name || '—'}</p>
-                          <p className="text-xs text-muted-foreground">{ref.organization?.slug}</p>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={ref.status === 'active' ? 'default' : ref.status === 'rejected' ? 'destructive' : 'secondary'}>
-                            {ref.status === 'active' ? 'Active' : ref.status === 'rejected' ? 'Rejetée' : 'En attente (1er paiement)'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-xs text-muted-foreground">{new Date(ref.attributed_at).toLocaleDateString('fr-FR')}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
 
-      {/* Detail Dialog */}
+      {/* ── Detail Dialog ── */}
       <Dialog open={!!detailDialog} onOpenChange={() => setDetailDialog(null)}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
@@ -409,97 +384,61 @@ export default function SuperadminPartners() {
             return (
               <ScrollArea className="max-h-[60vh]">
                 <div className="space-y-4 pr-4">
-                  {/* Identity */}
                   <div className="space-y-2">
                     <h4 className="text-xs font-bold text-primary uppercase tracking-wide">Identité</h4>
                     <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="flex items-center gap-2"><span className="text-muted-foreground">Nom:</span><strong>{p.full_name}</strong></div>
-                      <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-muted-foreground" /><span>{p.email}</span></div>
-                      {p.phone && <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-muted-foreground" /><span>{p.phone}</span></div>}
-                      <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-muted-foreground" /><span>{p.country}{p.city ? `, ${p.city}` : ''}</span></div>
-                      {p.profession && <div className="flex items-center gap-2"><Briefcase className="h-3.5 w-3.5 text-muted-foreground" /><span>{p.profession}</span></div>}
+                      <div><span className="text-muted-foreground">Nom:</span> <strong>{p.full_name}</strong></div>
+                      <div className="flex items-center gap-1.5"><Mail className="h-3.5 w-3.5 text-muted-foreground" />{p.email}</div>
+                      {p.phone && <div className="flex items-center gap-1.5"><Phone className="h-3.5 w-3.5 text-muted-foreground" />{p.phone}</div>}
+                      <div className="flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-muted-foreground" />{p.country}{p.city ? `, ${p.city}` : ''}</div>
+                      {p.profession && <div className="flex items-center gap-1.5"><Briefcase className="h-3.5 w-3.5 text-muted-foreground" />{p.profession}</div>}
                     </div>
                   </div>
-
-                  {/* Network */}
                   <div className="space-y-2">
                     <h4 className="text-xs font-bold text-primary uppercase tracking-wide">Réseau</h4>
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       {p.organization_name && <div><span className="text-muted-foreground">Organisation:</span> {p.organization_name}</div>}
-                      {p.organization_type && <div><span className="text-muted-foreground">Type ciblé:</span> {p.organization_type}</div>}
-                      {p.network_size && <div><span className="text-muted-foreground">Taille réseau:</span> {p.network_size}</div>}
+                      {p.organization_type && <div><span className="text-muted-foreground">Type:</span> {p.organization_type}</div>}
+                      {p.network_size && <div><span className="text-muted-foreground">Réseau:</span> {p.network_size}</div>}
                       {p.target_audience && <div><span className="text-muted-foreground">Audience:</span> {p.target_audience}</div>}
                     </div>
                   </div>
-
-                  {/* Online */}
                   {(p.website_url || p.social_media_url) && (
                     <div className="space-y-2">
-                      <h4 className="text-xs font-bold text-primary uppercase tracking-wide">Présence en ligne</h4>
+                      <h4 className="text-xs font-bold text-primary uppercase tracking-wide">En ligne</h4>
                       <div className="space-y-1 text-sm">
-                        {p.website_url && (
-                          <div className="flex items-center gap-2">
-                            <Globe className="h-3.5 w-3.5 text-muted-foreground" />
-                            <a href={p.website_url} target="_blank" rel="noopener" className="text-primary underline truncate">{p.website_url}</a>
-                          </div>
-                        )}
-                        {p.social_media_url && (
-                          <div className="flex items-center gap-2">
-                            <Globe className="h-3.5 w-3.5 text-muted-foreground" />
-                            <a href={p.social_media_url} target="_blank" rel="noopener" className="text-primary underline truncate">{p.social_media_url}</a>
-                          </div>
-                        )}
+                        {p.website_url && <a href={p.website_url} target="_blank" rel="noopener" className="flex items-center gap-1.5 text-primary underline"><Globe className="h-3.5 w-3.5" />{p.website_url}</a>}
+                        {p.social_media_url && <a href={p.social_media_url} target="_blank" rel="noopener" className="flex items-center gap-1.5 text-primary underline"><Globe className="h-3.5 w-3.5" />{p.social_media_url}</a>}
                       </div>
                     </div>
                   )}
-
-                  {/* Motivation */}
-                  <div className="space-y-2">
-                    <h4 className="text-xs font-bold text-primary uppercase tracking-wide">Motivation</h4>
-                    {p.how_heard_about_us && <p className="text-sm"><span className="text-muted-foreground">Source:</span> {p.how_heard_about_us}</p>}
-                    {p.experience_description && (
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Expérience:</p>
-                        <p className="text-sm bg-muted/50 rounded-lg p-3">{p.experience_description}</p>
-                      </div>
-                    )}
-                    {p.motivation && (
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Motivation:</p>
-                        <p className="text-sm bg-muted/50 rounded-lg p-3">{p.motivation}</p>
-                      </div>
-                    )}
-                    {p.notes && !p.motivation && (
-                      <div>
-                        <p className="text-xs text-muted-foreground mb-1">Notes:</p>
-                        <p className="text-sm bg-muted/50 rounded-lg p-3">{p.notes}</p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Meta */}
-                  <div className="space-y-1 text-xs text-muted-foreground border-t pt-3">
+                  {(p.experience_description || p.motivation) && (
+                    <div className="space-y-2">
+                      <h4 className="text-xs font-bold text-primary uppercase tracking-wide">Motivation</h4>
+                      {p.experience_description && <p className="text-sm bg-muted/50 rounded-lg p-3">{p.experience_description}</p>}
+                      {p.motivation && <p className="text-sm bg-muted/50 rounded-lg p-3">{p.motivation}</p>}
+                    </div>
+                  )}
+                  <div className="text-xs text-muted-foreground border-t pt-3 space-y-1">
                     <p>Candidature le {new Date(p.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                    <p>Statut: <Badge variant={p.status === 'approved' ? 'default' : p.status === 'pending' ? 'secondary' : 'destructive'} className="text-[10px] ml-1">{p.status}</Badge></p>
-                    {p.invite_code && <p>Code: <code className="bg-muted px-1 rounded">{p.invite_code}</code></p>}
+                    <p>Code: <code className="bg-muted px-1 rounded">{p.invite_code || '—'}</code></p>
                   </div>
                 </div>
               </ScrollArea>
             );
           })()}
           <DialogFooter>
-            {detailDialog?.status === 'pending' && (
+            {detailDialog?.status === 'pending' ? (
               <>
-                <Button variant="destructive" onClick={() => { setActionDialog({ partner: detailDialog!, action: 'reject' }); setDetailDialog(null); }}>
-                  <XCircle className="h-4 w-4 mr-2" />Rejeter
+                <Button variant="destructive" size="sm" onClick={() => { setActionDialog({ partner: detailDialog!, action: 'reject' }); setDetailDialog(null); }}>
+                  <XCircle className="h-4 w-4 mr-1" />Rejeter
                 </Button>
-                <Button onClick={() => { setActionDialog({ partner: detailDialog!, action: 'approve' }); setDetailDialog(null); }}>
-                  <CheckCircle className="h-4 w-4 mr-2" />Approuver
+                <Button size="sm" onClick={() => { setActionDialog({ partner: detailDialog!, action: 'approve' }); setDetailDialog(null); }}>
+                  <CheckCircle className="h-4 w-4 mr-1" />Approuver
                 </Button>
               </>
-            )}
-            {detailDialog?.status !== 'pending' && (
-              <Button variant="outline" onClick={() => setDetailDialog(null)}>Fermer</Button>
+            ) : (
+              <Button variant="outline" size="sm" onClick={() => setDetailDialog(null)}>Fermer</Button>
             )}
           </DialogFooter>
         </DialogContent>
@@ -521,8 +460,8 @@ export default function SuperadminPartners() {
             <Textarea placeholder="Raison (optionnel)" value={reason} onChange={e => setReason(e.target.value)} />
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={() => setActionDialog(null)}>Annuler</Button>
-            <Button onClick={handleAction} disabled={managePartner.isPending}
+            <Button variant="outline" size="sm" onClick={() => setActionDialog(null)}>Annuler</Button>
+            <Button size="sm" onClick={handleAction} disabled={managePartner.isPending}
               variant={actionDialog?.action === 'reject' || actionDialog?.action === 'suspend' ? 'destructive' : 'default'}>
               {managePartner.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Confirmer
@@ -538,11 +477,11 @@ export default function SuperadminPartners() {
           <div className="space-y-2">
             <Label>Taux personnalisé (%)</Label>
             <Input type="number" min={0} max={50} step={0.5} value={newRate} onChange={e => setNewRate(e.target.value)} />
-            <p className="text-xs text-muted-foreground">Ce taux remplace le taux automatique basé sur le niveau.</p>
+            <p className="text-xs text-muted-foreground">Remplace le taux automatique basé sur le niveau.</p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRateDialog(null)}>Annuler</Button>
-            <Button onClick={handleSetRate} disabled={setRate.isPending}>
+            <Button variant="outline" size="sm" onClick={() => setRateDialog(null)}>Annuler</Button>
+            <Button size="sm" onClick={handleSetRate} disabled={setRate.isPending}>
               {setRate.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Enregistrer
             </Button>
@@ -562,11 +501,27 @@ export default function SuperadminPartners() {
             <div><Label>Code invitation (auto si vide)</Label><Input value={newPartner.invite_code} onChange={e => setNewPartner(p => ({ ...p, invite_code: e.target.value }))} placeholder="Ex: BISHOP-2026" /></div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateDialog(false)}>Annuler</Button>
-            <Button onClick={handleCreate} disabled={!newPartner.full_name || !newPartner.email}>Créer</Button>
+            <Button variant="outline" size="sm" onClick={() => setCreateDialog(false)}>Annuler</Button>
+            <Button size="sm" onClick={handleCreate} disabled={!newPartner.full_name || !newPartner.email}>Créer</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </motion.div>
+  );
+}
+
+function MiniKPI({ label, value, icon: Icon, accent }: { label: string; value: number; icon: typeof Users; accent?: boolean }) {
+  return (
+    <Card className={`border-border/40 ${accent ? 'border-amber-500/30' : ''}`}>
+      <CardContent className="py-3 px-4 flex items-center gap-3">
+        <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${accent ? 'bg-amber-500/10' : 'bg-muted/60'}`}>
+          <Icon className={`h-4 w-4 ${accent ? 'text-amber-500' : 'text-muted-foreground'}`} />
+        </div>
+        <div>
+          <p className="text-lg font-bold">{value}</p>
+          <p className="text-[10px] text-muted-foreground">{label}</p>
+        </div>
+      </CardContent>
+    </Card>
   );
 }
