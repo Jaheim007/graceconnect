@@ -359,8 +359,23 @@ export default function PartnerPortalPage() {
               {commissions.length === 0 ? (
                 <div className="text-center py-8 space-y-2">
                   <CircleDollarSign className="h-8 w-8 mx-auto text-muted-foreground/40" />
-                  <p className="text-sm text-muted-foreground">Aucune commission pour le moment.</p>
-                  <p className="text-xs text-muted-foreground">Les commissions apparaissent automatiquement quand vos organisations effectuent des ventes.</p>
+                  {commissionsQuery.isFetching ? (
+                    <>
+                      <p className="text-sm text-muted-foreground">Synchronisation des commissions en cours...</p>
+                      <p className="text-xs text-muted-foreground">Patientez quelques secondes.</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm text-muted-foreground">Aucune commission visible pour le moment.</p>
+                      <p className="text-xs text-muted-foreground">Cliquez sur « Forcer sync » pour recharger immédiatement depuis le serveur.</p>
+                    </>
+                  )}
+                  <div className="pt-2">
+                    <Button variant="outline" size="sm" onClick={handleForceSync} disabled={isSyncing} className="gap-2">
+                      {isSyncing && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                      Forcer sync
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="overflow-x-auto -mx-6">
