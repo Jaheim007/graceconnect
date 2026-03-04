@@ -317,9 +317,16 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
             onSuccess?.(verifyResult);
             onNewSale(organizationId, '', product.title, buyerInfo.name.trim(), verifyResult.breakdown.amount, product.currency || 'XOF');
           } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Erreur lors de la vérification du paiement.';
-            setErrorMsg(message);
-            setStep('error');
+            console.error('[ProductPurchaseModal] verify error:', err);
+            // Payment succeeded on Paystack but verify failed — redirect to success page for retry
+            const params = new URLSearchParams({
+              reference,
+              gateway: 'paystack',
+              type: 'product',
+              organization_id: organizationId,
+              product_id: product.id,
+            });
+            window.location.href = `/payment/success?${params.toString()}`;
           }
         },
       });
