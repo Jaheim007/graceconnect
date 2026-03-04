@@ -256,13 +256,13 @@ export default function PaymentSuccessPage() {
             } catch (verifyErr) {
               console.error('[PaymentSuccess] stripe-verify error:', verifyErr);
             }
-          } else if (referenceRef.current.startsWith('SV-') && urlType && urlOrgId) {
+          } else if (referenceRef.current.startsWith('SV-')) {
             try {
               const { verifyPayment } = await import('@/lib/api');
               const result = await verifyPayment({
                 reference: referenceRef.current,
-                type: urlType,
-                organization_id: urlOrgId,
+                type: urlType || undefined,
+                organization_id: urlOrgId || undefined,
                 campaign_id: urlCampaignId || undefined,
                 product_id: urlProductId || undefined,
               });

@@ -15,14 +15,24 @@ const corsHeaders = {
 
 interface VerifyPaymentBody {
   reference: string;
-  type: 'donation' | 'product';
-  organization_id: string;
+  type?: 'donation' | 'product';
+  organization_id?: string;
   campaign_id?: string;
   product_id?: string;
   affiliate_code?: string;
   donor_name?: string;
   donor_email?: string;
   promo_code?: string;
+}
+
+function asString(value: unknown): string | undefined {
+  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : undefined;
+}
+
+function readMetaString(meta: unknown, key: string): string | undefined {
+  if (!meta || typeof meta !== 'object') return undefined;
+  const record = meta as Record<string, unknown>;
+  return asString(record[key]);
 }
 
 Deno.serve(async (req) => {
@@ -49,8 +59,8 @@ Deno.serve(async (req) => {
     const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     const validationErrors: string[] = [];
     if (!reference || typeof reference !== 'string' || reference.length > 100) validationErrors.push('Invalid reference');
-    if (!type || !['donation', 'product'].includes(type)) validationErrors.push('Invalid type');
-    if (!organization_id || !UUID_RE.test(organization_id)) validationErrors.push('Invalid organization_id');
+    if (type && !['donation', 'product'].includes(type)) validationErrors.push('Invalid type');
+    if (organization_id && !UUID_RE.test(organization_id)) validationErrors.push('Invalid organization_id');
     if (campaign_id && !UUID_RE.test(campaign_id)) validationErrors.push('Invalid campaign_id');
     if (product_id && !UUID_RE.test(product_id)) validationErrors.push('Invalid product_id');
     if (affiliate_code && (typeof affiliate_code !== 'string' || affiliate_code.length > 50)) validationErrors.push('Invalid affiliate_code');
@@ -87,22 +97,62 @@ Deno.serve(async (req) => {
     const amountPaid = psData.data.amount / 100;
     const currency = psData.data.currency || 'XOF';
 
+    const metadata = psData.data?.metadata || {};
+    const metaType = readMetaString(metadata, 'type');
+
+    const resolvedType: 'donation' | 'product' | undefined =
+      type === 'donation' || type === 'product'
+        ? type
+        : (metaType === 'donation' || metaType === 'product' ? metaType : undefined);
+
+    const resolvedOrganizationId = organization_id || readMetaString(metadata, 'organization_id');
+    const resolvedCampaignId = campaign_id || readMetaString(metadata, 'campaign_id');
+    const resolvedProductId = product_id || readMetaString(metadata, 'product_id');
+    const resolvedAffiliateCode = affiliate_code || readMetaString(metadata, 'affiliate_code');
+    const resolvedDonorName = donor_name || readMetaString(metadata, 'donor_name') || readMetaString(metadata, 'buyer_name') || asString(psData.data?.customer?.name);
+    const resolvedDonorEmail = donor_email || readMetaString(metadata, 'donor_email') || readMetaString(metadata, 'buyer_email') || asString(psData.data?.customer?.email);
+    const resolvedPromoCode = promo_code || readMetaString(metadata, 'promo_code');
+
+    if (!resolvedType) {
+      return new Response(JSON.stringify({ error: 'Missing payment type in request and Paystack metadata' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (!resolvedOrganizationId || !UUID_RE.test(resolvedOrganizationId)) {
+      return new Response(JSON.stringify({ error: 'Missing or invalid organization_id in request and Paystack metadata' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (resolvedCampaignId && !UUID_RE.test(resolvedCampaignId)) {
+      return new Response(JSON.stringify({ error: 'Invalid campaign_id in Paystack metadata' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    if (resolvedProductId && !UUID_RE.test(resolvedProductId)) {
+      return new Response(JSON.stringify({ error: 'Invalid product_id in Paystack metadata' }), {
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
     // ── Delegate to shared core ──
     const result = await processTransaction(db, {
       reference,
-      type,
-      organization_id,
+      type: resolvedType,
+      organization_id: resolvedOrganizationId,
       gateway: 'paystack',
       source: 'verify',
       amount_paid: amountPaid,
       currency,
-      campaign_id,
-      product_id,
+      campaign_id: resolvedCampaignId,
+      product_id: resolvedProductId,
       user_id: userId,
-      donor_name,
-      donor_email,
-      affiliate_code,
-      promo_code,
+      donor_name: resolvedDonorName,
+      donor_email: resolvedDonorEmail,
+      affiliate_code: resolvedAffiliateCode,
+      promo_code: resolvedPromoCode,
     });
 
     return new Response(JSON.stringify(result), {

@@ -38,8 +38,8 @@ export async function callFn(name: string, body: unknown, requireAuth = true) {
 
 export interface VerifyPaymentArgs {
   reference: string;
-  type: 'donation' | 'product';
-  organization_id: string;
+  type?: 'donation' | 'product';
+  organization_id?: string;
   campaign_id?: string;
   product_id?: string;
   affiliate_code?: string | null;
