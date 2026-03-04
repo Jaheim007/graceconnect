@@ -21,20 +21,13 @@ export function SuperadminDashboard() {
   const { data: stats } = useQuery({
     queryKey: ['sa-stats'],
     queryFn: async () => {
-      const [orgs, kyc, donations, purchases, payouts] = await Promise.all([
-        db.from('organizations').select('*', { count: 'exact', head: true }),
-        db.from('kyc_submissions').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-        db.from('donations').select('amount').eq('status', 'completed'),
-        db.from('product_purchases').select('amount').eq('status', 'completed'),
-        db.from('payout_requests').select('*', { count: 'exact', head: true }).eq('status', 'requested'),
-      ]);
-      const donationGMV = (donations.data || []).reduce((s: number, d: any) => s + (d.amount || 0), 0);
-      const productGMV = (purchases.data || []).reduce((s: number, p: any) => s + (p.amount || 0), 0);
+      const { data } = await db.rpc('get_platform_totals');
+      const t = data || {};
       return {
-        orgs: orgs.count || 0,
-        pendingKyc: kyc.count || 0,
-        gmv: donationGMV + productGMV,
-        pendingPayouts: payouts.count || 0,
+        orgs: t.total_orgs || 0,
+        pendingKyc: t.pending_kyc || 0,
+        gmv: t.gmv || 0,
+        pendingPayouts: t.pending_payouts || 0,
       };
     },
   });
