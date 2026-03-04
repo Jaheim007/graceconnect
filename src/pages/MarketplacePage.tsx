@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Search, SlidersHorizontal, Star, TrendingUp, Sparkles, Store, ArrowRight, ShoppingBag, BookOpen, Headphones, Video, GraduationCap, FileText } from 'lucide-react';
+import { Search, SlidersHorizontal, Star, TrendingUp, Sparkles, Store, ArrowRight, ShoppingBag, BookOpen, Headphones, Video, GraduationCap, FileText, Heart } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -37,6 +37,11 @@ export default function MarketplacePage() {
   const { mode, hasAmbassadorAccess } = useMode();
   const { user } = useAuth();
   const navigate = useNavigate();
+
+  // Handle ?tab=campaigns to show campaigns first
+  const params = new URLSearchParams(window.location.search);
+  const tabParam = params.get('tab');
+  const [showCampaignsFirst, setShowCampaignsFirst] = useState(tabParam === 'campaigns');
 
   const isPublic = !user;
   const isAmbassador = !!user && hasAmbassadorAccess && mode === 'ambassador';
@@ -192,8 +197,30 @@ export default function MarketplacePage() {
         )}
       </div>
 
-      {/* Product grid */}
+      {/* Content */}
       <div className="px-4 pb-6 space-y-6">
+        {/* Campaigns section — shown FIRST when tab=campaigns */}
+        {showCampaignsFirst && campaigns.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="font-bold text-sm flex items-center gap-2">
+                <Heart className="h-4 w-4 text-rose-500" /> Campagnes actives
+              </h2>
+              <button onClick={() => setShowCampaignsFirst(false)} className="text-xs text-muted-foreground hover:text-foreground">
+                Voir aussi les produits
+              </button>
+            </div>
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+              {campaigns.map((c: any) => (
+                <motion.div key={c.id} variants={fadeUp} initial="hidden" animate="visible">
+                  <CampaignCard campaign={c} />
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Products */}
         {isLoading ? <SkeletonList count={8} /> : products.length === 0 ? (
           <EmptyState variant="search" title="Aucun produit trouvé" />
         ) : (
@@ -215,8 +242,8 @@ export default function MarketplacePage() {
           </motion.div>
         )}
 
-        {/* Campaigns */}
-        {campaigns.length > 0 && (
+        {/* Campaigns — at bottom when NOT tab=campaigns */}
+        {!showCampaignsFirst && campaigns.length > 0 && (
           <div className="space-y-3 pt-4 border-t border-border">
             <h2 className="font-bold text-sm text-muted-foreground">Campagnes de dons</h2>
             <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
