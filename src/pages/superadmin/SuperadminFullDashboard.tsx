@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { format, subDays, isAfter } from 'date-fns';
+import { format, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatCurrency } from '@/lib/currency';
@@ -85,131 +85,75 @@ export default function SuperadminFullDashboard() {
   const firstName = profile?.display_name?.split(' ')[0] || 'Admin';
 
   const { data: stats } = useQuery({
-    queryKey: ['sa-full-stats-v2'],
+    queryKey: ['sa-full-stats-v3'],
     queryFn: async () => {
-      const [orgs, members, donations, purchases, payouts, kyc, reports, profiles, affiliateSales, products, campaigns, media, events] = await Promise.all([
-        db.from('organizations').select('id, name, slug, plan_type, kyc_status, is_active, is_suspended, category, country, created_at'),
-        db.from('organization_members').select('id, role, joined_at', { count: 'exact' }),
-        db.from('donations').select('amount, status, currency, created_at, organization_id, platform_fee, affiliate_commission, organization_amount, donor_name'),
-        db.from('product_purchases').select('amount, status, currency, created_at, organization_id, platform_fee, affiliate_commission, organization_amount'),
-        db.from('payout_requests').select('amount, status, requested_at'),
-        db.from('kyc_submissions').select('status, organization_id, submitted_at'),
-        db.from('content_reports').select('status, created_at, content_type, reason'),
-        db.from('profiles').select('id, created_at, display_name, avatar_url', { count: 'exact' }),
-        db.from('affiliate_sales').select('commission_amount, status, created_at'),
-        db.from('digital_products').select('id, is_published, sales_count', { count: 'exact' }),
-        db.from('donation_campaigns').select('id, is_active, current_amount, goal_amount', { count: 'exact' }),
-        db.from('media_content').select('id, media_type, view_count, like_count', { count: 'exact' }),
-        db.from('events').select('id, title, event_date, is_published', { count: 'exact' }),
+      // Use server-side RPC for accurate totals (no 1000-row limit)
+      const [totalsRes, topOrgsRes, categoriesRes, countriesRes, recentDonations, recentUsers, members, payouts, reports, events, orgs] = await Promise.all([
+        db.rpc('get_platform_totals'),
+        db.rpc('get_top_orgs_by_revenue', { _limit: 8 }),
+        db.rpc('get_org_category_breakdown'),
+        db.rpc('get_org_country_breakdown', { _limit: 6 }),
+        db.from('donations').select('id, amount, status, donor_name, created_at').order('created_at', { ascending: false }).limit(10),
+        db.from('profiles').select('id, display_name, created_at').order('created_at', { ascending: false }).limit(8),
+        db.from('organization_members').select('role'),
+        db.from('payout_requests').select('amount, status').eq('status', 'completed'),
+        db.from('content_reports').select('status, content_type, reason').order('created_at', { ascending: false }).limit(5),
+        db.from('events').select('id, title, event_date, is_published').gte('event_date', new Date().toISOString()).order('event_date', { ascending: true }).limit(5),
+        db.from('organizations').select('plan_type'),
       ]);
 
-      const allOrgs = orgs.data || [];
-      const allDonations = donations.data || [];
-      const allPurchases = purchases.data || [];
-      const completedDonations = allDonations.filter((d: any) => d.status === 'completed');
-      const completedPurchases = allPurchases.filter((p: any) => p.status === 'completed');
-      const allPayouts = payouts.data || [];
-      const allKyc = kyc.data || [];
-      const allReports = reports.data || [];
-      const allAffSales = affiliateSales.data || [];
-      const allProducts = products.data || [];
-      const allCampaigns = campaigns.data || [];
-      const allMedia = media.data || [];
-      const allEvents = events.data || [];
-      const allProfiles = profiles.data || [];
-
-      const donationGMV = completedDonations.reduce((s: number, d: any) => s + (d.amount || 0), 0);
-      const purchaseGMV = completedPurchases.reduce((s: number, p: any) => s + (p.amount || 0), 0);
-      const platformFees = [...completedDonations, ...completedPurchases].reduce((s: number, t: any) => s + (t.platform_fee || 0), 0);
-      const affiliateCommissions = allAffSales.reduce((s: number, a: any) => s + (a.commission_amount || 0), 0);
-      const orgReceived = [...completedDonations, ...completedPurchases].reduce((s: number, t: any) => s + (t.organization_amount || 0), 0);
-
-      const catMap: Record<string, number> = {};
-      allOrgs.forEach((o: any) => { catMap[o.category || 'other'] = (catMap[o.category || 'other'] || 0) + 1; });
-      const categories = Object.entries(catMap).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
-
-      const countryMap: Record<string, number> = {};
-      allOrgs.forEach((o: any) => { countryMap[o.country || 'Unknown'] = (countryMap[o.country || 'Unknown'] || 0) + 1; });
-      const countries = Object.entries(countryMap).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 6);
-
-      const orgRevMap: Record<string, { name: string; revenue: number; donations: number; sales: number }> = {};
-      completedDonations.forEach((t: any) => {
-        if (!orgRevMap[t.organization_id]) {
-          const org = allOrgs.find((o: any) => o.id === t.organization_id);
-          orgRevMap[t.organization_id] = { name: org?.name || 'Unknown', revenue: 0, donations: 0, sales: 0 };
-        }
-        orgRevMap[t.organization_id].revenue += t.amount || 0;
-        orgRevMap[t.organization_id].donations += t.amount || 0;
-      });
-      completedPurchases.forEach((t: any) => {
-        if (!orgRevMap[t.organization_id]) {
-          const org = allOrgs.find((o: any) => o.id === t.organization_id);
-          orgRevMap[t.organization_id] = { name: org?.name || 'Unknown', revenue: 0, donations: 0, sales: 0 };
-        }
-        orgRevMap[t.organization_id].revenue += t.amount || 0;
-        orgRevMap[t.organization_id].sales += t.amount || 0;
-      });
-      const topOrgs = Object.values(orgRevMap).sort((a, b) => b.revenue - a.revenue).slice(0, 8);
+      const t = totalsRes.data || {};
 
       const roleMap: Record<string, number> = {};
       (members.data || []).forEach((m: any) => { roleMap[m.role || 'member'] = (roleMap[m.role || 'member'] || 0) + 1; });
 
-      const recentDonations = allDonations.slice(0, 10);
-
       const planMap: Record<string, number> = {};
-      allOrgs.forEach((o: any) => { planMap[o.plan_type || 'free'] = (planMap[o.plan_type || 'free'] || 0) + 1; });
+      (orgs.data || []).forEach((o: any) => { planMap[o.plan_type || 'free'] = (planMap[o.plan_type || 'free'] || 0) + 1; });
       const plans = Object.entries(planMap).map(([name, value]) => ({ name, value }));
 
-      const sevenDaysAgo = subDays(new Date(), 7);
-      const newOrgs7d = allOrgs.filter((o: any) => isAfter(new Date(o.created_at), sevenDaysAgo)).length;
-      const newUsers7d = allProfiles.filter((p: any) => isAfter(new Date(p.created_at), sevenDaysAgo)).length;
-
-      const totalViews = allMedia.reduce((s: number, m: any) => s + (m.view_count || 0), 0);
-      const totalLikes = allMedia.reduce((s: number, m: any) => s + (m.like_count || 0), 0);
-
-      const activeCampaignsArr = allCampaigns.filter((c: any) => c.is_active);
-      const totalGoal = activeCampaignsArr.reduce((s: number, c: any) => s + (c.goal_amount || 0), 0);
-      const totalRaised = activeCampaignsArr.reduce((s: number, c: any) => s + (c.current_amount || 0), 0);
-
-      const recentUsers = allProfiles.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 8);
-
-      const upcomingEvents = allEvents
-        .filter((e: any) => e.event_date && isAfter(new Date(e.event_date), new Date()))
-        .sort((a: any, b: any) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
-        .slice(0, 5);
-
       return {
-        totalOrgs: allOrgs.length,
-        activeOrgs: allOrgs.filter((o: any) => o.is_active && !o.is_suspended).length,
-        suspendedOrgs: allOrgs.filter((o: any) => o.is_suspended).length,
-        totalMembers: members.count || 0,
-        totalUsers: profiles.count || 0,
-        gmv: donationGMV + purchaseGMV,
-        donationGMV, purchaseGMV, platformFees, affiliateCommissions, orgReceived,
-        totalTransactions: completedDonations.length + completedPurchases.length,
-        allTransactions: allDonations.length + allPurchases.length,
-        pendingKYC: allKyc.filter((k: any) => k.status === 'pending').length,
-        approvedKYC: allKyc.filter((k: any) => k.status === 'approved').length,
-        pendingPayouts: allPayouts.filter((p: any) => p.status === 'requested').length,
-        pendingPayoutAmount: allPayouts.filter((p: any) => p.status === 'requested').reduce((s: number, p: any) => s + (p.amount || 0), 0),
-        completedPayouts: allPayouts.filter((p: any) => p.status === 'completed').length,
-        pendingReports: allReports.filter((r: any) => r.status === 'pending').length,
-        takeRate: (donationGMV + purchaseGMV) > 0 ? ((platformFees / (donationGMV + purchaseGMV)) * 100).toFixed(1) : '0',
-        conversionRate: allDonations.length > 0 ? ((completedDonations.length / allDonations.length) * 100).toFixed(0) : '0',
-        categories, countries, topOrgs, roleMap, plans, recentDonations,
-        newOrgs7d, newUsers7d,
-        totalProducts: products.count || 0,
-        publishedProducts: allProducts.filter((p: any) => p.is_published).length,
-        totalCampaigns: campaigns.count || 0,
-        activeCampaigns: activeCampaignsArr.length,
-        totalMedia: media.count || 0,
-        totalViews, totalLikes,
-        totalEvents: events.count || 0,
-        upcomingEvents,
-        campaignGoal: totalGoal,
-        campaignRaised: totalRaised,
-        recentUsers,
-        recentReports: allReports.slice(0, 5),
+        totalOrgs: t.total_orgs || 0,
+        activeOrgs: t.active_orgs || 0,
+        suspendedOrgs: t.suspended_orgs || 0,
+        totalMembers: t.total_members || 0,
+        totalUsers: t.total_users || 0,
+        gmv: t.gmv || 0,
+        donationGMV: t.donation_gmv || 0,
+        purchaseGMV: t.purchase_gmv || 0,
+        platformFees: t.platform_fees || 0,
+        affiliateCommissions: t.affiliate_commissions || 0,
+        orgReceived: t.org_received || 0,
+        totalTransactions: t.total_transactions || 0,
+        allTransactions: t.all_transactions || 0,
+        pendingKYC: t.pending_kyc || 0,
+        approvedKYC: t.approved_kyc || 0,
+        pendingPayouts: t.pending_payouts || 0,
+        pendingPayoutAmount: t.pending_payout_amount || 0,
+        completedPayouts: (payouts.data || []).length,
+        pendingReports: t.pending_reports || 0,
+        takeRate: String(t.take_rate || 0),
+        conversionRate: String(t.conversion_rate || 0),
+        categories: categoriesRes.data || [],
+        countries: countriesRes.data || [],
+        topOrgs: topOrgsRes.data || [],
+        roleMap,
+        plans,
+        recentDonations: recentDonations.data || [],
+        newOrgs7d: t.new_orgs_7d || 0,
+        newUsers7d: t.new_users_7d || 0,
+        totalProducts: t.total_products || 0,
+        publishedProducts: t.published_products || 0,
+        totalCampaigns: t.total_campaigns || 0,
+        activeCampaigns: t.active_campaigns || 0,
+        totalMedia: t.total_media || 0,
+        totalViews: t.total_views || 0,
+        totalLikes: t.total_likes || 0,
+        totalEvents: t.total_events || 0,
+        upcomingEvents: events.data || [],
+        campaignGoal: t.campaign_goal || 0,
+        campaignRaised: t.campaign_raised || 0,
+        recentUsers: recentUsers.data || [],
+        recentReports: reports.data || [],
       };
     },
   });

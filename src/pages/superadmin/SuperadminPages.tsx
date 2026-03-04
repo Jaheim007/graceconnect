@@ -21,20 +21,13 @@ export function SuperadminDashboard() {
   const { data: stats } = useQuery({
     queryKey: ['sa-stats'],
     queryFn: async () => {
-      const [orgs, kyc, donations, purchases, payouts] = await Promise.all([
-        db.from('organizations').select('*', { count: 'exact', head: true }),
-        db.from('kyc_submissions').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-        db.from('donations').select('amount').eq('status', 'completed'),
-        db.from('product_purchases').select('amount').eq('status', 'completed'),
-        db.from('payout_requests').select('*', { count: 'exact', head: true }).eq('status', 'requested'),
-      ]);
-      const donationGMV = (donations.data || []).reduce((s: number, d: any) => s + (d.amount || 0), 0);
-      const productGMV = (purchases.data || []).reduce((s: number, p: any) => s + (p.amount || 0), 0);
+      const { data } = await db.rpc('get_platform_totals');
+      const t = data || {};
       return {
-        orgs: orgs.count || 0,
-        pendingKyc: kyc.count || 0,
-        gmv: donationGMV + productGMV,
-        pendingPayouts: payouts.count || 0,
+        orgs: t.total_orgs || 0,
+        pendingKyc: t.pending_kyc || 0,
+        gmv: t.gmv || 0,
+        pendingPayouts: t.pending_payouts || 0,
       };
     },
   });
@@ -326,10 +319,22 @@ export function SuperadminTransactions() {
     return merged;
   }, [purchases, donations, filter, statusFilter, gatewayFilter, search, periodFilter, customDateFrom, customDateTo]);
 
-  const completedTx = allTx.filter(t => t.status === 'completed');
-  const totalGMV = completedTx.reduce((s, t) => s + (t.amount || 0), 0);
-  const totalFees = completedTx.reduce((s, t) => s + (t.platform_fee || 0), 0);
-  const totalAffComm = completedTx.reduce((s, t) => s + (t.affiliate_commission || 0), 0);
+  // Use server-side RPC for accurate stats based on date range
+  const dateRange = getDateRange();
+  const { data: txStats } = useQuery({
+    queryKey: ['sa-tx-stats', periodFilter, customDateFrom?.toISOString(), customDateTo?.toISOString()],
+    queryFn: async () => {
+      const { data } = await db.rpc('get_transaction_stats', {
+        _from: dateRange.from?.toISOString() || null,
+        _to: dateRange.to?.toISOString() || null,
+      });
+      return data || { gmv: 0, platform_fees: 0, affiliate_commissions: 0, total_count: 0 };
+    },
+  });
+
+  const totalGMV = txStats?.gmv || 0;
+  const totalFees = txStats?.platform_fees || 0;
+  const totalAffComm = txStats?.affiliate_commissions || 0;
 
   const fmt = (n: number) => n.toLocaleString('fr-FR') + ' XOF';
 
@@ -602,13 +607,31 @@ export function SuperadminMetrics() {
     },
   });
 
-  // Compute summaries from last 30 days
-  const last30 = metrics.slice(-30);
-  const totalGMV = last30.reduce((s: number, m: any) => s + (m.gmv || 0), 0);
-  const totalFees = last30.reduce((s: number, m: any) => s + (m.platform_fees || 0), 0);
-  const totalTx = last30.reduce((s: number, m: any) => s + (m.total_transactions || 0), 0);
-  const activeOrgs = last30.length > 0 ? last30[last30.length - 1]?.active_orgs || 0 : 0;
-  const newUsers30d = last30.reduce((s: number, m: any) => s + (m.new_users || 0), 0);
+  // Use RPC for accurate 30-day totals (not limited by daily metrics table)
+  const { data: rpcStats } = useQuery({
+    queryKey: ['sa-metrics-rpc-totals'],
+    queryFn: async () => {
+      const now = new Date();
+      const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000);
+      const [txRes, totalsRes] = await Promise.all([
+        db.rpc('get_transaction_stats', { _from: thirtyDaysAgo.toISOString(), _to: now.toISOString() }),
+        db.rpc('get_platform_totals'),
+      ]);
+      return {
+        gmv30: txRes.data?.gmv || 0,
+        fees30: txRes.data?.platform_fees || 0,
+        tx30: txRes.data?.total_count || 0,
+        activeOrgs: totalsRes.data?.active_orgs || 0,
+        newUsers7d: totalsRes.data?.new_users_7d || 0,
+      };
+    },
+  });
+
+  const totalGMV = rpcStats?.gmv30 || 0;
+  const totalFees = rpcStats?.fees30 || 0;
+  const totalTx = rpcStats?.tx30 || 0;
+  const activeOrgs = rpcStats?.activeOrgs || 0;
+  const newUsers30d = rpcStats?.newUsers7d || 0;
   const takeRate = totalGMV > 0 ? ((totalFees / totalGMV) * 100).toFixed(1) : '0';
 
   const summaryCards = [

@@ -4010,11 +4010,19 @@ export type Database = {
       delete_organization: { Args: { _org_id: string }; Returns: Json }
       delete_partner: { Args: { _partner_id: string }; Returns: Json }
       delete_user_account: { Args: { _user_id: string }; Returns: undefined }
+      get_org_category_breakdown: { Args: never; Returns: Json }
+      get_org_country_breakdown: { Args: { _limit?: number }; Returns: Json }
       get_org_role: {
         Args: { _org_id: string; _user_id: string }
         Returns: Database["public"]["Enums"]["org_member_role"]
       }
       get_partner_rate: { Args: { _partner_id: string }; Returns: number }
+      get_platform_totals: { Args: never; Returns: Json }
+      get_top_orgs_by_revenue: { Args: { _limit?: number }; Returns: Json }
+      get_transaction_stats: {
+        Args: { _from?: string; _to?: string }
+        Returns: Json
+      }
       increment_campaign_amount: {
         Args: { _amount: number; _campaign_id: string }
         Returns: undefined
