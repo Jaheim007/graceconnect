@@ -14,7 +14,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useMode } from '@/contexts/ModeContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
-import { useTheme } from '@/contexts/ThemeContext';
+// useTheme removed — theme toggle now only in TopBar
 import { useI18n } from '@/i18n/I18nContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 

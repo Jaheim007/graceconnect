@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import logoS from '@/assets/logo-s.png';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SiteLogoProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
@@ -21,10 +22,14 @@ const sizeMap = {
 export function SiteLogo({
   size = 'sm',
   linked = true,
-  to = '/',
+  to,
   className,
   animate = false,
 }: SiteLogoProps) {
+  const { user } = useAuth();
+  // When logged in, logo goes to dashboard; when not, to landing
+  const destination = to ?? (user ? '/dashboard' : '/');
+
   const content = (
     <span className={cn('inline-flex items-center', className)}>
       <img
@@ -42,7 +47,7 @@ export function SiteLogo({
   if (!linked) return content;
 
   return (
-    <Link to={to} className="inline-flex">
+    <Link to={destination} className="inline-flex">
       {content}
     </Link>
   );
