@@ -41,7 +41,7 @@ serve(async (req) => {
       square: "square format, 1:1 aspect ratio, 1080x1080 pixels",
     };
 
-    const imagePrompt = `Create a professional ${context} cover image. ${styleMap[style] || styleMap.professional}. ${formatMap[format] || formatMap.book}. Content: ${prompt}. The design should be suitable for an African digital marketplace. Include relevant visual elements but no placeholder text. High quality, polished, ready for commercial use.`;
+    const imagePrompt = `Create a professional ${context} cover image. ${styleMap[style] || styleMap.professional}. ${formatMap[format] || formatMap.book}. Theme/subject: ${prompt}. The design should be suitable for an African digital marketplace. CRITICAL: Do NOT include ANY text, words, letters, numbers, or typography anywhere on the image. Use only visual elements, illustrations, patterns, colors, and abstract shapes to convey the theme. No watermarks, no titles, no labels. High quality, polished, ready for commercial use.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

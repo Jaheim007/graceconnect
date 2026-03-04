@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { Button } from './button';
 import { cn } from '@/lib/utils';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 interface RichTextEditorProps {
   value: string;
@@ -43,6 +43,7 @@ export function RichTextEditor({
   showAIButton = true,
 }: RichTextEditorProps) {
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const isSyncing = useRef(false);
 
   const editor = useEditor({
     extensions: [
@@ -66,6 +67,7 @@ export function RichTextEditor({
     ],
     content: value,
     onUpdate: ({ editor }) => {
+      if (isSyncing.current) return;
       onChange(editor.getHTML());
     },
     editorProps: {
@@ -84,12 +86,14 @@ export function RichTextEditor({
     },
   });
 
-  // Sync external value changes
+  // Sync external value changes (e.g. AI insert, template apply)
   useEffect(() => {
     if (editor && value !== editor.getHTML()) {
+      isSyncing.current = true;
       editor.commands.setContent(value);
+      isSyncing.current = false;
     }
-  }, [value]);
+  }, [value, editor]);
 
   const setLink = useCallback(() => {
     if (!editor) return;

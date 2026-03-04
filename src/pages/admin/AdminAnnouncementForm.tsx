@@ -77,7 +77,7 @@ export function AnnouncementForm() {
 
   return (
     <AdminPageShell title={isEdit ? 'Modifier l\'annonce' : 'Nouvelle annonce'} backRoute="/admin/announcements">
-      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('body', (watch('body') || '') + html)} context="annonce d'organisation" />
+      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('body', (watch('body') || '') + html, { shouldDirty: true, shouldTouch: true })} context="annonce d'organisation" />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">

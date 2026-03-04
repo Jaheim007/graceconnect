@@ -239,8 +239,8 @@ export function ProductForm() {
       )}
 
       {/* AI Assistants */}
-      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html)} context="description de produit numérique" />
-      <AICoverGenerator open={showCoverAI} onClose={() => setShowCoverAI(false)} onInsert={(url) => setValue('cover_image_url', url)} context="product" />
+      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html, { shouldDirty: true, shouldTouch: true })} context="description de produit numérique" />
+      <AICoverGenerator open={showCoverAI} onClose={() => setShowCoverAI(false)} onInsert={(url) => setValue('cover_image_url', url, { shouldDirty: true, shouldTouch: true })} context="product" />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
