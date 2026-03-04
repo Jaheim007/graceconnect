@@ -325,7 +325,6 @@ const App = () => (
                 <Route path="/explorer" element={<Navigate to="/marketplace" replace />} />
                 {/* Public / Buyer Universe — uses PublicLayout (minimal chrome) */}
                 <Route element={<PublicLayout />}>
-                  <Route path="/marketplace" element={<MarketplacePage />} />
                   <Route path="/org/:slug" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/content" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/events" element={<OrgPublicPage />} />
