@@ -44,7 +44,17 @@ export function AIWritingAssistant({ open, onClose, onInsert, context = 'descrip
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
-      setResult(data?.content || 'Aucun résultat généré.');
+      // Clean any markdown remnants and ensure HTML
+      let content = data?.content || '';
+      // Strip ```html wrapper if model added it
+      content = content.replace(/^```html\s*/i, '').replace(/\s*```$/i, '');
+      // Convert any remaining markdown bold/italic to HTML
+      content = content.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>');
+      content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      content = content.replace(/\*(.*?)\*/g, '<em>$1</em>');
+      // Remove leading/trailing --- separators
+      content = content.replace(/^\s*---\s*/g, '').replace(/\s*---\s*$/g, '');
+      setResult(content || 'Aucun résultat généré.');
     } catch (err: any) {
       toast({ title: 'Erreur IA', description: err.message || 'Impossible de générer le contenu.', variant: 'destructive' });
     } finally {
@@ -54,15 +64,7 @@ export function AIWritingAssistant({ open, onClose, onInsert, context = 'descrip
 
   const handleInsert = () => {
     if (result) {
-      // Convert markdown-like result to simple HTML
-      const html = result
-        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.*?)\*/g, '<em>$1</em>')
-        .replace(/\n\n/g, '</p><p>')
-        .replace(/\n/g, '<br>')
-        .replace(/^/, '<p>')
-        .replace(/$/, '</p>');
-      onInsert(html);
+      onInsert(result);
       onClose();
       setPrompt('');
       setResult('');
@@ -115,9 +117,10 @@ export function AIWritingAssistant({ open, onClose, onInsert, context = 'descrip
           {result && (
             <div className="space-y-3">
               <div className="rounded-xl border border-border bg-muted/30 p-4 max-h-60 overflow-y-auto">
-                <div className="prose prose-sm dark:prose-invert max-w-none text-sm whitespace-pre-wrap">
-                  {result}
-                </div>
+                <div
+                  className="prose prose-sm dark:prose-invert max-w-none text-sm"
+                  dangerouslySetInnerHTML={{ __html: result }}
+                />
               </div>
               <div className="flex gap-2">
                 <Button onClick={handleInsert} className="flex-1 gap-2">
