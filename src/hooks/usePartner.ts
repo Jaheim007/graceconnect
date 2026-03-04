@@ -223,6 +223,22 @@ export function useAllPartners() {
   });
 }
 
+// ── Superadmin: all partner referrals ──
+export function useAllPartnerReferrals() {
+  const { isSuperadmin } = useAuth();
+  return useQuery({
+    queryKey: ['all-partner-referrals'],
+    enabled: isSuperadmin,
+    queryFn: async () => {
+      const { data, error } = await db.from('partner_referrals')
+        .select('*, organization:organizations(name, slug, is_active), partner:partners(full_name, email, invite_code)')
+        .order('attributed_at', { ascending: false });
+      if (error) throw error;
+      return (data || []) as (PartnerReferral & { partner?: { full_name: string; email: string; invite_code: string } })[];
+    },
+  });
+}
+
 // ── Superadmin: manage partner ──
 export function useManagePartner() {
   const qc = useQueryClient();
