@@ -172,7 +172,10 @@ export default function PartnerPortalPage() {
                               {r.status === 'active' ? 'Active' : r.status === 'rejected' ? 'Rejetée' : 'En attente'}
                             </Badge>
                             {r.status === 'pending' && (
-                              <span className="text-[10px] text-muted-foreground leading-tight">Activée au 1er paiement reçu</span>
+                              <span className="text-[10px] text-muted-foreground leading-tight">S'active automatiquement au 1er paiement reçu</span>
+                            )}
+                            {r.status === 'active' && (
+                              <span className="text-[10px] text-muted-foreground leading-tight">Commissions générées automatiquement</span>
                             )}
                           </div>
                         </TableCell>
@@ -191,7 +194,9 @@ export default function PartnerPortalPage() {
           <Card>
             <CardHeader>
               <CardTitle>Historique des rémunérations</CardTitle>
-              <CardDescription>Commissions sur la part plateforme des ventes générées par vos organisations.</CardDescription>
+              <CardDescription>
+                Commissions générées automatiquement sur chaque vente de vos organisations. Retenue de 15 jours puis disponible au retrait.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {commissions.length === 0 ? (
