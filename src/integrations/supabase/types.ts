@@ -2197,11 +2197,14 @@ export type Database = {
         Row: {
           approved_at: string | null
           approved_by: string | null
+          city: string | null
           country: string
           created_at: string
           custom_rate_override: number | null
           email: string
+          experience_description: string | null
           full_name: string
+          how_heard_about_us: string | null
           id: string
           id_document_type: string | null
           id_document_url: string | null
@@ -2216,7 +2219,11 @@ export type Database = {
           last_invite_used_at: string | null
           level: number
           min_payout_threshold: number
+          motivation: string | null
+          network_size: string | null
           notes: string | null
+          organization_name: string | null
+          organization_type: string | null
           payout_account_name: string | null
           payout_account_number: string | null
           payout_bank_code: string | null
@@ -2225,24 +2232,31 @@ export type Database = {
           payout_provider: string | null
           paystack_recipient_code: string | null
           phone: string | null
+          profession: string | null
           rate_percent: number
           scope: Database["public"]["Enums"]["partner_scope"]
           selfie_url: string | null
+          social_media_url: string | null
           status: Database["public"]["Enums"]["partner_status"]
           suspended_at: string | null
           suspension_reason: string | null
+          target_audience: string | null
           terms_accepted_at: string | null
           updated_at: string
           user_id: string | null
+          website_url: string | null
         }
         Insert: {
           approved_at?: string | null
           approved_by?: string | null
+          city?: string | null
           country?: string
           created_at?: string
           custom_rate_override?: number | null
           email: string
+          experience_description?: string | null
           full_name: string
+          how_heard_about_us?: string | null
           id?: string
           id_document_type?: string | null
           id_document_url?: string | null
@@ -2257,7 +2271,11 @@ export type Database = {
           last_invite_used_at?: string | null
           level?: number
           min_payout_threshold?: number
+          motivation?: string | null
+          network_size?: string | null
           notes?: string | null
+          organization_name?: string | null
+          organization_type?: string | null
           payout_account_name?: string | null
           payout_account_number?: string | null
           payout_bank_code?: string | null
@@ -2266,24 +2284,31 @@ export type Database = {
           payout_provider?: string | null
           paystack_recipient_code?: string | null
           phone?: string | null
+          profession?: string | null
           rate_percent?: number
           scope?: Database["public"]["Enums"]["partner_scope"]
           selfie_url?: string | null
+          social_media_url?: string | null
           status?: Database["public"]["Enums"]["partner_status"]
           suspended_at?: string | null
           suspension_reason?: string | null
+          target_audience?: string | null
           terms_accepted_at?: string | null
           updated_at?: string
           user_id?: string | null
+          website_url?: string | null
         }
         Update: {
           approved_at?: string | null
           approved_by?: string | null
+          city?: string | null
           country?: string
           created_at?: string
           custom_rate_override?: number | null
           email?: string
+          experience_description?: string | null
           full_name?: string
+          how_heard_about_us?: string | null
           id?: string
           id_document_type?: string | null
           id_document_url?: string | null
@@ -2298,7 +2323,11 @@ export type Database = {
           last_invite_used_at?: string | null
           level?: number
           min_payout_threshold?: number
+          motivation?: string | null
+          network_size?: string | null
           notes?: string | null
+          organization_name?: string | null
+          organization_type?: string | null
           payout_account_name?: string | null
           payout_account_number?: string | null
           payout_bank_code?: string | null
@@ -2307,15 +2336,19 @@ export type Database = {
           payout_provider?: string | null
           paystack_recipient_code?: string | null
           phone?: string | null
+          profession?: string | null
           rate_percent?: number
           scope?: Database["public"]["Enums"]["partner_scope"]
           selfie_url?: string | null
+          social_media_url?: string | null
           status?: Database["public"]["Enums"]["partner_status"]
           suspended_at?: string | null
           suspension_reason?: string | null
+          target_audience?: string | null
           terms_accepted_at?: string | null
           updated_at?: string
           user_id?: string | null
+          website_url?: string | null
         }
         Relationships: []
       }
