@@ -155,6 +155,20 @@ export default function PartnerPortalPage() {
         <KPICard icon={Wallet} label="Total versé" value={formatCurrency(stats.paid, currency)} sub="historique" />
       </div>
 
+      {(referralsQuery.isError || commissionsQuery.isError) && (
+        <Card className="border-destructive/30 bg-destructive/5">
+          <CardContent className="py-3 px-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-sm">
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+              <span>Les données partenaires ne sont pas encore synchronisées. Cliquez pour forcer la mise à jour.</span>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleForceSync} disabled={isSyncing}>
+              Réessayer
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {/* ── Tabs ── */}
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="w-full sm:w-auto bg-muted/40 p-1 rounded-xl h-auto flex-wrap">
