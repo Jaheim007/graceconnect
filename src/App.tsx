@@ -150,7 +150,7 @@ const MyProgramsPage = lazy(() => import("@/pages/MyProgramsPage"));
 const UserAnalyticsPage = lazy(() => import("@/pages/UserAnalyticsPage"));
 
 // Admin
-const AdminLayout = lazy(() => import("@/pages/admin/AdminLayout"));
+const AdminShell = lazy(() => import("@/pages/admin/AdminShell"));
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
 const AdminMedia = lazy(() => import("@/pages/admin/AdminMedia"));
 const AdminMediaForm = lazy(() => import("@/pages/admin/AdminMediaForm").then(m => ({ default: m.MediaForm })));
