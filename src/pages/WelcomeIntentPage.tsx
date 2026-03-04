@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Share2, Building2, ArrowRight, Sparkles } from 'lucide-react';
+import { Share2, Building2, ArrowRight, Sparkles, ShoppingBag } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useMode } from '@/contexts/ModeContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,6 +28,10 @@ export default function WelcomeIntentPage() {
       sessionStorage.setItem('sv_auth_intent', 'creator');
       navigate('/auth?intent=creator');
     }
+  };
+
+  const chooseBuyer = () => {
+    navigate('/marketplace');
   };
 
   return (
@@ -100,6 +104,26 @@ export default function WelcomeIntentPage() {
               </p>
             </div>
             <ArrowRight className="h-5 w-5 text-muted-foreground shrink-0 group-hover:translate-x-1 transition-transform" />
+          </motion.button>
+
+          {/* Buyer / Explorer */}
+          <motion.button
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.35, duration: 0.35 }}
+            onClick={chooseBuyer}
+            className="w-full flex items-center gap-4 p-5 rounded-2xl border border-border hover:border-primary/30 bg-card/60 text-left transition-all duration-200 hover:shadow-sm group"
+          >
+            <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center shrink-0">
+              <ShoppingBag className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-sm font-semibold">🛒 Acheter des ressources</h3>
+              <p className="text-xs text-muted-foreground">
+                Explorer la marketplace, acheter ou faire un don.
+              </p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:translate-x-1 transition-transform" />
           </motion.button>
         </div>
       </div>
