@@ -326,10 +326,22 @@ export function SuperadminTransactions() {
     return merged;
   }, [purchases, donations, filter, statusFilter, gatewayFilter, search, periodFilter, customDateFrom, customDateTo]);
 
-  const completedTx = allTx.filter(t => t.status === 'completed');
-  const totalGMV = completedTx.reduce((s, t) => s + (t.amount || 0), 0);
-  const totalFees = completedTx.reduce((s, t) => s + (t.platform_fee || 0), 0);
-  const totalAffComm = completedTx.reduce((s, t) => s + (t.affiliate_commission || 0), 0);
+  // Use server-side RPC for accurate stats based on date range
+  const dateRange = getDateRange();
+  const { data: txStats } = useQuery({
+    queryKey: ['sa-tx-stats', periodFilter, customDateFrom?.toISOString(), customDateTo?.toISOString()],
+    queryFn: async () => {
+      const { data } = await db.rpc('get_transaction_stats', {
+        _from: dateRange.from?.toISOString() || null,
+        _to: dateRange.to?.toISOString() || null,
+      });
+      return data || { gmv: 0, platform_fees: 0, affiliate_commissions: 0, total_count: 0 };
+    },
+  });
+
+  const totalGMV = txStats?.gmv || 0;
+  const totalFees = txStats?.platform_fees || 0;
+  const totalAffComm = txStats?.affiliate_commissions || 0;
 
   const fmt = (n: number) => n.toLocaleString('fr-FR') + ' XOF';
 
