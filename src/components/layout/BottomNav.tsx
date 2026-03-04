@@ -1,9 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, LogIn, UserPlus, Store, MoreHorizontal, User, Link2, BookOpen, LifeBuoy, Trophy, LayoutDashboard, Bell, BarChart3, Building2, Settings, Wallet, Share2 } from 'lucide-react';
+import { Home, Store, Link2, User, MoreHorizontal, Bell, Trophy, Building2, BarChart3, Settings, Wallet, LifeBuoy, Package, LogIn, UserPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
-import { useMode } from '@/contexts/ModeContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
@@ -13,7 +12,6 @@ export function BottomNav() {
   const location = useLocation();
   const { user } = useAuth();
   const { currentOrg, canManage } = useOrg();
-  const { mode } = useMode();
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const [open, setOpen] = useState(false);
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
@@ -22,64 +20,44 @@ export function BottomNav() {
     { to: '/', icon: Home, label: 'Accueil' },
     { to: '/marketplace', icon: Store, label: 'Explorer' },
     { to: '/auth?mode=signin', icon: LogIn, label: 'Connexion' },
-    { to: '/auth?mode=signup', icon: UserPlus, label: 'S\'inscrire' },
+    { to: '/auth?mode=signup', icon: UserPlus, label: "S'inscrire" },
   ];
 
-  // Ambassador: focus on discover → share → earn
-  const ambassadorPrimary = [
-    { to: '/marketplace', icon: Store, label: 'Explorer' },
-    { to: '/affiliation', icon: Link2, label: 'Mes liens' },
-    { to: '/dashboard', icon: Wallet, label: 'Mes gains' },
+  // Unified primary nav for authenticated users
+  const primaryItems = [
+    { to: '/dashboard', icon: Home, label: 'Accueil' },
+    { to: '/hub', icon: Store, label: 'Découvrir' },
+    { to: '/affiliation', icon: Link2, label: 'Gagner' },
   ];
 
-  // Creator: zero ambassador items
-  const creatorPrimary = canManageCurrentOrg ? [
-    { to: '/admin', icon: LayoutDashboard, label: 'Gérer' },
-    { to: '/admin/products', icon: Store, label: 'Produits' },
-    { to: '/admin/sales', icon: Wallet, label: 'Ventes' },
-  ] : [
-    { to: '/create-org', icon: Building2, label: 'Créer' },
-    { to: '/dashboard', icon: LayoutDashboard, label: 'Espace' },
-  ];
-
-  const primaryItems = mode === 'ambassador' ? ambassadorPrimary : creatorPrimary;
-
-  // "Plus" items — ambassador focused
-  const ambassadorMore = [
+  // More menu items
+  const moreGroups = [
     {
-      label: '💰 Ambassadeur',
+      label: '📚 Mon espace',
       items: [
-        { to: '/leaderboard', icon: Trophy, label: 'Classement' },
+        { to: '/resources', icon: Package, label: 'Mes achats' },
         { to: '/notifications', icon: Bell, label: 'Notifications', showBadge: true },
         { to: '/profile', icon: User, label: 'Profil' },
+        { to: '/leaderboard', icon: Trophy, label: 'Classement' },
       ],
     },
-  ];
-
-  const creatorMore = canManageCurrentOrg ? [
-    {
-      label: '🏢 Créateur',
+    ...(canManageCurrentOrg ? [{
+      label: '🏗️ Ma plateforme',
       items: [
-        { to: '/dashboard', icon: LayoutDashboard, label: 'Mon espace' },
-        { to: '/admin/analytics', icon: BarChart3, label: 'Analytics' },
-        { to: '/admin/payouts', icon: Wallet, label: 'Retraits' },
+        { to: '/admin', icon: BarChart3, label: 'Vue d\'ensemble' },
+        { to: '/admin/products', icon: Store, label: 'Produits' },
+        { to: '/admin/sales', icon: Wallet, label: 'Ventes' },
         { to: '/admin/settings', icon: Settings, label: 'Paramètres' },
-        { to: '/profile', icon: User, label: 'Profil' },
-        { to: '/support', icon: LifeBuoy, label: 'Aide' },
       ],
-    },
-  ] : [
+    }] : []),
     {
-      label: '⚙️ Autre',
+      label: '⚙️ Aide',
       items: [
-        { to: '/marketplace', icon: Store, label: 'Explorer' },
-        { to: '/profile', icon: User, label: 'Profil' },
         { to: '/support', icon: LifeBuoy, label: 'Aide' },
       ],
     },
   ];
 
-  const moreGroups = mode === 'ambassador' ? ambassadorMore : creatorMore;
   const allMoreItems = moreGroups.flatMap(g => g.items);
   const navItems = user ? primaryItems : guestItems;
   const isMoreActive = allMoreItems.some(item => location.pathname.startsWith(item.to.split('?')[0]));
@@ -127,13 +105,7 @@ export function BottomNav() {
             </SheetTrigger>
             <SheetContent side="bottom" className="rounded-t-2xl pb-8">
               <SheetHeader>
-                <SheetTitle className="text-sm flex items-center gap-2">
-                  {mode === 'ambassador' ? (
-                    <><Share2 className="h-3.5 w-3.5 text-emerald-500" /> Espace Ambassadeur</>
-                  ) : (
-                    <><Building2 className="h-3.5 w-3.5 text-primary" /> Espace Créateur</>
-                  )}
-                </SheetTitle>
+                <SheetTitle className="text-sm">Menu</SheetTitle>
               </SheetHeader>
               <div className="mt-4 space-y-5">
                 {moreGroups.map((group) => (

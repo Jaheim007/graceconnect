@@ -2,19 +2,17 @@ import { Link, useLocation } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
   Home, Play, Bell, User, BookOpen, Store,
-  Settings, ChevronLeft, ChevronRight, Shield, HandHeart,
+  Settings, ChevronLeft, ChevronRight, Shield,
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, LogOut,
-  UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, ShieldAlert, LayoutDashboard, Building2,
-  Trophy, CreditCard, Clock, Sparkles, GraduationCap, Share2, Target
+  UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, LayoutDashboard, Building2,
+  Trophy, CreditCard, Clock, GraduationCap, Share2, HandHeart, Package
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
-import { useMode } from '@/contexts/ModeContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
-// useTheme removed — theme toggle now only in TopBar
 import { useI18n } from '@/i18n/I18nContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -37,38 +35,36 @@ export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { user, isSuperadmin, signOut } = useAuth();
   const { currentOrg, canManage, userOrgs, getRoleFor, setCurrentOrg } = useOrg();
-  const { mode } = useMode();
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const { t } = useI18n();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
     Content: true, Commerce: true, Management: true,
   });
 
-  const isAdmin = location.pathname.startsWith('/admin');
-  const isSA = location.pathname.startsWith('/superadmin');
+  const hasOrgs = userOrgs.length > 0;
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
 
-  // ── AMBASSADOR NAV (focus: discover → share → earn) ──
-  const ambassadorItems: NavItem[] = [
-    { to: '/marketplace', icon: Store, label: 'Marketplace', desc: 'Trouve des produits à partager' },
-    { to: '/affiliation', icon: Link2, label: 'Mes liens', desc: 'Tes liens de partage' },
-    { to: '/dashboard', icon: Wallet, label: 'Mes gains', desc: 'Commissions et retraits' },
-    { to: '/resources', icon: BookOpen, label: 'Mes achats', desc: 'Tes produits achetés' },
-    { to: '/leaderboard', icon: Trophy, label: 'Classement', desc: 'Top ambassadeurs' },
+  // ── SECTION 1: MON ESPACE (always visible) ──
+  const mySpaceItems: NavItem[] = [
+    { to: '/dashboard', icon: Home, label: 'Tableau de bord', desc: 'Vue d\'ensemble' },
+    { to: '/resources', icon: Package, label: 'Mes achats', desc: 'Ressources achetées' },
+    { to: '/hub', icon: Store, label: 'Découvrir', desc: 'Explorer les produits' },
     { to: '/notifications', icon: Bell, label: 'Notifications', desc: 'Mises à jour' },
-    { to: '/profile', icon: User, label: 'Profil', desc: 'Ton compte' },
+    { to: '/profile', icon: User, label: 'Profil', desc: 'Mon compte' },
   ];
 
-  // ── CREATOR NAV (no org yet) ──
-  const creatorItemsNoOrg: NavItem[] = [
-    { to: '/create-org', icon: Building2, label: 'Créer ma plateforme', desc: 'Lance ta boutique digitale' },
-    { to: '/dashboard', icon: LayoutDashboard, label: 'Mon espace', desc: 'Vue d\'ensemble' },
-    { to: '/marketplace', icon: Store, label: 'Explorer', desc: 'Voir les ressources disponibles' },
-    { to: '/profile', icon: User, label: 'Profil', desc: 'Ton compte' },
+  // ── SECTION 2: GAGNER (ambassador) ──
+  const earnItems: NavItem[] = [
+    { to: '/affiliation', icon: Link2, label: 'Mes liens', desc: 'Liens de partage' },
+    { to: '/leaderboard', icon: Trophy, label: 'Classement', desc: 'Top ambassadeurs' },
   ];
 
-  // ── CREATOR ADMIN GROUPS ──
-  const adminGroups: NavGroup[] = [
+  // ── SECTION 3: MA PLATEFORME (creator, only if has orgs) ──
+  const platformOverview: NavItem[] = [
+    { to: '/admin', icon: BarChart3, label: t('sidebar.overview') },
+  ];
+
+  const platformGroups: NavGroup[] = [
     {
       label: t('sidebar.content'),
       icon: Play,
@@ -110,16 +106,6 @@ export function Sidebar() {
         { to: '/admin/programs', icon: GraduationCap, label: 'Programmes' },
       ],
     },
-  ];
-
-  const superadminNav: NavItem[] = [
-    { to: '/superadmin', icon: Shield, label: t('sidebar.overview') },
-    { to: '/superadmin/orgs', icon: Users, label: t('sidebar.organizations') },
-    { to: '/superadmin/kyc', icon: FileCheck, label: t('sidebar.kyc') },
-    { to: '/superadmin/transactions', icon: BarChart3, label: t('sidebar.transactions') },
-    { to: '/superadmin/reports', icon: Megaphone, label: t('sidebar.reports') },
-    { to: '/superadmin/risk', icon: ShieldAlert, label: t('sidebar.risk_aml') },
-    { to: '/superadmin/metrics', icon: BarChart3, label: t('sidebar.metrics') },
   ];
 
   const isActive = (to: string) => {
@@ -171,6 +157,17 @@ export function Sidebar() {
     return link;
   };
 
+  const renderSectionLabel = (icon: typeof Home, label: string, color?: string) => {
+    if (collapsed) return null;
+    const Icon = icon;
+    return (
+      <div className="flex items-center gap-2 px-3 pt-4 pb-1.5">
+        <Icon className={cn('h-3.5 w-3.5', color || 'text-muted-foreground')} />
+        <span className={cn('text-[10px] font-bold uppercase tracking-widest', color || 'text-muted-foreground')}>{label}</span>
+      </div>
+    );
+  };
+
   const renderGroups = (groups: NavGroup[]) => (
     <>
       {groups.map((group) => {
@@ -178,7 +175,7 @@ export function Sidebar() {
         const isOpen = openGroups[group.key] ?? hasActiveItem;
 
         return (
-          <div key={group.key} className="mt-3">
+          <div key={group.key} className="mt-1">
             {!collapsed ? (
               <>
                 <button
@@ -205,8 +202,17 @@ export function Sidebar() {
     </>
   );
 
-  // Choose nav based on mode ONLY — no org presence check
-  const showCreatorAdmin = mode === 'creator';
+  // Superadmin nav
+  const isSA = location.pathname.startsWith('/superadmin');
+  const superadminNav: NavItem[] = [
+    { to: '/superadmin', icon: Shield, label: t('sidebar.overview') },
+    { to: '/superadmin/orgs', icon: Users, label: t('sidebar.organizations') },
+    { to: '/superadmin/kyc', icon: FileCheck, label: t('sidebar.kyc') },
+    { to: '/superadmin/transactions', icon: BarChart3, label: t('sidebar.transactions') },
+    { to: '/superadmin/reports', icon: Megaphone, label: t('sidebar.reports') },
+    { to: '/superadmin/risk', icon: Shield, label: t('sidebar.risk_aml') },
+    { to: '/superadmin/metrics', icon: BarChart3, label: t('sidebar.metrics') },
+  ];
 
   return (
     <aside
@@ -220,88 +226,86 @@ export function Sidebar() {
         <SiteLogo size={collapsed ? 'sm' : 'md'} animate />
       </div>
 
-      {/* Mode label */}
-      {!collapsed && !isAdmin && !isSA && (
-        <div className="mx-3 mt-3 px-3 py-1.5">
-          <div className="flex items-center gap-2">
-            {mode === 'ambassador' ? (
-              <>
-                <Share2 className="h-3.5 w-3.5 text-emerald-500" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-500">Espace Ambassadeur</span>
-              </>
-            ) : (
-              <>
-                <Building2 className="h-3.5 w-3.5 text-primary" />
-                <span className="text-[10px] font-bold uppercase tracking-widest text-primary">Espace Créateur</span>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Org context (creator mode) — with org switcher, only owned/admin orgs */}
-      {(isAdmin || showCreatorAdmin) && currentOrg && !collapsed && (
-        <div className="mx-3 mt-2">
+      {/* Org context (creator section) — with org switcher */}
+      {hasOrgs && currentOrg && !collapsed && (
+        <div className="mx-3 mt-3">
           {(() => {
-            // Only show orgs where user is owner or admin (not just member)
             const managedOrgs = userOrgs.filter((o) => {
               const role = getRoleFor(o.id);
               return role === 'owner' || role === 'admin';
             });
             return managedOrgs.length > 1 ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="w-full p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/15 transition-colors text-left group">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{t('sidebar.managing')}</p>
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-semibold text-primary truncate">{currentOrg.name}</p>
-                    <ChevronDown className="h-3 w-3 text-primary shrink-0 group-hover:translate-y-0.5 transition-transform" />
-                  </div>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-52">
-                {managedOrgs.map((o) => (
-                  <DropdownMenuItem
-                    key={o.id}
-                    onClick={() => setCurrentOrg(o)}
-                    className={cn('text-xs', o.id === currentOrg.id && 'text-primary font-semibold')}
-                  >
-                    {o.name}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{t('sidebar.managing')}</p>
-              <p className="text-xs font-semibold text-primary truncate">{currentOrg.name}</p>
-            </div>
-          );
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="w-full p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/15 transition-colors text-left group">
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{t('sidebar.managing')}</p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-semibold text-primary truncate">{currentOrg.name}</p>
+                      <ChevronDown className="h-3 w-3 text-primary shrink-0 group-hover:translate-y-0.5 transition-transform" />
+                    </div>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-52">
+                  {managedOrgs.map((o) => (
+                    <DropdownMenuItem
+                      key={o.id}
+                      onClick={() => setCurrentOrg(o)}
+                      className={cn('text-xs', o.id === currentOrg.id && 'text-primary font-semibold')}
+                    >
+                      {o.name}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{t('sidebar.managing')}</p>
+                <p className="text-xs font-semibold text-primary truncate">{currentOrg.name}</p>
+              </div>
+            );
           })()}
         </div>
       )}
 
       {/* Nav */}
-      <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5 scrollbar-hide">
+      <nav className="flex-1 overflow-y-auto py-1 px-2 space-y-0.5 scrollbar-hide">
         {isSA ? (
           superadminNav.map(renderNavItem)
-        ) : (isAdmin || showCreatorAdmin) ? (
-          <>
-            {renderNavItem({ to: '/dashboard', icon: LayoutDashboard, label: 'Mon espace' })}
-            {renderNavItem({ to: '/admin', icon: BarChart3, label: t('sidebar.overview') })}
-            {renderGroups(adminGroups)}
-          </>
-        ) : mode === 'ambassador' ? (
-          <div className="space-y-0.5">
-            {ambassadorItems.map(renderNavItem)}
-          </div>
         ) : (
-          <div className="space-y-0.5">
-            {creatorItemsNoOrg.map(renderNavItem)}
-          </div>
+          <>
+            {/* ═══ SECTION 1: MON ESPACE ═══ */}
+            {renderSectionLabel(Home, 'Mon espace')}
+            <div className="space-y-0.5">
+              {mySpaceItems.map(renderNavItem)}
+            </div>
+
+            {/* ═══ SECTION 2: GAGNER ═══ */}
+            {renderSectionLabel(Share2, 'Gagner', 'text-emerald-500')}
+            <div className="space-y-0.5">
+              {earnItems.map(renderNavItem)}
+            </div>
+
+            {/* ═══ SECTION 3: MA PLATEFORME ═══ */}
+            {hasOrgs && canManageCurrentOrg ? (
+              <>
+                {renderSectionLabel(Building2, 'Ma plateforme', 'text-primary')}
+                <div className="space-y-0.5">
+                  {platformOverview.map(renderNavItem)}
+                </div>
+                {renderGroups(platformGroups)}
+              </>
+            ) : (
+              <>
+                {renderSectionLabel(Building2, 'Créer', 'text-primary')}
+                <div className="space-y-0.5">
+                  {renderNavItem({ to: '/create-org', icon: Building2, label: 'Créer ma plateforme', desc: 'Lance ta boutique digitale' })}
+                </div>
+              </>
+            )}
+          </>
         )}
 
-        {/* Superadmin link — role gated */}
+        {/* Superadmin link */}
         {isSuperadmin && !isSA && !collapsed && (
           <div className="mt-3">
             {renderNavItem({ to: '/superadmin', icon: Shield, label: 'Superadmin', desc: 'Panneau superadmin' })}
@@ -309,7 +313,7 @@ export function Sidebar() {
         )}
       </nav>
 
-      {/* Bottom */}
+      {/* Bottom: Sign out */}
       <div className={cn('border-t border-border space-y-0.5', collapsed ? 'px-1 py-2' : 'px-3 py-3')}>
         <button
           onClick={signOut}

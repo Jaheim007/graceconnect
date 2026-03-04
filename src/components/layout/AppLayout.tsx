@@ -5,7 +5,6 @@ import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
 import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { useOrg } from '@/contexts/OrgContext';
-import { useMode } from '@/contexts/ModeContext';
 import { InstallBanner } from '@/components/pwa/InstallBanner';
 
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
@@ -17,29 +16,24 @@ const pageVariants = {
 };
 
 /**
- * AppLayout — Used for Ambassador (Universe 2) and Creator (Universe 3) shells.
- * Public pages (Universe 1) use PublicLayout instead.
- * Layout selection depends ONLY on mode from ModeContext.
+ * AppLayout — Unified shell for all authenticated users.
+ * Sidebar always shows all sections (Mon espace, Gagner, Ma plateforme).
  */
 export function AppLayout() {
   const location = useLocation();
   const { userOrgs } = useOrg();
-  const { mode } = useMode();
   const hideNav = HIDE_NAV_ROUTES.some((r) => location.pathname.startsWith(r));
 
-  // Realtime subscriptions for messages & notifications
   useRealtimeNotifications(userOrgs.map(o => o.id));
 
   return (
     <div className="h-[100dvh] flex w-full bg-background overflow-hidden">
-      {/* Desktop Sidebar — only for ambassador/creator, never public */}
-      {!hideNav && mode !== 'public' && (
+      {!hideNav && (
         <nav className="hidden lg:flex shrink-0" aria-label="Navigation principale">
           <Sidebar />
         </nav>
       )}
 
-      {/* Main content */}
       <div className="flex flex-col flex-1 min-w-0 h-full">
         {!hideNav && <TopBar />}
         <main id="main-content" role="main" className={`flex-1 overflow-y-auto overflow-x-hidden ${!hideNav ? 'pb-16 lg:pb-0' : ''}`}>
@@ -57,8 +51,7 @@ export function AppLayout() {
         </main>
       </div>
 
-      {/* Mobile Bottom Nav — only for ambassador/creator, never public */}
-      {!hideNav && mode !== 'public' && (
+      {!hideNav && (
         <nav id="bottom-nav" aria-label="Navigation mobile" className="fixed bottom-0 left-0 right-0 z-50 lg:hidden">
           <BottomNav />
         </nav>
