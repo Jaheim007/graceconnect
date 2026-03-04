@@ -605,7 +605,7 @@ export async function processTransaction(
       affiliate_attributed: !!affiliateLinkId,
       discount_amount: discountAmount,
       promo_applied: !!promoCodeId,
-      partner_commission_included: type === 'product' && platformFee > 0,
+      partner_commission_included: partnerCommissionIncluded,
     },
   };
 }
