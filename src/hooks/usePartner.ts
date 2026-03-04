@@ -366,3 +366,21 @@ export function useSetPartnerRate() {
     onError: (err: Error) => toast.error(err.message),
   });
 }
+
+// ── Superadmin: delete partner ──
+export function useDeletePartner() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (partnerId: string) => {
+      const { data, error } = await db.rpc('delete_partner', { _partner_id: partnerId });
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      toast.success('Partenaire supprimé');
+      qc.invalidateQueries({ queryKey: ['all-partners'] });
+      qc.invalidateQueries({ queryKey: ['all-partner-referrals'] });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+}

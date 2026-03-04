@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAllPartners, useManagePartner, useSetPartnerRate, useAllPartnerPayouts, useProcessPartnerPayout, useReviewPartnerKYC, useAllPartnerReferrals, type Partner } from '@/hooks/usePartner';
+import { useAllPartners, useManagePartner, useSetPartnerRate, useDeletePartner, useAllPartnerPayouts, useProcessPartnerPayout, useReviewPartnerKYC, useAllPartnerReferrals, type Partner } from '@/hooks/usePartner';
 import { formatCurrency } from '@/lib/currency';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Handshake, CheckCircle, XCircle, Pause, Play, Percent, Wallet, Shield, Eye, Globe, Briefcase, Phone, Mail, MapPin, Users } from 'lucide-react';
+import { Loader2, Handshake, CheckCircle, XCircle, Pause, Play, Percent, Wallet, Shield, Eye, Globe, Briefcase, Phone, Mail, MapPin, Users, Trash2 } from 'lucide-react';
 import { db } from '@/lib/db';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -27,6 +27,7 @@ export default function SuperadminPartners() {
   const setRate = useSetPartnerRate();
   const processPayout = useProcessPartnerPayout();
   const reviewKYC = useReviewPartnerKYC();
+  const deletePartner = useDeletePartner();
   const qc = useQueryClient();
 
   const [actionDialog, setActionDialog] = useState<{ partner: Partner; action: string } | null>(null);
@@ -189,6 +190,13 @@ export default function SuperadminPartners() {
                               )}
                               <Button size="sm" variant="ghost" onClick={() => { setRateDialog(p); setNewRate(String(p.custom_rate_override ?? p.rate_percent)); }} title="Modifier taux">
                                 <Percent className="h-4 w-4" />
+                              </Button>
+                              <Button size="sm" variant="ghost" onClick={() => {
+                                if (confirm(`Supprimer définitivement le partenaire ${p.full_name} ? Cette action est irréversible.`)) {
+                                  deletePartner.mutate(p.id);
+                                }
+                              }} title="Supprimer">
+                                <Trash2 className="h-4 w-4 text-destructive" />
                               </Button>
                             </div>
                           </TableCell>
