@@ -86,7 +86,7 @@ export function MediaForm() {
 
   return (
     <AdminPageShell title={isEdit ? 'Modifier le média' : 'Nouveau média'} backRoute="/admin/media">
-      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html)} context="description de contenu média" />
+      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html, { shouldDirty: true, shouldTouch: true })} context="description de contenu média" />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 max-w-xl">
         <div className="space-y-2">

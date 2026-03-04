@@ -103,8 +103,8 @@ export function CampaignForm() {
       {!isEdit && <ContentTemplateSelector type="campaign" open={showTemplates} onClose={() => setShowTemplates(false)} onSelect={(tpl) => applyCampaignTemplate(tpl as CampaignTemplate)} />}
       {!isEdit && !showTemplates && (<div className="mb-4"><Button variant="outline" size="sm" onClick={() => setShowTemplates(true)} className="gap-1.5 text-xs"><Sparkles className="h-3.5 w-3.5" /> Utiliser un modèle</Button></div>)}
 
-      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html)} context="description de campagne de dons" />
-      <AICoverGenerator open={showCoverAI} onClose={() => setShowCoverAI(false)} onInsert={(url) => setValue('image_url', url)} context="campaign" />
+      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html, { shouldDirty: true, shouldTouch: true })} context="description de campagne de dons" />
+      <AICoverGenerator open={showCoverAI} onClose={() => setShowCoverAI(false)} onInsert={(url) => setValue('image_url', url, { shouldDirty: true, shouldTouch: true })} context="campaign" />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
