@@ -153,9 +153,15 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
             setResult(verifyResult);
             setStep('success');
           } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Une erreur est survenue.';
-            setErrorMsg(message);
-            setStep('error');
+            console.error('[OfferingModal] verify error:', err);
+            // Payment succeeded but verify failed — redirect to success page for retry
+            const params = new URLSearchParams({
+              reference,
+              gateway: 'paystack',
+              type: 'donation',
+              organization_id: organizationId,
+            });
+            window.location.href = `/payment/success?${params.toString()}`;
           }
         },
       });
