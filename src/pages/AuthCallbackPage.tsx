@@ -15,6 +15,8 @@ export default function AuthCallbackPage() {
       if (savedIntent === 'ambassador' || savedIntent === 'creator') {
         sessionStorage.removeItem('sv_auth_intent');
         try { localStorage.setItem('sv_app_mode', savedIntent); } catch {}
+      } else if (savedIntent === 'partner') {
+        sessionStorage.removeItem('sv_auth_intent');
       }
 
       // Retrieve saved returnTo (e.g. product page with ?action=buy)

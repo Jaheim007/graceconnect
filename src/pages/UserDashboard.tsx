@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { useMode } from '@/contexts/ModeContext';
 import { Badge } from '@/components/ui/badge';
+import PartnerPendingPopup from '@/components/partner/PartnerPendingPopup';
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 12 },
@@ -338,6 +339,7 @@ export default function UserDashboard() {
           )}
         </motion.div>
       </div>
+      <PartnerPendingPopup />
     </div>
   );
 }
