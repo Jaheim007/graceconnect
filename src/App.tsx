@@ -323,9 +323,9 @@ const App = () => (
                 <Route path="/vendre" element={<VendreLandingPage />} />
                 <Route path="/discover" element={<Navigate to="/marketplace" replace />} />
                 <Route path="/explorer" element={<Navigate to="/marketplace" replace />} />
-                {/* Standalone marketplace — accessible to all, layout via PublicLayout below */}
                 {/* Public / Buyer Universe — uses PublicLayout (minimal chrome) */}
                 <Route element={<PublicLayout />}>
+                  <Route path="/marketplace" element={<MarketplacePage />} />
                   <Route path="/org/:slug" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/content" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/events" element={<OrgPublicPage />} />
