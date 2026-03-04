@@ -50,6 +50,7 @@ export function Sidebar() {
   const mySpaceItems: NavItem[] = [
     { to: '/dashboard', icon: Home, label: 'Tableau de bord', desc: 'Vue d\'ensemble' },
     { to: '/resources', icon: Package, label: 'Mes achats', desc: 'Ressources achetées' },
+    { to: '/my-donations', icon: Heart, label: 'Mes dons', desc: 'Dons et campagnes' },
     { to: '/marketplace', icon: Store, label: 'Découvrir', desc: 'Explorer les produits' },
     { to: '/notifications', icon: Bell, label: 'Notifications', desc: 'Mises à jour' },
     { to: '/profile', icon: User, label: 'Profil', desc: 'Mon compte' },
@@ -292,20 +293,13 @@ export function Sidebar() {
             )}
 
             {/* ═══ SECTION 3: MA PLATEFORME ═══ */}
-            {hasOrgs && canManageCurrentOrg ? (
+            {hasOrgs && canManageCurrentOrg && (
               <>
                 {renderSectionLabel(Building2, 'Ma plateforme', 'text-primary')}
                 <div className="space-y-0.5">
                   {platformOverview.map(renderNavItem)}
                 </div>
                 {renderGroups(platformGroups)}
-              </>
-            ) : (
-              <>
-                {renderSectionLabel(Building2, 'Créer', 'text-primary')}
-                <div className="space-y-0.5">
-                  {renderNavItem({ to: '/create-org', icon: Building2, label: 'Créer ma plateforme', desc: 'Lance ta boutique digitale' })}
-                </div>
               </>
             )}
           </>

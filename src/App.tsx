@@ -136,6 +136,7 @@ const NotificationsPage = lazy(() => import("@/pages/NotificationsPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const DashboardRouter = lazy(() => import("@/pages/DashboardRouter"));
 const ResourcesPage = lazy(() => import("@/pages/ResourcesPage"));
+const MyDonationsPage = lazy(() => import("@/pages/MyDonationsPage"));
 const CreateOrgPage = lazy(() => import("@/pages/CreateOrgPage"));
 
 const SupportPage = lazy(() => import("@/pages/SupportPage"));
@@ -357,6 +358,7 @@ const App = () => (
                   <Route path="/notification-preferences" element={<NotificationPreferencesPage />} />
                   <Route path="/profile" element={<ProfilePage />} />
                   <Route path="/resources" element={<ResourcesPage />} />
+                  <Route path="/my-donations" element={<MyDonationsPage />} />
                   <Route path="/dashboard" element={<DashboardRouter />} />
                   <Route path="/quick-start" element={<QuickStartPage />} />
                   <Route path="/create-org" element={<CreateOrgPage />} />
