@@ -336,58 +336,129 @@ export async function processTransaction(
     }
   }
 
-  // ── 8. Partner commission (on platform fee, products only) ──
-  if (type === 'product' && platformFee > 0) {
+  // ── 8. Partner referral activation + commission (on platform fee, products only) ──
+  let partnerCommissionIncluded = false;
+  if (platformFee > 0) {
     try {
-      const { data: partnerRef } = await db.from('partner_referrals')
-        .select('partner_id, status')
+      // First: activate any pending partner referral on first completed payment for this org
+      const { data: pendingRef } = await db.from('partner_referrals')
+        .select('id, partner_id, status')
         .eq('organization_id', organization_id)
-        .eq('status', 'active')
+        .in('status', ['pending', 'active'])
         .maybeSingle();
 
-      if (partnerRef) {
-        const { data: partner } = await db.from('partners')
-          .select('id, status, user_id, full_name')
-          .eq('id', partnerRef.partner_id)
-          .eq('status', 'approved')
-          .maybeSingle();
+      if (pendingRef) {
+        // If still pending, activate it (first payment = org is active)
+        if (pendingRef.status === 'pending') {
+          await db.from('partner_referrals')
+            .update({ status: 'active', locked_at: new Date().toISOString() })
+            .eq('id', pendingRef.id);
 
-        if (partner) {
-          const { data: partnerRate } = await db.rpc('get_partner_rate', { _partner_id: partner.id });
-          const effectiveRate = typeof partnerRate === 'number' ? partnerRate : 5;
-          const partnerCommission = parseFloat((platformFee * effectiveRate / 100).toFixed(2));
+          // Notify the partner about the new active org
+          const { data: refPartner } = await db.from('partners')
+            .select('user_id, full_name')
+            .eq('id', pendingRef.partner_id)
+            .maybeSingle();
+          if (refPartner?.user_id) {
+            await db.from('user_notifications').insert({
+              user_id: refPartner.user_id,
+              organization_id,
+              title: '🎉 Organisation activée !',
+              body: `${org.name} vient d'effectuer son premier paiement. Elle est maintenant comptabilisée comme active dans votre portefeuille.`,
+              notification_type: 'partner_referral_active',
+              action_url: '/partner',
+            });
+          }
+        }
 
-          if (partnerCommission > 0) {
-            const { data: existingPC } = await db.from('partner_commissions')
-              .select('id')
-              .eq('partner_id', partner.id)
-              .eq('payment_reference', reference)
-              .maybeSingle();
+        // Now compute commission (only for products)
+        if (type === 'product') {
+          const { data: partner } = await db.from('partners')
+            .select('id, status, user_id, full_name, level')
+            .eq('id', pendingRef.partner_id)
+            .eq('status', 'approved')
+            .maybeSingle();
 
-            if (!existingPC) {
-              const partnerPayableAt = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString();
-              await db.from('partner_commissions').insert({
-                partner_id: partner.id,
-                organization_id,
-                payment_reference: reference,
-                platform_fee_amount: platformFee,
-                commission_percent: effectiveRate,
-                commission_amount: partnerCommission,
-                currency,
-                status: 'held',
-                payable_at: partnerPayableAt,
-              });
+          if (partner) {
+            const { data: partnerRate } = await db.rpc('get_partner_rate', { _partner_id: partner.id });
+            const effectiveRate = typeof partnerRate === 'number' ? partnerRate : 5;
+            const partnerCommission = parseFloat((platformFee * effectiveRate / 100).toFixed(2));
 
-              if (partner.user_id) {
-                const commFmt = partnerCommission.toLocaleString('fr-FR');
-                await db.from('user_notifications').insert({
-                  user_id: partner.user_id,
+            if (partnerCommission > 0) {
+              const { data: existingPC } = await db.from('partner_commissions')
+                .select('id')
+                .eq('partner_id', partner.id)
+                .eq('payment_reference', reference)
+                .maybeSingle();
+
+              if (!existingPC) {
+                const partnerPayableAt = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString();
+                await db.from('partner_commissions').insert({
+                  partner_id: partner.id,
                   organization_id,
-                  title: '🤝 Rémunération partenaire',
-                  body: `${commFmt} ${currency} de rémunération via ${org.name}. Disponible dans 15 jours.`,
-                  notification_type: 'partner_commission',
-                  action_url: '/partner',
+                  payment_reference: reference,
+                  platform_fee_amount: platformFee,
+                  commission_percent: effectiveRate,
+                  commission_amount: partnerCommission,
+                  currency,
+                  status: 'held',
+                  payable_at: partnerPayableAt,
                 });
+                partnerCommissionIncluded = true;
+
+                if (partner.user_id) {
+                  const commFmt = partnerCommission.toLocaleString('fr-FR');
+                  await db.from('user_notifications').insert({
+                    user_id: partner.user_id,
+                    organization_id,
+                    title: '🤝 Rémunération partenaire',
+                    body: `${commFmt} ${currency} de rémunération via ${org.name}. Disponible dans 15 jours.`,
+                    notification_type: 'partner_commission',
+                    action_url: '/partner',
+                  });
+                }
+
+                // Check for level-up
+                const oldLevel = partner.level || 1;
+                const { data: newLevelResult } = await db.rpc('compute_partner_level', { _partner_id: partner.id });
+                const newLevel = typeof newLevelResult === 'number' ? newLevelResult : oldLevel;
+
+                if (newLevel > oldLevel) {
+                  // Update partner level
+                  await db.from('partners').update({ level: newLevel }).eq('id', partner.id);
+
+                  const LEVEL_NAMES: Record<number, string> = { 1: 'Bronze', 2: 'Argent', 3: 'Or', 4: 'Platine', 5: 'Diamant' };
+                  const LEVEL_RATES: Record<number, number> = { 1: 5, 2: 8, 3: 10, 4: 12, 5: 15 };
+
+                  // In-app notification
+                  if (partner.user_id) {
+                    await db.from('user_notifications').insert({
+                      user_id: partner.user_id,
+                      title: `🏆 Niveau ${LEVEL_NAMES[newLevel]} atteint !`,
+                      body: `Félicitations ! Votre commission passe à ${LEVEL_RATES[newLevel]}%.`,
+                      notification_type: 'partner_level_up',
+                      action_url: '/partner',
+                    });
+                  }
+
+                  // Level-up email
+                  const { data: partnerEmail } = await db.from('partners')
+                    .select('email, full_name')
+                    .eq('id', partner.id)
+                    .single();
+                  if (partnerEmail?.email) {
+                    safeEmail(() => sendEmail({
+                      template: 'partner_level_up',
+                      to: partnerEmail.email,
+                      data: {
+                        name: partnerEmail.full_name,
+                        old_level: LEVEL_NAMES[oldLevel],
+                        new_level: LEVEL_NAMES[newLevel],
+                        new_rate: String(LEVEL_RATES[newLevel]),
+                      },
+                    }));
+                  }
+                }
               }
             }
           }
@@ -534,7 +605,7 @@ export async function processTransaction(
       affiliate_attributed: !!affiliateLinkId,
       discount_amount: discountAmount,
       promo_applied: !!promoCodeId,
-      partner_commission_included: type === 'product' && platformFee > 0,
+      partner_commission_included: partnerCommissionIncluded,
     },
   };
 }

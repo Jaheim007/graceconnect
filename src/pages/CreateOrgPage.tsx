@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -66,6 +66,8 @@ const slugify = (name: string) =>
 
 export default function CreateOrgPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const partnerCode = searchParams.get('partner');
   const { user } = useAuth();
   const { refetchOrgs, setCurrentOrg, userOrgs, isLoadingOrgs } = useOrg();
   const { toast } = useToast();
@@ -117,6 +119,18 @@ export default function CreateOrgPage() {
 
       if (newOrg) setCurrentOrg(newOrg);
       refetchOrgs();
+
+      // Attribute org to partner if partner code is present
+      if (partnerCode) {
+        try {
+          await db.rpc('attribute_org_to_partner', {
+            _org_id: orgId,
+            _partner_code: partnerCode,
+          });
+        } catch (attrErr) {
+          console.warn('[CreateOrg] Partner attribution failed (non-fatal):', attrErr);
+        }
+      }
 
       // Send org_created email (fire-and-forget)
       if (user.email) {
