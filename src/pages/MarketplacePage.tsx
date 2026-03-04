@@ -201,8 +201,8 @@ export default function MarketplacePage() {
               <motion.div key={p.id} variants={fadeUp}>
                 <ProductCard
                   product={p}
-                  hideCommission={isPublic}
-                  hideShare={isPublic}
+                  hideCommission={!isAmbassador}
+                  hideShare={!isAmbassador}
                 />
               </motion.div>
             ))}
