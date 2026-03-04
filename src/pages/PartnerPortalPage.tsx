@@ -74,36 +74,41 @@ export default function PartnerPortalPage() {
   const currency = commissions[0]?.currency || 'XOF';
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 max-w-6xl mx-auto">
       <SEOHead title="Espace Partenaire" />
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2"><Handshake className="h-6 w-6 text-primary" /> Espace Partenaire</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <h1 className="text-2xl font-bold flex items-center gap-2.5">
+            <div className="h-9 w-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <Handshake className="h-5 w-5 text-primary" />
+            </div>
+            Espace Partenaire
+          </h1>
+          <p className="text-sm text-muted-foreground mt-2 ml-[46px]">
             Niveau {LEVEL_LABELS[partner.level] || partner.level} — {effectiveRate}% de rémunération
             {partner.custom_rate_override !== null && <span className="text-primary ml-1">(taux personnalisé)</span>}
           </p>
         </div>
-        <Badge variant="default" className="self-start">Partenaire Officiel</Badge>
+        <Badge variant="default" className="self-start text-xs px-3 py-1">Partenaire Officiel</Badge>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KPICard icon={Users} label="Organisations" value={`${stats.activeOrgs} / ${stats.totalOrgs}`} sub="actives / total" />
         <KPICard icon={Clock} label="En attente" value={formatCurrency(stats.held, currency)} sub="held (15j)" />
         <KPICard icon={TrendingUp} label="Disponible" value={formatCurrency(stats.payable, currency)} sub="prêt à retirer" accent />
         <KPICard icon={Wallet} label="Total versé" value={formatCurrency(stats.paid, currency)} sub="historique" />
       </div>
 
-      <Tabs defaultValue="invitations" className="space-y-4">
-        <TabsList className="grid grid-cols-5 w-full max-w-2xl">
-          <TabsTrigger value="invitations">Invitations</TabsTrigger>
-          <TabsTrigger value="orgs">Organisations</TabsTrigger>
-          <TabsTrigger value="gains">Gains</TabsTrigger>
-          <TabsTrigger value="kyc">KYC</TabsTrigger>
-          <TabsTrigger value="payout">Paiement</TabsTrigger>
+      <Tabs defaultValue="invitations" className="space-y-6">
+        <TabsList className="inline-flex h-11 gap-1 bg-muted/50 p-1 rounded-xl">
+          <TabsTrigger value="invitations" className="rounded-lg px-4 text-sm">Invitations</TabsTrigger>
+          <TabsTrigger value="orgs" className="rounded-lg px-4 text-sm">Organisations</TabsTrigger>
+          <TabsTrigger value="gains" className="rounded-lg px-4 text-sm">Gains</TabsTrigger>
+          <TabsTrigger value="kyc" className="rounded-lg px-4 text-sm">KYC</TabsTrigger>
+          <TabsTrigger value="payout" className="rounded-lg px-4 text-sm">Paiement</TabsTrigger>
         </TabsList>
 
         {/* ── Invitations ── */}
@@ -304,14 +309,16 @@ export default function PartnerPortalPage() {
 
 function KPICard({ icon: Icon, label, value, sub, accent }: { icon: typeof Users; label: string; value: string; sub: string; accent?: boolean }) {
   return (
-    <Card>
-      <CardContent className="pt-4 pb-3 px-4">
-        <div className="flex items-center gap-2 mb-1">
-          <Icon className={`h-4 w-4 ${accent ? 'text-primary' : 'text-muted-foreground'}`} />
-          <span className="text-xs text-muted-foreground">{label}</span>
+    <Card className="border-border/50">
+      <CardContent className="pt-5 pb-4 px-5">
+        <div className="flex items-center gap-2.5 mb-2">
+          <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${accent ? 'bg-primary/10' : 'bg-muted/60'}`}>
+            <Icon className={`h-4 w-4 ${accent ? 'text-primary' : 'text-muted-foreground'}`} />
+          </div>
+          <span className="text-xs font-medium text-muted-foreground">{label}</span>
         </div>
-        <p className={`text-lg font-bold ${accent ? 'text-primary' : ''}`}>{value}</p>
-        <p className="text-[10px] text-muted-foreground">{sub}</p>
+        <p className={`text-xl font-bold tracking-tight ${accent ? 'text-primary' : ''}`}>{value}</p>
+        <p className="text-[11px] text-muted-foreground mt-0.5">{sub}</p>
       </CardContent>
     </Card>
   );
