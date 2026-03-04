@@ -19,9 +19,9 @@ serve(async (req) => {
       });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      return new Response(JSON.stringify({ error: "Clé API IA non configurée." }), {
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) {
+      return new Response(JSON.stringify({ error: "Clé API Gemini non configurée." }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -47,74 +47,78 @@ serve(async (req) => {
 
     const imagePrompt = `Create a professional ${context} cover image. ${styleMap[style] || styleMap.professional}. ${formatMap[format] || formatMap.book}. Theme/subject: ${prompt}. The design should be suitable for an African digital marketplace. ${textInstruction} High quality, polished, ready for commercial use.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image",
-        messages: [
-          { role: "user", content: imagePrompt },
-        ],
-        modalities: ["image", "text"],
-      }),
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: imagePrompt }] }],
+          generationConfig: {
+            responseModalities: ["TEXT", "IMAGE"],
+          },
+        }),
+      }
+    );
 
     if (!response.ok) {
+      const t = await response.text();
+      console.error("Gemini image error:", response.status, t);
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Trop de requêtes. Réessayez dans quelques secondes." }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Crédits IA épuisés. Contactez le support." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const t = await response.text();
-      console.error("AI image error:", response.status, t);
-      return new Response(JSON.stringify({ error: "Erreur du service IA." }), {
+      return new Response(JSON.stringify({ error: "Erreur du service Gemini." }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const data = await response.json();
-    const imageData = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
 
-    if (!imageData) {
+    // Extract inline image from Gemini response
+    const parts = data.candidates?.[0]?.content?.parts || [];
+    let imageBase64: string | null = null;
+    let imageMimeType = "image/png";
+
+    for (const part of parts) {
+      if (part.inlineData) {
+        imageBase64 = part.inlineData.data;
+        imageMimeType = part.inlineData.mimeType || "image/png";
+        break;
+      }
+    }
+
+    if (!imageBase64) {
       return new Response(JSON.stringify({ error: "L'IA n'a pas pu générer d'image. Réessayez avec un prompt différent." }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Upload the base64 image to Supabase storage
+    // Upload the image to Supabase storage
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Convert base64 to Uint8Array
-    const base64Data = imageData.replace(/^data:image\/\w+;base64,/, "");
-    const binaryString = atob(base64Data);
+    const binaryString = atob(imageBase64);
     const bytes = new Uint8Array(binaryString.length);
     for (let i = 0; i < binaryString.length; i++) {
       bytes[i] = binaryString.charCodeAt(i);
     }
 
-    const fileName = `ai-covers/${crypto.randomUUID()}.png`;
+    const ext = imageMimeType.includes("jpeg") ? "jpg" : "png";
+    const fileName = `ai-covers/${crypto.randomUUID()}.${ext}`;
     const { error: uploadError } = await supabase.storage
       .from("public-assets")
-      .upload(fileName, bytes, { contentType: "image/png", upsert: true });
+      .upload(fileName, bytes, { contentType: imageMimeType, upsert: true });
 
     if (uploadError) {
       console.error("Upload error:", uploadError);
       // Fallback: return the base64 directly
-      return new Response(JSON.stringify({ imageUrl: imageData }), {
+      return new Response(JSON.stringify({ imageUrl: `data:${imageMimeType};base64,${imageBase64}` }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
