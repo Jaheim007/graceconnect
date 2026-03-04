@@ -47,12 +47,12 @@ export default function PourMusiciensPage() {
       faq={[
         { q: 'Quels formats audio sont acceptés ?', a: 'MP3, WAV, FLAC, AAC, et tout fichier numérique jusqu\'à 500 Mo. Livraison automatique après paiement.' },
         { q: 'Puis-je vendre des beats avec licence ?', a: 'Absolument ! Créez différentes versions (lease, exclusive) avec des prix différents. Chaque acheteur reçoit son fichier.' },
-        { q: 'Comment les fans découvrent ma musique ?', a: 'Via le marketplace Siteviral, les partages ambassadeurs sur les réseaux sociaux, et votre lien direct.' },
+        { q: 'Comment les fans découvrent ma musique ?', a: 'Via le Hub Siteviral, les partages ambassadeurs sur les réseaux sociaux, et votre lien direct.' },
         { q: 'Siteviral remplace-t-il Spotify ?', a: 'Non, Siteviral complète le streaming. Gardez Spotify pour la visibilité, utilisez Siteviral pour la monétisation directe.' },
         { q: 'Puis-je lancer un crowdfunding pour mon album ?', a: 'Oui ! Utilisez les campagnes de dons pour financer votre projet. Vos fans contribuent et suivent la progression en temps réel.' },
       ]}
       cta={{ label: 'Créer ma page artiste', path: '/auth?mode=signup' }}
-      secondaryCta={{ label: 'Explorer le marketplace', path: '/discover' }}
+      secondaryCta={{ label: 'Explorer le Hub', path: '/discover' }}
     />
   );
 }
