@@ -704,6 +704,102 @@ async function ensureAffiliateForExisting(
   }
 }
 
+/** Ensure partner commission exists for already-completed transactions (idempotent catch-up) */
+async function ensurePartnerForExisting(
+  db: DB,
+  table: string,
+  transactionId: string,
+  reference: string,
+  fallbackCurrency: string,
+): Promise<void> {
+  try {
+    const { data: tx } = await db.from(table)
+      .select('organization_id, platform_fee, completed_at, currency')
+      .eq('id', transactionId)
+      .single();
+
+    const platformFee = Number(tx?.platform_fee || 0);
+    if (!tx?.organization_id || platformFee <= 0) return;
+
+    const { data: referral } = await db.from('partner_referrals')
+      .select('id, partner_id, status')
+      .eq('organization_id', tx.organization_id)
+      .in('status', ['pending', 'active'])
+      .maybeSingle();
+
+    if (!referral) return;
+
+    const { data: partner } = await db.from('partners')
+      .select('id, user_id, full_name, level')
+      .eq('id', referral.partner_id)
+      .eq('status', 'approved')
+      .maybeSingle();
+
+    if (!partner) return;
+
+    if (referral.status === 'pending') {
+      await db.from('partner_referrals')
+        .update({ status: 'active', locked_at: tx.completed_at || new Date().toISOString() })
+        .eq('id', referral.id);
+    }
+
+    const { data: existingCommission } = await db.from('partner_commissions')
+      .select('id')
+      .eq('partner_id', partner.id)
+      .eq('payment_reference', reference)
+      .maybeSingle();
+
+    if (existingCommission) return;
+
+    const { data: partnerRate } = await db.rpc('get_partner_rate', { _partner_id: partner.id });
+    const effectiveRate = typeof partnerRate === 'number' ? partnerRate : 5;
+    const partnerCommission = parseFloat((platformFee * effectiveRate / 100).toFixed(2));
+    if (partnerCommission <= 0) return;
+
+    const completedAt = tx.completed_at ? new Date(tx.completed_at) : new Date();
+    const payableAt = new Date(completedAt.getTime() + 15 * 24 * 60 * 60 * 1000);
+    const status = payableAt <= new Date() ? 'payable' : 'held';
+    const currency = tx.currency || fallbackCurrency || 'XOF';
+
+    await db.from('partner_commissions').insert({
+      partner_id: partner.id,
+      organization_id: tx.organization_id,
+      payment_reference: reference,
+      platform_fee_amount: platformFee,
+      commission_percent: effectiveRate,
+      commission_amount: partnerCommission,
+      currency,
+      status,
+      payable_at: payableAt.toISOString(),
+    });
+
+    if (partner.user_id) {
+      const { data: org } = await db.from('organizations')
+        .select('name')
+        .eq('id', tx.organization_id)
+        .maybeSingle();
+
+      await db.from('user_notifications').insert({
+        user_id: partner.user_id,
+        organization_id: tx.organization_id,
+        title: '🤝 Rémunération partenaire',
+        body: `${partnerCommission.toLocaleString('fr-FR')} ${currency} de rémunération via ${org?.name || 'une organisation'}. Disponible dans 15 jours.`,
+        notification_type: 'partner_commission',
+        action_url: '/partner',
+      });
+    }
+
+    const oldLevel = partner.level || 1;
+    const { data: newLevelResult } = await db.rpc('compute_partner_level', { _partner_id: partner.id });
+    const newLevel = typeof newLevelResult === 'number' ? newLevelResult : oldLevel;
+    if (newLevel > oldLevel) {
+      await db.from('partners').update({ level: newLevel }).eq('id', partner.id);
+    }
+  } catch (err) {
+    console.error('[process-transaction] ensurePartnerForExisting error (non-fatal):', err);
+  }
+}
+
 /** Get breakdown from an already-stored record */
 async function getBreakdownFromDB(db: DB, table: string, id: string) {
   const { data } = await db.from(table)
