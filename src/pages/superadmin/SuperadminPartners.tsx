@@ -27,6 +27,7 @@ export default function SuperadminPartners() {
   const setRate = useSetPartnerRate();
   const processPayout = useProcessPartnerPayout();
   const reviewKYC = useReviewPartnerKYC();
+  const deletePartner = useDeletePartner();
   const qc = useQueryClient();
 
   const [actionDialog, setActionDialog] = useState<{ partner: Partner; action: string } | null>(null);
@@ -189,6 +190,13 @@ export default function SuperadminPartners() {
                               )}
                               <Button size="sm" variant="ghost" onClick={() => { setRateDialog(p); setNewRate(String(p.custom_rate_override ?? p.rate_percent)); }} title="Modifier taux">
                                 <Percent className="h-4 w-4" />
+                              </Button>
+                              <Button size="sm" variant="ghost" onClick={() => {
+                                if (confirm(`Supprimer définitivement le partenaire ${p.full_name} ? Cette action est irréversible.`)) {
+                                  deletePartner.mutate(p.id);
+                                }
+                              }} title="Supprimer">
+                                <Trash2 className="h-4 w-4 text-destructive" />
                               </Button>
                             </div>
                           </TableCell>
