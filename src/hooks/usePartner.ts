@@ -110,12 +110,16 @@ export function usePartnerReferrals(partnerId?: string) {
   });
 }
 
-// ── Hook: partner commissions ──
+// ── Hook: partner commissions (auto-releases matured held commissions) ──
 export function usePartnerCommissions(partnerId?: string) {
   return useQuery({
     queryKey: ['partner-commissions', partnerId],
     enabled: !!partnerId,
     queryFn: async () => {
+      // Auto-release any matured commissions before fetching
+      await db.rpc('release_matured_partner_commissions').catch(() => {});
+      await db.rpc('release_matured_affiliate_sales').catch(() => {});
+
       const { data, error } = await db.from('partner_commissions')
         .select('*, organization:organizations(name)')
         .eq('partner_id', partnerId!)

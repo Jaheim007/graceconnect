@@ -4041,6 +4041,8 @@ export type Database = {
       }
       org_affiliation_allowed: { Args: { _org_id: string }; Returns: boolean }
       org_monetization_allowed: { Args: { _org_id: string }; Returns: boolean }
+      release_matured_affiliate_sales: { Args: never; Returns: number }
+      release_matured_partner_commissions: { Args: never; Returns: number }
       review_org_kyc: {
         Args: { _action: string; _org_id: string; _reason?: string }
         Returns: Json
