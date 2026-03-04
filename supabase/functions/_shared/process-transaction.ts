@@ -461,7 +461,6 @@ export async function processTransaction(
               }
             }
           }
-        }
       }
     } catch (partnerErr) {
       console.error('[process-transaction] Partner commission error (non-fatal):', partnerErr);
