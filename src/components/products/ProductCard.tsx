@@ -39,11 +39,12 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
-  const { mode } = useMode();
+  const { mode, hasAmbassadorAccess } = useMode();
 
-  // Auto-hide commission/share for buyers (public mode) unless explicitly overridden
-  const hideCommission = hideCommissionProp ?? mode !== 'ambassador';
-  const hideShare = hideShareProp ?? mode !== 'ambassador';
+  // Auto-hide commission/share unless user is truly in ambassador universe
+  const ambassadorView = hasAmbassadorAccess && mode === 'ambassador';
+  const hideCommission = hideCommissionProp ?? !ambassadorView;
+  const hideShare = hideShareProp ?? !ambassadorView;
 
   const organizationId = (product as any).organization_id;
   const orgSlug = (product as any).organization_slug || '';

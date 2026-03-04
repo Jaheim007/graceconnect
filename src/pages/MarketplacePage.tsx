@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Search, SlidersHorizontal, Star, TrendingUp, Sparkles, Store, ArrowRight, ShoppingBag, BookOpen, Headphones, Video, GraduationCap, FileText } from 'lucide-react';
@@ -34,12 +34,18 @@ export default function MarketplacePage() {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('popular');
   const [typeFilter, setTypeFilter] = useState('');
-  const { mode } = useMode();
+  const { mode, hasAmbassadorAccess } = useMode();
   const { user } = useAuth();
   const navigate = useNavigate();
 
   const isPublic = !user;
-  const isAmbassador = !!user && mode === 'ambassador';
+  const isAmbassador = !!user && hasAmbassadorAccess && mode === 'ambassador';
+
+  useEffect(() => {
+    if (!isAmbassador && sortBy === 'commission') {
+      setSortBy('popular');
+    }
+  }, [isAmbassador, sortBy]);
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['marketplace-products', search, sortBy, typeFilter],
