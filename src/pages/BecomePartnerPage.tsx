@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { db } from '@/lib/db';
+import { callFn } from '@/lib/api';
 import {
   Handshake, TrendingUp, Shield, Users, Globe, Star,
   CheckCircle, ArrowRight, Loader2
@@ -160,6 +161,12 @@ export default function BecomePartnerPage() {
       if (error) throw error;
       sessionStorage.removeItem('sv_pending_partner');
       setSubmitted(true);
+      // Send confirmation email
+      callFn('send-email', {
+        template: 'partner_application_received',
+        to: form.email,
+        data: { name: form.full_name },
+      }, true).catch(() => {});
     } catch (err: any) {
       toast.error(err.message || 'Erreur lors de la soumission');
     } finally {
@@ -188,6 +195,12 @@ export default function BecomePartnerPage() {
         if (error) throw error;
         sessionStorage.removeItem('sv_pending_partner');
         sessionStorage.setItem('sv_partner_submitted', 'true');
+        // Send confirmation email
+        callFn('send-email', {
+          template: 'partner_application_received',
+          to: partnerData.email,
+          data: { name: partnerData.full_name },
+        }, true).catch(() => {});
         // Redirect to dashboard where the popup will show
         navigate('/dashboard', { replace: true });
       } catch (err: any) {
