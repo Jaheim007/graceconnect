@@ -29,10 +29,16 @@ const FORMAT_OPTIONS = [
   { value: 'square', label: 'Carré (1:1)' },
 ];
 
+const TEXT_OPTIONS = [
+  { value: 'with', label: 'Avec titre sur la couverture' },
+  { value: 'without', label: 'Sans texte (visuel uniquement)' },
+];
+
 export function AICoverGenerator({ open, onClose, onInsert, context = 'product' }: AICoverGeneratorProps) {
   const [prompt, setPrompt] = useState('');
   const [style, setStyle] = useState('professional');
   const [format, setFormat] = useState('book');
+  const [textMode, setTextMode] = useState('with');
   const [result, setResult] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
@@ -44,7 +50,7 @@ export function AICoverGenerator({ open, onClose, onInsert, context = 'product' 
 
     try {
       const { data, error } = await supabase.functions.invoke('ai-generate-cover', {
-        body: { prompt: prompt.trim(), style, format, context },
+        body: { prompt: prompt.trim(), style, format, context, include_text: textMode === 'with' },
       });
 
       if (error) throw error;
@@ -121,6 +127,20 @@ export function AICoverGenerator({ open, onClose, onInsert, context = 'product' 
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs">Texte sur la couverture</Label>
+            <Select value={textMode} onValueChange={setTextMode}>
+              <SelectTrigger className="h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {TEXT_OPTIONS.map((t) => (
+                  <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <Button onClick={handleGenerate} disabled={loading || !prompt.trim()} className="w-full gap-2">
