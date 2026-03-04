@@ -284,15 +284,10 @@ export function Sidebar() {
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5 scrollbar-hide">
         {isSA ? (
           superadminNav.map(renderNavItem)
-        ) : isAdmin ? (
-          <>
-            {renderNavItem({ to: '/admin', icon: BarChart3, label: t('sidebar.overview') })}
-            {renderGroups(adminGroups)}
-          </>
-        ) : showCreatorAdmin ? (
+        ) : (isAdmin || showCreatorAdmin) ? (
           <>
             {renderNavItem({ to: '/dashboard', icon: LayoutDashboard, label: 'Mon espace' })}
-            {renderNavItem({ to: '/admin', icon: BarChart3, label: 'Vue d\'ensemble' })}
+            {renderNavItem({ to: '/admin', icon: BarChart3, label: t('sidebar.overview') })}
             {renderGroups(adminGroups)}
           </>
         ) : mode === 'ambassador' ? (
