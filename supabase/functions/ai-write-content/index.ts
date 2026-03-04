@@ -46,7 +46,10 @@ Règles:
 - Structure avec des paragraphes clairs
 - Mets les mots importants en **gras**
 - Le texte doit être prêt à être copié-collé
-- Maximum 300 mots`;
+- Maximum 300 mots
+- IMPORTANT: Ne commence JAMAIS par une phrase d'introduction comme "Voici une description..." ou "Voici un texte..."
+- IMPORTANT: Ne mets JAMAIS de séparateurs comme "---" au début ou à la fin du texte
+- Va droit au but, commence directement par le contenu demandé`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
