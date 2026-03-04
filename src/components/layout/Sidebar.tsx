@@ -3,18 +3,18 @@ import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
   Home, Play, Bell, User, BookOpen, Store,
   Settings, ChevronLeft, ChevronRight, Shield, HandHeart,
-  Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, Sun, Moon,
+  Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, LogOut,
   UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, ShieldAlert, LayoutDashboard, Building2,
   Trophy, CreditCard, Clock, Sparkles, GraduationCap, Share2, Target
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useMode } from '@/contexts/ModeContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
-import { useTheme } from '@/contexts/ThemeContext';
+// useTheme removed — theme toggle now only in TopBar
 import { useI18n } from '@/i18n/I18nContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -35,11 +35,10 @@ interface NavGroup {
 export function Sidebar() {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
-  const { user, isSuperadmin } = useAuth();
+  const { user, isSuperadmin, signOut } = useAuth();
   const { currentOrg, canManage, userOrgs, getRoleFor, setCurrentOrg } = useOrg();
   const { mode } = useMode();
   const { data: unread = 0 } = useUnreadCount(user?.id);
-  const { theme, toggleTheme } = useTheme();
   const { t } = useI18n();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
     Content: true, Commerce: true, Management: true,
@@ -285,15 +284,10 @@ export function Sidebar() {
       <nav className="flex-1 overflow-y-auto py-3 px-2 space-y-0.5 scrollbar-hide">
         {isSA ? (
           superadminNav.map(renderNavItem)
-        ) : isAdmin ? (
-          <>
-            {renderNavItem({ to: '/admin', icon: BarChart3, label: t('sidebar.overview') })}
-            {renderGroups(adminGroups)}
-          </>
-        ) : showCreatorAdmin ? (
+        ) : (isAdmin || showCreatorAdmin) ? (
           <>
             {renderNavItem({ to: '/dashboard', icon: LayoutDashboard, label: 'Mon espace' })}
-            {renderNavItem({ to: '/admin', icon: BarChart3, label: 'Vue d\'ensemble' })}
+            {renderNavItem({ to: '/admin', icon: BarChart3, label: t('sidebar.overview') })}
             {renderGroups(adminGroups)}
           </>
         ) : mode === 'ambassador' ? (
@@ -317,28 +311,15 @@ export function Sidebar() {
       {/* Bottom */}
       <div className={cn('border-t border-border space-y-0.5', collapsed ? 'px-1 py-2' : 'px-3 py-3')}>
         <button
-          onClick={toggleTheme}
+          onClick={signOut}
           className={cn(
-            'flex items-center gap-3 rounded-lg text-sm font-medium transition-all w-full text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+            'flex items-center gap-3 rounded-lg text-sm font-medium transition-all w-full text-destructive hover:bg-destructive/10',
             collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
           )}
         >
-          {theme === 'dark' ? <Sun className="h-4 w-4 shrink-0" /> : <Moon className="h-4 w-4 shrink-0" />}
-          {!collapsed && <span>{theme === 'dark' ? t('sidebar.light_mode') : t('sidebar.dark_mode')}</span>}
+          <LogOut className="h-4 w-4 shrink-0" />
+          {!collapsed && <span>Déconnexion</span>}
         </button>
-
-        {(isAdmin || isSA) && (
-          <Link
-            to="/dashboard"
-            className={cn(
-              'flex items-center gap-3 rounded-lg text-sm font-medium transition-all text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-              collapsed ? 'px-0 py-2.5 justify-center' : 'px-3 py-2.5'
-            )}
-          >
-            <Home className="h-4 w-4 shrink-0" />
-            {!collapsed && <span>{t('sidebar.back_to_app')}</span>}
-          </Link>
-        )}
       </div>
 
       {/* Collapse toggle */}

@@ -150,7 +150,7 @@ const MyProgramsPage = lazy(() => import("@/pages/MyProgramsPage"));
 const UserAnalyticsPage = lazy(() => import("@/pages/UserAnalyticsPage"));
 
 // Admin
-const AdminLayout = lazy(() => import("@/pages/admin/AdminLayout"));
+const AdminShell = lazy(() => import("@/pages/admin/AdminShell"));
 const AdminDashboard = lazy(() => import("@/pages/admin/AdminDashboard"));
 const AdminMedia = lazy(() => import("@/pages/admin/AdminMedia"));
 const AdminMediaForm = lazy(() => import("@/pages/admin/AdminMediaForm").then(m => ({ default: m.MediaForm })));
@@ -371,10 +371,9 @@ const App = () => (
                   <Route path="/invoices" element={<MyInvoicesPage />} />
                   <Route path="/my-analytics" element={<UserAnalyticsPage />} />
                   <Route path="/my-programs" element={<MyProgramsPage />} />
-                </Route>
 
-                {/* Admin */}
-                <Route path="/admin" element={<RequireOrgManage><AdminLayout /></RequireOrgManage>}>
+                  {/* Admin — inside AppLayout for seamless navigation */}
+                  <Route path="/admin" element={<RequireOrgManage><AdminShell /></RequireOrgManage>}>
                   <Route index element={<AdminDashboard />} />
                   <Route path="media" element={<AdminMedia />} />
                   <Route path="media/new" element={<AdminMediaForm />} />
@@ -411,8 +410,8 @@ const App = () => (
                   <Route path="programs" element={<AdminPrograms />} />
                   <Route path="programs/new" element={<AdminProgramForm />} />
                   <Route path="programs/:id/edit" element={<AdminProgramForm />} />
+                  </Route>
                 </Route>
-
                 {/* Superadmin */}
                 <Route path="/superadmin" element={<RequireSuperadmin><SuperadminLayout /></RequireSuperadmin>}>
                   <Route index element={<SuperadminFullDashboard />} />
