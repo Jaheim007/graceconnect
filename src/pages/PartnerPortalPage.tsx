@@ -31,10 +31,18 @@ const STATUS_MAP: Record<string, { label: string; variant: 'default' | 'secondar
 
 export default function PartnerPortalPage() {
   const { user } = useAuth();
-  const { data: partner, isLoading } = useMyPartner();
-  const { data: referrals = [] } = usePartnerReferrals(partner?.id);
-  const { data: commissions = [] } = usePartnerCommissions(partner?.id);
-  const { data: payouts = [] } = usePartnerPayouts(partner?.id);
+  const {
+    data: partner,
+    isLoading,
+    refetch: refetchPartner,
+    isFetching: isFetchingPartner,
+  } = useMyPartner();
+  const referralsQuery = usePartnerReferrals(partner?.id);
+  const commissionsQuery = usePartnerCommissions(partner?.id);
+  const payoutsQuery = usePartnerPayouts(partner?.id);
+  const referrals = referralsQuery.data || [];
+  const commissions = commissionsQuery.data || [];
+  const payouts = payoutsQuery.data || [];
   const stats = usePartnerStats(partner?.id);
   const requestPayout = useRequestPartnerPayout();
 
