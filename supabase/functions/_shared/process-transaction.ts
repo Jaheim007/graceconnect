@@ -78,8 +78,11 @@ export async function processTransaction(
     .maybeSingle();
 
   if (existing?.status === 'completed') {
-    // Ensure affiliate is processed even for idempotent returns
-    await ensureAffiliateForExisting(db, table, existing.id, reference, amountPaid, currency);
+    // Ensure affiliate + partner processing even for idempotent returns
+    await Promise.all([
+      ensureAffiliateForExisting(db, table, existing.id, reference, amountPaid, currency),
+      ensurePartnerForExisting(db, table, existing.id, reference, currency),
+    ]);
     return {
       ok: true,
       transaction_id: existing.id,
