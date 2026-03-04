@@ -27,7 +27,7 @@ export function BottomNav() {
 
   // Ambassador: focus on discover → share → earn
   const ambassadorPrimary = [
-    { to: '/marketplace', icon: Store, label: 'Le Hub' },
+    { to: '/hub', icon: Store, label: 'Le Hub' },
     { to: '/affiliation', icon: Link2, label: 'Mes liens' },
     { to: '/dashboard', icon: Wallet, label: 'Mes gains' },
   ];
@@ -72,7 +72,7 @@ export function BottomNav() {
     {
       label: '⚙️ Autre',
       items: [
-        { to: '/marketplace', icon: Store, label: 'Le Hub' },
+        { to: '/hub', icon: Store, label: 'Le Hub' },
         { to: '/profile', icon: User, label: 'Profil' },
         { to: '/support', icon: LifeBuoy, label: 'Aide' },
       ],
