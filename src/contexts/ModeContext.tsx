@@ -17,7 +17,6 @@ const PUBLIC_ROUTE_PREFIXES = [
   '/gagner', '/vendre',
   '/checkout', '/payment/', '/success', '/cancel',
   '/auth/', '/login', '/signup',
-  '/resources',
   // Static/legal/content pages
   '/terms', '/privacy', '/about', '/aml', '/refund-policy', '/payout-policy',
   '/acceptable-use', '/faq', '/contact', '/compliance', '/dpa', '/security',

@@ -896,17 +896,17 @@ export function AdminSettings() {
     else setSlugError('');
   };
 
+  // Crop state for settings images
+  const [settingsCropSrc, setSettingsCropSrc] = useState<string | null>(null);
+  const [settingsCropType, setSettingsCropType] = useState<'logo' | 'banner' | 'leader'>('banner');
+  const settingsCropAspect = settingsCropType === 'banner' ? 3 / 1 : 1;
+
   // Leader biography fields
   const [leaderName, setLeaderName] = useState(orgAny?.leader_name ?? '');
   const [leaderTitle, setLeaderTitle] = useState(orgAny?.leader_title ?? '');
   const [leaderBio, setLeaderBio] = useState(orgAny?.leader_bio ?? '');
   const [leaderImageUrl, setLeaderImageUrl] = useState(orgAny?.leader_image_url ?? '');
   const [savingLeader, setSavingLeader] = useState(false);
-
-  // Crop state for settings images
-  const [settingsCropSrc, setSettingsCropSrc] = useState<string | null>(null);
-  const [settingsCropType, setSettingsCropType] = useState<'logo' | 'banner' | 'leader'>('banner');
-  const settingsCropAspect = settingsCropType === 'banner' ? 3 / 1 : 1;
 
   // Affiliation fields
   const [affiliationEnabled, setAffiliationEnabled] = useState(currentOrg?.affiliation_enabled ?? false);
@@ -919,6 +919,27 @@ export function AdminSettings() {
   const orgAnySettings = currentOrg as any;
   const [offeringsEnabled, setOfferingsEnabled] = useState(orgAnySettings?.offerings_enabled ?? false);
   const [savingOfferings, setSavingOfferings] = useState(false);
+
+  // Sync all form state when currentOrg changes (e.g. org switch)
+  useEffect(() => {
+    if (!currentOrg) return;
+    const oa = currentOrg as any;
+    setOrgName(currentOrg.name ?? '');
+    setOrgSlug(currentOrg.slug ?? '');
+    setSlugError('');
+    setDescription(currentOrg.description ?? '');
+    setWebsite(currentOrg.website ?? '');
+    setWhatsapp(currentOrg.whatsapp ?? '');
+    setLogoUrl(currentOrg.logo_url ?? '');
+    setBannerUrl(currentOrg.banner_url ?? '');
+    setLeaderName(oa?.leader_name ?? '');
+    setLeaderTitle(oa?.leader_title ?? '');
+    setLeaderBio(oa?.leader_bio ?? '');
+    setLeaderImageUrl(oa?.leader_image_url ?? '');
+    setAffiliationEnabled(currentOrg.affiliation_enabled ?? false);
+    setCommissionPercent(String(currentOrg.affiliation_commission_percent ?? 10));
+    setOfferingsEnabled(oa?.offerings_enabled ?? false);
+  }, [currentOrg?.id]);
 
   const handleSaveOfferings = async () => {
     if (!currentOrg) return;
