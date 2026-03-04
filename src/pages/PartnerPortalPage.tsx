@@ -309,14 +309,16 @@ export default function PartnerPortalPage() {
 
 function KPICard({ icon: Icon, label, value, sub, accent }: { icon: typeof Users; label: string; value: string; sub: string; accent?: boolean }) {
   return (
-    <Card>
-      <CardContent className="pt-4 pb-3 px-4">
-        <div className="flex items-center gap-2 mb-1">
-          <Icon className={`h-4 w-4 ${accent ? 'text-primary' : 'text-muted-foreground'}`} />
-          <span className="text-xs text-muted-foreground">{label}</span>
+    <Card className="border-border/50">
+      <CardContent className="pt-5 pb-4 px-5">
+        <div className="flex items-center gap-2.5 mb-2">
+          <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${accent ? 'bg-primary/10' : 'bg-muted/60'}`}>
+            <Icon className={`h-4 w-4 ${accent ? 'text-primary' : 'text-muted-foreground'}`} />
+          </div>
+          <span className="text-xs font-medium text-muted-foreground">{label}</span>
         </div>
-        <p className={`text-lg font-bold ${accent ? 'text-primary' : ''}`}>{value}</p>
-        <p className="text-[10px] text-muted-foreground">{sub}</p>
+        <p className={`text-xl font-bold tracking-tight ${accent ? 'text-primary' : ''}`}>{value}</p>
+        <p className="text-[11px] text-muted-foreground mt-0.5">{sub}</p>
       </CardContent>
     </Card>
   );
