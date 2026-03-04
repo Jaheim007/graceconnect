@@ -79,14 +79,38 @@ export default function PartnerPortalPage() {
     ? `${window.location.origin}/create-org?partner=${partner.invite_code}`
     : null;
 
+  const [isForceSyncing, setIsForceSyncing] = useState(false);
+
   const copyText = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} copié !`);
   };
 
+  const handleForceSync = async () => {
+    setIsForceSyncing(true);
+    try {
+      const results = await Promise.all([
+        refetchPartner(),
+        referralsQuery.refetch(),
+        commissionsQuery.refetch(),
+        payoutsQuery.refetch(),
+      ]);
+
+      const hasError = results.some(result => !!result.error);
+      if (hasError) {
+        toast.error('Synchronisation incomplète. Réessayez dans quelques secondes.');
+      } else {
+        toast.success('Synchronisation forcée terminée.');
+      }
+    } finally {
+      setIsForceSyncing(false);
+    }
+  };
+
   const effectiveRate = partner.custom_rate_override ?? partner.rate_percent;
   const currency = commissions[0]?.currency || 'XOF';
   const levelColor = LEVEL_COLORS[partner.level] || LEVEL_COLORS[1];
+  const isSyncing = isForceSyncing || isFetchingPartner || referralsQuery.isFetching || commissionsQuery.isFetching || payoutsQuery.isFetching;
 
   return (
     <motion.div
