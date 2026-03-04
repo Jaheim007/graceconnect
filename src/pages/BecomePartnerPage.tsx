@@ -42,11 +42,6 @@ export default function BecomePartnerPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast.error('Vous devez être connecté pour postuler.');
-      navigate('/auth?redirect=/devenir-partenaire');
-      return;
-    }
     if (!form.full_name || !form.email || !termsAccepted) return;
 
     setSubmitting(true);
@@ -63,7 +58,7 @@ export default function BecomePartnerPage() {
         status: 'pending',
         notes: form.motivation || null,
         terms_accepted_at: new Date().toISOString(),
-        user_id: user.id,
+        user_id: user?.id || null,
       });
       if (error) throw error;
       setSubmitted(true);
