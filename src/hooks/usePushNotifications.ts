@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { db } from '@/lib/db';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -22,16 +22,41 @@ export function usePushNotifications() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const isSupported = 'serviceWorker' in navigator && 'PushManager' in window && !!VAPID_PUBLIC_KEY;
+  const isSupported = typeof window !== 'undefined' && 'serviceWorker' in navigator && 'PushManager' in window && !!VAPID_PUBLIC_KEY;
+
+  // Check existing subscription on mount
+  useEffect(() => {
+    if (!isSupported || !user) return;
+    
+    navigator.serviceWorker.ready.then(async (reg) => {
+      const sub = await reg.pushManager.getSubscription();
+      setIsSubscribed(!!sub);
+    }).catch(() => {});
+  }, [isSupported, user]);
+
+  // Auto-register service worker on mount
+  useEffect(() => {
+    if (!isSupported) return;
+    navigator.serviceWorker.register('/sw.js').catch((err) => {
+      console.warn('SW registration failed:', err);
+    });
+  }, [isSupported]);
 
   const subscribe = useCallback(async () => {
     if (!user || !isSupported) return;
     setLoading(true);
     try {
-      const registration = await navigator.serviceWorker.register('/sw.js');
-      await navigator.serviceWorker.ready;
+      const registration = await navigator.serviceWorker.ready;
 
-      const sub = await (registration as any).pushManager.subscribe({
+      // Request permission
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        toast({ title: 'Permission refusée', description: 'Autorisez les notifications dans les paramètres de votre navigateur.', variant: 'destructive' });
+        setLoading(false);
+        return;
+      }
+
+      const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY!),
       });
@@ -46,7 +71,7 @@ export function usePushNotifications() {
       }, { onConflict: 'endpoint' });
 
       setIsSubscribed(true);
-      toast({ title: '🔔 Notifications activées' });
+      toast({ title: '🔔 Notifications push activées !' });
     } catch (err: any) {
       console.error('Push subscription failed:', err);
       toast({ title: 'Erreur', description: err.message, variant: 'destructive' });
@@ -55,5 +80,21 @@ export function usePushNotifications() {
     }
   }, [user, currentOrg, isSupported, toast]);
 
-  return { isSupported, isSubscribed, subscribe, loading };
+  const unsubscribe = useCallback(async () => {
+    if (!user) return;
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const sub = await registration.pushManager.getSubscription();
+      if (sub) {
+        await sub.unsubscribe();
+        await db.from('push_subscriptions').delete().eq('endpoint', sub.endpoint);
+      }
+      setIsSubscribed(false);
+      toast({ title: '🔕 Notifications push désactivées' });
+    } catch (err: any) {
+      console.error('Unsubscribe failed:', err);
+    }
+  }, [user, toast]);
+
+  return { isSupported, isSubscribed, subscribe, unsubscribe, loading };
 }

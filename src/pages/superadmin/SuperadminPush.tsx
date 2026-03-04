@@ -6,9 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
 import { callFn } from '@/lib/api';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -27,7 +25,6 @@ interface PushLog {
   id: string;
   title: string;
   message: string;
-  segment: string;
   status: 'success' | 'error';
   recipients: number;
   error?: string;
@@ -38,7 +35,6 @@ export default function SuperadminPush() {
   const { toast } = useToast();
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
-  const [segment, setSegment] = useState('Subscribed Users');
   const [sending, setSending] = useState(false);
   const [logs, setLogs] = useState<PushLog[]>([]);
 
@@ -49,20 +45,31 @@ export default function SuperadminPush() {
       id: crypto.randomUUID(),
       title: title.trim(),
       message: message.trim(),
-      segment,
       status: 'success',
       recipients: 0,
       sentAt: new Date(),
     };
     try {
-      const res = await callFn('onesignal-test-push', {
-        title: title.trim(),
-        message: message.trim(),
-        segment,
-      }, true);
-      logEntry.recipients = res?.recipients || 0;
+      // Create a notification for all users with push subscriptions
+      const { data: subs } = await db.from('push_subscriptions')
+        .select('user_id')
+        .limit(500);
+      
+      const uniqueUserIds = [...new Set((subs || []).map(s => s.user_id))];
+      
+      // Insert notifications for each user — the DB trigger will send push + email
+      for (const userId of uniqueUserIds) {
+        await db.from('user_notifications').insert({
+          user_id: userId,
+          title: title.trim(),
+          body: message.trim(),
+          notification_type: 'broadcast',
+        });
+      }
+      
+      logEntry.recipients = uniqueUserIds.length;
       logEntry.status = 'success';
-      toast({ title: `✅ Push envoyée à ${logEntry.recipients} appareil(s)` });
+      toast({ title: `✅ Notification envoyée à ${logEntry.recipients} utilisateur(s)` });
     } catch (err: any) {
       logEntry.status = 'error';
       logEntry.error = err.message || 'Unknown error';
@@ -73,7 +80,6 @@ export default function SuperadminPush() {
     }
   };
 
-  // Fetch push subscription count
   const { data: subCount = 0 } = useQuery({
     queryKey: ['sa-push-sub-count'],
     queryFn: async () => {
@@ -92,43 +98,29 @@ export default function SuperadminPush() {
             <Bell className="h-5 w-5 text-primary" /> Push Notifications
           </h1>
           <p className="text-xs text-muted-foreground mt-1">
-            Testez et envoyez des notifications push via OneSignal · {subCount} abonné(s) enregistré(s)
+            Envoyez des notifications push natives · {subCount} abonné(s) enregistré(s)
           </p>
         </div>
         <Badge variant="outline" className="text-[10px] gap-1.5 px-3 py-1.5">
-          <Zap className="h-3 w-3" /> OneSignal
+          <Zap className="h-3 w-3" /> Web Push (VAPID)
         </Badge>
       </motion.div>
 
-      {/* Send form */}
       <motion.div variants={fadeUp} className="bg-card border border-border rounded-2xl p-5 space-y-4">
         <h2 className="text-sm font-semibold flex items-center gap-2">
-          <Send className="h-4 w-4 text-primary" /> Envoyer une notification
+          <Send className="h-4 w-4 text-primary" /> Envoyer une notification broadcast
         </h2>
 
-        <div className="grid sm:grid-cols-2 gap-3">
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-medium text-muted-foreground">Titre</label>
-            <Input value={title} onChange={e => setTitle(e.target.value)}
-              placeholder="🔔 Test SiteViral" className="h-9 text-sm" />
-          </div>
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-medium text-muted-foreground">Segment</label>
-            <Select value={segment} onValueChange={setSegment}>
-              <SelectTrigger className="h-9 text-sm"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Subscribed Users">Tous les abonnés</SelectItem>
-                <SelectItem value="Active Users">Utilisateurs actifs</SelectItem>
-                <SelectItem value="Inactive Users">Utilisateurs inactifs</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-medium text-muted-foreground">Titre</label>
+          <Input value={title} onChange={e => setTitle(e.target.value)}
+            placeholder="🔔 Nouvelle annonce SiteViral" className="h-9 text-sm" />
         </div>
 
         <div className="space-y-1.5">
           <label className="text-[11px] font-medium text-muted-foreground">Message</label>
           <Textarea value={message} onChange={e => setMessage(e.target.value)}
-            placeholder="Ceci est un test de notification push..." rows={3} className="text-sm" />
+            placeholder="Ceci est un message broadcast..." rows={3} className="text-sm" />
         </div>
 
         <Button className="gap-1.5" disabled={!title.trim() || !message.trim() || sending} onClick={sendPush}>
@@ -137,7 +129,6 @@ export default function SuperadminPush() {
         </Button>
       </motion.div>
 
-      {/* Logs */}
       <motion.div variants={fadeUp} className="bg-card border border-border rounded-2xl p-5 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold flex items-center gap-2">
@@ -154,7 +145,6 @@ export default function SuperadminPush() {
           <div className="py-10 text-center">
             <Bell className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
             <p className="text-xs text-muted-foreground">Aucun envoi effectué pour cette session.</p>
-            <p className="text-[10px] text-muted-foreground/70 mt-1">Les logs apparaîtront ici après chaque envoi.</p>
           </div>
         ) : (
           <ScrollArea className="max-h-[400px]">
@@ -175,7 +165,6 @@ export default function SuperadminPush() {
                     <p className="text-sm font-semibold">{log.title}</p>
                     <p className="text-xs text-muted-foreground truncate">{log.message}</p>
                     <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                      <Badge variant="outline" className="text-[10px]">{log.segment}</Badge>
                       {log.status === 'success' ? (
                         <span className="text-[10px] text-emerald-600 font-medium">{log.recipients} destinataire(s)</span>
                       ) : (
