@@ -39,16 +39,22 @@ serve(async (req) => {
 Contexte: Tu rédiges une ${context}.
 ${toneInstructions[tone] || toneInstructions.professional}
 
+FORMAT DE SORTIE: Tu DOIS retourner du HTML propre et bien formaté. PAS de markdown.
+
 Règles:
 - Rédige en français
 - Utilise des phrases courtes et impactantes
 - Ajoute des emojis pertinents
-- Structure avec des paragraphes clairs
-- Mets les mots importants en **gras**
-- Le texte doit être prêt à être copié-collé
+- Structure avec des paragraphes <p>
+- Mets les mots importants en <strong>gras</strong>
+- Utilise <em> pour l'italique quand pertinent
+- Utilise <br> pour les sauts de ligne dans un paragraphe
+- Le texte doit être du HTML prêt à être inséré dans un éditeur
 - Maximum 300 mots
 - IMPORTANT: Ne commence JAMAIS par une phrase d'introduction comme "Voici une description..." ou "Voici un texte..."
-- IMPORTANT: Ne mets JAMAIS de séparateurs comme "---" au début ou à la fin du texte
+- IMPORTANT: Ne mets JAMAIS de séparateurs comme "---" ou "<hr>" au début ou à la fin
+- IMPORTANT: N'utilise JAMAIS de markdown (pas de ** ni de * ni de #). Uniquement du HTML.
+- IMPORTANT: N'enveloppe PAS le résultat dans des balises \`\`\`html ou \`\`\`
 - Va droit au but, commence directement par le contenu demandé`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
