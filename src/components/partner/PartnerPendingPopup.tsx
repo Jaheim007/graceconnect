@@ -3,21 +3,52 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, Handshake } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { db } from '@/lib/db';
 
 /**
- * Shows a popup after login if the user just submitted a partner application.
- * The flag is set in sessionStorage by BecomePartnerPage after auto-submitting.
+ * Shows a popup if the logged-in user has a pending partner application.
+ * Uses DB check (reliable) + sessionStorage flag (for first-time emphasis).
  */
 export default function PartnerPendingPopup() {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const flag = sessionStorage.getItem('sv_partner_submitted');
-    if (flag === 'true') {
-      setOpen(true);
+    if (!user) return;
+
+    // Check sessionStorage flag first (set right after form submission)
+    const justSubmitted = sessionStorage.getItem('sv_partner_submitted') === 'true';
+    if (justSubmitted) {
       sessionStorage.removeItem('sv_partner_submitted');
+      setOpen(true);
+      return;
     }
-  }, []);
+
+    // Fallback: check DB for any pending partner record created in last 5 minutes
+    // This handles the case where sessionStorage was lost (e.g. Google OAuth redirect)
+    (async () => {
+      try {
+        const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+        const { data } = await db.from('partners')
+          .select('id, status, created_at')
+          .eq('user_id', user.id)
+          .eq('status', 'pending')
+          .gte('created_at', fiveMinAgo)
+          .maybeSingle();
+        if (data) {
+          // Only show once per session
+          const shownKey = `sv_partner_popup_shown_${data.id}`;
+          if (!sessionStorage.getItem(shownKey)) {
+            sessionStorage.setItem(shownKey, 'true');
+            setOpen(true);
+          }
+        }
+      } catch {
+        // Non-fatal
+      }
+    })();
+  }, [user]);
 
   if (!open) return null;
 
