@@ -105,9 +105,6 @@ export function TopBar() {
             {mode === 'creator' && (
               <DropdownMenuItem onClick={() => navigate('/create-org')}><Plus className="h-3.5 w-3.5 mr-2" /> {t('topbar.create_org')}</DropdownMenuItem>
             )}
-            {mode === 'creator' && canManageCurrentOrg && (
-              <DropdownMenuItem onClick={() => navigate('/admin')}><Settings className="h-3.5 w-3.5 mr-2" /> {t('topbar.manage_org')}</DropdownMenuItem>
-            )}
             {isSuperadmin && (
               <DropdownMenuItem onClick={() => navigate('/superadmin')}><Shield className="h-3.5 w-3.5 mr-2" /> {t('topbar.superadmin')}</DropdownMenuItem>
             )}

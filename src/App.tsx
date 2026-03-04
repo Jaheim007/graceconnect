@@ -326,7 +326,6 @@ const App = () => (
                 {/* Standalone marketplace — accessible to all, layout via PublicLayout below */}
                 {/* Public / Buyer Universe — uses PublicLayout (minimal chrome) */}
                 <Route element={<PublicLayout />}>
-                  <Route path="/marketplace" element={<MarketplacePage />} />
                   <Route path="/org/:slug" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/content" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/events" element={<OrgPublicPage />} />
@@ -349,6 +348,7 @@ const App = () => (
 
                 {/* Authenticated shell */}
                 <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
+                  <Route path="/marketplace" element={<MarketplacePage />} />
                   <Route path="/feed" element={<FeedPage />} />
                   <Route path="/reels" element={<ReelsPage />} />
                   <Route path="/reels/:id" element={<ReelsPage />} />
