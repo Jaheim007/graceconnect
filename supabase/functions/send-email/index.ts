@@ -6,6 +6,8 @@ const corsHeaders = {
 };
 
 type EmailTemplate =
+  // Notification reminder
+  | 'notification_reminder'
   // Auth & Onboarding
   | 'welcome' | 'onboarding_day1' | 'onboarding_day3' | 'onboarding_day7'
   | 'account_deleted' | 'new_device_login' | 'password_changed' | 'email_changed'
@@ -379,6 +381,10 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
       return { subject: `🎉 Place disponible – ${d.item_name}`, html: wrap(`<h1 style="color:${green}">🎉 Place Disponible !</h1><p>Bonne nouvelle ! Une place est disponible pour <strong>"${d.item_name}"</strong>.</p><p>Ne tardez pas, les places sont limitées !</p>${cta('https://siteviral.com', 'Réserver maintenant')}`) };
     case 'referral_reward':
       return { subject: `🎁 Récompense de parrainage`, html: wrap(`<h1 style="color:${green}">🎁 Récompense !</h1><p><strong>${d.referred_name || 'Quelqu\'un'}</strong> s'est inscrit grâce à vous !</p><p>${d.reward_description || 'Votre récompense a été créditée.'}</p>`) };
+
+    // ═══ NOTIFICATION REMINDER ═══
+    case 'notification_reminder':
+      return { subject: `${d.title || '🔔 Notification'}`, html: wrap(`<h1 style="color:${blue}">${d.title || '🔔 Notification'}</h1><p>${d.body || 'Vous avez une nouvelle notification sur Siteviral.'}</p>${d.action_url ? cta(String(d.action_url), 'Voir la notification →') : cta('https://siteviral.com/notifications', 'Voir mes notifications →')}<p style="font-size:12px;color:#999">Vous recevez cet email car vous avez activé les notifications email. <a href="https://siteviral.com/notification-preferences" style="color:${blue}">Gérer mes préférences</a></p>`) };
 
     default:
       throw new Error(`Unknown template: ${template}`);

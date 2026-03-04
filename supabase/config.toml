@@ -104,3 +104,9 @@ verify_jwt = false
 
 [functions.youtube-channel-import]
 verify_jwt = false
+
+[functions.on-notification-created]
+verify_jwt = false
+
+[functions.backfill-purchase-emails]
+verify_jwt = false
