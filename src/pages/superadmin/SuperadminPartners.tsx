@@ -339,11 +339,14 @@ export default function SuperadminPartners() {
           </Card>
         </TabsContent>
 
-        {/* ── Referrals Tab ── */}
+        {/* ── Referrals Tab (read-only monitoring — activation is automatic on first payment) ── */}
         <TabsContent value="referrals">
           <Card>
             <CardHeader>
               <CardTitle>Organisations référées par les partenaires</CardTitle>
+              <p className="text-xs text-muted-foreground mt-1">
+                ⚡ Les referrals passent automatiquement de « En attente » à « Active » dès le premier paiement reçu par l'organisation. Les commissions sont créées et libérées automatiquement après 15 jours.
+              </p>
             </CardHeader>
             <CardContent>
               {isLoadingRefs ? (
@@ -358,12 +361,11 @@ export default function SuperadminPartners() {
                       <TableHead>Organisation</TableHead>
                       <TableHead>Statut</TableHead>
                       <TableHead>Date</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {allReferrals.map(ref => (
-                      <TableRow key={ref.id} className={ref.status === 'pending' ? 'bg-amber-50/50 dark:bg-amber-950/10' : ''}>
+                      <TableRow key={ref.id}>
                         <TableCell>
                           <div>
                             <p className="text-sm font-medium">{(ref as any).partner?.full_name || '—'}</p>
@@ -376,45 +378,10 @@ export default function SuperadminPartners() {
                         </TableCell>
                         <TableCell>
                           <Badge variant={ref.status === 'active' ? 'default' : ref.status === 'rejected' ? 'destructive' : 'secondary'}>
-                            {ref.status === 'active' ? 'Active' : ref.status === 'rejected' ? 'Rejetée' : 'En attente'}
+                            {ref.status === 'active' ? 'Active' : ref.status === 'rejected' ? 'Rejetée' : 'En attente (1er paiement)'}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground">{new Date(ref.attributed_at).toLocaleDateString('fr-FR')}</TableCell>
-                        <TableCell className="text-right">
-                          {ref.status === 'pending' && (
-                            <div className="flex items-center gap-1 justify-end">
-                              <Button size="sm" variant="ghost" title="Activer manuellement" onClick={async () => {
-                                try {
-                                  const { error } = await db.from('partner_referrals')
-                                    .update({ status: 'active', locked_at: new Date().toISOString() })
-                                    .eq('id', ref.id);
-                                  if (error) throw error;
-                                  toast.success('Referral activé');
-                                  qc.invalidateQueries({ queryKey: ['all-partner-referrals'] });
-                                  qc.invalidateQueries({ queryKey: ['all-partners'] });
-                                } catch (err: any) {
-                                  toast.error(err.message);
-                                }
-                              }}>
-                                <CheckCircle className="h-4 w-4 text-green-600" />
-                              </Button>
-                              <Button size="sm" variant="ghost" title="Rejeter" onClick={async () => {
-                                try {
-                                  const { error } = await db.from('partner_referrals')
-                                    .update({ status: 'rejected' })
-                                    .eq('id', ref.id);
-                                  if (error) throw error;
-                                  toast.success('Referral rejeté');
-                                  qc.invalidateQueries({ queryKey: ['all-partner-referrals'] });
-                                } catch (err: any) {
-                                  toast.error(err.message);
-                                }
-                              }}>
-                                <XCircle className="h-4 w-4 text-destructive" />
-                              </Button>
-                            </div>
-                          )}
-                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
