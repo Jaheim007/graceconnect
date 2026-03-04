@@ -5,7 +5,7 @@ import {
   Settings, ChevronLeft, ChevronRight, Shield,
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, LogOut,
   UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, LayoutDashboard, Building2,
-  Trophy, CreditCard, Clock, GraduationCap, Share2, HandHeart, Package
+  Trophy, CreditCard, Clock, GraduationCap, Share2, HandHeart, Package, Handshake
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
@@ -16,6 +16,7 @@ import { useUnreadCount } from '@/hooks/useNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useMode } from '@/contexts/ModeContext';
+import { useMyPartner } from '@/hooks/usePartner';
 
 interface NavItem {
   to: string;
@@ -39,6 +40,8 @@ export function Sidebar() {
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const { t } = useI18n();
   const { hasAmbassadorAccess } = useMode();
+  const { data: myPartner } = useMyPartner();
+  const isApprovedPartner = myPartner?.status === 'approved';
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
     Content: true, Commerce: true, Management: true,
   });
@@ -287,6 +290,16 @@ export function Sidebar() {
                 {renderSectionLabel(Share2, 'Gagner', 'text-emerald-500')}
                 <div className="space-y-0.5">
                   {earnItems.map(renderNavItem)}
+                </div>
+              </>
+            )}
+
+            {/* ═══ PARTENAIRE ═══ */}
+            {isApprovedPartner && (
+              <>
+                {renderSectionLabel(Handshake, 'Partenaire', 'text-blue-500')}
+                <div className="space-y-0.5">
+                  {renderNavItem({ to: '/partner', icon: Handshake, label: 'Espace Partenaire', desc: 'Commissions et organisations' })}
                 </div>
               </>
             )}
