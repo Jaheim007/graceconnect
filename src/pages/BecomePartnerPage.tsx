@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { db } from '@/lib/db';
 import {
@@ -32,40 +33,132 @@ const BENEFITS = [
   { icon: Globe, title: 'Couverture multi-pays', desc: 'Invitez des organisations de Côte d\'Ivoire, Ghana, Nigeria, Kenya et plus.' },
 ];
 
+const COUNTRIES = [
+  { value: 'CI', label: 'Côte d\'Ivoire' },
+  { value: 'SN', label: 'Sénégal' },
+  { value: 'CM', label: 'Cameroun' },
+  { value: 'BF', label: 'Burkina Faso' },
+  { value: 'ML', label: 'Mali' },
+  { value: 'GN', label: 'Guinée' },
+  { value: 'BJ', label: 'Bénin' },
+  { value: 'TG', label: 'Togo' },
+  { value: 'NE', label: 'Niger' },
+  { value: 'GA', label: 'Gabon' },
+  { value: 'CG', label: 'Congo' },
+  { value: 'CD', label: 'RD Congo' },
+  { value: 'GH', label: 'Ghana' },
+  { value: 'NG', label: 'Nigeria' },
+  { value: 'KE', label: 'Kenya' },
+  { value: 'FR', label: 'France' },
+  { value: 'US', label: 'États-Unis' },
+  { value: 'CA', label: 'Canada' },
+  { value: 'OTHER', label: 'Autre' },
+];
+
+const NETWORK_SIZES = [
+  { value: 'small', label: 'Moins de 10 organisations' },
+  { value: 'medium', label: '10 à 50 organisations' },
+  { value: 'large', label: '50 à 200 organisations' },
+  { value: 'xlarge', label: 'Plus de 200 organisations' },
+];
+
+const ORG_TYPES = [
+  { value: 'church', label: 'Églises / Communautés religieuses' },
+  { value: 'ngo', label: 'ONG / Associations' },
+  { value: 'school', label: 'Écoles / Centres de formation' },
+  { value: 'media', label: 'Médias / Créateurs de contenu' },
+  { value: 'business', label: 'Entreprises / Startups' },
+  { value: 'consulting', label: 'Consulting / Agences' },
+  { value: 'mixed', label: 'Mixte / Plusieurs types' },
+  { value: 'other', label: 'Autre' },
+];
+
+const HOW_HEARD = [
+  { value: 'social_media', label: 'Réseaux sociaux' },
+  { value: 'friend', label: 'Bouche-à-oreille / Ami' },
+  { value: 'search', label: 'Recherche Google' },
+  { value: 'event', label: 'Événement / Conférence' },
+  { value: 'partner', label: 'Recommandé par un partenaire' },
+  { value: 'other', label: 'Autre' },
+];
+
 export default function BecomePartnerPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ full_name: '', email: '', phone: '', country: 'CI', motivation: '' });
+  const [form, setForm] = useState({
+    full_name: '',
+    email: '',
+    phone: '',
+    country: 'CI',
+    city: '',
+    profession: '',
+    organization_name: '',
+    organization_type: '',
+    website_url: '',
+    social_media_url: '',
+    network_size: '',
+    target_audience: '',
+    experience_description: '',
+    how_heard_about_us: '',
+    motivation: '',
+  });
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  const set = (key: string, val: string) => setForm(f => ({ ...f, [key]: val }));
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast.error('Vous devez être connecté pour postuler.');
-      navigate('/auth?redirect=/devenir-partenaire');
+    if (!form.full_name || !form.email || !form.phone || !form.country || !form.profession || !form.motivation || !termsAccepted) {
+      toast.error('Veuillez remplir tous les champs obligatoires.');
       return;
     }
-    if (!form.full_name || !form.email || !termsAccepted) return;
 
+    // Save form data to sessionStorage so we can use it after login
+    const code = 'SV-' + form.full_name.substring(0, 4).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
+    const slug = code.toLowerCase().replace(/[^a-z0-9]/g, '-');
+
+    const partnerData = {
+      full_name: form.full_name,
+      email: form.email,
+      phone: form.phone,
+      country: form.country,
+      city: form.city || null,
+      profession: form.profession || null,
+      organization_name: form.organization_name || null,
+      organization_type: form.organization_type || null,
+      website_url: form.website_url || null,
+      social_media_url: form.social_media_url || null,
+      network_size: form.network_size || null,
+      target_audience: form.target_audience || null,
+      experience_description: form.experience_description || null,
+      how_heard_about_us: form.how_heard_about_us || null,
+      motivation: form.motivation || null,
+      invite_code: code,
+      invite_link_slug: slug,
+      status: 'pending',
+      notes: null,
+      terms_accepted_at: new Date().toISOString(),
+    };
+
+    if (!user) {
+      // Save to sessionStorage and redirect to login
+      sessionStorage.setItem('sv_pending_partner', JSON.stringify(partnerData));
+      toast.info('Veuillez vous connecter pour finaliser votre candidature.');
+      navigate('/auth?returnTo=/devenir-partenaire&intent=partner');
+      return;
+    }
+
+    // User is logged in, submit directly
     setSubmitting(true);
     try {
-      const code = 'SV-' + form.full_name.substring(0, 4).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
-      const slug = code.toLowerCase().replace(/[^a-z0-9]/g, '-');
       const { error } = await db.from('partners').insert({
-        full_name: form.full_name,
-        email: form.email,
-        phone: form.phone || null,
-        country: form.country,
-        invite_code: code,
-        invite_link_slug: slug,
-        status: 'pending',
-        notes: form.motivation || null,
-        terms_accepted_at: new Date().toISOString(),
+        ...partnerData,
         user_id: user.id,
       });
       if (error) throw error;
+      sessionStorage.removeItem('sv_pending_partner');
       setSubmitted(true);
     } catch (err: any) {
       toast.error(err.message || 'Erreur lors de la soumission');
@@ -73,6 +166,33 @@ export default function BecomePartnerPage() {
       setSubmitting(false);
     }
   };
+
+  // Check if we have a pending partner application after login
+  useState(() => {
+    if (user && !submitted) {
+      const pending = sessionStorage.getItem('sv_pending_partner');
+      if (pending) {
+        const partnerData = JSON.parse(pending);
+        // Auto-submit
+        (async () => {
+          setSubmitting(true);
+          try {
+            const { error } = await db.from('partners').insert({
+              ...partnerData,
+              user_id: user.id,
+            });
+            if (error) throw error;
+            sessionStorage.removeItem('sv_pending_partner');
+            setSubmitted(true);
+          } catch (err: any) {
+            toast.error(err.message || 'Erreur lors de la soumission');
+          } finally {
+            setSubmitting(false);
+          }
+        })();
+      }
+    }
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -201,8 +321,11 @@ export default function BecomePartnerPage() {
 
       {/* Application form */}
       <section id="candidature" className="py-16 px-4 border-t border-border/40">
-        <div className="container max-w-lg">
-          <h2 className="text-2xl font-extrabold text-center mb-8">Postuler</h2>
+        <div className="container max-w-2xl">
+          <h2 className="text-2xl font-extrabold text-center mb-2">Postuler</h2>
+          <p className="text-center text-sm text-muted-foreground mb-8">
+            Remplissez ce formulaire avec soin. Plus votre profil est complet, plus votre candidature sera traitée rapidement.
+          </p>
 
           {submitted ? (
             <Card>
@@ -214,37 +337,136 @@ export default function BecomePartnerPage() {
                   par email sous 48h. En attendant, vous pouvez consulter le{' '}
                   <Link to="/partner-terms" className="text-primary underline">contrat de partenariat</Link>.
                 </p>
+                <Button variant="outline" asChild>
+                  <Link to="/dashboard">Accéder à mon espace</Link>
+                </Button>
               </CardContent>
             </Card>
           ) : (
             <Card>
               <CardContent className="pt-6">
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Section 1: Identity */}
                   <div>
-                    <Label>Nom complet *</Label>
-                    <Input required value={form.full_name} onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))} placeholder="Jean Dupont" />
+                    <h3 className="text-sm font-bold text-primary uppercase tracking-wide mb-3">🪪 Informations personnelles</h3>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label>Nom complet *</Label>
+                        <Input required value={form.full_name} onChange={e => set('full_name', e.target.value)} placeholder="Jean Dupont" />
+                      </div>
+                      <div>
+                        <Label>Email *</Label>
+                        <Input type="email" required value={form.email} onChange={e => set('email', e.target.value)} placeholder="jean@example.com" />
+                      </div>
+                      <div>
+                        <Label>Téléphone (WhatsApp) *</Label>
+                        <Input required value={form.phone} onChange={e => set('phone', e.target.value)} placeholder="+225 07 00 00 00 00" />
+                      </div>
+                      <div>
+                        <Label>Pays *</Label>
+                        <Select value={form.country} onValueChange={v => set('country', v)}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {COUNTRIES.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Ville</Label>
+                        <Input value={form.city} onChange={e => set('city', e.target.value)} placeholder="Abidjan" />
+                      </div>
+                      <div>
+                        <Label>Profession / Activité *</Label>
+                        <Input required value={form.profession} onChange={e => set('profession', e.target.value)} placeholder="Pasteur, Consultant, Entrepreneur…" />
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Section 2: Organization & Network */}
                   <div>
-                    <Label>Email *</Label>
-                    <Input type="email" required value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="jean@example.com" />
+                    <h3 className="text-sm font-bold text-primary uppercase tracking-wide mb-3">🏢 Votre réseau</h3>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label>Nom de votre organisation (si applicable)</Label>
+                        <Input value={form.organization_name} onChange={e => set('organization_name', e.target.value)} placeholder="Ministère de la Grâce" />
+                      </div>
+                      <div>
+                        <Label>Type d'organisations ciblées</Label>
+                        <Select value={form.organization_type} onValueChange={v => set('organization_type', v)}>
+                          <SelectTrigger><SelectValue placeholder="Sélectionnez" /></SelectTrigger>
+                          <SelectContent>
+                            {ORG_TYPES.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Taille de votre réseau</Label>
+                        <Select value={form.network_size} onValueChange={v => set('network_size', v)}>
+                          <SelectTrigger><SelectValue placeholder="Sélectionnez" /></SelectTrigger>
+                          <SelectContent>
+                            {NETWORK_SIZES.map(n => <SelectItem key={n.value} value={n.value}>{n.label}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Public cible / Audience</Label>
+                        <Input value={form.target_audience} onChange={e => set('target_audience', e.target.value)} placeholder="Pasteurs, Leaders communautaires…" />
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Section 3: Online presence */}
                   <div>
-                    <Label>Téléphone</Label>
-                    <Input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+225 07 00 00 00 00" />
+                    <h3 className="text-sm font-bold text-primary uppercase tracking-wide mb-3">🌐 Présence en ligne</h3>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <Label>Site web (optionnel)</Label>
+                        <Input type="url" value={form.website_url} onChange={e => set('website_url', e.target.value)} placeholder="https://monsite.com" />
+                      </div>
+                      <div>
+                        <Label>Réseau social principal (optionnel)</Label>
+                        <Input value={form.social_media_url} onChange={e => set('social_media_url', e.target.value)} placeholder="https://facebook.com/monprofil" />
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Section 4: Motivation */}
                   <div>
-                    <Label>Pays</Label>
-                    <Input value={form.country} onChange={e => setForm(f => ({ ...f, country: e.target.value }))} placeholder="CI" />
+                    <h3 className="text-sm font-bold text-primary uppercase tracking-wide mb-3">💬 Motivation</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <Label>Comment avez-vous entendu parler de Siteviral ?</Label>
+                        <Select value={form.how_heard_about_us} onValueChange={v => set('how_heard_about_us', v)}>
+                          <SelectTrigger><SelectValue placeholder="Sélectionnez" /></SelectTrigger>
+                          <SelectContent>
+                            {HOW_HEARD.map(h => <SelectItem key={h.value} value={h.value}>{h.label}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Décrivez votre expérience en partenariats / ventes</Label>
+                        <Textarea
+                          value={form.experience_description}
+                          onChange={e => set('experience_description', e.target.value)}
+                          placeholder="Parlez-nous de votre expérience dans le domaine du parrainage, des ventes, ou du réseautage…"
+                          maxLength={1000}
+                          rows={3}
+                        />
+                      </div>
+                      <div>
+                        <Label>Pourquoi souhaitez-vous devenir partenaire ? *</Label>
+                        <Textarea
+                          required
+                          value={form.motivation}
+                          onChange={e => set('motivation', e.target.value)}
+                          placeholder="Expliquez votre motivation, votre plan pour développer un réseau d'organisations…"
+                          maxLength={1000}
+                          rows={3}
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <Label>Pourquoi souhaitez-vous devenir partenaire ?</Label>
-                    <Textarea
-                      value={form.motivation}
-                      onChange={e => setForm(f => ({ ...f, motivation: e.target.value }))}
-                      placeholder="Décrivez votre réseau, votre expérience…"
-                      maxLength={500}
-                    />
-                  </div>
+
                   <div className="flex items-start gap-2">
                     <Checkbox checked={termsAccepted} onCheckedChange={v => setTermsAccepted(!!v)} id="terms" />
                     <label htmlFor="terms" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
@@ -254,10 +476,15 @@ export default function BecomePartnerPage() {
                       <Link to="/terms" className="text-primary underline" target="_blank">Conditions Générales</Link>.
                     </label>
                   </div>
-                  <Button type="submit" className="w-full" size="lg" disabled={submitting || !termsAccepted || !form.full_name || !form.email}>
+                  <Button type="submit" className="w-full" size="lg" disabled={submitting || !termsAccepted || !form.full_name || !form.email || !form.phone || !form.motivation}>
                     {submitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Handshake className="h-4 w-4 mr-2" />}
-                    Envoyer ma candidature
+                    {user ? 'Envoyer ma candidature' : 'Continuer et se connecter'}
                   </Button>
+                  {!user && (
+                    <p className="text-xs text-center text-muted-foreground">
+                      Vous serez invité à vous connecter après avoir rempli le formulaire. Vos informations seront conservées.
+                    </p>
+                  )}
                 </form>
               </CardContent>
             </Card>

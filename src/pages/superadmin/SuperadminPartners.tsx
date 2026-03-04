@@ -10,7 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Loader2, Handshake, CheckCircle, XCircle, Pause, Play, Percent, Wallet, Shield } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Loader2, Handshake, CheckCircle, XCircle, Pause, Play, Percent, Wallet, Shield, Eye, Globe, Briefcase, Phone, Mail, MapPin } from 'lucide-react';
 import { db } from '@/lib/db';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
@@ -32,6 +33,7 @@ export default function SuperadminPartners() {
   const [newRate, setNewRate] = useState('');
   const [createDialog, setCreateDialog] = useState(false);
   const [newPartner, setNewPartner] = useState({ full_name: '', email: '', phone: '', country: 'CI', invite_code: '' });
+  const [detailDialog, setDetailDialog] = useState<Partner | null>(null);
 
   const handleAction = () => {
     if (!actionDialog) return;
@@ -93,7 +95,10 @@ export default function SuperadminPartners() {
 
       <Tabs defaultValue="partners" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="partners">Partenaires</TabsTrigger>
+          <TabsTrigger value="partners">
+            Partenaires
+            {statusCounts.pending > 0 && <Badge variant="destructive" className="ml-1.5 text-[10px] h-4 px-1">{statusCounts.pending}</Badge>}
+          </TabsTrigger>
           <TabsTrigger value="kyc" className="gap-1.5">
             <Shield className="h-3.5 w-3.5" />
             KYC
@@ -120,67 +125,70 @@ export default function SuperadminPartners() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Partenaire</TableHead>
+                      <TableHead>Profession</TableHead>
+                      <TableHead>Pays</TableHead>
                       <TableHead>Statut</TableHead>
                       <TableHead>Niveau</TableHead>
-                      <TableHead>Taux</TableHead>
                       <TableHead>Code</TableHead>
-                      <TableHead>Utilisations</TableHead>
+                      <TableHead>Date</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {partners.map(p => (
-                      <TableRow key={p.id}>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium text-sm">{p.full_name}</p>
-                            <p className="text-xs text-muted-foreground">{p.email}</p>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={p.status === 'approved' ? 'default' : p.status === 'pending' ? 'secondary' : 'destructive'}>
-                            {p.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-sm">{LEVEL_LABELS[p.level] || `L${p.level}`}</TableCell>
-                        <TableCell className="text-sm">
-                          {p.custom_rate_override !== null ? (
-                            <span className="text-primary font-medium">{p.custom_rate_override}%*</span>
-                          ) : (
-                            <span>{p.rate_percent}%</span>
-                          )}
-                        </TableCell>
-                        <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">{p.invite_code || '—'}</code></TableCell>
-                        <TableCell className="text-sm">{p.invite_uses_count}</TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center gap-1 justify-end">
-                            {p.status === 'pending' && (
-                              <>
-                                <Button size="sm" variant="ghost" onClick={() => setActionDialog({ partner: p, action: 'approve' })} title="Approuver">
-                                  <CheckCircle className="h-4 w-4 text-green-600" />
-                                </Button>
-                                <Button size="sm" variant="ghost" onClick={() => setActionDialog({ partner: p, action: 'reject' })} title="Rejeter">
-                                  <XCircle className="h-4 w-4 text-destructive" />
-                                </Button>
-                              </>
-                            )}
-                            {p.status === 'approved' && (
-                              <Button size="sm" variant="ghost" onClick={() => setActionDialog({ partner: p, action: 'suspend' })} title="Suspendre">
-                                <Pause className="h-4 w-4 text-amber-600" />
+                    {partners.map(p => {
+                      const pa = p as any;
+                      return (
+                        <TableRow key={p.id} className={p.status === 'pending' ? 'bg-amber-50/50 dark:bg-amber-950/10' : ''}>
+                          <TableCell>
+                            <div>
+                              <p className="font-medium text-sm">{p.full_name}</p>
+                              <p className="text-xs text-muted-foreground">{p.email}</p>
+                              {p.phone && <p className="text-xs text-muted-foreground">{p.phone}</p>}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">{pa.profession || '—'}</TableCell>
+                          <TableCell className="text-sm">{p.country}</TableCell>
+                          <TableCell>
+                            <Badge variant={p.status === 'approved' ? 'default' : p.status === 'pending' ? 'secondary' : 'destructive'}>
+                              {p.status}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm">{LEVEL_LABELS[p.level] || `L${p.level}`}</TableCell>
+                          <TableCell><code className="text-xs bg-muted px-1.5 py-0.5 rounded">{p.invite_code || '—'}</code></TableCell>
+                          <TableCell className="text-xs text-muted-foreground">{new Date(p.created_at).toLocaleDateString('fr-FR')}</TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center gap-1 justify-end">
+                              <Button size="sm" variant="ghost" onClick={() => setDetailDialog(p)} title="Voir détails">
+                                <Eye className="h-4 w-4" />
                               </Button>
-                            )}
-                            {p.status === 'suspended' && (
-                              <Button size="sm" variant="ghost" onClick={() => setActionDialog({ partner: p, action: 'unsuspend' })} title="Réactiver">
-                                <Play className="h-4 w-4 text-green-600" />
+                              {p.status === 'pending' && (
+                                <>
+                                  <Button size="sm" variant="ghost" onClick={() => setActionDialog({ partner: p, action: 'approve' })} title="Approuver">
+                                    <CheckCircle className="h-4 w-4 text-green-600" />
+                                  </Button>
+                                  <Button size="sm" variant="ghost" onClick={() => setActionDialog({ partner: p, action: 'reject' })} title="Rejeter">
+                                    <XCircle className="h-4 w-4 text-destructive" />
+                                  </Button>
+                                </>
+                              )}
+                              {p.status === 'approved' && (
+                                <Button size="sm" variant="ghost" onClick={() => setActionDialog({ partner: p, action: 'suspend' })} title="Suspendre">
+                                  <Pause className="h-4 w-4 text-amber-600" />
+                                </Button>
+                              )}
+                              {p.status === 'suspended' && (
+                                <Button size="sm" variant="ghost" onClick={() => setActionDialog({ partner: p, action: 'unsuspend' })} title="Réactiver">
+                                  <Play className="h-4 w-4 text-green-600" />
+                                </Button>
+                              )}
+                              <Button size="sm" variant="ghost" onClick={() => { setRateDialog(p); setNewRate(String(p.custom_rate_override ?? p.rate_percent)); }} title="Modifier taux">
+                                <Percent className="h-4 w-4" />
                               </Button>
-                            )}
-                            <Button size="sm" variant="ghost" onClick={() => { setRateDialog(p); setNewRate(String(p.custom_rate_override ?? p.rate_percent)); }} title="Modifier taux">
-                              <Percent className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -320,6 +328,116 @@ export default function SuperadminPartners() {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Detail Dialog */}
+      <Dialog open={!!detailDialog} onOpenChange={() => setDetailDialog(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="h-5 w-5 text-primary" />
+              Détails du candidat
+            </DialogTitle>
+          </DialogHeader>
+          {detailDialog && (() => {
+            const p = detailDialog as any;
+            return (
+              <ScrollArea className="max-h-[60vh]">
+                <div className="space-y-4 pr-4">
+                  {/* Identity */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-primary uppercase tracking-wide">Identité</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div className="flex items-center gap-2"><span className="text-muted-foreground">Nom:</span><strong>{p.full_name}</strong></div>
+                      <div className="flex items-center gap-2"><Mail className="h-3.5 w-3.5 text-muted-foreground" /><span>{p.email}</span></div>
+                      {p.phone && <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-muted-foreground" /><span>{p.phone}</span></div>}
+                      <div className="flex items-center gap-2"><MapPin className="h-3.5 w-3.5 text-muted-foreground" /><span>{p.country}{p.city ? `, ${p.city}` : ''}</span></div>
+                      {p.profession && <div className="flex items-center gap-2"><Briefcase className="h-3.5 w-3.5 text-muted-foreground" /><span>{p.profession}</span></div>}
+                    </div>
+                  </div>
+
+                  {/* Network */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-primary uppercase tracking-wide">Réseau</h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      {p.organization_name && <div><span className="text-muted-foreground">Organisation:</span> {p.organization_name}</div>}
+                      {p.organization_type && <div><span className="text-muted-foreground">Type ciblé:</span> {p.organization_type}</div>}
+                      {p.network_size && <div><span className="text-muted-foreground">Taille réseau:</span> {p.network_size}</div>}
+                      {p.target_audience && <div><span className="text-muted-foreground">Audience:</span> {p.target_audience}</div>}
+                    </div>
+                  </div>
+
+                  {/* Online */}
+                  {(p.website_url || p.social_media_url) && (
+                    <div className="space-y-2">
+                      <h4 className="text-xs font-bold text-primary uppercase tracking-wide">Présence en ligne</h4>
+                      <div className="space-y-1 text-sm">
+                        {p.website_url && (
+                          <div className="flex items-center gap-2">
+                            <Globe className="h-3.5 w-3.5 text-muted-foreground" />
+                            <a href={p.website_url} target="_blank" rel="noopener" className="text-primary underline truncate">{p.website_url}</a>
+                          </div>
+                        )}
+                        {p.social_media_url && (
+                          <div className="flex items-center gap-2">
+                            <Globe className="h-3.5 w-3.5 text-muted-foreground" />
+                            <a href={p.social_media_url} target="_blank" rel="noopener" className="text-primary underline truncate">{p.social_media_url}</a>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Motivation */}
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-primary uppercase tracking-wide">Motivation</h4>
+                    {p.how_heard_about_us && <p className="text-sm"><span className="text-muted-foreground">Source:</span> {p.how_heard_about_us}</p>}
+                    {p.experience_description && (
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Expérience:</p>
+                        <p className="text-sm bg-muted/50 rounded-lg p-3">{p.experience_description}</p>
+                      </div>
+                    )}
+                    {p.motivation && (
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Motivation:</p>
+                        <p className="text-sm bg-muted/50 rounded-lg p-3">{p.motivation}</p>
+                      </div>
+                    )}
+                    {p.notes && !p.motivation && (
+                      <div>
+                        <p className="text-xs text-muted-foreground mb-1">Notes:</p>
+                        <p className="text-sm bg-muted/50 rounded-lg p-3">{p.notes}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Meta */}
+                  <div className="space-y-1 text-xs text-muted-foreground border-t pt-3">
+                    <p>Candidature le {new Date(p.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                    <p>Statut: <Badge variant={p.status === 'approved' ? 'default' : p.status === 'pending' ? 'secondary' : 'destructive'} className="text-[10px] ml-1">{p.status}</Badge></p>
+                    {p.invite_code && <p>Code: <code className="bg-muted px-1 rounded">{p.invite_code}</code></p>}
+                  </div>
+                </div>
+              </ScrollArea>
+            );
+          })()}
+          <DialogFooter>
+            {detailDialog?.status === 'pending' && (
+              <>
+                <Button variant="destructive" onClick={() => { setActionDialog({ partner: detailDialog!, action: 'reject' }); setDetailDialog(null); }}>
+                  <XCircle className="h-4 w-4 mr-2" />Rejeter
+                </Button>
+                <Button onClick={() => { setActionDialog({ partner: detailDialog!, action: 'approve' }); setDetailDialog(null); }}>
+                  <CheckCircle className="h-4 w-4 mr-2" />Approuver
+                </Button>
+              </>
+            )}
+            {detailDialog?.status !== 'pending' && (
+              <Button variant="outline" onClick={() => setDetailDialog(null)}>Fermer</Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Action Dialog */}
       <Dialog open={!!actionDialog} onOpenChange={() => setActionDialog(null)}>
