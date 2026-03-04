@@ -1,15 +1,11 @@
 import React from 'react';
+import DOMPurify from 'dompurify';
 
 /**
  * Converts plain text with URLs, emails, and phone numbers into rich JSX
  * with clickable links styled with the design system.
  */
 export function formatTextWithLinks(text: string): React.ReactNode[] {
-  // Match URLs, emails, phone numbers
-  const urlRegex = /(https?:\/\/[^\s<>"']+)/gi;
-  const emailRegex = /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g;
-  const phoneRegex = /(\+?\d[\d\s\-().]{7,}\d)/g;
-
   // Combined regex
   const combined = new RegExp(
     `(https?:\\/\\/[^\\s<>"']+)|([a-zA-Z0-9._%+\\-]+@[a-zA-Z0-9.\\-]+\\.[a-zA-Z]{2,})|(\\+?\\d[\\d\\s\\-().]{7,}\\d)`,
@@ -22,7 +18,6 @@ export function formatTextWithLinks(text: string): React.ReactNode[] {
   let key = 0;
 
   while ((match = combined.exec(text)) !== null) {
-    // Add text before match
     if (match.index > lastIndex) {
       parts.push(text.slice(lastIndex, match.index));
     }
@@ -30,7 +25,6 @@ export function formatTextWithLinks(text: string): React.ReactNode[] {
     const [full, url, email, phone] = match;
 
     if (url) {
-      // Trim trailing punctuation that's likely not part of the URL
       let cleanUrl = url.replace(/[.,;:!?)]+$/, '');
       const trailing = url.slice(cleanUrl.length);
       parts.push(
@@ -74,7 +68,6 @@ export function formatTextWithLinks(text: string): React.ReactNode[] {
     lastIndex = match.index + full.length;
   }
 
-  // Add remaining text
   if (lastIndex < text.length) {
     parts.push(text.slice(lastIndex));
   }
@@ -82,8 +75,15 @@ export function formatTextWithLinks(text: string): React.ReactNode[] {
   return parts;
 }
 
+/** Detect if a string contains HTML tags */
+function containsHTML(text: string): boolean {
+  return /<[a-z][\s\S]*?>/i.test(text);
+}
+
 /**
- * Renders a block of text as formatted paragraphs with auto-linked URLs.
+ * Renders a block of text as formatted content.
+ * If the text contains HTML (from rich text editor), renders it safely with DOMPurify.
+ * If plain text, auto-links URLs/emails/phones and formats paragraphs.
  */
 export function FormattedText({
   text,
@@ -92,7 +92,21 @@ export function FormattedText({
   text: string;
   className?: string;
 }) {
-  // Split by double newlines for paragraphs, single newlines for line breaks
+  // If the text contains HTML tags, render as sanitized HTML
+  if (containsHTML(text)) {
+    const clean = DOMPurify.sanitize(text, {
+      ALLOWED_TAGS: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'a', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'blockquote', 'img', 'span', 'div', 'hr', 'sub', 'sup', 'mark', 's', 'del'],
+      ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'class', 'style', 'width', 'height'],
+    });
+    return (
+      <div
+        className={`prose prose-sm dark:prose-invert max-w-none ${className}`}
+        dangerouslySetInnerHTML={{ __html: clean }}
+      />
+    );
+  }
+
+  // Plain text: split by paragraphs and auto-link
   const paragraphs = text.split(/\n\n+/);
 
   return (
