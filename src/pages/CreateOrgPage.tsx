@@ -64,10 +64,11 @@ type FormData = z.infer<typeof schema>;
 const slugify = (name: string) =>
   name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
+const PARTNER_STORAGE_KEY = 'sv_partner_code';
+
 export default function CreateOrgPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const partnerCode = searchParams.get('partner');
   const { user } = useAuth();
   const { refetchOrgs, setCurrentOrg, userOrgs, isLoadingOrgs } = useOrg();
   const { toast } = useToast();
@@ -76,6 +77,16 @@ export default function CreateOrgPage() {
   const [direction, setDirection] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Persist partner code: URL param → sessionStorage → fallback
+  const urlPartnerCode = searchParams.get('partner');
+  const [partnerCode] = useState<string | null>(() => {
+    if (urlPartnerCode) {
+      try { sessionStorage.setItem(PARTNER_STORAGE_KEY, urlPartnerCode); } catch {}
+      return urlPartnerCode;
+    }
+    try { return sessionStorage.getItem(PARTNER_STORAGE_KEY); } catch { return null; }
+  });
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
