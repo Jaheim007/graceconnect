@@ -13,11 +13,13 @@ import { AdminPageShell } from './AdminPageShell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { useToast } from '@/hooks/use-toast';
 import { ContentTemplateSelector } from '@/components/admin/ContentTemplateSelector';
+import { RichTextEditor } from '@/components/ui/RichTextEditor';
+import { AIWritingAssistant } from '@/components/admin/AIWritingAssistant';
+import { AICoverGenerator } from '@/components/admin/AICoverGenerator';
 import type { CampaignTemplate } from '@/lib/contentTemplates';
 
 const schema = z.object({
@@ -26,7 +28,6 @@ const schema = z.object({
   image_url: z.string().optional(),
   goal_amount: z.coerce.number().min(0).optional(),
   end_date: z.string().optional(),
-  
   is_active: z.boolean().default(true),
   is_published: z.boolean().default(true),
 });
@@ -42,6 +43,8 @@ export function CampaignForm() {
   const isEdit = !!id;
   const [loading, setLoading] = useState(false);
   const [showTemplates, setShowTemplates] = useState(!isEdit);
+  const [showAI, setShowAI] = useState(false);
+  const [showCoverAI, setShowCoverAI] = useState(false);
 
   const { data: item } = useQuery({
     queryKey: ['campaign-item', id],
@@ -65,7 +68,6 @@ export function CampaignForm() {
         image_url: item.image_url || '',
         goal_amount: item.goal_amount ?? undefined,
         end_date: item.end_date ? item.end_date.slice(0, 10) : '',
-        
         is_active: item.is_active ?? true,
         is_published: item.is_published ?? true,
       });
@@ -73,53 +75,20 @@ export function CampaignForm() {
   }, [item, reset]);
 
   const onSubmit = async (data: FormData) => {
-    if (!currentOrg || !user) {
-      toast({ title: 'Error', description: 'No organization selected.', variant: 'destructive' });
-      return;
-    }
-
-
+    if (!currentOrg || !user) { toast({ title: 'Error', description: 'No organization selected.', variant: 'destructive' }); return; }
     setLoading(true);
     try {
-      const payload = {
-        ...data,
-        organization_id: currentOrg.id,
-        created_by: user.id,
-        currency: currentOrg.currency || 'XOF',
-        image_url: data.image_url || null,
-        goal_amount: data.goal_amount || null,
-        end_date: data.end_date ? new Date(data.end_date).toISOString() : null,
-        is_express_demo: false, // Clear express demo flag on manual save
-      };
+      const payload = { ...data, organization_id: currentOrg.id, created_by: user.id, currency: currentOrg.currency || 'XOF', image_url: data.image_url || null, goal_amount: data.goal_amount || null, end_date: data.end_date ? new Date(data.end_date).toISOString() : null, is_express_demo: false };
       let error;
-      if (isEdit) {
-        ({ error } = await db.from('donation_campaigns').update(payload).eq('id', id));
-      } else {
-        ({ error } = await db.from('donation_campaigns').insert(payload));
-      }
+      if (isEdit) { ({ error } = await db.from('donation_campaigns').update(payload).eq('id', id)); }
+      else { ({ error } = await db.from('donation_campaigns').insert(payload)); }
       if (error) throw error;
-
-      // Fire notifications
-      if (!isEdit && payload.is_published) {
-        onContentPublished(currentOrg.id, currentOrg.name, 'campaign', payload.title, '', {
-          goal_amount: String(payload.goal_amount || 0),
-          currency: payload.currency,
-        }, user.id);
-      }
-      if (isEdit && item) {
-        if (!item.is_published && payload.is_published) {
-          onContentPublished(currentOrg.id, currentOrg.name, 'campaign', payload.title, id!, {}, user.id);
-        }
-        // No affiliate unpublish notification for campaigns — no commissions on donations
-      }
-
-      toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
+      if (!isEdit && payload.is_published) onContentPublished(currentOrg.id, currentOrg.name, 'campaign', payload.title, '', { goal_amount: String(payload.goal_amount || 0), currency: payload.currency }, user.id);
+      if (isEdit && item && !item.is_published && payload.is_published) onContentPublished(currentOrg.id, currentOrg.name, 'campaign', payload.title, id!, {}, user.id);
+      toast({ title: isEdit ? 'Mis à jour ✅' : 'Créé ✅' });
       navigate('/admin/campaigns');
-    } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
-    } finally {
-      setLoading(false);
-    }
+    } catch (err: any) { toast({ title: 'Erreur', description: err.message, variant: 'destructive' }); }
+    finally { setLoading(false); }
   };
 
   const applyCampaignTemplate = (tpl: CampaignTemplate) => {
@@ -130,71 +99,53 @@ export function CampaignForm() {
   };
 
   return (
-    <AdminPageShell title={isEdit ? 'Edit Campaign' : 'New Donation Campaign'} backRoute="/admin/campaigns">
-      {/* Template selector for new campaigns */}
-      {!isEdit && (
-        <ContentTemplateSelector
-          type="campaign"
-          open={showTemplates}
-          onClose={() => setShowTemplates(false)}
-          onSelect={(tpl) => applyCampaignTemplate(tpl as CampaignTemplate)}
-        />
-      )}
-      {!isEdit && !showTemplates && (
-        <div className="mb-4">
-          <Button variant="outline" size="sm" onClick={() => setShowTemplates(true)} className="gap-1.5 text-xs">
-            <Sparkles className="h-3.5 w-3.5" /> Utiliser un modèle
-          </Button>
-        </div>
-      )}
+    <AdminPageShell title={isEdit ? 'Modifier la campagne' : 'Nouvelle campagne de dons'} backRoute="/admin/campaigns">
+      {!isEdit && <ContentTemplateSelector type="campaign" open={showTemplates} onClose={() => setShowTemplates(false)} onSelect={(tpl) => applyCampaignTemplate(tpl as CampaignTemplate)} />}
+      {!isEdit && !showTemplates && (<div className="mb-4"><Button variant="outline" size="sm" onClick={() => setShowTemplates(true)} className="gap-1.5 text-xs"><Sparkles className="h-3.5 w-3.5" /> Utiliser un modèle</Button></div>)}
+
+      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html)} context="description de campagne de dons" />
+      <AICoverGenerator open={showCoverAI} onClose={() => setShowCoverAI(false)} onInsert={(url) => setValue('image_url', url)} context="campaign" />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
-          <Label>Campaign Title *</Label>
-          <Input {...register('title')} placeholder="Building Fund 2025..." />
+          <Label>Titre de la campagne *</Label>
+          <Input {...register('title')} placeholder="Ex: Construction d'un nouveau bâtiment..." />
           {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
         </div>
         <div className="space-y-1.5">
           <Label>Description</Label>
-          <Textarea {...register('description')} rows={3} placeholder="What is this campaign for?" />
+          <RichTextEditor
+            value={watch('description') || ''}
+            onChange={(html) => setValue('description', html)}
+            placeholder="Décrivez l'objectif de cette campagne..."
+            onAIAssist={() => setShowAI(true)}
+          />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label>Goal Amount ({currentOrg?.currency || 'XOF'})</Label>
-            <Input type="number" {...register('goal_amount')} placeholder="e.g. 5000000" />
-            {errors.goal_amount && <p className="text-xs text-destructive">{errors.goal_amount.message}</p>}
+            <Label>Objectif ({currentOrg?.currency || 'XOF'})</Label>
+            <Input type="number" {...register('goal_amount')} placeholder="Ex: 5000000" />
           </div>
           <div className="space-y-1.5">
-            <Label>End Date (optional)</Label>
+            <Label>Date de fin (optionnel)</Label>
             <Input type="date" {...register('end_date')} />
           </div>
         </div>
 
-        {/* Image upload */}
-        <ImageUploader
-          value={watch('image_url') || ''}
-          onChange={(url) => setValue('image_url', url)}
-          folder="campaigns"
-          label="Cover Image"
-          hint="Recommended: 1200×630px. JPG/PNG/WEBP · Max 10MB"
-          aspectRatio="video"
-        />
+        <div className="space-y-2">
+          <ImageUploader value={watch('image_url') || ''} onChange={(url) => setValue('image_url', url)} folder="campaigns" label="Image de couverture" hint="Recommandé: 1200×630px" aspectRatio="video" />
+          <Button type="button" variant="outline" size="sm" onClick={() => setShowCoverAI(true)} className="gap-1.5 text-xs">
+            <Sparkles className="h-3 w-3" /> Générer une couverture IA
+          </Button>
+        </div>
 
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <Switch checked={watch('is_active')} onCheckedChange={v => setValue('is_active', v)} />
-            <Label className="text-sm cursor-pointer">Active</Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} />
-            <Label className="text-sm cursor-pointer">Published</Label>
-          </div>
+          <div className="flex items-center gap-2"><Switch checked={watch('is_active')} onCheckedChange={v => setValue('is_active', v)} /><Label className="text-sm cursor-pointer">Active</Label></div>
+          <div className="flex items-center gap-2"><Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} /><Label className="text-sm cursor-pointer">Publié</Label></div>
         </div>
         <div className="flex gap-3 pt-2">
-          <Button type="button" variant="outline" onClick={() => navigate('/admin/campaigns')}>Cancel</Button>
-          <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>
-            {loading ? 'Saving...' : isEdit ? 'Update' : 'Create'}
-          </Button>
+          <Button type="button" variant="outline" onClick={() => navigate('/admin/campaigns')}>Annuler</Button>
+          <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>{loading ? 'Enregistrement...' : isEdit ? 'Mettre à jour' : 'Créer'}</Button>
         </div>
       </form>
     </AdminPageShell>
