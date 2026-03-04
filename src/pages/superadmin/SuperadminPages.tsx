@@ -607,13 +607,31 @@ export function SuperadminMetrics() {
     },
   });
 
-  // Compute summaries from last 30 days
-  const last30 = metrics.slice(-30);
-  const totalGMV = last30.reduce((s: number, m: any) => s + (m.gmv || 0), 0);
-  const totalFees = last30.reduce((s: number, m: any) => s + (m.platform_fees || 0), 0);
-  const totalTx = last30.reduce((s: number, m: any) => s + (m.total_transactions || 0), 0);
-  const activeOrgs = last30.length > 0 ? last30[last30.length - 1]?.active_orgs || 0 : 0;
-  const newUsers30d = last30.reduce((s: number, m: any) => s + (m.new_users || 0), 0);
+  // Use RPC for accurate 30-day totals (not limited by daily metrics table)
+  const { data: rpcStats } = useQuery({
+    queryKey: ['sa-metrics-rpc-totals'],
+    queryFn: async () => {
+      const now = new Date();
+      const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000);
+      const [txRes, totalsRes] = await Promise.all([
+        db.rpc('get_transaction_stats', { _from: thirtyDaysAgo.toISOString(), _to: now.toISOString() }),
+        db.rpc('get_platform_totals'),
+      ]);
+      return {
+        gmv30: txRes.data?.gmv || 0,
+        fees30: txRes.data?.platform_fees || 0,
+        tx30: txRes.data?.total_count || 0,
+        activeOrgs: totalsRes.data?.active_orgs || 0,
+        newUsers7d: totalsRes.data?.new_users_7d || 0,
+      };
+    },
+  });
+
+  const totalGMV = rpcStats?.gmv30 || 0;
+  const totalFees = rpcStats?.fees30 || 0;
+  const totalTx = rpcStats?.tx30 || 0;
+  const activeOrgs = rpcStats?.activeOrgs || 0;
+  const newUsers30d = rpcStats?.newUsers7d || 0;
   const takeRate = totalGMV > 0 ? ((totalFees / totalGMV) * 100).toFixed(1) : '0';
 
   const summaryCards = [
