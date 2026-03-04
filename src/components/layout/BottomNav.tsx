@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Store, Link2, User, MoreHorizontal, Bell, Trophy, Building2, BarChart3, Settings, Wallet, LifeBuoy, Package, LogIn, UserPlus } from 'lucide-react';
+import { Home, Store, Link2, User, MoreHorizontal, Bell, Trophy, Building2, BarChart3, Settings, Wallet, LifeBuoy, Package, LogIn, UserPlus, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -40,6 +40,7 @@ export function BottomNav() {
       label: '📚 Mon espace',
       items: [
         { to: '/resources', icon: Package, label: 'Mes achats' },
+        { to: '/my-donations', icon: Heart, label: 'Mes dons' },
         { to: '/notifications', icon: Bell, label: 'Notifications', showBadge: true },
         { to: '/profile', icon: User, label: 'Profil' },
         ...(hasAmbassadorAccess ? [{ to: '/leaderboard', icon: Trophy, label: 'Classement' }] : []),

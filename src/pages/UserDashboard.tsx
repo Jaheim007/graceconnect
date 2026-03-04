@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import {
   Package, Store, Share2, Link2, Trophy, Wallet, Building2, ArrowRight,
-  BookOpen, Rocket, Sparkles, GraduationCap
+  BookOpen, Rocket, Sparkles, GraduationCap, Heart, Shield, UserCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +14,8 @@ import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
 import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
+import { useMode } from '@/contexts/ModeContext';
+import { Badge } from '@/components/ui/badge';
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 12 },
@@ -22,10 +24,11 @@ const fadeUp = (delay = 0) => ({
 });
 
 export default function UserDashboard() {
-  const { user, profile } = useAuth();
+  const { user, profile, isSuperadmin } = useAuth();
   const { userOrgs } = useOrg();
   const navigate = useNavigate();
   const { locale } = useI18n();
+  const { hasAmbassadorAccess, hasCreatorAccess, setMode } = useMode();
   const hasOrgs = userOrgs.length > 0;
 
   const primaryCurrency = userOrgs[0]?.currency || DEFAULT_CURRENCY;
@@ -47,6 +50,22 @@ export default function UserDashboard() {
     enabled: !!user,
   });
 
+  // ── Donations ──
+  const { data: donations = [] } = useQuery({
+    queryKey: ['user-donations', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data } = await db.from('donations')
+        .select('id, amount, currency, created_at, completed_at, status, donor_name, campaign_id, donation_campaigns(title, image_url), organizations(name)')
+        .eq('user_id', user.id)
+        .eq('status', 'completed')
+        .order('completed_at', { ascending: false })
+        .limit(5);
+      return data || [];
+    },
+    enabled: !!user,
+  });
+
   // ── Program progress ──
   const { data: programProgress = [] } = useQuery({
     queryKey: ['user-program-progress', user?.id],
@@ -58,63 +77,30 @@ export default function UserDashboard() {
         .limit(4);
       if (!enrollments || enrollments.length === 0) return [];
 
-      // Get lesson counts and completion for each program
       const results = await Promise.all(enrollments.map(async (enrollment: any) => {
         const { count: totalLessons } = await db.from('program_lessons')
           .select('id', { count: 'exact', head: true })
-          .eq('module_id', enrollment.program_id); // Simplified — gets approximate
-
+          .eq('module_id', enrollment.program_id);
         const { count: completedLessons } = await db.from('lesson_progress')
           .select('id', { count: 'exact', head: true })
           .eq('user_id', user!.id)
           .eq('completed', true);
-
-        return {
-          ...enrollment,
-          totalLessons: totalLessons || 0,
-          completedLessons: completedLessons || 0,
-        };
+        return { ...enrollment, totalLessons: totalLessons || 0, completedLessons: completedLessons || 0 };
       }));
       return results;
     },
     enabled: !!user,
   });
 
-  // ── Affiliate data ──
-  const { data: affiliateLinks = [] } = useQuery({
-    queryKey: ['user-affiliate-links', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      const { data } = await db.from('affiliate_links')
-        .select('*, organizations(name, slug, commission_percent)')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-      return data || [];
-    },
-    enabled: !!user,
-  });
-
-  const { data: affiliateSales = [] } = useQuery({
-    queryKey: ['user-affiliate-sales', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      const { data } = await db.from('affiliate_sales')
-        .select('*')
-        .eq('affiliate_user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(10);
-      return data || [];
-    },
-    enabled: !!user,
-  });
-
-  const totalEarned = affiliateLinks.reduce((s: number, l: any) => s + (l.total_earned || 0), 0);
-  const hasAffiliateActivity = affiliateLinks.length > 0;
-
   // ── Greeting ──
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir';
   const displayName = profile?.display_name?.split(' ')[0] || 'là';
+
+  const goAmbassadorMarketplace = () => {
+    setMode('ambassador');
+    navigate('/affiliation');
+  };
 
   return (
     <div className="bg-background min-h-screen">
@@ -130,17 +116,21 @@ export default function UserDashboard() {
               <span className="text-sm font-bold text-primary">{displayName[0]?.toUpperCase()}</span>
             )}
           </div>
-          <div>
+          <div className="flex-1 min-w-0">
             <h1 className="text-lg font-bold">{greeting}, {displayName} 👋</h1>
             <p className="text-xs text-muted-foreground">Voici ton espace personnel</p>
           </div>
+          <Badge variant="secondary" className="text-[10px] gap-1 shrink-0">
+            <UserCheck className="h-3 w-3" />
+            Acheteur / Donateur
+          </Badge>
         </motion.div>
 
         {/* ═══ SECTION: MES ACHATS ═══ */}
         <motion.div {...fadeUp(0.05)} className="bg-card border border-border rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-sm flex items-center gap-2">
-              <Package className="h-4 w-4 text-primary" /> Mes ressources
+              <Package className="h-4 w-4 text-primary" /> Mes achats
             </h2>
             {purchases.length > 0 && (
               <button onClick={() => navigate('/resources')} className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
@@ -152,7 +142,7 @@ export default function UserDashboard() {
           {purchases.length === 0 ? (
             <div className="text-center py-6">
               <Package className="h-8 w-8 text-muted-foreground mx-auto mb-3 opacity-50" />
-              <p className="text-sm text-muted-foreground mb-3">Tu n'as pas encore de ressources</p>
+              <p className="text-sm text-muted-foreground mb-3">Tu n'as pas encore d'achat</p>
               <Button size="sm" className="gap-2" onClick={() => navigate('/marketplace')}>
                 <Store className="h-3.5 w-3.5" /> Découvrir les produits
               </Button>
@@ -162,11 +152,7 @@ export default function UserDashboard() {
               {purchases.slice(0, 6).map((purchase: any) => {
                 const product = purchase.digital_products;
                 return (
-                  <button
-                    key={purchase.id}
-                    onClick={() => navigate(`/resources`)}
-                    className="group text-left"
-                  >
+                  <button key={purchase.id} onClick={() => navigate('/resources')} className="group text-left">
                     <div className="aspect-[3/4] rounded-lg bg-muted overflow-hidden mb-1.5">
                       {product?.cover_image_url ? (
                         <img src={product.cover_image_url} alt="" className="h-full w-full object-cover group-hover:scale-105 transition-transform" />
@@ -180,6 +166,49 @@ export default function UserDashboard() {
                   </button>
                 );
               })}
+            </div>
+          )}
+        </motion.div>
+
+        {/* ═══ SECTION: MES DONS ═══ */}
+        <motion.div {...fadeUp(0.08)} className="bg-card border border-border rounded-2xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-bold text-sm flex items-center gap-2">
+              <Heart className="h-4 w-4 text-rose-500" /> Mes dons
+            </h2>
+            {donations.length > 0 && (
+              <button onClick={() => navigate('/my-donations')} className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
+                Tout voir <ArrowRight className="h-3 w-3" />
+              </button>
+            )}
+          </div>
+
+          {donations.length === 0 ? (
+            <div className="text-center py-6">
+              <Heart className="h-8 w-8 text-muted-foreground mx-auto mb-3 opacity-50" />
+              <p className="text-sm text-muted-foreground mb-3">Tu n'as pas encore fait de don</p>
+              <Button size="sm" variant="outline" className="gap-2" onClick={() => navigate('/marketplace?tab=campaigns')}>
+                <Heart className="h-3.5 w-3.5" /> Voir les campagnes
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {donations.slice(0, 3).map((don: any) => (
+                <div key={don.id} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border/50">
+                  <div className="h-8 w-8 rounded-lg bg-rose-500/10 flex items-center justify-center shrink-0">
+                    <Heart className="h-4 w-4 text-rose-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium truncate">
+                      {don.donation_campaigns?.title || don.organizations?.name || 'Don'}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {new Date(don.completed_at || don.created_at).toLocaleDateString('fr-FR')}
+                    </p>
+                  </div>
+                  <span className="text-xs font-bold text-rose-500">{fmt(don.amount, don.currency)}</span>
+                </div>
+              ))}
             </div>
           )}
         </motion.div>
@@ -221,71 +250,93 @@ export default function UserDashboard() {
           </Button>
         </motion.div>
 
-        {/* ═══ SECTION: GAGNER (Ambassador summary) ═══ */}
-        <motion.div {...fadeUp(0.15)} className="bg-card border border-emerald-500/20 rounded-2xl p-5">
+        {/* ═══ SECTION: CRÉER MA PLATEFORME ═══ */}
+        <motion.div {...fadeUp(0.15)} className="bg-card border border-primary/20 rounded-2xl p-5">
+          <h2 className="font-bold text-sm flex items-center gap-2 mb-3">
+            <Building2 className="h-4 w-4 text-primary" /> {hasOrgs ? 'Ma plateforme' : 'Créer ma plateforme'}
+          </h2>
+          <p className="text-xs text-muted-foreground mb-4">
+            {hasOrgs
+              ? 'Gère tes produits, tes ventes et tes ambassadeurs.'
+              : 'Crée ta boutique digitale, vends tes produits et collecte des dons.'}
+          </p>
+          <Button
+            className="w-full gap-2"
+            variant={hasOrgs ? 'default' : 'outline'}
+            onClick={() => {
+              setMode('creator');
+              navigate(hasOrgs ? '/admin' : '/create-org');
+            }}
+          >
+            <Building2 className="h-4 w-4" /> {hasOrgs ? 'Accéder à ma plateforme' : 'Créer ma plateforme'}
+          </Button>
+        </motion.div>
+
+        {/* ═══ SECTION: GAGNER DE L'ARGENT ═══ */}
+        <motion.div {...fadeUp(0.18)} className="bg-card border border-emerald-500/20 rounded-2xl p-5">
           <h2 className="font-bold text-sm flex items-center gap-2 mb-3">
             <Share2 className="h-4 w-4 text-emerald-500" /> Gagner de l'argent
           </h2>
-
-          {hasAffiliateActivity ? (
-            <>
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div className="text-center">
-                  <p className="text-xl font-extrabold text-emerald-500">{fmt(totalEarned)}</p>
-                  <p className="text-[10px] text-muted-foreground uppercase">Total gagné</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-xl font-extrabold">{affiliateLinks.length}</p>
-                  <p className="text-[10px] text-muted-foreground uppercase">Liens actifs</p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Button size="sm" variant="outline" className="flex-1 text-xs gap-1" onClick={() => navigate('/affiliation')}>
-                  <Link2 className="h-3.5 w-3.5" /> Mes liens
-                </Button>
-                <Button size="sm" variant="outline" className="flex-1 text-xs gap-1" onClick={() => navigate('/leaderboard')}>
-                  <Trophy className="h-3.5 w-3.5" /> Classement
-                </Button>
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="text-xs text-muted-foreground mb-4">
-                Partage des produits et gagne une commission sur chaque vente. Aucun investissement requis.
-              </p>
-              <Button className="w-full gap-2" onClick={() => navigate('/marketplace')}>
-                <Rocket className="h-4 w-4" /> Commencer à gagner
-              </Button>
-            </>
-          )}
+          <p className="text-xs text-muted-foreground mb-4">
+            Partage des produits et gagne une commission sur chaque vente. Aucun investissement requis.
+          </p>
+          <Button className="w-full gap-2" onClick={goAmbassadorMarketplace}>
+            <Rocket className="h-4 w-4" /> Commencer à gagner
+          </Button>
         </motion.div>
 
-        {/* ═══ SECTION: MA PLATEFORME (Creator summary) ═══ */}
-        {hasOrgs ? (
-          <motion.div {...fadeUp(0.2)} className="bg-card border border-primary/20 rounded-2xl p-5">
-            <h2 className="font-bold text-sm flex items-center gap-2 mb-3">
-              <Building2 className="h-4 w-4 text-primary" /> Ma plateforme
-            </h2>
-            <p className="text-xs text-muted-foreground mb-4">
-              Gère tes produits, tes ventes et tes ambassadeurs.
-            </p>
-            <Button className="w-full gap-2" onClick={() => navigate('/admin')}>
-              <Building2 className="h-4 w-4" /> Accéder à ma plateforme
-            </Button>
-          </motion.div>
-        ) : (
-          <motion.div {...fadeUp(0.2)} className="bg-card border border-primary/20 rounded-2xl p-5">
-            <h2 className="font-bold text-sm flex items-center gap-2 mb-3">
-              <Building2 className="h-4 w-4 text-primary" /> Devenir créateur
-            </h2>
-            <p className="text-xs text-muted-foreground mb-4">
-              Crée ta boutique digitale, vends tes produits et collecte des dons.
-            </p>
-            <Button className="w-full gap-2" variant="outline" onClick={() => navigate('/create-org')}>
-              <Building2 className="h-4 w-4" /> Créer ma plateforme
-            </Button>
-          </motion.div>
-        )}
+        {/* ═══ MODE SWITCHERS ═══ */}
+        <motion.div {...fadeUp(0.22)} className="space-y-2">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold px-1">Changer de mode</p>
+
+          {(hasCreatorAccess || hasOrgs) && (
+            <button
+              onClick={() => { setMode('creator'); navigate('/admin'); }}
+              className="w-full flex items-center gap-3 p-3.5 rounded-xl border border-border hover:border-primary/40 bg-card text-left transition-all group"
+            >
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                <Building2 className="h-4 w-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold">Se connecter en tant que créateur</p>
+                <p className="text-[10px] text-muted-foreground">Gérer ma plateforme et mes ventes</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+            </button>
+          )}
+
+          {hasAmbassadorAccess && (
+            <button
+              onClick={() => { setMode('ambassador'); navigate('/affiliation'); }}
+              className="w-full flex items-center gap-3 p-3.5 rounded-xl border border-border hover:border-emerald-500/40 bg-card text-left transition-all group"
+            >
+              <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0">
+                <Share2 className="h-4 w-4 text-emerald-500" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold">Se connecter en tant qu'ambassadeur</p>
+                <p className="text-[10px] text-muted-foreground">Mes liens, commissions et classement</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+            </button>
+          )}
+
+          {isSuperadmin && (
+            <button
+              onClick={() => navigate('/superadmin')}
+              className="w-full flex items-center gap-3 p-3.5 rounded-xl border border-border hover:border-destructive/40 bg-card text-left transition-all group"
+            >
+              <div className="h-8 w-8 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
+                <Shield className="h-4 w-4 text-destructive" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold">Se connecter en tant que super admin</p>
+                <p className="text-[10px] text-muted-foreground">Panneau d'administration global</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+            </button>
+          )}
+        </motion.div>
       </div>
     </div>
   );
