@@ -95,13 +95,13 @@ export default function MarketplacePage() {
         { key: 'bestseller', label: 'Top ventes', icon: Star },
       ];
 
-  const pageTitle = isAmbassador ? 'Marketplace' : 'Explorer';
+  const pageTitle = 'Le Hub';
 
   return (
     <div className="min-h-[80dvh]">
       <SEOHead
-        title={`${pageTitle} — Produits numériques | Siteviral`}
-        description="Explorez les meilleurs produits numériques."
+        title={`Le Hub — Produits numériques | Siteviral`}
+        description="Découvrez les meilleurs produits numériques sur Le Hub Siteviral."
         canonicalUrl="https://siteviral.com/marketplace"
       />
 

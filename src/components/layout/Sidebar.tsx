@@ -50,7 +50,7 @@ export function Sidebar() {
 
   // ── AMBASSADOR NAV (focus: discover → share → earn) ──
   const ambassadorItems: NavItem[] = [
-    { to: '/marketplace', icon: Store, label: 'Marketplace', desc: 'Trouve des produits à partager' },
+    { to: '/marketplace', icon: Store, label: 'Le Hub', desc: 'Trouve des produits à partager' },
     { to: '/affiliation', icon: Link2, label: 'Mes liens', desc: 'Tes liens de partage' },
     { to: '/dashboard', icon: Wallet, label: 'Mes gains', desc: 'Commissions et retraits' },
     { to: '/resources', icon: BookOpen, label: 'Mes achats', desc: 'Tes produits achetés' },
@@ -63,7 +63,7 @@ export function Sidebar() {
   const creatorItemsNoOrg: NavItem[] = [
     { to: '/create-org', icon: Building2, label: 'Créer ma plateforme', desc: 'Lance ta boutique digitale' },
     { to: '/dashboard', icon: LayoutDashboard, label: 'Mon espace', desc: 'Vue d\'ensemble' },
-    { to: '/marketplace', icon: Store, label: 'Explorer', desc: 'Voir les ressources disponibles' },
+    { to: '/marketplace', icon: Store, label: 'Le Hub', desc: 'Voir les ressources disponibles' },
     { to: '/profile', icon: User, label: 'Profil', desc: 'Ton compte' },
   ];
 
