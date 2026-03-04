@@ -64,10 +64,11 @@ type FormData = z.infer<typeof schema>;
 const slugify = (name: string) =>
   name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
+const PARTNER_STORAGE_KEY = 'sv_partner_code';
+
 export default function CreateOrgPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const partnerCode = searchParams.get('partner');
   const { user } = useAuth();
   const { refetchOrgs, setCurrentOrg, userOrgs, isLoadingOrgs } = useOrg();
   const { toast } = useToast();
@@ -76,6 +77,16 @@ export default function CreateOrgPage() {
   const [direction, setDirection] = useState(1);
   const [loading, setLoading] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Persist partner code: URL param → sessionStorage → fallback
+  const urlPartnerCode = searchParams.get('partner');
+  const [partnerCode] = useState<string | null>(() => {
+    if (urlPartnerCode) {
+      try { sessionStorage.setItem(PARTNER_STORAGE_KEY, urlPartnerCode); } catch {}
+      return urlPartnerCode;
+    }
+    try { return sessionStorage.getItem(PARTNER_STORAGE_KEY); } catch { return null; }
+  });
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -123,12 +134,23 @@ export default function CreateOrgPage() {
       // Attribute org to partner if partner code is present
       if (partnerCode) {
         try {
-          await db.rpc('attribute_org_to_partner', {
+          const attrResult = await db.rpc('attribute_org_to_partner', {
             _org_id: orgId,
             _partner_code: partnerCode,
           });
+          const result = attrResult.data as any;
+          if (result?.ok) {
+            console.log('[CreateOrg] Partner attribution success:', partnerCode);
+            toast({ title: '🤝 Parrainage enregistré', description: 'Cette organisation a été attribuée au partenaire.' });
+          } else {
+            console.warn('[CreateOrg] Partner attribution rejected:', result?.reason);
+          }
+          // Clean up stored code regardless of result
+          try { sessionStorage.removeItem(PARTNER_STORAGE_KEY); } catch {}
         } catch (attrErr) {
-          console.warn('[CreateOrg] Partner attribution failed (non-fatal):', attrErr);
+          console.error('[CreateOrg] Partner attribution failed:', attrErr);
+          // Clean up stored code
+          try { sessionStorage.removeItem(PARTNER_STORAGE_KEY); } catch {}
         }
       }
 

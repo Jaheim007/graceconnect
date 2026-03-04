@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { Navigate as Nav } from 'react-router-dom';
+import { Navigate as Nav, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { Loader2 } from 'lucide-react';
@@ -7,8 +7,18 @@ import { Loader2 } from 'lucide-react';
 // Require auth — only blocks on auth loading, never on profile/org
 export function RequireAuth({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
+  const location = useLocation();
   if (loading) return <FullPageLoader />;
-  if (!user) return <Nav to="/auth" replace />;
+  if (!user) {
+    // Preserve current URL (including search params like ?partner=CODE) so user returns after auth
+    const returnTo = location.pathname + location.search;
+    const authUrl = returnTo !== '/' ? `/auth?returnTo=${encodeURIComponent(returnTo)}` : '/auth';
+    // Also persist in sessionStorage for OAuth flows (Google redirect loses URL params)
+    if (returnTo !== '/') {
+      try { sessionStorage.setItem('sv_auth_returnTo', returnTo); } catch {}
+    }
+    return <Nav to={authUrl} replace />;
+  }
   return <>{children}</>;
 }
 
