@@ -19,7 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ContentTemplateSelector } from '@/components/admin/ContentTemplateSelector';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { AIWritingAssistant } from '@/components/admin/AIWritingAssistant';
-import { AICoverGenerator } from '@/components/admin/AICoverGenerator';
+
 import type { CampaignTemplate } from '@/lib/contentTemplates';
 
 const schema = z.object({
@@ -44,7 +44,7 @@ export function CampaignForm() {
   const [loading, setLoading] = useState(false);
   const [showTemplates, setShowTemplates] = useState(!isEdit);
   const [showAI, setShowAI] = useState(false);
-  const [showCoverAI, setShowCoverAI] = useState(false);
+  
 
   const { data: item } = useQuery({
     queryKey: ['campaign-item', id],
@@ -104,7 +104,7 @@ export function CampaignForm() {
       {!isEdit && !showTemplates && (<div className="mb-4"><Button variant="outline" size="sm" onClick={() => setShowTemplates(true)} className="gap-1.5 text-xs"><Sparkles className="h-3.5 w-3.5" /> Utiliser un modèle</Button></div>)}
 
       <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html, { shouldDirty: true, shouldTouch: true })} context="description de campagne de dons" />
-      <AICoverGenerator open={showCoverAI} onClose={() => setShowCoverAI(false)} onInsert={(url) => setValue('image_url', url, { shouldDirty: true, shouldTouch: true })} context="campaign" />
+      
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
@@ -134,9 +134,6 @@ export function CampaignForm() {
 
         <div className="space-y-2">
           <ImageUploader value={watch('image_url') || ''} onChange={(url) => setValue('image_url', url)} folder="campaigns" label="Image de couverture" hint="Recommandé: 1200×630px" aspectRatio="video" />
-          <Button type="button" variant="outline" size="sm" onClick={() => setShowCoverAI(true)} className="gap-1.5 text-xs">
-            <Sparkles className="h-3 w-3" /> Générer une couverture IA
-          </Button>
         </div>
 
         <div className="flex items-center gap-6">
