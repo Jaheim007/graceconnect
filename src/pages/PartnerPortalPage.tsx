@@ -7,13 +7,21 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, Copy, Users, TrendingUp, Wallet, Clock, CheckCircle, XCircle, AlertTriangle, Handshake } from 'lucide-react';
+import { Loader2, Copy, Users, TrendingUp, Wallet, Clock, CheckCircle, XCircle, AlertTriangle, Handshake, Link2, Building2, CircleDollarSign, ArrowUpRight, Shield, CreditCard, Gift, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import { SEOHead } from '@/components/seo/SEOHead';
 import PartnerPayoutConfig from '@/components/partner/PartnerPayoutConfig';
 import PartnerKYCForm from '@/components/partner/PartnerKYCForm';
+import { motion } from 'framer-motion';
 
 const LEVEL_LABELS: Record<number, string> = { 1: 'Bronze', 2: 'Argent', 3: 'Or', 4: 'Platine', 5: 'Diamant' };
+const LEVEL_COLORS: Record<number, string> = {
+  1: 'text-amber-600 bg-amber-500/10 border-amber-500/20',
+  2: 'text-slate-400 bg-slate-400/10 border-slate-400/20',
+  3: 'text-yellow-500 bg-yellow-500/10 border-yellow-500/20',
+  4: 'text-cyan-400 bg-cyan-400/10 border-cyan-400/20',
+  5: 'text-violet-400 bg-violet-400/10 border-violet-400/20',
+};
 const STATUS_MAP: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
   pending: { label: 'En attente', variant: 'secondary' },
   approved: { label: 'Actif', variant: 'default' },
@@ -38,8 +46,8 @@ export default function PartnerPortalPage() {
         <SEOHead title="Programme Partenaires" description="Programme Partenaires Officiel Siteviral" />
         <Handshake className="h-12 w-12 mx-auto text-muted-foreground" />
         <h1 className="text-2xl font-bold">Programme Partenaires</h1>
-        <p className="text-muted-foreground">Vous n'êtes pas encore inscrit au Programme Partenaires. Ce programme est sur invitation uniquement. Contactez-nous pour en savoir plus.</p>
-        <Button variant="outline" onClick={() => window.location.href = '/contact'}>Nous contacter</Button>
+        <p className="text-muted-foreground">Vous n'êtes pas encore inscrit au Programme Partenaires.</p>
+        <Button variant="outline" onClick={() => window.location.href = '/devenir-partenaire'}>Postuler</Button>
       </div>
     );
   }
@@ -52,182 +60,306 @@ export default function PartnerPortalPage() {
         <Handshake className="h-12 w-12 mx-auto text-muted-foreground" />
         <h1 className="text-2xl font-bold">Programme Partenaires</h1>
         <Badge variant={s.variant} className="text-sm">{s.label}</Badge>
-        {partner.status === 'pending' && <p className="text-muted-foreground">Votre candidature est en cours d'examen. Nous reviendrons vers vous rapidement.</p>}
-        {partner.status === 'suspended' && <p className="text-muted-foreground">Votre compte partenaire a été suspendu. {partner.suspension_reason && `Raison : ${partner.suspension_reason}`}</p>}
-        {partner.status === 'rejected' && <p className="text-muted-foreground">Votre candidature n'a pas été retenue. {partner.suspension_reason && `Raison : ${partner.suspension_reason}`}</p>}
+        {partner.status === 'pending' && <p className="text-muted-foreground">Votre candidature est en cours d'examen.</p>}
+        {partner.status === 'suspended' && <p className="text-muted-foreground">Votre compte a été suspendu. {partner.suspension_reason && `Raison : ${partner.suspension_reason}`}</p>}
+        {partner.status === 'rejected' && <p className="text-muted-foreground">Votre candidature n'a pas été retenue.</p>}
       </div>
     );
   }
 
-  const inviteLink = partner.invite_link_slug
+  const inviteLink = partner.invite_code
     ? `${window.location.origin}/create-org?partner=${partner.invite_code}`
     : null;
 
-  const copyInvite = () => {
-    if (inviteLink) {
-      navigator.clipboard.writeText(inviteLink);
-      toast.success('Lien copié !');
-    }
+  const copyText = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success(`${label} copié !`);
   };
 
   const effectiveRate = partner.custom_rate_override ?? partner.rate_percent;
   const currency = commissions[0]?.currency || 'XOF';
+  const levelColor = LEVEL_COLORS[partner.level] || LEVEL_COLORS[1];
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="space-y-6 max-w-6xl mx-auto"
+    >
       <SEOHead title="Espace Partenaire" />
 
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+      {/* ── Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
               <Handshake className="h-5 w-5 text-primary" />
             </div>
-            Espace Partenaire
-          </h1>
-          <p className="text-sm text-muted-foreground mt-2 ml-[46px]">
-            Niveau {LEVEL_LABELS[partner.level] || partner.level} — {effectiveRate}% de rémunération
-            {partner.custom_rate_override !== null && <span className="text-primary ml-1">(taux personnalisé)</span>}
-          </p>
+            <div>
+              <h1 className="text-xl font-bold tracking-tight">Espace Partenaire</h1>
+              <p className="text-xs text-muted-foreground">{partner.full_name}</p>
+            </div>
+          </div>
         </div>
-        <Badge variant="default" className="self-start text-xs px-3 py-1">Partenaire Officiel</Badge>
+        <div className="flex items-center gap-2">
+          <Badge className={`${levelColor} border text-xs font-semibold px-3 py-1`}>
+            {LEVEL_LABELS[partner.level] || `L${partner.level}`} — {effectiveRate}%
+          </Badge>
+          <Badge variant="outline" className="text-xs px-2.5 py-1 border-primary/30 text-primary">
+            Partenaire Officiel
+          </Badge>
+        </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPICard icon={Users} label="Organisations" value={`${stats.activeOrgs} / ${stats.totalOrgs}`} sub="actives / total" />
-        <KPICard icon={Clock} label="En attente" value={formatCurrency(stats.held, currency)} sub="held (15j)" />
-        <KPICard icon={TrendingUp} label="Disponible" value={formatCurrency(stats.payable, currency)} sub="prêt à retirer" accent />
+      {/* ── KPI Cards ── */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <KPICard icon={Building2} label="Organisations" value={`${stats.activeOrgs} / ${stats.totalOrgs}`} sub="actives / total" />
+        <KPICard icon={Clock} label="En attente" value={formatCurrency(stats.held, currency)} sub="retenue 15 jours" />
+        <KPICard icon={CircleDollarSign} label="Disponible" value={formatCurrency(stats.payable, currency)} sub="prêt à retirer" accent />
         <KPICard icon={Wallet} label="Total versé" value={formatCurrency(stats.paid, currency)} sub="historique" />
       </div>
 
-      <Tabs defaultValue="invitations" className="space-y-6">
-        <TabsList className="inline-flex h-11 gap-1 bg-muted/50 p-1 rounded-xl">
-          <TabsTrigger value="invitations" className="rounded-lg px-4 text-sm">Invitations</TabsTrigger>
-          <TabsTrigger value="orgs" className="rounded-lg px-4 text-sm">Organisations</TabsTrigger>
-          <TabsTrigger value="gains" className="rounded-lg px-4 text-sm">Gains</TabsTrigger>
-          <TabsTrigger value="kyc" className="rounded-lg px-4 text-sm">KYC</TabsTrigger>
-          <TabsTrigger value="payout" className="rounded-lg px-4 text-sm">Paiement</TabsTrigger>
+      {/* ── Tabs ── */}
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList className="w-full sm:w-auto bg-muted/40 p-1 rounded-xl h-auto flex-wrap">
+          <TabsTrigger value="overview" className="rounded-lg text-xs gap-1.5 data-[state=active]:shadow-sm">
+            <Zap className="h-3.5 w-3.5" /> Vue d'ensemble
+          </TabsTrigger>
+          <TabsTrigger value="orgs" className="rounded-lg text-xs gap-1.5 data-[state=active]:shadow-sm">
+            <Building2 className="h-3.5 w-3.5" /> Organisations
+            {referrals.length > 0 && <span className="ml-1 text-[10px] bg-muted rounded-full px-1.5">{referrals.length}</span>}
+          </TabsTrigger>
+          <TabsTrigger value="gains" className="rounded-lg text-xs gap-1.5 data-[state=active]:shadow-sm">
+            <CircleDollarSign className="h-3.5 w-3.5" /> Commissions
+            {commissions.length > 0 && <span className="ml-1 text-[10px] bg-muted rounded-full px-1.5">{commissions.length}</span>}
+          </TabsTrigger>
+          <TabsTrigger value="kyc" className="rounded-lg text-xs gap-1.5 data-[state=active]:shadow-sm">
+            <Shield className="h-3.5 w-3.5" /> KYC
+          </TabsTrigger>
+          <TabsTrigger value="payout" className="rounded-lg text-xs gap-1.5 data-[state=active]:shadow-sm">
+            <CreditCard className="h-3.5 w-3.5" /> Retrait
+          </TabsTrigger>
         </TabsList>
 
-        {/* ── Invitations ── */}
-        <TabsContent value="invitations">
-          <Card>
-            <CardHeader>
-              <CardTitle>Votre lien d'invitation</CardTitle>
-              <CardDescription>Partagez ce lien avec les responsables d'organisations pour les inviter à rejoindre Siteviral.</CardDescription>
+        {/* ── Overview ── */}
+        <TabsContent value="overview" className="space-y-4">
+          {/* Invite link card */}
+          <Card className="border-primary/20 bg-primary/[0.02]">
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <Link2 className="h-4 w-4 text-primary" />
+                <CardTitle className="text-sm">Votre lien d'invitation</CardTitle>
+              </div>
+              <CardDescription className="text-xs">
+                Partagez ce lien pour inviter des organisations. Vos commissions sont générées automatiquement.
+              </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               {partner.invite_code ? (
                 <>
                   <div className="flex items-center gap-2">
-                    <code className="flex-1 bg-muted px-3 py-2 rounded-lg text-sm font-mono truncate">{partner.invite_code}</code>
-                    <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(partner.invite_code!); toast.success('Code copié'); }}>
+                    <code className="flex-1 bg-muted/80 px-3 py-2.5 rounded-lg text-sm font-mono truncate border border-border/50">{partner.invite_code}</code>
+                    <Button size="sm" variant="outline" className="shrink-0" onClick={() => copyText(partner.invite_code!, 'Code')}>
                       <Copy className="h-3.5 w-3.5" />
                     </Button>
                   </div>
                   {inviteLink && (
                     <div className="flex items-center gap-2">
-                      <code className="flex-1 bg-muted px-3 py-2 rounded-lg text-xs truncate">{inviteLink}</code>
-                      <Button size="sm" variant="outline" onClick={copyInvite}>
+                      <code className="flex-1 bg-muted/80 px-3 py-2.5 rounded-lg text-xs truncate border border-border/50">{inviteLink}</code>
+                      <Button size="sm" variant="outline" className="shrink-0" onClick={() => copyText(inviteLink, 'Lien')}>
                         <Copy className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   )}
-                  <p className="text-xs text-muted-foreground">{partner.invite_uses_count} utilisation{partner.invite_uses_count !== 1 ? 's' : ''}</p>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Users className="h-3 w-3" />
+                    {partner.invite_uses_count} utilisation{partner.invite_uses_count !== 1 ? 's' : ''}
+                  </p>
                 </>
               ) : (
-                <p className="text-sm text-muted-foreground">Votre code d'invitation n'a pas encore été généré. Contactez l'administrateur.</p>
+                <p className="text-sm text-muted-foreground">Code d'invitation en cours de génération...</p>
               )}
             </CardContent>
           </Card>
+
+          {/* How it works */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Gift className="h-4 w-4 text-primary" />
+                Comment ça fonctionne
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid sm:grid-cols-3 gap-4">
+                {[
+                  { step: '1', title: 'Invitez', desc: 'Partagez votre lien avec des créateurs ou organisations.' },
+                  { step: '2', title: 'Ils vendent', desc: "L'organisation vend ses produits/reçoit des dons sur SiteViral." },
+                  { step: '3', title: 'Vous gagnez', desc: `${effectiveRate}% des frais de plateforme, automatiquement.` },
+                ].map(s => (
+                  <div key={s.step} className="flex gap-3 items-start">
+                    <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">{s.step}</div>
+                    <div>
+                      <p className="text-sm font-medium">{s.title}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{s.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Recent commissions preview */}
+          {commissions.length > 0 && (
+            <Card>
+              <CardHeader className="pb-2">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm">Dernières commissions</CardTitle>
+                  <Button variant="ghost" size="sm" className="text-xs text-primary h-7" onClick={() => {
+                    document.querySelector<HTMLButtonElement>('[data-value="gains"]')?.click();
+                  }}>
+                    Tout voir <ArrowUpRight className="h-3 w-3 ml-1" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {commissions.slice(0, 3).map(c => (
+                    <div key={c.id} className="flex items-center justify-between py-2 border-b border-border/30 last:border-0">
+                      <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 rounded-lg bg-muted/60 flex items-center justify-center">
+                          <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium">{c.organization?.name || '—'}</p>
+                          <p className="text-[11px] text-muted-foreground">{new Date(c.created_at).toLocaleDateString('fr-FR')}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-semibold">{formatCurrency(c.commission_amount, c.currency)}</p>
+                        <CommissionStatusBadge status={c.status} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         {/* ── Organisations ── */}
         <TabsContent value="orgs">
           <Card>
             <CardHeader>
-              <CardTitle>Organisations référées ({referrals.length})</CardTitle>
+              <CardTitle className="text-base">Organisations référées</CardTitle>
+              <CardDescription>
+                Les organisations que vous avez invitées via votre lien partenaire. Le statut passe automatiquement à « Active » au premier paiement reçu.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               {referrals.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">Aucune organisation référée pour le moment.</p>
+                <div className="text-center py-8 space-y-2">
+                  <Building2 className="h-8 w-8 mx-auto text-muted-foreground/40" />
+                  <p className="text-sm text-muted-foreground">Aucune organisation référée pour le moment.</p>
+                  <p className="text-xs text-muted-foreground">Partagez votre lien d'invitation pour commencer.</p>
+                </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Organisation</TableHead>
-                      <TableHead>Statut</TableHead>
-                      <TableHead>Date</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {referrals.map(r => (
-                      <TableRow key={r.id}>
-                        <TableCell className="font-medium">{r.organization?.name || '—'}</TableCell>
-                        <TableCell>
-                          <div className="flex flex-col gap-1">
-                            <Badge variant={r.status === 'active' ? 'default' : r.status === 'rejected' ? 'destructive' : 'secondary'}>
-                              {r.status === 'active' ? 'Active' : r.status === 'rejected' ? 'Rejetée' : 'En attente'}
-                            </Badge>
-                            {r.status === 'pending' && (
-                              <span className="text-[10px] text-muted-foreground leading-tight">S'active automatiquement au 1er paiement reçu</span>
-                            )}
-                            {r.status === 'active' && (
-                              <span className="text-[10px] text-muted-foreground leading-tight">Commissions générées automatiquement</span>
-                            )}
+                <div className="space-y-2">
+                  {referrals.map(r => (
+                    <div key={r.id} className="flex items-center justify-between p-3 rounded-lg border border-border/50 hover:bg-muted/30 transition-colors">
+                      <div className="flex items-center gap-3">
+                        {r.organization?.logo_url ? (
+                          <img src={r.organization.logo_url} alt="" className="h-9 w-9 rounded-lg object-cover" />
+                        ) : (
+                          <div className="h-9 w-9 rounded-lg bg-muted flex items-center justify-center">
+                            <Building2 className="h-4 w-4 text-muted-foreground" />
                           </div>
-                        </TableCell>
-                        <TableCell className="text-xs text-muted-foreground">{new Date(r.attributed_at).toLocaleDateString('fr-FR')}</TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                        )}
+                        <div>
+                          <p className="text-sm font-medium">{r.organization?.name || '—'}</p>
+                          <p className="text-[11px] text-muted-foreground">{new Date(r.attributed_at).toLocaleDateString('fr-FR')}</p>
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <Badge variant={r.status === 'active' ? 'default' : r.status === 'rejected' ? 'destructive' : 'secondary'} className="text-[10px]">
+                          {r.status === 'active' ? '✓ Active' : r.status === 'rejected' ? 'Rejetée' : '⏳ En attente'}
+                        </Badge>
+                        {r.status === 'pending' && (
+                          <span className="text-[10px] text-muted-foreground">1er paiement requis</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* ── Gains ── */}
+        {/* ── Commissions ── */}
         <TabsContent value="gains">
           <Card>
             <CardHeader>
-              <CardTitle>Historique des rémunérations</CardTitle>
+              <CardTitle className="text-base">Historique des commissions</CardTitle>
               <CardDescription>
-                Commissions générées automatiquement sur chaque vente de vos organisations. Retenue de 15 jours puis disponible au retrait.
+                Commissions générées automatiquement sur chaque transaction de vos organisations. Retenue de 15 jours puis disponible.
               </CardDescription>
             </CardHeader>
             <CardContent>
               {commissions.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">Aucune rémunération pour le moment.</p>
+                <div className="text-center py-8 space-y-2">
+                  <CircleDollarSign className="h-8 w-8 mx-auto text-muted-foreground/40" />
+                  <p className="text-sm text-muted-foreground">Aucune commission pour le moment.</p>
+                  <p className="text-xs text-muted-foreground">Les commissions apparaissent automatiquement quand vos organisations effectuent des ventes.</p>
+                </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Organisation</TableHead>
-                      <TableHead>Fee plateforme</TableHead>
-                      <TableHead>%</TableHead>
-                      <TableHead>Montant</TableHead>
-                      <TableHead>Statut</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {commissions.map(c => (
-                      <TableRow key={c.id}>
-                        <TableCell className="text-xs">{new Date(c.created_at).toLocaleDateString('fr-FR')}</TableCell>
-                        <TableCell className="text-sm">{c.organization?.name || '—'}</TableCell>
-                        <TableCell className="text-xs">{formatCurrency(c.platform_fee_amount, c.currency)}</TableCell>
-                        <TableCell className="text-xs">{c.commission_percent}%</TableCell>
-                        <TableCell className="font-medium">{formatCurrency(c.commission_amount, c.currency)}</TableCell>
-                        <TableCell>
-                          <CommissionStatusBadge status={c.status} />
-                        </TableCell>
+                <div className="overflow-x-auto -mx-6">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="hover:bg-transparent">
+                        <TableHead className="text-xs">Date</TableHead>
+                        <TableHead className="text-xs">Organisation</TableHead>
+                        <TableHead className="text-xs text-right">Fee plateforme</TableHead>
+                        <TableHead className="text-xs text-center">Taux</TableHead>
+                        <TableHead className="text-xs text-right">Commission</TableHead>
+                        <TableHead className="text-xs text-center">Statut</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {commissions.map(c => (
+                        <TableRow key={c.id}>
+                          <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{new Date(c.created_at).toLocaleDateString('fr-FR')}</TableCell>
+                          <TableCell className="text-sm font-medium">{c.organization?.name || '—'}</TableCell>
+                          <TableCell className="text-xs text-right text-muted-foreground">{formatCurrency(c.platform_fee_amount, c.currency)}</TableCell>
+                          <TableCell className="text-xs text-center">{c.commission_percent}%</TableCell>
+                          <TableCell className="text-sm font-semibold text-right">{formatCurrency(c.commission_amount, c.currency)}</TableCell>
+                          <TableCell className="text-center">
+                            <CommissionStatusBadge status={c.status} />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+
+              {/* Summary */}
+              {commissions.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-border/50 grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <p className="text-lg font-bold">{formatCurrency(stats.held, currency)}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">En attente</p>
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold text-primary">{formatCurrency(stats.payable, currency)}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Disponible</p>
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold">{formatCurrency(stats.paid, currency)}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Versé</p>
+                  </div>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -243,92 +375,77 @@ export default function PartnerPortalPage() {
         </TabsContent>
 
         {/* ── Payout ── */}
-        <TabsContent value="payout">
-          <div className="space-y-4">
-            {/* Payout method config */}
-            <PartnerPayoutConfig
-              hasRecipient={!!partner.paystack_recipient_code}
-              currentMethod={partner.payout_method}
-              currentCountry={partner.payout_country}
-            />
+        <TabsContent value="payout" className="space-y-4">
+          <PartnerPayoutConfig
+            hasRecipient={!!partner.paystack_recipient_code}
+            currentMethod={partner.payout_method}
+            currentCountry={partner.payout_country}
+          />
 
-            {/* Request payout */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm">Demander un retrait</CardTitle>
+              <CardDescription className="text-xs">
+                Disponible : <span className="font-bold text-foreground">{formatCurrency(stats.payable, currency)}</span>
+                {' '}— Min. : {formatCurrency(partner.min_payout_threshold, currency)}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {!partner.paystack_recipient_code ? (
+                <div className="text-sm text-muted-foreground flex items-center gap-2 bg-amber-500/5 border border-amber-500/20 rounded-lg p-3">
+                  <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
+                  Configurez d'abord votre méthode de paiement ci-dessus.
+                </div>
+              ) : stats.payable < partner.min_payout_threshold ? (
+                <p className="text-sm text-muted-foreground">Le seuil minimum de {formatCurrency(partner.min_payout_threshold, currency)} n'est pas encore atteint.</p>
+              ) : (
+                <Button onClick={() => requestPayout.mutate(partner.id)} disabled={requestPayout.isPending} className="gap-2">
+                  {requestPayout.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+                  <Wallet className="h-4 w-4" />
+                  Demander {formatCurrency(stats.payable, currency)}
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+
+          {payouts.length > 0 && (
             <Card>
-              <CardHeader>
-                <CardTitle>Demander un paiement</CardTitle>
-                <CardDescription>
-                  Solde disponible : <span className="font-bold text-foreground">{formatCurrency(stats.payable, currency)}</span>
-                  {' '} — Seuil minimum : {formatCurrency(partner.min_payout_threshold, currency)}
-                </CardDescription>
-              </CardHeader>
+              <CardHeader className="pb-2"><CardTitle className="text-sm">Historique des retraits</CardTitle></CardHeader>
               <CardContent>
-                {!partner.paystack_recipient_code ? (
-                  <div className="text-sm text-muted-foreground flex items-center gap-2">
-                    <AlertTriangle className="h-4 w-4 text-amber-500" />
-                    Configurez d'abord votre méthode de paiement ci-dessus.
-                  </div>
-                ) : stats.payable < partner.min_payout_threshold ? (
-                  <p className="text-sm text-muted-foreground">Le seuil minimum de {formatCurrency(partner.min_payout_threshold, currency)} n'est pas encore atteint.</p>
-                ) : (
-                  <Button onClick={() => requestPayout.mutate(partner.id)} disabled={requestPayout.isPending}>
-                    {requestPayout.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-                    Demander le versement ({formatCurrency(stats.payable, currency)})
-                  </Button>
-                )}
+                <div className="space-y-2">
+                  {payouts.map(p => (
+                    <div key={p.id} className="flex items-center justify-between py-2.5 border-b border-border/30 last:border-0">
+                      <div>
+                        <p className="text-sm font-medium">{formatCurrency(p.amount, p.currency)}</p>
+                        <p className="text-[11px] text-muted-foreground">{new Date(p.requested_at).toLocaleDateString('fr-FR')}</p>
+                      </div>
+                      <Badge variant={p.status === 'paid' ? 'default' : p.status === 'failed' || p.status === 'rejected' ? 'destructive' : 'secondary'} className="text-[10px]">
+                        {p.status === 'paid' ? '✓ Versé' : p.status === 'failed' ? '✗ Échoué' : p.status === 'rejected' ? '✗ Rejeté' : '⏳ ' + p.status}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
-
-            {/* Payout history */}
-            <Card>
-              <CardHeader><CardTitle>Historique des versements</CardTitle></CardHeader>
-              <CardContent>
-                {payouts.length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-4 text-center">Aucun versement pour le moment.</p>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Montant</TableHead>
-                        <TableHead>Statut</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {payouts.map(p => (
-                        <TableRow key={p.id}>
-                          <TableCell className="text-xs">{new Date(p.requested_at).toLocaleDateString('fr-FR')}</TableCell>
-                          <TableCell className="font-medium">{formatCurrency(p.amount, p.currency)}</TableCell>
-                          <TableCell>
-                            <Badge variant={p.status === 'paid' ? 'default' : p.status === 'failed' || p.status === 'rejected' ? 'destructive' : 'secondary'}>
-                              {p.status}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
-          </div>
+          )}
         </TabsContent>
       </Tabs>
-    </div>
+    </motion.div>
   );
 }
 
 function KPICard({ icon: Icon, label, value, sub, accent }: { icon: typeof Users; label: string; value: string; sub: string; accent?: boolean }) {
   return (
-    <Card className="border-border/50">
-      <CardContent className="pt-5 pb-4 px-5">
-        <div className="flex items-center gap-2.5 mb-2">
-          <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${accent ? 'bg-primary/10' : 'bg-muted/60'}`}>
-            <Icon className={`h-4 w-4 ${accent ? 'text-primary' : 'text-muted-foreground'}`} />
+    <Card className={`border-border/40 transition-colors ${accent ? 'border-primary/30 bg-primary/[0.02]' : ''}`}>
+      <CardContent className="pt-4 pb-3 px-4">
+        <div className="flex items-center gap-2 mb-1.5">
+          <div className={`h-7 w-7 rounded-lg flex items-center justify-center ${accent ? 'bg-primary/10' : 'bg-muted/60'}`}>
+            <Icon className={`h-3.5 w-3.5 ${accent ? 'text-primary' : 'text-muted-foreground'}`} />
           </div>
-          <span className="text-xs font-medium text-muted-foreground">{label}</span>
+          <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">{label}</span>
         </div>
-        <p className={`text-xl font-bold tracking-tight ${accent ? 'text-primary' : ''}`}>{value}</p>
-        <p className="text-[11px] text-muted-foreground mt-0.5">{sub}</p>
+        <p className={`text-lg font-bold tracking-tight ${accent ? 'text-primary' : ''}`}>{value}</p>
+        <p className="text-[10px] text-muted-foreground mt-0.5">{sub}</p>
       </CardContent>
     </Card>
   );
@@ -336,7 +453,7 @@ function KPICard({ icon: Icon, label, value, sub, accent }: { icon: typeof Users
 
 function CommissionStatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: typeof CheckCircle }> = {
-    held: { label: 'En attente', variant: 'secondary', icon: Clock },
+    held: { label: 'Retenue', variant: 'secondary', icon: Clock },
     payable: { label: 'Disponible', variant: 'default', icon: TrendingUp },
     paid: { label: 'Versé', variant: 'outline', icon: CheckCircle },
     reversed: { label: 'Annulé', variant: 'destructive', icon: XCircle },
@@ -344,8 +461,8 @@ function CommissionStatusBadge({ status }: { status: string }) {
   const s = map[status] || map.held;
   const Icon = s.icon;
   return (
-    <Badge variant={s.variant} className="gap-1 text-[10px]">
-      <Icon className="h-3 w-3" />{s.label}
+    <Badge variant={s.variant} className="gap-1 text-[10px] font-normal">
+      <Icon className="h-2.5 w-2.5" />{s.label}
     </Badge>
   );
 }
