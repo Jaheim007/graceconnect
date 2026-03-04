@@ -11,16 +11,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
 import { useI18n } from '@/i18n/I18nContext';
-import { ModeSwitch } from './ModeSwitch';
-import { useMode } from '@/contexts/ModeContext';
 import { cn } from '@/lib/utils';
 
 export function TopBar() {
   const { theme, toggleTheme } = useTheme();
   const { user, profile, isSuperadmin, signOut } = useAuth();
-  const { currentOrg, canManage, userOrgs, setCurrentOrg } = useOrg();
-  const { mode } = useMode();
-  const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
+  const { currentOrg, userOrgs, setCurrentOrg } = useOrg();
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const navigate = useNavigate();
   const { t } = useI18n();
@@ -39,8 +35,8 @@ export function TopBar() {
       <GlobalSearch />
       <div className="flex-1" />
 
-      {/* Org switcher (mobile, creator mode with multiple orgs) */}
-      {user && mode === 'creator' && currentOrg && userOrgs.length > 1 && (
+      {/* Org switcher (mobile, for users with multiple orgs) */}
+      {user && currentOrg && userOrgs.length > 1 && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="h-7 text-[11px] font-semibold gap-1 max-w-[120px] lg:hidden">
@@ -62,9 +58,6 @@ export function TopBar() {
           </DropdownMenuContent>
         </DropdownMenu>
       )}
-
-      {/* Mode Switch */}
-      {user && <ModeSwitch />}
 
       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
         {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -102,7 +95,7 @@ export function TopBar() {
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigate('/profile')}><User className="h-3.5 w-3.5 mr-2" /> {t('topbar.my_account')}</DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/dashboard')}><Settings className="h-3.5 w-3.5 mr-2" /> Mon espace</DropdownMenuItem>
-            {mode === 'creator' && (
+            {userOrgs.length === 0 && (
               <DropdownMenuItem onClick={() => navigate('/create-org')}><Plus className="h-3.5 w-3.5 mr-2" /> {t('topbar.create_org')}</DropdownMenuItem>
             )}
             {isSuperadmin && (
