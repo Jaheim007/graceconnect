@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import {
   Package, Store, Share2, Link2, Trophy, Wallet, Building2, ArrowRight,
-  BookOpen, Rocket, Sparkles, GraduationCap, Heart, Shield, UserCheck
+  BookOpen, Rocket, Sparkles, GraduationCap, Heart, Shield, UserCheck, Handshake
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import { useMode } from '@/contexts/ModeContext';
 import { Badge } from '@/components/ui/badge';
+import { useMyPartner } from '@/hooks/usePartner';
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 12 },
@@ -30,6 +31,7 @@ export default function UserDashboard() {
   const { locale } = useI18n();
   const { hasAmbassadorAccess, hasCreatorAccess, setMode } = useMode();
   const hasOrgs = userOrgs.length > 0;
+  const { data: myPartner } = useMyPartner();
 
   const primaryCurrency = userOrgs[0]?.currency || DEFAULT_CURRENCY;
   const fmt = (n: number, currency?: string | null) => formatCurrency(n, currency || primaryCurrency, locale);
@@ -316,6 +318,22 @@ export default function UserDashboard() {
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-semibold">Se connecter en tant qu'ambassadeur</p>
                 <p className="text-[10px] text-muted-foreground">Mes liens, commissions et classement</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+            </button>
+          )}
+
+          {myPartner && myPartner.status === 'approved' && (
+            <button
+              onClick={() => navigate('/portail-partenaire')}
+              className="w-full flex items-center gap-3 p-3.5 rounded-xl border border-border hover:border-amber-500/40 bg-card text-left transition-all group"
+            >
+              <div className="h-8 w-8 rounded-lg bg-amber-500/10 flex items-center justify-center shrink-0">
+                <Handshake className="h-4 w-4 text-amber-500" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold">Espace Partenaire</p>
+                <p className="text-[10px] text-muted-foreground">Mes organisations référées et commissions</p>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
             </button>
