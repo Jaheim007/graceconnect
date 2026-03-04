@@ -27,7 +27,7 @@ import { EmbedSnippetGen } from '@/components/products/EmbedSnippetGen';
 import { ContentTemplateSelector } from '@/components/admin/ContentTemplateSelector';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { AIWritingAssistant } from '@/components/admin/AIWritingAssistant';
-import { AICoverGenerator } from '@/components/admin/AICoverGenerator';
+
 import type { ProductTemplate } from '@/lib/contentTemplates';
 
 const schema = z.object({
@@ -63,7 +63,7 @@ export function ProductForm() {
   const [salePrice, setSalePrice] = useState('');
   const [saleEndsAt, setSaleEndsAt] = useState('');
   const [showAI, setShowAI] = useState(false);
-  const [showCoverAI, setShowCoverAI] = useState(false);
+  
 
   // Bundle & Recommendation hooks
   const { data: allProducts = [] } = useOrgProducts(currentOrg?.id, false);
@@ -240,7 +240,7 @@ export function ProductForm() {
 
       {/* AI Assistants */}
       <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html, { shouldDirty: true, shouldTouch: true })} context="description de produit numérique" />
-      <AICoverGenerator open={showCoverAI} onClose={() => setShowCoverAI(false)} onInsert={(url) => setValue('cover_image_url', url, { shouldDirty: true, shouldTouch: true })} context="product" />
+      
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
@@ -313,9 +313,6 @@ export function ProductForm() {
               <ImageUploader value={watch('cover_image_url') || ''} onChange={(url) => setValue('cover_image_url', url)} folder="products" label="Image de couverture" hint={cfg.hint} aspectRatio={cfg.aspect} />
             );
           })()}
-          <Button type="button" variant="outline" size="sm" onClick={() => setShowCoverAI(true)} className="gap-1.5 text-xs">
-            <Sparkles className="h-3 w-3" /> Générer une couverture IA
-          </Button>
         </div>
 
         <FileUploader value={watch('file_url') || ''} onChange={(url) => setValue('file_url', url)} folder="products" label="Fichier du produit" hint="PDF, Word, Audio, Vidéo (max 50 Mo)" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.epub,.zip,.mp3,.mp4,.wav,.aac,.m4a,.ogg,.webm,.mov,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.ms-powerpoint,application/vnd.ms-excel,application/epub+zip,application/zip,audio/*,video/*" bucket="private-products" />
