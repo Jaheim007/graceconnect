@@ -3,7 +3,7 @@ import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Copy, ExternalLink, Share2, CheckCircle, Plus, Eye, Trash2, PackagePlus, ArrowUpRight, HelpCircle, Shield, MessageSquareQuote, Sparkles } from 'lucide-react';
+import { Copy, ExternalLink, Share2, CheckCircle, Plus, Eye, Trash2, PackagePlus, ArrowUpRight, HelpCircle, Shield, MessageSquareQuote, Sparkles, ImageIcon } from 'lucide-react';
 import { onContentPublished, onContentUnpublished, onProductPriceChanged } from '@/lib/notifications';
 import { z } from 'zod';
 import { useOrg } from '@/contexts/OrgContext';
@@ -25,6 +25,9 @@ import { useBundleItems, useAddBundleItem, useRemoveBundleItem, useProductRecomm
 import { useOrgProducts } from '@/hooks/useMonetization';
 import { EmbedSnippetGen } from '@/components/products/EmbedSnippetGen';
 import { ContentTemplateSelector } from '@/components/admin/ContentTemplateSelector';
+import { RichTextEditor } from '@/components/ui/RichTextEditor';
+import { AIWritingAssistant } from '@/components/admin/AIWritingAssistant';
+import { AICoverGenerator } from '@/components/admin/AICoverGenerator';
 import type { ProductTemplate } from '@/lib/contentTemplates';
 
 const schema = z.object({
@@ -36,12 +39,10 @@ const schema = z.object({
   file_url: z.string().optional(),
   external_link: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   is_free: z.boolean().default(false),
-  
   is_published: z.boolean().default(false),
   is_bundle: z.boolean().default(false),
   guarantee_text: z.string().optional(),
 });
-
 
 type FormData = z.infer<typeof schema>;
 
@@ -61,6 +62,8 @@ export function ProductForm() {
   const [showTemplates, setShowTemplates] = useState(!isEdit);
   const [salePrice, setSalePrice] = useState('');
   const [saleEndsAt, setSaleEndsAt] = useState('');
+  const [showAI, setShowAI] = useState(false);
+  const [showCoverAI, setShowCoverAI] = useState(false);
 
   // Bundle & Recommendation hooks
   const { data: allProducts = [] } = useOrgProducts(currentOrg?.id, false);
@@ -117,17 +120,10 @@ export function ProductForm() {
       toast({ title: 'Error', description: 'No organization selected.', variant: 'destructive' });
       return;
     }
-
-    // Validate: cannot publish without a file or external link
     if (data.is_published && !data.file_url && !data.external_link) {
-      toast({
-        title: 'Fichier requis',
-        description: 'Impossible de publier un produit sans fichier ni lien externe. Ajoutez un fichier avant de publier.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Fichier requis', description: 'Impossible de publier un produit sans fichier ni lien externe.', variant: 'destructive' });
       return;
     }
-
     setLoading(true);
     try {
       const payload = {
@@ -144,7 +140,7 @@ export function ProductForm() {
         testimonials_json: testimonials.length > 0 ? testimonials : [],
         sale_price: data.is_free ? null : (salePrice ? parseFloat(salePrice) : null),
         sale_ends_at: data.is_free ? null : (saleEndsAt ? new Date(saleEndsAt).toISOString() : null),
-        is_express_demo: false, // Clear express demo flag on manual save
+        is_express_demo: false,
       };
       let error;
       let resultData: any;
@@ -156,145 +152,61 @@ export function ProductForm() {
         resultData = res.data;
       }
       if (error) throw error;
-
-      // Fire notifications for new products or status changes
       if (!isEdit && resultData && payload.is_published) {
-        onContentPublished(currentOrg.id, currentOrg.name, 'product', payload.title, resultData.id, {
-          price: String(payload.price || 0),
-          currency: payload.currency,
-        }, user.id);
+        onContentPublished(currentOrg.id, currentOrg.name, 'product', payload.title, resultData.id, { price: String(payload.price || 0), currency: payload.currency }, user.id);
       }
-      // For edits: detect publish/unpublish and price changes
       if (isEdit && item) {
-        if (!item.is_published && payload.is_published) {
-          onContentPublished(currentOrg.id, currentOrg.name, 'product', payload.title, id!, {
-            price: String(payload.price || 0),
-            currency: payload.currency,
-          }, user.id);
-        }
-        if (item.is_published && !payload.is_published) {
-          onContentUnpublished(currentOrg.id, currentOrg.name, 'product', payload.title);
-        }
-        if (item.price !== payload.price && payload.is_published) {
-          onProductPriceChanged(currentOrg.id, currentOrg.name, payload.title, item.price || 0, payload.price, payload.currency);
-        }
+        if (!item.is_published && payload.is_published) onContentPublished(currentOrg.id, currentOrg.name, 'product', payload.title, id!, { price: String(payload.price || 0), currency: payload.currency }, user.id);
+        if (item.is_published && !payload.is_published) onContentUnpublished(currentOrg.id, currentOrg.name, 'product', payload.title);
+        if (item.price !== payload.price && payload.is_published) onProductPriceChanged(currentOrg.id, currentOrg.name, payload.title, item.price || 0, payload.price, payload.currency);
       }
-
-      // Trigger preview generation in background if file is uploaded
       const productIdForPreview = isEdit ? id : resultData?.id;
       if (productIdForPreview && payload.file_url) {
         const { data: { session } } = await db.auth.getSession();
         if (session?.access_token) {
           fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-preview`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${session.access_token}`,
-            },
+            method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
             body: JSON.stringify({ product_id: productIdForPreview }),
-          }).then(res => {
-            if (res.ok) console.log('[Preview] Generation triggered');
-            else console.warn('[Preview] Generation failed');
-          }).catch(err => console.warn('[Preview] Error:', err));
+          }).catch(() => {});
         }
       }
-      
-      if (isEdit) {
-        toast({ title: 'Mis à jour ✅' });
-        navigate('/admin/products');
-      } else if (resultData) {
-        setCreatedProduct({ id: resultData.id, slug: resultData.slug });
-      } else {
-        navigate('/admin/products');
-      }
+      if (isEdit) { toast({ title: 'Mis à jour ✅' }); navigate('/admin/products'); }
+      else if (resultData) { setCreatedProduct({ id: resultData.id, slug: resultData.slug }); }
+      else { navigate('/admin/products'); }
     } catch (err: any) {
       toast({ title: 'Erreur', description: err.message, variant: 'destructive' });
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
-  const productUrl = isEdit && currentOrg?.slug && id
-    ? `${window.location.origin}/org/${currentOrg.slug}/product/${id}`
-    : null;
-
+  const productUrl = isEdit && currentOrg?.slug && id ? `${window.location.origin}/org/${currentOrg.slug}/product/${id}` : null;
   const getProductShortLink = async (path: string) => {
-    try {
-      return await getOrCreateShortLink({ targetPath: path, title: watch('title') || 'Produit Siteviral' });
-    } catch {
-      return buildSocialShareUrl({ targetUrl: `${window.location.origin}${path}`, title: watch('title') || 'Produit Siteviral' });
-    }
+    try { return await getOrCreateShortLink({ targetPath: path, title: watch('title') || 'Produit Siteviral' }); }
+    catch { return buildSocialShareUrl({ targetUrl: `${window.location.origin}${path}`, title: watch('title') || 'Produit Siteviral' }); }
   };
+  const copyLink = async () => { if (productUrl) { const url = await getProductShortLink(`/org/${currentOrg?.slug}/product/${id}`); navigator.clipboard.writeText(url); toast({ title: 'Lien copié ✅' }); } };
+  const shareLink = async () => { if (productUrl) { const url = await getProductShortLink(`/org/${currentOrg?.slug}/product/${id}`); if (navigator.share) navigator.share({ title: watch('title'), url }); else { navigator.clipboard.writeText(url); toast({ title: 'Lien copié ✅' }); } } };
 
-  const copyLink = async () => {
-    if (productUrl) {
-      const path = `/org/${currentOrg?.slug}/product/${id}`;
-      const url = await getProductShortLink(path);
-      navigator.clipboard.writeText(url);
-      toast({ title: 'Lien copié ✅' });
-    }
-  };
-
-  const shareLink = async () => {
-    if (productUrl) {
-      const path = `/org/${currentOrg?.slug}/product/${id}`;
-      const url = await getProductShortLink(path);
-      if (navigator.share) {
-        navigator.share({ title: watch('title'), url });
-      } else {
-        navigator.clipboard.writeText(url);
-        toast({ title: 'Lien copié ✅' });
-      }
-    }
-  };
-
-  // Success screen after product creation
+  // Success screen
   if (createdProduct) {
     const newProductUrl = `${window.location.origin}/org/${currentOrg?.slug}/product/${createdProduct.id}`;
     const newProductPath = `/org/${currentOrg?.slug}/product/${createdProduct.id}`;
-    const copyNewLink = async () => {
-      const url = await getProductShortLink(newProductPath);
-      navigator.clipboard.writeText(url);
-      toast({ title: 'Lien copié ✅' });
-    };
-    const shareNewLink = async () => {
-      const url = await getProductShortLink(newProductPath);
-      if (navigator.share) navigator.share({ title: watch('title'), url });
-      else { navigator.clipboard.writeText(url); toast({ title: 'Lien copié ✅' }); }
-    };
+    const copyNewLink = async () => { const url = await getProductShortLink(newProductPath); navigator.clipboard.writeText(url); toast({ title: 'Lien copié ✅' }); };
+    const shareNewLink = async () => { const url = await getProductShortLink(newProductPath); if (navigator.share) navigator.share({ title: watch('title'), url }); else { navigator.clipboard.writeText(url); toast({ title: 'Lien copié ✅' }); } };
     return (
       <AdminPageShell title="Produit créé !" backRoute="/admin/products">
         <div className="max-w-md mx-auto text-center space-y-6 py-8">
-          <div className="h-16 w-16 rounded-full bg-green-500/15 flex items-center justify-center mx-auto">
-            <CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" />
-          </div>
-          <div>
-            <h2 className="text-xl font-bold">Produit créé avec succès !</h2>
-            <p className="text-sm text-muted-foreground mt-1">Votre produit est prêt. Partagez-le avec votre audience.</p>
-          </div>
+          <div className="h-16 w-16 rounded-full bg-green-500/15 flex items-center justify-center mx-auto"><CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" /></div>
+          <div><h2 className="text-xl font-bold">Produit créé avec succès !</h2><p className="text-sm text-muted-foreground mt-1">Votre produit est prêt. Partagez-le avec votre audience.</p></div>
           <div className="bg-muted/50 border border-border rounded-xl p-3 text-left">
             <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Lien du produit</p>
-            <div className="flex items-center gap-2">
-              <p className="text-xs font-mono text-foreground truncate flex-1">{newProductUrl}</p>
-              <Button size="sm" variant="ghost" className="h-7 w-7 p-0 shrink-0" onClick={copyNewLink}>
-                <Copy className="h-3.5 w-3.5" />
-              </Button>
-            </div>
+            <div className="flex items-center gap-2"><p className="text-xs font-mono text-foreground truncate flex-1">{newProductUrl}</p><Button size="sm" variant="ghost" className="h-7 w-7 p-0 shrink-0" onClick={copyNewLink}><Copy className="h-3.5 w-3.5" /></Button></div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <Button variant="outline" className="gap-2" onClick={() => window.open(newProductUrl, '_blank')}>
-              <Eye className="h-4 w-4" /> Voir le produit
-            </Button>
-            <Button variant="outline" className="gap-2" onClick={shareNewLink}>
-              <Share2 className="h-4 w-4" /> Partager
-            </Button>
-            <Button className="gap-2 bg-primary text-primary-foreground" onClick={() => { setCreatedProduct(null); reset({ product_type: 'pdf', price: 0, is_free: false, is_published: true }); }}>
-              <Plus className="h-4 w-4" /> Nouveau produit
-            </Button>
+            <Button variant="outline" className="gap-2" onClick={() => window.open(newProductUrl, '_blank')}><Eye className="h-4 w-4" /> Voir le produit</Button>
+            <Button variant="outline" className="gap-2" onClick={shareNewLink}><Share2 className="h-4 w-4" /> Partager</Button>
+            <Button className="gap-2 bg-primary text-primary-foreground" onClick={() => { setCreatedProduct(null); reset({ product_type: 'pdf', price: 0, is_free: false, is_published: true }); }}><Plus className="h-4 w-4" /> Nouveau produit</Button>
           </div>
-          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={() => navigate('/admin/products')}>
-            ← Retour à la boutique
-          </Button>
+          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={() => navigate('/admin/products')}>← Retour à la boutique</Button>
         </div>
       </AdminPageShell>
     );
@@ -312,52 +224,38 @@ export function ProductForm() {
 
   return (
     <AdminPageShell title={isEdit ? 'Modifier le produit' : 'Nouveau produit'} backRoute="/admin/products">
-      {/* Template selector for new products */}
-      {!isEdit && (
-        <ContentTemplateSelector
-          type="product"
-          open={showTemplates}
-          onClose={() => setShowTemplates(false)}
-          onSelect={(tpl) => applyProductTemplate(tpl as ProductTemplate)}
-        />
-      )}
-      {!isEdit && !showTemplates && (
-        <div className="mb-4">
-          <Button variant="outline" size="sm" onClick={() => setShowTemplates(true)} className="gap-1.5 text-xs">
-            <Sparkles className="h-3.5 w-3.5" /> Utiliser un modèle
-          </Button>
-        </div>
-      )}
-      {/* Product link preview */}
+      {!isEdit && (<ContentTemplateSelector type="product" open={showTemplates} onClose={() => setShowTemplates(false)} onSelect={(tpl) => applyProductTemplate(tpl as ProductTemplate)} />)}
+      {!isEdit && !showTemplates && (<div className="mb-4"><Button variant="outline" size="sm" onClick={() => setShowTemplates(true)} className="gap-1.5 text-xs"><Sparkles className="h-3.5 w-3.5" /> Utiliser un modèle</Button></div>)}
       {productUrl && (
         <div className="mb-4 p-3 rounded-xl bg-muted/50 border border-border flex items-center gap-2 flex-wrap">
           <span className="text-xs text-muted-foreground font-medium shrink-0">Lien produit :</span>
-          <a href={productUrl} target="_blank" rel="noreferrer" className="text-xs text-primary underline truncate max-w-[300px]">
-            {productUrl}
-          </a>
+          <a href={productUrl} target="_blank" rel="noreferrer" className="text-xs text-primary underline truncate max-w-[300px]">{productUrl}</a>
           <div className="flex gap-1 ml-auto shrink-0">
-            <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={copyLink} title="Copier le lien">
-              <Copy className="h-3.5 w-3.5" />
-            </Button>
-            <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => window.open(productUrl, '_blank')} title="Voir le produit">
-              <ExternalLink className="h-3.5 w-3.5" />
-            </Button>
-            <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={shareLink} title="Partager">
-              <Share2 className="h-3.5 w-3.5" />
-            </Button>
+            <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={copyLink}><Copy className="h-3.5 w-3.5" /></Button>
+            <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => window.open(productUrl, '_blank')}><ExternalLink className="h-3.5 w-3.5" /></Button>
+            <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={shareLink}><Share2 className="h-3.5 w-3.5" /></Button>
           </div>
         </div>
       )}
 
+      {/* AI Assistants */}
+      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html)} context="description de produit numérique" />
+      <AICoverGenerator open={showCoverAI} onClose={() => setShowCoverAI(false)} onInsert={(url) => setValue('cover_image_url', url)} context="product" />
+
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
-          <Label>Product Title *</Label>
-          <Input {...register('title')} placeholder="e.g. Bible Study Guide Vol. 1" />
+          <Label>Titre du produit *</Label>
+          <Input {...register('title')} placeholder="Ex: Guide d'étude biblique Vol. 1" />
           {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
         </div>
         <div className="space-y-1.5">
           <Label>Description</Label>
-          <Textarea {...register('description')} rows={3} placeholder="Describe the product..." />
+          <RichTextEditor
+            value={watch('description') || ''}
+            onChange={(html) => setValue('description', html)}
+            placeholder="Décrivez votre produit en détail..."
+            onAIAssist={() => setShowAI(true)}
+          />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
@@ -375,8 +273,8 @@ export function ProductForm() {
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label>Price ({currentOrg?.currency || 'XOF'})</Label>
-            <Input type="number" {...register('price')} disabled={isFree} placeholder="e.g. 5000" />
+            <Label>Prix ({currentOrg?.currency || 'XOF'})</Label>
+            <Input type="number" {...register('price')} disabled={isFree} placeholder="Ex: 5000" />
           </div>
         </div>
 
@@ -394,63 +292,43 @@ export function ProductForm() {
                 <Input type="datetime-local" value={saleEndsAt} onChange={e => setSaleEndsAt(e.target.value)} className="h-8 text-xs" />
               </div>
             </div>
-            <p className="text-[10px] text-muted-foreground">Laissez vide pour désactiver. Le countdown s'affiche automatiquement sur la fiche produit.</p>
+            <p className="text-[10px] text-muted-foreground">Laissez vide pour désactiver.</p>
           </div>
         )}
 
-        {/* Cover image upload */}
-        {/* Cover image upload — hint adapts to product type */}
-        {(() => {
-          const pt = watch('product_type');
-          const coverHints: Record<string, { hint: string; aspect: 'square' | 'video' | 'banner' | 'free' | 'book' }> = {
-            pdf:    { hint: 'Book cover: 1000×1600px (2:3 portrait) · JPG/PNG/WEBP · Max 10MB', aspect: 'book' },
-            ebook:  { hint: 'eBook cover: 1000×1600px (2:3 portrait) · JPG/PNG/WEBP · Max 10MB', aspect: 'book' },
-            audio:  { hint: 'Album art: 3000×3000px (1:1 square) · JPG/PNG/WEBP · Max 10MB', aspect: 'square' },
-            video:  { hint: 'Video cover: 1280×720px (16:9 horizontal) · JPG/PNG/WEBP · Max 10MB', aspect: 'video' },
-            course: { hint: 'Course cover: 1280×720px (16:9 horizontal) · JPG/PNG/WEBP · Max 10MB', aspect: 'video' },
-            other:  { hint: 'Recommended: 1280×720px (16:9) or 1000×1600px (2:3). JPG/PNG/WEBP · Max 10MB', aspect: 'free' },
-          };
-          const cfg = coverHints[pt] || coverHints.other;
-          return (
-            <ImageUploader
-              value={watch('cover_image_url') || ''}
-              onChange={(url) => setValue('cover_image_url', url)}
-              folder="products"
-              label="Cover Image"
-              hint={cfg.hint}
-              aspectRatio={cfg.aspect}
-            />
-          );
-        })()}
+        {/* Cover image upload with AI generator */}
+        <div className="space-y-2">
+          {(() => {
+            const pt = watch('product_type');
+            const coverHints: Record<string, { hint: string; aspect: 'square' | 'video' | 'banner' | 'free' | 'book' }> = {
+              pdf: { hint: 'Couverture livre: 1000×1600px (2:3 portrait)', aspect: 'book' },
+              ebook: { hint: 'Couverture eBook: 1000×1600px (2:3 portrait)', aspect: 'book' },
+              audio: { hint: 'Pochette: 3000×3000px (1:1 carré)', aspect: 'square' },
+              video: { hint: 'Couverture vidéo: 1280×720px (16:9)', aspect: 'video' },
+              course: { hint: 'Couverture cours: 1280×720px (16:9)', aspect: 'video' },
+              other: { hint: '1280×720px (16:9) ou 1000×1600px (2:3)', aspect: 'free' },
+            };
+            const cfg = coverHints[pt] || coverHints.other;
+            return (
+              <ImageUploader value={watch('cover_image_url') || ''} onChange={(url) => setValue('cover_image_url', url)} folder="products" label="Image de couverture" hint={cfg.hint} aspectRatio={cfg.aspect} />
+            );
+          })()}
+          <Button type="button" variant="outline" size="sm" onClick={() => setShowCoverAI(true)} className="gap-1.5 text-xs">
+            <Sparkles className="h-3 w-3" /> Générer une couverture IA
+          </Button>
+        </div>
 
-        <FileUploader
-          value={watch('file_url') || ''}
-          onChange={(url) => setValue('file_url', url)}
-          folder="products"
-          label="Product File"
-          hint="Upload a PDF, Word, PowerPoint, audio, or video file (max 50 Mo), or switch to URL mode to paste a hosted link."
-          accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.epub,.zip,.mp3,.mp4,.wav,.aac,.m4a,.ogg,.webm,.mov,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.ms-powerpoint,application/vnd.ms-excel,application/epub+zip,application/zip,audio/*,video/*"
-          bucket="private-products"
-        />
+        <FileUploader value={watch('file_url') || ''} onChange={(url) => setValue('file_url', url)} folder="products" label="Fichier du produit" hint="PDF, Word, Audio, Vidéo (max 50 Mo)" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.epub,.zip,.mp3,.mp4,.wav,.aac,.m4a,.ogg,.webm,.mov,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.ms-powerpoint,application/vnd.ms-excel,application/epub+zip,application/zip,audio/*,video/*" bucket="private-products" />
 
         <div className="space-y-1.5">
-          <Label>External Link (optional)</Label>
+          <Label>Lien externe (optionnel)</Label>
           <Input {...register('external_link')} placeholder="https://..." />
           {errors.external_link && <p className="text-xs text-destructive">{errors.external_link.message}</p>}
         </div>
         <div className="flex flex-wrap items-center gap-6">
-          <div className="flex items-center gap-2">
-            <Switch checked={watch('is_free')} onCheckedChange={v => setValue('is_free', v)} />
-            <Label className="text-sm cursor-pointer">Gratuit</Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} />
-            <Label className="text-sm cursor-pointer">Publié</Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <Switch checked={watch('is_bundle')} onCheckedChange={v => setValue('is_bundle', v)} />
-            <Label className="text-sm cursor-pointer flex items-center gap-1"><PackagePlus className="h-3.5 w-3.5" /> Bundle</Label>
-          </div>
+          <div className="flex items-center gap-2"><Switch checked={watch('is_free')} onCheckedChange={v => setValue('is_free', v)} /><Label className="text-sm cursor-pointer">Gratuit</Label></div>
+          <div className="flex items-center gap-2"><Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} /><Label className="text-sm cursor-pointer">Publié</Label></div>
+          <div className="flex items-center gap-2"><Switch checked={watch('is_bundle')} onCheckedChange={v => setValue('is_bundle', v)} /><Label className="text-sm cursor-pointer flex items-center gap-1"><PackagePlus className="h-3.5 w-3.5" /> Bundle</Label></div>
         </div>
 
         {/* Guarantee */}
@@ -464,134 +342,77 @@ export function ProductForm() {
           <Label className="flex items-center gap-1 text-sm font-semibold"><HelpCircle className="h-3.5 w-3.5" /> FAQ du produit</Label>
           {faqItems.map((faq, i) => (
             <div key={i} className="flex items-start gap-2 bg-muted/50 rounded-lg p-2">
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold">{faq.q}</p>
-                <p className="text-xs text-muted-foreground">{faq.a}</p>
-              </div>
-              <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={() => setFaqItems(prev => prev.filter((_, idx) => idx !== i))}>
-                <Trash2 className="h-3 w-3" />
-              </Button>
+              <div className="flex-1 min-w-0"><p className="text-xs font-semibold">{faq.q}</p><p className="text-xs text-muted-foreground">{faq.a}</p></div>
+              <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={() => setFaqItems(prev => prev.filter((_, idx) => idx !== i))}><Trash2 className="h-3 w-3" /></Button>
             </div>
           ))}
           <div className="grid gap-2">
             <Input placeholder="Question" value={newFaq.q} onChange={e => setNewFaq(f => ({ ...f, q: e.target.value }))} className="h-8 text-xs" />
             <Input placeholder="Réponse" value={newFaq.a} onChange={e => setNewFaq(f => ({ ...f, a: e.target.value }))} className="h-8 text-xs" />
-            <Button type="button" variant="outline" size="sm" className="w-fit gap-1"
-              onClick={() => { if (newFaq.q && newFaq.a) { setFaqItems(prev => [...prev, { ...newFaq }]); setNewFaq({ q: '', a: '' }); } }}>
-              <Plus className="h-3 w-3" /> Ajouter
-            </Button>
+            <Button type="button" variant="outline" size="sm" className="w-fit gap-1" onClick={() => { if (newFaq.q && newFaq.a) { setFaqItems(prev => [...prev, { ...newFaq }]); setNewFaq({ q: '', a: '' }); } }}><Plus className="h-3 w-3" /> Ajouter</Button>
           </div>
         </div>
 
-        {/* Testimonials Section */}
+        {/* Testimonials */}
         <div className="space-y-2 border border-border rounded-xl p-4">
           <Label className="flex items-center gap-1 text-sm font-semibold"><MessageSquareQuote className="h-3.5 w-3.5" /> Témoignages</Label>
           {testimonials.map((t, i) => (
             <div key={i} className="flex items-start gap-2 bg-muted/50 rounded-lg p-2">
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold">{t.name}</p>
-                <p className="text-xs text-muted-foreground italic">"{t.text}"</p>
-              </div>
-              <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={() => setTestimonials(prev => prev.filter((_, idx) => idx !== i))}>
-                <Trash2 className="h-3 w-3" />
-              </Button>
+              <div className="flex-1 min-w-0"><p className="text-xs font-semibold">{t.name}</p><p className="text-xs text-muted-foreground italic">"{t.text}"</p></div>
+              <Button variant="ghost" size="icon" className="h-6 w-6 shrink-0" onClick={() => setTestimonials(prev => prev.filter((_, idx) => idx !== i))}><Trash2 className="h-3 w-3" /></Button>
             </div>
           ))}
           <div className="grid gap-2">
             <Input placeholder="Nom du client" value={newTestimonial.name} onChange={e => setNewTestimonial(t => ({ ...t, name: e.target.value }))} className="h-8 text-xs" />
             <Input placeholder="Témoignage" value={newTestimonial.text} onChange={e => setNewTestimonial(t => ({ ...t, text: e.target.value }))} className="h-8 text-xs" />
-            <Button type="button" variant="outline" size="sm" className="w-fit gap-1"
-              onClick={() => { if (newTestimonial.name && newTestimonial.text) { setTestimonials(prev => [...prev, { ...newTestimonial }]); setNewTestimonial({ name: '', text: '' }); } }}>
-              <Plus className="h-3 w-3" /> Ajouter
-            </Button>
+            <Button type="button" variant="outline" size="sm" className="w-fit gap-1" onClick={() => { if (newTestimonial.name && newTestimonial.text) { setTestimonials(prev => [...prev, { ...newTestimonial }]); setNewTestimonial({ name: '', text: '' }); } }}><Plus className="h-3 w-3" /> Ajouter</Button>
           </div>
         </div>
 
-        {/* Bundle Items (only in edit mode) */}
+        {/* Bundle Items */}
         {isEdit && watch('is_bundle') && (
           <div className="space-y-2 border border-primary/20 rounded-xl p-4">
             <Label className="flex items-center gap-1 text-sm font-semibold"><PackagePlus className="h-3.5 w-3.5 text-primary" /> Produits inclus dans le bundle</Label>
             {bundleItems.map((bi: any) => (
               <div key={bi.id} className="flex items-center gap-2 bg-muted/50 rounded-lg p-2">
                 <span className="text-xs font-medium flex-1">{bi.included_product?.title || bi.included_product_id}</span>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeBundleItem.mutate({ id: bi.id, bundleProductId: id! })}>
-                  <Trash2 className="h-3 w-3" />
-                </Button>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeBundleItem.mutate({ id: bi.id, bundleProductId: id! })}><Trash2 className="h-3 w-3" /></Button>
               </div>
             ))}
             <div className="flex gap-2">
-              <Select value={selectedBundleProduct} onValueChange={setSelectedBundleProduct}>
-                <SelectTrigger className="h-8 text-xs flex-1"><SelectValue placeholder="Sélectionner un produit" /></SelectTrigger>
-                <SelectContent>
-                  {allProducts.filter((p: any) => p.id !== id && !bundleItems.some((bi: any) => bi.included_product_id === p.id)).map((p: any) => (
-                    <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button type="button" variant="outline" size="sm" className="h-8 gap-1"
-                onClick={() => { if (selectedBundleProduct) { addBundleItem.mutate({ bundleProductId: id!, includedProductId: selectedBundleProduct }); setSelectedBundleProduct(''); } }}>
-                <Plus className="h-3 w-3" /> Ajouter
-              </Button>
+              <Select value={selectedBundleProduct} onValueChange={setSelectedBundleProduct}><SelectTrigger className="h-8 text-xs flex-1"><SelectValue placeholder="Sélectionner un produit" /></SelectTrigger><SelectContent>{allProducts.filter((p: any) => p.id !== id && !bundleItems.some((bi: any) => bi.included_product_id === p.id)).map((p: any) => (<SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>))}</SelectContent></Select>
+              <Button type="button" variant="outline" size="sm" className="h-8 gap-1" onClick={() => { if (selectedBundleProduct) { addBundleItem.mutate({ bundleProductId: id!, includedProductId: selectedBundleProduct }); setSelectedBundleProduct(''); } }}><Plus className="h-3 w-3" /> Ajouter</Button>
             </div>
           </div>
         )}
 
-        {/* Recommendations (only in edit mode) */}
+        {/* Recommendations */}
         {isEdit && (
           <div className="space-y-2 border border-border rounded-xl p-4">
-            <Label className="flex items-center gap-1 text-sm font-semibold"><ArrowUpRight className="h-3.5 w-3.5" /> Produits recommandés (Upsell / Cross-sell)</Label>
+            <Label className="flex items-center gap-1 text-sm font-semibold"><ArrowUpRight className="h-3.5 w-3.5" /> Produits recommandés</Label>
             {recommendations.map((rec: any) => (
               <div key={rec.id} className="flex items-center gap-2 bg-muted/50 rounded-lg p-2">
                 <Badge variant="outline" className="text-[10px] capitalize">{rec.recommendation_type}</Badge>
                 <span className="text-xs font-medium flex-1">{rec.recommended_product?.title || rec.recommended_product_id}</span>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeRecommendation.mutate({ id: rec.id, productId: id! })}>
-                  <Trash2 className="h-3 w-3" />
-                </Button>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeRecommendation.mutate({ id: rec.id, productId: id! })}><Trash2 className="h-3 w-3" /></Button>
               </div>
             ))}
             <div className="flex gap-2 flex-wrap">
-              <Select value={recommendationType} onValueChange={setRecommendationType}>
-                <SelectTrigger className="h-8 text-xs w-28"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="upsell">Upsell</SelectItem>
-                  <SelectItem value="cross_sell">Cross-sell</SelectItem>
-                  <SelectItem value="related">Related</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={selectedRecommendation} onValueChange={setSelectedRecommendation}>
-                <SelectTrigger className="h-8 text-xs flex-1"><SelectValue placeholder="Sélectionner un produit" /></SelectTrigger>
-                <SelectContent>
-                  {allProducts.filter((p: any) => p.id !== id && !recommendations.some((r: any) => r.recommended_product_id === p.id)).map((p: any) => (
-                    <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Button type="button" variant="outline" size="sm" className="h-8 gap-1"
-                onClick={() => { if (selectedRecommendation) { addRecommendation.mutate({ productId: id!, recommendedProductId: selectedRecommendation, type: recommendationType }); setSelectedRecommendation(''); } }}>
-                <Plus className="h-3 w-3" /> Ajouter
-              </Button>
+              <Select value={recommendationType} onValueChange={setRecommendationType}><SelectTrigger className="h-8 text-xs w-28"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="upsell">Upsell</SelectItem><SelectItem value="cross_sell">Cross-sell</SelectItem><SelectItem value="related">Related</SelectItem></SelectContent></Select>
+              <Select value={selectedRecommendation} onValueChange={setSelectedRecommendation}><SelectTrigger className="h-8 text-xs flex-1"><SelectValue placeholder="Sélectionner un produit" /></SelectTrigger><SelectContent>{allProducts.filter((p: any) => p.id !== id && !recommendations.some((r: any) => r.recommended_product_id === p.id)).map((p: any) => (<SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>))}</SelectContent></Select>
+              <Button type="button" variant="outline" size="sm" className="h-8 gap-1" onClick={() => { if (selectedRecommendation) { addRecommendation.mutate({ productId: id!, recommendedProductId: selectedRecommendation, type: recommendationType }); setSelectedRecommendation(''); } }}><Plus className="h-3 w-3" /> Ajouter</Button>
             </div>
           </div>
         )}
 
         <div className="flex gap-3 pt-2">
-          <Button type="button" variant="outline" onClick={() => navigate('/admin/products')}>Cancel</Button>
-          <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>
-            {loading ? 'Saving...' : isEdit ? 'Update' : 'Create'}
-          </Button>
+          <Button type="button" variant="outline" onClick={() => navigate('/admin/products')}>Annuler</Button>
+          <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>{loading ? 'Enregistrement...' : isEdit ? 'Mettre à jour' : 'Créer'}</Button>
         </div>
 
-        {/* Embed Snippet */}
         {isEdit && productUrl && (
           <div className="mt-6">
-            <EmbedSnippetGen
-              productId={id!}
-              orgSlug={currentOrg?.slug || ''}
-              productTitle={watch('title')}
-              price={watch('price') || 0}
-              currency={currentOrg?.currency || 'XOF'}
-              isFree={watch('is_free')}
-            />
+            <EmbedSnippetGen productId={id!} orgSlug={currentOrg?.slug || ''} productTitle={watch('title')} price={watch('price') || 0} currency={currentOrg?.currency || 'XOF'} isFree={watch('is_free')} />
           </div>
         )}
       </form>

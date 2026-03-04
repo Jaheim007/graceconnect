@@ -11,10 +11,11 @@ import { AdminPageShell } from './AdminPageShell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { useToast } from '@/hooks/use-toast';
+import { RichTextEditor } from '@/components/ui/RichTextEditor';
+import { AIWritingAssistant } from '@/components/admin/AIWritingAssistant';
 
 const schema = z.object({
   title: z.string().min(2, 'Required'),
@@ -36,6 +37,7 @@ export function AnnouncementForm() {
   const queryClient = useQueryClient();
   const isEdit = !!id;
   const [loading, setLoading] = useState(false);
+  const [showAI, setShowAI] = useState(false);
 
   const { data: item } = useQuery({
     queryKey: ['announcement-item', id],
@@ -53,92 +55,60 @@ export function AnnouncementForm() {
 
   useEffect(() => {
     if (item) {
-      reset({
-        title: item.title,
-        body: item.body,
-        image_url: item.image_url || '',
-        is_pinned: item.is_pinned || false,
-        is_published: item.is_published ?? true,
-        expires_at: item.expires_at ? item.expires_at.slice(0, 10) : '',
-      });
+      reset({ title: item.title, body: item.body, image_url: item.image_url || '', is_pinned: item.is_pinned || false, is_published: item.is_published ?? true, expires_at: item.expires_at ? item.expires_at.slice(0, 10) : '' });
     }
   }, [item, reset]);
 
   const onSubmit = async (data: FormData) => {
-    if (!currentOrg || !user) {
-      toast({ title: 'Error', description: 'No organization selected.', variant: 'destructive' });
-      return;
-    }
+    if (!currentOrg || !user) { toast({ title: 'Error', description: 'No organization selected.', variant: 'destructive' }); return; }
     setLoading(true);
     try {
-      const payload = {
-        ...data,
-        organization_id: currentOrg.id,
-        created_by: user.id,
-        image_url: data.image_url || null,
-        expires_at: data.expires_at ? new Date(data.expires_at).toISOString() : null,
-      };
+      const payload = { ...data, organization_id: currentOrg.id, created_by: user.id, image_url: data.image_url || null, expires_at: data.expires_at ? new Date(data.expires_at).toISOString() : null };
       let error;
-      if (isEdit) {
-        ({ error } = await db.from('announcements').update(payload).eq('id', id));
-      } else {
-        ({ error } = await db.from('announcements').insert(payload));
-      }
+      if (isEdit) { ({ error } = await db.from('announcements').update(payload).eq('id', id)); }
+      else { ({ error } = await db.from('announcements').insert(payload)); }
       if (error) throw error;
       await queryClient.invalidateQueries({ queryKey: ['org-announcements'] });
-      await queryClient.invalidateQueries({ queryKey: ['announcement-item', id] });
-      toast({ title: isEdit ? 'Updated ✅' : 'Created ✅' });
+      toast({ title: isEdit ? 'Mis à jour ✅' : 'Créé ✅' });
       navigate('/admin/announcements');
-    } catch (err: any) {
-      toast({ title: 'Error', description: err.message, variant: 'destructive' });
-    } finally {
-      setLoading(false);
-    }
+    } catch (err: any) { toast({ title: 'Erreur', description: err.message, variant: 'destructive' }); }
+    finally { setLoading(false); }
   };
 
   return (
-    <AdminPageShell title={isEdit ? 'Edit Announcement' : 'New Announcement'} backRoute="/admin/announcements">
+    <AdminPageShell title={isEdit ? 'Modifier l\'annonce' : 'Nouvelle annonce'} backRoute="/admin/announcements">
+      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('body', (watch('body') || '') + html)} context="annonce d'organisation" />
+
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
-          <Label>Title *</Label>
-          <Input {...register('title')} placeholder="Announcement title..." />
+          <Label>Titre *</Label>
+          <Input {...register('title')} placeholder="Titre de l'annonce..." />
           {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
         </div>
         <div className="space-y-1.5">
-          <Label>Body *</Label>
-          <Textarea {...register('body')} rows={5} placeholder="Announcement content..." />
+          <Label>Contenu *</Label>
+          <RichTextEditor
+            value={watch('body') || ''}
+            onChange={(html) => setValue('body', html)}
+            placeholder="Rédigez le contenu de votre annonce..."
+            onAIAssist={() => setShowAI(true)}
+          />
           {errors.body && <p className="text-xs text-destructive">{errors.body.message}</p>}
         </div>
 
-        {/* Image upload */}
-        <ImageUploader
-          value={watch('image_url') || ''}
-          onChange={(url) => setValue('image_url', url)}
-          folder="announcements"
-          label="Image (optional)"
-          hint="Recommended: 1200×630px. JPG/PNG/WEBP · Max 10MB"
-          aspectRatio="video"
-        />
+        <ImageUploader value={watch('image_url') || ''} onChange={(url) => setValue('image_url', url)} folder="announcements" label="Image (optionnel)" hint="Recommandé: 1200×630px" aspectRatio="video" />
 
         <div className="space-y-1.5">
-          <Label>Expires At (optional)</Label>
+          <Label>Expire le (optionnel)</Label>
           <Input type="date" {...register('expires_at')} />
         </div>
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <Switch checked={watch('is_pinned')} onCheckedChange={v => setValue('is_pinned', v)} />
-            <Label className="text-sm cursor-pointer">Pinned</Label>
-          </div>
-          <div className="flex items-center gap-2">
-            <Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} />
-            <Label className="text-sm cursor-pointer">Published</Label>
-          </div>
+          <div className="flex items-center gap-2"><Switch checked={watch('is_pinned')} onCheckedChange={v => setValue('is_pinned', v)} /><Label className="text-sm cursor-pointer">Épinglé</Label></div>
+          <div className="flex items-center gap-2"><Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} /><Label className="text-sm cursor-pointer">Publié</Label></div>
         </div>
         <div className="flex gap-3 pt-2">
-          <Button type="button" variant="outline" onClick={() => navigate('/admin/announcements')}>Cancel</Button>
-          <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>
-            {loading ? 'Saving...' : isEdit ? 'Update' : 'Create'}
-          </Button>
+          <Button type="button" variant="outline" onClick={() => navigate('/admin/announcements')}>Annuler</Button>
+          <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>{loading ? 'Enregistrement...' : isEdit ? 'Mettre à jour' : 'Créer'}</Button>
         </div>
       </form>
     </AdminPageShell>

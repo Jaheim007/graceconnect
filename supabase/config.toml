@@ -95,3 +95,12 @@ verify_jwt = false
 
 [functions.og-proxy]
 verify_jwt = false
+
+[functions.ai-write-content]
+verify_jwt = false
+
+[functions.ai-generate-cover]
+verify_jwt = false
+
+[functions.youtube-channel-import]
+verify_jwt = false

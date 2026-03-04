@@ -7,7 +7,8 @@ import { useProgram, useProgramModules, useCreateProgram, useUpdateProgram, useC
 import { AdminPageShell } from './AdminPageShell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { RichTextEditor } from '@/components/ui/RichTextEditor';
+import { AIWritingAssistant } from '@/components/admin/AIWritingAssistant';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
@@ -203,7 +204,7 @@ export function ProgramForm() {
             </div>
             <div>
               <Label className="text-xs">Description</Label>
-              <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Décrivez le contenu et les objectifs de ce programme..." rows={3} />
+              <RichTextEditor value={description} onChange={setDescription} placeholder="Décrivez le contenu et les objectifs de ce programme..." />
             </div>
             <div>
               <Label className="text-xs">Image de couverture</Label>

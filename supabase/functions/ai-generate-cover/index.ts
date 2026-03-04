@@ -1,0 +1,132 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  try {
+    const { prompt, style = "professional", format = "book", context = "product" } = await req.json();
+
+    if (!prompt || typeof prompt !== "string") {
+      return new Response(JSON.stringify({ error: "Le champ 'prompt' est requis." }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      return new Response(JSON.stringify({ error: "Clé API IA non configurée." }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const styleMap: Record<string, string> = {
+      professional: "clean, professional, modern design with subtle gradients and elegant typography",
+      vibrant: "vibrant, colorful, eye-catching design with bold colors and dynamic composition",
+      minimalist: "minimalist, clean white space, simple geometric shapes, modern typography",
+      creative: "creative, artistic, unique design with abstract elements and artistic flair",
+      religious: "spiritual, serene, warm golden tones, dove or cross motifs, peaceful atmosphere",
+    };
+
+    const formatMap: Record<string, string> = {
+      book: "portrait orientation, book cover aspect ratio 2:3, 1000x1500 pixels",
+      video: "landscape orientation, 16:9 aspect ratio, 1920x1080 pixels",
+      square: "square format, 1:1 aspect ratio, 1080x1080 pixels",
+    };
+
+    const imagePrompt = `Create a professional ${context} cover image. ${styleMap[style] || styleMap.professional}. ${formatMap[format] || formatMap.book}. Content: ${prompt}. The design should be suitable for an African digital marketplace. Include relevant visual elements but no placeholder text. High quality, polished, ready for commercial use.`;
+
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash-image",
+        messages: [
+          { role: "user", content: imagePrompt },
+        ],
+        modalities: ["image", "text"],
+      }),
+    });
+
+    if (!response.ok) {
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "Trop de requêtes. Réessayez dans quelques secondes." }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "Crédits IA épuisés. Contactez le support." }), {
+          status: 402,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const t = await response.text();
+      console.error("AI image error:", response.status, t);
+      return new Response(JSON.stringify({ error: "Erreur du service IA." }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const data = await response.json();
+    const imageData = data.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+
+    if (!imageData) {
+      return new Response(JSON.stringify({ error: "L'IA n'a pas pu générer d'image. Réessayez avec un prompt différent." }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Upload the base64 image to Supabase storage
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Convert base64 to Uint8Array
+    const base64Data = imageData.replace(/^data:image\/\w+;base64,/, "");
+    const binaryString = atob(base64Data);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+
+    const fileName = `ai-covers/${crypto.randomUUID()}.png`;
+    const { error: uploadError } = await supabase.storage
+      .from("public-assets")
+      .upload(fileName, bytes, { contentType: "image/png", upsert: true });
+
+    if (uploadError) {
+      console.error("Upload error:", uploadError);
+      // Fallback: return the base64 directly
+      return new Response(JSON.stringify({ imageUrl: imageData }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const { data: urlData } = supabase.storage
+      .from("public-assets")
+      .getPublicUrl(fileName);
+
+    return new Response(JSON.stringify({ imageUrl: urlData.publicUrl }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (e) {
+    console.error("ai-generate-cover error:", e);
+    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erreur interne." }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
