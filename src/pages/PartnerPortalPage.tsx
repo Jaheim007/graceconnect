@@ -31,12 +31,21 @@ const STATUS_MAP: Record<string, { label: string; variant: 'default' | 'secondar
 
 export default function PartnerPortalPage() {
   const { user } = useAuth();
-  const { data: partner, isLoading } = useMyPartner();
-  const { data: referrals = [] } = usePartnerReferrals(partner?.id);
-  const { data: commissions = [] } = usePartnerCommissions(partner?.id);
-  const { data: payouts = [] } = usePartnerPayouts(partner?.id);
+  const {
+    data: partner,
+    isLoading,
+    refetch: refetchPartner,
+    isFetching: isFetchingPartner,
+  } = useMyPartner();
+  const referralsQuery = usePartnerReferrals(partner?.id);
+  const commissionsQuery = usePartnerCommissions(partner?.id);
+  const payoutsQuery = usePartnerPayouts(partner?.id);
+  const referrals = referralsQuery.data || [];
+  const commissions = commissionsQuery.data || [];
+  const payouts = payoutsQuery.data || [];
   const stats = usePartnerStats(partner?.id);
   const requestPayout = useRequestPartnerPayout();
+  const [isForceSyncing, setIsForceSyncing] = useState(false);
 
   if (isLoading) return <div className="flex items-center justify-center min-h-[50vh]"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
 
@@ -76,9 +85,31 @@ export default function PartnerPortalPage() {
     toast.success(`${label} copié !`);
   };
 
+  const handleForceSync = async () => {
+    setIsForceSyncing(true);
+    try {
+      const results = await Promise.all([
+        refetchPartner(),
+        referralsQuery.refetch(),
+        commissionsQuery.refetch(),
+        payoutsQuery.refetch(),
+      ]);
+
+      const hasError = results.some(result => !!result.error);
+      if (hasError) {
+        toast.error('Synchronisation incomplète. Réessayez dans quelques secondes.');
+      } else {
+        toast.success('Synchronisation forcée terminée.');
+      }
+    } finally {
+      setIsForceSyncing(false);
+    }
+  };
+
   const effectiveRate = partner.custom_rate_override ?? partner.rate_percent;
   const currency = commissions[0]?.currency || 'XOF';
   const levelColor = LEVEL_COLORS[partner.level] || LEVEL_COLORS[1];
+  const isSyncing = isForceSyncing || isFetchingPartner || referralsQuery.isFetching || commissionsQuery.isFetching || payoutsQuery.isFetching;
 
   return (
     <motion.div
@@ -102,7 +133,11 @@ export default function PartnerPortalPage() {
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap justify-start sm:justify-end">
+          <Button variant="outline" size="sm" onClick={handleForceSync} disabled={isSyncing} className="gap-2">
+            {isSyncing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
+            Forcer sync
+          </Button>
           <Badge className={`${levelColor} border text-xs font-semibold px-3 py-1`}>
             {LEVEL_LABELS[partner.level] || `L${partner.level}`} — {effectiveRate}%
           </Badge>
@@ -119,6 +154,20 @@ export default function PartnerPortalPage() {
         <KPICard icon={CircleDollarSign} label="Disponible" value={formatCurrency(stats.payable, currency)} sub="prêt à retirer" accent />
         <KPICard icon={Wallet} label="Total versé" value={formatCurrency(stats.paid, currency)} sub="historique" />
       </div>
+
+      {(referralsQuery.isError || commissionsQuery.isError) && (
+        <Card className="border-destructive/30 bg-destructive/5">
+          <CardContent className="py-3 px-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-sm">
+              <AlertTriangle className="h-4 w-4 text-destructive" />
+              <span>Les données partenaires ne sont pas encore synchronisées. Cliquez pour forcer la mise à jour.</span>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleForceSync} disabled={isSyncing}>
+              Réessayer
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* ── Tabs ── */}
       <Tabs defaultValue="overview" className="space-y-4">
@@ -310,8 +359,23 @@ export default function PartnerPortalPage() {
               {commissions.length === 0 ? (
                 <div className="text-center py-8 space-y-2">
                   <CircleDollarSign className="h-8 w-8 mx-auto text-muted-foreground/40" />
-                  <p className="text-sm text-muted-foreground">Aucune commission pour le moment.</p>
-                  <p className="text-xs text-muted-foreground">Les commissions apparaissent automatiquement quand vos organisations effectuent des ventes.</p>
+                  {commissionsQuery.isFetching ? (
+                    <>
+                      <p className="text-sm text-muted-foreground">Synchronisation des commissions en cours...</p>
+                      <p className="text-xs text-muted-foreground">Patientez quelques secondes.</p>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm text-muted-foreground">Aucune commission visible pour le moment.</p>
+                      <p className="text-xs text-muted-foreground">Cliquez sur « Forcer sync » pour recharger immédiatement depuis le serveur.</p>
+                    </>
+                  )}
+                  <div className="pt-2">
+                    <Button variant="outline" size="sm" onClick={handleForceSync} disabled={isSyncing} className="gap-2">
+                      {isSyncing && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                      Forcer sync
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="overflow-x-auto -mx-6">

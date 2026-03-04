@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -96,6 +97,32 @@ export function useMyPartner() {
 
 // ── Hook: partner referrals ──
 export function usePartnerReferrals(partnerId?: string) {
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    if (!partnerId) return;
+
+    const channel = supabase
+      .channel(`partner-referrals:${partnerId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'partner_referrals',
+          filter: `partner_id=eq.${partnerId}`,
+        },
+        () => {
+          qc.invalidateQueries({ queryKey: ['partner-referrals', partnerId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [partnerId, qc]);
+
   return useQuery({
     queryKey: ['partner-referrals', partnerId],
     enabled: !!partnerId,
@@ -115,6 +142,32 @@ export function usePartnerReferrals(partnerId?: string) {
 
 // ── Hook: partner commissions (auto-releases matured held commissions) ──
 export function usePartnerCommissions(partnerId?: string) {
+  const qc = useQueryClient();
+
+  useEffect(() => {
+    if (!partnerId) return;
+
+    const channel = supabase
+      .channel(`partner-commissions:${partnerId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'partner_commissions',
+          filter: `partner_id=eq.${partnerId}`,
+        },
+        () => {
+          qc.invalidateQueries({ queryKey: ['partner-commissions', partnerId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
+  }, [partnerId, qc]);
+
   return useQuery({
     queryKey: ['partner-commissions', partnerId],
     enabled: !!partnerId,
