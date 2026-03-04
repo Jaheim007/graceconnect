@@ -45,6 +45,7 @@ export default function PartnerPortalPage() {
   const payouts = payoutsQuery.data || [];
   const stats = usePartnerStats(partner?.id);
   const requestPayout = useRequestPartnerPayout();
+  const [isForceSyncing, setIsForceSyncing] = useState(false);
 
   if (isLoading) return <div className="flex items-center justify-center min-h-[50vh]"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
 
