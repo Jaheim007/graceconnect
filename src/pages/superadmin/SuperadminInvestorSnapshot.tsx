@@ -13,7 +13,7 @@ import {
   CartesianGrid, PieChart, Pie, Cell
 } from 'recharts';
 import { downloadCSV } from '@/lib/csvExport';
-import { format, subDays, subMonths, isAfter } from 'date-fns';
+import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 const fmt = (n: number) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF', maximumFractionDigits: 0 }).format(n);
