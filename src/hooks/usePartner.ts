@@ -99,6 +99,9 @@ export function usePartnerReferrals(partnerId?: string) {
   return useQuery({
     queryKey: ['partner-referrals', partnerId],
     enabled: !!partnerId,
+    refetchInterval: 15000,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
     queryFn: async () => {
       const { data, error } = await db.from('partner_referrals')
         .select('*, organization:organizations(name, slug, is_active, logo_url)')
@@ -115,6 +118,9 @@ export function usePartnerCommissions(partnerId?: string) {
   return useQuery({
     queryKey: ['partner-commissions', partnerId],
     enabled: !!partnerId,
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
     queryFn: async () => {
       // Auto-release any matured commissions before fetching
       await db.rpc('release_matured_partner_commissions').catch(() => {});
