@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useAllPartners, useManagePartner, useSetPartnerRate, useAllPartnerPayouts, useProcessPartnerPayout, useReviewPartnerKYC, useAllPartnerReferrals, type Partner } from '@/hooks/usePartner';
+import { useAllPartners, useManagePartner, useSetPartnerRate, useDeletePartner, useAllPartnerPayouts, useProcessPartnerPayout, useReviewPartnerKYC, useAllPartnerReferrals, type Partner } from '@/hooks/usePartner';
 import { formatCurrency } from '@/lib/currency';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Handshake, CheckCircle, XCircle, Pause, Play, Percent, Wallet, Shield, Eye, Globe, Briefcase, Phone, Mail, MapPin, Users } from 'lucide-react';
+import { Loader2, Handshake, CheckCircle, XCircle, Pause, Play, Percent, Wallet, Shield, Eye, Globe, Briefcase, Phone, Mail, MapPin, Users, Trash2 } from 'lucide-react';
 import { db } from '@/lib/db';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
