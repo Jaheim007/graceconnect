@@ -187,7 +187,7 @@ export default function QuickStartPage() {
           ) : items.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground text-sm">
               <p>Aucun produit disponible.</p>
-              <Button variant="outline" className="mt-3" onClick={() => navigate('/marketplace')}>Explorer la marketplace</Button>
+              <Button variant="outline" className="mt-3" onClick={() => navigate('/marketplace')}>Explorer le Hub</Button>
             </div>
           ) : (
             items.map((item: any, i: number) => {

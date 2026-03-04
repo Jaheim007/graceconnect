@@ -207,7 +207,7 @@ export default function AmbassadorDashboard() {
               <div className="text-center py-6">
                 <p className="text-sm text-muted-foreground mb-3">Aucun produit disponible pour le moment.</p>
                 <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate('/marketplace')}>
-                  <Store className="h-3.5 w-3.5" /> Explorer la marketplace
+                  <Store className="h-3.5 w-3.5" /> Explorer le Hub
                 </Button>
               </div>
             ) : topProducts.map((product: any) => {
