@@ -22,6 +22,7 @@ const LEVEL_LABELS: Record<number, string> = { 1: 'Bronze', 2: 'Argent', 3: 'Or'
 export default function SuperadminPartners() {
   const { data: partners = [], isLoading } = useAllPartners();
   const { data: payoutRequests = [] } = useAllPartnerPayouts();
+  const { data: allReferrals = [], isLoading: isLoadingRefs } = useAllPartnerReferrals();
   const managePartner = useManagePartner();
   const setRate = useSetPartnerRate();
   const processPayout = useProcessPartnerPayout();
@@ -113,6 +114,15 @@ export default function SuperadminPartners() {
             <Wallet className="h-3.5 w-3.5" />
             Versements
             {pendingPayouts > 0 && <Badge variant="destructive" className="ml-1 text-[10px] h-4 px-1">{pendingPayouts}</Badge>}
+          </TabsTrigger>
+          <TabsTrigger value="referrals" className="gap-1.5">
+            <Users className="h-3.5 w-3.5" />
+            Referrals
+            {allReferrals.filter(r => r.status === 'pending').length > 0 && (
+              <Badge variant="destructive" className="ml-1 text-[10px] h-4 px-1">
+                {allReferrals.filter(r => r.status === 'pending').length}
+              </Badge>
+            )}
           </TabsTrigger>
         </TabsList>
 
