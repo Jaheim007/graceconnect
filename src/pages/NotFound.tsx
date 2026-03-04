@@ -1,15 +1,18 @@
 import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
 import { useI18n } from '@/i18n/I18nContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Button } from '@/components/ui/button';
-import { Search, Home, ShoppingBag, HelpCircle } from 'lucide-react';
+import { Search, Home, ShoppingBag, HelpCircle, LayoutDashboard } from 'lucide-react';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
 
 const NotFound = () => {
   const location = useLocation();
   const { t, locale } = useI18n();
+  const { user } = useAuth();
   const isFr = locale === 'fr';
+  const isLoggedIn = !!user;
 
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
@@ -37,12 +40,25 @@ const NotFound = () => {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <Button asChild variant="default" className="gap-2">
-            <Link to="/"><Home className="h-4 w-4" /> {isFr ? 'Accueil' : 'Home'}</Link>
-          </Button>
-          <Button asChild variant="outline" className="gap-2">
-            <Link to="/discover"><ShoppingBag className="h-4 w-4" /> {isFr ? 'Explorer' : 'Explore'}</Link>
-          </Button>
+          {isLoggedIn ? (
+            <>
+              <Button asChild variant="default" className="gap-2">
+                <Link to="/dashboard"><LayoutDashboard className="h-4 w-4" /> {isFr ? 'Mon tableau de bord' : 'My Dashboard'}</Link>
+              </Button>
+              <Button asChild variant="outline" className="gap-2">
+                <Link to="/marketplace"><ShoppingBag className="h-4 w-4" /> {isFr ? 'Explorer' : 'Explore'}</Link>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button asChild variant="default" className="gap-2">
+                <Link to="/"><Home className="h-4 w-4" /> {isFr ? 'Accueil' : 'Home'}</Link>
+              </Button>
+              <Button asChild variant="outline" className="gap-2">
+                <Link to="/marketplace"><ShoppingBag className="h-4 w-4" /> {isFr ? 'Explorer' : 'Explore'}</Link>
+              </Button>
+            </>
+          )}
           <Button asChild variant="outline" className="gap-2 col-span-2">
             <Link to="/support"><HelpCircle className="h-4 w-4" /> {isFr ? 'Aide & Support' : 'Help & Support'}</Link>
           </Button>

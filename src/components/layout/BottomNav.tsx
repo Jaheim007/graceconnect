@@ -26,7 +26,7 @@ export function BottomNav() {
   // Unified primary nav for authenticated users
   const primaryItems = [
     { to: '/dashboard', icon: Home, label: 'Accueil' },
-    { to: '/hub', icon: Store, label: 'Découvrir' },
+    { to: '/marketplace', icon: Store, label: 'Découvrir' },
     { to: '/affiliation', icon: Link2, label: 'Gagner' },
   ];
 

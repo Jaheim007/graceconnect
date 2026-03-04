@@ -48,7 +48,7 @@ export function Sidebar() {
   const mySpaceItems: NavItem[] = [
     { to: '/dashboard', icon: Home, label: 'Tableau de bord', desc: 'Vue d\'ensemble' },
     { to: '/resources', icon: Package, label: 'Mes achats', desc: 'Ressources achetées' },
-    { to: '/hub', icon: Store, label: 'Découvrir', desc: 'Explorer les produits' },
+    { to: '/marketplace', icon: Store, label: 'Découvrir', desc: 'Explorer les produits' },
     { to: '/notifications', icon: Bell, label: 'Notifications', desc: 'Mises à jour' },
     { to: '/profile', icon: User, label: 'Profil', desc: 'Mon compte' },
   ];

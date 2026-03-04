@@ -153,7 +153,7 @@ export default function UserDashboard() {
             <div className="text-center py-6">
               <Package className="h-8 w-8 text-muted-foreground mx-auto mb-3 opacity-50" />
               <p className="text-sm text-muted-foreground mb-3">Tu n'as pas encore de ressources</p>
-              <Button size="sm" className="gap-2" onClick={() => navigate('/hub')}>
+              <Button size="sm" className="gap-2" onClick={() => navigate('/marketplace')}>
                 <Store className="h-3.5 w-3.5" /> Découvrir les produits
               </Button>
             </div>
@@ -216,7 +216,7 @@ export default function UserDashboard() {
           <p className="text-xs text-muted-foreground mb-4">
             Explore des eBooks, formations, templates et plus encore.
           </p>
-          <Button className="w-full gap-2" variant="outline" onClick={() => navigate('/hub')}>
+          <Button className="w-full gap-2" variant="outline" onClick={() => navigate('/marketplace')}>
             <Store className="h-4 w-4" /> Explorer le catalogue
           </Button>
         </motion.div>
@@ -253,7 +253,7 @@ export default function UserDashboard() {
               <p className="text-xs text-muted-foreground mb-4">
                 Partage des produits et gagne une commission sur chaque vente. Aucun investissement requis.
               </p>
-              <Button className="w-full gap-2" onClick={() => navigate('/hub')}>
+              <Button className="w-full gap-2" onClick={() => navigate('/marketplace')}>
                 <Rocket className="h-4 w-4" /> Commencer à gagner
               </Button>
             </>
