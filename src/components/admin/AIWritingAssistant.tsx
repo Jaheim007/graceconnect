@@ -1,0 +1,145 @@
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Sparkles, Loader2, Copy, CheckCircle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+
+interface AIWritingAssistantProps {
+  open: boolean;
+  onClose: () => void;
+  onInsert: (html: string) => void;
+  context?: string; // e.g. "product description", "campaign description"
+}
+
+const TONE_OPTIONS = [
+  { value: 'professional', label: 'Professionnel' },
+  { value: 'friendly', label: 'Amical & accessible' },
+  { value: 'inspiring', label: 'Inspirant & motivant' },
+  { value: 'persuasive', label: 'Persuasif & vendeur' },
+  { value: 'educational', label: 'Éducatif & pédagogique' },
+];
+
+export function AIWritingAssistant({ open, onClose, onInsert, context = 'description' }: AIWritingAssistantProps) {
+  const [prompt, setPrompt] = useState('');
+  const [tone, setTone] = useState('professional');
+  const [result, setResult] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
+
+  const handleGenerate = async () => {
+    if (!prompt.trim()) return;
+    setLoading(true);
+    setResult('');
+
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-write-content', {
+        body: { prompt: prompt.trim(), tone, context },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      setResult(data?.content || 'Aucun résultat généré.');
+    } catch (err: any) {
+      toast({ title: 'Erreur IA', description: err.message || 'Impossible de générer le contenu.', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInsert = () => {
+    if (result) {
+      // Convert markdown-like result to simple HTML
+      const html = result
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n\n/g, '</p><p>')
+        .replace(/\n/g, '<br>')
+        .replace(/^/, '<p>')
+        .replace(/$/, '</p>');
+      onInsert(html);
+      onClose();
+      setPrompt('');
+      setResult('');
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            Aide à la rédaction IA
+          </DialogTitle>
+          <DialogDescription>
+            Décrivez brièvement ce que vous voulez et l'IA rédigera un texte complet pour vous.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label>Décrivez votre besoin</Label>
+            <Textarea
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Ex: Une description pour un ebook sur la gestion financière pour les familles africaines. Le livre contient 12 chapitres, des exercices pratiques..."
+              rows={4}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Ton souhaité</Label>
+            <Select value={tone} onValueChange={setTone}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {TONE_OPTIONS.map((t) => (
+                  <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Button onClick={handleGenerate} disabled={loading || !prompt.trim()} className="w-full gap-2">
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+            {loading ? 'Rédaction en cours…' : 'Générer le texte'}
+          </Button>
+
+          {result && (
+            <div className="space-y-3">
+              <div className="rounded-xl border border-border bg-muted/30 p-4 max-h-60 overflow-y-auto">
+                <div className="prose prose-sm dark:prose-invert max-w-none text-sm whitespace-pre-wrap">
+                  {result}
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleInsert} className="flex-1 gap-2">
+                  <CheckCircle className="h-4 w-4" /> Insérer dans l'éditeur
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    navigator.clipboard.writeText(result);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  className="gap-2"
+                >
+                  {copied ? <CheckCircle className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                  {copied ? 'Copié' : 'Copier'}
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

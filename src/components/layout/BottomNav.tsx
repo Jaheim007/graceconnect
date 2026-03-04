@@ -43,7 +43,7 @@ export function BottomNav() {
         { to: '/my-donations', icon: Heart, label: 'Mes dons' },
         { to: '/notifications', icon: Bell, label: 'Notifications', showBadge: true },
         { to: '/profile', icon: User, label: 'Profil' },
-        ...(hasAmbassadorAccess ? [{ to: '/leaderboard', icon: Trophy, label: 'Classement' }] : []),
+        
       ],
     },
     ...(canManageCurrentOrg ? [{
