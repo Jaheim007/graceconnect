@@ -51,7 +51,7 @@ export default function PourPodcastersPage() {
         { q: 'Comment promouvoir mes épisodes premium ?', a: 'Mentionnez-les dans vos épisodes gratuits, partagez sur les réseaux, et activez le programme ambassadeur.' },
       ]}
       cta={{ label: 'Créer ma page podcast', path: '/auth?mode=signup' }}
-      secondaryCta={{ label: 'Explorer le Hub', path: '/discover' }}
+      secondaryCta={{ label: 'Explorer le marketplace', path: '/discover' }}
     />
   );
 }

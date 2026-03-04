@@ -11,7 +11,7 @@ import { useMode } from '@/contexts/ModeContext';
 const LandingFooterCompact = lazy(() => import('@/components/landing/LandingFooterCompact').then(m => ({ default: m.LandingFooterCompact })));
 
 const steps = [
-  { icon: Share2, title: 'Choisis un produit', desc: 'Parcours le Hub et sélectionne ce qui te plaît.' },
+  { icon: Share2, title: 'Choisis un produit', desc: 'Parcours la marketplace et sélectionne ce qui te plaît.' },
   { icon: MessageCircle, title: 'Partage sur WhatsApp', desc: 'Envoie ton lien à tes contacts en un clic.' },
   { icon: Wallet, title: 'Encaisse ta commission', desc: '5 à 50% sur chaque vente. Mobile Money ou virement.' },
 ];
@@ -73,7 +73,7 @@ export default function GagnerLandingPage() {
                 💰 Commencer à gagner <ArrowRight className="h-4 w-4" />
               </Button>
               <Button variant="outline" size="lg" className="text-sm" onClick={() => navigate('/marketplace')}>
-                Explorer le Hub
+                Explorer la marketplace
               </Button>
             </div>
             <p className="text-xs text-muted-foreground mt-4">First win en 60 secondes · Inscription gratuite</p>

@@ -51,7 +51,7 @@ export default function PourDesignersPage() {
         { q: 'Quelle est la commission ?', a: '7% par vente. Pas d\'abonnement. Si vous ne vendez rien, vous ne payez rien.' },
       ]}
       cta={{ label: 'Ouvrir ma boutique design', path: '/auth?mode=signup' }}
-      secondaryCta={{ label: 'Voir le Hub', path: '/discover' }}
+      secondaryCta={{ label: 'Voir le marketplace', path: '/discover' }}
     />
   );
 }

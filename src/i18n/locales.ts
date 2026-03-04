@@ -14,7 +14,7 @@ const translations: Record<Locale, Record<string, string>> = {
     // Nav
     'nav.feed': 'Feed',
     'nav.discover': 'Discover',
-    'nav.marketplace': 'The Hub',
+    'nav.marketplace': 'Marketplace',
     'nav.notifications': 'Notifications',
     'nav.profile': 'Profile',
     'nav.support': 'Support',
@@ -1088,7 +1088,7 @@ const translations: Record<Locale, Record<string, string>> = {
     // Nav
     'nav.feed': 'Fil',
     'nav.discover': 'Découvrir',
-    'nav.marketplace': 'Le Hub',
+    'nav.marketplace': 'Boutique',
     'nav.notifications': 'Notifications',
     'nav.profile': 'Profil',
     'nav.support': 'Support',
@@ -2162,7 +2162,7 @@ const translations: Record<Locale, Record<string, string>> = {
     // Nav
     'nav.feed': 'الخلاصة',
     'nav.discover': 'اكتشف',
-    'nav.marketplace': 'المركز',
+    'nav.marketplace': 'المتجر',
     'nav.notifications': 'الإشعارات',
     'nav.profile': 'الملف الشخصي',
     'nav.support': 'الدعم',

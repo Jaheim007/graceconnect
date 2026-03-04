@@ -40,7 +40,7 @@ const PageLoader = () => (
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const AuthPage = lazy(() => import("@/pages/AuthPage"));
 const AuthCallbackPage = lazy(() => import("@/pages/AuthCallbackPage"));
-// DiscoverPage removed — /discover redirects to /marketplace (Le Hub)
+// DiscoverPage removed — /discover redirects to /marketplace
 const OrgPublicPage = lazy(() => import("@/pages/OrgPublicPage"));
 const ProductDetailPage = lazy(() => import("@/pages/ProductDetailPage"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -75,7 +75,6 @@ const ChangelogPage = lazy(() => import("@/pages/ChangelogPage"));
 const MaintenancePage = lazy(() => import("@/pages/MaintenancePage"));
 const GoRedirectPage = lazy(() => import("@/pages/GoRedirectPage"));
 const MarketplacePage = lazy(() => import("@/pages/MarketplacePage"));
-const HubPage = lazy(() => import("@/pages/HubPage"));
 const QuickStartPage = lazy(() => import("@/pages/QuickStartPage"));
 const GagnerLandingPage = lazy(() => import("@/pages/GagnerLandingPage"));
 const VendreLandingPage = lazy(() => import("@/pages/VendreLandingPage"));
@@ -324,9 +323,6 @@ const App = () => (
                 <Route path="/vendre" element={<VendreLandingPage />} />
                 <Route path="/discover" element={<Navigate to="/marketplace" replace />} />
                 <Route path="/explorer" element={<Navigate to="/marketplace" replace />} />
-                {/* Le Hub — accessible to everyone, layout adapts to auth state */}
-                <Route path="/marketplace" element={<HubPage />} />
-
                 {/* Public / Buyer Universe — uses PublicLayout (minimal chrome) */}
                 <Route element={<PublicLayout />}>
                   <Route path="/org/:slug" element={<OrgPublicPage />} />
@@ -351,7 +347,7 @@ const App = () => (
 
                 {/* Authenticated shell */}
                 <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
-                  <Route path="/hub" element={<MarketplacePage />} />
+                  <Route path="/marketplace" element={<MarketplacePage />} />
                   <Route path="/feed" element={<FeedPage />} />
                   <Route path="/reels" element={<ReelsPage />} />
                   <Route path="/reels/:id" element={<ReelsPage />} />

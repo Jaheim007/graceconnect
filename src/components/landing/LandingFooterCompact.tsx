@@ -5,7 +5,7 @@ import { ChevronDown } from 'lucide-react';
 
 const mainLinks = [
   { to: '/features', label: 'Fonctionnalités' },
-  { to: '/marketplace', label: 'Le Hub' },
+  { to: '/marketplace', label: 'Marketplace' },
   { to: '/ambassador-program', label: 'Ambassadeur' },
   { to: '/blog', label: 'Blog' },
   { to: '/faq', label: 'FAQ' },

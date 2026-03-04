@@ -20,14 +20,14 @@ export function BottomNav() {
 
   const guestItems = [
     { to: '/', icon: Home, label: 'Accueil' },
-    { to: '/marketplace', icon: Store, label: 'Le Hub' },
+    { to: '/marketplace', icon: Store, label: 'Explorer' },
     { to: '/auth?mode=signin', icon: LogIn, label: 'Connexion' },
     { to: '/auth?mode=signup', icon: UserPlus, label: 'S\'inscrire' },
   ];
 
   // Ambassador: focus on discover → share → earn
   const ambassadorPrimary = [
-    { to: '/hub', icon: Store, label: 'Le Hub' },
+    { to: '/marketplace', icon: Store, label: 'Explorer' },
     { to: '/affiliation', icon: Link2, label: 'Mes liens' },
     { to: '/dashboard', icon: Wallet, label: 'Mes gains' },
   ];
@@ -72,7 +72,7 @@ export function BottomNav() {
     {
       label: '⚙️ Autre',
       items: [
-        { to: '/hub', icon: Store, label: 'Le Hub' },
+        { to: '/marketplace', icon: Store, label: 'Explorer' },
         { to: '/profile', icon: User, label: 'Profil' },
         { to: '/support', icon: LifeBuoy, label: 'Aide' },
       ],
