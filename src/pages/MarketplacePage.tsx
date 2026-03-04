@@ -23,6 +23,7 @@ const fadeUp = {
 
 const categoryFilters = [
   { key: '', label: 'Tout', icon: ShoppingBag },
+  { key: 'campaigns', label: 'Campagnes', icon: Heart },
   { key: 'pdf', label: 'PDF', icon: FileText },
   { key: 'ebook', label: 'eBook', icon: BookOpen },
   { key: 'video', label: 'Vidéo', icon: Video },
@@ -33,15 +34,14 @@ const categoryFilters = [
 export default function MarketplacePage() {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('popular');
-  const [typeFilter, setTypeFilter] = useState('');
   const { mode, hasAmbassadorAccess } = useMode();
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Handle ?tab=campaigns to show campaigns first
+  // Handle ?tab=campaigns to pre-select campaigns filter
   const params = new URLSearchParams(window.location.search);
   const tabParam = params.get('tab');
-  const [showCampaignsFirst, setShowCampaignsFirst] = useState(tabParam === 'campaigns');
+  const [typeFilter, setTypeFilter] = useState(tabParam === 'campaigns' ? 'campaigns' : '');
 
   const isPublic = !user;
   const isAmbassador = !!user && hasAmbassadorAccess && mode === 'ambassador';
@@ -201,61 +201,64 @@ export default function MarketplacePage() {
 
       {/* Content */}
       <div className="px-4 pb-6 space-y-6">
-        {/* Campaigns section — shown FIRST when tab=campaigns */}
-        {showCampaignsFirst && campaigns.length > 0 && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
+        {/* Campaigns section — shown when filter is 'campaigns' or 'Tout' with tab=campaigns */}
+        {typeFilter === 'campaigns' && (
+          campaigns.length > 0 ? (
+            <div className="space-y-3">
               <h2 className="font-bold text-sm flex items-center gap-2">
-                <Heart className="h-4 w-4 text-rose-500" /> Campagnes actives
+                <Heart className="h-4 w-4 text-destructive" /> Campagnes actives
               </h2>
-              <button onClick={() => setShowCampaignsFirst(false)} className="text-xs text-muted-foreground hover:text-foreground">
-                Voir aussi les produits
-              </button>
+              <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+                {campaigns.map((c: any) => (
+                  <motion.div key={c.id} variants={fadeUp} initial="hidden" animate="visible">
+                    <CampaignCard campaign={c} />
+                  </motion.div>
+                ))}
+              </div>
             </div>
-            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
-              {campaigns.map((c: any) => (
-                <motion.div key={c.id} variants={fadeUp} initial="hidden" animate="visible">
-                  <CampaignCard campaign={c} />
-                </motion.div>
-              ))}
-            </div>
-          </div>
+          ) : (
+            <EmptyState variant="search" title="Aucune campagne active" />
+          )
         )}
 
-        {/* Products */}
-        {isLoading ? <SkeletonList count={8} /> : products.length === 0 ? (
-          <EmptyState variant="search" title="Aucun produit trouvé" />
-        ) : (
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.03 } } }}
-            className="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"
-          >
-            {products.map((p: any) => (
-              <motion.div key={p.id} variants={fadeUp}>
-                <ProductCard
-                  product={p}
-                  hideCommission={!isAmbassador}
-                  hideShare={!isAmbassador}
-                />
+        {/* Products — hidden when filter is 'campaigns' */}
+        {typeFilter !== 'campaigns' && (
+          <>
+            {isLoading ? <SkeletonList count={8} /> : products.length === 0 ? (
+              <EmptyState variant="search" title="Aucun produit trouvé" />
+            ) : (
+              <motion.div
+                initial="hidden"
+                animate="visible"
+                variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.03 } } }}
+                className="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"
+              >
+                {products.map((p: any) => (
+                  <motion.div key={p.id} variants={fadeUp}>
+                    <ProductCard
+                      product={p}
+                      hideCommission={!isAmbassador}
+                      hideShare={!isAmbassador}
+                    />
+                  </motion.div>
+                ))}
               </motion.div>
-            ))}
-          </motion.div>
-        )}
+            )}
 
-        {/* Campaigns — at bottom when NOT tab=campaigns */}
-        {!showCampaignsFirst && campaigns.length > 0 && (
-          <div className="space-y-3 pt-4 border-t border-border">
-            <h2 className="font-bold text-sm text-muted-foreground">Campagnes de dons</h2>
-            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
-              {campaigns.map((c: any) => (
-                <motion.div key={c.id} variants={fadeUp} initial="hidden" animate="visible">
-                  <CampaignCard campaign={c} />
-                </motion.div>
-              ))}
-            </div>
-          </div>
+            {/* Campaigns at bottom for product views */}
+            {campaigns.length > 0 && (
+              <div className="space-y-3 pt-4 border-t border-border">
+                <h2 className="font-bold text-sm text-muted-foreground">Campagnes de dons</h2>
+                <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+                  {campaigns.map((c: any) => (
+                    <motion.div key={c.id} variants={fadeUp} initial="hidden" animate="visible">
+                      <CampaignCard campaign={c} />
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* CTA for guests */}
