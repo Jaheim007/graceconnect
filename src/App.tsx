@@ -371,10 +371,9 @@ const App = () => (
                   <Route path="/invoices" element={<MyInvoicesPage />} />
                   <Route path="/my-analytics" element={<UserAnalyticsPage />} />
                   <Route path="/my-programs" element={<MyProgramsPage />} />
-                </Route>
 
-                {/* Admin */}
-                <Route path="/admin" element={<RequireOrgManage><AdminLayout /></RequireOrgManage>}>
+                  {/* Admin — inside AppLayout for seamless navigation */}
+                  <Route path="/admin" element={<RequireOrgManage><AdminShell /></RequireOrgManage>}>
                   <Route index element={<AdminDashboard />} />
                   <Route path="media" element={<AdminMedia />} />
                   <Route path="media/new" element={<AdminMediaForm />} />
