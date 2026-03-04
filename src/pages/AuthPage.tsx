@@ -37,7 +37,7 @@ export default function AuthPage() {
 
   // Store intent for post-login redirect
   useEffect(() => {
-    if (intent === 'ambassador' || intent === 'creator') {
+    if (intent === 'ambassador' || intent === 'creator' || intent === 'partner') {
       sessionStorage.setItem('sv_auth_intent', intent);
     }
   }, [intent]);
