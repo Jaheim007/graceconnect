@@ -301,8 +301,8 @@ export function SuperadminTransactions() {
     
     // Date filtering
     const { from, to } = getDateRange();
-    if (from) merged = merged.filter(t => new Date(t.created_at) >= from);
-    if (to) merged = merged.filter(t => new Date(t.created_at) <= to);
+    if (from) merged = merged.filter(t => new Date(t.completed_at || t.created_at) >= from);
+    if (to) merged = merged.filter(t => new Date(t.completed_at || t.created_at) <= to);
 
     if (search.trim()) {
       const q = search.toLowerCase();
