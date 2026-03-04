@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useAllPartners, useManagePartner, useSetPartnerRate, useAllPartnerPayouts, useProcessPartnerPayout, useReviewPartnerKYC, type Partner } from '@/hooks/usePartner';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useAllPartners, useManagePartner, useSetPartnerRate, useAllPartnerPayouts, useProcessPartnerPayout, useReviewPartnerKYC, useAllPartnerReferrals, type Partner } from '@/hooks/usePartner';
 import { formatCurrency } from '@/lib/currency';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,16 +12,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Handshake, CheckCircle, XCircle, Pause, Play, Percent, Wallet, Shield, Eye, Globe, Briefcase, Phone, Mail, MapPin } from 'lucide-react';
+import { Loader2, Handshake, CheckCircle, XCircle, Pause, Play, Percent, Wallet, Shield, Eye, Globe, Briefcase, Phone, Mail, MapPin, Users } from 'lucide-react';
 import { db } from '@/lib/db';
 import { toast } from 'sonner';
-import { useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
 
 const LEVEL_LABELS: Record<number, string> = { 1: 'Bronze', 2: 'Argent', 3: 'Or', 4: 'Platine', 5: 'Diamant' };
 
 export default function SuperadminPartners() {
   const { data: partners = [], isLoading } = useAllPartners();
   const { data: payoutRequests = [] } = useAllPartnerPayouts();
+  const { data: allReferrals = [], isLoading: isLoadingRefs } = useAllPartnerReferrals();
   const managePartner = useManagePartner();
   const setRate = useSetPartnerRate();
   const processPayout = useProcessPartnerPayout();
@@ -112,6 +114,15 @@ export default function SuperadminPartners() {
             <Wallet className="h-3.5 w-3.5" />
             Versements
             {pendingPayouts > 0 && <Badge variant="destructive" className="ml-1 text-[10px] h-4 px-1">{pendingPayouts}</Badge>}
+          </TabsTrigger>
+          <TabsTrigger value="referrals" className="gap-1.5">
+            <Users className="h-3.5 w-3.5" />
+            Referrals
+            {allReferrals.filter(r => r.status === 'pending').length > 0 && (
+              <Badge variant="destructive" className="ml-1 text-[10px] h-4 px-1">
+                {allReferrals.filter(r => r.status === 'pending').length}
+              </Badge>
+            )}
           </TabsTrigger>
         </TabsList>
 
@@ -315,6 +326,91 @@ export default function SuperadminPartners() {
                               <Button size="sm" variant="destructive" onClick={() => processPayout.mutate({ payoutRequestId: pr.id, action: 'reject' })} disabled={processPayout.isPending}>
                                 <XCircle className="h-3.5 w-3.5 mr-1" />
                                 Rejeter
+                              </Button>
+                            </div>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── Referrals Tab ── */}
+        <TabsContent value="referrals">
+          <Card>
+            <CardHeader>
+              <CardTitle>Organisations référées par les partenaires</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isLoadingRefs ? (
+                <div className="flex justify-center py-8"><Loader2 className="h-5 w-5 animate-spin" /></div>
+              ) : allReferrals.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-4 text-center">Aucun referral pour le moment.</p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Partenaire</TableHead>
+                      <TableHead>Organisation</TableHead>
+                      <TableHead>Statut</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {allReferrals.map(ref => (
+                      <TableRow key={ref.id} className={ref.status === 'pending' ? 'bg-amber-50/50 dark:bg-amber-950/10' : ''}>
+                        <TableCell>
+                          <div>
+                            <p className="text-sm font-medium">{(ref as any).partner?.full_name || '—'}</p>
+                            <p className="text-xs text-muted-foreground">{(ref as any).partner?.invite_code}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <p className="text-sm font-medium">{ref.organization?.name || '—'}</p>
+                          <p className="text-xs text-muted-foreground">{ref.organization?.slug}</p>
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant={ref.status === 'active' ? 'default' : ref.status === 'rejected' ? 'destructive' : 'secondary'}>
+                            {ref.status === 'active' ? 'Active' : ref.status === 'rejected' ? 'Rejetée' : 'En attente'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">{new Date(ref.attributed_at).toLocaleDateString('fr-FR')}</TableCell>
+                        <TableCell className="text-right">
+                          {ref.status === 'pending' && (
+                            <div className="flex items-center gap-1 justify-end">
+                              <Button size="sm" variant="ghost" title="Activer manuellement" onClick={async () => {
+                                try {
+                                  const { error } = await db.from('partner_referrals')
+                                    .update({ status: 'active', locked_at: new Date().toISOString() })
+                                    .eq('id', ref.id);
+                                  if (error) throw error;
+                                  toast.success('Referral activé');
+                                  qc.invalidateQueries({ queryKey: ['all-partner-referrals'] });
+                                  qc.invalidateQueries({ queryKey: ['all-partners'] });
+                                } catch (err: any) {
+                                  toast.error(err.message);
+                                }
+                              }}>
+                                <CheckCircle className="h-4 w-4 text-green-600" />
+                              </Button>
+                              <Button size="sm" variant="ghost" title="Rejeter" onClick={async () => {
+                                try {
+                                  const { error } = await db.from('partner_referrals')
+                                    .update({ status: 'rejected' })
+                                    .eq('id', ref.id);
+                                  if (error) throw error;
+                                  toast.success('Referral rejeté');
+                                  qc.invalidateQueries({ queryKey: ['all-partner-referrals'] });
+                                } catch (err: any) {
+                                  toast.error(err.message);
+                                }
+                              }}>
+                                <XCircle className="h-4 w-4 text-destructive" />
                               </Button>
                             </div>
                           )}
