@@ -80,8 +80,6 @@ export default function PartnerPortalPage() {
     ? `${window.location.origin}/create-org?partner=${partner.invite_code}`
     : null;
 
-  const [isForceSyncing, setIsForceSyncing] = useState(false);
-
   const copyText = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     toast.success(`${label} copié !`);
