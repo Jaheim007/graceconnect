@@ -1,9 +1,13 @@
-import { createContext, useContext, ReactNode, useMemo } from 'react';
+import { createContext, useContext, ReactNode, useMemo, useState, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
+import { db } from '@/lib/db';
 
 export type AppMode = 'public' | 'ambassador' | 'creator';
+
+const MODE_STORAGE_KEY = 'sv_preferred_mode';
 
 /**
  * Single source of truth for public route detection.
@@ -31,60 +35,124 @@ export function isPublicPath(pathname: string): boolean {
   return PUBLIC_ROUTE_PREFIXES.some(prefix => pathname.startsWith(prefix));
 }
 
-/** Derive mode from current route automatically — no toggle needed */
+/** Derive mode from current route automatically */
 function deriveModeFromRoute(pathname: string): AppMode | null {
   if (isPublicPath(pathname)) return 'public';
-  // Creator routes
   if (pathname.startsWith('/admin') || pathname.startsWith('/create-org')) return 'creator';
-  // Ambassador routes
   if (pathname.startsWith('/affiliation') || pathname.startsWith('/leaderboard')) return 'ambassador';
-  // Neutral routes (dashboard, resources, marketplace, notifications, profile) → null = no override
   return null;
 }
 
 interface ModeContextValue {
   mode: AppMode;
-  /** The persisted user preference (ambassador or creator), ignoring route overrides */
   preferredMode: Exclude<AppMode, 'public'>;
   setMode: (m: AppMode) => void;
   toggleMode: () => void;
   hasOrgs: boolean;
-  /** True when current mode is forced by route (public pages) */
   isRouteOverride: boolean;
+  hasCreatorAccess: boolean;
+  hasAmbassadorAccess: boolean;
 }
 
 const ModeContext = createContext<ModeContextValue>({
-  mode: 'ambassador',
+  mode: 'public',
   preferredMode: 'ambassador',
   setMode: () => {},
   toggleMode: () => {},
   hasOrgs: false,
   isRouteOverride: false,
+  hasCreatorAccess: false,
+  hasAmbassadorAccess: false,
 });
+
+function getInitialPreferredMode(): Exclude<AppMode, 'public'> {
+  if (typeof window === 'undefined') return 'ambassador';
+  const stored = window.localStorage.getItem(MODE_STORAGE_KEY);
+  return stored === 'creator' ? 'creator' : 'ambassador';
+}
 
 export function ModeProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
-  const { userOrgs } = useOrg();
-  const hasOrgs = userOrgs.length > 0;
+  const { userOrgs, canManage } = useOrg();
   const location = useLocation();
+  const [preferredMode, setPreferredModeState] = useState<Exclude<AppMode, 'public'>>(getInitialPreferredMode);
 
-  // Route-derived mode — automatic, no toggle
+  const hasOrgs = userOrgs.length > 0;
+  const hasCreatorAccess = useMemo(() => userOrgs.some((org) => canManage(org.id)), [userOrgs, canManage]);
+
+  const { data: affiliateLinkCount = 0 } = useQuery({
+    queryKey: ['mode-affiliate-link-count', user?.id],
+    queryFn: async () => {
+      if (!user) return 0;
+      const { count } = await db
+        .from('affiliate_links')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('is_active', true);
+      return count || 0;
+    },
+    enabled: !!user,
+    staleTime: 60_000,
+  });
+
+  const hasAmbassadorAccess = (affiliateLinkCount ?? 0) > 0;
+
+  const persistPreferredMode = useCallback((nextMode: Exclude<AppMode, 'public'>) => {
+    setPreferredModeState(nextMode);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(MODE_STORAGE_KEY, nextMode);
+    }
+  }, []);
+
   const derivedMode = useMemo(() => deriveModeFromRoute(location.pathname), [location.pathname]);
   const isRouteOverride = derivedMode === 'public';
 
-  // For neutral routes, default to ambassador (buyer-friendly)
-  const mode: AppMode = derivedMode ?? 'ambassador';
-  const preferredMode: Exclude<AppMode, 'public'> = mode === 'public' ? 'ambassador' : mode;
+  useEffect(() => {
+    if (derivedMode === 'creator' || derivedMode === 'ambassador') {
+      persistPreferredMode(derivedMode);
+    }
+  }, [derivedMode, persistPreferredMode]);
 
-  // setMode and toggleMode are kept for backward compat but are no-ops now
-  const setMode = () => {};
-  const toggleMode = () => {};
+  const neutralMode = useMemo<AppMode>(() => {
+    if (!user) return 'public';
+
+    if (preferredMode === 'creator' && hasCreatorAccess) return 'creator';
+    if (preferredMode === 'ambassador' && hasAmbassadorAccess) return 'ambassador';
+
+    if (hasCreatorAccess && !hasAmbassadorAccess) return 'creator';
+    if (hasAmbassadorAccess && !hasCreatorAccess) return 'ambassador';
+
+    return 'public';
+  }, [user, preferredMode, hasCreatorAccess, hasAmbassadorAccess]);
+
+  const mode: AppMode = derivedMode ?? neutralMode;
+
+  const setMode = (m: AppMode) => {
+    if (m === 'public') return;
+    persistPreferredMode(m);
+  };
+
+  const toggleMode = () => {
+    persistPreferredMode(preferredMode === 'ambassador' ? 'creator' : 'ambassador');
+  };
 
   return (
-    <ModeContext.Provider value={{ mode, preferredMode, setMode, toggleMode, hasOrgs, isRouteOverride }}>
+    <ModeContext.Provider
+      value={{
+        mode,
+        preferredMode,
+        setMode,
+        toggleMode,
+        hasOrgs,
+        isRouteOverride,
+        hasCreatorAccess,
+        hasAmbassadorAccess,
+      }}
+    >
       {children}
     </ModeContext.Provider>
   );
 }
 
 export const useMode = () => useContext(ModeContext);
+

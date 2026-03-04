@@ -7,6 +7,7 @@ import { useUnreadCount } from '@/hooks/useNotifications';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { useMode } from '@/contexts/ModeContext';
 
 export function BottomNav() {
   const location = useLocation();
@@ -15,6 +16,7 @@ export function BottomNav() {
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const [open, setOpen] = useState(false);
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
+  const { hasAmbassadorAccess } = useMode();
 
   const guestItems = [
     { to: '/', icon: Home, label: 'Accueil' },
@@ -27,7 +29,9 @@ export function BottomNav() {
   const primaryItems = [
     { to: '/dashboard', icon: Home, label: 'Accueil' },
     { to: '/marketplace', icon: Store, label: 'Découvrir' },
-    { to: '/affiliation', icon: Link2, label: 'Gagner' },
+    ...(hasAmbassadorAccess
+      ? [{ to: '/affiliation', icon: Link2, label: 'Gagner' }]
+      : [{ to: '/resources', icon: Package, label: 'Achats' }]),
   ];
 
   // More menu items
@@ -38,7 +42,7 @@ export function BottomNav() {
         { to: '/resources', icon: Package, label: 'Mes achats' },
         { to: '/notifications', icon: Bell, label: 'Notifications', showBadge: true },
         { to: '/profile', icon: User, label: 'Profil' },
-        { to: '/leaderboard', icon: Trophy, label: 'Classement' },
+        ...(hasAmbassadorAccess ? [{ to: '/leaderboard', icon: Trophy, label: 'Classement' }] : []),
       ],
     },
     ...(canManageCurrentOrg ? [{
