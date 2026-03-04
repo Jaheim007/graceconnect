@@ -60,6 +60,7 @@ export default function MarketplacePage() {
         .from('digital_products')
         .select('*, organizations(name, slug, logo_url, currency, affiliation_commission_percent)')
         .eq('is_published', true)
+        .eq('is_express_demo', false)
         .order(orderCol, { ascending: false })
         .limit(60);
       if (search) q = q.ilike('title', `%${search}%`);
@@ -83,6 +84,7 @@ export default function MarketplacePage() {
         .select('*, organizations(name, slug, logo_url, currency)')
         .eq('is_published', true)
         .eq('is_active', true)
+        .eq('is_express_demo', false)
         .order('current_amount', { ascending: false })
         .limit(20);
       if (search) q = q.ilike('title', `%${search}%`);
