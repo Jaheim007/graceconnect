@@ -134,12 +134,23 @@ export default function CreateOrgPage() {
       // Attribute org to partner if partner code is present
       if (partnerCode) {
         try {
-          await db.rpc('attribute_org_to_partner', {
+          const attrResult = await db.rpc('attribute_org_to_partner', {
             _org_id: orgId,
             _partner_code: partnerCode,
           });
+          const result = attrResult.data as any;
+          if (result?.ok) {
+            console.log('[CreateOrg] Partner attribution success:', partnerCode);
+            toast({ title: '🤝 Parrainage enregistré', description: 'Cette organisation a été attribuée au partenaire.' });
+          } else {
+            console.warn('[CreateOrg] Partner attribution rejected:', result?.reason);
+          }
+          // Clean up stored code regardless of result
+          try { sessionStorage.removeItem(PARTNER_STORAGE_KEY); } catch {}
         } catch (attrErr) {
-          console.warn('[CreateOrg] Partner attribution failed (non-fatal):', attrErr);
+          console.error('[CreateOrg] Partner attribution failed:', attrErr);
+          // Clean up stored code
+          try { sessionStorage.removeItem(PARTNER_STORAGE_KEY); } catch {}
         }
       }
 
