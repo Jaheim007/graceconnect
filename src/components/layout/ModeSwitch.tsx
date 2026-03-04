@@ -1,16 +1,25 @@
 import { useMode } from '@/contexts/ModeContext';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Share2, Building2 } from 'lucide-react';
 
 export function ModeSwitch() {
   const { mode, preferredMode, toggleMode, isRouteOverride } = useMode();
+  const navigate = useNavigate();
+  const location = useLocation();
   
   // Use preferredMode for highlight state so toggle reflects user intent even on public pages
   const activeMode = isRouteOverride ? preferredMode : mode;
 
   return (
     <button
-      onClick={toggleMode}
+      onClick={() => {
+        toggleMode();
+        // Navigate to dashboard when switching modes so user sees the correct dashboard
+        if (location.pathname !== '/dashboard') {
+          navigate('/dashboard');
+        }
+      }}
       className="flex items-center gap-0.5 h-8 rounded-full ring-1 ring-border hover:ring-primary/40 transition-all px-0.5 bg-muted/50"
       title={activeMode === 'ambassador' ? 'Mode Ambassadeur — Cliquer pour passer en mode Créateur' : 'Mode Créateur — Cliquer pour passer en mode Ambassadeur'}
     >
