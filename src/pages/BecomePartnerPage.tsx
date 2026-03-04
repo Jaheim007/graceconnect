@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LegalHeader, LegalFooter } from '@/components/layout/LegalPageShell';
 import { useAuth } from '@/contexts/AuthContext';
