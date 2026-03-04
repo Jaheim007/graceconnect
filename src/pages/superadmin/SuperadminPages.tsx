@@ -203,9 +203,9 @@ export function SuperadminTransactions() {
     queryKey: ['sa-all-purchases'],
     queryFn: async () => {
       const { data, error } = await db.from('product_purchases')
-        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, settlement_status, user_id, organization_id, affiliate_link_id, buyer_email, buyer_name, digital_products(title, organization_id, organizations(name))')
+        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, settlement_status, user_id, organization_id, affiliate_link_id, buyer_email, buyer_name, digital_products!left(title, organization_id, organizations!left(name))')
         .order('created_at', { ascending: false })
-        .limit(500);
+        .limit(2000);
       if (error) { console.error('sa-purchases error:', error); return []; }
 
       // Resolve buyer profiles for purchases with user_id
@@ -249,9 +249,9 @@ export function SuperadminTransactions() {
     queryKey: ['sa-all-donations'],
     queryFn: async () => {
       const { data, error } = await db.from('donations')
-        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, settlement_status, donor_name, donor_email, user_id, affiliate_link_id, organizations(name), donation_campaigns(title)')
+        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, settlement_status, donor_name, donor_email, user_id, affiliate_link_id, organizations!left(name), donation_campaigns!left(title)')
         .order('created_at', { ascending: false })
-        .limit(500);
+        .limit(2000);
       if (error) { console.error('sa-donations error:', error); return []; }
 
       // Resolve donor profiles
@@ -301,8 +301,8 @@ export function SuperadminTransactions() {
     
     // Date filtering
     const { from, to } = getDateRange();
-    if (from) merged = merged.filter(t => new Date(t.created_at) >= from);
-    if (to) merged = merged.filter(t => new Date(t.created_at) <= to);
+    if (from) merged = merged.filter(t => new Date(t.completed_at || t.created_at) >= from);
+    if (to) merged = merged.filter(t => new Date(t.completed_at || t.created_at) <= to);
 
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -393,7 +393,7 @@ export function SuperadminTransactions() {
           { label: 'Total GMV', value: fmt(totalGMV), icon: DollarSign },
           { label: 'Frais Plateforme', value: fmt(totalFees), icon: TrendingUp },
           { label: 'Comm. Affiliés', value: fmt(totalAffComm), icon: Users },
-          { label: 'Transactions', value: allTx.length.toString(), icon: BarChart3 },
+          { label: 'Transactions', value: (txStats?.total_count ?? allTx.length).toString(), icon: BarChart3 },
         ].map(c => (
           <div key={c.label} className="p-4 rounded-xl border border-border bg-card">
             <div className="flex items-center gap-2 mb-1">
