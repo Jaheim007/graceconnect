@@ -886,6 +886,21 @@ export function AdminSettings() {
   const [bannerUrl, setBannerUrl] = useState(currentOrg?.banner_url ?? '');
   const [savingProfile, setSavingProfile] = useState(false);
 
+  const slugify = (v: string) => v.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+  const handleSlugChange = (v: string) => {
+    const clean = slugify(v);
+    setOrgSlug(clean);
+    if (clean.length < 3) setSlugError('Minimum 3 caractères');
+    else if (!/^[a-z0-9-]+$/.test(clean)) setSlugError('Lettres minuscules, chiffres et tirets uniquement');
+    else setSlugError('');
+  };
+
+  // Crop state for settings images
+  const [settingsCropSrc, setSettingsCropSrc] = useState<string | null>(null);
+  const [settingsCropType, setSettingsCropType] = useState<'logo' | 'banner' | 'leader'>('banner');
+  const settingsCropAspect = settingsCropType === 'banner' ? 3 / 1 : 1;
+
   // Leader biography fields
   const [leaderName, setLeaderName] = useState(orgAny?.leader_name ?? '');
   const [leaderTitle, setLeaderTitle] = useState(orgAny?.leader_title ?? '');
