@@ -53,6 +53,7 @@ export function Sidebar() {
     { to: '/marketplace', icon: Store, label: 'Marketplace', desc: 'Trouve des produits à partager' },
     { to: '/affiliation', icon: Link2, label: 'Mes liens', desc: 'Tes liens de partage' },
     { to: '/dashboard', icon: Wallet, label: 'Mes gains', desc: 'Commissions et retraits' },
+    { to: '/resources', icon: BookOpen, label: 'Mes achats', desc: 'Tes produits achetés' },
     { to: '/leaderboard', icon: Trophy, label: 'Classement', desc: 'Top ambassadeurs' },
     { to: '/notifications', icon: Bell, label: 'Notifications', desc: 'Mises à jour' },
     { to: '/profile', icon: User, label: 'Profil', desc: 'Ton compte' },

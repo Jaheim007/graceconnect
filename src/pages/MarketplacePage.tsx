@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Search, TrendingUp, Sparkles, Store, ArrowRight } from 'lucide-react';
+import { Search, SlidersHorizontal, Star, TrendingUp, Sparkles, Store, ArrowRight, ShoppingBag, BookOpen, Headphones, Video, GraduationCap, FileText } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -13,11 +13,22 @@ import { Button } from '@/components/ui/button';
 import { useMode } from '@/contexts/ModeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
   visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 260, damping: 24 } },
 };
+
+const categoryFilters = [
+  { key: '', label: 'Tout', icon: ShoppingBag },
+  { key: 'pdf', label: 'PDF', icon: FileText },
+  { key: 'ebook', label: 'eBook', icon: BookOpen },
+  { key: 'video', label: 'Vidéo', icon: Video },
+  { key: 'course', label: 'Cours', icon: GraduationCap },
+  { key: 'audio', label: 'Audio', icon: Headphones },
+];
 
 export default function MarketplacePage() {
   const [search, setSearch] = useState('');
@@ -27,12 +38,9 @@ export default function MarketplacePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  // Use auth state (not mode) to determine buyer vs ambassador experience
-  // This prevents anonymous users from seeing commissions even when localStorage defaults to 'ambassador'
   const isPublic = !user;
   const isAmbassador = !!user && mode === 'ambassador';
 
-  // Products
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['marketplace-products', search, sortBy, typeFilter],
     queryFn: async () => {
@@ -56,7 +64,6 @@ export default function MarketplacePage() {
     },
   });
 
-  // Campaigns
   const { data: campaigns = [] } = useQuery({
     queryKey: ['marketplace-campaigns', search],
     queryFn: async () => {
@@ -77,106 +84,118 @@ export default function MarketplacePage() {
     },
   });
 
-  // Sort filters differ by universe
-  const publicSortFilters = [
-    { key: 'newest', label: '✨ Nouveautés' },
-    { key: 'bestseller', label: '🔥 Meilleures ventes' },
-  ];
+  const sortFilters = isAmbassador
+    ? [
+        { key: 'commission', label: 'Meilleure commission', icon: TrendingUp },
+        { key: 'newest', label: 'Nouveautés', icon: Sparkles },
+        { key: 'bestseller', label: 'Top ventes', icon: Star },
+      ]
+    : [
+        { key: 'newest', label: 'Nouveautés', icon: Sparkles },
+        { key: 'bestseller', label: 'Top ventes', icon: Star },
+      ];
 
-  const ambassadorSortFilters = [
-    { key: 'commission', label: '💰 Meilleure commission' },
-    { key: 'newest', label: '✨ Nouveautés' },
-    { key: 'bestseller', label: '🔥 Meilleures ventes' },
-  ];
-
-  const sortFilters = isAmbassador ? ambassadorSortFilters : publicSortFilters;
-
-  const pageTitle = isAmbassador ? 'Marketplace Ambassadeur' : 'Explorer';
-  const pageDescription = isAmbassador
-    ? 'Trouve des produits à partager et gagne des commissions.'
-    : 'Explorez les meilleurs produits numériques.';
+  const pageTitle = isAmbassador ? 'Marketplace' : 'Explorer';
 
   return (
-    <div className="bg-background min-h-screen">
+    <div className="min-h-[80dvh]">
       <SEOHead
         title={`${pageTitle} — Produits numériques | Siteviral`}
-        description={pageDescription}
+        description="Explorez les meilleurs produits numériques."
         canonicalUrl="https://siteviral.com/marketplace"
       />
 
-      {/* Header */}
-      <div className="border-b border-border bg-muted/30 py-8 px-4">
-        <div className="container max-w-4xl space-y-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl sm:text-2xl font-extrabold">{pageTitle}</h1>
+      {/* Header area */}
+      <div className="px-4 pt-5 pb-4 space-y-4">
+        {/* Title row */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-lg sm:text-xl font-extrabold tracking-tight">{pageTitle}</h1>
             {isAmbassador && (
-              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-full">
-                Mode Ambassadeur
-              </span>
+              <p className="text-xs text-muted-foreground mt-0.5">Trouve des produits à partager et gagne des commissions</p>
             )}
           </div>
-          
-          {/* Public CTA for non-logged users */}
-          {isPublic && !user && (
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/20">
-              <Store className="h-5 w-5 text-primary shrink-0" />
-              <p className="text-sm text-muted-foreground flex-1">
-                Connectez-vous pour acheter ou voir vos achats.
-              </p>
-              <Button size="sm" className="text-xs h-8 shrink-0" onClick={() => navigate('/auth')}>
-                Se connecter
-              </Button>
-            </div>
+          {isAmbassador && (
+            <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-[10px] font-bold uppercase tracking-wider">
+              Ambassadeur
+            </Badge>
           )}
-
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Rechercher un produit..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-9 h-10"
-              />
-            </div>
-            <div className="flex flex-wrap gap-1.5">
-              {sortFilters.map(f => (
-                <Button
-                  key={f.key}
-                  variant={sortBy === f.key ? 'default' : 'outline'}
-                  size="sm"
-                  className="text-xs h-9 gap-1"
-                  onClick={() => setSortBy(sortBy === f.key ? 'popular' : f.key)}
-                >
-                  {f.label}
-                </Button>
-              ))}
-              {['pdf', 'ebook', 'video', 'course', 'audio'].map(t => (
-                <Button
-                  key={t}
-                  variant={typeFilter === t ? 'default' : 'outline'}
-                  size="sm"
-                  className="text-xs h-9 capitalize"
-                  onClick={() => setTypeFilter(typeFilter === t ? '' : t)}
-                >
-                  {t === 'pdf' ? 'PDF' : t === 'ebook' ? 'eBook' : t === 'video' ? 'Vidéo' : t === 'course' ? 'Cours' : 'Audio'}
-                </Button>
-              ))}
-            </div>
-          </div>
         </div>
+
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher un produit, un créateur..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10 h-11 rounded-xl bg-muted/50 border-transparent focus:border-primary/30 focus:bg-background transition-colors"
+          />
+        </div>
+
+        {/* Category chips — horizontal scroll */}
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
+          {categoryFilters.map(({ key, label, icon: Icon }) => (
+            <button
+              key={key}
+              onClick={() => setTypeFilter(typeFilter === key ? '' : key)}
+              className={cn(
+                'flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all shrink-0',
+                typeFilter === key
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground'
+              )}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Sort filters */}
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground mr-0.5" />
+          {sortFilters.map(({ key, label, icon: Icon }) => (
+            <button
+              key={key}
+              onClick={() => setSortBy(sortBy === key ? 'popular' : key)}
+              className={cn(
+                'flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all',
+                sortBy === key
+                  ? 'bg-foreground/10 text-foreground'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+              )}
+            >
+              <Icon className="h-3 w-3" />
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Login CTA for guests */}
+        {isPublic && (
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/15">
+            <Store className="h-4.5 w-4.5 text-primary shrink-0" />
+            <p className="text-xs text-muted-foreground flex-1">
+              Connectez-vous pour acheter ou accéder à vos ressources.
+            </p>
+            <Button size="sm" className="text-xs h-8 shrink-0 rounded-lg" onClick={() => navigate('/auth')}>
+              Se connecter
+            </Button>
+          </div>
+        )}
       </div>
 
-      <div className="container max-w-6xl py-6 px-4 space-y-6">
-        {/* Products */}
+      {/* Product grid */}
+      <div className="px-4 pb-6 space-y-6">
         {isLoading ? <SkeletonList count={8} /> : products.length === 0 ? (
           <EmptyState variant="search" title="Aucun produit trouvé" />
         ) : (
           <motion.div
             initial="hidden"
             animate="visible"
-            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.04 } } }}
-            className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+            variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.03 } } }}
+            className="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3"
           >
             {products.map((p: any) => (
               <motion.div key={p.id} variants={fadeUp}>
@@ -190,11 +209,11 @@ export default function MarketplacePage() {
           </motion.div>
         )}
 
-        {/* Campaigns if any */}
+        {/* Campaigns */}
         {campaigns.length > 0 && (
           <div className="space-y-3 pt-4 border-t border-border">
             <h2 className="font-bold text-sm text-muted-foreground">Campagnes de dons</h2>
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
               {campaigns.map((c: any) => (
                 <motion.div key={c.id} variants={fadeUp} initial="hidden" animate="visible">
                   <CampaignCard campaign={c} />
@@ -204,13 +223,13 @@ export default function MarketplacePage() {
           </div>
         )}
 
-        {/* Ambassador CTA at bottom for public users */}
+        {/* CTA for guests */}
         {isPublic && (
-          <div className="pt-6 border-t border-border text-center space-y-3">
-            <p className="text-sm text-muted-foreground">
+          <div className="pt-4 border-t border-border text-center space-y-2">
+            <p className="text-xs text-muted-foreground">
               Vous avez du contenu à vendre ? Créez votre espace en quelques minutes.
             </p>
-            <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={() => navigate('/vendre')}>
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs rounded-lg" onClick={() => navigate('/vendre')}>
               En savoir plus <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           </div>
