@@ -239,31 +239,53 @@ export function useManagePartner() {
     onSuccess: async (_, vars) => {
       toast.success('Partenaire mis à jour');
       qc.invalidateQueries({ queryKey: ['all-partners'] });
-      // Send email notification
-      const templateMap: Record<string, string> = {
-        approve: 'partner_welcome',
-        reject: 'partner_rejected',
-        suspend: 'partner_suspended',
-        unsuspend: 'partner_unsuspended',
-      };
-      const template = templateMap[vars.action];
-      if (template) {
-        try {
-          // Fetch partner email & name
-          const { data: partner } = await db.from('partners')
-            .select('email, full_name, invite_code')
-            .eq('id', vars.partnerId)
-            .single();
-          if (partner?.email) {
+
+      // Fetch partner details for email + notification
+      try {
+        const { data: partner } = await db.from('partners')
+          .select('email, full_name, invite_code, user_id')
+          .eq('id', vars.partnerId)
+          .single();
+
+        if (partner) {
+          // In-app notification (if partner has a user_id)
+          if (partner.user_id) {
+            const notifMap: Record<string, { title: string; body: string }> = {
+              approve: { title: '🤝 Candidature approuvée !', body: `Bienvenue dans le Programme Partenaires ! Votre code d'invitation : ${partner.invite_code}. Accédez à votre Espace Partenaire pour commencer.` },
+              reject: { title: 'Candidature non retenue', body: `Votre candidature au Programme Partenaires n'a pas été retenue.${vars.reason ? ` Raison : ${vars.reason}` : ''}` },
+              suspend: { title: '⚠️ Compte partenaire suspendu', body: `Votre compte partenaire a été suspendu.${vars.reason ? ` Raison : ${vars.reason}` : ''}` },
+              unsuspend: { title: '✅ Compte partenaire réactivé', body: 'Votre compte partenaire est de nouveau actif.' },
+            };
+            const notif = notifMap[vars.action];
+            if (notif) {
+              await db.from('user_notifications').insert({
+                user_id: partner.user_id,
+                title: notif.title,
+                body: notif.body,
+                notification_type: 'partner_status',
+                action_url: '/partner',
+              });
+            }
+          }
+
+          // Send email notification
+          const templateMap: Record<string, string> = {
+            approve: 'partner_welcome',
+            reject: 'partner_rejected',
+            suspend: 'partner_suspended',
+            unsuspend: 'partner_unsuspended',
+          };
+          const template = templateMap[vars.action];
+          if (template && partner.email) {
             await callFn('send-email', {
               template,
               to: partner.email,
               data: { name: partner.full_name, invite_code: partner.invite_code || '', reason: vars.reason || '' },
             }, true);
           }
-        } catch {
-          // Email is best-effort
         }
+      } catch {
+        // Best-effort
       }
     },
     onError: (err: Error) => toast.error(err.message),
