@@ -133,7 +133,11 @@ export default function PartnerPortalPage() {
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap justify-start sm:justify-end">
+          <Button variant="outline" size="sm" onClick={handleForceSync} disabled={isSyncing} className="gap-2">
+            {isSyncing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
+            Forcer sync
+          </Button>
           <Badge className={`${levelColor} border text-xs font-semibold px-3 py-1`}>
             {LEVEL_LABELS[partner.level] || `L${partner.level}`} — {effectiveRate}%
           </Badge>
