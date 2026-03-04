@@ -53,7 +53,21 @@ export function AICoverGenerator({ open, onClose, onInsert, context = 'product' 
         body: { prompt: prompt.trim(), style, format, context, include_text: textMode === 'with' },
       });
 
-      if (error) throw error;
+      if (error) {
+        let errorMessage = "Impossible de générer l'image.";
+        const errorWithContext = error as { context?: Response; message?: string };
+
+        if (errorWithContext.context) {
+          const payload = await errorWithContext.context.json().catch(() => null);
+          if (payload?.error && typeof payload.error === 'string') {
+            errorMessage = payload.error;
+          }
+        } else if (errorWithContext.message) {
+          errorMessage = errorWithContext.message;
+        }
+
+        throw new Error(errorMessage);
+      }
       if (data?.error) throw new Error(data.error);
 
       if (data?.imageUrl) {

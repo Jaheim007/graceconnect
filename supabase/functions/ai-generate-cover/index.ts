@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 serve(async (req) => {
@@ -47,33 +47,70 @@ serve(async (req) => {
 
     const imagePrompt = `Create a professional ${context} cover image. ${styleMap[style] || styleMap.professional}. ${formatMap[format] || formatMap.book}. Theme/subject: ${prompt}. The design should be suitable for an African digital marketplace. ${textInstruction} High quality, polished, ready for commercial use.`;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: imagePrompt }] }],
-          generationConfig: {
-            responseModalities: ["TEXT", "IMAGE"],
-          },
-        }),
-      }
-    );
+    const modelCandidates = ["gemini-2.5-flash-image", "gemini-2.5-flash-preview-image"];
 
-    if (!response.ok) {
-      const t = await response.text();
-      console.error("Gemini image error:", response.status, t);
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Trop de requêtes. Réessayez dans quelques secondes." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+    let response: Response | null = null;
+    let lastErrorStatus = 500;
+    let lastErrorMessage = "Erreur du service Gemini.";
+
+    for (const modelName of modelCandidates) {
+      const candidateResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ role: "user", parts: [{ text: imagePrompt }] }],
+            generationConfig: {
+              responseModalities: ["TEXT", "IMAGE"],
+            },
+          }),
+        }
+      );
+
+      if (candidateResponse.ok) {
+        response = candidateResponse;
+        break;
       }
-      return new Response(JSON.stringify({ error: "Erreur du service Gemini." }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+
+      const errorText = await candidateResponse.text();
+      console.error(`Gemini image error (${modelName}):`, candidateResponse.status, errorText);
+
+      lastErrorStatus = candidateResponse.status;
+      try {
+        const parsed = JSON.parse(errorText);
+        lastErrorMessage = parsed?.error?.message || "Erreur du service Gemini.";
+      } catch {
+        lastErrorMessage = "Erreur du service Gemini.";
+      }
+
+      if (candidateResponse.status === 429 || candidateResponse.status === 401 || candidateResponse.status === 403) {
+        break;
+      }
+    }
+
+    if (!response) {
+      if (lastErrorStatus === 429) {
+        return new Response(
+          JSON.stringify({
+            error: `Quota Gemini dépassé. Vérifiez votre quota/billing Gemini puis réessayez. Détail: ${lastErrorMessage}`,
+          }),
+          {
+            status: 429,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          }
+        );
+      }
+
+      return new Response(
+        JSON.stringify({
+          error: `Gemini n'a pas pu générer l'image. Détail: ${lastErrorMessage}`,
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
     const data = await response.json();
