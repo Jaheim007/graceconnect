@@ -168,31 +168,33 @@ export default function BecomePartnerPage() {
   };
 
   // Check if we have a pending partner application after login
-  useState(() => {
-    if (user && !submitted) {
-      const pending = sessionStorage.getItem('sv_pending_partner');
-      if (pending) {
-        const partnerData = JSON.parse(pending);
-        // Auto-submit
-        (async () => {
-          setSubmitting(true);
-          try {
-            const { error } = await db.from('partners').insert({
-              ...partnerData,
-              user_id: user.id,
-            });
-            if (error) throw error;
-            sessionStorage.removeItem('sv_pending_partner');
-            setSubmitted(true);
-          } catch (err: any) {
-            toast.error(err.message || 'Erreur lors de la soumission');
-          } finally {
-            setSubmitting(false);
-          }
-        })();
-      }
+  // Using a ref to prevent double-submission
+  const autoSubmitRef = useState({ done: false })[0];
+  
+  if (user && !submitted && !autoSubmitRef.done) {
+    const pending = sessionStorage.getItem('sv_pending_partner');
+    if (pending) {
+      autoSubmitRef.done = true;
+      const partnerData = JSON.parse(pending);
+      (async () => {
+        setSubmitting(true);
+        try {
+          const { error } = await db.from('partners').insert({
+            ...partnerData,
+            user_id: user.id,
+          });
+          if (error) throw error;
+          sessionStorage.removeItem('sv_pending_partner');
+          sessionStorage.setItem('sv_partner_submitted', 'true');
+          setSubmitted(true);
+        } catch (err: any) {
+          toast.error(err.message || 'Erreur lors de la soumission');
+        } finally {
+          setSubmitting(false);
+        }
+      })();
     }
-  });
+  }
 
   return (
     <div className="min-h-screen bg-background">
