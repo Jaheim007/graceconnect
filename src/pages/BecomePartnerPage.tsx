@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LegalHeader, LegalFooter } from '@/components/layout/LegalPageShell';
 import { useAuth } from '@/contexts/AuthContext';
@@ -167,34 +167,35 @@ export default function BecomePartnerPage() {
     }
   };
 
-  // Check if we have a pending partner application after login
-  // Using a ref to prevent double-submission
-  const autoSubmitRef = useState({ done: false })[0];
-  
-  if (user && !submitted && !autoSubmitRef.done) {
+  // Auto-submit pending partner application after login
+  const [autoSubmitDone, setAutoSubmitDone] = useState(false);
+
+  useEffect(() => {
+    if (!user || submitted || autoSubmitDone) return;
     const pending = sessionStorage.getItem('sv_pending_partner');
-    if (pending) {
-      autoSubmitRef.done = true;
-      const partnerData = JSON.parse(pending);
-      (async () => {
-        setSubmitting(true);
-        try {
-          const { error } = await db.from('partners').insert({
-            ...partnerData,
-            user_id: user.id,
-          });
-          if (error) throw error;
-          sessionStorage.removeItem('sv_pending_partner');
-          sessionStorage.setItem('sv_partner_submitted', 'true');
-          setSubmitted(true);
-        } catch (err: any) {
-          toast.error(err.message || 'Erreur lors de la soumission');
-        } finally {
-          setSubmitting(false);
-        }
-      })();
-    }
-  }
+    if (!pending) return;
+
+    setAutoSubmitDone(true);
+    const partnerData = JSON.parse(pending);
+
+    (async () => {
+      setSubmitting(true);
+      try {
+        const { error } = await db.from('partners').insert({
+          ...partnerData,
+          user_id: user.id,
+        });
+        if (error) throw error;
+        sessionStorage.removeItem('sv_pending_partner');
+        sessionStorage.setItem('sv_partner_submitted', 'true');
+        // Redirect to dashboard where the popup will show
+        navigate('/dashboard', { replace: true });
+      } catch (err: any) {
+        toast.error(err.message || 'Erreur lors de la soumission');
+        setSubmitting(false);
+      }
+    })();
+  }, [user, submitted, autoSubmitDone, navigate]);
 
   return (
     <div className="min-h-screen bg-background">
