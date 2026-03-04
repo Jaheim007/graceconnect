@@ -167,9 +167,14 @@ export default function PartnerPortalPage() {
                       <TableRow key={r.id}>
                         <TableCell className="font-medium">{r.organization?.name || '—'}</TableCell>
                         <TableCell>
-                          <Badge variant={r.status === 'active' ? 'default' : r.status === 'rejected' ? 'destructive' : 'secondary'}>
-                            {r.status === 'active' ? 'Active' : r.status === 'rejected' ? 'Rejetée' : 'En attente'}
-                          </Badge>
+                          <div className="flex flex-col gap-1">
+                            <Badge variant={r.status === 'active' ? 'default' : r.status === 'rejected' ? 'destructive' : 'secondary'}>
+                              {r.status === 'active' ? 'Active' : r.status === 'rejected' ? 'Rejetée' : 'En attente'}
+                            </Badge>
+                            {r.status === 'pending' && (
+                              <span className="text-[10px] text-muted-foreground leading-tight">Activée au 1er paiement reçu</span>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground">{new Date(r.attributed_at).toLocaleDateString('fr-FR')}</TableCell>
                       </TableRow>
