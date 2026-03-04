@@ -18,7 +18,7 @@ import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { OrgActivationChecklist } from '@/components/admin/OrgActivationChecklist';
 import { ExpressSetupButton } from '@/components/admin/ExpressSetupButton';
-import { YouTubeImportButton } from '@/components/admin/YouTubeImportButton';
+import { VideoImportButton } from '@/components/admin/VideoImportButton';
 import { RevenueSimulator } from '@/components/admin/RevenueSimulator';
 import { QuickStartWizard } from '@/components/onboarding/QuickStartWizard';
 import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist';
@@ -40,7 +40,7 @@ import { EngagementHeatmap } from '@/components/admin/EngagementHeatmap';
 import { ConversionFunnel } from '@/components/admin/ConversionFunnel';
 import { CustomerLifetimeValue } from '@/components/admin/CustomerLifetimeValue';
 import { RevenueAttribution } from '@/components/admin/RevenueAttribution';
-import { AffiliateLeaderboard } from '@/components/admin/AffiliateLeaderboard';
+
 import { SmartReEngagement } from '@/components/admin/SmartReEngagement';
 import { useBehavioralNotifications } from '@/hooks/useBehavioralNotifications';
 import { useI18n } from '@/i18n/I18nContext';
@@ -217,7 +217,7 @@ export default function AdminDashboard() {
             <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> PDF
           </Button>
           <ExpressSetupButton />
-          <YouTubeImportButton />
+          <VideoImportButton />
           <Button size="sm" variant="outline" onClick={() => setShowQuickStart(true)} className="gap-1.5 text-xs h-8 sm:h-9">
             <Rocket className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> {t('admin.quickstart')}
           </Button>
@@ -314,6 +314,51 @@ export default function AdminDashboard() {
         ))}
       </motion.div>
 
+      {/* Stats grid — content overview */}
+      <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {stats.map((s) => (
+          <motion.button
+            key={s.label}
+            variants={fadeUp}
+            onClick={() => navigate(s.to)}
+            className="group bg-card border border-border rounded-2xl p-4 shadow-card text-left hover:shadow-elevated transition-all hover:-translate-y-0.5 hover:border-primary/30"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center border', s.colorClass)}>
+                <s.icon className="h-5 w-5" />
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+            </div>
+            <p className="text-3xl font-bold tracking-tight">{s.value}</p>
+            <p className="text-sm text-muted-foreground mt-0.5">{s.label}</p>
+            <p className="text-xs text-primary font-medium mt-1">{s.published} {t('admin.published')}{s.published !== 1 ? 's' : ''}</p>
+          </motion.button>
+        ))}
+      </motion.div>
+
+      {/* Top products + Conversion rate */}
+      <div className="grid lg:grid-cols-2 gap-3">
+        {topProducts.length > 0 && (
+          <div className="bg-card border border-border rounded-2xl p-5">
+            <h2 className="font-semibold text-sm mb-3">{t('admin.top_products')}</h2>
+            <div className="space-y-2">
+              {topProducts.map((p: any, i: number) => (
+                <div key={p.id} className="flex items-center gap-3 text-xs">
+                  <span className="font-bold text-muted-foreground w-4">{i + 1}</span>
+                  <span className="flex-1 truncate font-medium">{p.title}</span>
+                  <span className="text-primary font-semibold">{p.sales_count || 0} {t('admin.sales')}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        <div className="bg-card border border-border rounded-2xl p-5">
+          <h2 className="font-semibold text-sm mb-2">{t('admin.conversion_rate')}</h2>
+          <p className="text-3xl font-bold text-primary">{conversionRate}%</p>
+          <p className="text-xs text-muted-foreground mt-1">{t('admin.members_to_buyers')}</p>
+        </div>
+      </div>
+
       {/* Revenue chart */}
       {chartData.length > 1 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-2xl p-5">
@@ -343,16 +388,16 @@ export default function AdminDashboard() {
         <RevenueForecast />
       </div>
 
-      {/* Simulator + Funnel */}
-      <div className="grid lg:grid-cols-2 gap-3">
-        <RevenueSimulator />
-        <ConversionFunnel />
-      </div>
-
       {/* Abandoned Carts + Bundles */}
       <div className="grid lg:grid-cols-2 gap-3">
         <AbandonedCartRecovery />
         <BundleManager />
+      </div>
+
+      {/* Simulator + Funnel */}
+      <div className="grid lg:grid-cols-2 gap-3">
+        <RevenueSimulator />
+        <ConversionFunnel />
       </div>
 
       {/* Content Suggestions + Benchmark */}
@@ -379,59 +424,11 @@ export default function AdminDashboard() {
         <RevenueAttribution />
       </div>
 
-      {/* Affiliate Leaderboard + Re-engagement */}
-      <div className="grid lg:grid-cols-2 gap-3">
-        <AffiliateLeaderboard />
-        <SmartReEngagement />
-      </div>
+      {/* Re-engagement */}
+      <SmartReEngagement />
 
       {/* CRM Intelligence */}
       <SmartCRMInsights />
-
-      {/* Stats grid */}
-      <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        {stats.map((s) => (
-          <motion.button
-            key={s.label}
-            variants={fadeUp}
-            onClick={() => navigate(s.to)}
-            className="group bg-card border border-border rounded-2xl p-4 shadow-card text-left hover:shadow-elevated transition-all hover:-translate-y-0.5 hover:border-primary/30"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center border', s.colorClass)}>
-                <s.icon className="h-5 w-5" />
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-            <p className="text-3xl font-bold tracking-tight">{s.value}</p>
-            <p className="text-sm text-muted-foreground mt-0.5">{s.label}</p>
-            <p className="text-xs text-primary font-medium mt-1">{s.published} {t('admin.published')}{s.published !== 1 ? 's' : ''}</p>
-          </motion.button>
-        ))}
-      </motion.div>
-
-      {/* Conversion rate + Top products */}
-      <div className="grid lg:grid-cols-2 gap-3">
-        <div className="bg-card border border-border rounded-2xl p-5">
-          <h2 className="font-semibold text-sm mb-2">{t('admin.conversion_rate')}</h2>
-          <p className="text-3xl font-bold text-primary">{conversionRate}%</p>
-          <p className="text-xs text-muted-foreground mt-1">{t('admin.members_to_buyers')}</p>
-        </div>
-        {topProducts.length > 0 && (
-          <div className="bg-card border border-border rounded-2xl p-5">
-            <h2 className="font-semibold text-sm mb-3">{t('admin.top_products')}</h2>
-            <div className="space-y-2">
-              {topProducts.map((p: any, i: number) => (
-                <div key={p.id} className="flex items-center gap-3 text-xs">
-                  <span className="font-bold text-muted-foreground w-4">{i + 1}</span>
-                  <span className="flex-1 truncate font-medium">{p.title}</span>
-                  <span className="text-primary font-semibold">{p.sales_count || 0} {t('admin.sales')}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
 
     </div>
   );

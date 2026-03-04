@@ -59,7 +59,6 @@ export function Sidebar() {
   // ── SECTION 2: GAGNER (ambassador) ──
   const earnItems: NavItem[] = [
     { to: '/affiliation', icon: Link2, label: 'Mes liens', desc: 'Liens de partage' },
-    { to: '/leaderboard', icon: Trophy, label: 'Classement', desc: 'Top ambassadeurs' },
   ];
 
   // ── SECTION 3: MA PLATEFORME (creator, only if has orgs) ──
