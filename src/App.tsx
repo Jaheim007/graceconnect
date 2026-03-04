@@ -266,6 +266,7 @@ const App = () => (
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/auth/callback" element={<AuthCallbackPage />} />
                 <Route path="/payment/success" element={<PaymentSuccessPage />} />
+                <Route path="/payment-success" element={<PaymentSuccessPage />} />
                 <Route path="/invite/:code" element={<InvitePage />} />
                 <Route path="/install" element={<InstallPage />} />
                 <Route path="/changelog" element={<ChangelogPage />} />

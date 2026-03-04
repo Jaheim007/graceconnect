@@ -87,7 +87,7 @@ export function usePaymentGateway() {
 
     // ── STRIPE (all card payments) ──
     const currentUrl = window.location.origin;
-    const successUrl = `${currentUrl}/payment-success`;
+    const successUrl = `${currentUrl}/payment/success`;
     const cancelUrl = window.location.href;
 
     const result = await callFn('stripe-create-checkout', {
