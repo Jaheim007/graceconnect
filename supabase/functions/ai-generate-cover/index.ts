@@ -10,7 +10,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { prompt, style = "professional", format = "book", context = "product" } = await req.json();
+    const { prompt, style = "professional", format = "book", context = "product", include_text = true } = await req.json();
 
     if (!prompt || typeof prompt !== "string") {
       return new Response(JSON.stringify({ error: "Le champ 'prompt' est requis." }), {
@@ -41,7 +41,11 @@ serve(async (req) => {
       square: "square format, 1:1 aspect ratio, 1080x1080 pixels",
     };
 
-    const imagePrompt = `Create a professional ${context} cover image. ${styleMap[style] || styleMap.professional}. ${formatMap[format] || formatMap.book}. Theme/subject: ${prompt}. The design should be suitable for an African digital marketplace. CRITICAL: Do NOT include ANY text, words, letters, numbers, or typography anywhere on the image. Use only visual elements, illustrations, patterns, colors, and abstract shapes to convey the theme. No watermarks, no titles, no labels. High quality, polished, ready for commercial use.`;
+    const textInstruction = include_text
+      ? "Include a clear, well-designed title text on the cover that matches the theme. The text must be perfectly spelled with ZERO typos or errors. Double-check every letter. Use professional, legible typography."
+      : "Do NOT include ANY text, words, letters, or typography on the image. Use only visual elements, illustrations, patterns, and colors.";
+
+    const imagePrompt = `Create a professional ${context} cover image. ${styleMap[style] || styleMap.professional}. ${formatMap[format] || formatMap.book}. Theme/subject: ${prompt}. The design should be suitable for an African digital marketplace. ${textInstruction} High quality, polished, ready for commercial use.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
