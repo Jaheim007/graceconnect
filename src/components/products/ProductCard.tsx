@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { DigitalProduct } from '@/types/database';
 import { stripHtml } from '@/lib/formatText';
 import { useShortLink } from '@/hooks/useShortLink';
@@ -9,6 +10,7 @@ import { FlashSaleBadge } from './FlashSaleBadge';
 import { ContentSizeBadge } from './ContentSizeBadge';
 import { ShareWidget } from './ShareWidget';
 import { WishlistButton } from './WishlistButton';
+import { QuickViewModal } from './QuickViewModal';
 import { LocalPriceHint } from '@/components/payments/LocalPriceHint';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
@@ -43,6 +45,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
   const { toast } = useToast();
   const { user } = useAuth();
   const { mode, hasAmbassadorAccess } = useMode();
+  const [quickView, setQuickView] = useState(false);
 
   // Auto-hide commission/share unless user is truly in ambassador universe
   const ambassadorView = hasAmbassadorAccess && mode === 'ambassador';
@@ -157,6 +160,14 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
         )}
         {/* Wishlist heart */}
         <WishlistButton productId={product.id} />
+        {/* Quick view button */}
+        <button
+          onClick={(e) => { e.stopPropagation(); setQuickView(true); }}
+          className="absolute bottom-2.5 right-2.5 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background shadow-sm"
+          title="Aperçu rapide"
+        >
+          <Eye className="h-3.5 w-3.5 text-foreground" />
+        </button>
         <div className="absolute top-2.5 left-2.5 right-12 flex items-start justify-between">
           <div className="flex flex-col gap-1">
             {isPurchased && (
@@ -281,6 +292,14 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
           </div>
         </div>
       </div>
+
+      <QuickViewModal
+        product={{ ...product, organizations: (product as any).organizations }}
+        orgSlug={resolvedSlug}
+        open={quickView}
+        onClose={() => setQuickView(false)}
+        isPurchased={isPurchased}
+      />
     </div>
   );
 }
