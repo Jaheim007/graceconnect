@@ -7,18 +7,28 @@ import { TextStyle } from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
 import Placeholder from '@tiptap/extension-placeholder';
+import { Table } from '@tiptap/extension-table';
+import { TableRow } from '@tiptap/extension-table-row';
+import { TableCell } from '@tiptap/extension-table-cell';
+import { TableHeader } from '@tiptap/extension-table-header';
+import { CodeBlockLowlight } from '@tiptap/extension-code-block-lowlight';
+import { common, createLowlight } from 'lowlight';
 import { Iframe } from '@/extensions/IframeExtension';
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   Link as LinkIcon, Image as ImageIcon, List, ListOrdered,
   AlignLeft, AlignCenter, AlignRight, Heading2, Heading3,
-  Quote, Palette, Undo, Redo, Sparkles, Video, Loader2
+  Quote, Palette, Undo, Redo, Sparkles, Video, Loader2, Code
 } from 'lucide-react';
 import { Button } from './button';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { uploadEditorImage, getVideoEmbedUrl } from '@/lib/editorUpload';
 import { useToast } from '@/hooks/use-toast';
+import { EmojiPicker } from './editor/EmojiPicker';
+import { TableMenu } from './editor/TableMenu';
+
+const lowlight = createLowlight(common);
 
 interface RichTextEditorProps {
   value: string;
@@ -54,6 +64,7 @@ export function RichTextEditor({
     extensions: [
       StarterKit.configure({
         heading: { levels: [2, 3] },
+        codeBlock: false, // replaced by CodeBlockLowlight
       }),
       Underline,
       Link.configure({
@@ -75,6 +86,11 @@ export function RichTextEditor({
       Color,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Placeholder.configure({ placeholder }),
+      Table.configure({ resizable: true }),
+      TableRow,
+      TableCell,
+      TableHeader,
+      CodeBlockLowlight.configure({ lowlight }),
     ],
     content: value,
     onUpdate: ({ editor }) => {
@@ -86,7 +102,6 @@ export function RichTextEditor({
         class: 'prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-[120px] px-3 py-2',
       },
       handlePaste: (view, event) => {
-        // Handle image paste from clipboard
         const items = event.clipboardData?.items;
         if (items) {
           for (let i = 0; i < items.length; i++) {
@@ -98,11 +113,8 @@ export function RichTextEditor({
             }
           }
         }
-        // Allow rich paste from clipboard (bold, links, etc.)
         const html = event.clipboardData?.getData('text/html');
-        if (html) {
-          return false;
-        }
+        if (html) return false;
         return false;
       },
       handleDrop: (view, event) => {
@@ -123,7 +135,6 @@ export function RichTextEditor({
 
   const handleImageUpload = useCallback(async (file: File) => {
     if (!editor) return;
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({ title: 'Image trop lourde', description: 'Maximum 5 Mo par image.', variant: 'destructive' });
       return;
@@ -143,7 +154,6 @@ export function RichTextEditor({
     }
   }, [editor, toast]);
 
-  // Sync external value changes (e.g. AI insert, template apply)
   useEffect(() => {
     if (editor && value !== editor.getHTML()) {
       isSyncing.current = true;
@@ -166,7 +176,6 @@ export function RichTextEditor({
 
   const addImage = useCallback(() => {
     if (!editor) return;
-    // Offer choice: URL or file upload
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
@@ -254,6 +263,9 @@ export function RichTextEditor({
         <ToolBtn onClick={() => editor.chain().focus().toggleBlockquote().run()} active={editor.isActive('blockquote')} title="Citation">
           <Quote className="h-3.5 w-3.5" />
         </ToolBtn>
+        <ToolBtn onClick={() => editor.chain().focus().toggleCodeBlock().run()} active={editor.isActive('codeBlock')} title="Bloc de code">
+          <Code className="h-3.5 w-3.5" />
+        </ToolBtn>
 
         <div className="w-px h-5 bg-border mx-1" />
 
@@ -281,6 +293,7 @@ export function RichTextEditor({
         <ToolBtn onClick={addVideo} title="Intégrer une vidéo">
           <Video className="h-3.5 w-3.5" />
         </ToolBtn>
+        <TableMenu editor={editor} />
 
         <div className="relative">
           <ToolBtn onClick={() => setShowColorPicker(!showColorPicker)} title="Couleur">
@@ -303,6 +316,8 @@ export function RichTextEditor({
             </div>
           )}
         </div>
+
+        <EmojiPicker onSelect={(emoji) => editor.chain().focus().insertContent(emoji).run()} />
 
         <div className="w-px h-5 bg-border mx-1" />
 

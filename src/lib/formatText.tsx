@@ -95,8 +95,8 @@ export function FormattedText({
   // If the text contains HTML tags, render as sanitized HTML
   if (containsHTML(text)) {
     const clean = DOMPurify.sanitize(text, {
-      ALLOWED_TAGS: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'a', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'blockquote', 'img', 'span', 'div', 'hr', 'sub', 'sup', 'mark', 's', 'del', 'iframe'],
-      ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'class', 'style', 'width', 'height', 'frameborder', 'allowfullscreen', 'allow'],
+      ALLOWED_TAGS: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'a', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'blockquote', 'img', 'span', 'div', 'hr', 'sub', 'sup', 'mark', 's', 'del', 'iframe', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'pre', 'code', 'colgroup', 'col'],
+      ALLOWED_ATTR: ['href', 'target', 'rel', 'src', 'alt', 'class', 'style', 'width', 'height', 'frameborder', 'allowfullscreen', 'allow', 'colspan', 'rowspan', 'data-language'],
       ADD_TAGS: ['iframe'],
       ADD_ATTR: ['allowfullscreen', 'frameborder', 'allow'],
     });
