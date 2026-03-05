@@ -49,8 +49,8 @@ export function getVideoEmbedUrl(url: string): string | null {
   const dmMatch = trimmed.match(/dailymotion\.com\/video\/(\w+)/);
   if (dmMatch) return `https://www.dailymotion.com/embed/video/${dmMatch[1]}`;
 
-  // Facebook video: facebook.com/.../videos/...
-  if (/facebook\.com.*\/videos\//.test(trimmed)) {
+  // Facebook: facebook.com/watch, /videos/, /reel/, /share/, fb.watch, etc.
+  if (/(?:facebook\.com|fb\.watch|fb\.com)/.test(trimmed)) {
     return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(trimmed)}&show_text=0&width=560`;
   }
 
