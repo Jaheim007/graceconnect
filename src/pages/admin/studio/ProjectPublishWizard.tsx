@@ -326,23 +326,29 @@ export default function ProjectPublishWizard() {
               </CardContent>
             </Card>
           ))}
-          <Button
-            onClick={() => {
-              if (target === 'product') {
-                goToProductForm();
-              } else {
-                setStep(1);
-              }
-            }}
-            disabled={preparingProduct}
-            className="mt-2"
-          >
-            {preparingProduct ? (
-              <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Préparation du produit...</>
-            ) : (
-              <>Continuer <Check className="h-4 w-4 ml-1" /></>
+          <div className="flex gap-2 mt-2">
+            {pdfReady && (
+              <Button variant="outline" onClick={() => setPreviewOpen(true)}>
+                <Eye className="h-4 w-4 mr-1" /> Aperçu du document
+              </Button>
             )}
-          </Button>
+            <Button
+              onClick={() => {
+                if (target === 'product') {
+                  goToProductForm();
+                } else {
+                  setStep(1);
+                }
+              }}
+              disabled={preparingProduct}
+            >
+              {preparingProduct ? (
+                <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Préparation du produit...</>
+              ) : (
+                <>Continuer <Check className="h-4 w-4 ml-1" /></>
+              )}
+            </Button>
+          </div>
         </div>
       )}
 
@@ -437,6 +443,11 @@ export default function ProjectPublishWizard() {
 
             <div className="flex gap-2 pt-4">
               <Button variant="outline" onClick={() => setStep(1)}>Retour</Button>
+              {pdfReady && (
+                <Button variant="outline" onClick={() => setPreviewOpen(true)}>
+                  <Eye className="h-4 w-4 mr-1" /> Aperçu
+                </Button>
+              )}
               <Button onClick={handlePublish} disabled={publishing}>
                 {publishing ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Upload className="h-4 w-4 mr-1" />}
                 Publier maintenant
