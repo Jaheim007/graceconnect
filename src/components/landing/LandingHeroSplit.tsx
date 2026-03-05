@@ -81,12 +81,12 @@ export function LandingHeroSplit() {
             </Button>
           </div>
 
-          {/* Discrete marketplace link */}
+          {/* Discrete discover link */}
           <button
-            onClick={() => navigate('/marketplace')}
+            onClick={() => navigate('/discover')}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
           >
-            Explorer la marketplace →
+            Explorer les ressources →
           </button>
 
           {/* Value props strip */}

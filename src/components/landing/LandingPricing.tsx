@@ -18,8 +18,12 @@ const benefits = [
   'Tableau de bord analytique',
   'Paiement Mobile Money & Carte',
   'Watermark automatique sur documents',
-  'Notifications par email',
-  'Support communautaire',
+  'AI Studio (livres, coloriage, audio)',
+  'LMS avec certificats automatiques',
+  'Avis vérifiés & preuve sociale',
+  'Wishlist & alertes promo',
+  'Prévisualisation PDF sécurisée',
+  'Traduction IA en 1 clic',
 ];
 
 const comparison = [

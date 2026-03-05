@@ -5,6 +5,9 @@ const testimonials = [
   { name: 'Ibrahim T.', role: 'Ambassadeur', text: 'Je n\'ai aucun contenu à moi. Je partage les ressources des autres et je gagne des commissions chaque semaine.', flag: '🇸🇳' },
   { name: 'Marie-Claire B.', role: 'Créatrice', text: 'J\'ai centralisé tous mes documents sur une seule plateforme. Mes clients achètent et téléchargent en un clic.', flag: '🇨🇲' },
   { name: 'David K.', role: 'Directeur ONG', text: 'Nos campagnes de collecte ont levé 3x plus qu\'avant. Les donateurs paient par Mobile Money en un clic.', flag: '🇬🇭' },
+  { name: 'Fatou N.', role: 'Coach & Formatrice', text: 'Grâce au LMS intégré, j\'ai créé une formation complète avec certificats. Mes élèves adorent suivre leur progression.', flag: '🇨🇮' },
+  { name: 'Jean-Paul M.', role: 'Auteur', text: 'L\'AI Studio m\'a permis de créer un livre de coloriage en une journée. La prévisualisation PDF rassure mes acheteurs.', flag: '🇨🇩' },
+  { name: 'Grace A.', role: 'Acheteuse', text: 'J\'adore la wishlist ! Je sauvegarde les ressources et je reçois une alerte dès qu\'il y a une promo.', flag: '🇳🇬' },
 ];
 
 const fadeUp = {
@@ -22,7 +25,7 @@ export function LandingSocialProof() {
           </h2>
         </motion.div>
 
-        <div className="grid sm:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {testimonials.map((t, i) => (
             <motion.div
               key={t.name}
