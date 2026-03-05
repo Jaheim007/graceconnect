@@ -40,7 +40,7 @@ const PageLoader = () => (
 const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const AuthPage = lazy(() => import("@/pages/AuthPage"));
 const AuthCallbackPage = lazy(() => import("@/pages/AuthCallbackPage"));
-// DiscoverPage removed — /discover redirects to /marketplace
+const DiscoverPage = lazy(() => import("@/pages/DiscoverPage"));
 const OrgPublicPage = lazy(() => import("@/pages/OrgPublicPage"));
 const ProductDetailPage = lazy(() => import("@/pages/ProductDetailPage"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -340,11 +340,11 @@ const App = () => (
                 <Route path="/maintenance" element={<MaintenancePage />} />
                 <Route path="/gagner" element={<GagnerLandingPage />} />
                 <Route path="/vendre" element={<VendreLandingPage />} />
-                <Route path="/discover" element={<Navigate to="/marketplace" replace />} />
-                <Route path="/explorer" element={<Navigate to="/marketplace" replace />} />
-                <Route path="/hub" element={<Navigate to="/marketplace" replace />} />
+                <Route path="/explorer" element={<Navigate to="/discover" replace />} />
+                <Route path="/hub" element={<Navigate to="/discover" replace />} />
                 {/* Public / Buyer Universe — uses PublicLayout (minimal chrome) */}
                 <Route element={<PublicLayout />}>
+                  <Route path="/discover" element={<DiscoverPage />} />
                   <Route path="/org/:slug" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/content" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/events" element={<OrgPublicPage />} />

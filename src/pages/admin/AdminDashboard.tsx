@@ -42,6 +42,8 @@ import { CustomerLifetimeValue } from '@/components/admin/CustomerLifetimeValue'
 import { RevenueAttribution } from '@/components/admin/RevenueAttribution';
 
 import { SmartReEngagement } from '@/components/admin/SmartReEngagement';
+import { TTFSProgressTracker } from '@/components/admin/TTFSProgressTracker';
+import { RevenueCelebration } from '@/components/admin/RevenueCelebration';
 import { useBehavioralNotifications } from '@/hooks/useBehavioralNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
@@ -252,6 +254,12 @@ export default function AdminDashboard() {
           </Button>
         </motion.div>
       )}
+
+      {/* TTFS Progress Tracker — guides to first sale */}
+      <TTFSProgressTracker />
+
+      {/* Revenue Celebration — shareable success card */}
+      <RevenueCelebration />
 
       {/* Onboarding checklist (persistent, data-driven) */}
       <OnboardingChecklist />
