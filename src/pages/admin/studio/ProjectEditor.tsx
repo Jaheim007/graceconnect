@@ -96,6 +96,74 @@ export default function ProjectEditor() {
     }
   };
 
+  const handleCoverUpload = useCallback(async () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file || !id || !currentOrg?.id) return;
+      setUploadingCover(true);
+      try {
+        const optimized = await compressImage(file);
+        const ext = optimized.name?.split('.').pop() || 'webp';
+        const path = `studio/${id}/cover-${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from('org-uploads').upload(path, optimized, { cacheControl: '31536000' });
+        if (upErr) throw upErr;
+        const { data: urlData } = supabase.storage.from('org-uploads').getPublicUrl(path);
+        if (coverAsset) {
+          await db.from('ai_project_assets').update({ is_cover: false }).eq('id', coverAsset.id);
+        }
+        await db.from('ai_project_assets').insert({
+          project_id: id, organization_id: currentOrg.id, file_url: urlData.publicUrl,
+          asset_type: 'image', label: 'Couverture', mime_type: file.type, file_size: file.size,
+          is_cover: true, display_order: 0,
+        });
+        toast({ title: 'Couverture ajoutée ✓' });
+        refetchCover();
+      } catch (err: any) {
+        toast({ title: 'Erreur', description: err.message, variant: 'destructive' });
+      } finally {
+        setUploadingCover(false);
+      }
+    };
+    input.click();
+  }, [id, currentOrg?.id, coverAsset, toast, refetchCover]);
+
+  const generateAiCover = async () => {
+    if (!id || !currentOrg?.id || !project) return;
+    setGeneratingCover(true);
+    try {
+      const response = await supabase.functions.invoke('ai-generate-cover', {
+        body: {
+          product_id: id,
+          title: project.title,
+          product_type: project.project_type || '',
+          description: project.description || '',
+        },
+      });
+      if (response.error) throw new Error(response.error.message);
+      const result = response.data;
+      if (!result?.ok) throw new Error(result?.error || 'Échec de la génération');
+
+      // Save as cover asset
+      if (coverAsset) {
+        await db.from('ai_project_assets').update({ is_cover: false }).eq('id', coverAsset.id);
+      }
+      await db.from('ai_project_assets').insert({
+        project_id: id, organization_id: currentOrg.id, file_url: result.cover_url,
+        asset_type: 'image', label: 'Couverture IA', mime_type: 'image/png',
+        is_cover: true, display_order: 0,
+      });
+      toast({ title: '🎨 Couverture générée !' });
+      refetchCover();
+    } catch (e: any) {
+      toast({ title: 'Erreur', description: e.message, variant: 'destructive' });
+    } finally {
+      setGeneratingCover(false);
+    }
+  };
+
   // Fetch project
   const { data: project, isLoading } = useQuery({
     queryKey: ['studio-project', id],
