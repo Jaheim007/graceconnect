@@ -39,6 +39,8 @@ import { Breadcrumb } from '@/components/layout/Breadcrumb';
 import { ViralSnippets } from '@/components/products/ViralSnippets';
 import { BecomeAmbassadorCTA } from '@/components/products/BecomeAmbassadorCTA';
 import { CreateSimilarCTA } from '@/components/products/CreateSimilarCTA';
+import { WishlistButton } from '@/components/products/WishlistButton';
+import { PostPurchaseCelebration } from '@/components/products/PostPurchaseCelebration';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -65,6 +67,7 @@ export default function ProductDetailPage() {
   const { t } = useI18n();
   const [purchaseProduct, setPurchaseProduct] = useState<DigitalProduct | null>(null);
   const [copied, setCopied] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   const typeLabels: Record<string, string> = {
     pdf: t('product.type_pdf'), ebook: t('product.type_ebook'), audio: t('product.type_audio'),
@@ -708,13 +711,16 @@ export default function ProductDetailPage() {
                 </Button>
               )}
 
-              <div className="pt-2 border-t border-border/40">
-                <ShareButtons
-                  url={buildShareUrl()}
-                  title={product.title}
-                  description={stripHtml(product.description || '').slice(0, 120) || ''}
-                  compact
-                />
+              <div className="pt-2 border-t border-border/40 flex items-center gap-2">
+                <div className="flex-1">
+                  <ShareButtons
+                    url={buildShareUrl()}
+                    title={product.title}
+                    description={stripHtml(product.description || '').slice(0, 120) || ''}
+                    compact
+                  />
+                </div>
+                <WishlistButton productId={product.id} variant="full" />
               </div>
             </div>
 
@@ -822,6 +828,23 @@ export default function ProductDetailPage() {
         organizationId={product.organization_id}
         open={!!purchaseProduct}
         onClose={() => setPurchaseProduct(null)}
+        onSuccess={() => {
+          setPurchaseProduct(null);
+          setShowCelebration(true);
+        }}
+      />
+
+      <PostPurchaseCelebration
+        open={showCelebration}
+        onClose={() => setShowCelebration(false)}
+        productTitle={product.title}
+        orgName={org?.name || ''}
+        orgSlug={slug || ''}
+        productSlug={(product as any)?.slug}
+        productId={product.id}
+        coverImageUrl={product.cover_image_url}
+        isFreePurchase={product.is_free || false}
+        onGoToResources={() => { setShowCelebration(false); navigate('/resources'); }}
       />
     </div>
   );
