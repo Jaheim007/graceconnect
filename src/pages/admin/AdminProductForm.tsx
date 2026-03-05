@@ -356,8 +356,6 @@ export function ProductForm() {
             productId={id || 'new'}
             fileUrl={watch('file_url')}
             productType="pdf"
-            pageCount={watch('page_count') as number | undefined}
-            previewPageCount={watch('preview_page_count') as number | undefined}
             coverImageUrl={watch('cover_image_url')}
             title={watch('title') || 'Aperçu du document'}
           />
