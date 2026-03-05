@@ -78,6 +78,7 @@ const MarketplacePage = lazy(() => import("@/pages/MarketplacePage"));
 const QuickStartPage = lazy(() => import("@/pages/QuickStartPage"));
 const QuickPublishPage = lazy(() => import("@/pages/QuickPublishPage"));
 const GagnerLandingPage = lazy(() => import("@/pages/GagnerLandingPage"));
+const CanvaCallbackPage = lazy(() => import("@/pages/canva/CanvaCallback"));
 const VendreLandingPage = lazy(() => import("@/pages/VendreLandingPage"));
 const TemoignagesPage = lazy(() => import("@/pages/TemoignagesPage"));
 const CalculateurPage = lazy(() => import("@/pages/CalculateurPage"));
@@ -284,6 +285,7 @@ const App = () => (
                 <Route path="/partner-terms" element={<PartnerTermsPage />} />
                 <Route path="/auth" element={<AuthPage />} />
                 <Route path="/auth/callback" element={<AuthCallbackPage />} />
+                <Route path="/canva/callback" element={<CanvaCallbackPage />} />
                 <Route path="/payment/success" element={<PaymentSuccessPage />} />
                 <Route path="/payment-success" element={<PaymentSuccessPage />} />
                 <Route path="/invite/:code" element={<InvitePage />} />
