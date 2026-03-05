@@ -21,6 +21,7 @@ export default function ProjectReviewQualityGate() {
   const [rejectReason, setRejectReason] = useState('');
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [checkingQuality, setCheckingQuality] = useState(false);
+  const [improvingSection, setImprovingSection] = useState<string | null>(null);
 
   const { data: project, isLoading } = useQuery({
     queryKey: ['studio-project', id],
