@@ -173,7 +173,6 @@ export default function ProjectReviewQualityGate() {
   const aiChapterIssues: Array<{ chapter: string; issues: string[]; score?: number }> =
     aiOutput?.chapter_issues || aiOutput?.section_issues || [];
 
-  const [improvingSection, setImprovingSection] = useState<string | null>(null);
 
   const improveSection = async (sectionName: string) => {
     if (!id) return;
