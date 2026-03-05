@@ -106,6 +106,11 @@ export function BottomNav() {
                 <MoreHorizontal className={cn('h-5 w-5', isMoreActive && 'stroke-[2.5]')} />
                 <span className="text-[10px] font-medium leading-none">Plus</span>
                 {isMoreActive && <div className="absolute -bottom-0.5 w-6 h-0.5 rounded-full bg-primary" />}
+                {unread > 0 && (
+                  <Badge variant="destructive" className="absolute -top-0.5 right-1/4 h-4 min-w-4 px-1 text-[9px] flex items-center justify-center">
+                    {unread > 9 ? '9+' : unread}
+                  </Badge>
+                )}
               </button>
             </SheetTrigger>
             <SheetContent side="bottom" className="rounded-t-2xl pb-8">

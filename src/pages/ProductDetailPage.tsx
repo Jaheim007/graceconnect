@@ -52,6 +52,7 @@ import { SmartCTA } from '@/components/products/SmartCTA';
 import { ReviewSummaryBadge } from '@/components/products/ReviewSummaryBadge';
 import { ProductImageGallery } from '@/components/products/ProductImageGallery';
 import { StickyBuyBar } from '@/components/products/StickyBuyBar';
+import { ReadingProgressBar } from '@/components/ui/ReadingProgressBar';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -292,6 +293,7 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen bg-background" style={orgThemeStyle}>
+      <ReadingProgressBar />
       <SEOHead
         title={`${product.title} — ${org?.name || 'Siteviral'}`}
         description={stripHtml(product.description || '').slice(0, 155) || `Achetez ${product.title} sur Siteviral — ${product.is_free ? 'Gratuit' : `${product.price} ${product.currency || 'XOF'}`}. Paiement Mobile Money & Carte.`}
