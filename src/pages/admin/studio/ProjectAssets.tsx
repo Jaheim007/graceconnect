@@ -24,7 +24,6 @@ export default function ProjectAssets() {
   const [uploading, setUploading] = useState(false);
   const [showLinkForm, setShowLinkForm] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
-  const [linkLabel, setLinkLabel] = useState('');
   const [addingLink, setAddingLink] = useState(false);
 
   const { data: assets, isLoading } = useQuery({
@@ -80,15 +79,32 @@ export default function ProjectAssets() {
     }
   }, [id, currentOrg?.id, assets?.length, toast, queryClient]);
 
+  const detectLinkType = (url: string): { assetType: string; label: string; mimeType: string } => {
+    const u = url.toLowerCase();
+    if (/youtube\.com\/watch|youtu\.be\/|youtube\.com\/shorts/.test(u))
+      return { assetType: 'video', label: 'Vidéo YouTube', mimeType: 'video/youtube' };
+    if (/tiktok\.com/.test(u))
+      return { assetType: 'video', label: 'Vidéo TikTok', mimeType: 'video/tiktok' };
+    if (/facebook\.com.*\/video|fb\.watch/.test(u))
+      return { assetType: 'video', label: 'Vidéo Facebook', mimeType: 'video/facebook' };
+    if (/vimeo\.com/.test(u))
+      return { assetType: 'video', label: 'Vidéo Vimeo', mimeType: 'video/vimeo' };
+    if (/dailymotion\.com|dai\.ly/.test(u))
+      return { assetType: 'video', label: 'Vidéo Dailymotion', mimeType: 'video/dailymotion' };
+    if (/\.(mp4|webm|mov|avi|mkv)(\?|$)/i.test(u))
+      return { assetType: 'video', label: 'Fichier vidéo', mimeType: 'video/mp4' };
+    if (/\.(mp3|wav|m4a|ogg|aac|flac)(\?|$)/i.test(u))
+      return { assetType: 'audio', label: 'Fichier audio', mimeType: 'audio/mpeg' };
+    if (/\.pdf(\?|$)/i.test(u))
+      return { assetType: 'pdf', label: 'Document PDF', mimeType: 'application/pdf' };
+    return { assetType: 'link', label: 'Lien de référence', mimeType: 'text/uri-list' };
+  };
+
   const addLinkAsset = async () => {
     if (!id || !currentOrg?.id || !linkUrl.trim()) return;
     setAddingLink(true);
     try {
-      const isYoutube = /youtube\.com|youtu\.be/.test(linkUrl);
-      const isAudio = /\.(mp3|wav|m4a|ogg|aac)(\?|$)/i.test(linkUrl);
-
-      const assetType = isYoutube ? 'video' : isAudio ? 'audio' : 'link';
-      const label = linkLabel.trim() || (isYoutube ? 'Vidéo YouTube' : 'Lien de référence');
+      const { assetType, label, mimeType } = detectLinkType(linkUrl);
 
       const { error } = await db.from('ai_project_assets').insert({
         project_id: id,
@@ -96,7 +112,7 @@ export default function ProjectAssets() {
         file_url: linkUrl.trim(),
         asset_type: assetType as any,
         label,
-        mime_type: isYoutube ? 'video/youtube' : 'text/uri-list',
+        mime_type: mimeType,
         display_order: (assets?.length || 0),
         metadata: { source: 'link', original_url: linkUrl.trim() },
       });
@@ -104,7 +120,6 @@ export default function ProjectAssets() {
 
       toast({ title: 'Lien ajouté ✓' });
       setLinkUrl('');
-      setLinkLabel('');
       setShowLinkForm(false);
       queryClient.invalidateQueries({ queryKey: ['studio-project-assets', id] });
     } catch (e: any) {
