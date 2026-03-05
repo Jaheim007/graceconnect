@@ -175,6 +175,16 @@ export function ProductForm() {
         resultData = res.data;
       }
       if (error) throw error;
+
+      // Link back to AI Studio project if created from studio
+      if (!isEdit && resultData && studioState?.studioProjectId) {
+        await db.from('ai_content_projects').update({
+          linked_product_id: resultData.id,
+          status: 'published',
+          published_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }).eq('id', studioState.studioProjectId);
+      }
       if (!isEdit && resultData && payload.is_published) {
         onContentPublished(currentOrg.id, currentOrg.name, 'product', payload.title, resultData.id, { price: String(payload.price || 0), currency: payload.currency }, user.id);
       }
