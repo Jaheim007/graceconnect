@@ -22,6 +22,7 @@ import {
   Share2, ShoppingBag, Heart, Camera, MapPin, ArrowLeft, MoreHorizontal,
   Play, Pencil, Loader2, Link2, Crown, UserPlus
 } from 'lucide-react';
+import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Link } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
@@ -279,25 +280,29 @@ export function OrgPublicHeader({
             <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-wrap gap-2">
               {products.length > 0 && (
                 <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-card shadow-card">
-                  <ShoppingBag className="h-4 w-4 text-primary" /><span className="text-sm font-bold">{products.length}</span>
+                  <ShoppingBag className="h-4 w-4 text-primary" />
+                  <AnimatedCounter value={products.length} className="text-sm font-bold" />
                   <span className="text-xs text-muted-foreground">{locale === 'fr' ? 'Produits' : 'Products'}</span>
                 </div>
               )}
               {media.length > 0 && (
                 <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-card shadow-card">
-                  <Play className="h-4 w-4 text-primary" /><span className="text-sm font-bold">{media.length}</span>
+                  <Play className="h-4 w-4 text-primary" />
+                  <AnimatedCounter value={media.length} className="text-sm font-bold" />
                   <span className="text-xs text-muted-foreground">{locale === 'fr' ? 'Contenus' : 'Content'}</span>
                 </div>
               )}
               {events.length > 0 && (
                 <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-card shadow-card">
-                  <CalendarDays className="h-4 w-4 text-primary" /><span className="text-sm font-bold">{events.length}</span>
+                  <CalendarDays className="h-4 w-4 text-primary" />
+                  <AnimatedCounter value={events.length} className="text-sm font-bold" />
                   <span className="text-xs text-muted-foreground">{locale === 'fr' ? 'Événements' : 'Events'}</span>
                 </div>
               )}
               {photos.length > 0 && (
                 <div className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-card shadow-card">
-                  <Camera className="h-4 w-4 text-primary" /><span className="text-sm font-bold">{photos.length}</span>
+                  <Camera className="h-4 w-4 text-primary" />
+                  <AnimatedCounter value={photos.length} className="text-sm font-bold" />
                   <span className="text-xs text-muted-foreground">Photos</span>
                 </div>
               )}
