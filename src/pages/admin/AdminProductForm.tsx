@@ -359,14 +359,37 @@ export function ProductForm() {
 
         <FileUploader value={watch('file_url') || ''} onChange={(url) => setValue('file_url', url)} folder="products" label="Fichier du produit" hint="PDF, Word, Audio, Vidéo (max 50 Mo)" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.epub,.zip,.mp3,.mp4,.wav,.aac,.m4a,.ogg,.webm,.mov,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.ms-powerpoint,application/vnd.ms-excel,application/epub+zip,application/zip,audio/*,video/*" bucket="private-products" />
 
-        {watch('file_url') && /\.pdf($|\?)/i.test(watch('file_url') || '') && (
-          <ProductPreviewViewer
-            productId={id || 'new'}
-            fileUrl={watch('file_url')}
-            productType="pdf"
-            coverImageUrl={watch('cover_image_url')}
-            title={watch('title') || 'Aperçu du document'}
-          />
+        {isPdfFile && (
+          <div className="space-y-2">
+            <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => setPdfPreviewOpen(true)}>
+              <Eye className="h-4 w-4" /> Aperçu du document
+            </Button>
+            <Dialog open={pdfPreviewOpen} onOpenChange={setPdfPreviewOpen}>
+              <DialogContent className="max-w-4xl h-[85vh] flex flex-col">
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    <Eye className="h-5 w-5 text-primary" />
+                    Aperçu du document
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="flex-1 min-h-0 rounded-lg overflow-hidden border bg-background">
+                  {pdfPreviewLoading ? (
+                    <div className="flex items-center justify-center h-full text-muted-foreground">Chargement de l’aperçu...</div>
+                  ) : pdfPreviewError ? (
+                    <div className="flex items-center justify-center h-full text-destructive text-sm gap-2">
+                      <AlertTriangle className="h-4 w-4" /> {pdfPreviewError}
+                    </div>
+                  ) : pdfPreviewUrl ? (
+                    <iframe src={pdfPreviewUrl} className="w-full h-full" title="Aperçu du document" />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-muted-foreground">
+                      Aucun aperçu disponible
+                    </div>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
         )}
 
         <div className="space-y-1.5">
