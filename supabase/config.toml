@@ -143,3 +143,6 @@ verify_jwt = false
 
 [functions.ai-generate-snippets]
 verify_jwt = false
+
+[functions.ai-generate-cover]
+verify_jwt = false

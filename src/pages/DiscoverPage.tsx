@@ -38,6 +38,7 @@ import { ProductQuickView } from '@/components/products/ProductQuickView';
 import { RecentlyViewedProducts } from '@/components/discover/RecentlyViewedProducts';
 import { EngagementLevel } from '@/components/discover/EngagementLevel';
 import { StickyFilterBar } from '@/components/discover/StickyFilterBar';
+import { NotificationDigest } from '@/components/notifications/NotificationDigest';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
@@ -266,6 +267,7 @@ export default function DiscoverPage() {
         <PageTour pageId="discover" steps={DISCOVER_TOUR_STEPS} />
 
         <LiveActivityTicker />
+        {!isSearching && user && <NotificationDigest />}
         {!isSearching && <PlatformStats />}
         {!isSearching && <FlashSaleCountdown />}
         {!isSearching && !user && <DiscoverCTABanner />}
