@@ -120,7 +120,7 @@ export default function ProjectPublishWizard() {
         studioProjectId: id,
         prefill: {
           title: project.title,
-          description: desc,
+          description: '',
           product_type: project.project_type === 'course_pack' ? 'course' : 'ebook',
           cover_image_url: coverAsset?.file_url || '',
           file_url: fileUrl || '',
