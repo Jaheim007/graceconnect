@@ -412,19 +412,31 @@ export default function ProjectPublishWizard() {
               </CardContent>
             </Card>
           ))}
-          <Button onClick={() => setStep(1)} className="mt-2">
-            Continuer <Check className="h-4 w-4 ml-1" />
+          <Button
+            onClick={() => {
+              if (target === 'product') {
+                goToProductForm();
+              } else {
+                setStep(1);
+              }
+            }}
+            disabled={preparingProduct}
+            className="mt-2"
+          >
+            {preparingProduct ? (
+              <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Préparation du produit...</>
+            ) : (
+              <>Continuer <Check className="h-4 w-4 ml-1" /></>
+            )}
           </Button>
         </div>
       )}
 
-      {/* Step 1: Details */}
+      {/* Step 1: Details (course only) */}
       {step === 1 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">
-              {target === 'product' ? 'Détails du produit' : 'Détails du cours'}
-            </CardTitle>
+            <CardTitle className="text-base">Détails du cours</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -433,7 +445,7 @@ export default function ProjectPublishWizard() {
             </div>
             <div>
               <div className="flex items-center justify-between mb-1">
-                <Label>Description de vente</Label>
+                <Label>Description</Label>
                 {generatingDesc && (
                   <span className="text-xs text-primary flex items-center gap-1">
                     <Sparkles className="h-3 w-3 animate-pulse" /> Génération en cours...
@@ -448,49 +460,16 @@ export default function ProjectPublishWizard() {
                 <RichTextEditor
                   value={description}
                   onChange={setDescription}
-                  placeholder="Description percutante pour vos acheteurs..."
+                  placeholder="Description du cours..."
                   showAIButton={false}
                 />
               )}
               {!generatingDesc && !description && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="mt-1 text-xs h-7"
-                  onClick={generateDescription}
-                >
+                <Button variant="ghost" size="sm" className="mt-1 text-xs h-7" onClick={generateDescription}>
                   <Sparkles className="h-3 w-3 mr-1" /> Générer avec l'IA
                 </Button>
               )}
             </div>
-
-            {target === 'product' && (
-              <>
-                <div className="flex items-center gap-3">
-                  <label className="flex items-center gap-2 text-sm cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isFree}
-                      onChange={(e) => setIsFree(e.target.checked)}
-                      className="rounded"
-                    />
-                    Gratuit
-                  </label>
-                </div>
-                {!isFree && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Prix (XOF)</Label>
-                      <Input type="number" min={0} value={price} onChange={(e) => setPrice(Number(e.target.value))} />
-                    </div>
-                    <div>
-                      <Label>Prix promo (optionnel)</Label>
-                      <Input type="number" min={0} value={salePrice} onChange={(e) => setSalePrice(e.target.value ? Number(e.target.value) : '')} />
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
 
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <ImageIcon className="h-4 w-4" />
@@ -504,39 +483,10 @@ export default function ProjectPublishWizard() {
               )}
             </div>
 
-            {target === 'product' && (
-              <div className="flex items-center gap-3 text-sm">
-                <FileText className="h-4 w-4 text-muted-foreground" />
-                {pdfReady ? (
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">Fichier PDF prêt ✓</span>
-                    <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => setPreviewOpen(true)}>
-                      <Eye className="h-3 w-3 mr-1" /> Aperçu
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={generatePdf} disabled={generatingPdf}>
-                      <RefreshCw className={`h-3 w-3 mr-1 ${generatingPdf ? 'animate-spin' : ''}`} /> Régénérer
-                    </Button>
-                  </div>
-                ) : generatingPdf ? (
-                  <span className="text-primary flex items-center gap-1">
-                    <Loader2 className="h-3 w-3 animate-spin" /> Génération du PDF en cours...
-                  </span>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <AlertTriangle className="h-3 w-3 text-yellow-500" />
-                    <span className="text-yellow-600 dark:text-yellow-400">PDF non généré</span>
-                    <Button variant="outline" size="sm" className="h-6 text-xs px-2" onClick={generatePdf}>
-                      <RefreshCw className="h-3 w-3 mr-1" /> Générer le PDF
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
-
             <div className="flex gap-2 pt-2">
               <Button variant="outline" onClick={() => setStep(0)}>Retour</Button>
-              <Button onClick={() => setStep(2)} disabled={generatingDesc || (target === 'product' && generatingPdf)}>
-                {generatingDesc || generatingPdf ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+              <Button onClick={() => setStep(2)} disabled={generatingDesc}>
+                {generatingDesc ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
                 Confirmer
               </Button>
             </div>
@@ -544,43 +494,25 @@ export default function ProjectPublishWizard() {
         </Card>
       )}
 
-      {/* Step 2: Confirm & publish */}
+      {/* Step 2: Confirm & publish (course only) */}
       {step === 2 && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Confirmation</CardTitle>
             <CardDescription>
-              {target === 'product'
-                ? `Le produit "${project.title}" sera créé et publié${isFree ? ' (gratuit)' : ` à ${price} XOF`}.`
-                : `Le cours "${project.title}" sera créé avec ${chapters.length} leçon(s).`}
+              Le cours "{project.title}" sera créé avec {chapters.length} leçon(s).
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-y-2 text-sm">
               <span className="text-muted-foreground">Destination</span>
-              <span className="font-medium">{target === 'product' ? 'Produit numérique' : 'Cours / Programme'}</span>
+              <span className="font-medium">Cours / Programme</span>
               <span className="text-muted-foreground">Titre</span>
               <span>{project.title}</span>
-              {target === 'product' && !isFree && (
-                <>
-                  <span className="text-muted-foreground">Prix</span>
-                  <span>{price} XOF{salePrice ? ` (promo: ${salePrice} XOF)` : ''}</span>
-                </>
-              )}
-              {target === 'course' && (
-                <>
-                  <span className="text-muted-foreground">Leçons</span>
-                  <span>{chapters.length}</span>
-                </>
-              )}
+              <span className="text-muted-foreground">Leçons</span>
+              <span>{chapters.length}</span>
               <span className="text-muted-foreground">Couverture</span>
               <span>{coverAsset ? '✓' : '✗'}</span>
-              {target === 'product' && (
-                <>
-                  <span className="text-muted-foreground">Fichier</span>
-                  <span>{pdfReady ? '✓ PDF prêt' : '⚠ Non disponible'}</span>
-                </>
-              )}
               {description && (
                 <>
                   <span className="text-muted-foreground">Description</span>
@@ -588,23 +520,6 @@ export default function ProjectPublishWizard() {
                 </>
               )}
             </div>
-
-            {/* Preview button */}
-            {target === 'product' && pdfReady && (
-              <Button variant="outline" size="sm" onClick={() => setPreviewOpen(true)} className="w-full">
-                <Eye className="h-4 w-4 mr-2" /> Aperçu du livre avant publication
-              </Button>
-            )}
-
-            {target === 'product' && !pdfReady && (
-              <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 text-sm text-yellow-700 dark:text-yellow-300 flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 shrink-0" />
-                <div>
-                  <p className="font-medium">PDF non disponible</p>
-                  <p className="text-xs mt-0.5">Le PDF sera généré automatiquement lors de la publication. Si la génération échoue, vous pourrez réessayer.</p>
-                </div>
-              </div>
-            )}
 
             <div className="flex gap-2 pt-4">
               <Button variant="outline" onClick={() => setStep(1)}>Retour</Button>
