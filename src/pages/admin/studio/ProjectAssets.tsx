@@ -1,5 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useOrg } from '@/contexts/OrgContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,9 +14,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useState, useCallback } from 'react';
 import {
   ArrowLeft, Image, Download, Star, Upload, Loader2, Trash2, Eye, StarOff,
-  Link2, Plus, Info, Play, ExternalLink
+  Link2, Plus, Info, Play, ExternalLink, ImagePlus, Sparkles
 } from 'lucide-react';
-import { getVideoEmbedUrl } from '@/lib/editorUpload';
 
 /** Extract YouTube video ID from URL */
 function getYouTubeId(url: string): string | null {
@@ -33,12 +33,25 @@ function getVideoThumbnail(url: string): string | null {
 export default function ProjectAssets() {
   const { id } = useParams<{ id: string }>();
   const { currentOrg } = useOrg();
+  const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [uploading, setUploading] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [generatingCover, setGeneratingCover] = useState(false);
   const [showLinkForm, setShowLinkForm] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
   const [addingLink, setAddingLink] = useState(false);
+
+  const { data: project } = useQuery({
+    queryKey: ['studio-project', id],
+    queryFn: async () => {
+      if (!id) return null;
+      const { data } = await db.from('ai_content_projects').select('title, project_type').eq('id', id).single();
+      return data;
+    },
+    enabled: !!id,
+  });
 
   const { data: assets, isLoading } = useQuery({
     queryKey: ['studio-project-assets', id],
@@ -52,6 +65,117 @@ export default function ProjectAssets() {
     },
     enabled: !!id,
   });
+
+  const coverAsset = assets?.find((a: any) => a.is_cover);
+
+  const uploadCoverImage = useCallback(async (file: File) => {
+    if (!id || !currentOrg?.id) return;
+    setUploadingCover(true);
+    try {
+      const optimized = await compressImage(file);
+      const ext = optimized.name?.split('.').pop() || 'webp';
+      const path = `studio/${id}/cover-${Date.now()}.${ext}`;
+
+      const { error: upErr } = await supabase.storage
+        .from('org-uploads')
+        .upload(path, optimized, { cacheControl: '31536000' });
+      if (upErr) throw upErr;
+
+      const { data: urlData } = supabase.storage.from('org-uploads').getPublicUrl(path);
+
+      // Remove existing cover flag
+      if (coverAsset) {
+        await db.from('ai_project_assets').update({ is_cover: false }).eq('id', coverAsset.id);
+      }
+
+      await db.from('ai_project_assets').insert({
+        project_id: id,
+        organization_id: currentOrg.id,
+        file_url: urlData.publicUrl,
+        asset_type: 'image',
+        label: 'Couverture',
+        mime_type: file.type,
+        file_size: file.size,
+        is_cover: true,
+        display_order: 0,
+      });
+
+      toast({ title: 'Couverture ajoutée ✓' });
+      queryClient.invalidateQueries({ queryKey: ['studio-project-assets', id] });
+      queryClient.invalidateQueries({ queryKey: ['studio-project-cover', id] });
+    } catch (e: any) {
+      toast({ title: 'Erreur', description: e.message, variant: 'destructive' });
+    } finally {
+      setUploadingCover(false);
+    }
+  }, [id, currentOrg?.id, coverAsset, toast, queryClient]);
+
+  const handleCoverSelect = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) uploadCoverImage(file);
+    };
+    input.click();
+  };
+
+  const generateAiCover = async () => {
+    if (!id || !currentOrg?.id || !user?.id || !project) return;
+    setGeneratingCover(true);
+    try {
+      const { data: job, error: jobErr } = await db.from('ai_generation_jobs').insert({
+        organization_id: currentOrg.id,
+        created_by: user.id,
+        project_id: id,
+        job_type: 'image',
+        input_params: {
+          prompt: `Book cover for "${project.title}". Professional, modern design with bold typography. ${project.project_type === 'kids_book' ? 'Colorful, playful, for children.' : 'Elegant, minimalist.'}`,
+          purpose: 'cover',
+        },
+        status: 'queued',
+        provider: 'gemini',
+      }).select('id').single();
+
+      if (jobErr) throw jobErr;
+
+      // Call edge function for image generation
+      const { data, error } = await supabase.functions.invoke('ai-run-job', {
+        body: { job_id: job!.id },
+      });
+
+      if (error) throw error;
+
+      // Poll for completion
+      let attempts = 0;
+      const poll = setInterval(async () => {
+        attempts++;
+        const { data: updatedJob } = await db.from('ai_generation_jobs')
+          .select('status, output_data')
+          .eq('id', job!.id)
+          .single();
+
+        if (updatedJob?.status === 'completed') {
+          clearInterval(poll);
+          setGeneratingCover(false);
+          toast({ title: 'Couverture générée ✓', description: 'La couverture IA a été créée.' });
+          queryClient.invalidateQueries({ queryKey: ['studio-project-assets', id] });
+          queryClient.invalidateQueries({ queryKey: ['studio-project-cover', id] });
+        } else if (updatedJob?.status === 'failed' || attempts > 30) {
+          clearInterval(poll);
+          setGeneratingCover(false);
+          toast({
+            title: 'Info',
+            description: 'La génération d\'image IA n\'est pas encore configurée. Importez votre couverture manuellement.',
+          });
+        }
+      }, 2000);
+    } catch (e: any) {
+      setGeneratingCover(false);
+      toast({ title: 'Info', description: 'Importez votre couverture manuellement pour le moment.', });
+    }
+  };
 
   const uploadAsset = useCallback(async (file: File) => {
     if (!id || !currentOrg?.id) return;
@@ -151,7 +275,10 @@ export default function ProjectAssets() {
       }
       await db.from('ai_project_assets').update({ is_cover: isCover }).eq('id', assetId);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['studio-project-assets', id] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['studio-project-assets', id] });
+      queryClient.invalidateQueries({ queryKey: ['studio-project-cover', id] });
+    },
   });
 
   const togglePreview = useMutation({
@@ -168,6 +295,7 @@ export default function ProjectAssets() {
     onSuccess: () => {
       toast({ title: 'Asset supprimé' });
       queryClient.invalidateQueries({ queryKey: ['studio-project-assets', id] });
+      queryClient.invalidateQueries({ queryKey: ['studio-project-cover', id] });
     },
   });
 
@@ -204,6 +332,57 @@ export default function ProjectAssets() {
           </Button>
         </div>
       </div>
+
+      {/* Cover image section */}
+      <Card className="border-primary/20">
+        <CardContent className="py-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <ImagePlus className="h-5 w-5 text-primary" />
+              <h3 className="font-semibold text-sm">Image de couverture</h3>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={handleCoverSelect} disabled={uploadingCover}>
+                {uploadingCover ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Upload className="h-3 w-3 mr-1" />}
+                Importer
+              </Button>
+              <Button variant="outline" size="sm" onClick={generateAiCover} disabled={generatingCover}>
+                {generatingCover ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Sparkles className="h-3 w-3 mr-1" />}
+                Générer avec l'IA
+              </Button>
+            </div>
+          </div>
+          {coverAsset ? (
+            <div className="flex items-center gap-4">
+              <img
+                src={coverAsset.file_url}
+                alt="Couverture"
+                className="h-32 w-24 rounded-lg object-cover border shadow-sm"
+              />
+              <div className="space-y-1">
+                <Badge className="text-[10px]"><Star className="h-3 w-3 mr-1" /> Couverture active</Badge>
+                <p className="text-xs text-muted-foreground">Cette image sera utilisée comme couverture du produit.</p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs h-7 text-destructive"
+                  onClick={() => toggleCover.mutate({ assetId: coverAsset.id, isCover: false })}
+                >
+                  <StarOff className="h-3 w-3 mr-1" /> Retirer comme couverture
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="border-2 border-dashed border-muted-foreground/20 rounded-lg p-6 text-center">
+              <ImagePlus className="h-8 w-8 mx-auto text-muted-foreground/30 mb-2" />
+              <p className="text-sm text-muted-foreground">Aucune couverture définie</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Importez une image ou générez-en une avec l'IA
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Explanation card */}
       <Card className="border-primary/20 bg-primary/5">
@@ -262,11 +441,11 @@ export default function ProjectAssets() {
             <Card key={i}><CardContent className="py-8"><div className="h-24 bg-muted animate-pulse rounded" /></CardContent></Card>
           ))}
         </div>
-      ) : !assets?.length ? (
+      ) : !assets?.filter((a: any) => !a.is_cover).length ? (
         <Card>
           <CardContent className="py-16 text-center">
             <Image className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
-            <p className="text-muted-foreground font-medium">Aucun asset</p>
+            <p className="text-muted-foreground font-medium">Aucun asset de référence</p>
             <p className="text-sm text-muted-foreground mt-1">
               Uploadez des fichiers ou ajoutez des liens de référence pour inspirer l'IA
             </p>
@@ -282,7 +461,7 @@ export default function ProjectAssets() {
         </Card>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {assets.map((asset: any) => (
+          {assets.filter((a: any) => !a.is_cover).map((asset: any) => (
             <Card key={asset.id} className="overflow-hidden group">
               <div className="aspect-video bg-muted flex items-center justify-center relative">
                 {['image', 'cover', 'preview'].includes(asset.asset_type) ? (
@@ -315,9 +494,6 @@ export default function ProjectAssets() {
                     </span>
                   </div>
                 )}
-                {asset.is_cover && (
-                  <Badge className="absolute top-2 left-2 text-[10px]"><Star className="h-3 w-3 mr-1" />Cover</Badge>
-                )}
                 {asset.is_preview && (
                   <Badge variant="secondary" className="absolute top-2 right-2 text-[10px]"><Eye className="h-3 w-3 mr-1" />Preview</Badge>
                 )}
@@ -328,9 +504,9 @@ export default function ProjectAssets() {
                       variant="secondary"
                       className="h-8 w-8"
                       onClick={() => toggleCover.mutate({ assetId: asset.id, isCover: !asset.is_cover })}
-                      title={asset.is_cover ? 'Retirer cover' : 'Définir comme cover'}
+                      title="Définir comme cover"
                     >
-                      {asset.is_cover ? <StarOff className="h-4 w-4" /> : <Star className="h-4 w-4" />}
+                      <Star className="h-4 w-4" />
                     </Button>
                   )}
                   <Button

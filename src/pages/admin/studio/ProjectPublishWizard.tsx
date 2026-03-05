@@ -11,10 +11,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   ArrowLeft, Upload, ShoppingBag, GraduationCap, Radio,
-  Loader2, Check, Image as ImageIcon, FileText
+  Loader2, Check, Image as ImageIcon, FileText, Sparkles
 } from 'lucide-react';
 
 type PublishTarget = 'product' | 'course' | 'media';
@@ -31,6 +31,7 @@ export default function ProjectPublishWizard() {
   const [step, setStep] = useState(0);
   const [publishing, setPublishing] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [generatingDesc, setGeneratingDesc] = useState(false);
 
   // Product fields
   const [slug, setSlug] = useState('');
@@ -38,6 +39,9 @@ export default function ProjectPublishWizard() {
   const [salePrice, setSalePrice] = useState<number | ''>('');
   const [description, setDescription] = useState('');
   const [isFree, setIsFree] = useState(false);
+
+  const descGenerated = useRef(false);
+  const pdfGenerated = useRef(false);
 
   const { data: project } = useQuery({
     queryKey: ['studio-project', id],
@@ -78,8 +82,78 @@ export default function ProjectPublishWizard() {
     enabled: !!id,
   });
 
-  // Auto-generate PDF from chapters
-  const generatePdf = async () => {
+  // Auto-generate description + PDF when entering step 1
+  useEffect(() => {
+    if (step !== 1 || !project || !currentOrg?.id || !user?.id) return;
+
+    // Auto-generate description
+    if (!description && !descGenerated.current) {
+      descGenerated.current = true;
+      generateDescription();
+    }
+
+    // Auto-generate PDF if none exists
+    if (!pdfAsset && !pdfGenerated.current && target === 'product') {
+      pdfGenerated.current = true;
+      generatePdfAuto();
+    }
+  }, [step, project?.id, pdfAsset]);
+
+  const generateDescription = async () => {
+    if (!id || !currentOrg?.id || !user?.id || !project) return;
+    setGeneratingDesc(true);
+    try {
+      // Create a job for description generation
+      const { data: job, error: jobErr } = await db.from('ai_generation_jobs').insert({
+        organization_id: currentOrg.id,
+        created_by: user.id,
+        project_id: id,
+        job_type: 'generate_description',
+        input_params: { title: project.title, objective: project.objective },
+        status: 'queued',
+        provider: 'gemini',
+      }).select('id').single();
+
+      if (jobErr || !job) throw jobErr || new Error('Failed to create job');
+
+      // Run the job
+      const { error: runErr } = await supabase.functions.invoke('ai-run-job', {
+        body: { job_id: job.id },
+      });
+      if (runErr) throw runErr;
+
+      // Poll for the result
+      let attempts = 0;
+      const poll = setInterval(async () => {
+        attempts++;
+        const { data: updatedJob } = await db.from('ai_generation_jobs')
+          .select('status, output_data')
+          .eq('id', job.id)
+          .single();
+
+        if (updatedJob?.status === 'completed') {
+          clearInterval(poll);
+          // Get description from project
+          const { data: updatedProject } = await db.from('ai_content_projects')
+            .select('description')
+            .eq('id', id)
+            .single();
+          if (updatedProject?.description) {
+            setDescription(updatedProject.description);
+          }
+          setGeneratingDesc(false);
+        } else if (updatedJob?.status === 'failed' || attempts > 30) {
+          clearInterval(poll);
+          setGeneratingDesc(false);
+        }
+      }, 2000);
+    } catch (e: any) {
+      console.error('Description generation error:', e);
+      setGeneratingDesc(false);
+    }
+  };
+
+  const generatePdfAuto = async () => {
     if (!id || !currentOrg?.id) return;
     setGeneratingPdf(true);
     try {
@@ -88,11 +162,10 @@ export default function ProjectPublishWizard() {
       });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      toast({ title: 'Document généré ✓', description: 'Le fichier a été créé depuis vos chapitres.' });
       await refetchPdf();
       queryClient.invalidateQueries({ queryKey: ['studio-project-assets', id] });
     } catch (e: any) {
-      toast({ title: 'Erreur', description: e.message, variant: 'destructive' });
+      console.error('PDF auto-generation error:', e);
     } finally {
       setGeneratingPdf(false);
     }
@@ -102,7 +175,7 @@ export default function ProjectPublishWizard() {
     mutationFn: async () => {
       if (!currentOrg || !user || !project) throw new Error('Missing context');
 
-      // Auto-generate PDF if none exists
+      // Re-check PDF
       let fileUrl = pdfAsset?.file_url || null;
       if (!fileUrl) {
         const { data, error } = await supabase.functions.invoke('ai-generate-pdf', {
@@ -289,13 +362,32 @@ export default function ProjectPublishWizard() {
               <Input value={project.title} disabled className="bg-muted" />
             </div>
             <div>
-              <Label>Description de vente</Label>
+              <div className="flex items-center justify-between mb-1">
+                <Label>Description de vente</Label>
+                {generatingDesc && (
+                  <span className="text-xs text-primary flex items-center gap-1">
+                    <Sparkles className="h-3 w-3 animate-pulse" /> Génération en cours...
+                  </span>
+                )}
+              </div>
               <Textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Description percutante pour vos acheteurs..."
-                rows={3}
+                placeholder={generatingDesc ? "L'IA rédige une description percutante..." : "Description percutante pour vos acheteurs..."}
+                rows={4}
+                disabled={generatingDesc}
+                className={generatingDesc ? 'animate-pulse' : ''}
               />
+              {!generatingDesc && !description && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="mt-1 text-xs h-7"
+                  onClick={generateDescription}
+                >
+                  <Sparkles className="h-3 w-3 mr-1" /> Générer avec l'IA
+                </Button>
+              )}
             </div>
 
             {target === 'product' && (
@@ -328,37 +420,37 @@ export default function ProjectPublishWizard() {
 
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <ImageIcon className="h-4 w-4" />
-              {coverAsset ? 'Image de couverture détectée ✓' : 'Aucune couverture — ajoutez-en une dans les Assets'}
+              {coverAsset ? (
+                <div className="flex items-center gap-2">
+                  <img src={coverAsset.file_url} alt="Cover" className="h-10 w-8 rounded object-cover border" />
+                  <span>Image de couverture détectée ✓</span>
+                </div>
+              ) : (
+                <span>Aucune couverture — ajoutez-en une dans les <Link to={`/admin/studio/projects/${id}/assets`} className="text-primary underline">Assets</Link></span>
+              )}
             </div>
+
             {target === 'product' && (
               <div className="flex items-center gap-3 text-sm">
                 <FileText className="h-4 w-4 text-muted-foreground" />
                 {pdfAsset ? (
-                  <span className="text-muted-foreground">Fichier PDF détecté ✓</span>
+                  <span className="text-muted-foreground">Fichier PDF prêt ✓</span>
+                ) : generatingPdf ? (
+                  <span className="text-primary flex items-center gap-1">
+                    <Loader2 className="h-3 w-3 animate-spin" /> Génération du PDF en cours...
+                  </span>
                 ) : (
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">Aucun PDF —</span>
-                    <Button
-                      variant="link"
-                      size="sm"
-                      className="h-auto p-0 text-xs"
-                      onClick={generatePdf}
-                      disabled={generatingPdf}
-                    >
-                      {generatingPdf ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
-                      {generatingPdf ? 'Génération...' : 'Générer depuis les chapitres'}
-                    </Button>
-                  </div>
+                  <span className="text-muted-foreground">⚡ Le PDF sera généré automatiquement à la publication</span>
                 )}
               </div>
             )}
-            <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-3">
-              💡 Si aucun PDF n'est présent, il sera <strong>automatiquement généré</strong> depuis vos chapitres lors de la publication.
-            </p>
 
             <div className="flex gap-2 pt-2">
               <Button variant="outline" onClick={() => setStep(0)}>Retour</Button>
-              <Button onClick={() => setStep(2)}>Confirmer</Button>
+              <Button onClick={() => setStep(2)} disabled={generatingDesc}>
+                {generatingDesc ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+                Confirmer
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -398,7 +490,13 @@ export default function ProjectPublishWizard() {
               {target === 'product' && (
                 <>
                   <span className="text-muted-foreground">Fichier</span>
-                  <span>{pdfAsset ? '✓ PDF existant' : '⚡ Sera généré automatiquement'}</span>
+                  <span>{pdfAsset ? '✓ PDF prêt' : '⚡ Sera généré automatiquement'}</span>
+                </>
+              )}
+              {description && (
+                <>
+                  <span className="text-muted-foreground">Description</span>
+                  <span className="line-clamp-2 text-xs">{description.slice(0, 100)}...</span>
                 </>
               )}
             </div>
