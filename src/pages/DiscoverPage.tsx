@@ -28,6 +28,7 @@ import { FeaturedSection } from '@/components/discover/FeaturedSection';
 import { PlatformStats } from '@/components/discover/PlatformStats';
 import { PersonalizedRecommendations } from '@/components/discover/PersonalizedRecommendations';
 import { BuyerStreakWidget } from '@/components/discover/BuyerStreakWidget';
+import { ForYouFeed } from '@/components/discover/ForYouFeed';
 import { useCallback, useRef, useEffect } from 'react';
 
 import { Offering } from '@/hooks/useOfferings';
@@ -374,6 +375,11 @@ export default function DiscoverPage() {
 
         {/* Smart sections below main grid */}
         {!isSearching && <FeaturedSection />}
+        {!isSearching && (
+          <div className="mt-8">
+            <ForYouFeed />
+          </div>
+        )}
         {!isSearching && user && <PersonalizedRecommendations />}
       </div>
 
