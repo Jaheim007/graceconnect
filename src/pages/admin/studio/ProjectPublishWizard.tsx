@@ -34,12 +34,10 @@ export default function ProjectPublishWizard() {
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [generatingDesc, setGeneratingDesc] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [preparingProduct, setPreparingProduct] = useState(false);
 
-  // Product fields
-  const [price, setPrice] = useState<number>(0);
-  const [salePrice, setSalePrice] = useState<number | ''>('');
+  // Product fields (used for course target only now)
   const [description, setDescription] = useState('');
-  const [isFree, setIsFree] = useState(false);
 
   const descGenerated = useRef(false);
   const pdfGenerated = useRef(false);
@@ -83,7 +81,7 @@ export default function ProjectPublishWizard() {
     enabled: !!id,
   });
 
-  // Auto-generate description + PDF when entering step 1
+  // Auto-generate description + PDF when entering step 1 (course only now)
   useEffect(() => {
     if (step !== 1 || !project || !currentOrg?.id || !user?.id) return;
 
@@ -91,12 +89,79 @@ export default function ProjectPublishWizard() {
       descGenerated.current = true;
       generateDescription();
     }
+  }, [step, project?.id]);
 
-    if (!pdfAsset && !pdfGenerated.current && target === 'product') {
-      pdfGenerated.current = true;
-      generatePdf();
+  // Navigate to normal product form pre-filled with AI data
+  const goToProductForm = useCallback(async () => {
+    if (!project || !currentOrg?.id || !id) return;
+    setPreparingProduct(true);
+
+    // Generate PDF if not ready
+    let fileUrl = pdfAsset?.file_url || null;
+    if (!fileUrl) {
+      try {
+        const { data, error } = await supabase.functions.invoke('ai-generate-pdf', {
+          body: { org_id: currentOrg.id, project_id: id, format: 'ebook', page_size: 'A4' },
+        });
+        if (!error && data?.download_url) fileUrl = data.download_url;
+      } catch (e) {
+        console.error('PDF generation error:', e);
+      }
     }
-  }, [step, project?.id, pdfAsset]);
+
+    // Generate description
+    let desc = project.description || project.objective || '';
+    if (!desc) {
+      try {
+        const { data: job, error: jobErr } = await db.from('ai_generation_jobs').insert({
+          organization_id: currentOrg.id,
+          created_by: user!.id,
+          project_id: id,
+          job_type: 'generate_description',
+          input_params: { title: project.title, objective: project.objective },
+          status: 'queued',
+          provider: 'gemini',
+        }).select('id').single();
+
+        if (!jobErr && job) {
+          await supabase.functions.invoke('ai-run-job', { body: { job_id: job.id } });
+          // Poll for result
+          for (let i = 0; i < 20; i++) {
+            await new Promise(r => setTimeout(r, 2000));
+            const { data: updatedJob } = await db.from('ai_generation_jobs')
+              .select('status').eq('id', job.id).single();
+            if (updatedJob?.status === 'completed') {
+              const { data: updatedProject } = await db.from('ai_content_projects')
+                .select('description').eq('id', id).single();
+              if (updatedProject?.description) desc = updatedProject.description;
+              break;
+            }
+            if (updatedJob?.status === 'failed') break;
+          }
+        }
+      } catch (e) {
+        console.error('Description generation error:', e);
+      }
+    }
+
+    setPreparingProduct(false);
+
+    // Navigate to normal product form with pre-filled state
+    navigate('/admin/products/new', {
+      state: {
+        fromStudio: true,
+        studioProjectId: id,
+        prefill: {
+          title: project.title,
+          description: desc,
+          product_type: project.project_type === 'course_pack' ? 'course' : 'ebook',
+          cover_image_url: coverAsset?.file_url || '',
+          file_url: fileUrl || '',
+          is_published: true,
+        },
+      },
+    });
+  }, [project, currentOrg, id, user, pdfAsset, coverAsset, navigate]);
 
   const generateDescription = async () => {
     if (!id || !currentOrg?.id || !user?.id || !project) return;
@@ -168,62 +233,6 @@ export default function ProjectPublishWizard() {
     }
   }, [id, currentOrg?.id]);
 
-  const publishAsProduct = useMutation({
-    mutationFn: async () => {
-      if (!currentOrg || !user || !project) throw new Error('Missing context');
-
-      // Ensure we have a PDF file
-      let fileUrl = pdfAsset?.file_url || null;
-
-      if (!fileUrl) {
-        // Try generating one last time
-        const { data, error } = await supabase.functions.invoke('ai-generate-pdf', {
-          body: { org_id: currentOrg.id, project_id: id, format: 'ebook', page_size: 'A4' },
-        });
-        if (!error && data?.download_url) {
-          fileUrl = data.download_url;
-        }
-      }
-
-      if (!fileUrl) {
-        throw new Error('Le fichier PDF n\'a pas pu être généré. Veuillez réessayer.');
-      }
-
-      const { data: product, error } = await db.from('digital_products').insert({
-        organization_id: currentOrg.id,
-        created_by: user.id,
-        title: project.title,
-        description: description || project.objective || '',
-        price: isFree ? 0 : price,
-        sale_price: salePrice || null,
-        is_free: isFree,
-        is_published: true,
-        cover_image_url: coverAsset?.file_url || null,
-        file_url: fileUrl,
-        product_type: project.project_type === 'course_pack' ? 'course' : 'ebook',
-      }).select('id').single();
-
-      if (error) throw error;
-
-      await db.from('ai_content_projects').update({
-        linked_product_id: product.id,
-        status: 'published',
-        published_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }).eq('id', id);
-
-      return product;
-    },
-    onSuccess: () => {
-      toast({ title: 'Produit publié ✓', description: 'Votre contenu est maintenant disponible.' });
-      queryClient.invalidateQueries({ queryKey: ['studio-project', id] });
-      navigate(`/admin/studio/projects/${id}`);
-    },
-    onError: (err: any) => {
-      toast({ title: 'Erreur', description: err.message, variant: 'destructive' });
-    },
-  });
-
   const publishAsCourse = useMutation({
     mutationFn: async () => {
       if (!currentOrg || !user || !project) throw new Error('Missing context');
@@ -279,9 +288,7 @@ export default function ProjectPublishWizard() {
   const handlePublish = async () => {
     setPublishing(true);
     try {
-      if (target === 'product') {
-        await publishAsProduct.mutateAsync();
-      } else if (target === 'course') {
+      if (target === 'course') {
         await publishAsCourse.mutateAsync();
       } else {
         toast({ title: 'Bientôt disponible', description: 'La publication en média sera disponible prochainement.' });
@@ -296,7 +303,6 @@ export default function ProjectPublishWizard() {
   const isReady = project.status === 'ready_to_publish' || project.status === 'published';
   const chapters = (project.structure_json as any)?.chapters || [];
   const pdfReady = !!pdfAsset?.file_url;
-  const canPublish = target === 'course' || pdfReady;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -347,19 +353,31 @@ export default function ProjectPublishWizard() {
               </CardContent>
             </Card>
           ))}
-          <Button onClick={() => setStep(1)} className="mt-2">
-            Continuer <Check className="h-4 w-4 ml-1" />
+          <Button
+            onClick={() => {
+              if (target === 'product') {
+                goToProductForm();
+              } else {
+                setStep(1);
+              }
+            }}
+            disabled={preparingProduct}
+            className="mt-2"
+          >
+            {preparingProduct ? (
+              <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Préparation du produit...</>
+            ) : (
+              <>Continuer <Check className="h-4 w-4 ml-1" /></>
+            )}
           </Button>
         </div>
       )}
 
-      {/* Step 1: Details */}
+      {/* Step 1: Details (course only) */}
       {step === 1 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">
-              {target === 'product' ? 'Détails du produit' : 'Détails du cours'}
-            </CardTitle>
+            <CardTitle className="text-base">Détails du cours</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -368,7 +386,7 @@ export default function ProjectPublishWizard() {
             </div>
             <div>
               <div className="flex items-center justify-between mb-1">
-                <Label>Description de vente</Label>
+                <Label>Description</Label>
                 {generatingDesc && (
                   <span className="text-xs text-primary flex items-center gap-1">
                     <Sparkles className="h-3 w-3 animate-pulse" /> Génération en cours...
@@ -383,49 +401,16 @@ export default function ProjectPublishWizard() {
                 <RichTextEditor
                   value={description}
                   onChange={setDescription}
-                  placeholder="Description percutante pour vos acheteurs..."
+                  placeholder="Description du cours..."
                   showAIButton={false}
                 />
               )}
               {!generatingDesc && !description && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="mt-1 text-xs h-7"
-                  onClick={generateDescription}
-                >
+                <Button variant="ghost" size="sm" className="mt-1 text-xs h-7" onClick={generateDescription}>
                   <Sparkles className="h-3 w-3 mr-1" /> Générer avec l'IA
                 </Button>
               )}
             </div>
-
-            {target === 'product' && (
-              <>
-                <div className="flex items-center gap-3">
-                  <label className="flex items-center gap-2 text-sm cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isFree}
-                      onChange={(e) => setIsFree(e.target.checked)}
-                      className="rounded"
-                    />
-                    Gratuit
-                  </label>
-                </div>
-                {!isFree && (
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Prix (XOF)</Label>
-                      <Input type="number" min={0} value={price} onChange={(e) => setPrice(Number(e.target.value))} />
-                    </div>
-                    <div>
-                      <Label>Prix promo (optionnel)</Label>
-                      <Input type="number" min={0} value={salePrice} onChange={(e) => setSalePrice(e.target.value ? Number(e.target.value) : '')} />
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
 
             <div className="flex items-center gap-3 text-sm text-muted-foreground">
               <ImageIcon className="h-4 w-4" />
@@ -439,39 +424,10 @@ export default function ProjectPublishWizard() {
               )}
             </div>
 
-            {target === 'product' && (
-              <div className="flex items-center gap-3 text-sm">
-                <FileText className="h-4 w-4 text-muted-foreground" />
-                {pdfReady ? (
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">Fichier PDF prêt ✓</span>
-                    <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => setPreviewOpen(true)}>
-                      <Eye className="h-3 w-3 mr-1" /> Aperçu
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={generatePdf} disabled={generatingPdf}>
-                      <RefreshCw className={`h-3 w-3 mr-1 ${generatingPdf ? 'animate-spin' : ''}`} /> Régénérer
-                    </Button>
-                  </div>
-                ) : generatingPdf ? (
-                  <span className="text-primary flex items-center gap-1">
-                    <Loader2 className="h-3 w-3 animate-spin" /> Génération du PDF en cours...
-                  </span>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <AlertTriangle className="h-3 w-3 text-yellow-500" />
-                    <span className="text-yellow-600 dark:text-yellow-400">PDF non généré</span>
-                    <Button variant="outline" size="sm" className="h-6 text-xs px-2" onClick={generatePdf}>
-                      <RefreshCw className="h-3 w-3 mr-1" /> Générer le PDF
-                    </Button>
-                  </div>
-                )}
-              </div>
-            )}
-
             <div className="flex gap-2 pt-2">
               <Button variant="outline" onClick={() => setStep(0)}>Retour</Button>
-              <Button onClick={() => setStep(2)} disabled={generatingDesc || (target === 'product' && generatingPdf)}>
-                {generatingDesc || generatingPdf ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+              <Button onClick={() => setStep(2)} disabled={generatingDesc}>
+                {generatingDesc ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
                 Confirmer
               </Button>
             </div>
@@ -479,43 +435,25 @@ export default function ProjectPublishWizard() {
         </Card>
       )}
 
-      {/* Step 2: Confirm & publish */}
+      {/* Step 2: Confirm & publish (course only) */}
       {step === 2 && (
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Confirmation</CardTitle>
             <CardDescription>
-              {target === 'product'
-                ? `Le produit "${project.title}" sera créé et publié${isFree ? ' (gratuit)' : ` à ${price} XOF`}.`
-                : `Le cours "${project.title}" sera créé avec ${chapters.length} leçon(s).`}
+              Le cours "{project.title}" sera créé avec {chapters.length} leçon(s).
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-2 gap-y-2 text-sm">
               <span className="text-muted-foreground">Destination</span>
-              <span className="font-medium">{target === 'product' ? 'Produit numérique' : 'Cours / Programme'}</span>
+              <span className="font-medium">Cours / Programme</span>
               <span className="text-muted-foreground">Titre</span>
               <span>{project.title}</span>
-              {target === 'product' && !isFree && (
-                <>
-                  <span className="text-muted-foreground">Prix</span>
-                  <span>{price} XOF{salePrice ? ` (promo: ${salePrice} XOF)` : ''}</span>
-                </>
-              )}
-              {target === 'course' && (
-                <>
-                  <span className="text-muted-foreground">Leçons</span>
-                  <span>{chapters.length}</span>
-                </>
-              )}
+              <span className="text-muted-foreground">Leçons</span>
+              <span>{chapters.length}</span>
               <span className="text-muted-foreground">Couverture</span>
               <span>{coverAsset ? '✓' : '✗'}</span>
-              {target === 'product' && (
-                <>
-                  <span className="text-muted-foreground">Fichier</span>
-                  <span>{pdfReady ? '✓ PDF prêt' : '⚠ Non disponible'}</span>
-                </>
-              )}
               {description && (
                 <>
                   <span className="text-muted-foreground">Description</span>
@@ -523,23 +461,6 @@ export default function ProjectPublishWizard() {
                 </>
               )}
             </div>
-
-            {/* Preview button */}
-            {target === 'product' && pdfReady && (
-              <Button variant="outline" size="sm" onClick={() => setPreviewOpen(true)} className="w-full">
-                <Eye className="h-4 w-4 mr-2" /> Aperçu du livre avant publication
-              </Button>
-            )}
-
-            {target === 'product' && !pdfReady && (
-              <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 text-sm text-yellow-700 dark:text-yellow-300 flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 shrink-0" />
-                <div>
-                  <p className="font-medium">PDF non disponible</p>
-                  <p className="text-xs mt-0.5">Le PDF sera généré automatiquement lors de la publication. Si la génération échoue, vous pourrez réessayer.</p>
-                </div>
-              </div>
-            )}
 
             <div className="flex gap-2 pt-4">
               <Button variant="outline" onClick={() => setStep(1)}>Retour</Button>

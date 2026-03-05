@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Copy, ExternalLink, Share2, CheckCircle, Plus, Eye, Trash2, PackagePlus, ArrowUpRight, HelpCircle, Shield, MessageSquareQuote, Sparkles, ImageIcon } from 'lucide-react';
@@ -51,15 +51,20 @@ export function ProductForm() {
   const { currentOrg } = useOrg();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const isEdit = !!id;
+  
+  // Support pre-fill from AI Studio
+  const studioState = (location.state as any)?.fromStudio ? (location.state as any) : null;
+  const studioPrefill = studioState?.prefill || null;
   const [loading, setLoading] = useState(false);
   const [createdProduct, setCreatedProduct] = useState<{ id: string; slug: string } | null>(null);
   const [faqItems, setFaqItems] = useState<{ q: string; a: string }[]>([]);
   const [testimonials, setTestimonials] = useState<{ name: string; text: string }[]>([]);
   const [newFaq, setNewFaq] = useState({ q: '', a: '' });
   const [newTestimonial, setNewTestimonial] = useState({ name: '', text: '' });
-  const [showTemplates, setShowTemplates] = useState(!isEdit);
+  const [showTemplates, setShowTemplates] = useState(!isEdit && !studioPrefill);
   const [salePrice, setSalePrice] = useState('');
   const [saleEndsAt, setSaleEndsAt] = useState('');
   const [showAI, setShowAI] = useState(false);
@@ -113,6 +118,24 @@ export function ProductForm() {
     }
   }, [item, reset]);
 
+  // Pre-fill from AI Studio
+  useEffect(() => {
+    if (studioPrefill && !isEdit) {
+      reset({
+        title: studioPrefill.title || '',
+        description: studioPrefill.description || '',
+        product_type: (studioPrefill.product_type as any) || 'ebook',
+        price: studioPrefill.price || 0,
+        cover_image_url: studioPrefill.cover_image_url || '',
+        file_url: studioPrefill.file_url || '',
+        is_free: studioPrefill.is_free || false,
+        is_published: studioPrefill.is_published ?? true,
+        is_bundle: false,
+        guarantee_text: '',
+      });
+    }
+  }, [studioPrefill, isEdit, reset]);
+
   const isFree = watch('is_free');
 
   const onSubmit = async (data: FormData) => {
@@ -152,6 +175,16 @@ export function ProductForm() {
         resultData = res.data;
       }
       if (error) throw error;
+
+      // Link back to AI Studio project if created from studio
+      if (!isEdit && resultData && studioState?.studioProjectId) {
+        await db.from('ai_content_projects').update({
+          linked_product_id: resultData.id,
+          status: 'published',
+          published_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }).eq('id', studioState.studioProjectId);
+      }
       if (!isEdit && resultData && payload.is_published) {
         onContentPublished(currentOrg.id, currentOrg.name, 'product', payload.title, resultData.id, { price: String(payload.price || 0), currency: payload.currency }, user.id);
       }
