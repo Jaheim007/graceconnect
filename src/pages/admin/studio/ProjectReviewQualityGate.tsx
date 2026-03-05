@@ -334,7 +334,75 @@ export default function ProjectReviewQualityGate() {
         </Card>
       )}
 
-      {/* Flags */}
+      {/* Chapter-level issues with improve button */}
+      {aiChapterIssues.length > 0 && (
+        <Card className="border-orange-200 dark:border-orange-800/30">
+          <CardHeader>
+            <CardTitle className="text-sm flex items-center gap-2 text-orange-600">
+              <Target className="h-4 w-4" /> Sections à améliorer
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {aiChapterIssues.map((section, i) => (
+              <div key={i} className="border rounded-lg p-3 space-y-2 bg-muted/30">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-sm">{section.chapter}</span>
+                    {section.score != null && (
+                      <Badge variant={section.score >= 7 ? 'default' : 'destructive'} className="text-[10px]">
+                        {section.score}/10
+                      </Badge>
+                    )}
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1 text-xs"
+                    disabled={improvingSection === section.chapter}
+                    onClick={() => improveSection(section.chapter)}
+                  >
+                    {improvingSection === section.chapter ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <Wand2 className="h-3 w-3" />
+                    )}
+                    Améliorer maintenant
+                  </Button>
+                </div>
+                <ul className="space-y-1">
+                  {section.issues.map((issue, j) => (
+                    <li key={j} className="flex items-start gap-2 text-xs text-muted-foreground">
+                      <XCircle className="h-3 w-3 text-orange-500 shrink-0 mt-0.5" />
+                      <span>{issue}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Global improve all button when weaknesses exist but no chapter detail */}
+      {aiChapterIssues.length === 0 && (aiWeaknesses.length > 0 || aiRecommendations.length > 0) && (
+        <div className="flex justify-center">
+          <Button
+            variant="outline"
+            className="gap-2"
+            disabled={improvingSection === '__all__'}
+            onClick={() => improveSection('__all__')}
+          >
+            {improvingSection === '__all__' ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Wand2 className="h-4 w-4" />
+            )}
+            Améliorer tout le contenu
+          </Button>
+        </div>
+      )}
+
+
       {flags.length > 0 && (
         <Card>
           <CardHeader><CardTitle className="text-sm">Alertes</CardTitle></CardHeader>
