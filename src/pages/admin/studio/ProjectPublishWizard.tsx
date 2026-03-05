@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect, useRef, useCallback } from 'react';
@@ -375,14 +375,18 @@ export default function ProjectPublishWizard() {
                   </span>
                 )}
               </div>
-              <Textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder={generatingDesc ? "L'IA rédige une description percutante..." : "Description percutante pour vos acheteurs..."}
-                rows={4}
-                disabled={generatingDesc}
-                className={generatingDesc ? 'animate-pulse' : ''}
-              />
+              {generatingDesc ? (
+                <div className="rounded-xl border border-border bg-muted/30 px-3 py-4 text-sm text-muted-foreground animate-pulse min-h-[120px]">
+                  L'IA rédige une description percutante...
+                </div>
+              ) : (
+                <RichTextEditor
+                  value={description}
+                  onChange={setDescription}
+                  placeholder="Description percutante pour vos acheteurs..."
+                  showAIButton={false}
+                />
+              )}
               {!generatingDesc && !description && (
                 <Button
                   variant="ghost"
