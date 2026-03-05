@@ -50,6 +50,8 @@ import { UrgencyWidget } from '@/components/products/UrgencyWidget';
 import { ContentSizeBadge } from '@/components/products/ContentSizeBadge';
 import { SmartCTA } from '@/components/products/SmartCTA';
 import { ReviewSummaryBadge } from '@/components/products/ReviewSummaryBadge';
+import { ProductImageGallery } from '@/components/products/ProductImageGallery';
+import { StickyBuyBar } from '@/components/products/StickyBuyBar';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -509,15 +511,12 @@ export default function ProductDetailPage() {
       <div className="container max-w-5xl px-4 py-6 pb-24 md:pb-6">
         <div className="grid md:grid-cols-[1fr_340px] gap-6 md:gap-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
-            <div className={cn('rounded-2xl overflow-hidden border border-border shadow-card bg-muted/30 max-w-md mx-auto md:max-w-none', aspectClass)}>
-              {product.cover_image_url ? (
-                <img src={product.cover_image_url} alt={product.title} loading="lazy" className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-accent/10 to-primary/10">
-                  <ShoppingBag className="h-16 w-16 text-muted-foreground/20" />
-                </div>
-              )}
-            </div>
+            <ProductImageGallery
+              coverImage={product.cover_image_url}
+              previewImages={(product as any).preview_images}
+              title={product.title}
+              aspectClass={aspectClass}
+            />
 
             {/* Product Preview Viewer */}
             <ProductPreviewViewer
@@ -895,6 +894,21 @@ export default function ProductDetailPage() {
         isFreePurchase={product.is_free || false}
         productType={product.product_type || undefined}
         onGoToResources={() => { setShowCelebration(false); navigate('/resources'); }}
+      />
+
+      {/* Mobile sticky buy bar */}
+      <StickyBuyBar
+        title={product.title}
+        price={product.price || 0}
+        isFree={product.is_free || false}
+        currency={product.currency || 'XOF'}
+        isPurchased={isPurchased}
+        salePrice={(product as any).sale_price}
+        onBuy={() => {
+          if (!user) { navigate(`/auth?returnTo=${encodeURIComponent(buildShareUrl())}`); return; }
+          setPurchaseProduct(product as DigitalProduct);
+        }}
+        onAccess={() => navigate('/resources')}
       />
     </div>
   );
