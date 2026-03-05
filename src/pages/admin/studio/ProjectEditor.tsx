@@ -45,7 +45,7 @@ export default function ProjectEditor() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
-  const [generatingCover, setGeneratingCover] = useState(false);
+  
   const [canvaDesigning, setCanvaDesigning] = useState(false);
 
   const { isConnected: canvaConnected, startAuth: canvaStartAuth, getValidToken: getCanvaToken, loading: canvaLoading } = useCanvaAuth();
@@ -134,39 +134,6 @@ export default function ProjectEditor() {
     input.click();
   }, [id, currentOrg?.id, coverAsset, toast, refetchCover]);
 
-  const generateAiCover = async () => {
-    if (!id || !currentOrg?.id || !project) return;
-    setGeneratingCover(true);
-    try {
-      const response = await supabase.functions.invoke('ai-generate-cover', {
-        body: {
-          product_id: id,
-          title: project.title,
-          product_type: project.project_type || '',
-          description: project.description || '',
-        },
-      });
-      if (response.error) throw new Error(response.error.message);
-      const result = response.data;
-      if (!result?.ok) throw new Error(result?.error || 'Échec de la génération');
-
-      // Save as cover asset
-      if (coverAsset) {
-        await db.from('ai_project_assets').update({ is_cover: false }).eq('id', coverAsset.id);
-      }
-      await db.from('ai_project_assets').insert({
-        project_id: id, organization_id: currentOrg.id, file_url: result.cover_url,
-        asset_type: 'image', label: 'Couverture IA', mime_type: 'image/png',
-        is_cover: true, display_order: 0,
-      });
-      toast({ title: '🎨 Couverture générée !' });
-      refetchCover();
-    } catch (e: any) {
-      toast({ title: 'Erreur', description: e.message, variant: 'destructive' });
-    } finally {
-      setGeneratingCover(false);
-    }
-  };
 
   const openCanvaDesign = async () => {
     if (!id || !currentOrg?.id || !project) return;
@@ -723,13 +690,10 @@ export default function ProjectEditor() {
                     <Button variant="ghost" size="sm" className="flex-1 text-[10px] h-7" onClick={handleCoverUpload} disabled={uploadingCover}>
                       {uploadingCover ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3 mr-1" />} Changer
                     </Button>
-                    <Button variant="ghost" size="sm" className="flex-1 text-[10px] h-7" onClick={generateAiCover} disabled={generatingCover}>
-                      {generatingCover ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3 mr-1" />} Régénérer
-                    </Button>
                   </div>
                   <div className="flex gap-1">
                     <Button variant="ghost" size="sm" className="flex-1 text-[10px] h-7" onClick={openCanvaDesign} disabled={canvaDesigning || canvaLoading}>
-                      {canvaDesigning ? <Loader2 className="h-3 w-3 animate-spin" /> : <Palette className="h-3 w-3 mr-1" />} Canva
+                      {canvaDesigning ? <Loader2 className="h-3 w-3 animate-spin" /> : <Palette className="h-3 w-3 mr-1" />} {canvaConnected ? 'Canva' : 'Connecter Canva'}
                     </Button>
                     {sessionStorage.getItem(`canva_design_${id}`) && (
                       <Button variant="ghost" size="sm" className="flex-1 text-[10px] h-7" onClick={exportCanvaDesign} disabled={canvaDesigning}>
@@ -746,9 +710,6 @@ export default function ProjectEditor() {
                   </div>
                   <Button variant="outline" size="sm" className="w-full text-xs h-7 gap-1" onClick={handleCoverUpload} disabled={uploadingCover}>
                     {uploadingCover ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />} Importer
-                  </Button>
-                  <Button variant="outline" size="sm" className="w-full text-xs h-7 gap-1" onClick={generateAiCover} disabled={generatingCover}>
-                    {generatingCover ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />} Générer avec l'IA
                   </Button>
                   <Button variant="outline" size="sm" className="w-full text-xs h-7 gap-1" onClick={openCanvaDesign} disabled={canvaDesigning || canvaLoading}>
                     {canvaDesigning || canvaLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Palette className="h-3 w-3" />}
