@@ -226,15 +226,9 @@ export default function ProjectAssets() {
                 placeholder="https://youtube.com/watch?v=... ou tout autre lien"
                 className="mt-1"
               />
-            </div>
-            <div>
-              <Label className="text-sm">Label (optionnel)</Label>
-              <Input
-                value={linkLabel}
-                onChange={(e) => setLinkLabel(e.target.value)}
-                placeholder="Ex: Vidéo d'inspiration, Article de référence..."
-                className="mt-1"
-              />
+              <p className="text-xs text-muted-foreground mt-1">
+                YouTube, TikTok, Facebook, Vimeo, Dailymotion, fichiers audio/vidéo, PDF ou tout lien web
+              </p>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={() => setShowLinkForm(false)}>Annuler</Button>
