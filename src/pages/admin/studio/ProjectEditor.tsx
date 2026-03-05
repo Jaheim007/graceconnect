@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { supabase } from '@/integrations/supabase/client';
 import { compressImage } from '@/hooks/useImageOptimizer';
+import { useCanvaAuth } from '@/hooks/useCanvaAuth';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,7 +17,7 @@ import { useState, useCallback, useEffect } from 'react';
 import {
   ArrowLeft, Plus, Trash2, GripVertical, Save, FileText,
   Sparkles, Loader2, ChevronLeft, ChevronRight, ListTree,
-  FileCheck, BookOpen, Eye, ImagePlus, Upload, Star, StarOff
+  FileCheck, BookOpen, Eye, ImagePlus, Upload, Star, StarOff, Palette
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
@@ -45,6 +46,9 @@ export default function ProjectEditor() {
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [generatingCover, setGeneratingCover] = useState(false);
+  const [canvaDesigning, setCanvaDesigning] = useState(false);
+
+  const { isConnected: canvaConnected, startAuth: canvaStartAuth, getValidToken: getCanvaToken, loading: canvaLoading } = useCanvaAuth();
 
   // Fetch cover asset
   const { data: coverAsset, refetch: refetchCover } = useQuery({
@@ -161,6 +165,105 @@ export default function ProjectEditor() {
       toast({ title: 'Erreur', description: e.message, variant: 'destructive' });
     } finally {
       setGeneratingCover(false);
+    }
+  };
+
+  const openCanvaDesign = async () => {
+    if (!id || !currentOrg?.id || !project) return;
+    
+    // Save return path for after OAuth
+    sessionStorage.setItem('canva_return_to', window.location.pathname);
+
+    if (!canvaConnected) {
+      // Start OAuth flow
+      try {
+        await canvaStartAuth();
+      } catch (e: any) {
+        toast({ title: 'Erreur Canva', description: e.message, variant: 'destructive' });
+      }
+      return;
+    }
+
+    setCanvaDesigning(true);
+    try {
+      const token = await getCanvaToken();
+      if (!token) {
+        toast({ title: 'Session Canva expirée', description: 'Reconnectez-vous à Canva.', variant: 'destructive' });
+        return;
+      }
+
+      // Create a design with book cover dimensions (600x900)
+      const { data, error } = await supabase.functions.invoke('canva-design', {
+        body: {
+          action: 'create',
+          canva_token: token,
+          title: `Couverture — ${project.title}`,
+          width: 600,
+          height: 900,
+        },
+      });
+
+      if (error) throw error;
+      if (!data?.ok) throw new Error(data?.error || 'Échec création design Canva');
+
+      // Open Canva editor in new tab
+      if (data.edit_url) {
+        window.open(data.edit_url, '_blank');
+        toast({
+          title: '🎨 Design Canva créé',
+          description: 'Éditez votre couverture dans l\'onglet Canva, puis revenez ici pour l\'exporter.',
+        });
+
+        // Store design_id for later export
+        sessionStorage.setItem(`canva_design_${id}`, data.design_id);
+      }
+    } catch (e: any) {
+      toast({ title: 'Erreur Canva', description: e.message, variant: 'destructive' });
+    } finally {
+      setCanvaDesigning(false);
+    }
+  };
+
+  const exportCanvaDesign = async () => {
+    if (!id || !currentOrg?.id) return;
+    const designId = sessionStorage.getItem(`canva_design_${id}`);
+    if (!designId) {
+      toast({ title: 'Aucun design Canva', description: 'Créez d\'abord un design avec Canva.', variant: 'destructive' });
+      return;
+    }
+
+    setCanvaDesigning(true);
+    try {
+      const token = await getCanvaToken();
+      if (!token) {
+        toast({ title: 'Session Canva expirée', variant: 'destructive' });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('canva-design', {
+        body: { action: 'export', canva_token: token, design_id: designId },
+      });
+
+      if (error) throw error;
+      if (!data?.ok) throw new Error(data?.error || 'Export échoué');
+
+      // Save as cover asset
+      if (coverAsset) {
+        await db.from('ai_project_assets').update({ is_cover: false }).eq('id', coverAsset.id);
+      }
+      await db.from('ai_project_assets').insert({
+        project_id: id, organization_id: currentOrg.id, file_url: data.cover_url,
+        asset_type: 'image', label: 'Couverture Canva', mime_type: 'image/png',
+        is_cover: true, display_order: 0,
+      });
+
+      sessionStorage.removeItem(`canva_design_${id}`);
+      toast({ title: '✅ Couverture Canva importée !' });
+      refetchCover();
+    } catch (e: any) {
+      toast({ title: 'Erreur export', description: e.message, variant: 'destructive' });
+    } finally {
+      setCanvaDesigning(false);
     }
   };
 
@@ -624,6 +727,16 @@ export default function ProjectEditor() {
                       {generatingCover ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3 mr-1" />} Régénérer
                     </Button>
                   </div>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="sm" className="flex-1 text-[10px] h-7" onClick={openCanvaDesign} disabled={canvaDesigning || canvaLoading}>
+                      {canvaDesigning ? <Loader2 className="h-3 w-3 animate-spin" /> : <Palette className="h-3 w-3 mr-1" />} Canva
+                    </Button>
+                    {sessionStorage.getItem(`canva_design_${id}`) && (
+                      <Button variant="ghost" size="sm" className="flex-1 text-[10px] h-7" onClick={exportCanvaDesign} disabled={canvaDesigning}>
+                        {canvaDesigning ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3 mr-1" />} Importer Canva
+                      </Button>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-1.5">
@@ -637,6 +750,15 @@ export default function ProjectEditor() {
                   <Button variant="outline" size="sm" className="w-full text-xs h-7 gap-1" onClick={generateAiCover} disabled={generatingCover}>
                     {generatingCover ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />} Générer avec l'IA
                   </Button>
+                  <Button variant="outline" size="sm" className="w-full text-xs h-7 gap-1" onClick={openCanvaDesign} disabled={canvaDesigning || canvaLoading}>
+                    {canvaDesigning || canvaLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Palette className="h-3 w-3" />}
+                    {canvaConnected ? 'Créer avec Canva' : 'Connecter Canva'}
+                  </Button>
+                  {sessionStorage.getItem(`canva_design_${id}`) && (
+                    <Button variant="outline" size="sm" className="w-full text-xs h-7 gap-1" onClick={exportCanvaDesign} disabled={canvaDesigning}>
+                      {canvaDesigning ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />} Importer depuis Canva
+                    </Button>
+                  )}
                 </div>
               )}
             </div>
