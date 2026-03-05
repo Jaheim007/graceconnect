@@ -16,6 +16,7 @@ import {
   ArrowLeft, Upload, ShoppingBag, GraduationCap, Radio,
   Loader2, Check, Image as ImageIcon, FileText, Sparkles, Eye, RefreshCw, AlertTriangle
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { usePdfPreviewBlobUrl } from '@/hooks/usePdfPreviewBlobUrl';
 
 type PublishTarget = 'product' | 'course' | 'media';
