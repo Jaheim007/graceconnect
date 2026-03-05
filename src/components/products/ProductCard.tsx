@@ -1,4 +1,5 @@
 import { DigitalProduct } from '@/types/database';
+import { stripHtml } from '@/lib/formatText';
 import { useShortLink } from '@/hooks/useShortLink';
 import { formatPrice } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
@@ -83,7 +84,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
   const { shareUrl: socialShareUrl } = useShortLink({
     targetPath: shareTargetPath,
     title: product.title,
-    description: product.description?.slice(0, 155) || undefined,
+    description: stripHtml(product.description || '').slice(0, 155) || undefined,
     image: product.cover_image_url || undefined,
   });
 
@@ -198,7 +199,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
         <div>
           <h3 className="font-bold text-sm line-clamp-2 leading-snug">{product.title}</h3>
           {product.description && (
-            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{product.description}</p>
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{stripHtml(product.description)}</p>
           )}
           <div className="flex items-center gap-2 mt-1.5">
             {(product as any).organization_name && (

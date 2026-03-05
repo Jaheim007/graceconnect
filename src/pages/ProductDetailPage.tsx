@@ -23,7 +23,7 @@ import { SiteLogo } from '@/components/ui/SiteLogo';
 import { formatCurrency, formatPrice } from '@/lib/currency';
 import { LocalPriceHint } from '@/components/payments/LocalPriceHint';
 import { useI18n } from '@/i18n/I18nContext';
-import { FormattedText } from '@/lib/formatText';
+import { FormattedText, stripHtml } from '@/lib/formatText';
 import { ProductReviews } from '@/components/products/ProductReviews';
 import { AmbassadorBanner } from '@/components/products/AmbassadorBanner';
 import { UniverseGate } from '@/components/universe/UniverseGate';
@@ -172,14 +172,14 @@ export default function ProductDetailPage() {
       url = await getOrCreateShortLink({
         targetPath: path,
         title: product?.title || 'Produit Siteviral',
-        description: product?.description?.slice(0, 155) || '',
+        description: stripHtml(product?.description || '').slice(0, 155) || '',
         image: product?.cover_image_url || undefined,
       });
     } catch {
       url = buildSocialShareUrl({
         targetUrl: buildShareUrl(),
         title: product?.title || 'Produit Siteviral',
-        description: product?.description?.slice(0, 155) || '',
+        description: stripHtml(product?.description || '').slice(0, 155) || '',
         image: product?.cover_image_url || undefined,
       });
     }
@@ -272,7 +272,7 @@ export default function ProductDetailPage() {
     <div className="min-h-screen bg-background" style={orgThemeStyle}>
       <SEOHead
         title={`${product.title} — ${org?.name || 'Siteviral'}`}
-        description={product.description?.slice(0, 155) || `Achetez ${product.title} sur Siteviral — ${product.is_free ? 'Gratuit' : `${product.price} ${product.currency || 'XOF'}`}. Paiement Mobile Money & Carte.`}
+        description={stripHtml(product.description || '').slice(0, 155) || `Achetez ${product.title} sur Siteviral — ${product.is_free ? 'Gratuit' : `${product.price} ${product.currency || 'XOF'}`}. Paiement Mobile Money & Carte.`}
         ogImage={product.cover_image_url || undefined}
         ogType="product"
         canonicalUrl={`https://siteviral.com/org/${slug}/p/${(product as any).slug || product.id}`}
@@ -702,7 +702,7 @@ export default function ProductDetailPage() {
                 <ShareButtons
                   url={buildShareUrl()}
                   title={product.title}
-                  description={product.description?.slice(0, 120) || ''}
+                  description={stripHtml(product.description || '').slice(0, 120) || ''}
                   compact
                 />
               </div>

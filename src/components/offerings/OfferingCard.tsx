@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { stripHtml } from '@/lib/formatText';
 import { Offering } from '@/hooks/useOfferings';
 import { Button } from '@/components/ui/button';
 import { HandHeart } from 'lucide-react';
@@ -43,7 +44,7 @@ export function OfferingCard({ offering, onSelect }: OfferingCardProps) {
         </div>
 
         {offering.description && (
-          <p className="text-xs text-muted-foreground line-clamp-2">{offering.description}</p>
+          <p className="text-xs text-muted-foreground line-clamp-2">{stripHtml(offering.description)}</p>
         )}
 
         <div className="flex flex-wrap gap-1">

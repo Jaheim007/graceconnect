@@ -75,6 +75,12 @@ export function formatTextWithLinks(text: string): React.ReactNode[] {
   return parts;
 }
 
+/** Strip HTML tags and return plain text */
+export function stripHtml(html: string): string {
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  return doc.body.textContent || '';
+}
+
 /** Detect if a string contains HTML tags */
 function containsHTML(text: string): boolean {
   return /<[a-z][\s\S]*?>/i.test(text);
