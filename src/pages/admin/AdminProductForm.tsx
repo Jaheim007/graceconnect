@@ -24,6 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { useBundleItems, useAddBundleItem, useRemoveBundleItem, useProductRecommendations, useAddRecommendation, useRemoveRecommendation } from '@/hooks/useBundlesAndRecommendations';
 import { useOrgProducts } from '@/hooks/useMonetization';
 import { EmbedSnippetGen } from '@/components/products/EmbedSnippetGen';
+import { ProductPreviewViewer } from '@/components/products/ProductPreviewViewer';
 import { ContentTemplateSelector } from '@/components/admin/ContentTemplateSelector';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { AIWritingAssistant } from '@/components/admin/AIWritingAssistant';
@@ -349,6 +350,18 @@ export function ProductForm() {
         </div>
 
         <FileUploader value={watch('file_url') || ''} onChange={(url) => setValue('file_url', url)} folder="products" label="Fichier du produit" hint="PDF, Word, Audio, Vidéo (max 50 Mo)" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.epub,.zip,.mp3,.mp4,.wav,.aac,.m4a,.ogg,.webm,.mov,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.ms-powerpoint,application/vnd.ms-excel,application/epub+zip,application/zip,audio/*,video/*" bucket="private-products" />
+
+        {watch('file_url') && /\.pdf($|\?)/i.test(watch('file_url') || '') && (
+          <ProductPreviewViewer
+            productId={id || 'new'}
+            fileUrl={watch('file_url')}
+            productType="pdf"
+            pageCount={watch('page_count') as number | undefined}
+            previewPageCount={watch('preview_page_count') as number | undefined}
+            coverImageUrl={watch('cover_image_url')}
+            title={watch('title') || 'Aperçu du document'}
+          />
+        )}
 
         <div className="space-y-1.5">
           <Label>Lien externe (optionnel)</Label>
