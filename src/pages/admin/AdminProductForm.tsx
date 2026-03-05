@@ -140,6 +140,12 @@ export function ProductForm() {
   }, [studioPrefill, isEdit, reset]);
 
   const isFree = watch('is_free');
+  const fileUrl = watch('file_url') || '';
+  const isPdfFile = /\.pdf($|\?)/i.test(fileUrl);
+  const { blobUrl: pdfPreviewUrl, loading: pdfPreviewLoading, error: pdfPreviewError } = usePdfPreviewBlobUrl(
+    pdfPreviewOpen && isPdfFile ? fileUrl : null,
+    pdfPreviewOpen && isPdfFile,
+  );
 
   const onSubmit = async (data: FormData) => {
     if (!currentOrg || !user) {
