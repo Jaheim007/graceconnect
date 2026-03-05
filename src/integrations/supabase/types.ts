@@ -4691,6 +4691,57 @@ export type Database = {
           },
         ]
       }
+      viral_snippets: {
+        Row: {
+          created_at: string
+          display_order: number | null
+          id: string
+          organization_id: string
+          platform: string
+          product_id: string
+          share_count: number | null
+          snippet_type: string
+          text: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          organization_id: string
+          platform?: string
+          product_id: string
+          share_count?: number | null
+          snippet_type?: string
+          text: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number | null
+          id?: string
+          organization_id?: string
+          platform?: string
+          product_id?: string
+          share_count?: number | null
+          snippet_type?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "viral_snippets_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "viral_snippets_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "digital_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       waitlist_entries: {
         Row: {
           created_at: string

@@ -140,3 +140,6 @@ verify_jwt = false
 
 [functions.ai-assets-signed-url]
 verify_jwt = false
+
+[functions.ai-generate-snippets]
+verify_jwt = false
