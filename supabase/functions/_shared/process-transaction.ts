@@ -22,7 +22,7 @@ export interface TransactionInput {
   reference: string;
   type: 'donation' | 'product';
   organization_id: string;
-  gateway: 'paystack' | 'stripe';
+  gateway: 'paystack' | 'stripe' | 'moneroo';
   source: 'verify' | 'webhook'; // who called us
   amount_paid: number;
   currency: string;
