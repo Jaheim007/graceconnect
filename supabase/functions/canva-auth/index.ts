@@ -22,37 +22,27 @@ serve(async (req) => {
     const url = new URL(req.url);
     const action = url.searchParams.get("action") || "authorize";
 
-    // ── ACTION: authorize → return the Canva OAuth URL ──
+    // ── ACTION: authorize → no longer needed (PKCE auth URL built client-side) ──
     if (action === "authorize") {
-      const authHeader = req.headers.get("Authorization");
-      if (!authHeader) throw new Error("Missing auth");
-
-      const body = await req.json();
-      const redirectUri = body.redirect_uri;
-      const state = body.state || "";
-
-      if (!redirectUri) throw new Error("Missing redirect_uri");
-
-      // Canva OAuth2 authorize URL
-      const scopes = "design:content:read design:content:write asset:read asset:write";
-      const authorizeUrl = `https://www.canva.com/api/oauth/authorize?` +
-        `response_type=code` +
-        `&client_id=${encodeURIComponent(CANVA_CLIENT_ID)}` +
-        `&redirect_uri=${encodeURIComponent(redirectUri)}` +
-        `&scope=${encodeURIComponent(scopes)}` +
-        `&state=${encodeURIComponent(state)}`;
-
       return new Response(
-        JSON.stringify({ ok: true, authorize_url: authorizeUrl }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ ok: false, error: "Authorization URL is now built client-side with PKCE" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // ── ACTION: token → exchange code for access_token ──
+    // ── ACTION: token → exchange code for access_token (PKCE) ──
     if (action === "token") {
       const body = await req.json();
-      const { code, redirect_uri } = body;
+      const { code, redirect_uri, code_verifier } = body;
       if (!code || !redirect_uri) throw new Error("Missing code or redirect_uri");
+      if (!code_verifier) throw new Error("Missing code_verifier for PKCE");
+
+      const tokenParams: Record<string, string> = {
+        grant_type: "authorization_code",
+        code,
+        redirect_uri,
+        code_verifier,
+      };
 
       const tokenRes = await fetch("https://api.canva.com/rest/v1/oauth/token", {
         method: "POST",
@@ -60,11 +50,7 @@ serve(async (req) => {
           "Content-Type": "application/x-www-form-urlencoded",
           Authorization: `Basic ${btoa(`${CANVA_CLIENT_ID}:${CANVA_CLIENT_SECRET}`)}`,
         },
-        body: new URLSearchParams({
-          grant_type: "authorization_code",
-          code,
-          redirect_uri,
-        }),
+        body: new URLSearchParams(tokenParams),
       });
 
       const tokenData = await tokenRes.json();
