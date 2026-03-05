@@ -14,6 +14,7 @@ import {
   TrendingUp, TrendingDown, BookOpen, PenLine, Target, Wand2, Eye
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { usePdfPreviewBlobUrl } from '@/hooks/usePdfPreviewBlobUrl';
 
 export default function ProjectReviewQualityGate() {
   const { id } = useParams<{ id: string }>();
@@ -90,6 +91,11 @@ export default function ProjectReviewQualityGate() {
     },
     enabled: !!id,
   });
+
+  const { blobUrl: pdfPreviewUrl, loading: previewLoading, error: previewError } = usePdfPreviewBlobUrl(
+    previewOpen ? pdfAsset?.file_url : null,
+    previewOpen,
+  );
 
   const generateAndPreviewPdf = async () => {
     if (!id || !currentOrg?.id) return;
@@ -597,9 +603,13 @@ export default function ProjectReviewQualityGate() {
             Aperçu — {project?.title}
           </DialogTitle>
         </DialogHeader>
-        <div className="flex-1 min-h-0 rounded-lg overflow-hidden border bg-white">
-          {pdfAsset?.file_url ? (
-            <iframe src={pdfAsset.file_url} className="w-full h-full" title="Aperçu du document" />
+        <div className="flex-1 min-h-0 rounded-lg overflow-hidden border bg-background">
+          {previewLoading ? (
+            <div className="flex items-center justify-center h-full text-muted-foreground">Chargement de l’aperçu...</div>
+          ) : previewError ? (
+            <div className="flex items-center justify-center h-full text-destructive text-sm">{previewError}</div>
+          ) : pdfPreviewUrl ? (
+            <iframe src={pdfPreviewUrl} className="w-full h-full" title="Aperçu du document" />
           ) : (
             <div className="flex items-center justify-center h-full text-muted-foreground">
               Aucun aperçu disponible
