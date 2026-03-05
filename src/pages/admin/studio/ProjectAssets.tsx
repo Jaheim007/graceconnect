@@ -13,8 +13,22 @@ import { useToast } from '@/hooks/use-toast';
 import { useState, useCallback } from 'react';
 import {
   ArrowLeft, Image, Download, Star, Upload, Loader2, Trash2, Eye, StarOff,
-  Link2, Plus, Info
+  Link2, Plus, Info, Play, ExternalLink
 } from 'lucide-react';
+import { getVideoEmbedUrl } from '@/lib/editorUpload';
+
+/** Extract YouTube video ID from URL */
+function getYouTubeId(url: string): string | null {
+  const m = url.match(/(?:youtube\.com\/(?:watch\?.*v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+  return m ? m[1] : null;
+}
+
+/** Get a thumbnail URL for video assets */
+function getVideoThumbnail(url: string): string | null {
+  const ytId = getYouTubeId(url);
+  if (ytId) return `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+  return null;
+}
 
 export default function ProjectAssets() {
   const { id } = useParams<{ id: string }>();
@@ -121,7 +135,8 @@ export default function ProjectAssets() {
       toast({ title: 'Lien ajouté ✓' });
       setLinkUrl('');
       setShowLinkForm(false);
-      queryClient.invalidateQueries({ queryKey: ['studio-project-assets', id] });
+      await queryClient.invalidateQueries({ queryKey: ['studio-project-assets', id] });
+      await queryClient.refetchQueries({ queryKey: ['studio-project-assets', id] });
     } catch (e: any) {
       toast({ title: 'Erreur', description: e.message, variant: 'destructive' });
     } finally {
@@ -269,17 +284,35 @@ export default function ProjectAssets() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {assets.map((asset: any) => (
             <Card key={asset.id} className="overflow-hidden group">
-              <div className="aspect-square bg-muted flex items-center justify-center relative">
+              <div className="aspect-video bg-muted flex items-center justify-center relative">
                 {['image', 'cover', 'preview'].includes(asset.asset_type) ? (
                   <img src={asset.file_url} alt={asset.label || ''} className="w-full h-full object-cover" />
+                ) : asset.asset_type === 'video' && getVideoThumbnail(asset.file_url) ? (
+                  <a href={asset.file_url} target="_blank" rel="noreferrer" className="w-full h-full relative block">
+                    <img src={getVideoThumbnail(asset.file_url)!} alt={asset.label || 'Video'} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                      <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
+                        <Play className="h-6 w-6 text-white fill-white ml-0.5" />
+                      </div>
+                    </div>
+                  </a>
+                ) : asset.asset_type === 'video' ? (
+                  <a href={asset.file_url} target="_blank" rel="noreferrer" className="w-full h-full flex flex-col items-center justify-center gap-2 hover:bg-muted/80 transition-colors">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Play className="h-6 w-6 text-primary ml-0.5" />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground text-center truncate max-w-full px-2">{asset.label}</p>
+                  </a>
+                ) : asset.asset_type === 'link' ? (
+                  <a href={asset.file_url} target="_blank" rel="noreferrer" className="w-full h-full flex flex-col items-center justify-center gap-2 hover:bg-muted/80 transition-colors p-4">
+                    <ExternalLink className="h-8 w-8 text-primary" />
+                    <p className="text-[10px] text-muted-foreground text-center line-clamp-2 px-2">{asset.file_url}</p>
+                  </a>
                 ) : (
                   <div className="flex flex-col items-center gap-2 p-4">
                     <span className="text-3xl">
-                      {asset.asset_type === 'pdf' ? '📄' : asset.asset_type === 'audio' ? '🎵' : asset.asset_type === 'video' ? '🎬' : asset.asset_type === 'link' ? '🔗' : '📝'}
+                      {asset.asset_type === 'pdf' ? '📄' : asset.asset_type === 'audio' ? '🎵' : '📝'}
                     </span>
-                    {(asset.asset_type === 'link' || asset.asset_type === 'video') && (
-                      <p className="text-[10px] text-muted-foreground text-center truncate max-w-full px-2">{asset.file_url}</p>
-                    )}
                   </div>
                 )}
                 {asset.is_cover && (

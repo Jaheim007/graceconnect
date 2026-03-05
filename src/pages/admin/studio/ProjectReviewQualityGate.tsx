@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import {
   ArrowLeft, CheckCircle, XCircle, AlertTriangle, Shield, Loader2, Sparkles,
-  TrendingUp, TrendingDown, BookOpen, PenLine, Target
+  TrendingUp, TrendingDown, BookOpen, PenLine, Target, Wand2
 } from 'lucide-react';
 
 export default function ProjectReviewQualityGate() {
@@ -21,6 +21,7 @@ export default function ProjectReviewQualityGate() {
   const [rejectReason, setRejectReason] = useState('');
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [checkingQuality, setCheckingQuality] = useState(false);
+  const [improvingSection, setImprovingSection] = useState<string | null>(null);
 
   const { data: project, isLoading } = useQuery({
     queryKey: ['studio-project', id],
@@ -169,6 +170,50 @@ export default function ProjectReviewQualityGate() {
   const aiStrengths: string[] = aiOutput?.strengths || [];
   const aiWeaknesses: string[] = aiOutput?.weaknesses || [];
   const aiDetailedScores: Record<string, number> = aiOutput?.detailed_scores || aiOutput?.scores || {};
+  const aiChapterIssues: Array<{ chapter: string; issues: string[]; score?: number }> =
+    aiOutput?.chapter_issues || aiOutput?.section_issues || [];
+
+
+  const improveSection = async (sectionName: string) => {
+    if (!id) return;
+    setImprovingSection(sectionName);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-create-job', {
+        body: { project_id: id, job_type: 'improve_section', section: sectionName },
+      });
+      if (error) throw error;
+      if (data?.error) {
+        toast({ title: 'Erreur', description: data.error, variant: 'destructive' });
+        setImprovingSection(null);
+        return;
+      }
+      supabase.functions.invoke('ai-run-job', {
+        body: { job_id: data.job_id },
+      }).catch(err => console.error('ai-run-job error:', err));
+      toast({ title: 'Amélioration lancée', description: `Amélioration de "${sectionName}" en cours...` });
+
+      const checkInterval = setInterval(async () => {
+        const { data: job } = await db.from('ai_generation_jobs')
+          .select('status')
+          .eq('id', data.job_id)
+          .single();
+        if (job?.status === 'completed' || job?.status === 'failed') {
+          clearInterval(checkInterval);
+          setImprovingSection(null);
+          queryClient.invalidateQueries({ queryKey: ['studio-project', id] });
+          if (job.status === 'completed') {
+            toast({ title: 'Section améliorée ✓', description: `"${sectionName}" a été amélioré.` });
+          } else {
+            toast({ title: 'Erreur', description: 'L\'amélioration a échoué.', variant: 'destructive' });
+          }
+        }
+      }, 2000);
+      setTimeout(() => { clearInterval(checkInterval); setImprovingSection(null); }, 120000);
+    } catch (e: any) {
+      toast({ title: 'Erreur', description: e.message, variant: 'destructive' });
+      setImprovingSection(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -289,7 +334,75 @@ export default function ProjectReviewQualityGate() {
         </Card>
       )}
 
-      {/* Flags */}
+      {/* Chapter-level issues with improve button */}
+      {aiChapterIssues.length > 0 && (
+        <Card className="border-orange-200 dark:border-orange-800/30">
+          <CardHeader>
+            <CardTitle className="text-sm flex items-center gap-2 text-orange-600">
+              <Target className="h-4 w-4" /> Sections à améliorer
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {aiChapterIssues.map((section, i) => (
+              <div key={i} className="border rounded-lg p-3 space-y-2 bg-muted/30">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-sm">{section.chapter}</span>
+                    {section.score != null && (
+                      <Badge variant={section.score >= 7 ? 'default' : 'destructive'} className="text-[10px]">
+                        {section.score}/10
+                      </Badge>
+                    )}
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="gap-1 text-xs"
+                    disabled={improvingSection === section.chapter}
+                    onClick={() => improveSection(section.chapter)}
+                  >
+                    {improvingSection === section.chapter ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <Wand2 className="h-3 w-3" />
+                    )}
+                    Améliorer maintenant
+                  </Button>
+                </div>
+                <ul className="space-y-1">
+                  {section.issues.map((issue, j) => (
+                    <li key={j} className="flex items-start gap-2 text-xs text-muted-foreground">
+                      <XCircle className="h-3 w-3 text-orange-500 shrink-0 mt-0.5" />
+                      <span>{issue}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Global improve all button when weaknesses exist but no chapter detail */}
+      {aiChapterIssues.length === 0 && (aiWeaknesses.length > 0 || aiRecommendations.length > 0) && (
+        <div className="flex justify-center">
+          <Button
+            variant="outline"
+            className="gap-2"
+            disabled={improvingSection === '__all__'}
+            onClick={() => improveSection('__all__')}
+          >
+            {improvingSection === '__all__' ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Wand2 className="h-4 w-4" />
+            )}
+            Améliorer tout le contenu
+          </Button>
+        </div>
+      )}
+
+
       {flags.length > 0 && (
         <Card>
           <CardHeader><CardTitle className="text-sm">Alertes</CardTitle></CardHeader>

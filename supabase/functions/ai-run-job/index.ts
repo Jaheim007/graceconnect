@@ -467,7 +467,7 @@ Ne commence JAMAIS par "Voici..." ou une intro méta. Va droit au contenu.`;
     return `${base}\nRetourne un JSON valide: {"chapters": [{"id": "ch-1", "title": "...", "content": "", "order": 0}]}`;
   }
   if (jobType === 'quality_check') {
-    return `${base}\nTu es un éditeur professionnel. Analyse le contenu et retourne un JSON valide avec cette structure exacte:
+    return `${base}\nTu es un éditeur professionnel. Analyse le contenu chapitre par chapitre et retourne un JSON valide avec cette structure exacte:
 {
   "score": 7,
   "summary": "Résumé global de l'analyse en 2-3 phrases",
@@ -481,9 +481,13 @@ Ne commence JAMAIS par "Voici..." ou une intro méta. Va droit au contenu.`;
   "strengths": ["Point fort 1", "Point fort 2"],
   "weaknesses": ["Point faible 1 avec explication précise"],
   "recommendations": ["Action concrète 1 à effectuer", "Action concrète 2"],
+  "chapter_issues": [
+    {"chapter": "Titre du chapitre problématique", "score": 5, "issues": ["Problème spécifique 1", "Problème spécifique 2"]},
+    {"chapter": "Autre chapitre", "score": 4, "issues": ["Description précise du problème"]}
+  ],
   "flags": ["alerte si contenu problématique"]
 }
-Score de 1 à 10. Sois précis et actionnable dans tes recommandations. Indique exactement quels chapitres ou passages nécessitent des améliorations.`;
+Score de 1 à 10. Pour chapter_issues, liste UNIQUEMENT les chapitres/sections qui ont un score inférieur à 8 et décris précisément ce qui doit être amélioré dans chacun. Sois précis et actionnable.`;
   }
 
   if (project?.project_type === 'kids_book') {
