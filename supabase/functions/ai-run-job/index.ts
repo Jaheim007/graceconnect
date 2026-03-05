@@ -523,8 +523,13 @@ function buildUserPrompt(jobType: string, project: any, template: any, params: a
   switch (jobType) {
     case 'generate_outline':
       return `Génère un plan détaillé pour: "${title}". Objectif: ${objective}. Longueur: ${project?.target_length || 10} chapitres.`;
-    case 'generate_chapter':
+    case 'generate_chapter': {
+      if (params?.mode === 'improve') {
+        const issues = params.issues ? `\nProblèmes identifiés: ${params.issues}` : '';
+        return `Améliore et réécris le chapitre "${params.chapter_title || 'Chapitre'}" du projet "${title}".${issues}\n\nContenu actuel à améliorer:\n${params.current_content || '(contenu vide - rédige le chapitre complet)'}\n\nConsignes: Corrige les problèmes identifiés, enrichis le contenu, améliore le style et la structure. Garde le même thème et le même titre. Produis un contenu complet de 500-800 mots en HTML.`;
+      }
       return `Rédige le chapitre "${params?.chapter_title || 'Chapitre'}". Projet: "${title}". 500-800 mots.`;
+    }
     case 'generate_description':
       return `Rédige une description de vente pour "${title}". Max 200 mots avec bénéfices et appel à l'action.`;
     case 'quality_check': {
