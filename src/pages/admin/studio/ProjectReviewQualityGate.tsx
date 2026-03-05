@@ -227,7 +227,9 @@ export default function ProjectReviewQualityGate() {
           setImprovingSection(null);
           queryClient.invalidateQueries({ queryKey: ['studio-project', id] });
           if (job.status === 'completed') {
-            toast({ title: 'Contenu amélioré ✓', description: isAll ? 'Le contenu a été amélioré.' : `"${sectionName}" a été amélioré.` });
+            toast({ title: 'Contenu amélioré ✓', description: isAll ? 'Relance de l\'analyse...' : `"${sectionName}" amélioré. Relance de l'analyse...` });
+            // Auto re-run quality analysis after improvement
+            runQualityCheck();
           } else {
             toast({ title: 'Erreur', description: 'L\'amélioration a échoué.', variant: 'destructive' });
           }
