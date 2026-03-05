@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import {
   ArrowLeft, CheckCircle, XCircle, AlertTriangle, Shield, Loader2, Sparkles,
-  TrendingUp, TrendingDown, BookOpen, PenLine, Target
+  TrendingUp, TrendingDown, BookOpen, PenLine, Target, Wand2
 } from 'lucide-react';
 
 export default function ProjectReviewQualityGate() {
@@ -169,6 +169,51 @@ export default function ProjectReviewQualityGate() {
   const aiStrengths: string[] = aiOutput?.strengths || [];
   const aiWeaknesses: string[] = aiOutput?.weaknesses || [];
   const aiDetailedScores: Record<string, number> = aiOutput?.detailed_scores || aiOutput?.scores || {};
+  const aiChapterIssues: Array<{ chapter: string; issues: string[]; score?: number }> =
+    aiOutput?.chapter_issues || aiOutput?.section_issues || [];
+
+  const [improvingSection, setImprovingSection] = useState<string | null>(null);
+
+  const improveSection = async (sectionName: string) => {
+    if (!id) return;
+    setImprovingSection(sectionName);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-create-job', {
+        body: { project_id: id, job_type: 'improve_section', section: sectionName },
+      });
+      if (error) throw error;
+      if (data?.error) {
+        toast({ title: 'Erreur', description: data.error, variant: 'destructive' });
+        setImprovingSection(null);
+        return;
+      }
+      supabase.functions.invoke('ai-run-job', {
+        body: { job_id: data.job_id },
+      }).catch(err => console.error('ai-run-job error:', err));
+      toast({ title: 'Amélioration lancée', description: `Amélioration de "${sectionName}" en cours...` });
+
+      const checkInterval = setInterval(async () => {
+        const { data: job } = await db.from('ai_generation_jobs')
+          .select('status')
+          .eq('id', data.job_id)
+          .single();
+        if (job?.status === 'completed' || job?.status === 'failed') {
+          clearInterval(checkInterval);
+          setImprovingSection(null);
+          queryClient.invalidateQueries({ queryKey: ['studio-project', id] });
+          if (job.status === 'completed') {
+            toast({ title: 'Section améliorée ✓', description: `"${sectionName}" a été amélioré.` });
+          } else {
+            toast({ title: 'Erreur', description: 'L\'amélioration a échoué.', variant: 'destructive' });
+          }
+        }
+      }, 2000);
+      setTimeout(() => { clearInterval(checkInterval); setImprovingSection(null); }, 120000);
+    } catch (e: any) {
+      toast({ title: 'Erreur', description: e.message, variant: 'destructive' });
+      setImprovingSection(null);
+    }
+  };
 
   return (
     <div className="space-y-6">
