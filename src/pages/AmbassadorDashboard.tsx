@@ -17,6 +17,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
 import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
+import { EarningsCard } from '@/components/ambassador/EarningsCard';
 
 export default function AmbassadorDashboard() {
   const { user, profile } = useAuth();
@@ -246,6 +247,27 @@ export default function AmbassadorDashboard() {
             })}
           </div>
         </motion.div>
+
+        {/* ═══ SHAREABLE EARNINGS CARD ═══ */}
+        {totalEarned > 0 && (
+          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}
+            className="bg-card border border-border rounded-2xl p-5"
+          >
+            <h2 className="font-bold text-sm flex items-center gap-2 mb-4">
+              <Trophy className="h-4 w-4 text-amber-500" /> 🎉 Partager mes gains
+            </h2>
+            <p className="text-xs text-muted-foreground mb-4">
+              Partage ta carte de gains sur les réseaux sociaux et inspire d'autres personnes à rejoindre le mouvement !
+            </p>
+            <EarningsCard
+              totalEarned={totalEarned}
+              currency={primaryCurrency}
+              salesCount={affiliateSales.length}
+              clicksCount={totalClicks}
+              topOrgName={affiliateLinks[0]?.organizations?.name}
+            />
+          </motion.div>
+        )}
 
         {/* ═══ ACTIVE LINKS ═══ */}
         {affiliateLinks.length > 0 && (
