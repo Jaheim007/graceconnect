@@ -229,9 +229,11 @@ Deno.serve(async (req) => {
 
         // Also update quality fields on project
         if (jobType === 'quality_check') {
+          const aiScore = output.score ?? qualityScore.score;
+          const aiFlags = output.flags || qualityScore.flags.map((f: any) => f.flag || f);
           await admin.from('ai_content_projects').update({
-            quality_score: qualityScore.score,
-            quality_flags: qualityScore.flags.map((f: any) => f.flag || f),
+            quality_score: aiScore,
+            quality_flags: aiFlags,
           }).eq('id', job.project_id);
         }
       }
