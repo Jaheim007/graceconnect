@@ -15,8 +15,9 @@ import { useState, useCallback, useEffect } from 'react';
 import {
   ArrowLeft, Plus, Trash2, GripVertical, Save, FileText,
   Sparkles, Loader2, ChevronLeft, ChevronRight, ListTree,
-  FileCheck, BookOpen
+  FileCheck, BookOpen, Eye
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 
 interface Chapter {
@@ -39,6 +40,43 @@ export default function ProjectEditor() {
   const [dirty, setDirty] = useState(false);
   const [generatingJob, setGeneratingJob] = useState<string | null>(null);
   const [hasActiveJobs, setHasActiveJobs] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
+
+  // Fetch PDF asset
+  const { data: pdfAsset, refetch: refetchPdf } = useQuery({
+    queryKey: ['studio-project-pdf', id],
+    queryFn: async () => {
+      if (!id) return null;
+      const { data } = await db.from('ai_project_assets')
+        .select('file_url')
+        .eq('project_id', id)
+        .eq('asset_type', 'pdf')
+        .order('created_at', { ascending: false })
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!id,
+  });
+
+  const generateAndPreviewPdf = async () => {
+    if (!id || !currentOrg?.id) return;
+    setGeneratingPdf(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-generate-pdf', {
+        body: { org_id: currentOrg.id, project_id: id, format: 'ebook', page_size: 'A4' },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      await refetchPdf();
+      setPreviewOpen(true);
+      toast({ title: 'PDF généré ✓' });
+    } catch (e: any) {
+      toast({ title: 'Erreur PDF', description: e.message, variant: 'destructive' });
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
 
   // Fetch project
   const { data: project, isLoading } = useQuery({
