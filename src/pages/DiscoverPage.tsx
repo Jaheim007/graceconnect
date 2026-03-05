@@ -29,6 +29,7 @@ import { PlatformStats } from '@/components/discover/PlatformStats';
 import { PersonalizedRecommendations } from '@/components/discover/PersonalizedRecommendations';
 import { BuyerStreakWidget } from '@/components/discover/BuyerStreakWidget';
 import { ForYouFeed } from '@/components/discover/ForYouFeed';
+import { CategoryCarousels } from '@/components/discover/CategoryCarousels';
 import { useCallback, useRef, useEffect } from 'react';
 
 import { Offering } from '@/hooks/useOfferings';
@@ -255,6 +256,7 @@ export default function DiscoverPage() {
         {!isSearching && !user && <DiscoverCTABanner />}
         {!isSearching && user && <BuyerStreakWidget />}
         {!isSearching && <TrendingBanner />}
+        {!isSearching && <CategoryCarousels />}
 
         <Tabs value={tab} onValueChange={(v) => setTab(v)}>
           <TabsList className="mb-4">
