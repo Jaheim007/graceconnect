@@ -32,6 +32,13 @@ export async function uploadEditorImage(file: File): Promise<string | null> {
  * into an embeddable iframe src.
  * Returns null if the URL is not recognized.
  */
+/**
+ * Check if a URL is a Facebook video link.
+ */
+export function isFacebookUrl(url: string): boolean {
+  return /(?:facebook\.com|fb\.watch|fb\.com)/.test(url.trim());
+}
+
 export function getVideoEmbedUrl(url: string): string | null {
   const trimmed = url.trim();
 
@@ -49,10 +56,9 @@ export function getVideoEmbedUrl(url: string): string | null {
   const dmMatch = trimmed.match(/dailymotion\.com\/video\/(\w+)/);
   if (dmMatch) return `https://www.dailymotion.com/embed/video/${dmMatch[1]}`;
 
-  // Facebook: facebook.com/watch, /videos/, /reel/, /share/, fb.watch, etc.
-  if (/(?:facebook\.com|fb\.watch|fb\.com)/.test(trimmed)) {
-    return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(trimmed)}&show_text=0&width=560`;
-  }
+  // Facebook: not embeddable via iframe (blocked by Facebook CSP)
+  // Handled separately as a clickable link card
+  if (isFacebookUrl(trimmed)) return null;
 
   // TikTok: tiktok.com/@user/video/ID
   const ttMatch = trimmed.match(/tiktok\.com\/@[\w.-]+\/video\/(\d+)/);
