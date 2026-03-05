@@ -23,7 +23,7 @@ import {
 import { Button } from './button';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { uploadEditorImage, getVideoEmbedUrl } from '@/lib/editorUpload';
+import { uploadEditorImage, getVideoEmbedUrl, isFacebookUrl } from '@/lib/editorUpload';
 import { useToast } from '@/hooks/use-toast';
 import { EmojiPicker } from './editor/EmojiPicker';
 import { TableMenu } from './editor/TableMenu';
@@ -198,13 +198,23 @@ export function RichTextEditor({
     if (!editor) return;
     const url = window.prompt('URL de la vidéo (YouTube, Facebook, TikTok, Vimeo, Dailymotion, Twitter/X, Instagram):');
     if (!url) return;
+
+    // Facebook doesn't allow iframe embedding — insert a styled link instead
+    if (isFacebookUrl(url)) {
+      editor.chain().focus().insertContent(
+        `<p><a href="${url}" target="_blank" rel="noopener noreferrer">🎬 Voir la vidéo Facebook</a></p>`
+      ).run();
+      toast({ title: 'Lien Facebook ajouté', description: 'Facebook ne permet pas l\'intégration en iframe. Un lien cliquable a été inséré.' });
+      return;
+    }
+
     const embedUrl = getVideoEmbedUrl(url);
     if (embedUrl) {
       editor.chain().focus().setIframe({ src: embedUrl }).run();
     } else {
       toast({
         title: 'URL non supportée',
-        description: 'Formats acceptés : YouTube, Facebook, TikTok, Vimeo, Dailymotion, Twitter/X, Instagram.',
+        description: 'Formats acceptés : YouTube, TikTok, Vimeo, Dailymotion, Twitter/X, Instagram. Facebook : lien cliquable.',
         variant: 'destructive',
       });
     }
