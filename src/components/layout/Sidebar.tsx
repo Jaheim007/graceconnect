@@ -24,6 +24,7 @@ interface NavItem {
   icon: typeof Home;
   label: string;
   desc?: string;
+  comingSoon?: boolean;
 }
 
 interface NavGroup {
@@ -76,9 +77,9 @@ export function Sidebar() {
       icon: Sparkles,
       key: 'Studio',
       items: [
-        { to: '/admin/studio', icon: Sparkles, label: 'Studio IA' },
-        { to: '/admin/studio/projects', icon: BookOpen, label: 'Projets' },
-        { to: '/admin/studio/jobs', icon: BarChart3, label: 'Tâches IA' },
+        { to: '/admin/studio', icon: Sparkles, label: 'Studio IA', comingSoon: true },
+        { to: '/admin/studio/projects', icon: BookOpen, label: 'Projets', comingSoon: true },
+        { to: '/admin/studio/jobs', icon: BarChart3, label: 'Tâches IA', comingSoon: true },
       ],
     },
     {
@@ -134,9 +135,40 @@ export function Sidebar() {
   };
 
   const renderNavItem = (item: NavItem) => {
-    const active = isActive(item.to);
+    const active = !item.comingSoon && isActive(item.to);
     const showBadge = item.to === '/notifications' && unread > 0;
     const Icon = item.icon;
+
+    if (item.comingSoon) {
+      const comingSoonEl = (
+        <div
+          key={item.to}
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground/50 cursor-not-allowed"
+        >
+          <Icon className="h-4 w-4" />
+          {!collapsed && (
+            <>
+              <span className="truncate">{item.label}</span>
+              <span className="ml-auto text-[9px] font-semibold uppercase tracking-wider bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full shrink-0">Bientôt</span>
+            </>
+          )}
+        </div>
+      );
+
+      if (collapsed) {
+        return (
+          <Tooltip key={item.to} delayDuration={0}>
+            <TooltipTrigger asChild>{comingSoonEl}</TooltipTrigger>
+            <TooltipContent side="right">
+              <p className="font-semibold text-xs">{item.label}</p>
+              <p className="text-[11px] text-muted-foreground">Bientôt disponible</p>
+            </TooltipContent>
+          </Tooltip>
+        );
+      }
+
+      return comingSoonEl;
+    }
 
     const link = (
       <Link
