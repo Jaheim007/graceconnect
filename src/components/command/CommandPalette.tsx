@@ -62,8 +62,8 @@ export function CommandPalette() {
     if (hasOrgs && canManageOrg) {
       list.push(
         { label: 'Vue d\'ensemble admin', to: '/admin', icon: BarChart3, group: 'Ma plateforme', keywords: 'overview admin' },
-        { label: 'Studio IA', to: '/admin/studio', icon: Sparkles, group: 'Ma plateforme', keywords: 'ai studio content' },
-        { label: 'Projets IA', to: '/admin/studio/projects', icon: BookOpen, group: 'Ma plateforme', keywords: 'projects' },
+        { label: 'Studio IA (Bientôt)', to: '/admin/studio', icon: Sparkles, group: 'Ma plateforme', keywords: 'ai studio content', disabled: true },
+        { label: 'Projets IA (Bientôt)', to: '/admin/studio/projects', icon: BookOpen, group: 'Ma plateforme', keywords: 'projects', disabled: true },
         { label: 'Médias', to: '/admin/media', icon: Play, group: 'Ma plateforme', keywords: 'media video audio' },
         { label: 'Photos', to: '/admin/photos', icon: Camera, group: 'Ma plateforme' },
         { label: 'Annonces', to: '/admin/announcements', icon: Megaphone, group: 'Ma plateforme', keywords: 'announcements' },
