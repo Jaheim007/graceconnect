@@ -25,10 +25,24 @@ Deno.serve(async (req) => {
     if (authErr || !user) return jsonError('Unauthorized', 401);
 
     // --- Input ---
-    const { org_id, project_id, template_id, job_type, input_params } = await req.json();
-    if (!org_id || !job_type) return jsonError('org_id and job_type required', 400);
+    const body = await req.json();
+    let { org_id, project_id, template_id, job_type, input_params } = body;
+    if (!job_type) return jsonError('job_type required', 400);
 
     const admin = createClient(supabaseUrl, serviceKey);
+
+    // Resolve org_id from project_id if not provided
+    if (!org_id && project_id) {
+      const { data: proj } = await admin
+        .from('ai_content_projects')
+        .select('organization_id')
+        .eq('id', project_id)
+        .single();
+      if (!proj) return jsonError('Project not found', 404);
+      org_id = proj.organization_id;
+    }
+    if (!org_id) return jsonError('org_id or project_id required', 400);
+
 
     // --- Permission ---
     const { data: canUse } = await admin.rpc('can_use_studio', { _org_id: org_id });
@@ -100,6 +114,18 @@ Deno.serve(async (req) => {
       organization_id: org_id,
       metadata: { job_type, project_id, template_id },
     });
+
+    // --- Trigger ai-run-job (fire-and-forget) ---
+    const runUrl = `${supabaseUrl}/functions/v1/ai-run-job`;
+    fetch(runUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': authHeader,
+        'apikey': anonKey,
+      },
+      body: JSON.stringify({ job_id: job.id }),
+    }).catch(err => console.error('Failed to trigger ai-run-job:', err));
 
     return new Response(JSON.stringify({ ok: true, job_id: job.id }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
