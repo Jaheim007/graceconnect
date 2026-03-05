@@ -40,7 +40,7 @@ export function useCanvaAuth() {
   const startAuth = useCallback(async () => {
     setLoading(true);
     try {
-      const redirectUri = `${window.location.origin}/canva/callback`;
+      const redirectUri = 'https://siteviral.com/canva/callback';
       const state = crypto.randomUUID();
       sessionStorage.setItem('canva_oauth_state', state);
 
@@ -64,7 +64,7 @@ export function useCanvaAuth() {
   const exchangeCode = useCallback(async (code: string) => {
     setLoading(true);
     try {
-      const redirectUri = `${window.location.origin}/canva/callback`;
+      const redirectUri = 'https://siteviral.com/canva/callback';
 
       const { data, error } = await supabase.functions.invoke('canva-auth?action=token', {
         body: { code, redirect_uri: redirectUri },
