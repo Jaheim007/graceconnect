@@ -115,6 +115,18 @@ Deno.serve(async (req) => {
       metadata: { job_type, project_id, template_id },
     });
 
+    // --- Trigger ai-run-job (fire-and-forget) ---
+    const runUrl = `${supabaseUrl}/functions/v1/ai-run-job`;
+    fetch(runUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': authHeader,
+        'apikey': anonKey,
+      },
+      body: JSON.stringify({ job_id: job.id }),
+    }).catch(err => console.error('Failed to trigger ai-run-job:', err));
+
     return new Response(JSON.stringify({ ok: true, job_id: job.id }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
