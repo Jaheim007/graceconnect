@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import {
   CheckCircle, Download, BookOpen, ArrowRight, ShieldCheck,
   Store, User, Package, CreditCard, Calendar, Hash, Loader2, AlertCircle,
+  PartyPopper, Share2, Users,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -404,6 +405,42 @@ export default function PaymentSuccessPage() {
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
       <SEOHead title="Paiement réussi — Siteviral" noindex />
+
+      {/* Confetti burst */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-20">
+        {Array.from({ length: 50 }).map((_, i) => {
+          const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96E6A1', '#FFA07A', '#DDA0DD', '#FFD700', '#87CEEB'];
+          const color = colors[i % colors.length];
+          const size = 6 + Math.random() * 8;
+          return (
+            <motion.div
+              key={i}
+              className="absolute"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: -10,
+                width: size,
+                height: size,
+                backgroundColor: color,
+                borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+              }}
+              initial={{ y: -20, opacity: 1, rotate: 0 }}
+              animate={{
+                y: [0, 400 + Math.random() * 300],
+                x: [0, (Math.random() - 0.5) * 150],
+                opacity: [1, 1, 0],
+                rotate: Math.random() * 720,
+              }}
+              transition={{
+                duration: 2.5 + Math.random(),
+                delay: i * 0.04,
+                ease: 'easeOut',
+              }}
+            />
+          );
+        })}
+      </div>
+
       {/* Watermark Background */}
       <div className="absolute inset-0 pointer-events-none select-none overflow-hidden opacity-[0.03]">
         {[...Array(6)].map((_, i) => (
@@ -432,18 +469,18 @@ export default function PaymentSuccessPage() {
           className="text-center mb-8"
         >
           <div className="relative inline-flex mb-4">
-            <div className="absolute inset-0 rounded-full bg-green-500/20 blur-xl animate-pulse" />
-            <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center shadow-lg">
-              <CheckCircle className="h-10 w-10 text-white" />
+            <div className="absolute inset-0 rounded-full bg-emerald-500/20 blur-xl animate-pulse" />
+            <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg">
+              <PartyPopper className="h-10 w-10 text-white" />
             </div>
           </div>
           <h1 className="text-2xl font-bold text-foreground">
-            {isProduct ? 'Achat confirmé !' : 'Don confirmé !'}
+            {isProduct ? '🎉 Achat confirmé !' : '🙏 Don confirmé !'}
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
             {isProduct
               ? 'Votre produit numérique est prêt.'
-              : 'Merci pour votre générosité 🙏'}
+              : 'Merci pour votre générosité !'}
           </p>
         </motion.div>
 
@@ -593,48 +630,65 @@ export default function PaymentSuccessPage() {
         >
           {/* Share section */}
           {isCompleted && (
-            <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
-              <p className="text-sm font-semibold text-center">Partagez votre expérience</p>
-              <div className="flex gap-2 justify-center">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="gap-1.5 text-xs"
+            <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+              <p className="text-sm font-bold text-center">Partagez votre expérience 🔥</p>
+              <div className="grid grid-cols-3 gap-2">
+                <button
                   onClick={() => {
                     const text = isProduct
                       ? `Je viens d'acheter "${tx.product_title}" sur ${tx.org_name} via Siteviral ! 🎉`
                       : `Je viens de soutenir "${tx.campaign_title || tx.org_name}" via Siteviral ! 🙏`;
                     window.open(`https://wa.me/?text=${encodeURIComponent(`${text}\nhttps://siteviral.com`)}`, '_blank');
                   }}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-border bg-emerald-500/5 hover:bg-emerald-500/10 transition-colors"
                 >
-                  WhatsApp
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="gap-1.5 text-xs"
+                  <span className="text-lg">💬</span>
+                  <span className="text-[10px] font-medium text-muted-foreground">WhatsApp</span>
+                </button>
+                <button
                   onClick={() => {
                     const text = isProduct
                       ? `Je viens d'acheter "${tx.product_title}" sur ${tx.org_name} ! 🎉`
                       : `Je viens de soutenir "${tx.campaign_title || tx.org_name}" ! 🙏`;
                     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
                   }}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-border bg-sky-500/5 hover:bg-sky-500/10 transition-colors"
                 >
-                  X / Twitter
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="gap-1.5 text-xs"
+                  <span className="text-lg">𝕏</span>
+                  <span className="text-[10px] font-medium text-muted-foreground">Twitter</span>
+                </button>
+                <button
                   onClick={() => {
                     navigator.clipboard.writeText(window.location.href);
                     alert('Lien copié !');
                   }}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl border border-border bg-blue-500/5 hover:bg-blue-500/10 transition-colors"
                 >
-                  Copier le lien
-                </Button>
+                  <span className="text-lg">🔗</span>
+                  <span className="text-[10px] font-medium text-muted-foreground">Copier</span>
+                </button>
               </div>
             </div>
+          )}
+
+          {/* Ambassador CTA */}
+          {isCompleted && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="flex items-center gap-3 p-4 rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 cursor-pointer transition-all"
+              onClick={() => navigate('/discover')}
+            >
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <Users className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-bold">💰 Gagnez en partageant</p>
+                <p className="text-xs text-muted-foreground">Devenez ambassadeur et touchez des commissions sur chaque vente</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-primary shrink-0" />
+            </motion.div>
           )}
 
           {user && (

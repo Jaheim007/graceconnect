@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen, Eye } from 'lucide-react';
 import { FlashSaleBadge } from './FlashSaleBadge';
 import { ShareWidget } from './ShareWidget';
+import { WishlistButton } from './WishlistButton';
 import { LocalPriceHint } from '@/components/payments/LocalPriceHint';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
@@ -153,7 +154,9 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
             <ShoppingBag className="h-14 w-14 text-muted-foreground/20" />
           </div>
         )}
-        <div className="absolute top-2.5 left-2.5 right-2.5 flex items-start justify-between">
+        {/* Wishlist heart */}
+        <WishlistButton productId={product.id} />
+        <div className="absolute top-2.5 left-2.5 right-12 flex items-start justify-between">
           <div className="flex flex-col gap-1">
             {isPurchased && (
               <Badge className="bg-emerald-600/90 text-white border-0 text-[10px] gap-1 font-semibold w-fit">

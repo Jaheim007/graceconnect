@@ -145,6 +145,7 @@ const PartnerPortalPage = lazy(() => import("@/pages/PartnerPortalPage"));
 
 
 const BookmarksPage = lazy(() => import("@/pages/BookmarksPage"));
+const WishlistPage = lazy(() => import("@/pages/WishlistPage"));
 const NotificationPreferencesPage = lazy(() => import("@/pages/NotificationPreferencesPage"));
 const MyInvoicesPage = lazy(() => import("@/pages/MyInvoicesPage"));
 const MyProgramsPage = lazy(() => import("@/pages/MyProgramsPage"));
@@ -387,6 +388,7 @@ const App = () => (
                   <Route path="/leaderboard" element={<Navigate to="/affiliation" replace />} />
                   
                   <Route path="/bookmarks" element={<BookmarksPage />} />
+                  <Route path="/wishlist" element={<WishlistPage />} />
                   <Route path="/partner" element={<PartnerPortalPage />} />
                   <Route path="/invoices" element={<MyInvoicesPage />} />
                   <Route path="/my-analytics" element={<UserAnalyticsPage />} />
