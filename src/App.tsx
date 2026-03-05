@@ -205,6 +205,10 @@ const SuperadminPush = lazy(() => import("@/pages/superadmin/SuperadminPush"));
 const SuperadminSupport = lazy(() => import("@/pages/superadmin/SuperadminSupport"));
 const SuperadminSettlements = lazy(() => import("@/pages/superadmin/SuperadminSettlements"));
 const SuperadminPartners = lazy(() => import("@/pages/superadmin/SuperadminPartners"));
+const SuperadminGlobalTemplates = lazy(() => import("@/pages/superadmin/studio/GlobalTemplatesManager"));
+const SuperadminAiPolicies = lazy(() => import("@/pages/superadmin/studio/AiPoliciesManager"));
+const SuperadminGlobalJobs = lazy(() => import("@/pages/superadmin/studio/GlobalAiJobsMonitor"));
+const SuperadminAiAbuse = lazy(() => import("@/pages/superadmin/studio/AiAbuseMonitor"));
 // Wrap lazy components that export named exports
 const LazyAdminAnnouncements = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminAnnouncements })));
 const LazyAdminEvents = lazy(() => import("@/pages/admin/AdminPages").then(m => ({ default: m.AdminEvents })));
@@ -461,6 +465,10 @@ const App = () => (
                   <Route path="settlements" element={<SuperadminSettlements />} />
                   <Route path="partners" element={<SuperadminPartners />} />
                   <Route path="ai" element={<SuperadminAIChat />} />
+                  <Route path="studio/templates" element={<SuperadminGlobalTemplates />} />
+                  <Route path="studio/policies" element={<SuperadminAiPolicies />} />
+                  <Route path="studio/jobs" element={<SuperadminGlobalJobs />} />
+                  <Route path="studio/abuse-monitor" element={<SuperadminAiAbuse />} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
