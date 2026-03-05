@@ -1,9 +1,12 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { X, Image as ImageIcon, Loader2, Palette, Upload as UploadIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ImageCropDialog } from '@/components/ui/ImageCropDialog';
 import { compressImage } from '@/hooks/useImageOptimizer';
+import { useCanvaAuth } from '@/hooks/useCanvaAuth';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 
 interface ImageUploaderProps {
   value: string;
@@ -13,6 +16,7 @@ interface ImageUploaderProps {
   hint?: string;
   aspectRatio?: 'square' | 'video' | 'banner' | 'free' | 'book';
   disableCrop?: boolean;
+  showCanva?: boolean;
 }
 
 const ASPECT_MAP = { square: 1, video: 16 / 9, banner: 3 / 1, book: 2 / 3, free: undefined } as const;
@@ -25,6 +29,14 @@ const DIMENSION_HINTS: Record<string, string> = {
   free: 'Max 10 Mo · JPG, PNG, WEBP',
 };
 
+const CANVA_DIMENSIONS: Record<string, { width: number; height: number }> = {
+  square: { width: 1000, height: 1000 },
+  video: { width: 1280, height: 720 },
+  banner: { width: 1200, height: 400 },
+  book: { width: 600, height: 900 },
+  free: { width: 1280, height: 720 },
+};
+
 export function ImageUploader({
   value,
   onChange,
@@ -33,13 +45,19 @@ export function ImageUploader({
   hint,
   aspectRatio = 'video',
   disableCrop = false,
+  showCanva = true,
 }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [canvaDesigning, setCanvaDesigning] = useState(false);
+  const { toast } = useToast();
 
   // Crop state
   const [cropSrc, setCropSrc] = useState<string | null>(null);
+
+  // Canva
+  const { isConnected: canvaConnected, startAuth: canvaStartAuth, getValidToken: getCanvaToken, loading: canvaLoading } = useCanvaAuth();
 
   const aspectClass = {
     square: 'aspect-square',
@@ -61,11 +79,9 @@ export function ImageUploader({
     }
     setError(null);
 
-    // Compress before upload
     const file = await compressImage(rawFile);
 
     if (disableCrop) {
-      // Upload directly without cropping
       setUploading(true);
       try {
         const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${file.name.split('.').pop() || 'jpg'}`;
@@ -81,7 +97,6 @@ export function ImageUploader({
         setUploading(false);
       }
     } else {
-      // Open crop dialog
       const url = URL.createObjectURL(file);
       setCropSrc(url);
     }
@@ -104,6 +119,98 @@ export function ImageUploader({
       setUploading(false);
     }
   };
+
+  // ── Canva: create design ──
+  const openCanvaDesign = useCallback(async () => {
+    sessionStorage.setItem('canva_return_to', window.location.pathname);
+
+    if (!canvaConnected) {
+      try {
+        await canvaStartAuth();
+      } catch (e: any) {
+        toast({ title: 'Erreur Canva', description: e.message, variant: 'destructive' });
+      }
+      return;
+    }
+
+    setCanvaDesigning(true);
+    try {
+      const token = await getCanvaToken();
+      if (!token) {
+        toast({ title: 'Session Canva expirée', description: 'Reconnectez-vous à Canva.', variant: 'destructive' });
+        return;
+      }
+
+      const dims = CANVA_DIMENSIONS[aspectRatio] || CANVA_DIMENSIONS.free;
+      const { data, error } = await supabase.functions.invoke('canva-design', {
+        body: {
+          action: 'create',
+          canva_token: token,
+          title: `Design — ${label}`,
+          width: dims.width,
+          height: dims.height,
+        },
+      });
+
+      if (error) throw error;
+      if (!data?.ok) throw new Error(data?.error || 'Échec création design Canva');
+
+      if (data.edit_url) {
+        window.open(data.edit_url, '_blank');
+        // Store design_id keyed by folder to allow multiple contexts
+        const canvaKey = `canva_design_${folder}_${Date.now()}`;
+        sessionStorage.setItem('canva_active_design', canvaKey);
+        sessionStorage.setItem(canvaKey, data.design_id);
+        toast({
+          title: '🎨 Design Canva créé',
+          description: 'Éditez votre design dans Canva, puis cliquez "Importer depuis Canva" ici.',
+        });
+      }
+    } catch (e: any) {
+      toast({ title: 'Erreur Canva', description: e.message, variant: 'destructive' });
+    } finally {
+      setCanvaDesigning(false);
+    }
+  }, [canvaConnected, canvaStartAuth, getCanvaToken, aspectRatio, folder, label, toast]);
+
+  // ── Canva: export and import design ──
+  const exportCanvaDesign = useCallback(async () => {
+    const activeKey = sessionStorage.getItem('canva_active_design');
+    const designId = activeKey ? sessionStorage.getItem(activeKey) : null;
+    if (!designId) {
+      toast({ title: 'Aucun design Canva', description: 'Créez d\'abord un design avec Canva.', variant: 'destructive' });
+      return;
+    }
+
+    setCanvaDesigning(true);
+    try {
+      const token = await getCanvaToken();
+      if (!token) {
+        toast({ title: 'Session Canva expirée', variant: 'destructive' });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('canva-design', {
+        body: { action: 'export', canva_token: token, design_id: designId },
+      });
+
+      if (error) throw error;
+      if (!data?.ok) throw new Error(data?.error || 'Export échoué');
+
+      onChange(data.cover_url);
+      if (activeKey) {
+        sessionStorage.removeItem(activeKey);
+        sessionStorage.removeItem('canva_active_design');
+      }
+      toast({ title: '✅ Design Canva importé !' });
+    } catch (e: any) {
+      toast({ title: 'Erreur export', description: e.message, variant: 'destructive' });
+    } finally {
+      setCanvaDesigning(false);
+    }
+  }, [getCanvaToken, onChange, toast]);
+
+  const hasActiveDesign = !!sessionStorage.getItem('canva_active_design');
 
   return (
     <div className="space-y-1.5">
@@ -149,6 +256,37 @@ export function ImageUploader({
           </div>
         )}
       </div>
+
+      {/* Canva buttons */}
+      {showCanva && (
+        <div className="flex gap-1.5">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="flex-1 text-xs h-7 gap-1"
+            onClick={(e) => { e.preventDefault(); openCanvaDesign(); }}
+            disabled={canvaDesigning || canvaLoading}
+          >
+            {canvaDesigning && !hasActiveDesign ? <Loader2 className="h-3 w-3 animate-spin" /> : <Palette className="h-3 w-3" />}
+            {canvaConnected ? 'Créer avec Canva' : 'Connecter Canva'}
+          </Button>
+          {hasActiveDesign && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="flex-1 text-xs h-7 gap-1 border-primary/30 text-primary"
+              onClick={(e) => { e.preventDefault(); exportCanvaDesign(); }}
+              disabled={canvaDesigning}
+            >
+              {canvaDesigning ? <Loader2 className="h-3 w-3 animate-spin" /> : <UploadIcon className="h-3 w-3" />}
+              Importer depuis Canva
+            </Button>
+          )}
+        </div>
+      )}
+
       {error && <p className="text-xs text-destructive">{error}</p>}
       <input
         ref={inputRef}
