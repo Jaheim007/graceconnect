@@ -11,8 +11,9 @@ import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import {
   ArrowLeft, CheckCircle, XCircle, AlertTriangle, Shield, Loader2, Sparkles,
-  TrendingUp, TrendingDown, BookOpen, PenLine, Target, Wand2
+  TrendingUp, TrendingDown, BookOpen, PenLine, Target, Wand2, Eye
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export default function ProjectReviewQualityGate() {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +23,10 @@ export default function ProjectReviewQualityGate() {
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [checkingQuality, setCheckingQuality] = useState(false);
   const [improvingSection, setImprovingSection] = useState<string | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
+
+  const { currentOrg } = useOrg();
 
   const { data: project, isLoading } = useQuery({
     queryKey: ['studio-project', id],
