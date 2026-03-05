@@ -113,3 +113,30 @@ verify_jwt = false
 
 [functions.ai-create-job]
 verify_jwt = false
+
+[functions.ai-run-job]
+verify_jwt = false
+
+[functions.ai-policy-check]
+verify_jwt = false
+
+[functions.ai-generate-pdf]
+verify_jwt = false
+
+[functions.ai-project-to-product]
+verify_jwt = false
+
+[functions.ai-project-to-program]
+verify_jwt = false
+
+[functions.ai-generate-images]
+verify_jwt = false
+
+[functions.ai-generate-audio]
+verify_jwt = false
+
+[functions.ai-template-manager]
+verify_jwt = false
+
+[functions.ai-assets-signed-url]
+verify_jwt = false
