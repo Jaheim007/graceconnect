@@ -149,3 +149,9 @@ verify_jwt = false
 
 [functions.ai-translate-product]
 verify_jwt = false
+
+[functions.canva-auth]
+verify_jwt = false
+
+[functions.canva-design]
+verify_jwt = false
