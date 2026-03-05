@@ -37,10 +37,12 @@ import { CrossSellWidget } from '@/components/products/CrossSellWidget';
 import { SubscriptionUpsellPrompt } from '@/components/subscriptions/SubscriptionUpsellPrompt';
 import { Breadcrumb } from '@/components/layout/Breadcrumb';
 import { ViralSnippets } from '@/components/products/ViralSnippets';
+import { MarketingKit } from '@/components/ambassador/MarketingKit';
 import { BecomeAmbassadorCTA } from '@/components/products/BecomeAmbassadorCTA';
 import { CreateSimilarCTA } from '@/components/products/CreateSimilarCTA';
 import { WishlistButton } from '@/components/products/WishlistButton';
 import { PostPurchaseCelebration } from '@/components/products/PostPurchaseCelebration';
+import { SocialProofWidget } from '@/components/products/SocialProofWidget';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -672,6 +674,13 @@ export default function ProductDetailPage() {
                 )}
               </div>
 
+              {/* Social Proof */}
+              <SocialProofWidget
+                salesCount={product.sales_count || 0}
+                reviewCount={(product as any).review_count || 0}
+                averageRating={(product as any).average_rating || 0}
+              />
+
               {canQuickPreview && (
                 <Button
                   variant="outline"
@@ -749,6 +758,15 @@ export default function ProductDetailPage() {
               {!isPurchased && org && slug && (
                 <AmbassadorBanner orgSlug={slug} orgName={org.name} />
               )}
+              {/* Marketing Kit for ambassadors */}
+              <MarketingKit
+                productTitle={product.title}
+                productPrice={product.price || undefined}
+                productCurrency={product.currency || 'XOF'}
+                commissionPercent={(product as any).commission_percent || 10}
+                shareUrl={buildShareUrl()}
+                orgName={org?.name || ''}
+              />
             </UniverseGate>
 
             {/* 1-click Become Ambassador CTA — visible to all non-owners */}

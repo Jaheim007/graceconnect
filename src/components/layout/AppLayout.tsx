@@ -7,6 +7,7 @@ import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { useOrg } from '@/contexts/OrgContext';
 import { InstallBanner } from '@/components/pwa/InstallBanner';
 import { PushNotificationPrompt } from '@/components/pwa/PushNotificationPrompt';
+import { useNewUserRedirect } from '@/hooks/useNewUserRedirect';
 
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
 
@@ -26,6 +27,7 @@ export function AppLayout() {
   const hideNav = HIDE_NAV_ROUTES.some((r) => location.pathname.startsWith(r));
 
   useRealtimeNotifications(userOrgs.map(o => o.id));
+  useNewUserRedirect();
 
   return (
     <div className="h-[100dvh] flex w-full bg-background overflow-hidden">
