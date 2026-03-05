@@ -7,7 +7,6 @@ import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { useOrg } from '@/contexts/OrgContext';
 import { InstallBanner } from '@/components/pwa/InstallBanner';
 import { PushNotificationPrompt } from '@/components/pwa/PushNotificationPrompt';
-import { ScrollToTop } from '@/components/ui/ScrollToTop';
 import { useNewUserRedirect } from '@/hooks/useNewUserRedirect';
 import { CommandPalette } from '@/components/command/CommandPalette';
 import { CompareProvider } from '@/components/products/ProductCompareDrawer';
@@ -16,6 +15,8 @@ import { FloatingHelpWidget } from '@/components/help/FloatingHelpWidget';
 import { SkipToContent } from '@/components/a11y/SkipToContent';
 import { KeyboardShortcutsModal } from '@/components/a11y/KeyboardShortcutsModal';
 import { OfflineIndicator } from '@/components/network/OfflineIndicator';
+import { BackToTopProgress } from '@/components/ui/BackToTopProgress';
+import { PerformanceWidget } from '@/components/dev/PerformanceWidget';
 
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
 
@@ -74,7 +75,8 @@ export function AppLayout() {
       <CommandPalette />
       <InstallBanner />
       <PushNotificationPrompt />
-      <ScrollToTop />
+      <BackToTopProgress />
+      <PerformanceWidget />
       <CookieConsent />
       <FloatingHelpWidget />
       <KeyboardShortcutsModal />
