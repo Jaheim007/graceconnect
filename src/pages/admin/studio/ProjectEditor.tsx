@@ -567,5 +567,6 @@ export default function ProjectEditor() {
         </div>
       </DialogContent>
     </Dialog>
-  </>;
+  </>
+  );
 }
