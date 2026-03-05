@@ -178,8 +178,33 @@ export default function ProjectReviewQualityGate() {
     if (!id) return;
     setImprovingSection(sectionName);
     try {
+      // Find the chapter in structure_json to get its ID and current content
+      const chapters = (project?.structure_json as any)?.chapters || [];
+      const isAll = sectionName === '__all__';
+      const chapter = !isAll ? chapters.find((c: any) =>
+        c.title === sectionName || c.title?.includes(sectionName)
+      ) : null;
+
+      const chapterId = chapter?.id || sectionName;
+      const currentContent = chapter?.content || '';
+
+      // Find chapter issues for this section to pass as context
+      const sectionIssues = aiChapterIssues.find(s => s.chapter === sectionName);
+      const issuesList = sectionIssues?.issues?.join('; ') || '';
+
       const { data, error } = await supabase.functions.invoke('ai-create-job', {
-        body: { project_id: id, job_type: 'improve_section', section: sectionName },
+        body: {
+          project_id: id,
+          job_type: 'generate_chapter',
+          params: {
+            chapter_id: chapterId,
+            chapter_title: sectionName,
+            mode: 'improve',
+            current_content: currentContent.slice(0, 4000),
+            issues: issuesList,
+            improve_all: isAll,
+          },
+        },
       });
       if (error) throw error;
       if (data?.error) {
@@ -190,7 +215,7 @@ export default function ProjectReviewQualityGate() {
       supabase.functions.invoke('ai-run-job', {
         body: { job_id: data.job_id },
       }).catch(err => console.error('ai-run-job error:', err));
-      toast({ title: 'Amélioration lancée', description: `Amélioration de "${sectionName}" en cours...` });
+      toast({ title: 'Amélioration lancée', description: isAll ? 'Amélioration globale en cours...' : `Amélioration de "${sectionName}" en cours...` });
 
       const checkInterval = setInterval(async () => {
         const { data: job } = await db.from('ai_generation_jobs')
@@ -202,7 +227,7 @@ export default function ProjectReviewQualityGate() {
           setImprovingSection(null);
           queryClient.invalidateQueries({ queryKey: ['studio-project', id] });
           if (job.status === 'completed') {
-            toast({ title: 'Section améliorée ✓', description: `"${sectionName}" a été amélioré.` });
+            toast({ title: 'Contenu amélioré ✓', description: isAll ? 'Le contenu a été amélioré.' : `"${sectionName}" a été amélioré.` });
           } else {
             toast({ title: 'Erreur', description: 'L\'amélioration a échoué.', variant: 'destructive' });
           }
