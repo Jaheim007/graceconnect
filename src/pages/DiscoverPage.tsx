@@ -18,16 +18,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
-import { PageTour } from '@/components/onboarding/PageTour';
 
-import { TrendingBanner } from '@/components/discover/TrendingBanner';
+
 import { DiscoverCTABanner } from '@/components/discover/DiscoverCTABanner';
-import { LiveActivityTicker } from '@/components/discover/LiveActivityTicker';
-import { FlashSaleCountdown } from '@/components/discover/FlashSaleCountdown';
 import { FeaturedSection } from '@/components/discover/FeaturedSection';
-import { PlatformStats } from '@/components/discover/PlatformStats';
 import { PersonalizedRecommendations } from '@/components/discover/PersonalizedRecommendations';
-import { BuyerStreakWidget } from '@/components/discover/BuyerStreakWidget';
 import { ForYouFeed } from '@/components/discover/ForYouFeed';
 import { CategoryCarousels } from '@/components/discover/CategoryCarousels';
 import { useCallback, useRef, useEffect } from 'react';
@@ -36,7 +31,6 @@ import { Offering } from '@/hooks/useOfferings';
 import { SearchSuggestions, addRecentSearch } from '@/components/discover/SearchSuggestions';
 import { ProductQuickView } from '@/components/products/ProductQuickView';
 import { RecentlyViewedProducts } from '@/components/discover/RecentlyViewedProducts';
-import { EngagementLevel } from '@/components/discover/EngagementLevel';
 import { StickyFilterBar } from '@/components/discover/StickyFilterBar';
 import { NotificationDigest } from '@/components/notifications/NotificationDigest';
 
@@ -46,11 +40,6 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 26 } },
 };
 
-const DISCOVER_TOUR_STEPS = [
-  { titleKey: 'tour.discover_1_title', descKey: 'tour.discover_1_desc', icon: <Search className="h-4 w-4" /> },
-  { titleKey: 'tour.discover_2_title', descKey: 'tour.discover_2_desc', icon: <ShoppingBag className="h-4 w-4" /> },
-  { titleKey: 'tour.discover_3_title', descKey: 'tour.discover_3_desc', icon: <Heart className="h-4 w-4" /> },
-];
 
 type ProductSort = 'mixed' | 'popular' | 'recent' | 'price_asc' | 'price_desc' | 'rating' | 'best_selling' | 'most_viewed';
 
@@ -264,16 +253,8 @@ export default function DiscoverPage() {
       </div>
 
       <div className="container max-w-6xl py-6">
-        <PageTour pageId="discover" steps={DISCOVER_TOUR_STEPS} />
-
-        <LiveActivityTicker />
         {!isSearching && user && <NotificationDigest />}
-        {!isSearching && <PlatformStats />}
-        {!isSearching && <FlashSaleCountdown />}
         {!isSearching && !user && <DiscoverCTABanner />}
-        {!isSearching && user && <BuyerStreakWidget />}
-        {!isSearching && <TrendingBanner />}
-        {!isSearching && user && <EngagementLevel />}
         {!isSearching && <RecentlyViewedProducts />}
 
         {!isSearching && <CategoryCarousels />}
