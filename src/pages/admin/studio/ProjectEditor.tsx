@@ -168,6 +168,105 @@ export default function ProjectEditor() {
     }
   };
 
+  const openCanvaDesign = async () => {
+    if (!id || !currentOrg?.id || !project) return;
+    
+    // Save return path for after OAuth
+    sessionStorage.setItem('canva_return_to', window.location.pathname);
+
+    if (!canvaConnected) {
+      // Start OAuth flow
+      try {
+        await canvaStartAuth();
+      } catch (e: any) {
+        toast({ title: 'Erreur Canva', description: e.message, variant: 'destructive' });
+      }
+      return;
+    }
+
+    setCanvaDesigning(true);
+    try {
+      const token = await getCanvaToken();
+      if (!token) {
+        toast({ title: 'Session Canva expirée', description: 'Reconnectez-vous à Canva.', variant: 'destructive' });
+        return;
+      }
+
+      // Create a design with book cover dimensions (600x900)
+      const { data, error } = await supabase.functions.invoke('canva-design', {
+        body: {
+          action: 'create',
+          canva_token: token,
+          title: `Couverture — ${project.title}`,
+          width: 600,
+          height: 900,
+        },
+      });
+
+      if (error) throw error;
+      if (!data?.ok) throw new Error(data?.error || 'Échec création design Canva');
+
+      // Open Canva editor in new tab
+      if (data.edit_url) {
+        window.open(data.edit_url, '_blank');
+        toast({
+          title: '🎨 Design Canva créé',
+          description: 'Éditez votre couverture dans l\'onglet Canva, puis revenez ici pour l\'exporter.',
+        });
+
+        // Store design_id for later export
+        sessionStorage.setItem(`canva_design_${id}`, data.design_id);
+      }
+    } catch (e: any) {
+      toast({ title: 'Erreur Canva', description: e.message, variant: 'destructive' });
+    } finally {
+      setCanvaDesigning(false);
+    }
+  };
+
+  const exportCanvaDesign = async () => {
+    if (!id || !currentOrg?.id) return;
+    const designId = sessionStorage.getItem(`canva_design_${id}`);
+    if (!designId) {
+      toast({ title: 'Aucun design Canva', description: 'Créez d\'abord un design avec Canva.', variant: 'destructive' });
+      return;
+    }
+
+    setCanvaDesigning(true);
+    try {
+      const token = await getCanvaToken();
+      if (!token) {
+        toast({ title: 'Session Canva expirée', variant: 'destructive' });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('canva-design', {
+        body: { action: 'export', canva_token: token, design_id: designId },
+      });
+
+      if (error) throw error;
+      if (!data?.ok) throw new Error(data?.error || 'Export échoué');
+
+      // Save as cover asset
+      if (coverAsset) {
+        await db.from('ai_project_assets').update({ is_cover: false }).eq('id', coverAsset.id);
+      }
+      await db.from('ai_project_assets').insert({
+        project_id: id, organization_id: currentOrg.id, file_url: data.cover_url,
+        asset_type: 'image', label: 'Couverture Canva', mime_type: 'image/png',
+        is_cover: true, display_order: 0,
+      });
+
+      sessionStorage.removeItem(`canva_design_${id}`);
+      toast({ title: '✅ Couverture Canva importée !' });
+      refetchCover();
+    } catch (e: any) {
+      toast({ title: 'Erreur export', description: e.message, variant: 'destructive' });
+    } finally {
+      setCanvaDesigning(false);
+    }
+  };
+
   // Fetch project
   const { data: project, isLoading } = useQuery({
     queryKey: ['studio-project', id],
