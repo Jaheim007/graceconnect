@@ -75,6 +75,10 @@ export async function verifyStripePayment(reference: string, session_id?: string
   return callFn('stripe-verify', { reference, session_id }, true);
 }
 
+export async function verifyMonerooPayment(payment_id?: string, reference?: string): Promise<VerifyPaymentResult> {
+  return callFn('moneroo-verify', { payment_id, reference }, true);
+}
+
 export async function createPaystackSubaccount(args: {
   organization_id: string;
   business_name: string;
