@@ -233,62 +233,6 @@ export default function ProjectPublishWizard() {
     }
   }, [id, currentOrg?.id]);
 
-  const publishAsProduct = useMutation({
-    mutationFn: async () => {
-      if (!currentOrg || !user || !project) throw new Error('Missing context');
-
-      // Ensure we have a PDF file
-      let fileUrl = pdfAsset?.file_url || null;
-
-      if (!fileUrl) {
-        // Try generating one last time
-        const { data, error } = await supabase.functions.invoke('ai-generate-pdf', {
-          body: { org_id: currentOrg.id, project_id: id, format: 'ebook', page_size: 'A4' },
-        });
-        if (!error && data?.download_url) {
-          fileUrl = data.download_url;
-        }
-      }
-
-      if (!fileUrl) {
-        throw new Error('Le fichier PDF n\'a pas pu être généré. Veuillez réessayer.');
-      }
-
-      const { data: product, error } = await db.from('digital_products').insert({
-        organization_id: currentOrg.id,
-        created_by: user.id,
-        title: project.title,
-        description: description || project.objective || '',
-        price: isFree ? 0 : price,
-        sale_price: salePrice || null,
-        is_free: isFree,
-        is_published: true,
-        cover_image_url: coverAsset?.file_url || null,
-        file_url: fileUrl,
-        product_type: project.project_type === 'course_pack' ? 'course' : 'ebook',
-      }).select('id').single();
-
-      if (error) throw error;
-
-      await db.from('ai_content_projects').update({
-        linked_product_id: product.id,
-        status: 'published',
-        published_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }).eq('id', id);
-
-      return product;
-    },
-    onSuccess: () => {
-      toast({ title: 'Produit publié ✓', description: 'Votre contenu est maintenant disponible.' });
-      queryClient.invalidateQueries({ queryKey: ['studio-project', id] });
-      navigate(`/admin/studio/projects/${id}`);
-    },
-    onError: (err: any) => {
-      toast({ title: 'Erreur', description: err.message, variant: 'destructive' });
-    },
-  });
-
   const publishAsCourse = useMutation({
     mutationFn: async () => {
       if (!currentOrg || !user || !project) throw new Error('Missing context');
@@ -344,9 +288,7 @@ export default function ProjectPublishWizard() {
   const handlePublish = async () => {
     setPublishing(true);
     try {
-      if (target === 'product') {
-        await publishAsProduct.mutateAsync();
-      } else if (target === 'course') {
+      if (target === 'course') {
         await publishAsCourse.mutateAsync();
       } else {
         toast({ title: 'Bientôt disponible', description: 'La publication en média sera disponible prochainement.' });
