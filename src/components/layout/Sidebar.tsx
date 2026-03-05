@@ -5,7 +5,8 @@ import {
   Settings, ChevronLeft, ChevronRight, Shield,
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, LogOut,
   UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, LayoutDashboard, Building2,
-  Trophy, CreditCard, Clock, GraduationCap, Share2, HandHeart, Package, Handshake
+  Trophy, CreditCard, Clock, GraduationCap, Share2, HandHeart, Package, Handshake,
+  Sparkles
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
@@ -70,6 +71,16 @@ export function Sidebar() {
   ];
 
   const platformGroups: NavGroup[] = [
+    {
+      label: 'Studio IA',
+      icon: Sparkles,
+      key: 'Studio',
+      items: [
+        { to: '/admin/studio', icon: Sparkles, label: 'Studio IA' },
+        { to: '/admin/studio/projects', icon: BookOpen, label: 'Projets' },
+        { to: '/admin/studio/jobs', icon: BarChart3, label: 'Tâches IA' },
+      ],
+    },
     {
       label: t('sidebar.content'),
       icon: Play,

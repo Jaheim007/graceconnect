@@ -176,6 +176,19 @@ const AdminEventForm = lazy(() => import("@/pages/admin/AdminEventForm").then(m 
 const AdminCampaignForm = lazy(() => import("@/pages/admin/AdminCampaignForm").then(m => ({ default: m.CampaignForm })));
 const AdminProductForm = lazy(() => import("@/pages/admin/AdminProductForm").then(m => ({ default: m.ProductForm })));
 
+// AI Studio
+const StudioHome = lazy(() => import("@/pages/admin/studio/StudioHome"));
+const StudioProjectsList = lazy(() => import("@/pages/admin/studio/StudioProjectsList"));
+const ProjectWizard = lazy(() => import("@/pages/admin/studio/ProjectWizard"));
+const ProjectOverview = lazy(() => import("@/pages/admin/studio/ProjectOverview"));
+const ProjectEditor = lazy(() => import("@/pages/admin/studio/ProjectEditor"));
+const ProjectAssets = lazy(() => import("@/pages/admin/studio/ProjectAssets"));
+const ProjectReviewQualityGate = lazy(() => import("@/pages/admin/studio/ProjectReviewQualityGate"));
+const ProjectPublishWizard = lazy(() => import("@/pages/admin/studio/ProjectPublishWizard"));
+const AiJobsQueue = lazy(() => import("@/pages/admin/studio/AiJobsQueue"));
+const OrgTemplates = lazy(() => import("@/pages/admin/studio/OrgTemplates"));
+const AssetsLibrary = lazy(() => import("@/pages/admin/studio/AssetsLibrary"));
+
 // Superadmin
 const SuperadminLayout = lazy(() => import("@/pages/superadmin/SuperadminLayout"));
 const SuperadminFullDashboard = lazy(() => import("@/pages/superadmin/SuperadminFullDashboard"));
@@ -413,6 +426,18 @@ const App = () => (
                   <Route path="programs" element={<AdminPrograms />} />
                   <Route path="programs/new" element={<AdminProgramForm />} />
                   <Route path="programs/:id/edit" element={<AdminProgramForm />} />
+                  {/* AI Studio */}
+                  <Route path="studio" element={<StudioHome />} />
+                  <Route path="studio/projects" element={<StudioProjectsList />} />
+                  <Route path="studio/projects/new" element={<ProjectWizard />} />
+                  <Route path="studio/projects/:id" element={<ProjectOverview />} />
+                  <Route path="studio/projects/:id/editor" element={<ProjectEditor />} />
+                  <Route path="studio/projects/:id/assets" element={<ProjectAssets />} />
+                  <Route path="studio/projects/:id/review" element={<ProjectReviewQualityGate />} />
+                  <Route path="studio/projects/:id/publish" element={<ProjectPublishWizard />} />
+                  <Route path="studio/jobs" element={<AiJobsQueue />} />
+                  <Route path="studio/templates" element={<OrgTemplates />} />
+                  <Route path="studio/library" element={<AssetsLibrary />} />
                   </Route>
                 </Route>
                 {/* Superadmin */}
