@@ -1,12 +1,11 @@
 import { useState } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Search, ShoppingBag, Heart, HandHeart, Loader2 } from 'lucide-react';
+import { Search, Loader2, Filter, SlidersHorizontal } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ProductCard } from '@/components/products/ProductCard';
 import { CampaignCard } from '@/components/donations/CampaignCard';
 import { OfferingCard } from '@/components/offerings/OfferingCard';
@@ -15,10 +14,8 @@ import { SkeletonList } from '@/components/ui/SkeletonCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useOrg } from '@/contexts/OrgContext';
 import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
-
 
 import { DiscoverCTABanner } from '@/components/discover/DiscoverCTABanner';
 import { FeaturedSection } from '@/components/discover/FeaturedSection';
@@ -33,6 +30,8 @@ import { ProductQuickView } from '@/components/products/ProductQuickView';
 import { RecentlyViewedProducts } from '@/components/discover/RecentlyViewedProducts';
 import { StickyFilterBar } from '@/components/discover/StickyFilterBar';
 import { NotificationDigest } from '@/components/notifications/NotificationDigest';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
@@ -40,7 +39,7 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 26 } },
 };
 
-
+type ContentFilter = 'all' | 'products' | 'campaigns' | 'offerings';
 type ProductSort = 'mixed' | 'popular' | 'recent' | 'price_asc' | 'price_desc' | 'rating' | 'best_selling' | 'most_viewed';
 
 /** Interleave products so no single org dominates consecutive slots */
@@ -74,31 +73,25 @@ const PAGE_SIZE = 20;
 
 export default function DiscoverPage() {
   const [search, setSearch] = useState('');
-  const [tab, setTab] = useState('products');
+  const [contentFilter, setContentFilter] = useState<ContentFilter>('all');
   const [sortBy, setSortBy] = useState<ProductSort>('mixed');
   const [priceFilter, setPriceFilter] = useState<PriceFilter>('all');
   const [typeFilter, setTypeFilter] = useState<ProductTypeFilter>('');
   const [selectedOffering, setSelectedOffering] = useState<Offering | null>(null);
   const [quickViewProduct, setQuickViewProduct] = useState<any>(null);
   const [searchFocused, setSearchFocused] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { userOrgs } = useOrg();
   const { t, locale } = useI18n();
   const debouncedSearch = useDebounce(search, 300);
   const isFr = locale === 'fr';
 
-  const PRODUCT_TYPES = [
-    { value: '', label: isFr ? 'Tous types' : 'All types' },
-    { value: 'pdf', label: 'PDF' },
-    { value: 'ebook', label: 'E-book' },
-    { value: 'audio', label: 'Audio' },
-    { value: 'video', label: 'Vidéo' },
-    { value: 'link', label: isFr ? 'Lien' : 'Link' },
-    { value: 'bundle', label: 'Bundle' },
-  ];
+  const showProducts = contentFilter === 'all' || contentFilter === 'products';
+  const showCampaigns = contentFilter === 'all' || contentFilter === 'campaigns';
+  const showOfferings = contentFilter === 'all' || contentFilter === 'offerings';
 
-  // C2+C5: Real infinite scroll pagination (removed multiplyContent)
+  // Products query
   const productsQuery = useInfiniteQuery({
     queryKey: ['discover-products', debouncedSearch, sortBy, priceFilter, typeFilter],
     queryFn: async ({ pageParam = 0 }) => {
@@ -126,6 +119,7 @@ export default function DiscoverPage() {
       const { data } = await q;
       const mapped = (data || []).map((p: any) => ({
         ...p,
+        _type: 'product' as const,
         organization_name: p.organizations?.name,
         organization_slug: p.organizations?.slug,
         organization_logo: p.organizations?.logo_url,
@@ -137,12 +131,59 @@ export default function DiscoverPage() {
       return lastPage.page + 1;
     },
     initialPageParam: 0,
-    enabled: tab === 'products',
-    staleTime: 2 * 60 * 1000, // A2: 2min cache
+    enabled: showProducts,
+    staleTime: 2 * 60 * 1000,
+  });
+  const products = productsQuery.data?.pages.flatMap(p => p.items) || [];
+
+  // Campaigns query (first page only in unified feed, unless filtered)
+  const { data: campaigns = [], isLoading: loadingCampaigns } = useQuery({
+    queryKey: ['discover-campaigns-unified', debouncedSearch],
+    queryFn: async () => {
+      let q = db
+        .from('donation_campaigns')
+        .select('*, organizations(name, slug, logo_url, currency)')
+        .eq('is_published', true)
+        .eq('is_active', true)
+        .eq('is_express_demo', false)
+        .order('current_amount', { ascending: false })
+        .limit(contentFilter === 'campaigns' ? 50 : 6);
+      if (debouncedSearch) q = q.ilike('title', `%${debouncedSearch}%`);
+      const { data } = await q;
+      return (data || []).map((c: any) => ({
+        ...c,
+        _type: 'campaign' as const,
+        organization_name: c.organizations?.name,
+        organization_slug: c.organizations?.slug,
+      }));
+    },
+    enabled: showCampaigns,
+    staleTime: 2 * 60 * 1000,
   });
 
-  const products = productsQuery.data?.pages.flatMap(p => p.items) || [];
-  const loadingProducts = productsQuery.isLoading;
+  // Offerings query
+  const { data: offerings = [], isLoading: loadingOfferings } = useQuery({
+    queryKey: ['discover-offerings-unified', debouncedSearch],
+    queryFn: async () => {
+      let q = db
+        .from('offerings')
+        .select('*, organizations!inner(name, slug, logo_url, currency, offerings_enabled)')
+        .eq('is_active', true)
+        .eq('organizations.offerings_enabled', true)
+        .order('created_at', { ascending: false })
+        .limit(contentFilter === 'offerings' ? 50 : 4);
+      if (debouncedSearch) q = q.ilike('title', `%${debouncedSearch}%`);
+      const { data } = await q;
+      return (data || []).map((o: any) => ({
+        ...o,
+        _type: 'offering' as const,
+        organization_name: o.organizations?.name,
+        organization_slug: o.organizations?.slug,
+      }));
+    },
+    enabled: showOfferings,
+    staleTime: 2 * 60 * 1000,
+  });
 
   // Infinite scroll sentinel
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -164,70 +205,21 @@ export default function DiscoverPage() {
     return () => observerRef.current?.disconnect();
   }, []);
 
-  const campaignsQuery = useInfiniteQuery({
-    queryKey: ['discover-campaigns', debouncedSearch],
-    queryFn: async ({ pageParam = 0 }) => {
-      let q = db
-        .from('donation_campaigns')
-        .select('*, organizations(name, slug, logo_url, currency)')
-        .eq('is_published', true)
-        .eq('is_active', true)
-        .eq('is_express_demo', false)
-        .order('current_amount', { ascending: false })
-        .range(pageParam * PAGE_SIZE, (pageParam + 1) * PAGE_SIZE - 1);
-      if (debouncedSearch) q = q.ilike('title', `%${debouncedSearch}%`);
-      const { data } = await q;
-      return {
-        items: (data || []).map((c: any) => ({
-          ...c,
-          organization_name: c.organizations?.name,
-          organization_slug: c.organizations?.slug,
-        })),
-        page: pageParam,
-      };
-    },
-    getNextPageParam: (lastPage: any) => lastPage.items.length < PAGE_SIZE ? undefined : lastPage.page + 1,
-    initialPageParam: 0,
-    enabled: tab === 'campaigns',
-    staleTime: 2 * 60 * 1000,
-  });
-  const campaigns = campaignsQuery.data?.pages.flatMap((p: any) => p.items) ?? [];
-  const loadingCampaigns = campaignsQuery.isLoading;
-
-  const offeringsQuery = useInfiniteQuery({
-    queryKey: ['discover-offerings', debouncedSearch],
-    queryFn: async ({ pageParam = 0 }) => {
-      let q = db
-        .from('offerings')
-        .select('*, organizations!inner(name, slug, logo_url, currency, offerings_enabled)')
-        .eq('is_active', true)
-        .eq('organizations.offerings_enabled', true)
-        .order('created_at', { ascending: false })
-        .range(pageParam * PAGE_SIZE, (pageParam + 1) * PAGE_SIZE - 1);
-      if (debouncedSearch) q = q.ilike('title', `%${debouncedSearch}%`);
-      const { data } = await q;
-      return {
-        items: (data || []).map((o: any) => ({
-          ...o,
-          organization_name: o.organizations?.name,
-          organization_slug: o.organizations?.slug,
-        })),
-        page: pageParam,
-      };
-    },
-    getNextPageParam: (lastPage: any) => lastPage.items.length < PAGE_SIZE ? undefined : lastPage.page + 1,
-    initialPageParam: 0,
-    enabled: tab === 'offerings',
-    staleTime: 2 * 60 * 1000,
-  });
-  const offerings = offeringsQuery.data?.pages.flatMap((p: any) => p.items) ?? [];
-  const loadingOfferings = offeringsQuery.isLoading;
-
   const isSearching = debouncedSearch.length > 0;
+  const isLoading = productsQuery.isLoading || (showCampaigns && loadingCampaigns) || (showOfferings && loadingOfferings);
+
+  const CONTENT_FILTERS: { value: ContentFilter; label: string; count: number }[] = [
+    { value: 'all', label: isFr ? 'Tout' : 'All', count: products.length + campaigns.length + offerings.length },
+    { value: 'products', label: isFr ? 'Ressources' : 'Resources', count: products.length },
+    { value: 'campaigns', label: isFr ? 'Campagnes' : 'Campaigns', count: campaigns.length },
+    { value: 'offerings', label: isFr ? 'Dons' : 'Donations', count: offerings.length },
+  ];
 
   return (
     <div className="bg-background min-h-screen">
       <SEOHead title={t('discover.seo_title')} description={t('discover.seo_desc')} />
+
+      {/* Header with search */}
       <div className="border-b border-border py-6 px-4">
         <div className="container max-w-4xl">
           <h1 className="text-xl sm:text-2xl font-bold mb-1">{t('discover.title')}</h1>
@@ -253,26 +245,54 @@ export default function DiscoverPage() {
       </div>
 
       <div className="container max-w-6xl py-6">
+        {/* Contextual banners */}
         {!isSearching && user && <NotificationDigest />}
         {!isSearching && !user && <DiscoverCTABanner />}
         {!isSearching && <RecentlyViewedProducts />}
 
+        {/* Category browsing carousel */}
         {!isSearching && <CategoryCarousels />}
-        <Tabs value={tab} onValueChange={(v) => setTab(v)}>
-          <TabsList className="mb-4">
-            <TabsTrigger value="products" className="gap-1.5">
-              <ShoppingBag className="h-3.5 w-3.5" /> {t('discover.resources')}
-            </TabsTrigger>
-            <TabsTrigger value="campaigns" className="gap-1.5">
-              <Heart className="h-3.5 w-3.5" /> {t('discover.campaigns')}
-            </TabsTrigger>
-            <TabsTrigger value="offerings" className="gap-1.5">
-              <HandHeart className="h-3.5 w-3.5" /> {isFr ? 'Dons' : 'Donations'}
-            </TabsTrigger>
-          </TabsList>
 
-          {/* ═══ Products Tab ═══ */}
-          <TabsContent value="products">
+        {/* Unified content filter pills + filter toggle */}
+        <div className="flex items-center gap-3 mb-4 flex-wrap">
+          <div className="flex gap-1.5 flex-wrap">
+            {CONTENT_FILTERS.map((f) => (
+              <button
+                key={f.value}
+                onClick={() => setContentFilter(f.value)}
+                className={cn(
+                  'px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border',
+                  contentFilter === f.value
+                    ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                    : 'bg-card border-border text-muted-foreground hover:bg-muted hover:text-foreground'
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          {showProducts && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1.5 text-xs ml-auto h-8"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              {isFr ? 'Filtres' : 'Filters'}
+            </Button>
+          )}
+        </div>
+
+        {/* Product filters (collapsible) */}
+        {showFilters && showProducts && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="mb-4"
+          >
             <StickyFilterBar
               sortBy={sortBy}
               setSortBy={setSortBy}
@@ -281,71 +301,115 @@ export default function DiscoverPage() {
               typeFilter={typeFilter}
               setTypeFilter={setTypeFilter}
             />
+          </motion.div>
+        )}
 
-            {loadingProducts ? <SkeletonList count={8} /> : products.length === 0 ? (
-              <EmptyState variant="search" title={t('discover.no_products')} />
-            ) : (
-              <>
-                <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {products.map((p: any) => (
-                    <motion.div key={p.id} variants={fadeUp} onDoubleClick={() => setQuickViewProduct(p)}>
-                      <ProductCard product={p} hideCommission hideShare />
+        {/* Loading */}
+        {isLoading ? <SkeletonList count={8} /> : (
+          <>
+            {/* Campaigns section (if showing) */}
+            {showCampaigns && campaigns.length > 0 && (
+              <div className="mb-8">
+                {contentFilter === 'all' && (
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-sm font-bold flex items-center gap-2">
+                      ❤️ {isFr ? 'Campagnes actives' : 'Active campaigns'}
+                    </h2>
+                    <button
+                      onClick={() => setContentFilter('campaigns')}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      {isFr ? 'Voir tout' : 'See all'} →
+                    </button>
+                  </div>
+                )}
+                <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                  {campaigns.map((c: any) => (
+                    <motion.div key={c.id} variants={fadeUp}>
+                      <CampaignCard campaign={c} />
                     </motion.div>
                   ))}
                 </motion.div>
-                {/* Infinite scroll sentinel */}
-                <div ref={sentinelRef} className="h-10" />
-                {productsQuery.isFetchingNextPage && (
-                  <div className="flex justify-center py-6">
-                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            )}
+
+            {/* Offerings section (if showing) */}
+            {showOfferings && offerings.length > 0 && (
+              <div className="mb-8">
+                {contentFilter === 'all' && (
+                  <div className="flex items-center justify-between mb-3">
+                    <h2 className="text-sm font-bold flex items-center gap-2">
+                      🤲 {isFr ? 'Dons & offrandes' : 'Donations & offerings'}
+                    </h2>
+                    <button
+                      onClick={() => setContentFilter('offerings')}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      {isFr ? 'Voir tout' : 'See all'} →
+                    </button>
                   </div>
                 )}
-                {!productsQuery.hasNextPage && products.length > 0 && (
-                  <p className="text-center text-xs text-muted-foreground py-6">
-                    {isFr ? '— Fin des résultats —' : '— End of results —'}
-                  </p>
+                <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                  {offerings.map((o: any) => (
+                    <motion.div key={o.id} variants={fadeUp}>
+                      <div className="relative">
+                        {o.organization_name && (
+                          <button onClick={() => navigate(`/org/${o.organization_slug}`)} className="text-[10px] text-muted-foreground hover:text-primary mb-1 block">{o.organization_name}</button>
+                        )}
+                        <OfferingCard offering={o} onSelect={setSelectedOffering} />
+                      </div>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              </div>
+            )}
+
+            {/* Products — main feed */}
+            {showProducts && (
+              <div>
+                {contentFilter === 'all' && products.length > 0 && (
+                  <h2 className="text-sm font-bold flex items-center gap-2 mb-3">
+                    📦 {isFr ? 'Ressources numériques' : 'Digital resources'}
+                  </h2>
                 )}
-              </>
+                {products.length === 0 && !productsQuery.isLoading ? (
+                  <EmptyState variant="search" title={t('discover.no_products')} />
+                ) : (
+                  <>
+                    <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                      {products.map((p: any) => (
+                        <motion.div key={p.id} variants={fadeUp} onDoubleClick={() => setQuickViewProduct(p)}>
+                          <ProductCard product={p} hideCommission hideShare />
+                        </motion.div>
+                      ))}
+                    </motion.div>
+                    <div ref={sentinelRef} className="h-10" />
+                    {productsQuery.isFetchingNextPage && (
+                      <div className="flex justify-center py-6">
+                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                      </div>
+                    )}
+                    {!productsQuery.hasNextPage && products.length > 0 && (
+                      <p className="text-center text-xs text-muted-foreground py-6">
+                        {isFr ? '— Fin des résultats —' : '— End of results —'}
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
             )}
-          </TabsContent>
 
-          {/* ═══ Campaigns Tab ═══ */}
-          <TabsContent value="campaigns">
-            {loadingCampaigns ? <SkeletonList count={6} /> : campaigns.length === 0 ? (
-              <EmptyState variant="search" title={isFr ? 'Aucune campagne visible trouvée' : 'No visible campaigns found'} description={isFr ? 'Essayez d\'ajuster votre recherche ou vos filtres.' : 'Try adjusting your search or filters.'} />
-            ) : (
-              <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                {campaigns.map((c: any) => (
-                  <motion.div key={c.id} variants={fadeUp}>
-                    <CampaignCard campaign={c} />
-                  </motion.div>
-                ))}
-              </motion.div>
+            {/* Empty state for non-product filters */}
+            {contentFilter === 'campaigns' && campaigns.length === 0 && !loadingCampaigns && (
+              <EmptyState variant="search" title={isFr ? 'Aucune campagne trouvée' : 'No campaigns found'} />
             )}
-          </TabsContent>
-
-          {/* ═══ Offerings/Dons Tab ═══ */}
-          <TabsContent value="offerings">
-            {loadingOfferings ? <SkeletonList count={6} /> : offerings.length === 0 ? (
-              <EmptyState variant="generic" title={isFr ? 'Aucun don visible trouvé' : 'No visible donations found'} description={isFr ? 'Essayez d\'ajuster votre recherche ou vos filtres.' : 'Try adjusting your search or filters.'} />
-            ) : (
-              <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                {offerings.map((o: any) => (
-                  <motion.div key={o.id} variants={fadeUp}>
-                    <div className="relative">
-                      {o.organization_name && (
-                        <button onClick={() => navigate(`/org/${o.organization_slug}`)} className="text-[10px] text-muted-foreground hover:text-primary mb-1 block">{o.organization_name}</button>
-                      )}
-                      <OfferingCard offering={o} onSelect={setSelectedOffering} />
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
+            {contentFilter === 'offerings' && offerings.length === 0 && !loadingOfferings && (
+              <EmptyState variant="generic" title={isFr ? 'Aucun don trouvé' : 'No donations found'} />
             )}
-          </TabsContent>
-        </Tabs>
+          </>
+        )}
 
-        {/* Smart sections below main grid */}
+        {/* Below-fold smart sections */}
         {!isSearching && <FeaturedSection />}
         {!isSearching && (
           <div className="mt-8">
