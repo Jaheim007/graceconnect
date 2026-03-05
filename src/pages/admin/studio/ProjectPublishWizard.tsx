@@ -11,11 +11,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import {
   ArrowLeft, Upload, ShoppingBag, GraduationCap, Radio,
-  Loader2, Check, Image as ImageIcon, FileText, Sparkles
+  Loader2, Check, Image as ImageIcon, FileText, Sparkles, Eye, RefreshCw, AlertTriangle
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 type PublishTarget = 'product' | 'course' | 'media';
 
@@ -32,9 +33,9 @@ export default function ProjectPublishWizard() {
   const [publishing, setPublishing] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [generatingDesc, setGeneratingDesc] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   // Product fields
-  const [slug, setSlug] = useState('');
   const [price, setPrice] = useState<number>(0);
   const [salePrice, setSalePrice] = useState<number | ''>('');
   const [description, setDescription] = useState('');
@@ -86,16 +87,14 @@ export default function ProjectPublishWizard() {
   useEffect(() => {
     if (step !== 1 || !project || !currentOrg?.id || !user?.id) return;
 
-    // Auto-generate description
     if (!description && !descGenerated.current) {
       descGenerated.current = true;
       generateDescription();
     }
 
-    // Auto-generate PDF if none exists
     if (!pdfAsset && !pdfGenerated.current && target === 'product') {
       pdfGenerated.current = true;
-      generatePdfAuto();
+      generatePdf();
     }
   }, [step, project?.id, pdfAsset]);
 
@@ -103,7 +102,6 @@ export default function ProjectPublishWizard() {
     if (!id || !currentOrg?.id || !user?.id || !project) return;
     setGeneratingDesc(true);
     try {
-      // Create a job for description generation
       const { data: job, error: jobErr } = await db.from('ai_generation_jobs').insert({
         organization_id: currentOrg.id,
         created_by: user.id,
@@ -116,13 +114,11 @@ export default function ProjectPublishWizard() {
 
       if (jobErr || !job) throw jobErr || new Error('Failed to create job');
 
-      // Run the job
       const { error: runErr } = await supabase.functions.invoke('ai-run-job', {
         body: { job_id: job.id },
       });
       if (runErr) throw runErr;
 
-      // Poll for the result
       let attempts = 0;
       const poll = setInterval(async () => {
         attempts++;
@@ -133,7 +129,6 @@ export default function ProjectPublishWizard() {
 
         if (updatedJob?.status === 'completed') {
           clearInterval(poll);
-          // Get description from project
           const { data: updatedProject } = await db.from('ai_content_projects')
             .select('description')
             .eq('id', id)
@@ -153,7 +148,7 @@ export default function ProjectPublishWizard() {
     }
   };
 
-  const generatePdfAuto = async () => {
+  const generatePdf = useCallback(async () => {
     if (!id || !currentOrg?.id) return;
     setGeneratingPdf(true);
     try {
@@ -164,26 +159,34 @@ export default function ProjectPublishWizard() {
       if (data?.error) throw new Error(data.error);
       await refetchPdf();
       queryClient.invalidateQueries({ queryKey: ['studio-project-assets', id] });
+      toast({ title: 'PDF généré ✓', description: 'Le fichier est prêt pour la publication.' });
     } catch (e: any) {
-      console.error('PDF auto-generation error:', e);
+      console.error('PDF generation error:', e);
+      toast({ title: 'Erreur PDF', description: e.message || 'La génération du PDF a échoué. Réessayez.', variant: 'destructive' });
     } finally {
       setGeneratingPdf(false);
     }
-  };
+  }, [id, currentOrg?.id]);
 
   const publishAsProduct = useMutation({
     mutationFn: async () => {
       if (!currentOrg || !user || !project) throw new Error('Missing context');
 
-      // Re-check PDF
+      // Ensure we have a PDF file
       let fileUrl = pdfAsset?.file_url || null;
+
       if (!fileUrl) {
+        // Try generating one last time
         const { data, error } = await supabase.functions.invoke('ai-generate-pdf', {
           body: { org_id: currentOrg.id, project_id: id, format: 'ebook', page_size: 'A4' },
         });
         if (!error && data?.download_url) {
           fileUrl = data.download_url;
         }
+      }
+
+      if (!fileUrl) {
+        throw new Error('Le fichier PDF n\'a pas pu être généré. Veuillez réessayer.');
       }
 
       const { data: product, error } = await db.from('digital_products').insert({
@@ -292,6 +295,8 @@ export default function ProjectPublishWizard() {
 
   const isReady = project.status === 'ready_to_publish' || project.status === 'published';
   const chapters = (project.structure_json as any)?.chapters || [];
+  const pdfReady = !!pdfAsset?.file_url;
+  const canPublish = target === 'course' || pdfReady;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -433,22 +438,36 @@ export default function ProjectPublishWizard() {
             {target === 'product' && (
               <div className="flex items-center gap-3 text-sm">
                 <FileText className="h-4 w-4 text-muted-foreground" />
-                {pdfAsset ? (
-                  <span className="text-muted-foreground">Fichier PDF prêt ✓</span>
+                {pdfReady ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">Fichier PDF prêt ✓</span>
+                    <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={() => setPreviewOpen(true)}>
+                      <Eye className="h-3 w-3 mr-1" /> Aperçu
+                    </Button>
+                    <Button variant="ghost" size="sm" className="h-6 text-xs px-2" onClick={generatePdf} disabled={generatingPdf}>
+                      <RefreshCw className={`h-3 w-3 mr-1 ${generatingPdf ? 'animate-spin' : ''}`} /> Régénérer
+                    </Button>
+                  </div>
                 ) : generatingPdf ? (
                   <span className="text-primary flex items-center gap-1">
                     <Loader2 className="h-3 w-3 animate-spin" /> Génération du PDF en cours...
                   </span>
                 ) : (
-                  <span className="text-muted-foreground">⚡ Le PDF sera généré automatiquement à la publication</span>
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-3 w-3 text-yellow-500" />
+                    <span className="text-yellow-600 dark:text-yellow-400">PDF non généré</span>
+                    <Button variant="outline" size="sm" className="h-6 text-xs px-2" onClick={generatePdf}>
+                      <RefreshCw className="h-3 w-3 mr-1" /> Générer le PDF
+                    </Button>
+                  </div>
                 )}
               </div>
             )}
 
             <div className="flex gap-2 pt-2">
               <Button variant="outline" onClick={() => setStep(0)}>Retour</Button>
-              <Button onClick={() => setStep(2)} disabled={generatingDesc}>
-                {generatingDesc ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+              <Button onClick={() => setStep(2)} disabled={generatingDesc || (target === 'product' && generatingPdf)}>
+                {generatingDesc || generatingPdf ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
                 Confirmer
               </Button>
             </div>
@@ -490,7 +509,7 @@ export default function ProjectPublishWizard() {
               {target === 'product' && (
                 <>
                   <span className="text-muted-foreground">Fichier</span>
-                  <span>{pdfAsset ? '✓ PDF prêt' : '⚡ Sera généré automatiquement'}</span>
+                  <span>{pdfReady ? '✓ PDF prêt' : '⚠ Non disponible'}</span>
                 </>
               )}
               {description && (
@@ -500,6 +519,23 @@ export default function ProjectPublishWizard() {
                 </>
               )}
             </div>
+
+            {/* Preview button */}
+            {target === 'product' && pdfReady && (
+              <Button variant="outline" size="sm" onClick={() => setPreviewOpen(true)} className="w-full">
+                <Eye className="h-4 w-4 mr-2" /> Aperçu du livre avant publication
+              </Button>
+            )}
+
+            {target === 'product' && !pdfReady && (
+              <div className="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950 border border-yellow-200 dark:border-yellow-800 text-sm text-yellow-700 dark:text-yellow-300 flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 shrink-0" />
+                <div>
+                  <p className="font-medium">PDF non disponible</p>
+                  <p className="text-xs mt-0.5">Le PDF sera généré automatiquement lors de la publication. Si la génération échoue, vous pourrez réessayer.</p>
+                </div>
+              </div>
+            )}
 
             <div className="flex gap-2 pt-4">
               <Button variant="outline" onClick={() => setStep(1)}>Retour</Button>
@@ -511,6 +547,31 @@ export default function ProjectPublishWizard() {
           </CardContent>
         </Card>
       )}
+
+      {/* PDF Preview Dialog */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-4xl h-[85vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Eye className="h-5 w-5 text-primary" />
+              Aperçu du livre — {project.title}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 min-h-0 rounded-lg overflow-hidden border bg-white">
+            {pdfAsset?.file_url ? (
+              <iframe
+                src={pdfAsset.file_url}
+                className="w-full h-full"
+                title="Aperçu du document"
+              />
+            ) : (
+              <div className="flex items-center justify-center h-full text-muted-foreground">
+                Aucun aperçu disponible
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
