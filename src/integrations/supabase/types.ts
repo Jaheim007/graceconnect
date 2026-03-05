@@ -247,6 +247,67 @@ export type Database = {
           },
         ]
       }
+      ai_assets: {
+        Row: {
+          asset_type: string
+          created_at: string
+          id: string
+          job_id: string | null
+          metadata: Json
+          mime_type: string | null
+          org_id: string
+          project_id: string | null
+          storage_bucket: string
+          storage_path: string
+        }
+        Insert: {
+          asset_type: string
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          metadata?: Json
+          mime_type?: string | null
+          org_id: string
+          project_id?: string | null
+          storage_bucket: string
+          storage_path: string
+        }
+        Update: {
+          asset_type?: string
+          created_at?: string
+          id?: string
+          job_id?: string | null
+          metadata?: Json
+          mime_type?: string | null
+          org_id?: string
+          project_id?: string | null
+          storage_bucket?: string
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_assets_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "ai_generation_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_assets_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_assets_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "ai_content_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_content_projects: {
         Row: {
           age_range: string | null
@@ -254,10 +315,13 @@ export type Database = {
           characters: string | null
           created_at: string
           created_by: string
+          data_json: Json
+          description: string | null
           id: string
           keywords: string[] | null
           language: string
           line_art_style: string | null
+          linked_media_id: string | null
           linked_product_id: string | null
           linked_program_id: string | null
           moral: string | null
@@ -290,10 +354,13 @@ export type Database = {
           characters?: string | null
           created_at?: string
           created_by: string
+          data_json?: Json
+          description?: string | null
           id?: string
           keywords?: string[] | null
           language?: string
           line_art_style?: string | null
+          linked_media_id?: string | null
           linked_product_id?: string | null
           linked_program_id?: string | null
           moral?: string | null
@@ -326,10 +393,13 @@ export type Database = {
           characters?: string | null
           created_at?: string
           created_by?: string
+          data_json?: Json
+          description?: string | null
           id?: string
           keywords?: string[] | null
           language?: string
           line_art_style?: string | null
+          linked_media_id?: string | null
           linked_product_id?: string | null
           linked_program_id?: string | null
           moral?: string | null
@@ -357,6 +427,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "ai_content_projects_linked_media_id_fkey"
+            columns: ["linked_media_id"]
+            isOneToOne: false
+            referencedRelation: "media_content"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ai_content_projects_linked_product_id_fkey"
             columns: ["linked_product_id"]
@@ -386,6 +463,7 @@ export type Database = {
           created_at: string
           created_by: string
           error_message: string | null
+          estimated_cost_units: number | null
           id: string
           input_params: Json | null
           job_type: Database["public"]["Enums"]["ai_job_type"]
@@ -393,14 +471,18 @@ export type Database = {
           output_data: Json | null
           progress: number | null
           project_id: string
+          provider: string
+          result_summary: Json
           started_at: string | null
           status: Database["public"]["Enums"]["ai_job_status"]
+          template_id: string | null
         }
         Insert: {
           completed_at?: string | null
           created_at?: string
           created_by: string
           error_message?: string | null
+          estimated_cost_units?: number | null
           id?: string
           input_params?: Json | null
           job_type: Database["public"]["Enums"]["ai_job_type"]
@@ -408,14 +490,18 @@ export type Database = {
           output_data?: Json | null
           progress?: number | null
           project_id: string
+          provider?: string
+          result_summary?: Json
           started_at?: string | null
           status?: Database["public"]["Enums"]["ai_job_status"]
+          template_id?: string | null
         }
         Update: {
           completed_at?: string | null
           created_at?: string
           created_by?: string
           error_message?: string | null
+          estimated_cost_units?: number | null
           id?: string
           input_params?: Json | null
           job_type?: Database["public"]["Enums"]["ai_job_type"]
@@ -423,8 +509,11 @@ export type Database = {
           output_data?: Json | null
           progress?: number | null
           project_id?: string
+          provider?: string
+          result_summary?: Json
           started_at?: string | null
           status?: Database["public"]["Enums"]["ai_job_status"]
+          template_id?: string | null
         }
         Relationships: [
           {
@@ -439,6 +528,13 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "ai_content_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_generation_jobs_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "ai_templates"
             referencedColumns: ["id"]
           },
         ]
@@ -479,6 +575,30 @@ export type Database = {
           requires_human_review?: boolean | null
           rules?: Json
           updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_policy_profiles: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          requires_human_review: boolean
+          rules_json: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          requires_human_review?: boolean
+          rules_json?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          requires_human_review?: boolean
+          rules_json?: Json
         }
         Relationships: []
       }
@@ -545,6 +665,76 @@ export type Database = {
           },
         ]
       }
+      ai_quality_scores: {
+        Row: {
+          created_at: string
+          flags_json: Json
+          id: string
+          job_id: string
+          org_id: string
+          project_id: string | null
+          review_notes: string | null
+          review_required: boolean
+          review_status: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          score_overall: number | null
+          scores_json: Json
+        }
+        Insert: {
+          created_at?: string
+          flags_json?: Json
+          id?: string
+          job_id: string
+          org_id: string
+          project_id?: string | null
+          review_notes?: string | null
+          review_required?: boolean
+          review_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          score_overall?: number | null
+          scores_json?: Json
+        }
+        Update: {
+          created_at?: string
+          flags_json?: Json
+          id?: string
+          job_id?: string
+          org_id?: string
+          project_id?: string | null
+          review_notes?: string | null
+          review_required?: boolean
+          review_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          score_overall?: number | null
+          scores_json?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_quality_scores_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "ai_generation_jobs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_quality_scores_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_quality_scores_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "ai_content_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_templates: {
         Row: {
           created_at: string
@@ -557,8 +747,12 @@ export type Database = {
           is_global: boolean | null
           name: string
           organization_id: string | null
+          policy_profile_id: string | null
           project_type: Database["public"]["Enums"]["ai_project_type"]
+          prompt_system: string | null
           prompt_template: string | null
+          prompt_user_pattern: string | null
+          template_type: string | null
           updated_at: string
         }
         Insert: {
@@ -572,8 +766,12 @@ export type Database = {
           is_global?: boolean | null
           name: string
           organization_id?: string | null
+          policy_profile_id?: string | null
           project_type: Database["public"]["Enums"]["ai_project_type"]
+          prompt_system?: string | null
           prompt_template?: string | null
+          prompt_user_pattern?: string | null
+          template_type?: string | null
           updated_at?: string
         }
         Update: {
@@ -587,8 +785,12 @@ export type Database = {
           is_global?: boolean | null
           name?: string
           organization_id?: string | null
+          policy_profile_id?: string | null
           project_type?: Database["public"]["Enums"]["ai_project_type"]
+          prompt_system?: string | null
           prompt_template?: string | null
+          prompt_user_pattern?: string | null
+          template_type?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -597,6 +799,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_templates_policy_profile_id_fkey"
+            columns: ["policy_profile_id"]
+            isOneToOne: false
+            referencedRelation: "ai_policy_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -613,7 +822,12 @@ export type Database = {
           is_pinned: boolean | null
           is_published: boolean | null
           organization_id: string
+          publication_status: string
           published_at: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          scheduled_at: string | null
+          submitted_for_review_at: string | null
           title: string
           updated_at: string | null
         }
@@ -628,7 +842,12 @@ export type Database = {
           is_pinned?: boolean | null
           is_published?: boolean | null
           organization_id: string
+          publication_status?: string
           published_at?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scheduled_at?: string | null
+          submitted_for_review_at?: string | null
           title: string
           updated_at?: string | null
         }
@@ -643,7 +862,12 @@ export type Database = {
           is_pinned?: boolean | null
           is_published?: boolean | null
           organization_id?: string
+          publication_status?: string
           published_at?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scheduled_at?: string | null
+          submitted_for_review_at?: string | null
           title?: string
           updated_at?: string | null
         }
@@ -812,6 +1036,54 @@ export type Database = {
         }
         Relationships: []
       }
+      coloring_book_projects: {
+        Row: {
+          created_at: string
+          id: string
+          line_art_style: string
+          org_id: string
+          pages_count: number
+          pages_json: Json
+          project_id: string
+          theme: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          line_art_style?: string
+          org_id: string
+          pages_count?: number
+          pages_json?: Json
+          project_id: string
+          theme: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          line_art_style?: string
+          org_id?: string
+          pages_count?: number
+          pages_json?: Json
+          project_id?: string
+          theme?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coloring_book_projects_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coloring_book_projects_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "ai_content_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           created_at: string
@@ -939,6 +1211,51 @@ export type Database = {
         }
         Relationships: []
       }
+      content_scripture_links: {
+        Row: {
+          content_id: string
+          content_type: string
+          created_at: string
+          id: string
+          note: string | null
+          org_id: string
+          scripture_reference_id: string
+        }
+        Insert: {
+          content_id: string
+          content_type: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          org_id: string
+          scripture_reference_id: string
+        }
+        Update: {
+          content_id?: string
+          content_type?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          org_id?: string
+          scripture_reference_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_scripture_links_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_scripture_links_scripture_reference_id_fkey"
+            columns: ["scripture_reference_id"]
+            isOneToOne: false
+            referencedRelation: "scripture_references"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_versions: {
         Row: {
           changed_by: string | null
@@ -971,6 +1288,8 @@ export type Database = {
       }
       digital_products: {
         Row: {
+          ai_generated: boolean
+          ai_project_id: string | null
           average_rating: number | null
           cover_image_url: string | null
           created_at: string | null
@@ -998,17 +1317,24 @@ export type Database = {
           preview_page_count: number | null
           price: number | null
           product_type: string | null
+          publication_status: string
           review_count: number | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           sale_ends_at: string | null
           sale_price: number | null
           sales_count: number | null
+          scheduled_at: string | null
           slug: string | null
+          submitted_for_review_at: string | null
           testimonials_json: Json | null
           title: string
           updated_at: string | null
           upsell_product_ids: string[] | null
         }
         Insert: {
+          ai_generated?: boolean
+          ai_project_id?: string | null
           average_rating?: number | null
           cover_image_url?: string | null
           created_at?: string | null
@@ -1036,17 +1362,24 @@ export type Database = {
           preview_page_count?: number | null
           price?: number | null
           product_type?: string | null
+          publication_status?: string
           review_count?: number | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           sale_ends_at?: string | null
           sale_price?: number | null
           sales_count?: number | null
+          scheduled_at?: string | null
           slug?: string | null
+          submitted_for_review_at?: string | null
           testimonials_json?: Json | null
           title: string
           updated_at?: string | null
           upsell_product_ids?: string[] | null
         }
         Update: {
+          ai_generated?: boolean
+          ai_project_id?: string | null
           average_rating?: number | null
           cover_image_url?: string | null
           created_at?: string | null
@@ -1074,17 +1407,29 @@ export type Database = {
           preview_page_count?: number | null
           price?: number | null
           product_type?: string | null
+          publication_status?: string
           review_count?: number | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           sale_ends_at?: string | null
           sale_price?: number | null
           sales_count?: number | null
+          scheduled_at?: string | null
           slug?: string | null
+          submitted_for_review_at?: string | null
           testimonials_json?: Json | null
           title?: string
           updated_at?: string | null
           upsell_product_ids?: string[] | null
         }
         Relationships: [
+          {
+            foreignKeyName: "digital_products_ai_project_id_fkey"
+            columns: ["ai_project_id"]
+            isOneToOne: false
+            referencedRelation: "ai_content_projects"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "digital_products_organization_id_fkey"
             columns: ["organization_id"]
@@ -1459,6 +1804,11 @@ export type Database = {
           is_published: boolean | null
           location: string | null
           organization_id: string
+          publication_status: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          scheduled_at: string | null
+          submitted_for_review_at: string | null
           title: string
           updated_at: string | null
           video_url: string | null
@@ -1476,6 +1826,11 @@ export type Database = {
           is_published?: boolean | null
           location?: string | null
           organization_id: string
+          publication_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scheduled_at?: string | null
+          submitted_for_review_at?: string | null
           title: string
           updated_at?: string | null
           video_url?: string | null
@@ -1493,6 +1848,11 @@ export type Database = {
           is_published?: boolean | null
           location?: string | null
           organization_id?: string
+          publication_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scheduled_at?: string | null
+          submitted_for_review_at?: string | null
           title?: string
           updated_at?: string | null
           video_url?: string | null
@@ -1583,6 +1943,57 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      kids_book_projects: {
+        Row: {
+          age_range: string
+          character_bible_json: Json
+          created_at: string
+          id: string
+          org_id: string
+          pages_json: Json
+          project_id: string
+          safety_status: string
+          style: string | null
+        }
+        Insert: {
+          age_range: string
+          character_bible_json?: Json
+          created_at?: string
+          id?: string
+          org_id: string
+          pages_json?: Json
+          project_id: string
+          safety_status?: string
+          style?: string | null
+        }
+        Update: {
+          age_range?: string
+          character_bible_json?: Json
+          created_at?: string
+          id?: string
+          org_id?: string
+          pages_json?: Json
+          project_id?: string
+          safety_status?: string
+          style?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "kids_book_projects_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kids_book_projects_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "ai_content_projects"
             referencedColumns: ["id"]
           },
         ]
@@ -1710,8 +2121,13 @@ export type Database = {
           media_type: Database["public"]["Enums"]["media_type"] | null
           media_url: string | null
           organization_id: string
+          publication_status: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          scheduled_at: string | null
           series: string | null
           speaker: string | null
+          submitted_for_review_at: string | null
           tags: string[] | null
           thumbnail_url: string | null
           title: string
@@ -1734,8 +2150,13 @@ export type Database = {
           media_type?: Database["public"]["Enums"]["media_type"] | null
           media_url?: string | null
           organization_id: string
+          publication_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scheduled_at?: string | null
           series?: string | null
           speaker?: string | null
+          submitted_for_review_at?: string | null
           tags?: string[] | null
           thumbnail_url?: string | null
           title: string
@@ -1758,8 +2179,13 @@ export type Database = {
           media_type?: Database["public"]["Enums"]["media_type"] | null
           media_url?: string | null
           organization_id?: string
+          publication_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scheduled_at?: string | null
           series?: string | null
           speaker?: string | null
+          submitted_for_review_at?: string | null
           tags?: string[] | null
           thumbnail_url?: string | null
           title?: string
@@ -3307,6 +3733,11 @@ export type Database = {
           is_free_preview: boolean | null
           module_id: string
           order_index: number
+          publication_status: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          scheduled_at: string | null
+          submitted_for_review_at: string | null
           title: string
           video_url: string | null
         }
@@ -3318,6 +3749,11 @@ export type Database = {
           is_free_preview?: boolean | null
           module_id: string
           order_index?: number
+          publication_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scheduled_at?: string | null
+          submitted_for_review_at?: string | null
           title: string
           video_url?: string | null
         }
@@ -3329,6 +3765,11 @@ export type Database = {
           is_free_preview?: boolean | null
           module_id?: string
           order_index?: number
+          publication_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scheduled_at?: string | null
+          submitted_for_review_at?: string | null
           title?: string
           video_url?: string | null
         }
@@ -3425,6 +3866,11 @@ export type Database = {
           is_published: boolean | null
           organization_id: string
           price: number | null
+          publication_status: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          scheduled_at: string | null
+          submitted_for_review_at: string | null
           title: string
           updated_at: string
         }
@@ -3443,6 +3889,11 @@ export type Database = {
           is_published?: boolean | null
           organization_id: string
           price?: number | null
+          publication_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scheduled_at?: string | null
+          submitted_for_review_at?: string | null
           title: string
           updated_at?: string
         }
@@ -3461,6 +3912,11 @@ export type Database = {
           is_published?: boolean | null
           organization_id?: string
           price?: number | null
+          publication_status?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          scheduled_at?: string | null
+          submitted_for_review_at?: string | null
           title?: string
           updated_at?: string
         }
@@ -3738,6 +4194,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      scripture_references: {
+        Row: {
+          book: string
+          chapter: number
+          created_at: string
+          id: string
+          source: string
+          text: string | null
+          translation_code: string | null
+          verse_end: number
+          verse_start: number
+        }
+        Insert: {
+          book: string
+          chapter: number
+          created_at?: string
+          id?: string
+          source?: string
+          text?: string | null
+          translation_code?: string | null
+          verse_end: number
+          verse_start: number
+        }
+        Update: {
+          book?: string
+          chapter?: number
+          created_at?: string
+          id?: string
+          source?: string
+          text?: string | null
+          translation_code?: string | null
+          verse_end?: number
+          verse_start?: number
+        }
+        Relationships: []
       }
       short_links: {
         Row: {
@@ -4322,6 +4814,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_ai_quality: {
+        Args: { _notes?: string; _org_id: string; _quality_score_id: string }
+        Returns: Json
+      }
       attribute_org_to_partner: {
         Args: { _org_id: string; _partner_code: string }
         Returns: Json
@@ -4334,12 +4830,25 @@ export type Database = {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
       }
+      can_use_studio: { Args: { _org_id: string }; Returns: boolean }
       check_rate_limit: {
         Args: { _key: string; _max?: number; _window_seconds?: number }
         Returns: Json
       }
       cleanup_rate_limits: { Args: never; Returns: undefined }
       compute_partner_level: { Args: { _partner_id: string }; Returns: number }
+      create_ai_project: {
+        Args: {
+          _data_json?: Json
+          _description?: string
+          _org_id: string
+          _params_json?: Json
+          _project_type: string
+          _template_id?: string
+          _title: string
+        }
+        Returns: string
+      }
       create_organization_with_owner:
         | {
             Args: {
@@ -4398,12 +4907,30 @@ export type Database = {
       }
       is_partner_owner: { Args: { _partner_id: string }; Returns: boolean }
       is_superadmin: { Args: { _user_id: string }; Returns: boolean }
+      link_project_to_product: {
+        Args: { _org_id: string; _product_id: string; _project_id: string }
+        Returns: Json
+      }
+      link_scripture_to_content: {
+        Args: {
+          _content_id: string
+          _content_type: string
+          _note?: string
+          _org_id: string
+          _scripture_reference_id: string
+        }
+        Returns: string
+      }
       manage_partner: {
         Args: { _action: string; _partner_id: string; _reason?: string }
         Returns: Json
       }
       org_affiliation_allowed: { Args: { _org_id: string }; Returns: boolean }
       org_monetization_allowed: { Args: { _org_id: string }; Returns: boolean }
+      reject_ai_quality: {
+        Args: { _notes?: string; _org_id: string; _quality_score_id: string }
+        Returns: Json
+      }
       release_matured_affiliate_sales: { Args: never; Returns: number }
       release_matured_partner_commissions: { Args: never; Returns: number }
       review_org_kyc: {
@@ -4446,6 +4973,18 @@ export type Database = {
       transfer_partner_referral: {
         Args: { _new_partner_id: string; _reason: string; _referral_id: string }
         Returns: Json
+      }
+      upsert_scripture_reference: {
+        Args: {
+          _book: string
+          _chapter: number
+          _source?: string
+          _text?: string
+          _translation_code?: string
+          _verse_end: number
+          _verse_start: number
+        }
+        Returns: string
       }
     }
     Enums: {
