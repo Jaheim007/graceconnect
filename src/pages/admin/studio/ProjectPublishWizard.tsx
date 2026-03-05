@@ -303,7 +303,6 @@ export default function ProjectPublishWizard() {
   const isReady = project.status === 'ready_to_publish' || project.status === 'published';
   const chapters = (project.structure_json as any)?.chapters || [];
   const pdfReady = !!pdfAsset?.file_url;
-  const canPublish = target === 'course' || pdfReady;
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
