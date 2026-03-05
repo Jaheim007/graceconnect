@@ -293,15 +293,26 @@ export default function ProjectReviewQualityGate() {
             <Shield className="h-5 w-5 text-primary" /> Qualité & Revue
           </h1>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={runQualityCheck}
-          disabled={checkingQuality}
-        >
-          {checkingQuality ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Sparkles className="h-4 w-4 mr-1" />}
-          {score != null ? 'Relancer l\'analyse' : 'Analyser la qualité'}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => pdfAsset?.file_url ? setPreviewOpen(true) : generateAndPreviewPdf()}
+            disabled={generatingPdf}
+          >
+            {generatingPdf ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Eye className="h-4 w-4 mr-1" />}
+            Aperçu
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={runQualityCheck}
+            disabled={checkingQuality}
+          >
+            {checkingQuality ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Sparkles className="h-4 w-4 mr-1" />}
+            {score != null ? 'Relancer l\'analyse' : 'Analyser la qualité'}
+          </Button>
+        </div>
       </div>
 
       {/* Score */}
@@ -575,5 +586,33 @@ export default function ProjectReviewQualityGate() {
         </CardContent>
       </Card>
     </div>
+
+    {/* PDF Preview Dialog */}
+    <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+      <DialogContent className="max-w-4xl h-[85vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Eye className="h-5 w-5 text-primary" />
+            Aperçu — {project?.title}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="flex-1 min-h-0 rounded-lg overflow-hidden border bg-white">
+          {pdfAsset?.file_url ? (
+            <iframe src={pdfAsset.file_url} className="w-full h-full" title="Aperçu du document" />
+          ) : (
+            <div className="flex items-center justify-center h-full text-muted-foreground">
+              Aucun aperçu disponible
+            </div>
+          )}
+        </div>
+        <div className="flex justify-end gap-2 pt-2">
+          <Button variant="outline" size="sm" onClick={generateAndPreviewPdf} disabled={generatingPdf}>
+            {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Sparkles className="h-3.5 w-3.5 mr-1" />}
+            Regénérer le PDF
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
