@@ -610,6 +610,37 @@ export default function ProjectEditor() {
               </div>
             </div>
 
+            {/* Cover */}
+            <div className="border-t border-border pt-3">
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Couverture</h3>
+              {coverAsset?.file_url ? (
+                <div className="space-y-2">
+                  <img src={coverAsset.file_url} alt="Couverture" className="w-full aspect-[2/3] rounded-lg object-cover border border-border shadow-sm" />
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="sm" className="flex-1 text-[10px] h-7" onClick={handleCoverUpload} disabled={uploadingCover}>
+                      {uploadingCover ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3 mr-1" />} Changer
+                    </Button>
+                    <Button variant="ghost" size="sm" className="flex-1 text-[10px] h-7" onClick={generateAiCover} disabled={generatingCover}>
+                      {generatingCover ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3 mr-1" />} Régénérer
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <div className="border-2 border-dashed border-muted-foreground/20 rounded-lg p-3 text-center">
+                    <ImagePlus className="h-6 w-6 mx-auto text-muted-foreground/30 mb-1" />
+                    <p className="text-[10px] text-muted-foreground">Aucune couverture</p>
+                  </div>
+                  <Button variant="outline" size="sm" className="w-full text-xs h-7 gap-1" onClick={handleCoverUpload} disabled={uploadingCover}>
+                    {uploadingCover ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />} Importer
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full text-xs h-7 gap-1" onClick={generateAiCover} disabled={generatingCover}>
+                    {generatingCover ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />} Générer avec l'IA
+                  </Button>
+                </div>
+              )}
+            </div>
+
             {/* Preview PDF */}
             <div className="border-t border-border pt-3">
               <Button
