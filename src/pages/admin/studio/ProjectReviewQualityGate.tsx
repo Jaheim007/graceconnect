@@ -75,6 +75,41 @@ export default function ProjectReviewQualityGate() {
     enabled: !!id,
   });
 
+  // Fetch PDF asset for preview
+  const { data: pdfAsset, refetch: refetchPdf } = useQuery({
+    queryKey: ['studio-project-pdf', id],
+    queryFn: async () => {
+      if (!id) return null;
+      const { data } = await db.from('ai_project_assets')
+        .select('file_url')
+        .eq('project_id', id)
+        .eq('asset_type', 'pdf')
+        .order('created_at', { ascending: false })
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!id,
+  });
+
+  const generateAndPreviewPdf = async () => {
+    if (!id || !currentOrg?.id) return;
+    setGeneratingPdf(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-generate-pdf', {
+        body: { org_id: currentOrg.id, project_id: id, format: 'ebook', page_size: 'A4' },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      await refetchPdf();
+      setPreviewOpen(true);
+      toast({ title: 'PDF généré ✓' });
+    } catch (e: any) {
+      toast({ title: 'Erreur PDF', description: e.message, variant: 'destructive' });
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
+
   const approveMutation = useMutation({
     mutationFn: async () => {
       if (!id) return;
