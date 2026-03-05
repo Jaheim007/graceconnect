@@ -24,10 +24,11 @@ import { Badge } from '@/components/ui/badge';
 import { useBundleItems, useAddBundleItem, useRemoveBundleItem, useProductRecommendations, useAddRecommendation, useRemoveRecommendation } from '@/hooks/useBundlesAndRecommendations';
 import { useOrgProducts } from '@/hooks/useMonetization';
 import { EmbedSnippetGen } from '@/components/products/EmbedSnippetGen';
-import { ProductPreviewViewer } from '@/components/products/ProductPreviewViewer';
 import { ContentTemplateSelector } from '@/components/admin/ContentTemplateSelector';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { AIWritingAssistant } from '@/components/admin/AIWritingAssistant';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { usePdfPreviewBlobUrl } from '@/hooks/usePdfPreviewBlobUrl';
 
 import type { ProductTemplate } from '@/lib/contentTemplates';
 
