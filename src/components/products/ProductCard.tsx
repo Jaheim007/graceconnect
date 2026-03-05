@@ -5,7 +5,7 @@ import { useShortLink } from '@/hooks/useShortLink';
 import { formatPrice } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen, Eye } from 'lucide-react';
+import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen, Eye, GitCompareArrows } from 'lucide-react';
 import { FlashSaleBadge } from './FlashSaleBadge';
 import { ContentSizeBadge } from './ContentSizeBadge';
 import { ShareWidget } from './ShareWidget';
@@ -19,6 +19,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useMode } from '@/contexts/ModeContext';
+import { useCompare } from './ProductCompareDrawer';
 
 interface ProductCardProps {
   product: DigitalProduct & { slug?: string };
@@ -46,6 +47,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
   const { user } = useAuth();
   const { mode, hasAmbassadorAccess } = useMode();
   const [quickView, setQuickView] = useState(false);
+  const compare = useCompare();
 
   // Auto-hide commission/share unless user is truly in ambassador universe
   const ambassadorView = hasAmbassadorAccess && mode === 'ambassador';
@@ -167,6 +169,40 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
           title="Aperçu rapide"
         >
           <Eye className="h-3.5 w-3.5 text-foreground" />
+        </button>
+        {/* Compare button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            if (compare.isInCompare(product.id)) {
+              compare.removeItem(product.id);
+            } else {
+              compare.addItem({
+                id: product.id,
+                title: product.title,
+                price: product.price || 0,
+                is_free: product.is_free || false,
+                currency: product.currency,
+                cover_image_url: product.cover_image_url,
+                product_type: product.product_type || undefined,
+                sales_count: product.sales_count || 0,
+                average_rating: (product as any).average_rating || 0,
+                page_count: (product as any).page_count,
+                organization_name: (product as any).organization_name,
+                organization_slug: orgSlug || resolvedSlug,
+                slug: pSlug,
+              });
+            }
+          }}
+          className={cn(
+            'absolute bottom-2.5 right-12 h-8 w-8 rounded-full backdrop-blur-sm border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm',
+            compare.isInCompare(product.id)
+              ? 'bg-primary text-primary-foreground border-primary'
+              : 'bg-background/80 border-border/50 hover:bg-background'
+          )}
+          title="Comparer"
+        >
+          <GitCompareArrows className="h-3.5 w-3.5" />
         </button>
         <div className="absolute top-2.5 left-2.5 right-12 flex items-start justify-between">
           <div className="flex flex-col gap-1">

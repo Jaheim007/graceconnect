@@ -10,6 +10,7 @@ import { PushNotificationPrompt } from '@/components/pwa/PushNotificationPrompt'
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
 import { useNewUserRedirect } from '@/hooks/useNewUserRedirect';
 import { CommandPalette } from '@/components/command/CommandPalette';
+import { CompareProvider } from '@/components/products/ProductCompareDrawer';
 
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
 
@@ -32,6 +33,7 @@ export function AppLayout() {
   useNewUserRedirect();
 
   return (
+    <CompareProvider>
     <div className="h-[100dvh] flex w-full bg-background overflow-hidden">
       {!hideNav && (
         <nav className="hidden lg:flex shrink-0" aria-label="Navigation principale">
@@ -67,5 +69,6 @@ export function AppLayout() {
       <PushNotificationPrompt />
       <ScrollToTop />
     </div>
+    </CompareProvider>
   );
 }
