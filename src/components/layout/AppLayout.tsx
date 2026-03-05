@@ -9,6 +9,7 @@ import { InstallBanner } from '@/components/pwa/InstallBanner';
 import { PushNotificationPrompt } from '@/components/pwa/PushNotificationPrompt';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
 import { useNewUserRedirect } from '@/hooks/useNewUserRedirect';
+import { CommandPalette } from '@/components/command/CommandPalette';
 
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
 
@@ -61,6 +62,7 @@ export function AppLayout() {
         </nav>
       )}
 
+      <CommandPalette />
       <InstallBanner />
       <PushNotificationPrompt />
       <ScrollToTop />
