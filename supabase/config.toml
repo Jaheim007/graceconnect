@@ -155,3 +155,12 @@ verify_jwt = false
 
 [functions.canva-design]
 verify_jwt = false
+
+[functions.moneroo-checkout]
+verify_jwt = false
+
+[functions.moneroo-webhook]
+verify_jwt = false
+
+[functions.moneroo-verify]
+verify_jwt = false
