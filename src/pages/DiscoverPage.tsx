@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Search, ShoppingBag, Heart, HandHeart, SlidersHorizontal, ArrowUpDown, Star, TrendingUp, Loader2 } from 'lucide-react';
+import { Search, ShoppingBag, Heart, HandHeart, Loader2 } from 'lucide-react';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -19,7 +19,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
 import { PageTour } from '@/components/onboarding/PageTour';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 import { TrendingBanner } from '@/components/discover/TrendingBanner';
 import { DiscoverCTABanner } from '@/components/discover/DiscoverCTABanner';
 import { LiveActivityTicker } from '@/components/discover/LiveActivityTicker';
@@ -37,6 +37,7 @@ import { SearchSuggestions, addRecentSearch } from '@/components/discover/Search
 import { ProductQuickView } from '@/components/products/ProductQuickView';
 import { RecentlyViewedProducts } from '@/components/discover/RecentlyViewedProducts';
 import { EngagementLevel } from '@/components/discover/EngagementLevel';
+import { StickyFilterBar } from '@/components/discover/StickyFilterBar';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
@@ -289,44 +290,14 @@ export default function DiscoverPage() {
 
           {/* ═══ Products Tab ═══ */}
           <TabsContent value="products">
-            <div className="flex flex-wrap items-center gap-2 mb-4">
-              <Select value={sortBy} onValueChange={(v) => setSortBy(v as ProductSort)}>
-                <SelectTrigger className="h-8 w-auto min-w-[130px] text-xs gap-1">
-                  <ArrowUpDown className="h-3 w-3" />
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="mixed">🔀 Mix</SelectItem>
-                  <SelectItem value="popular"><TrendingUp className="h-3 w-3 inline mr-1" />{isFr ? 'Populaires' : 'Popular'}</SelectItem>
-                  <SelectItem value="recent">{isFr ? 'Récents' : 'Recent'}</SelectItem>
-                  <SelectItem value="best_selling">{isFr ? 'Plus vendus' : 'Best selling'}</SelectItem>
-                  <SelectItem value="most_viewed">{isFr ? 'Plus consultés' : 'Most viewed'}</SelectItem>
-                  <SelectItem value="rating"><Star className="h-3 w-3 inline mr-1" />{isFr ? 'Mieux notés' : 'Top rated'}</SelectItem>
-                  <SelectItem value="price_asc">{isFr ? 'Prix ↑' : 'Price ↑'}</SelectItem>
-                  <SelectItem value="price_desc">{isFr ? 'Prix ↓' : 'Price ↓'}</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <div className="flex gap-1">
-                {(['all', 'free', 'paid'] as PriceFilter[]).map((pf) => (
-                  <Button key={pf} size="sm" variant={priceFilter === pf ? 'default' : 'outline'} className="h-8 text-xs px-3" onClick={() => setPriceFilter(pf)}>
-                    {pf === 'all' ? (isFr ? 'Tous' : 'All') : pf === 'free' ? (isFr ? 'Gratuit' : 'Free') : (isFr ? 'Payant' : 'Paid')}
-                  </Button>
-                ))}
-              </div>
-
-              <Select value={typeFilter || '_all'} onValueChange={(v) => setTypeFilter(v === '_all' ? '' : v as ProductTypeFilter)}>
-                <SelectTrigger className="h-8 w-auto min-w-[110px] text-xs gap-1">
-                  <SlidersHorizontal className="h-3 w-3" />
-                  <SelectValue placeholder="Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {PRODUCT_TYPES.map((pt) => (
-                    <SelectItem key={pt.value || '_all'} value={pt.value || '_all'}>{pt.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            <StickyFilterBar
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+              priceFilter={priceFilter}
+              setPriceFilter={setPriceFilter}
+              typeFilter={typeFilter}
+              setTypeFilter={setTypeFilter}
+            />
 
             {loadingProducts ? <SkeletonList count={8} /> : products.length === 0 ? (
               <EmptyState variant="search" title={t('discover.no_products')} />

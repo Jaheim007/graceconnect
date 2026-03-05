@@ -8,17 +8,20 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
+import { PostPurchaseRecommendations } from './PostPurchaseRecommendations';
 
 interface PostPurchaseCelebrationProps {
   open: boolean;
   onClose: () => void;
   productTitle: string;
+  organizationId: string;
   orgName: string;
   orgSlug: string;
   productSlug?: string;
   productId: string;
   coverImageUrl?: string | null;
   isFreePurchase?: boolean;
+  productType?: string;
   onGoToResources?: () => void;
   onDownload?: () => void;
 }
@@ -60,12 +63,14 @@ export function PostPurchaseCelebration({
   open,
   onClose,
   productTitle,
+  organizationId,
   orgName,
   orgSlug,
   productSlug,
   productId,
   coverImageUrl,
   isFreePurchase,
+  productType,
   onGoToResources,
   onDownload,
 }: PostPurchaseCelebrationProps) {
@@ -243,6 +248,14 @@ export function PostPurchaseCelebration({
               </div>
               <ArrowRight className="h-4 w-4 text-primary shrink-0 group-hover:translate-x-1 transition-transform" />
             </motion.button>
+
+            {/* Post-purchase recommendations */}
+            <PostPurchaseRecommendations
+              organizationId={organizationId}
+              productId={productId}
+              productType={productType}
+              open={open}
+            />
           </div>
 
           {/* Close */}
