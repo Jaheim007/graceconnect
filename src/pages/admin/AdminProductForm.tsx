@@ -70,6 +70,7 @@ export function ProductForm() {
   const [salePrice, setSalePrice] = useState('');
   const [saleEndsAt, setSaleEndsAt] = useState('');
   const [showAI, setShowAI] = useState(false);
+  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
   
 
   // Bundle & Recommendation hooks
