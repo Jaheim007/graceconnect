@@ -109,40 +109,7 @@ export default function ProjectPublishWizard() {
       }
     }
 
-    // Generate description
-    let desc = project.description || project.objective || '';
-    if (!desc) {
-      try {
-        const { data: job, error: jobErr } = await db.from('ai_generation_jobs').insert({
-          organization_id: currentOrg.id,
-          created_by: user!.id,
-          project_id: id,
-          job_type: 'generate_description',
-          input_params: { title: project.title, objective: project.objective },
-          status: 'queued',
-          provider: 'gemini',
-        }).select('id').single();
-
-        if (!jobErr && job) {
-          await supabase.functions.invoke('ai-run-job', { body: { job_id: job.id } });
-          // Poll for result
-          for (let i = 0; i < 20; i++) {
-            await new Promise(r => setTimeout(r, 2000));
-            const { data: updatedJob } = await db.from('ai_generation_jobs')
-              .select('status').eq('id', job.id).single();
-            if (updatedJob?.status === 'completed') {
-              const { data: updatedProject } = await db.from('ai_content_projects')
-                .select('description').eq('id', id).single();
-              if (updatedProject?.description) desc = updatedProject.description;
-              break;
-            }
-            if (updatedJob?.status === 'failed') break;
-          }
-        }
-      } catch (e) {
-        console.error('Description generation error:', e);
-      }
-    }
+    // Description left empty — user can write it or use AI assistant in the product form
 
     setPreparingProduct(false);
 
