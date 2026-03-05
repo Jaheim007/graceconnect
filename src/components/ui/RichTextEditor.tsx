@@ -64,6 +64,11 @@ export function RichTextEditor({
       }),
       Image.configure({
         HTMLAttributes: { class: 'rounded-lg max-w-full h-auto my-3' },
+        resize: {
+          enabled: true,
+          minWidth: 50,
+          alwaysPreserveAspectRatio: true,
+        },
       }),
       Iframe,
       TextStyle,
@@ -182,7 +187,7 @@ export function RichTextEditor({
 
   const addVideo = useCallback(() => {
     if (!editor) return;
-    const url = window.prompt('URL de la vidéo (YouTube, Facebook, TikTok, Vimeo, Dailymotion):');
+    const url = window.prompt('URL de la vidéo (YouTube, Facebook, TikTok, Vimeo, Dailymotion, Twitter/X, Instagram):');
     if (!url) return;
     const embedUrl = getVideoEmbedUrl(url);
     if (embedUrl) {
@@ -190,7 +195,7 @@ export function RichTextEditor({
     } else {
       toast({
         title: 'URL non supportée',
-        description: 'Formats acceptés : YouTube, Facebook, TikTok, Vimeo, Dailymotion.',
+        description: 'Formats acceptés : YouTube, Facebook, TikTok, Vimeo, Dailymotion, Twitter/X, Instagram.',
         variant: 'destructive',
       });
     }

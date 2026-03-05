@@ -1,16 +1,19 @@
 import { supabase } from '@/integrations/supabase/client';
+import { compressImage } from '@/hooks/useImageOptimizer';
 
 /**
  * Upload a File (from clipboard paste or drag-drop) to Supabase storage
- * and return the public URL.
+ * with automatic WebP compression, and return the public URL.
  */
 export async function uploadEditorImage(file: File): Promise<string | null> {
-  const ext = file.name?.split('.').pop() || 'png';
+  // Compress image before upload (converts to WebP, max 1200px)
+  const optimized = await compressImage(file);
+  const ext = optimized.name?.split('.').pop() || 'png';
   const fileName = `editor/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
   const { error } = await supabase.storage
     .from('org-uploads')
-    .upload(fileName, file, {
+    .upload(fileName, optimized, {
       cacheControl: '31536000',
       upsert: false,
     });
@@ -54,6 +57,18 @@ export function getVideoEmbedUrl(url: string): string | null {
   // TikTok: tiktok.com/@user/video/ID
   const ttMatch = trimmed.match(/tiktok\.com\/@[\w.-]+\/video\/(\d+)/);
   if (ttMatch) return `https://www.tiktok.com/embed/v2/${ttMatch[1]}`;
+
+  // Twitter/X: twitter.com or x.com status URLs
+  const twitterMatch = trimmed.match(/(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)/);
+  if (twitterMatch) {
+    return `https://platform.twitter.com/embed/Tweet.html?id=${twitterMatch[1]}`;
+  }
+
+  // Instagram: instagram.com/reel/CODE or /p/CODE
+  const igMatch = trimmed.match(/instagram\.com\/(?:reel|p)\/([\w-]+)/);
+  if (igMatch) {
+    return `https://www.instagram.com/p/${igMatch[1]}/embed`;
+  }
 
   return null;
 }
