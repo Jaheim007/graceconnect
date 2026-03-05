@@ -38,6 +38,7 @@ export default function ProjectEditor() {
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
   const [generatingJob, setGeneratingJob] = useState<string | null>(null);
+  const [hasActiveJobs, setHasActiveJobs] = useState(false);
 
   // Fetch project
   const { data: project, isLoading } = useQuery({
@@ -67,8 +68,21 @@ export default function ProjectEditor() {
       return data || [];
     },
     enabled: !!id,
-    refetchInterval: generatingJob ? 2000 : false,
+    refetchInterval: generatingJob || hasActiveJobs ? 2000 : false,
+    refetchIntervalInBackground: true,
+    refetchOnWindowFocus: true,
   });
+
+  useEffect(() => {
+    setHasActiveJobs((activeJobs?.length || 0) > 0);
+  }, [activeJobs]);
+
+  // Restore running state after refresh/navigation
+  useEffect(() => {
+    if (!generatingJob && activeJobs?.length) {
+      setGeneratingJob(activeJobs[0].id);
+    }
+  }, [activeJobs, generatingJob]);
 
   // When a job completes, refresh project and clear generating state
   useEffect(() => {
@@ -76,11 +90,65 @@ export default function ProjectEditor() {
     const isStillRunning = activeJobs?.some(j => j.id === generatingJob);
     if (!isStillRunning && activeJobs !== undefined) {
       setGeneratingJob(null);
-      // Refresh project to get updated structure_json
       queryClient.invalidateQueries({ queryKey: ['studio-project', id] });
       toast({ title: 'Génération terminée ✓' });
     }
-  }, [activeJobs, generatingJob]);
+  }, [activeJobs, generatingJob, id, queryClient, toast]);
+
+  // Progressive sync of partial generation content + live project refresh
+  useEffect(() => {
+    if (!activeJobs?.length) return;
+
+    queryClient.invalidateQueries({ queryKey: ['studio-project', id] });
+
+    const chapterJob = activeJobs.find((job: any) =>
+      job.job_type === 'generate_chapter' &&
+      typeof job?.output_data?.html === 'string' &&
+      job?.input_params?.chapter_id
+    );
+
+    if (chapterJob) {
+      const chapterId = chapterJob.input_params.chapter_id as string;
+      const partialHtml = chapterJob.output_data.html as string;
+      setChapters(prev => prev.map(ch =>
+        ch.id === chapterId && ch.content !== partialHtml
+          ? { ...ch, content: partialHtml }
+          : ch
+      ));
+    }
+
+    const outlineJob = activeJobs.find((job: any) =>
+      job.job_type === 'generate_outline' &&
+      Array.isArray(job?.output_data?.structure?.chapters) &&
+      job.output_data.structure.chapters.length > 0
+    );
+
+    if (outlineJob) {
+      const streamedChapters = outlineJob.output_data.structure.chapters.map((ch: any, i: number) => ({
+        ...ch,
+        order: ch.order ?? i,
+        content: ch.content || '',
+      })) as Chapter[];
+
+      setChapters(prev => {
+        if (
+          prev.length === streamedChapters.length &&
+          prev.every((ch, i) =>
+            ch.id === streamedChapters[i]?.id &&
+            ch.title === streamedChapters[i]?.title &&
+            ch.content === streamedChapters[i]?.content
+          )
+        ) {
+          return prev;
+        }
+        return streamedChapters;
+      });
+
+      if (!activeChapterId && streamedChapters[0]?.id) {
+        setActiveChapterId(streamedChapters[0].id);
+      }
+    }
+  }, [activeJobs, activeChapterId, id, queryClient]);
 
   // Initialize chapters from structure_json
   useEffect(() => {
@@ -175,7 +243,7 @@ export default function ProjectEditor() {
   // Auto-save
   useEffect(() => {
     if (!dirty) return;
-    const timer = setTimeout(() => saveMutation.mutate(), 30_000);
+    const timer = setTimeout(() => saveMutation.mutate(), 5_000);
     return () => clearTimeout(timer);
   }, [dirty, chapters]);
 
@@ -201,6 +269,7 @@ export default function ProjectEditor() {
       }
       const jobId = data.job_id;
       setGeneratingJob(jobId);
+      setHasActiveJobs(true);
       toast({ title: 'Génération lancée', description: 'Le contenu est en cours de création...' });
       queryClient.invalidateQueries({ queryKey: ['studio-editor-jobs', id] });
 

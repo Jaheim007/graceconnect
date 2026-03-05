@@ -162,37 +162,19 @@ Deno.serve(async (req) => {
           if (asset) assetsCreated.push(asset.id);
         }
 
-        // --- Update project structure if applicable ---
+        // --- Update project structure progressively if applicable ---
         if (project && jobType === 'generate_outline' && output.structure) {
-          await admin.from('ai_content_projects').update({
-            structure_json: output.structure,
-            data_json: output.structure,
-            updated_at: new Date().toISOString(),
-          }).eq('id', job.project_id);
+          await applyProgressiveOutlineUpdate(admin, job, job_id, output.structure);
         }
 
         if (project && jobType === 'generate_chapter' && inputParams?.chapter_id) {
-          const { data: latestProject } = await admin
-            .from('ai_content_projects')
-            .select('structure_json')
-            .eq('id', job.project_id)
-            .single();
+          const finalHtml = output.html || rawContent;
+          await applyProgressiveChapterUpdate(admin, job, job_id, inputParams.chapter_id, finalHtml);
+        }
 
-          if (latestProject?.structure_json) {
-            const structure = latestProject.structure_json as { chapters?: any[] };
-            if (structure.chapters) {
-              const updatedChapters = structure.chapters.map((ch: any) =>
-                ch.id === inputParams.chapter_id
-                  ? { ...ch, content: output.html || rawContent }
-                  : ch
-              );
-              await admin.from('ai_content_projects').update({
-                structure_json: { chapters: updatedChapters },
-                data_json: { chapters: updatedChapters },
-                updated_at: new Date().toISOString(),
-              }).eq('id', job.project_id);
-            }
-          }
+        if (project && jobType === 'generate_description') {
+          const finalDescription = output.html || rawContent;
+          await applyProgressiveDescriptionUpdate(admin, job, job_id, finalDescription);
         }
 
       } else if (jobType === 'image') {
@@ -299,6 +281,125 @@ async function failJob(admin: any, jobId: string, message: string) {
     completed_at: new Date().toISOString(),
     progress: 0,
   }).eq('id', jobId);
+}
+
+async function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function updateJobPartial(admin: any, jobId: string, progress: number, outputData: any) {
+  await admin.from('ai_generation_jobs').update({
+    progress,
+    output_data: outputData,
+  }).eq('id', jobId);
+}
+
+async function applyProgressiveOutlineUpdate(admin: any, job: any, jobId: string, structure: any) {
+  if (!job.project_id || !structure) return;
+
+  const chapters = Array.isArray(structure?.chapters) ? structure.chapters : [];
+  if (chapters.length === 0) {
+    await admin.from('ai_content_projects').update({
+      structure_json: structure,
+      data_json: structure,
+      updated_at: new Date().toISOString(),
+    }).eq('id', job.project_id);
+    return;
+  }
+
+  for (let i = 1; i <= chapters.length; i++) {
+    const partialStructure = {
+      ...structure,
+      chapters: chapters.slice(0, i).map((ch: any, idx: number) => ({
+        ...ch,
+        order: ch?.order ?? idx,
+        content: ch?.content || '',
+      })),
+    };
+
+    await admin.from('ai_content_projects').update({
+      structure_json: partialStructure,
+      data_json: partialStructure,
+      updated_at: new Date().toISOString(),
+    }).eq('id', job.project_id);
+
+    await updateJobPartial(
+      admin,
+      jobId,
+      70 + Math.floor((i / chapters.length) * 16),
+      { structure: partialStructure, partial: i < chapters.length }
+    );
+
+    if (i < chapters.length) await sleep(180);
+  }
+}
+
+async function applyProgressiveChapterUpdate(admin: any, job: any, jobId: string, chapterId: string, finalHtml: string) {
+  if (!job.project_id || !chapterId || !finalHtml) return;
+
+  const { data: latestProject } = await admin
+    .from('ai_content_projects')
+    .select('structure_json')
+    .eq('id', job.project_id)
+    .single();
+
+  const structure = latestProject?.structure_json as { chapters?: any[] } | null;
+  if (!structure?.chapters?.length) return;
+
+  const chunkCount = Math.min(12, Math.max(4, Math.ceil(finalHtml.length / 700)));
+
+  for (let i = 1; i <= chunkCount; i++) {
+    const partialHtml = finalHtml.slice(0, Math.ceil((finalHtml.length * i) / chunkCount));
+    const updatedChapters = structure.chapters.map((ch: any) =>
+      ch.id === chapterId ? { ...ch, content: partialHtml } : ch
+    );
+
+    await admin.from('ai_content_projects').update({
+      structure_json: { chapters: updatedChapters },
+      data_json: { chapters: updatedChapters },
+      updated_at: new Date().toISOString(),
+    }).eq('id', job.project_id);
+
+    await updateJobPartial(
+      admin,
+      jobId,
+      70 + Math.floor((i / chunkCount) * 16),
+      { html: partialHtml, chapter_id: chapterId, partial: i < chunkCount }
+    );
+
+    if (i < chunkCount) await sleep(150);
+  }
+}
+
+async function applyProgressiveDescriptionUpdate(admin: any, job: any, jobId: string, descriptionHtml: string) {
+  if (!job.project_id || !descriptionHtml) return;
+
+  const chunkCount = Math.min(8, Math.max(3, Math.ceil(descriptionHtml.length / 500)));
+
+  for (let i = 1; i <= chunkCount; i++) {
+    const partialHtml = descriptionHtml.slice(0, Math.ceil((descriptionHtml.length * i) / chunkCount));
+
+    await admin.from('ai_content_projects').update({
+      description: stripHtml(partialHtml),
+      updated_at: new Date().toISOString(),
+    }).eq('id', job.project_id);
+
+    await updateJobPartial(
+      admin,
+      jobId,
+      70 + Math.floor((i / chunkCount) * 16),
+      { html: partialHtml, partial: i < chunkCount }
+    );
+
+    if (i < chunkCount) await sleep(120);
+  }
+}
+
+function stripHtml(input: string): string {
+  return input
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 function checkPolicy(policy: any, params: any, content: string): { allowed: boolean; flags: string[]; reasons: string[] } {
