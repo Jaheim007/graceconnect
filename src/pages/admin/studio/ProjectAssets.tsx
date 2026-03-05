@@ -333,56 +333,7 @@ export default function ProjectAssets() {
         </div>
       </div>
 
-      {/* Cover image section */}
-      <Card className="border-primary/20">
-        <CardContent className="py-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <ImagePlus className="h-5 w-5 text-primary" />
-              <h3 className="font-semibold text-sm">Image de couverture</h3>
-            </div>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={handleCoverSelect} disabled={uploadingCover}>
-                {uploadingCover ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Upload className="h-3 w-3 mr-1" />}
-                Importer
-              </Button>
-              <Button variant="outline" size="sm" onClick={generateAiCover} disabled={generatingCover}>
-                {generatingCover ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Sparkles className="h-3 w-3 mr-1" />}
-                Générer avec l'IA
-              </Button>
-            </div>
-          </div>
-          {coverAsset ? (
-            <div className="flex items-center gap-4">
-              <img
-                src={coverAsset.file_url}
-                alt="Couverture"
-                className="h-32 w-24 rounded-lg object-cover border shadow-sm"
-              />
-              <div className="space-y-1">
-                <Badge className="text-[10px]"><Star className="h-3 w-3 mr-1" /> Couverture active</Badge>
-                <p className="text-xs text-muted-foreground">Cette image sera utilisée comme couverture du produit.</p>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs h-7 text-destructive"
-                  onClick={() => toggleCover.mutate({ assetId: coverAsset.id, isCover: false })}
-                >
-                  <StarOff className="h-3 w-3 mr-1" /> Retirer comme couverture
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="border-2 border-dashed border-muted-foreground/20 rounded-lg p-6 text-center">
-              <ImagePlus className="h-8 w-8 mx-auto text-muted-foreground/30 mb-2" />
-              <p className="text-sm text-muted-foreground">Aucune couverture définie</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Importez une image ou générez-en une avec l'IA
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Cover generation moved to Editor */}
 
       {/* Explanation card */}
       <Card className="border-primary/20 bg-primary/5">

@@ -50,16 +50,18 @@ serve(async (req) => {
     const prompt = `Create ${typeHint} design for a digital product titled "${title}". ${shortDesc ? `The product is about: ${shortDesc}.` : ""} Style: modern, clean, professional, vibrant colors, high contrast text-free design suitable as a product cover image. Aspect ratio 2:3 portrait. Ultra high resolution.`;
 
     // Call AI image generation
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/images/generations", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image",
-        messages: [{ role: "user", content: prompt }],
-        modalities: ["image", "text"],
+        model: "dall-e-3",
+        prompt,
+        n: 1,
+        size: "1024x1024",
+        quality: "hd",
       }),
     });
 
@@ -69,7 +71,10 @@ serve(async (req) => {
     }
 
     const aiData = await aiResponse.json();
-    const imageBase64 = aiData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+    const imageUrl = aiData.data?.[0]?.url;
+    const imageBase64 = aiData.data?.[0]?.b64_json
+      ? `data:image/png;base64,${aiData.data[0].b64_json}`
+      : null;
 
     if (!imageBase64) throw new Error("No image generated");
 

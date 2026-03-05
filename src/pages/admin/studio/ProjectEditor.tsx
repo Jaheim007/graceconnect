@@ -15,7 +15,7 @@ import { useState, useCallback, useEffect } from 'react';
 import {
   ArrowLeft, Plus, Trash2, GripVertical, Save, FileText,
   Sparkles, Loader2, ChevronLeft, ChevronRight, ListTree,
-  FileCheck, BookOpen, Eye
+  FileCheck, BookOpen, Eye, ImagePlus, Upload, Star, StarOff
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
