@@ -36,6 +36,9 @@ import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
 import { CrossSellWidget } from '@/components/products/CrossSellWidget';
 import { SubscriptionUpsellPrompt } from '@/components/subscriptions/SubscriptionUpsellPrompt';
 import { Breadcrumb } from '@/components/layout/Breadcrumb';
+import { ViralSnippets } from '@/components/products/ViralSnippets';
+import { BecomeAmbassadorCTA } from '@/components/products/BecomeAmbassadorCTA';
+import { CreateSimilarCTA } from '@/components/products/CreateSimilarCTA';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -632,6 +635,13 @@ export default function ProductDetailPage() {
               isPurchased={isPurchased}
             />
 
+            {/* Viral Snippets — shareable excerpts */}
+            <ViralSnippets
+              productId={product.id}
+              productTitle={product.title}
+              orgSlug={slug || ''}
+            />
+
           </motion.div>
 
           <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="md:sticky md:top-[6.5rem] md:self-start space-y-4 md:max-h-[calc(100vh-7rem)] md:overflow-y-auto scrollbar-hide">
@@ -734,6 +744,20 @@ export default function ProductDetailPage() {
                 <AmbassadorBanner orgSlug={slug} orgName={org.name} />
               )}
             </UniverseGate>
+
+            {/* 1-click Become Ambassador CTA — visible to all non-owners */}
+            <BecomeAmbassadorCTA
+              organizationId={product.organization_id}
+              orgSlug={slug || ''}
+              orgName={org?.name || ''}
+              commissionPercent={(product as any).commission_percent}
+            />
+
+            {/* Create similar content CTA */}
+            <CreateSimilarCTA
+              productType={product.product_type || undefined}
+              productTitle={product.title}
+            />
           </motion.div>
         </div>
 
