@@ -46,6 +46,21 @@ export default function ProjectEditor() {
   const [uploadingCover, setUploadingCover] = useState(false);
   const [generatingCover, setGeneratingCover] = useState(false);
 
+  // Fetch cover asset
+  const { data: coverAsset, refetch: refetchCover } = useQuery({
+    queryKey: ['studio-project-cover', id],
+    queryFn: async () => {
+      if (!id) return null;
+      const { data } = await db.from('ai_project_assets')
+        .select('id, file_url')
+        .eq('project_id', id)
+        .eq('is_cover', true)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!id,
+  });
+
   // Fetch PDF asset
   const { data: pdfAsset, refetch: refetchPdf } = useQuery({
     queryKey: ['studio-project-pdf', id],
