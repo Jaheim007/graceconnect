@@ -40,6 +40,7 @@ import { EngagementHeatmap } from '@/components/admin/EngagementHeatmap';
 import { ConversionFunnel } from '@/components/admin/ConversionFunnel';
 import { CustomerLifetimeValue } from '@/components/admin/CustomerLifetimeValue';
 import { RevenueAttribution } from '@/components/admin/RevenueAttribution';
+import { CreatorCoachBanner } from '@/components/admin/CreatorCoachBanner';
 
 import { SmartReEngagement } from '@/components/admin/SmartReEngagement';
 import { TTFSProgressTracker } from '@/components/admin/TTFSProgressTracker';
@@ -255,6 +256,9 @@ export default function AdminDashboard() {
           </Button>
         </motion.div>
       )}
+
+      {/* Creator Coach — AI-powered recommendation banner */}
+      <CreatorCoachBanner />
 
       {/* TTFS Progress Tracker — guides to first sale */}
       <TTFSProgressTracker />
