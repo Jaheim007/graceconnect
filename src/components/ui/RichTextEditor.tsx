@@ -7,15 +7,18 @@ import { TextStyle } from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
 import TextAlign from '@tiptap/extension-text-align';
 import Placeholder from '@tiptap/extension-placeholder';
+import { Iframe } from '@/extensions/IframeExtension';
 import {
   Bold, Italic, Underline as UnderlineIcon, Strikethrough,
   Link as LinkIcon, Image as ImageIcon, List, ListOrdered,
   AlignLeft, AlignCenter, AlignRight, Heading2, Heading3,
-  Quote, Palette, Undo, Redo, Sparkles
+  Quote, Palette, Undo, Redo, Sparkles, Video, Loader2
 } from 'lucide-react';
 import { Button } from './button';
 import { cn } from '@/lib/utils';
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { uploadEditorImage, getVideoEmbedUrl } from '@/lib/editorUpload';
+import { useToast } from '@/hooks/use-toast';
 
 interface RichTextEditorProps {
   value: string;
@@ -43,7 +46,9 @@ export function RichTextEditor({
   showAIButton = true,
 }: RichTextEditorProps) {
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const isSyncing = useRef(false);
+  const { toast } = useToast();
 
   const editor = useEditor({
     extensions: [
@@ -60,6 +65,7 @@ export function RichTextEditor({
       Image.configure({
         HTMLAttributes: { class: 'rounded-lg max-w-full h-auto my-3' },
       }),
+      Iframe,
       TextStyle,
       Color,
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
@@ -74,17 +80,63 @@ export function RichTextEditor({
       attributes: {
         class: 'prose prose-sm dark:prose-invert max-w-none focus:outline-none min-h-[120px] px-3 py-2',
       },
-      handlePaste: (_view, event) => {
+      handlePaste: (view, event) => {
+        // Handle image paste from clipboard
+        const items = event.clipboardData?.items;
+        if (items) {
+          for (let i = 0; i < items.length; i++) {
+            if (items[i].type.startsWith('image/')) {
+              event.preventDefault();
+              const file = items[i].getAsFile();
+              if (file) handleImageUpload(file);
+              return true;
+            }
+          }
+        }
         // Allow rich paste from clipboard (bold, links, etc.)
         const html = event.clipboardData?.getData('text/html');
         if (html) {
-          // Let tiptap handle the HTML paste natively - it preserves formatting
           return false;
+        }
+        return false;
+      },
+      handleDrop: (view, event) => {
+        const files = event.dataTransfer?.files;
+        if (files && files.length > 0) {
+          for (let i = 0; i < files.length; i++) {
+            if (files[i].type.startsWith('image/')) {
+              event.preventDefault();
+              handleImageUpload(files[i]);
+              return true;
+            }
+          }
         }
         return false;
       },
     },
   });
+
+  const handleImageUpload = useCallback(async (file: File) => {
+    if (!editor) return;
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: 'Image trop lourde', description: 'Maximum 5 Mo par image.', variant: 'destructive' });
+      return;
+    }
+    setUploading(true);
+    try {
+      const url = await uploadEditorImage(file);
+      if (url) {
+        editor.chain().focus().setImage({ src: url }).run();
+      } else {
+        toast({ title: 'Erreur', description: "Impossible d'uploader l'image.", variant: 'destructive' });
+      }
+    } catch {
+      toast({ title: 'Erreur', description: "Impossible d'uploader l'image.", variant: 'destructive' });
+    } finally {
+      setUploading(false);
+    }
+  }, [editor, toast]);
 
   // Sync external value changes (e.g. AI insert, template apply)
   useEffect(() => {
@@ -109,11 +161,40 @@ export function RichTextEditor({
 
   const addImage = useCallback(() => {
     if (!editor) return;
-    const url = window.prompt('URL de l\'image:');
+    // Offer choice: URL or file upload
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) handleImageUpload(file);
+    };
+    input.click();
+  }, [editor, handleImageUpload]);
+
+  const addImageByUrl = useCallback(() => {
+    if (!editor) return;
+    const url = window.prompt("URL de l'image:");
     if (url) {
       editor.chain().focus().setImage({ src: url }).run();
     }
   }, [editor]);
+
+  const addVideo = useCallback(() => {
+    if (!editor) return;
+    const url = window.prompt('URL de la vidéo (YouTube, Facebook, TikTok, Vimeo, Dailymotion):');
+    if (!url) return;
+    const embedUrl = getVideoEmbedUrl(url);
+    if (embedUrl) {
+      editor.chain().focus().setIframe({ src: embedUrl }).run();
+    } else {
+      toast({
+        title: 'URL non supportée',
+        description: 'Formats acceptés : YouTube, Facebook, TikTok, Vimeo, Dailymotion.',
+        variant: 'destructive',
+      });
+    }
+  }, [editor, toast]);
 
   if (!editor) return null;
 
@@ -186,8 +267,14 @@ export function RichTextEditor({
         <ToolBtn onClick={setLink} active={editor.isActive('link')} title="Lien">
           <LinkIcon className="h-3.5 w-3.5" />
         </ToolBtn>
-        <ToolBtn onClick={addImage} title="Image">
+        <ToolBtn onClick={addImage} title="Importer une image">
           <ImageIcon className="h-3.5 w-3.5" />
+        </ToolBtn>
+        <ToolBtn onClick={addImageByUrl} title="Image par URL">
+          <span className="text-[9px] font-bold">URL</span>
+        </ToolBtn>
+        <ToolBtn onClick={addVideo} title="Intégrer une vidéo">
+          <Video className="h-3.5 w-3.5" />
         </ToolBtn>
 
         <div className="relative">
@@ -220,6 +307,12 @@ export function RichTextEditor({
         <ToolBtn onClick={() => editor.chain().focus().redo().run()} title="Refaire">
           <Redo className="h-3.5 w-3.5" />
         </ToolBtn>
+
+        {uploading && (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground ml-2">
+            <Loader2 className="h-3 w-3 animate-spin" /> Upload...
+          </div>
+        )}
 
         {showAIButton && onAIAssist && (
           <>
