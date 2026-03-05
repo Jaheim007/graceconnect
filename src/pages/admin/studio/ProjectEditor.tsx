@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { supabase } from '@/integrations/supabase/client';
 import { compressImage } from '@/hooks/useImageOptimizer';
+import { useCanvaAuth } from '@/hooks/useCanvaAuth';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,7 +17,7 @@ import { useState, useCallback, useEffect } from 'react';
 import {
   ArrowLeft, Plus, Trash2, GripVertical, Save, FileText,
   Sparkles, Loader2, ChevronLeft, ChevronRight, ListTree,
-  FileCheck, BookOpen, Eye, ImagePlus, Upload, Star, StarOff
+  FileCheck, BookOpen, Eye, ImagePlus, Upload, Star, StarOff, Palette
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
