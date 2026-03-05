@@ -46,6 +46,9 @@ export default function ProjectEditor() {
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [generatingCover, setGeneratingCover] = useState(false);
+  const [canvaDesigning, setCanvaDesigning] = useState(false);
+
+  const { isConnected: canvaConnected, startAuth: canvaStartAuth, getValidToken: getCanvaToken, loading: canvaLoading } = useCanvaAuth();
 
   // Fetch cover asset
   const { data: coverAsset, refetch: refetchCover } = useQuery({
