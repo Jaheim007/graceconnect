@@ -95,7 +95,7 @@ serve(async (req) => {
     const fileName = `ai-covers/${product_id}-${Date.now()}.png`;
 
     const { error: uploadErr } = await supabase.storage
-      .from("org-assets")
+      .from("org-uploads")
       .upload(fileName, imageBytes, {
         contentType: "image/png",
         upsert: true,
@@ -104,18 +104,10 @@ serve(async (req) => {
     if (uploadErr) throw new Error(`Upload failed: ${uploadErr.message}`);
 
     const { data: urlData } = supabase.storage
-      .from("org-assets")
+      .from("org-uploads")
       .getPublicUrl(fileName);
 
     const publicUrl = urlData.publicUrl;
-
-    // Update product cover
-    const { error: updateErr } = await supabase
-      .from("digital_products")
-      .update({ cover_image_url: publicUrl })
-      .eq("id", product_id);
-
-    if (updateErr) throw new Error(`Update failed: ${updateErr.message}`);
 
     return new Response(
       JSON.stringify({ ok: true, cover_url: publicUrl }),
