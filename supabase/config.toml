@@ -110,3 +110,6 @@ verify_jwt = false
 
 [functions.backfill-purchase-emails]
 verify_jwt = false
+
+[functions.ai-create-job]
+verify_jwt = false

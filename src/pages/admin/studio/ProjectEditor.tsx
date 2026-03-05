@@ -2,18 +2,20 @@ import { useParams, Link } from 'react-router-dom';
 import { useOrg } from '@/contexts/OrgContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
+import { supabase } from '@/integrations/supabase/client';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useCallback, useEffect } from 'react';
 import {
   ArrowLeft, Plus, Trash2, GripVertical, Save, FileText,
-  Sparkles, Loader2, ChevronLeft, ChevronRight
+  Sparkles, Loader2, ChevronLeft, ChevronRight, ListTree,
+  FileCheck, BookOpen
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -35,6 +37,7 @@ export default function ProjectEditor() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirty, setDirty] = useState(false);
+  const [generatingJob, setGeneratingJob] = useState<string | null>(null);
 
   // Fetch project
   const { data: project, isLoading } = useQuery({
@@ -51,6 +54,34 @@ export default function ProjectEditor() {
     enabled: !!id,
   });
 
+  // Poll active jobs for this project
+  const { data: activeJobs } = useQuery({
+    queryKey: ['studio-editor-jobs', id],
+    queryFn: async () => {
+      if (!id) return [];
+      const { data } = await db.from('ai_generation_jobs')
+        .select('id, job_type, status, progress, error_message, output_data, input_params')
+        .eq('project_id', id)
+        .in('status', ['queued', 'running'])
+        .order('created_at', { ascending: false });
+      return data || [];
+    },
+    enabled: !!id,
+    refetchInterval: generatingJob ? 2000 : false,
+  });
+
+  // When a job completes, refresh project and clear generating state
+  useEffect(() => {
+    if (!generatingJob) return;
+    const isStillRunning = activeJobs?.some(j => j.id === generatingJob);
+    if (!isStillRunning && activeJobs !== undefined) {
+      setGeneratingJob(null);
+      // Refresh project to get updated structure_json
+      queryClient.invalidateQueries({ queryKey: ['studio-project', id] });
+      toast({ title: 'Génération terminée ✓' });
+    }
+  }, [activeJobs, generatingJob]);
+
   // Initialize chapters from structure_json
   useEffect(() => {
     if (project?.structure_json) {
@@ -61,7 +92,6 @@ export default function ProjectEditor() {
         return;
       }
     }
-    // Default: one chapter
     if (chapters.length === 0) {
       const defaultCh: Chapter = {
         id: crypto.randomUUID(),
@@ -100,9 +130,7 @@ export default function ProjectEditor() {
     }
     setChapters(prev => {
       const next = prev.filter(c => c.id !== chId).map((c, i) => ({ ...c, order: i }));
-      if (activeChapterId === chId) {
-        setActiveChapterId(next[0]?.id || null);
-      }
+      if (activeChapterId === chId) setActiveChapterId(next[0]?.id || null);
       return next;
     });
     setDirty(true);
@@ -124,9 +152,8 @@ export default function ProjectEditor() {
   const saveMutation = useMutation({
     mutationFn: async () => {
       if (!id) return;
-      const structureJson = { chapters };
       const { error } = await db.from('ai_content_projects')
-        .update({ structure_json: structureJson, updated_at: new Date().toISOString() })
+        .update({ structure_json: { chapters }, updated_at: new Date().toISOString() })
         .eq('id', id);
       if (error) throw error;
     },
@@ -145,14 +172,53 @@ export default function ProjectEditor() {
     saveMutation.mutate(undefined, { onSettled: () => setSaving(false) });
   };
 
-  // Auto-save every 30s if dirty
+  // Auto-save
   useEffect(() => {
     if (!dirty) return;
-    const timer = setTimeout(() => {
-      saveMutation.mutate();
-    }, 30_000);
+    const timer = setTimeout(() => saveMutation.mutate(), 30_000);
     return () => clearTimeout(timer);
   }, [dirty, chapters]);
+
+  // AI actions
+  const triggerJob = useCallback(async (jobType: string, extraParams: Record<string, any> = {}) => {
+    if (!id) return;
+    // Save first if dirty
+    if (dirty) {
+      await db.from('ai_content_projects')
+        .update({ structure_json: { chapters }, updated_at: new Date().toISOString() })
+        .eq('id', id);
+      setDirty(false);
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-create-job', {
+        body: { project_id: id, job_type: jobType, input_params: extraParams },
+      });
+      if (error) throw error;
+      if (data?.error) {
+        toast({ title: 'Erreur', description: data.error, variant: 'destructive' });
+        return;
+      }
+      setGeneratingJob(data.job_id);
+      toast({ title: 'Génération lancée', description: 'Le contenu est en cours de création...' });
+      queryClient.invalidateQueries({ queryKey: ['studio-editor-jobs', id] });
+    } catch (e: any) {
+      toast({ title: 'Erreur', description: e.message || 'Impossible de lancer la génération.', variant: 'destructive' });
+    }
+  }, [id, dirty, chapters, toast, queryClient]);
+
+  const generateOutline = () => triggerJob('generate_outline');
+  const generateChapter = () => {
+    if (!activeChapter) return;
+    triggerJob('generate_chapter', {
+      chapter_id: activeChapter.id,
+      chapter_title: activeChapter.title,
+    });
+  };
+  const generateDescription = () => triggerJob('generate_description');
+  const runQualityCheck = () => triggerJob('quality_check');
+
+  const isGenerating = !!generatingJob || (activeJobs && activeJobs.length > 0);
 
   if (isLoading) {
     return (
@@ -186,6 +252,11 @@ export default function ProjectEditor() {
           </Button>
           <span className="text-sm font-semibold truncate max-w-[200px]">{project.title}</span>
           {dirty && <Badge variant="outline" className="text-[10px]">Non sauvegardé</Badge>}
+          {isGenerating && (
+            <Badge variant="secondary" className="text-[10px] gap-1">
+              <Loader2 className="h-3 w-3 animate-spin" /> IA en cours...
+            </Badge>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={() => setSidebarOpen(!sidebarOpen)}>
@@ -198,9 +269,23 @@ export default function ProjectEditor() {
         </div>
       </div>
 
+      {/* Active job progress */}
+      {activeJobs && activeJobs.length > 0 && (
+        <div className="mb-2 space-y-1">
+          {activeJobs.map(job => (
+            <div key={job.id} className="flex items-center gap-2 text-xs">
+              <Loader2 className="h-3 w-3 animate-spin text-primary" />
+              <span className="text-muted-foreground">{job.job_type}</span>
+              <Progress value={job.progress || 0} className="flex-1 h-1.5" />
+              <span className="text-muted-foreground">{job.progress || 0}%</span>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Main layout */}
       <div className="flex flex-1 gap-3 overflow-hidden">
-        {/* Sidebar: chapters list */}
+        {/* Sidebar: chapters */}
         {sidebarOpen && (
           <div className="w-56 shrink-0 border border-border rounded-xl bg-card flex flex-col overflow-hidden">
             <div className="px-3 py-2 border-b border-border flex items-center justify-between">
@@ -271,7 +356,7 @@ export default function ProjectEditor() {
           )}
         </div>
 
-        {/* Right panel: context & actions */}
+        {/* Right panel */}
         <div className="w-60 shrink-0 border border-border rounded-xl bg-card overflow-auto hidden lg:block">
           <div className="p-3 space-y-4">
             <div>
@@ -292,22 +377,39 @@ export default function ProjectEditor() {
             <div className="border-t border-border pt-3">
               <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Actions IA</h3>
               <div className="space-y-1.5">
-                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 gap-2" disabled>
+                <Button
+                  variant="outline" size="sm"
+                  className="w-full justify-start text-xs h-8 gap-2"
+                  onClick={generateOutline}
+                  disabled={!!isGenerating}
+                >
+                  <ListTree className="h-3.5 w-3.5 text-primary" /> Générer le plan
+                </Button>
+                <Button
+                  variant="outline" size="sm"
+                  className="w-full justify-start text-xs h-8 gap-2"
+                  onClick={generateChapter}
+                  disabled={!!isGenerating || !activeChapter}
+                >
                   <Sparkles className="h-3.5 w-3.5 text-primary" /> Générer ce chapitre
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 gap-2" disabled>
-                  <Sparkles className="h-3.5 w-3.5 text-primary" /> Regénérer sélection
+                <Button
+                  variant="outline" size="sm"
+                  className="w-full justify-start text-xs h-8 gap-2"
+                  onClick={generateDescription}
+                  disabled={!!isGenerating}
+                >
+                  <BookOpen className="h-3.5 w-3.5 text-primary" /> Générer description
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 gap-2" disabled>
-                  <Sparkles className="h-3.5 w-3.5 text-primary" /> Générer couverture
-                </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start text-xs h-8 gap-2" disabled>
-                  <Sparkles className="h-3.5 w-3.5 text-primary" /> Créer PDF
+                <Button
+                  variant="outline" size="sm"
+                  className="w-full justify-start text-xs h-8 gap-2"
+                  onClick={runQualityCheck}
+                  disabled={!!isGenerating}
+                >
+                  <FileCheck className="h-3.5 w-3.5 text-primary" /> Vérifier qualité
                 </Button>
               </div>
-              <p className="text-[10px] text-muted-foreground mt-2">
-                La génération IA sera activée en Phase 3
-              </p>
             </div>
 
             <div className="border-t border-border pt-3">

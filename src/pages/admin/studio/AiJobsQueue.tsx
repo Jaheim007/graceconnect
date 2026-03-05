@@ -1,10 +1,16 @@
 import { useOrg } from '@/contexts/OrgContext';
-import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Cpu, Clock, CheckCircle, XCircle, Loader2, AlertTriangle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import {
+  Cpu, Clock, CheckCircle, XCircle, Loader2, AlertTriangle,
+  RotateCcw, Trash2, ExternalLink
+} from 'lucide-react';
 
 const JOB_STATUS_META: Record<string, { label: string; icon: typeof Clock; color: string }> = {
   queued: { label: 'En attente', icon: Clock, color: 'text-muted-foreground' },
@@ -29,6 +35,8 @@ const JOB_TYPE_LABELS: Record<string, string> = {
 export default function AiJobsQueue() {
   const { currentOrg } = useOrg();
   const orgId = currentOrg?.id;
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const { data: jobs, isLoading } = useQuery({
     queryKey: ['studio-jobs', orgId],
@@ -42,18 +50,50 @@ export default function AiJobsQueue() {
       return data || [];
     },
     enabled: !!orgId,
-    refetchInterval: 5000, // Poll for active jobs
+    refetchInterval: 5000,
   });
+
+  const cancelJob = useMutation({
+    mutationFn: async (jobId: string) => {
+      const { error } = await db.from('ai_generation_jobs').update({
+        status: 'cancelled',
+        completed_at: new Date().toISOString(),
+        error_message: 'Annulé par l\'utilisateur',
+      }).eq('id', jobId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({ title: 'Tâche annulée' });
+      queryClient.invalidateQueries({ queryKey: ['studio-jobs', orgId] });
+    },
+  });
+
+  const deleteJob = useMutation({
+    mutationFn: async (jobId: string) => {
+      const { error } = await db.from('ai_generation_jobs').delete().eq('id', jobId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({ title: 'Tâche supprimée' });
+      queryClient.invalidateQueries({ queryKey: ['studio-jobs', orgId] });
+    },
+  });
+
+  const activeCount = jobs?.filter(j => j.status === 'running' || j.status === 'queued').length || 0;
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Cpu className="h-6 w-6 text-primary" /> Tâches IA
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Suivi des générations en cours et passées
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Cpu className="h-6 w-6 text-primary" /> Tâches IA
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {activeCount > 0
+              ? `${activeCount} tâche${activeCount > 1 ? 's' : ''} en cours`
+              : 'Suivi des générations en cours et passées'}
+          </p>
+        </div>
       </div>
 
       {isLoading ? (
@@ -68,15 +108,16 @@ export default function AiJobsQueue() {
             <Cpu className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
             <p className="text-muted-foreground font-medium">Aucune tâche IA</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Les tâches de génération apparaîtront ici
+              Lancez une génération depuis l'éditeur de projet pour voir les tâches ici
             </p>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-2">
-          {jobs.map(job => {
+          {jobs.map((job: any) => {
             const statusM = JOB_STATUS_META[job.status] || JOB_STATUS_META.queued;
             const StatusIcon = statusM.icon;
+            const isActive = job.status === 'running' || job.status === 'queued';
             return (
               <Card key={job.id}>
                 <CardContent className="py-3 space-y-2">
@@ -86,9 +127,13 @@ export default function AiJobsQueue() {
                       <p className="text-sm font-medium truncate">
                         {JOB_TYPE_LABELS[job.job_type] || job.job_type}
                       </p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {(job as any).ai_content_projects?.title}
-                      </p>
+                      <Link
+                        to={`/admin/studio/projects/${job.project_id}`}
+                        className="text-xs text-muted-foreground hover:text-primary truncate flex items-center gap-1"
+                      >
+                        {job.ai_content_projects?.title}
+                        <ExternalLink className="h-3 w-3" />
+                      </Link>
                     </div>
                     <Badge variant={job.status === 'failed' ? 'destructive' : 'secondary'} className="text-xs shrink-0">
                       {statusM.label}
@@ -96,8 +141,29 @@ export default function AiJobsQueue() {
                     <span className="text-xs text-muted-foreground shrink-0">
                       {new Date(job.created_at).toLocaleTimeString('fr', { hour: '2-digit', minute: '2-digit' })}
                     </span>
+                    {/* Actions */}
+                    <div className="flex items-center gap-1 shrink-0">
+                      {isActive && (
+                        <Button
+                          variant="ghost" size="icon" className="h-7 w-7"
+                          onClick={() => cancelJob.mutate(job.id)}
+                          title="Annuler"
+                        >
+                          <XCircle className="h-3.5 w-3.5 text-destructive" />
+                        </Button>
+                      )}
+                      {(job.status === 'completed' || job.status === 'failed' || job.status === 'cancelled') && (
+                        <Button
+                          variant="ghost" size="icon" className="h-7 w-7"
+                          onClick={() => deleteJob.mutate(job.id)}
+                          title="Supprimer"
+                        >
+                          <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  {(job.status === 'running' || job.status === 'queued') && (
+                  {isActive && (
                     <Progress value={job.progress || 0} className="h-1.5" />
                   )}
                   {job.status === 'failed' && job.error_message && (
