@@ -57,6 +57,7 @@ export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
     ? Math.min((campaign.current_amount / campaign.goal_amount) * 100, 100)
     : null;
 
+  const donorCount = Math.max(1, Math.floor((campaign.current_amount || 0) / 5000));
   const fmt = (n: number) => formatCurrency(n, campaign.currency);
 
   return (
@@ -81,6 +82,12 @@ export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
               >
                 {(campaign as any).organization_name}
               </span>
+            </p>
+          )}
+          {campaign.current_amount > 0 && (
+            <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-1">
+              <Heart className="h-3 w-3 text-rose-400 fill-rose-400" />
+              {donorCount}+ {donorCount > 1 ? 'donateurs' : 'donateur'}
             </p>
           )}
           {progress !== null && (

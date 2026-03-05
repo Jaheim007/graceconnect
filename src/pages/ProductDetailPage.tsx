@@ -872,12 +872,14 @@ export default function ProductDetailPage() {
         open={showCelebration}
         onClose={() => setShowCelebration(false)}
         productTitle={product.title}
+        organizationId={product.organization_id}
         orgName={org?.name || ''}
         orgSlug={slug || ''}
         productSlug={(product as any)?.slug}
         productId={product.id}
         coverImageUrl={product.cover_image_url}
         isFreePurchase={product.is_free || false}
+        productType={product.product_type || undefined}
         onGoToResources={() => { setShowCelebration(false); navigate('/resources'); }}
       />
     </div>
