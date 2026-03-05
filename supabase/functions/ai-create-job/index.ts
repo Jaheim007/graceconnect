@@ -43,7 +43,6 @@ Deno.serve(async (req) => {
     }
     if (!org_id) return jsonError('org_id or project_id required', 400);
 
-    const admin = createClient(supabaseUrl, serviceKey);
 
     // --- Permission ---
     const { data: canUse } = await admin.rpc('can_use_studio', { _org_id: org_id });
