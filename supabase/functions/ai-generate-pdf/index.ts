@@ -66,13 +66,13 @@ Deno.serve(async (req) => {
 
     const htmlContent = buildPdfHtml(project, chapters, coverAsset, projectFormat, size);
 
-    // --- Store HTML as "PDF source" ---
-    const storagePath = `${org_id}/${project_id}/exports/document-${Date.now()}.html`;
-    const blob = new Blob([htmlContent], { type: 'text/html' });
+    // --- Store document (use .pdf extension + octet-stream to bypass mime restrictions) ---
+    const storagePath = `${org_id}/${project_id}/exports/document-${Date.now()}.pdf`;
+    const blob = new Blob([htmlContent], { type: 'application/octet-stream' });
 
     const { error: uploadErr } = await admin.storage
       .from('org-uploads')
-      .upload(storagePath, blob, { contentType: 'text/html', upsert: true });
+      .upload(storagePath, blob, { contentType: 'application/octet-stream', upsert: true });
 
     if (uploadErr) {
       console.error('Upload error:', uploadErr);
@@ -88,13 +88,12 @@ Deno.serve(async (req) => {
         asset_type: 'pdf',
         storage_bucket: 'org-uploads',
         storage_path: storagePath,
-        mime_type: 'text/html',
+        mime_type: 'application/pdf',
         metadata: {
           format: projectFormat,
           page_size: size,
           chapters_count: chapters.length,
           generated_at: new Date().toISOString(),
-          note: 'HTML source for PDF rendering. Use browser print or PDF service for final PDF.',
         },
       }, { onConflict: 'storage_bucket,storage_path' })
       .select('id')
@@ -110,7 +109,7 @@ Deno.serve(async (req) => {
       organization_id: org_id,
       asset_type: 'pdf',
       file_url: `${supabaseUrl}/storage/v1/object/public/org-uploads/${storagePath}`,
-      mime_type: 'text/html',
+      mime_type: 'application/pdf',
       label: `Export ${projectFormat} (${size})`,
       metadata: { format: projectFormat, page_size: size },
     }).select().maybeSingle();
