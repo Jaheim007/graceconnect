@@ -260,50 +260,6 @@ async function tryDrawCover(pdfDoc: PDFDocument, page: any, coverUrl: string) {
   }
 }
 
-function addWatermarkAndFooter(pdfDoc: PDFDocument, orgName: string, language: string) {
-  const pages = pdfDoc.getPages();
-  const generatedOn = new Date().toLocaleDateString(language.startsWith('fr') ? 'fr-FR' : 'en-US');
-  const total = pages.length;
-
-  pages.forEach((page, index) => {
-    const { width, height } = page.getSize();
-
-    page.drawText(orgName.toUpperCase(), {
-      x: width * 0.14,
-      y: height * 0.42,
-      size: 40,
-      font: page.doc.embedStandardFont ? undefined : undefined,
-      color: rgb(0.88, 0.91, 0.96),
-      rotate: degrees(35),
-      opacity: 0.28,
-    });
-
-    page.drawLine({
-      start: { x: 42, y: 30 },
-      end: { x: width - 42, y: 30 },
-      thickness: 0.5,
-      color: rgb(0.86, 0.89, 0.94),
-    });
-
-    const footerFont = pdfDoc.embedStandardFont ? undefined : undefined;
-    page.drawText(`${orgName} • ${generatedOn}`, {
-      x: 44,
-      y: 18,
-      size: 9,
-      font: footerFont,
-      color: rgb(0.45, 0.5, 0.58),
-    });
-
-    page.drawText(`Page ${index + 1}/${total}`, {
-      x: width - 88,
-      y: 18,
-      size: 9,
-      font: footerFont,
-      color: rgb(0.45, 0.5, 0.58),
-    });
-  });
-}
-
 async function buildProfessionalPdf(opts: {
   title: string;
   subtitle: string;
