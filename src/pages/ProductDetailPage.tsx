@@ -45,6 +45,9 @@ import { WishlistButton } from '@/components/products/WishlistButton';
 import { PostPurchaseCelebration } from '@/components/products/PostPurchaseCelebration';
 import { SocialProofWidget } from '@/components/products/SocialProofWidget';
 import { trackProductView } from '@/components/discover/RecentlyViewedProducts';
+import { SellerTrustBadges } from '@/components/products/SellerTrustBadges';
+import { UrgencyWidget } from '@/components/products/UrgencyWidget';
+import { ContentSizeBadge } from '@/components/products/ContentSizeBadge';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -688,6 +691,19 @@ export default function ProductDetailPage() {
                 averageRating={(product as any).average_rating || 0}
               />
 
+              {/* Urgency */}
+              <UrgencyWidget
+                saleEndsAt={(product as any).sale_ends_at}
+                salesCount={product.sales_count || 0}
+                isFree={product.is_free || false}
+              />
+
+              {/* Content size */}
+              <ContentSizeBadge
+                pageCount={(product as any).page_count}
+                productType={product.product_type || undefined}
+              />
+
               {canQuickPreview && (
                 <Button
                   variant="outline"
@@ -775,6 +791,13 @@ export default function ProductDetailPage() {
                 orgName={org?.name || ''}
               />
             </UniverseGate>
+
+            {/* Seller Trust */}
+            <SellerTrustBadges
+              organizationId={product.organization_id}
+              orgName={org?.name || ''}
+              kycStatus={(org as any)?.kyc_status}
+            />
 
             {/* Share & Earn CTA */}
             <ShareToEarnCTA

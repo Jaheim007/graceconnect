@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen, Eye } from 'lucide-react';
 import { FlashSaleBadge } from './FlashSaleBadge';
+import { ContentSizeBadge } from './ContentSizeBadge';
 import { ShareWidget } from './ShareWidget';
 import { WishlistButton } from './WishlistButton';
 import { LocalPriceHint } from '@/components/payments/LocalPriceHint';
@@ -223,6 +224,10 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
             )}
           </div>
         </div>
+
+        {(product as any).page_count > 0 && (
+          <ContentSizeBadge pageCount={(product as any).page_count} productType={product.product_type || undefined} />
+        )}
 
         <div className="flex items-center justify-between gap-1.5 flex-wrap">
           <Badge variant="outline" className="text-[10px] px-1.5 py-0.5 h-5 gap-1 capitalize">
