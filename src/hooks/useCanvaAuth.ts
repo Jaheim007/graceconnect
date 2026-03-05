@@ -1,14 +1,29 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 const CANVA_TOKEN_KEY = 'sv_canva_token';
 const CANVA_REFRESH_KEY = 'sv_canva_refresh';
 const CANVA_EXPIRES_KEY = 'sv_canva_expires';
 
-interface CanvaToken {
-  access_token: string;
-  refresh_token: string;
-  expires_at: number;
+const CANVA_CLIENT_ID = 'OC-AZy_Hn2HxZQ9';
+const CANVA_REDIRECT_URI = 'https://siteviral.com/canva/callback';
+const CANVA_SCOPES = 'asset:read design:content:read design:meta:read profile:read design:content:write asset:write folder:read';
+
+// ── PKCE helpers ──
+function generateRandomString(length: number): string {
+  const array = new Uint8Array(length);
+  crypto.getRandomValues(array);
+  return Array.from(array, (b) => b.toString(16).padStart(2, '0')).join('').slice(0, length);
+}
+
+async function generateCodeChallenge(codeVerifier: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(codeVerifier);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return btoa(String.fromCharCode(...new Uint8Array(digest)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
 }
 
 export function useCanvaAuth() {
@@ -40,19 +55,26 @@ export function useCanvaAuth() {
   const startAuth = useCallback(async () => {
     setLoading(true);
     try {
-      const redirectUri = 'https://siteviral.com/canva/callback';
+      // Generate PKCE code_verifier (43-128 chars)
+      const codeVerifier = generateRandomString(64);
+      const codeChallenge = await generateCodeChallenge(codeVerifier);
       const state = crypto.randomUUID();
+
+      // Store for callback
+      sessionStorage.setItem('canva_code_verifier', codeVerifier);
       sessionStorage.setItem('canva_oauth_state', state);
 
-      const { data, error } = await supabase.functions.invoke('canva-auth?action=authorize', {
-        body: { redirect_uri: redirectUri, state },
+      const params = new URLSearchParams({
+        response_type: 'code',
+        client_id: CANVA_CLIENT_ID,
+        redirect_uri: CANVA_REDIRECT_URI,
+        scope: CANVA_SCOPES,
+        code_challenge_method: 'S256',
+        code_challenge: codeChallenge,
+        state,
       });
 
-      if (error) throw error;
-      if (!data?.ok) throw new Error(data?.error || 'Failed to get authorize URL');
-
-      // Redirect to Canva
-      window.location.href = data.authorize_url;
+      window.location.href = `https://www.canva.com/api/oauth/authorize?${params.toString()}`;
     } catch (e: any) {
       console.error('Canva auth error:', e);
       throw e;
@@ -64,15 +86,17 @@ export function useCanvaAuth() {
   const exchangeCode = useCallback(async (code: string) => {
     setLoading(true);
     try {
-      const redirectUri = 'https://siteviral.com/canva/callback';
+      const codeVerifier = sessionStorage.getItem('canva_code_verifier');
+      if (!codeVerifier) throw new Error('Missing PKCE code_verifier');
 
       const { data, error } = await supabase.functions.invoke('canva-auth?action=token', {
-        body: { code, redirect_uri: redirectUri },
+        body: { code, redirect_uri: CANVA_REDIRECT_URI, code_verifier: codeVerifier },
       });
 
       if (error) throw error;
       if (!data?.ok) throw new Error(data?.error || 'Token exchange failed');
 
+      sessionStorage.removeItem('canva_code_verifier');
       saveTokens(data);
       return true;
     } catch (e: any) {
@@ -85,21 +109,13 @@ export function useCanvaAuth() {
 
   const refreshToken = useCallback(async () => {
     const refresh = localStorage.getItem(CANVA_REFRESH_KEY);
-    if (!refresh) {
-      disconnect();
-      return null;
-    }
+    if (!refresh) { disconnect(); return null; }
 
     try {
       const { data, error } = await supabase.functions.invoke('canva-auth?action=refresh', {
         body: { refresh_token: refresh },
       });
-
-      if (error || !data?.ok) {
-        disconnect();
-        return null;
-      }
-
+      if (error || !data?.ok) { disconnect(); return null; }
       saveTokens(data);
       return data.access_token;
     } catch {
@@ -111,22 +127,9 @@ export function useCanvaAuth() {
   const getValidToken = useCallback(async (): Promise<string | null> => {
     const expires = localStorage.getItem(CANVA_EXPIRES_KEY);
     const token = localStorage.getItem(CANVA_TOKEN_KEY);
-
-    if (token && expires && Date.now() < Number(expires) - 60000) {
-      return token;
-    }
-
-    // Token expired or about to expire, try refresh
+    if (token && expires && Date.now() < Number(expires) - 60000) return token;
     return await refreshToken();
   }, [refreshToken]);
 
-  return {
-    isConnected,
-    canvaToken,
-    loading,
-    startAuth,
-    exchangeCode,
-    getValidToken,
-    disconnect,
-  };
+  return { isConnected, canvaToken, loading, startAuth, exchangeCode, getValidToken, disconnect };
 }
