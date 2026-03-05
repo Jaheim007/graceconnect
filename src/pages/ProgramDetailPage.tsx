@@ -12,6 +12,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { useState, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { ProgramCertificate } from '@/components/programs/ProgramCertificate';
 
 const CONTENT_ICONS: Record<string, typeof FileText> = {
   text: FileText,
@@ -118,6 +119,21 @@ export default function ProgramDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Certificate */}
+      {isEnrolled && (
+        <div className="container max-w-4xl px-4 pt-4">
+          <ProgramCertificate
+            programId={programId!}
+            programTitle={program.title}
+            orgName={orgName}
+            orgLogo={(program as any).organizations?.logo_url}
+            progressPercent={progressPercent}
+            totalLessons={totalLessons}
+            completedLessons={completedLessons}
+          />
+        </div>
+      )}
 
       {/* Content */}
       <div className="container max-w-4xl py-6 px-4 space-y-3">
