@@ -76,11 +76,21 @@ serve(async (req) => {
       ? `data:image/png;base64,${aiData.data[0].b64_json}`
       : null;
 
-    if (!imageBase64) throw new Error("No image generated");
+    if (!imageUrl && !imageBase64) throw new Error("No image generated");
 
-    // Extract base64 data and upload to storage
-    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
-    const imageBytes = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
+    let imageBytes: Uint8Array;
+
+    if (imageBase64) {
+      // Handle base64 response
+      const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
+      imageBytes = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
+    } else {
+      // Handle URL response - download the image
+      const imgResp = await fetch(imageUrl!);
+      if (!imgResp.ok) throw new Error("Failed to download generated image");
+      const arrBuf = await imgResp.arrayBuffer();
+      imageBytes = new Uint8Array(arrBuf);
+    }
 
     const fileName = `ai-covers/${product_id}-${Date.now()}.png`;
 
