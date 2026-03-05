@@ -7,6 +7,7 @@ import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { useOrg } from '@/contexts/OrgContext';
 import { InstallBanner } from '@/components/pwa/InstallBanner';
 import { PushNotificationPrompt } from '@/components/pwa/PushNotificationPrompt';
+import { ScrollToTop } from '@/components/ui/ScrollToTop';
 import { useNewUserRedirect } from '@/hooks/useNewUserRedirect';
 
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
@@ -62,6 +63,7 @@ export function AppLayout() {
 
       <InstallBanner />
       <PushNotificationPrompt />
+      <ScrollToTop />
     </div>
   );
 }

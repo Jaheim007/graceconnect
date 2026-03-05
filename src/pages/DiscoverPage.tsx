@@ -35,6 +35,8 @@ import { useCallback, useRef, useEffect } from 'react';
 import { Offering } from '@/hooks/useOfferings';
 import { SearchSuggestions, addRecentSearch } from '@/components/discover/SearchSuggestions';
 import { ProductQuickView } from '@/components/products/ProductQuickView';
+import { RecentlyViewedProducts } from '@/components/discover/RecentlyViewedProducts';
+import { EngagementLevel } from '@/components/discover/EngagementLevel';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
@@ -268,8 +270,10 @@ export default function DiscoverPage() {
         {!isSearching && !user && <DiscoverCTABanner />}
         {!isSearching && user && <BuyerStreakWidget />}
         {!isSearching && <TrendingBanner />}
-        {!isSearching && <CategoryCarousels />}
+        {!isSearching && user && <EngagementLevel />}
+        {!isSearching && <RecentlyViewedProducts />}
 
+        {!isSearching && <CategoryCarousels />}
         <Tabs value={tab} onValueChange={(v) => setTab(v)}>
           <TabsList className="mb-4">
             <TabsTrigger value="products" className="gap-1.5">

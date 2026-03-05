@@ -44,6 +44,7 @@ import { CreateSimilarCTA } from '@/components/products/CreateSimilarCTA';
 import { WishlistButton } from '@/components/products/WishlistButton';
 import { PostPurchaseCelebration } from '@/components/products/PostPurchaseCelebration';
 import { SocialProofWidget } from '@/components/products/SocialProofWidget';
+import { trackProductView } from '@/components/discover/RecentlyViewedProducts';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -71,6 +72,11 @@ export default function ProductDetailPage() {
   const [purchaseProduct, setPurchaseProduct] = useState<DigitalProduct | null>(null);
   const [copied, setCopied] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+
+  // Track recently viewed
+  useEffect(() => {
+    if (productId) trackProductView(productId);
+  }, [productId]);
 
   const typeLabels: Record<string, string> = {
     pdf: t('product.type_pdf'), ebook: t('product.type_ebook'), audio: t('product.type_audio'),
