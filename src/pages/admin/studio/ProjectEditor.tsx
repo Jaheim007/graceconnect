@@ -199,9 +199,15 @@ export default function ProjectEditor() {
         toast({ title: 'Erreur', description: data.error, variant: 'destructive' });
         return;
       }
-      setGeneratingJob(data.job_id);
+      const jobId = data.job_id;
+      setGeneratingJob(jobId);
       toast({ title: 'Génération lancée', description: 'Le contenu est en cours de création...' });
       queryClient.invalidateQueries({ queryKey: ['studio-editor-jobs', id] });
+
+      // Trigger ai-run-job directly from client (fire-and-forget but reliable)
+      supabase.functions.invoke('ai-run-job', {
+        body: { job_id: jobId },
+      }).catch(err => console.error('ai-run-job invoke error:', err));
     } catch (e: any) {
       toast({ title: 'Erreur', description: e.message || 'Impossible de lancer la génération.', variant: 'destructive' });
     }

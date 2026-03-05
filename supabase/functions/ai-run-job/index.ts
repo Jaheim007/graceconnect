@@ -415,21 +415,26 @@ function buildUserPrompt(jobType: string, project: any, template: any, params: a
 }
 
 function processTextOutput(jobType: string, rawContent: string, params: any): any {
+  // Strip all code fences (```json, ```html, ```, etc.)
+  const cleaned = rawContent
+    .replace(/```[\w]*\n?/gi, '')
+    .replace(/```\n?/g, '')
+    .trim();
+
   if (jobType === 'generate_outline' || jobType === 'quality_check') {
     try {
-      const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
+      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0]);
         if (jobType === 'generate_outline') return { structure: parsed, html: '' };
         return parsed;
       }
-    } catch { /* fallback below */ }
+    } catch (e) {
+      console.error('JSON parse error in processTextOutput:', e);
+    }
   }
 
-  const html = rawContent
-    .replace(/```html?\n?/gi, '')
-    .replace(/```\n?/g, '')
-    .trim();
+  const html = cleaned;
 
   return { html, chapter_id: params?.chapter_id };
 }

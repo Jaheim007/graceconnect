@@ -84,6 +84,10 @@ export default function ProjectReviewQualityGate() {
         toast({ title: 'Erreur', description: data.error, variant: 'destructive' });
         return;
       }
+      // Trigger ai-run-job directly
+      supabase.functions.invoke('ai-run-job', {
+        body: { job_id: data.job_id },
+      }).catch(err => console.error('ai-run-job error:', err));
       toast({ title: 'Analyse lancée', description: 'La vérification de qualité est en cours...' });
       // Poll for completion
       const checkInterval = setInterval(async () => {
