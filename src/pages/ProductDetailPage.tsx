@@ -53,6 +53,7 @@ import { ReviewSummaryBadge } from '@/components/products/ReviewSummaryBadge';
 import { ProductImageGallery } from '@/components/products/ProductImageGallery';
 import { StickyBuyBar } from '@/components/products/StickyBuyBar';
 import { ReadingProgressBar } from '@/components/ui/ReadingProgressBar';
+import { ProductTableOfContents } from '@/components/products/ProductTableOfContents';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -780,6 +781,11 @@ export default function ProductDetailPage() {
                 orgName={org?.name || ''}
               />
             </UniverseGate>
+
+            {/* Table of Contents */}
+            {product.description && (
+              <ProductTableOfContents descriptionHtml={product.description} />
+            )}
 
             {/* Review Summary */}
             <ReviewSummaryBadge productId={product.id} />

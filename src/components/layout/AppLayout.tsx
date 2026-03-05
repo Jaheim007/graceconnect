@@ -11,6 +11,8 @@ import { ScrollToTop } from '@/components/ui/ScrollToTop';
 import { useNewUserRedirect } from '@/hooks/useNewUserRedirect';
 import { CommandPalette } from '@/components/command/CommandPalette';
 import { CompareProvider } from '@/components/products/ProductCompareDrawer';
+import { CookieConsent } from '@/components/legal/CookieConsent';
+import { FloatingHelpWidget } from '@/components/help/FloatingHelpWidget';
 
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
 
@@ -68,6 +70,8 @@ export function AppLayout() {
       <InstallBanner />
       <PushNotificationPrompt />
       <ScrollToTop />
+      <CookieConsent />
+      <FloatingHelpWidget />
     </div>
     </CompareProvider>
   );
