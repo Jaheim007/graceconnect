@@ -66,13 +66,13 @@ Deno.serve(async (req) => {
 
     const htmlContent = buildPdfHtml(project, chapters, coverAsset, projectFormat, size);
 
-    // --- Store document (use .pdf extension + octet-stream to bypass mime restrictions) ---
+    // --- Store document as PDF ---
     const storagePath = `${org_id}/${project_id}/exports/document-${Date.now()}.pdf`;
-    const blob = new Blob([htmlContent], { type: 'application/octet-stream' });
+    const blob = new Blob([htmlContent], { type: 'application/pdf' });
 
     const { error: uploadErr } = await admin.storage
       .from('org-uploads')
-      .upload(storagePath, blob, { contentType: 'application/octet-stream', upsert: true });
+      .upload(storagePath, blob, { contentType: 'application/pdf', upsert: true });
 
     if (uploadErr) {
       console.error('Upload error:', uploadErr);
