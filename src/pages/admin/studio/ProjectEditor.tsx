@@ -522,9 +522,49 @@ export default function ProjectEditor() {
                 </div>
               </div>
             </div>
+
+            {/* Preview PDF */}
+            <div className="border-t border-border pt-3">
+              <Button
+                variant="outline" size="sm"
+                className="w-full justify-start text-xs h-8 gap-2"
+                onClick={() => pdfAsset?.file_url ? setPreviewOpen(true) : generateAndPreviewPdf()}
+                disabled={generatingPdf}
+              >
+                {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Eye className="h-3.5 w-3.5 text-primary" />}
+                {generatingPdf ? 'Génération...' : 'Aperçu du document'}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  );
+
+    {/* PDF Preview Dialog */}
+    <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+      <DialogContent className="max-w-4xl h-[85vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Eye className="h-5 w-5 text-primary" />
+            Aperçu — {project?.title}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="flex-1 min-h-0 rounded-lg overflow-hidden border bg-white">
+          {pdfAsset?.file_url ? (
+            <iframe src={pdfAsset.file_url} className="w-full h-full" title="Aperçu du document" />
+          ) : (
+            <div className="flex items-center justify-center h-full text-muted-foreground">
+              Aucun aperçu disponible. Générez le PDF d'abord.
+            </div>
+          )}
+        </div>
+        <div className="flex justify-end gap-2 pt-2">
+          <Button variant="outline" size="sm" onClick={generateAndPreviewPdf} disabled={generatingPdf}>
+            {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Sparkles className="h-3.5 w-3.5 mr-1" />}
+            Regénérer le PDF
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  </>;
 }
