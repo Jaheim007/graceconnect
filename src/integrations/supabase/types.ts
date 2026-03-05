@@ -247,6 +247,360 @@ export type Database = {
           },
         ]
       }
+      ai_content_projects: {
+        Row: {
+          age_range: string | null
+          art_style: string | null
+          characters: string | null
+          created_at: string
+          created_by: string
+          id: string
+          keywords: string[] | null
+          language: string
+          line_art_style: string | null
+          linked_product_id: string | null
+          linked_program_id: string | null
+          moral: string | null
+          objective: string | null
+          organization_id: string
+          project_type: Database["public"]["Enums"]["ai_project_type"]
+          published_at: string | null
+          quality_flags: string[] | null
+          quality_score: number | null
+          requires_human_review: boolean | null
+          review_notes: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          sermon_points: Json | null
+          sermon_text: string | null
+          sermon_theme: string | null
+          status: Database["public"]["Enums"]["ai_project_status"]
+          structure_json: Json | null
+          style_notes: string | null
+          target_audience: string | null
+          target_length: number | null
+          template_id: string | null
+          title: string
+          tone: string | null
+          updated_at: string
+        }
+        Insert: {
+          age_range?: string | null
+          art_style?: string | null
+          characters?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          keywords?: string[] | null
+          language?: string
+          line_art_style?: string | null
+          linked_product_id?: string | null
+          linked_program_id?: string | null
+          moral?: string | null
+          objective?: string | null
+          organization_id: string
+          project_type?: Database["public"]["Enums"]["ai_project_type"]
+          published_at?: string | null
+          quality_flags?: string[] | null
+          quality_score?: number | null
+          requires_human_review?: boolean | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sermon_points?: Json | null
+          sermon_text?: string | null
+          sermon_theme?: string | null
+          status?: Database["public"]["Enums"]["ai_project_status"]
+          structure_json?: Json | null
+          style_notes?: string | null
+          target_audience?: string | null
+          target_length?: number | null
+          template_id?: string | null
+          title: string
+          tone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          age_range?: string | null
+          art_style?: string | null
+          characters?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          keywords?: string[] | null
+          language?: string
+          line_art_style?: string | null
+          linked_product_id?: string | null
+          linked_program_id?: string | null
+          moral?: string | null
+          objective?: string | null
+          organization_id?: string
+          project_type?: Database["public"]["Enums"]["ai_project_type"]
+          published_at?: string | null
+          quality_flags?: string[] | null
+          quality_score?: number | null
+          requires_human_review?: boolean | null
+          review_notes?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          sermon_points?: Json | null
+          sermon_text?: string | null
+          sermon_theme?: string | null
+          status?: Database["public"]["Enums"]["ai_project_status"]
+          structure_json?: Json | null
+          style_notes?: string | null
+          target_audience?: string | null
+          target_length?: number | null
+          template_id?: string | null
+          title?: string
+          tone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_content_projects_linked_product_id_fkey"
+            columns: ["linked_product_id"]
+            isOneToOne: false
+            referencedRelation: "digital_products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_content_projects_linked_program_id_fkey"
+            columns: ["linked_program_id"]
+            isOneToOne: false
+            referencedRelation: "programs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_content_projects_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_generation_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          error_message: string | null
+          id: string
+          input_params: Json | null
+          job_type: Database["public"]["Enums"]["ai_job_type"]
+          organization_id: string
+          output_data: Json | null
+          progress: number | null
+          project_id: string
+          started_at: string | null
+          status: Database["public"]["Enums"]["ai_job_status"]
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          error_message?: string | null
+          id?: string
+          input_params?: Json | null
+          job_type: Database["public"]["Enums"]["ai_job_type"]
+          organization_id: string
+          output_data?: Json | null
+          progress?: number | null
+          project_id: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["ai_job_status"]
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          error_message?: string | null
+          id?: string
+          input_params?: Json | null
+          job_type?: Database["public"]["Enums"]["ai_job_type"]
+          organization_id?: string
+          output_data?: Json | null
+          progress?: number | null
+          project_id?: string
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["ai_job_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_generation_jobs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_generation_jobs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "ai_content_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_policies: {
+        Row: {
+          applies_to: Database["public"]["Enums"]["ai_project_type"][] | null
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          requires_human_review: boolean | null
+          rules: Json
+          updated_at: string
+        }
+        Insert: {
+          applies_to?: Database["public"]["Enums"]["ai_project_type"][] | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          requires_human_review?: boolean | null
+          rules?: Json
+          updated_at?: string
+        }
+        Update: {
+          applies_to?: Database["public"]["Enums"]["ai_project_type"][] | null
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          requires_human_review?: boolean | null
+          rules?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_project_assets: {
+        Row: {
+          asset_type: Database["public"]["Enums"]["ai_asset_type"]
+          created_at: string
+          display_order: number | null
+          file_size: number | null
+          file_url: string
+          id: string
+          is_cover: boolean | null
+          is_preview: boolean | null
+          label: string | null
+          metadata: Json | null
+          mime_type: string | null
+          organization_id: string
+          project_id: string
+        }
+        Insert: {
+          asset_type?: Database["public"]["Enums"]["ai_asset_type"]
+          created_at?: string
+          display_order?: number | null
+          file_size?: number | null
+          file_url: string
+          id?: string
+          is_cover?: boolean | null
+          is_preview?: boolean | null
+          label?: string | null
+          metadata?: Json | null
+          mime_type?: string | null
+          organization_id: string
+          project_id: string
+        }
+        Update: {
+          asset_type?: Database["public"]["Enums"]["ai_asset_type"]
+          created_at?: string
+          display_order?: number | null
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          is_cover?: boolean | null
+          is_preview?: boolean | null
+          label?: string | null
+          metadata?: Json | null
+          mime_type?: string | null
+          organization_id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_project_assets_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_project_assets_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "ai_content_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          default_params: Json | null
+          description: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean | null
+          is_global: boolean | null
+          name: string
+          organization_id: string | null
+          project_type: Database["public"]["Enums"]["ai_project_type"]
+          prompt_template: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          default_params?: Json | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_global?: boolean | null
+          name: string
+          organization_id?: string | null
+          project_type: Database["public"]["Enums"]["ai_project_type"]
+          prompt_template?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          default_params?: Json | null
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_global?: boolean | null
+          name?: string
+          organization_id?: string | null
+          project_type?: Database["public"]["Enums"]["ai_project_type"]
+          prompt_template?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_templates_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       announcements: {
         Row: {
           body: string
@@ -4096,6 +4450,33 @@ export type Database = {
     }
     Enums: {
       affiliate_sale_status: "pending" | "payable" | "paid" | "cancelled"
+      ai_asset_type: "image" | "audio" | "pdf" | "text" | "cover" | "preview"
+      ai_job_status: "queued" | "running" | "completed" | "failed" | "cancelled"
+      ai_job_type:
+        | "generate_outline"
+        | "generate_chapter"
+        | "generate_cover"
+        | "generate_page_images"
+        | "generate_audio"
+        | "generate_pdf"
+        | "generate_description"
+        | "generate_full"
+        | "quality_check"
+      ai_project_status:
+        | "draft"
+        | "generating"
+        | "review"
+        | "ready_to_publish"
+        | "published"
+        | "archived"
+      ai_project_type:
+        | "ebook"
+        | "kids_book"
+        | "coloring_book"
+        | "course_pack"
+        | "sermon_pack"
+        | "bible_pack"
+        | "marketing_pack"
       kyc_status: "none" | "pending" | "level1" | "level2" | "rejected"
       media_type: "video" | "audio" | "reel" | "live_replay"
       org_category:
@@ -4250,6 +4631,36 @@ export const Constants = {
   public: {
     Enums: {
       affiliate_sale_status: ["pending", "payable", "paid", "cancelled"],
+      ai_asset_type: ["image", "audio", "pdf", "text", "cover", "preview"],
+      ai_job_status: ["queued", "running", "completed", "failed", "cancelled"],
+      ai_job_type: [
+        "generate_outline",
+        "generate_chapter",
+        "generate_cover",
+        "generate_page_images",
+        "generate_audio",
+        "generate_pdf",
+        "generate_description",
+        "generate_full",
+        "quality_check",
+      ],
+      ai_project_status: [
+        "draft",
+        "generating",
+        "review",
+        "ready_to_publish",
+        "published",
+        "archived",
+      ],
+      ai_project_type: [
+        "ebook",
+        "kids_book",
+        "coloring_book",
+        "course_pack",
+        "sermon_pack",
+        "bible_pack",
+        "marketing_pack",
+      ],
       kyc_status: ["none", "pending", "level1", "level2", "rejected"],
       media_type: ["video", "audio", "reel", "live_replay"],
       org_category: [
