@@ -530,8 +530,26 @@ function buildUserPrompt(jobType: string, project: any, template: any, params: a
       }
       return `Rédige le chapitre "${params?.chapter_title || 'Chapitre'}". Projet: "${title}". 500-800 mots.`;
     }
-    case 'generate_description':
-      return `Rédige une description de vente pour "${title}". Max 200 mots avec bénéfices et appel à l'action.`;
+    case 'generate_description': {
+      const chaptersForDesc = (project?.structure_json as any)?.chapters || [];
+      const chapterTitles = chaptersForDesc.map((c: any) => c.title).filter(Boolean).join(', ');
+      const firstChapterPreview = chaptersForDesc[0]?.content?.slice(0, 500) || '';
+      return `Tu es un copywriter expert. Rédige une description de vente percutante et professionnelle pour le livre/contenu intitulé "${title}".
+
+${objective ? `Objectif du livre: ${objective}` : ''}
+${chapterTitles ? `Chapitres: ${chapterTitles}` : ''}
+${firstChapterPreview ? `Aperçu du contenu: ${firstChapterPreview.slice(0, 300)}...` : ''}
+
+Consignes:
+- 150-250 mots maximum
+- Commence par une accroche forte qui capte l'attention
+- Mets en avant 3-4 bénéfices concrets pour le lecteur
+- Utilise un ton professionnel mais engageant
+- Termine par un appel à l'action subtil
+- N'utilise PAS de balises HTML, retourne du texte brut
+- Ne commence pas par "Découvrez" ou "Ce livre"
+- Sois original et spécifique au contenu du livre`;
+    }
     case 'quality_check': {
       const chapters = (project?.structure_json as any)?.chapters || [];
       const allContent = chapters.map((c: any) => `## ${c.title}\n${c.content}`).join('\n\n');
