@@ -1,13 +1,24 @@
 import { useParams, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useOrg } from '@/contexts/OrgContext';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
+import { supabase } from '@/integrations/supabase/client';
+import { compressImage } from '@/hooks/useImageOptimizer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Image, Download, Star } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useState, useCallback } from 'react';
+import {
+  ArrowLeft, Image, Download, Star, Upload, Loader2, Trash2, Eye, StarOff
+} from 'lucide-react';
 
 export default function ProjectAssets() {
   const { id } = useParams<{ id: string }>();
+  const { currentOrg } = useOrg();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [uploading, setUploading] = useState(false);
 
   const { data: assets, isLoading } = useQuery({
     queryKey: ['studio-project-assets', id],
@@ -22,15 +33,101 @@ export default function ProjectAssets() {
     enabled: !!id,
   });
 
+  const uploadAsset = useCallback(async (file: File) => {
+    if (!id || !currentOrg?.id) return;
+    setUploading(true);
+    try {
+      const optimized = file.type.startsWith('image/') ? await compressImage(file) : file;
+      const ext = optimized.name?.split('.').pop() || 'bin';
+      const path = `studio/${id}/${Date.now()}-${Math.random().toString(36).slice(2, 6)}.${ext}`;
+
+      const { error: upErr } = await supabase.storage
+        .from('org-uploads')
+        .upload(path, optimized, { cacheControl: '31536000' });
+      if (upErr) throw upErr;
+
+      const { data: urlData } = supabase.storage.from('org-uploads').getPublicUrl(path);
+
+      const assetType = file.type.startsWith('image/') ? 'image'
+        : file.type === 'application/pdf' ? 'pdf'
+        : file.type.startsWith('audio/') ? 'audio' : 'text';
+
+      const { error: insertErr } = await db.from('ai_project_assets').insert({
+        project_id: id,
+        organization_id: currentOrg.id,
+        file_url: urlData.publicUrl,
+        asset_type: assetType,
+        label: file.name,
+        mime_type: file.type,
+        file_size: file.size,
+        display_order: (assets?.length || 0),
+      });
+      if (insertErr) throw insertErr;
+
+      toast({ title: 'Asset ajouté ✓' });
+      queryClient.invalidateQueries({ queryKey: ['studio-project-assets', id] });
+    } catch (e: any) {
+      toast({ title: 'Erreur upload', description: e.message, variant: 'destructive' });
+    } finally {
+      setUploading(false);
+    }
+  }, [id, currentOrg?.id, assets?.length, toast, queryClient]);
+
+  const toggleCover = useMutation({
+    mutationFn: async ({ assetId, isCover }: { assetId: string; isCover: boolean }) => {
+      // Unset all covers first if setting a new one
+      if (isCover) {
+        await db.from('ai_project_assets').update({ is_cover: false }).eq('project_id', id);
+      }
+      await db.from('ai_project_assets').update({ is_cover: isCover }).eq('id', assetId);
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['studio-project-assets', id] }),
+  });
+
+  const togglePreview = useMutation({
+    mutationFn: async ({ assetId, isPreview }: { assetId: string; isPreview: boolean }) => {
+      await db.from('ai_project_assets').update({ is_preview: isPreview }).eq('id', assetId);
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['studio-project-assets', id] }),
+  });
+
+  const deleteAsset = useMutation({
+    mutationFn: async (assetId: string) => {
+      await db.from('ai_project_assets').delete().eq('id', assetId);
+    },
+    onSuccess: () => {
+      toast({ title: 'Asset supprimé' });
+      queryClient.invalidateQueries({ queryKey: ['studio-project-assets', id] });
+    },
+  });
+
+  const handleFileSelect = () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*,application/pdf,audio/*';
+    input.multiple = true;
+    input.onchange = (e) => {
+      const files = (e.target as HTMLInputElement).files;
+      if (files) Array.from(files).forEach(uploadAsset);
+    };
+    input.click();
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <Button variant="ghost" size="sm" asChild>
-          <Link to={`/admin/studio/projects/${id}`}><ArrowLeft className="h-4 w-4 mr-1" /> Projet</Link>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="sm" asChild>
+            <Link to={`/admin/studio/projects/${id}`}><ArrowLeft className="h-4 w-4 mr-1" /> Projet</Link>
+          </Button>
+          <h1 className="text-xl font-bold flex items-center gap-2">
+            <Image className="h-5 w-5 text-primary" /> Assets du projet
+          </h1>
+        </div>
+        <Button size="sm" onClick={handleFileSelect} disabled={uploading}>
+          {uploading ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Upload className="h-4 w-4 mr-1" />}
+          Ajouter
         </Button>
-        <h1 className="text-xl font-bold flex items-center gap-2">
-          <Image className="h-5 w-5 text-primary" /> Assets du projet
-        </h1>
       </div>
 
       {isLoading ? (
@@ -45,32 +142,74 @@ export default function ProjectAssets() {
             <Image className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
             <p className="text-muted-foreground font-medium">Aucun asset</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Les images, PDF et audio générés apparaîtront ici
+              Uploadez des images, PDF ou audio pour votre projet
             </p>
+            <Button className="mt-4" variant="outline" onClick={handleFileSelect}>
+              <Upload className="h-4 w-4 mr-2" /> Importer des fichiers
+            </Button>
           </CardContent>
         </Card>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {assets.map(asset => (
-            <Card key={asset.id} className="overflow-hidden">
+          {assets.map((asset: any) => (
+            <Card key={asset.id} className="overflow-hidden group">
               <div className="aspect-square bg-muted flex items-center justify-center relative">
-                {asset.asset_type === 'image' || asset.asset_type === 'cover' || asset.asset_type === 'preview' ? (
+                {['image', 'cover', 'preview'].includes(asset.asset_type) ? (
                   <img src={asset.file_url} alt={asset.label || ''} className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-2xl">{asset.asset_type === 'pdf' ? '📄' : asset.asset_type === 'audio' ? '🎵' : '📝'}</span>
+                  <span className="text-3xl">
+                    {asset.asset_type === 'pdf' ? '📄' : asset.asset_type === 'audio' ? '🎵' : '📝'}
+                  </span>
                 )}
                 {asset.is_cover && (
                   <Badge className="absolute top-2 left-2 text-[10px]"><Star className="h-3 w-3 mr-1" />Cover</Badge>
                 )}
+                {asset.is_preview && (
+                  <Badge variant="secondary" className="absolute top-2 right-2 text-[10px]"><Eye className="h-3 w-3 mr-1" />Preview</Badge>
+                )}
+                {/* Hover actions */}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  <Button
+                    size="icon"
+                    variant="secondary"
+                    className="h-8 w-8"
+                    onClick={() => toggleCover.mutate({ assetId: asset.id, isCover: !asset.is_cover })}
+                    title={asset.is_cover ? 'Retirer cover' : 'Définir comme cover'}
+                  >
+                    {asset.is_cover ? <StarOff className="h-4 w-4" /> : <Star className="h-4 w-4" />}
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="secondary"
+                    className="h-8 w-8"
+                    onClick={() => togglePreview.mutate({ assetId: asset.id, isPreview: !asset.is_preview })}
+                    title={asset.is_preview ? 'Retirer preview' : 'Marquer preview'}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="destructive"
+                    className="h-8 w-8"
+                    onClick={() => deleteAsset.mutate(asset.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
               <CardContent className="py-2 px-3">
                 <p className="text-xs font-medium truncate">{asset.label || asset.asset_type}</p>
                 <div className="flex items-center justify-between mt-1">
                   <Badge variant="secondary" className="text-[10px]">{asset.asset_type}</Badge>
-                  <a href={asset.file_url} target="_blank" rel="noreferrer">
+                  <a href={asset.file_url} target="_blank" rel="noreferrer" download>
                     <Download className="h-3.5 w-3.5 text-muted-foreground hover:text-foreground" />
                   </a>
                 </div>
+                {asset.file_size && (
+                  <p className="text-[10px] text-muted-foreground mt-0.5">
+                    {(asset.file_size / 1024).toFixed(0)} Ko
+                  </p>
+                )}
               </CardContent>
             </Card>
           ))}
