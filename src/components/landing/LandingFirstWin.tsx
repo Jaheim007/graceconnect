@@ -3,7 +3,7 @@ import { UserPlus, Share2, Bell, PartyPopper } from 'lucide-react';
 
 const winSteps = [
   { icon: UserPlus, label: 'Inscris-toi', desc: '30 secondes, gratuit' },
-  { icon: Share2, label: 'Choisis ton rôle', desc: 'Créateur, ambassadeur ou acheteur' },
+  { icon: Share2, label: 'Choisis ta voie', desc: 'Onboarding guidé : créateur, ambassadeur ou acheteur' },
   { icon: Bell, label: 'Lance-toi', desc: 'Publie, partage ou achète en 1 clic' },
   { icon: PartyPopper, label: 'Résultats', desc: 'Revenus, commissions ou ressources' },
 ];

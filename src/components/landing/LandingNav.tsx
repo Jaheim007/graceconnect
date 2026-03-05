@@ -14,7 +14,7 @@ export function LandingNav() {
   const navItems = [
     { to: '/gagner', label: 'Gagner' },
     { to: '/vendre', label: 'Vendre' },
-    { to: '/marketplace', label: 'Explorer' },
+    { to: '/discover', label: 'Explorer' },
     { to: '#pricing', label: 'Tarifs', isAnchor: true },
   ];
 

@@ -6,6 +6,7 @@ import { LandingExitPopup } from '@/components/landing/LandingExitPopup';
 
 const LandingHowItWorksSimple = lazy(() => import('@/components/landing/LandingHowItWorksSimple').then(m => ({ default: m.LandingHowItWorksSimple })));
 const LandingFirstWin = lazy(() => import('@/components/landing/LandingFirstWin').then(m => ({ default: m.LandingFirstWin })));
+const LandingAIStudioSection = lazy(() => import('@/components/landing/LandingAIStudioSection').then(m => ({ default: m.LandingAIStudioSection })));
 const LandingSocialProof = lazy(() => import('@/components/landing/LandingSocialProof').then(m => ({ default: m.LandingSocialProof })));
 const LandingPricing = lazy(() => import('@/components/landing/LandingPricing').then(m => ({ default: m.LandingPricing })));
 const LandingFinalCTA = lazy(() => import('@/components/landing/LandingFinalCTA').then(m => ({ default: m.LandingFinalCTA })));
@@ -36,8 +37,8 @@ export default function LandingPage() {
             url: 'https://siteviral.com',
             potentialAction: {
               '@type': 'SearchAction',
-              target: 'https://siteviral.com/marketplace?q={search_term_string}',
-              'query-input': 'required name=search_term_string',
+            target: 'https://siteviral.com/discover?q={search_term_string}',
+            'query-input': 'required name=search_term_string',
             },
           },
         ]}
@@ -48,6 +49,7 @@ export default function LandingPage() {
       <Suspense fallback={null}>
         <LandingHowItWorksSimple />
         <LandingFirstWin />
+        <LandingAIStudioSection />
         <LandingSocialProof />
         <LandingPricing />
         <LandingFinalCTA />

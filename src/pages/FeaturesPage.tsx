@@ -6,6 +6,7 @@ import {
   Smartphone, Globe, Mail, Link2, Palette, Search, BookOpen,
   FileText, Share2, Award, Bell, Download, Bot, ArrowRight,
   CheckCircle, Layers, Settings, Church, GraduationCap, Briefcase, HandHeart,
+  Sparkles, Eye, Star, Bookmark, Languages, FlaskConical, Image,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -56,7 +57,17 @@ const features: Feature[] = [
   { icon: Search, title: 'SEO intégré', desc: 'Balises meta, slugs personnalisés, pages optimisées pour Google.', persona: ['org'] },
   { icon: Award, title: 'Badges de confiance', desc: 'Badges organisation vérifiée, featured, certifiée. Renforcez la confiance.', persona: ['org'] },
   { icon: FileText, title: 'Export de données', desc: 'Exportez membres, transactions, affiliés en CSV. Vos données vous appartiennent.', persona: ['org'] },
-  
+
+  // NEW — 8 missing features
+  { icon: Sparkles, title: 'AI Studio', desc: 'Générez des livres pour enfants, cahiers de coloriage, couvertures et audio grâce à l\'intelligence artificielle. De l\'idée au produit fini en quelques clics.', persona: ['org'] },
+  { icon: Eye, title: 'Prévisualisation PDF sécurisée', desc: 'Vos acheteurs voient un aperçu flou (20%) avant d\'acheter. Protection anti-piratage intégrée.', persona: ['org', 'buyer'] },
+  { icon: Star, title: 'Avis vérifiés', desc: 'Seuls les vrais acheteurs peuvent laisser un avis. Notes étoilées, modération et preuve sociale automatique.', persona: ['org', 'buyer'] },
+  { icon: Bookmark, title: 'Wishlist & Favoris', desc: 'Sauvegardez les produits qui vous intéressent. Recevez une alerte quand ils passent en promo.', persona: ['buyer'] },
+  { icon: GraduationCap, title: 'LMS & Certificats', desc: 'Créez des programmes de formation avec modules, leçons et progression. Certificats PDF générés automatiquement.', persona: ['org', 'buyer'] },
+  { icon: Languages, title: 'Traduction IA 1-clic', desc: 'Traduisez vos fiches produit en français, anglais ou espagnol instantanément via l\'IA.', persona: ['org'] },
+  { icon: FlaskConical, title: 'A/B Test de prix', desc: 'Testez deux tarifs en parallèle pour trouver le prix optimal. 50/50 automatique avec suivi des conversions.', persona: ['org'] },
+  { icon: Image, title: 'Bundles & Upsells', desc: 'Regroupez plusieurs produits en pack à prix réduit. Proposez des upsells automatiques après achat.', persona: ['org', 'buyer'] },
+
   { icon: Settings, title: 'Support 7j/7', desc: 'FAQ intégrée, tickets de support et accompagnement personnalisé.', persona: ['org', 'buyer', 'ambassador'] },
 ];
 

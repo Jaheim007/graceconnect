@@ -33,7 +33,7 @@ export function LandingFinalCTA() {
               </Button>
             </div>
             <button
-              onClick={() => navigate('/marketplace')}
+              onClick={() => navigate('/discover')}
               className="text-xs text-primary-foreground/60 hover:text-primary-foreground transition-colors underline underline-offset-2"
             >
               Ou simplement explorer les ressources →
