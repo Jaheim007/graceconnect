@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import { Bell, Sun, Moon, LogOut, User, Settings, Shield, Plus, ChevronDown, Building2 } from 'lucide-react';
+import { Bell, Sun, Moon, LogOut, User, Settings, Shield, Plus, ChevronDown, Building2, Search } from 'lucide-react';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
@@ -33,6 +33,16 @@ export function TopBar() {
         <SiteLogo size="sm" animate />
       </div>
       <GlobalSearch />
+
+      {/* Cmd+K hint */}
+      <button
+        onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
+        className="hidden md:flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border bg-muted/50 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors text-xs"
+      >
+        <Search className="h-3 w-3" />
+        <span className="text-[11px]">Cmd+K</span>
+      </button>
+
       <div className="flex-1" />
 
       {/* Org switcher (mobile, for users with multiple orgs) */}
