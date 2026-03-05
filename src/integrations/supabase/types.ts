@@ -4989,7 +4989,15 @@ export type Database = {
     }
     Enums: {
       affiliate_sale_status: "pending" | "payable" | "paid" | "cancelled"
-      ai_asset_type: "image" | "audio" | "pdf" | "text" | "cover" | "preview"
+      ai_asset_type:
+        | "image"
+        | "audio"
+        | "pdf"
+        | "text"
+        | "cover"
+        | "preview"
+        | "video"
+        | "link"
       ai_job_status: "queued" | "running" | "completed" | "failed" | "cancelled"
       ai_job_type:
         | "generate_outline"
@@ -5170,7 +5178,16 @@ export const Constants = {
   public: {
     Enums: {
       affiliate_sale_status: ["pending", "payable", "paid", "cancelled"],
-      ai_asset_type: ["image", "audio", "pdf", "text", "cover", "preview"],
+      ai_asset_type: [
+        "image",
+        "audio",
+        "pdf",
+        "text",
+        "cover",
+        "preview",
+        "video",
+        "link",
+      ],
       ai_job_status: ["queued", "running", "completed", "failed", "cancelled"],
       ai_job_type: [
         "generate_outline",
