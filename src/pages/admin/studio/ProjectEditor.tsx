@@ -20,6 +20,7 @@ import {
   FileCheck, BookOpen, Eye, ImagePlus, Upload, Star, StarOff, Palette
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { usePdfPreviewBlobUrl } from '@/hooks/usePdfPreviewBlobUrl';
 import { cn } from '@/lib/utils';
 
 interface Chapter {
@@ -80,6 +81,11 @@ export default function ProjectEditor() {
     },
     enabled: !!id,
   });
+
+  const { blobUrl: pdfPreviewUrl, loading: previewLoading, error: previewError } = usePdfPreviewBlobUrl(
+    previewOpen ? pdfAsset?.file_url : null,
+    previewOpen,
+  );
 
   const generateAndPreviewPdf = async () => {
     if (!id || !currentOrg?.id) return;
@@ -750,9 +756,13 @@ export default function ProjectEditor() {
             Aperçu — {project?.title}
           </DialogTitle>
         </DialogHeader>
-        <div className="flex-1 min-h-0 rounded-lg overflow-hidden border bg-white">
-          {pdfAsset?.file_url ? (
-            <iframe src={pdfAsset.file_url} className="w-full h-full" title="Aperçu du document" />
+        <div className="flex-1 min-h-0 rounded-lg overflow-hidden border bg-background">
+          {previewLoading ? (
+            <div className="flex items-center justify-center h-full text-muted-foreground">Chargement de l’aperçu...</div>
+          ) : previewError ? (
+            <div className="flex items-center justify-center h-full text-destructive text-sm">{previewError}</div>
+          ) : pdfPreviewUrl ? (
+            <iframe src={pdfPreviewUrl} className="w-full h-full" title="Aperçu du document" />
           ) : (
             <div className="flex items-center justify-center h-full text-muted-foreground">
               Aucun aperçu disponible. Générez le PDF d'abord.

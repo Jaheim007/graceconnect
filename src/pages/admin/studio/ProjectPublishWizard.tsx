@@ -16,7 +16,7 @@ import {
   ArrowLeft, Upload, ShoppingBag, GraduationCap, Radio,
   Loader2, Check, Image as ImageIcon, FileText, Sparkles, Eye, RefreshCw, AlertTriangle
 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { usePdfPreviewBlobUrl } from '@/hooks/usePdfPreviewBlobUrl';
 
 type PublishTarget = 'product' | 'course' | 'media';
 
@@ -80,6 +80,11 @@ export default function ProjectPublishWizard() {
     },
     enabled: !!id,
   });
+
+  const { blobUrl: pdfPreviewUrl, loading: previewLoading, error: previewError } = usePdfPreviewBlobUrl(
+    previewOpen ? pdfAsset?.file_url : null,
+    previewOpen,
+  );
 
   // Auto-generate description + PDF when entering step 1 (course only now)
   useEffect(() => {
@@ -449,10 +454,14 @@ export default function ProjectPublishWizard() {
               Aperçu du livre — {project.title}
             </DialogTitle>
           </DialogHeader>
-          <div className="flex-1 min-h-0 rounded-lg overflow-hidden border bg-white">
-            {pdfAsset?.file_url ? (
+          <div className="flex-1 min-h-0 rounded-lg overflow-hidden border bg-background">
+            {previewLoading ? (
+              <div className="flex items-center justify-center h-full text-muted-foreground">Chargement de l’aperçu...</div>
+            ) : previewError ? (
+              <div className="flex items-center justify-center h-full text-destructive text-sm">{previewError}</div>
+            ) : pdfPreviewUrl ? (
               <iframe
-                src={pdfAsset.file_url}
+                src={pdfPreviewUrl}
                 className="w-full h-full"
                 title="Aperçu du document"
               />
