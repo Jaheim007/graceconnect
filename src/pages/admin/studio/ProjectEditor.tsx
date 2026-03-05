@@ -468,22 +468,6 @@ export default function ProjectEditor() {
                 >
                   <Sparkles className="h-3.5 w-3.5 text-primary" /> Générer ce chapitre
                 </Button>
-                <Button
-                  variant="outline" size="sm"
-                  className="w-full justify-start text-xs h-8 gap-2"
-                  onClick={generateDescription}
-                  disabled={!!isGenerating}
-                >
-                  <BookOpen className="h-3.5 w-3.5 text-primary" /> Générer description
-                </Button>
-                <Button
-                  variant="outline" size="sm"
-                  className="w-full justify-start text-xs h-8 gap-2"
-                  onClick={runQualityCheck}
-                  disabled={!!isGenerating}
-                >
-                  <FileCheck className="h-3.5 w-3.5 text-primary" /> Vérifier qualité
-                </Button>
               </div>
             </div>
 
