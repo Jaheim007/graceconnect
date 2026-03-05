@@ -354,6 +354,7 @@ export default function ProjectEditor() {
   }
 
   return (
+    <>
     <div className="flex flex-col h-[calc(100vh-120px)]">
       {/* Top bar */}
       <div className="flex items-center justify-between pb-3 border-b border-border mb-3">
