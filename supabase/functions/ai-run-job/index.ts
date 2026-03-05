@@ -229,9 +229,11 @@ Deno.serve(async (req) => {
 
         // Also update quality fields on project
         if (jobType === 'quality_check') {
+          const aiScore = output.score ?? qualityScore.score;
+          const aiFlags = output.flags || qualityScore.flags.map((f: any) => f.flag || f);
           await admin.from('ai_content_projects').update({
-            quality_score: qualityScore.score,
-            quality_flags: qualityScore.flags.map((f: any) => f.flag || f),
+            quality_score: aiScore,
+            quality_flags: aiFlags,
           }).eq('id', job.project_id);
         }
       }
@@ -465,7 +467,23 @@ Ne commence JAMAIS par "Voici..." ou une intro méta. Va droit au contenu.`;
     return `${base}\nRetourne un JSON valide: {"chapters": [{"id": "ch-1", "title": "...", "content": "", "order": 0}]}`;
   }
   if (jobType === 'quality_check') {
-    return `${base}\nRetourne un JSON valide: {"score": 8, "flags": [], "summary": "..."}. Score 1-10.`;
+    return `${base}\nTu es un éditeur professionnel. Analyse le contenu et retourne un JSON valide avec cette structure exacte:
+{
+  "score": 7,
+  "summary": "Résumé global de l'analyse en 2-3 phrases",
+  "detailed_scores": {
+    "structure": 8,
+    "style": 7,
+    "coherence": 6,
+    "originalite": 7,
+    "grammaire": 8
+  },
+  "strengths": ["Point fort 1", "Point fort 2"],
+  "weaknesses": ["Point faible 1 avec explication précise"],
+  "recommendations": ["Action concrète 1 à effectuer", "Action concrète 2"],
+  "flags": ["alerte si contenu problématique"]
+}
+Score de 1 à 10. Sois précis et actionnable dans tes recommandations. Indique exactement quels chapitres ou passages nécessitent des améliorations.`;
   }
 
   if (project?.project_type === 'kids_book') {

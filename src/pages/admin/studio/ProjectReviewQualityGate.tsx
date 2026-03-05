@@ -10,7 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import {
-  ArrowLeft, CheckCircle, XCircle, AlertTriangle, Shield, Loader2, Sparkles
+  ArrowLeft, CheckCircle, XCircle, AlertTriangle, Shield, Loader2, Sparkles,
+  TrendingUp, TrendingDown, BookOpen, PenLine, Target
 } from 'lucide-react';
 
 export default function ProjectReviewQualityGate() {
@@ -29,6 +30,40 @@ export default function ProjectReviewQualityGate() {
         .select('*')
         .eq('id', id)
         .single();
+      return data;
+    },
+    enabled: !!id,
+  });
+
+  // Fetch latest quality score details
+  const { data: qualityDetails } = useQuery({
+    queryKey: ['studio-quality-details', id],
+    queryFn: async () => {
+      if (!id) return null;
+      const { data } = await db.from('ai_quality_scores')
+        .select('*')
+        .eq('project_id', id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!id,
+  });
+
+  // Fetch latest quality check job output for detailed recommendations
+  const { data: qualityJobOutput } = useQuery({
+    queryKey: ['studio-quality-job', id],
+    queryFn: async () => {
+      if (!id) return null;
+      const { data } = await db.from('ai_generation_jobs')
+        .select('output_data, result_summary')
+        .eq('project_id', id)
+        .eq('job_type', 'quality_check')
+        .eq('status', 'completed')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
       return data;
     },
     enabled: !!id,
@@ -82,14 +117,13 @@ export default function ProjectReviewQualityGate() {
       if (error) throw error;
       if (data?.error) {
         toast({ title: 'Erreur', description: data.error, variant: 'destructive' });
+        setCheckingQuality(false);
         return;
       }
-      // Trigger ai-run-job directly
       supabase.functions.invoke('ai-run-job', {
         body: { job_id: data.job_id },
       }).catch(err => console.error('ai-run-job error:', err));
       toast({ title: 'Analyse lancée', description: 'La vérification de qualité est en cours...' });
-      // Poll for completion
       const checkInterval = setInterval(async () => {
         const { data: job } = await db.from('ai_generation_jobs')
           .select('status')
@@ -99,13 +133,14 @@ export default function ProjectReviewQualityGate() {
           clearInterval(checkInterval);
           setCheckingQuality(false);
           queryClient.invalidateQueries({ queryKey: ['studio-project', id] });
+          queryClient.invalidateQueries({ queryKey: ['studio-quality-details', id] });
+          queryClient.invalidateQueries({ queryKey: ['studio-quality-job', id] });
           if (job.status === 'completed') {
             toast({ title: 'Analyse terminée ✓' });
           }
         }
       }, 2000);
-      // Safety timeout
-      setTimeout(() => { clearInterval(checkInterval); setCheckingQuality(false); }, 60000);
+      setTimeout(() => { clearInterval(checkInterval); setCheckingQuality(false); }, 120000);
     } catch (e: any) {
       toast({ title: 'Erreur', description: e.message, variant: 'destructive' });
       setCheckingQuality(false);
@@ -126,6 +161,14 @@ export default function ProjectReviewQualityGate() {
 
   const score = project.quality_score;
   const flags = project.quality_flags || [];
+
+  // Extract detailed AI feedback from the job output
+  const aiOutput = qualityJobOutput?.output_data as any;
+  const aiSummary = aiOutput?.summary || aiOutput?.result_summary?.summary || '';
+  const aiRecommendations: string[] = aiOutput?.recommendations || aiOutput?.improvements || [];
+  const aiStrengths: string[] = aiOutput?.strengths || [];
+  const aiWeaknesses: string[] = aiOutput?.weaknesses || [];
+  const aiDetailedScores: Record<string, number> = aiOutput?.detailed_scores || aiOutput?.scores || {};
 
   return (
     <div className="space-y-6">
@@ -177,10 +220,79 @@ export default function ProjectReviewQualityGate() {
         </CardContent>
       </Card>
 
+      {/* Detailed scores */}
+      {Object.keys(aiDetailedScores).length > 0 && (
+        <Card>
+          <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Target className="h-4 w-4" /> Scores détaillés</CardTitle></CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {Object.entries(aiDetailedScores).map(([key, val]) => (
+                <div key={key} className="flex items-center justify-between p-2 rounded-lg bg-muted/50">
+                  <span className="text-xs capitalize text-muted-foreground">{key.replace(/_/g, ' ')}</span>
+                  <span className={`text-sm font-bold ${
+                    (val as number) >= 8 ? 'text-emerald-500' : (val as number) >= 5 ? 'text-yellow-500' : 'text-destructive'
+                  }`}>{val as number}/10</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* AI Summary */}
+      {aiSummary && (
+        <Card>
+          <CardHeader><CardTitle className="text-sm flex items-center gap-2"><BookOpen className="h-4 w-4" /> Résumé de l'analyse</CardTitle></CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground leading-relaxed">{aiSummary}</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Strengths */}
+      {aiStrengths.length > 0 && (
+        <Card className="border-emerald-200 dark:border-emerald-800/30">
+          <CardHeader><CardTitle className="text-sm flex items-center gap-2 text-emerald-600"><TrendingUp className="h-4 w-4" /> Points forts</CardTitle></CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {aiStrengths.map((s, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm">
+                  <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+                  <span>{s}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Weaknesses / Improvements */}
+      {(aiWeaknesses.length > 0 || aiRecommendations.length > 0) && (
+        <Card className="border-yellow-200 dark:border-yellow-800/30">
+          <CardHeader><CardTitle className="text-sm flex items-center gap-2 text-yellow-600"><TrendingDown className="h-4 w-4" /> Points à améliorer</CardTitle></CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {aiWeaknesses.map((w, i) => (
+                <li key={`w-${i}`} className="flex items-start gap-2 text-sm">
+                  <XCircle className="h-4 w-4 text-yellow-500 shrink-0 mt-0.5" />
+                  <span>{w}</span>
+                </li>
+              ))}
+              {aiRecommendations.map((r, i) => (
+                <li key={`r-${i}`} className="flex items-start gap-2 text-sm">
+                  <PenLine className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                  <span>{r}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Flags */}
       {flags.length > 0 && (
         <Card>
-          <CardHeader><CardTitle className="text-sm">Points d'attention</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="text-sm">Alertes</CardTitle></CardHeader>
           <CardContent>
             <div className="space-y-2">
               {flags.map((flag: string, i: number) => (

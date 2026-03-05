@@ -3,6 +3,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import {
   ArrowLeft, Upload, ShoppingBag, GraduationCap, Radio,
-  Loader2, Check, Image as ImageIcon
+  Loader2, Check, Image as ImageIcon, FileText
 } from 'lucide-react';
 
 type PublishTarget = 'product' | 'course' | 'media';
@@ -27,8 +28,9 @@ export default function ProjectPublishWizard() {
   const queryClient = useQueryClient();
 
   const [target, setTarget] = useState<PublishTarget>('product');
-  const [step, setStep] = useState(0); // 0=choose, 1=details, 2=confirm
+  const [step, setStep] = useState(0);
   const [publishing, setPublishing] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
 
   // Product fields
   const [slug, setSlug] = useState('');
@@ -47,7 +49,6 @@ export default function ProjectPublishWizard() {
     enabled: !!id,
   });
 
-  // Get cover asset
   const { data: coverAsset } = useQuery({
     queryKey: ['studio-project-cover', id],
     queryFn: async () => {
@@ -62,8 +63,7 @@ export default function ProjectPublishWizard() {
     enabled: !!id,
   });
 
-  // Get PDF asset
-  const { data: pdfAsset } = useQuery({
+  const { data: pdfAsset, refetch: refetchPdf } = useQuery({
     queryKey: ['studio-project-pdf', id],
     queryFn: async () => {
       if (!id) return null;
@@ -78,11 +78,41 @@ export default function ProjectPublishWizard() {
     enabled: !!id,
   });
 
+  // Auto-generate PDF from chapters
+  const generatePdf = async () => {
+    if (!id || !currentOrg?.id) return;
+    setGeneratingPdf(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-generate-pdf', {
+        body: { org_id: currentOrg.id, project_id: id, format: 'ebook', page_size: 'A4' },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      toast({ title: 'Document généré ✓', description: 'Le fichier a été créé depuis vos chapitres.' });
+      await refetchPdf();
+      queryClient.invalidateQueries({ queryKey: ['studio-project-assets', id] });
+    } catch (e: any) {
+      toast({ title: 'Erreur', description: e.message, variant: 'destructive' });
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
+
   const publishAsProduct = useMutation({
     mutationFn: async () => {
       if (!currentOrg || !user || !project) throw new Error('Missing context');
 
-      // Create digital product
+      // Auto-generate PDF if none exists
+      let fileUrl = pdfAsset?.file_url || null;
+      if (!fileUrl) {
+        const { data, error } = await supabase.functions.invoke('ai-generate-pdf', {
+          body: { org_id: currentOrg.id, project_id: id, format: 'ebook', page_size: 'A4' },
+        });
+        if (!error && data?.download_url) {
+          fileUrl = data.download_url;
+        }
+      }
+
       const { data: product, error } = await db.from('digital_products').insert({
         organization_id: currentOrg.id,
         created_by: user.id,
@@ -93,13 +123,12 @@ export default function ProjectPublishWizard() {
         is_free: isFree,
         is_published: true,
         cover_image_url: coverAsset?.file_url || null,
-        file_url: pdfAsset?.file_url || null,
+        file_url: fileUrl,
         product_type: project.project_type === 'course_pack' ? 'course' : 'ebook',
       }).select('id').single();
 
       if (error) throw error;
 
-      // Link project to product
       await db.from('ai_content_projects').update({
         linked_product_id: product.id,
         status: 'published',
@@ -109,8 +138,8 @@ export default function ProjectPublishWizard() {
 
       return product;
     },
-    onSuccess: (product) => {
-      toast({ title: 'Produit publié ✓', description: 'Votre contenu est maintenant en vente.' });
+    onSuccess: () => {
+      toast({ title: 'Produit publié ✓', description: 'Votre contenu est maintenant disponible.' });
       queryClient.invalidateQueries({ queryKey: ['studio-project', id] });
       navigate(`/admin/studio/projects/${id}`);
     },
@@ -125,7 +154,6 @@ export default function ProjectPublishWizard() {
       const structure = project.structure_json as { chapters?: any[] };
       const chapters = structure?.chapters || [];
 
-      // Create program
       const { data: program, error: progErr } = await db.from('programs').insert({
         organization_id: currentOrg.id,
         created_by: user.id,
@@ -134,19 +162,15 @@ export default function ProjectPublishWizard() {
         is_published: true,
         cover_image_url: coverAsset?.file_url || null,
       }).select('id').single();
-
       if (progErr) throw progErr;
 
-      // Create one module
       const { data: mod, error: modErr } = await db.from('program_modules').insert({
         program_id: program.id,
         title: project.title,
         display_order: 0,
       }).select('id').single();
-
       if (modErr) throw modErr;
 
-      // Create lessons from chapters
       for (let i = 0; i < chapters.length; i++) {
         await db.from('program_lessons').insert({
           module_id: mod.id,
@@ -157,7 +181,6 @@ export default function ProjectPublishWizard() {
         });
       }
 
-      // Link
       await db.from('ai_content_projects').update({
         linked_program_id: program.id,
         status: 'published',
@@ -220,7 +243,7 @@ export default function ProjectPublishWizard() {
       {step === 0 && (
         <div className="grid gap-3">
           {[
-            { value: 'product' as PublishTarget, label: 'Publier en produit', desc: 'Ebook, PDF en vente sur votre boutique', icon: ShoppingBag },
+            { value: 'product' as PublishTarget, label: 'Publier en produit', desc: 'Ebook, PDF en vente sur votre boutique. Le fichier sera généré automatiquement depuis vos chapitres.', icon: ShoppingBag },
             { value: 'course' as PublishTarget, label: 'Publier en cours', desc: `Créer un programme avec ${chapters.length} leçon(s) depuis vos chapitres`, icon: GraduationCap },
             { value: 'media' as PublishTarget, label: 'Publier en média', desc: 'Contenu libre dans la médiathèque (bientôt)', icon: Radio, disabled: true },
           ].map(opt => (
@@ -308,10 +331,30 @@ export default function ProjectPublishWizard() {
               {coverAsset ? 'Image de couverture détectée ✓' : 'Aucune couverture — ajoutez-en une dans les Assets'}
             </div>
             {target === 'product' && (
-              <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                📄 {pdfAsset ? 'Fichier PDF détecté ✓' : 'Aucun PDF — ajoutez-en un dans les Assets'}
+              <div className="flex items-center gap-3 text-sm">
+                <FileText className="h-4 w-4 text-muted-foreground" />
+                {pdfAsset ? (
+                  <span className="text-muted-foreground">Fichier PDF détecté ✓</span>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">Aucun PDF —</span>
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="h-auto p-0 text-xs"
+                      onClick={generatePdf}
+                      disabled={generatingPdf}
+                    >
+                      {generatingPdf ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
+                      {generatingPdf ? 'Génération...' : 'Générer depuis les chapitres'}
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
+            <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-3">
+              💡 Si aucun PDF n'est présent, il sera <strong>automatiquement généré</strong> depuis vos chapitres lors de la publication.
+            </p>
 
             <div className="flex gap-2 pt-2">
               <Button variant="outline" onClick={() => setStep(0)}>Retour</Button>
@@ -352,6 +395,12 @@ export default function ProjectPublishWizard() {
               )}
               <span className="text-muted-foreground">Couverture</span>
               <span>{coverAsset ? '✓' : '✗'}</span>
+              {target === 'product' && (
+                <>
+                  <span className="text-muted-foreground">Fichier</span>
+                  <span>{pdfAsset ? '✓ PDF existant' : '⚡ Sera généré automatiquement'}</span>
+                </>
+              )}
             </div>
 
             <div className="flex gap-2 pt-4">
