@@ -3,6 +3,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { supabase } from '@/integrations/supabase/client';
+import { compressImage } from '@/hooks/useImageOptimizer';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,7 +16,7 @@ import { useState, useCallback, useEffect } from 'react';
 import {
   ArrowLeft, Plus, Trash2, GripVertical, Save, FileText,
   Sparkles, Loader2, ChevronLeft, ChevronRight, ListTree,
-  FileCheck, BookOpen, Eye
+  FileCheck, BookOpen, Eye, ImagePlus, Upload, Star, StarOff
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
@@ -42,6 +43,23 @@ export default function ProjectEditor() {
   const [hasActiveJobs, setHasActiveJobs] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [generatingCover, setGeneratingCover] = useState(false);
+
+  // Fetch cover asset
+  const { data: coverAsset, refetch: refetchCover } = useQuery({
+    queryKey: ['studio-project-cover', id],
+    queryFn: async () => {
+      if (!id) return null;
+      const { data } = await db.from('ai_project_assets')
+        .select('id, file_url')
+        .eq('project_id', id)
+        .eq('is_cover', true)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!id,
+  });
 
   // Fetch PDF asset
   const { data: pdfAsset, refetch: refetchPdf } = useQuery({
@@ -75,6 +93,74 @@ export default function ProjectEditor() {
       toast({ title: 'Erreur PDF', description: e.message, variant: 'destructive' });
     } finally {
       setGeneratingPdf(false);
+    }
+  };
+
+  const handleCoverUpload = useCallback(async () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file || !id || !currentOrg?.id) return;
+      setUploadingCover(true);
+      try {
+        const optimized = await compressImage(file);
+        const ext = optimized.name?.split('.').pop() || 'webp';
+        const path = `studio/${id}/cover-${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from('org-uploads').upload(path, optimized, { cacheControl: '31536000' });
+        if (upErr) throw upErr;
+        const { data: urlData } = supabase.storage.from('org-uploads').getPublicUrl(path);
+        if (coverAsset) {
+          await db.from('ai_project_assets').update({ is_cover: false }).eq('id', coverAsset.id);
+        }
+        await db.from('ai_project_assets').insert({
+          project_id: id, organization_id: currentOrg.id, file_url: urlData.publicUrl,
+          asset_type: 'image', label: 'Couverture', mime_type: file.type, file_size: file.size,
+          is_cover: true, display_order: 0,
+        });
+        toast({ title: 'Couverture ajoutée ✓' });
+        refetchCover();
+      } catch (err: any) {
+        toast({ title: 'Erreur', description: err.message, variant: 'destructive' });
+      } finally {
+        setUploadingCover(false);
+      }
+    };
+    input.click();
+  }, [id, currentOrg?.id, coverAsset, toast, refetchCover]);
+
+  const generateAiCover = async () => {
+    if (!id || !currentOrg?.id || !project) return;
+    setGeneratingCover(true);
+    try {
+      const response = await supabase.functions.invoke('ai-generate-cover', {
+        body: {
+          product_id: id,
+          title: project.title,
+          product_type: project.project_type || '',
+          description: project.description || '',
+        },
+      });
+      if (response.error) throw new Error(response.error.message);
+      const result = response.data;
+      if (!result?.ok) throw new Error(result?.error || 'Échec de la génération');
+
+      // Save as cover asset
+      if (coverAsset) {
+        await db.from('ai_project_assets').update({ is_cover: false }).eq('id', coverAsset.id);
+      }
+      await db.from('ai_project_assets').insert({
+        project_id: id, organization_id: currentOrg.id, file_url: result.cover_url,
+        asset_type: 'image', label: 'Couverture IA', mime_type: 'image/png',
+        is_cover: true, display_order: 0,
+      });
+      toast({ title: '🎨 Couverture générée !' });
+      refetchCover();
+    } catch (e: any) {
+      toast({ title: 'Erreur', description: e.message, variant: 'destructive' });
+    } finally {
+      setGeneratingCover(false);
     }
   };
 
@@ -522,6 +608,37 @@ export default function ProjectEditor() {
                   <span>{chapters.reduce((sum, c) => sum + (c.content.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(Boolean).length), 0)}</span>
                 </div>
               </div>
+            </div>
+
+            {/* Cover */}
+            <div className="border-t border-border pt-3">
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Couverture</h3>
+              {coverAsset?.file_url ? (
+                <div className="space-y-2">
+                  <img src={coverAsset.file_url} alt="Couverture" className="w-full aspect-[2/3] rounded-lg object-cover border border-border shadow-sm" />
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="sm" className="flex-1 text-[10px] h-7" onClick={handleCoverUpload} disabled={uploadingCover}>
+                      {uploadingCover ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3 mr-1" />} Changer
+                    </Button>
+                    <Button variant="ghost" size="sm" className="flex-1 text-[10px] h-7" onClick={generateAiCover} disabled={generatingCover}>
+                      {generatingCover ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3 mr-1" />} Régénérer
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-1.5">
+                  <div className="border-2 border-dashed border-muted-foreground/20 rounded-lg p-3 text-center">
+                    <ImagePlus className="h-6 w-6 mx-auto text-muted-foreground/30 mb-1" />
+                    <p className="text-[10px] text-muted-foreground">Aucune couverture</p>
+                  </div>
+                  <Button variant="outline" size="sm" className="w-full text-xs h-7 gap-1" onClick={handleCoverUpload} disabled={uploadingCover}>
+                    {uploadingCover ? <Loader2 className="h-3 w-3 animate-spin" /> : <Upload className="h-3 w-3" />} Importer
+                  </Button>
+                  <Button variant="outline" size="sm" className="w-full text-xs h-7 gap-1" onClick={generateAiCover} disabled={generatingCover}>
+                    {generatingCover ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />} Générer avec l'IA
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Preview PDF */}
