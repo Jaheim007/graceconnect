@@ -13,6 +13,9 @@ import { CommandPalette } from '@/components/command/CommandPalette';
 import { CompareProvider } from '@/components/products/ProductCompareDrawer';
 import { CookieConsent } from '@/components/legal/CookieConsent';
 import { FloatingHelpWidget } from '@/components/help/FloatingHelpWidget';
+import { SkipToContent } from '@/components/a11y/SkipToContent';
+import { KeyboardShortcutsModal } from '@/components/a11y/KeyboardShortcutsModal';
+import { OfflineIndicator } from '@/components/network/OfflineIndicator';
 
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
 
@@ -36,6 +39,8 @@ export function AppLayout() {
 
   return (
     <CompareProvider>
+    <SkipToContent />
+    <OfflineIndicator />
     <div className="h-[100dvh] flex w-full bg-background overflow-hidden">
       {!hideNav && (
         <nav className="hidden lg:flex shrink-0" aria-label="Navigation principale">
@@ -72,6 +77,7 @@ export function AppLayout() {
       <ScrollToTop />
       <CookieConsent />
       <FloatingHelpWidget />
+      <KeyboardShortcutsModal />
     </div>
     </CompareProvider>
   );
