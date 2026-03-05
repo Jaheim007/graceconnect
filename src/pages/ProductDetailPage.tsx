@@ -48,6 +48,8 @@ import { trackProductView } from '@/components/discover/RecentlyViewedProducts';
 import { SellerTrustBadges } from '@/components/products/SellerTrustBadges';
 import { UrgencyWidget } from '@/components/products/UrgencyWidget';
 import { ContentSizeBadge } from '@/components/products/ContentSizeBadge';
+import { SmartCTA } from '@/components/products/SmartCTA';
+import { ReviewSummaryBadge } from '@/components/products/ReviewSummaryBadge';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -719,29 +721,15 @@ export default function ProductDetailPage() {
                 </Button>
               )}
 
-              {isPurchased ? (
-                <div className="space-y-2">
-                  <Badge className="w-full justify-center py-2 bg-emerald-500/10 text-emerald-600 border-emerald-500/20 gap-1.5">
-                    <CheckCircle className="h-4 w-4" /> {t('product.already_purchased')}
-                  </Badge>
-                  <Button variant="outline" className="w-full gap-2" onClick={() => navigate('/resources')}>
-                    <BookOpen className="h-4 w-4" /> {t('product.access_resources')}
-                  </Button>
-                </div>
-              ) : (
-                <Button
-                  className="w-full h-12 text-base gap-2 font-semibold text-white"
-                  style={{ backgroundColor: orgPrimary || 'hsl(var(--primary))' }}
-
-                  onClick={() => {
-                    if (!user) { navigate(`/auth?returnTo=${encodeURIComponent(buildShareUrl())}`); return; }
-                    setPurchaseProduct(product as DigitalProduct);
-                  }}
-                >
-                  <ShoppingBag className="h-5 w-5" />
-                  {product.is_free ? t('product.get_free') : t('product.buy_now')}
-                </Button>
-              )}
+              <SmartCTA
+                product={product}
+                isPurchased={isPurchased}
+                onBuy={() => {
+                  if (!user) { navigate(`/auth?returnTo=${encodeURIComponent(buildShareUrl())}`); return; }
+                  setPurchaseProduct(product as DigitalProduct);
+                }}
+                onAccess={() => navigate('/resources')}
+              />
 
               <div className="pt-2 border-t border-border/40 flex items-center gap-2">
                 <div className="flex-1">
@@ -791,6 +779,9 @@ export default function ProductDetailPage() {
                 orgName={org?.name || ''}
               />
             </UniverseGate>
+
+            {/* Review Summary */}
+            <ReviewSummaryBadge productId={product.id} />
 
             {/* Seller Trust */}
             <SellerTrustBadges
