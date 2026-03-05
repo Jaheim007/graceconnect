@@ -21,6 +21,7 @@ interface CmdItem {
   icon: typeof Home;
   group: string;
   keywords?: string;
+  disabled?: boolean;
 }
 
 export function CommandPalette() {
@@ -153,15 +154,21 @@ export function CommandPalette() {
                 return (
                   <button
                     key={item.to}
-                    onClick={() => handleSelect(item.to)}
+                    onClick={() => !item.disabled && handleSelect(item.to)}
+                    disabled={item.disabled}
                     className={cn(
                       'flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-left',
-                      'hover:bg-accent hover:text-accent-foreground transition-colors',
-                      'focus:bg-accent focus:text-accent-foreground focus:outline-none'
+                      item.disabled
+                        ? 'text-muted-foreground/50 cursor-not-allowed'
+                        : 'hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+                      'transition-colors focus:outline-none'
                     )}
                   >
                     <Icon className="h-4 w-4 text-muted-foreground" />
                     <span>{item.label}</span>
+                    {item.disabled && (
+                      <span className="ml-auto text-[9px] font-semibold uppercase tracking-wider bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full">Bientôt</span>
+                    )}
                   </button>
                 );
               })}
