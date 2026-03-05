@@ -1,0 +1,475 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
+};
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
+
+  try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+
+    // --- Auth ---
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) return jsonError('Unauthorized', 401);
+
+    const userClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: authHeader } },
+    });
+    const { data: { user }, error: authErr } = await userClient.auth.getUser();
+    if (authErr || !user) return jsonError('Unauthorized', 401);
+
+    const { job_id } = await req.json();
+    if (!job_id) return jsonError('job_id required', 400);
+
+    const admin = createClient(supabaseUrl, serviceKey);
+
+    // --- Load job ---
+    const { data: job, error: jobErr } = await admin
+      .from('ai_generation_jobs')
+      .select('*')
+      .eq('id', job_id)
+      .single();
+
+    if (jobErr || !job) return jsonError('Job not found', 404);
+
+    // --- Idempotence: already completed ---
+    if (job.status === 'completed') {
+      return jsonOk({ ok: true, job_id, already_completed: true, result_summary: job.result_summary });
+    }
+    if (job.status === 'running') {
+      return jsonError('Job is already running', 409);
+    }
+
+    // --- Permission check ---
+    const { data: member } = await admin
+      .from('organization_members')
+      .select('role')
+      .eq('user_id', user.id)
+      .eq('organization_id', job.organization_id)
+      .maybeSingle();
+
+    if (!member || !['owner', 'admin', 'editor'].includes(member.role)) {
+      return jsonError('Forbidden', 403);
+    }
+
+    // --- Set running ---
+    await admin.from('ai_generation_jobs').update({
+      status: 'running',
+      started_at: new Date().toISOString(),
+      progress: 10,
+    }).eq('id', job_id);
+
+    // --- Load template & policy ---
+    let template: any = null;
+    let policy: any = null;
+
+    if (job.template_id) {
+      const { data: t } = await admin.from('ai_templates').select('*').eq('id', job.template_id).single();
+      template = t;
+      if (t?.policy_profile_id) {
+        const { data: p } = await admin.from('ai_policy_profiles').select('*').eq('id', t.policy_profile_id).single();
+        policy = p;
+      }
+    }
+
+    // --- Load project if linked ---
+    let project: any = null;
+    if (job.project_id) {
+      const { data: p } = await admin.from('ai_content_projects').select('*').eq('id', job.project_id).single();
+      project = p;
+    }
+
+    // --- Policy check on input ---
+    const inputParams = job.input_params || {};
+    if (policy) {
+      const policyResult = checkPolicy(policy, inputParams, '');
+      if (!policyResult.allowed) {
+        await failJob(admin, job_id, `Policy violation: ${policyResult.reasons.join(', ')}`);
+        return jsonError('Policy check failed: ' + policyResult.reasons.join(', '), 422);
+      }
+    }
+
+    await admin.from('ai_generation_jobs').update({ progress: 30 }).eq('id', job_id);
+
+    // --- Execute based on job_type ---
+    try {
+      const jobType = job.job_type;
+      let output: any = {};
+      let assetsCreated: string[] = [];
+
+      if (['text', 'generate_outline', 'generate_chapter', 'generate_description', 'quality_check'].includes(jobType)) {
+        // --- Text generation via Gemini ---
+        if (!GEMINI_API_KEY) {
+          await failJob(admin, job_id, 'GEMINI_API_KEY not configured');
+          return jsonError('GEMINI_API_KEY not configured', 500);
+        }
+
+        const systemPrompt = buildSystemPrompt(jobType, project, template, inputParams);
+        const userPrompt = buildUserPrompt(jobType, project, template, inputParams);
+
+        const geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              system_instruction: { parts: [{ text: systemPrompt }] },
+              contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+            }),
+          }
+        );
+
+        await admin.from('ai_generation_jobs').update({ progress: 70 }).eq('id', job_id);
+
+        if (!geminiRes.ok) {
+          const errText = await geminiRes.text();
+          console.error('Gemini error:', geminiRes.status, errText);
+          const msg = geminiRes.status === 429
+            ? 'Rate limit reached. Retry later.'
+            : `Gemini error (${geminiRes.status})`;
+          await failJob(admin, job_id, msg);
+          return jsonError(msg, 502);
+        }
+
+        const geminiData = await geminiRes.json();
+        const rawContent = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+        output = processTextOutput(jobType, rawContent, inputParams);
+
+        // --- Store text as asset if substantial ---
+        if (rawContent.length > 100 && job.project_id) {
+          const storagePath = `${job.organization_id}/${job.project_id}/${job_id}/output.html`;
+          const blob = new Blob([output.html || rawContent], { type: 'text/html' });
+          await admin.storage.from('org-uploads').upload(storagePath, blob, {
+            contentType: 'text/html', upsert: true,
+          });
+          const { data: asset } = await admin.from('ai_assets').upsert({
+            org_id: job.organization_id,
+            job_id: job_id,
+            project_id: job.project_id,
+            asset_type: 'text',
+            storage_bucket: 'org-uploads',
+            storage_path: storagePath,
+            mime_type: 'text/html',
+            metadata: { word_count: rawContent.split(/\s+/).length },
+          }, { onConflict: 'storage_bucket,storage_path' }).select('id').single();
+          if (asset) assetsCreated.push(asset.id);
+        }
+
+        // --- Update project structure if applicable ---
+        if (project && jobType === 'generate_outline' && output.structure) {
+          await admin.from('ai_content_projects').update({
+            structure_json: output.structure,
+            data_json: output.structure,
+            updated_at: new Date().toISOString(),
+          }).eq('id', job.project_id);
+        }
+
+        if (project && jobType === 'generate_chapter' && inputParams?.chapter_id) {
+          const { data: latestProject } = await admin
+            .from('ai_content_projects')
+            .select('structure_json')
+            .eq('id', job.project_id)
+            .single();
+
+          if (latestProject?.structure_json) {
+            const structure = latestProject.structure_json as { chapters?: any[] };
+            if (structure.chapters) {
+              const updatedChapters = structure.chapters.map((ch: any) =>
+                ch.id === inputParams.chapter_id
+                  ? { ...ch, content: output.html || rawContent }
+                  : ch
+              );
+              await admin.from('ai_content_projects').update({
+                structure_json: { chapters: updatedChapters },
+                data_json: { chapters: updatedChapters },
+                updated_at: new Date().toISOString(),
+              }).eq('id', job.project_id);
+            }
+          }
+        }
+
+      } else if (jobType === 'image') {
+        // --- Image generation placeholder ---
+        output = { message: 'Image generation requires IMAGE_PROVIDER configuration', assets: [] };
+      } else if (jobType === 'audio') {
+        // --- Audio generation placeholder ---
+        output = { message: 'Audio generation requires TTS_PROVIDER configuration', assets: [] };
+      }
+
+      await admin.from('ai_generation_jobs').update({ progress: 90 }).eq('id', job_id);
+
+      // --- Quality score ---
+      let reviewRequired = policy?.requires_human_review ?? false;
+      const qualityScore = computeBasicQuality(output, policy);
+
+      if (job.project_id) {
+        await admin.from('ai_quality_scores').insert({
+          org_id: job.organization_id,
+          job_id: job_id,
+          project_id: job.project_id,
+          score_overall: qualityScore.score,
+          scores_json: qualityScore.details,
+          flags_json: qualityScore.flags,
+          review_required: reviewRequired,
+          review_status: reviewRequired ? 'pending' : 'approved',
+        });
+      }
+
+      // --- Complete job ---
+      const resultSummary = {
+        ...output,
+        quality_score: qualityScore.score,
+        assets_created: assetsCreated,
+      };
+
+      await admin.from('ai_generation_jobs').update({
+        status: 'completed',
+        progress: 100,
+        completed_at: new Date().toISOString(),
+        output_data: output,
+        result_summary: resultSummary,
+      }).eq('id', job_id);
+
+      // --- Update project status ---
+      if (job.project_id) {
+        const newStatus = reviewRequired ? 'review' : 'ready_to_publish';
+        await admin.from('ai_content_projects').update({
+          status: newStatus,
+          updated_at: new Date().toISOString(),
+        }).eq('id', job.project_id);
+
+        // Also update quality fields on project
+        if (jobType === 'quality_check') {
+          await admin.from('ai_content_projects').update({
+            quality_score: qualityScore.score,
+            quality_flags: qualityScore.flags.map((f: any) => f.flag || f),
+          }).eq('id', job.project_id);
+        }
+      }
+
+      // --- Audit ---
+      await admin.from('audit_logs').insert({
+        user_id: user.id,
+        action: 'studio.job_completed',
+        resource_type: 'ai_generation_job',
+        resource_id: job_id,
+        organization_id: job.organization_id,
+        metadata: { job_type: jobType, quality_score: qualityScore.score },
+      });
+
+      return jsonOk({ ok: true, job_id, output: resultSummary });
+
+    } catch (execErr) {
+      console.error('Job execution error:', execErr);
+      await failJob(admin, job_id, execErr instanceof Error ? execErr.message : 'Execution error');
+      return jsonError('Job execution failed', 500);
+    }
+
+  } catch (e) {
+    console.error('ai-run-job error:', e);
+    return jsonError(e instanceof Error ? e.message : 'Internal error', 500);
+  }
+});
+
+// ============= Helpers =============
+
+function jsonError(message: string, status: number) {
+  return new Response(JSON.stringify({ error: message }), {
+    status, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
+
+function jsonOk(data: any) {
+  return new Response(JSON.stringify(data), {
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
+
+async function failJob(admin: any, jobId: string, message: string) {
+  await admin.from('ai_generation_jobs').update({
+    status: 'failed',
+    error_message: message,
+    completed_at: new Date().toISOString(),
+    progress: 0,
+  }).eq('id', jobId);
+}
+
+function checkPolicy(policy: any, params: any, content: string): { allowed: boolean; flags: string[]; reasons: string[] } {
+  const rules = policy.rules_json || {};
+  const flags: string[] = [];
+  const reasons: string[] = [];
+  const textToCheck = (content + ' ' + JSON.stringify(params)).toLowerCase();
+
+  // Banned words check
+  if (rules.banned_words && Array.isArray(rules.banned_words)) {
+    for (const word of rules.banned_words) {
+      if (textToCheck.includes(word.toLowerCase())) {
+        flags.push(`banned_word:${word}`);
+        reasons.push(`Contains banned word: ${word}`);
+      }
+    }
+  }
+
+  // Kids safety
+  if (rules.max_violence === 0) {
+    const violenceWords = ['violence', 'sang', 'mort', 'tuer', 'blood', 'kill', 'murder', 'weapon'];
+    for (const w of violenceWords) {
+      if (textToCheck.includes(w)) {
+        flags.push(`kids_safety:violence`);
+        reasons.push(`Content contains violence-related terms`);
+        break;
+      }
+    }
+  }
+
+  if (rules.max_sexual === 0) {
+    const sexualWords = ['sexuel', 'sexual', 'nude', 'explicit'];
+    for (const w of sexualWords) {
+      if (textToCheck.includes(w)) {
+        flags.push(`kids_safety:sexual`);
+        reasons.push(`Content contains inappropriate terms for children`);
+        break;
+      }
+    }
+  }
+
+  return {
+    allowed: reasons.length === 0,
+    flags,
+    reasons,
+  };
+}
+
+function buildSystemPrompt(jobType: string, project: any, template: any, params: any): string {
+  // Use template prompt if available
+  if (template?.prompt_system) return template.prompt_system;
+
+  const lang = project?.language || params?.language || 'fr';
+  const tone = project?.tone || params?.tone || 'professionnel';
+  const audience = project?.target_audience || params?.audience || 'adultes';
+
+  const base = `Tu es un rédacteur expert et créatif. Tu rédiges en ${lang === 'fr' ? 'français' : 'English'}.
+Ton: ${tone}. Public cible: ${audience}.
+FORMAT: Retourne du HTML propre (<p>, <h2>, <h3>, <strong>, <em>, <ul>, <li>). PAS de markdown.
+Ne commence JAMAIS par "Voici..." ou une intro méta. Va droit au contenu.`;
+
+  if (jobType === 'generate_outline') {
+    return `${base}\nRetourne un JSON valide: {"chapters": [{"id": "ch-1", "title": "...", "content": "", "order": 0}]}`;
+  }
+  if (jobType === 'quality_check') {
+    return `${base}\nRetourne un JSON valide: {"score": 8, "flags": [], "summary": "..."}. Score 1-10.`;
+  }
+
+  if (project?.project_type === 'kids_book') {
+    return `${base}\nTu écris un livre pour enfants (${project.age_range || '4-8 ans'}). Langage simple, phrases courtes.`;
+  }
+  if (project?.project_type === 'sermon_pack') {
+    return `${base}\nTu rédiges du contenu de prédication spirituel, profond et inspirant.`;
+  }
+
+  return base;
+}
+
+function buildUserPrompt(jobType: string, project: any, template: any, params: any): string {
+  // Use template pattern if available, substituting variables
+  if (template?.prompt_user_pattern) {
+    let prompt = template.prompt_user_pattern;
+    const allParams = { ...project, ...params };
+    for (const [key, value] of Object.entries(allParams)) {
+      if (typeof value === 'string') {
+        prompt = prompt.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value);
+      } else if (Array.isArray(value)) {
+        prompt = prompt.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), value.join(', '));
+      }
+    }
+    // Clean remaining placeholders
+    prompt = prompt.replace(/\{\{[^}]+\}\}/g, 'non spécifié');
+    return prompt;
+  }
+
+  const title = project?.title || params?.title || 'Contenu';
+  const objective = project?.objective || params?.objective || '';
+
+  switch (jobType) {
+    case 'generate_outline':
+      return `Génère un plan détaillé pour: "${title}". Objectif: ${objective}. Longueur: ${project?.target_length || 10} chapitres.`;
+    case 'generate_chapter':
+      return `Rédige le chapitre "${params?.chapter_title || 'Chapitre'}". Projet: "${title}". 500-800 mots.`;
+    case 'generate_description':
+      return `Rédige une description de vente pour "${title}". Max 200 mots avec bénéfices et appel à l'action.`;
+    case 'quality_check': {
+      const chapters = (project?.structure_json as any)?.chapters || [];
+      const allContent = chapters.map((c: any) => `## ${c.title}\n${c.content}`).join('\n\n');
+      return `Analyse ce contenu:\nTitre: ${title}\n\n${allContent.slice(0, 8000)}`;
+    }
+    default:
+      return `Rédige du contenu pour "${title}". ${params?.custom_prompt || ''}`;
+  }
+}
+
+function processTextOutput(jobType: string, rawContent: string, params: any): any {
+  if (jobType === 'generate_outline' || jobType === 'quality_check') {
+    try {
+      const jsonMatch = rawContent.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        if (jobType === 'generate_outline') return { structure: parsed, html: '' };
+        return parsed;
+      }
+    } catch { /* fallback below */ }
+  }
+
+  const html = rawContent
+    .replace(/```html?\n?/gi, '')
+    .replace(/```\n?/g, '')
+    .trim();
+
+  return { html, chapter_id: params?.chapter_id };
+}
+
+function computeBasicQuality(output: any, policy: any): { score: number; details: any; flags: any[] } {
+  const flags: any[] = [];
+  let score = 7; // Base score
+
+  const content = output.html || output.summary || JSON.stringify(output);
+  const wordCount = content.split(/\s+/).length;
+
+  // Length check
+  if (wordCount < 50) {
+    score -= 2;
+    flags.push({ flag: 'too_short', detail: `Only ${wordCount} words` });
+  } else if (wordCount > 200) {
+    score += 1;
+  }
+
+  // Structure check (has headings)
+  if (content.includes('<h2') || content.includes('<h3')) {
+    score += 1;
+  } else if (wordCount > 300) {
+    flags.push({ flag: 'no_structure', detail: 'Long content without headings' });
+  }
+
+  // Policy flags check on output
+  if (policy) {
+    const policyResult = checkPolicy(policy, {}, content);
+    if (!policyResult.allowed) {
+      score -= 3;
+      flags.push(...policyResult.flags.map(f => ({ flag: f, detail: 'Policy violation in output' })));
+    }
+  }
+
+  score = Math.max(1, Math.min(10, score));
+
+  return {
+    score,
+    details: { word_count: wordCount, has_structure: content.includes('<h2') },
+    flags,
+  };
+}
