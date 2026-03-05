@@ -3,7 +3,7 @@ import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Copy, ExternalLink, Share2, CheckCircle, Plus, Eye, Trash2, PackagePlus, ArrowUpRight, HelpCircle, Shield, MessageSquareQuote, Sparkles, ImageIcon } from 'lucide-react';
+import { Copy, ExternalLink, Share2, CheckCircle, Plus, Eye, Trash2, PackagePlus, ArrowUpRight, HelpCircle, Shield, MessageSquareQuote, Sparkles, ImageIcon, AlertTriangle } from 'lucide-react';
 import { onContentPublished, onContentUnpublished, onProductPriceChanged } from '@/lib/notifications';
 import { z } from 'zod';
 import { useOrg } from '@/contexts/OrgContext';
