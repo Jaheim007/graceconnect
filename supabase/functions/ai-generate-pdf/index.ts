@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { PDFDocument, StandardFonts, rgb, degrees } from 'https://esm.sh/pdf-lib@1.17.1';
+import { PDFDocument, rgb, degrees } from 'https://esm.sh/pdf-lib@1.17.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -271,9 +271,9 @@ async function buildProfessionalPdf(opts: {
   format: string;
 }) {
   const pdfDoc = await PDFDocument.create();
-  const serif = await pdfDoc.embedFont(StandardFonts.TimesRoman);
-  const serifBold = await pdfDoc.embedFont(StandardFonts.TimesBold);
-  const sans = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const serif = await pdfDoc.embedFont('Times-Roman');
+  const serifBold = await pdfDoc.embedFont('Times-Bold');
+  const sans = await pdfDoc.embedFont('Helvetica');
 
   const page = PAGE_SIZES[opts.pageSize] || PAGE_SIZES.A4;
   const margin = 52;
