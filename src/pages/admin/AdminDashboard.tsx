@@ -44,6 +44,7 @@ import { RevenueAttribution } from '@/components/admin/RevenueAttribution';
 import { SmartReEngagement } from '@/components/admin/SmartReEngagement';
 import { TTFSProgressTracker } from '@/components/admin/TTFSProgressTracker';
 import { RevenueCelebration } from '@/components/admin/RevenueCelebration';
+import { ShareableEarningsCard } from '@/components/admin/ShareableEarningsCard';
 import { useBehavioralNotifications } from '@/hooks/useBehavioralNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
@@ -260,6 +261,9 @@ export default function AdminDashboard() {
 
       {/* Revenue Celebration — shareable success card */}
       <RevenueCelebration />
+
+      {/* Shareable Earnings Card — revenue stack */}
+      <ShareableEarningsCard />
 
       {/* Onboarding checklist (persistent, data-driven) */}
       <OnboardingChecklist />
