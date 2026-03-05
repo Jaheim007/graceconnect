@@ -15,8 +15,9 @@ import { useState, useCallback, useEffect } from 'react';
 import {
   ArrowLeft, Plus, Trash2, GripVertical, Save, FileText,
   Sparkles, Loader2, ChevronLeft, ChevronRight, ListTree,
-  FileCheck, BookOpen
+  FileCheck, BookOpen, Eye
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 
 interface Chapter {
@@ -39,6 +40,43 @@ export default function ProjectEditor() {
   const [dirty, setDirty] = useState(false);
   const [generatingJob, setGeneratingJob] = useState<string | null>(null);
   const [hasActiveJobs, setHasActiveJobs] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
+
+  // Fetch PDF asset
+  const { data: pdfAsset, refetch: refetchPdf } = useQuery({
+    queryKey: ['studio-project-pdf', id],
+    queryFn: async () => {
+      if (!id) return null;
+      const { data } = await db.from('ai_project_assets')
+        .select('file_url')
+        .eq('project_id', id)
+        .eq('asset_type', 'pdf')
+        .order('created_at', { ascending: false })
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!id,
+  });
+
+  const generateAndPreviewPdf = async () => {
+    if (!id || !currentOrg?.id) return;
+    setGeneratingPdf(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-generate-pdf', {
+        body: { org_id: currentOrg.id, project_id: id, format: 'ebook', page_size: 'A4' },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      await refetchPdf();
+      setPreviewOpen(true);
+      toast({ title: 'PDF généré ✓' });
+    } catch (e: any) {
+      toast({ title: 'Erreur PDF', description: e.message, variant: 'destructive' });
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
 
   // Fetch project
   const { data: project, isLoading } = useQuery({
@@ -316,6 +354,7 @@ export default function ProjectEditor() {
   }
 
   return (
+    <>
     <div className="flex flex-col h-[calc(100vh-120px)]">
       {/* Top bar */}
       <div className="flex items-center justify-between pb-3 border-b border-border mb-3">
@@ -468,22 +507,6 @@ export default function ProjectEditor() {
                 >
                   <Sparkles className="h-3.5 w-3.5 text-primary" /> Générer ce chapitre
                 </Button>
-                <Button
-                  variant="outline" size="sm"
-                  className="w-full justify-start text-xs h-8 gap-2"
-                  onClick={generateDescription}
-                  disabled={!!isGenerating}
-                >
-                  <BookOpen className="h-3.5 w-3.5 text-primary" /> Générer description
-                </Button>
-                <Button
-                  variant="outline" size="sm"
-                  className="w-full justify-start text-xs h-8 gap-2"
-                  onClick={runQualityCheck}
-                  disabled={!!isGenerating}
-                >
-                  <FileCheck className="h-3.5 w-3.5 text-primary" /> Vérifier qualité
-                </Button>
               </div>
             </div>
 
@@ -500,9 +523,50 @@ export default function ProjectEditor() {
                 </div>
               </div>
             </div>
+
+            {/* Preview PDF */}
+            <div className="border-t border-border pt-3">
+              <Button
+                variant="outline" size="sm"
+                className="w-full justify-start text-xs h-8 gap-2"
+                onClick={() => pdfAsset?.file_url ? setPreviewOpen(true) : generateAndPreviewPdf()}
+                disabled={generatingPdf}
+              >
+                {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Eye className="h-3.5 w-3.5 text-primary" />}
+                {generatingPdf ? 'Génération...' : 'Aperçu du document'}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
+    {/* PDF Preview Dialog */}
+    <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+      <DialogContent className="max-w-4xl h-[85vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Eye className="h-5 w-5 text-primary" />
+            Aperçu — {project?.title}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="flex-1 min-h-0 rounded-lg overflow-hidden border bg-white">
+          {pdfAsset?.file_url ? (
+            <iframe src={pdfAsset.file_url} className="w-full h-full" title="Aperçu du document" />
+          ) : (
+            <div className="flex items-center justify-center h-full text-muted-foreground">
+              Aucun aperçu disponible. Générez le PDF d'abord.
+            </div>
+          )}
+        </div>
+        <div className="flex justify-end gap-2 pt-2">
+          <Button variant="outline" size="sm" onClick={generateAndPreviewPdf} disabled={generatingPdf}>
+            {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Sparkles className="h-3.5 w-3.5 mr-1" />}
+            Regénérer le PDF
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  </>
   );
 }

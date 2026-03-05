@@ -154,15 +154,15 @@ export default function ProjectOverview() {
       {/* Actions */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <Button variant="outline" className="h-auto py-4 flex-col gap-2" asChild>
-          <Link to={`/admin/studio/projects/${id}/editor`}>
-            <Edit3 className="h-5 w-5" />
-            <span className="text-xs">Éditeur</span>
-          </Link>
-        </Button>
-        <Button variant="outline" className="h-auto py-4 flex-col gap-2" asChild>
           <Link to={`/admin/studio/projects/${id}/assets`}>
             <Image className="h-5 w-5" />
             <span className="text-xs">Assets ({assetCount})</span>
+          </Link>
+        </Button>
+        <Button variant="outline" className="h-auto py-4 flex-col gap-2" asChild>
+          <Link to={`/admin/studio/projects/${id}/editor`}>
+            <Edit3 className="h-5 w-5" />
+            <span className="text-xs">Éditeur</span>
           </Link>
         </Button>
         <Button variant="outline" className="h-auto py-4 flex-col gap-2" asChild>

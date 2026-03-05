@@ -11,8 +11,9 @@ import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import {
   ArrowLeft, CheckCircle, XCircle, AlertTriangle, Shield, Loader2, Sparkles,
-  TrendingUp, TrendingDown, BookOpen, PenLine, Target, Wand2
+  TrendingUp, TrendingDown, BookOpen, PenLine, Target, Wand2, Eye
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 export default function ProjectReviewQualityGate() {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +23,10 @@ export default function ProjectReviewQualityGate() {
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [checkingQuality, setCheckingQuality] = useState(false);
   const [improvingSection, setImprovingSection] = useState<string | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [generatingPdf, setGeneratingPdf] = useState(false);
+
+  const { currentOrg } = useOrg();
 
   const { data: project, isLoading } = useQuery({
     queryKey: ['studio-project', id],
@@ -69,6 +74,41 @@ export default function ProjectReviewQualityGate() {
     },
     enabled: !!id,
   });
+
+  // Fetch PDF asset for preview
+  const { data: pdfAsset, refetch: refetchPdf } = useQuery({
+    queryKey: ['studio-project-pdf', id],
+    queryFn: async () => {
+      if (!id) return null;
+      const { data } = await db.from('ai_project_assets')
+        .select('file_url')
+        .eq('project_id', id)
+        .eq('asset_type', 'pdf')
+        .order('created_at', { ascending: false })
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!id,
+  });
+
+  const generateAndPreviewPdf = async () => {
+    if (!id || !currentOrg?.id) return;
+    setGeneratingPdf(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-generate-pdf', {
+        body: { org_id: currentOrg.id, project_id: id, format: 'ebook', page_size: 'A4' },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      await refetchPdf();
+      setPreviewOpen(true);
+      toast({ title: 'PDF généré ✓' });
+    } catch (e: any) {
+      toast({ title: 'Erreur PDF', description: e.message, variant: 'destructive' });
+    } finally {
+      setGeneratingPdf(false);
+    }
+  };
 
   const approveMutation = useMutation({
     mutationFn: async () => {
@@ -243,6 +283,7 @@ export default function ProjectReviewQualityGate() {
   };
 
   return (
+    <>
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -253,15 +294,26 @@ export default function ProjectReviewQualityGate() {
             <Shield className="h-5 w-5 text-primary" /> Qualité & Revue
           </h1>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={runQualityCheck}
-          disabled={checkingQuality}
-        >
-          {checkingQuality ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Sparkles className="h-4 w-4 mr-1" />}
-          {score != null ? 'Relancer l\'analyse' : 'Analyser la qualité'}
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => pdfAsset?.file_url ? setPreviewOpen(true) : generateAndPreviewPdf()}
+            disabled={generatingPdf}
+          >
+            {generatingPdf ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Eye className="h-4 w-4 mr-1" />}
+            Aperçu
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={runQualityCheck}
+            disabled={checkingQuality}
+          >
+            {checkingQuality ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : <Sparkles className="h-4 w-4 mr-1" />}
+            {score != null ? 'Relancer l\'analyse' : 'Analyser la qualité'}
+          </Button>
+        </div>
       </div>
 
       {/* Score */}
@@ -535,5 +587,33 @@ export default function ProjectReviewQualityGate() {
         </CardContent>
       </Card>
     </div>
+
+    {/* PDF Preview Dialog */}
+    <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+      <DialogContent className="max-w-4xl h-[85vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Eye className="h-5 w-5 text-primary" />
+            Aperçu — {project?.title}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="flex-1 min-h-0 rounded-lg overflow-hidden border bg-white">
+          {pdfAsset?.file_url ? (
+            <iframe src={pdfAsset.file_url} className="w-full h-full" title="Aperçu du document" />
+          ) : (
+            <div className="flex items-center justify-center h-full text-muted-foreground">
+              Aucun aperçu disponible
+            </div>
+          )}
+        </div>
+        <div className="flex justify-end gap-2 pt-2">
+          <Button variant="outline" size="sm" onClick={generateAndPreviewPdf} disabled={generatingPdf}>
+            {generatingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1" /> : <Sparkles className="h-3.5 w-3.5 mr-1" />}
+            Regénérer le PDF
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+    </>
   );
 }
