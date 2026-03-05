@@ -34,12 +34,10 @@ export default function ProjectPublishWizard() {
   const [generatingPdf, setGeneratingPdf] = useState(false);
   const [generatingDesc, setGeneratingDesc] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [preparingProduct, setPreparingProduct] = useState(false);
 
-  // Product fields
-  const [price, setPrice] = useState<number>(0);
-  const [salePrice, setSalePrice] = useState<number | ''>('');
+  // Product fields (used for course target only now)
   const [description, setDescription] = useState('');
-  const [isFree, setIsFree] = useState(false);
 
   const descGenerated = useRef(false);
   const pdfGenerated = useRef(false);
@@ -83,7 +81,7 @@ export default function ProjectPublishWizard() {
     enabled: !!id,
   });
 
-  // Auto-generate description + PDF when entering step 1
+  // Auto-generate description + PDF when entering step 1 (course only now)
   useEffect(() => {
     if (step !== 1 || !project || !currentOrg?.id || !user?.id) return;
 
@@ -91,12 +89,79 @@ export default function ProjectPublishWizard() {
       descGenerated.current = true;
       generateDescription();
     }
+  }, [step, project?.id]);
 
-    if (!pdfAsset && !pdfGenerated.current && target === 'product') {
-      pdfGenerated.current = true;
-      generatePdf();
+  // Navigate to normal product form pre-filled with AI data
+  const goToProductForm = useCallback(async () => {
+    if (!project || !currentOrg?.id || !id) return;
+    setPreparingProduct(true);
+
+    // Generate PDF if not ready
+    let fileUrl = pdfAsset?.file_url || null;
+    if (!fileUrl) {
+      try {
+        const { data, error } = await supabase.functions.invoke('ai-generate-pdf', {
+          body: { org_id: currentOrg.id, project_id: id, format: 'ebook', page_size: 'A4' },
+        });
+        if (!error && data?.download_url) fileUrl = data.download_url;
+      } catch (e) {
+        console.error('PDF generation error:', e);
+      }
     }
-  }, [step, project?.id, pdfAsset]);
+
+    // Generate description
+    let desc = project.description || project.objective || '';
+    if (!desc) {
+      try {
+        const { data: job, error: jobErr } = await db.from('ai_generation_jobs').insert({
+          organization_id: currentOrg.id,
+          created_by: user!.id,
+          project_id: id,
+          job_type: 'generate_description',
+          input_params: { title: project.title, objective: project.objective },
+          status: 'queued',
+          provider: 'gemini',
+        }).select('id').single();
+
+        if (!jobErr && job) {
+          await supabase.functions.invoke('ai-run-job', { body: { job_id: job.id } });
+          // Poll for result
+          for (let i = 0; i < 20; i++) {
+            await new Promise(r => setTimeout(r, 2000));
+            const { data: updatedJob } = await db.from('ai_generation_jobs')
+              .select('status').eq('id', job.id).single();
+            if (updatedJob?.status === 'completed') {
+              const { data: updatedProject } = await db.from('ai_content_projects')
+                .select('description').eq('id', id).single();
+              if (updatedProject?.description) desc = updatedProject.description;
+              break;
+            }
+            if (updatedJob?.status === 'failed') break;
+          }
+        }
+      } catch (e) {
+        console.error('Description generation error:', e);
+      }
+    }
+
+    setPreparingProduct(false);
+
+    // Navigate to normal product form with pre-filled state
+    navigate('/admin/products/new', {
+      state: {
+        fromStudio: true,
+        studioProjectId: id,
+        prefill: {
+          title: project.title,
+          description: desc,
+          product_type: project.project_type === 'course_pack' ? 'course' : 'ebook',
+          cover_image_url: coverAsset?.file_url || '',
+          file_url: fileUrl || '',
+          is_published: true,
+        },
+      },
+    });
+  }, [project, currentOrg, id, user, pdfAsset, coverAsset, navigate]);
 
   const generateDescription = async () => {
     if (!id || !currentOrg?.id || !user?.id || !project) return;
