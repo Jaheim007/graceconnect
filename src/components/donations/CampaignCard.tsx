@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { stripHtml } from '@/lib/formatText';
 import { DonationCampaign } from '@/types/database';
 import { formatCurrency } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
@@ -27,7 +28,7 @@ export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
     const fallback = buildSocialShareUrl({
       targetUrl: `${window.location.origin}${targetPath}`,
       title: campaign.title,
-      description: campaign.description?.slice(0, 155) || undefined,
+      description: stripHtml(campaign.description || '').slice(0, 155) || undefined,
       image: campaign.image_url || undefined,
     });
     setShareUrl(fallback);
@@ -36,7 +37,7 @@ export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
     getOrCreateShortLink({
       targetPath,
       title: campaign.title,
-      description: campaign.description?.slice(0, 155) || undefined,
+      description: stripHtml(campaign.description || '').slice(0, 155) || undefined,
       image: campaign.image_url || undefined,
     })
       .then((url) => setShareUrl(url))
@@ -69,7 +70,7 @@ export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
         <div className="px-5 pt-5 pb-2 space-y-2">
           <h3 className="font-bold text-base leading-snug line-clamp-2">{campaign.title}</h3>
           {campaign.description && (
-            <p className="text-sm text-muted-foreground line-clamp-2">{campaign.description}</p>
+            <p className="text-sm text-muted-foreground line-clamp-2">{stripHtml(campaign.description)}</p>
           )}
           {(campaign as any).organization_name && (
             <p className="text-xs text-muted-foreground mt-1">
