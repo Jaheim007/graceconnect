@@ -3,6 +3,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { supabase } from '@/integrations/supabase/client';
+import { compressImage } from '@/hooks/useImageOptimizer';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +13,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { useState, useCallback, useEffect } from 'react';
+import { Badge } from '@/components/ui/badge';
 import {
   ArrowLeft, Plus, Trash2, GripVertical, Save, FileText,
   Sparkles, Loader2, ChevronLeft, ChevronRight, ListTree,
@@ -42,6 +44,8 @@ export default function ProjectEditor() {
   const [hasActiveJobs, setHasActiveJobs] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [generatingCover, setGeneratingCover] = useState(false);
 
   // Fetch PDF asset
   const { data: pdfAsset, refetch: refetchPdf } = useQuery({
