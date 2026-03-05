@@ -39,6 +39,7 @@ import { Breadcrumb } from '@/components/layout/Breadcrumb';
 import { ViralSnippets } from '@/components/products/ViralSnippets';
 import { MarketingKit } from '@/components/ambassador/MarketingKit';
 import { BecomeAmbassadorCTA } from '@/components/products/BecomeAmbassadorCTA';
+import { ShareToEarnCTA } from '@/components/products/ShareToEarnCTA';
 import { CreateSimilarCTA } from '@/components/products/CreateSimilarCTA';
 import { WishlistButton } from '@/components/products/WishlistButton';
 import { PostPurchaseCelebration } from '@/components/products/PostPurchaseCelebration';
@@ -768,6 +769,15 @@ export default function ProductDetailPage() {
                 orgName={org?.name || ''}
               />
             </UniverseGate>
+
+            {/* Share & Earn CTA */}
+            <ShareToEarnCTA
+              productId={product.id}
+              organizationId={product.organization_id}
+              organizationSlug={slug || ''}
+              productSlug={(product as any).slug}
+              commissionPercent={(product as any).commission_percent}
+            />
 
             {/* 1-click Become Ambassador CTA — visible to all non-owners */}
             <BecomeAmbassadorCTA

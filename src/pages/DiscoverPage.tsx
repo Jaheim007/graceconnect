@@ -33,6 +33,8 @@ import { CategoryCarousels } from '@/components/discover/CategoryCarousels';
 import { useCallback, useRef, useEffect } from 'react';
 
 import { Offering } from '@/hooks/useOfferings';
+import { SearchSuggestions, addRecentSearch } from '@/components/discover/SearchSuggestions';
+import { ProductQuickView } from '@/components/products/ProductQuickView';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
@@ -84,6 +86,8 @@ export default function DiscoverPage() {
   const [priceFilter, setPriceFilter] = useState<PriceFilter>('all');
   const [typeFilter, setTypeFilter] = useState<ProductTypeFilter>('');
   const [selectedOffering, setSelectedOffering] = useState<Offering | null>(null);
+  const [quickViewProduct, setQuickViewProduct] = useState<any>(null);
+  const [searchFocused, setSearchFocused] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
   const { userOrgs } = useOrg();
@@ -241,7 +245,15 @@ export default function DiscoverPage() {
               placeholder={t('discover.search')}
               value={search}
               onChange={(e) => { setSearch(e.target.value); }}
+              onFocus={() => setSearchFocused(true)}
+              onKeyDown={(e) => { if (e.key === 'Enter' && search.trim()) { addRecentSearch(search.trim()); setSearchFocused(false); } }}
               className="pl-10 h-11 bg-card/80"
+            />
+            <SearchSuggestions
+              query={search}
+              isOpen={searchFocused}
+              onSelect={(term) => { setSearch(term); addRecentSearch(term); setSearchFocused(false); }}
+              onClose={() => setSearchFocused(false)}
             />
           </div>
         </div>
@@ -318,7 +330,7 @@ export default function DiscoverPage() {
               <>
                 <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {products.map((p: any) => (
-                    <motion.div key={p.id} variants={fadeUp}>
+                    <motion.div key={p.id} variants={fadeUp} onDoubleClick={() => setQuickViewProduct(p)}>
                       <ProductCard product={p} hideCommission hideShare />
                     </motion.div>
                   ))}
@@ -384,6 +396,8 @@ export default function DiscoverPage() {
         )}
         {!isSearching && user && <PersonalizedRecommendations />}
       </div>
+
+      <ProductQuickView product={quickViewProduct} open={!!quickViewProduct} onClose={() => setQuickViewProduct(null)} />
 
       {selectedOffering && (
         <OfferingModal
