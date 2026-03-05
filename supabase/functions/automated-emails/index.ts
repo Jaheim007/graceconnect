@@ -970,6 +970,104 @@ Deno.serve(async (req) => {
     }
     results['win_back_emails'] = winBackCount;
 
+    // ═══════════════════════════════════════════
+    // WISHLIST REMINDERS (items saved 3+ days ago, not yet purchased)
+    // ═══════════════════════════════════════════
+    let wishlistReminderCount = 0;
+    const threeDaysAgo = new Date(now.getTime() - 3 * 86400000).toISOString();
+    const fourDaysAgo = new Date(now.getTime() - 4 * 86400000).toISOString();
+    const { data: wishlistItems } = await db.from('wishlists')
+      .select('id, user_id, product_id, digital_products(title, price, currency, cover_image_url, slug, is_free, sale_price, sale_ends_at, organizations(name, slug))')
+      .gte('created_at', fourDaysAgo)
+      .lte('created_at', threeDaysAgo)
+      .limit(100);
+
+    for (const wi of wishlistItems || []) {
+      const product = (wi as any).digital_products;
+      if (!product) continue;
+
+      // Check if user already purchased this product
+      const { count: purchaseCount } = await db.from('product_purchases')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', wi.user_id)
+        .eq('product_id', wi.product_id)
+        .eq('status', 'completed');
+      if ((purchaseCount || 0) > 0) continue;
+
+      const email = await getUserEmail(wi.user_id);
+      if (!email) continue;
+
+      const org = product.organizations;
+      const isOnSale = product.sale_price && product.sale_ends_at && new Date(product.sale_ends_at) > now;
+      const productUrl = `https://siteviral.com/org/${org?.slug || ''}/p/${product.slug || wi.product_id}`;
+
+      await sendEmail({
+        template: 'wishlist_reminder' as any,
+        to: email,
+        data: {
+          product_name: product.title,
+          product_url: productUrl,
+          product_image: product.cover_image_url || '',
+          price: product.is_free ? 'Gratuit' : `${isOnSale ? product.sale_price : product.price} ${product.currency || 'XOF'}`,
+          is_on_sale: isOnSale ? 'oui' : 'non',
+          original_price: isOnSale ? `${product.price} ${product.currency || 'XOF'}` : '',
+          org_name: org?.name || '',
+        },
+      });
+      wishlistReminderCount++;
+    }
+    results['wishlist_reminders'] = wishlistReminderCount;
+
+    // ═══════════════════════════════════════════
+    // WEEKLY DISCOVERY DIGEST (Mondays — personalized new products)
+    // ═══════════════════════════════════════════
+    let digestCount = 0;
+    const dayOfWeek = now.getUTCDay(); // 0=Sun, 1=Mon
+    if (dayOfWeek === 1) { // Only on Mondays
+      const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000).toISOString();
+      // Get new products from last 7 days
+      const { data: newProducts } = await db.from('digital_products')
+        .select('title, slug, cover_image_url, price, currency, is_free, organizations(name, slug)')
+        .eq('is_published', true)
+        .eq('is_express_demo', false)
+        .gte('created_at', sevenDaysAgo)
+        .order('featured_score', { ascending: false })
+        .limit(5);
+
+      if (newProducts && newProducts.length > 0) {
+        // Get users who have notification prefs enabled for marketing
+        const { data: subscribedUsers } = await db.from('notification_preferences')
+          .select('user_id')
+          .eq('marketing', true)
+          .eq('email_enabled', true)
+          .limit(200);
+
+        const productList = newProducts.map((p: any) => ({
+          title: p.title,
+          url: `https://siteviral.com/org/${p.organizations?.slug || ''}/p/${p.slug || ''}`,
+          image: p.cover_image_url || '',
+          price: p.is_free ? 'Gratuit' : `${p.price} ${p.currency || 'XOF'}`,
+          org_name: p.organizations?.name || '',
+        }));
+
+        for (const sub of subscribedUsers || []) {
+          const email = await getUserEmail(sub.user_id);
+          if (email) {
+            await sendEmail({
+              template: 'weekly_discovery_digest' as any,
+              to: email,
+              data: {
+                products: productList,
+                count: productList.length,
+              },
+            });
+            digestCount++;
+          }
+        }
+      }
+    }
+    results['weekly_digest'] = digestCount;
+
     return new Response(JSON.stringify({ ok: true, results }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
