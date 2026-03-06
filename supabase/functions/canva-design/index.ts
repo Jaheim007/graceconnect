@@ -136,8 +136,9 @@ serve(async (req) => {
         .from("org-uploads")
         .getPublicUrl(fileName);
 
+      const brandedUrl = urlData.publicUrl.replace('https://xzgpzbrgsxtcsktiprik.supabase.co', 'https://api.siteviral.com');
       return new Response(
-        JSON.stringify({ ok: true, cover_url: urlData.publicUrl, canva_url: exportUrl }),
+        JSON.stringify({ ok: true, cover_url: brandedUrl, canva_url: exportUrl }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
