@@ -63,7 +63,6 @@ export default function CreatorDashboard() {
     enabled: !!activeOrg,
   });
 
-  // Products count
   const { data: productCount = 0 } = useQuery({
     queryKey: ['creator-product-count', activeOrg?.id],
     queryFn: async () => {
@@ -74,7 +73,6 @@ export default function CreatorDashboard() {
     enabled: !!activeOrg,
   });
 
-  // Ambassadors count
   const { data: ambassadorCount = 0 } = useQuery({
     queryKey: ['creator-ambassador-count', activeOrg?.id],
     queryFn: async () => {
@@ -85,10 +83,8 @@ export default function CreatorDashboard() {
     enabled: !!activeOrg,
   });
 
-  // KYC status
   const kycStatus = activeOrg?.kyc_status || 'none';
 
-  // Smart next actions
   const nextActions = [];
   if (!activeOrg) {
     nextActions.push({ label: 'Crée ton centre digital', desc: 'Lance ta plateforme en 10 minutes', icon: Building2, action: () => navigate('/create-org'), color: 'text-primary' });
@@ -98,7 +94,7 @@ export default function CreatorDashboard() {
     if (kycStatus === 'none') nextActions.push({ label: 'Vérifie ton identité pour retirer', desc: 'KYC requis pour les retraits', icon: Shield, action: () => navigate('/admin/kyc'), color: 'text-destructive' });
   }
 
-  const monthGoal = 100000; // Default goal
+  const monthGoal = 100000;
   const monthProgress = salesData?.month ? Math.min((salesData.month / monthGoal) * 100, 100) : 0;
 
   const hour = new Date().getHours();
@@ -157,7 +153,20 @@ export default function CreatorDashboard() {
           </div>
         </motion.div>
 
-        {/* ═══ SECTION 1: REVENUS ═══ */}
+        {/* ═══ KYC BANNER — EN HAUT (urgent) ═══ */}
+        {kycStatus === 'none' && (
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-3 p-3 rounded-xl bg-destructive/5 border border-destructive/20"
+          >
+            <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium">Paiements acceptés immédiatement. KYC requis pour retirer vos fonds.</p>
+            </div>
+            <Button size="sm" variant="destructive" onClick={() => navigate('/admin/kyc')} className="h-7 text-xs shrink-0">Vérifier</Button>
+          </motion.div>
+        )}
+
+        {/* ═══ REVENUS ═══ */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
           className="bg-card border border-primary/20 rounded-2xl p-5"
         >
@@ -186,7 +195,7 @@ export default function CreatorDashboard() {
           </Button>
         </motion.div>
 
-        {/* ═══ SECTION 2: PERFORMANCE ═══ */}
+        {/* ═══ PERFORMANCE ═══ */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
           className="grid grid-cols-2 sm:grid-cols-4 gap-3"
         >
@@ -204,7 +213,7 @@ export default function CreatorDashboard() {
           ))}
         </motion.div>
 
-        {/* ═══ SECTION 3: NEXT ACTIONS ═══ */}
+        {/* ═══ PROCHAINES ACTIONS ═══ */}
         {nextActions.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
             className="bg-card border border-border rounded-2xl p-5"
@@ -233,7 +242,7 @@ export default function CreatorDashboard() {
           </motion.div>
         )}
 
-        {/* ═══ SECTION 4: QUICK ACCESS ═══ */}
+        {/* ═══ ACCÈS RAPIDE ═══ */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
           <div className="grid grid-cols-2 gap-3">
             <Button variant="outline" className="h-auto py-3 flex-col gap-1" onClick={() => navigate('/admin')}>
@@ -246,17 +255,6 @@ export default function CreatorDashboard() {
             </Button>
           </div>
         </motion.div>
-
-        {/* ═══ KYC BANNER ═══ */}
-        {kycStatus === 'none' && (
-          <div className="flex items-center gap-3 p-3 rounded-xl bg-amber-500/5 border border-amber-500/20">
-            <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium">Paiements acceptés immédiatement. KYC requis uniquement pour retirer.</p>
-            </div>
-            <Button size="sm" variant="outline" onClick={() => navigate('/admin/kyc')} className="h-7 text-xs shrink-0">Vérifier</Button>
-          </div>
-        )}
       </div>
     </div>
   );

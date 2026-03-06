@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import {
   Package, Store, Share2, Link2, Trophy, Wallet, Building2, ArrowRight,
-  BookOpen, Rocket, Sparkles, GraduationCap, Heart, Shield, UserCheck
+  BookOpen, Rocket, Sparkles, GraduationCap, Heart, Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -15,17 +15,10 @@ import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 
-import { Badge } from '@/components/ui/badge';
 import PartnerPendingPopup from '@/components/partner/PartnerPendingPopup';
-import { InviteEarnWidget } from '@/components/social/InviteEarnWidget';
-import { UserProgressDashboard } from '@/components/growth/UserProgressDashboard';
-import { GrowthTipsWidget } from '@/components/growth/GrowthTipsWidget';
-import { SuccessStoriesCarousel } from '@/components/growth/SuccessStoriesCarousel';
-import { OnboardingChecklist } from '@/components/growth/OnboardingChecklist';
-import { ShareableEarningsCard } from '@/components/growth/ShareableEarningsCard';
-import { RevenueCelebration } from '@/components/growth/RevenueCelebration';
 import { QuickStartPaths } from '@/components/growth/QuickStartPaths';
 import { SmartNudge } from '@/components/growth/SmartNudge';
+import { InviteEarnWidget } from '@/components/social/InviteEarnWidget';
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 12 },
@@ -106,16 +99,14 @@ export default function UserDashboard() {
   const greeting = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir';
   const displayName = profile?.display_name?.split(' ')[0] || 'là';
 
-  const goAmbassadorMarketplace = () => {
-    navigate('/gagner');
-  };
-
   return (
     <div className="bg-background min-h-screen">
       <div className="container max-w-2xl px-4 py-5 sm:py-6 space-y-5">
         <SEOHead title="Mon espace — Siteviral" noindex />
 
-        {/* ═══ HEADER ═══ */}
+        {/* ═══════════════════════════════════════
+            ZONE 1 — EN-TÊTE
+        ═══════════════════════════════════════ */}
         <motion.div {...fadeUp()} className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center">
             {profile?.avatar_url ? (
@@ -128,32 +119,21 @@ export default function UserDashboard() {
             <h1 className="text-lg font-bold">{greeting}, {displayName} 👋</h1>
             <p className="text-xs text-muted-foreground">Voici ton espace personnel</p>
           </div>
-          {/* Badge removed — no more "Acheteur / Donateur" label */}
         </motion.div>
-        {/* ═══ SMART NUDGE ═══ */}
-        <SmartNudge />
 
-        {/* ═══ QUICK START PATHS ═══ */}
+        {/* ═══════════════════════════════════════
+            ZONE 2 — NAVIGATION RAPIDE (Écris · Vends · Partage · Gagne)
+        ═══════════════════════════════════════ */}
         <motion.div {...fadeUp(0.02)}>
           <QuickStartPaths />
         </motion.div>
 
-        {/* ═══ ONBOARDING CHECKLIST ═══ */}
-        <motion.div {...fadeUp(0.03)}>
-          <OnboardingChecklist />
-        </motion.div>
+        {/* ═══ SMART NUDGE (contextual, one-line) ═══ */}
+        <SmartNudge />
 
-        {/* ═══ SHAREABLE EARNINGS CARD ═══ */}
-        <motion.div {...fadeUp(0.04)}>
-          <ShareableEarningsCard />
-        </motion.div>
-
-        {/* ═══ REVENUE CELEBRATION (creators) ═══ */}
-        <motion.div {...fadeUp(0.045)}>
-          <RevenueCelebration />
-        </motion.div>
-
-        {/* ═══ SECTION: MES ACHATS ═══ */}
+        {/* ═══════════════════════════════════════
+            ZONE 3 — MES ACHATS (le plus pertinent pour un acheteur)
+        ═══════════════════════════════════════ */}
         <motion.div {...fadeUp(0.05)} className="bg-card border border-border rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-sm flex items-center gap-2">
@@ -197,8 +177,36 @@ export default function UserDashboard() {
           )}
         </motion.div>
 
-        {/* ═══ SECTION: MES DONS ═══ */}
-        <motion.div {...fadeUp(0.08)} className="bg-card border border-border rounded-2xl p-5">
+        {/* ═══════════════════════════════════════
+            ZONE 4 — FORMATIONS EN COURS
+        ═══════════════════════════════════════ */}
+        {programProgress.length > 0 && (
+          <motion.div {...fadeUp(0.08)} className="bg-card border border-border rounded-2xl p-5">
+            <h2 className="font-bold text-sm flex items-center gap-2 mb-4">
+              <GraduationCap className="h-4 w-4 text-amber-500" /> Mes formations
+            </h2>
+            <div className="space-y-3">
+              {programProgress.map((prog: any) => {
+                const pct = prog.totalLessons > 0 ? Math.round((prog.completedLessons / prog.totalLessons) * 100) : 0;
+                return (
+                  <div key={prog.id} className="p-3 rounded-xl bg-muted/30 border border-border/50">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-medium truncate">{prog.programs?.title || 'Formation'}</p>
+                      <span className="text-xs font-semibold text-primary">{pct}%</span>
+                    </div>
+                    <Progress value={pct} className="h-1.5" />
+                    <p className="text-[10px] text-muted-foreground mt-1">{prog.completedLessons}/{prog.totalLessons} leçons</p>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+
+        {/* ═══════════════════════════════════════
+            ZONE 5 — MES DONS
+        ═══════════════════════════════════════ */}
+        <motion.div {...fadeUp(0.1)} className="bg-card border border-border rounded-2xl p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-bold text-sm flex items-center gap-2">
               <Heart className="h-4 w-4 text-rose-500" /> Mes dons
@@ -240,31 +248,11 @@ export default function UserDashboard() {
           )}
         </motion.div>
 
-        {/* ═══ SECTION: PROGRESSION FORMATIONS ═══ */}
-        {programProgress.length > 0 && (
-          <motion.div {...fadeUp(0.1)} className="bg-card border border-border rounded-2xl p-5">
-            <h2 className="font-bold text-sm flex items-center gap-2 mb-4">
-              <GraduationCap className="h-4 w-4 text-amber-500" /> Mes formations
-            </h2>
-            <div className="space-y-3">
-              {programProgress.map((prog: any) => {
-                const pct = prog.totalLessons > 0 ? Math.round((prog.completedLessons / prog.totalLessons) * 100) : 0;
-                return (
-                  <div key={prog.id} className="p-3 rounded-xl bg-muted/30 border border-border/50">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="text-sm font-medium truncate">{prog.programs?.title || 'Formation'}</p>
-                      <span className="text-xs font-semibold text-primary">{pct}%</span>
-                    </div>
-                    <Progress value={pct} className="h-1.5" />
-                    <p className="text-[10px] text-muted-foreground mt-1">{prog.completedLessons}/{prog.totalLessons} leçons</p>
-                  </div>
-                );
-              })}
-            </div>
-          </motion.div>
-        )}
+        {/* ═══════════════════════════════════════
+            ZONE 6 — ACTIONS CLÉS
+        ═══════════════════════════════════════ */}
 
-        {/* ═══ SECTION: DÉCOUVRIR ═══ */}
+        {/* Découvrir */}
         <motion.div {...fadeUp(0.12)} className="bg-card border border-border rounded-2xl p-5">
           <h2 className="font-bold text-sm flex items-center gap-2 mb-3">
             <Sparkles className="h-4 w-4 text-amber-500" /> Découvrir
@@ -277,41 +265,38 @@ export default function UserDashboard() {
           </Button>
         </motion.div>
 
-        {/* ═══ SECTION: MON ESPACE (simplified — no more "Créer ma plateforme") ═══ */}
-        {hasOrgs && (
-          <motion.div {...fadeUp(0.15)} className="bg-card border border-primary/20 rounded-2xl p-5">
-            <h2 className="font-bold text-sm flex items-center gap-2 mb-3">
-              <Building2 className="h-4 w-4 text-primary" /> Mon espace
-            </h2>
-            <p className="text-xs text-muted-foreground mb-4">
-              Gère tes produits, tes ventes et tes ambassadeurs.
-            </p>
-            <Button
-              className="w-full gap-2"
-              onClick={() => {
-                navigate('/admin');
-              }}
-            >
-              <Building2 className="h-4 w-4" /> Accéder à mon espace
-            </Button>
-          </motion.div>
-        )}
-
-        {/* ═══ SECTION: GAGNER DE L'ARGENT ═══ */}
-        <motion.div {...fadeUp(0.18)} className="bg-card border border-emerald-500/20 rounded-2xl p-5">
+        {/* Gagner de l'argent */}
+        <motion.div {...fadeUp(0.15)} className="bg-card border border-emerald-500/20 rounded-2xl p-5">
           <h2 className="font-bold text-sm flex items-center gap-2 mb-3">
             <Share2 className="h-4 w-4 text-emerald-500" /> Gagner de l'argent
           </h2>
           <p className="text-xs text-muted-foreground mb-4">
             Partage des produits et gagne une commission sur chaque vente. Aucun investissement requis.
           </p>
-          <Button className="w-full gap-2" onClick={goAmbassadorMarketplace}>
+          <Button className="w-full gap-2" onClick={() => navigate('/gagner')}>
             <Rocket className="h-4 w-4" /> Partage et gagne
           </Button>
         </motion.div>
 
-        {/* ═══ QUICK LINKS (replaces mode switchers) ═══ */}
-        <motion.div {...fadeUp(0.22)} className="space-y-2">
+        {/* Mon espace créateur */}
+        {hasOrgs && (
+          <motion.div {...fadeUp(0.18)} className="bg-card border border-primary/20 rounded-2xl p-5">
+            <h2 className="font-bold text-sm flex items-center gap-2 mb-3">
+              <Building2 className="h-4 w-4 text-primary" /> Mon espace
+            </h2>
+            <p className="text-xs text-muted-foreground mb-4">
+              Gère tes produits, tes ventes et tes ambassadeurs.
+            </p>
+            <Button className="w-full gap-2" onClick={() => navigate('/admin')}>
+              <Building2 className="h-4 w-4" /> Accéder à mon espace
+            </Button>
+          </motion.div>
+        )}
+
+        {/* ═══════════════════════════════════════
+            ZONE 7 — ACCÈS RAPIDE
+        ═══════════════════════════════════════ */}
+        <motion.div {...fadeUp(0.2)} className="space-y-2">
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold px-1">Accès rapide</p>
 
           {!hasOrgs && (
@@ -320,10 +305,10 @@ export default function UserDashboard() {
               className="w-full flex items-center gap-3 p-3.5 rounded-xl border border-border hover:border-primary/40 bg-card text-left transition-all group"
             >
               <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <Sparkles className="h-4 w-4 text-primary" />
+                <BookOpen className="h-4 w-4 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold">✏️ Écrire mon premier livre</p>
+                <p className="text-xs font-semibold">Écrire mon premier livre</p>
                 <p className="text-[10px] text-muted-foreground">L'IA écrit, tu publies, tu gagnes</p>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
@@ -339,32 +324,17 @@ export default function UserDashboard() {
                 <Shield className="h-4 w-4 text-destructive" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold">Se connecter en tant que super admin</p>
+                <p className="text-xs font-semibold">Super admin</p>
                 <p className="text-[10px] text-muted-foreground">Panneau d'administration global</p>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
             </button>
           )}
-        {/* ═══ USER PROGRESS ═══ */}
+        </motion.div>
+
+        {/* Invite & Earn — en bas */}
         <motion.div {...fadeUp(0.25)}>
-          <UserProgressDashboard />
-        </motion.div>
-
-        {/* ═══ SUCCESS STORIES ═══ */}
-        <motion.div {...fadeUp(0.3)}>
-          <SuccessStoriesCarousel limit={3} />
-        </motion.div>
-
-        {/* ═══ GROWTH TIPS ═══ */}
-        <motion.div {...fadeUp(0.35)}>
-          <GrowthTipsWidget />
-        </motion.div>
-
-        {/* ═══ INVITE & EARN ═══ */}
-        <motion.div {...fadeUp(0.4)}>
           <InviteEarnWidget />
-        </motion.div>
-
         </motion.div>
       </div>
       <PartnerPendingPopup />

@@ -7,14 +7,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { PenLine, Share2, Upload, Store, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FirstWinChecklist } from '@/components/dashboard/FirstWinChecklist';
-import { ViralLoopCard } from '@/components/dashboard/ViralLoopCard';
 import { InviteEarnWidget } from '@/components/referral/InviteEarnWidget';
 import { TrendingProducts } from '@/components/discover/TrendingProducts';
-import { StreakTracker } from '@/components/growth/StreakTracker';
-import { LiveActivityFeed } from '@/components/growth/LiveActivityFeed';
-import { SuccessStoriesCarousel } from '@/components/growth/SuccessStoriesCarousel';
 import { GrowthTipsWidget } from '@/components/growth/GrowthTipsWidget';
-import { UserProgressDashboard } from '@/components/growth/UserProgressDashboard';
 import AmbassadorDashboard from '@/pages/AmbassadorDashboard';
 import UserDashboard from '@/pages/UserDashboard';
 import { useI18n } from '@/i18n/I18nContext';
@@ -65,7 +60,6 @@ export default function DashboardRouter() {
     staleTime: 60_000,
   });
 
-  // Check if user has created a book (digital product)
   const { data: bookCount } = useQuery({
     queryKey: ['user-book-count', user?.id],
     queryFn: async () => {
@@ -80,7 +74,6 @@ export default function DashboardRouter() {
     staleTime: 60_000,
   });
 
-  // Still loading
   if (isLoadingOrgs || (!hasManageableOrg && isLoadingAff)) {
     return (
       <div className="container max-w-2xl px-4 py-8 space-y-4">
@@ -119,7 +112,6 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
   const actions = [
     {
       icon: PenLine,
-      emoji: '✏️',
       title: t('dash.write_first'),
       desc: t('dash.write_first_desc'),
       to: '/ecrire',
@@ -128,7 +120,6 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
     },
     {
       icon: Share2,
-      emoji: '💰',
       title: t('dash.earn_sharing'),
       desc: t('dash.earn_sharing_desc'),
       to: '/gagner',
@@ -137,7 +128,6 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
     },
     {
       icon: Upload,
-      emoji: '📤',
       title: t('dash.import_content'),
       desc: t('dash.import_content_desc'),
       to: '/migrer',
@@ -146,7 +136,6 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
     },
     {
       icon: Store,
-      emoji: '🛒',
       title: t('dash.discover_resources'),
       desc: t('dash.discover_resources_desc'),
       to: '/discover',
@@ -157,6 +146,7 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
 
   return (
     <div className="container max-w-2xl px-4 py-8 space-y-6">
+      {/* ═══ ZONE 1 — Bienvenue ═══ */}
       <div>
         <h1 className="text-2xl font-extrabold">
           {t('dash.welcome')}{name ? ` ${name}` : ''} ! 🎉
@@ -164,7 +154,7 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
         <p className="text-muted-foreground text-sm mt-1">{t('dash.what_today')}</p>
       </div>
 
-      {/* First Win Checklist */}
+      {/* ═══ ZONE 2 — Checklist premier succès ═══ */}
       <FirstWinChecklist
         hasBook={hasBook}
         hasAffiliateLink={false}
@@ -172,10 +162,7 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
         hasOrg={userOrgs.length > 0}
       />
 
-      {/* Streak tracker */}
-      <StreakTracker />
-
-      {/* Action cards */}
+      {/* ═══ ZONE 3 — Actions principales ═══ */}
       <div className="grid gap-3">
         {actions.map(a => (
           <Link
@@ -187,7 +174,7 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
               <a.icon className="h-5 w-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-sm">{a.emoji} {a.title}</h3>
+              <h3 className="font-bold text-sm">{a.title}</h3>
               <p className="text-xs text-muted-foreground mt-0.5">{a.desc}</p>
             </div>
             <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:translate-x-1 transition-transform" />
@@ -195,25 +182,16 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
         ))}
       </div>
 
-      {/* Viral loop card */}
-      <ViralLoopCard />
-
-      {/* Success stories — social proof */}
-      <SuccessStoriesCarousel limit={3} />
-
-      {/* Invite & Earn */}
-      <InviteEarnWidget />
-
-      {/* Growth tips */}
-      <GrowthTipsWidget category="all" />
-
-      {/* Trending products */}
+      {/* ═══ ZONE 4 — Produits tendance (preuve sociale) ═══ */}
       <TrendingProducts limit={4} />
 
-      {/* Live activity feed */}
-      <LiveActivityFeed limit={4} />
+      {/* ═══ ZONE 5 — Invite & Earn ═══ */}
+      <InviteEarnWidget />
 
-      {/* Quick stats bar */}
+      {/* ═══ ZONE 6 — Tips ═══ */}
+      <GrowthTipsWidget category="all" />
+
+      {/* ═══ ZONE 7 — Stats rapides ═══ */}
       <div className="flex items-center justify-center gap-6 pt-4 text-center">
         <div>
           <p className="text-2xl font-extrabold text-primary">5 min</p>
