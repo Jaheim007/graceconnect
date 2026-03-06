@@ -6,11 +6,6 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
 
-/**
- * PublicTopBar — Universe 1: Buyer / Public
- * Shows: Logo, Mes achats (if logged in), Login
- * Does NOT show: ModeSwitch, notifications, admin links
- */
 export function PublicTopBar() {
   const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
@@ -29,7 +24,7 @@ export function PublicTopBar() {
       {user && (
         <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5" onClick={() => navigate('/resources')}>
           <BookOpen className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Mes achats</span>
+          <span className="hidden sm:inline">{t('topbar.my_purchases')}</span>
         </Button>
       )}
 

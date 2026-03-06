@@ -1,73 +1,72 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { PenLine, Share2, Upload, ShoppingBag, ArrowRight } from 'lucide-react';
-import { SiteLogo } from '@/components/ui/SiteLogo';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useAuth } from '@/contexts/AuthContext';
-
-const intents = [
-  {
-    key: 'writer',
-    icon: PenLine,
-    emoji: '✏️',
-    title: 'Écrire mon livre',
-    desc: 'L\'IA t\'aide à écrire et publier en 5 minutes.',
-    color: 'border-primary/30 hover:border-primary',
-    iconBg: 'bg-primary/10',
-    iconColor: 'text-primary',
-    badge: null,
-    route: '/ecrire',
-  },
-  {
-    key: 'ambassador',
-    icon: Share2,
-    emoji: '💰',
-    title: 'Gagner en partageant',
-    desc: 'Partage des produits. Touche 5-50% de commission.',
-    color: 'border-emerald-500/30 hover:border-emerald-500',
-    iconBg: 'bg-emerald-500/10',
-    iconColor: 'text-emerald-500',
-    badge: '🔥 Populaire',
-    route: '/gagner',
-  },
-  {
-    key: 'creator',
-    icon: Upload,
-    emoji: '📤',
-    title: 'Importer mon contenu',
-    desc: 'Tu as déjà un ebook ou un PDF ? Vends-le ici.',
-    color: 'border-accent/30 hover:border-accent',
-    iconBg: 'bg-accent/10',
-    iconColor: 'text-accent',
-    badge: null,
-    route: '/migrer',
-  },
-  {
-    key: 'buyer',
-    icon: ShoppingBag,
-    emoji: '🛒',
-    title: 'Explorer les ressources',
-    desc: 'Découvre des livres, formations et plus.',
-    color: 'border-border hover:border-primary/30',
-    iconBg: 'bg-muted',
-    iconColor: 'text-muted-foreground',
-    badge: null,
-    route: '/discover',
-  },
-];
+import { SiteLogo } from '@/components/ui/SiteLogo';
+import { useI18n } from '@/i18n/I18nContext';
 
 export default function WelcomeIntentPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
+  const { t } = useI18n();
   const intentParam = searchParams.get('intent');
 
-  // If there's a redirect intent from auth, go there directly
-  const matchedIntent = intents.find(i => i.key === intentParam);
+  const intents = [
+    {
+      key: 'writer',
+      icon: PenLine,
+      emoji: '✏️',
+      title: t('welcome.write'),
+      desc: t('welcome.write_desc'),
+      color: 'border-primary/30 hover:border-primary',
+      iconBg: 'bg-primary/10',
+      iconColor: 'text-primary',
+      badge: null,
+      route: '/ecrire',
+    },
+    {
+      key: 'ambassador',
+      icon: Share2,
+      emoji: '💰',
+      title: t('welcome.earn'),
+      desc: t('welcome.earn_desc'),
+      color: 'border-emerald-500/30 hover:border-emerald-500',
+      iconBg: 'bg-emerald-500/10',
+      iconColor: 'text-emerald-500',
+      badge: t('welcome.earn_badge'),
+      route: '/gagner',
+    },
+    {
+      key: 'creator',
+      icon: Upload,
+      emoji: '📤',
+      title: t('welcome.import'),
+      desc: t('welcome.import_desc'),
+      color: 'border-accent/30 hover:border-accent',
+      iconBg: 'bg-accent/10',
+      iconColor: 'text-accent',
+      badge: null,
+      route: '/migrer',
+    },
+    {
+      key: 'buyer',
+      icon: ShoppingBag,
+      emoji: '🛒',
+      title: t('welcome.explore'),
+      desc: t('welcome.explore_desc'),
+      color: 'border-border hover:border-primary/30',
+      iconBg: 'bg-muted',
+      iconColor: 'text-muted-foreground',
+      badge: null,
+      route: '/discover',
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <SEOHead title="Bienvenue — SiteViral" description="Que veux-tu faire sur SiteViral ?" noindex />
+      <SEOHead title={`${t('welcome.title')} — SiteViral`} description={t('welcome.subtitle')} noindex />
       <div className="w-full max-w-md">
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -84,10 +83,10 @@ export default function WelcomeIntentPage() {
             <SiteLogo size="xl" linked={false} />
           </motion.div>
           <h1 className="text-2xl sm:text-3xl font-extrabold mb-2">
-            Bienvenue{user?.user_metadata?.display_name ? ` ${user.user_metadata.display_name}` : ''} !
+            {t('welcome.title')}{user?.user_metadata?.display_name ? ` ${user.user_metadata.display_name}` : ''} !
           </h1>
           <p className="text-muted-foreground text-sm">
-            Que veux-tu faire ? Tu pourras toujours changer plus tard.
+            {t('welcome.subtitle')}
           </p>
         </motion.div>
 
@@ -99,7 +98,6 @@ export default function WelcomeIntentPage() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 + i * 0.08, duration: 0.3 }}
               onClick={() => {
-                // Persist intent to profile
                 if (user) {
                   import('@/lib/db').then(({ db }) => {
                     db.from('profiles').update({ onboarding_intent: intent.key }).eq('id', user.id);

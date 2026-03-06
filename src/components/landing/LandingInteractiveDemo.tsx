@@ -3,20 +3,18 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PenLine, Sparkles, ArrowRight, BookOpen, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { useI18n } from '@/i18n/I18nContext';
 
-const DEMO_STEPS = [
-  { label: 'Choisis un sujet', preview: '💡 "Guide pratique pour lancer un business en Afrique"', icon: PenLine },
-  { label: 'L\'IA écrit pour toi', preview: '✍️ 20 pages de contenu professionnel généré en 30 secondes...', icon: Sparkles },
-  { label: 'Ton livre est prêt !', preview: '📖 Couverture + PDF + Page de vente — tout automatisé', icon: BookOpen },
-];
-
-/**
- * Interactive mini-demo on the landing page showing 
- * the 3-step book creation flow.
- */
 export function LandingInteractiveDemo() {
   const [activeStep, setActiveStep] = useState(0);
   const navigate = useNavigate();
+  const { t } = useI18n();
+
+  const DEMO_STEPS = [
+    { label: t('demo.step1'), preview: t('demo.step1_preview'), icon: PenLine },
+    { label: t('demo.step2'), preview: t('demo.step2_preview'), icon: Sparkles },
+    { label: t('demo.step3'), preview: t('demo.step3_preview'), icon: BookOpen },
+  ];
 
   return (
     <section className="py-16 px-4 bg-muted/20 border-y border-border">
@@ -28,14 +26,13 @@ export function LandingInteractiveDemo() {
           className="text-center mb-10"
         >
           <h2 className="text-2xl sm:text-3xl font-extrabold">
-            Regarde comment ça marche
+            {t('demo.title')}
           </h2>
           <p className="text-sm text-muted-foreground mt-2">
-            De l'idée au livre en vente — en 5 minutes.
+            {t('demo.subtitle')}
           </p>
         </motion.div>
 
-        {/* Steps selector */}
         <div className="flex gap-2 justify-center mb-8">
           {DEMO_STEPS.map((step, i) => (
             <button
@@ -49,12 +46,11 @@ export function LandingInteractiveDemo() {
             >
               <step.icon className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{step.label}</span>
-              <span className="sm:hidden">Étape {i + 1}</span>
+              <span className="sm:hidden">{t('demo.step_label')} {i + 1}</span>
             </button>
           ))}
         </div>
 
-        {/* Demo preview */}
         <AnimatePresence mode="wait">
           <motion.div
             key={activeStep}
@@ -68,7 +64,7 @@ export function LandingInteractiveDemo() {
               {(() => { const Icon = DEMO_STEPS[activeStep].icon; return <Icon className="h-7 w-7 text-primary" />; })()}
             </div>
             <p className="text-xs font-bold text-primary uppercase tracking-wider mb-2">
-              Étape {activeStep + 1} / 3
+              {t('demo.step_label')} {activeStep + 1} / 3
             </p>
             <p className="text-lg font-bold mb-2">{DEMO_STEPS[activeStep].label}</p>
             <p className="text-sm text-muted-foreground max-w-md">{DEMO_STEPS[activeStep].preview}</p>
@@ -80,7 +76,7 @@ export function LandingInteractiveDemo() {
                 className="mt-4 gap-1.5 text-xs"
                 onClick={() => setActiveStep(s => s + 1)}
               >
-                Étape suivante <ArrowRight className="h-3.5 w-3.5" />
+                {t('demo.next_step')} <ArrowRight className="h-3.5 w-3.5" />
               </Button>
             ) : (
               <Button
@@ -88,7 +84,7 @@ export function LandingInteractiveDemo() {
                 className="mt-4 gap-1.5"
                 onClick={() => navigate('/ecrire')}
               >
-                ✏️ Essayer maintenant <ArrowRight className="h-3.5 w-3.5" />
+                {t('demo.try_now')} <ArrowRight className="h-3.5 w-3.5" />
               </Button>
             )}
           </motion.div>

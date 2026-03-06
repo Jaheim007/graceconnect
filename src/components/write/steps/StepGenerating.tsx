@@ -3,12 +3,6 @@ import { Loader2, CheckCircle, Sparkles } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import type { WriteState } from '../WriteWizard';
 
-const CHAPTER_TEMPLATES: Record<string, string[]> = {
-  ebook: ['Introduction', 'Chapitre 1 : Les fondamentaux', 'Chapitre 2 : Aller plus loin', 'Chapitre 3 : Mise en pratique', 'Chapitre 4 : Études de cas', 'Chapitre 5 : Stratégies avancées', 'Conclusion'],
-  guide: ['Avant de commencer', 'Étape 1 : Préparation', 'Étape 2 : Mise en œuvre', 'Étape 3 : Optimisation', 'Étape 4 : Résultats', 'Ressources complémentaires', 'Prochaines étapes'],
-  prayers: ['Ouverture', 'Prière du matin', 'Méditation de gratitude', 'Prière de guérison', 'Prière de protection', 'Prière du soir', 'Bénédiction finale'],
-};
-
 interface Props {
   state: WriteState;
   update: (patch: Partial<WriteState>) => void;
@@ -31,7 +25,10 @@ export function StepGenerating({ state, update, onNext }: Props) {
     '🚀 ' + t('write.book_created').replace('✅ ', ''),
   ];
 
-  const chapters = CHAPTER_TEMPLATES[state.style] || CHAPTER_TEMPLATES.ebook;
+  // Get chapters from i18n
+  const chapterKey = `write.ch_${state.style}` as string;
+  const chapterStr = t(chapterKey);
+  const chapters = chapterStr !== chapterKey ? chapterStr.split(',') : t('write.ch_ebook').split(',');
 
   useEffect(() => {
     const totalDuration = 6000;
@@ -80,7 +77,6 @@ export function StepGenerating({ state, update, onNext }: Props) {
         </p>
       </div>
 
-      {/* Progress bar */}
       <div className="max-w-sm mx-auto space-y-2">
         <div className="h-3 bg-muted rounded-full overflow-hidden">
           <div
@@ -91,7 +87,6 @@ export function StepGenerating({ state, update, onNext }: Props) {
         <p className="text-xs text-muted-foreground">{Math.round(progress)}%</p>
       </div>
 
-      {/* Chapters appearing */}
       <div className="text-left max-w-sm mx-auto space-y-2">
         {visibleChapters.map((ch, i) => (
           <div
@@ -105,7 +100,7 @@ export function StepGenerating({ state, update, onNext }: Props) {
       </div>
 
       <p className="text-xs text-muted-foreground">
-        « <strong className="text-foreground">{state.title || 'Mon livre'}</strong> » — {state.pageCount} pages
+        « <strong className="text-foreground">{state.title || t('write.my_book')}</strong> » — {state.pageCount} {t('write.pages')}
       </p>
     </div>
   );

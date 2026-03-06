@@ -40,7 +40,7 @@ export function Sidebar() {
   const { currentOrg, canManage, userOrgs, getRoleFor, setCurrentOrg } = useOrg();
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const { t } = useI18n();
-  const hasAmbassadorAccess = true; // unified: always show ambassador nav
+  const hasAmbassadorAccess = true;
   const { data: myPartner } = useMyPartner();
   const isApprovedPartner = myPartner?.status === 'approved';
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
@@ -50,35 +50,32 @@ export function Sidebar() {
   const hasOrgs = userOrgs.length > 0;
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
 
-  // ── SECTION 1: MON ESPACE (always visible) ──
   const mySpaceItems: NavItem[] = [
-    { to: '/dashboard', icon: Home, label: 'Accueil', desc: 'Vue d\'ensemble' },
-    { to: '/resources', icon: Package, label: 'Mes achats', desc: 'Ressources achetées' },
-    { to: '/my-donations', icon: Heart, label: 'Mes dons', desc: 'Dons et campagnes' },
-    { to: '/marketplace', icon: Store, label: 'Découvrir', desc: 'Explorer les produits' },
-    { to: '/notifications', icon: Bell, label: 'Notifications', desc: 'Mises à jour' },
-    { to: '/profile', icon: User, label: 'Profil', desc: 'Mon compte' },
+    { to: '/dashboard', icon: Home, label: t('sidebar.home'), desc: t('sidebar.home_desc') },
+    { to: '/resources', icon: Package, label: t('sidebar.purchases'), desc: t('sidebar.purchases_desc') },
+    { to: '/my-donations', icon: Heart, label: t('sidebar.my_donations'), desc: t('sidebar.my_donations_desc') },
+    { to: '/marketplace', icon: Store, label: t('sidebar.discover'), desc: t('sidebar.discover_desc') },
+    { to: '/notifications', icon: Bell, label: t('sidebar.notifications'), desc: t('sidebar.notifications_desc') },
+    { to: '/profile', icon: User, label: t('sidebar.profile'), desc: t('sidebar.profile_desc') },
   ];
 
-  // ── SECTION 2: GAGNER (ambassador) ──
   const earnItems: NavItem[] = [
-    { to: '/affiliation', icon: Link2, label: 'Gagner en partageant', desc: 'Liens de partage et commissions' },
+    { to: '/affiliation', icon: Link2, label: t('sidebar.earn_sharing'), desc: t('sidebar.earn_sharing_desc') },
   ];
 
-  // ── SECTION 3: MA PLATEFORME (creator, only if has orgs) ──
   const platformOverview: NavItem[] = [
     { to: '/admin', icon: BarChart3, label: t('sidebar.overview') },
   ];
 
   const platformGroups: NavGroup[] = [
     {
-      label: 'Studio IA',
+      label: t('sidebar.ai_studio'),
       icon: Sparkles,
       key: 'Studio',
       items: [
-        { to: '/admin/studio', icon: Sparkles, label: 'Studio IA', comingSoon: true },
-        { to: '/admin/studio/projects', icon: BookOpen, label: 'Projets', comingSoon: true },
-        { to: '/admin/studio/jobs', icon: BarChart3, label: 'Tâches IA', comingSoon: true },
+        { to: '/admin/studio', icon: Sparkles, label: t('sidebar.ai_studio'), comingSoon: true },
+        { to: '/admin/studio/projects', icon: BookOpen, label: t('sidebar.ai_projects'), comingSoon: true },
+        { to: '/admin/studio/jobs', icon: BarChart3, label: t('sidebar.ai_jobs'), comingSoon: true },
       ],
     },
     {
@@ -98,12 +95,12 @@ export function Sidebar() {
       key: 'Commerce',
       items: [
         { to: '/admin/products', icon: ShoppingBag, label: t('sidebar.products') },
-        { to: '/admin/offerings', icon: HandHeart, label: 'Dons' },
+        { to: '/admin/offerings', icon: HandHeart, label: t('sidebar.offerings') },
         { to: '/admin/campaigns', icon: Heart, label: t('sidebar.campaigns') },
-        { to: '/admin/affiliation', icon: Link2, label: 'Ambassadeurs' },
+        { to: '/admin/affiliation', icon: Link2, label: t('sidebar.ambassadors') },
         { to: '/admin/promo-codes', icon: FileCheck, label: t('sidebar.promo_codes') },
         { to: '/admin/subscriptions', icon: CreditCard, label: t('sidebar.subscriptions') },
-        { to: '/admin/sales', icon: Wallet, label: 'Ventes' },
+        { to: '/admin/sales', icon: Wallet, label: t('sidebar.sales') },
         { to: '/admin/waitlists', icon: Clock, label: t('sidebar.waitlists') },
       ],
     },
@@ -119,7 +116,7 @@ export function Sidebar() {
         { to: '/admin/analytics', icon: BarChart3, label: t('sidebar.analytics') },
         { to: '/admin/kyc', icon: FileCheck, label: t('sidebar.verification') },
         { to: '/admin/settings', icon: Settings, label: t('sidebar.settings') },
-        { to: '/admin/programs', icon: GraduationCap, label: 'Programmes' },
+        { to: '/admin/programs', icon: GraduationCap, label: t('sidebar.programs') },
       ],
     },
   ];
@@ -148,7 +145,7 @@ export function Sidebar() {
           {!collapsed && (
             <>
               <span className="truncate">{item.label}</span>
-              <span className="ml-auto text-[9px] font-semibold uppercase tracking-wider bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full shrink-0">Bientôt</span>
+              <span className="ml-auto text-[9px] font-semibold uppercase tracking-wider bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full shrink-0">{t('sidebar.coming_soon')}</span>
             </>
           )}
         </div>
@@ -160,7 +157,7 @@ export function Sidebar() {
             <TooltipTrigger asChild>{comingSoonEl}</TooltipTrigger>
             <TooltipContent side="right">
               <p className="font-semibold text-xs">{item.label}</p>
-              <p className="text-[11px] text-muted-foreground">Bientôt disponible</p>
+              <p className="text-[11px] text-muted-foreground">{t('sidebar.coming_soon_long')}</p>
             </TooltipContent>
           </Tooltip>
         );
@@ -249,7 +246,6 @@ export function Sidebar() {
     </>
   );
 
-  // Superadmin nav
   const isSA = location.pathname.startsWith('/superadmin');
   const superadminNav: NavItem[] = [
     { to: '/superadmin', icon: Shield, label: t('sidebar.overview') },
@@ -268,12 +264,10 @@ export function Sidebar() {
         collapsed ? 'w-16' : 'w-60'
       )}
     >
-      {/* Logo */}
       <div className={cn('flex items-center h-16 px-4 border-b border-border', collapsed && 'justify-center px-0')}>
         <SiteLogo size={collapsed ? 'sm' : 'md'} animate />
       </div>
 
-      {/* Org context (creator section) — with org switcher */}
       {hasOrgs && currentOrg && !collapsed && (
         <div className="mx-3 mt-3">
           {(() => {
@@ -314,42 +308,37 @@ export function Sidebar() {
         </div>
       )}
 
-      {/* Nav */}
       <nav className="flex-1 overflow-y-auto py-1 px-2 space-y-0.5 scrollbar-hide">
         {isSA ? (
           superadminNav.map(renderNavItem)
         ) : (
           <>
-            {/* ═══ SECTION 1: MON ESPACE ═══ */}
-            {renderSectionLabel(Home, 'Mon espace')}
+            {renderSectionLabel(Home, t('sidebar.my_space'))}
             <div className="space-y-0.5">
               {mySpaceItems.map(renderNavItem)}
             </div>
 
-            {/* ═══ SECTION 2: GAGNER ═══ */}
             {hasAmbassadorAccess && (
               <>
-                {renderSectionLabel(Share2, 'Gagner', 'text-emerald-500')}
+                {renderSectionLabel(Share2, t('sidebar.earn'), 'text-emerald-500')}
                 <div className="space-y-0.5">
                   {earnItems.map(renderNavItem)}
                 </div>
               </>
             )}
 
-            {/* ═══ PARTENAIRE ═══ */}
             {isApprovedPartner && (
               <>
-                {renderSectionLabel(Handshake, 'Partenaire', 'text-blue-500')}
+                {renderSectionLabel(Handshake, t('sidebar.partner'), 'text-blue-500')}
                 <div className="space-y-0.5">
-                  {renderNavItem({ to: '/partner', icon: Handshake, label: 'Espace Partenaire', desc: 'Commissions et organisations' })}
+                  {renderNavItem({ to: '/partner', icon: Handshake, label: t('sidebar.partner_space'), desc: t('sidebar.partner_space_desc') })}
                 </div>
               </>
             )}
 
-            {/* ═══ SECTION 3: MON ESPACE CRÉATEUR ═══ */}
             {hasOrgs && canManageCurrentOrg && (
               <>
-                {renderSectionLabel(Building2, 'Mon espace créateur', 'text-primary')}
+                {renderSectionLabel(Building2, t('sidebar.creator_space'), 'text-primary')}
                 <div className="space-y-0.5">
                   {platformOverview.map(renderNavItem)}
                 </div>
@@ -359,15 +348,13 @@ export function Sidebar() {
           </>
         )}
 
-        {/* Superadmin link */}
         {isSuperadmin && !isSA && !collapsed && (
           <div className="mt-3">
-            {renderNavItem({ to: '/superadmin', icon: Shield, label: 'Superadmin', desc: 'Panneau superadmin' })}
+            {renderNavItem({ to: '/superadmin', icon: Shield, label: 'Superadmin' })}
           </div>
         )}
       </nav>
 
-      {/* Bottom: Sign out */}
       <div className={cn('border-t border-border space-y-0.5', collapsed ? 'px-1 py-2' : 'px-3 py-3')}>
         <button
           onClick={signOut}
@@ -377,11 +364,10 @@ export function Sidebar() {
           )}
         >
           <LogOut className="h-4 w-4 shrink-0" />
-          {!collapsed && <span>Déconnexion</span>}
+          {!collapsed && <span>{t('sidebar.sign_out')}</span>}
         </button>
       </div>
 
-      {/* Collapse toggle */}
       <button
         onClick={() => setCollapsed(!collapsed)}
         className="flex items-center justify-center h-10 w-full border-t border-border text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
