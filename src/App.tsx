@@ -79,6 +79,7 @@ const QuickStartPage = lazy(() => import("@/pages/QuickStartPage"));
 const QuickPublishPage = lazy(() => import("@/pages/QuickPublishPage"));
 const GagnerLandingPage = lazy(() => import("@/pages/GagnerLandingPage"));
 const EcrirePage = lazy(() => import("@/pages/EcrirePage"));
+const MigrerPage = lazy(() => import("@/pages/MigrerPage"));
 const CanvaCallbackPage = lazy(() => import("@/pages/canva/CanvaCallback"));
 const VendreLandingPage = lazy(() => import("@/pages/VendreLandingPage"));
 const TemoignagesPage = lazy(() => import("@/pages/TemoignagesPage"));
@@ -345,6 +346,7 @@ const App = () => (
                 <Route path="/maintenance" element={<MaintenancePage />} />
                 <Route path="/gagner" element={<GagnerLandingPage />} />
                 <Route path="/ecrire" element={<EcrirePage />} />
+                <Route path="/migrer" element={<MigrerPage />} />
                 <Route path="/vendre" element={<VendreLandingPage />} />
                 <Route path="/explorer" element={<Navigate to="/discover" replace />} />
                 <Route path="/hub" element={<Navigate to="/discover" replace />} />
