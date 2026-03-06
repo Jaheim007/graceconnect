@@ -187,6 +187,123 @@ function getInstruction(map: Record<string, Record<string, string>>, lang: strin
   return langMap[key] || langMap[fallbackKey] || Object.values(langMap)[0] || '';
 }
 
+const MAX_CHAPTERS = 8;
+const MIN_CHAPTERS = 3;
+
+function extractJsonObjectCandidate(raw: string): string | null {
+  const text = raw.trim();
+  const start = text.indexOf('{');
+  if (start < 0) return null;
+
+  let inString = false;
+  let escaped = false;
+  let depth = 0;
+
+  for (let i = start; i < text.length; i++) {
+    const char = text[i];
+
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+
+    if (char === '\\') {
+      escaped = true;
+      continue;
+    }
+
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+
+    if (inString) continue;
+
+    if (char === '{') depth += 1;
+    if (char === '}') {
+      depth -= 1;
+      if (depth === 0) return text.slice(start, i + 1);
+    }
+  }
+
+  return null;
+}
+
+function parseCandidate(candidate: string): any | null {
+  const cleaned = candidate
+    .replace(/```[\w]*\n?/gi, '')
+    .replace(/```\n?/g, '')
+    .replace(/,\s*([}\]])/g, '$1')
+    .trim();
+
+  if (!cleaned) return null;
+
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    return null;
+  }
+}
+
+function tryParsePayload(raw: string): any | null {
+  const direct = parseCandidate(raw);
+  if (direct) return direct;
+
+  const candidate = extractJsonObjectCandidate(raw);
+  if (!candidate) return null;
+
+  return parseCandidate(candidate);
+}
+
+function normalizeGeneratedChapters(parsed: any): { id: string; title: string; content: string }[] {
+  const chapters = Array.isArray(parsed?.chapters) ? parsed.chapters : [];
+
+  return chapters
+    .map((chapter: any, index: number) => ({
+      id: typeof chapter?.id === 'string' && chapter.id.trim().length > 0 ? chapter.id.trim() : `ch-${index + 1}`,
+      title: typeof chapter?.title === 'string' ? chapter.title.trim() : '',
+      content: typeof chapter?.content === 'string' ? chapter.content.trim() : '',
+    }))
+    .filter((chapter: { id: string; title: string; content: string }) => chapter.title.length > 0 && chapter.content.length > 30);
+}
+
+async function repairJsonWithAi(apiKey: string, rawContent: string, chapterCount: number): Promise<any | null> {
+  const repairRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'google/gemini-2.5-flash',
+      messages: [
+        {
+          role: 'system',
+          content: `You repair malformed JSON only. Return ONLY valid JSON with this shape: {"chapters":[{"id":"ch-1","title":"...","content":"<p>...</p>"}]}. Keep HTML in content. Do not summarize.`,
+        },
+        {
+          role: 'user',
+          content: `Repair this malformed payload into valid JSON. Keep as much original content as possible. Expected chapter count around ${chapterCount}.\n\n${rawContent.slice(0, 80000)}`,
+        },
+      ],
+    }),
+  });
+
+  if (!repairRes.ok) return null;
+  const repairData = await repairRes.json().catch(() => null);
+  const repairedRaw = repairData?.choices?.[0]?.message?.content || '';
+  return tryParsePayload(repairedRaw);
+}
+
+function isAbortError(error: unknown): boolean {
+  if (error instanceof DOMException && error.name === 'AbortError') return true;
+  if (error instanceof Error && error.name === 'AbortError') return true;
+  if (typeof error === 'object' && error !== null && 'name' in error) {
+    return (error as { name?: string }).name === 'AbortError';
+  }
+  return false;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
@@ -208,8 +325,15 @@ Deno.serve(async (req) => {
 
     const lang = language || 'fr';
     const langName = langNameMap[lang] || langNameMap['fr'];
-    const pages = pageCount || 20;
-    const chapterCount = singleChapter ? 1 : Math.max(3, Math.min(12, Math.round(pages / 3)));
+    const pages = Number(pageCount) > 0 ? Number(pageCount) : 20;
+    const chapterCount = singleChapter
+      ? 1
+      : Math.max(MIN_CHAPTERS, Math.min(MAX_CHAPTERS, Math.round(pages / 5)));
+    const chapterWordTarget = singleChapter
+      ? '450-700'
+      : chapterCount >= 6
+        ? '320-520'
+        : '420-650';
 
     const _tone = tone || 'professional';
     const _level = languageLevel || 'intermediate';
@@ -254,7 +378,7 @@ MANDATORY ANALYSIS AND APPLICATION:
       ? `Tu es un AUTEUR PROFESSIONNEL de renommée internationale. Tu rédiges des livres complets, captivants et de très haute qualité littéraire en ${langName}.
 
 RÈGLES D'ÉCRITURE FONDAMENTALES :
-1. Chaque chapitre DOIT être un texte riche, détaillé et immersif de 500-800 mots minimum
+1. Chaque chapitre DOIT être un texte riche, détaillé et immersif d'environ ${chapterWordTarget} mots
 2. JAMAIS de contenu superficiel ou générique - chaque phrase doit apporter de la valeur
 3. Utilise des exemples concrets, des anecdotes, des histoires vraies ou plausibles
 4. Crée des transitions fluides et élégantes entre les paragraphes et chapitres
@@ -286,7 +410,7 @@ FORMAT DE SORTIE : Retourne un JSON valide. Pas de markdown, pas de code fences.
       : `You are a WORLD-CLASS PROFESSIONAL AUTHOR. You write complete, captivating, and exceptionally high-quality books in ${langName}.
 
 FUNDAMENTAL WRITING RULES:
-1. Each chapter MUST be a rich, detailed and immersive text of 500-800 words minimum
+1. Each chapter MUST be a rich, detailed and immersive text of around ${chapterWordTarget} words
 2. NEVER superficial or generic content - every sentence must add value
 3. Use concrete examples, anecdotes, true or plausible stories
 4. Create smooth and elegant transitions between paragraphs and chapters
@@ -330,7 +454,7 @@ Retourne UNIQUEMENT un JSON avec cette structure :
   ]
 }
 
-Le contenu doit faire 500-900 mots en HTML riche avec sous-titres <h3>, paragraphes <p>, mots-clés en <strong>, citations en <blockquote>, listes <ul><li> si pertinent.`
+Le contenu doit faire environ ${chapterWordTarget} mots en HTML riche avec sous-titres <h3>, paragraphes <p>, mots-clés en <strong>, citations en <blockquote>, listes <ul><li> si pertinent.`
         : `${topic}
 
 Return ONLY a JSON with this structure:
@@ -340,7 +464,7 @@ Return ONLY a JSON with this structure:
   ]
 }
 
-Content should be 500-900 words in rich HTML with sub-headings <h3>, paragraphs <p>, keywords in <strong>, quotes in <blockquote>, lists <ul><li> when relevant.`;
+Content should be around ${chapterWordTarget} words in rich HTML with sub-headings <h3>, paragraphs <p>, keywords in <strong>, quotes in <blockquote>, lists <ul><li> when relevant.`;
     } else {
       userPrompt = lang === 'fr'
         ? `Crée un livre COMPLET et CAPTIVANT sur le sujet suivant :
@@ -352,7 +476,7 @@ LANGUE D'ÉCRITURE : ${langName}
 CONSIGNES DÉTAILLÉES :
 - Crée exactement ${chapterCount} chapitres qui explorent chaque facette importante de CE sujet
 - Les titres de chapitres doivent être CRÉATIFS, ACCROCHEURS et directement liés au sujet "${topic || title}"
-- Chaque chapitre : 500-800 mots de contenu RICHE en HTML
+- Chaque chapitre : environ ${chapterWordTarget} mots de contenu RICHE en HTML
 - Le contenu doit être SUBSTANTIEL : exemples réels, anecdotes, données, citations pertinentes
 - Chapitre 1 : Introduction percutante qui pose le contexte, l'enjeu et donne envie de lire la suite
 - Chapitres intermédiaires : Exploration approfondie, chaque chapitre un angle unique
@@ -369,7 +493,7 @@ Retourne UNIQUEMENT un JSON valide :
   ]
 }
 
-RAPPEL CRITIQUE : Livre de ${pages} pages sur "${topic || title}". Chaque chapitre = 500-800 mots MINIMUM. Qualité professionnelle. Zéro contenu générique.`
+RAPPEL CRITIQUE : Livre de ${pages} pages sur "${topic || title}". Chaque chapitre ≈ ${chapterWordTarget} mots. Qualité professionnelle. Zéro contenu générique.`
         : `Create a COMPLETE and CAPTIVATING book on the following topic:
 
 TITLE: "${title}"
@@ -379,7 +503,7 @@ WRITING LANGUAGE: ${langName}
 DETAILED INSTRUCTIONS:
 - Create exactly ${chapterCount} chapters exploring every important facet of THIS topic
 - Chapter titles must be CREATIVE, CATCHY and directly related to "${topic || title}"
-- Each chapter: 500-800 words of RICH HTML content
+- Each chapter: around ${chapterWordTarget} words of RICH HTML content
 - Content must be SUBSTANTIAL: real examples, anecdotes, data, relevant quotes
 - Chapter 1: Powerful introduction setting context, stakes and making readers want more
 - Middle chapters: Deep exploration, each chapter a unique angle
@@ -396,23 +520,41 @@ Return ONLY valid JSON:
   ]
 }
 
-CRITICAL REMINDER: ${pages}-page book on "${topic || title}". Each chapter = 500-800 words MINIMUM. Professional quality. Zero generic content.`;
+CRITICAL REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterWordTarget} words. Professional quality. Zero generic content.`;
     }
 
-    const aiRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
-        ],
-      }),
-    });
+    const requestTimeoutMs = singleChapter ? 50_000 : 85_000;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), requestTimeoutMs);
+
+    let aiRes: Response;
+    try {
+      aiRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
+          ],
+        }),
+        signal: controller.signal,
+      });
+    } catch (error) {
+      if (isAbortError(error)) {
+        return new Response(JSON.stringify({ error: 'Generation timeout. Please retry.' }), {
+          status: 504,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      throw error;
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!aiRes.ok) {
       if (aiRes.status === 429) {
@@ -435,27 +577,28 @@ CRITICAL REMINDER: ${pages}-page book on "${topic || title}". Each chapter = 500
     const aiData = await aiRes.json();
     const rawContent = aiData.choices?.[0]?.message?.content || '';
 
-    const cleaned = rawContent.replace(/```[\w]*\n?/gi, '').replace(/```\n?/g, '').trim();
-    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+    let parsed = tryParsePayload(rawContent);
+    if (!parsed) {
+      console.error('Direct parse failed, attempting AI JSON repair. Payload preview:', rawContent.slice(0, 500));
+      parsed = await repairJsonWithAi(LOVABLE_API_KEY, rawContent, chapterCount);
+    }
 
-    if (!jsonMatch) {
-      console.error('Failed to parse AI response:', rawContent.slice(0, 500));
+    if (!parsed) {
       return new Response(JSON.stringify({ error: 'Failed to parse AI response' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    try {
-      const parsed = JSON.parse(jsonMatch[0]);
-      return new Response(JSON.stringify(parsed), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    } catch (parseErr) {
-      console.error('JSON parse error:', parseErr);
-      return new Response(JSON.stringify({ error: 'Invalid AI response format' }), {
+    const normalizedChapters = normalizeGeneratedChapters(parsed);
+    if (normalizedChapters.length === 0) {
+      return new Response(JSON.stringify({ error: 'AI returned empty chapters' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    return new Response(JSON.stringify({ chapters: normalizedChapters }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   } catch (e) {
     console.error('generate-book-content error:', e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : 'Internal error' }), {

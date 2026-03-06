@@ -27,6 +27,17 @@ function normalizeChapters(chapters: WriteChapter[]): WriteChapter[] {
     .filter((chapter) => chapter.title.length > 0);
 }
 
+function htmlToPlainText(html: string, maxLength = 3500): string {
+  const text = html
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return text.length > maxLength ? `${text.slice(0, maxLength)}…` : text;
+}
+
 export function StepPreview({ state, update, onNext, onBack }: Props) {
   const { t } = useI18n();
   const { toast } = useToast();
@@ -81,30 +92,43 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
     update({ title: titleDraft, chapters: normalizedChapters });
   };
 
-  // AI chapter action: regenerate, amplify, or custom instruction
   const handleAiChapterAction = useCallback(async (action: 'regenerate' | 'amplify' | 'custom', customPrompt?: string) => {
     if (!currentChapter || aiLoading) return;
     setAiLoading(true);
+
     try {
-      const actionPrompts: Record<string, string> = {
-        regenerate: `Réécris entièrement ce chapitre en gardant le même thème "${currentChapter.title}" mais avec un contenu frais et différent. Le livre traite de "${state.topic || state.title}". Style: ${state.tone || 'professional'}, Niveau: ${state.languageLevel || 'intermediate'}, Public: ${state.targetAudience || 'general'}.`,
-        amplify: `Enrichis et développe ce chapitre. Ajoute plus de détails, d'exemples concrets, d'anecdotes, de citations ou de versets pertinents. Double au minimum la longueur du contenu tout en gardant la cohérence. Le livre traite de "${state.topic || state.title}". Style: ${state.tone || 'professional'}, Niveau: ${state.languageLevel || 'intermediate'}, Public: ${state.targetAudience || 'general'}.`,
-        custom: customPrompt || '',
+      const bookTitle = (state.title || t('write.my_book')).trim();
+      const bookTopic = (state.topic || state.title || currentChapter.title || '').trim();
+      const chapterBody = htmlToPlainText(currentChapter.content, 3500);
+
+      const actionInstruction: Record<'regenerate' | 'amplify' | 'custom', string> = {
+        regenerate: `Réécris entièrement le chapitre "${currentChapter.title}" avec un angle neuf mais fidèle au sujet du livre.`,
+        amplify: `Enrichis fortement le chapitre "${currentChapter.title}" avec plus de profondeur, d'exemples, et de valeur concrète.`,
+        custom: customPrompt?.trim() || '',
       };
 
-      const instruction = actionPrompts[action];
+      const instruction = actionInstruction[action];
       if (!instruction) return;
+
+      const topicPayload = [
+        `Contexte livre : titre "${bookTitle}", sujet "${bookTopic}".`,
+        `Format : ${state.style}. Ton : ${state.tone || 'professional'}. Niveau : ${state.languageLevel || 'intermediate'}. Public : ${state.targetAudience || 'general'}.`,
+        state.styleReference?.trim() ? `Référence de style prioritaire : ${state.styleReference.trim()}.` : '',
+        `Instruction : ${instruction}`,
+        action === 'regenerate' ? '' : `Contenu actuel à améliorer : ${chapterBody}`,
+      ].filter(Boolean).join('\n\n');
 
       const { data, error } = await supabase.functions.invoke('generate-book-content', {
         body: {
-          title: state.title,
-          topic: `${instruction}\n\nContenu actuel du chapitre "${currentChapter.title}":\n${currentChapter.content}`,
+          title: bookTitle,
+          topic: topicPayload,
           style: state.style,
           pageCount: 5,
           language: state.language || 'fr',
           tone: state.tone,
           languageLevel: state.languageLevel,
           targetAudience: state.targetAudience,
+          styleReference: state.styleReference || '',
           singleChapter: true,
           chapterTitle: currentChapter.title,
         },
@@ -114,13 +138,15 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
       if (data?.error) throw new Error(data.error);
 
       const aiChapters = data?.chapters;
-      if (Array.isArray(aiChapters) && aiChapters.length > 0) {
-        const newContent = aiChapters[0].content || '';
-        const newTitle = action === 'regenerate' ? (aiChapters[0].title || currentChapter.title) : currentChapter.title;
-        updateChapterContent(activeChapter, newContent);
-        if (action === 'regenerate') updateChapterTitle(activeChapter, newTitle);
-        toast({ title: '✅ ' + t('write.ai_chapter_updated') });
+      if (!Array.isArray(aiChapters) || aiChapters.length === 0 || !aiChapters[0]?.content) {
+        throw new Error('Réponse IA invalide pour ce chapitre');
       }
+
+      const newContent = aiChapters[0].content || '';
+      const newTitle = action === 'regenerate' ? (aiChapters[0].title || currentChapter.title) : currentChapter.title;
+      updateChapterContent(activeChapter, newContent);
+      if (action === 'regenerate') updateChapterTitle(activeChapter, newTitle);
+      toast({ title: '✅ ' + t('write.ai_chapter_updated') });
     } catch (err: any) {
       console.error('AI chapter action error:', err);
       toast({ title: '❌ Erreur', description: err.message, variant: 'destructive' });

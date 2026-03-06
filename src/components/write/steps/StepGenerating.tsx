@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Loader2, CheckCircle, Sparkles, BookOpen } from 'lucide-react';
+import { Loader2, CheckCircle, BookOpen } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { supabase } from '@/integrations/supabase/client';
 import type { WriteState, WriteChapter } from '../WriteWizard';
@@ -16,103 +17,160 @@ export function StepGenerating({ state, update, onNext }: Props) {
   const { t } = useI18n();
   const [phase, setPhase] = useState<Phase>('thinking');
   const [visibleChapters, setVisibleChapters] = useState<string[]>([]);
+  const [totalChapters, setTotalChapters] = useState(0);
   const [errorMsg, setErrorMsg] = useState('');
+  const [thinkingProgress, setThinkingProgress] = useState(12);
   const aborted = useRef(false);
   const ran = useRef(false);
+
+  useEffect(() => {
+    if (phase !== 'thinking') return;
+    const id = window.setInterval(() => {
+      setThinkingProgress((prev) => {
+        if (prev >= 65) return prev;
+        return prev + (prev < 35 ? 4 : 2);
+      });
+    }, 900);
+
+    return () => window.clearInterval(id);
+  }, [phase]);
+
+  const invokeGeneration = async (requestedPageCount: number) => {
+    const generationPromise = supabase.functions.invoke('generate-book-content', {
+      body: {
+        title: state.title || t('write.my_book'),
+        topic: state.topic || state.title || '',
+        style: state.style,
+        pageCount: requestedPageCount,
+        language: state.language || 'fr',
+        tone: state.tone || 'professional',
+        languageLevel: state.languageLevel || 'intermediate',
+        targetAudience: state.targetAudience || 'general',
+        styleReference: state.styleReference || '',
+      },
+    });
+
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      window.setTimeout(() => reject(new Error('Generation timeout. Please retry.')), 95_000);
+    });
+
+    return Promise.race([generationPromise, timeoutPromise]) as Promise<Awaited<typeof generationPromise>>;
+  };
+
+  const continueWithoutAi = () => {
+    const fallbackChapters: WriteChapter[] = [
+      { id: 'ch-1', title: 'Introduction', content: `<p>${t('write.fallback_content_hint')}</p>` },
+      { id: 'ch-2', title: 'Développement', content: `<p>${t('write.fallback_content_hint')}</p>` },
+      { id: 'ch-3', title: 'Conclusion', content: `<p>${t('write.fallback_content_hint')}</p>` },
+    ];
+    update({ chapters: fallbackChapters });
+    onNext();
+  };
+
+  const runGeneration = async () => {
+    try {
+      setPhase('thinking');
+      setThinkingProgress(12);
+      setVisibleChapters([]);
+      setTotalChapters(0);
+      setErrorMsg('');
+
+      const attemptPageCounts = Array.from(new Set([
+        state.pageCount,
+        Math.max(12, Math.round(state.pageCount * 0.7)),
+      ]));
+
+      let aiChapters: any[] | null = null;
+      let lastError: Error | null = null;
+
+      for (const pageCount of attemptPageCounts) {
+        if (aborted.current) return;
+
+        try {
+          const { data, error } = await invokeGeneration(pageCount);
+          if (aborted.current) return;
+          if (error) throw error;
+          if (data?.error) throw new Error(data.error);
+
+          if (!Array.isArray(data?.chapters) || data.chapters.length === 0) {
+            throw new Error('No chapters returned from AI');
+          }
+
+          aiChapters = data.chapters;
+          break;
+        } catch (err: any) {
+          lastError = err instanceof Error ? err : new Error(err?.message || 'Generation failed');
+        }
+      }
+
+      if (!aiChapters || aiChapters.length === 0) {
+        throw (lastError ?? new Error('Generation failed'));
+      }
+
+      setPhase('generating');
+      setTotalChapters(aiChapters.length);
+
+      const finalChapters: WriteChapter[] = [];
+      for (let i = 0; i < aiChapters.length; i++) {
+        if (aborted.current) return;
+
+        const chapter = aiChapters[i];
+        const safeTitle = (chapter?.title || `Chapitre ${i + 1}`).trim();
+        finalChapters.push({
+          id: chapter?.id || `ch-${i + 1}`,
+          title: safeTitle,
+          content: chapter?.content || '',
+        });
+
+        setVisibleChapters((prev) => [...prev, safeTitle]);
+        await new Promise((resolve) => setTimeout(resolve, 220));
+      }
+
+      if (aborted.current) return;
+
+      setPhase('done');
+      update({ chapters: finalChapters });
+      setTimeout(() => {
+        if (!aborted.current) onNext();
+      }, 700);
+    } catch (err: any) {
+      console.error('Book generation error:', err);
+      if (aborted.current) return;
+      setPhase('error');
+      setErrorMsg(err?.message || 'Generation failed');
+    }
+  };
 
   useEffect(() => {
     if (ran.current) return;
     ran.current = true;
     aborted.current = false;
 
-    // If chapters already exist (user navigated back), skip regeneration
     if (state.chapters && state.chapters.length > 0 && state.chapters[0].content.length > 30) {
       setPhase('done');
-      setVisibleChapters(state.chapters.map(ch => ch.title));
+      setVisibleChapters(state.chapters.map((ch) => ch.title));
+      setTotalChapters(state.chapters.length);
       setTimeout(() => {
         if (!aborted.current) onNext();
-      }, 400);
+      }, 300);
       return;
     }
 
-    const generateBook = async () => {
-      try {
-        setPhase('thinking');
+    void runGeneration();
 
-        // Call AI to generate chapters based on user's TOPIC, not style templates
-        const { data, error } = await supabase.functions.invoke('generate-book-content', {
-          body: {
-            title: state.title || t('write.my_book'),
-            topic: state.topic || state.title || '',
-            style: state.style,
-            pageCount: state.pageCount,
-            language: state.language || 'fr',
-            tone: state.tone || 'professional',
-            languageLevel: state.languageLevel || 'intermediate',
-            targetAudience: state.targetAudience || 'general',
-            styleReference: state.styleReference || '',
-          },
-        });
-
-        if (aborted.current) return;
-        if (error) throw error;
-        if (data?.error) throw new Error(data.error);
-
-        const aiChapters = data?.chapters;
-        if (!Array.isArray(aiChapters) || aiChapters.length === 0) {
-          throw new Error('No chapters returned from AI');
-        }
-
-        setPhase('generating');
-
-        // Progressively reveal chapters
-        const finalChapters: WriteChapter[] = [];
-        for (let i = 0; i < aiChapters.length; i++) {
-          if (aborted.current) return;
-          const ch = aiChapters[i];
-          finalChapters.push({
-            id: ch.id || `ch-${i + 1}`,
-            title: ch.title || `Chapitre ${i + 1}`,
-            content: ch.content || '',
-          });
-          setVisibleChapters(prev => [...prev, ch.title]);
-          await new Promise(r => setTimeout(r, 300));
-        }
-
-        if (aborted.current) return;
-
-        setPhase('done');
-        update({ chapters: finalChapters });
-        setTimeout(() => {
-          if (!aborted.current) onNext();
-        }, 800);
-
-      } catch (err: any) {
-        console.error('Book generation error:', err);
-        if (aborted.current) return;
-        setPhase('error');
-        setErrorMsg(err.message || 'Generation failed');
-
-        // Fallback: create minimal chapters so user can proceed
-        const fallbackChapters: WriteChapter[] = [
-          { id: 'ch-1', title: 'Introduction', content: `<p>${t('write.fallback_content_hint')}</p>` },
-          { id: 'ch-2', title: 'Développement', content: `<p>${t('write.fallback_content_hint')}</p>` },
-          { id: 'ch-3', title: 'Conclusion', content: `<p>${t('write.fallback_content_hint')}</p>` },
-        ];
-        update({ chapters: fallbackChapters });
-        setTimeout(() => {
-          if (!aborted.current) onNext();
-        }, 2000);
-      }
+    return () => {
+      aborted.current = true;
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    generateBook();
-    return () => { aborted.current = true; };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const progress = phase === 'thinking' ? 15
-    : phase === 'generating' ? 20 + (visibleChapters.length / Math.max(1, visibleChapters.length + 1)) * 70
-    : phase === 'done' ? 100 : 0;
+  const progress = phase === 'thinking'
+    ? thinkingProgress
+    : phase === 'generating'
+      ? 20 + (visibleChapters.length / Math.max(1, totalChapters)) * 70
+      : phase === 'done'
+        ? 100
+        : 0;
 
   return (
     <div className="space-y-8 pt-16 text-center">
@@ -152,11 +210,23 @@ export function StepGenerating({ state, update, onNext }: Props) {
         <p className="text-xs text-muted-foreground">{Math.round(progress)}%</p>
       </div>
 
+      {phase === 'error' && (
+        <div className="flex flex-col sm:flex-row gap-2 justify-center">
+          <Button onClick={() => void runGeneration()} className="gap-2">
+            <Loader2 className="h-4 w-4" />
+            {t('write.ai_regenerate')}
+          </Button>
+          <Button variant="outline" onClick={continueWithoutAi}>
+            Continuer sans IA
+          </Button>
+        </div>
+      )}
+
       {visibleChapters.length > 0 && (
         <div className="text-left max-w-sm mx-auto space-y-2">
           {visibleChapters.map((ch, i) => (
             <div
-              key={i}
+              key={`${ch}-${i}`}
               className="flex items-center gap-2 text-sm animate-in fade-in slide-in-from-left-2 duration-300"
             >
               <CheckCircle className="h-3.5 w-3.5 text-primary shrink-0" />
