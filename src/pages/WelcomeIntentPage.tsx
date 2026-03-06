@@ -97,7 +97,15 @@ export default function WelcomeIntentPage() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 + i * 0.08, duration: 0.3 }}
-              onClick={() => navigate(intent.route)}
+              onClick={() => {
+                // Persist intent to profile
+                if (user) {
+                  import('@/lib/db').then(({ db }) => {
+                    db.from('profiles').update({ onboarding_intent: intent.key }).eq('id', user.id);
+                  });
+                }
+                navigate(intent.route);
+              }}
               className={`relative w-full flex items-center gap-4 p-5 rounded-2xl border-2 ${intent.color} bg-card text-left transition-all duration-200 hover:shadow-elevated group`}
             >
               {intent.badge && (
