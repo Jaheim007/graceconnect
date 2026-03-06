@@ -538,8 +538,19 @@ export default function WriteWizard() {
         .filter((chapter) => chapter.title.length > 0);
 
       setPublishingStage('book');
+
+      // Build a rich HTML description with styled title + table of contents
+      const bookTitle = state.title || t('write.my_book');
+      let richDescription: string | null = null;
+      if (normalizedChapters.length > 0) {
+        const tocItems = normalizedChapters.map((c, i) => `<li>${c.title}</li>`).join('');
+        richDescription = `<h2 style="margin-bottom:0.25em;">📚 ${bookTitle}</h2>` +
+          `<p style="color:#666;margin-bottom:1em;">${state.topic || ''}</p>` +
+          `<h3>📖 Sommaire</h3><ol>${tocItems}</ol>`;
+      }
+
       const { data, error } = await supabase.rpc('create_book_quick', {
-        _title: state.title || t('write.my_book'),
+        _title: bookTitle,
         _style: state.style,
         _page_count: state.pageCount,
         _price: state.price,
@@ -548,9 +559,7 @@ export default function WriteWizard() {
         _chapters: JSON.parse(JSON.stringify(normalizedChapters)),
         _topic: state.topic || null,
         _cover_url: state.coverUrl || null,
-        _description: normalizedChapters.length > 0
-          ? `📖 Sommaire :\n${normalizedChapters.map((c, i) => `${i + 1}. ${c.title}`).join('\n')}`
-          : null,
+        _description: richDescription,
         _file_url: null,
       });
 
@@ -609,10 +618,12 @@ export default function WriteWizard() {
       }
 
       setPublishingStage('finalizing');
-      const productPatch: Record<string, string> = {};
+      const productPatch: Record<string, any> = {};
 
       if (generatedPdfUrl) productPatch.file_url = generatedPdfUrl;
       if (state.coverUrl) productPatch.cover_image_url = state.coverUrl;
+      // Always mark as AI-generated
+      productPatch.ai_generated = true;
 
       if (Object.keys(productPatch).length > 0 && result.product_id) {
         const { error: updateErr } = await supabase
@@ -622,6 +633,11 @@ export default function WriteWizard() {
 
         if (updateErr) {
           console.error('Product patch error (non-blocking):', updateErr);
+        }
+
+        // Double-check: if PDF was not set, log a warning
+        if (!generatedPdfUrl) {
+          console.warn('⚠️ PDF generation did not return a URL - product may be missing its file');
         }
       }
 
