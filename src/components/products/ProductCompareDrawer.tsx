@@ -35,10 +35,18 @@ interface CompareContextType {
 
 const CompareContext = createContext<CompareContextType | null>(null);
 
+const NOOP_COMPARE: CompareContextType = {
+  items: [],
+  addItem: () => {},
+  removeItem: () => {},
+  clearAll: () => {},
+  isInCompare: () => false,
+  openDrawer: () => {},
+};
+
 export function useCompare() {
   const ctx = useContext(CompareContext);
-  if (!ctx) throw new Error('useCompare must be inside CompareProvider');
-  return ctx;
+  return ctx ?? NOOP_COMPARE;
 }
 
 export function CompareProvider({ children }: { children: ReactNode }) {
