@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { supabase } from '@/integrations/supabase/client';
 import { compressImage } from '@/hooks/useImageOptimizer';
+import { brandUrl } from '@/lib/storageUrl';
 import { useCanvaAuth } from '@/hooks/useCanvaAuth';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { Button } from '@/components/ui/button';
