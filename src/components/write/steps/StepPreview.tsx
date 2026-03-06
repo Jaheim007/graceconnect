@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
-import { ArrowLeft, ArrowRight, Edit3, Plus, Trash2, Sparkles, BookOpen, ChevronRight, RefreshCw, Expand, MessageSquareText, Loader2, GripVertical } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Edit3, Plus, Trash2, Sparkles, BookOpen, ChevronRight, RefreshCw, Expand, MessageSquareText, Loader2, GripVertical, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -48,16 +48,59 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
   const [aiLoading, setAiLoading] = useState(false);
   const [showAiPrompt, setShowAiPrompt] = useState(false);
   const [aiInstruction, setAiInstruction] = useState('');
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [lastAutoSavedAt, setLastAutoSavedAt] = useState<number | null>(null);
+  const initializedRef = useRef(false);
+  const autosaveTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+
     if (state.chapters.length > 0) {
       setChaptersDraft(state.chapters.map((chapter) => ({ ...chapter })));
       return;
     }
+
     setChaptersDraft([{ id: 'ch-1', title: t('write.chapter_default_title'), content: '' }]);
   }, [state.chapters, t]);
 
   useEffect(() => { setTitleDraft(state.title); }, [state.title]);
+
+  useEffect(() => {
+    if (!initializedRef.current) return;
+
+    if (autosaveTimeoutRef.current) {
+      window.clearTimeout(autosaveTimeoutRef.current);
+      autosaveTimeoutRef.current = null;
+    }
+
+    setIsAutoSaving(true);
+
+    autosaveTimeoutRef.current = window.setTimeout(() => {
+      update({ title: titleDraft, chapters: chaptersDraft });
+      setLastAutoSavedAt(Date.now());
+      setIsAutoSaving(false);
+      autosaveTimeoutRef.current = null;
+    }, 700);
+
+    return () => {
+      if (autosaveTimeoutRef.current) {
+        window.clearTimeout(autosaveTimeoutRef.current);
+        autosaveTimeoutRef.current = null;
+      }
+    };
+  }, [chaptersDraft, titleDraft, update]);
+
+  useEffect(() => {
+    return () => {
+      if (autosaveTimeoutRef.current) {
+        window.clearTimeout(autosaveTimeoutRef.current);
+        autosaveTimeoutRef.current = null;
+        update({ title: titleDraft, chapters: chaptersDraft });
+      }
+    };
+  }, [chaptersDraft, titleDraft, update]);
 
   const normalizedChapters = useMemo(() => normalizeChapters(chaptersDraft), [chaptersDraft]);
   const currentChapter = chaptersDraft[activeChapter] || chaptersDraft[0];
@@ -134,7 +177,14 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
   };
 
   const applyEdits = () => {
+    if (autosaveTimeoutRef.current) {
+      window.clearTimeout(autosaveTimeoutRef.current);
+      autosaveTimeoutRef.current = null;
+    }
+
     update({ title: titleDraft, chapters: normalizedChapters });
+    setIsAutoSaving(false);
+    setLastAutoSavedAt(Date.now());
   };
 
   const handleAiChapterAction = useCallback(async (action: 'regenerate' | 'amplify' | 'custom', customPrompt?: string) => {
@@ -455,6 +505,15 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
           ✅ {t('write.continue')} <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
+
+      <p className="text-right text-xs text-muted-foreground flex items-center justify-end gap-1.5">
+        {isAutoSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3 text-primary" />}
+        {isAutoSaving
+          ? t('write.saving_draft')
+          : lastAutoSavedAt
+            ? `${t('write.last_saved')}: ${new Date(lastAutoSavedAt).toLocaleTimeString()}`
+            : t('write.autosave_active')}
+      </p>
 
       <p className="text-center text-xs text-muted-foreground">
         <Edit3 className="h-3 w-3 inline mr-1" />

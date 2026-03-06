@@ -8,9 +8,10 @@ import type { WriteState } from '../WriteWizard';
 
 interface Props {
   state: WriteState;
+  onWriteAnother?: () => void;
 }
 
-export function StepCelebration({ state }: Props) {
+export function StepCelebration({ state, onWriteAnother }: Props) {
   const navigate = useNavigate();
   const { t } = useI18n();
   const [showConfetti, setShowConfetti] = useState(true);
@@ -26,6 +27,18 @@ export function StepCelebration({ state }: Props) {
     } else {
       navigate('/admin/products');
     }
+  };
+
+  const handleWriteAnother = () => {
+    if (onWriteAnother) {
+      onWriteAnother();
+      return;
+    }
+
+    localStorage.removeItem('write_wizard_draft');
+    localStorage.removeItem('write_wizard_drafts_v2');
+    navigate('/ecrire');
+    window.location.reload();
   };
 
   return (
@@ -103,11 +116,7 @@ export function StepCelebration({ state }: Props) {
           <Button
             variant="ghost"
             className="gap-2 text-sm"
-            onClick={() => {
-              localStorage.removeItem('write_wizard_draft');
-              navigate('/ecrire');
-              window.location.reload();
-            }}
+            onClick={handleWriteAnother}
           >
             <PenLine className="h-4 w-4" /> {t('write.write_another')}
           </Button>
