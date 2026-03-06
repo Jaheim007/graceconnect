@@ -66,6 +66,8 @@ export function Sidebar() {
   // GAGNER — ambassador
   // ═══════════════════════════════════════
   const earnItems: NavItem[] = [
+    { to: '/ecrire', icon: PenLine, label: t('sidebar.write'), desc: t('sidebar.write_desc') },
+    { to: '/vendre', icon: Store, label: t('sidebar.sell_action'), desc: t('sidebar.sell_action_desc') },
     { to: '/affiliation', icon: Link2, label: t('sidebar.earn_sharing'), desc: t('sidebar.earn_sharing_desc') },
   ];
 
@@ -304,7 +306,7 @@ export function Sidebar() {
               {mySpaceItems.map(renderNavItem)}
             </div>
 
-            {renderSectionLabel(Share2, t('sidebar.earn'), 'text-emerald-500')}
+            {renderSectionLabel(Share2, t('sidebar.write_sell_earn'), 'text-emerald-500')}
             <div className="space-y-0.5">
               {earnItems.map(renderNavItem)}
             </div>
