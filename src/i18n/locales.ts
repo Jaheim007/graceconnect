@@ -1217,6 +1217,11 @@ const translations: Record<Locale, Record<string, string>> = {
     // ─── Sidebar / Nav sections ───
     'sidebar.my_space': 'My space',
     'sidebar.earn': 'Earn',
+    'sidebar.write_sell_earn': 'Write · Sell · Earn',
+    'sidebar.write': 'Write',
+    'sidebar.write_desc': 'Create a book with AI in 5 min',
+    'sidebar.sell_action': 'Sell',
+    'sidebar.sell_action_desc': 'Sell your digital products',
     'sidebar.earn_sharing': 'Earn by sharing',
     'sidebar.earn_sharing_desc': 'Share links & earn commissions',
     'sidebar.partner': 'Partner',
@@ -2614,6 +2619,11 @@ const translations: Record<Locale, Record<string, string>> = {
     // ─── Sidebar / Nav sections ───
     'sidebar.my_space': 'Mon espace',
     'sidebar.earn': 'Gagner',
+    'sidebar.write_sell_earn': 'Écris · Vends · Gagne',
+    'sidebar.write': 'Écrire',
+    'sidebar.write_desc': 'Crée un livre avec l\'IA en 5 min',
+    'sidebar.sell_action': 'Vendre',
+    'sidebar.sell_action_desc': 'Vends tes produits numériques',
     'sidebar.earn_sharing': 'Gagner en partageant',
     'sidebar.earn_sharing_desc': 'Liens de partage et commissions',
     'sidebar.partner': 'Partenaire',
