@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
 import { getPublicUrl } from '@/lib/publicUrl';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Copy, ExternalLink, Share2, CheckCircle, Plus, Eye, Trash2, PackagePlus, ArrowUpRight, HelpCircle, Shield, MessageSquareQuote, Sparkles, ImageIcon, AlertTriangle } from 'lucide-react';
+import { Copy, ExternalLink, Share2, CheckCircle, Plus, Eye, Trash2, PackagePlus, ArrowUpRight, HelpCircle, Shield, MessageSquareQuote, Sparkles, ImageIcon, AlertTriangle, RefreshCw, Loader2 } from 'lucide-react';
 import { onContentPublished, onContentUnpublished, onProductPriceChanged } from '@/lib/notifications';
 import { z } from 'zod';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { db } from '@/lib/db';
 import { useQuery } from '@tanstack/react-query';
 import { AdminPageShell } from './AdminPageShell';
@@ -72,7 +73,7 @@ export function ProductForm() {
   const [saleEndsAt, setSaleEndsAt] = useState('');
   const [showAI, setShowAI] = useState(false);
   const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
-  
+  const [regeneratingPdf, setRegeneratingPdf] = useState(false);
 
   // Bundle & Recommendation hooks
   const { data: allProducts = [] } = useOrgProducts(currentOrg?.id, false);
@@ -364,6 +365,56 @@ export function ProductForm() {
         </div>
 
         <FileUploader value={watch('file_url') || ''} onChange={(url) => setValue('file_url', url)} folder="products" label="Fichier du produit" hint="PDF, Word, Audio, Vidéo (max 50 Mo)" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.epub,.zip,.mp3,.mp4,.wav,.aac,.m4a,.ogg,.webm,.mov,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.ms-powerpoint,application/vnd.ms-excel,application/epub+zip,application/zip,audio/*,video/*" bucket="private-products" />
+
+        {/* Regenerate PDF for AI products */}
+        {isEdit && item?.ai_generated && item?.ai_project_id && currentOrg?.id && (
+          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-2">
+            <p className="text-sm font-semibold flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" /> Produit généré par IA
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Si vous avez modifié la couverture ou le contenu, vous pouvez régénérer le PDF.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              disabled={regeneratingPdf}
+              onClick={async () => {
+                setRegeneratingPdf(true);
+                try {
+                  const { data: pdfData, error: pdfError } = await supabase.functions.invoke('ai-generate-pdf', {
+                    body: {
+                      org_id: currentOrg.id,
+                      project_id: item.ai_project_id,
+                      format: 'ebook',
+                      page_size: 'A4',
+                    },
+                  });
+                  if (pdfError) throw pdfError;
+                  if (pdfData?.error) throw new Error(pdfData.error);
+                  if (pdfData?.download_url) {
+                    setValue('file_url', pdfData.download_url, { shouldDirty: true });
+                    toast({ title: '✅ PDF régénéré avec succès !' });
+                  } else {
+                    throw new Error('Aucune URL retournée');
+                  }
+                } catch (err: any) {
+                  toast({ title: '❌ Erreur de régénération', description: err.message, variant: 'destructive' });
+                } finally {
+                  setRegeneratingPdf(false);
+                }
+              }}
+            >
+              {regeneratingPdf ? (
+                <><Loader2 className="h-4 w-4 animate-spin" /> Régénération en cours…</>
+              ) : (
+                <><RefreshCw className="h-4 w-4" /> Régénérer le PDF</>
+              )}
+            </Button>
+          </div>
+        )}
 
         {isPdfFile && (
           <div className="space-y-2">
