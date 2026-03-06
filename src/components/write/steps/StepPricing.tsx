@@ -1,7 +1,7 @@
 import { ArrowLeft, Rocket, Sparkles, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
+
 import { useI18n } from '@/i18n/I18nContext';
 import type { WriteState } from '../WriteWizard';
 
