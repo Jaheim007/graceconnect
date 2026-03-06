@@ -41,6 +41,7 @@ import { ConversionFunnel } from '@/components/admin/ConversionFunnel';
 import { CustomerLifetimeValue } from '@/components/admin/CustomerLifetimeValue';
 import { RevenueAttribution } from '@/components/admin/RevenueAttribution';
 import { CreatorCoachBanner } from '@/components/admin/CreatorCoachBanner';
+import { CreatorHeroBanner } from '@/components/admin/CreatorHeroBanner';
 
 import { SmartReEngagement } from '@/components/admin/SmartReEngagement';
 import { TTFSProgressTracker } from '@/components/admin/TTFSProgressTracker';
@@ -256,6 +257,9 @@ export default function AdminDashboard() {
           </Button>
         </motion.div>
       )}
+
+      {/* ═══ HERO BANNER — Écris · Vends · Gagne ═══ */}
+      <CreatorHeroBanner />
 
       {/* Creator Coach — AI-powered recommendation banner */}
       <CreatorCoachBanner />
