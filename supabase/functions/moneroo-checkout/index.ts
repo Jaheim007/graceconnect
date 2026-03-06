@@ -69,17 +69,19 @@ Deno.serve(async (req) => {
         last_name: lastName,
       },
       return_url: return_url || `${req.headers.get('origin') || 'https://graceconnect.lovable.app'}/payment/success?gateway=moneroo&reference=${reference}`,
-      metadata: {
-        reference,
-        type,
-        organization_id,
-        campaign_id: campaign_id || null,
-        product_id: product_id || null,
-        user_id: userId || null,
-        buyer_name: buyer_name || null,
-        affiliate_code: affiliate_code || null,
-        promo_code: promo_code || null,
-      },
+      metadata: Object.fromEntries(
+        Object.entries({
+          reference,
+          type,
+          organization_id,
+          campaign_id: campaign_id || undefined,
+          product_id: product_id || undefined,
+          user_id: userId || undefined,
+          buyer_name: buyer_name || undefined,
+          affiliate_code: affiliate_code || undefined,
+          promo_code: promo_code || undefined,
+        }).filter(([, v]) => v !== undefined && v !== null)
+      ),
     };
 
     // Call Moneroo API
