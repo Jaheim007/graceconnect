@@ -1,5 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { PDFDocument, rgb, degrees, PDFPage, PDFFont, PDFName, PDFArray, PDFDict, PDFNumber, PDFRef } from 'https://esm.sh/pdf-lib@1.17.1';
+import { PDFDocument, rgb, degrees, PDFPage, PDFFont, PDFName, PDFArray, PDFRef } from 'https://esm.sh/pdf-lib@1.17.1';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -56,7 +56,6 @@ Deno.serve(async (req) => {
         format: projectFormat,
       });
 
-      // Store temporarily for preview
       const previewPath = `previews/${user.id}/${Date.now()}.pdf`;
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
       const { error: uploadErr } = await admin.storage
@@ -92,9 +91,8 @@ Deno.serve(async (req) => {
         .eq('ai_project_id', project_id).eq('organization_id', org_id).maybeSingle(),
     ]);
 
-    // Cover priority: asset cover > product cover > body cover_url
-    const resolvedCoverUrl = asText(coverAsset?.file_url, '') 
-      || asText(linkedProduct?.cover_image_url, '') 
+    const resolvedCoverUrl = asText(coverAsset?.file_url, '')
+      || asText(linkedProduct?.cover_image_url, '')
       || asText(directCoverUrl, '');
 
     const projectData = (project.structure_json || project.data_json || {}) as { chapters?: ChapterInput[] };
@@ -133,11 +131,8 @@ Deno.serve(async (req) => {
       metadata: { format: projectFormat, page_size: normalizedPageSize },
     }).select().maybeSingle();
 
-    // Auto-update the linked product's file_url
     const downloadUrl = `${supabaseUrl}/storage/v1/object/public/org-uploads/${storagePath}`;
-    const targetProductId = bodyProductId || linkedProduct?.id;
-    if (targetProductId || update_product !== false) {
-      // Update any product linked to this project
+    if (update_product !== false) {
       await admin.from('digital_products')
         .update({ file_url: downloadUrl })
         .eq('ai_project_id', project_id)
@@ -161,7 +156,9 @@ Deno.serve(async (req) => {
   }
 });
 
-// ── Helpers ─────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════════════════════
 function jsonError(message: string, status: number) {
   return new Response(JSON.stringify({ error: message }), {
     status, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -175,35 +172,66 @@ function asText(value: unknown, fallback = ''): string {
 function decodeEntities(text: string): string {
   return text
     .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+    .replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .replace(/&rsquo;/g, ''').replace(/&lsquo;/g, ''')
+    .replace(/&rdquo;/g, '"').replace(/&ldquo;/g, '"')
+    .replace(/&mdash;/g, '—').replace(/&ndash;/g, '–')
+    .replace(/&hellip;/g, '…').replace(/&eacute;/g, 'é')
+    .replace(/&egrave;/g, 'è').replace(/&agrave;/g, 'à')
+    .replace(/&ccedil;/g, 'ç').replace(/&ocirc;/g, 'ô')
+    .replace(/&ucirc;/g, 'û').replace(/&ecirc;/g, 'ê')
+    .replace(/&iuml;/g, 'ï').replace(/&ouml;/g, 'ö');
 }
 
-// ── HTML → structured blocks ────────────────────────────────────────
-type Block = { type: 'paragraph' | 'heading' | 'quote' | 'bullet' | 'separator'; text: string };
+// ══════════════════════════════════════════════════════════════════════
+// HTML → structured blocks
+// ══════════════════════════════════════════════════════════════════════
+type Block = { type: 'paragraph' | 'heading' | 'subheading' | 'quote' | 'bullet' | 'numbered' | 'separator'; text: string; index?: number };
 
 function htmlToBlocks(html: string): Block[] {
   const blocks: Block[] = [];
-  // Extract headings
-  const processed = html
-    .replace(/<h[1-3][^>]*>(.*?)<\/h[1-3]>/gi, (_, content) => {
-      blocks.push({ type: 'heading', text: stripTags(content) });
-      return '';
-    })
-    .replace(/<blockquote[^>]*>(.*?)<\/blockquote>/gi, (_, content) => {
-      blocks.push({ type: 'quote', text: stripTags(content) });
-      return '';
-    })
-    .replace(/<li[^>]*>(.*?)<\/li>/gi, (_, content) => {
-      blocks.push({ type: 'bullet', text: stripTags(content) });
-      return '';
-    })
-    .replace(/<hr\s*\/?>/gi, () => {
-      blocks.push({ type: 'separator', text: '' });
+  let remaining = html;
+
+  // Extract elements in order using regex scanning
+  const patterns: { re: RegExp; handler: (match: RegExpExecArray) => Block | null }[] = [
+    { re: /<h1[^>]*>(.*?)<\/h1>/gi, handler: m => ({ type: 'heading', text: stripTags(m[1]) }) },
+    { re: /<h2[^>]*>(.*?)<\/h2>/gi, handler: m => ({ type: 'heading', text: stripTags(m[1]) }) },
+    { re: /<h3[^>]*>(.*?)<\/h3>/gi, handler: m => ({ type: 'subheading', text: stripTags(m[1]) }) },
+    { re: /<h4[^>]*>(.*?)<\/h4>/gi, handler: m => ({ type: 'subheading', text: stripTags(m[1]) }) },
+    { re: /<blockquote[^>]*>(.*?)<\/blockquote>/gi, handler: m => ({ type: 'quote', text: stripTags(m[1]) }) },
+    { re: /<hr\s*\/?>/gi, handler: () => ({ type: 'separator', text: '' }) },
+  ];
+
+  // Process ordered lists
+  remaining = remaining.replace(/<ol[^>]*>(.*?)<\/ol>/gis, (_, inner) => {
+    let idx = 1;
+    inner.replace(/<li[^>]*>(.*?)<\/li>/gi, (_: string, content: string) => {
+      blocks.push({ type: 'numbered', text: stripTags(content), index: idx++ });
       return '';
     });
+    return '';
+  });
+
+  // Process unordered lists
+  remaining = remaining.replace(/<ul[^>]*>(.*?)<\/ul>/gis, (_, inner) => {
+    inner.replace(/<li[^>]*>(.*?)<\/li>/gi, (_: string, content: string) => {
+      blocks.push({ type: 'bullet', text: stripTags(content) });
+      return '';
+    });
+    return '';
+  });
+
+  for (const { re, handler } of patterns) {
+    remaining = remaining.replace(re, (full, ...args) => {
+      const match = re.exec(full) || ([full, args[0]] as unknown as RegExpExecArray);
+      const block = handler({ ...match, 0: full, 1: args[0] } as RegExpExecArray);
+      if (block) blocks.push(block);
+      return '';
+    });
+  }
 
   // Remaining paragraphs
-  const withBreaks = processed
+  const withBreaks = remaining
     .replace(/<\s*br\s*\/?>/gi, '\n')
     .replace(/<\/(p|div|section|article)>/gi, '\n')
     .replace(/<[^>]+>/g, ' ');
@@ -211,10 +239,9 @@ function htmlToBlocks(html: string): Block[] {
   decodeEntities(withBreaks)
     .split(/\n+/)
     .map(l => l.replace(/\s+/g, ' ').trim())
-    .filter(Boolean)
+    .filter(l => l.length > 1)
     .forEach(text => blocks.push({ type: 'paragraph', text }));
 
-  // Sort blocks by their original appearance (rough heuristic: keep order of insertion)
   return blocks.length ? blocks : [{ type: 'paragraph', text: 'Contenu en cours de préparation.' }];
 }
 
@@ -222,16 +249,9 @@ function stripTags(html: string): string {
   return decodeEntities(html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim());
 }
 
-function htmlToParagraphs(html: string): string[] {
-  const withBreaks = html
-    .replace(/<\s*br\s*\/?>/gi, '\n')
-    .replace(/<\/(p|div|h1|h2|h3|h4|li|section|article)>/gi, '\n')
-    .replace(/<li[^>]*>/gi, '• ')
-    .replace(/<[^>]+>/g, ' ');
-  return decodeEntities(withBreaks).split(/\n+/).map(l => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
-}
-
-// ── Text wrapping ───────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════
+// Text wrapping with proper character handling
+// ══════════════════════════════════════════════════════════════════════
 function wrapText(text: string, maxWidth: number, font: PDFFont, fontSize: number): string[] {
   const sanitized = text.replace(/\s+/g, ' ').trim();
   if (!sanitized) return [];
@@ -239,16 +259,52 @@ function wrapText(text: string, maxWidth: number, font: PDFFont, fontSize: numbe
   const lines: string[] = [];
   let current = '';
   for (const word of words) {
-    const candidate = current ? `${current} ${word}` : word;
-    if (font.widthOfTextAtSize(candidate, fontSize) <= maxWidth) { current = candidate; continue; }
+    const safeWord = sanitizeForFont(word, font);
+    const candidate = current ? `${current} ${safeWord}` : safeWord;
+    try {
+      if (font.widthOfTextAtSize(candidate, fontSize) <= maxWidth) { current = candidate; continue; }
+    } catch { current = candidate; continue; }
     if (current) lines.push(current);
-    current = word;
+    current = safeWord;
   }
   if (current) lines.push(current);
   return lines;
 }
 
-// ── Cover image ─────────────────────────────────────────────────────
+// Sanitize text to only include characters the font can render
+function sanitizeForFont(text: string, font: PDFFont): string {
+  let result = '';
+  for (const char of text) {
+    try {
+      font.encodeText(char);
+      result += char;
+    } catch {
+      // Replace unsupported characters with safe alternatives
+      if (char === ''' || char === ''') result += "'";
+      else if (char === '"' || char === '"') result += '"';
+      else if (char === '—') result += '-';
+      else if (char === '–') result += '-';
+      else if (char === '…') result += '...';
+      else result += ' ';
+    }
+  }
+  return result;
+}
+
+function safeDrawText(page: PDFPage, text: string, opts: { x: number; y: number; size: number; font: PDFFont; color: ReturnType<typeof rgb>; opacity?: number; rotate?: ReturnType<typeof degrees> }) {
+  try {
+    const safe = sanitizeForFont(text, opts.font);
+    page.drawText(safe, opts);
+  } catch {
+    // Last resort: strip to ASCII
+    const ascii = text.replace(/[^\x20-\x7E]/g, '');
+    try { page.drawText(ascii, opts); } catch { /* skip this text entirely */ }
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// Cover image
+// ══════════════════════════════════════════════════════════════════════
 async function tryDrawCover(pdfDoc: any, page: PDFPage, coverUrl: string) {
   if (!coverUrl) return false;
   try {
@@ -259,7 +315,7 @@ async function tryDrawCover(pdfDoc: any, page: PDFPage, coverUrl: string) {
     const lower = coverUrl.toLowerCase();
     let image: any = null;
     if (ct.includes('png') || lower.endsWith('.png')) image = await pdfDoc.embedPng(bytes);
-    else if (ct.includes('jpeg') || ct.includes('jpg') || lower.endsWith('.jpg') || lower.endsWith('.jpeg')) image = await pdfDoc.embedJpg(bytes);
+    else if (ct.includes('jpeg') || ct.includes('jpg') || lower.endsWith('.jpg') || lower.endsWith('.jpeg') || ct.includes('image')) image = await pdfDoc.embedJpg(bytes);
     if (!image) return false;
     const pw = page.getWidth(), ph = page.getHeight();
     const dims = image.scale(1);
@@ -267,10 +323,33 @@ async function tryDrawCover(pdfDoc: any, page: PDFPage, coverUrl: string) {
     const w = dims.width * scale, h = dims.height * scale;
     page.drawImage(image, { x: (pw - w) / 2, y: (ph - h) / 2, width: w, height: h });
     return true;
-  } catch { return false; }
+  } catch (e) { console.error('Cover image error:', e); return false; }
 }
 
-// ── Professional PDF builder ────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════
+// COLOR PALETTE — Elegant navy / gold / warm gray
+// ══════════════════════════════════════════════════════════════════════
+const C = {
+  navy:       rgb(0.09, 0.11, 0.18),
+  darkText:   rgb(0.10, 0.12, 0.18),
+  bodyText:   rgb(0.14, 0.16, 0.22),
+  lightText:  rgb(0.40, 0.43, 0.50),
+  mutedText:  rgb(0.55, 0.58, 0.65),
+  accent:     rgb(0.16, 0.32, 0.58),    // Deep blue accent
+  accentGold: rgb(0.72, 0.58, 0.30),    // Gold accent
+  rule:       rgb(0.75, 0.78, 0.82),
+  ruleLight:  rgb(0.88, 0.89, 0.92),
+  bgWarm:     rgb(0.97, 0.96, 0.94),    // Warm cream tint
+  white:      rgb(1, 1, 1),
+  watermark:  rgb(0.93, 0.94, 0.96),
+  quoteLine:  rgb(0.16, 0.32, 0.58),
+  bulletDot:  rgb(0.16, 0.32, 0.58),
+  chapNum:    rgb(0.72, 0.58, 0.30),
+};
+
+// ══════════════════════════════════════════════════════════════════════
+// PROFESSIONAL PDF BUILDER
+// ══════════════════════════════════════════════════════════════════════
 async function buildProfessionalPdf(opts: {
   title: string; subtitle: string; orgName: string; language: string;
   chapters: ChapterInput[]; coverUrl: string; pageSize: 'A4' | 'LETTER'; format: string;
@@ -282,367 +361,592 @@ async function buildProfessionalPdf(opts: {
   pdfDoc.setAuthor(opts.orgName);
   pdfDoc.setSubject(opts.subtitle || opts.title);
   pdfDoc.setCreator('Siteviral AI Studio');
-  pdfDoc.setProducer('pdf-lib');
+  pdfDoc.setProducer('Siteviral Publishing Engine');
   pdfDoc.setCreationDate(new Date());
 
+  // Fonts
   const serif = await pdfDoc.embedFont('Times-Roman');
   const serifBold = await pdfDoc.embedFont('Times-Bold');
   const serifItalic = await pdfDoc.embedFont('Times-Italic');
+  const serifBoldItalic = await pdfDoc.embedFont('Times-BoldItalic');
   const sans = await pdfDoc.embedFont('Helvetica');
   const sansBold = await pdfDoc.embedFont('Helvetica-Bold');
 
   const pg = PAGE_SIZES[opts.pageSize] || PAGE_SIZES.A4;
   const isKids = opts.format === 'kids';
-  const marginOuter = 60;
-  const marginInner = 72; // larger inner margin for binding
-  const marginTop = 70;
-  const marginBottom = 56;
-  const contentWidth = pg.width - marginOuter - marginInner;
-  const bodyFontSize = isKids ? 14 : 11.5;
-  const bodyLineHeight = bodyFontSize * 1.7;
-  const paragraphSpacing = bodyFontSize * 0.9;
+
+  // ── LAYOUT CONSTANTS ──────────────────────────────────────────
+  const M = {
+    outer: 65,         // outer margin (generous)
+    inner: 75,         // inner margin (binding side)
+    top: 78,           // top margin
+    bottom: 60,        // bottom margin
+    headerY: 28,       // header distance from top edge
+  };
+  const contentWidth = pg.width - M.outer - M.inner;
+
+  // Typography scale
+  const T = {
+    body: isKids ? 13.5 : 11.5,
+    bodyLH: isKids ? 23 : 19.5,        // line height
+    paraGap: isKids ? 12 : 10,         // paragraph spacing
+    indent: 22,                         // first-line indent
+    h2: 15,
+    h3: 13,
+    tocEntry: 11.5,
+    footer: 8,
+    header: 7.5,
+    pageNum: 9,
+    dropCapSize: 42,                    // drop cap size
+  };
 
   const isFr = opts.language.startsWith('fr');
   const tocLabel = isFr ? 'Table des matières' : 'Table of Contents';
   const chapterWord = isFr ? 'Chapitre' : 'Chapter';
-  const contLabel = isFr ? '(suite)' : '(continued)';
+  const generatedDate = new Date().toLocaleDateString(isFr ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+  const year = new Date().getFullYear();
 
   const chapters = opts.chapters.length
     ? opts.chapters
     : [{ title: isFr ? 'Introduction' : 'Introduction', content: isFr ? 'Aucun contenu disponible.' : 'No content available.' }];
 
-  // Track chapter page refs for clickable TOC
   const chapterPageRefs: PDFRef[] = [];
 
-  // ── 1. COVER PAGE ──────────────────────────────────────────────
+  // ══════════════════════════════════════════════════════════════
+  // 1. COVER PAGE
+  // ══════════════════════════════════════════════════════════════
   const coverPage = pdfDoc.addPage([pg.width, pg.height]);
   const hasCover = await tryDrawCover(pdfDoc, coverPage, opts.coverUrl);
 
-  if (hasCover) {
-    // When a custom cover image exists, use it as-is (the user designed it)
-    // No text overlay - the image IS the cover
-  } else {
-    // Elegant fallback cover when no image is provided
-    coverPage.drawRectangle({ x: 0, y: 0, width: pg.width, height: pg.height, color: rgb(0.05, 0.08, 0.15) });
-    
-    // Decorative accent bars
-    coverPage.drawRectangle({ x: pg.width * 0.1, y: pg.height * 0.52, width: pg.width * 0.8, height: 2, color: rgb(0.35, 0.55, 0.85) });
-    coverPage.drawRectangle({ x: pg.width * 0.3, y: pg.height * 0.515, width: pg.width * 0.4, height: 1, color: rgb(0.5, 0.7, 0.95) });
-    
-    // Title on cover — centered, large
-    const coverTitleSize = 32;
-    const titleLines = wrapText(opts.title, pg.width - 100, serifBold, coverTitleSize).slice(0, 4);
-    let ty = pg.height * 0.62;
+  if (!hasCover) {
+    // Elegant editorial cover — no image
+    coverPage.drawRectangle({ x: 0, y: 0, width: pg.width, height: pg.height, color: C.navy });
+
+    // Top decorative band
+    coverPage.drawRectangle({ x: 0, y: pg.height - 8, width: pg.width, height: 8, color: C.accentGold });
+
+    // Bottom decorative band
+    coverPage.drawRectangle({ x: 0, y: 0, width: pg.width, height: 4, color: C.accentGold });
+
+    // Central accent line
+    const lineY = pg.height * 0.53;
+    coverPage.drawLine({
+      start: { x: pg.width * 0.15, y: lineY }, end: { x: pg.width * 0.85, y: lineY },
+      thickness: 1.2, color: C.accentGold,
+    });
+    // Thin companion line
+    coverPage.drawLine({
+      start: { x: pg.width * 0.25, y: lineY - 6 }, end: { x: pg.width * 0.75, y: lineY - 6 },
+      thickness: 0.4, color: rgb(0.5, 0.42, 0.25),
+    });
+
+    // Title — large, white, serif
+    const titleSize = Math.min(34, 34 * (20 / Math.max(opts.title.length, 20)));
+    const titleLines = wrapText(opts.title, pg.width - 110, serifBold, titleSize).slice(0, 4);
+    let ty = pg.height * 0.63;
     for (const line of titleLines) {
-      const w = serifBold.widthOfTextAtSize(line, coverTitleSize);
-      coverPage.drawText(line, { x: (pg.width - w) / 2, y: ty, size: coverTitleSize, font: serifBold, color: rgb(1, 1, 1) });
-      ty -= coverTitleSize * 1.35;
+      const w = serifBold.widthOfTextAtSize(line, titleSize);
+      safeDrawText(coverPage, line, { x: (pg.width - w) / 2, y: ty, size: titleSize, font: serifBold, color: C.white });
+      ty -= titleSize * 1.4;
     }
 
     // Subtitle
     if (opts.subtitle) {
-      const subLines = wrapText(opts.subtitle, pg.width - 140, serifItalic, 13).slice(0, 2);
-      ty -= 10;
+      const subLines = wrapText(opts.subtitle, pg.width - 150, serifItalic, 13).slice(0, 2);
+      ty -= 8;
       for (const line of subLines) {
         const w = serifItalic.widthOfTextAtSize(line, 13);
-        coverPage.drawText(line, { x: (pg.width - w) / 2, y: ty, size: 13, font: serifItalic, color: rgb(0.85, 0.88, 0.95) });
-        ty -= 18;
+        safeDrawText(coverPage, line, { x: (pg.width - w) / 2, y: ty, size: 13, font: serifItalic, color: rgb(0.80, 0.78, 0.72) });
+        ty -= 19;
       }
     }
 
-    // Org name at bottom
-    const orgW = sans.widthOfTextAtSize(opts.orgName, 12);
-    coverPage.drawText(opts.orgName, { x: (pg.width - orgW) / 2, y: 60, size: 12, font: sans, color: rgb(0.75, 0.8, 0.9) });
+    // Author / Org name — bottom area, small caps feel
+    const orgNameUpper = opts.orgName.toUpperCase();
+    const orgW = sans.widthOfTextAtSize(orgNameUpper, 11);
+    safeDrawText(coverPage, orgNameUpper, { x: (pg.width - orgW) / 2, y: 55, size: 11, font: sans, color: C.accentGold });
   }
 
-  // ── 2. HALF-TITLE PAGE (pro touch) ────────────────────────────
+  // ══════════════════════════════════════════════════════════════
+  // 2. HALF-TITLE PAGE (verso of cover — elegant, minimal)
+  // ══════════════════════════════════════════════════════════════
   const halfTitle = pdfDoc.addPage([pg.width, pg.height]);
   const htLines = wrapText(opts.title, pg.width - 160, serifBold, 22).slice(0, 3);
   let hty = pg.height * 0.55;
   for (const line of htLines) {
     const w = serifBold.widthOfTextAtSize(line, 22);
-    halfTitle.drawText(line, { x: (pg.width - w) / 2, y: hty, size: 22, font: serifBold, color: rgb(0.12, 0.14, 0.2) });
+    safeDrawText(halfTitle, line, { x: (pg.width - w) / 2, y: hty, size: 22, font: serifBold, color: C.darkText });
     hty -= 30;
   }
+  // Small ornamental mark
+  const ornament = '❧';
+  try {
+    const ow = serif.widthOfTextAtSize(ornament, 16);
+    safeDrawText(halfTitle, ornament, { x: (pg.width - ow) / 2, y: hty - 20, size: 16, font: serif, color: C.rule });
+  } catch {
+    // ornament char not available, draw a small line instead
+    halfTitle.drawLine({ start: { x: pg.width * 0.42, y: hty - 20 }, end: { x: pg.width * 0.58, y: hty - 20 }, thickness: 0.6, color: C.rule });
+  }
 
-  // ── 3. COPYRIGHT PAGE ─────────────────────────────────────────
+  // ══════════════════════════════════════════════════════════════
+  // 3. COPYRIGHT / COLOPHON PAGE
+  // ══════════════════════════════════════════════════════════════
   const copyrightPage = pdfDoc.addPage([pg.width, pg.height]);
-  const year = new Date().getFullYear();
-  const copyrightLines = [
-    opts.title,
-    '',
-    `© ${year} ${opts.orgName}`,
-    isFr ? 'Tous droits réservés.' : 'All rights reserved.',
-    '',
-    isFr ? 'Aucune partie de cet ouvrage ne peut être reproduite sans autorisation écrite.'
-          : 'No part of this publication may be reproduced without written permission.',
-    '',
-    isFr ? `Personnalisé par ${opts.orgName}` : `Personalized by ${opts.orgName}`,
-    '',
-    isFr ? `Généré par Siteviral AI Studio — ${new Date().toLocaleDateString('fr-FR')}`
-          : `Generated by Siteviral AI Studio — ${new Date().toLocaleDateString('en-US')}`,
-    'https://siteviral.com',
+  const copyrightLines: { text: string; bold?: boolean; gap?: number }[] = [
+    { text: opts.title, bold: true },
+    { text: '', gap: 8 },
+    { text: `\u00A9 ${year} ${opts.orgName}` },
+    { text: isFr ? 'Tous droits réservés.' : 'All rights reserved.' },
+    { text: '', gap: 16 },
+    { text: isFr ? 'Aucune partie de cet ouvrage ne peut être reproduite,' : 'No part of this publication may be reproduced,' },
+    { text: isFr ? 'stockée ou transmise sous quelque forme que ce soit' : 'stored or transmitted in any form or by any means' },
+    { text: isFr ? 'sans l\'autorisation écrite préalable de l\'éditeur.' : 'without the prior written permission of the publisher.' },
+    { text: '', gap: 20 },
+    { text: isFr ? `Personnalisé par ${opts.orgName}` : `Personalized by ${opts.orgName}`, bold: true },
+    { text: '', gap: 8 },
+    { text: isFr ? `Créé avec Siteviral AI Studio` : `Created with Siteviral AI Studio` },
+    { text: generatedDate },
+    { text: 'https://siteviral.com' },
+    { text: '', gap: 24 },
+    { text: isFr ? `Première édition — ${generatedDate}` : `First edition — ${generatedDate}` },
   ];
-  let cy = pg.height - 120;
+
+  let cy = pg.height - 140;
   for (const line of copyrightLines) {
-    if (!line) { cy -= 14; continue; }
-    copyrightPage.drawText(line, { x: marginOuter, y: cy, size: 9, font: serif, color: rgb(0.35, 0.38, 0.45) });
+    if (!line.text) { cy -= (line.gap || 10); continue; }
+    const font = line.bold ? serifBold : serif;
+    const size = line.bold ? 10.5 : 9.5;
+    safeDrawText(copyrightPage, line.text, { x: M.outer, y: cy, size, font, color: C.lightText });
     cy -= 14;
   }
 
-  // ── 4. TABLE OF CONTENTS (placeholder, will add links after chapters) ──
-  const tocStartPage = pdfDoc.addPage([pg.width, pg.height]);
-  // We'll draw TOC content after we know chapter page numbers
+  // ══════════════════════════════════════════════════════════════
+  // 4. DEDICATION / EPIGRAPH PAGE (adds class)
+  // ══════════════════════════════════════════════════════════════
+  const epiPage = pdfDoc.addPage([pg.width, pg.height]);
+  // A tasteful epigraph adds publishing credibility
+  const epigraphs = isFr
+    ? ['"Un livre est un jardin que l\'on porte dans sa poche."', '— Proverbe arabe']
+    : ['"A book is a garden carried in the pocket."', '— Arab Proverb'];
+  const epiY = pg.height * 0.55;
+  const eq = epigraphs[0];
+  const eqLines = wrapText(eq, pg.width - 200, serifItalic, 13);
+  let ey = epiY;
+  for (const line of eqLines) {
+    const w = serifItalic.widthOfTextAtSize(line, 13);
+    safeDrawText(epiPage, line, { x: (pg.width - w) / 2, y: ey, size: 13, font: serifItalic, color: C.lightText });
+    ey -= 20;
+  }
+  ey -= 8;
+  const attrW = serif.widthOfTextAtSize(epigraphs[1], 10);
+  safeDrawText(epiPage, epigraphs[1], { x: (pg.width - attrW) / 2, y: ey, size: 10, font: serif, color: C.mutedText });
 
-  // ── 5. CHAPTERS ───────────────────────────────────────────────
+  // ══════════════════════════════════════════════════════════════
+  // 5. TABLE OF CONTENTS (drawn after chapters for page numbers)
+  // ══════════════════════════════════════════════════════════════
+  const tocStartPage = pdfDoc.addPage([pg.width, pg.height]);
+
+  // ══════════════════════════════════════════════════════════════
+  // 6. BLANK SEPARATOR PAGE before chapters (convention)
+  // ══════════════════════════════════════════════════════════════
+  pdfDoc.addPage([pg.width, pg.height]);
+
+  // ══════════════════════════════════════════════════════════════
+  // 7. CHAPTERS
+  // ══════════════════════════════════════════════════════════════
   for (let ci = 0; ci < chapters.length; ci++) {
     const chapter = chapters[ci];
     const chTitle = asText(chapter.title, `${chapterWord} ${ci + 1}`);
 
-    // Chapter title page (each chapter starts on a new page)
-    const titlePage = pdfDoc.addPage([pg.width, pg.height]);
-    chapterPageRefs.push(pdfDoc.context.getObjectRef(titlePage.node)!);
+    // ── CHAPTER OPENER PAGE ─────────────────────────────────
+    const openerPage = pdfDoc.addPage([pg.width, pg.height]);
+    chapterPageRefs.push(pdfDoc.context.getObjectRef(openerPage.node)!);
 
-    // Chapter number — small, elegant, centered
-    const numLabel = `— ${ci + 1} —`;
-    const numW = sans.widthOfTextAtSize(numLabel, 11);
-    titlePage.drawText(numLabel, {
-      x: (pg.width - numW) / 2, y: pg.height * 0.62,
-      size: 11, font: sans, color: rgb(0.45, 0.5, 0.6),
+    // Elegant chapter number — gold, large
+    const numLabel = `${chapterWord.toUpperCase()} ${ci + 1}`;
+    const numW = sans.widthOfTextAtSize(numLabel, 10);
+    safeDrawText(openerPage, numLabel, {
+      x: (pg.width - numW) / 2, y: pg.height * 0.68,
+      size: 10, font: sans, color: C.accentGold,
     });
 
-    // Decorative line
-    const lineW = 80;
-    titlePage.drawLine({
-      start: { x: (pg.width - lineW) / 2, y: pg.height * 0.605 },
-      end: { x: (pg.width + lineW) / 2, y: pg.height * 0.605 },
-      thickness: 0.8, color: rgb(0.3, 0.5, 0.8),
+    // Gold decorative line under chapter number
+    const decoLineW = 50;
+    openerPage.drawLine({
+      start: { x: (pg.width - decoLineW) / 2, y: pg.height * 0.67 },
+      end: { x: (pg.width + decoLineW) / 2, y: pg.height * 0.67 },
+      thickness: 1, color: C.accentGold,
     });
 
-    // Chapter title — centered, large
-    const ctLines = wrapText(chTitle, pg.width - 120, serifBold, 24).slice(0, 3);
-    let cty = pg.height * 0.57;
+    // Chapter title — centered, bold serif
+    const chTitleSize = chTitle.length > 40 ? 20 : 24;
+    const ctLines = wrapText(chTitle, pg.width - 130, serifBold, chTitleSize).slice(0, 3);
+    let cty = pg.height * 0.62;
     for (const line of ctLines) {
-      const w = serifBold.widthOfTextAtSize(line, 24);
-      titlePage.drawText(line, {
-        x: (pg.width - w) / 2, y: cty, size: 24, font: serifBold, color: rgb(0.1, 0.12, 0.2),
+      const w = serifBold.widthOfTextAtSize(line, chTitleSize);
+      safeDrawText(openerPage, line, {
+        x: (pg.width - w) / 2, y: cty, size: chTitleSize, font: serifBold, color: C.darkText,
       });
-      cty -= 32;
+      cty -= chTitleSize * 1.4;
     }
 
-    // Chapter content pages
+    // Second decorative line under title
+    openerPage.drawLine({
+      start: { x: pg.width * 0.3, y: cty + 4 },
+      end: { x: pg.width * 0.7, y: cty + 4 },
+      thickness: 0.5, color: C.rule,
+    });
+
+    // ── CHAPTER CONTENT PAGES ───────────────────────────────
     let contentPage = pdfDoc.addPage([pg.width, pg.height]);
-    let y = pg.height - marginTop;
+    let y = pg.height - M.top;
     let pageInChapter = 1;
-    const isEvenPage = (pageIndex: number) => pageIndex % 2 === 0;
 
-    const getMarginLeft = () => marginInner; // simplified, always same
-
-    // Parse HTML into structured blocks
     const blocks = htmlToBlocks(asText(chapter.content, ''));
-
     let isFirstParagraph = true;
 
     for (const block of blocks) {
+      // ── Separator ──
       if (block.type === 'separator') {
-        // Decorative separator
-        if (y < marginBottom + 40) {
-          contentPage = pdfDoc.addPage([pg.width, pg.height]);
-          y = pg.height - marginTop;
+        if (y < M.bottom + 50) {
+          contentPage = addContentPage(pdfDoc, pg, M, chTitle, serifItalic, sans, contentWidth);
+          y = pg.height - M.top;
           pageInChapter++;
         }
-        const sepY = y - 8;
-        const cx = getMarginLeft() + contentWidth / 2;
-        contentPage.drawText('• • •', {
-          x: cx - sans.widthOfTextAtSize('• • •', 10) / 2, y: sepY,
-          size: 10, font: sans, color: rgb(0.6, 0.65, 0.72),
+        const cx = M.inner + contentWidth / 2;
+        // Three-dot separator (professional)
+        safeDrawText(contentPage, '*    *    *', {
+          x: cx - sans.widthOfTextAtSize('*    *    *', 10) / 2, y: y - 6,
+          size: 10, font: sans, color: C.mutedText,
         });
-        y -= 28;
+        y -= 32;
         continue;
       }
 
+      // ── Heading ──
       if (block.type === 'heading') {
-        if (y < marginBottom + 60) {
-          contentPage = pdfDoc.addPage([pg.width, pg.height]);
-          y = pg.height - marginTop;
+        if (y < M.bottom + 70) {
+          contentPage = addContentPage(pdfDoc, pg, M, chTitle, serifItalic, sans, contentWidth);
+          y = pg.height - M.top;
           pageInChapter++;
         }
-        y -= 12; // extra space before heading
-        const hLines = wrapText(block.text, contentWidth, serifBold, 14);
+        y -= 18;
+        const hLines = wrapText(block.text, contentWidth, serifBold, T.h2);
         for (const line of hLines) {
-          contentPage.drawText(line, {
-            x: getMarginLeft(), y, size: 14, font: serifBold, color: rgb(0.1, 0.13, 0.22),
-          });
-          y -= 20;
+          safeDrawText(contentPage, line, { x: M.inner, y, size: T.h2, font: serifBold, color: C.accent });
+          y -= T.h2 * 1.5;
+        }
+        // Thin rule under heading
+        contentPage.drawLine({
+          start: { x: M.inner, y: y + 6 },
+          end: { x: M.inner + Math.min(contentWidth * 0.3, 100), y: y + 6 },
+          thickness: 0.6, color: C.accentGold,
+        });
+        y -= 10;
+        isFirstParagraph = true;
+        continue;
+      }
+
+      // ── Subheading ──
+      if (block.type === 'subheading') {
+        if (y < M.bottom + 50) {
+          contentPage = addContentPage(pdfDoc, pg, M, chTitle, serifItalic, sans, contentWidth);
+          y = pg.height - M.top;
+          pageInChapter++;
+        }
+        y -= 14;
+        const shLines = wrapText(block.text, contentWidth, serifBoldItalic, T.h3);
+        for (const line of shLines) {
+          safeDrawText(contentPage, line, { x: M.inner, y, size: T.h3, font: serifBoldItalic, color: C.darkText });
+          y -= T.h3 * 1.5;
         }
         y -= 6;
         isFirstParagraph = true;
         continue;
       }
 
+      // ── Block quote ──
       if (block.type === 'quote') {
-        if (y < marginBottom + 50) {
-          contentPage = pdfDoc.addPage([pg.width, pg.height]);
-          y = pg.height - marginTop;
+        if (y < M.bottom + 60) {
+          contentPage = addContentPage(pdfDoc, pg, M, chTitle, serifItalic, sans, contentWidth);
+          y = pg.height - M.top;
           pageInChapter++;
         }
-        y -= 8;
-        // Quote bar
-        const quoteMargin = getMarginLeft() + 18;
-        const quoteWidth = contentWidth - 36;
-        const qLines = wrapText(block.text, quoteWidth, serifItalic, bodyFontSize);
+        y -= 12;
+        const quoteMargin = M.inner + 24;
+        const quoteWidth = contentWidth - 48;
+        const qLines = wrapText(block.text, quoteWidth, serifItalic, T.body);
         const quoteTop = y + 4;
+
         for (const line of qLines) {
-          if (y < marginBottom + 20) {
-            contentPage = pdfDoc.addPage([pg.width, pg.height]);
-            y = pg.height - marginTop;
+          if (y < M.bottom + 20) {
+            contentPage = addContentPage(pdfDoc, pg, M, chTitle, serifItalic, sans, contentWidth);
+            y = pg.height - M.top;
             pageInChapter++;
           }
-          contentPage.drawText(line, {
-            x: quoteMargin, y, size: bodyFontSize, font: serifItalic, color: rgb(0.25, 0.28, 0.38),
-          });
-          y -= bodyLineHeight;
+          safeDrawText(contentPage, line, { x: quoteMargin, y, size: T.body, font: serifItalic, color: C.lightText });
+          y -= T.bodyLH;
         }
-        // Draw left bar for the quote
+        // Left accent bar
         contentPage.drawRectangle({
-          x: getMarginLeft() + 6, y: y + bodyLineHeight - 2,
-          width: 2.5, height: quoteTop - y - bodyLineHeight + 6,
-          color: rgb(0.3, 0.5, 0.8),
+          x: M.inner + 10, y: y + T.bodyLH - 2,
+          width: 3, height: quoteTop - y - T.bodyLH + 8,
+          color: C.accentGold,
         });
-        y -= paragraphSpacing;
+        y -= T.paraGap + 4;
         continue;
       }
 
+      // ── Bullet list ──
       if (block.type === 'bullet') {
-        if (y < marginBottom + 30) {
-          contentPage = pdfDoc.addPage([pg.width, pg.height]);
-          y = pg.height - marginTop;
+        if (y < M.bottom + 30) {
+          contentPage = addContentPage(pdfDoc, pg, M, chTitle, serifItalic, sans, contentWidth);
+          y = pg.height - M.top;
           pageInChapter++;
         }
-        const bulletX = getMarginLeft() + 12;
-        const bulletTextX = getMarginLeft() + 24;
-        const bLines = wrapText(block.text, contentWidth - 24, serif, bodyFontSize);
+        const bulletX = M.inner + 14;
+        const bulletTextX = M.inner + 28;
+        const bLines = wrapText(block.text, contentWidth - 28, serif, T.body);
         for (let li = 0; li < bLines.length; li++) {
-          if (y < marginBottom + 20) {
-            contentPage = pdfDoc.addPage([pg.width, pg.height]);
-            y = pg.height - marginTop;
+          if (y < M.bottom + 20) {
+            contentPage = addContentPage(pdfDoc, pg, M, chTitle, serifItalic, sans, contentWidth);
+            y = pg.height - M.top;
             pageInChapter++;
           }
           if (li === 0) {
-            contentPage.drawText('•', {
-              x: bulletX, y: y + 1, size: bodyFontSize + 2, font: sans, color: rgb(0.3, 0.5, 0.8),
-            });
+            // Draw a small filled circle as bullet
+            contentPage.drawCircle({ x: bulletX + 2, y: y + 3.5, size: 2.5, color: C.bulletDot });
           }
-          contentPage.drawText(bLines[li], {
-            x: bulletTextX, y, size: bodyFontSize, font: serif, color: rgb(0.15, 0.18, 0.26),
-          });
-          y -= bodyLineHeight;
+          safeDrawText(contentPage, bLines[li], { x: bulletTextX, y, size: T.body, font: serif, color: C.bodyText });
+          y -= T.bodyLH;
         }
-        y -= 2;
+        y -= 3;
         continue;
       }
 
-      // Regular paragraph
-      const indent = isFirstParagraph ? 0 : 24; // First paragraph no indent, others indented (book convention)
-      const paraWidth = contentWidth - indent;
-      const pLines = wrapText(block.text, paraWidth, serif, bodyFontSize);
-
-      for (let li = 0; li < pLines.length; li++) {
-        if (y < marginBottom + 20) {
-          contentPage = pdfDoc.addPage([pg.width, pg.height]);
-          y = pg.height - marginTop;
+      // ── Numbered list ──
+      if (block.type === 'numbered') {
+        if (y < M.bottom + 30) {
+          contentPage = addContentPage(pdfDoc, pg, M, chTitle, serifItalic, sans, contentWidth);
+          y = pg.height - M.top;
           pageInChapter++;
-          // Running header on continuation pages
-          contentPage.drawText(chTitle.length > 50 ? chTitle.slice(0, 47) + '...' : chTitle, {
-            x: getMarginLeft(), y: pg.height - 40,
-            size: 8, font: serifItalic, color: rgb(0.55, 0.58, 0.65),
-          });
-          contentPage.drawLine({
-            start: { x: getMarginLeft(), y: pg.height - 44 },
-            end: { x: getMarginLeft() + contentWidth, y: pg.height - 44 },
-            thickness: 0.3, color: rgb(0.82, 0.85, 0.9),
-          });
         }
-
-        const x = getMarginLeft() + (li === 0 ? indent : 0);
-        contentPage.drawText(pLines[li], {
-          x, y, size: bodyFontSize, font: serif, color: rgb(0.12, 0.14, 0.22),
-        });
-        y -= bodyLineHeight;
+        const numText = `${block.index || 1}.`;
+        const numTextX = M.inner + 28;
+        safeDrawText(contentPage, numText, { x: M.inner + 8, y, size: T.body, font: serifBold, color: C.accent });
+        const nLines = wrapText(block.text, contentWidth - 28, serif, T.body);
+        for (let li = 0; li < nLines.length; li++) {
+          if (y < M.bottom + 20) {
+            contentPage = addContentPage(pdfDoc, pg, M, chTitle, serifItalic, sans, contentWidth);
+            y = pg.height - M.top;
+            pageInChapter++;
+          }
+          safeDrawText(contentPage, nLines[li], { x: numTextX, y, size: T.body, font: serif, color: C.bodyText });
+          y -= T.bodyLH;
+        }
+        y -= 3;
+        continue;
       }
 
-      y -= paragraphSpacing;
+      // ── Regular paragraph ─────────────────────────────────
+      // DROP CAP for first paragraph of each chapter
+      if (isFirstParagraph && block.text.length > 20) {
+        if (y < M.bottom + 80) {
+          contentPage = addContentPage(pdfDoc, pg, M, chTitle, serifItalic, sans, contentWidth);
+          y = pg.height - M.top;
+          pageInChapter++;
+        }
+
+        const firstChar = block.text[0].toUpperCase();
+        const restText = block.text.slice(1);
+
+        // Draw drop cap
+        let dropCapDrawn = false;
+        try {
+          const dcSize = T.dropCapSize;
+          const dcWidth = serifBold.widthOfTextAtSize(firstChar, dcSize);
+          const dcHeight = dcSize * 0.75;
+          safeDrawText(contentPage, firstChar, {
+            x: M.inner, y: y - dcHeight + 10,
+            size: dcSize, font: serifBold, color: C.accent,
+          });
+
+          // Wrap remaining text around drop cap
+          const dcIndent = dcWidth + 8;
+          const firstLineWidth = contentWidth - dcIndent;
+          const dcLines = 3; // lines that wrap around the drop cap
+
+          const allWords = restText.split(' ');
+          const wrappedLines: string[] = [];
+          let wordIdx = 0;
+
+          // First N lines: narrower (wrapping around drop cap)
+          for (let dl = 0; dl < dcLines && wordIdx < allWords.length; dl++) {
+            let currentLine = '';
+            const maxW = dl < dcLines ? firstLineWidth : contentWidth;
+            while (wordIdx < allWords.length) {
+              const safe = sanitizeForFont(allWords[wordIdx], serif);
+              const candidate = currentLine ? `${currentLine} ${safe}` : safe;
+              try {
+                if (serif.widthOfTextAtSize(candidate, T.body) <= maxW) {
+                  currentLine = candidate;
+                  wordIdx++;
+                  continue;
+                }
+              } catch { wordIdx++; continue; }
+              break;
+            }
+            if (currentLine) wrappedLines.push(currentLine);
+          }
+
+          // Draw lines beside drop cap
+          let dropY = y;
+          for (let dl = 0; dl < wrappedLines.length; dl++) {
+            safeDrawText(contentPage, wrappedLines[dl], {
+              x: M.inner + dcIndent, y: dropY,
+              size: T.body, font: serif, color: C.bodyText,
+            });
+            dropY -= T.bodyLH;
+          }
+
+          // Remaining text: full width
+          let remainingText = '';
+          for (let wi = wordIdx; wi < allWords.length; wi++) {
+            remainingText += (remainingText ? ' ' : '') + allWords[wi];
+          }
+          if (remainingText) {
+            const rLines = wrapText(remainingText, contentWidth, serif, T.body);
+            for (const line of rLines) {
+              if (dropY < M.bottom + 20) {
+                contentPage = addContentPage(pdfDoc, pg, M, chTitle, serifItalic, sans, contentWidth);
+                dropY = pg.height - M.top;
+                pageInChapter++;
+              }
+              safeDrawText(contentPage, line, { x: M.inner, y: dropY, size: T.body, font: serif, color: C.bodyText });
+              dropY -= T.bodyLH;
+            }
+          }
+          y = dropY - T.paraGap;
+          dropCapDrawn = true;
+        } catch {
+          dropCapDrawn = false;
+        }
+
+        if (!dropCapDrawn) {
+          // Fallback: regular paragraph
+          const pLines = wrapText(block.text, contentWidth, serif, T.body);
+          for (const line of pLines) {
+            if (y < M.bottom + 20) {
+              contentPage = addContentPage(pdfDoc, pg, M, chTitle, serifItalic, sans, contentWidth);
+              y = pg.height - M.top;
+              pageInChapter++;
+            }
+            safeDrawText(contentPage, line, { x: M.inner, y, size: T.body, font: serif, color: C.bodyText });
+            y -= T.bodyLH;
+          }
+          y -= T.paraGap;
+        }
+
+        isFirstParagraph = false;
+        continue;
+      }
+
+      // Regular paragraph (not first)
+      const indent = isFirstParagraph ? 0 : T.indent;
+      const paraWidth = contentWidth - indent;
+      const pLines = wrapText(block.text, paraWidth, serif, T.body);
+
+      for (let li = 0; li < pLines.length; li++) {
+        if (y < M.bottom + 20) {
+          contentPage = addContentPage(pdfDoc, pg, M, chTitle, serifItalic, sans, contentWidth);
+          y = pg.height - M.top;
+          pageInChapter++;
+        }
+        const x = M.inner + (li === 0 ? indent : 0);
+        safeDrawText(contentPage, pLines[li], { x, y, size: T.body, font: serif, color: C.bodyText });
+        y -= T.bodyLH;
+      }
+      y -= T.paraGap;
       isFirstParagraph = false;
+    }
+
+    // ── End-of-chapter ornament ──
+    if (y > M.bottom + 40) {
+      y -= 20;
+      const endOrnX = M.inner + contentWidth / 2;
+      contentPage.drawLine({
+        start: { x: endOrnX - 20, y }, end: { x: endOrnX + 20, y },
+        thickness: 0.6, color: C.rule,
+      });
+      // Small diamond
+      const dY = y;
+      contentPage.drawCircle({ x: endOrnX, y: dY, size: 2, color: C.accentGold });
     }
   }
 
-  // ── 6. DRAW TABLE OF CONTENTS (now we know chapter pages) ─────
+  // ══════════════════════════════════════════════════════════════
+  // 8. DRAW TABLE OF CONTENTS (now we know chapter pages)
+  // ══════════════════════════════════════════════════════════════
   const tocPageIndex = pdfDoc.getPages().indexOf(tocStartPage);
   let tocPages = [tocStartPage];
-  let tocY = pg.height - marginTop;
+  let tocY = pg.height - M.top;
 
-  // TOC title
+  // TOC title — elegant
   const tocTitleW = serifBold.widthOfTextAtSize(tocLabel, 22);
-  tocStartPage.drawText(tocLabel, {
+  safeDrawText(tocStartPage, tocLabel, {
     x: (pg.width - tocTitleW) / 2, y: tocY,
-    size: 22, font: serifBold, color: rgb(0.1, 0.12, 0.2),
+    size: 22, font: serifBold, color: C.darkText,
   });
-  tocY -= 16;
+  tocY -= 12;
 
-  // Decorative line under TOC title
+  // Gold line under TOC title
   tocStartPage.drawLine({
-    start: { x: pg.width * 0.3, y: tocY },
-    end: { x: pg.width * 0.7, y: tocY },
-    thickness: 0.6, color: rgb(0.3, 0.5, 0.8),
+    start: { x: pg.width * 0.3, y: tocY }, end: { x: pg.width * 0.7, y: tocY },
+    thickness: 1, color: C.accentGold,
   });
-  tocY -= 30;
+  tocY -= 35;
 
   let currentTocPage = tocStartPage;
 
   for (let ci = 0; ci < chapters.length; ci++) {
-    if (tocY < marginBottom + 30) {
+    if (tocY < M.bottom + 35) {
       currentTocPage = pdfDoc.insertPage(tocPageIndex + tocPages.length, [pg.width, pg.height]);
       tocPages.push(currentTocPage);
-      tocY = pg.height - marginTop;
+      tocY = pg.height - M.top;
     }
 
     const chTitle = asText(chapters[ci].title, `${chapterWord} ${ci + 1}`);
     const numStr = `${ci + 1}`;
-    const displayTitle = chTitle.length > 60 ? chTitle.slice(0, 57) + '...' : chTitle;
+    const displayTitle = chTitle.length > 55 ? chTitle.slice(0, 52) + '...' : chTitle;
 
-    // Chapter number
-    currentTocPage.drawText(numStr, {
-      x: marginOuter, y: tocY,
-      size: 20, font: sansBold, color: rgb(0.3, 0.5, 0.8),
+    // Chapter number — accent gold, bold
+    safeDrawText(currentTocPage, numStr, {
+      x: M.outer, y: tocY, size: 18, font: sansBold, color: C.accentGold,
     });
 
     // Chapter title
-    const titleX = marginOuter + 36;
-    currentTocPage.drawText(displayTitle, {
-      x: titleX, y: tocY,
-      size: 12, font: serif, color: rgb(0.15, 0.18, 0.25),
+    const titleX = M.outer + 32;
+    safeDrawText(currentTocPage, displayTitle, {
+      x: titleX, y: tocY, size: T.tocEntry, font: serif, color: C.darkText,
     });
 
     // Dot leader
-    const titleEnd = titleX + serif.widthOfTextAtSize(displayTitle, 12) + 8;
-    const pageNumX = pg.width - marginOuter - 20;
+    const titleEnd = titleX + serif.widthOfTextAtSize(displayTitle, T.tocEntry) + 10;
+    const pageNumX = pg.width - M.outer - 18;
     if (pageNumX > titleEnd + 20) {
       let dotX = titleEnd;
       while (dotX < pageNumX - 5) {
-        currentTocPage.drawText('.', {
-          x: dotX, y: tocY, size: 8, font: sans, color: rgb(0.75, 0.78, 0.82),
-        });
+        safeDrawText(currentTocPage, '.', { x: dotX, y: tocY, size: 7, font: sans, color: C.ruleLight });
         dotX += 5;
       }
     }
 
-    // Create clickable annotation linking to chapter page
+    // Clickable annotation
     if (chapterPageRefs[ci]) {
       try {
         const linkDict = pdfDoc.context.obj({
-          Type: 'Annot',
-          Subtype: 'Link',
-          Rect: [marginOuter, tocY - 4, pg.width - marginOuter, tocY + 16],
+          Type: 'Annot', Subtype: 'Link',
+          Rect: [M.outer, tocY - 4, pg.width - M.outer, tocY + 16],
           Border: [0, 0, 0],
           Dest: [chapterPageRefs[ci], PDFName.of('Fit')],
         });
@@ -658,49 +962,123 @@ async function buildProfessionalPdf(opts: {
       }
     }
 
-    tocY -= 28;
+    tocY -= 30;
   }
 
-  // ── 7. PAGE NUMBERS, HEADERS, FOOTERS, WATERMARK ──────────────
-  const allPages = pdfDoc.getPages();
-  const total = allPages.length;
-  const generatedDate = new Date().toLocaleDateString(isFr ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+  // ══════════════════════════════════════════════════════════════
+  // 9. BACK MATTER — "About" / colophon page
+  // ══════════════════════════════════════════════════════════════
+  const backPage = pdfDoc.addPage([pg.width, pg.height]);
+  let by = pg.height * 0.65;
 
-  allPages.forEach((p, index) => {
+  // Decorative line
+  backPage.drawLine({
+    start: { x: pg.width * 0.3, y: by + 20 }, end: { x: pg.width * 0.7, y: by + 20 },
+    thickness: 0.8, color: C.accentGold,
+  });
+
+  const aboutTitle = isFr ? 'À propos de cette publication' : 'About This Publication';
+  const atW = serifBold.widthOfTextAtSize(aboutTitle, 16);
+  safeDrawText(backPage, aboutTitle, { x: (pg.width - atW) / 2, y: by, size: 16, font: serifBold, color: C.darkText });
+  by -= 30;
+
+  const aboutLines = isFr ? [
+    `Ce livre a été créé et publié par ${opts.orgName}`,
+    `grâce à la plateforme Siteviral AI Studio.`,
+    '',
+    `Siteviral AI Studio permet aux créateurs, auteurs,`,
+    `entrepreneurs et organisations de produire des contenus`,
+    `éditoriaux de qualité professionnelle, accessibles au monde entier.`,
+    '',
+    `Date de publication : ${generatedDate}`,
+    '',
+    `Découvrez plus sur siteviral.com`,
+  ] : [
+    `This book was created and published by ${opts.orgName}`,
+    `using the Siteviral AI Studio platform.`,
+    '',
+    `Siteviral AI Studio empowers creators, authors,`,
+    `entrepreneurs and organizations to produce professional-quality`,
+    `editorial content accessible to the world.`,
+    '',
+    `Publication date: ${generatedDate}`,
+    '',
+    `Learn more at siteviral.com`,
+  ];
+
+  for (const line of aboutLines) {
+    if (!line) { by -= 12; continue; }
+    const lw = serif.widthOfTextAtSize(line, 10.5);
+    safeDrawText(backPage, line, { x: (pg.width - lw) / 2, y: by, size: 10.5, font: serif, color: C.lightText });
+    by -= 16;
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // 10. PAGE NUMBERS, HEADERS, FOOTERS, WATERMARK
+  // ══════════════════════════════════════════════════════════════
+  const allPages = pdfDoc.getPages();
+
+  allPages.forEach((p: PDFPage, index: number) => {
     const { width, height } = p.getSize();
 
-    // Skip cover page for page numbers / watermark
+    // Skip cover page
     if (index === 0) return;
 
-    // Subtle diagonal watermark (buyer-specific would be added at download time)
-    p.drawText(opts.orgName.toUpperCase(), {
-      x: width * 0.12, y: height * 0.4,
-      size: 44, font: sans, color: rgb(0.92, 0.93, 0.96),
-      rotate: degrees(38), opacity: 0.15,
+    // ── Subtle watermark (org name, very light) ──
+    safeDrawText(p, opts.orgName.toUpperCase(), {
+      x: width * 0.1, y: height * 0.38,
+      size: 48, font: sans, color: C.watermark,
+      rotate: degrees(38), opacity: 0.08,
     });
 
-    // Footer line
+    // ── Footer ──
+    // Elegant thin line
     p.drawLine({
-      start: { x: marginOuter, y: marginBottom - 12 },
-      end: { x: width - marginOuter, y: marginBottom - 12 },
-      thickness: 0.4, color: rgb(0.85, 0.87, 0.92),
+      start: { x: M.outer, y: M.bottom - 14 },
+      end: { x: width - M.outer, y: M.bottom - 14 },
+      thickness: 0.3, color: C.ruleLight,
     });
 
-    // Footer left: book title (truncated)
-    const footerTitle = opts.title.length > 40 ? opts.title.slice(0, 37) + '...' : opts.title;
-    p.drawText(footerTitle, {
-      x: marginOuter, y: marginBottom - 26,
-      size: 8, font: serifItalic, color: rgb(0.5, 0.53, 0.6),
+    // Footer left: book title (italic, small)
+    const footerTitle = opts.title.length > 38 ? opts.title.slice(0, 35) + '...' : opts.title;
+    safeDrawText(p, footerTitle, {
+      x: M.outer, y: M.bottom - 28,
+      size: T.footer, font: serifItalic, color: C.mutedText,
     });
 
     // Footer right: page number
-    const pageLabel = `${index}`;  // Cover is 0, so index = page number
-    const plW = sans.widthOfTextAtSize(pageLabel, 9);
-    p.drawText(pageLabel, {
-      x: width - marginOuter - plW, y: marginBottom - 26,
-      size: 9, font: sans, color: rgb(0.45, 0.48, 0.55),
+    const pageLabel = `${index}`;
+    const plW = sans.widthOfTextAtSize(pageLabel, T.pageNum);
+    safeDrawText(p, pageLabel, {
+      x: width - M.outer - plW, y: M.bottom - 28,
+      size: T.pageNum, font: sans, color: C.lightText,
     });
   });
 
   return await pdfDoc.save();
+}
+
+// ── Helper: add a new content page with running header ────────────
+function addContentPage(
+  pdfDoc: any, pg: { width: number; height: number },
+  M: { outer: number; inner: number; top: number; bottom: number },
+  chTitle: string, serifItalic: PDFFont, sans: PDFFont, contentWidth: number,
+): PDFPage {
+  const p = pdfDoc.addPage([pg.width, pg.height]);
+
+  // Running header: chapter title
+  const truncTitle = chTitle.length > 50 ? chTitle.slice(0, 47) + '...' : chTitle;
+  safeDrawText(p, truncTitle, {
+    x: M.inner, y: pg.height - 38,
+    size: 7.5, font: serifItalic, color: C.mutedText,
+  });
+
+  // Thin header line
+  p.drawLine({
+    start: { x: M.inner, y: pg.height - 42 },
+    end: { x: M.inner + contentWidth, y: pg.height - 42 },
+    thickness: 0.25, color: C.ruleLight,
+  });
+
+  return p;
 }
