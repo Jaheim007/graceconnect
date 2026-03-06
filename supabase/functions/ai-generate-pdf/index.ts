@@ -298,9 +298,9 @@ async function buildProfessionalPdf(opts: {
   const marginTop = 70;
   const marginBottom = 56;
   const contentWidth = pg.width - marginOuter - marginInner;
-  const bodyFontSize = isKids ? 13 : 11;
-  const bodyLineHeight = bodyFontSize * 1.65;
-  const paragraphSpacing = bodyFontSize * 0.8;
+  const bodyFontSize = isKids ? 14 : 11.5;
+  const bodyLineHeight = bodyFontSize * 1.7;
+  const paragraphSpacing = bodyFontSize * 0.9;
 
   const isFr = opts.language.startsWith('fr');
   const tocLabel = isFr ? 'Table des matières' : 'Table of Contents';
