@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Store, Link2, User, MoreHorizontal, Bell, Trophy, Building2, BarChart3, Settings, Wallet, LifeBuoy, Package, LogIn, UserPlus, Heart } from 'lucide-react';
+import { Home, Store, Link2, User, MoreHorizontal, Bell, Trophy, Building2, BarChart3, Settings, Wallet, LifeBuoy, Package, LogIn, UserPlus, Heart, PenLine } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -20,15 +20,16 @@ export function BottomNav() {
 
   const guestItems = [
     { to: '/', icon: Home, label: 'Accueil' },
-    { to: '/marketplace', icon: Store, label: 'Explorer' },
-    { to: '/auth?mode=signin', icon: LogIn, label: 'Connexion' },
+    { to: '/discover', icon: Store, label: 'Explorer' },
+    { to: '/ecrire', icon: PenLine, label: 'Écrire', accent: true },
     { to: '/auth?mode=signup', icon: UserPlus, label: "S'inscrire" },
   ];
 
   // Unified primary nav for authenticated users
   const primaryItems = [
     { to: '/dashboard', icon: Home, label: 'Accueil' },
-    { to: '/marketplace', icon: Store, label: 'Découvrir' },
+    { to: '/discover', icon: Store, label: 'Découvrir' },
+    { to: '/ecrire', icon: PenLine, label: 'Écrire', accent: true },
     ...(hasAmbassadorAccess
       ? [{ to: '/affiliation', icon: Link2, label: 'Gagner' }]
       : [{ to: '/resources', icon: Package, label: 'Achats' }]),
@@ -70,10 +71,11 @@ export function BottomNav() {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur-sm lg:hidden">
       <div className="flex items-center justify-around h-14 px-1 max-w-lg mx-auto">
-        {navItems.map(({ to, icon: Icon, label }) => {
+        {navItems.map(({ to, icon: Icon, label, ...rest }) => {
           const active = to === '/'
             ? location.pathname === '/'
             : location.pathname.startsWith(to.split('?')[0]);
+          const isAccent = 'accent' in rest && (rest as any).accent;
 
           return (
             <Link
@@ -83,12 +85,18 @@ export function BottomNav() {
               aria-label={label}
               className={cn(
                 'flex flex-col items-center justify-center gap-0.5 flex-1 py-2 min-h-[48px] min-w-[48px] transition-colors relative',
-                active ? 'text-primary' : 'text-muted-foreground'
+                isAccent ? 'text-primary' : active ? 'text-primary' : 'text-muted-foreground'
               )}
             >
-              <Icon className={cn('h-5 w-5', active && 'stroke-[2.5]')} />
-              <span className="text-[10px] font-medium leading-none">{label}</span>
-              {active && <div className="absolute -bottom-0.5 w-6 h-0.5 rounded-full bg-primary" />}
+              {isAccent ? (
+                <div className="h-9 w-9 -mt-4 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
+                  <Icon className="h-5 w-5 text-primary-foreground" />
+                </div>
+              ) : (
+                <Icon className={cn('h-5 w-5', active && 'stroke-[2.5]')} />
+              )}
+              <span className={cn('text-[10px] font-medium leading-none', isAccent && 'font-bold text-primary')}>{label}</span>
+              {active && !isAccent && <div className="absolute -bottom-0.5 w-6 h-0.5 rounded-full bg-primary" />}
             </Link>
           );
         })}
