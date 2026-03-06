@@ -1,6 +1,7 @@
-import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, BookMarked, Users, Baby, User, Briefcase, UserCog, Globe } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, BookMarked, Users, Baby, User, Briefcase, UserCog, Globe, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { useI18n } from '@/i18n/I18nContext';
 import type { WriteState, BookStyle, WritingTone, LanguageLevel, TargetAudience, BookLanguage } from '../WriteWizard';
@@ -116,6 +117,21 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Custom style reference */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium flex items-center gap-1.5">
+          <Wand2 className="h-3.5 w-3.5" /> {t('write.style_ref_label')}
+        </label>
+        <Textarea
+          value={state.styleReference || ''}
+          onChange={e => update({ styleReference: e.target.value })}
+          placeholder={t('write.style_ref_placeholder')}
+          className="min-h-[80px] text-sm resize-none"
+          maxLength={1000}
+        />
+        <p className="text-[10px] text-muted-foreground">{t('write.style_ref_hint')}</p>
       </div>
 
       {/* Language level */}

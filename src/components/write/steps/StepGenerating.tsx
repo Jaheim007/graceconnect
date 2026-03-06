@@ -40,6 +40,7 @@ export function StepGenerating({ state, update, onNext }: Props) {
             tone: state.tone || 'professional',
             languageLevel: state.languageLevel || 'intermediate',
             targetAudience: state.targetAudience || 'general',
+            styleReference: state.styleReference || '',
           },
         });
 
