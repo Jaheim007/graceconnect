@@ -66,13 +66,13 @@ export function AffiliateShareTools({ shareUrl, orgName, affiliateCode, productT
   };
 
   // Simple QR code using a free API
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(shareUrl)}`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(socialShareUrl)}`;
 
   return (
     <div className="space-y-3">
       {/* Link display */}
       <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2">
-        <p className="text-[11px] font-mono text-muted-foreground flex-1 truncate">{shareUrl}</p>
+        <p className="text-[11px] font-mono text-muted-foreground flex-1 truncate">{socialShareUrl}</p>
         <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={handleCopy}>
           {copied ? <CheckCircle className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
         </Button>
@@ -101,7 +101,7 @@ export function AffiliateShareTools({ shareUrl, orgName, affiliateCode, productT
             </DialogHeader>
             <div className="flex flex-col items-center gap-3 py-4">
               <img src={qrUrl} alt="QR Code" className="rounded-xl border border-border" />
-              <p className="text-[10px] text-muted-foreground text-center max-w-[200px] break-all">{shareUrl}</p>
+              <p className="text-[10px] text-muted-foreground text-center max-w-[200px] break-all">{socialShareUrl}</p>
               <Badge variant="secondary" className="text-[10px]">Code: {affiliateCode}</Badge>
             </div>
           </DialogContent>

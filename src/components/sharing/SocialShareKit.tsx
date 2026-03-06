@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Check, Copy, Mail, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { trackEvent } from '@/hooks/useClientAnalytics';
+import { buildShareUrlForPath } from '@/lib/shareMeta';
 import {
   Dialog,
   DialogContent,
@@ -90,6 +91,19 @@ export function SocialShareKit({ url, title, description, context, price, earnin
   const [showQR, setShowQR] = useState(false);
   const message = MESSAGES[context](title, price, earnings);
 
+  // Ensure all share URLs route through the edge function for proper OG previews
+  const ogUrl = useMemo(() => {
+    try {
+      const parsed = new URL(url);
+      if (parsed.hostname === 'siteviral.com' || parsed.hostname === 'www.siteviral.com' || parsed.hostname.endsWith('.lovable.app')) {
+        return buildShareUrlForPath(parsed.pathname + parsed.search);
+      }
+    } catch {
+      if (url.startsWith('/')) return buildShareUrlForPath(url);
+    }
+    return url;
+  }, [url]);
+
   const track = (platform: string) => {
     trackEvent('share_click', {
       platform,
@@ -114,19 +128,19 @@ export function SocialShareKit({ url, title, description, context, price, earnin
   const handlePlatformClick = (p: Platform) => {
     track(p.name);
     if (p.copyOnly) {
-      copyText(`${message} ${url}`, p.name);
+      copyText(`${message} ${ogUrl}`, p.name);
       return;
     }
-    window.open(p.getUrl(url, message), '_blank', 'noopener,noreferrer');
+    window.open(p.getUrl(ogUrl, message), '_blank', 'noopener,noreferrer');
   };
 
   const emailSubject = context === 'post-publication'
     ? `Mon nouveau livre : ${title}`
     : `Découvre : ${title}`;
 
-  const emailUrl = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(`${message}\n\n${url}`)}`;
+  const emailUrl = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(`${message}\n\n${ogUrl}`)}`;
 
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(url)}`;
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(ogUrl)}`;
 
   return (
     <div className="space-y-4">
@@ -152,7 +166,7 @@ export function SocialShareKit({ url, title, description, context, price, earnin
           variant="outline"
           size="sm"
           className="gap-2 text-xs"
-          onClick={() => copyText(url)}
+          onClick={() => copyText(ogUrl)}
         >
           {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
           {copied ? 'Copié !' : 'Copier le lien'}
