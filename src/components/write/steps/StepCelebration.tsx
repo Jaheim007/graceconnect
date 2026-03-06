@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
 import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
+import { useI18n } from '@/i18n/I18nContext';
 import type { WriteState } from '../WriteWizard';
 
 interface Props {
@@ -13,14 +14,14 @@ interface Props {
 
 export function StepCelebration({ state }: Props) {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [showConfetti, setShowConfetti] = useState(true);
 
   useEffect(() => {
-    const t = setTimeout(() => setShowConfetti(false), 4000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setShowConfetti(false), 4000);
+    return () => clearTimeout(timer);
   }, []);
 
-  // Use actual product URL if available
   const shareUrl = state.productId && state.orgSlug
     ? `https://siteviral.com/org/${state.orgSlug}/${state.productId}`
     : `https://siteviral.com/discover`;
@@ -67,12 +68,11 @@ export function StepCelebration({ state }: Props) {
         </div>
 
         <h2 className="text-3xl sm:text-4xl font-extrabold">
-          🎉 TON LIVRE EST EN VENTE !
+          {t('write.celebration_title')}
         </h2>
 
         <p className="text-muted-foreground text-sm max-w-sm mx-auto">
-          « <strong className="text-foreground">{shareTitle}</strong> » est maintenant disponible.
-          Partage-le pour commencer à gagner !
+          « <strong className="text-foreground">{shareTitle}</strong> » {t('write.celebration_sub')}
         </p>
 
         {potentialEarning > 0 && (
@@ -82,9 +82,9 @@ export function StepCelebration({ state }: Props) {
             transition={{ delay: 0.6 }}
             className="inline-flex items-center gap-2 bg-accent/10 border border-accent/20 rounded-xl px-4 py-2 mx-auto"
           >
-            <span className="text-xs text-muted-foreground">Chaque ami qui achète =</span>
+            <span className="text-xs text-muted-foreground">{t('write.each_friend')}</span>
             <span className="text-sm font-black text-accent">
-              +{formatCurrency(potentialEarning, DEFAULT_CURRENCY)} pour toi
+              +{formatCurrency(potentialEarning, DEFAULT_CURRENCY)} {t('write.for_you')}
             </span>
           </motion.div>
         )}
@@ -117,7 +117,7 @@ export function StepCelebration({ state }: Props) {
           className="gap-2 w-full sm:w-auto"
           onClick={() => navigate('/dashboard')}
         >
-          <ExternalLink className="h-4 w-4" /> Voir mon dashboard
+          <ExternalLink className="h-4 w-4" /> {t('write.view_dashboard')}
         </Button>
         <div>
           <Button
@@ -125,7 +125,7 @@ export function StepCelebration({ state }: Props) {
             className="gap-2 text-sm"
             onClick={() => navigate('/ecrire')}
           >
-            <PenLine className="h-4 w-4" /> Écrire un autre livre
+            <PenLine className="h-4 w-4" /> {t('write.write_another')}
           </Button>
         </div>
       </motion.div>
