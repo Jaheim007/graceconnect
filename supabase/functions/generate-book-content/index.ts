@@ -223,9 +223,30 @@ Deno.serve(async (req) => {
     // Build custom style reference instruction if provided
     let styleRefInstruction = '';
     if (styleReference && styleReference.trim().length > 0) {
+      const ref = styleReference.trim();
       styleRefInstruction = lang === 'fr'
-        ? `\n\nRÉFÉRENCE DE STYLE PERSONNALISÉE :\nL'auteur souhaite que tu imites le style suivant. Analyse attentivement ce texte/ces noms et adapte ton écriture pour reproduire fidèlement ce ton, ce rythme, cette voix et ces tournures :\n«${styleReference.trim()}»\nCette référence de style PRÉVAUT sur le ton prédéfini ci-dessus si les deux sont en conflit.`
-        : `\n\nCUSTOM STYLE REFERENCE:\nThe author wants you to mimic the following style. Carefully analyze this text/names and adapt your writing to faithfully reproduce this tone, rhythm, voice and phrasing:\n"${styleReference.trim()}"\nThis style reference TAKES PRECEDENCE over the predefined tone above if they conflict.`;
+        ? `\n\n⚠️ INSTRUCTION PRIORITAIRE — RÉFÉRENCE DE STYLE PERSONNALISÉE ⚠️
+L'auteur a EXPLICITEMENT demandé que tu imites un style particulier. C'est l'instruction LA PLUS IMPORTANTE de tout ce prompt.
+
+RÉFÉRENCE FOURNIE : «${ref}»
+
+ANALYSE ET APPLICATION OBLIGATOIRES :
+- Si c'est un NOM D'AUTEUR, DE PRÉDICATEUR ou de PERSONNALITÉ (ex: Bishop Olukoya, Joel Osteen, Victor Hugo, etc.) : tu DOIS connaître leur style d'écriture/de prédication et le reproduire FIDÈLEMENT. Étudie leur vocabulaire typique, leurs tournures de phrases, leur rythme, leur façon de structurer leurs arguments, leurs expressions récurrentes, leur niveau de langue réel.
+- Si c'est un EXTRAIT DE TEXTE : analyse le vocabulaire, la longueur des phrases, le rythme, les figures de style, le niveau de langue et reproduis-les exactement.
+- Le ton défini plus haut (${_tone}) est SECONDAIRE. La référence de style est PRIORITAIRE et ÉCRASE le ton prédéfini en cas de conflit.
+- Le niveau de langue défini plus haut peut aussi être ajusté pour correspondre à la référence. Si la référence utilise un langage simple et direct, utilise un langage simple et direct, MÊME si le niveau demandé est "avancé".
+- CHAQUE paragraphe que tu écris doit sonner comme si ${ref} l'avait écrit lui-même/elle-même.`
+        : `\n\n⚠️ PRIORITY INSTRUCTION — CUSTOM STYLE REFERENCE ⚠️
+The author has EXPLICITLY requested that you mimic a specific style. This is the MOST IMPORTANT instruction in this entire prompt.
+
+REFERENCE PROVIDED: "${ref}"
+
+MANDATORY ANALYSIS AND APPLICATION:
+- If it's an AUTHOR, PREACHER, or PUBLIC FIGURE name (e.g., Bishop Olukoya, Joel Osteen, Victor Hugo, etc.): you MUST know their writing/preaching style and reproduce it FAITHFULLY. Study their typical vocabulary, sentence patterns, rhythm, argument structure, recurring expressions, and actual language level.
+- If it's a TEXT EXCERPT: analyze the vocabulary, sentence length, rhythm, literary devices, language level and reproduce them exactly.
+- The tone defined above (${_tone}) is SECONDARY. The style reference is the PRIORITY and OVERRIDES the predefined tone if they conflict.
+- The language level defined above may also be adjusted to match the reference. If the reference uses simple, direct language, use simple, direct language, EVEN if the requested level is "advanced".
+- EVERY paragraph you write must sound as if ${ref} wrote it themselves.`;
     }
 
     // Build system prompt - always in the target language for best results

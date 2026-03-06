@@ -25,6 +25,16 @@ export function StepGenerating({ state, update, onNext }: Props) {
     ran.current = true;
     aborted.current = false;
 
+    // If chapters already exist (user navigated back), skip regeneration
+    if (state.chapters && state.chapters.length > 0 && state.chapters[0].content.length > 30) {
+      setPhase('done');
+      setVisibleChapters(state.chapters.map(ch => ch.title));
+      setTimeout(() => {
+        if (!aborted.current) onNext();
+      }, 400);
+      return;
+    }
+
     const generateBook = async () => {
       try {
         setPhase('thinking');
