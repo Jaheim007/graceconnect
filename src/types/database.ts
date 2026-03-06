@@ -54,6 +54,7 @@ export interface Profile {
   bio?: string;
   phone?: string;
   country: string;
+  referral_code?: string;
   created_at: string;
   updated_at: string;
 }
