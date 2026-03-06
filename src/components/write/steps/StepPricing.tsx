@@ -1,4 +1,4 @@
-import { ArrowLeft, Rocket, Users } from 'lucide-react';
+import { ArrowLeft, Rocket, Sparkles, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
@@ -25,21 +25,15 @@ export function StepPricing({ state, update, onNext, onBack }: Props) {
         <p className="text-muted-foreground text-sm">{t('write.set_price_sub')}</p>
       </div>
 
-      {/* Free toggle */}
-      <div className="flex items-center justify-between p-4 rounded-xl border border-border bg-card">
-        <div>
-          <p className="font-bold text-sm">{t('write.free_for_email')}</p>
-          <p className="text-xs text-muted-foreground">{t('write.free_for_email_desc')}</p>
-        </div>
-        <Switch
-          checked={state.isFree}
-          onCheckedChange={v => update({ isFree: v })}
-        />
+      {/* AI-generated products cannot be free — info banner */}
+      <div className="flex items-center gap-3 p-4 rounded-xl border border-amber-500/30 bg-amber-500/5">
+        <Sparkles className="h-5 w-5 text-amber-500 shrink-0" />
+        <p className="text-xs text-muted-foreground">
+          {t('write.ai_no_free') || 'Les contenus générés par IA ne peuvent pas être gratuits. Un prix minimum est requis.'}
+        </p>
       </div>
 
-      {!state.isFree && (
-        <>
-          {/* Price slider */}
+      {/* Price slider */}
           <div className="space-y-3">
             <label className="text-sm font-medium">
               {t('write.price_label')} : <span className="text-primary font-bold">{state.price.toLocaleString('fr-FR')} FCFA</span>
@@ -94,8 +88,7 @@ export function StepPricing({ state, update, onNext, onBack }: Props) {
               {t('write.simulation')} <strong className="text-foreground">{(creatorEarns * 50).toLocaleString('fr-FR')} FCFA</strong> {t('write.simulation_suffix')}
             </p>
           </div>
-        </>
-      )}
+        
 
       {/* Actions */}
       <div className="flex gap-3">

@@ -404,7 +404,7 @@ export function ProductForm() {
           {errors.external_link && <p className="text-xs text-destructive">{errors.external_link.message}</p>}
         </div>
         <div className="flex flex-wrap items-center gap-6">
-          <div className="flex items-center gap-2"><Switch checked={watch('is_free')} onCheckedChange={v => { if (v && studioState) { toast({ title: 'Non autorisé', description: 'Les produits générés par IA ne peuvent pas être gratuits.', variant: 'destructive' }); return; } setValue('is_free', v); }} /><Label className="text-sm cursor-pointer">Gratuit</Label></div>
+          <div className="flex items-center gap-2"><Switch checked={watch('is_free')} onCheckedChange={v => { const isAi = !!(studioState || item?.ai_generated); if (v && isAi) { toast({ title: 'Non autorisé', description: 'Les produits générés par IA ne peuvent pas être gratuits.', variant: 'destructive' }); return; } setValue('is_free', v); }} /><Label className="text-sm cursor-pointer">Gratuit</Label>{(studioState || item?.ai_generated) && <span className="text-[10px] text-amber-500 ml-1">🤖 IA</span>}</div>
           <div className="flex items-center gap-2"><Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} /><Label className="text-sm cursor-pointer">Publié</Label></div>
           <div className="flex items-center gap-2"><Switch checked={watch('is_bundle')} onCheckedChange={v => setValue('is_bundle', v)} /><Label className="text-sm cursor-pointer flex items-center gap-1"><PackagePlus className="h-3.5 w-3.5" /> Bundle</Label></div>
         </div>
