@@ -88,7 +88,7 @@ Deno.serve(async (req) => {
       admin.from('ai_project_assets').select('file_url')
         .eq('project_id', project_id).eq('is_cover', true).maybeSingle(),
       admin.from('organizations').select('name').eq('id', org_id).maybeSingle(),
-      admin.from('digital_products').select('cover_image_url')
+      admin.from('digital_products').select('id, cover_image_url')
         .eq('ai_project_id', project_id).eq('organization_id', org_id).maybeSingle(),
     ]);
 
