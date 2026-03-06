@@ -264,19 +264,33 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
               <ScrollArea className="max-h-[240px]">
                 <div className="px-2 pb-2 space-y-0.5">
                   {chaptersDraft.map((chapter, i) => (
-                    <button
+                    <div
                       key={chapter.id}
+                      draggable
+                      onDragStart={() => handleDragStart(i)}
+                      onDragOver={(e) => handleDragOver(e, i)}
+                      onDrop={(e) => handleDrop(e, i)}
+                      onDragEnd={handleDragEnd}
                       onClick={() => setActiveChapter(i)}
-                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left text-xs transition-colors ${
+                      className={`w-full flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-left text-xs transition-all cursor-grab active:cursor-grabbing group ${
                         activeChapter === i
                           ? 'bg-primary/10 text-primary font-semibold'
                           : 'text-foreground hover:bg-muted/50'
-                      }`}
+                      } ${dragOverIndex === i ? 'ring-2 ring-primary/40 scale-[1.02]' : ''}`}
                     >
+                      <GripVertical className="h-3 w-3 shrink-0 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" />
                       <span className="text-[10px] font-bold w-4 shrink-0 text-center">{i + 1}</span>
                       <span className="truncate flex-1">{chapter.title || '—'}</span>
+                      {chaptersDraft.length > 1 && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); removeChapter(i); }}
+                          className="p-0.5 hover:bg-destructive/10 text-destructive rounded opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
+                      )}
                       {activeChapter === i && <ChevronRight className="h-3 w-3 shrink-0" />}
-                    </button>
+                    </div>
                   ))}
                 </div>
               </ScrollArea>
