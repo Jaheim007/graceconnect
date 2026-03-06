@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -40,6 +40,7 @@ export interface WriteState {
   languageLevel: LanguageLevel;
   targetAudience: TargetAudience;
   language: BookLanguage;
+  styleReference: string;
   pageCount: number;
   chapters: WriteChapter[];
   coverTemplate: number;
@@ -53,6 +54,8 @@ export interface WriteState {
   orgSlug?: string;
 }
 
+const STORAGE_KEY = 'write_wizard_draft';
+
 const initialState: WriteState = {
   source: 'idea',
   topic: '',
@@ -63,6 +66,7 @@ const initialState: WriteState = {
   languageLevel: 'intermediate',
   targetAudience: 'general',
   language: 'fr',
+  styleReference: '',
   pageCount: 20,
   chapters: [],
   coverTemplate: 0,
@@ -73,6 +77,31 @@ const initialState: WriteState = {
   commissionRate: 20,
 };
 
+function loadDraft(): { state: WriteState; step: number } | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    // Don't restore File objects (they can't be serialized)
+    return {
+      state: { ...initialState, ...parsed.state, uploadedFile: null, coverFile: null },
+      step: typeof parsed.step === 'number' ? parsed.step : 0,
+    };
+  } catch { return null; }
+}
+
+function saveDraft(state: WriteState, step: number) {
+  try {
+    // Exclude non-serializable fields
+    const { uploadedFile, coverFile, ...serializable } = state;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ state: serializable, step }));
+  } catch { /* quota exceeded, ignore */ }
+}
+
+function clearDraft() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch {}
+}
+
 const PUBLISHING_STEP = 6;
 const CELEBRATION_STEP = 7;
 const STEP_LABELS = ['Source', 'Détails', 'Création', 'Aperçu', 'Couverture', 'Prix', 'Publication', '🎉'];
@@ -80,8 +109,9 @@ const STEP_LABELS = ['Source', 'Détails', 'Création', 'Aperçu', 'Couverture',
 type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
 
 export default function WriteWizard() {
-  const [step, setStep] = useState(0);
-  const [state, setState] = useState<WriteState>(initialState);
+  const draft = loadDraft();
+  const [step, setStep] = useState(draft?.step ?? 0);
+  const [state, setState] = useState<WriteState>(draft?.state ?? initialState);
   const [publishing, setPublishing] = useState(false);
   const [publishingStage, setPublishingStage] = useState<PublishingStage>('preparing');
   const [willCreateOrg, setWillCreateOrg] = useState(false);
@@ -91,8 +121,20 @@ export default function WriteWizard() {
   const { toast } = useToast();
 
   const update = useCallback((patch: Partial<WriteState>) => {
-    setState(prev => ({ ...prev, ...patch }));
+    setState(prev => {
+      const next = { ...prev, ...patch };
+      return next;
+    });
   }, []);
+
+  // Auto-save to localStorage on every state/step change
+  useEffect(() => {
+    if (step < CELEBRATION_STEP) {
+      saveDraft(state, step);
+    } else {
+      clearDraft();
+    }
+  }, [state, step]);
 
   const next = useCallback(() => setStep(s => {
     const newStep = Math.min(s + 1, CELEBRATION_STEP);

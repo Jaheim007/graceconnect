@@ -198,7 +198,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { title, topic, style, pageCount, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle } = await req.json();
+    const { title, topic, style, pageCount, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle, styleReference } = await req.json();
 
     if (!title && !topic) {
       return new Response(JSON.stringify({ error: 'title or topic required' }), {
@@ -219,6 +219,14 @@ Deno.serve(async (req) => {
     const levelInstruction = getInstruction(levelMap, lang, _level, 'intermediate');
     const audienceInstruction = getInstruction(audienceMap, lang, _audience, 'general');
     const formatInstruction = getInstruction(styleFormatMap, lang, style || 'ebook', 'ebook');
+
+    // Build custom style reference instruction if provided
+    let styleRefInstruction = '';
+    if (styleReference && styleReference.trim().length > 0) {
+      styleRefInstruction = lang === 'fr'
+        ? `\n\nRÉFÉRENCE DE STYLE PERSONNALISÉE :\nL'auteur souhaite que tu imites le style suivant. Analyse attentivement ce texte/ces noms et adapte ton écriture pour reproduire fidèlement ce ton, ce rythme, cette voix et ces tournures :\n«${styleReference.trim()}»\nCette référence de style PRÉVAUT sur le ton prédéfini ci-dessus si les deux sont en conflit.`
+        : `\n\nCUSTOM STYLE REFERENCE:\nThe author wants you to mimic the following style. Carefully analyze this text/names and adapt your writing to faithfully reproduce this tone, rhythm, voice and phrasing:\n"${styleReference.trim()}"\nThis style reference TAKES PRECEDENCE over the predefined tone above if they conflict.`;
+    }
 
     // Build system prompt - always in the target language for best results
     const systemPrompt = lang === 'fr'
@@ -252,7 +260,7 @@ QUALITÉ DU HTML :
 - Les listes pour structurer les points importants
 - Les sous-titres <h3> pour aérer le texte (2-3 par chapitre)
 
-Tu DOIS créer les chapitres EN FONCTION DU SUJET/IDÉE fourni. Chaque chapitre explore un aspect unique et essentiel du sujet.
+Tu DOIS créer les chapitres EN FONCTION DU SUJET/IDÉE fourni. Chaque chapitre explore un aspect unique et essentiel du sujet.${styleRefInstruction}
 FORMAT DE SORTIE : Retourne un JSON valide. Pas de markdown, pas de code fences.`
       : `You are a WORLD-CLASS PROFESSIONAL AUTHOR. You write complete, captivating, and exceptionally high-quality books in ${langName}.
 
@@ -284,8 +292,9 @@ HTML QUALITY:
 - Lists to structure key points
 - Sub-headings <h3> to break up text (2-3 per chapter)
 
-You MUST create chapters BASED ON THE TOPIC/IDEA provided. Each chapter explores a unique and essential aspect of the topic.
+You MUST create chapters BASED ON THE TOPIC/IDEA provided. Each chapter explores a unique and essential aspect of the topic.${styleRefInstruction}
 OUTPUT FORMAT: Return valid JSON. No markdown, no code fences.`;
+
 
     let userPrompt: string;
 
