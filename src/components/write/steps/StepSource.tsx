@@ -1,8 +1,8 @@
-import { PenLine, FileText, Lightbulb } from 'lucide-react';
+import { PenLine, FileText, Lightbulb, History, PlusCircle, Clock3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useI18n } from '@/i18n/I18nContext';
-import type { WriteState, SourceType } from '../WriteWizard';
+import type { WriteState, SourceType, SavedWriteDraftSummary } from '../WriteWizard';
 
 const SUGGESTION_KEYS = [
   'write.sug_prayers', 'write.sug_business', 'write.sug_cooking', 'write.sug_health',
@@ -13,9 +13,23 @@ interface Props {
   state: WriteState;
   update: (patch: Partial<WriteState>) => void;
   onNext: () => void;
+  savedDrafts: SavedWriteDraftSummary[];
+  activeDraftId: string;
+  onCreateDraft: () => void;
+  onLoadDraft: (draftId: string) => void;
+  lastSavedAt: number | null;
 }
 
-export function StepSource({ state, update, onNext }: Props) {
+export function StepSource({
+  state,
+  update,
+  onNext,
+  savedDrafts,
+  activeDraftId,
+  onCreateDraft,
+  onLoadDraft,
+  lastSavedAt,
+}: Props) {
   const { t } = useI18n();
 
   const sources: { type: SourceType; icon: typeof PenLine; label: string; desc: string }[] = [
@@ -26,6 +40,8 @@ export function StepSource({ state, update, onNext }: Props) {
   const canContinue = state.source === 'idea'
     ? state.topic.trim().length >= 3
     : state.uploadedFile !== null;
+
+  const visibleDrafts = savedDrafts.slice(0, 4);
 
   return (
     <div className="space-y-8 pt-8">
@@ -38,9 +54,69 @@ export function StepSource({ state, update, onNext }: Props) {
         </p>
       </div>
 
+      {/* Draft manager */}
+      <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <History className="h-4 w-4 text-primary shrink-0" />
+            <p className="text-sm font-semibold truncate">{t('write.saved_drafts')}</p>
+          </div>
+          <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={onCreateDraft}>
+            <PlusCircle className="h-3.5 w-3.5" /> {t('write.new_draft')}
+          </Button>
+        </div>
+
+        {lastSavedAt && (
+          <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+            <Clock3 className="h-3 w-3" />
+            <span>{t('write.last_saved')}: {new Date(lastSavedAt).toLocaleTimeString()}</span>
+          </div>
+        )}
+
+        {visibleDrafts.length > 0 ? (
+          <div className="space-y-2">
+            {visibleDrafts.map((draft) => (
+              <div
+                key={draft.id}
+                className={`rounded-xl border px-3 py-2 flex items-center gap-2 justify-between ${
+                  draft.id === activeDraftId
+                    ? 'border-primary/40 bg-primary/5'
+                    : 'border-border bg-background'
+                }`}
+              >
+                <div className="min-w-0">
+                  <p className="text-sm font-medium truncate">{draft.name}</p>
+                  <p className="text-[11px] text-muted-foreground truncate">
+                    {new Date(draft.updatedAt).toLocaleString()} · {t('write.step')} {draft.step + 1}/9
+                  </p>
+                </div>
+
+                {draft.id === activeDraftId ? (
+                  <span className="text-[10px] px-2 py-1 rounded-full bg-primary/10 text-primary font-semibold whitespace-nowrap">
+                    {t('write.current_draft')}
+                  </span>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-xs"
+                    onClick={() => onLoadDraft(draft.id)}
+                  >
+                    {t('write.resume_draft')}
+                  </Button>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-xs text-muted-foreground">{t('write.no_saved_draft')}</p>
+        )}
+      </div>
+
       {/* Source selection */}
       <div className="grid grid-cols-2 gap-3">
-        {sources.map(s => (
+        {sources.map((s) => (
           <button
             key={s.type}
             onClick={() => update({ source: s.type })}
@@ -62,7 +138,7 @@ export function StepSource({ state, update, onNext }: Props) {
         <div className="space-y-4">
           <Textarea
             value={state.topic}
-            onChange={e => update({ topic: e.target.value })}
+            onChange={(e) => update({ topic: e.target.value })}
             placeholder={t('write.topic_placeholder')}
             className="min-h-[100px] text-base resize-none"
             autoFocus
@@ -70,7 +146,7 @@ export function StepSource({ state, update, onNext }: Props) {
           <div>
             <p className="text-xs text-muted-foreground mb-2">{t('write.popular_ideas')}</p>
             <div className="flex flex-wrap gap-2">
-              {SUGGESTION_KEYS.map(key => {
+              {SUGGESTION_KEYS.map((key) => {
                 const label = t(key);
                 return (
                   <button
@@ -100,7 +176,7 @@ export function StepSource({ state, update, onNext }: Props) {
               type="file"
               accept=".pdf,.docx,.doc,.txt"
               className="hidden"
-              onChange={e => {
+              onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
                   update({ uploadedFile: file, title: file.name.replace(/\.[^.]+$/, '') });
