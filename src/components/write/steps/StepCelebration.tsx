@@ -4,6 +4,7 @@ import { PartyPopper, ExternalLink, PenLine } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
+import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
 import type { WriteState } from '../WriteWizard';
 
 interface Props {
@@ -19,9 +20,15 @@ export function StepCelebration({ state }: Props) {
     return () => clearTimeout(t);
   }, []);
 
-  // Mock share URL (in production, this would be the actual product URL)
-  const shareUrl = `https://siteviral.com/discover`;
+  // Use actual product URL if available
+  const shareUrl = state.productId && state.orgSlug
+    ? `https://siteviral.com/org/${state.orgSlug}/${state.productId}`
+    : `https://siteviral.com/discover`;
   const shareTitle = state.title || 'Mon livre';
+
+  const potentialEarning = !state.isFree && state.price > 0
+    ? Math.round(state.price * state.commissionRate / 100)
+    : 0;
 
   return (
     <div className="space-y-8 pt-8 text-center relative overflow-hidden">
@@ -67,6 +74,20 @@ export function StepCelebration({ state }: Props) {
           « <strong className="text-foreground">{shareTitle}</strong> » est maintenant disponible.
           Partage-le pour commencer à gagner !
         </p>
+
+        {potentialEarning > 0 && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.6 }}
+            className="inline-flex items-center gap-2 bg-accent/10 border border-accent/20 rounded-xl px-4 py-2 mx-auto"
+          >
+            <span className="text-xs text-muted-foreground">Chaque ami qui achète =</span>
+            <span className="text-sm font-black text-accent">
+              +{formatCurrency(potentialEarning, DEFAULT_CURRENCY)} pour toi
+            </span>
+          </motion.div>
+        )}
       </motion.div>
 
       {/* Social Share Kit */}
