@@ -78,6 +78,7 @@ const MarketplacePage = lazy(() => import("@/pages/MarketplacePage"));
 const QuickStartPage = lazy(() => import("@/pages/QuickStartPage"));
 const QuickPublishPage = lazy(() => import("@/pages/QuickPublishPage"));
 const GagnerLandingPage = lazy(() => import("@/pages/GagnerLandingPage"));
+const GagnerPage = lazy(() => import("@/pages/GagnerPage"));
 const EcrirePage = lazy(() => import("@/pages/EcrirePage"));
 const MigrerPage = lazy(() => import("@/pages/MigrerPage"));
 const CanvaCallbackPage = lazy(() => import("@/pages/canva/CanvaCallback"));
@@ -344,7 +345,8 @@ const App = () => (
                 <Route path="/guide/affiliation-sans-investissement" element={<GuideAffiliationSansInvestissementPage />} />
                 <Route path="/go/:code" element={<GoRedirectPage />} />
                 <Route path="/maintenance" element={<MaintenancePage />} />
-                <Route path="/gagner" element={<GagnerLandingPage />} />
+                <Route path="/gagner" element={<GagnerPage />} />
+                <Route path="/gagner-info" element={<GagnerLandingPage />} />
                 <Route path="/ecrire" element={<EcrirePage />} />
                 <Route path="/migrer" element={<MigrerPage />} />
                 <Route path="/vendre" element={<VendreLandingPage />} />
