@@ -27,6 +27,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { db } from '@/lib/db';
 import { supabase } from '@/integrations/supabase/client';
+import { brandUrl } from '@/lib/storageUrl';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
