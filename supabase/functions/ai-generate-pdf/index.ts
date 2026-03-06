@@ -152,7 +152,7 @@ Deno.serve(async (req) => {
 
     return new Response(JSON.stringify({
       ok: true, asset_id: asset?.id,
-      download_url: `${supabaseUrl}/storage/v1/object/public/org-uploads/${storagePath}`,
+      download_url: downloadUrl,
       format: projectFormat,
     }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (e) {
