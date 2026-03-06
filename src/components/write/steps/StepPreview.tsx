@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, Edit3, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Edit3, Plus, Trash2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useI18n } from '@/i18n/I18nContext';
-import type { WriteState } from '../WriteWizard';
+import type { WriteState, WriteChapter } from '../WriteWizard';
 
 interface Props {
   state: WriteState;
@@ -13,20 +13,59 @@ interface Props {
   onBack: () => void;
 }
 
+function normalizeChapters(chapters: WriteChapter[]): WriteChapter[] {
+  return chapters
+    .map((chapter, index) => ({
+      id: chapter.id || `ch-${index + 1}`,
+      title: chapter.title.trim(),
+      content: chapter.content.trim(),
+    }))
+    .filter((chapter) => chapter.title.length > 0);
+}
+
 export function StepPreview({ state, update, onNext, onBack }: Props) {
   const { t } = useI18n();
-  const [chaptersDraft, setChaptersDraft] = useState(state.chapters.join('\n'));
+  const [chaptersDraft, setChaptersDraft] = useState<WriteChapter[]>(state.chapters);
 
   useEffect(() => {
-    setChaptersDraft(state.chapters.join('\n'));
-  }, [state.chapters]);
+    if (state.chapters.length > 0) {
+      setChaptersDraft(state.chapters.map((chapter) => ({ ...chapter })));
+      return;
+    }
 
-  const normalizedChapters = useMemo(() => {
-    return chaptersDraft
-      .split('\n')
-      .map((ch) => ch.trim())
-      .filter(Boolean);
-  }, [chaptersDraft]);
+    setChaptersDraft([
+      {
+        id: 'ch-1',
+        title: t('write.chapter_default_title'),
+        content: '',
+      },
+    ]);
+  }, [state.chapters, t]);
+
+  const normalizedChapters = useMemo(() => normalizeChapters(chaptersDraft), [chaptersDraft]);
+
+  const updateChapterTitle = (index: number, title: string) => {
+    setChaptersDraft((prev) => prev.map((chapter, i) => (i === index ? { ...chapter, title } : chapter)));
+  };
+
+  const updateChapterContent = (index: number, content: string) => {
+    setChaptersDraft((prev) => prev.map((chapter, i) => (i === index ? { ...chapter, content } : chapter)));
+  };
+
+  const addChapter = () => {
+    setChaptersDraft((prev) => [
+      ...prev,
+      {
+        id: `ch-${Date.now()}`,
+        title: `${t('write.chapter_label')} ${prev.length + 1}`,
+        content: '',
+      },
+    ]);
+  };
+
+  const removeChapter = (index: number) => {
+    setChaptersDraft((prev) => prev.filter((_, i) => i !== index));
+  };
 
   const applyEdits = () => {
     update({ chapters: normalizedChapters });
@@ -51,20 +90,47 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
         />
       </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">{t('write.preview_edit_chapters')}</label>
-        <Textarea
-          value={chaptersDraft}
-          onChange={(e) => setChaptersDraft(e.target.value)}
-          onBlur={applyEdits}
-          rows={8}
-        />
-        <p className="text-xs text-muted-foreground">{t('write.preview_chapters_hint')}</p>
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium">{t('write.preview_edit_content')}</label>
+          <Button type="button" variant="outline" size="sm" className="gap-2" onClick={addChapter}>
+            <Plus className="h-4 w-4" /> {t('write.add_chapter')}
+          </Button>
+        </div>
+
+        <div className="space-y-4">
+          {chaptersDraft.map((chapter, index) => (
+            <div key={chapter.id} className="rounded-xl border border-border p-4 space-y-3 bg-card">
+              <div className="flex items-center gap-2">
+                <Input
+                  value={chapter.title}
+                  onChange={(e) => updateChapterTitle(index, e.target.value)}
+                  placeholder={`${t('write.chapter_label')} ${index + 1}`}
+                  className="h-10"
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeChapter(index)}
+                  disabled={chaptersDraft.length <= 1}
+                  aria-label={t('write.remove_chapter')}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+              <Textarea
+                value={chapter.content}
+                onChange={(e) => updateChapterContent(index, e.target.value)}
+                rows={6}
+                placeholder={t('write.preview_content_hint')}
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Book preview card */}
       <div className="rounded-2xl border-2 border-primary/20 bg-card overflow-hidden">
-        {/* Cover mock */}
         <div className="bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 p-8 text-center">
           <div className="max-w-[200px] mx-auto aspect-[3/4] rounded-lg bg-gradient-to-br from-primary to-accent flex flex-col items-center justify-center p-4 shadow-xl overflow-hidden">
             <Sparkles className="h-8 w-8 text-primary-foreground/80 mb-3 shrink-0" />
@@ -74,13 +140,12 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
           </div>
         </div>
 
-        {/* Table of contents */}
         <div className="p-6 space-y-3">
           <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">{t('write.toc')}</p>
-          {normalizedChapters.map((ch, i) => (
-            <div key={i} className="flex items-center gap-3 text-sm border-b border-border/50 pb-2 last:border-0">
+          {normalizedChapters.map((chapter, i) => (
+            <div key={chapter.id} className="flex items-center gap-3 text-sm border-b border-border/50 pb-2 last:border-0">
               <span className="text-xs font-bold text-primary w-6">{i + 1}</span>
-              <span className="text-foreground">{ch}</span>
+              <span className="text-foreground">{chapter.title}</span>
             </div>
           ))}
           <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
@@ -91,7 +156,6 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
         </div>
       </div>
 
-      {/* Actions */}
       <div className="flex gap-3">
         <Button variant="outline" size="lg" onClick={onBack} className="gap-2">
           <ArrowLeft className="h-4 w-4" /> {t('write.back')}
@@ -116,4 +180,5 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
     </div>
   );
 }
+
 

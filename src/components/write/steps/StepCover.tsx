@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { ArrowLeft, ArrowRight, Upload, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nContext';
@@ -26,13 +25,13 @@ interface Props {
 
 export function StepCover({ state, update, onNext, onBack }: Props) {
   const { t } = useI18n();
-  const [coverUrl, setCoverUrl] = useState('');
 
   const handleCoverUrlChange = (url: string) => {
-    setCoverUrl(url);
-    if (url) {
-      update({ coverFile: null, coverTemplate: -1 });
-    }
+    update({
+      coverUrl: url,
+      coverFile: null,
+      coverTemplate: url ? -1 : state.coverTemplate,
+    });
   };
 
   return (
@@ -42,16 +41,15 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
         <p className="text-muted-foreground text-sm">{t('write.cover_sub')}</p>
       </div>
 
-      {/* Template grid */}
       <div className="grid grid-cols-4 gap-3">
         {COVER_GRADIENTS.map((gradient, i) => (
           <button
             key={i}
-            onClick={() => { update({ coverTemplate: i, coverFile: null }); setCoverUrl(''); }}
+            onClick={() => update({ coverTemplate: i, coverFile: null, coverUrl: '' })}
             className={cn(
               'aspect-[3/4] rounded-xl bg-gradient-to-br flex flex-col items-center justify-center p-2 transition-all border-2',
               gradient,
-              state.coverTemplate === i && !state.coverFile && !coverUrl
+              state.coverTemplate === i && !state.coverFile && !state.coverUrl
                 ? 'border-primary ring-2 ring-primary/30 scale-105'
                 : 'border-transparent hover:scale-105'
             )}
@@ -64,11 +62,10 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
         ))}
       </div>
 
-      {/* Canva + Upload via ImageUploader */}
       <div>
         <p className="text-xs text-muted-foreground mb-2">{t('write.cover_upload_label')}</p>
         <ImageUploader
-          value={coverUrl}
+          value={state.coverUrl || ''}
           onChange={handleCoverUrlChange}
           folder="book-covers"
           label={t('write.cover_title')}
@@ -77,7 +74,6 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
         />
       </div>
 
-      {/* Actions */}
       <div className="flex gap-3">
         <Button variant="outline" size="lg" onClick={onBack} className="gap-2">
           <ArrowLeft className="h-4 w-4" /> {t('write.back')}
@@ -89,3 +85,4 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
     </div>
   );
 }
+

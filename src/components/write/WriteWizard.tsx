@@ -12,12 +12,19 @@ import { StepPreview } from './steps/StepPreview';
 import { StepCover } from './steps/StepCover';
 import { StepPricing } from './steps/StepPricing';
 import { StepCelebration } from './steps/StepCelebration';
+import { StepPublishing } from './steps/StepPublishing';
 import { WriteProgress } from './WriteProgress';
 import { WritingMotivation } from './WritingMotivation';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 
 export type SourceType = 'idea' | 'document';
 export type BookStyle = 'ebook' | 'guide' | 'prayers';
+
+export interface WriteChapter {
+  id: string;
+  title: string;
+  content: string;
+}
 
 export interface WriteState {
   source: SourceType;
@@ -26,7 +33,7 @@ export interface WriteState {
   title: string;
   style: BookStyle;
   pageCount: number;
-  chapters: string[];
+  chapters: WriteChapter[];
   coverTemplate: number;
   coverFile: File | null;
   coverUrl?: string;
@@ -34,6 +41,7 @@ export interface WriteState {
   isFree: boolean;
   commissionRate: number;
   productId?: string;
+  projectId?: string;
   orgSlug?: string;
 }
 
@@ -53,12 +61,18 @@ const initialState: WriteState = {
   commissionRate: 20,
 };
 
-const STEP_LABELS = ['Source', 'Détails', 'Création', 'Aperçu', 'Couverture', 'Prix', '🎉'];
+const PUBLISHING_STEP = 6;
+const CELEBRATION_STEP = 7;
+const STEP_LABELS = ['Source', 'Détails', 'Création', 'Aperçu', 'Couverture', 'Prix', 'Publication', '🎉'];
+
+type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
 
 export default function WriteWizard() {
   const [step, setStep] = useState(0);
   const [state, setState] = useState<WriteState>(initialState);
   const [publishing, setPublishing] = useState(false);
+  const [publishingStage, setPublishingStage] = useState<PublishingStage>('preparing');
+  const [willCreateOrg, setWillCreateOrg] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { t } = useI18n();
@@ -69,27 +83,55 @@ export default function WriteWizard() {
   }, []);
 
   const next = useCallback(() => setStep(s => {
-    const newStep = Math.min(s + 1, 6);
+    const newStep = Math.min(s + 1, CELEBRATION_STEP);
     trackEvent('wizard_step', { step: newStep, label: STEP_LABELS[newStep] }, user?.id);
     return newStep;
   }), [user?.id]);
+
   const back = useCallback(() => setStep(s => Math.max(s - 1, 0)), []);
 
   // Auth wall: after source selection (step 0), require login
   const handleSourceNext = useCallback(() => {
     if (!user) {
-      const intent = `writer`;
+      const intent = 'writer';
       navigate(`/auth?mode=signup&intent=${intent}&redirect=/ecrire`);
       return;
     }
     next();
   }, [user, navigate, next]);
 
-  // Publish: call create_book_quick RPC
   const handlePublish = useCallback(async () => {
     if (publishing) return;
     setPublishing(true);
+
     try {
+      let shouldCreateOrg = false;
+
+      if (user?.id) {
+        setPublishingStage('org');
+        const { count, error: ownerCountError } = await supabase
+          .from('organization_members')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id)
+          .eq('role', 'owner');
+
+        if (!ownerCountError) {
+          shouldCreateOrg = (count ?? 0) === 0;
+        }
+      }
+
+      setWillCreateOrg(shouldCreateOrg);
+
+      const normalizedChapters = state.chapters
+        .map((chapter, index) => ({
+          id: chapter.id || `ch-${index + 1}`,
+          title: chapter.title.trim(),
+          content: chapter.content.trim(),
+          order: index,
+        }))
+        .filter((chapter) => chapter.title.length > 0);
+
+      setPublishingStage('book');
       const { data, error } = await supabase.rpc('create_book_quick', {
         _title: state.title || t('write.my_book'),
         _style: state.style,
@@ -97,7 +139,7 @@ export default function WriteWizard() {
         _price: state.isFree ? 0 : state.price,
         _is_free: state.isFree,
         _commission_rate: state.commissionRate,
-        _chapters: JSON.parse(JSON.stringify(state.chapters)),
+        _chapters: JSON.parse(JSON.stringify(normalizedChapters)),
         _topic: state.topic || null,
         _cover_url: state.coverUrl || null,
         _description: null,
@@ -107,13 +149,88 @@ export default function WriteWizard() {
       if (error) throw error;
       const result = data as any;
 
+      const projectPayload = {
+        style: state.style,
+        chapters: normalizedChapters,
+        page_count: state.pageCount,
+        topic: state.topic || null,
+        cover_url: state.coverUrl || null,
+      };
+
+      if (result.project_id) {
+        await supabase
+          .from('ai_content_projects')
+          .update({
+            data_json: projectPayload,
+            structure_json: projectPayload,
+          })
+          .eq('id', result.project_id);
+      }
+
+      if (state.coverUrl && result.project_id && result.organization_id) {
+        await supabase
+          .from('ai_project_assets')
+          .insert({
+            project_id: result.project_id,
+            organization_id: result.organization_id,
+            asset_type: 'image',
+            file_url: state.coverUrl,
+            label: 'Couverture',
+            mime_type: 'image/jpeg',
+            is_cover: true,
+            display_order: 0,
+          });
+      }
+
+      setPublishingStage('pdf');
+      let generatedPdfUrl: string | null = null;
+
+      if (result.project_id && result.organization_id) {
+        const { data: pdfData, error: pdfError } = await supabase.functions.invoke('ai-generate-pdf', {
+          body: {
+            org_id: result.organization_id,
+            project_id: result.project_id,
+            format: 'ebook',
+            page_size: 'A4',
+          },
+        });
+
+        if (pdfError) throw pdfError;
+        if (pdfData?.error) throw new Error(pdfData.error);
+        generatedPdfUrl = pdfData?.download_url ?? null;
+      }
+
+      setPublishingStage('finalizing');
+      const productPatch: Record<string, string> = {};
+
+      if (generatedPdfUrl) productPatch.file_url = generatedPdfUrl;
+      if (state.coverUrl) productPatch.cover_image_url = state.coverUrl;
+
+      if (Object.keys(productPatch).length > 0 && result.product_id) {
+        await supabase
+          .from('digital_products')
+          .update(productPatch)
+          .eq('id', result.product_id);
+      }
+
       update({
         productId: result.product_id,
+        projectId: result.project_id,
         orgSlug: result.org_slug,
       });
 
-      trackEvent('book_published', { product_id: result.product_id }, user?.id);
-      next();
+      trackEvent(
+        'book_published',
+        {
+          product_id: result.product_id,
+          project_id: result.project_id,
+          has_pdf: !!generatedPdfUrl,
+          org_created: shouldCreateOrg,
+        },
+        user?.id,
+      );
+
+      setStep(CELEBRATION_STEP);
     } catch (err: any) {
       console.error('Publish error:', err);
       toast({
@@ -121,14 +238,22 @@ export default function WriteWizard() {
         description: err.message,
         variant: 'destructive',
       });
+      setStep(5);
     } finally {
       setPublishing(false);
     }
-  }, [publishing, state, user, next, update, toast, t]);
+  }, [publishing, state, user, update, toast, t]);
+
+  const startPublishing = useCallback(() => {
+    if (publishing) return;
+    setPublishingStage('preparing');
+    setStep(PUBLISHING_STEP);
+    void handlePublish();
+  }, [publishing, handlePublish]);
 
   return (
     <div className="pt-16 pb-20 min-h-screen">
-      {step < 6 && (
+      {step < CELEBRATION_STEP && (
         <>
           <WriteProgress currentStep={step} labels={STEP_LABELS} />
           <WritingMotivation step={step} />
@@ -149,11 +274,13 @@ export default function WriteWizard() {
             {step === 2 && <StepGenerating state={state} update={update} onNext={next} />}
             {step === 3 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
             {step === 4 && <StepCover state={state} update={update} onNext={next} onBack={back} />}
-            {step === 5 && <StepPricing state={state} update={update} onNext={handlePublish} onBack={back} publishing={publishing} />}
-            {step === 6 && <StepCelebration state={state} />}
+            {step === 5 && <StepPricing state={state} update={update} onNext={startPublishing} onBack={back} publishing={publishing} />}
+            {step === 6 && <StepPublishing stage={publishingStage} willCreateOrg={willCreateOrg} />}
+            {step === 7 && <StepCelebration state={state} />}
           </motion.div>
         </AnimatePresence>
       </div>
     </div>
   );
 }
+
