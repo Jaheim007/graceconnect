@@ -48,16 +48,59 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
   const [aiLoading, setAiLoading] = useState(false);
   const [showAiPrompt, setShowAiPrompt] = useState(false);
   const [aiInstruction, setAiInstruction] = useState('');
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+  const [lastAutoSavedAt, setLastAutoSavedAt] = useState<number | null>(null);
+  const initializedRef = useRef(false);
+  const autosaveTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+
     if (state.chapters.length > 0) {
       setChaptersDraft(state.chapters.map((chapter) => ({ ...chapter })));
       return;
     }
+
     setChaptersDraft([{ id: 'ch-1', title: t('write.chapter_default_title'), content: '' }]);
   }, [state.chapters, t]);
 
   useEffect(() => { setTitleDraft(state.title); }, [state.title]);
+
+  useEffect(() => {
+    if (!initializedRef.current) return;
+
+    if (autosaveTimeoutRef.current) {
+      window.clearTimeout(autosaveTimeoutRef.current);
+      autosaveTimeoutRef.current = null;
+    }
+
+    setIsAutoSaving(true);
+
+    autosaveTimeoutRef.current = window.setTimeout(() => {
+      update({ title: titleDraft, chapters: chaptersDraft });
+      setLastAutoSavedAt(Date.now());
+      setIsAutoSaving(false);
+      autosaveTimeoutRef.current = null;
+    }, 700);
+
+    return () => {
+      if (autosaveTimeoutRef.current) {
+        window.clearTimeout(autosaveTimeoutRef.current);
+        autosaveTimeoutRef.current = null;
+      }
+    };
+  }, [chaptersDraft, titleDraft, update]);
+
+  useEffect(() => {
+    return () => {
+      if (autosaveTimeoutRef.current) {
+        window.clearTimeout(autosaveTimeoutRef.current);
+        autosaveTimeoutRef.current = null;
+        update({ title: titleDraft, chapters: chaptersDraft });
+      }
+    };
+  }, [chaptersDraft, titleDraft, update]);
 
   const normalizedChapters = useMemo(() => normalizeChapters(chaptersDraft), [chaptersDraft]);
   const currentChapter = chaptersDraft[activeChapter] || chaptersDraft[0];
