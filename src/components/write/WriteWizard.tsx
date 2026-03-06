@@ -112,9 +112,12 @@ const STEP_LABELS = ['Source', 'Détails', 'Création', 'Aperçu', 'Couverture',
 type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
 
 export default function WriteWizard() {
-  const draft = loadDraft();
   const [step, setStep] = useState(draft?.step ?? 0);
-  const [state, setState] = useState<WriteState>(draft?.state ?? initialState);
+  const [state, setState] = useState<WriteState>(() => {
+    const s = draft?.state ?? initialState;
+    // Clear previewPdfUrl on fresh load (blob URLs don't survive page reloads)
+    return { ...s, previewPdfUrl: undefined };
+  });
   const [publishing, setPublishing] = useState(false);
   const [publishingStage, setPublishingStage] = useState<PublishingStage>('preparing');
   const [willCreateOrg, setWillCreateOrg] = useState(false);
