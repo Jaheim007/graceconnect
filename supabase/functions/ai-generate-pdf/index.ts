@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
       preview_only?: boolean; chapters?: ChapterInput[]; title?: string; style?: string; cover_url?: string;
       update_product?: boolean; product_id?: string;
     };
-    const { org_id, project_id, format, page_size, preview_only, title: directTitle, style: directStyle, cover_url: directCoverUrl } = body;
+    const { org_id, project_id, format, page_size, preview_only, title: directTitle, style: directStyle, cover_url: directCoverUrl, update_product, product_id: bodyProductId } = body;
 
     const admin = createClient(supabaseUrl, serviceKey);
     const normalizedPageSize = String(page_size || 'A4').toUpperCase() === 'LETTER' ? 'LETTER' : 'A4';
