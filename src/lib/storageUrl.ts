@@ -11,5 +11,5 @@ const BRANDED_ORIGIN = 'https://api.siteviral.com';
 
 export function brandUrl(url: string | null | undefined): string {
   if (!url) return '';
-  return url.replaceAll(`https://${RAW_HOST}`, BRANDED_ORIGIN);
+  return url.split(`https://${RAW_HOST}`).join(BRANDED_ORIGIN);
 }
