@@ -479,15 +479,9 @@ async function buildProfessionalPdf(opts: {
     safeDrawText(halfTitle, line, { x: (pg.width - w) / 2, y: hty, size: 22, font: serifBold, color: C.darkText });
     hty -= 30;
   }
-  // Small ornamental mark
-  const ornament = '❧';
-  try {
-    const ow = serif.widthOfTextAtSize(ornament, 16);
-    safeDrawText(halfTitle, ornament, { x: (pg.width - ow) / 2, y: hty - 20, size: 16, font: serif, color: C.rule });
-  } catch {
-    // ornament char not available, draw a small line instead
-    halfTitle.drawLine({ start: { x: pg.width * 0.42, y: hty - 20 }, end: { x: pg.width * 0.58, y: hty - 20 }, thickness: 0.6, color: C.rule });
-  }
+  // Small ornamental separator
+  halfTitle.drawLine({ start: { x: pg.width * 0.40, y: hty - 20 }, end: { x: pg.width * 0.60, y: hty - 20 }, thickness: 0.8, color: C.accentGold });
+  halfTitle.drawCircle({ x: pg.width * 0.5, y: hty - 20, size: 2, color: C.accentGold });
 
   // ══════════════════════════════════════════════════════════════
   // 3. COPYRIGHT / COLOPHON PAGE
