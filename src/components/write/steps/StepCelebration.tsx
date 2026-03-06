@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { PartyPopper, ExternalLink, PenLine, BookCheck } from 'lucide-react';
+import { PartyPopper, ArrowRight, PenLine, BookCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { SocialShareKit } from '@/components/sharing/SocialShareKit';
-import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
 import { useI18n } from '@/i18n/I18nContext';
 import type { WriteState } from '../WriteWizard';
 
@@ -21,15 +19,6 @@ export function StepCelebration({ state }: Props) {
     const timer = setTimeout(() => setShowConfetti(false), 4000);
     return () => clearTimeout(timer);
   }, []);
-
-  const shareUrl = state.productId && state.orgSlug
-    ? `https://siteviral.com/org/${state.orgSlug}/${state.productId}`
-    : `https://siteviral.com/discover`;
-  const shareTitle = state.title || 'Mon livre';
-
-  const potentialEarning = !state.isFree && state.price > 0
-    ? Math.round(state.price * state.commissionRate / 100)
-    : 0;
 
   const handleGoToProduct = () => {
     if (state.productId) {
@@ -80,7 +69,7 @@ export function StepCelebration({ state }: Props) {
         </h2>
 
         <p className="text-muted-foreground text-sm max-w-sm mx-auto">
-          « <strong className="text-foreground">{shareTitle}</strong> » {t('write.celebration_sub')}
+          « <strong className="text-foreground">{state.title || 'Mon livre'}</strong> » {t('write.celebration_sub')}
         </p>
 
         {/* Draft notice */}
@@ -95,55 +84,30 @@ export function StepCelebration({ state }: Props) {
             {t('write.draft_notice')}
           </span>
         </motion.div>
-
-        {potentialEarning > 0 && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.6 }}
-            className="inline-flex items-center gap-2 bg-accent/10 border border-accent/20 rounded-xl px-4 py-2 mx-auto"
-          >
-            <span className="text-xs text-muted-foreground">{t('write.each_friend')}</span>
-            <span className="text-sm font-black text-accent">
-              +{formatCurrency(potentialEarning, DEFAULT_CURRENCY)} {t('write.for_you')}
-            </span>
-          </motion.div>
-        )}
       </motion.div>
 
-      {/* Social Share Kit */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-      >
-        <SocialShareKit
-          url={shareUrl}
-          title={shareTitle}
-          description={`Découvre "${shareTitle}" sur SiteViral !`}
-          context="post-publication"
-          price={state.isFree ? undefined : state.price}
-        />
-      </motion.div>
-
-      {/* Actions */}
+      {/* Single CTA: go to product dashboard */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
+        transition={{ delay: 0.6 }}
         className="space-y-3 pt-4"
       >
         <Button
-          className="gap-2 w-full sm:w-auto h-12 text-base cta-glow"
+          className="gap-2 w-full sm:w-auto h-14 text-base cta-glow"
           onClick={handleGoToProduct}
         >
-          <ExternalLink className="h-4 w-4" /> {t('write.go_to_product')}
+          <ArrowRight className="h-5 w-5" /> {t('write.go_to_product')}
         </Button>
         <div>
           <Button
             variant="ghost"
             className="gap-2 text-sm"
-            onClick={() => navigate('/ecrire')}
+            onClick={() => {
+              localStorage.removeItem('write_wizard_draft');
+              navigate('/ecrire');
+              window.location.reload();
+            }}
           >
             <PenLine className="h-4 w-4" /> {t('write.write_another')}
           </Button>

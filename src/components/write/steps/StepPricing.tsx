@@ -10,10 +10,9 @@ interface Props {
   update: (patch: Partial<WriteState>) => void;
   onNext: () => void;
   onBack: () => void;
-  publishing?: boolean;
 }
 
-export function StepPricing({ state, update, onNext, onBack, publishing }: Props) {
+export function StepPricing({ state, update, onNext, onBack }: Props) {
   const { t } = useI18n();
   const platformFee = Math.round(state.price * 0.10);
   const ambassadorFee = Math.round(state.price * state.commissionRate / 100);
@@ -100,14 +99,13 @@ export function StepPricing({ state, update, onNext, onBack, publishing }: Props
 
       {/* Actions */}
       <div className="flex gap-3">
-        <Button variant="outline" size="lg" onClick={onBack} className="gap-2" disabled={publishing}>
+        <Button variant="outline" size="lg" onClick={onBack} className="gap-2">
           <ArrowLeft className="h-4 w-4" /> {t('write.back')}
         </Button>
         <Button
           size="lg"
           className="flex-1 h-14 text-base gap-2 cta-glow"
           onClick={onNext}
-          disabled={publishing}
         >
           <Rocket className="h-5 w-5" />
           {t('write.continue')}

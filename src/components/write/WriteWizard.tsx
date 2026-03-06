@@ -331,9 +331,10 @@ export default function WriteWizard() {
             {step === 2 && <StepGenerating state={state} update={update} onNext={next} />}
             {step === 3 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
             {step === 4 && <StepCover state={state} update={update} onNext={next} onBack={back} />}
-            {step === 5 && <StepPricing state={state} update={update} onNext={startPublishing} onBack={back} publishing={publishing} />}
-            {step === 6 && <StepPublishing stage={publishingStage} willCreateOrg={willCreateOrg} />}
-            {step === 7 && <StepCelebration state={state} />}
+            {step === 5 && <StepPricing state={state} update={update} onNext={next} onBack={back} />}
+            {step === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} saving={publishing} />}
+            {step === PUBLISHING_STEP && <StepPublishing stage={publishingStage} willCreateOrg={willCreateOrg} />}
+            {step === CELEBRATION_STEP && <StepCelebration state={state} />}
           </motion.div>
         </AnimatePresence>
       </div>
