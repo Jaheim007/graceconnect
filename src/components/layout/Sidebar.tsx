@@ -1,12 +1,12 @@
 import { Link, useLocation } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
-  Home, Play, Bell, User, BookOpen, Store,
+  Home, Play, Bell, User, Store,
   Settings, ChevronLeft, ChevronRight, Shield,
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, LogOut,
-  UserPlus, Camera, ChevronDown, Wallet, LifeBuoy, LayoutDashboard, Building2,
-  Trophy, CreditCard, Clock, GraduationCap, Share2, HandHeart, Package, Handshake,
-  Sparkles
+  UserPlus, ChevronDown, Wallet, LayoutDashboard, Building2,
+  Share2, Package, Handshake, PenLine, Receipt, TrendingUp, MoreHorizontal,
+  Camera, CreditCard, Clock, GraduationCap, MailCheck, Tag
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
@@ -31,6 +31,7 @@ interface NavGroup {
   icon: typeof Home;
   key: string;
   items: NavItem[];
+  defaultOpen?: boolean;
 }
 
 export function Sidebar() {
@@ -40,86 +41,113 @@ export function Sidebar() {
   const { currentOrg, canManage, userOrgs, getRoleFor, setCurrentOrg } = useOrg();
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const { t } = useI18n();
-  const hasAmbassadorAccess = true;
   const { data: myPartner } = useMyPartner();
   const isApprovedPartner = myPartner?.status === 'approved';
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
-    Content: true, Commerce: true, Management: true,
+    Create: true, Sell: true,
   });
 
   const hasOrgs = userOrgs.length > 0;
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
 
+  // ═══════════════════════════════════════
+  // MON ESPACE — buyer/member items
+  // ═══════════════════════════════════════
   const mySpaceItems: NavItem[] = [
     { to: '/dashboard', icon: Home, label: t('sidebar.home'), desc: t('sidebar.home_desc') },
+    { to: '/marketplace', icon: Store, label: t('sidebar.discover'), desc: t('sidebar.discover_desc') },
     { to: '/resources', icon: Package, label: t('sidebar.purchases'), desc: t('sidebar.purchases_desc') },
     { to: '/my-donations', icon: Heart, label: t('sidebar.my_donations'), desc: t('sidebar.my_donations_desc') },
-    { to: '/marketplace', icon: Store, label: t('sidebar.discover'), desc: t('sidebar.discover_desc') },
     { to: '/notifications', icon: Bell, label: t('sidebar.notifications'), desc: t('sidebar.notifications_desc') },
     { to: '/profile', icon: User, label: t('sidebar.profile'), desc: t('sidebar.profile_desc') },
   ];
 
+  // ═══════════════════════════════════════
+  // GAGNER — ambassador
+  // ═══════════════════════════════════════
   const earnItems: NavItem[] = [
     { to: '/affiliation', icon: Link2, label: t('sidebar.earn_sharing'), desc: t('sidebar.earn_sharing_desc') },
   ];
 
+  // ═══════════════════════════════════════
+  // ESPACE CRÉATEUR — overview
+  // ═══════════════════════════════════════
   const platformOverview: NavItem[] = [
     { to: '/admin', icon: BarChart3, label: t('sidebar.overview') },
   ];
 
+  // ═══════════════════════════════════════
+  // CREATOR GROUPS — reorganized by priority
+  // ═══════════════════════════════════════
   const platformGroups: NavGroup[] = [
     {
-      label: t('sidebar.ai_studio'),
-      icon: Sparkles,
-      key: 'Studio',
+      label: t('sidebar.create') || 'Créer',
+      icon: PenLine,
+      key: 'Create',
+      defaultOpen: true,
       items: [
-        { to: '/admin/studio', icon: Sparkles, label: t('sidebar.ai_studio'), comingSoon: true },
-        { to: '/admin/studio/projects', icon: BookOpen, label: t('sidebar.ai_projects'), comingSoon: true },
-        { to: '/admin/studio/jobs', icon: BarChart3, label: t('sidebar.ai_jobs'), comingSoon: true },
-      ],
-    },
-    {
-      label: t('sidebar.content'),
-      icon: Play,
-      key: 'Content',
-      items: [
+        { to: '/admin/products', icon: ShoppingBag, label: t('sidebar.products') },
         { to: '/admin/media', icon: Play, label: t('sidebar.media') },
-        { to: '/admin/photos', icon: Camera, label: t('sidebar.photos') },
         { to: '/admin/announcements', icon: Megaphone, label: t('sidebar.announcements') },
         { to: '/admin/events', icon: CalendarDays, label: t('sidebar.events') },
       ],
     },
     {
-      label: t('sidebar.commerce'),
-      icon: ShoppingBag,
-      key: 'Commerce',
+      label: t('sidebar.sell') || 'Vendre',
+      icon: Wallet,
+      key: 'Sell',
+      defaultOpen: true,
       items: [
-        { to: '/admin/products', icon: ShoppingBag, label: t('sidebar.products') },
-        { to: '/admin/offerings', icon: HandHeart, label: t('sidebar.offerings') },
+        { to: '/admin/sales', icon: Receipt, label: t('sidebar.sales') },
         { to: '/admin/campaigns', icon: Heart, label: t('sidebar.campaigns') },
         { to: '/admin/affiliation', icon: Link2, label: t('sidebar.ambassadors') },
-        { to: '/admin/promo-codes', icon: FileCheck, label: t('sidebar.promo_codes') },
-        { to: '/admin/subscriptions', icon: CreditCard, label: t('sidebar.subscriptions') },
-        { to: '/admin/sales', icon: Wallet, label: t('sidebar.sales') },
-        { to: '/admin/waitlists', icon: Clock, label: t('sidebar.waitlists') },
+        { to: '/admin/payouts', icon: TrendingUp, label: t('sidebar.payouts') },
       ],
     },
     {
-      label: t('sidebar.management'),
+      label: t('sidebar.manage') || 'Gérer',
       icon: Settings,
-      key: 'Management',
+      key: 'Manage',
+      defaultOpen: false,
       items: [
         { to: '/admin/members', icon: Users, label: t('sidebar.members') },
-        { to: '/admin/crm', icon: UserPlus, label: t('sidebar.crm') },
-        { to: '/admin/notifications', icon: Bell, label: t('sidebar.notifications') },
-        { to: '/admin/payouts', icon: Wallet, label: t('sidebar.payouts') },
         { to: '/admin/analytics', icon: BarChart3, label: t('sidebar.analytics') },
         { to: '/admin/kyc', icon: FileCheck, label: t('sidebar.verification') },
         { to: '/admin/settings', icon: Settings, label: t('sidebar.settings') },
+      ],
+    },
+    {
+      label: t('sidebar.more') || 'Plus',
+      icon: MoreHorizontal,
+      key: 'More',
+      defaultOpen: false,
+      items: [
+        { to: '/admin/photos', icon: Camera, label: t('sidebar.photos') },
+        { to: '/admin/promo-codes', icon: Tag, label: t('sidebar.promo_codes') },
+        { to: '/admin/subscriptions', icon: CreditCard, label: t('sidebar.subscriptions') },
+        { to: '/admin/crm', icon: MailCheck, label: t('sidebar.crm') },
+        { to: '/admin/notifications', icon: Bell, label: t('sidebar.notifications') },
+        { to: '/admin/waitlists', icon: Clock, label: t('sidebar.waitlists') },
         { to: '/admin/programs', icon: GraduationCap, label: t('sidebar.programs') },
+        { to: '/admin/offerings', icon: Heart, label: t('sidebar.offerings') },
       ],
     },
   ];
+
+  // ═══════════════════════════════════════
+  // SUPERADMIN
+  // ═══════════════════════════════════════
+  const superadminNav: NavItem[] = [
+    { to: '/superadmin', icon: Shield, label: t('sidebar.overview') },
+    { to: '/superadmin/orgs', icon: Users, label: t('sidebar.organizations') },
+    { to: '/superadmin/kyc', icon: FileCheck, label: t('sidebar.kyc') },
+    { to: '/superadmin/transactions', icon: BarChart3, label: t('sidebar.transactions') },
+    { to: '/superadmin/reports', icon: Megaphone, label: t('sidebar.reports') },
+    { to: '/superadmin/risk', icon: Shield, label: t('sidebar.risk_aml') },
+    { to: '/superadmin/metrics', icon: BarChart3, label: t('sidebar.metrics') },
+  ];
+
+  const isSA = location.pathname.startsWith('/superadmin');
 
   const isActive = (to: string) => {
     if (to === '/admin' || to === '/superadmin') return location.pathname === to;
@@ -134,37 +162,6 @@ export function Sidebar() {
     const active = !item.comingSoon && isActive(item.to);
     const showBadge = item.to === '/notifications' && unread > 0;
     const Icon = item.icon;
-
-    if (item.comingSoon) {
-      const comingSoonEl = (
-        <div
-          key={item.to}
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-muted-foreground/50 cursor-not-allowed"
-        >
-          <Icon className="h-4 w-4" />
-          {!collapsed && (
-            <>
-              <span className="truncate">{item.label}</span>
-              <span className="ml-auto text-[9px] font-semibold uppercase tracking-wider bg-muted text-muted-foreground px-1.5 py-0.5 rounded-full shrink-0">{t('sidebar.coming_soon')}</span>
-            </>
-          )}
-        </div>
-      );
-
-      if (collapsed) {
-        return (
-          <Tooltip key={item.to} delayDuration={0}>
-            <TooltipTrigger asChild>{comingSoonEl}</TooltipTrigger>
-            <TooltipContent side="right">
-              <p className="font-semibold text-xs">{item.label}</p>
-              <p className="text-[11px] text-muted-foreground">{t('sidebar.coming_soon_long')}</p>
-            </TooltipContent>
-          </Tooltip>
-        );
-      }
-
-      return comingSoonEl;
-    }
 
     const link = (
       <Link
@@ -216,7 +213,7 @@ export function Sidebar() {
     <>
       {groups.map((group) => {
         const hasActiveItem = group.items.some(i => isActive(i.to));
-        const isOpen = openGroups[group.key] ?? hasActiveItem;
+        const isOpen = openGroups[group.key] ?? group.defaultOpen ?? hasActiveItem;
 
         return (
           <div key={group.key} className="mt-1">
@@ -245,17 +242,6 @@ export function Sidebar() {
       })}
     </>
   );
-
-  const isSA = location.pathname.startsWith('/superadmin');
-  const superadminNav: NavItem[] = [
-    { to: '/superadmin', icon: Shield, label: t('sidebar.overview') },
-    { to: '/superadmin/orgs', icon: Users, label: t('sidebar.organizations') },
-    { to: '/superadmin/kyc', icon: FileCheck, label: t('sidebar.kyc') },
-    { to: '/superadmin/transactions', icon: BarChart3, label: t('sidebar.transactions') },
-    { to: '/superadmin/reports', icon: Megaphone, label: t('sidebar.reports') },
-    { to: '/superadmin/risk', icon: Shield, label: t('sidebar.risk_aml') },
-    { to: '/superadmin/metrics', icon: BarChart3, label: t('sidebar.metrics') },
-  ];
 
   return (
     <aside
@@ -318,14 +304,10 @@ export function Sidebar() {
               {mySpaceItems.map(renderNavItem)}
             </div>
 
-            {hasAmbassadorAccess && (
-              <>
-                {renderSectionLabel(Share2, t('sidebar.earn'), 'text-emerald-500')}
-                <div className="space-y-0.5">
-                  {earnItems.map(renderNavItem)}
-                </div>
-              </>
-            )}
+            {renderSectionLabel(Share2, t('sidebar.earn'), 'text-emerald-500')}
+            <div className="space-y-0.5">
+              {earnItems.map(renderNavItem)}
+            </div>
 
             {isApprovedPartner && (
               <>

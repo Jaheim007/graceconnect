@@ -6,51 +6,60 @@ import { Button } from '@/components/ui/button';
 import {
   BarChart3, Play, Megaphone, CalendarDays, Heart, ShoppingBag,
   Users, Link2, FileCheck, Settings, ChevronDown, ArrowLeft, Loader2,
-  Camera, Tag, Clock, CreditCard, TrendingUp, MailCheck, Bell, HandHeart, Receipt, GraduationCap
+  Camera, Tag, Clock, CreditCard, TrendingUp, MailCheck, Bell, HandHeart, Receipt, GraduationCap, Wallet, PenLine, MoreHorizontal
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
+// ═══════════════════════════════════════
+// Admin links — reorganized by priority
+// ═══════════════════════════════════════
 const adminLinks = [
-  // Contenu
+  // Overview
   { to: '/admin', label: 'Vue d\'ensemble', icon: BarChart3, end: true, group: 'main' },
-  { to: '/admin/media', label: 'Médias', icon: Play, group: 'contenu' },
-  { to: '/admin/photos', label: 'Photos', icon: Camera, group: 'contenu' },
-  { to: '/admin/announcements', label: 'Annonces', icon: Megaphone, group: 'contenu' },
-  { to: '/admin/events', label: 'Événements', icon: CalendarDays, group: 'contenu' },
-  // Commerce
-  { to: '/admin/campaigns', label: 'Campagnes', icon: Heart, group: 'commerce' },
-  { to: '/admin/offerings', label: 'Dons', icon: HandHeart, group: 'commerce' },
-  { to: '/admin/products', label: 'Boutique', icon: ShoppingBag, group: 'commerce' },
-  { to: '/admin/affiliation', label: 'Affiliation', icon: Link2, group: 'commerce' },
-  { to: '/admin/promo-codes', label: 'Codes promo', icon: Tag, group: 'commerce' },
-  { to: '/admin/subscriptions', label: 'Abonnements', icon: CreditCard, group: 'commerce' },
-  { to: '/admin/sales', label: 'Mes Ventes', icon: Receipt, group: 'commerce' },
-  { to: '/admin/payouts', label: 'Retraits', icon: TrendingUp, group: 'commerce' },
-  { to: '/admin/waitlists', label: 'Waitlists', icon: Clock, group: 'commerce' },
-  // Gestion
-  { to: '/admin/members', label: 'Membres', icon: Users, group: 'gestion' },
-  { to: '/admin/crm', label: 'CRM', icon: MailCheck, group: 'gestion' },
-  { to: '/admin/notifications', label: 'Notifications', icon: Bell, group: 'gestion' },
-  { to: '/admin/analytics', label: 'Analytics', icon: BarChart3, group: 'gestion' },
-  { to: '/admin/programs', label: 'Programmes', icon: GraduationCap, group: 'gestion' },
-  { to: '/admin/kyc', label: 'Vérification', icon: FileCheck, group: 'gestion' },
-  { to: '/admin/settings', label: 'Paramètres', icon: Settings, group: 'gestion' },
+  // Créer — most used daily
+  { to: '/admin/products', label: 'Produits', icon: ShoppingBag, group: 'create' },
+  { to: '/admin/media', label: 'Médias', icon: Play, group: 'create' },
+  { to: '/admin/announcements', label: 'Annonces', icon: Megaphone, group: 'create' },
+  { to: '/admin/events', label: 'Événements', icon: CalendarDays, group: 'create' },
+  // Vendre — revenue
+  { to: '/admin/sales', label: 'Ventes', icon: Receipt, group: 'sell' },
+  { to: '/admin/campaigns', label: 'Campagnes', icon: Heart, group: 'sell' },
+  { to: '/admin/affiliation', label: 'Ambassadeurs', icon: Link2, group: 'sell' },
+  { to: '/admin/payouts', label: 'Retraits', icon: TrendingUp, group: 'sell' },
+  // Gérer — admin
+  { to: '/admin/members', label: 'Membres', icon: Users, group: 'manage' },
+  { to: '/admin/analytics', label: 'Analyses', icon: BarChart3, group: 'manage' },
+  { to: '/admin/kyc', label: 'Vérification', icon: FileCheck, group: 'manage' },
+  { to: '/admin/settings', label: 'Paramètres', icon: Settings, group: 'manage' },
+  // Plus — secondary
+  { to: '/admin/photos', label: 'Photos', icon: Camera, group: 'more' },
+  { to: '/admin/promo-codes', label: 'Codes promo', icon: Tag, group: 'more' },
+  { to: '/admin/subscriptions', label: 'Abonnements', icon: CreditCard, group: 'more' },
+  { to: '/admin/crm', label: 'CRM', icon: MailCheck, group: 'more' },
+  { to: '/admin/notifications', label: 'Notifications', icon: Bell, group: 'more' },
+  { to: '/admin/waitlists', label: 'Listes d\'attente', icon: Clock, group: 'more' },
+  { to: '/admin/programs', label: 'Programmes', icon: GraduationCap, group: 'more' },
+  { to: '/admin/offerings', label: 'Dons', icon: HandHeart, group: 'more' },
 ];
 
-const groupLabels: Record<string, string> = {
-  main: '',
-  contenu: 'Contenu',
-  commerce: 'Commerce',
-  gestion: 'Gestion',
+const groupLabels: Record<string, { label: string; icon: typeof BarChart3 }> = {
+  main: { label: '', icon: BarChart3 },
+  create: { label: 'Créer', icon: PenLine },
+  sell: { label: 'Vendre', icon: Wallet },
+  manage: { label: 'Gérer', icon: Settings },
+  more: { label: 'Plus', icon: MoreHorizontal },
 };
+
+// Only show essential groups in mobile horizontal nav
+const mobileGroups = ['main', 'create', 'sell', 'manage'];
 
 export default function AdminLayout() {
   const { currentOrg, userOrgs, setCurrentOrg, isLoadingOrgs, getRoleFor } = useOrg();
   const navigate = useNavigate();
+  const [showMore, setShowMore] = useState(false);
 
-  // Show spinner only while loading AND we have no org yet to show
-  // If currentOrg is already set (e.g. just created), render immediately
   if (isLoadingOrgs && !currentOrg) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -70,11 +79,12 @@ export default function AdminLayout() {
     );
   }
 
+  const mobileLinks = adminLinks.filter(l => mobileGroups.includes(l.group));
+
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Admin sub-header */}
       <div className="border-b border-border/60 bg-card px-3 py-2 flex items-center gap-2">
-        {/* Back to app */}
         <Button
           variant="ghost"
           size="icon"
@@ -113,9 +123,9 @@ export default function AdminLayout() {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Mobile horizontal nav */}
+        {/* Mobile horizontal nav — only essential items */}
         <nav className="flex lg:hidden items-center gap-0.5 ml-1 overflow-x-auto scrollbar-hide flex-1">
-          {adminLinks.map(({ to, label, icon: Icon, end }) => (
+          {mobileLinks.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
               to={to}
@@ -139,13 +149,29 @@ export default function AdminLayout() {
       <div className="flex">
         {/* Desktop sidebar */}
         <aside className="hidden lg:flex flex-col w-52 border-r border-border/60 min-h-[calc(100vh-5rem)] p-3 gap-0.5 shrink-0 bg-card/30">
-          {['main', 'contenu', 'commerce', 'gestion'].map((group) => {
+          {['main', 'create', 'sell', 'manage', 'more'].map((group) => {
             const groupItems = adminLinks.filter(l => l.group === group);
-            const label = groupLabels[group];
+            const { label, icon: GroupIcon } = groupLabels[group];
+            const isMoreGroup = group === 'more';
+
             return (
               <div key={group}>
-                {label && <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-3 mb-1 mt-3">{label}</p>}
-                {groupItems.map(({ to, label: itemLabel, icon: Icon, end }) => (
+                {label && (
+                  <button
+                    onClick={isMoreGroup ? () => setShowMore(!showMore) : undefined}
+                    className={cn(
+                      'flex items-center gap-1.5 w-full text-[10px] uppercase tracking-wider text-muted-foreground font-semibold px-3 mb-1 mt-3',
+                      isMoreGroup && 'hover:text-foreground cursor-pointer transition-colors'
+                    )}
+                  >
+                    <GroupIcon className="h-3 w-3" />
+                    {label}
+                    {isMoreGroup && (
+                      <ChevronDown className={cn('h-3 w-3 ml-auto transition-transform', showMore && 'rotate-180')} />
+                    )}
+                  </button>
+                )}
+                {(!isMoreGroup || showMore) && groupItems.map(({ to, label: itemLabel, icon: Icon, end }) => (
                   <NavLink
                     key={to}
                     to={to}
