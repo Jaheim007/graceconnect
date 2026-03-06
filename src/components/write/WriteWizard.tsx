@@ -147,7 +147,7 @@ export default function WriteWizard() {
             {step === 0 && <StepSource state={state} update={update} onNext={handleSourceNext} />}
             {step === 1 && <StepParams state={state} update={update} onNext={next} onBack={back} />}
             {step === 2 && <StepGenerating state={state} update={update} onNext={next} />}
-            {step === 3 && <StepPreview state={state} onNext={next} onBack={back} />}
+            {step === 3 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
             {step === 4 && <StepCover state={state} update={update} onNext={next} onBack={back} />}
             {step === 5 && <StepPricing state={state} update={update} onNext={handlePublish} onBack={back} publishing={publishing} />}
             {step === 6 && <StepCelebration state={state} />}

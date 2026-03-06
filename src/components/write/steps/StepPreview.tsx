@@ -1,16 +1,36 @@
+import { useEffect, useMemo, useState } from 'react';
 import { ArrowLeft, ArrowRight, Edit3, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { useI18n } from '@/i18n/I18nContext';
 import type { WriteState } from '../WriteWizard';
 
 interface Props {
   state: WriteState;
+  update: (patch: Partial<WriteState>) => void;
   onNext: () => void;
   onBack: () => void;
 }
 
-export function StepPreview({ state, onNext, onBack }: Props) {
+export function StepPreview({ state, update, onNext, onBack }: Props) {
   const { t } = useI18n();
+  const [chaptersDraft, setChaptersDraft] = useState(state.chapters.join('\n'));
+
+  useEffect(() => {
+    setChaptersDraft(state.chapters.join('\n'));
+  }, [state.chapters]);
+
+  const normalizedChapters = useMemo(() => {
+    return chaptersDraft
+      .split('\n')
+      .map((ch) => ch.trim())
+      .filter(Boolean);
+  }, [chaptersDraft]);
+
+  const applyEdits = () => {
+    update({ chapters: normalizedChapters });
+  };
 
   return (
     <div className="space-y-8 pt-8">
@@ -19,6 +39,27 @@ export function StepPreview({ state, onNext, onBack }: Props) {
           {t('write.preview_title')}
         </h2>
         <p className="text-muted-foreground text-sm">{t('write.preview_sub')}</p>
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium">{t('write.preview_edit_title')}</label>
+        <Input
+          value={state.title}
+          onChange={(e) => update({ title: e.target.value })}
+          placeholder={t('write.title_placeholder')}
+          className="h-12 text-base"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium">{t('write.preview_edit_chapters')}</label>
+        <Textarea
+          value={chaptersDraft}
+          onChange={(e) => setChaptersDraft(e.target.value)}
+          onBlur={applyEdits}
+          rows={8}
+        />
+        <p className="text-xs text-muted-foreground">{t('write.preview_chapters_hint')}</p>
       </div>
 
       {/* Book preview card */}
@@ -36,7 +77,7 @@ export function StepPreview({ state, onNext, onBack }: Props) {
         {/* Table of contents */}
         <div className="p-6 space-y-3">
           <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">{t('write.toc')}</p>
-          {state.chapters.map((ch, i) => (
+          {normalizedChapters.map((ch, i) => (
             <div key={i} className="flex items-center gap-3 text-sm border-b border-border/50 pb-2 last:border-0">
               <span className="text-xs font-bold text-primary w-6">{i + 1}</span>
               <span className="text-foreground">{ch}</span>
@@ -58,7 +99,11 @@ export function StepPreview({ state, onNext, onBack }: Props) {
         <Button
           size="lg"
           className="flex-1 h-14 text-base gap-2"
-          onClick={onNext}
+          disabled={normalizedChapters.length === 0}
+          onClick={() => {
+            applyEdits();
+            onNext();
+          }}
         >
           ✅ {t('write.continue')} <ArrowRight className="h-4 w-4" />
         </Button>
@@ -71,3 +116,4 @@ export function StepPreview({ state, onNext, onBack }: Props) {
     </div>
   );
 }
+
