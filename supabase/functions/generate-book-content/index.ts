@@ -16,61 +16,89 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { title, topic, style, chapters, language } = await req.json();
+    const { title, topic, style, pageCount, language } = await req.json();
 
-    if (!title || !chapters || !Array.isArray(chapters) || chapters.length === 0) {
-      return new Response(JSON.stringify({ error: 'title and chapters required' }), {
+    if (!title && !topic) {
+      return new Response(JSON.stringify({ error: 'title or topic required' }), {
         status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
     const lang = language || 'fr';
-    const styleLabel = style === 'guide' ? 'guide pratique' : style === 'prayers' ? 'livre de prières et méditations' : 'ebook structuré';
-    const chapterList = chapters.map((ch: any, i: number) => `${i + 1}. ${ch.title}`).join('\n');
+    const pages = pageCount || 20;
+    const chapterCount = Math.max(3, Math.min(10, Math.round(pages / 4)));
+
+    // Style only affects TONE, not chapter structure
+    const styleInstructions: Record<string, Record<string, string>> = {
+      fr: {
+        ebook: 'Ton professionnel, structuré et engageant. Utilise des exemples concrets et des explications claires.',
+        guide: 'Ton pratique et actionnable. Chaque chapitre doit contenir des étapes concrètes, des conseils et des exercices.',
+        prayers: 'Ton spirituel, méditatif et inspirant. Utilise un langage poétique et profond.',
+      },
+      en: {
+        ebook: 'Professional, structured and engaging tone. Use concrete examples and clear explanations.',
+        guide: 'Practical and actionable tone. Each chapter should contain concrete steps, tips and exercises.',
+        prayers: 'Spiritual, meditative and inspiring tone. Use poetic and deep language.',
+      },
+    };
+
+    const toneInstruction = (styleInstructions[lang] || styleInstructions.fr)[style] || (styleInstructions[lang] || styleInstructions.fr).ebook;
 
     const systemPrompt = lang === 'fr'
-      ? `Tu es un auteur professionnel expert. Tu rédiges du contenu de haute qualité en français.
-Ton style est engageant, clair et adapté au format "${styleLabel}".
+      ? `Tu es un auteur professionnel expert. Tu rédiges des livres de haute qualité en français.
+${toneInstruction}
+Tu DOIS créer les chapitres EN FONCTION DU SUJET/IDÉE fourni par l'utilisateur. Chaque chapitre doit explorer un aspect spécifique du sujet.
 FORMAT: Retourne un JSON valide. Pas de markdown, pas de code fences.`
-      : `You are a professional expert author. You write high-quality content in English.
-Your style is engaging, clear and adapted to the "${styleLabel}" format.
+      : `You are a professional expert author. You write high-quality books in English.
+${toneInstruction}
+You MUST create chapters BASED ON THE TOPIC/IDEA provided by the user. Each chapter must explore a specific aspect of the topic.
 FORMAT: Return valid JSON. No markdown, no code fences.`;
 
     const userPrompt = lang === 'fr'
-      ? `Rédige le contenu complet de chaque chapitre pour le livre "${title}".
-${topic ? `Sujet/contexte: ${topic}` : ''}
+      ? `Crée un livre complet sur le sujet suivant :
 
-Chapitres à rédiger:
-${chapterList}
+TITRE : "${title}"
+${topic ? `IDÉE / SUJET : ${topic}` : ''}
 
-Pour chaque chapitre, rédige 400-600 mots de contenu riche et structuré en HTML (<p>, <h3>, <strong>, <em>, <ul>, <li>).
+CONSIGNES :
+- Crée exactement ${chapterCount} chapitres qui explorent différents aspects de CE sujet spécifique
+- Les titres de chapitres doivent être directement liés au sujet "${topic || title}"
+- Chaque chapitre doit contenir 400-600 mots de contenu riche en HTML (<p>, <h3>, <strong>, <em>, <ul>, <li>)
+- Le contenu doit être substantiel, informatif et unique à chaque chapitre
+- Commence par une introduction et termine par une conclusion
+- NE crée PAS de chapitres génériques. Tous les chapitres doivent être spécifiques au sujet donné
 
-Retourne UNIQUEMENT un JSON avec cette structure:
+Retourne UNIQUEMENT un JSON avec cette structure :
 {
   "chapters": [
-    {"id": "ch-1", "title": "...", "content": "<p>Contenu HTML riche...</p>"},
-    {"id": "ch-2", "title": "...", "content": "<p>Contenu HTML riche...</p>"}
+    {"id": "ch-1", "title": "Titre spécifique au sujet...", "content": "<p>Contenu HTML riche...</p>"},
+    {"id": "ch-2", "title": "Titre spécifique au sujet...", "content": "<p>Contenu HTML riche...</p>"}
   ]
 }
 
-IMPORTANT: Chaque chapitre doit avoir un contenu substantiel et unique. Ne mets PAS de placeholder.`
-      : `Write the complete content for each chapter of the book "${title}".
-${topic ? `Topic/context: ${topic}` : ''}
+IMPORTANT: Chaque chapitre doit directement traiter du sujet "${topic || title}". Pas de contenu générique.`
+      : `Create a complete book on the following topic:
 
-Chapters to write:
-${chapterList}
+TITLE: "${title}"
+${topic ? `IDEA / TOPIC: ${topic}` : ''}
 
-For each chapter, write 400-600 words of rich, structured HTML content (<p>, <h3>, <strong>, <em>, <ul>, <li>).
+INSTRUCTIONS:
+- Create exactly ${chapterCount} chapters that explore different aspects of THIS specific topic
+- Chapter titles must be directly related to the topic "${topic || title}"
+- Each chapter must contain 400-600 words of rich HTML content (<p>, <h3>, <strong>, <em>, <ul>, <li>)
+- Content must be substantial, informative and unique to each chapter
+- Start with an introduction and end with a conclusion
+- Do NOT create generic chapters. All chapters must be specific to the given topic
 
 Return ONLY a JSON with this structure:
 {
   "chapters": [
-    {"id": "ch-1", "title": "...", "content": "<p>Rich HTML content...</p>"},
-    {"id": "ch-2", "title": "...", "content": "<p>Rich HTML content...</p>"}
+    {"id": "ch-1", "title": "Topic-specific title...", "content": "<p>Rich HTML content...</p>"},
+    {"id": "ch-2", "title": "Topic-specific title...", "content": "<p>Rich HTML content...</p>"}
   ]
 }
 
-IMPORTANT: Each chapter must have substantial, unique content. No placeholders.`;
+IMPORTANT: Each chapter must directly address the topic "${topic || title}". No generic content.`;
 
     const aiRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',

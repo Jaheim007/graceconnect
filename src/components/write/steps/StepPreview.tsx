@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, Edit3, Plus, Trash2, Sparkles } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Edit3, Plus, Trash2, Sparkles, BookOpen, FileText, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useI18n } from '@/i18n/I18nContext';
+import DOMPurify from 'dompurify';
 import type { WriteState, WriteChapter } from '../WriteWizard';
 
 interface Props {
@@ -23,140 +25,248 @@ function normalizeChapters(chapters: WriteChapter[]): WriteChapter[] {
     .filter((chapter) => chapter.title.length > 0);
 }
 
+function sanitizeHtml(html: string): string {
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'a', 'ul', 'ol', 'li', 'h3', 'h4', 'blockquote', 'span'],
+    ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
+  });
+}
+
 export function StepPreview({ state, update, onNext, onBack }: Props) {
   const { t } = useI18n();
   const [chaptersDraft, setChaptersDraft] = useState<WriteChapter[]>(state.chapters);
+  const [activeChapter, setActiveChapter] = useState(0);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState(state.title);
 
   useEffect(() => {
     if (state.chapters.length > 0) {
       setChaptersDraft(state.chapters.map((chapter) => ({ ...chapter })));
       return;
     }
-
-    setChaptersDraft([
-      {
-        id: 'ch-1',
-        title: t('write.chapter_default_title'),
-        content: '',
-      },
-    ]);
+    setChaptersDraft([{
+      id: 'ch-1',
+      title: t('write.chapter_default_title'),
+      content: '',
+    }]);
   }, [state.chapters, t]);
 
+  useEffect(() => {
+    setTitleDraft(state.title);
+  }, [state.title]);
+
   const normalizedChapters = useMemo(() => normalizeChapters(chaptersDraft), [chaptersDraft]);
+  const currentChapter = chaptersDraft[activeChapter] || chaptersDraft[0];
 
   const updateChapterTitle = (index: number, title: string) => {
-    setChaptersDraft((prev) => prev.map((chapter, i) => (i === index ? { ...chapter, title } : chapter)));
+    setChaptersDraft((prev) => prev.map((ch, i) => (i === index ? { ...ch, title } : ch)));
   };
 
   const updateChapterContent = (index: number, content: string) => {
-    setChaptersDraft((prev) => prev.map((chapter, i) => (i === index ? { ...chapter, content } : chapter)));
+    setChaptersDraft((prev) => prev.map((ch, i) => (i === index ? { ...ch, content } : ch)));
   };
 
   const addChapter = () => {
-    setChaptersDraft((prev) => [
-      ...prev,
-      {
-        id: `ch-${Date.now()}`,
-        title: `${t('write.chapter_label')} ${prev.length + 1}`,
-        content: '',
-      },
-    ]);
+    const newChapter = {
+      id: `ch-${Date.now()}`,
+      title: `${t('write.chapter_label')} ${chaptersDraft.length + 1}`,
+      content: '',
+    };
+    setChaptersDraft((prev) => [...prev, newChapter]);
+    setActiveChapter(chaptersDraft.length);
   };
 
   const removeChapter = (index: number) => {
+    if (chaptersDraft.length <= 1) return;
     setChaptersDraft((prev) => prev.filter((_, i) => i !== index));
+    if (activeChapter >= chaptersDraft.length - 1) {
+      setActiveChapter(Math.max(0, chaptersDraft.length - 2));
+    }
   };
 
   const applyEdits = () => {
-    update({ chapters: normalizedChapters });
+    update({ title: titleDraft, chapters: normalizedChapters });
   };
 
   return (
-    <div className="space-y-8 pt-8">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl sm:text-3xl font-extrabold">
-          {t('write.preview_title')}
-        </h2>
+    <div className="space-y-6 pt-6">
+      {/* Header */}
+      <div className="text-center space-y-1">
+        <h2 className="text-2xl sm:text-3xl font-extrabold">{t('write.preview_title')}</h2>
         <p className="text-muted-foreground text-sm">{t('write.preview_sub')}</p>
       </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">{t('write.preview_edit_title')}</label>
-        <Input
-          value={state.title}
-          onChange={(e) => update({ title: e.target.value })}
-          placeholder={t('write.title_placeholder')}
-          className="h-12 text-base"
-        />
-      </div>
+      {/* Main 2-column layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
+        {/* Left: Book preview card + TOC */}
+        <div className="space-y-4">
+          {/* Mini book cover */}
+          <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            <div className="bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 p-6 flex justify-center">
+              <div className="w-[140px] aspect-[3/4] rounded-lg bg-gradient-to-br from-primary to-accent flex flex-col items-center justify-center p-3 shadow-xl">
+                <Sparkles className="h-6 w-6 text-primary-foreground/80 mb-2 shrink-0" />
+                <h3 className="text-primary-foreground font-extrabold text-[10px] leading-tight text-center line-clamp-3 break-words">
+                  {titleDraft || t('write.my_book')}
+                </h3>
+              </div>
+            </div>
 
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-medium">{t('write.preview_edit_content')}</label>
-          <Button type="button" variant="outline" size="sm" className="gap-2" onClick={addChapter}>
-            <Plus className="h-4 w-4" /> {t('write.add_chapter')}
-          </Button>
+            {/* Editable title */}
+            <div className="px-4 pt-3 pb-2">
+              {editingTitle ? (
+                <Input
+                  value={titleDraft}
+                  onChange={(e) => setTitleDraft(e.target.value)}
+                  onBlur={() => setEditingTitle(false)}
+                  onKeyDown={(e) => e.key === 'Enter' && setEditingTitle(false)}
+                  autoFocus
+                  className="h-9 text-sm font-bold"
+                />
+              ) : (
+                <button
+                  onClick={() => setEditingTitle(true)}
+                  className="w-full text-left group flex items-center gap-1"
+                >
+                  <span className="font-bold text-sm text-foreground truncate">
+                    {titleDraft || t('write.my_book')}
+                  </span>
+                  <Edit3 className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+                </button>
+              )}
+              <div className="flex items-center gap-2 text-[10px] text-muted-foreground mt-1">
+                <span>📄 {state.pageCount} {t('write.pages')}</span>
+                <span>·</span>
+                <span>📘 {state.style === 'ebook' ? t('write.style_ebook') : state.style === 'guide' ? t('write.style_guide') : t('write.style_prayers')}</span>
+              </div>
+            </div>
+
+            {/* Table of contents */}
+            <div className="border-t border-border">
+              <div className="px-4 py-2">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
+                  {t('write.toc')}
+                </p>
+              </div>
+              <ScrollArea className="max-h-[240px]">
+                <div className="px-2 pb-2 space-y-0.5">
+                  {chaptersDraft.map((chapter, i) => (
+                    <button
+                      key={chapter.id}
+                      onClick={() => setActiveChapter(i)}
+                      className={`w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-left text-xs transition-colors ${
+                        activeChapter === i
+                          ? 'bg-primary/10 text-primary font-semibold'
+                          : 'text-foreground hover:bg-muted/50'
+                      }`}
+                    >
+                      <span className="text-[10px] font-bold w-4 shrink-0 text-center">
+                        {i + 1}
+                      </span>
+                      <span className="truncate flex-1">{chapter.title || '—'}</span>
+                      {activeChapter === i && (
+                        <ChevronRight className="h-3 w-3 shrink-0" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </ScrollArea>
+              <div className="px-3 pb-3">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="w-full gap-1 text-xs h-8"
+                  onClick={addChapter}
+                >
+                  <Plus className="h-3 w-3" /> {t('write.add_chapter')}
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
 
+        {/* Right: Chapter editor */}
         <div className="space-y-4">
-          {chaptersDraft.map((chapter, index) => (
-            <div key={chapter.id} className="rounded-xl border border-border p-4 space-y-3 bg-card">
-              <div className="flex items-center gap-2">
+          {currentChapter && (
+            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+              {/* Chapter header */}
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/30">
+                <BookOpen className="h-4 w-4 text-primary shrink-0" />
                 <Input
-                  value={chapter.title}
-                  onChange={(e) => updateChapterTitle(index, e.target.value)}
-                  placeholder={`${t('write.chapter_label')} ${index + 1}`}
-                  className="h-10"
+                  value={currentChapter.title}
+                  onChange={(e) => updateChapterTitle(activeChapter, e.target.value)}
+                  placeholder={`${t('write.chapter_label')} ${activeChapter + 1}`}
+                  className="h-8 text-sm font-semibold border-0 bg-transparent shadow-none focus-visible:ring-0 px-0"
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  onClick={() => removeChapter(index)}
+                  className="h-7 w-7 shrink-0"
+                  onClick={() => removeChapter(activeChapter)}
                   disabled={chaptersDraft.length <= 1}
                   aria-label={t('write.remove_chapter')}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
-              <Textarea
-                value={chapter.content}
-                onChange={(e) => updateChapterContent(index, e.target.value)}
-                rows={6}
-                placeholder={t('write.preview_content_hint')}
-              />
+
+              {/* Content preview (rendered HTML) */}
+              <div className="p-4 space-y-4">
+                <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 mb-2">
+                  <FileText className="h-3.5 w-3.5" />
+                  {t('write.preview_content_label') || 'Contenu du chapitre'}
+                </div>
+
+                {/* Rendered preview */}
+                {currentChapter.content && (
+                  <div
+                    className="prose prose-sm dark:prose-invert max-w-none rounded-xl bg-muted/20 p-4 border border-border/50 max-h-[300px] overflow-y-auto"
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(currentChapter.content) }}
+                  />
+                )}
+
+                {/* Editable raw content */}
+                <Textarea
+                  value={currentChapter.content}
+                  onChange={(e) => updateChapterContent(activeChapter, e.target.value)}
+                  rows={8}
+                  placeholder={t('write.preview_content_hint')}
+                  className="text-xs font-mono resize-y"
+                />
+              </div>
+
+              {/* Chapter navigation */}
+              <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-muted/20">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={activeChapter === 0}
+                  onClick={() => setActiveChapter(prev => prev - 1)}
+                  className="gap-1 text-xs"
+                >
+                  <ArrowLeft className="h-3 w-3" /> {t('write.prev_chapter') || 'Précédent'}
+                </Button>
+                <span className="text-xs text-muted-foreground">
+                  {activeChapter + 1} / {chaptersDraft.length}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={activeChapter === chaptersDraft.length - 1}
+                  onClick={() => setActiveChapter(prev => prev + 1)}
+                  className="gap-1 text-xs"
+                >
+                  {t('write.next_chapter') || 'Suivant'} <ArrowRight className="h-3 w-3" />
+                </Button>
+              </div>
             </div>
-          ))}
+          )}
         </div>
       </div>
 
-      <div className="rounded-2xl border-2 border-primary/20 bg-card overflow-hidden">
-        <div className="bg-gradient-to-br from-primary/20 via-accent/10 to-primary/5 p-8 text-center">
-          <div className="max-w-[200px] mx-auto aspect-[3/4] rounded-lg bg-gradient-to-br from-primary to-accent flex flex-col items-center justify-center p-4 shadow-xl overflow-hidden">
-            <Sparkles className="h-8 w-8 text-primary-foreground/80 mb-3 shrink-0" />
-            <h3 className="text-primary-foreground font-extrabold text-sm leading-tight text-center line-clamp-3 break-words">
-              {state.title || t('write.my_book')}
-            </h3>
-          </div>
-        </div>
-
-        <div className="p-6 space-y-3">
-          <p className="text-sm font-bold text-muted-foreground uppercase tracking-wider">{t('write.toc')}</p>
-          {normalizedChapters.map((chapter, i) => (
-            <div key={chapter.id} className="flex items-center gap-3 text-sm border-b border-border/50 pb-2 last:border-0">
-              <span className="text-xs font-bold text-primary w-6">{i + 1}</span>
-              <span className="text-foreground">{chapter.title}</span>
-            </div>
-          ))}
-          <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-            <span>📄 {state.pageCount} {t('write.pages')}</span>
-            <span>·</span>
-            <span>📘 {state.style === 'ebook' ? t('write.style_ebook') : state.style === 'guide' ? t('write.style_guide') : t('write.style_prayers')}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex gap-3">
+      {/* Bottom actions */}
+      <div className="flex gap-3 pt-2">
         <Button variant="outline" size="lg" onClick={onBack} className="gap-2">
           <ArrowLeft className="h-4 w-4" /> {t('write.back')}
         </Button>
@@ -180,5 +290,3 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
     </div>
   );
 }
-
-
