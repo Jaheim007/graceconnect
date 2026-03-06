@@ -10,21 +10,20 @@ import { useI18n } from '@/i18n/I18nContext';
 export default function BookmarksPage() {
   const { data: bookmarks = [], isLoading } = useBookmarks();
   const navigate = useNavigate();
-  const { locale } = useI18n();
-  const isFr = locale === 'fr';
+  const { locale, t } = useI18n();
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title={isFr ? 'Favoris' : 'Bookmarks'} />
+      <SEOHead title={t('bookmarks.title')} />
       <div className="sticky top-0 z-10 glass border-b border-border/40 px-4 h-12 flex items-center gap-3">
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <span className="font-semibold text-sm flex-1">{isFr ? 'Favoris' : 'Bookmarks'}</span>
+        <span className="font-semibold text-sm flex-1">{t('bookmarks.title')}</span>
       </div>
       <main id="main-content" className="container max-w-2xl py-5 space-y-4">
         {isLoading ? <SkeletonList count={5} /> : bookmarks.length === 0 ? (
-          <EmptyState variant="generic" title={isFr ? 'Aucun favori' : 'No bookmarks'} description={isFr ? 'Ajoutez du contenu à vos favoris pour le retrouver facilement.' : 'Bookmark content to find it easily later.'} />
+          <EmptyState variant="generic" title={t('bookmarks.empty')} description={t('bookmarks.empty_desc')} />
         ) : (
           <div className="space-y-2">
             {bookmarks.map((b: any) => (
@@ -34,7 +33,7 @@ export default function BookmarksPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium capitalize">{b.content_type}</p>
-                  <p className="text-[10px] text-muted-foreground">{new Date(b.created_at).toLocaleDateString(isFr ? 'fr-FR' : 'en-US')}</p>
+                  <p className="text-[10px] text-muted-foreground">{new Date(b.created_at).toLocaleDateString(locale === 'fr' ? 'fr-FR' : locale === 'ar' ? 'ar' : 'en-US')}</p>
                 </div>
               </div>
             ))}

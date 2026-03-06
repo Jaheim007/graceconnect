@@ -7,6 +7,7 @@ import { useUnreadCount } from '@/hooks/useNotifications';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { useI18n } from '@/i18n/I18nContext';
 
 export function BottomNav() {
   const location = useLocation();
@@ -14,50 +15,49 @@ export function BottomNav() {
   const { currentOrg, canManage } = useOrg();
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const [open, setOpen] = useState(false);
+  const { t } = useI18n();
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
 
   const guestItems = [
-    { to: '/', icon: Home, label: 'Accueil' },
-    { to: '/discover', icon: Store, label: 'Explorer' },
-    { to: '/ecrire', icon: PenLine, label: 'Écrire', accent: true },
-    { to: '/gagner', icon: Wallet, label: 'Gagner' },
-    { to: '/auth?mode=signup', icon: UserPlus, label: "S'inscrire" },
+    { to: '/', icon: Home, label: t('bottom.home') },
+    { to: '/discover', icon: Store, label: t('bottom.explore') },
+    { to: '/ecrire', icon: PenLine, label: t('bottom.write'), accent: true },
+    { to: '/gagner', icon: Wallet, label: t('bottom.earn') },
+    { to: '/auth?mode=signup', icon: UserPlus, label: t('bottom.signup') },
   ];
 
-  // Unified primary nav — "Écrire" always prominent, "Gagner" always visible
   const primaryItems = [
-    { to: '/dashboard', icon: Home, label: 'Accueil' },
-    { to: '/discover', icon: Store, label: 'Découvrir' },
-    { to: '/ecrire', icon: PenLine, label: 'Écrire', accent: true },
-    { to: '/gagner', icon: Wallet, label: 'Gagner' },
+    { to: '/dashboard', icon: Home, label: t('bottom.home') },
+    { to: '/discover', icon: Store, label: t('bottom.discover') },
+    { to: '/ecrire', icon: PenLine, label: t('bottom.write'), accent: true },
+    { to: '/gagner', icon: Wallet, label: t('bottom.earn') },
   ];
 
-  // More menu items
   const moreGroups = [
     {
-      label: '📚 Mes ressources',
+      label: t('bottom.my_resources'),
       items: [
-        { to: '/resources', icon: Package, label: 'Mes achats' },
-        { to: '/my-donations', icon: Heart, label: 'Mes dons' },
-        { to: '/affiliation', icon: Link2, label: 'Mes liens' },
-        { to: '/notifications', icon: Bell, label: 'Notifications', showBadge: true },
+        { to: '/resources', icon: Package, label: t('bottom.my_purchases') },
+        { to: '/my-donations', icon: Heart, label: t('bottom.my_donations') },
+        { to: '/affiliation', icon: Link2, label: t('bottom.my_links') },
+        { to: '/notifications', icon: Bell, label: t('sidebar.notifications'), showBadge: true },
       ],
     },
     ...(canManageCurrentOrg ? [{
-      label: '🏗️ Mon espace',
+      label: t('bottom.my_space'),
       items: [
-        { to: '/admin', icon: BarChart3, label: 'Vue d\'ensemble' },
-        { to: '/admin/products', icon: Store, label: 'Produits' },
-        { to: '/admin/sales', icon: Wallet, label: 'Ventes' },
-        { to: '/admin/settings', icon: Settings, label: 'Paramètres' },
+        { to: '/admin', icon: BarChart3, label: t('bottom.admin_overview') },
+        { to: '/admin/products', icon: Store, label: t('bottom.products') },
+        { to: '/admin/sales', icon: Wallet, label: t('bottom.sales') },
+        { to: '/admin/settings', icon: Settings, label: t('bottom.settings') },
       ],
     }] : []),
     {
-      label: '⚙️ Compte & aide',
+      label: t('bottom.account_help'),
       items: [
-        { to: '/profile', icon: User, label: 'Profil' },
-        { to: '/protection', icon: Shield, label: 'Protection' },
-        { to: '/support', icon: LifeBuoy, label: 'Aide' },
+        { to: '/profile', icon: User, label: t('bottom.profile') },
+        { to: '/protection', icon: Shield, label: t('bottom.protection') },
+        { to: '/support', icon: LifeBuoy, label: t('bottom.help') },
       ],
     },
   ];
@@ -99,7 +99,6 @@ export function BottomNav() {
           );
         })}
 
-        {/* More button */}
         {user && (
           <Sheet open={open} onOpenChange={setOpen}>
             <SheetTrigger asChild>
@@ -110,7 +109,7 @@ export function BottomNav() {
                 )}
               >
                 <MoreHorizontal className={cn('h-5 w-5', isMoreActive && 'stroke-[2.5]')} />
-                <span className="text-[10px] font-medium leading-none">Plus</span>
+                <span className="text-[10px] font-medium leading-none">{t('bottom.more')}</span>
                 {isMoreActive && <div className="absolute -bottom-0.5 w-6 h-0.5 rounded-full bg-primary" />}
                 {unread > 0 && (
                   <Badge variant="destructive" className="absolute -top-0.5 right-1/4 h-4 min-w-4 px-1 text-[9px] flex items-center justify-center">

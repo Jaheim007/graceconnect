@@ -5,17 +5,19 @@ import { Button } from '@/components/ui/button';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
+import { useI18n } from '@/i18n/I18nContext';
 
 export function LandingNav() {
   const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t } = useI18n();
 
   const navItems = [
-    { to: '/ecrire', label: '✏️ Écrire' },
-    { to: '/gagner', label: '💰 Gagner' },
-    { to: '/discover', label: 'Explorer' },
-    { to: '#pricing', label: 'Tarifs', isAnchor: true },
+    { to: '/ecrire', label: t('landing_nav.write') },
+    { to: '/gagner', label: t('landing_nav.earn') },
+    { to: '/discover', label: t('landing_nav.explore') },
+    { to: '#pricing', label: t('landing_nav.pricing'), isAnchor: true },
   ];
 
   return (
@@ -23,7 +25,6 @@ export function LandingNav() {
       <div className="container flex items-center justify-between h-14 px-4">
         <SiteLogo size="md" animate />
         
-        {/* Desktop */}
         <div className="hidden md:flex items-center gap-1">
           {navItems.map((item) => (
             item.isAnchor ? (
@@ -43,10 +44,10 @@ export function LandingNav() {
             {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
           </Button>
           <Button variant="ghost" size="sm" onClick={() => navigate('/auth?mode=signin')} className="hidden sm:inline-flex text-xs px-3">
-            Connexion
+            {t('landing_nav.sign_in')}
           </Button>
           <Button size="sm" className="text-xs px-4 gap-1.5" onClick={() => navigate('/auth?mode=signup')}>
-            Commencer <ArrowRight className="h-3 w-3 hidden sm:block" />
+            {t('landing_nav.get_started')} <ArrowRight className="h-3 w-3 hidden sm:block" />
           </Button>
           <Button variant="ghost" size="icon" className="h-8 w-8 md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
@@ -54,7 +55,6 @@ export function LandingNav() {
         </div>
       </div>
 
-      {/* Mobile */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -77,10 +77,10 @@ export function LandingNav() {
               ))}
               <div className="pt-2 border-t border-border/40 mt-2 space-y-2">
                 <Button variant="outline" className="w-full" onClick={() => { navigate('/auth?mode=signin'); setMenuOpen(false); }}>
-                  Connexion
+                  {t('landing_nav.sign_in')}
                 </Button>
                 <Button className="w-full gap-1.5" onClick={() => { navigate('/auth?mode=signup'); setMenuOpen(false); }}>
-                  Commencer <ArrowRight className="h-3.5 w-3.5" />
+                  {t('landing_nav.get_started')} <ArrowRight className="h-3.5 w-3.5" />
                 </Button>
               </div>
             </nav>
