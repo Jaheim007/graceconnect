@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Store, Link2, User, MoreHorizontal, Bell, Trophy, Building2, BarChart3, Settings, Wallet, LifeBuoy, Package, LogIn, UserPlus, Heart, PenLine } from 'lucide-react';
+import { Home, Store, Link2, User, MoreHorizontal, Bell, Trophy, Building2, BarChart3, Settings, Wallet, LifeBuoy, Package, LogIn, UserPlus, Heart, PenLine, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -7,7 +7,6 @@ import { useUnreadCount } from '@/hooks/useNotifications';
 import { Badge } from '@/components/ui/badge';
 import { useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { useMode } from '@/contexts/ModeContext';
 
 export function BottomNav() {
   const location = useLocation();
@@ -16,35 +15,32 @@ export function BottomNav() {
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const [open, setOpen] = useState(false);
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
-  const { hasAmbassadorAccess } = useMode();
 
   const guestItems = [
     { to: '/', icon: Home, label: 'Accueil' },
     { to: '/discover', icon: Store, label: 'Explorer' },
     { to: '/ecrire', icon: PenLine, label: 'Écrire', accent: true },
+    { to: '/gagner', icon: Wallet, label: 'Gagner' },
     { to: '/auth?mode=signup', icon: UserPlus, label: "S'inscrire" },
   ];
 
-  // Unified primary nav for authenticated users
+  // Unified primary nav — "Écrire" always prominent, "Gagner" always visible
   const primaryItems = [
     { to: '/dashboard', icon: Home, label: 'Accueil' },
     { to: '/discover', icon: Store, label: 'Découvrir' },
     { to: '/ecrire', icon: PenLine, label: 'Écrire', accent: true },
-    ...(hasAmbassadorAccess
-      ? [{ to: '/affiliation', icon: Link2, label: 'Gagner' }]
-      : [{ to: '/resources', icon: Package, label: 'Achats' }]),
+    { to: '/gagner', icon: Wallet, label: 'Gagner' },
   ];
 
   // More menu items
   const moreGroups = [
     {
-      label: '📚 Mon espace',
+      label: '📚 Mes ressources',
       items: [
         { to: '/resources', icon: Package, label: 'Mes achats' },
         { to: '/my-donations', icon: Heart, label: 'Mes dons' },
+        { to: '/affiliation', icon: Link2, label: 'Mes liens' },
         { to: '/notifications', icon: Bell, label: 'Notifications', showBadge: true },
-        { to: '/profile', icon: User, label: 'Profil' },
-        
       ],
     },
     ...(canManageCurrentOrg ? [{
@@ -57,8 +53,10 @@ export function BottomNav() {
       ],
     }] : []),
     {
-      label: '⚙️ Aide',
+      label: '⚙️ Compte & aide',
       items: [
+        { to: '/profile', icon: User, label: 'Profil' },
+        { to: '/protection', icon: Shield, label: 'Protection' },
         { to: '/support', icon: LifeBuoy, label: 'Aide' },
       ],
     },
