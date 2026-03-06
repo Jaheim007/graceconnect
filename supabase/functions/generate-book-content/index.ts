@@ -325,8 +325,15 @@ Deno.serve(async (req) => {
 
     const lang = language || 'fr';
     const langName = langNameMap[lang] || langNameMap['fr'];
-    const pages = pageCount || 20;
-    const chapterCount = singleChapter ? 1 : Math.max(3, Math.min(12, Math.round(pages / 3)));
+    const pages = Number(pageCount) > 0 ? Number(pageCount) : 20;
+    const chapterCount = singleChapter
+      ? 1
+      : Math.max(MIN_CHAPTERS, Math.min(MAX_CHAPTERS, Math.round(pages / 5)));
+    const chapterWordTarget = singleChapter
+      ? '450-700'
+      : chapterCount >= 6
+        ? '320-520'
+        : '420-650';
 
     const _tone = tone || 'professional';
     const _level = languageLevel || 'intermediate';
