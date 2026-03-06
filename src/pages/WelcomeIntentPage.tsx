@@ -1,6 +1,7 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { PenLine, Share2, Upload, ShoppingBag, ArrowRight, Sparkles } from 'lucide-react';
+import { PenLine, Share2, Upload, ShoppingBag, ArrowRight } from 'lucide-react';
+import { SiteLogo } from '@/components/ui/SiteLogo';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -78,12 +79,12 @@ export default function WelcomeIntentPage() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.1, type: 'spring', stiffness: 200, damping: 15 }}
-            className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4"
+            className="mx-auto mb-4"
           >
-            <Sparkles className="h-7 w-7 text-primary" />
+            <SiteLogo size="xl" linked={false} />
           </motion.div>
           <h1 className="text-2xl sm:text-3xl font-extrabold mb-2">
-            Bienvenue{user?.user_metadata?.display_name ? ` ${user.user_metadata.display_name}` : ''} ! 🎉
+            Bienvenue{user?.user_metadata?.display_name ? ` ${user.user_metadata.display_name}` : ''} !
           </h1>
           <p className="text-muted-foreground text-sm">
             Que veux-tu faire ? Tu pourras toujours changer plus tard.
