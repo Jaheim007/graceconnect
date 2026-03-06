@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Loader2, CheckCircle, Sparkles } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import type { WriteState } from '../WriteWizard';
@@ -15,29 +15,44 @@ export function StepGenerating({ state, update, onNext }: Props) {
   const [msgIndex, setMsgIndex] = useState(0);
   const [visibleChapters, setVisibleChapters] = useState<string[]>([]);
   const done = useRef(false);
+  const updateRef = useRef(update);
+  const onNextRef = useRef(onNext);
 
-  const MOTIVATIONAL = useMemo(() => [
-    '✨ ' + t('write.ai_writing').replace('…', '') + '…',
-    '📝 ' + t('write.ai_writing'),
-    '🎯 ' + t('write.ai_writing'),
-    '🔥 ' + t('write.ai_writing'),
-    '📖 ' + t('write.ai_writing'),
-    '🚀 ' + t('write.book_created').replace('✅ ', ''),
-  ], [t]);
+  useEffect(() => {
+    updateRef.current = update;
+    onNextRef.current = onNext;
+  }, [update, onNext]);
 
-  // Get chapters from i18n
+  const aiWriting = t('write.ai_writing');
+  const bookCreated = t('write.book_created');
+  const chapterKey = `write.ch_${state.style}` as string;
+  const chapterTranslation = t(chapterKey);
+  const defaultChapters = t('write.ch_ebook');
+
+  const motivationalMessages = useMemo(() => [
+    '✨ ' + aiWriting.replace('…', '') + '…',
+    '📝 ' + aiWriting,
+    '🎯 ' + aiWriting,
+    '🔥 ' + aiWriting,
+    '📖 ' + aiWriting,
+    '🚀 ' + bookCreated.replace('✅ ', ''),
+  ], [aiWriting, bookCreated]);
+
   const chapters = useMemo(() => {
-    const chapterKey = `write.ch_${state.style}` as string;
-    const chapterStr = t(chapterKey);
-    const resolved = chapterStr !== chapterKey ? chapterStr : t('write.ch_ebook');
+    const resolved = chapterTranslation !== chapterKey ? chapterTranslation : defaultChapters;
 
     return resolved
       .split(',')
       .map((ch) => ch.trim())
       .filter(Boolean);
-  }, [state.style, t]);
+  }, [chapterTranslation, defaultChapters, chapterKey]);
 
   useEffect(() => {
+    done.current = false;
+    setProgress(0);
+    setMsgIndex(0);
+    setVisibleChapters([]);
+
     const totalDuration = 6000;
     const interval = 100;
     let elapsed = 0;
@@ -50,19 +65,19 @@ export function StepGenerating({ state, update, onNext }: Props) {
       const chapterIdx = Math.floor((pct / 100) * chapters.length);
       setVisibleChapters(chapters.slice(0, chapterIdx));
 
-      const mi = Math.floor((pct / 100) * MOTIVATIONAL.length);
-      setMsgIndex(Math.min(mi, MOTIVATIONAL.length - 1));
+      const mi = Math.floor((pct / 100) * motivationalMessages.length);
+      setMsgIndex(Math.min(mi, motivationalMessages.length - 1));
 
       if (pct >= 100 && !done.current) {
         done.current = true;
         clearInterval(timer);
-        update({ chapters });
-        setTimeout(onNext, 800);
+        updateRef.current({ chapters });
+        setTimeout(() => onNextRef.current(), 800);
       }
     }, interval);
 
     return () => clearInterval(timer);
-  }, [chapters, MOTIVATIONAL, update, onNext]);
+  }, [chapters, motivationalMessages]);
 
   return (
     <div className="space-y-8 pt-16 text-center">
@@ -76,11 +91,11 @@ export function StepGenerating({ state, update, onNext }: Props) {
         </div>
 
         <h2 className="text-2xl font-extrabold">
-          {progress < 100 ? t('write.ai_writing') : t('write.book_created')}
+          {progress < 100 ? aiWriting : bookCreated}
         </h2>
 
         <p className="text-sm text-muted-foreground animate-pulse">
-          {MOTIVATIONAL[msgIndex]}
+          {motivationalMessages[msgIndex]}
         </p>
       </div>
 
