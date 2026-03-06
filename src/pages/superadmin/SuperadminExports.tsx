@@ -99,7 +99,7 @@ export default function SuperadminExports() {
   ];
 
   const strategicDocs = [
-    { label: 'Playbook Marketing & Growth', desc: 'Positionnement, personas, objections, funnels, scripts — le guide complet pour vendre Siteviral', filename: 'siteviral-marketing-playbook.md', color: 'text-orange-500' },
+    { label: 'Playbook Marketing & Growth v2.0', desc: 'Positionnement, personas, objections, funnels, scripts, boucles virales — le guide complet 2026', filename: 'siteviral-growth-playbook-2026.md', color: 'text-orange-500' },
     { label: 'Stratégie de Contenu Exhaustive', desc: '52 personas, 140 articles, 90 pages, calendrier éditorial 16 semaines', filename: 'siteviral-content-strategy-exhaustive.md', color: 'text-pink-500' },
   ];
 
