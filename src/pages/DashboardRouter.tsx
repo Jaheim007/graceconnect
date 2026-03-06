@@ -12,6 +12,9 @@ import { InviteEarnWidget } from '@/components/referral/InviteEarnWidget';
 import { TrendingProducts } from '@/components/discover/TrendingProducts';
 import { StreakTracker } from '@/components/growth/StreakTracker';
 import { LiveActivityFeed } from '@/components/growth/LiveActivityFeed';
+import { SuccessStoriesCarousel } from '@/components/growth/SuccessStoriesCarousel';
+import { GrowthTipsWidget } from '@/components/growth/GrowthTipsWidget';
+import { UserProgressDashboard } from '@/components/growth/UserProgressDashboard';
 import AmbassadorDashboard from '@/pages/AmbassadorDashboard';
 import UserDashboard from '@/pages/UserDashboard';
 
@@ -178,8 +181,14 @@ function NewUserDashboard() {
       {/* Viral loop card */}
       <ViralLoopCard />
 
+      {/* Success stories — social proof */}
+      <SuccessStoriesCarousel limit={3} />
+
       {/* Invite & Earn */}
       <InviteEarnWidget />
+
+      {/* Growth tips */}
+      <GrowthTipsWidget category="all" />
 
       {/* Trending products */}
       <TrendingProducts limit={4} />

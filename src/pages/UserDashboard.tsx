@@ -18,6 +18,9 @@ import { useMode } from '@/contexts/ModeContext';
 import { Badge } from '@/components/ui/badge';
 import PartnerPendingPopup from '@/components/partner/PartnerPendingPopup';
 import { InviteEarnWidget } from '@/components/social/InviteEarnWidget';
+import { UserProgressDashboard } from '@/components/growth/UserProgressDashboard';
+import { GrowthTipsWidget } from '@/components/growth/GrowthTipsWidget';
+import { SuccessStoriesCarousel } from '@/components/growth/SuccessStoriesCarousel';
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 12 },
@@ -318,6 +321,21 @@ export default function UserDashboard() {
               <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
             </button>
           )}
+        {/* ═══ USER PROGRESS ═══ */}
+        <motion.div {...fadeUp(0.25)}>
+          <UserProgressDashboard />
+        </motion.div>
+
+        {/* ═══ SUCCESS STORIES ═══ */}
+        <motion.div {...fadeUp(0.3)}>
+          <SuccessStoriesCarousel limit={3} />
+        </motion.div>
+
+        {/* ═══ GROWTH TIPS ═══ */}
+        <motion.div {...fadeUp(0.35)}>
+          <GrowthTipsWidget />
+        </motion.div>
+
         {/* ═══ INVITE & EARN ═══ */}
         <motion.div {...fadeUp(0.4)}>
           <InviteEarnWidget />
