@@ -1,12 +1,29 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Loader2, CheckCircle, Sparkles } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
-import type { WriteState } from '../WriteWizard';
+import type { WriteState, WriteChapter } from '../WriteWizard';
 
 interface Props {
   state: WriteState;
   update: (patch: Partial<WriteState>) => void;
   onNext: () => void;
+}
+
+function buildChapterContent(state: WriteState, chapterTitle: string, index: number): string {
+  const topic = (state.topic || state.title || 'votre sujet').trim();
+  const styleContext =
+    state.style === 'guide'
+      ? 'guide pratique'
+      : state.style === 'prayers'
+        ? 'parcours spirituel'
+        : 'livre structuré';
+
+  return [
+    `Ce chapitre « ${chapterTitle} » introduit un point clé de ce ${styleContext} autour de « ${topic} ».`,
+    `Objectif : aider le lecteur à comprendre les notions essentielles, puis à passer à l'action avec des exemples concrets.`,
+    `Conseil pratique : relis cette section et adapte-la avec tes expériences personnelles avant publication finale.`,
+    `Section ${index + 1}/${Math.max(1, state.pageCount)} — brouillon éditable.`,
+  ].join('\n\n');
 }
 
 export function StepGenerating({ state, update, onNext }: Props) {
@@ -38,14 +55,19 @@ export function StepGenerating({ state, update, onNext }: Props) {
     '🚀 ' + bookCreated.replace('✅ ', ''),
   ], [aiWriting, bookCreated]);
 
-  const chapters = useMemo(() => {
+  const chapterDrafts = useMemo<WriteChapter[]>(() => {
     const resolved = chapterTranslation !== chapterKey ? chapterTranslation : defaultChapters;
 
     return resolved
       .split(',')
       .map((ch) => ch.trim())
-      .filter(Boolean);
-  }, [chapterTranslation, defaultChapters, chapterKey]);
+      .filter(Boolean)
+      .map((title, index) => ({
+        id: `ch-${index + 1}`,
+        title,
+        content: buildChapterContent(state, title, index),
+      }));
+  }, [chapterTranslation, defaultChapters, chapterKey, state]);
 
   useEffect(() => {
     done.current = false;
@@ -62,8 +84,8 @@ export function StepGenerating({ state, update, onNext }: Props) {
       const pct = Math.min((elapsed / totalDuration) * 100, 100);
       setProgress(pct);
 
-      const chapterIdx = Math.floor((pct / 100) * chapters.length);
-      setVisibleChapters(chapters.slice(0, chapterIdx));
+      const chapterIdx = Math.floor((pct / 100) * chapterDrafts.length);
+      setVisibleChapters(chapterDrafts.slice(0, chapterIdx).map((chapter) => chapter.title));
 
       const mi = Math.floor((pct / 100) * motivationalMessages.length);
       setMsgIndex(Math.min(mi, motivationalMessages.length - 1));
@@ -71,13 +93,13 @@ export function StepGenerating({ state, update, onNext }: Props) {
       if (pct >= 100 && !done.current) {
         done.current = true;
         clearInterval(timer);
-        updateRef.current({ chapters });
+        updateRef.current({ chapters: chapterDrafts });
         setTimeout(() => onNextRef.current(), 800);
       }
     }, interval);
 
     return () => clearInterval(timer);
-  }, [chapters, motivationalMessages]);
+  }, [chapterDrafts, motivationalMessages]);
 
   return (
     <div className="space-y-8 pt-16 text-center">
@@ -127,3 +149,4 @@ export function StepGenerating({ state, update, onNext }: Props) {
     </div>
   );
 }
+
