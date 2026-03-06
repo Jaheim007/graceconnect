@@ -318,44 +318,42 @@ async function buildProfessionalPdf(opts: {
   const coverPage = pdfDoc.addPage([pg.width, pg.height]);
   const hasCover = await tryDrawCover(pdfDoc, coverPage, opts.coverUrl);
 
-  if (!hasCover) {
-    // Elegant gradient background
+  if (hasCover) {
+    // When a custom cover image exists, use it as-is (the user designed it)
+    // No text overlay - the image IS the cover
+  } else {
+    // Elegant fallback cover when no image is provided
     coverPage.drawRectangle({ x: 0, y: 0, width: pg.width, height: pg.height, color: rgb(0.05, 0.08, 0.15) });
-    // Decorative accent bar
+    
+    // Decorative accent bars
     coverPage.drawRectangle({ x: pg.width * 0.1, y: pg.height * 0.52, width: pg.width * 0.8, height: 2, color: rgb(0.35, 0.55, 0.85) });
     coverPage.drawRectangle({ x: pg.width * 0.3, y: pg.height * 0.515, width: pg.width * 0.4, height: 1, color: rgb(0.5, 0.7, 0.95) });
-  }
-
-  // Dark overlay for text readability
-  coverPage.drawRectangle({
-    x: 0, y: 0, width: pg.width, height: pg.height,
-    color: rgb(0.02, 0.05, 0.12), opacity: hasCover ? 0.5 : 0.05,
-  });
-
-  // Title on cover — centered, large
-  const coverTitleSize = 32;
-  const titleLines = wrapText(opts.title, pg.width - 100, serifBold, coverTitleSize).slice(0, 4);
-  let ty = pg.height * 0.62;
-  for (const line of titleLines) {
-    const w = serifBold.widthOfTextAtSize(line, coverTitleSize);
-    coverPage.drawText(line, { x: (pg.width - w) / 2, y: ty, size: coverTitleSize, font: serifBold, color: rgb(1, 1, 1) });
-    ty -= coverTitleSize * 1.35;
-  }
-
-  // Subtitle
-  if (opts.subtitle) {
-    const subLines = wrapText(opts.subtitle, pg.width - 140, serifItalic, 13).slice(0, 2);
-    ty -= 10;
-    for (const line of subLines) {
-      const w = serifItalic.widthOfTextAtSize(line, 13);
-      coverPage.drawText(line, { x: (pg.width - w) / 2, y: ty, size: 13, font: serifItalic, color: rgb(0.85, 0.88, 0.95) });
-      ty -= 18;
+    
+    // Title on cover — centered, large
+    const coverTitleSize = 32;
+    const titleLines = wrapText(opts.title, pg.width - 100, serifBold, coverTitleSize).slice(0, 4);
+    let ty = pg.height * 0.62;
+    for (const line of titleLines) {
+      const w = serifBold.widthOfTextAtSize(line, coverTitleSize);
+      coverPage.drawText(line, { x: (pg.width - w) / 2, y: ty, size: coverTitleSize, font: serifBold, color: rgb(1, 1, 1) });
+      ty -= coverTitleSize * 1.35;
     }
-  }
 
-  // Org name at bottom
-  const orgW = sans.widthOfTextAtSize(opts.orgName, 12);
-  coverPage.drawText(opts.orgName, { x: (pg.width - orgW) / 2, y: 60, size: 12, font: sans, color: rgb(0.75, 0.8, 0.9) });
+    // Subtitle
+    if (opts.subtitle) {
+      const subLines = wrapText(opts.subtitle, pg.width - 140, serifItalic, 13).slice(0, 2);
+      ty -= 10;
+      for (const line of subLines) {
+        const w = serifItalic.widthOfTextAtSize(line, 13);
+        coverPage.drawText(line, { x: (pg.width - w) / 2, y: ty, size: 13, font: serifItalic, color: rgb(0.85, 0.88, 0.95) });
+        ty -= 18;
+      }
+    }
+
+    // Org name at bottom
+    const orgW = sans.widthOfTextAtSize(opts.orgName, 12);
+    coverPage.drawText(opts.orgName, { x: (pg.width - orgW) / 2, y: 60, size: 12, font: sans, color: rgb(0.75, 0.8, 0.9) });
+  }
 
   // ── 2. HALF-TITLE PAGE (pro touch) ────────────────────────────
   const halfTitle = pdfDoc.addPage([pg.width, pg.height]);
