@@ -1338,7 +1338,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'write.remove_chapter': 'Remove chapter',
     'write.prev_chapter': 'Previous',
     'write.next_chapter': 'Next',
-    'write.cancel': 'Cancel',
     'write.chapter_label': 'Chapter',
     'write.chapter_default_title': 'Introduction',
     'write.cover_title': 'Choose your cover',
@@ -2706,7 +2705,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'write.remove_chapter': 'Supprimer ce chapitre',
     'write.prev_chapter': 'Précédent',
     'write.next_chapter': 'Suivant',
-    'write.cancel': 'Annuler',
     'write.chapter_label': 'Chapitre',
     'write.chapter_default_title': 'Introduction',
     // ─── Cover step ───
