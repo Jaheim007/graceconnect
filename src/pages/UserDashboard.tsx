@@ -14,7 +14,7 @@ import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
 import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
-import { useMode } from '@/contexts/ModeContext';
+
 import { Badge } from '@/components/ui/badge';
 import PartnerPendingPopup from '@/components/partner/PartnerPendingPopup';
 import { InviteEarnWidget } from '@/components/social/InviteEarnWidget';
@@ -38,7 +38,6 @@ export default function UserDashboard() {
   const { userOrgs } = useOrg();
   const navigate = useNavigate();
   const { locale } = useI18n();
-  const { hasAmbassadorAccess, hasCreatorAccess, setMode } = useMode();
   const hasOrgs = userOrgs.length > 0;
 
   const primaryCurrency = userOrgs[0]?.currency || DEFAULT_CURRENCY;
@@ -108,8 +107,7 @@ export default function UserDashboard() {
   const displayName = profile?.display_name?.split(' ')[0] || 'là';
 
   const goAmbassadorMarketplace = () => {
-    setMode('ambassador');
-    navigate('/affiliation');
+    navigate('/gagner');
   };
 
   return (
@@ -291,7 +289,6 @@ export default function UserDashboard() {
             <Button
               className="w-full gap-2"
               onClick={() => {
-                setMode('creator');
                 navigate('/admin');
               }}
             >
