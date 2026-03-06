@@ -4,8 +4,11 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Navigate, Link } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
-import { PenLine, Share2, Upload, Store, ArrowRight, Package, TrendingUp, BarChart3 } from 'lucide-react';
+import { PenLine, Share2, Upload, Store, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { FirstWinChecklist } from '@/components/dashboard/FirstWinChecklist';
+import { QuickStatsBar } from '@/components/dashboard/QuickStatsBar';
+import { ViralLoopCard } from '@/components/dashboard/ViralLoopCard';
 import AmbassadorDashboard from '@/pages/AmbassadorDashboard';
 import UserDashboard from '@/pages/UserDashboard';
 
@@ -13,7 +16,7 @@ import UserDashboard from '@/pages/UserDashboard';
  * Smart dashboard router — shows the right dashboard based on user state:
  * 1. Creator (has orgs with manage role) → redirect to /admin
  * 2. Ambassador (has affiliate links) → AmbassadorDashboard
- * 3. New user (no activity) → Welcome actions
+ * 3. New user (no activity) → Welcome actions + FirstWinChecklist
  * 4. Simple buyer → UserDashboard (purchases, discover)
  */
 export default function DashboardRouter() {
@@ -22,14 +25,21 @@ export default function DashboardRouter() {
 
   const hasManageableOrg = userOrgs.some(o => canManage(o.id));
 
-  const { data: affiliateLinkCount, isLoading: isLoadingAff } = useQuery({
-    queryKey: ['affiliate-link-count', user?.id],
+  const { data: affiliateData, isLoading: isLoadingAff } = useQuery({
+    queryKey: ['affiliate-summary', user?.id],
     queryFn: async () => {
-      if (!user) return 0;
-      const { count } = await db.from('affiliate_links')
-        .select('id', { count: 'exact', head: true })
+      if (!user) return { count: 0, totalEarned: 0, totalClicks: 0, totalConversions: 0, firstCode: null };
+      const { data: links } = await db.from('affiliate_links')
+        .select('code, total_earned, clicks, conversions')
         .eq('user_id', user.id);
-      return count || 0;
+      if (!links?.length) return { count: 0, totalEarned: 0, totalClicks: 0, totalConversions: 0, firstCode: null };
+      return {
+        count: links.length,
+        totalEarned: links.reduce((s: number, l: any) => s + (l.total_earned || 0), 0),
+        totalClicks: links.reduce((s: number, l: any) => s + (l.clicks || 0), 0),
+        totalConversions: links.reduce((s: number, l: any) => s + (l.conversions || 0), 0),
+        firstCode: links[0]?.code || null,
+      };
     },
     enabled: !!user && !hasManageableOrg,
     staleTime: 60_000,
@@ -44,7 +54,7 @@ export default function DashboardRouter() {
         .eq('user_id', user.id);
       return count || 0;
     },
-    enabled: !!user && !hasManageableOrg && !(affiliateLinkCount && affiliateLinkCount > 0),
+    enabled: !!user && !hasManageableOrg && !(affiliateData && affiliateData.count > 0),
     staleTime: 60_000,
   });
 
@@ -64,13 +74,13 @@ export default function DashboardRouter() {
     return <Navigate to="/admin" replace />;
   }
 
-  // 2. Ambassador
-  if ((affiliateLinkCount ?? 0) > 0) {
+  // 2. Ambassador (has affiliate links)
+  if ((affiliateData?.count ?? 0) > 0) {
     return <AmbassadorDashboard />;
   }
 
-  // 3. Brand new user (no purchases, no affiliates) → Welcome actions
-  if ((purchaseCount ?? 0) === 0 && (affiliateLinkCount ?? 0) === 0 && !isLoadingPurch) {
+  // 3. Brand new user (no purchases, no affiliates) → Welcome
+  if ((purchaseCount ?? 0) === 0 && (affiliateData?.count ?? 0) === 0 && !isLoadingPurch) {
     return <NewUserDashboard />;
   }
 
@@ -80,6 +90,7 @@ export default function DashboardRouter() {
 
 function NewUserDashboard() {
   const { user } = useAuth();
+  const { userOrgs } = useOrg();
   const name = user?.user_metadata?.display_name || user?.email?.split('@')[0] || '';
 
   const actions = [
@@ -130,6 +141,15 @@ function NewUserDashboard() {
         <p className="text-muted-foreground text-sm mt-1">Que veux-tu faire aujourd'hui ?</p>
       </div>
 
+      {/* First Win Checklist */}
+      <FirstWinChecklist
+        hasBook={false}
+        hasAffiliateLink={false}
+        hasPurchase={false}
+        hasOrg={userOrgs.length > 0}
+      />
+
+      {/* Action cards */}
       <div className="grid gap-3">
         {actions.map(a => (
           <Link
@@ -148,6 +168,9 @@ function NewUserDashboard() {
           </Link>
         ))}
       </div>
+
+      {/* Viral loop card */}
+      <ViralLoopCard />
 
       {/* Quick stats bar */}
       <div className="flex items-center justify-center gap-6 pt-4 text-center">
