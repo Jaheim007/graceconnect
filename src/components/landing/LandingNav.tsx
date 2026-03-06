@@ -12,8 +12,8 @@ export function LandingNav() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navItems = [
-    { to: '/gagner', label: 'Gagner' },
-    { to: '/vendre', label: 'Vendre' },
+    { to: '/ecrire', label: '✏️ Écrire' },
+    { to: '/gagner', label: '💰 Gagner' },
     { to: '/discover', label: 'Explorer' },
     { to: '#pricing', label: 'Tarifs', isAnchor: true },
   ];

@@ -47,7 +47,7 @@ export function BottomNav() {
       ],
     },
     ...(canManageCurrentOrg ? [{
-      label: '🏗️ Ma plateforme',
+      label: '🏗️ Mon espace',
       items: [
         { to: '/admin', icon: BarChart3, label: 'Vue d\'ensemble' },
         { to: '/admin/products', icon: Store, label: 'Produits' },

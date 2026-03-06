@@ -122,10 +122,7 @@ export default function UserDashboard() {
             <h1 className="text-lg font-bold">{greeting}, {displayName} 👋</h1>
             <p className="text-xs text-muted-foreground">Voici ton espace personnel</p>
           </div>
-          <Badge variant="secondary" className="text-[10px] gap-1 shrink-0">
-            <UserCheck className="h-3 w-3" />
-            Acheteur / Donateur
-          </Badge>
+          {/* Badge removed — no more "Acheteur / Donateur" label */}
         </motion.div>
 
         {/* ═══ SECTION: MES ACHATS ═══ */}
@@ -252,27 +249,26 @@ export default function UserDashboard() {
           </Button>
         </motion.div>
 
-        {/* ═══ SECTION: CRÉER MA PLATEFORME ═══ */}
-        <motion.div {...fadeUp(0.15)} className="bg-card border border-primary/20 rounded-2xl p-5">
-          <h2 className="font-bold text-sm flex items-center gap-2 mb-3">
-            <Building2 className="h-4 w-4 text-primary" /> {hasOrgs ? 'Ma plateforme' : 'Créer ma plateforme'}
-          </h2>
-          <p className="text-xs text-muted-foreground mb-4">
-            {hasOrgs
-              ? 'Gère tes produits, tes ventes et tes ambassadeurs.'
-              : 'Crée ta boutique digitale, vends tes produits et collecte des dons.'}
-          </p>
-          <Button
-            className="w-full gap-2"
-            variant={hasOrgs ? 'default' : 'outline'}
-            onClick={() => {
-              setMode('creator');
-              navigate(hasOrgs ? '/admin' : '/create-org');
-            }}
-          >
-            <Building2 className="h-4 w-4" /> {hasOrgs ? 'Accéder à ma plateforme' : 'Créer ma plateforme'}
-          </Button>
-        </motion.div>
+        {/* ═══ SECTION: MON ESPACE (simplified — no more "Créer ma plateforme") ═══ */}
+        {hasOrgs && (
+          <motion.div {...fadeUp(0.15)} className="bg-card border border-primary/20 rounded-2xl p-5">
+            <h2 className="font-bold text-sm flex items-center gap-2 mb-3">
+              <Building2 className="h-4 w-4 text-primary" /> Mon espace
+            </h2>
+            <p className="text-xs text-muted-foreground mb-4">
+              Gère tes produits, tes ventes et tes ambassadeurs.
+            </p>
+            <Button
+              className="w-full gap-2"
+              onClick={() => {
+                setMode('creator');
+                navigate('/admin');
+              }}
+            >
+              <Building2 className="h-4 w-4" /> Accéder à mon espace
+            </Button>
+          </motion.div>
+        )}
 
         {/* ═══ SECTION: GAGNER DE L'ARGENT ═══ */}
         <motion.div {...fadeUp(0.18)} className="bg-card border border-emerald-500/20 rounded-2xl p-5">
@@ -283,41 +279,25 @@ export default function UserDashboard() {
             Partage des produits et gagne une commission sur chaque vente. Aucun investissement requis.
           </p>
           <Button className="w-full gap-2" onClick={goAmbassadorMarketplace}>
-            <Rocket className="h-4 w-4" /> Commencer à gagner
+            <Rocket className="h-4 w-4" /> Partage et gagne
           </Button>
         </motion.div>
 
-        {/* ═══ MODE SWITCHERS ═══ */}
+        {/* ═══ QUICK LINKS (replaces mode switchers) ═══ */}
         <motion.div {...fadeUp(0.22)} className="space-y-2">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold px-1">Changer de mode</p>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold px-1">Accès rapide</p>
 
-          {(hasCreatorAccess || hasOrgs) && (
+          {!hasOrgs && (
             <button
-              onClick={() => { setMode('creator'); navigate('/admin'); }}
+              onClick={() => navigate('/ecrire')}
               className="w-full flex items-center gap-3 p-3.5 rounded-xl border border-border hover:border-primary/40 bg-card text-left transition-all group"
             >
               <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <Building2 className="h-4 w-4 text-primary" />
+                <Sparkles className="h-4 w-4 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold">Se connecter en tant que créateur</p>
-                <p className="text-[10px] text-muted-foreground">Gérer ma plateforme et mes ventes</p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-            </button>
-          )}
-
-          {hasAmbassadorAccess && (
-            <button
-              onClick={() => { setMode('ambassador'); navigate('/affiliation'); }}
-              className="w-full flex items-center gap-3 p-3.5 rounded-xl border border-border hover:border-emerald-500/40 bg-card text-left transition-all group"
-            >
-              <div className="h-8 w-8 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0">
-                <Share2 className="h-4 w-4 text-emerald-500" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold">Se connecter en tant qu'ambassadeur</p>
-                <p className="text-[10px] text-muted-foreground">Mes liens, commissions et classement</p>
+                <p className="text-xs font-semibold">✏️ Écrire mon premier livre</p>
+                <p className="text-[10px] text-muted-foreground">L'IA écrit, tu publies, tu gagnes</p>
               </div>
               <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
             </button>
