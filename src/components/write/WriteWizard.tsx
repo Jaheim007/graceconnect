@@ -13,6 +13,7 @@ import { StepCover } from './steps/StepCover';
 import { StepPricing } from './steps/StepPricing';
 import { StepCelebration } from './steps/StepCelebration';
 import { StepPublishing } from './steps/StepPublishing';
+import { StepPdfPreview } from './steps/StepPdfPreview';
 import { WriteProgress } from './WriteProgress';
 import { WritingMotivation } from './WritingMotivation';
 import { trackEvent } from '@/hooks/useClientAnalytics';
@@ -52,6 +53,7 @@ export interface WriteState {
   productId?: string;
   projectId?: string;
   orgSlug?: string;
+  previewPdfUrl?: string;
 }
 
 const STORAGE_KEY = 'write_wizard_draft';
@@ -82,9 +84,9 @@ function loadDraft(): { state: WriteState; step: number } | null {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    // Don't restore File objects (they can't be serialized)
+    // Don't restore File objects or blob URLs (they can't be serialized)
     return {
-      state: { ...initialState, ...parsed.state, uploadedFile: null, coverFile: null },
+      state: { ...initialState, ...parsed.state, uploadedFile: null, coverFile: null, previewPdfUrl: undefined },
       step: typeof parsed.step === 'number' ? parsed.step : 0,
     };
   } catch { return null; }
@@ -102,16 +104,20 @@ function clearDraft() {
   try { localStorage.removeItem(STORAGE_KEY); } catch {}
 }
 
-const PUBLISHING_STEP = 6;
-const CELEBRATION_STEP = 7;
-const STEP_LABELS = ['Source', 'Détails', 'Création', 'Aperçu', 'Couverture', 'Prix', 'Publication', '🎉'];
+const PDF_PREVIEW_STEP = 6;
+const PUBLISHING_STEP = 7;
+const CELEBRATION_STEP = 8;
+const STEP_LABELS = ['Source', 'Détails', 'Création', 'Aperçu', 'Couverture', 'Prix', 'Aperçu PDF', 'Sauvegarde', '🎉'];
 
 type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
 
 export default function WriteWizard() {
   const draft = loadDraft();
   const [step, setStep] = useState(draft?.step ?? 0);
-  const [state, setState] = useState<WriteState>(draft?.state ?? initialState);
+  const [state, setState] = useState<WriteState>(() => {
+    const s = draft?.state ?? initialState;
+    return { ...s, previewPdfUrl: undefined };
+  });
   const [publishing, setPublishing] = useState(false);
   const [publishingStage, setPublishingStage] = useState<PublishingStage>('preparing');
   const [willCreateOrg, setWillCreateOrg] = useState(false);
@@ -121,10 +127,7 @@ export default function WriteWizard() {
   const { toast } = useToast();
 
   const update = useCallback((patch: Partial<WriteState>) => {
-    setState(prev => {
-      const next = { ...prev, ...patch };
-      return next;
-    });
+      setState(prev => ({ ...prev, ...patch }));
   }, []);
 
   // Auto-save to localStorage on every state/step change

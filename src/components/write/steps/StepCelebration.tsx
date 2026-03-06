@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { PartyPopper, ExternalLink, PenLine } from 'lucide-react';
+import { PartyPopper, ExternalLink, PenLine, BookCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
@@ -30,6 +30,14 @@ export function StepCelebration({ state }: Props) {
   const potentialEarning = !state.isFree && state.price > 0
     ? Math.round(state.price * state.commissionRate / 100)
     : 0;
+
+  const handleGoToProduct = () => {
+    if (state.productId) {
+      navigate(`/dashboard/products/${state.productId}`);
+    } else {
+      navigate('/dashboard/products');
+    }
+  };
 
   return (
     <div className="space-y-8 pt-8 text-center relative overflow-hidden">
@@ -75,6 +83,19 @@ export function StepCelebration({ state }: Props) {
           « <strong className="text-foreground">{shareTitle}</strong> » {t('write.celebration_sub')}
         </p>
 
+        {/* Draft notice */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-3 mx-auto"
+        >
+          <BookCheck className="h-5 w-5 text-amber-600 shrink-0" />
+          <span className="text-sm text-amber-800 dark:text-amber-300 text-left">
+            {t('write.draft_notice')}
+          </span>
+        </motion.div>
+
         {potentialEarning > 0 && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -113,11 +134,10 @@ export function StepCelebration({ state }: Props) {
         className="space-y-3 pt-4"
       >
         <Button
-          variant="outline"
-          className="gap-2 w-full sm:w-auto"
-          onClick={() => navigate('/dashboard')}
+          className="gap-2 w-full sm:w-auto h-12 text-base cta-glow"
+          onClick={handleGoToProduct}
         >
-          <ExternalLink className="h-4 w-4" /> {t('write.view_dashboard')}
+          <ExternalLink className="h-4 w-4" /> {t('write.go_to_product')}
         </Button>
         <div>
           <Button

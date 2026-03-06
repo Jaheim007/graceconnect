@@ -1,4 +1,4 @@
-import { ArrowLeft, Rocket, Users, Loader2 } from 'lucide-react';
+import { ArrowLeft, Rocket, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
@@ -109,17 +109,8 @@ export function StepPricing({ state, update, onNext, onBack, publishing }: Props
           onClick={onNext}
           disabled={publishing}
         >
-          {publishing ? (
-            <>
-              <Loader2 className="h-5 w-5 animate-spin" />
-              {t('write.publishing')}
-            </>
-          ) : (
-            <>
-              <Rocket className="h-5 w-5" />
-              {t('write.publish')}
-            </>
-          )}
+          <Rocket className="h-5 w-5" />
+          {t('write.continue')}
         </Button>
       </div>
     </div>
