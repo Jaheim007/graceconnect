@@ -22,9 +22,9 @@ export function StepCelebration({ state }: Props) {
 
   const handleGoToProduct = () => {
     if (state.productId) {
-      navigate(`/dashboard/products/${state.productId}/edit`);
+      navigate(`/admin/products/${state.productId}/edit`);
     } else {
-      navigate('/dashboard/products');
+      navigate('/admin/products');
     }
   };
 
