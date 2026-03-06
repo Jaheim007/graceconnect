@@ -11,58 +11,36 @@ import { useOrg } from '@/contexts/OrgContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { ChevronRight, ChevronLeft, Building2, Check } from 'lucide-react';
+import { ChevronRight, Building2, Check, Rocket } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OrgOnboardingWizard } from '@/components/onboarding/OrgOnboardingWizard';
 import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { detectCurrencyFromTimezone } from '@/lib/countryDetect';
 
-const CATEGORIES = [
-  { value: 'church', label: '🏢 Organisation' },
-  { value: 'ministry', label: '🤝 Association' },
-  { value: 'leader', label: '👤 Leader / Créateur' },
-  { value: 'ngo', label: '🌍 ONG / Association' },
-  { value: 'community', label: '🏘️ Communauté' },
-  { value: 'other', label: '🔷 Autre' },
+const TYPES = [
+  { value: 'leader', emoji: '👤', label: 'Créateur / Auteur', desc: 'Tu vends tes propres créations' },
+  { value: 'church', emoji: '🏢', label: 'Organisation', desc: 'Église, association, entreprise' },
+  { value: 'ngo', emoji: '🌍', label: 'ONG / Association', desc: 'Collecte de fonds et ressources' },
+  { value: 'community', emoji: '🏘️', label: 'Communauté', desc: 'Groupe, club, mouvement' },
 ] as const;
 
-// Contextual labels & placeholders per category for step 2
-const CATEGORY_CONTEXT: Record<string, { nameLabel: string; namePlaceholder: string; stepTitle: string; descPlaceholder: string; slugPlaceholder: string }> = {
-  church:    { nameLabel: 'Nom de la plateforme *', namePlaceholder: 'Ex. Église Grâce Communautaire', stepTitle: 'Nommez votre plateforme', descPlaceholder: 'Décrivez brièvement votre plateforme...', slugPlaceholder: 'grace-communautaire' },
-  ministry:  { nameLabel: 'Nom de l\'association *', namePlaceholder: 'Ex. Association Espoir Pour Tous', stepTitle: 'Nommez votre association', descPlaceholder: 'Décrivez brièvement votre association...', slugPlaceholder: 'espoir-pour-tous' },
-  leader:    { nameLabel: 'Votre nom *', namePlaceholder: 'Ex. Jean Dupont', stepTitle: 'Votre nom', descPlaceholder: 'Parlez de vous et de ce que vous faites...', slugPlaceholder: 'jean-dupont' },
-  ngo:       { nameLabel: 'Nom de l\'ONG *', namePlaceholder: 'Ex. Fondation Aide Mondiale', stepTitle: 'Nommez votre ONG', descPlaceholder: 'Décrivez brièvement la mission de votre ONG...', slugPlaceholder: 'aide-mondiale' },
-  community: { nameLabel: 'Nom de la communauté *', namePlaceholder: 'Ex. Communauté Tech Makers', stepTitle: 'Nommez votre communauté', descPlaceholder: 'Décrivez brièvement votre communauté...', slugPlaceholder: 'tech-makers' },
-  other:     { nameLabel: 'Nom de la plateforme *', namePlaceholder: 'Ex. Ma Plateforme', stepTitle: 'Nommez votre plateforme', descPlaceholder: 'Décrivez brièvement votre plateforme...', slugPlaceholder: 'ma-plateforme' },
-};
-
-const CURRENCIES = [
-  { value: 'XOF', label: 'XOF — West African CFA Franc' },
-  { value: 'XAF', label: 'XAF — Central African CFA Franc' },
-  { value: 'NGN', label: 'NGN — Nigerian Naira' },
-  { value: 'GHS', label: 'GHS — Ghanaian Cedi' },
-  { value: 'KES', label: 'KES — Kenyan Shilling' },
-  { value: 'ZAR', label: 'ZAR — South African Rand' },
-  { value: 'USD', label: 'USD — US Dollar' },
-  { value: 'EUR', label: 'EUR — Euro' },
-  { value: 'GBP', label: 'GBP — British Pound' },
+const GOALS = [
+  { value: 'sell', emoji: '💰', label: 'Vendre', desc: 'Produits numériques, ebooks, formations' },
+  { value: 'donate', emoji: '❤️', label: 'Collecter des dons', desc: 'Campagnes de financement' },
+  { value: 'both', emoji: '🚀', label: 'Les deux', desc: 'Ventes + collecte de dons' },
 ] as const;
 
 const schema = z.object({
   name: z.string().min(3, 'Au moins 3 caractères').max(80),
-  slug: z.string().min(3, 'Au moins 3 caractères').max(50).regex(/^[a-z0-9-]+$/, 'Lettres minuscules, chiffres et tirets uniquement'),
   category: z.enum(['church', 'ministry', 'leader', 'ngo', 'community', 'other']),
-  currency: z.string().min(2),
-  description: z.string().max(500).optional(),
 });
 
 type FormData = z.infer<typeof schema>;
 
 const slugify = (name: string) =>
-  name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 50);
 
 const PARTNER_STORAGE_KEY = 'sv_partner_code';
 
@@ -70,15 +48,14 @@ export default function CreateOrgPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const { refetchOrgs, setCurrentOrg, userOrgs, isLoadingOrgs } = useOrg();
+  const { refetchOrgs, setCurrentOrg } = useOrg();
   const { toast } = useToast();
   const { t } = useI18n();
-  const [step, setStep] = useState(0);
-  const [direction, setDirection] = useState(1);
+  const [step, setStep] = useState(0); // 0=type, 1=name, 2=goal (just visual, not stored)
   const [loading, setLoading] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [selectedGoal, setSelectedGoal] = useState<string>('both');
 
-  // Persist partner code: URL param → sessionStorage → fallback
   const urlPartnerCode = searchParams.get('partner');
   const [partnerCode] = useState<string | null>(() => {
     if (urlPartnerCode) {
@@ -90,228 +67,202 @@ export default function CreateOrgPage() {
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { category: 'church', name: '', slug: '', description: '', currency: detectCurrencyFromTimezone() },
+    defaultValues: { category: 'leader', name: '' },
   });
 
   const { watch, setValue, formState: { errors } } = form;
+  const selectedCategory = watch('category');
   const nameVal = watch('name');
 
-  const handleNameBlur = () => {
-    if (nameVal && !watch('slug')) {
-      setValue('slug', slugify(nameVal), { shouldValidate: true });
-    }
-  };
+  const onSubmit = async () => {
+    const valid = await form.trigger();
+    if (!valid || !user) return;
 
-  const steps = [t('org.category'), t('org.name'), t('org.confirm_create')];
-
-  const onSubmit = async (data: FormData) => {
-    if (!user) {
-      toast({ title: t('org.creation_error'), description: 'Vous devez être connecté pour créer une plateforme.', variant: 'destructive' });
-      return;
-    }
     setLoading(true);
+    const data = form.getValues();
+    const slug = slugify(data.name);
+    const currency = detectCurrencyFromTimezone();
+
     try {
       const { data: orgId, error } = await db.rpc('create_organization_with_owner', {
         _name: data.name,
-        _slug: data.slug,
+        _slug: slug,
         _category: data.category,
-        _description: data.description || null,
-        _currency: data.currency,
+        _description: null,
+        _currency: currency,
       });
       if (error) throw error;
 
-      const { data: newOrg, error: fetchError } = await db
+      const { data: newOrg } = await db
         .from('organizations')
         .select('*')
         .eq('id', orgId)
         .maybeSingle();
 
-      if (fetchError) throw fetchError;
-
       if (newOrg) setCurrentOrg(newOrg);
       refetchOrgs();
 
-      // Attribute org to partner if partner code is present
+      // Partner attribution
       if (partnerCode) {
         try {
-          const attrResult = await db.rpc('attribute_org_to_partner', {
-            _org_id: orgId,
-            _partner_code: partnerCode,
-          });
-          const result = attrResult.data as any;
-          if (result?.ok) {
-            console.log('[CreateOrg] Partner attribution success:', partnerCode);
-            toast({ title: '🤝 Parrainage enregistré', description: 'Cette organisation a été attribuée au partenaire.' });
-          } else {
-            console.warn('[CreateOrg] Partner attribution rejected:', result?.reason);
-          }
-          // Clean up stored code regardless of result
+          await db.rpc('attribute_org_to_partner', { _org_id: orgId, _partner_code: partnerCode });
           try { sessionStorage.removeItem(PARTNER_STORAGE_KEY); } catch {}
-        } catch (attrErr) {
-          console.error('[CreateOrg] Partner attribution failed:', attrErr);
-          // Clean up stored code
-          try { sessionStorage.removeItem(PARTNER_STORAGE_KEY); } catch {}
-        }
+        } catch {}
       }
 
-      // Send org_created email (fire-and-forget)
       if (user.email) {
         sendEmailNotification('org_created', user.email, { org_name: data.name }, orgId);
       }
 
-      toast({ title: '🎉 ' + t('org.created'), description: data.name });
+      toast({ title: '🎉 Espace créé !', description: data.name });
       setShowOnboarding(true);
     } catch (err: any) {
-      console.error('[CreateOrg] Error creating organization:', err);
       const msg = err?.message || String(err);
       if (msg.includes('duplicate') || msg.includes('unique') || msg.includes('slug')) {
-        toast({
-          title: t('org.slug_taken'),
-          description: t('org.slug_taken_desc'),
-          variant: 'destructive',
-        });
+        toast({ title: 'Ce nom est déjà pris', description: 'Essaie un nom légèrement différent.', variant: 'destructive' });
       } else {
-        toast({
-          title: t('org.creation_error'),
-          description: msg,
-          variant: 'destructive',
-        });
+        toast({ title: 'Erreur', description: msg, variant: 'destructive' });
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const nextStep = async () => {
-    let fieldsToValidate: (keyof FormData)[] = [];
-    if (step === 0) fieldsToValidate = ['category'];
-    if (step === 1) fieldsToValidate = ['name', 'slug'];
-    const valid = await form.trigger(fieldsToValidate);
-    if (valid) {
-      setDirection(1);
-      setStep(s => s + 1);
-    }
-  };
-
-  const goBack = () => {
-    setDirection(-1);
-    setStep(s => s - 1);
-  };
-
   const slideVariants = {
-    enter: (d: number) => ({ x: d > 0 ? 60 : -60, opacity: 0 }),
+    enter: { x: 60, opacity: 0 },
     center: { x: 0, opacity: 1 },
-    exit: (d: number) => ({ x: d > 0 ? -60 : 60, opacity: 0 }),
+    exit: { x: -60, opacity: 0 },
   };
 
-  const selectedCategory = watch('category');
-  const formValues = form.getValues();
+  const totalSteps = 3;
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <SEOHead title="Créer ma plateforme — Siteviral" description="Organisations et leaders : créez votre plateforme digitale clé en main. Vendez, collectez des dons, et bénéficiez d'ambassadeurs." noindex />
+      <SEOHead title="Créer mon espace — Siteviral" description="Crée ton espace en 30 secondes. Vends, collecte des dons, et active tes ambassadeurs." noindex />
       <OrgOnboardingWizard open={showOnboarding} onClose={() => { setShowOnboarding(false); navigate('/admin'); }} />
+
       <div className="w-full max-w-md">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-8">
+        <div className="flex items-center gap-3 mb-6">
           <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center">
             <Building2 className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-xl font-bold">{t('org.create_org')}</h1>
-            <p className="text-xs text-muted-foreground">{t('org.step_of').replace('{step}', String(step + 1)).replace('{total}', String(steps.length))}</p>
+            <h1 className="text-xl font-bold">Crée ton espace</h1>
+            <p className="text-xs text-muted-foreground">Étape {step + 1}/{totalSteps} — 30 secondes</p>
           </div>
         </div>
 
-        {/* Progress bar */}
+        {/* Progress */}
         <div className="flex gap-1.5 mb-8">
-          {steps.map((_, i) => (
+          {Array.from({ length: totalSteps }).map((_, i) => (
             <div key={i} className={cn('h-1.5 flex-1 rounded-full transition-all duration-300',
               i <= step ? 'bg-primary' : 'bg-muted')} />
           ))}
         </div>
 
-        {/* Step content */}
         <div className="relative min-h-[280px]">
-          <AnimatePresence custom={direction} mode="wait">
-            <motion.div key={step} custom={direction} variants={slideVariants}
+          <AnimatePresence mode="wait">
+            <motion.div key={step} variants={slideVariants}
               initial="enter" animate="center" exit="exit"
-              transition={{ duration: 0.25, ease: 'easeInOut' }}>
+              transition={{ duration: 0.2 }}>
 
+              {/* Step 0: Type */}
               {step === 0 && (
                 <div className="space-y-4">
-                  <h2 className="text-lg font-semibold">{t('org.what_type')}</h2>
+                  <h2 className="text-lg font-semibold">Quel type d'espace ?</h2>
                   <div className="grid grid-cols-2 gap-3">
-                    {CATEGORIES.map(cat => (
-                      <button key={cat.value} type="button"
-                        onClick={() => setValue('category', cat.value)}
-                        className={cn('p-4 rounded-2xl border-2 text-left transition-all',
-                          selectedCategory === cat.value
+                    {TYPES.map(type => (
+                      <button
+                        key={type.value}
+                        type="button"
+                        onClick={() => {
+                          setValue('category', type.value);
+                          setStep(1);
+                        }}
+                        className={cn(
+                          'p-4 rounded-2xl border-2 text-left transition-all',
+                          selectedCategory === type.value
                             ? 'border-primary bg-primary/10'
-                            : 'border-border bg-card hover:border-muted-foreground/40')}>
-                        <span className="text-xl block mb-1">{cat.label.split(' ')[0]}</span>
-                        <span className="text-sm font-medium">{cat.label.split(' ').slice(1).join(' ')}</span>
+                            : 'border-border bg-card hover:border-muted-foreground/40'
+                        )}
+                      >
+                        <span className="text-2xl block mb-1">{type.emoji}</span>
+                        <span className="text-sm font-bold block">{type.label}</span>
+                        <span className="text-[10px] text-muted-foreground">{type.desc}</span>
                       </button>
                     ))}
                   </div>
                 </div>
               )}
 
-              {step === 1 && (() => {
-                const ctx = CATEGORY_CONTEXT[selectedCategory] || CATEGORY_CONTEXT.other;
-                return (
-                <div className="space-y-4">
-                  <h2 className="text-lg font-semibold">{ctx.stepTitle}</h2>
+              {/* Step 1: Name only */}
+              {step === 1 && (
+                <div className="space-y-5">
+                  <h2 className="text-lg font-semibold">Comment s'appelle ton espace ?</h2>
                   <div className="space-y-2">
-                    <Label>{ctx.nameLabel}</Label>
-                    <Input placeholder={ctx.namePlaceholder} {...form.register('name')}
-                      onBlur={handleNameBlur}
-                      className={errors.name ? 'border-destructive' : ''} />
+                    <Label>Nom *</Label>
+                    <Input
+                      placeholder={selectedCategory === 'leader' ? 'Ex. Jean Dupont' : 'Ex. Mon Espace Digital'}
+                      {...form.register('name')}
+                      autoFocus
+                      className={cn('h-12 text-base', errors.name ? 'border-destructive' : '')}
+                    />
                     {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
+                    <p className="text-[10px] text-muted-foreground">
+                      URL auto-générée : siteviral.com/org/{nameVal ? slugify(nameVal) : '...'}
+                    </p>
                   </div>
-                  <div className="space-y-2">
-                    <Label>{t('org.slug_label')}</Label>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground shrink-0">siteviral.com/org/</span>
-                      <Input placeholder={ctx.slugPlaceholder} {...form.register('slug')}
-                        className={errors.slug ? 'border-destructive' : ''} />
-                    </div>
-                    {errors.slug && <p className="text-xs text-destructive">{errors.slug.message}</p>}
-                  </div>
-                  <div className="space-y-2">
-                    <Label>{t('org.currency_label')}</Label>
-                    <select {...form.register('currency')} className="w-full h-10 rounded-md border border-border bg-background px-3 text-sm">
-                      {CURRENCIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
-                    </select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>{t('org.desc_label')}</Label>
-                    <Textarea placeholder={ctx.descPlaceholder} rows={3}
-                      {...form.register('description')} />
-                  </div>
+                  <Button className="w-full h-11 gap-2" onClick={() => {
+                    form.trigger('name').then(ok => ok && setStep(2));
+                  }}>
+                    Continuer <ChevronRight className="h-4 w-4" />
+                  </Button>
                 </div>
-                );
-              })()}
+              )}
 
+              {/* Step 2: Goal + Create */}
               {step === 2 && (
-                <div className="space-y-4">
-                  <h2 className="text-lg font-semibold">{t('org.confirm_create')}</h2>
-                  <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-                    {[
-                      { label: t('org.name'), value: formValues.name },
-                      { label: t('org.slug'), value: formValues.slug },
-                      { label: t('org.category'), value: CATEGORIES.find(c => c.value === formValues.category)?.label },
-                      { label: t('org.currency_label').replace(' *', ''), value: formValues.currency },
-                      { label: t('org.description'), value: formValues.description || '—' },
-                    ].map(({ label, value }) => (
-                      <div key={label} className="flex gap-3 text-sm">
-                        <span className="text-muted-foreground w-24 shrink-0">{label}</span>
-                        <span className="font-medium break-all">{value}</span>
-                      </div>
+                <div className="space-y-5">
+                  <h2 className="text-lg font-semibold">Que veux-tu faire en premier ?</h2>
+                  <div className="space-y-2">
+                    {GOALS.map(goal => (
+                      <button
+                        key={goal.value}
+                        type="button"
+                        onClick={() => setSelectedGoal(goal.value)}
+                        className={cn(
+                          'w-full flex items-center gap-3 p-4 rounded-xl border-2 text-left transition-all',
+                          selectedGoal === goal.value
+                            ? 'border-primary bg-primary/5'
+                            : 'border-border hover:border-muted-foreground/40'
+                        )}
+                      >
+                        <span className="text-2xl">{goal.emoji}</span>
+                        <div>
+                          <p className="text-sm font-bold">{goal.label}</p>
+                          <p className="text-[10px] text-muted-foreground">{goal.desc}</p>
+                        </div>
+                      </button>
                     ))}
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    {t('org.owner_note')}
+
+                  <Button
+                    className="w-full h-12 gap-2 text-base font-bold"
+                    onClick={onSubmit}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <span className="animate-pulse">Création en cours…</span>
+                    ) : (
+                      <>
+                        <Rocket className="h-5 w-5" /> Créer mon espace
+                      </>
+                    )}
+                  </Button>
+
+                  <p className="text-[10px] text-muted-foreground text-center">
+                    Devise auto-détectée • Slug auto-généré • Modifiable plus tard
                   </p>
                 </div>
               )}
@@ -319,31 +270,15 @@ export default function CreateOrgPage() {
           </AnimatePresence>
         </div>
 
-        {/* Navigation buttons */}
-        <div className="flex gap-3 mt-8">
-          {step > 0 && (
-            <Button type="button" variant="outline" className="flex-1" onClick={goBack}>
-              <ChevronLeft className="h-4 w-4 mr-1" /> {t('common.back')}
-            </Button>
-          )}
-          {step < 2 ? (
-            <Button type="button" className="flex-1" onClick={nextStep}>
-              {t('common.next')} <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          ) : (
-            <Button type="button" className="flex-1"
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                form.handleSubmit(onSubmit, (errors) => {
-                  console.error('[CreateOrg] Validation errors:', errors);
-                  toast({ title: t('org.creation_error'), description: 'Veuillez vérifier les champs du formulaire.', variant: 'destructive' });
-                })();
-              }} disabled={loading}>
-              {loading ? t('org.creating') : <><Check className="h-4 w-4 mr-1" /> {t('org.create_organization')}</>}
-            </Button>
-          )}
-        </div>
+        {/* Back button */}
+        {step > 0 && (
+          <button
+            onClick={() => setStep(s => s - 1)}
+            className="mt-4 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            ← Retour
+          </button>
+        )}
       </div>
     </div>
   );

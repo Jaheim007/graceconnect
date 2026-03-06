@@ -1,6 +1,7 @@
 import { useMyAffiliateRank } from '@/hooks/useAffiliateMarketplace';
 import { EarningsCard } from '@/components/ambassador/EarningsCard';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
+import { AmbassadorBadges } from '@/components/gamification/AmbassadorBadges';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { TrendingUp, ArrowRight } from 'lucide-react';
@@ -39,6 +40,11 @@ export function EarningsShareSection() {
         salesCount={myRank.totalConversions}
         clicksCount={myRank.totalClicks}
       />
+
+      {/* Ambassador badges */}
+      <div className="border-t border-border pt-6">
+        <AmbassadorBadges />
+      </div>
 
       <div className="border-t border-border pt-6">
         <SocialShareKit
