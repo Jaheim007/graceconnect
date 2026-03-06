@@ -1328,7 +1328,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'dash.to_start': 'to start',
     'dash.ambassador_commission': 'ambassador commission',
     // Publishing
-    'write.publishing': 'Publishing your book…',
     // ─── Ecrire Page ───
     'write.loading_studio': 'Loading studio…',
     'write.seo_title': 'Write your book in 5 minutes — SiteViral',
@@ -2652,7 +2651,6 @@ const translations: Record<Locale, Record<string, string>> = {
     'dash.to_start': 'pour commencer',
     'dash.ambassador_commission': 'commission ambassadeur',
     // Publishing
-    'write.publishing': 'Publication de ton livre…',
     // ─── Ecrire Page ───
     'write.loading_studio': 'Chargement du studio…',
     'write.seo_title': 'Écris ton livre en 5 minutes — SiteViral',
