@@ -11,42 +11,39 @@ import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import {
   Play, Megaphone, CalendarDays, Heart, ShoppingBag,
-  Users, ExternalLink, AlertTriangle, ChevronRight,
+  Users, ExternalLink, AlertTriangle, ChevronRight, ChevronDown,
   TrendingUp, DollarSign, Percent, ArrowUpRight, Rocket, Download
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { OrgActivationChecklist } from '@/components/admin/OrgActivationChecklist';
+
+import { CreatorHeroBanner } from '@/components/admin/CreatorHeroBanner';
+import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist';
+import { SmartNextAction } from '@/components/admin/SmartNextAction';
 import { ExpressSetupButton } from '@/components/admin/ExpressSetupButton';
 import { VideoImportButton } from '@/components/admin/VideoImportButton';
-import { RevenueSimulator } from '@/components/admin/RevenueSimulator';
 import { QuickStartWizard } from '@/components/onboarding/QuickStartWizard';
-import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist';
-import { OrgProgressScore } from '@/components/admin/OrgProgressScore';
-import { SmartNextAction } from '@/components/admin/SmartNextAction';
+
+// Advanced tools — lazy-loaded section
 import { WeeklyMissions } from '@/components/admin/WeeklyMissions';
-import { OrgBenchmark } from '@/components/admin/OrgBenchmark';
 import { WhatsAppShareNudge } from '@/components/admin/WhatsAppShareNudge';
-import { SmartProductIdeas } from '@/components/admin/SmartProductIdeas';
-import { MonthlyChallenges } from '@/components/admin/MonthlyChallenges';
 import { AdminRevenueGoals } from '@/components/admin/AdminRevenueGoals';
-import { ContentSuggestionEngine } from '@/components/admin/ContentSuggestionEngine';
-import { SmartPricingHelper } from '@/components/admin/SmartPricingHelper';
-import { SmartCRMInsights } from '@/components/admin/SmartCRMInsights';
+import { RevenueForecast } from '@/components/admin/RevenueForecast';
 import { AbandonedCartRecovery } from '@/components/admin/AbandonedCartRecovery';
 import { BundleManager } from '@/components/admin/BundleManager';
-import { RevenueForecast } from '@/components/admin/RevenueForecast';
-import { EngagementHeatmap } from '@/components/admin/EngagementHeatmap';
+import { ContentSuggestionEngine } from '@/components/admin/ContentSuggestionEngine';
+import { OrgBenchmark } from '@/components/admin/OrgBenchmark';
+import { SmartProductIdeas } from '@/components/admin/SmartProductIdeas';
+import { SmartPricingHelper } from '@/components/admin/SmartPricingHelper';
+import { RevenueSimulator } from '@/components/admin/RevenueSimulator';
 import { ConversionFunnel } from '@/components/admin/ConversionFunnel';
+import { MonthlyChallenges } from '@/components/admin/MonthlyChallenges';
+import { EngagementHeatmap } from '@/components/admin/EngagementHeatmap';
 import { CustomerLifetimeValue } from '@/components/admin/CustomerLifetimeValue';
 import { RevenueAttribution } from '@/components/admin/RevenueAttribution';
-import { CreatorCoachBanner } from '@/components/admin/CreatorCoachBanner';
-import { CreatorHeroBanner } from '@/components/admin/CreatorHeroBanner';
-
 import { SmartReEngagement } from '@/components/admin/SmartReEngagement';
-import { TTFSProgressTracker } from '@/components/admin/TTFSProgressTracker';
-import { RevenueCelebration } from '@/components/admin/RevenueCelebration';
-import { ShareableEarningsCard } from '@/components/admin/ShareableEarningsCard';
+import { SmartCRMInsights } from '@/components/admin/SmartCRMInsights';
+
 import { useBehavioralNotifications } from '@/hooks/useBehavioralNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
@@ -70,7 +67,9 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const { t } = useI18n();
   const [showQuickStart, setShowQuickStart] = useState(false);
-  useBehavioralNotifications(); // Fire behavioral in-app notifications
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  useBehavioralNotifications();
+
   const { data: media = [] } = useOrgMedia(currentOrg?.id, false);
   const { data: announcements = [] } = useOrgAnnouncements(currentOrg?.id, false);
   const { data: events = [] } = useOrgEvents(currentOrg?.id, false);
@@ -98,7 +97,6 @@ export default function AdminDashboard() {
     enabled: !!currentOrg?.id,
   });
 
-  // Top products
   const { data: topProducts = [] } = useQuery({
     queryKey: ['admin-top-products', currentOrg?.id],
     queryFn: async () => {
@@ -111,7 +109,6 @@ export default function AdminDashboard() {
     enabled: !!currentOrg?.id,
   });
 
-  // Daily metrics for chart
   const { data: dailyMetrics = [] } = useQuery({
     queryKey: ['admin-daily-metrics', currentOrg?.id],
     queryFn: async () => {
@@ -143,6 +140,8 @@ export default function AdminDashboard() {
   const totalPlatformFee = allTxns.reduce((s, t) => s + (t.platform_fee || 0), 0);
   const commissionRate = currentOrg?.affiliation_commission_percent ?? 10;
   const conversionRate = allTxns.length > 0 ? ((allTxns.length / Math.max(members.length, 1)) * 100).toFixed(1) : '0';
+  const orgCurrency = currentOrg?.currency;
+  const txCount = allTxns.length;
 
   const handleExportCSV = () => {
     const rows = allTxns.map((t: any) => ({
@@ -194,8 +193,6 @@ export default function AdminDashboard() {
     { label: t('admin.manage_members'), to: '/admin/members', icon: Users },
   ];
 
-  const orgCurrency = currentOrg?.currency;
-  const txCount = allTxns.length;
   const revenueCards = [
     { label: t('admin.total_sales'), value: fmt(totalRevenue, orgCurrency), sub: `${txCount} ${txCount > 1 ? t('admin.transactions') : t('admin.transaction')}`, icon: DollarSign, colorClass: 'from-primary/20 to-primary/5 border-primary/20' },
     { label: t('admin.org_received'), value: fmt(totalOrgReceived, orgCurrency), sub: t('admin.after_fees'), icon: TrendingUp, colorClass: 'from-emerald-500/20 to-emerald-500/5 border-emerald-500/20' },
@@ -204,9 +201,12 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <QuickStartWizard open={showQuickStart} onClose={() => setShowQuickStart(false)} />
-      {/* Page header */}
+
+      {/* ═══════════════════════════════════════════
+          ZONE 1 — EN-TÊTE + IDENTITÉ
+      ═══════════════════════════════════════════ */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold">{t('admin.dashboard')}</h1>
@@ -234,7 +234,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* KYC Nudge — TOP priority banner */}
+      {/* KYC Banner — urgent */}
       {currentOrg?.kyc_status !== 'level1' && currentOrg?.kyc_status !== 'level2' && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -258,40 +258,37 @@ export default function AdminDashboard() {
         </motion.div>
       )}
 
-      {/* ═══ HERO BANNER — Écris · Vends · Gagne ═══ */}
+      {/* ═══════════════════════════════════════════
+          ZONE 2 — HERO "Écris · Vends · Gagne"
+      ═══════════════════════════════════════════ */}
       <CreatorHeroBanner />
 
-      {/* Creator Coach — AI-powered recommendation banner */}
-      <CreatorCoachBanner />
+      {/* ═══════════════════════════════════════════
+          ZONE 3 — REVENUS (ce qui compte le plus)
+      ═══════════════════════════════════════════ */}
+      <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {revenueCards.map((card) => (
+          <motion.div key={card.label} variants={fadeUp} className={cn('rounded-2xl border p-4 bg-gradient-to-br backdrop-blur-sm', card.colorClass)}>
+            <div className="flex items-center justify-between mb-3">
+              <card.icon className="h-4 w-4 text-muted-foreground" />
+              <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground/60" />
+            </div>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{card.label}</p>
+            <p className="text-xl font-bold mt-1">{card.value}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{card.sub}</p>
+          </motion.div>
+        ))}
+      </motion.div>
 
-      {/* TTFS Progress Tracker — guides to first sale */}
-      <TTFSProgressTracker />
-
-      {/* Revenue Celebration — shareable success card */}
-      <RevenueCelebration />
-
-      {/* Shareable Earnings Card — revenue stack */}
-      <ShareableEarningsCard />
-
-      {/* Onboarding checklist (persistent, data-driven) */}
+      {/* ═══════════════════════════════════════════
+          ZONE 4 — GUIDE DE DÉMARRAGE + PROCHAINE ACTION
+      ═══════════════════════════════════════════ */}
       <OnboardingChecklist />
+      <SmartNextAction />
 
-      {/* Org Progress Score & Smart Next Action — side by side */}
-      <div className="grid lg:grid-cols-2 gap-3">
-        <OrgProgressScore />
-        <SmartNextAction />
-      </div>
-
-      {/* Weekly Missions + WhatsApp Nudge */}
-      <div className="grid lg:grid-cols-2 gap-3">
-        <WeeklyMissions />
-        <WhatsAppShareNudge />
-      </div>
-
-      {/* Activation checklist (legacy — will hide when score is 100%) */}
-      <OrgActivationChecklist />
-
-      {/* Quick actions — contextual cards */}
+      {/* ═══════════════════════════════════════════
+          ZONE 5 — ACTIONS RAPIDES + APERÇU CONTENU
+      ═══════════════════════════════════════════ */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -319,22 +316,7 @@ export default function AdminDashboard() {
         </div>
       </motion.div>
 
-      {/* Revenue cards */}
-      <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {revenueCards.map((card) => (
-          <motion.div key={card.label} variants={fadeUp} className={cn('rounded-2xl border p-4 bg-gradient-to-br backdrop-blur-sm', card.colorClass)}>
-            <div className="flex items-center justify-between mb-3">
-              <card.icon className="h-4 w-4 text-muted-foreground" />
-              <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground/60" />
-            </div>
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{card.label}</p>
-            <p className="text-xl font-bold mt-1">{card.value}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">{card.sub}</p>
-          </motion.div>
-        ))}
-      </motion.div>
-
-      {/* Stats grid — content overview */}
+      {/* Stats grid */}
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {stats.map((s) => (
           <motion.button
@@ -356,7 +338,9 @@ export default function AdminDashboard() {
         ))}
       </motion.div>
 
-      {/* Top products + Conversion rate */}
+      {/* ═══════════════════════════════════════════
+          ZONE 6 — PRODUITS + CONVERSION + GRAPHIQUE
+      ═══════════════════════════════════════════ */}
       <div className="grid lg:grid-cols-2 gap-3">
         {topProducts.length > 0 && (
           <div className="bg-card border border-border rounded-2xl p-5">
@@ -402,54 +386,83 @@ export default function AdminDashboard() {
         </motion.div>
       )}
 
-      {/* Revenue Goals + Forecast */}
-      <div className="grid lg:grid-cols-2 gap-3">
-        <AdminRevenueGoals />
-        <RevenueForecast />
+      {/* Paniers abandonnés — actionable */}
+      <AbandonedCartRecovery />
+
+      {/* ═══════════════════════════════════════════
+          ZONE 7 — OUTILS AVANCÉS (collapsible)
+      ═══════════════════════════════════════════ */}
+      <div className="border border-border rounded-2xl overflow-hidden">
+        <button
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          className="w-full flex items-center justify-between p-4 bg-card hover:bg-muted/50 transition-colors text-left"
+        >
+          <div>
+            <h2 className="font-semibold text-sm">Outils de croissance avancés</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Objectifs, simulations, idées, analytics et CRM
+            </p>
+          </div>
+          <ChevronDown className={cn('h-5 w-5 text-muted-foreground transition-transform', showAdvanced && 'rotate-180')} />
+        </button>
+
+        {showAdvanced && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            className="p-4 pt-0 space-y-4"
+          >
+            {/* Objectifs + Prévisions */}
+            <div className="grid lg:grid-cols-2 gap-3">
+              <AdminRevenueGoals />
+              <RevenueForecast />
+            </div>
+
+            {/* Missions + WhatsApp */}
+            <div className="grid lg:grid-cols-2 gap-3">
+              <WeeklyMissions />
+              <WhatsAppShareNudge />
+            </div>
+
+            {/* Simulateur + Funnel */}
+            <div className="grid lg:grid-cols-2 gap-3">
+              <RevenueSimulator />
+              <ConversionFunnel />
+            </div>
+
+            {/* Bundles */}
+            <BundleManager />
+
+            {/* Suggestions + Benchmark */}
+            <div className="grid lg:grid-cols-2 gap-3">
+              <ContentSuggestionEngine />
+              <OrgBenchmark />
+            </div>
+
+            {/* Idées produits + Prix */}
+            <div className="grid lg:grid-cols-2 gap-3">
+              <SmartProductIdeas />
+              <SmartPricingHelper />
+            </div>
+
+            {/* Défis + Heatmap */}
+            <div className="grid lg:grid-cols-2 gap-3">
+              <MonthlyChallenges />
+              <EngagementHeatmap />
+            </div>
+
+            {/* CLV + Attribution */}
+            <div className="grid lg:grid-cols-2 gap-3">
+              <CustomerLifetimeValue />
+              <RevenueAttribution />
+            </div>
+
+            {/* Ré-engagement + CRM */}
+            <SmartReEngagement />
+            <SmartCRMInsights />
+          </motion.div>
+        )}
       </div>
-
-      {/* Abandoned Carts + Bundles */}
-      <div className="grid lg:grid-cols-2 gap-3">
-        <AbandonedCartRecovery />
-        <BundleManager />
-      </div>
-
-      {/* Simulator + Funnel */}
-      <div className="grid lg:grid-cols-2 gap-3">
-        <RevenueSimulator />
-        <ConversionFunnel />
-      </div>
-
-      {/* Content Suggestions + Benchmark */}
-      <div className="grid lg:grid-cols-2 gap-3">
-        <ContentSuggestionEngine />
-        <OrgBenchmark />
-      </div>
-
-      {/* Smart Product Ideas + Pricing Helper */}
-      <div className="grid lg:grid-cols-2 gap-3">
-        <SmartProductIdeas />
-        <SmartPricingHelper />
-      </div>
-
-      {/* Monthly Challenges + Engagement Heatmap */}
-      <div className="grid lg:grid-cols-2 gap-3">
-        <MonthlyChallenges />
-        <EngagementHeatmap />
-      </div>
-
-      {/* CLV + Revenue Attribution */}
-      <div className="grid lg:grid-cols-2 gap-3">
-        <CustomerLifetimeValue />
-        <RevenueAttribution />
-      </div>
-
-      {/* Re-engagement */}
-      <SmartReEngagement />
-
-      {/* CRM Intelligence */}
-      <SmartCRMInsights />
-
     </div>
   );
 }
