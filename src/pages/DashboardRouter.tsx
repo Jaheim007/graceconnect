@@ -17,6 +17,7 @@ import { GrowthTipsWidget } from '@/components/growth/GrowthTipsWidget';
 import { UserProgressDashboard } from '@/components/growth/UserProgressDashboard';
 import AmbassadorDashboard from '@/pages/AmbassadorDashboard';
 import UserDashboard from '@/pages/UserDashboard';
+import { useI18n } from '@/i18n/I18nContext';
 
 /**
  * Smart dashboard router — shows the right dashboard based on user state:
@@ -64,6 +65,21 @@ export default function DashboardRouter() {
     staleTime: 60_000,
   });
 
+  // Check if user has created a book (digital product)
+  const { data: bookCount } = useQuery({
+    queryKey: ['user-book-count', user?.id],
+    queryFn: async () => {
+      if (!user) return 0;
+      const { count } = await db.from('digital_products')
+        .select('id', { count: 'exact', head: true })
+        .eq('created_by', user.id)
+        .eq('ai_generated', true);
+      return count || 0;
+    },
+    enabled: !!user && !hasManageableOrg,
+    staleTime: 60_000,
+  });
+
   // Still loading
   if (isLoadingOrgs || (!hasManageableOrg && isLoadingAff)) {
     return (
@@ -87,24 +103,25 @@ export default function DashboardRouter() {
 
   // 3. Brand new user (no purchases, no affiliates) → Welcome
   if ((purchaseCount ?? 0) === 0 && (affiliateData?.count ?? 0) === 0 && !isLoadingPurch) {
-    return <NewUserDashboard />;
+    return <NewUserDashboard hasBook={(bookCount ?? 0) > 0} />;
   }
 
   // 4. Simple buyer
   return <UserDashboard />;
 }
 
-function NewUserDashboard() {
+function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
   const { user } = useAuth();
   const { userOrgs } = useOrg();
+  const { t } = useI18n();
   const name = user?.user_metadata?.display_name || user?.email?.split('@')[0] || '';
 
   const actions = [
     {
       icon: PenLine,
       emoji: '✏️',
-      title: 'Écrire mon premier livre',
-      desc: "L'IA t'aide à écrire et publier en 5 minutes.",
+      title: t('dash.write_first'),
+      desc: t('dash.write_first_desc'),
       to: '/ecrire',
       color: 'border-primary/30 hover:border-primary bg-primary/5',
       iconColor: 'text-primary bg-primary/10',
@@ -112,8 +129,8 @@ function NewUserDashboard() {
     {
       icon: Share2,
       emoji: '💰',
-      title: 'Gagner en partageant',
-      desc: 'Partage des produits et touche 5-50% de commission.',
+      title: t('dash.earn_sharing'),
+      desc: t('dash.earn_sharing_desc'),
       to: '/gagner',
       color: 'border-emerald-500/30 hover:border-emerald-500 bg-emerald-500/5',
       iconColor: 'text-emerald-500 bg-emerald-500/10',
@@ -121,8 +138,8 @@ function NewUserDashboard() {
     {
       icon: Upload,
       emoji: '📤',
-      title: 'Importer mon contenu',
-      desc: 'Tu as un ebook ou un PDF ? Vends-le ici.',
+      title: t('dash.import_content'),
+      desc: t('dash.import_content_desc'),
       to: '/migrer',
       color: 'border-accent/30 hover:border-accent bg-accent/5',
       iconColor: 'text-accent bg-accent/10',
@@ -130,8 +147,8 @@ function NewUserDashboard() {
     {
       icon: Store,
       emoji: '🛒',
-      title: 'Découvrir des ressources',
-      desc: 'Livres, formations, guides et plus.',
+      title: t('dash.discover_resources'),
+      desc: t('dash.discover_resources_desc'),
       to: '/discover',
       color: 'border-border hover:border-primary/30',
       iconColor: 'text-muted-foreground bg-muted',
@@ -142,14 +159,14 @@ function NewUserDashboard() {
     <div className="container max-w-2xl px-4 py-8 space-y-6">
       <div>
         <h1 className="text-2xl font-extrabold">
-          Bienvenue{name ? ` ${name}` : ''} ! 🎉
+          {t('dash.welcome')}{name ? ` ${name}` : ''} ! 🎉
         </h1>
-        <p className="text-muted-foreground text-sm mt-1">Que veux-tu faire aujourd'hui ?</p>
+        <p className="text-muted-foreground text-sm mt-1">{t('dash.what_today')}</p>
       </div>
 
       {/* First Win Checklist */}
       <FirstWinChecklist
-        hasBook={false}
+        hasBook={hasBook}
         hasAffiliateLink={false}
         hasPurchase={false}
         hasOrg={userOrgs.length > 0}
@@ -200,17 +217,17 @@ function NewUserDashboard() {
       <div className="flex items-center justify-center gap-6 pt-4 text-center">
         <div>
           <p className="text-2xl font-extrabold text-primary">5 min</p>
-          <p className="text-[10px] text-muted-foreground">pour écrire ton livre</p>
+          <p className="text-[10px] text-muted-foreground">{t('dash.time_to_write')}</p>
         </div>
         <div className="h-8 w-px bg-border" />
         <div>
           <p className="text-2xl font-extrabold text-accent">0 FCFA</p>
-          <p className="text-[10px] text-muted-foreground">pour commencer</p>
+          <p className="text-[10px] text-muted-foreground">{t('dash.to_start')}</p>
         </div>
         <div className="h-8 w-px bg-border" />
         <div>
           <p className="text-2xl font-extrabold text-emerald-500">5-50%</p>
-          <p className="text-[10px] text-muted-foreground">commission ambassadeur</p>
+          <p className="text-[10px] text-muted-foreground">{t('dash.ambassador_commission')}</p>
         </div>
       </div>
     </div>
