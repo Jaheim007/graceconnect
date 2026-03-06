@@ -24,36 +24,36 @@ const toneMap: Record<string, Record<string, string>> = {
     academic: `Tone of a passionate researcher making science accessible — think Yuval Noah Harari or Malcolm Gladwell. You support arguments with named studies, contextualized statistics, theories attributed to their authors. But you don't just stack references: you put them in perspective, confront them, draw original conclusions. You ask questions nobody asks. You structure thought rigorously while maintaining narrative momentum. You often start with a fascinating particular case before building toward theory.`,
   },
   es: {
-    professional: `Tono de un autor profesional experimentado. Construyes argumentos sólidos pero accesibles, usas anécdotas reales y casos concretos. Alternas entre frases cortas e impactantes y desarrollos más largos. Haces apartes personales naturalmente.`,
-    conversational: `Tono de un narrador nato que comparte su experiencia. Cuentas historias verdaderas con expresiones cotidianas. Interpelas al lector con preguntas y comparaciones de la vida real. Eres cálido sin ser empalagoso.`,
-    humorous: `Tono de un humorista culto. El humor está integrado naturalmente: autodescripción, situaciones absurdas cotidianas, exageraciones medidas. Detrás de cada momento divertido hay una verdad profunda.`,
-    spiritual: `Tono de un gran guía espiritual que comparte revelaciones íntimas. Integra las Escrituras sagradas como joyas en una reflexión personal profunda. Inspiras sin culpabilizar, desafías sin forzar.`,
-    poetic: `Tono de un escritor literario consumado. Prosa cincelada con metáforas, imágenes sensoriales y ritmo variado. Cada capítulo tiene su propio color emocional.`,
-    academic: `Tono de un investigador apasionado que hace la ciencia accesible. Apoyas argumentos con estudios, estadísticas y teorías, pero siempre con un hilo narrativo cautivador.`,
+    professional: `Tono de un ensayista consagrado — piensa en Eduardo Galeano o Isabel Allende en modo no-ficción. Construyes argumentos con la precisión de un arquitecto pero los envuelves en historias que el lector no puede soltar. Alternas entre la frase corta que golpea y el desarrollo largo que seduce. Haces apartes personales sin pudor ("Recuerdo que una vez...", "Lo que aprendí fue que..."). Cada párrafo tiene nervio, jamás relleno. Usas datos concretos pero siempre al servicio de una narrativa, nunca como lista fría.`,
+    conversational: `Tono de un narrador nato en una sobremesa larga — piensa en un abuelo sabio que cautiva a toda la mesa. Cuentas historias verdaderas con nombres, lugares, fechas. Usas expresiones coloquiales pero nunca vulgares. Interpelas al lector: "¿Te ha pasado alguna vez que...?", "Imagina por un momento...". Eres cálido sin ser empalagoso, directo sin ser brusco. Tus párrafos respiran — alternan entre reflexión íntima y anécdota viva.`,
+    humorous: `Tono de un humorista culto — piensa en Jorge Drexler escribiendo prosa o un cronista de Jot Down. El humor está tejido en la trama, nunca es un chiste suelto. Usas la autoironía con elegancia, las situaciones absurdas del cotidiano como espejo de verdades profundas, las exageraciones medidas que arrancan una sonrisa cómplice. Cada momento divertido esconde una observación aguda sobre la condición humana.`,
+    spiritual: `Tono de un gran guía espiritual que ha caminado el desierto y vuelve con revelaciones — no un predicador que señala, sino un compañero de viaje que comparte. Integras las Escrituras sagradas (versículos con referencias precisas) como quien muestra una joya encontrada en la arena. Cada versículo está contextualizado, meditado, conectado con una historia real de transformación. Inspiras sin culpabilizar, desafías sin juzgar. Tu prosa toca el corazón antes que el intelecto.`,
+    poetic: `Tono de un escritor literario consumado — piensa en Neruda en prosa o Borges contando una revelación. Prosa cincelada con metáforas que se despliegan a lo largo de párrafos enteros, imágenes sensoriales (olores, texturas, luces, sonidos). Tu ritmo varía: frases secas que cortan, luego períodos largos que mecen. Cada capítulo tiene su propio color emocional, su propia temperatura.`,
+    academic: `Tono de un investigador apasionado que hace la ciencia irresistible — piensa en Yuval Noah Harari o Steven Pinker traducidos al español. Apoyas cada argumento con estudios nombrados, estadísticas contextualizadas, teorías atribuidas. Pero nunca apilas referencias: las confrontas, las cuestionas, sacas conclusiones originales. Empiezas siempre con un caso particular fascinante antes de subir hacia la teoría.`,
   },
   pt: {
-    professional: `Tom de um autor profissional experiente. Argumentação sólida mas acessível, anedotas reais, casos concretos. Alternar entre frases curtas impactantes e desenvolvimentos mais longos.`,
-    conversational: `Tom de um contador de histórias nato. Histórias verdadeiras com expressões do cotidiano. Interpela o leitor com perguntas e comparações da vida real. Caloroso sem ser piegas.`,
-    humorous: `Tom de um humorista culto. Humor integrado naturalmente: autoironia, situações absurdas, exageros medidos. Por trás de cada momento engraçado há uma verdade profunda.`,
-    spiritual: `Tom de um grande guia espiritual que compartilha revelações íntimas. Integra as Escrituras como joias em uma reflexão pessoal. Inspira sem culpar, desafia sem forçar.`,
-    poetic: `Tom de um escritor literário consumado. Prosa cinzelada com metáforas, imagens sensoriais e ritmo variado.`,
-    academic: `Tom de um pesquisador apaixonado que torna a ciência acessível. Estudos, estatísticas e teorias, mas sempre com um fio narrativo cativante.`,
+    professional: `Tom de um ensaísta consagrado — pense em Mia Couto ou Eliane Brum. Construis argumentos com precisão de arquiteto mas os envolves em histórias que o leitor não consegue largar. Alternas entre a frase curta que impacta e o desenvolvimento longo que seduz. Fazes apartes pessoais sem pudor ("Lembro-me de quando...", "O que aprendi foi que..."). Cada parágrafo tem nervo, jamais enchimento. Usas dados concretos mas sempre ao serviço de uma narrativa.`,
+    conversational: `Tom de um contador de histórias nato numa longa conversa de café — pense num avô sábio que cativa toda a mesa. Contas histórias verdadeiras com nomes, lugares, datas. Usas expressões do cotidiano mas nunca vulgares. Interpelas o leitor: "Já te aconteceu de...?", "Imagina por um momento...". És caloroso sem ser piegas, direto sem ser rude. Os teus parágrafos respiram — alternam entre reflexão íntima e anedota viva.`,
+    humorous: `Tom de um humorista culto — pense em Luís Fernando Veríssimo ou uma crónica de revista. O humor está tecido na trama, nunca é piada solta. Usas a autoironia com elegância, as situações absurdas do cotidiano como espelho de verdades profundas. Cada momento engraçado esconde uma observação aguda sobre a condição humana.`,
+    spiritual: `Tom de um grande guia espiritual que caminhou o deserto e volta com revelações — não um pregador que aponta, mas um companheiro de viagem que partilha. Integras as Escrituras como joias encontradas na areia. Cada versículo está contextualizado, meditado, conectado com uma história real de transformação. Inspiras sem culpar, desafias sem julgar.`,
+    poetic: `Tom de um escritor literário consumado — pense em Clarice Lispector ou Mia Couto. Prosa cinzelada com metáforas que se desdobram ao longo de parágrafos, imagens sensoriais (cheiros, texturas, luzes, sons). O teu ritmo varia: frases secas que cortam, depois períodos longos que embalam. Cada capítulo tem a sua cor emocional própria.`,
+    academic: `Tom de um pesquisador apaixonado que torna a ciência irresistível — pense em Harari ou Gladwell traduzidos. Apoias argumentos com estudos nomeados, estatísticas contextualizadas, teorias atribuídas. Mas nunca empilhas referências: confronta-as, questiona-as, tiras conclusões originais. Começas sempre com um caso fascinante antes de subir para a teoria.`,
   },
   de: {
-    professional: `Ton eines erfahrenen Berufsautors. Solide aber zugängliche Argumentation, reale Anekdoten, konkrete Fälle. Wechsel zwischen kurzen, wirkungsvollen Sätzen und längeren Entwicklungen.`,
-    conversational: `Ton eines geborenen Geschichtenerzählers. Wahre Geschichten mit alltäglichen Ausdrücken. Leser ansprechen mit Fragen und Vergleichen aus dem echten Leben.`,
-    humorous: `Ton eines kultivierten Humoristen. Natürlich eingewebter Humor: Selbstironie, absurde Alltagssituationen, dosierte Übertreibungen.`,
-    spiritual: `Ton eines großen geistlichen Führers, der intime Offenbarungen teilt. Heilige Schriften als Juwelen in persönlicher Reflexion. Inspirieren ohne Schuldgefühle.`,
-    poetic: `Ton eines vollendeten literarischen Schriftstellers. Gemeißelte Prosa mit Metaphern, sinnlichen Bildern und variierendem Rhythmus.`,
-    academic: `Ton eines leidenschaftlichen Forschers, der Wissenschaft zugänglich macht. Studien, Statistiken und Theorien, aber immer mit fesselndem Erzählfaden.`,
+    professional: `Ton eines versierten Essayisten — denke an Richard David Precht oder Nassim Taleb auf Deutsch. Du baust Argumente mit der Präzision eines Architekten, verpackst sie aber in Geschichten, die der Leser nicht loslassen kann. Du wechselst zwischen kurzen, schlagkräftigen Sätzen und langen, verführerischen Entwicklungen. Du machst persönliche Einschübe ohne Scheu ("Ich erinnere mich, als...", "Was ich gelernt habe, war..."). Jeder Absatz hat Substanz, niemals Füllmaterial.`,
+    conversational: `Ton eines geborenen Geschichtenerzählers bei einem langen Abendessen — denke an einen weisen Großvater, der den ganzen Tisch fesselt. Du erzählst wahre Geschichten mit Namen, Orten, Daten. Du verwendest Alltagsausdrücke, aber nie vulgäre. Du sprichst den Leser an: "Ist dir das schon mal passiert?", "Stell dir mal vor...". Warm ohne kitschig, direkt ohne grob.`,
+    humorous: `Ton eines kultivierten Humoristen — denke an einen Kolumnisten des SZ-Magazins. Humor ist natürlich in die Prosa eingewebt, nie als einzelner Witz. Selbstironie mit Eleganz, absurde Alltagssituationen als Spiegel tiefer Wahrheiten, dosierte Übertreibungen, die ein wissendes Lächeln hervorrufen.`,
+    spiritual: `Ton eines großen geistlichen Führers, der durch die Wüste gewandert ist und mit Offenbarungen zurückkehrt — kein moralisierender Prediger, sondern ein Wegbegleiter. Heilige Schriften als Juwelen im Sand gefunden. Jeder Vers kontextualisiert, meditiert, mit einer realen Verwandlungsgeschichte verbunden. Inspirieren ohne Schuldgefühle, herausfordern ohne zu urteilen.`,
+    poetic: `Ton eines vollendeten literarischen Schriftstellers — denke an Rilke in Prosa oder Hesse bei einer Offenbarung. Gemeißelte Prosa mit Metaphern, die sich über ganze Absätze entfalten, sinnliche Bilder (Gerüche, Texturen, Licht, Klänge). Dein Rhythmus variiert: trockene Sätze, die schneiden, dann lange wogende Perioden, die wiegen. Jedes Kapitel hat seine eigene emotionale Farbe.`,
+    academic: `Ton eines leidenschaftlichen Forschers, der Wissenschaft unwiderstehlich macht — denke an Harari oder Gladwell auf Deutsch. Argumente gestützt auf benannte Studien, kontextualisierte Statistiken, zugeordnete Theorien. Aber nie Referenzen stapeln: konfrontieren, hinterfragen, originelle Schlüsse ziehen. Immer mit einem faszinierenden Einzelfall beginnen, bevor es zur Theorie geht.`,
   },
   sw: {
-    professional: `Sauti ya mwandishi mtaalamu mwenye uzoefu. Hoja imara lakini inayopatikana, hadithi za kweli, kesi halisi. Badilisha kati ya sentensi fupi zenye athari na maendeleo marefu zaidi.`,
-    conversational: `Sauti ya msimulizi wa asili. Hadithi za kweli na maneno ya kila siku. Mshirikishe msomaji na maswali na mfano kutoka maisha halisi.`,
-    humorous: `Sauti ya mcheshi mwenye elimu. Ucheshi uliounganishwa kwa kawaida: kujidharau, hali za ajabu za kila siku, kutia chumvi kwa kipimo.`,
-    spiritual: `Sauti ya kiongozi mkuu wa kiroho anayeshiriki ufunuo wa karibu. Maandiko matakatifu kama vito katika tafakuri ya kibinafsi.`,
-    poetic: `Sauti ya mwandishi wa fasihi aliyekamilika. Nathari iliyochongwa na sitiari, picha za hisi na mdundo tofauti.`,
-    academic: `Sauti ya mtafiti mwenye shauku anayefanya sayansi kupatikana. Tafiti, takwimu na nadharia, lakini daima na uzi wa simulizi wa kuvutia.`,
+    professional: `Sauti ya mwandishi mtaalamu aliyekomaa — fikiria mwandishi wa makala za kiwango cha juu kama Ngugi wa Thiong'o katika hali ya kutofanya hadithi. Unajenga hoja kwa usahihi wa mbunifu lakini unazifunga katika hadithi ambazo msomaji hawezi kuziacha. Unabadilisha kati ya sentensi fupi zenye nguvu na maendeleo marefu yanayovutia. Unafanya maoni ya kibinafsi bila aibu ("Nakumbuka wakati...", "Nilichojifunza ni kwamba..."). Kila aya ina nguvu, kamwe kujaza tu.`,
+    conversational: `Sauti ya msimulizi wa asili katika mazungumzo marefu ya chai — fikiria babu mwenye hekima anayevutia meza nzima. Unasimulia hadithi za kweli na majina, maeneo, tarehe. Unatumia maneno ya kila siku lakini kamwe ya kibaya. Unamshirikisha msomaji: "Je, imeshawahi kukutokea...?", "Fikiria kwa muda...". Una joto bila kuwa mtamu kupita kiasi, moja kwa moja bila kuwa mkali.`,
+    humorous: `Sauti ya mcheshi mwenye elimu. Ucheshi umefumwa katika simulizi kwa kawaida, kamwe kama utani uliotengwa. Kujidharau kwa umaridadi, hali za ajabu za kila siku kama kioo cha ukweli wa kina. Kila wakati wa kuchekesha unaficha uchunguzi mkali kuhusu hali ya binadamu.`,
+    spiritual: `Sauti ya kiongozi mkuu wa kiroho ambaye ametembea jangwani na kurudi na ufunuo — si mhubiri anayeonyesha, bali mwenzako wa safari anayeshiriki. Maandiko matakatifu kama vito vilivyopatikana mchangani. Kila aya imezingirwa, kutafakariwa, kuunganishwa na hadithi halisi ya mabadiliko. Kuhamasisha bila hatia, kutoa changamoto bila kulazimisha.`,
+    poetic: `Sauti ya mwandishi wa fasihi aliyekamilika — fikiria Shaaban Robert katika nathari ya kisasa. Nathari iliyochongwa na sitiari zinazojitokeza katika aya nzima, picha za hisi (harufu, ngozi, mwanga, sauti). Mdundo wako unabadilika: sentensi kavu zinazokata, kisha vipindi virefu vinavyotingisha. Kila sura ina rangi yake ya kihisia.`,
+    academic: `Sauti ya mtafiti mwenye shauku anayefanya sayansi isiyozuilika — fikiria Harari au Gladwell kwa Kiswahili. Hoja zinazotegemezwa na tafiti zilizotajwa, takwimu zilizowekwa katika muktadha, nadharia zilizohusishwa. Lakini kamwe usirundike marejeleo: yakabiliane, yahoji, toa hitimisho za asili. Daima anza na kesi ya kipekee ya kuvutia kabla ya kupanda kwenye nadharia.`,
   },
 };
 
@@ -70,76 +70,76 @@ const levelMap: Record<string, Record<string, string>> = {
     advanced: `Use rich, sophisticated and varied vocabulary. Text can include technical terms, elaborate literary devices, and a polished style. For a well-read audience.`,
   },
   es: {
-    simple: `Usa vocabulario simple y oraciones cortas. El texto debe ser comprensible para todos.`,
-    intermediate: `Usa vocabulario común con algunos términos especializados explicados en contexto.`,
-    advanced: `Usa vocabulario rico y sofisticado con términos técnicos y estilo literario elaborado.`,
+    simple: `Vocabulario simple y oraciones cortas (máximo 15-20 palabras). Comprensible por un niño de 12 años o un no nativo. Evita la jerga. Explica cada concepto nuevo con ejemplos cotidianos. Frases directas, sin subordinadas complejas.`,
+    intermediate: `Vocabulario corriente con algunos términos especializados siempre explicados entre paréntesis o por el contexto. Frases de longitud media. Accesible para el público general educado. Puedes usar metáforas simples y referencias culturales ampliamente conocidas.`,
+    advanced: `Vocabulario rico, sostenido y variado. El texto puede incluir términos técnicos, giros literarios elaborados, neologismos y un estilo sofisticado. Para un lectorado culto. Juega con los registros, alterna entre lo coloquial y lo elevado para crear contraste y ritmo.`,
   },
   pt: {
-    simple: `Use vocabulário simples e frases curtas. O texto deve ser compreensível por todos.`,
-    intermediate: `Use vocabulário comum com alguns termos especializados explicados no contexto.`,
-    advanced: `Use vocabulário rico e sofisticado com termos técnicos e estilo literário elaborado.`,
+    simple: `Vocabulário simples e frases curtas (máximo 15-20 palavras). Compreensível por uma criança de 12 anos ou um não nativo. Evita jargão. Explica cada conceito novo com exemplos do cotidiano. Frases diretas, sem subordinadas complexas.`,
+    intermediate: `Vocabulário corrente com alguns termos especializados sempre explicados em contexto. Frases de comprimento médio. Acessível ao público geral educado. Podes usar metáforas simples e referências culturais amplamente conhecidas.`,
+    advanced: `Vocabulário rico, sustentado e variado. O texto pode incluir termos técnicos, recursos literários elaborados, neologismos e um estilo sofisticado. Para um leitorado culto. Joga com os registros, alterna entre o coloquial e o elevado para criar contraste e ritmo.`,
   },
   de: {
-    simple: `Verwende einfaches Vokabular und kurze Sätze. Der Text soll für alle verständlich sein.`,
-    intermediate: `Verwende gebräuchliches Vokabular mit einigen Fachbegriffen, die im Kontext erklärt werden.`,
-    advanced: `Verwende reiches und anspruchsvolles Vokabular mit Fachbegriffen und elaboriertem Stil.`,
+    simple: `Einfaches Vokabular und kurze Sätze (maximal 15-20 Wörter). Verständlich für ein 12-jähriges Kind oder einen Nicht-Muttersprachler. Vermeide Fachjargon. Erkläre jedes neue Konzept mit Alltagsbeispielen. Direkte Sätze ohne komplexe Nebensätze.`,
+    intermediate: `Gebräuchliches Vokabular mit einigen Fachbegriffen, die im Kontext erklärt werden. Sätze mittlerer Länge. Zugänglich für das gebildete allgemeine Publikum. Einfache Metaphern und weithin bekannte kulturelle Referenzen sind erlaubt.`,
+    advanced: `Reiches, gehobenes und abwechslungsreiches Vokabular. Der Text kann Fachbegriffe, ausgearbeitete literarische Wendungen, Neologismen und einen anspruchsvollen Stil enthalten. Für ein gebildetes Lesepublikum. Spiele mit Registern, wechsle zwischen umgangssprachlich und gehoben für Kontrast und Rhythmus.`,
   },
   sw: {
-    simple: `Tumia maneno rahisi na sentensi fupi. Maandishi yawe yanaeleweka na kila mtu.`,
-    intermediate: `Tumia maneno ya kawaida na istilahi chache zilizofafanuliwa katika muktadha.`,
-    advanced: `Tumia maneno tajiri na ya hali ya juu na istilahi za kitaalamu.`,
+    simple: `Maneno rahisi na sentensi fupi (maneno 15-20 zaidi). Inaeleweka na mtoto wa miaka 12 au mtu asiye mzungumzaji wa asili. Epuka istilahi. Eleza kila dhana mpya na mifano ya kila siku. Sentensi za moja kwa moja bila miundo ngumu.`,
+    intermediate: `Maneno ya kawaida na istilahi chache zilizofafanuliwa katika muktadha. Sentensi za urefu wa kati. Inapatikana kwa hadhira ya jumla yenye elimu. Sitiari rahisi na marejeleo ya kitamaduni yanayojulikana sana yanaruhusiwa.`,
+    advanced: `Maneno tajiri, ya hali ya juu na tofauti. Maandishi yanaweza kujumuisha istilahi za kitaalamu, mbinu za fasihi zilizofanyiwa kazi na mtindo wa kisasa. Kwa wasomaji wenye elimu. Cheza na rejista, badilisha kati ya mazungumzo na ya juu kwa tofauti na mdundo.`,
   },
 };
 
 // ─── Target audience instructions ───
 const audienceMap: Record<string, Record<string, string>> = {
   fr: {
-    general: `Public général, tout âge confondu. Contenu universel et inclusif.`,
-    children: `Livre pour enfants (6-12 ans). Utilise un langage simple et imagé, des histoires courtes et captivantes, des personnages attachants, des dialogues vivants, des descriptions colorées et beaucoup d'imagination. Chaque chapitre doit se terminer sur une leçon de vie douce.`,
-    teens: `Adolescents (13-18 ans). Utilise un ton dynamique et moderne, des exemples de la vie quotidienne des jeunes (école, amitié, identité, rêves), un style engageant avec des références culturelles actuelles. Aborde les sujets avec authenticité.`,
-    adults: `Adultes. Contenu mature avec réflexions profondes, exemples de la vie professionnelle et personnelle, analyses nuancées et perspectives multiples.`,
-    seniors: `Seniors. Ton respectueux et chaleureux, références culturelles classiques, sagesse accumulée, nostalgie constructive et expériences de vie inspirantes.`,
-    professionals: `Professionnels et experts du domaine. Contenu avancé avec données concrètes, études de cas détaillées, méthodologies éprouvées, frameworks pratiques et résultats mesurables.`,
+    general: `Public général, tout âge confondu. Contenu universel et inclusif qui parle à l'humanité partagée du lecteur — ses espoirs, ses peurs, ses rêves. Utilise des exemples transgénérationnels.`,
+    children: `Livre pour enfants (6-12 ans). Utilise un langage simple et imagé, des histoires courtes et captivantes avec des personnages attachants qui ont des NOMS et des PERSONNALITÉS distinctes. Dialogues vivants et naturels ("Maman, pourquoi le ciel est bleu ?"). Descriptions colorées et sensorielles. Beaucoup d'imagination mais toujours ancrée dans l'émotion. Chaque chapitre se termine sur une leçon de vie douce, jamais moralisatrice.`,
+    teens: `Adolescents (13-18 ans). Ton dynamique et authentique — tu ne fais pas semblant de comprendre les jeunes, tu LES comprends. Exemples de la vraie vie (école, amitié, identité, premiers amours, rêves, pression sociale, réseaux sociaux). Style engageant avec références culturelles ACTUELLES. Tu abordes les sujets difficiles avec honnêteté et empathie, sans condescendance.`,
+    adults: `Adultes. Contenu mature avec réflexions profondes qui résonnent avec l'expérience vécue — les défis professionnels, les relations, la quête de sens, les transitions de vie. Analyses nuancées qui reconnaissent la complexité du réel. Perspectives multiples qui enrichissent sans imposer. Le lecteur doit sentir que l'auteur a vécu ce dont il parle.`,
+    seniors: `Seniors. Ton respectueux et chaleureux qui honore l'expérience vécue. Références culturelles classiques et intemporelles. Sagesse accumulée présentée non pas comme des leçons mais comme des trésors partagés. Nostalgie constructive — le passé éclaire le présent. Expériences de vie inspirantes qui donnent du sens au chemin parcouru.`,
+    professionals: `Professionnels et experts du domaine. Contenu avancé avec données concrètes sourcées, études de cas détaillées avec contexte et résultats, méthodologies éprouvées et applicables immédiatement, frameworks pratiques et résultats mesurables. Le lecteur doit pouvoir AGIR dès la fin de chaque chapitre.`,
   },
   en: {
-    general: `General audience, all ages. Universal and inclusive content.`,
-    children: `Book for children (6-12 years). Use simple and vivid language, short captivating stories, lovable characters, lively dialogues, colorful descriptions and lots of imagination. Each chapter should end with a gentle life lesson.`,
-    teens: `Teenagers (13-18 years). Use a dynamic, modern tone with everyday examples (school, friendship, identity, dreams), engaging style with current cultural references. Address topics with authenticity.`,
-    adults: `Adults. Mature content with deep reflections, professional and personal life examples, nuanced analyses and multiple perspectives.`,
-    seniors: `Seniors. Respectful and warm tone, classic cultural references, accumulated wisdom, constructive nostalgia and inspiring life experiences.`,
-    professionals: `Professionals and domain experts. Advanced content with concrete data, detailed case studies, proven methodologies, practical frameworks and measurable outcomes.`,
+    general: `General audience, all ages. Universal and inclusive content that speaks to the reader's shared humanity — their hopes, fears, dreams. Use cross-generational examples.`,
+    children: `Book for children (6-12 years). Simple, vivid language with short captivating stories featuring lovable characters with NAMES and distinct PERSONALITIES. Natural, lively dialogues ("Mom, why is the sky blue?"). Colorful sensory descriptions. Rich imagination always grounded in emotion. Each chapter ends with a gentle life lesson, never preachy.`,
+    teens: `Teenagers (13-18 years). Dynamic, authentic tone — you don't pretend to understand teens, you ACTUALLY understand them. Real-life examples (school, friendship, identity, first love, dreams, social pressure, social media). Engaging style with CURRENT cultural references. Address difficult topics with honesty and empathy, never condescension.`,
+    adults: `Adults. Mature content with deep reflections that resonate with lived experience — career challenges, relationships, the search for meaning, life transitions. Nuanced analyses that acknowledge real-world complexity. Multiple perspectives that enrich without imposing. The reader should feel the author has lived what they write about.`,
+    seniors: `Seniors. Respectful, warm tone that honors lived experience. Classic, timeless cultural references. Accumulated wisdom presented not as lessons but as shared treasures. Constructive nostalgia — the past illuminating the present. Inspiring life experiences that give meaning to the journey traveled.`,
+    professionals: `Professionals and domain experts. Advanced content with sourced concrete data, detailed case studies with context and outcomes, proven and immediately applicable methodologies, practical frameworks and measurable results. The reader should be able to ACT by the end of each chapter.`,
   },
   es: {
-    general: `Público general, todas las edades.`,
-    children: `Libro para niños (6-12 años). Lenguaje simple, historias cautivadoras e imaginación.`,
-    teens: `Adolescentes (13-18 años). Tono dinámico con ejemplos de la vida cotidiana juvenil.`,
-    adults: `Adultos. Contenido maduro con reflexiones profundas.`,
-    seniors: `Personas mayores. Tono respetuoso con sabiduría y experiencia.`,
-    professionals: `Profesionales. Contenido avanzado con datos y metodologías.`,
+    general: `Público general, todas las edades. Contenido universal e inclusivo que habla a la humanidad compartida del lector — sus esperanzas, miedos, sueños. Usa ejemplos transgeneracionales.`,
+    children: `Libro para niños (6-12 años). Lenguaje simple e imaginativo con historias cautivadoras, personajes entrañables con NOMBRES y personalidades distintas. Diálogos vivos y naturales. Descripciones sensoriales coloridas. Cada capítulo termina con una lección de vida suave, nunca moralizante.`,
+    teens: `Adolescentes (13-18 años). Tono dinámico y auténtico con ejemplos de la vida real (escuela, amistad, identidad, primeros amores, redes sociales). Referencias culturales ACTUALES. Aborda temas difíciles con honestidad y empatía, sin condescendencia.`,
+    adults: `Adultos. Contenido maduro con reflexiones profundas que resuenan con la experiencia vivida. Análisis matizados que reconocen la complejidad del mundo real. Perspectivas múltiples que enriquecen sin imponer.`,
+    seniors: `Personas mayores. Tono respetuoso y cálido que honra la experiencia vivida. Referencias culturales clásicas. Sabiduría presentada como tesoros compartidos, no como lecciones. Nostalgia constructiva y experiencias inspiradoras.`,
+    professionals: `Profesionales y expertos. Contenido avanzado con datos concretos, estudios de caso detallados, metodologías probadas y aplicables inmediatamente. El lector debe poder ACTUAR al final de cada capítulo.`,
   },
   pt: {
-    general: `Público geral, todas as idades.`,
-    children: `Livro para crianças (6-12 anos). Linguagem simples e muita imaginação.`,
-    teens: `Adolescentes (13-18 anos). Tom dinâmico com exemplos do cotidiano jovem.`,
-    adults: `Adultos. Conteúdo maduro com reflexões profundas.`,
-    seniors: `Idosos. Tom respeitoso com sabedoria e experiência.`,
-    professionals: `Profissionais. Conteúdo avançado com dados e metodologias.`,
+    general: `Público geral, todas as idades. Conteúdo universal e inclusivo que fala à humanidade partilhada do leitor — as suas esperanças, medos, sonhos. Usa exemplos transgeracionais.`,
+    children: `Livro para crianças (6-12 anos). Linguagem simples e imaginativa com histórias cativantes, personagens adoráveis com NOMES e personalidades distintas. Diálogos vivos e naturais. Descrições sensoriais coloridas. Cada capítulo termina com uma lição de vida suave, nunca moralizante.`,
+    teens: `Adolescentes (13-18 anos). Tom dinâmico e autêntico com exemplos da vida real (escola, amizade, identidade, redes sociais). Referências culturais ATUAIS. Aborda temas difíceis com honestidade e empatia, sem condescendência.`,
+    adults: `Adultos. Conteúdo maduro com reflexões profundas que ressoam com a experiência vivida. Análises matizadas que reconhecem a complexidade do mundo real.`,
+    seniors: `Idosos. Tom respeitoso e caloroso que honra a experiência vivida. Referências culturais clássicas. Sabedoria apresentada como tesouros partilhados. Nostalgia construtiva e experiências inspiradoras.`,
+    professionals: `Profissionais e especialistas. Conteúdo avançado com dados concretos, estudos de caso detalhados, metodologias comprovadas e aplicáveis imediatamente. O leitor deve poder AGIR no final de cada capítulo.`,
   },
   de: {
-    general: `Allgemeines Publikum, alle Altersgruppen.`,
-    children: `Buch für Kinder (6-12 Jahre). Einfache Sprache und viel Fantasie.`,
-    teens: `Teenager (13-18 Jahre). Dynamischer Ton mit Beispielen aus dem Jugendalltag.`,
-    adults: `Erwachsene. Reifer Inhalt mit tiefen Reflexionen.`,
-    seniors: `Senioren. Respektvoller Ton mit Weisheit und Erfahrung.`,
-    professionals: `Fachleute. Fortgeschrittener Inhalt mit Daten und Methoden.`,
+    general: `Allgemeines Publikum, alle Altersgruppen. Universeller, inklusiver Inhalt, der die gemeinsame Menschlichkeit des Lesers anspricht — Hoffnungen, Ängste, Träume. Generationsübergreifende Beispiele verwenden.`,
+    children: `Buch für Kinder (6-12 Jahre). Einfache, bildhafte Sprache mit kurzen fesselnden Geschichten, liebenswerten Figuren mit NAMEN und eigenen Persönlichkeiten. Lebendige, natürliche Dialoge. Farbenfrohe, sinnliche Beschreibungen. Jedes Kapitel endet mit einer sanften Lebenslektion, nie moralisierend.`,
+    teens: `Teenager (13-18 Jahre). Dynamischer, authentischer Ton mit Beispielen aus dem echten Leben (Schule, Freundschaft, Identität, soziale Medien). AKTUELLE kulturelle Referenzen. Schwierige Themen mit Ehrlichkeit und Empathie ansprechen, nie herablassend.`,
+    adults: `Erwachsene. Reifer Inhalt mit tiefen Reflexionen, die mit gelebter Erfahrung resonieren. Nuancierte Analysen, die die Komplexität der realen Welt anerkennen.`,
+    seniors: `Senioren. Respektvoller, warmer Ton, der gelebte Erfahrung ehrt. Klassische kulturelle Referenzen. Weisheit als geteilte Schätze präsentiert. Konstruktive Nostalgie und inspirierende Lebenserfahrungen.`,
+    professionals: `Fachleute und Experten. Fortgeschrittener Inhalt mit konkreten Daten, detaillierten Fallstudien, bewährten und sofort anwendbaren Methoden. Der Leser soll am Ende jedes Kapitels HANDELN können.`,
   },
   sw: {
-    general: `Hadhira ya jumla, umri wote.`,
-    children: `Kitabu cha watoto (miaka 6-12). Lugha rahisi na mawazo mengi.`,
-    teens: `Vijana (miaka 13-18). Sauti yenye nguvu na mifano ya maisha ya kila siku.`,
-    adults: `Watu wazima. Yaliyomo ya kukomaa na tafakuri za kina.`,
-    seniors: `Wazee. Sauti ya heshima na hekima.`,
-    professionals: `Wataalamu. Yaliyomo ya juu na data na mbinu.`,
+    general: `Hadhira ya jumla, umri wote. Maudhui ya ulimwengu na jumuishi yanayozungumza na ubinadamu wa pamoja wa msomaji — matumaini, hofu, ndoto zao. Tumia mifano ya vizazi vyote.`,
+    children: `Kitabu cha watoto (miaka 6-12). Lugha rahisi na ya picha na hadithi fupi za kuvutia, wahusika wapenzi wenye MAJINA na tabia tofauti. Mazungumzo hai na ya asili. Maelezo ya rangi na hisi. Kila sura inaisha na somo la maisha laini, kamwe la kuhubiri.`,
+    teens: `Vijana (miaka 13-18). Sauti yenye nguvu na ya kweli na mifano ya maisha halisi (shule, urafiki, utambulisho, mitandao ya kijamii). Marejeleo ya kitamaduni ya SASA. Kushughulikia mada ngumu kwa uaminifu na huruma, kamwe kwa kiburi.`,
+    adults: `Watu wazima. Yaliyomo ya kukomaa na tafakuri za kina zinazogusa uzoefu ulioishi. Uchambuzi wa nuanced unaotambua ugumu wa ulimwengu halisi.`,
+    seniors: `Wazee. Sauti ya heshima na joto inayoheshimu uzoefu ulioishi. Marejeleo ya kitamaduni ya zamani. Hekima iliyowasilishwa kama hazina zilizoshirikiwa. Nostalgia yenye kujenga na uzoefu wa maisha wa kuhamasisha.`,
+    professionals: `Wataalamu na wataalam. Yaliyomo ya juu na data halisi, tafiti za kesi zilizofafanuliwa, mbinu zilizothibitishwa na zinazoweza kutumika mara moja. Msomaji anapaswa kuweza KUTENDA mwishoni mwa kila sura.`,
   },
 };
 
@@ -465,26 +465,46 @@ OUTPUT FORMAT: Return valid JSON. No markdown, no code fences.`;
 
     if (singleChapter) {
       userPrompt = lang === 'fr'
-        ? `${topic}
+        ? `Sujet du chapitre : ${topic}
 
-Retourne UNIQUEMENT un JSON avec cette structure :
+Écris ce chapitre UNIQUE comme si tu étais au milieu d'un livre que tu adores écrire. Ce chapitre n'est pas une dissertation — c'est un MOMENT dans un livre. Il a un début qui accroche, un milieu qui captive, une fin qui donne envie de tourner la page.
+
+RÈGLES POUR CE CHAPITRE :
+- Commence par une scène, une question provocatrice ou une anecdote — JAMAIS par une définition
+- Inclus au moins 1 histoire concrète avec des noms et des lieux
+- 2-3 sous-titres <h3> créatifs (pas "Introduction" ou "Développement")
+- Au moins 1 citation ou formule mémorable en <blockquote>
+- Varie la longueur des paragraphes : certains de 1-2 phrases, d'autres plus longs
+- INTERDITS : "De plus", "En outre", "Il est important de noter", "Force est de constater"
+- Le lecteur doit sentir qu'un humain passionné a écrit, pas une machine
+- Environ ${chapterWordTarget} mots en HTML riche
+
+Retourne UNIQUEMENT un JSON :
 {
   "chapters": [
-    {"id": "ch-1", "title": "${chapterTitle || 'Chapitre'}", "content": "<p>Contenu HTML riche et détaillé...</p>"}
+    {"id": "ch-1", "title": "${chapterTitle || 'Chapitre'}", "content": "<p>Contenu...</p>"}
   ]
-}
+}`
+        : `Chapter topic: ${topic}
 
-Le contenu doit faire environ ${chapterWordTarget} mots en HTML riche avec sous-titres <h3>, paragraphes <p>, mots-clés en <strong>, citations en <blockquote>, listes <ul><li> si pertinent.`
-        : `${topic}
+Write this SINGLE chapter as if you're in the middle of a book you love writing. This chapter is not an essay — it's a MOMENT in a book. It has a hooking opening, a captivating middle, and an ending that makes you want to turn the page.
 
-Return ONLY a JSON with this structure:
+RULES FOR THIS CHAPTER:
+- Start with a scene, a provocative question, or an anecdote — NEVER with a definition
+- Include at least 1 concrete story with names and places
+- 2-3 creative <h3> sub-headings (not "Introduction" or "Development")
+- At least 1 quote or memorable formula in <blockquote>
+- Vary paragraph lengths: some 1-2 sentences, others longer
+- BANNED: "Furthermore", "Moreover", "It is important to note", "It should be emphasized"
+- The reader must feel a passionate human wrote this, not a machine
+- Around ${chapterWordTarget} words in rich HTML
+
+Return ONLY JSON:
 {
   "chapters": [
-    {"id": "ch-1", "title": "${chapterTitle || 'Chapter'}", "content": "<p>Rich and detailed HTML content...</p>"}
+    {"id": "ch-1", "title": "${chapterTitle || 'Chapter'}", "content": "<p>Content...</p>"}
   ]
-}
-
-Content should be around ${chapterWordTarget} words in rich HTML with sub-headings <h3>, paragraphs <p>, keywords in <strong>, quotes in <blockquote>, lists <ul><li> when relevant.`;
+}`;
     } else {
       userPrompt = lang === 'fr'
         ? `Écris un livre COMPLET, CAPTIVANT et PROFONDÉMENT HUMAIN sur ce sujet :
