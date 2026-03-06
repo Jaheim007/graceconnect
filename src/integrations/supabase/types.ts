@@ -3592,6 +3592,7 @@ export type Database = {
           created_at: string | null
           display_name: string | null
           id: string
+          onboarding_intent: string | null
           payout_account_name: string | null
           payout_account_number: string | null
           payout_bank_code: string | null
@@ -3612,6 +3613,7 @@ export type Database = {
           created_at?: string | null
           display_name?: string | null
           id: string
+          onboarding_intent?: string | null
           payout_account_name?: string | null
           payout_account_number?: string | null
           payout_bank_code?: string | null
@@ -3632,6 +3634,7 @@ export type Database = {
           created_at?: string | null
           display_name?: string | null
           id?: string
+          onboarding_intent?: string | null
           payout_account_name?: string | null
           payout_account_number?: string | null
           payout_bank_code?: string | null
@@ -4929,26 +4932,16 @@ export type Database = {
         }
         Returns: string
       }
-      create_organization_with_owner:
-        | {
-            Args: {
-              _category?: Database["public"]["Enums"]["org_category"]
-              _description?: string
-              _name: string
-              _slug: string
-            }
-            Returns: string
-          }
-        | {
-            Args: {
-              _category?: Database["public"]["Enums"]["org_category"]
-              _currency?: string
-              _description?: string
-              _name: string
-              _slug: string
-            }
-            Returns: string
-          }
+      create_organization_with_owner: {
+        Args: {
+          _category?: Database["public"]["Enums"]["org_category"]
+          _currency?: string
+          _description?: string
+          _name: string
+          _slug: string
+        }
+        Returns: string
+      }
       decrement_like_count: { Args: { media_id: string }; Returns: undefined }
       delete_organization: { Args: { _org_id: string }; Returns: Json }
       delete_partner: { Args: { _partner_id: string }; Returns: Json }

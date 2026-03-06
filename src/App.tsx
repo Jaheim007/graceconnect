@@ -347,10 +347,14 @@ const App = () => (
                 <Route path="/go/:code" element={<GoRedirectPage />} />
                 <Route path="/maintenance" element={<MaintenancePage />} />
                 <Route path="/gagner" element={<GagnerPage />} />
+                <Route path="/earn" element={<Navigate to="/gagner" replace />} />
                 <Route path="/gagner-info" element={<GagnerLandingPage />} />
                 <Route path="/ecrire" element={<EcrirePage />} />
+                <Route path="/write" element={<Navigate to="/ecrire" replace />} />
                 <Route path="/migrer" element={<MigrerPage />} />
+                <Route path="/migrate" element={<Navigate to="/migrer" replace />} />
                 <Route path="/vendre" element={<VendreLandingPage />} />
+                <Route path="/sell" element={<Navigate to="/vendre" replace />} />
                 <Route path="/protection" element={<ProtectionPage />} />
                 <Route path="/explorer" element={<Navigate to="/discover" replace />} />
                 <Route path="/hub" element={<Navigate to="/discover" replace />} />
