@@ -260,7 +260,7 @@ export default function WriteWizard() {
         </>
       )}
 
-      <div className="container max-w-2xl px-4">
+      <div className={`container px-4 ${step === 3 ? 'max-w-5xl' : 'max-w-2xl'}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
