@@ -1093,9 +1093,10 @@ export function AdminSettings() {
     const { data, error } = await supabase.storage.from('org-uploads').upload(path, blob, { upsert: true, contentType: 'image/jpeg' });
     if (error) { toast({ title: 'Upload failed', description: error.message, variant: 'destructive' }); return; }
     const { data: { publicUrl } } = supabase.storage.from('org-uploads').getPublicUrl(data.path);
-    if (settingsCropType === 'logo') setLogoUrl(publicUrl);
-    else if (settingsCropType === 'banner') setBannerUrl(publicUrl);
-    else setLeaderImageUrl(publicUrl);
+    const branded = brandUrl(publicUrl);
+    if (settingsCropType === 'logo') setLogoUrl(branded);
+    else if (settingsCropType === 'banner') setBannerUrl(branded);
+    else setLeaderImageUrl(branded);
   };
 
   const handleSaveLeader = async () => {

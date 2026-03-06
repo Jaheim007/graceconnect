@@ -101,7 +101,7 @@ export function CameraCapture({
         onChange(fullUrl);
       } else {
         const { data } = supabase.storage.from(bucket).getPublicUrl(fileName);
-        onChange(data.publicUrl);
+        onChange(brandUrl(data.publicUrl));
       }
     } catch (err: any) {
       setError(err.message || 'Échec du téléchargement');

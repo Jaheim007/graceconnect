@@ -80,7 +80,7 @@ export default function ProfilePage() {
       const { error: uploadError } = await supabase.storage.from('org-uploads').upload(path, file, { upsert: true });
       if (uploadError) throw uploadError;
       const { data: urlData } = supabase.storage.from('org-uploads').getPublicUrl(path);
-      const avatarUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+      const avatarUrl = `${brandUrl(urlData.publicUrl)}?t=${Date.now()}`;
       await db.from('profiles').update({ avatar_url: avatarUrl }).eq('id', user.id);
       await refreshProfile();
       toast({ title: t('profile.photo_updated') });

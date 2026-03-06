@@ -82,6 +82,7 @@ export default function ProjectAssets() {
       if (upErr) throw upErr;
 
       const { data: urlData } = supabase.storage.from('org-uploads').getPublicUrl(path);
+      const brandedUrl = (await import('@/lib/storageUrl')).brandUrl(urlData.publicUrl);
 
       // Remove existing cover flag
       if (coverAsset) {
@@ -191,6 +192,7 @@ export default function ProjectAssets() {
       if (upErr) throw upErr;
 
       const { data: urlData } = supabase.storage.from('org-uploads').getPublicUrl(path);
+      const brandedAssetUrl = (await import('@/lib/storageUrl')).brandUrl(urlData.publicUrl);
 
       const assetType = file.type.startsWith('image/') ? 'image'
         : file.type === 'application/pdf' ? 'pdf'

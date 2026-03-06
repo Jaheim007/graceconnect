@@ -162,11 +162,12 @@ export default function ProjectEditor() {
         const { error: upErr } = await supabase.storage.from('org-uploads').upload(path, optimized, { cacheControl: '31536000' });
         if (upErr) throw upErr;
         const { data: urlData } = supabase.storage.from('org-uploads').getPublicUrl(path);
+        const brandedCoverUrl = (await import('@/lib/storageUrl')).brandUrl(urlData.publicUrl);
         if (coverAsset) {
           await db.from('ai_project_assets').update({ is_cover: false }).eq('id', coverAsset.id);
         }
         await db.from('ai_project_assets').insert({
-          project_id: id, organization_id: currentOrg.id, file_url: urlData.publicUrl,
+          project_id: id, organization_id: currentOrg.id, file_url: brandedCoverUrl,
           asset_type: 'image', label: 'Couverture', mime_type: file.type, file_size: file.size,
           is_cover: true, display_order: 0,
         });

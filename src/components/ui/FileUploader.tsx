@@ -76,8 +76,8 @@ export function FileUploader({
         setUrlInput(fullUrl);
       } else {
         const { data } = supabase.storage.from(bucket).getPublicUrl(fileName);
-        onChange(data.publicUrl);
-        setUrlInput(data.publicUrl);
+        onChange(brandUrl(data.publicUrl));
+        setUrlInput(brandUrl(data.publicUrl));
       }
     } catch (err: any) {
       setError(err.message || 'Upload failed');
