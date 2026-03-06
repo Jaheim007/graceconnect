@@ -163,7 +163,7 @@ export default function ProjectEditor() {
         const { error: upErr } = await supabase.storage.from('org-uploads').upload(path, optimized, { cacheControl: '31536000' });
         if (upErr) throw upErr;
         const { data: urlData } = supabase.storage.from('org-uploads').getPublicUrl(path);
-        const brandedCoverUrl = (await import('@/lib/storageUrl')).brandUrl(urlData.publicUrl);
+        const brandedCoverUrl = brandUrl(urlData.publicUrl);
         if (coverAsset) {
           await db.from('ai_project_assets').update({ is_cover: false }).eq('id', coverAsset.id);
         }
