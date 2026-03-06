@@ -1,6 +1,7 @@
 import { useRef, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { X, Image as ImageIcon, Loader2, Palette, Upload as UploadIcon } from 'lucide-react';
+import { brandUrl } from '@/lib/storageUrl';
 import { cn } from '@/lib/utils';
 import { ImageCropDialog } from '@/components/ui/ImageCropDialog';
 import { compressImage } from '@/hooks/useImageOptimizer';
@@ -90,7 +91,7 @@ export function ImageUploader({
           .upload(fileName, file, { upsert: true, contentType: file.type });
         if (uploadError) throw uploadError;
         const { data } = supabase.storage.from('org-uploads').getPublicUrl(fileName);
-        onChange(data.publicUrl);
+        onChange(brandUrl(data.publicUrl));
       } catch (err: any) {
         setError(err.message || 'Upload failed');
       } finally {
@@ -112,7 +113,7 @@ export function ImageUploader({
         .upload(fileName, blob, { upsert: true, contentType: 'image/jpeg' });
       if (uploadError) throw uploadError;
       const { data } = supabase.storage.from('org-uploads').getPublicUrl(fileName);
-      onChange(data.publicUrl);
+      onChange(brandUrl(data.publicUrl));
     } catch (err: any) {
       setError(err.message || 'Upload failed');
     } finally {
@@ -197,7 +198,7 @@ export function ImageUploader({
       if (error) throw error;
       if (!data?.ok) throw new Error(data?.error || 'Export échoué');
 
-      onChange(data.cover_url);
+      onChange(brandUrl(data.cover_url));
       if (activeKey) {
         sessionStorage.removeItem(activeKey);
         sessionStorage.removeItem('canva_active_design');
@@ -296,7 +297,7 @@ export function ImageUploader({
         onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileSelected(f); e.target.value = ''; }}
       />
       {value && !value.startsWith('blob:') && (
-        <p className="text-[10px] text-muted-foreground truncate">📎 {value}</p>
+        <p className="text-[10px] text-muted-foreground truncate">📎 {brandUrl(value)}</p>
       )}
 
       {/* Crop Dialog */}

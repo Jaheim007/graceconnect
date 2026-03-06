@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { brandUrl } from '@/lib/storageUrl';
 import { Upload, X, File as FileIcon, Loader2, Link as LinkIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
@@ -76,8 +77,8 @@ export function FileUploader({
         setUrlInput(fullUrl);
       } else {
         const { data } = supabase.storage.from(bucket).getPublicUrl(fileName);
-        onChange(data.publicUrl);
-        setUrlInput(data.publicUrl);
+        onChange(brandUrl(data.publicUrl));
+        setUrlInput(brandUrl(data.publicUrl));
       }
     } catch (err: any) {
       setError(err.message || 'Upload failed');

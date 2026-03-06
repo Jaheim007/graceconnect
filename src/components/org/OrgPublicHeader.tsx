@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { useShortLink } from '@/hooks/useShortLink';
+import { brandUrl } from '@/lib/storageUrl';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient, useQuery, useMutation } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -148,7 +149,7 @@ export function OrgPublicHeader({
       const { error } = await supabase.storage.from('org-uploads').upload(fileName, blob, { upsert: true, contentType: 'image/jpeg' });
       if (error) throw error;
       const { data } = supabase.storage.from('org-uploads').getPublicUrl(fileName);
-      await updateOrg.mutateAsync({ id: org.id, updates: { [cropField]: data.publicUrl } });
+      await updateOrg.mutateAsync({ id: org.id, updates: { [cropField]: brandUrl(data.publicUrl) } });
       qc.invalidateQueries({ queryKey: ['org-by-slug', slug] });
       toast({ title: locale === 'fr' ? 'Image mise à jour ✓' : 'Image updated ✓' });
     } catch (err: any) {

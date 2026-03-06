@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { compressImage } from '@/hooks/useImageOptimizer';
+import { brandUrl } from '@/lib/storageUrl';
 
 /**
  * Upload a File (from clipboard paste or drag-drop) to Supabase storage
@@ -24,7 +25,7 @@ export async function uploadEditorImage(file: File): Promise<string | null> {
   }
 
   const { data } = supabase.storage.from('org-uploads').getPublicUrl(fileName);
-  return data.publicUrl;
+  return brandUrl(data.publicUrl);
 }
 
 /**

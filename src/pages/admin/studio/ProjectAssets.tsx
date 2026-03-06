@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { supabase } from '@/integrations/supabase/client';
+import { brandUrl } from '@/lib/storageUrl';
 import { compressImage } from '@/hooks/useImageOptimizer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -82,6 +83,7 @@ export default function ProjectAssets() {
       if (upErr) throw upErr;
 
       const { data: urlData } = supabase.storage.from('org-uploads').getPublicUrl(path);
+      const brandedUrl = brandUrl(urlData.publicUrl);
 
       // Remove existing cover flag
       if (coverAsset) {
@@ -91,7 +93,7 @@ export default function ProjectAssets() {
       await db.from('ai_project_assets').insert({
         project_id: id,
         organization_id: currentOrg.id,
-        file_url: urlData.publicUrl,
+        file_url: brandedUrl,
         asset_type: 'image',
         label: 'Couverture',
         mime_type: file.type,
@@ -191,6 +193,7 @@ export default function ProjectAssets() {
       if (upErr) throw upErr;
 
       const { data: urlData } = supabase.storage.from('org-uploads').getPublicUrl(path);
+      const brandedAssetUrl = brandUrl(urlData.publicUrl);
 
       const assetType = file.type.startsWith('image/') ? 'image'
         : file.type === 'application/pdf' ? 'pdf'
@@ -199,7 +202,7 @@ export default function ProjectAssets() {
       const { error: insertErr } = await db.from('ai_project_assets').insert({
         project_id: id,
         organization_id: currentOrg.id,
-        file_url: urlData.publicUrl,
+        file_url: brandedAssetUrl,
         asset_type: assetType,
         label: file.name,
         mime_type: file.type,

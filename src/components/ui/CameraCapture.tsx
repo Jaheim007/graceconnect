@@ -1,5 +1,6 @@
 import { useRef, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { brandUrl } from '@/lib/storageUrl';
 import { Camera, RotateCcw, Check, X, Loader2, SwitchCamera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -101,7 +102,7 @@ export function CameraCapture({
         onChange(fullUrl);
       } else {
         const { data } = supabase.storage.from(bucket).getPublicUrl(fileName);
-        onChange(data.publicUrl);
+        onChange(brandUrl(data.publicUrl));
       }
     } catch (err: any) {
       setError(err.message || 'Échec du téléchargement');
