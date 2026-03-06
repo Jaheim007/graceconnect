@@ -10,10 +10,9 @@ interface Props {
   update: (patch: Partial<WriteState>) => void;
   onNext: () => void;
   onBack: () => void;
-  publishing?: boolean;
 }
 
-export function StepPricing({ state, update, onNext, onBack, publishing }: Props) {
+export function StepPricing({ state, update, onNext, onBack }: Props) {
   const { t } = useI18n();
   const platformFee = Math.round(state.price * 0.10);
   const ambassadorFee = Math.round(state.price * state.commissionRate / 100);
