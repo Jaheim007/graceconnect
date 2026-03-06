@@ -217,7 +217,7 @@ export function StepGenerating({ state, update, onNext }: Props) {
             {t('write.ai_regenerate')}
           </Button>
           <Button variant="outline" onClick={continueWithoutAi}>
-            {t('write.continue')} ({t('write.manual') || 'manuel'})
+            Continuer sans IA
           </Button>
         </div>
       )}
