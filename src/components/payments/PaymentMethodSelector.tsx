@@ -99,7 +99,7 @@ export function PaymentMethodSelector({ value, onChange, currency, className, pa
       <p className="text-[10px] text-muted-foreground">
         {!showMoMo && moMoRegionAvailable
           ? 'Mobile Money temporairement indisponible. Utilisez Carte bancaire.'
-          : `Paiement sécurisé par ${effectiveValue === 'mobile_money' || effectiveValue === 'apple_pay' ? 'Paystack' : 'Stripe'}`}
+          : `Paiement sécurisé par ${effectiveValue === 'mobile_money' || effectiveValue === 'apple_pay' ? 'Paystack' : effectiveValue === 'moneroo' ? 'Moneroo' : 'Stripe'}`}
       </p>
     </div>
   );
