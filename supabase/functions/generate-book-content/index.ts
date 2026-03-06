@@ -454,7 +454,7 @@ Retourne UNIQUEMENT un JSON avec cette structure :
   ]
 }
 
-Le contenu doit faire 500-900 mots en HTML riche avec sous-titres <h3>, paragraphes <p>, mots-clés en <strong>, citations en <blockquote>, listes <ul><li> si pertinent.`
+Le contenu doit faire environ ${chapterWordTarget} mots en HTML riche avec sous-titres <h3>, paragraphes <p>, mots-clés en <strong>, citations en <blockquote>, listes <ul><li> si pertinent.`
         : `${topic}
 
 Return ONLY a JSON with this structure:
@@ -464,7 +464,7 @@ Return ONLY a JSON with this structure:
   ]
 }
 
-Content should be 500-900 words in rich HTML with sub-headings <h3>, paragraphs <p>, keywords in <strong>, quotes in <blockquote>, lists <ul><li> when relevant.`;
+Content should be around ${chapterWordTarget} words in rich HTML with sub-headings <h3>, paragraphs <p>, keywords in <strong>, quotes in <blockquote>, lists <ul><li> when relevant.`;
     } else {
       userPrompt = lang === 'fr'
         ? `Crée un livre COMPLET et CAPTIVANT sur le sujet suivant :
