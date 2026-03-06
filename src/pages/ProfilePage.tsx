@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { getOrgCategoryLabel } from '@/lib/categoryLabels';
+import { brandUrl } from '@/lib/storageUrl';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
