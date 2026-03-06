@@ -99,7 +99,7 @@ serve(async (req) => {
       .from("org-uploads")
       .getPublicUrl(fileName);
 
-    const publicUrl = urlData.publicUrl;
+    const publicUrl = urlData.publicUrl.replace('https://xzgpzbrgsxtcsktiprik.supabase.co', 'https://api.siteviral.com');
 
     return new Response(
       JSON.stringify({ ok: true, cover_url: publicUrl }),
