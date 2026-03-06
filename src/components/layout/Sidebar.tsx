@@ -53,7 +53,7 @@ export function Sidebar() {
 
   // ── SECTION 1: MON ESPACE (always visible) ──
   const mySpaceItems: NavItem[] = [
-    { to: '/dashboard', icon: Home, label: 'Tableau de bord', desc: 'Vue d\'ensemble' },
+    { to: '/dashboard', icon: Home, label: 'Accueil', desc: 'Vue d\'ensemble' },
     { to: '/resources', icon: Package, label: 'Mes achats', desc: 'Ressources achetées' },
     { to: '/my-donations', icon: Heart, label: 'Mes dons', desc: 'Dons et campagnes' },
     { to: '/marketplace', icon: Store, label: 'Découvrir', desc: 'Explorer les produits' },
@@ -63,7 +63,7 @@ export function Sidebar() {
 
   // ── SECTION 2: GAGNER (ambassador) ──
   const earnItems: NavItem[] = [
-    { to: '/affiliation', icon: Link2, label: 'Mes liens', desc: 'Liens de partage' },
+    { to: '/affiliation', icon: Link2, label: 'Gagner en partageant', desc: 'Liens de partage et commissions' },
   ];
 
   // ── SECTION 3: MA PLATEFORME (creator, only if has orgs) ──
@@ -347,10 +347,10 @@ export function Sidebar() {
               </>
             )}
 
-            {/* ═══ SECTION 3: MA PLATEFORME ═══ */}
+            {/* ═══ SECTION 3: MON ESPACE CRÉATEUR ═══ */}
             {hasOrgs && canManageCurrentOrg && (
               <>
-                {renderSectionLabel(Building2, 'Ma plateforme', 'text-primary')}
+                {renderSectionLabel(Building2, 'Mon espace créateur', 'text-primary')}
                 <div className="space-y-0.5">
                   {platformOverview.map(renderNavItem)}
                 </div>

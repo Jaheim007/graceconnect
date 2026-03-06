@@ -1,21 +1,21 @@
 import { motion } from 'framer-motion';
-import { Search, Share2, Banknote, CheckCircle } from 'lucide-react';
+import { PenLine, Sparkles, Rocket, CheckCircle } from 'lucide-react';
 
 const steps = [
   {
-    icon: Search,
-    title: 'Découvrez ou publiez',
-    desc: 'Explorez des ressources numériques ou publiez les vôtres sur votre plateforme.',
+    icon: PenLine,
+    title: 'Dis-nous ton sujet',
+    desc: 'Une idée, un document, une vidéo — on accepte tout.',
   },
   {
-    icon: Share2,
-    title: 'Partagez & vendez',
-    desc: 'Vendez directement ou laissez des ambassadeurs partager pour vous.',
+    icon: Sparkles,
+    title: 'L\'IA écrit ton livre',
+    desc: 'Sommaire, chapitres, couverture — en quelques minutes.',
   },
   {
-    icon: Banknote,
-    title: 'Tout le monde gagne',
-    desc: 'Créateurs, ambassadeurs et acheteurs — chacun y trouve son compte.',
+    icon: Rocket,
+    title: 'Publie et vends',
+    desc: 'Ton livre est en vente. Tes ambassadeurs le partagent.',
   },
 ];
 
@@ -59,7 +59,7 @@ export function LandingHowItWorksSimple() {
 
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mt-8 flex items-center gap-2 justify-center bg-accent/5 border border-accent/20 rounded-xl p-3 max-w-md mx-auto">
           <CheckCircle className="h-4 w-4 text-accent shrink-0" />
-          <p className="text-sm font-medium text-accent">Zéro abonnement. Zéro risque. Commencez en 60 secondes.</p>
+          <p className="text-sm font-medium text-accent">Zéro abonnement. Zéro risque. Commence en 5 minutes.</p>
         </motion.div>
       </div>
     </section>
