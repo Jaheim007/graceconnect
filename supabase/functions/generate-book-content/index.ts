@@ -378,7 +378,7 @@ MANDATORY ANALYSIS AND APPLICATION:
       ? `Tu es un AUTEUR PROFESSIONNEL de renommée internationale. Tu rédiges des livres complets, captivants et de très haute qualité littéraire en ${langName}.
 
 RÈGLES D'ÉCRITURE FONDAMENTALES :
-1. Chaque chapitre DOIT être un texte riche, détaillé et immersif de 500-800 mots minimum
+1. Chaque chapitre DOIT être un texte riche, détaillé et immersif d'environ ${chapterWordTarget} mots
 2. JAMAIS de contenu superficiel ou générique - chaque phrase doit apporter de la valeur
 3. Utilise des exemples concrets, des anecdotes, des histoires vraies ou plausibles
 4. Crée des transitions fluides et élégantes entre les paragraphes et chapitres
@@ -410,7 +410,7 @@ FORMAT DE SORTIE : Retourne un JSON valide. Pas de markdown, pas de code fences.
       : `You are a WORLD-CLASS PROFESSIONAL AUTHOR. You write complete, captivating, and exceptionally high-quality books in ${langName}.
 
 FUNDAMENTAL WRITING RULES:
-1. Each chapter MUST be a rich, detailed and immersive text of 500-800 words minimum
+1. Each chapter MUST be a rich, detailed and immersive text of around ${chapterWordTarget} words
 2. NEVER superficial or generic content - every sentence must add value
 3. Use concrete examples, anecdotes, true or plausible stories
 4. Create smooth and elegant transitions between paragraphs and chapters
