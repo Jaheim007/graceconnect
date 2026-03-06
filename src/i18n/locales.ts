@@ -1176,7 +1176,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'bottom.discover': 'Discover',
     'bottom.explore': 'Explore',
     'bottom.signup': 'Sign up',
-    'bottom.more': 'More',
+    
     'bottom.my_resources': 'My resources',
     'bottom.my_purchases': 'My purchases',
     'bottom.my_donations': 'My donations',
