@@ -83,17 +83,7 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
         </div>
       )}
 
-      <div>
-        <p className="text-xs text-muted-foreground mb-2">{t('write.cover_upload_label')}</p>
-        <ImageUploader
-          value={state.coverUrl || ''}
-          onChange={handleCoverUrlChange}
-          folder="book-covers"
-          label={t('write.cover_title')}
-          aspectRatio="book"
-          showCanva={true}
-        />
-      </div>
+
 
       <div className="flex gap-3">
         <Button variant="outline" size="lg" onClick={onBack} className="gap-2">
