@@ -5113,6 +5113,7 @@ export type Database = {
         | "ngo"
         | "community"
         | "other"
+        | "business"
       org_member_role: "owner" | "admin" | "editor" | "member" | "affiliate"
       org_plan: "free" | "pro" | "growth" | "enterprise"
       partner_commission_status: "held" | "payable" | "paid" | "reversed"
@@ -5306,6 +5307,7 @@ export const Constants = {
         "ngo",
         "community",
         "other",
+        "business",
       ],
       org_member_role: ["owner", "admin", "editor", "member", "affiliate"],
       org_plan: ["free", "pro", "growth", "enterprise"],

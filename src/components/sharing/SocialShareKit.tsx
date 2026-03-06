@@ -1,7 +1,14 @@
 import { useState } from 'react';
-import { Check, Copy, Mail, ExternalLink } from 'lucide-react';
+import { Check, Copy, Mail, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { trackEvent } from '@/hooks/useClientAnalytics';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 type ShareContext = 'post-publication' | 'post-purchase' | 'ambassador' | 'earnings';
 
@@ -13,6 +20,7 @@ interface SocialShareKitProps {
   price?: number;
   earnings?: number;
   commissionRate?: number;
+  productId?: string;
 }
 
 const MESSAGES: Record<ShareContext, (t: string, p?: number, e?: number) => string> = {
@@ -27,6 +35,7 @@ interface Platform {
   icon: string;
   color: string;
   getUrl: (url: string, text: string) => string;
+  copyOnly?: boolean;
 }
 
 const PLATFORMS: Platform[] = [
@@ -58,23 +67,57 @@ const PLATFORMS: Platform[] = [
     name: 'LinkedIn',
     icon: '💼',
     color: 'bg-blue-700 hover:bg-blue-800',
-    getUrl: (url, text) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+    getUrl: (url) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+  },
+  {
+    name: 'Instagram',
+    icon: '📸',
+    color: 'bg-gradient-to-br from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600',
+    getUrl: () => '',
+    copyOnly: true,
+  },
+  {
+    name: 'TikTok',
+    icon: '🎵',
+    color: 'bg-black hover:bg-neutral-900 dark:bg-neutral-800 dark:hover:bg-neutral-700',
+    getUrl: () => '',
+    copyOnly: true,
   },
 ];
 
-export function SocialShareKit({ url, title, description, context, price, earnings, commissionRate }: SocialShareKitProps) {
+export function SocialShareKit({ url, title, description, context, price, earnings, commissionRate, productId }: SocialShareKitProps) {
   const [copied, setCopied] = useState(false);
+  const [showQR, setShowQR] = useState(false);
   const message = MESSAGES[context](title, price, earnings);
 
-  const copyLink = async () => {
+  const track = (platform: string) => {
+    trackEvent('share_click', {
+      platform,
+      context,
+      product_id: productId || null,
+      url,
+    });
+  };
+
+  const copyText = async (text: string, platformName?: string) => {
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(text);
       setCopied(true);
-      toast.success('Lien copié !');
+      toast.success(platformName ? `Texte copié ! Colle-le dans ${platformName}.` : 'Lien copié !');
+      track(platformName || 'copy_link');
       setTimeout(() => setCopied(false), 2000);
     } catch {
       toast.error('Impossible de copier');
     }
+  };
+
+  const handlePlatformClick = (p: Platform) => {
+    track(p.name);
+    if (p.copyOnly) {
+      copyText(`${message} ${url}`, p.name);
+      return;
+    }
+    window.open(p.getUrl(url, message), '_blank', 'noopener,noreferrer');
   };
 
   const emailSubject = context === 'post-publication'
@@ -83,33 +126,33 @@ export function SocialShareKit({ url, title, description, context, price, earnin
 
   const emailUrl = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(`${message}\n\n${url}`)}`;
 
+  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(url)}`;
+
   return (
     <div className="space-y-4">
       <p className="text-sm font-bold text-center">📤 Partage maintenant !</p>
 
       {/* Platform buttons */}
-      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+      <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
         {PLATFORMS.map(p => (
-          <a
+          <button
             key={p.name}
-            href={p.getUrl(url, message)}
-            target="_blank"
-            rel="noopener noreferrer"
+            onClick={() => handlePlatformClick(p)}
             className={`${p.color} text-white rounded-xl p-3 text-center transition-all hover:scale-105 active:scale-95`}
           >
             <span className="text-lg block">{p.icon}</span>
-            <span className="text-[10px] font-medium block mt-1">{p.name}</span>
-          </a>
+            <span className="text-[10px] font-medium block mt-1 truncate">{p.name}</span>
+          </button>
         ))}
       </div>
 
       {/* Secondary actions */}
-      <div className="flex gap-2 justify-center">
+      <div className="flex gap-2 justify-center flex-wrap">
         <Button
           variant="outline"
           size="sm"
           className="gap-2 text-xs"
-          onClick={copyLink}
+          onClick={() => copyText(url)}
         >
           {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
           {copied ? 'Copié !' : 'Copier le lien'}
@@ -119,10 +162,19 @@ export function SocialShareKit({ url, title, description, context, price, earnin
           size="sm"
           className="gap-2 text-xs"
           asChild
+          onClick={() => track('email')}
         >
           <a href={emailUrl}>
             <Mail className="h-3.5 w-3.5" /> Email
           </a>
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2 text-xs"
+          onClick={() => { setShowQR(true); track('qr_code'); }}
+        >
+          <QrCode className="h-3.5 w-3.5" /> QR Code
         </Button>
       </div>
 
@@ -130,6 +182,21 @@ export function SocialShareKit({ url, title, description, context, price, earnin
       <div className="bg-muted/50 rounded-xl p-3 border border-border text-xs text-muted-foreground text-center">
         <p className="italic">« {message} »</p>
       </div>
+
+      {/* QR Code Dialog */}
+      <Dialog open={showQR} onOpenChange={setShowQR}>
+        <DialogContent className="sm:max-w-xs">
+          <DialogHeader>
+            <DialogTitle className="text-center">📱 QR Code</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-4 py-4">
+            <img src={qrUrl} alt="QR Code" className="rounded-xl border border-border" width={250} height={250} />
+            <p className="text-xs text-muted-foreground text-center">
+              Scanne ce code pour accéder directement au produit.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
