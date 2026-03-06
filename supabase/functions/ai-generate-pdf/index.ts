@@ -133,6 +133,17 @@ Deno.serve(async (req) => {
       metadata: { format: projectFormat, page_size: normalizedPageSize },
     }).select().maybeSingle();
 
+    // Auto-update the linked product's file_url
+    const downloadUrl = `${supabaseUrl}/storage/v1/object/public/org-uploads/${storagePath}`;
+    const targetProductId = bodyProductId || linkedProduct?.id;
+    if (targetProductId || update_product !== false) {
+      // Update any product linked to this project
+      await admin.from('digital_products')
+        .update({ file_url: downloadUrl })
+        .eq('ai_project_id', project_id)
+        .eq('organization_id', org_id);
+    }
+
     await admin.from('audit_logs').insert({
       user_id: user.id, action: 'studio.pdf_generated', resource_type: 'ai_content_project',
       resource_id: project_id, organization_id: org_id,
