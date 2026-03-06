@@ -503,7 +503,7 @@ WRITING LANGUAGE: ${langName}
 DETAILED INSTRUCTIONS:
 - Create exactly ${chapterCount} chapters exploring every important facet of THIS topic
 - Chapter titles must be CREATIVE, CATCHY and directly related to "${topic || title}"
-- Each chapter: 500-800 words of RICH HTML content
+- Each chapter: around ${chapterWordTarget} words of RICH HTML content
 - Content must be SUBSTANTIAL: real examples, anecdotes, data, relevant quotes
 - Chapter 1: Powerful introduction setting context, stakes and making readers want more
 - Middle chapters: Deep exploration, each chapter a unique angle
@@ -520,7 +520,7 @@ Return ONLY valid JSON:
   ]
 }
 
-CRITICAL REMINDER: ${pages}-page book on "${topic || title}". Each chapter = 500-800 words MINIMUM. Professional quality. Zero generic content.`;
+CRITICAL REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterWordTarget} words. Professional quality. Zero generic content.`;
     }
 
     const aiRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
