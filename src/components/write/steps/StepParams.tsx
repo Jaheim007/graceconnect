@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { useI18n } from '@/i18n/I18nContext';
-import type { WriteState, BookStyle, WritingTone, LanguageLevel, TargetAudience } from '../WriteWizard';
+import type { WriteState, BookStyle, WritingTone, LanguageLevel, TargetAudience, BookLanguage } from '../WriteWizard';
 
 interface Props {
   state: WriteState;
