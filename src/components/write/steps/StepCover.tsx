@@ -1,6 +1,9 @@
+import { useState } from 'react';
 import { ArrowLeft, ArrowRight, Upload, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/i18n/I18nContext';
+import { ImageUploader } from '@/components/ui/ImageUploader';
 import type { WriteState } from '../WriteWizard';
 
 const COVER_GRADIENTS = [
@@ -22,11 +25,21 @@ interface Props {
 }
 
 export function StepCover({ state, update, onNext, onBack }: Props) {
+  const { t } = useI18n();
+  const [coverUrl, setCoverUrl] = useState('');
+
+  const handleCoverUrlChange = (url: string) => {
+    setCoverUrl(url);
+    if (url) {
+      update({ coverFile: null, coverTemplate: -1 });
+    }
+  };
+
   return (
     <div className="space-y-8 pt-8">
       <div className="text-center space-y-2">
-        <h2 className="text-2xl sm:text-3xl font-extrabold">Choisis ta couverture</h2>
-        <p className="text-muted-foreground text-sm">Template auto ou upload ta propre image.</p>
+        <h2 className="text-2xl sm:text-3xl font-extrabold">{t('write.cover_title')}</h2>
+        <p className="text-muted-foreground text-sm">{t('write.cover_sub')}</p>
       </div>
 
       {/* Template grid */}
@@ -34,48 +47,43 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
         {COVER_GRADIENTS.map((gradient, i) => (
           <button
             key={i}
-            onClick={() => update({ coverTemplate: i, coverFile: null })}
+            onClick={() => { update({ coverTemplate: i, coverFile: null }); setCoverUrl(''); }}
             className={cn(
               'aspect-[3/4] rounded-xl bg-gradient-to-br flex flex-col items-center justify-center p-2 transition-all border-2',
               gradient,
-              state.coverTemplate === i && !state.coverFile
+              state.coverTemplate === i && !state.coverFile && !coverUrl
                 ? 'border-primary ring-2 ring-primary/30 scale-105'
                 : 'border-transparent hover:scale-105'
             )}
           >
             <Sparkles className="h-4 w-4 text-white/80 mb-1" />
             <p className="text-white font-bold text-[8px] leading-tight text-center line-clamp-2">
-              {state.title || 'Mon livre'}
+              {state.title || t('write.my_book')}
             </p>
           </button>
         ))}
       </div>
 
-      {/* Upload option */}
-      <div className="text-center">
-        <p className="text-xs text-muted-foreground mb-2">Ou upload ta propre couverture :</p>
-        <label className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-border cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-colors text-sm">
-          <Upload className="h-4 w-4 text-muted-foreground" />
-          {state.coverFile ? state.coverFile.name : 'Choisir une image'}
-          <input
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={e => {
-              const f = e.target.files?.[0];
-              if (f) update({ coverFile: f });
-            }}
-          />
-        </label>
+      {/* Canva + Upload via ImageUploader */}
+      <div>
+        <p className="text-xs text-muted-foreground mb-2">{t('write.cover_upload_label')}</p>
+        <ImageUploader
+          value={coverUrl}
+          onChange={handleCoverUrlChange}
+          folder="book-covers"
+          label={t('write.cover_title')}
+          aspectRatio="book"
+          showCanva={true}
+        />
       </div>
 
       {/* Actions */}
       <div className="flex gap-3">
         <Button variant="outline" size="lg" onClick={onBack} className="gap-2">
-          <ArrowLeft className="h-4 w-4" /> Retour
+          <ArrowLeft className="h-4 w-4" /> {t('write.back')}
         </Button>
         <Button size="lg" className="flex-1 h-14 text-base gap-2" onClick={onNext}>
-          Continuer <ArrowRight className="h-4 w-4" />
+          {t('write.continue')} <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
     </div>

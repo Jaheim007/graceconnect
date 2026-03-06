@@ -1,17 +1,16 @@
 import { motion } from 'framer-motion';
-import { Sparkles, Clock, Gift } from 'lucide-react';
-
-/**
- * Motivational tips shown during writing wizard to reduce drop-off.
- */
-const TIPS = [
-  { icon: '✍️', text: 'Ton livre sera prêt en 5 minutes avec l\'IA' },
-  { icon: '💰', text: 'Chaque vente = revenu passif automatique' },
-  { icon: '📤', text: 'Tes ambassadeurs vendent pour toi' },
-  { icon: '🌍', text: 'Accessible dans tout le monde francophone' },
-];
+import { useI18n } from '@/i18n/I18nContext';
 
 export function WritingMotivation({ step }: { step: number }) {
+  const { t } = useI18n();
+
+  const TIPS = [
+    { icon: '✍️', text: t('write.motivation_1') },
+    { icon: '💰', text: t('write.motivation_2') },
+    { icon: '📤', text: t('write.motivation_3') },
+    { icon: '🌍', text: t('write.motivation_4') },
+  ];
+
   const tip = TIPS[step % TIPS.length];
 
   return (

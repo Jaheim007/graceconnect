@@ -1,4 +1,4 @@
-import { ArrowLeft, Rocket, Users } from 'lucide-react';
+import { ArrowLeft, Rocket, Users, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
@@ -10,9 +10,10 @@ interface Props {
   update: (patch: Partial<WriteState>) => void;
   onNext: () => void;
   onBack: () => void;
+  publishing?: boolean;
 }
 
-export function StepPricing({ state, update, onNext, onBack }: Props) {
+export function StepPricing({ state, update, onNext, onBack, publishing }: Props) {
   const { t } = useI18n();
   const platformFee = Math.round(state.price * 0.10);
   const ambassadorFee = Math.round(state.price * state.commissionRate / 100);
@@ -99,16 +100,26 @@ export function StepPricing({ state, update, onNext, onBack }: Props) {
 
       {/* Actions */}
       <div className="flex gap-3">
-        <Button variant="outline" size="lg" onClick={onBack} className="gap-2">
+        <Button variant="outline" size="lg" onClick={onBack} className="gap-2" disabled={publishing}>
           <ArrowLeft className="h-4 w-4" /> {t('write.back')}
         </Button>
         <Button
           size="lg"
           className="flex-1 h-14 text-base gap-2 cta-glow"
           onClick={onNext}
+          disabled={publishing}
         >
-          <Rocket className="h-5 w-5" />
-          {t('write.publish')}
+          {publishing ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" />
+              {t('write.publishing')}
+            </>
+          ) : (
+            <>
+              <Rocket className="h-5 w-5" />
+              {t('write.publish')}
+            </>
+          )}
         </Button>
       </div>
     </div>
