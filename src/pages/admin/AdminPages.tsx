@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils';
 import { db } from '@/lib/db';
 import { supabase } from '@/integrations/supabase/client';
 import { brandUrl } from '@/lib/storageUrl';
+import { buildShareUrlForPath } from '@/lib/shareMeta';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -596,7 +597,7 @@ export function AdminAffiliation() {
           ) : (
             <div className="space-y-2">
               {activeLinks.map((link: any) => {
-                const shareUrl = `${baseUrl}/org/${currentOrg.slug}?ref=${link.code}`;
+                const shareUrl = buildShareUrlForPath(`/org/${currentOrg.slug}?ref=${link.code}`);
                 return (
                   <motion.div key={link.id} variants={fadeUp} initial="hidden" animate="visible"
                     className="border border-primary/30 bg-primary/5 rounded-xl p-3 space-y-2">
