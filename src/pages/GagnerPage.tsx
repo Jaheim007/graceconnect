@@ -199,4 +199,5 @@ export default function GagnerPage() {
       </div>
     </div>
     </AdaptiveLayout>
+  );
 }
