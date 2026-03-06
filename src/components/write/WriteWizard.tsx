@@ -121,8 +121,20 @@ export default function WriteWizard() {
   const { toast } = useToast();
 
   const update = useCallback((patch: Partial<WriteState>) => {
-    setState(prev => ({ ...prev, ...patch }));
+    setState(prev => {
+      const next = { ...prev, ...patch };
+      return next;
+    });
   }, []);
+
+  // Auto-save to localStorage on every state/step change
+  useEffect(() => {
+    if (step < CELEBRATION_STEP) {
+      saveDraft(state, step);
+    } else {
+      clearDraft();
+    }
+  }, [state, step]);
 
   const next = useCallback(() => setStep(s => {
     const newStep = Math.min(s + 1, CELEBRATION_STEP);
