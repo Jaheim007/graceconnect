@@ -23,6 +23,9 @@ import { GrowthTipsWidget } from '@/components/growth/GrowthTipsWidget';
 import { SuccessStoriesCarousel } from '@/components/growth/SuccessStoriesCarousel';
 import { OnboardingChecklist } from '@/components/growth/OnboardingChecklist';
 import { ShareableEarningsCard } from '@/components/growth/ShareableEarningsCard';
+import { RevenueCelebration } from '@/components/growth/RevenueCelebration';
+import { QuickStartPaths } from '@/components/growth/QuickStartPaths';
+import { SmartNudge } from '@/components/growth/SmartNudge';
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 12 },
@@ -129,6 +132,13 @@ export default function UserDashboard() {
           </div>
           {/* Badge removed — no more "Acheteur / Donateur" label */}
         </motion.div>
+        {/* ═══ SMART NUDGE ═══ */}
+        <SmartNudge />
+
+        {/* ═══ QUICK START PATHS ═══ */}
+        <motion.div {...fadeUp(0.02)}>
+          <QuickStartPaths />
+        </motion.div>
 
         {/* ═══ ONBOARDING CHECKLIST ═══ */}
         <motion.div {...fadeUp(0.03)}>
@@ -138,6 +148,11 @@ export default function UserDashboard() {
         {/* ═══ SHAREABLE EARNINGS CARD ═══ */}
         <motion.div {...fadeUp(0.04)}>
           <ShareableEarningsCard />
+        </motion.div>
+
+        {/* ═══ REVENUE CELEBRATION (creators) ═══ */}
+        <motion.div {...fadeUp(0.045)}>
+          <RevenueCelebration />
         </motion.div>
 
         {/* ═══ SECTION: MES ACHATS ═══ */}
