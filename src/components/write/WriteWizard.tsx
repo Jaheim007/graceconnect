@@ -422,15 +422,20 @@ export default function WriteWizard() {
 
         const projectData = {
           title: state.title || state.topic || 'Brouillon',
-          data_json: toSerializableState(state),
-          structure_json: { step, chapters: state.chapters, draftId },
-          status: 'draft' as const,
-          project_type: 'ebook' as const,
-          language: state.language || 'fr',
-          description: state.topic || null,
-          organization_id: membership.organization_id,
-          created_by: user.id,
-        };
+          const dataJson = JSON.parse(JSON.stringify(toSerializableState(state)));
+          const structJson = JSON.parse(JSON.stringify({ step, chapters: state.chapters, draftId }));
+
+          const projectData = {
+            title: state.title || state.topic || 'Brouillon',
+            data_json: dataJson,
+            structure_json: structJson,
+            status: 'draft' as const,
+            project_type: 'ebook' as const,
+            language: state.language || 'fr',
+            description: state.topic || null,
+            organization_id: membership.organization_id,
+            created_by: user.id,
+          };
 
         if (dbSyncRef.current) {
           // Update existing project
