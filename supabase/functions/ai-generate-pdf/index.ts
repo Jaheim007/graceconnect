@@ -34,11 +34,44 @@ Deno.serve(async (req) => {
 
     const body = await req.json().catch(() => ({})) as {
       org_id?: string; project_id?: string; format?: string; page_size?: string;
+      preview_only?: boolean; chapters?: ChapterInput[]; title?: string; style?: string; cover_url?: string;
     };
-    const { org_id, project_id, format, page_size } = body;
-    if (!org_id || !project_id) return jsonError('org_id and project_id required', 400);
+    const { org_id, project_id, format, page_size, preview_only, title: directTitle, style: directStyle, cover_url: directCoverUrl } = body;
 
     const admin = createClient(supabaseUrl, serviceKey);
+    const normalizedPageSize = String(page_size || 'A4').toUpperCase() === 'LETTER' ? 'LETTER' : 'A4';
+    const projectFormat = String(format || directStyle || 'ebook');
+
+    // ── PREVIEW MODE: accept raw chapters, no org/project needed ──
+    if (preview_only && Array.isArray(body.chapters) && body.chapters.length > 0) {
+      const pdfBytes = await buildProfessionalPdf({
+        title: directTitle || 'Document',
+        subtitle: '',
+        orgName: 'Siteviral',
+        language: 'fr',
+        chapters: body.chapters,
+        coverUrl: directCoverUrl || '',
+        pageSize: normalizedPageSize,
+        format: projectFormat,
+      });
+
+      // Store temporarily for preview
+      const previewPath = `previews/${user.id}/${Date.now()}.pdf`;
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const { error: uploadErr } = await admin.storage
+        .from('org-uploads').upload(previewPath, blob, { contentType: 'application/pdf', upsert: true });
+      if (uploadErr) { console.error('Preview upload error:', uploadErr); return jsonError('Failed to store preview', 500); }
+
+      return new Response(JSON.stringify({
+        ok: true,
+        download_url: `${supabaseUrl}/storage/v1/object/public/org-uploads/${previewPath}`,
+        format: projectFormat,
+        preview: true,
+      }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
+    // ── FULL MODE: requires org_id and project_id ──
+    if (!org_id || !project_id) return jsonError('org_id and project_id required', 400);
 
     const { data: member } = await admin
       .from('organization_members').select('role')
@@ -58,8 +91,6 @@ Deno.serve(async (req) => {
 
     const projectData = (project.structure_json || project.data_json || {}) as { chapters?: ChapterInput[] };
     const chapters = Array.isArray(projectData.chapters) ? projectData.chapters : [];
-    const normalizedPageSize = String(page_size || 'A4').toUpperCase() === 'LETTER' ? 'LETTER' : 'A4';
-    const projectFormat = String(format || 'ebook');
 
     const pdfBytes = await buildProfessionalPdf({
       title: asText(project.title, 'Document'),
