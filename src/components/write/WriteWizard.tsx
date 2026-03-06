@@ -390,6 +390,17 @@ export default function WriteWizard() {
     return () => window.clearTimeout(timeoutId);
   }, [draftId, state, step, syncDraftList]);
 
+  // Flush save immediately before page unload (e.g. Canva OAuth redirect)
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (step < CELEBRATION_STEP) {
+        saveDraftSnapshot(draftId, state, step);
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [draftId, state, step]);
+
   const next = useCallback(() => setStep((s) => {
     const newStep = Math.min(s + 1, CELEBRATION_STEP);
     trackEvent('wizard_step', { step: newStep, label: STEP_LABELS[newStep] }, user?.id);
