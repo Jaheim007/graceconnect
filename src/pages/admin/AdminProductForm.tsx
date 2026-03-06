@@ -366,7 +366,56 @@ export function ProductForm() {
 
         <FileUploader value={watch('file_url') || ''} onChange={(url) => setValue('file_url', url)} folder="products" label="Fichier du produit" hint="PDF, Word, Audio, Vidéo (max 50 Mo)" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.epub,.zip,.mp3,.mp4,.wav,.aac,.m4a,.ogg,.webm,.mov,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.ms-powerpoint,application/vnd.ms-excel,application/epub+zip,application/zip,audio/*,video/*" bucket="private-products" />
 
-        {isPdfFile && (
+        {/* Regenerate PDF for AI products */}
+        {isEdit && item?.ai_generated && item?.ai_project_id && currentOrg?.id && (
+          <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-2">
+            <p className="text-sm font-semibold flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" /> Produit généré par IA
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Si vous avez modifié la couverture ou le contenu, vous pouvez régénérer le PDF.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              disabled={regeneratingPdf}
+              onClick={async () => {
+                setRegeneratingPdf(true);
+                try {
+                  const { data: pdfData, error: pdfError } = await supabase.functions.invoke('ai-generate-pdf', {
+                    body: {
+                      org_id: currentOrg.id,
+                      project_id: item.ai_project_id,
+                      format: 'ebook',
+                      page_size: 'A4',
+                    },
+                  });
+                  if (pdfError) throw pdfError;
+                  if (pdfData?.error) throw new Error(pdfData.error);
+                  if (pdfData?.download_url) {
+                    setValue('file_url', pdfData.download_url, { shouldDirty: true });
+                    toast({ title: '✅ PDF régénéré avec succès !' });
+                  } else {
+                    throw new Error('Aucune URL retournée');
+                  }
+                } catch (err: any) {
+                  toast({ title: '❌ Erreur de régénération', description: err.message, variant: 'destructive' });
+                } finally {
+                  setRegeneratingPdf(false);
+                }
+              }}
+            >
+              {regeneratingPdf ? (
+                <><Loader2 className="h-4 w-4 animate-spin" /> Régénération en cours…</>
+              ) : (
+                <><RefreshCw className="h-4 w-4" /> Régénérer le PDF</>
+              )}
+            </Button>
+          </div>
+        )}
+
           <div className="space-y-2">
             <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => setPdfPreviewOpen(true)}>
               <Eye className="h-4 w-4" /> Aperçu du document
