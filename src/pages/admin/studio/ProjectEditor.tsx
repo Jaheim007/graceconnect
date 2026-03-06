@@ -805,7 +805,12 @@ export default function ProjectEditor() {
           ) : previewError ? (
             <div className="flex items-center justify-center h-full text-destructive text-sm">{previewError}</div>
           ) : pdfPreviewUrl ? (
-            <iframe src={pdfPreviewUrl} className="w-full h-full" title="Aperçu du document" />
+            <object data={pdfPreviewUrl} type="application/pdf" className="w-full h-full">
+              <div className="flex flex-col items-center justify-center h-full gap-4 text-muted-foreground">
+                <p className="text-sm">Impossible d'afficher l'aperçu dans le navigateur.</p>
+                <a href={pdfPreviewUrl} target="_blank" rel="noopener noreferrer" className="text-primary underline text-sm">Ouvrir le PDF dans un nouvel onglet</a>
+              </div>
+            </object>
           ) : (
             <div className="flex items-center justify-center h-full text-muted-foreground">
               Aucun aperçu disponible. Générez le PDF d'abord.
