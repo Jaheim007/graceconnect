@@ -10,6 +10,7 @@ import { StepCover } from './steps/StepCover';
 import { StepPricing } from './steps/StepPricing';
 import { StepCelebration } from './steps/StepCelebration';
 import { WriteProgress } from './WriteProgress';
+import { WritingMotivation } from './WritingMotivation';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 
 export type SourceType = 'idea' | 'document';
@@ -79,7 +80,10 @@ export default function WriteWizard() {
   return (
     <div className="pt-16 pb-20 min-h-screen">
       {step < 6 && (
-        <WriteProgress currentStep={step} labels={STEP_LABELS} />
+        <>
+          <WriteProgress currentStep={step} labels={STEP_LABELS} />
+          <WritingMotivation step={step} />
+        </>
       )}
 
       <div className="container max-w-2xl px-4">

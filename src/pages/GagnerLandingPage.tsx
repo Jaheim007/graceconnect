@@ -6,7 +6,6 @@ import { ArrowRight, Share2, Wallet, Users, CheckCircle, Zap, TrendingUp, Messag
 import { motion } from 'framer-motion';
 import { lazy, Suspense } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useMode } from '@/contexts/ModeContext';
 
 const LandingFooterCompact = lazy(() => import('@/components/landing/LandingFooterCompact').then(m => ({ default: m.LandingFooterCompact })));
 
@@ -32,15 +31,13 @@ const testimonials = [
 export default function GagnerLandingPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { setMode } = useMode();
 
   const handleStart = () => {
     if (user) {
-      setMode('ambassador');
-      navigate('/dashboard');
+      navigate('/gagner');
     } else {
       sessionStorage.setItem('sv_auth_intent', 'ambassador');
-      navigate('/auth?intent=ambassador');
+      navigate('/auth?intent=ambassador&redirect=/gagner');
     }
   };
 

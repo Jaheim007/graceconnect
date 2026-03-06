@@ -1,5 +1,8 @@
 import { SEOHead } from '@/components/seo/SEOHead';
 import { GagnerTabs } from '@/components/gagner/GagnerTabs';
+import { QuickShareWidget } from '@/components/gagner/QuickShareWidget';
+import { SocialProofBanner } from '@/components/gagner/SocialProofBanner';
+import { TrustBadgesBar } from '@/components/trust/TrustBadgesBar';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Share2, Zap, Search, Link2, Wallet } from 'lucide-react';
@@ -177,11 +180,20 @@ export default function GagnerPage() {
           ))}
         </div>
 
+        {/* Social proof stats */}
+        <SocialProofBanner />
+
+        {/* Quick share widget for logged-in users */}
+        <QuickShareWidget />
+
         {/* Earnings calculator */}
         <EarningsCalculator />
 
         {/* Main tabs */}
         <GagnerTabs />
+
+        {/* Trust badges */}
+        <TrustBadgesBar compact />
       </div>
     </div>
   );
