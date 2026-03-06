@@ -548,7 +548,9 @@ export default function WriteWizard() {
         _chapters: JSON.parse(JSON.stringify(normalizedChapters)),
         _topic: state.topic || null,
         _cover_url: state.coverUrl || null,
-        _description: null,
+        _description: normalizedChapters.length > 0
+          ? `📖 Sommaire :\n${normalizedChapters.map((c, i) => `${i + 1}. ${c.title}`).join('\n')}`
+          : null,
         _file_url: null,
       });
 
@@ -640,7 +642,14 @@ export default function WriteWizard() {
         user?.id,
       );
 
-      setStep(CELEBRATION_STEP);
+      // Navigate to product edit page instead of celebration
+      const productId = result.product_id;
+      if (productId) {
+        navigate(`/admin/products/${productId}/edit`);
+      } else {
+        navigate('/admin/products');
+      }
+      toast({ title: '✅ Ton livre est prêt ! Finalise la publication.' });
     } catch (err: any) {
       console.error('Publish error:', err);
       toast({
@@ -696,7 +705,7 @@ export default function WriteWizard() {
             {step === 3 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
             {step === 4 && <StepCover state={state} update={update} onNext={next} onBack={back} />}
             {step === 5 && <StepPricing state={state} update={update} onNext={next} onBack={back} />}
-            {step === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} saving={publishing} />}
+            {step === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} onSaveDraft={saveCurrentDraftNow} saving={publishing} />}
             {step === PUBLISHING_STEP && <StepPublishing stage={publishingStage} willCreateOrg={willCreateOrg} />}
             {step === CELEBRATION_STEP && <StepCelebration state={state} onWriteAnother={handleCreateNewDraft} />}
           </motion.div>

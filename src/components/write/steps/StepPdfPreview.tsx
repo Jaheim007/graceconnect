@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { ArrowLeft, Save, Loader2, Eye, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Loader2, Eye, BookOpen, ChevronLeft, ChevronRight, ArrowRight, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import type { WriteState } from '../WriteWizard';
@@ -9,10 +9,11 @@ interface Props {
   update: (patch: Partial<WriteState>) => void;
   onNext: () => void;
   onBack: () => void;
+  onSaveDraft?: () => void;
   saving?: boolean;
 }
 
-export function StepPdfPreview({ state, update, onNext, onBack, saving }: Props) {
+export function StepPdfPreview({ state, update, onNext, onBack, onSaveDraft, saving }: Props) {
   const { t } = useI18n();
   const [currentPage, setCurrentPage] = useState(0); // 0 = cover
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -143,6 +144,11 @@ export function StepPdfPreview({ state, update, onNext, onBack, saving }: Props)
         </div>
       </div>
 
+      {/* Auto-save notice */}
+      <p className="text-xs text-muted-foreground text-center">
+        💾 {t('write.autosave_notice') || 'Ton brouillon est enregistré automatiquement.'}
+      </p>
+
       {/* Actions */}
       <div className="flex gap-3">
         <Button variant="outline" size="lg" onClick={onBack} className="gap-2" disabled={saving}>
@@ -157,16 +163,24 @@ export function StepPdfPreview({ state, update, onNext, onBack, saving }: Props)
           {saving ? (
             <>
               <Loader2 className="h-5 w-5 animate-spin" />
-              {t('write.saving_draft')}
+              Publication en cours…
             </>
           ) : (
             <>
-              <Save className="h-5 w-5" />
-              {t('write.save_as_draft')}
+              <ArrowRight className="h-5 w-5" />
+              Aller à la publication
             </>
           )}
         </Button>
       </div>
+
+      {onSaveDraft && (
+        <div className="text-center">
+          <Button variant="ghost" size="sm" onClick={onSaveDraft} disabled={saving} className="gap-2 text-xs text-muted-foreground">
+            <Save className="h-3.5 w-3.5" /> {t('write.save_as_draft')}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
