@@ -10,6 +10,8 @@ import { FirstWinChecklist } from '@/components/dashboard/FirstWinChecklist';
 import { ViralLoopCard } from '@/components/dashboard/ViralLoopCard';
 import { InviteEarnWidget } from '@/components/referral/InviteEarnWidget';
 import { TrendingProducts } from '@/components/discover/TrendingProducts';
+import { StreakTracker } from '@/components/growth/StreakTracker';
+import { LiveActivityFeed } from '@/components/growth/LiveActivityFeed';
 import AmbassadorDashboard from '@/pages/AmbassadorDashboard';
 import UserDashboard from '@/pages/UserDashboard';
 
@@ -150,6 +152,9 @@ function NewUserDashboard() {
         hasOrg={userOrgs.length > 0}
       />
 
+      {/* Streak tracker */}
+      <StreakTracker />
+
       {/* Action cards */}
       <div className="grid gap-3">
         {actions.map(a => (
@@ -178,6 +183,9 @@ function NewUserDashboard() {
 
       {/* Trending products */}
       <TrendingProducts limit={4} />
+
+      {/* Live activity feed */}
+      <LiveActivityFeed limit={4} />
 
       {/* Quick stats bar */}
       <div className="flex items-center justify-center gap-6 pt-4 text-center">
