@@ -527,8 +527,8 @@ async function buildProfessionalPdf(opts: {
   const epiPage = pdfDoc.addPage([pg.width, pg.height]);
   // A tasteful epigraph adds publishing credibility
   const epigraphs = isFr
-    ? ['"Un livre est un jardin que l\'on porte dans sa poche."', '— Proverbe arabe']
-    : ['"A book is a garden carried in the pocket."', '— Arab Proverb'];
+    ? ['"Un livre est un jardin que l\'on porte dans sa poche."', '- Proverbe arabe']
+    : ['"A book is a garden carried in the pocket."', '- Arab Proverb'];
   const epiY = pg.height * 0.55;
   const eq = epigraphs[0];
   const eqLines = wrapText(eq, pg.width - 200, serifItalic, 13);
