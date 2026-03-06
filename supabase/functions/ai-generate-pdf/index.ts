@@ -35,6 +35,7 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({})) as {
       org_id?: string; project_id?: string; format?: string; page_size?: string;
       preview_only?: boolean; chapters?: ChapterInput[]; title?: string; style?: string; cover_url?: string;
+      update_product?: boolean; product_id?: string;
     };
     const { org_id, project_id, format, page_size, preview_only, title: directTitle, style: directStyle, cover_url: directCoverUrl } = body;
 
