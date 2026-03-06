@@ -19,6 +19,9 @@ import { trackEvent } from '@/hooks/useClientAnalytics';
 
 export type SourceType = 'idea' | 'document';
 export type BookStyle = 'ebook' | 'guide' | 'prayers';
+export type WritingTone = 'professional' | 'conversational' | 'humorous' | 'spiritual' | 'poetic' | 'academic';
+export type LanguageLevel = 'simple' | 'intermediate' | 'advanced';
+export type TargetAudience = 'general' | 'children' | 'teens' | 'adults' | 'seniors' | 'professionals';
 
 export interface WriteChapter {
   id: string;
@@ -32,6 +35,9 @@ export interface WriteState {
   uploadedFile: File | null;
   title: string;
   style: BookStyle;
+  tone: WritingTone;
+  languageLevel: LanguageLevel;
+  targetAudience: TargetAudience;
   pageCount: number;
   chapters: WriteChapter[];
   coverTemplate: number;
@@ -51,6 +57,9 @@ const initialState: WriteState = {
   uploadedFile: null,
   title: '',
   style: 'ebook',
+  tone: 'professional',
+  languageLevel: 'intermediate',
+  targetAudience: 'general',
   pageCount: 20,
   chapters: [],
   coverTemplate: 0,

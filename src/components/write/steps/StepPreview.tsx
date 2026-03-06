@@ -1,10 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, Edit3, Plus, Trash2, Sparkles, BookOpen, ChevronRight } from 'lucide-react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
+import { ArrowLeft, ArrowRight, Edit3, Plus, Trash2, Sparkles, BookOpen, ChevronRight, RefreshCw, Expand, MessageSquareText, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Textarea } from '@/components/ui/textarea';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { useI18n } from '@/i18n/I18nContext';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import type { WriteState, WriteChapter } from '../WriteWizard';
 
 interface Props {
@@ -24,29 +27,26 @@ function normalizeChapters(chapters: WriteChapter[]): WriteChapter[] {
     .filter((chapter) => chapter.title.length > 0);
 }
 
-
 export function StepPreview({ state, update, onNext, onBack }: Props) {
   const { t } = useI18n();
+  const { toast } = useToast();
   const [chaptersDraft, setChaptersDraft] = useState<WriteChapter[]>(state.chapters);
   const [activeChapter, setActiveChapter] = useState(0);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState(state.title);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [showAiPrompt, setShowAiPrompt] = useState(false);
+  const [aiInstruction, setAiInstruction] = useState('');
 
   useEffect(() => {
     if (state.chapters.length > 0) {
       setChaptersDraft(state.chapters.map((chapter) => ({ ...chapter })));
       return;
     }
-    setChaptersDraft([{
-      id: 'ch-1',
-      title: t('write.chapter_default_title'),
-      content: '',
-    }]);
+    setChaptersDraft([{ id: 'ch-1', title: t('write.chapter_default_title'), content: '' }]);
   }, [state.chapters, t]);
 
-  useEffect(() => {
-    setTitleDraft(state.title);
-  }, [state.title]);
+  useEffect(() => { setTitleDraft(state.title); }, [state.title]);
 
   const normalizedChapters = useMemo(() => normalizeChapters(chaptersDraft), [chaptersDraft]);
   const currentChapter = chaptersDraft[activeChapter] || chaptersDraft[0];
@@ -80,6 +80,56 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
   const applyEdits = () => {
     update({ title: titleDraft, chapters: normalizedChapters });
   };
+
+  // AI chapter action: regenerate, amplify, or custom instruction
+  const handleAiChapterAction = useCallback(async (action: 'regenerate' | 'amplify' | 'custom', customPrompt?: string) => {
+    if (!currentChapter || aiLoading) return;
+    setAiLoading(true);
+    try {
+      const actionPrompts: Record<string, string> = {
+        regenerate: `Réécris entièrement ce chapitre en gardant le même thème "${currentChapter.title}" mais avec un contenu frais et différent. Le livre traite de "${state.topic || state.title}". Style: ${state.tone || 'professional'}, Niveau: ${state.languageLevel || 'intermediate'}, Public: ${state.targetAudience || 'general'}.`,
+        amplify: `Enrichis et développe ce chapitre. Ajoute plus de détails, d'exemples concrets, d'anecdotes, de citations ou de versets pertinents. Double au minimum la longueur du contenu tout en gardant la cohérence. Le livre traite de "${state.topic || state.title}". Style: ${state.tone || 'professional'}, Niveau: ${state.languageLevel || 'intermediate'}, Public: ${state.targetAudience || 'general'}.`,
+        custom: customPrompt || '',
+      };
+
+      const instruction = actionPrompts[action];
+      if (!instruction) return;
+
+      const { data, error } = await supabase.functions.invoke('generate-book-content', {
+        body: {
+          title: state.title,
+          topic: `${instruction}\n\nContenu actuel du chapitre "${currentChapter.title}":\n${currentChapter.content}`,
+          style: state.style,
+          pageCount: 5,
+          language: 'fr',
+          tone: state.tone,
+          languageLevel: state.languageLevel,
+          targetAudience: state.targetAudience,
+          singleChapter: true,
+          chapterTitle: currentChapter.title,
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+
+      const aiChapters = data?.chapters;
+      if (Array.isArray(aiChapters) && aiChapters.length > 0) {
+        const newContent = aiChapters[0].content || '';
+        const newTitle = action === 'regenerate' ? (aiChapters[0].title || currentChapter.title) : currentChapter.title;
+        updateChapterContent(activeChapter, newContent);
+        if (action === 'regenerate') updateChapterTitle(activeChapter, newTitle);
+        toast({ title: '✅ ' + t('write.ai_chapter_updated') });
+      }
+    } catch (err: any) {
+      console.error('AI chapter action error:', err);
+      toast({ title: '❌ Erreur', description: err.message, variant: 'destructive' });
+    } finally {
+      setAiLoading(false);
+      setShowAiPrompt(false);
+      setAiInstruction('');
+    }
+  }, [currentChapter, activeChapter, aiLoading, state, toast, t]);
 
   return (
     <div className="space-y-6 pt-6">
@@ -152,25 +202,15 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
                           : 'text-foreground hover:bg-muted/50'
                       }`}
                     >
-                      <span className="text-[10px] font-bold w-4 shrink-0 text-center">
-                        {i + 1}
-                      </span>
+                      <span className="text-[10px] font-bold w-4 shrink-0 text-center">{i + 1}</span>
                       <span className="truncate flex-1">{chapter.title || '—'}</span>
-                      {activeChapter === i && (
-                        <ChevronRight className="h-3 w-3 shrink-0" />
-                      )}
+                      {activeChapter === i && <ChevronRight className="h-3 w-3 shrink-0" />}
                     </button>
                   ))}
                 </div>
               </ScrollArea>
               <div className="px-3 pb-3">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="w-full gap-1 text-xs h-8"
-                  onClick={addChapter}
-                >
+                <Button type="button" variant="ghost" size="sm" className="w-full gap-1 text-xs h-8" onClick={addChapter}>
                   <Plus className="h-3 w-3" /> {t('write.add_chapter')}
                 </Button>
               </div>
@@ -203,6 +243,79 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
               </div>
+
+              {/* AI chapter actions toolbar */}
+              <div className="flex flex-wrap items-center gap-1.5 px-4 py-2 border-b border-border bg-accent/5">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mr-1">
+                  {t('write.ai_actions')}
+                </span>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-7 gap-1 text-[10px] px-2"
+                  disabled={aiLoading}
+                  onClick={() => handleAiChapterAction('regenerate')}
+                >
+                  {aiLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                  {t('write.ai_regenerate')}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-7 gap-1 text-[10px] px-2"
+                  disabled={aiLoading}
+                  onClick={() => handleAiChapterAction('amplify')}
+                >
+                  {aiLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Expand className="h-3 w-3" />}
+                  {t('write.ai_amplify')}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-7 gap-1 text-[10px] px-2 border-primary/30 text-primary hover:bg-primary/10"
+                  disabled={aiLoading}
+                  onClick={() => setShowAiPrompt(!showAiPrompt)}
+                >
+                  <MessageSquareText className="h-3 w-3" />
+                  {t('write.ai_custom')}
+                </Button>
+              </div>
+
+              {/* Custom AI instruction panel */}
+              {showAiPrompt && (
+                <div className="px-4 py-3 border-b border-border bg-primary/5 space-y-2">
+                  <p className="text-xs text-muted-foreground">{t('write.ai_custom_hint')}</p>
+                  <Textarea
+                    value={aiInstruction}
+                    onChange={(e) => setAiInstruction(e.target.value)}
+                    placeholder={t('write.ai_custom_placeholder')}
+                    className="min-h-[60px] text-sm"
+                  />
+                  <div className="flex gap-2 justify-end">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => { setShowAiPrompt(false); setAiInstruction(''); }}
+                    >
+                      {t('write.cancel') || 'Annuler'}
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      disabled={!aiInstruction.trim() || aiLoading}
+                      onClick={() => handleAiChapterAction('custom', aiInstruction)}
+                      className="gap-1"
+                    >
+                      {aiLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                      {t('write.ai_apply')}
+                    </Button>
+                  </div>
+                </div>
+              )}
 
               {/* Rich text editor */}
               <div className="p-4">
@@ -252,10 +365,7 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
           size="lg"
           className="flex-1 h-14 text-base gap-2"
           disabled={normalizedChapters.length === 0}
-          onClick={() => {
-            applyEdits();
-            onNext();
-          }}
+          onClick={() => { applyEdits(); onNext(); }}
         >
           ✅ {t('write.continue')} <ArrowRight className="h-4 w-4" />
         </Button>
