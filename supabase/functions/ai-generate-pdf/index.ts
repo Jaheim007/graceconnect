@@ -173,14 +173,15 @@ function decodeEntities(text: string): string {
   return text
     .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
-    .replace(/&rsquo;/g, ''').replace(/&lsquo;/g, ''')
+    .replace(/&rsquo;/g, "'").replace(/&lsquo;/g, "'")
     .replace(/&rdquo;/g, '"').replace(/&ldquo;/g, '"')
-    .replace(/&mdash;/g, '—').replace(/&ndash;/g, '–')
-    .replace(/&hellip;/g, '…').replace(/&eacute;/g, 'é')
-    .replace(/&egrave;/g, 'è').replace(/&agrave;/g, 'à')
-    .replace(/&ccedil;/g, 'ç').replace(/&ocirc;/g, 'ô')
-    .replace(/&ucirc;/g, 'û').replace(/&ecirc;/g, 'ê')
-    .replace(/&iuml;/g, 'ï').replace(/&ouml;/g, 'ö');
+    .replace(/&mdash;/g, '-').replace(/&ndash;/g, '-')
+    .replace(/&hellip;/g, '...').replace(/&eacute;/g, 'e')
+    .replace(/&egrave;/g, 'e').replace(/&agrave;/g, 'a')
+    .replace(/&ccedil;/g, 'c').replace(/&ocirc;/g, 'o')
+    .replace(/&ucirc;/g, 'u').replace(/&ecirc;/g, 'e')
+    .replace(/&iuml;/g, 'i').replace(/&ouml;/g, 'o')
+    .replace(/&#\d+;/g, ' ');
 }
 
 // ══════════════════════════════════════════════════════════════════════
