@@ -2,9 +2,115 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { GagnerTabs } from '@/components/gagner/GagnerTabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Share2, Zap } from 'lucide-react';
+import { ArrowRight, Share2, Zap, Search, Link2, Wallet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { Slider } from '@/components/ui/slider';
+import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
+
+const STEPS = [
+  {
+    icon: Search,
+    emoji: '🔍',
+    title: 'Choisis un produit',
+    desc: 'Parcours les ebooks, formations et ressources. Filtre par taux de commission.',
+    color: 'text-blue-500',
+    bg: 'bg-blue-500/10',
+  },
+  {
+    icon: Link2,
+    emoji: '🔗',
+    title: 'Partage ton lien',
+    desc: '1 clic = ton lien unique. Partage-le sur WhatsApp, Facebook, Telegram…',
+    color: 'text-accent',
+    bg: 'bg-accent/10',
+  },
+  {
+    icon: Wallet,
+    emoji: '💰',
+    title: 'Touche ta commission',
+    desc: 'Chaque vente via ton lien = commission instantanée. Retire sur Mobile Money.',
+    color: 'text-emerald-500',
+    bg: 'bg-emerald-500/10',
+  },
+];
+
+function EarningsCalculator() {
+  const [price, setPrice] = useState(5000);
+  const [commission, setCommission] = useState(20);
+  const [friends, setFriends] = useState(10);
+
+  const perSale = Math.round(price * commission / 100);
+  const total = perSale * friends;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.15 }}
+      className="rounded-2xl border border-emerald-500/20 bg-card p-5 sm:p-6"
+    >
+      <h3 className="font-extrabold text-sm mb-4 flex items-center gap-2">
+        🧮 Calcule tes gains
+      </h3>
+
+      <div className="space-y-5">
+        <div>
+          <div className="flex justify-between text-xs mb-2">
+            <span className="text-muted-foreground">Prix du produit</span>
+            <span className="font-bold">{formatCurrency(price, DEFAULT_CURRENCY)}</span>
+          </div>
+          <Slider
+            value={[price]}
+            onValueChange={([v]) => setPrice(v)}
+            min={500}
+            max={50000}
+            step={500}
+          />
+        </div>
+
+        <div>
+          <div className="flex justify-between text-xs mb-2">
+            <span className="text-muted-foreground">Taux de commission</span>
+            <span className="font-bold">{commission}%</span>
+          </div>
+          <Slider
+            value={[commission]}
+            onValueChange={([v]) => setCommission(v)}
+            min={5}
+            max={50}
+            step={5}
+          />
+        </div>
+
+        <div>
+          <div className="flex justify-between text-xs mb-2">
+            <span className="text-muted-foreground">Nombre d'amis qui achètent</span>
+            <span className="font-bold">{friends}</span>
+          </div>
+          <Slider
+            value={[friends]}
+            onValueChange={([v]) => setFriends(v)}
+            min={1}
+            max={100}
+            step={1}
+          />
+        </div>
+
+        <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-4 text-center">
+          <p className="text-xs text-muted-foreground mb-1">Tu gagnes par vente</p>
+          <p className="text-lg font-black text-emerald-500">{formatCurrency(perSale, DEFAULT_CURRENCY)}</p>
+          <div className="border-t border-emerald-500/20 mt-3 pt-3">
+            <p className="text-xs text-muted-foreground mb-1">{friends} ami{friends > 1 ? 's' : ''} achètent =</p>
+            <p className="text-2xl font-black text-emerald-600">{formatCurrency(total, DEFAULT_CURRENCY)}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">dans ta poche 💰</p>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 /**
  * /gagner — The ambassador marketplace hub.
@@ -48,6 +154,31 @@ export default function GagnerPage() {
             )}
           </div>
         </motion.div>
+
+        {/* 3-step how it works */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {STEPS.map((step, i) => (
+            <motion.div
+              key={step.title}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.05 + i * 0.08 }}
+              className="relative rounded-2xl border border-border bg-card p-5 text-center"
+            >
+              <span className="absolute -top-3 left-4 bg-background border border-border rounded-full h-6 w-6 flex items-center justify-center text-xs font-black text-primary">
+                {i + 1}
+              </span>
+              <div className={`h-11 w-11 rounded-xl ${step.bg} flex items-center justify-center mx-auto mb-3`}>
+                <step.icon className={`h-5 w-5 ${step.color}`} />
+              </div>
+              <h3 className="font-bold text-sm mb-1">{step.emoji} {step.title}</h3>
+              <p className="text-xs text-muted-foreground">{step.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Earnings calculator */}
+        <EarningsCalculator />
 
         {/* Main tabs */}
         <GagnerTabs />
