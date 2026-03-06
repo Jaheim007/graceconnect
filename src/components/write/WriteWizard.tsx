@@ -548,7 +548,9 @@ export default function WriteWizard() {
         _chapters: JSON.parse(JSON.stringify(normalizedChapters)),
         _topic: state.topic || null,
         _cover_url: state.coverUrl || null,
-        _description: null,
+        _description: normalizedChapters.length > 0
+          ? `📖 Sommaire :\n${normalizedChapters.map((c, i) => `${i + 1}. ${c.title}`).join('\n')}`
+          : null,
         _file_url: null,
       });
 
