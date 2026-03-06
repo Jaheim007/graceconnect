@@ -41,27 +41,7 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
         <p className="text-muted-foreground text-sm">{t('write.cover_sub')}</p>
       </div>
 
-      <div className="grid grid-cols-4 gap-3">
-        {COVER_GRADIENTS.map((gradient, i) => (
-          <button
-            key={i}
-            onClick={() => update({ coverTemplate: i, coverFile: null, coverUrl: '' })}
-            className={cn(
-              'aspect-[3/4] rounded-xl bg-gradient-to-br flex flex-col items-center justify-center p-2 transition-all border-2',
-              gradient,
-              state.coverTemplate === i && !state.coverFile && !state.coverUrl
-                ? 'border-primary ring-2 ring-primary/30 scale-105'
-                : 'border-transparent hover:scale-105'
-            )}
-          >
-            <Sparkles className="h-4 w-4 text-white/80 mb-1" />
-            <p className="text-white font-bold text-[8px] leading-tight text-center line-clamp-2">
-              {state.title || t('write.my_book')}
-            </p>
-          </button>
-        ))}
-      </div>
-
+      {/* Upload / Canva first — this is the real cover */}
       <div>
         <p className="text-xs text-muted-foreground mb-2">{t('write.cover_upload_label')}</p>
         <ImageUploader
@@ -73,6 +53,37 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
           showCanva={true}
         />
       </div>
+
+      {!state.coverUrl && (
+        <div className="space-y-2">
+          <p className="text-xs text-muted-foreground text-center">{t('write.or_choose_template') || 'Ou choisissez un style provisoire :'}</p>
+          <div className="grid grid-cols-4 gap-3">
+            {COVER_GRADIENTS.map((gradient, i) => (
+              <button
+                key={i}
+                onClick={() => update({ coverTemplate: i, coverFile: null, coverUrl: '' })}
+                className={cn(
+                  'aspect-[3/4] rounded-xl bg-gradient-to-br flex flex-col items-center justify-center p-2 transition-all border-2',
+                  gradient,
+                  state.coverTemplate === i && !state.coverFile && !state.coverUrl
+                    ? 'border-primary ring-2 ring-primary/30 scale-105'
+                    : 'border-transparent hover:scale-105'
+                )}
+              >
+                <Sparkles className="h-4 w-4 text-white/80 mb-1" />
+                <p className="text-white font-bold text-[8px] leading-tight text-center line-clamp-2">
+                  {state.title || t('write.my_book')}
+                </p>
+              </button>
+            ))}
+          </div>
+          <p className="text-[10px] text-amber-600 dark:text-amber-400 text-center">
+            ⚠️ Ces styles ne sont pas sauvegardés comme couverture. Importez une image pour une vraie couverture.
+          </p>
+        </div>
+      )}
+
+
 
       <div className="flex gap-3">
         <Button variant="outline" size="lg" onClick={onBack} className="gap-2">

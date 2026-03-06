@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
+import { getPublicUrl } from '@/lib/publicUrl';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -220,7 +221,7 @@ export function ProductForm() {
     } finally { setLoading(false); }
   };
 
-  const productUrl = isEdit && currentOrg?.slug && id ? `${window.location.origin}/org/${currentOrg.slug}/product/${id}` : null;
+  const productUrl = isEdit && currentOrg?.slug && id ? getPublicUrl(`/org/${currentOrg.slug}/product/${id}`) : null;
   const getProductShortLink = async (path: string) => {
     try { return await getOrCreateShortLink({ targetPath: path, title: watch('title') || 'Produit Siteviral' }); }
     catch { return buildSocialShareUrl({ targetUrl: `${window.location.origin}${path}`, title: watch('title') || 'Produit Siteviral' }); }
@@ -230,7 +231,7 @@ export function ProductForm() {
 
   // Success screen
   if (createdProduct) {
-    const newProductUrl = `${window.location.origin}/org/${currentOrg?.slug}/product/${createdProduct.id}`;
+    const newProductUrl = getPublicUrl(`/org/${currentOrg?.slug}/product/${createdProduct.id}`);
     const newProductPath = `/org/${currentOrg?.slug}/product/${createdProduct.id}`;
     const copyNewLink = async () => { const url = await getProductShortLink(newProductPath); navigator.clipboard.writeText(url); toast({ title: 'Lien copié ✅' }); };
     const shareNewLink = async () => { const url = await getProductShortLink(newProductPath); if (navigator.share) navigator.share({ title: watch('title'), url }); else { navigator.clipboard.writeText(url); toast({ title: 'Lien copié ✅' }); } };
@@ -269,14 +270,19 @@ export function ProductForm() {
       {!isEdit && (<ContentTemplateSelector type="product" open={showTemplates} onClose={() => setShowTemplates(false)} onSelect={(tpl) => applyProductTemplate(tpl as ProductTemplate)} />)}
       {!isEdit && !showTemplates && (<div className="mb-4"><Button variant="outline" size="sm" onClick={() => setShowTemplates(true)} className="gap-1.5 text-xs"><Sparkles className="h-3.5 w-3.5" /> Utiliser un modèle</Button></div>)}
       {productUrl && (
-        <div className="mb-4 p-3 rounded-xl bg-muted/50 border border-border flex items-center gap-2 flex-wrap">
-          <span className="text-xs text-muted-foreground font-medium shrink-0">Lien produit :</span>
-          <a href={productUrl} target="_blank" rel="noreferrer" className="text-xs text-primary underline truncate max-w-[300px]">{productUrl}</a>
-          <div className="flex gap-1 ml-auto shrink-0">
-            <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={copyLink}><Copy className="h-3.5 w-3.5" /></Button>
-            <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => window.open(productUrl, '_blank')}><ExternalLink className="h-3.5 w-3.5" /></Button>
-            <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={shareLink}><Share2 className="h-3.5 w-3.5" /></Button>
+        <div className="mb-4 p-3 rounded-xl bg-muted/50 border border-border space-y-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-muted-foreground font-medium shrink-0">Lien produit :</span>
+            <a href={productUrl} target="_blank" rel="noreferrer" className="text-xs text-primary underline truncate max-w-[260px]">{productUrl}</a>
+            <div className="flex gap-1 ml-auto shrink-0">
+              <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={copyLink}><Copy className="h-3.5 w-3.5" /></Button>
+              <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={() => window.open(productUrl, '_blank')}><ExternalLink className="h-3.5 w-3.5" /></Button>
+              <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={shareLink}><Share2 className="h-3.5 w-3.5" /></Button>
+            </div>
           </div>
+          <Button type="button" variant="outline" size="sm" className="gap-2 w-full sm:w-auto" onClick={() => window.open(productUrl, '_blank')}>
+            <Eye className="h-4 w-4" /> Prévisualiser la page produit
+          </Button>
         </div>
       )}
 

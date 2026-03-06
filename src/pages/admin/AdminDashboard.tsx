@@ -213,19 +213,19 @@ export default function AdminDashboard() {
             {t('admin.overview_of')} <span className="font-medium text-foreground">{currentOrg?.name}</span>
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline" onClick={handleExportCSV} className="gap-1.5 text-xs h-8 sm:h-9">
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
+          <Button size="sm" variant="outline" onClick={handleExportCSV} className="gap-1.5 text-xs h-8 sm:h-9 shrink-0">
             <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> CSV
           </Button>
-          <Button size="sm" variant="outline" onClick={handleExportPDF} className="gap-1.5 text-xs h-8 sm:h-9">
+          <Button size="sm" variant="outline" onClick={handleExportPDF} className="gap-1.5 text-xs h-8 sm:h-9 shrink-0">
             <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> PDF
           </Button>
           <ExpressSetupButton />
           <VideoImportButton />
-          <Button size="sm" variant="outline" onClick={() => setShowQuickStart(true)} className="gap-1.5 text-xs h-8 sm:h-9">
+          <Button size="sm" variant="outline" onClick={() => setShowQuickStart(true)} className="gap-1.5 text-xs h-8 sm:h-9 shrink-0">
             <Rocket className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> {t('admin.quickstart')}
           </Button>
-          <Button size="sm" asChild variant="outline" className="gap-1.5 text-xs h-8 sm:h-9">
+          <Button size="sm" asChild variant="outline" className="gap-1.5 text-xs h-8 sm:h-9 shrink-0">
             <a href={`https://siteviral.com/org/${currentOrg?.slug}`} target="_blank" rel="noreferrer">
               <ExternalLink className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> {t('admin.public_page')}
             </a>
