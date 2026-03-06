@@ -165,6 +165,7 @@ export default function VendreLandingPage() {
         <LandingFooterCompact />
       </Suspense>
     </div>
+    </AdaptiveLayout>
   );
 }
 
