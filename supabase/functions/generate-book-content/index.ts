@@ -487,60 +487,62 @@ Return ONLY a JSON with this structure:
 Content should be around ${chapterWordTarget} words in rich HTML with sub-headings <h3>, paragraphs <p>, keywords in <strong>, quotes in <blockquote>, lists <ul><li> when relevant.`;
     } else {
       userPrompt = lang === 'fr'
-        ? `Crée un livre COMPLET et CAPTIVANT sur le sujet suivant :
+        ? `Écris un livre COMPLET, CAPTIVANT et PROFONDÉMENT HUMAIN sur ce sujet :
 
 TITRE : "${title}"
 ${topic ? `IDÉE / SUJET : ${topic}` : ''}
-LANGUE D'ÉCRITURE : ${langName}
+LANGUE : ${langName}
 
-CONSIGNES DÉTAILLÉES :
-- Crée exactement ${chapterCount} chapitres qui explorent chaque facette importante de CE sujet
-- Les titres de chapitres doivent être CRÉATIFS, ACCROCHEURS et directement liés au sujet "${topic || title}"
+INSTRUCTIONS DE RÉDACTION :
+- Exactement ${chapterCount} chapitres, chacun explorant une facette unique et essentielle de "${topic || title}"
+- Titres de chapitres CRÉATIFS et INTRIGANTS — jamais "Introduction", "Chapitre 1: Le sujet", "Conclusion". Surprends le lecteur dès le sommaire.
 - Chaque chapitre : environ ${chapterWordTarget} mots de contenu RICHE en HTML
-- Le contenu doit être SUBSTANTIEL : exemples réels, anecdotes, données, citations pertinentes
-- Chapitre 1 : Introduction percutante qui pose le contexte, l'enjeu et donne envie de lire la suite
-- Chapitres intermédiaires : Exploration approfondie, chaque chapitre un angle unique
-- Dernier chapitre : Conclusion mémorable avec synthèse, appel à l'action et ouverture inspirante
-- Utilise ABONDAMMENT le HTML riche : <h3> pour sous-titres, <blockquote> pour citations/versets, <strong> pour mots-clés, <ul><li> pour listes, <em> pour emphase
-- NE crée JAMAIS de chapitres génériques ou vides. Chaque mot compte.
-- Respecte scrupuleusement le ton, le niveau de langue et le public cible
+- COMMENCE le chapitre 1 par une scène, une anecdote ou une question provocatrice — JAMAIS par une définition ou un état des lieux
+- TERMINE le dernier chapitre par quelque chose de MÉMORABLE — une histoire qui boucle, un appel personnel, une image forte — JAMAIS par un résumé
+- CHAQUE chapitre doit contenir au minimum : 1 anecdote concrète avec noms/lieux, 2-3 sous-titres <h3> intrigants, 1 citation ou formule mémorable en <blockquote>
+- INTERDICTION de commencer deux paragraphes consécutifs par le même mot
+- INTERDICTION d'utiliser les transitions "De plus", "En outre", "Par ailleurs", "Il est important de noter"
+- VARIE la longueur des paragraphes : certains de 1-2 phrases, d'autres de 6-8 phrases
+- Utilise des dialogues reconstitués quand c'est pertinent
+- Le lecteur doit SENTIR qu'un être humain passionné a écrit ce livre, pas une machine
 
 Retourne UNIQUEMENT un JSON valide :
 {
   "chapters": [
-    {"id": "ch-1", "title": "Titre créatif et accrocheur...", "content": "<h3>Sous-titre</h3><p>Contenu riche et détaillé avec <strong>mots-clés</strong>...</p><blockquote>Citation pertinente</blockquote>"},
-    {"id": "ch-2", "title": "Titre créatif et accrocheur...", "content": "..."}
+    {"id": "ch-1", "title": "Un titre créatif qui intrigue...", "content": "<h3>Sous-titre accrocheur</h3><p>Il pleuvait ce matin-là quand j'ai compris que...</p>"},
+    {"id": "ch-2", "title": "Un autre titre surprenant...", "content": "..."}
   ]
 }
 
-RAPPEL CRITIQUE : Livre de ${pages} pages sur "${topic || title}". Chaque chapitre ≈ ${chapterWordTarget} mots. Qualité professionnelle. Zéro contenu générique.`
-        : `Create a COMPLETE and CAPTIVATING book on the following topic:
+RAPPEL : ${pages} pages sur "${topic || title}". Chaque chapitre ≈ ${chapterWordTarget} mots. Qualité d'un best-seller. Zéro écriture robotique.`
+        : `Write a COMPLETE, CAPTIVATING and DEEPLY HUMAN book on this topic:
 
 TITLE: "${title}"
 ${topic ? `IDEA / TOPIC: ${topic}` : ''}
-WRITING LANGUAGE: ${langName}
+LANGUAGE: ${langName}
 
-DETAILED INSTRUCTIONS:
-- Create exactly ${chapterCount} chapters exploring every important facet of THIS topic
-- Chapter titles must be CREATIVE, CATCHY and directly related to "${topic || title}"
+WRITING INSTRUCTIONS:
+- Exactly ${chapterCount} chapters, each exploring a unique and essential facet of "${topic || title}"
+- Chapter titles must be CREATIVE and INTRIGUING — never "Introduction", "Chapter 1: The Topic", "Conclusion". Surprise the reader from the table of contents.
 - Each chapter: around ${chapterWordTarget} words of RICH HTML content
-- Content must be SUBSTANTIAL: real examples, anecdotes, data, relevant quotes
-- Chapter 1: Powerful introduction setting context, stakes and making readers want more
-- Middle chapters: Deep exploration, each chapter a unique angle
-- Last chapter: Memorable conclusion with synthesis, call to action and inspiring opening
-- Use ABUNDANT rich HTML: <h3> for sub-headings, <blockquote> for quotes/verses, <strong> for keywords, <ul><li> for lists, <em> for emphasis
-- NEVER create generic or empty chapters. Every word counts.
-- Strictly respect the tone, language level and target audience
+- START chapter 1 with a scene, anecdote, or provocative question — NEVER with a definition or overview
+- END the last chapter with something MEMORABLE — a story that comes full circle, a personal call, a powerful image — NEVER with a summary
+- EVERY chapter must contain at minimum: 1 concrete anecdote with names/places, 2-3 intriguing <h3> sub-headings, 1 quote or memorable formula in <blockquote>
+- NEVER start two consecutive paragraphs with the same word
+- NEVER use transitions like "Furthermore", "Moreover", "Additionally", "It is important to note"
+- VARY paragraph lengths: some 1-2 sentences, others 6-8 sentences
+- Use reconstructed dialogues when relevant
+- The reader must FEEL that a passionate human being wrote this book, not a machine
 
 Return ONLY valid JSON:
 {
   "chapters": [
-    {"id": "ch-1", "title": "Creative catchy title...", "content": "<h3>Sub-heading</h3><p>Rich detailed content with <strong>keywords</strong>...</p><blockquote>Relevant quote</blockquote>"},
-    {"id": "ch-2", "title": "Creative catchy title...", "content": "..."}
+    {"id": "ch-1", "title": "A creative intriguing title...", "content": "<h3>Catchy sub-heading</h3><p>It was raining that morning when I realized that...</p>"},
+    {"id": "ch-2", "title": "Another surprising title...", "content": "..."}
   ]
 }
 
-CRITICAL REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterWordTarget} words. Professional quality. Zero generic content.`;
+REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterWordTarget} words. Bestseller quality. Zero robotic writing.`;
     }
 
     const requestTimeoutMs = singleChapter ? 50_000 : 85_000;
