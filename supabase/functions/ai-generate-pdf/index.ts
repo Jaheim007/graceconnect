@@ -84,11 +84,18 @@ Deno.serve(async (req) => {
       .eq('id', project_id).eq('organization_id', org_id).single();
     if (projErr || !project) return jsonError('Project not found', 404);
 
-    const [{ data: coverAsset }, { data: org }] = await Promise.all([
+    const [{ data: coverAsset }, { data: org }, { data: linkedProduct }] = await Promise.all([
       admin.from('ai_project_assets').select('file_url')
         .eq('project_id', project_id).eq('is_cover', true).maybeSingle(),
       admin.from('organizations').select('name').eq('id', org_id).maybeSingle(),
+      admin.from('digital_products').select('cover_image_url')
+        .eq('ai_project_id', project_id).eq('organization_id', org_id).maybeSingle(),
     ]);
+
+    // Cover priority: asset cover > product cover > body cover_url
+    const resolvedCoverUrl = asText(coverAsset?.file_url, '') 
+      || asText(linkedProduct?.cover_image_url, '') 
+      || asText(directCoverUrl, '');
 
     const projectData = (project.structure_json || project.data_json || {}) as { chapters?: ChapterInput[] };
     const chapters = Array.isArray(projectData.chapters) ? projectData.chapters : [];
@@ -99,7 +106,7 @@ Deno.serve(async (req) => {
       orgName: asText(org?.name, 'Siteviral'),
       language: asText(project.language, 'fr'),
       chapters,
-      coverUrl: asText(coverAsset?.file_url, ''),
+      coverUrl: resolvedCoverUrl,
       pageSize: normalizedPageSize,
       format: projectFormat,
     });
