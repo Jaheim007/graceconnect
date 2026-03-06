@@ -658,7 +658,12 @@ export default function WriteWizard() {
         user?.id,
       );
 
-      // Navigate to product edit page instead of celebration
+      // Clean up draft from localStorage since the book is now a product
+      const store = removeDraftSnapshot(draftId);
+      syncDraftList(store, store.activeDraftId);
+      setLastSavedAt(null);
+
+      // Navigate to product edit page
       const productId = result.product_id;
       if (productId) {
         navigate(`/admin/products/${productId}/edit`);
