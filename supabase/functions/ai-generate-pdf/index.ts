@@ -35,8 +35,9 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({})) as {
       org_id?: string; project_id?: string; format?: string; page_size?: string;
       preview_only?: boolean; chapters?: ChapterInput[]; title?: string; style?: string; cover_url?: string;
+      update_product?: boolean; product_id?: string;
     };
-    const { org_id, project_id, format, page_size, preview_only, title: directTitle, style: directStyle, cover_url: directCoverUrl } = body;
+    const { org_id, project_id, format, page_size, preview_only, title: directTitle, style: directStyle, cover_url: directCoverUrl, update_product, product_id: bodyProductId } = body;
 
     const admin = createClient(supabaseUrl, serviceKey);
     const normalizedPageSize = String(page_size || 'A4').toUpperCase() === 'LETTER' ? 'LETTER' : 'A4';
@@ -83,11 +84,18 @@ Deno.serve(async (req) => {
       .eq('id', project_id).eq('organization_id', org_id).single();
     if (projErr || !project) return jsonError('Project not found', 404);
 
-    const [{ data: coverAsset }, { data: org }] = await Promise.all([
+    const [{ data: coverAsset }, { data: org }, { data: linkedProduct }] = await Promise.all([
       admin.from('ai_project_assets').select('file_url')
         .eq('project_id', project_id).eq('is_cover', true).maybeSingle(),
       admin.from('organizations').select('name').eq('id', org_id).maybeSingle(),
+      admin.from('digital_products').select('id, cover_image_url')
+        .eq('ai_project_id', project_id).eq('organization_id', org_id).maybeSingle(),
     ]);
+
+    // Cover priority: asset cover > product cover > body cover_url
+    const resolvedCoverUrl = asText(coverAsset?.file_url, '') 
+      || asText(linkedProduct?.cover_image_url, '') 
+      || asText(directCoverUrl, '');
 
     const projectData = (project.structure_json || project.data_json || {}) as { chapters?: ChapterInput[] };
     const chapters = Array.isArray(projectData.chapters) ? projectData.chapters : [];
@@ -98,7 +106,7 @@ Deno.serve(async (req) => {
       orgName: asText(org?.name, 'Siteviral'),
       language: asText(project.language, 'fr'),
       chapters,
-      coverUrl: asText(coverAsset?.file_url, ''),
+      coverUrl: resolvedCoverUrl,
       pageSize: normalizedPageSize,
       format: projectFormat,
     });
@@ -125,6 +133,17 @@ Deno.serve(async (req) => {
       metadata: { format: projectFormat, page_size: normalizedPageSize },
     }).select().maybeSingle();
 
+    // Auto-update the linked product's file_url
+    const downloadUrl = `${supabaseUrl}/storage/v1/object/public/org-uploads/${storagePath}`;
+    const targetProductId = bodyProductId || linkedProduct?.id;
+    if (targetProductId || update_product !== false) {
+      // Update any product linked to this project
+      await admin.from('digital_products')
+        .update({ file_url: downloadUrl })
+        .eq('ai_project_id', project_id)
+        .eq('organization_id', org_id);
+    }
+
     await admin.from('audit_logs').insert({
       user_id: user.id, action: 'studio.pdf_generated', resource_type: 'ai_content_project',
       resource_id: project_id, organization_id: org_id,
@@ -133,7 +152,7 @@ Deno.serve(async (req) => {
 
     return new Response(JSON.stringify({
       ok: true, asset_id: asset?.id,
-      download_url: `${supabaseUrl}/storage/v1/object/public/org-uploads/${storagePath}`,
+      download_url: downloadUrl,
       format: projectFormat,
     }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   } catch (e) {
@@ -279,9 +298,9 @@ async function buildProfessionalPdf(opts: {
   const marginTop = 70;
   const marginBottom = 56;
   const contentWidth = pg.width - marginOuter - marginInner;
-  const bodyFontSize = isKids ? 13 : 11;
-  const bodyLineHeight = bodyFontSize * 1.65;
-  const paragraphSpacing = bodyFontSize * 0.8;
+  const bodyFontSize = isKids ? 14 : 11.5;
+  const bodyLineHeight = bodyFontSize * 1.7;
+  const paragraphSpacing = bodyFontSize * 0.9;
 
   const isFr = opts.language.startsWith('fr');
   const tocLabel = isFr ? 'Table des matières' : 'Table of Contents';
@@ -299,44 +318,42 @@ async function buildProfessionalPdf(opts: {
   const coverPage = pdfDoc.addPage([pg.width, pg.height]);
   const hasCover = await tryDrawCover(pdfDoc, coverPage, opts.coverUrl);
 
-  if (!hasCover) {
-    // Elegant gradient background
+  if (hasCover) {
+    // When a custom cover image exists, use it as-is (the user designed it)
+    // No text overlay - the image IS the cover
+  } else {
+    // Elegant fallback cover when no image is provided
     coverPage.drawRectangle({ x: 0, y: 0, width: pg.width, height: pg.height, color: rgb(0.05, 0.08, 0.15) });
-    // Decorative accent bar
+    
+    // Decorative accent bars
     coverPage.drawRectangle({ x: pg.width * 0.1, y: pg.height * 0.52, width: pg.width * 0.8, height: 2, color: rgb(0.35, 0.55, 0.85) });
     coverPage.drawRectangle({ x: pg.width * 0.3, y: pg.height * 0.515, width: pg.width * 0.4, height: 1, color: rgb(0.5, 0.7, 0.95) });
-  }
-
-  // Dark overlay for text readability
-  coverPage.drawRectangle({
-    x: 0, y: 0, width: pg.width, height: pg.height,
-    color: rgb(0.02, 0.05, 0.12), opacity: hasCover ? 0.5 : 0.05,
-  });
-
-  // Title on cover — centered, large
-  const coverTitleSize = 32;
-  const titleLines = wrapText(opts.title, pg.width - 100, serifBold, coverTitleSize).slice(0, 4);
-  let ty = pg.height * 0.62;
-  for (const line of titleLines) {
-    const w = serifBold.widthOfTextAtSize(line, coverTitleSize);
-    coverPage.drawText(line, { x: (pg.width - w) / 2, y: ty, size: coverTitleSize, font: serifBold, color: rgb(1, 1, 1) });
-    ty -= coverTitleSize * 1.35;
-  }
-
-  // Subtitle
-  if (opts.subtitle) {
-    const subLines = wrapText(opts.subtitle, pg.width - 140, serifItalic, 13).slice(0, 2);
-    ty -= 10;
-    for (const line of subLines) {
-      const w = serifItalic.widthOfTextAtSize(line, 13);
-      coverPage.drawText(line, { x: (pg.width - w) / 2, y: ty, size: 13, font: serifItalic, color: rgb(0.85, 0.88, 0.95) });
-      ty -= 18;
+    
+    // Title on cover — centered, large
+    const coverTitleSize = 32;
+    const titleLines = wrapText(opts.title, pg.width - 100, serifBold, coverTitleSize).slice(0, 4);
+    let ty = pg.height * 0.62;
+    for (const line of titleLines) {
+      const w = serifBold.widthOfTextAtSize(line, coverTitleSize);
+      coverPage.drawText(line, { x: (pg.width - w) / 2, y: ty, size: coverTitleSize, font: serifBold, color: rgb(1, 1, 1) });
+      ty -= coverTitleSize * 1.35;
     }
-  }
 
-  // Org name at bottom
-  const orgW = sans.widthOfTextAtSize(opts.orgName, 12);
-  coverPage.drawText(opts.orgName, { x: (pg.width - orgW) / 2, y: 60, size: 12, font: sans, color: rgb(0.75, 0.8, 0.9) });
+    // Subtitle
+    if (opts.subtitle) {
+      const subLines = wrapText(opts.subtitle, pg.width - 140, serifItalic, 13).slice(0, 2);
+      ty -= 10;
+      for (const line of subLines) {
+        const w = serifItalic.widthOfTextAtSize(line, 13);
+        coverPage.drawText(line, { x: (pg.width - w) / 2, y: ty, size: 13, font: serifItalic, color: rgb(0.85, 0.88, 0.95) });
+        ty -= 18;
+      }
+    }
+
+    // Org name at bottom
+    const orgW = sans.widthOfTextAtSize(opts.orgName, 12);
+    coverPage.drawText(opts.orgName, { x: (pg.width - orgW) / 2, y: 60, size: 12, font: sans, color: rgb(0.75, 0.8, 0.9) });
+  }
 
   // ── 2. HALF-TITLE PAGE (pro touch) ────────────────────────────
   const halfTitle = pdfDoc.addPage([pg.width, pg.height]);
@@ -360,8 +377,11 @@ async function buildProfessionalPdf(opts: {
     isFr ? 'Aucune partie de cet ouvrage ne peut être reproduite sans autorisation écrite.'
           : 'No part of this publication may be reproduced without written permission.',
     '',
+    isFr ? `Personnalisé par ${opts.orgName}` : `Personalized by ${opts.orgName}`,
+    '',
     isFr ? `Généré par Siteviral AI Studio — ${new Date().toLocaleDateString('fr-FR')}`
           : `Generated by Siteviral AI Studio — ${new Date().toLocaleDateString('en-US')}`,
+    'https://siteviral.com',
   ];
   let cy = pg.height - 120;
   for (const line of copyrightLines) {
