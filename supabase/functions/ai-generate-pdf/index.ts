@@ -280,12 +280,14 @@ function sanitizeForFont(text: string, font: PDFFont): string {
       font.encodeText(char);
       result += char;
     } catch {
-      // Replace unsupported characters with safe alternatives
-      if (char === ''' || char === ''') result += "'";
-      else if (char === '"' || char === '"') result += '"';
-      else if (char === '—') result += '-';
-      else if (char === '–') result += '-';
-      else if (char === '…') result += '...';
+      // Replace unsupported characters with safe ASCII alternatives
+      const code = char.charCodeAt(0);
+      if (code === 0x2018 || code === 0x2019) result += "'";  // smart single quotes
+      else if (code === 0x201C || code === 0x201D) result += '"';  // smart double quotes
+      else if (code === 0x2014) result += '-';  // em dash
+      else if (code === 0x2013) result += '-';  // en dash
+      else if (code === 0x2026) result += '...';  // ellipsis
+      else if (code === 0x2022) result += '-';  // bullet
       else result += ' ';
     }
   }
