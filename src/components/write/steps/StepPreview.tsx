@@ -1,11 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, Edit3, Plus, Trash2, Sparkles, BookOpen, FileText, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Edit3, Plus, Trash2, Sparkles, BookOpen, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { useI18n } from '@/i18n/I18nContext';
-import DOMPurify from 'dompurify';
 import type { WriteState, WriteChapter } from '../WriteWizard';
 
 interface Props {
@@ -25,12 +24,6 @@ function normalizeChapters(chapters: WriteChapter[]): WriteChapter[] {
     .filter((chapter) => chapter.title.length > 0);
 }
 
-function sanitizeHtml(html: string): string {
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: ['p', 'br', 'strong', 'b', 'em', 'i', 'u', 'a', 'ul', 'ol', 'li', 'h3', 'h4', 'blockquote', 'span'],
-    ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
-  });
-}
 
 export function StepPreview({ state, update, onNext, onBack }: Props) {
   const { t } = useI18n();
@@ -211,28 +204,13 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
                 </Button>
               </div>
 
-              {/* Content preview (rendered HTML) */}
-              <div className="p-4 space-y-4">
-                <div className="text-xs font-medium text-muted-foreground flex items-center gap-1.5 mb-2">
-                  <FileText className="h-3.5 w-3.5" />
-                  {t('write.preview_content_label') || 'Contenu du chapitre'}
-                </div>
-
-                {/* Rendered preview */}
-                {currentChapter.content && (
-                  <div
-                    className="prose prose-sm dark:prose-invert max-w-none rounded-xl bg-muted/20 p-4 border border-border/50 max-h-[300px] overflow-y-auto"
-                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(currentChapter.content) }}
-                  />
-                )}
-
-                {/* Editable raw content */}
-                <Textarea
+              {/* Rich text editor */}
+              <div className="p-4">
+                <RichTextEditor
                   value={currentChapter.content}
-                  onChange={(e) => updateChapterContent(activeChapter, e.target.value)}
-                  rows={8}
+                  onChange={(html) => updateChapterContent(activeChapter, html)}
                   placeholder={t('write.preview_content_hint')}
-                  className="text-xs font-mono resize-y"
+                  showAIButton={true}
                 />
               </div>
 
