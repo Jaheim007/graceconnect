@@ -506,6 +506,15 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
         </Button>
       </div>
 
+      <p className="text-right text-xs text-muted-foreground flex items-center justify-end gap-1.5">
+        {isAutoSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3 text-primary" />}
+        {isAutoSaving
+          ? t('write.saving_draft')
+          : lastAutoSavedAt
+            ? `${t('write.last_saved')}: ${new Date(lastAutoSavedAt).toLocaleTimeString()}`
+            : t('write.autosave_active')}
+      </p>
+
       <p className="text-center text-xs text-muted-foreground">
         <Edit3 className="h-3 w-3 inline mr-1" />
         {t('write.preview_edit_note')}
