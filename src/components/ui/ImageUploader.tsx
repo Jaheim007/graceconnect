@@ -122,7 +122,7 @@ export function ImageUploader({
 
   // ── Canva: create design ──
   const openCanvaDesign = useCallback(async () => {
-    sessionStorage.setItem('canva_return_to', window.location.pathname);
+    sessionStorage.setItem('canva_return_to', window.location.pathname + window.location.search + window.location.hash);
 
     if (!canvaConnected) {
       try {

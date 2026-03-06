@@ -64,10 +64,14 @@ export default function CanvaCallback() {
             <p className="text-sm font-medium">Erreur de connexion</p>
             <p className="text-xs text-muted-foreground">{errorMsg}</p>
             <button
-              onClick={() => navigate('/admin/studio/projects', { replace: true })}
+              onClick={() => {
+                const returnTo = sessionStorage.getItem('canva_return_to') || '/admin/studio/projects';
+                sessionStorage.removeItem('canva_return_to');
+                navigate(returnTo, { replace: true });
+              }}
               className="text-xs text-primary underline mt-2"
             >
-              Retour au studio
+              Retour
             </button>
           </>
         )}
