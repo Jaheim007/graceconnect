@@ -177,7 +177,14 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
   };
 
   const applyEdits = () => {
+    if (autosaveTimeoutRef.current) {
+      window.clearTimeout(autosaveTimeoutRef.current);
+      autosaveTimeoutRef.current = null;
+    }
+
     update({ title: titleDraft, chapters: normalizedChapters });
+    setIsAutoSaving(false);
+    setLastAutoSavedAt(Date.now());
   };
 
   const handleAiChapterAction = useCallback(async (action: 'regenerate' | 'amplify' | 'custom', customPrompt?: string) => {
