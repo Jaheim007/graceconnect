@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState, useCallback } from 'react';
-import { ArrowLeft, ArrowRight, Edit3, Plus, Trash2, Sparkles, BookOpen, ChevronRight, RefreshCw, Expand, MessageSquareText, Loader2 } from 'lucide-react';
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
+import { ArrowLeft, ArrowRight, Edit3, Plus, Trash2, Sparkles, BookOpen, ChevronRight, RefreshCw, Expand, MessageSquareText, Loader2, GripVertical } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -86,6 +86,51 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
     if (activeChapter >= chaptersDraft.length - 1) {
       setActiveChapter(Math.max(0, chaptersDraft.length - 2));
     }
+  };
+
+  // Drag-and-drop state
+  const dragIndexRef = useRef<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  const handleDragStart = (index: number) => {
+    dragIndexRef.current = index;
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (dragIndexRef.current === null || dragIndexRef.current === index) return;
+    setDragOverIndex(index);
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    e.preventDefault();
+    const fromIndex = dragIndexRef.current;
+    if (fromIndex === null || fromIndex === dropIndex) {
+      dragIndexRef.current = null;
+      setDragOverIndex(null);
+      return;
+    }
+    setChaptersDraft((prev) => {
+      const copy = [...prev];
+      const [moved] = copy.splice(fromIndex, 1);
+      copy.splice(dropIndex, 0, moved);
+      return copy;
+    });
+    // Update active chapter to follow the moved item
+    if (activeChapter === fromIndex) {
+      setActiveChapter(dropIndex);
+    } else if (fromIndex < activeChapter && dropIndex >= activeChapter) {
+      setActiveChapter(activeChapter - 1);
+    } else if (fromIndex > activeChapter && dropIndex <= activeChapter) {
+      setActiveChapter(activeChapter + 1);
+    }
+    dragIndexRef.current = null;
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
+    dragIndexRef.current = null;
+    setDragOverIndex(null);
   };
 
   const applyEdits = () => {
