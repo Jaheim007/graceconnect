@@ -616,6 +616,7 @@ export default function WriteWizard() {
             project_id: result.project_id,
             format: 'ebook',
             page_size: 'A4',
+            cover_url: state.coverUrl || null,
           },
         });
 
