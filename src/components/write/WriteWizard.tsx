@@ -22,6 +22,7 @@ export type BookStyle = 'ebook' | 'guide' | 'prayers';
 export type WritingTone = 'professional' | 'conversational' | 'humorous' | 'spiritual' | 'poetic' | 'academic';
 export type LanguageLevel = 'simple' | 'intermediate' | 'advanced';
 export type TargetAudience = 'general' | 'children' | 'teens' | 'adults' | 'seniors' | 'professionals';
+export type BookLanguage = 'fr' | 'en' | 'es' | 'pt' | 'de' | 'sw';
 
 export interface WriteChapter {
   id: string;
@@ -38,6 +39,7 @@ export interface WriteState {
   tone: WritingTone;
   languageLevel: LanguageLevel;
   targetAudience: TargetAudience;
+  language: BookLanguage;
   pageCount: number;
   chapters: WriteChapter[];
   coverTemplate: number;
@@ -60,6 +62,7 @@ const initialState: WriteState = {
   tone: 'professional',
   languageLevel: 'intermediate',
   targetAudience: 'general',
+  language: 'fr',
   pageCount: 20,
   chapters: [],
   coverTemplate: 0,
