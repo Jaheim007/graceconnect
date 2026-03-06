@@ -496,7 +496,7 @@ async function buildProfessionalPdf(opts: {
   const copyrightLines: { text: string; bold?: boolean; gap?: number }[] = [
     { text: opts.title, bold: true },
     { text: '', gap: 8 },
-    { text: `\u00A9 ${year} ${opts.orgName}` },
+    { text: `(c) ${year} ${opts.orgName}` },
     { text: isFr ? 'Tous droits réservés.' : 'All rights reserved.' },
     { text: '', gap: 16 },
     { text: isFr ? 'Aucune partie de cet ouvrage ne peut être reproduite,' : 'No part of this publication may be reproduced,' },
