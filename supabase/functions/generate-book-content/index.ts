@@ -523,20 +523,38 @@ Return ONLY valid JSON:
 CRITICAL REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterWordTarget} words. Professional quality. Zero generic content.`;
     }
 
-    const aiRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
-        ],
-      }),
-    });
+    const requestTimeoutMs = singleChapter ? 50_000 : 85_000;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), requestTimeoutMs);
+
+    let aiRes: Response;
+    try {
+      aiRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
+          ],
+        }),
+        signal: controller.signal,
+      });
+    } catch (error) {
+      if (isAbortError(error)) {
+        return new Response(JSON.stringify({ error: 'Generation timeout. Please retry.' }), {
+          status: 504,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      throw error;
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!aiRes.ok) {
       if (aiRes.status === 429) {
@@ -559,27 +577,28 @@ CRITICAL REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ $
     const aiData = await aiRes.json();
     const rawContent = aiData.choices?.[0]?.message?.content || '';
 
-    const cleaned = rawContent.replace(/```[\w]*\n?/gi, '').replace(/```\n?/g, '').trim();
-    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+    let parsed = tryParsePayload(rawContent);
+    if (!parsed) {
+      console.error('Direct parse failed, attempting AI JSON repair. Payload preview:', rawContent.slice(0, 500));
+      parsed = await repairJsonWithAi(LOVABLE_API_KEY, rawContent, chapterCount);
+    }
 
-    if (!jsonMatch) {
-      console.error('Failed to parse AI response:', rawContent.slice(0, 500));
+    if (!parsed) {
       return new Response(JSON.stringify({ error: 'Failed to parse AI response' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    try {
-      const parsed = JSON.parse(jsonMatch[0]);
-      return new Response(JSON.stringify(parsed), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    } catch (parseErr) {
-      console.error('JSON parse error:', parseErr);
-      return new Response(JSON.stringify({ error: 'Invalid AI response format' }), {
+    const normalizedChapters = normalizeGeneratedChapters(parsed);
+    if (normalizedChapters.length === 0) {
+      return new Response(JSON.stringify({ error: 'AI returned empty chapters' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    return new Response(JSON.stringify({ chapters: normalizedChapters }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   } catch (e) {
     console.error('generate-book-content error:', e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : 'Internal error' }), {
