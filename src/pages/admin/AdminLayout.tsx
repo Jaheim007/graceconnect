@@ -84,7 +84,7 @@ export default function AdminLayout() {
     );
   }
 
-  const mobileLinks = adminLinks.filter(l => mobileGroups.includes(l.group));
+  const mobileSecondaryLinks = adminLinks.filter(l => !mobilePrimaryLinks.some(p => p.to === l.to));
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
