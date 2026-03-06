@@ -1,0 +1,88 @@
+import { motion } from 'framer-motion';
+import { BookOpen, Store, Share2, Wallet } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useMode } from '@/contexts/ModeContext';
+import { cn } from '@/lib/utils';
+
+const paths = [
+  {
+    id: 'write',
+    icon: BookOpen,
+    emoji: '✏️',
+    title: 'Écrire',
+    subtitle: "L'IA écrit ton livre",
+    route: '/ecrire',
+    accent: 'border-primary/30 hover:border-primary/60',
+    iconColor: 'text-primary',
+    bgColor: 'bg-primary/10',
+  },
+  {
+    id: 'sell',
+    icon: Store,
+    emoji: '🛒',
+    title: 'Vendre',
+    subtitle: 'Publie et monétise',
+    route: '/admin',
+    mode: 'creator' as const,
+    accent: 'border-amber-500/30 hover:border-amber-500/60',
+    iconColor: 'text-amber-500',
+    bgColor: 'bg-amber-500/10',
+  },
+  {
+    id: 'share',
+    icon: Share2,
+    emoji: '📲',
+    title: 'Partager',
+    subtitle: 'Deviens ambassadeur',
+    route: '/affiliation',
+    mode: 'ambassador' as const,
+    accent: 'border-emerald-500/30 hover:border-emerald-500/60',
+    iconColor: 'text-emerald-500',
+    bgColor: 'bg-emerald-500/10',
+  },
+  {
+    id: 'earn',
+    icon: Wallet,
+    emoji: '💰',
+    title: 'Gagner',
+    subtitle: 'Suis tes revenus',
+    route: '/wallet',
+    accent: 'border-violet-500/30 hover:border-violet-500/60',
+    iconColor: 'text-violet-500',
+    bgColor: 'bg-violet-500/10',
+  },
+];
+
+export function QuickStartPaths() {
+  const navigate = useNavigate();
+  const { setMode } = useMode();
+
+  const handleClick = (path: typeof paths[0]) => {
+    if (path.mode) setMode(path.mode);
+    navigate(path.route);
+  };
+
+  return (
+    <div className="grid grid-cols-4 gap-2">
+      {paths.map((path, i) => (
+        <motion.button
+          key={path.id}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.05, duration: 0.2 }}
+          onClick={() => handleClick(path)}
+          className={cn(
+            'flex flex-col items-center gap-1.5 p-3 rounded-xl border bg-card transition-all',
+            path.accent
+          )}
+        >
+          <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center', path.bgColor)}>
+            <path.icon className={cn('h-4 w-4', path.iconColor)} />
+          </div>
+          <span className="text-[11px] font-bold">{path.title}</span>
+          <span className="text-[9px] text-muted-foreground leading-tight text-center">{path.subtitle}</span>
+        </motion.button>
+      ))}
+    </div>
+  );
+}
