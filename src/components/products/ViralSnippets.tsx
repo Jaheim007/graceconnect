@@ -47,7 +47,7 @@ export function ViralSnippets({ productId, productTitle, orgSlug }: ViralSnippet
 
   if (isLoading || snippets.length === 0) return null;
 
-  const productUrl = `https://siteviral.com/org/${orgSlug}/product/${productId}`;
+  const productUrl = buildShareUrlForPath(`/org/${orgSlug}/product/${productId}`);
 
   const handleCopy = (id: string, text: string) => {
     navigator.clipboard.writeText(text + '\n\n' + productUrl);

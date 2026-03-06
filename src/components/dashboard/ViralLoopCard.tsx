@@ -15,8 +15,8 @@ export function ViralLoopCard({ affiliateCode, commissionPercent = 15 }: { affil
   const [copied, setCopied] = useState(false);
 
   const shareUrl = affiliateCode
-    ? `https://siteviral.com/go/${affiliateCode}`
-    : `https://siteviral.com/gagner`;
+    ? buildShareUrlForPath(`/go/${affiliateCode}`)
+    : buildShareUrlForPath('/gagner');
 
   const shareText = `🚀 J'utilise Siteviral pour vendre et gagner en partageant des produits numériques. Essaye aussi ! 👉 ${shareUrl}`;
 
