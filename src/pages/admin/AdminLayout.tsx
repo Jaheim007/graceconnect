@@ -52,8 +52,13 @@ const groupLabels: Record<string, { label: string; icon: typeof BarChart3 }> = {
   more: { label: 'Plus', icon: MoreHorizontal },
 };
 
-// Only show essential groups in mobile horizontal nav
-const mobileGroups = ['main', 'create', 'sell', 'manage'];
+// Mobile: only show the 5 most critical links + a "Plus" dropdown
+const mobilePrimaryLinks = [
+  { to: '/admin', label: 'Aperçu', icon: BarChart3, end: true },
+  { to: '/admin/products', label: 'Produits', icon: ShoppingBag },
+  { to: '/admin/sales', label: 'Ventes', icon: Receipt },
+  { to: '/admin/members', label: 'Membres', icon: Users },
+];
 
 export default function AdminLayout() {
   const { currentOrg, userOrgs, setCurrentOrg, isLoadingOrgs, getRoleFor } = useOrg();
