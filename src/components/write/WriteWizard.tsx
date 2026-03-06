@@ -264,10 +264,14 @@ export default function WriteWizard() {
       if (state.coverUrl) productPatch.cover_image_url = state.coverUrl;
 
       if (Object.keys(productPatch).length > 0 && result.product_id) {
-        await supabase
+        const { error: updateErr } = await supabase
           .from('digital_products')
           .update(productPatch)
           .eq('id', result.product_id);
+        
+        if (updateErr) {
+          console.error('Product patch error (non-blocking):', updateErr);
+        }
       }
 
       update({

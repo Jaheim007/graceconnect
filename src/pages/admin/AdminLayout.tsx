@@ -71,7 +71,7 @@ export default function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Admin sub-header */}
       <div className="border-b border-border/60 bg-card px-3 py-2 flex items-center gap-2">
         {/* Back to app */}
