@@ -130,7 +130,7 @@ export default function AdminLayout() {
 
         {/* Mobile horizontal nav — only essential items */}
         <nav className="flex lg:hidden items-center gap-0.5 ml-1 overflow-x-auto scrollbar-hide flex-1">
-          {mobileLinks.map(({ to, label, icon: Icon, end }) => (
+          {mobilePrimaryLinks.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
               to={to}
@@ -148,6 +148,22 @@ export default function AdminLayout() {
               <span className="hidden xs:inline">{label}</span>
             </NavLink>
           ))}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                <MoreHorizontal className="h-3 w-3" />
+                <span className="hidden xs:inline">Plus</span>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {mobileSecondaryLinks.map(({ to, label: itemLabel, icon: Icon }) => (
+                <DropdownMenuItem key={to} onClick={() => navigate(to)} className="text-xs gap-2">
+                  <Icon className="h-3.5 w-3.5" />
+                  {itemLabel}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </nav>
       </div>
 
