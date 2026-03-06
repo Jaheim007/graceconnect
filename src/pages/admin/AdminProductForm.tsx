@@ -416,6 +416,7 @@ export function ProductForm() {
           </div>
         )}
 
+        {isPdfFile && (
           <div className="space-y-2">
             <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => setPdfPreviewOpen(true)}>
               <Eye className="h-4 w-4" /> Aperçu du document
