@@ -258,6 +258,9 @@ export default function AdminDashboard() {
         </motion.div>
       )}
 
+      {/* ═══ HERO BANNER — Écris · Vends · Gagne ═══ */}
+      <CreatorHeroBanner />
+
       {/* Creator Coach — AI-powered recommendation banner */}
       <CreatorCoachBanner />
 
