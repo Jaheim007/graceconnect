@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
-import { ArrowLeft, ArrowRight, Edit3, Plus, Trash2, Sparkles, BookOpen, ChevronRight, RefreshCw, Expand, MessageSquareText, Loader2, GripVertical } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Edit3, Plus, Trash2, Sparkles, BookOpen, ChevronRight, RefreshCw, Expand, MessageSquareText, Loader2, GripVertical, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
