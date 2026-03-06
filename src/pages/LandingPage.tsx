@@ -4,6 +4,8 @@ import { LandingHeroManifesto } from '@/components/landing/LandingHeroManifesto'
 import { SEOHead } from '@/components/seo/SEOHead';
 
 const LandingHowItWorks = lazy(() => import('@/components/landing/LandingHowItWorksSimple').then(m => ({ default: m.LandingHowItWorksSimple })));
+const LandingInteractiveDemo = lazy(() => import('@/components/landing/LandingInteractiveDemo').then(m => ({ default: m.LandingInteractiveDemo })));
+const LandingLiveStats = lazy(() => import('@/components/landing/LandingLiveStats').then(m => ({ default: m.LandingLiveStats })));
 const LandingAmbassadorLoop = lazy(() => import('@/components/landing/LandingAmbassadorLoop').then(m => ({ default: m.LandingAmbassadorLoop })));
 const LandingSourcesSection = lazy(() => import('@/components/landing/LandingSourcesSection').then(m => ({ default: m.LandingSourcesSection })));
 const LandingMobileMoney = lazy(() => import('@/components/landing/LandingMobileMoney').then(m => ({ default: m.LandingMobileMoney })));
@@ -56,6 +58,8 @@ export default function LandingPage() {
 
       <Suspense fallback={null}>
         <LandingHowItWorks />
+        <LandingInteractiveDemo />
+        <LandingLiveStats />
         <LandingAmbassadorLoop />
         <LandingSourcesSection />
         <LandingMobileMoney />

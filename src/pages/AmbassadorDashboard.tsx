@@ -18,6 +18,7 @@ import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
 import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
 import { EarningsCard } from '@/components/ambassador/EarningsCard';
+import { DailyTip } from '@/components/ambassador/DailyTip';
 
 export default function AmbassadorDashboard() {
   const { user, profile } = useAuth();
@@ -148,6 +149,9 @@ export default function AmbassadorDashboard() {
             </Button>
           )}
         </motion.div>
+
+        {/* ═══ DAILY TIP ═══ */}
+        <DailyTip />
 
         {/* ═══ SECTION 2: MISSION ═══ */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
