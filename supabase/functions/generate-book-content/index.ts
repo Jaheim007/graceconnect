@@ -476,7 +476,7 @@ LANGUE D'ÉCRITURE : ${langName}
 CONSIGNES DÉTAILLÉES :
 - Crée exactement ${chapterCount} chapitres qui explorent chaque facette importante de CE sujet
 - Les titres de chapitres doivent être CRÉATIFS, ACCROCHEURS et directement liés au sujet "${topic || title}"
-- Chaque chapitre : 500-800 mots de contenu RICHE en HTML
+- Chaque chapitre : environ ${chapterWordTarget} mots de contenu RICHE en HTML
 - Le contenu doit être SUBSTANTIEL : exemples réels, anecdotes, données, citations pertinentes
 - Chapitre 1 : Introduction percutante qui pose le contexte, l'enjeu et donne envie de lire la suite
 - Chapitres intermédiaires : Exploration approfondie, chaque chapitre un angle unique
@@ -493,7 +493,7 @@ Retourne UNIQUEMENT un JSON valide :
   ]
 }
 
-RAPPEL CRITIQUE : Livre de ${pages} pages sur "${topic || title}". Chaque chapitre = 500-800 mots MINIMUM. Qualité professionnelle. Zéro contenu générique.`
+RAPPEL CRITIQUE : Livre de ${pages} pages sur "${topic || title}". Chaque chapitre ≈ ${chapterWordTarget} mots. Qualité professionnelle. Zéro contenu générique.`
         : `Create a COMPLETE and CAPTIVATING book on the following topic:
 
 TITLE: "${title}"
