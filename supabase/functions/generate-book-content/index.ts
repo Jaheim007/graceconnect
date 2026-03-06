@@ -465,26 +465,46 @@ OUTPUT FORMAT: Return valid JSON. No markdown, no code fences.`;
 
     if (singleChapter) {
       userPrompt = lang === 'fr'
-        ? `${topic}
+        ? `Sujet du chapitre : ${topic}
 
-Retourne UNIQUEMENT un JSON avec cette structure :
+Écris ce chapitre UNIQUE comme si tu étais au milieu d'un livre que tu adores écrire. Ce chapitre n'est pas une dissertation — c'est un MOMENT dans un livre. Il a un début qui accroche, un milieu qui captive, une fin qui donne envie de tourner la page.
+
+RÈGLES POUR CE CHAPITRE :
+- Commence par une scène, une question provocatrice ou une anecdote — JAMAIS par une définition
+- Inclus au moins 1 histoire concrète avec des noms et des lieux
+- 2-3 sous-titres <h3> créatifs (pas "Introduction" ou "Développement")
+- Au moins 1 citation ou formule mémorable en <blockquote>
+- Varie la longueur des paragraphes : certains de 1-2 phrases, d'autres plus longs
+- INTERDITS : "De plus", "En outre", "Il est important de noter", "Force est de constater"
+- Le lecteur doit sentir qu'un humain passionné a écrit, pas une machine
+- Environ ${chapterWordTarget} mots en HTML riche
+
+Retourne UNIQUEMENT un JSON :
 {
   "chapters": [
-    {"id": "ch-1", "title": "${chapterTitle || 'Chapitre'}", "content": "<p>Contenu HTML riche et détaillé...</p>"}
+    {"id": "ch-1", "title": "${chapterTitle || 'Chapitre'}", "content": "<p>Contenu...</p>"}
   ]
-}
+}`
+        : `Chapter topic: ${topic}
 
-Le contenu doit faire environ ${chapterWordTarget} mots en HTML riche avec sous-titres <h3>, paragraphes <p>, mots-clés en <strong>, citations en <blockquote>, listes <ul><li> si pertinent.`
-        : `${topic}
+Write this SINGLE chapter as if you're in the middle of a book you love writing. This chapter is not an essay — it's a MOMENT in a book. It has a hooking opening, a captivating middle, and an ending that makes you want to turn the page.
 
-Return ONLY a JSON with this structure:
+RULES FOR THIS CHAPTER:
+- Start with a scene, a provocative question, or an anecdote — NEVER with a definition
+- Include at least 1 concrete story with names and places
+- 2-3 creative <h3> sub-headings (not "Introduction" or "Development")
+- At least 1 quote or memorable formula in <blockquote>
+- Vary paragraph lengths: some 1-2 sentences, others longer
+- BANNED: "Furthermore", "Moreover", "It is important to note", "It should be emphasized"
+- The reader must feel a passionate human wrote this, not a machine
+- Around ${chapterWordTarget} words in rich HTML
+
+Return ONLY JSON:
 {
   "chapters": [
-    {"id": "ch-1", "title": "${chapterTitle || 'Chapter'}", "content": "<p>Rich and detailed HTML content...</p>"}
+    {"id": "ch-1", "title": "${chapterTitle || 'Chapter'}", "content": "<p>Content...</p>"}
   ]
-}
-
-Content should be around ${chapterWordTarget} words in rich HTML with sub-headings <h3>, paragraphs <p>, keywords in <strong>, quotes in <blockquote>, lists <ul><li> when relevant.`;
+}`;
     } else {
       userPrompt = lang === 'fr'
         ? `Écris un livre COMPLET, CAPTIVANT et PROFONDÉMENT HUMAIN sur ce sujet :
