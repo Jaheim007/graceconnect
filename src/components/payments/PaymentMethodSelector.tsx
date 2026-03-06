@@ -15,10 +15,11 @@ export function PaymentMethodSelector({ value, onChange, currency, className, pa
   const moMoRegionAvailable = isMoMoAvailable(currency);
   const showMoMo = moMoRegionAvailable && paystackEnabled;
   const showApplePay = paystackEnabled && isPaystackCurrency(currency || '');
-  const effectiveValue: PaymentMethod = (showMoMo || showApplePay) ? value : 'card';
+  const showMoneroo = true; // Always available as an alternative gateway
+  const effectiveValue: PaymentMethod = (showMoMo || showApplePay || showMoneroo) ? value : 'card';
 
-  const methodCount = [showMoMo, showApplePay, true].filter(Boolean).length;
-  const gridCols = methodCount === 3 ? 'grid-cols-3' : methodCount === 2 ? 'grid-cols-2' : 'grid-cols-1';
+  const methodCount = [showMoMo, showApplePay, showMoneroo, true].filter(Boolean).length;
+  const gridCols = methodCount >= 4 ? 'grid-cols-4' : methodCount === 3 ? 'grid-cols-3' : methodCount === 2 ? 'grid-cols-2' : 'grid-cols-1';
 
   return (
     <div className={cn('space-y-2', className)}>
@@ -61,6 +62,23 @@ export function PaymentMethodSelector({ value, onChange, currency, className, pa
           </button>
         )}
 
+        {showMoneroo && (
+          <button
+            type="button"
+            onClick={() => onChange('moneroo')}
+            className={cn(
+              'flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all text-xs',
+              effectiveValue === 'moneroo'
+                ? 'border-primary bg-primary/5 text-primary font-medium'
+                : 'border-border hover:border-primary/40 text-muted-foreground'
+            )}
+          >
+            <Smartphone className="h-5 w-5" />
+            <span>Moneroo</span>
+            <span className="text-[10px] opacity-70">MoMo, Carte, Crypto…</span>
+          </button>
+        )}
+
         <button
           type="button"
           onClick={() => onChange('card')}
@@ -69,7 +87,7 @@ export function PaymentMethodSelector({ value, onChange, currency, className, pa
             effectiveValue === 'card'
               ? 'border-primary bg-primary/5 text-primary font-medium'
               : 'border-border hover:border-primary/40 text-muted-foreground',
-            !showMoMo && !showApplePay && 'col-span-1'
+            !showMoMo && !showApplePay && !showMoneroo && 'col-span-1'
           )}
         >
           <CreditCard className="h-5 w-5" />
@@ -81,7 +99,7 @@ export function PaymentMethodSelector({ value, onChange, currency, className, pa
       <p className="text-[10px] text-muted-foreground">
         {!showMoMo && moMoRegionAvailable
           ? 'Mobile Money temporairement indisponible. Utilisez Carte bancaire.'
-          : `Paiement sécurisé par ${effectiveValue === 'mobile_money' || effectiveValue === 'apple_pay' ? 'Paystack' : 'Stripe'}`}
+          : `Paiement sécurisé par ${effectiveValue === 'mobile_money' || effectiveValue === 'apple_pay' ? 'Paystack' : effectiveValue === 'moneroo' ? 'Moneroo' : 'Stripe'}`}
       </p>
     </div>
   );
