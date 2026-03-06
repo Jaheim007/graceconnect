@@ -13,7 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   ArrowLeft, Plus, Trash2, GripVertical, Save, FileText,
   Sparkles, Loader2, ChevronLeft, ChevronRight, ListTree,
@@ -48,6 +48,47 @@ export default function ProjectEditor() {
   const [uploadingCover, setUploadingCover] = useState(false);
   
   const [canvaDesigning, setCanvaDesigning] = useState(false);
+  
+  // Drag-and-drop state for chapters
+  const dragChapterRef = useRef<string | null>(null);
+  const [dragOverChapterId, setDragOverChapterId] = useState<string | null>(null);
+
+  const handleChapterDragStart = useCallback((chId: string) => {
+    dragChapterRef.current = chId;
+  }, []);
+
+  const handleChapterDragOver = useCallback((e: React.DragEvent, chId: string) => {
+    e.preventDefault();
+    if (dragChapterRef.current === null || dragChapterRef.current === chId) return;
+    setDragOverChapterId(chId);
+  }, []);
+
+  const handleChapterDrop = useCallback((e: React.DragEvent, dropId: string) => {
+    e.preventDefault();
+    const fromId = dragChapterRef.current;
+    if (!fromId || fromId === dropId) {
+      dragChapterRef.current = null;
+      setDragOverChapterId(null);
+      return;
+    }
+    setChapters(prev => {
+      const copy = [...prev];
+      const fromIdx = copy.findIndex(c => c.id === fromId);
+      const toIdx = copy.findIndex(c => c.id === dropId);
+      if (fromIdx === -1 || toIdx === -1) return prev;
+      const [moved] = copy.splice(fromIdx, 1);
+      copy.splice(toIdx, 0, moved);
+      return copy.map((c, i) => ({ ...c, order: i }));
+    });
+    setDirty(true);
+    dragChapterRef.current = null;
+    setDragOverChapterId(null);
+  }, []);
+
+  const handleChapterDragEnd = useCallback(() => {
+    dragChapterRef.current = null;
+    setDragOverChapterId(null);
+  }, []);
 
   const { isConnected: canvaConnected, startAuth: canvaStartAuth, getValidToken: getCanvaToken, loading: canvaLoading } = useCanvaAuth();
 
@@ -573,32 +614,32 @@ export default function ProjectEditor() {
             <ScrollArea className="flex-1">
               <div className="p-1.5 space-y-0.5">
                 {chapters.map((ch, idx) => (
-                  <button
+                  <div
                     key={ch.id}
+                    draggable
+                    onDragStart={() => handleChapterDragStart(ch.id)}
+                    onDragOver={(e) => handleChapterDragOver(e, ch.id)}
+                    onDrop={(e) => handleChapterDrop(e, ch.id)}
+                    onDragEnd={handleChapterDragEnd}
                     onClick={() => setActiveChapterId(ch.id)}
                     className={cn(
-                      'w-full text-left px-2.5 py-2 rounded-lg text-sm flex items-center gap-2 group transition-colors',
+                      'w-full text-left px-2.5 py-2 rounded-lg text-sm flex items-center gap-1.5 group transition-all cursor-grab active:cursor-grabbing',
                       ch.id === activeChapterId
                         ? 'bg-primary/10 text-primary font-medium'
-                        : 'hover:bg-muted text-foreground'
+                        : 'hover:bg-muted text-foreground',
+                      dragOverChapterId === ch.id && 'ring-2 ring-primary/40 scale-[1.02]'
                     )}
                   >
+                    <GripVertical className="h-3 w-3 shrink-0 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" />
                     <FileText className="h-3.5 w-3.5 shrink-0 opacity-60" />
                     <span className="flex-1 truncate text-xs">{ch.title}</span>
-                    <div className="hidden group-hover:flex items-center gap-0.5">
-                      {idx > 0 && (
-                        <button onClick={(e) => { e.stopPropagation(); moveChapter(ch.id, -1); }} className="p-0.5 hover:bg-muted rounded">
-                          <GripVertical className="h-3 w-3 rotate-90" />
-                        </button>
-                      )}
-                      <button
-                        onClick={(e) => { e.stopPropagation(); removeChapter(ch.id); }}
-                        className="p-0.5 hover:bg-destructive/10 text-destructive rounded"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </button>
-                    </div>
-                  </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); removeChapter(ch.id); }}
+                      className="p-0.5 hover:bg-destructive/10 text-destructive rounded opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                  </div>
                 ))}
               </div>
             </ScrollArea>
