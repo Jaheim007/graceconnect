@@ -21,6 +21,8 @@ import { InviteEarnWidget } from '@/components/social/InviteEarnWidget';
 import { UserProgressDashboard } from '@/components/growth/UserProgressDashboard';
 import { GrowthTipsWidget } from '@/components/growth/GrowthTipsWidget';
 import { SuccessStoriesCarousel } from '@/components/growth/SuccessStoriesCarousel';
+import { OnboardingChecklist } from '@/components/growth/OnboardingChecklist';
+import { ShareableEarningsCard } from '@/components/growth/ShareableEarningsCard';
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 12 },
@@ -126,6 +128,16 @@ export default function UserDashboard() {
             <p className="text-xs text-muted-foreground">Voici ton espace personnel</p>
           </div>
           {/* Badge removed — no more "Acheteur / Donateur" label */}
+        </motion.div>
+
+        {/* ═══ ONBOARDING CHECKLIST ═══ */}
+        <motion.div {...fadeUp(0.03)}>
+          <OnboardingChecklist />
+        </motion.div>
+
+        {/* ═══ SHAREABLE EARNINGS CARD ═══ */}
+        <motion.div {...fadeUp(0.04)}>
+          <ShareableEarningsCard />
         </motion.div>
 
         {/* ═══ SECTION: MES ACHATS ═══ */}
