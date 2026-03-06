@@ -124,7 +124,8 @@ function createDraftId() {
 
 function clampDraftStep(step: number) {
   if (!Number.isFinite(step)) return 0;
-  return Math.max(0, Math.min(Math.floor(step), PUBLISHING_STEP));
+  // Never restore the transient publishing splash step (it can look "stuck" on return)
+  return Math.max(0, Math.min(Math.floor(step), PDF_PREVIEW_STEP));
 }
 
 function toSerializableState(state: WriteState): Partial<WriteState> {
@@ -378,6 +379,12 @@ export default function WriteWizard() {
       const store = removeDraftSnapshot(draftId);
       syncDraftList(store, store.activeDraftId);
       setLastSavedAt(null);
+      return;
+    }
+
+    // Publishing step is transient: keep the last editable snapshot (PDF preview)
+    // to avoid restoring a stuck spinner when users come back later.
+    if (step >= PUBLISHING_STEP) {
       return;
     }
 
