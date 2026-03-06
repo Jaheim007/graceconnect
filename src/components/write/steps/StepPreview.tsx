@@ -101,7 +101,7 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
           topic: `${instruction}\n\nContenu actuel du chapitre "${currentChapter.title}":\n${currentChapter.content}`,
           style: state.style,
           pageCount: 5,
-          language: 'fr',
+          language: state.language || 'fr',
           tone: state.tone,
           languageLevel: state.languageLevel,
           targetAudience: state.targetAudience,

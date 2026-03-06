@@ -36,7 +36,7 @@ export function StepGenerating({ state, update, onNext }: Props) {
             topic: state.topic || state.title || '',
             style: state.style,
             pageCount: state.pageCount,
-            language: 'fr',
+            language: state.language || 'fr',
             tone: state.tone || 'professional',
             languageLevel: state.languageLevel || 'intermediate',
             targetAudience: state.targetAudience || 'general',

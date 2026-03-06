@@ -1,4 +1,4 @@
-import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, BookMarked, Users, Baby, User, Briefcase, UserCog } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, BookMarked, Users, Baby, User, Briefcase, UserCog, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
@@ -42,6 +42,15 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
     { type: 'teens', icon: User, label: t('write.audience_teens') },
     { type: 'adults', icon: UserCog, label: t('write.audience_adults') },
     { type: 'professionals', icon: Briefcase, label: t('write.audience_professionals') },
+  ];
+
+  const languages: { type: BookLanguage; flag: string; label: string }[] = [
+    { type: 'fr', flag: '🇫🇷', label: t('write.lang_fr') },
+    { type: 'en', flag: '🇬🇧', label: t('write.lang_en') },
+    { type: 'es', flag: '🇪🇸', label: t('write.lang_es') },
+    { type: 'pt', flag: '🇧🇷', label: t('write.lang_pt') },
+    { type: 'de', flag: '🇩🇪', label: t('write.lang_de') },
+    { type: 'sw', flag: '🇰🇪', label: t('write.lang_sw') },
   ];
 
   const suggestedTitle = state.topic
@@ -146,6 +155,29 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
             >
               <a.icon className="h-3.5 w-3.5 mx-auto mb-1" />
               <p className="text-[10px] font-semibold leading-tight">{a.label}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Language */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium flex items-center gap-1.5">
+          <Globe className="h-3.5 w-3.5" /> {t('write.language_label')}
+        </label>
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+          {languages.map(l => (
+            <button
+              key={l.type}
+              onClick={() => update({ language: l.type })}
+              className={`p-2 rounded-lg border text-center transition-all ${
+                state.language === l.type
+                  ? 'border-primary bg-primary/5 text-primary'
+                  : 'border-border hover:border-primary/30 text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <span className="text-lg block">{l.flag}</span>
+              <p className="text-[10px] font-semibold leading-tight mt-0.5">{l.label}</p>
             </button>
           ))}
         </div>
