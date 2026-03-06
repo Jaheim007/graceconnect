@@ -83,6 +83,7 @@ const EcrirePage = lazy(() => import("@/pages/EcrirePage"));
 const MigrerPage = lazy(() => import("@/pages/MigrerPage"));
 const CanvaCallbackPage = lazy(() => import("@/pages/canva/CanvaCallback"));
 const VendreLandingPage = lazy(() => import("@/pages/VendreLandingPage"));
+const ProtectionPage = lazy(() => import("@/pages/ProtectionPage"));
 const TemoignagesPage = lazy(() => import("@/pages/TemoignagesPage"));
 const CalculateurPage = lazy(() => import("@/pages/CalculateurPage"));
 const PourEglisesPage = lazy(() => import("@/pages/persona/PourEglisesPage"));
@@ -350,6 +351,7 @@ const App = () => (
                 <Route path="/ecrire" element={<EcrirePage />} />
                 <Route path="/migrer" element={<MigrerPage />} />
                 <Route path="/vendre" element={<VendreLandingPage />} />
+                <Route path="/protection" element={<ProtectionPage />} />
                 <Route path="/explorer" element={<Navigate to="/discover" replace />} />
                 <Route path="/hub" element={<Navigate to="/discover" replace />} />
                 {/* Public / Buyer Universe — uses PublicLayout (minimal chrome) */}
