@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -56,7 +56,42 @@ export interface WriteState {
   previewPdfUrl?: string;
 }
 
-const STORAGE_KEY = 'write_wizard_draft';
+export interface SavedWriteDraftSummary {
+  id: string;
+  name: string;
+  updatedAt: number;
+  step: number;
+  isActive: boolean;
+}
+
+interface StoredWriteDraft {
+  id: string;
+  state: Partial<WriteState>;
+  step: number;
+  updatedAt: number;
+}
+
+interface WriteDraftStore {
+  activeDraftId: string | null;
+  drafts: Record<string, StoredWriteDraft>;
+}
+
+interface LoadedWriteDraft {
+  id: string;
+  state: WriteState;
+  step: number;
+  updatedAt: number | null;
+}
+
+const STORAGE_KEY = 'write_wizard_drafts_v2';
+const LEGACY_STORAGE_KEY = 'write_wizard_draft';
+
+const PDF_PREVIEW_STEP = 6;
+const PUBLISHING_STEP = 7;
+const CELEBRATION_STEP = 8;
+const STEP_LABELS = ['Source', 'Détails', 'Création', 'Aperçu', 'Couverture', 'Prix', 'Aperçu PDF', 'Sauvegarde', '🎉'];
+
+type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
 
 const initialState: WriteState = {
   source: 'idea',
@@ -79,45 +114,198 @@ const initialState: WriteState = {
   commissionRate: 20,
 };
 
-function loadDraft(): { state: WriteState; step: number } | null {
+function createDraftId() {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+
+  return `draft-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function clampDraftStep(step: number) {
+  if (!Number.isFinite(step)) return 0;
+  return Math.max(0, Math.min(Math.floor(step), PUBLISHING_STEP));
+}
+
+function toSerializableState(state: WriteState): Partial<WriteState> {
+  const { uploadedFile, coverFile, previewPdfUrl, ...serializable } = state;
+  return serializable;
+}
+
+function toHydratedState(rawState?: Partial<WriteState>): WriteState {
+  return {
+    ...initialState,
+    ...(rawState ?? {}),
+    uploadedFile: null,
+    coverFile: null,
+    previewPdfUrl: undefined,
+  };
+}
+
+function resolveDraftName(rawState?: Partial<WriteState>) {
+  const name = (rawState?.title || rawState?.topic || '').trim();
+  return name.length > 0 ? name : 'Brouillon sans titre';
+}
+
+function emptyDraftStore(): WriteDraftStore {
+  return { activeDraftId: null, drafts: {} };
+}
+
+function persistDraftStore(store: WriteDraftStore) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+  } catch {
+    // ignore quota/storage errors
+  }
+}
+
+function migrateLegacyDraft(): WriteDraftStore | null {
+  try {
+    const raw = localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as { state?: Partial<WriteState>; step?: number };
+    const draftId = createDraftId();
+    const updatedAt = Date.now();
+
+    const migrated: WriteDraftStore = {
+      activeDraftId: draftId,
+      drafts: {
+        [draftId]: {
+          id: draftId,
+          state: toSerializableState(toHydratedState(parsed.state)),
+          step: clampDraftStep(typeof parsed.step === 'number' ? parsed.step : 0),
+          updatedAt,
+        },
+      },
+    };
+
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
+    persistDraftStore(migrated);
+    return migrated;
+  } catch {
+    return null;
+  }
+}
+
+function loadDraftStore(): WriteDraftStore {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    // Don't restore File objects or blob URLs (they can't be serialized)
+    if (!raw) {
+      return migrateLegacyDraft() ?? emptyDraftStore();
+    }
+
+    const parsed = JSON.parse(raw) as Partial<WriteDraftStore>;
+    const draftsObj = parsed?.drafts && typeof parsed.drafts === 'object' ? parsed.drafts : {};
+
+    const drafts = Object.values(draftsObj)
+      .filter((draft): draft is StoredWriteDraft => !!draft && typeof draft === 'object' && typeof (draft as StoredWriteDraft).id === 'string')
+      .reduce<Record<string, StoredWriteDraft>>((acc, draft) => {
+        acc[draft.id] = {
+          id: draft.id,
+          state: toSerializableState(toHydratedState(draft.state)),
+          step: clampDraftStep(draft.step),
+          updatedAt: typeof draft.updatedAt === 'number' ? draft.updatedAt : Date.now(),
+        };
+        return acc;
+      }, {});
+
+    const activeDraftId = typeof parsed?.activeDraftId === 'string' && drafts[parsed.activeDraftId]
+      ? parsed.activeDraftId
+      : null;
+
+    return { activeDraftId, drafts };
+  } catch {
+    return migrateLegacyDraft() ?? emptyDraftStore();
+  }
+}
+
+function listSavedDrafts(store: WriteDraftStore, activeDraftId: string | null): SavedWriteDraftSummary[] {
+  return Object.values(store.drafts)
+    .sort((a, b) => b.updatedAt - a.updatedAt)
+    .map((draft) => ({
+      id: draft.id,
+      name: resolveDraftName(draft.state),
+      updatedAt: draft.updatedAt,
+      step: draft.step,
+      isActive: draft.id === activeDraftId,
+    }));
+}
+
+function resolveActiveDraft(store: WriteDraftStore): StoredWriteDraft | null {
+  if (store.activeDraftId && store.drafts[store.activeDraftId]) {
+    return store.drafts[store.activeDraftId];
+  }
+
+  return Object.values(store.drafts).sort((a, b) => b.updatedAt - a.updatedAt)[0] ?? null;
+}
+
+function loadInitialDraft(): LoadedWriteDraft {
+  const store = loadDraftStore();
+  const activeDraft = resolveActiveDraft(store);
+
+  if (!activeDraft) {
     return {
-      state: { ...initialState, ...parsed.state, uploadedFile: null, coverFile: null, previewPdfUrl: undefined },
-      step: typeof parsed.step === 'number' ? parsed.step : 0,
+      id: createDraftId(),
+      state: toHydratedState(),
+      step: 0,
+      updatedAt: null,
     };
-  } catch { return null; }
+  }
+
+  return {
+    id: activeDraft.id,
+    state: toHydratedState(activeDraft.state),
+    step: clampDraftStep(activeDraft.step),
+    updatedAt: activeDraft.updatedAt,
+  };
 }
 
-function saveDraft(state: WriteState, step: number) {
-  try {
-    // Exclude non-serializable fields
-    const { uploadedFile, coverFile, ...serializable } = state;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({ state: serializable, step }));
-  } catch { /* quota exceeded, ignore */ }
+function saveDraftSnapshot(draftId: string, state: WriteState, step: number): { store: WriteDraftStore; updatedAt: number } {
+  const store = loadDraftStore();
+  const updatedAt = Date.now();
+
+  store.drafts[draftId] = {
+    id: draftId,
+    state: toSerializableState(state),
+    step: clampDraftStep(step),
+    updatedAt,
+  };
+  store.activeDraftId = draftId;
+
+  persistDraftStore(store);
+
+  return { store, updatedAt };
 }
 
-function clearDraft() {
-  try { localStorage.removeItem(STORAGE_KEY); } catch {}
+function removeDraftSnapshot(draftId: string): WriteDraftStore {
+  const store = loadDraftStore();
+  delete store.drafts[draftId];
+
+  if (store.activeDraftId === draftId) {
+    store.activeDraftId = null;
+  }
+
+  persistDraftStore(store);
+  return store;
 }
-
-const PDF_PREVIEW_STEP = 6;
-const PUBLISHING_STEP = 7;
-const CELEBRATION_STEP = 8;
-const STEP_LABELS = ['Source', 'Détails', 'Création', 'Aperçu', 'Couverture', 'Prix', 'Aperçu PDF', 'Sauvegarde', '🎉'];
-
-type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
 
 export default function WriteWizard() {
-  const draft = loadDraft();
-  const [step, setStep] = useState(draft?.step ?? 0);
-  const [state, setState] = useState<WriteState>(() => {
-    const s = draft?.state ?? initialState;
-    return { ...s, previewPdfUrl: undefined };
+  const bootstrapRef = useRef<LoadedWriteDraft | null>(null);
+  if (!bootstrapRef.current) {
+    bootstrapRef.current = loadInitialDraft();
+  }
+
+  const bootstrap = bootstrapRef.current;
+
+  const [draftId, setDraftId] = useState(bootstrap.id);
+  const [step, setStep] = useState(bootstrap.step);
+  const [state, setState] = useState<WriteState>(bootstrap.state);
+  const [savedDrafts, setSavedDrafts] = useState<SavedWriteDraftSummary[]>(() => {
+    const store = loadDraftStore();
+    return listSavedDrafts(store, bootstrap.id);
   });
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(bootstrap.updatedAt);
   const [publishing, setPublishing] = useState(false);
   const [publishingStage, setPublishingStage] = useState<PublishingStage>('preparing');
   const [willCreateOrg, setWillCreateOrg] = useState(false);
@@ -126,26 +314,89 @@ export default function WriteWizard() {
   const { t } = useI18n();
   const { toast } = useToast();
 
-  const update = useCallback((patch: Partial<WriteState>) => {
-      setState(prev => ({ ...prev, ...patch }));
+  const syncDraftList = useCallback((store: WriteDraftStore, activeId: string | null) => {
+    setSavedDrafts(listSavedDrafts(store, activeId));
   }, []);
 
-  // Auto-save to localStorage on every state/step change
-  useEffect(() => {
-    if (step < CELEBRATION_STEP) {
-      saveDraft(state, step);
-    } else {
-      clearDraft();
-    }
-  }, [state, step]);
+  const update = useCallback((patch: Partial<WriteState>) => {
+    setState((prev) => ({ ...prev, ...patch }));
+  }, []);
 
-  const next = useCallback(() => setStep(s => {
+  const saveCurrentDraftNow = useCallback(() => {
+    if (step >= CELEBRATION_STEP) return;
+
+    const { store, updatedAt } = saveDraftSnapshot(draftId, state, step);
+    setLastSavedAt(updatedAt);
+    syncDraftList(store, draftId);
+  }, [draftId, state, step, syncDraftList]);
+
+  const handleCreateNewDraft = useCallback(() => {
+    if (step < CELEBRATION_STEP) saveCurrentDraftNow();
+
+    const newDraftId = createDraftId();
+    const freshState = toHydratedState();
+    const { store, updatedAt } = saveDraftSnapshot(newDraftId, freshState, 0);
+
+    setDraftId(newDraftId);
+    setState(freshState);
+    setStep(0);
+    setLastSavedAt(updatedAt);
+    syncDraftList(store, newDraftId);
+
+    toast({ title: `📝 ${t('write.new_draft_ready')}` });
+  }, [saveCurrentDraftNow, step, syncDraftList, toast, t]);
+
+  const handleLoadDraft = useCallback((targetDraftId: string) => {
+    if (targetDraftId === draftId) return;
+
+    if (step < CELEBRATION_STEP) saveCurrentDraftNow();
+
+    const store = loadDraftStore();
+    const target = store.drafts[targetDraftId];
+
+    if (!target) {
+      toast({ title: `⚠️ ${t('write.draft_not_found')}`, variant: 'destructive' });
+      syncDraftList(store, draftId);
+      return;
+    }
+
+    store.activeDraftId = targetDraftId;
+    persistDraftStore(store);
+
+    setDraftId(targetDraftId);
+    setState(toHydratedState(target.state));
+    setStep(clampDraftStep(target.step));
+    setLastSavedAt(target.updatedAt);
+    syncDraftList(store, targetDraftId);
+
+    toast({ title: `✅ ${t('write.draft_loaded')}` });
+  }, [draftId, saveCurrentDraftNow, step, syncDraftList, toast, t]);
+
+  // Auto-save to localStorage on state/step change
+  useEffect(() => {
+    if (step >= CELEBRATION_STEP) {
+      const store = removeDraftSnapshot(draftId);
+      syncDraftList(store, store.activeDraftId);
+      setLastSavedAt(null);
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      const { store, updatedAt } = saveDraftSnapshot(draftId, state, step);
+      setLastSavedAt(updatedAt);
+      syncDraftList(store, draftId);
+    }, 600);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [draftId, state, step, syncDraftList]);
+
+  const next = useCallback(() => setStep((s) => {
     const newStep = Math.min(s + 1, CELEBRATION_STEP);
     trackEvent('wizard_step', { step: newStep, label: STEP_LABELS[newStep] }, user?.id);
     return newStep;
   }), [user?.id]);
 
-  const back = useCallback(() => setStep(s => Math.max(s - 1, 0)), []);
+  const back = useCallback(() => setStep((s) => Math.max(s - 1, 0)), []);
 
   // Auth wall: after source selection (step 0), require login
   const handleSourceNext = useCallback(() => {
@@ -268,7 +519,7 @@ export default function WriteWizard() {
           .from('digital_products')
           .update(productPatch)
           .eq('id', result.product_id);
-        
+
         if (updateErr) {
           console.error('Product patch error (non-blocking):', updateErr);
         }
@@ -324,13 +575,24 @@ export default function WriteWizard() {
       <div className={`container px-4 ${step === 3 ? 'max-w-5xl' : 'max-w-2xl'}`}>
         <AnimatePresence mode="wait">
           <motion.div
-            key={step}
+            key={`${draftId}-${step}`}
             initial={{ opacity: 0, x: 30 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -30 }}
             transition={{ duration: 0.25 }}
           >
-            {step === 0 && <StepSource state={state} update={update} onNext={handleSourceNext} />}
+            {step === 0 && (
+              <StepSource
+                state={state}
+                update={update}
+                onNext={handleSourceNext}
+                savedDrafts={savedDrafts}
+                activeDraftId={draftId}
+                onCreateDraft={handleCreateNewDraft}
+                onLoadDraft={handleLoadDraft}
+                lastSavedAt={lastSavedAt}
+              />
+            )}
             {step === 1 && <StepParams state={state} update={update} onNext={next} onBack={back} />}
             {step === 2 && <StepGenerating state={state} update={update} onNext={next} />}
             {step === 3 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
@@ -338,11 +600,10 @@ export default function WriteWizard() {
             {step === 5 && <StepPricing state={state} update={update} onNext={next} onBack={back} />}
             {step === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} saving={publishing} />}
             {step === PUBLISHING_STEP && <StepPublishing stage={publishingStage} willCreateOrg={willCreateOrg} />}
-            {step === CELEBRATION_STEP && <StepCelebration state={state} />}
+            {step === CELEBRATION_STEP && <StepCelebration state={state} onWriteAnother={handleCreateNewDraft} />}
           </motion.div>
         </AnimatePresence>
       </div>
     </div>
   );
 }
-
