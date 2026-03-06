@@ -52,8 +52,13 @@ const groupLabels: Record<string, { label: string; icon: typeof BarChart3 }> = {
   more: { label: 'Plus', icon: MoreHorizontal },
 };
 
-// Only show essential groups in mobile horizontal nav
-const mobileGroups = ['main', 'create', 'sell', 'manage'];
+// Mobile: only show the 5 most critical links + a "Plus" dropdown
+const mobilePrimaryLinks = [
+  { to: '/admin', label: 'Aperçu', icon: BarChart3, end: true },
+  { to: '/admin/products', label: 'Produits', icon: ShoppingBag },
+  { to: '/admin/sales', label: 'Ventes', icon: Receipt },
+  { to: '/admin/members', label: 'Membres', icon: Users },
+];
 
 export default function AdminLayout() {
   const { currentOrg, userOrgs, setCurrentOrg, isLoadingOrgs, getRoleFor } = useOrg();
@@ -79,7 +84,7 @@ export default function AdminLayout() {
     );
   }
 
-  const mobileLinks = adminLinks.filter(l => mobileGroups.includes(l.group));
+  const mobileSecondaryLinks = adminLinks.filter(l => !mobilePrimaryLinks.some(p => p.to === l.to));
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
@@ -125,7 +130,7 @@ export default function AdminLayout() {
 
         {/* Mobile horizontal nav — only essential items */}
         <nav className="flex lg:hidden items-center gap-0.5 ml-1 overflow-x-auto scrollbar-hide flex-1">
-          {mobileLinks.map(({ to, label, icon: Icon, end }) => (
+          {mobilePrimaryLinks.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
               to={to}
@@ -143,6 +148,22 @@ export default function AdminLayout() {
               <span className="hidden xs:inline">{label}</span>
             </NavLink>
           ))}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                <MoreHorizontal className="h-3 w-3" />
+                <span className="hidden xs:inline">Plus</span>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {mobileSecondaryLinks.map(({ to, label: itemLabel, icon: Icon }) => (
+                <DropdownMenuItem key={to} onClick={() => navigate(to)} className="text-xs gap-2">
+                  <Icon className="h-3.5 w-3.5" />
+                  {itemLabel}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </nav>
       </div>
 

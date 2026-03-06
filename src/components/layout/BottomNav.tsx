@@ -34,15 +34,7 @@ export function BottomNav() {
   ];
 
   const moreGroups = [
-    {
-      label: t('bottom.my_resources'),
-      items: [
-        { to: '/resources', icon: Package, label: t('bottom.my_purchases') },
-        { to: '/my-donations', icon: Heart, label: t('bottom.my_donations') },
-        { to: '/affiliation', icon: Link2, label: t('bottom.my_links') },
-        { to: '/notifications', icon: Bell, label: t('sidebar.notifications'), showBadge: true },
-      ],
-    },
+    // Creator space FIRST if applicable — most used daily
     ...(canManageCurrentOrg ? [{
       label: t('bottom.my_space'),
       items: [
@@ -52,6 +44,17 @@ export function BottomNav() {
         { to: '/admin/settings', icon: Settings, label: t('bottom.settings') },
       ],
     }] : []),
+    // Resources — purchases, donations, links
+    {
+      label: t('bottom.my_resources'),
+      items: [
+        { to: '/resources', icon: Package, label: t('bottom.my_purchases') },
+        { to: '/my-donations', icon: Heart, label: t('bottom.my_donations') },
+        { to: '/affiliation', icon: Link2, label: t('bottom.my_links') },
+        { to: '/notifications', icon: Bell, label: t('sidebar.notifications'), showBadge: true },
+      ],
+    },
+    // Account & help — least frequent
     {
       label: t('bottom.account_help'),
       items: [
