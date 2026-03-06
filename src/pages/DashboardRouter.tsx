@@ -7,8 +7,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { PenLine, Share2, Upload, Store, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FirstWinChecklist } from '@/components/dashboard/FirstWinChecklist';
-import { QuickStatsBar } from '@/components/dashboard/QuickStatsBar';
 import { ViralLoopCard } from '@/components/dashboard/ViralLoopCard';
+import { InviteEarnWidget } from '@/components/referral/InviteEarnWidget';
+import { TrendingProducts } from '@/components/discover/TrendingProducts';
 import AmbassadorDashboard from '@/pages/AmbassadorDashboard';
 import UserDashboard from '@/pages/UserDashboard';
 
@@ -171,6 +172,12 @@ function NewUserDashboard() {
 
       {/* Viral loop card */}
       <ViralLoopCard />
+
+      {/* Invite & Earn */}
+      <InviteEarnWidget />
+
+      {/* Trending products */}
+      <TrendingProducts limit={4} />
 
       {/* Quick stats bar */}
       <div className="flex items-center justify-center gap-6 pt-4 text-center">
