@@ -2,6 +2,7 @@ import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
+import { useI18n } from '@/i18n/I18nContext';
 import type { WriteState, BookStyle } from '../WriteWizard';
 
 interface Props {
@@ -11,40 +12,40 @@ interface Props {
   onBack: () => void;
 }
 
-const styles: { type: BookStyle; icon: typeof BookOpen; label: string; desc: string }[] = [
-  { type: 'ebook', icon: BookOpen, label: 'Ebook classique', desc: 'Chapitres structurés, prose fluide' },
-  { type: 'guide', icon: FileText, label: 'Guide pratique', desc: 'Étapes, listes, conseils actionables' },
-  { type: 'prayers', icon: Heart, label: 'Livre de prières', desc: 'Méditations, prières, réflexions' },
-];
-
 export function StepParams({ state, update, onNext, onBack }: Props) {
+  const { t } = useI18n();
+
+  const styles: { type: BookStyle; icon: typeof BookOpen; label: string; desc: string }[] = [
+    { type: 'ebook', icon: BookOpen, label: t('write.style_ebook'), desc: t('write.style_ebook_desc') },
+    { type: 'guide', icon: FileText, label: t('write.style_guide'), desc: t('write.style_guide_desc') },
+    { type: 'prayers', icon: Heart, label: t('write.style_prayers'), desc: t('write.style_prayers_desc') },
+  ];
+
   const suggestedTitle = state.topic
-    ? state.topic.length > 40
-      ? state.topic.substring(0, 40) + '…'
-      : state.topic
+    ? state.topic.length > 40 ? state.topic.substring(0, 40) + '…' : state.topic
     : '';
 
   return (
     <div className="space-y-8 pt-8">
       <div className="text-center space-y-2">
-        <h2 className="text-2xl sm:text-3xl font-extrabold">Personnalise ton livre</h2>
-        <p className="text-muted-foreground text-sm">10 secondes max. Tu pourras tout modifier après.</p>
+        <h2 className="text-2xl sm:text-3xl font-extrabold">{t('write.customize')}</h2>
+        <p className="text-muted-foreground text-sm">{t('write.customize_sub')}</p>
       </div>
 
       {/* Title */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">Titre</label>
+        <label className="text-sm font-medium">{t('write.title_label')}</label>
         <Input
           value={state.title || suggestedTitle}
           onChange={e => update({ title: e.target.value })}
-          placeholder="Le titre de ton livre"
+          placeholder={t('write.title_placeholder')}
           className="h-12 text-base"
         />
       </div>
 
       {/* Style */}
       <div className="space-y-3">
-        <label className="text-sm font-medium">Style</label>
+        <label className="text-sm font-medium">{t('write.style_label')}</label>
         <div className="grid grid-cols-3 gap-2">
           {styles.map(s => (
             <button
@@ -67,7 +68,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
       {/* Page count */}
       <div className="space-y-3">
         <label className="text-sm font-medium">
-          Nombre de pages : <span className="text-primary font-bold">{state.pageCount}</span>
+          {t('write.pages_label')} : <span className="text-primary font-bold">{state.pageCount}</span>
         </label>
         <Slider
           value={[state.pageCount]}
@@ -86,7 +87,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
       {/* Actions */}
       <div className="flex gap-3">
         <Button variant="outline" size="lg" onClick={onBack} className="gap-2">
-          <ArrowLeft className="h-4 w-4" /> Retour
+          <ArrowLeft className="h-4 w-4" /> {t('write.back')}
         </Button>
         <Button
           size="lg"
@@ -97,7 +98,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
             onNext();
           }}
         >
-          Générer mon livre <ArrowRight className="h-4 w-4" />
+          {t('write.generate')} <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
     </div>

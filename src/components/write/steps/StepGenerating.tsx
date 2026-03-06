@@ -1,15 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { Loader2, CheckCircle, Sparkles } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nContext';
 import type { WriteState } from '../WriteWizard';
-
-const MOTIVATIONAL = [
-  '✨ L\'IA structure tes idées…',
-  '📝 Rédaction du chapitre en cours…',
-  '🎯 Ton livre prend forme…',
-  '🔥 Plus que quelques instants…',
-  '📖 Mise en page finale…',
-  '🚀 Presque prêt !',
-];
 
 const CHAPTER_TEMPLATES: Record<string, string[]> = {
   ebook: ['Introduction', 'Chapitre 1 : Les fondamentaux', 'Chapitre 2 : Aller plus loin', 'Chapitre 3 : Mise en pratique', 'Chapitre 4 : Études de cas', 'Chapitre 5 : Stratégies avancées', 'Conclusion'],
@@ -24,16 +16,25 @@ interface Props {
 }
 
 export function StepGenerating({ state, update, onNext }: Props) {
+  const { t } = useI18n();
   const [progress, setProgress] = useState(0);
   const [msgIndex, setMsgIndex] = useState(0);
   const [visibleChapters, setVisibleChapters] = useState<string[]>([]);
   const done = useRef(false);
 
+  const MOTIVATIONAL = [
+    '✨ ' + t('write.ai_writing').replace('…', '') + '…',
+    '📝 ' + t('write.ai_writing'),
+    '🎯 ' + t('write.ai_writing'),
+    '🔥 ' + t('write.ai_writing'),
+    '📖 ' + t('write.ai_writing'),
+    '🚀 ' + t('write.book_created').replace('✅ ', ''),
+  ];
+
   const chapters = CHAPTER_TEMPLATES[state.style] || CHAPTER_TEMPLATES.ebook;
 
   useEffect(() => {
-    // Simulate generation progress
-    const totalDuration = 6000; // 6 seconds
+    const totalDuration = 6000;
     const interval = 100;
     let elapsed = 0;
 
@@ -42,11 +43,9 @@ export function StepGenerating({ state, update, onNext }: Props) {
       const pct = Math.min((elapsed / totalDuration) * 100, 100);
       setProgress(pct);
 
-      // Show chapters progressively
       const chapterIdx = Math.floor((pct / 100) * chapters.length);
       setVisibleChapters(chapters.slice(0, chapterIdx));
 
-      // Rotate messages
       const mi = Math.floor((pct / 100) * MOTIVATIONAL.length);
       setMsgIndex(Math.min(mi, MOTIVATIONAL.length - 1));
 
@@ -73,7 +72,7 @@ export function StepGenerating({ state, update, onNext }: Props) {
         </div>
 
         <h2 className="text-2xl font-extrabold">
-          {progress < 100 ? 'L\'IA écrit ton livre…' : '✅ Livre créé !'}
+          {progress < 100 ? t('write.ai_writing') : t('write.book_created')}
         </h2>
 
         <p className="text-sm text-muted-foreground animate-pulse">

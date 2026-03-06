@@ -1,17 +1,12 @@
 import { PenLine, FileText, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { useI18n } from '@/i18n/I18nContext';
 import type { WriteState, SourceType } from '../WriteWizard';
 
-const SUGGESTIONS = [
-  '🙏 Prières & Méditations',
-  '💼 Business & Entrepreneuriat',
-  '🍳 Cuisine & Recettes',
-  '💪 Santé & Bien-être',
-  '📚 Éducation & Formation',
-  '🧠 Développement personnel',
-  '✨ Fiction & Romans',
-  '👶 Enfants & Famille',
+const SUGGESTION_KEYS = [
+  'write.sug_prayers', 'write.sug_business', 'write.sug_cooking', 'write.sug_health',
+  'write.sug_education', 'write.sug_personal', 'write.sug_fiction', 'write.sug_family',
 ];
 
 interface Props {
@@ -21,9 +16,11 @@ interface Props {
 }
 
 export function StepSource({ state, update, onNext }: Props) {
+  const { t } = useI18n();
+
   const sources: { type: SourceType; icon: typeof PenLine; label: string; desc: string }[] = [
-    { type: 'idea', icon: Lightbulb, label: "J'ai une idée", desc: 'Décris ton sujet, l\'IA écrit pour toi' },
-    { type: 'document', icon: FileText, label: "J'ai un document", desc: 'Upload PDF, DOCX ou TXT' },
+    { type: 'idea', icon: Lightbulb, label: t('write.source_idea'), desc: t('write.source_idea_desc') },
+    { type: 'document', icon: FileText, label: t('write.source_doc'), desc: t('write.source_doc_desc') },
   ];
 
   const canContinue = state.source === 'idea'
@@ -34,10 +31,10 @@ export function StepSource({ state, update, onNext }: Props) {
     <div className="space-y-8 pt-8">
       <div className="text-center space-y-3">
         <h1 className="text-3xl sm:text-4xl font-extrabold">
-          ✏️ Écris ton livre en <span className="text-primary">5 minutes</span>
+          ✏️ {t('write.hero')} <span className="text-primary">{t('write.hero_highlight')}</span>
         </h1>
         <p className="text-muted-foreground text-sm max-w-md mx-auto">
-          Choisis comment tu veux commencer. L'IA fait le reste.
+          {t('write.hero_sub')}
         </p>
       </div>
 
@@ -66,22 +63,25 @@ export function StepSource({ state, update, onNext }: Props) {
           <Textarea
             value={state.topic}
             onChange={e => update({ topic: e.target.value })}
-            placeholder="Décris ton sujet… ex: Un guide de 20 recettes africaines faciles pour étudiants"
+            placeholder={t('write.topic_placeholder')}
             className="min-h-[100px] text-base resize-none"
             autoFocus
           />
           <div>
-            <p className="text-xs text-muted-foreground mb-2">💡 Idées populaires :</p>
+            <p className="text-xs text-muted-foreground mb-2">{t('write.popular_ideas')}</p>
             <div className="flex flex-wrap gap-2">
-              {SUGGESTIONS.map(s => (
-                <button
-                  key={s}
-                  onClick={() => update({ topic: s.replace(/^[^\s]+\s/, '') })}
-                  className="text-xs px-3 py-1.5 rounded-full border border-border hover:border-primary/40 hover:bg-primary/5 transition-colors"
-                >
-                  {s}
-                </button>
-              ))}
+              {SUGGESTION_KEYS.map(key => {
+                const label = t(key);
+                return (
+                  <button
+                    key={key}
+                    onClick={() => update({ topic: label.replace(/^[^\s]+\s/, '') })}
+                    className="text-xs px-3 py-1.5 rounded-full border border-border hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                  >
+                    {label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -93,9 +93,9 @@ export function StepSource({ state, update, onNext }: Props) {
           <label className="flex flex-col items-center justify-center border-2 border-dashed border-border rounded-2xl p-8 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-colors">
             <FileText className="h-10 w-10 text-muted-foreground mb-3" />
             <p className="font-medium text-sm">
-              {state.uploadedFile ? state.uploadedFile.name : 'Clique pour uploader'}
+              {state.uploadedFile ? state.uploadedFile.name : t('write.upload_click')}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">PDF, DOCX ou TXT (max 20 Mo)</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('write.upload_formats')}</p>
             <input
               type="file"
               accept=".pdf,.docx,.doc,.txt"
@@ -118,7 +118,7 @@ export function StepSource({ state, update, onNext }: Props) {
         onClick={onNext}
       >
         <PenLine className="h-5 w-5" />
-        Continuer
+        {t('write.continue')}
       </Button>
     </div>
   );

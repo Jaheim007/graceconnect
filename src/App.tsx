@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { OrgProvider } from "@/contexts/OrgContext";
@@ -21,6 +21,12 @@ import { OfflineBanner } from "@/components/layout/OfflineBanner";
 import { SkipLink } from "@/components/layout/SkipLink";
 import { FloatingProofToast } from "@/components/social-proof/FloatingProofToast";
 import { GlobalActivityBar } from "@/components/social-proof/GlobalActivityBar";
+
+/** Redirect /store/:slug → /org/:slug/store */
+function StoreRedirect() {
+  const { slug } = useParams();
+  return <Navigate to={`/org/${slug}/store`} replace />;
+}
 
 // Lazy-loaded fallback — branded splash
 const PageLoader = () => (
@@ -358,6 +364,7 @@ const App = () => (
                 <Route path="/protection" element={<ProtectionPage />} />
                 <Route path="/explorer" element={<Navigate to="/discover" replace />} />
                 <Route path="/hub" element={<Navigate to="/discover" replace />} />
+                <Route path="/store/:slug" element={<StoreRedirect />} />
                 {/* Public / Buyer Universe — uses PublicLayout (minimal chrome) */}
                 <Route element={<PublicLayout />}>
                   <Route path="/discover" element={<DiscoverPage />} />

@@ -165,5 +165,8 @@ verify_jwt = false
 [functions.moneroo-verify]
 verify_jwt = false
 
+[functions.transcribe-source]
+verify_jwt = false
+
 [functions.motivational-notifications]
 verify_jwt = false
