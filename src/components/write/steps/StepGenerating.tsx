@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useMemo, useState, useRef } from 'react';
 import { Loader2, CheckCircle, Sparkles } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import type { WriteState } from '../WriteWizard';
@@ -16,19 +16,26 @@ export function StepGenerating({ state, update, onNext }: Props) {
   const [visibleChapters, setVisibleChapters] = useState<string[]>([]);
   const done = useRef(false);
 
-  const MOTIVATIONAL = [
+  const MOTIVATIONAL = useMemo(() => [
     '✨ ' + t('write.ai_writing').replace('…', '') + '…',
     '📝 ' + t('write.ai_writing'),
     '🎯 ' + t('write.ai_writing'),
     '🔥 ' + t('write.ai_writing'),
     '📖 ' + t('write.ai_writing'),
     '🚀 ' + t('write.book_created').replace('✅ ', ''),
-  ];
+  ], [t]);
 
   // Get chapters from i18n
-  const chapterKey = `write.ch_${state.style}` as string;
-  const chapterStr = t(chapterKey);
-  const chapters = chapterStr !== chapterKey ? chapterStr.split(',') : t('write.ch_ebook').split(',');
+  const chapters = useMemo(() => {
+    const chapterKey = `write.ch_${state.style}` as string;
+    const chapterStr = t(chapterKey);
+    const resolved = chapterStr !== chapterKey ? chapterStr : t('write.ch_ebook');
+
+    return resolved
+      .split(',')
+      .map((ch) => ch.trim())
+      .filter(Boolean);
+  }, [state.style, t]);
 
   useEffect(() => {
     const totalDuration = 6000;
@@ -55,7 +62,7 @@ export function StepGenerating({ state, update, onNext }: Props) {
     }, interval);
 
     return () => clearInterval(timer);
-  }, [chapters, update, onNext]);
+  }, [chapters, MOTIVATIONAL, update, onNext]);
 
   return (
     <div className="space-y-8 pt-16 text-center">
