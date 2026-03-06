@@ -401,6 +401,93 @@ export default function WriteWizard() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [draftId, state, step]);
 
+  // Sync draft to database when user is authenticated and has meaningful content
+  const dbSyncRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!user?.id || step < 2 || step >= CELEBRATION_STEP) return;
+    if (!state.title && !state.topic) return;
+
+    const syncTimeout = window.setTimeout(async () => {
+      try {
+        // Check if user has an org
+        const { data: membership } = await supabase
+          .from('organization_members')
+          .select('organization_id')
+          .eq('user_id', user.id)
+          .eq('role', 'owner')
+          .limit(1)
+          .single();
+
+        if (!membership?.organization_id) return;
+
+        const dataJson = JSON.parse(JSON.stringify(toSerializableState(state)));
+        const structJson = JSON.parse(JSON.stringify({ step, chapters: state.chapters, draftId }));
+
+        const projectData = {
+          title: state.title || state.topic || 'Brouillon',
+          data_json: dataJson,
+          structure_json: structJson,
+          status: 'draft' as const,
+          project_type: 'ebook' as const,
+          language: state.language || 'fr',
+          description: state.topic || null,
+          organization_id: membership.organization_id,
+          created_by: user.id,
+        };
+
+        if (dbSyncRef.current) {
+          // Update existing project
+          await supabase
+            .from('ai_content_projects')
+            .update({
+              title: projectData.title,
+              data_json: projectData.data_json,
+              structure_json: projectData.structure_json,
+              description: projectData.description,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', dbSyncRef.current);
+        } else {
+          // Check if a draft already exists for this draftId
+          const { data: existing } = await supabase
+            .from('ai_content_projects')
+            .select('id')
+            .eq('organization_id', membership.organization_id)
+            .eq('created_by', user.id)
+            .eq('status', 'draft')
+            .contains('structure_json', { draftId })
+            .limit(1)
+            .maybeSingle();
+
+          if (existing?.id) {
+            dbSyncRef.current = existing.id;
+            await supabase
+              .from('ai_content_projects')
+              .update({
+                title: projectData.title,
+                data_json: projectData.data_json,
+                structure_json: projectData.structure_json,
+                description: projectData.description,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', existing.id);
+          } else {
+            const { data: created } = await supabase
+              .from('ai_content_projects')
+              .insert(projectData)
+              .select('id')
+              .single();
+            if (created) dbSyncRef.current = created.id;
+          }
+        }
+      } catch (err) {
+        console.warn('Draft DB sync failed (non-blocking):', err);
+      }
+    }, 3000);
+
+    return () => window.clearTimeout(syncTimeout);
+  }, [user?.id, state, step, draftId]);
+
   const next = useCallback(() => setStep((s) => {
     const newStep = Math.min(s + 1, CELEBRATION_STEP);
     trackEvent('wizard_step', { step: newStep, label: STEP_LABELS[newStep] }, user?.id);

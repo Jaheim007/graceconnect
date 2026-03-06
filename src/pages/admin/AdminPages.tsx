@@ -14,7 +14,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle, Users } from 'lucide-react';
+import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle, Users, Plus, PenLine, Upload, ChevronDown } from 'lucide-react';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger
@@ -295,7 +298,35 @@ export function AdminProducts() {
   };
 
   return (
-    <AdminPageShell title="Boutique digitale" newRoute="/admin/products/new" newLabel="Nouveau produit" backRoute="/admin">
+    <AdminPageShell
+      title="Boutique digitale"
+      backRoute="/admin"
+      actions={
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button size="sm" className="gap-1.5 text-xs h-9">
+              <Plus className="h-3.5 w-3.5" /> Nouveau <ChevronDown className="h-3 w-3 ml-0.5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem onClick={() => navigate('/ecrire')} className="gap-2 py-2.5">
+              <PenLine className="h-4 w-4 text-primary" />
+              <div>
+                <p className="text-xs font-semibold">Écrire avec l'IA</p>
+                <p className="text-[10px] text-muted-foreground">Crée un livre en 5 min</p>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/admin/products/new')} className="gap-2 py-2.5">
+              <Upload className="h-4 w-4 text-accent" />
+              <div>
+                <p className="text-xs font-semibold">Importer / Créer</p>
+                <p className="text-[10px] text-muted-foreground">PDF, vidéo, formation…</p>
+              </div>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      }
+    >
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
         <EmptyState variant="purchases" title="Aucun produit" action={{ label: 'Nouveau produit', onClick: () => navigate('/admin/products/new') }} />
       ) : (

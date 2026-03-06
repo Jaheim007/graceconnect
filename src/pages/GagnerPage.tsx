@@ -1,3 +1,4 @@
+import { AdaptiveLayout } from '@/components/layout/AdaptiveLayout';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { GagnerTabs } from '@/components/gagner/GagnerTabs';
 import { QuickShareWidget } from '@/components/gagner/QuickShareWidget';
@@ -124,6 +125,7 @@ export default function GagnerPage() {
   const navigate = useNavigate();
 
   return (
+    <AdaptiveLayout>
     <div className="min-h-screen">
       <SEOHead
         title="Gagner en partageant — Marketplace Ambassadeur | Siteviral"
@@ -196,5 +198,6 @@ export default function GagnerPage() {
         <TrustBadgesBar compact />
       </div>
     </div>
+    </AdaptiveLayout>
   );
 }

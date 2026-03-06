@@ -13,9 +13,11 @@ interface AdminPageShellProps {
   backRoute?: string;
   /** shown alongside title */
   subtitle?: string;
+  /** Custom actions rendered in place of the default new button */
+  actions?: ReactNode;
 }
 
-export function AdminPageShell({ title, children, newRoute, newLabel, backRoute, subtitle }: AdminPageShellProps) {
+export function AdminPageShell({ title, children, newRoute, newLabel, backRoute, subtitle, actions }: AdminPageShellProps) {
   const navigate = useNavigate();
 
   const handleBack = () => {
@@ -45,7 +47,7 @@ export function AdminPageShell({ title, children, newRoute, newLabel, backRoute,
             {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
           </div>
         </div>
-        {newRoute && (
+        {actions ? actions : newRoute && (
           <Button
             size="sm"
             onClick={() => navigate(newRoute)}

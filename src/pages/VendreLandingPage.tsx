@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
-import { LandingNav } from '@/components/landing/LandingNav';
+import { AdaptiveLayout } from '@/components/layout/AdaptiveLayout';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,13 +46,13 @@ export default function VendreLandingPage() {
   };
 
   return (
+    <AdaptiveLayout>
     <div className="min-h-screen bg-background">
       <SEOHead
         title="Vendez vos produits digitaux — Siteviral"
         description="Créez votre centre digital, vendez eBooks, cours, vidéos et activez une armée d'ambassadeurs qui vendent pour vous. Mobile Money & carte."
         canonicalUrl="https://siteviral.com/vendre"
       />
-      <LandingNav />
 
       {/* Hero */}
       <section className="pt-24 pb-12 px-4">
@@ -165,6 +165,7 @@ export default function VendreLandingPage() {
         <LandingFooterCompact />
       </Suspense>
     </div>
+    </AdaptiveLayout>
   );
 }
 
