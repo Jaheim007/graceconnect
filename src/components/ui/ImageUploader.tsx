@@ -1,6 +1,7 @@
 import { useRef, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { X, Image as ImageIcon, Loader2, Palette, Upload as UploadIcon } from 'lucide-react';
+import { brandUrl } from '@/lib/storageUrl';
 import { cn } from '@/lib/utils';
 import { ImageCropDialog } from '@/components/ui/ImageCropDialog';
 import { compressImage } from '@/hooks/useImageOptimizer';
