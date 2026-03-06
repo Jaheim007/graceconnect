@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { buildShareUrlForPath } from '@/lib/shareMeta';
 
 /**
  * Viral growth card — encourages sharing the referral/affiliate link.
