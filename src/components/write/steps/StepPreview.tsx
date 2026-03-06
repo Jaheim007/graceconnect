@@ -27,6 +27,17 @@ function normalizeChapters(chapters: WriteChapter[]): WriteChapter[] {
     .filter((chapter) => chapter.title.length > 0);
 }
 
+function htmlToPlainText(html: string, maxLength = 3500): string {
+  const text = html
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return text.length > maxLength ? `${text.slice(0, maxLength)}…` : text;
+}
+
 export function StepPreview({ state, update, onNext, onBack }: Props) {
   const { t } = useI18n();
   const { toast } = useToast();
