@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
 import { getPublicUrl } from '@/lib/publicUrl';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Copy, ExternalLink, Share2, CheckCircle, Plus, Eye, Trash2, PackagePlus, ArrowUpRight, HelpCircle, Shield, MessageSquareQuote, Sparkles, ImageIcon, AlertTriangle } from 'lucide-react';
+import { Copy, ExternalLink, Share2, CheckCircle, Plus, Eye, Trash2, PackagePlus, ArrowUpRight, HelpCircle, Shield, MessageSquareQuote, Sparkles, ImageIcon, AlertTriangle, RefreshCw, Loader2 } from 'lucide-react';
 import { onContentPublished, onContentUnpublished, onProductPriceChanged } from '@/lib/notifications';
 import { z } from 'zod';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import { db } from '@/lib/db';
 import { useQuery } from '@tanstack/react-query';
 import { AdminPageShell } from './AdminPageShell';
@@ -72,7 +73,7 @@ export function ProductForm() {
   const [saleEndsAt, setSaleEndsAt] = useState('');
   const [showAI, setShowAI] = useState(false);
   const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
-  
+  const [regeneratingPdf, setRegeneratingPdf] = useState(false);
 
   // Bundle & Recommendation hooks
   const { data: allProducts = [] } = useOrgProducts(currentOrg?.id, false);
