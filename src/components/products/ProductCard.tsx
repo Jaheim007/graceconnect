@@ -18,7 +18,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { useMode } from '@/contexts/ModeContext';
 import { useCompare } from './ProductCompareDrawer';
 
 interface ProductCardProps {
@@ -45,14 +44,12 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
-  const { mode, hasAmbassadorAccess } = useMode();
   const [quickView, setQuickView] = useState(false);
   const compare = useCompare();
 
-  // Auto-hide commission/share unless user is truly in ambassador universe
-  const ambassadorView = hasAmbassadorAccess && mode === 'ambassador';
-  const hideCommission = hideCommissionProp ?? !ambassadorView;
-  const hideShare = hideShareProp ?? !ambassadorView;
+  // Show commission/share to all logged-in users (unified experience)
+  const hideCommission = hideCommissionProp ?? !user;
+  const hideShare = hideShareProp ?? !user;
 
   const organizationId = (product as any).organization_id;
   const orgSlug = (product as any).organization_slug || '';

@@ -3,17 +3,14 @@ import { motion } from 'framer-motion';
 import { ArrowRight, Share2, Building2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import { useMode } from '@/contexts/ModeContext';
 
 export function LandingHeroSplit() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { setMode } = useMode();
 
   const handleGagner = () => {
     if (user) {
-      setMode('ambassador');
-      navigate('/dashboard');
+      navigate('/gagner');
     } else {
       navigate('/auth?intent=ambassador');
     }
@@ -21,8 +18,7 @@ export function LandingHeroSplit() {
 
   const handleVendre = () => {
     if (user) {
-      setMode('creator');
-      navigate('/dashboard');
+      navigate('/admin');
     } else {
       navigate('/auth?intent=creator');
     }

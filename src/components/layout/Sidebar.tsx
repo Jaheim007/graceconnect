@@ -16,7 +16,6 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { useMode } from '@/contexts/ModeContext';
 import { useMyPartner } from '@/hooks/usePartner';
 
 interface NavItem {
@@ -41,7 +40,7 @@ export function Sidebar() {
   const { currentOrg, canManage, userOrgs, getRoleFor, setCurrentOrg } = useOrg();
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const { t } = useI18n();
-  const { hasAmbassadorAccess } = useMode();
+  const hasAmbassadorAccess = true; // unified: always show ambassador nav
   const { data: myPartner } = useMyPartner();
   const isApprovedPartner = myPartner?.status === 'approved';
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
