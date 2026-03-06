@@ -382,6 +382,12 @@ export default function WriteWizard() {
       return;
     }
 
+    // Publishing step is transient: keep the last editable snapshot (PDF preview)
+    // to avoid restoring a stuck spinner when users come back later.
+    if (step >= PUBLISHING_STEP) {
+      return;
+    }
+
     const timeoutId = window.setTimeout(() => {
       const { store, updatedAt } = saveDraftSnapshot(draftId, state, step);
       setLastSavedAt(updatedAt);
