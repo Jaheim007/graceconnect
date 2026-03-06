@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { BookOpen, Store, Share2, Wallet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useMode } from '@/contexts/ModeContext';
 import { cn } from '@/lib/utils';
 
 const paths = [
@@ -23,7 +22,6 @@ const paths = [
     title: 'Vendre',
     subtitle: 'Publie et monétise',
     route: '/admin',
-    mode: 'creator' as const,
     accent: 'border-amber-500/30 hover:border-amber-500/60',
     iconColor: 'text-amber-500',
     bgColor: 'bg-amber-500/10',
@@ -34,8 +32,7 @@ const paths = [
     emoji: '📲',
     title: 'Partager',
     subtitle: 'Deviens ambassadeur',
-    route: '/affiliation',
-    mode: 'ambassador' as const,
+    route: '/gagner',
     accent: 'border-emerald-500/30 hover:border-emerald-500/60',
     iconColor: 'text-emerald-500',
     bgColor: 'bg-emerald-500/10',
@@ -46,7 +43,7 @@ const paths = [
     emoji: '💰',
     title: 'Gagner',
     subtitle: 'Suis tes revenus',
-    route: '/wallet',
+    route: '/gagner',
     accent: 'border-violet-500/30 hover:border-violet-500/60',
     iconColor: 'text-violet-500',
     bgColor: 'bg-violet-500/10',
@@ -55,12 +52,6 @@ const paths = [
 
 export function QuickStartPaths() {
   const navigate = useNavigate();
-  const { setMode } = useMode();
-
-  const handleClick = (path: typeof paths[0]) => {
-    if (path.mode) setMode(path.mode);
-    navigate(path.route);
-  };
 
   return (
     <div className="grid grid-cols-4 gap-2">
@@ -70,7 +61,7 @@ export function QuickStartPaths() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.05, duration: 0.2 }}
-          onClick={() => handleClick(path)}
+          onClick={() => navigate(path.route)}
           className={cn(
             'flex flex-col items-center gap-1.5 p-3 rounded-xl border bg-card transition-all',
             path.accent

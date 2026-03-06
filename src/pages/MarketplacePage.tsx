@@ -10,7 +10,6 @@ import { CampaignCard } from '@/components/donations/CampaignCard';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Button } from '@/components/ui/button';
-import { useMode } from '@/contexts/ModeContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
@@ -34,7 +33,6 @@ const categoryFilters = [
 export default function MarketplacePage() {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('popular');
-  const { mode, hasAmbassadorAccess } = useMode();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -44,7 +42,7 @@ export default function MarketplacePage() {
   const [typeFilter, setTypeFilter] = useState(tabParam === 'campaigns' ? 'campaigns' : '');
 
   const isPublic = !user;
-  const isAmbassador = !!user && hasAmbassadorAccess && mode === 'ambassador';
+  const isAmbassador = !!user; // unified: all users can see ambassador features
 
   useEffect(() => {
     if (!isAmbassador && sortBy === 'commission') {

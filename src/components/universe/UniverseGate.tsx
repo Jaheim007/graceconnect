@@ -1,36 +1,16 @@
 import { type ReactNode } from 'react';
-import { useMode, type AppMode } from '@/contexts/ModeContext';
 
 interface UniverseGateProps {
-  /** Which universe(s) this component is allowed to render in */
-  universe: AppMode | AppMode[];
+  universe: string | string[];
   children: ReactNode;
-  /** Optional fallback when universe doesn't match (defaults to null) */
   fallback?: ReactNode;
 }
 
 /**
- * UniverseGate — UI Contamination Prevention
- * 
- * Renders children ONLY if the current mode matches the allowed universe(s).
- * Prevents ambassador elements from leaking into creator view and vice versa.
- * 
- * Usage:
- *   <UniverseGate universe="ambassador">
- *     <CommissionBadge />
- *   </UniverseGate>
- * 
- *   <UniverseGate universe={['public', 'ambassador']}>
- *     <ShareWidget />
- *   </UniverseGate>
+ * UniverseGate — Legacy wrapper, now always renders children.
+ * Kept for backward compatibility. The unified dashboard approach
+ * means all features are always visible to logged-in users.
  */
-export function UniverseGate({ universe, children, fallback = null }: UniverseGateProps) {
-  const { mode } = useMode();
-  const allowed = Array.isArray(universe) ? universe : [universe];
-
-  if (!allowed.includes(mode)) {
-    return <>{fallback}</>;
-  }
-
+export function UniverseGate({ children }: UniverseGateProps) {
   return <>{children}</>;
 }

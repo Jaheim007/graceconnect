@@ -2,12 +2,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Check, ChevronRight, Sparkles, User, ShoppingBag, Share2, BookOpen, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Progress } from '@/components/ui/progress';
-import { useMode } from '@/contexts/ModeContext';
 import { cn } from '@/lib/utils';
 
 interface Step {
@@ -23,20 +22,16 @@ export function OnboardingChecklist() {
   const { user, profile } = useAuth();
   const { userOrgs } = useOrg();
   const navigate = useNavigate();
-  const { setMode } = useMode();
   const [dismissed, setDismissed] = useState(false);
 
-  // Check completed steps
   const { data: completionData } = useQuery({
     queryKey: ['onboarding-progress', user?.id],
     queryFn: async () => {
       if (!user) return { hasProfile: false, hasPurchase: false, hasLink: false, hasOrg: false };
-
       const [purchaseRes, linkRes] = await Promise.all([
         db.from('product_purchases').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'completed'),
         db.from('affiliate_links').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
       ]);
-
       return {
         hasProfile: !!(profile?.display_name && profile?.avatar_url),
         hasPurchase: (purchaseRes.count || 0) > 0,
@@ -71,7 +66,7 @@ export function OnboardingChecklist() {
       label: 'Partage et gagne',
       description: 'Deviens ambassadeur',
       icon: <Share2 className="h-4 w-4" />,
-      action: () => { setMode('ambassador'); navigate('/affiliation'); },
+      action: () => navigate('/gagner'),
       actionLabel: 'Commencer',
     },
     {
@@ -93,7 +88,6 @@ export function OnboardingChecklist() {
 
   const completedCount = Object.values(completed).filter(Boolean).length;
   const allDone = completedCount === steps.length;
-
   if (allDone) return null;
 
   const pct = Math.round((completedCount / steps.length) * 100);
@@ -107,15 +101,12 @@ export function OnboardingChecklist() {
       <button onClick={() => setDismissed(true)} className="absolute top-3 right-3 text-muted-foreground hover:text-foreground">
         <X className="h-4 w-4" />
       </button>
-
       <div className="flex items-center gap-2 mb-3">
         <Sparkles className="h-4 w-4 text-primary" />
         <h2 className="font-bold text-sm">Bien démarrer</h2>
         <span className="ml-auto text-xs font-semibold text-primary">{completedCount}/{steps.length}</span>
       </div>
-
       <Progress value={pct} className="h-1.5 mb-4" />
-
       <div className="space-y-1.5">
         {steps.map((step) => {
           const done = completed[step.id];
@@ -126,9 +117,7 @@ export function OnboardingChecklist() {
               disabled={done}
               className={cn(
                 'w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all',
-                done
-                  ? 'bg-primary/5 opacity-60'
-                  : 'bg-muted/30 border border-border/50 hover:border-primary/40'
+                done ? 'bg-primary/5 opacity-60' : 'bg-muted/30 border border-border/50 hover:border-primary/40'
               )}
             >
               <div className={cn(

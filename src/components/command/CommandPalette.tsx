@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
-import { useMode } from '@/contexts/ModeContext';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 
@@ -30,7 +29,7 @@ export function CommandPalette() {
   const navigate = useNavigate();
   const { user, isSuperadmin } = useAuth();
   const { currentOrg, canManage, userOrgs } = useOrg();
-  const { hasAmbassadorAccess } = useMode();
+  const hasAmbassadorAccess = true; // unified: always show ambassador commands
 
   const hasOrgs = userOrgs.length > 0;
   const canManageOrg = currentOrg ? canManage(currentOrg.id) : false;

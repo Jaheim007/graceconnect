@@ -7,7 +7,6 @@ import { ArrowRight, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
-import { useMode } from '@/contexts/ModeContext';
 
 interface Nudge {
   id: string;
@@ -23,7 +22,6 @@ export function SmartNudge() {
   const { user, profile } = useAuth();
   const { userOrgs } = useOrg();
   const navigate = useNavigate();
-  const { setMode } = useMode();
   const [dismissedIds, setDismissedIds] = useState<string[]>([]);
 
   const { data: state } = useQuery({
@@ -70,19 +68,19 @@ export function SmartNudge() {
       all.push({
         id: 'ambassador', emoji: '💰', priority: 3, bg: 'bg-emerald-500/5 border-emerald-500/20',
         text: 'Gagne de l\'argent en partageant des produits',
-        cta: 'Devenir ambassadeur', action: () => { setMode('ambassador'); navigate('/affiliation'); },
+        cta: 'Devenir ambassadeur', action: () => navigate('/gagner'),
       });
     }
     if (state.hasOrg && !state.hasProducts) {
       all.push({
         id: 'publish', emoji: '🚀', priority: 2, bg: 'bg-amber-500/5 border-amber-500/20',
         text: 'Tu as un espace — publie ton premier produit !',
-        cta: 'Publier', action: () => { setMode('creator'); navigate('/admin/products'); },
+        cta: 'Publier', action: () => navigate('/admin/products'),
       });
     }
 
     return all.filter(n => !dismissedIds.includes(n.id)).sort((a, b) => a.priority - b.priority);
-  }, [state, dismissedIds, navigate, setMode]);
+  }, [state, dismissedIds, navigate]);
 
   const nudge = nudges[0];
   if (!nudge) return null;

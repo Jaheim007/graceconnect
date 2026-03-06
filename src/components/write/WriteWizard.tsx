@@ -10,6 +10,7 @@ import { StepCover } from './steps/StepCover';
 import { StepPricing } from './steps/StepPricing';
 import { StepCelebration } from './steps/StepCelebration';
 import { WriteProgress } from './WriteProgress';
+import { trackEvent } from '@/hooks/useClientAnalytics';
 
 export type SourceType = 'idea' | 'document';
 export type BookStyle = 'ebook' | 'guide' | 'prayers';
@@ -58,7 +59,11 @@ export default function WriteWizard() {
     setState(prev => ({ ...prev, ...patch }));
   }, []);
 
-  const next = useCallback(() => setStep(s => Math.min(s + 1, 6)), []);
+  const next = useCallback(() => setStep(s => {
+    const newStep = Math.min(s + 1, 6);
+    trackEvent('wizard_step', { step: newStep, label: STEP_LABELS[newStep] }, user?.id);
+    return newStep;
+  }), [user?.id]);
   const back = useCallback(() => setStep(s => Math.max(s - 1, 0)), []);
 
   // Auth wall: after source selection (step 0), require login
