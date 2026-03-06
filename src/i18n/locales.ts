@@ -1273,11 +1273,13 @@ const translations: Record<Locale, Record<string, string>> = {
     'write.pages': 'pages',
     // ─── Preview step ───
     'write.preview_title': '✅ Your book is ready!',
-    'write.preview_sub': 'Here is a preview. You can edit it after saving.',
+    'write.preview_sub': 'Review and edit your draft before publishing.',
     'write.toc': 'Table of contents',
     'write.by_author': 'By you',
-    'write.preview_edit_note': 'You can edit the content in the editor after saving',
-    // ─── Cover step ───
+    'write.preview_edit_note': 'You can still adjust everything later in the full editor',
+    'write.preview_edit_title': 'Edit title',
+    'write.preview_edit_chapters': 'Edit chapters',
+    'write.preview_chapters_hint': 'One line = one chapter',
     'write.cover_title': 'Choose your cover',
     'write.cover_sub': 'Auto template, Canva design, or upload your own image.',
     'write.cover_upload_label': 'Or upload your own cover:',
@@ -2579,10 +2581,13 @@ const translations: Record<Locale, Record<string, string>> = {
     'write.pages': 'pages',
     // ─── Preview step ───
     'write.preview_title': '✅ Ton livre est prêt !',
-    'write.preview_sub': 'Voici un aperçu. Tu pourras le modifier après enregistrement.',
+    'write.preview_sub': 'Vérifie et modifie ton brouillon avant publication.',
     'write.toc': 'Sommaire',
     'write.by_author': 'Par toi',
-    'write.preview_edit_note': 'Tu pourras modifier le contenu dans l\'éditeur après enregistrement',
+    'write.preview_edit_note': 'Tu pourras encore tout ajuster ensuite dans l\'éditeur complet',
+    'write.preview_edit_title': 'Modifier le titre',
+    'write.preview_edit_chapters': 'Modifier les chapitres',
+    'write.preview_chapters_hint': 'Une ligne = un chapitre',
     // ─── Cover step ───
     'write.cover_title': 'Choisis ta couverture',
     'write.cover_sub': 'Template auto, design Canva, ou upload ta propre image.',
