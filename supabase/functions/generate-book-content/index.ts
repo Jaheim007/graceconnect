@@ -187,6 +187,123 @@ function getInstruction(map: Record<string, Record<string, string>>, lang: strin
   return langMap[key] || langMap[fallbackKey] || Object.values(langMap)[0] || '';
 }
 
+const MAX_CHAPTERS = 8;
+const MIN_CHAPTERS = 3;
+
+function extractJsonObjectCandidate(raw: string): string | null {
+  const text = raw.trim();
+  const start = text.indexOf('{');
+  if (start < 0) return null;
+
+  let inString = false;
+  let escaped = false;
+  let depth = 0;
+
+  for (let i = start; i < text.length; i++) {
+    const char = text[i];
+
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+
+    if (char === '\\') {
+      escaped = true;
+      continue;
+    }
+
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+
+    if (inString) continue;
+
+    if (char === '{') depth += 1;
+    if (char === '}') {
+      depth -= 1;
+      if (depth === 0) return text.slice(start, i + 1);
+    }
+  }
+
+  return null;
+}
+
+function parseCandidate(candidate: string): any | null {
+  const cleaned = candidate
+    .replace(/```[\w]*\n?/gi, '')
+    .replace(/```\n?/g, '')
+    .replace(/,\s*([}\]])/g, '$1')
+    .trim();
+
+  if (!cleaned) return null;
+
+  try {
+    return JSON.parse(cleaned);
+  } catch {
+    return null;
+  }
+}
+
+function tryParsePayload(raw: string): any | null {
+  const direct = parseCandidate(raw);
+  if (direct) return direct;
+
+  const candidate = extractJsonObjectCandidate(raw);
+  if (!candidate) return null;
+
+  return parseCandidate(candidate);
+}
+
+function normalizeGeneratedChapters(parsed: any): { id: string; title: string; content: string }[] {
+  const chapters = Array.isArray(parsed?.chapters) ? parsed.chapters : [];
+
+  return chapters
+    .map((chapter: any, index: number) => ({
+      id: typeof chapter?.id === 'string' && chapter.id.trim().length > 0 ? chapter.id.trim() : `ch-${index + 1}`,
+      title: typeof chapter?.title === 'string' ? chapter.title.trim() : '',
+      content: typeof chapter?.content === 'string' ? chapter.content.trim() : '',
+    }))
+    .filter((chapter: { id: string; title: string; content: string }) => chapter.title.length > 0 && chapter.content.length > 30);
+}
+
+async function repairJsonWithAi(apiKey: string, rawContent: string, chapterCount: number): Promise<any | null> {
+  const repairRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      model: 'google/gemini-2.5-flash',
+      messages: [
+        {
+          role: 'system',
+          content: `You repair malformed JSON only. Return ONLY valid JSON with this shape: {"chapters":[{"id":"ch-1","title":"...","content":"<p>...</p>"}]}. Keep HTML in content. Do not summarize.`,
+        },
+        {
+          role: 'user',
+          content: `Repair this malformed payload into valid JSON. Keep as much original content as possible. Expected chapter count around ${chapterCount}.\n\n${rawContent.slice(0, 80000)}`,
+        },
+      ],
+    }),
+  });
+
+  if (!repairRes.ok) return null;
+  const repairData = await repairRes.json().catch(() => null);
+  const repairedRaw = repairData?.choices?.[0]?.message?.content || '';
+  return tryParsePayload(repairedRaw);
+}
+
+function isAbortError(error: unknown): boolean {
+  if (error instanceof DOMException && error.name === 'AbortError') return true;
+  if (error instanceof Error && error.name === 'AbortError') return true;
+  if (typeof error === 'object' && error !== null && 'name' in error) {
+    return (error as { name?: string }).name === 'AbortError';
+  }
+  return false;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
