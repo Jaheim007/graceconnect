@@ -58,6 +58,7 @@ export interface WriteState {
   pageCount: number;
   editorialStrategy?: EditorialStrategy;
   chapters: WriteChapter[];
+  chapterIllustrations: Record<string, string>; // chapter id -> image URL
   coverTemplate: number;
   coverFile: File | null;
   coverUrl?: string;
