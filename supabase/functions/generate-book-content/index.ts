@@ -506,12 +506,43 @@ Return ONLY JSON:
   ]
 }`;
     } else {
+      // Build editorial strategy injection if available
+      let editorialContextFr = '';
+      let editorialContextEn = '';
+      if (editorialStrategy && typeof editorialStrategy === 'object') {
+        const s = editorialStrategy;
+        editorialContextFr = `
+
+📋 POSITIONNEMENT ÉDITORIAL (OBLIGATOIRE — guide toute l'écriture) :
+- PROBLÈME DU LECTEUR : ${s.reader_problem || ''}
+- PROMESSE DU LIVRE : ${s.book_promise || ''}
+- ANGLE UNIQUE : ${s.unique_angle || ''}
+- THÈSE CENTRALE : ${s.central_thesis || ''}
+- ARC NARRATIF : ${s.narrative_arc || ''}
+${s.suggested_stories?.length ? `- HISTOIRES À INTÉGRER :\n${s.suggested_stories.map((st: string, i: number) => `  ${i + 1}. ${st}`).join('\n')}` : ''}
+
+⚠️ CHAQUE chapitre doit servir la thèse centrale et l'angle unique. Le livre doit tenir sa promesse au lecteur.`;
+
+        editorialContextEn = `
+
+📋 EDITORIAL POSITIONING (MANDATORY — guides all writing):
+- READER PROBLEM: ${s.reader_problem || ''}
+- BOOK PROMISE: ${s.book_promise || ''}
+- UNIQUE ANGLE: ${s.unique_angle || ''}
+- CENTRAL THESIS: ${s.central_thesis || ''}
+- NARRATIVE ARC: ${s.narrative_arc || ''}
+${s.suggested_stories?.length ? `- STORIES TO INCLUDE:\n${s.suggested_stories.map((st: string, i: number) => `  ${i + 1}. ${st}`).join('\n')}` : ''}
+
+⚠️ EVERY chapter must serve the central thesis and unique angle. The book must deliver on its promise to the reader.`;
+      }
+
       userPrompt = lang === 'fr'
         ? `Écris un livre COMPLET, CAPTIVANT et PROFONDÉMENT HUMAIN sur ce sujet :
 
 TITRE : "${title}"
 ${topic ? `IDÉE / SUJET : ${topic}` : ''}
 LANGUE : ${langName}
+${editorialContextFr}
 
 INSTRUCTIONS DE RÉDACTION :
 - Exactement ${chapterCount} chapitres, chacun explorant une facette unique et essentielle de "${topic || title}"
