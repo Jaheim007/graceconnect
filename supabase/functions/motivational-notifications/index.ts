@@ -338,19 +338,31 @@ Deno.serve(async (req) => {
       const programTitle = (enrollment as any).programs?.title;
       if (!programTitle) continue;
 
-      // Get total lessons and completed lessons
+      // Get modules for this program
+      const { data: modules } = await db.from('program_modules')
+        .select('id')
+        .eq('program_id', enrollment.program_id);
+      const moduleIds = (modules || []).map((m: any) => m.id);
+      if (moduleIds.length === 0) continue;
+
+      // Get total lessons and completed lessons for THIS program only
       const { count: totalLessons } = await db.from('program_lessons')
         .select('*', { count: 'exact', head: true })
-        .in('module_id', (
-          await db.from('program_modules').select('id').eq('program_id', enrollment.program_id)
-        ).data?.map((m: any) => m.id) || []);
+        .in('module_id', moduleIds);
 
       if (!totalLessons || totalLessons === 0) continue;
+
+      // Get lesson IDs for this program
+      const { data: lessonRows } = await db.from('program_lessons')
+        .select('id')
+        .in('module_id', moduleIds);
+      const lessonIds = (lessonRows || []).map((l: any) => l.id);
 
       const { count: completedLessons } = await db.from('lesson_progress')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', enrollment.user_id)
-        .eq('completed', true);
+        .eq('completed', true)
+        .in('lesson_id', lessonIds);
 
       const pct = Math.round(((completedLessons || 0) / totalLessons) * 100);
 

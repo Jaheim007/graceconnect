@@ -10,26 +10,34 @@ import { motion } from 'framer-motion';
 export default function CertificateVerifyPage() {
   const { certNumber } = useParams();
 
-  const { data: cert, isLoading, isError } = useQuery({
+  const { data: certData, isLoading } = useQuery({
     queryKey: ['verify-certificate', certNumber],
     queryFn: async () => {
       if (!certNumber) return null;
-      const { data, error } = await db.from('program_certificates')
-        .select('*, programs(title, organization_id, organizations(name, logo_url)), profiles!program_certificates_user_id_fkey(display_name)')
+      const { data: cert, error } = await db.from('program_certificates')
+        .select('*, programs(title, organization_id, organizations(name, logo_url))')
         .eq('certificate_number', certNumber)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      if (!cert) return null;
+
+      // Fetch profile separately (no FK from program_certificates to profiles)
+      const { data: profile } = await db.from('profiles')
+        .select('display_name')
+        .eq('id', cert.user_id)
+        .maybeSingle();
+
+      return { ...cert, profile };
     },
     enabled: !!certNumber,
   });
 
-  const isValid = !!cert;
-  const recipientName = cert?.profiles?.display_name || 'Apprenant';
-  const programTitle = cert?.programs?.title || '';
-  const orgName = cert?.programs?.organizations?.name || '';
-  const orgLogo = cert?.programs?.organizations?.logo_url;
-  const issuedAt = cert?.issued_at ? format(new Date(cert.issued_at), 'dd MMMM yyyy', { locale: fr }) : '';
+  const isValid = !!certData;
+  const recipientName = certData?.profile?.display_name || 'Apprenant';
+  const programTitle = (certData?.programs as any)?.title || '';
+  const orgName = (certData?.programs as any)?.organizations?.name || '';
+  const orgLogo = (certData?.programs as any)?.organizations?.logo_url;
+  const issuedAt = certData?.issued_at ? format(new Date(certData.issued_at), 'dd MMMM yyyy', { locale: fr }) : '';
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50/50 via-background to-background dark:from-amber-950/10 flex items-center justify-center p-4">
