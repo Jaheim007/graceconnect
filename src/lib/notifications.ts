@@ -332,12 +332,12 @@ export async function onDirectoryDecision(
 // ── Org suspended / unsuspended ──
 export async function onOrgSuspended(orgId: string, orgName: string, reason: string, until?: string) {
   emailOrgAdmins('org_suspended', orgId, { org_name: orgName, reason, until: until || '' });
-  notifyOrgMembers(orgId, '⚠️ Organisation suspendue', `${orgName} a été suspendue. Raison: ${reason}`, 'system');
+  notifyOrgMembers(orgId, '⚠️ Organisation suspendue', `${orgName} a été suspendue. Raison: ${reason}`, 'system', undefined, `/feed`);
 }
 
 export async function onOrgUnsuspended(orgId: string, orgName: string) {
   emailOrgAdmins('org_unsuspended', orgId, { org_name: orgName });
-  notifyOrgMembers(orgId, '✅ Suspension levée', `${orgName} est de nouveau active.`, 'system');
+  notifyOrgMembers(orgId, '✅ Suspension levée', `${orgName} est de nouveau active.`, 'system', undefined, `/feed`);
 }
 
 // ── Payouts frozen ──
@@ -365,7 +365,7 @@ export async function onKycStatusChanged(
     approved: `Le KYC de ${orgName} a été approuvé ! Vous pouvez activer la monétisation.`,
     rejected: `Le KYC de ${orgName} nécessite une attention. ${reason || 'Veuillez contacter le support.'}`,
   };
-  notifyOrgMembers(orgId, `${icons[status]} KYC ${status === 'submitted' ? 'soumis' : status === 'approved' ? 'approuvé' : 'rejeté'}`, msgs[status], 'org');
+  notifyOrgMembers(orgId, `${icons[status]} KYC ${status === 'submitted' ? 'soumis' : status === 'approved' ? 'approuvé' : 'rejeté'}`, msgs[status], 'org', undefined, `/admin/kyc`);
 }
 
 // ── Support tickets ──
