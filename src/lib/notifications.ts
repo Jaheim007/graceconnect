@@ -153,7 +153,7 @@ export async function onRoleChanged(
     `Votre rôle dans ${orgName} est maintenant : ${newRole}.`,
     'role_changed',
     { org_name: orgName, new_role: newRole, old_role: oldRole || '' },
-    'org', orgId,
+    'org', orgId, `/feed`,
   );
 }
 
@@ -171,7 +171,7 @@ export async function onInviteAccepted(
     `${memberName} a accepté votre invitation pour ${orgName}.`,
     'invite_accepted',
     { member_name: memberName, org_name: orgName },
-    'org', orgId,
+    'org', orgId, `/admin/members`,
   );
 }
 
@@ -382,7 +382,7 @@ export async function onTicketCreated(
     `Votre ticket "${subject}" a été enregistré. Notre équipe vous répondra sous 24–48h.`,
     'ticket_created',
     { ticket_id: ticketId, subject, category },
-    'support',
+    'support', undefined, `/support`,
   );
 }
 
@@ -398,7 +398,7 @@ export async function onTicketReplied(
     `Un agent a répondu à votre ticket.`,
     'ticket_replied',
     { ticket_id: ticketId, reply_preview: replyPreview },
-    'support',
+    'support', undefined, `/support`,
   );
 }
 
@@ -414,7 +414,7 @@ export async function onTicketResolved(
     `Votre ticket "${subject}" a été marqué comme résolu.`,
     'ticket_resolved',
     { ticket_id: ticketId, subject },
-    'support',
+    'support', undefined, `/support`,
   );
 }
 
