@@ -2,14 +2,14 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
 /**
  * transcribe-source — Converts video/audio/image sources to text for the writing wizard.
  * 
  * Supports:
- *   - YouTube video URL → transcript via Gemini
+ *   - YouTube video URL → transcript via Gemini (native video understanding)
  *   - Facebook video URL → transcript via Gemini
  *   - Audio file (uploaded to storage) → transcript via Gemini
  *   - Image of handwritten notes (OCR) → text via Gemini
@@ -57,14 +57,50 @@ Deno.serve(async (req) => {
     switch (source_type) {
       case 'youtube': {
         if (!url) throw new Error('URL required for YouTube source');
-        transcribedText = await transcribeWithGemini(GEMINI_API_KEY, {
-          prompt: `You are a content transcription assistant. Extract and transcribe all spoken content from this YouTube video. 
-          Return ONLY the transcribed text, well-formatted with paragraphs. 
-          If the video has multiple topics, organize them with headings.
-          URL: ${url}`,
-          type: 'url',
-          url,
+        
+        // Extract video ID for YouTube
+        const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?.*v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+        if (!ytMatch) throw new Error('Invalid YouTube URL');
+        
+        // Use Gemini with fileData for native YouTube video understanding
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [
+                { 
+                  fileData: { 
+                    fileUri: `https://www.youtube.com/watch?v=${ytMatch[1]}`,
+                    mimeType: 'video/mp4'
+                  }
+                },
+                { text: `You are a professional content transcription assistant. Extract and transcribe ALL spoken content from this YouTube video.
+
+Rules:
+- Return ONLY the transcribed text, well-formatted with clear paragraphs
+- If the video covers multiple topics, organize them with descriptive headings (## Heading)
+- Preserve the speaker's tone and key phrases
+- Include all important details, examples, and anecdotes mentioned
+- If there are multiple speakers, indicate speaker changes with "**Speaker 1:**", "**Speaker 2:**", etc.
+- Minimum output: 500 words (transcribe everything, don't summarize)
+- Language: transcribe in the ORIGINAL language of the video` },
+              ],
+            }],
+            generationConfig: { maxOutputTokens: 16384, temperature: 0.1 },
+          }),
         });
+        const data = await res.json();
+        transcribedText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        
+        if (!transcribedText || transcribedText.length < 50) {
+          // Fallback: try with just the URL in text prompt
+          transcribedText = await transcribeWithGemini(GEMINI_API_KEY, {
+            prompt: `You are a content transcription assistant. Based on this YouTube video URL, extract and transcribe all spoken content.
+            Return ONLY the transcribed text, well-formatted with paragraphs. If the video has multiple topics, organize them with headings.
+            Minimum output: 500 words. URL: ${url}`,
+          });
+        }
         break;
       }
 
@@ -73,16 +109,13 @@ Deno.serve(async (req) => {
         transcribedText = await transcribeWithGemini(GEMINI_API_KEY, {
           prompt: `You are a content transcription assistant. Extract and transcribe all spoken content from this Facebook video.
           Return ONLY the transcribed text, well-formatted with paragraphs.
-          URL: ${url}`,
-          type: 'url',
-          url,
+          Minimum output: 500 words. URL: ${url}`,
         });
         break;
       }
 
       case 'audio': {
         if (!storage_path) throw new Error('storage_path required for audio source');
-        // Get signed URL for the audio file
         const { data: signedData, error: signErr } = await db.storage
           .from('org-uploads')
           .createSignedUrl(storage_path, 3600);
@@ -96,13 +129,19 @@ Deno.serve(async (req) => {
           : storage_path.endsWith('.wav') ? 'audio/wav'
           : storage_path.endsWith('.m4a') ? 'audio/mp4'
           : storage_path.endsWith('.ogg') ? 'audio/ogg'
+          : storage_path.endsWith('.aac') ? 'audio/aac'
           : 'audio/mpeg';
 
         transcribedText = await transcribeWithGeminiInline(GEMINI_API_KEY, {
-          prompt: `Transcribe this audio recording into well-structured text. 
-          Organize the content with clear paragraphs. 
-          If there are multiple speakers, indicate speaker changes.
-          Return ONLY the transcribed text.`,
+          prompt: `You are a professional transcription assistant. Transcribe this audio recording into well-structured text.
+
+Rules:
+- Organize the content with clear paragraphs and headings where appropriate
+- If there are multiple speakers, indicate speaker changes
+- Preserve key phrases, quotes, and specific terminology
+- Include ALL content — do not summarize or skip sections
+- Minimum output: 300 words
+- Return ONLY the transcribed text, clean and well-formatted`,
           base64Data: base64Audio,
           mimeType,
         });
@@ -111,7 +150,6 @@ Deno.serve(async (req) => {
 
       case 'notes_photo': {
         if (!storage_path) throw new Error('storage_path required for notes photo');
-        // Get signed URL for the image
         const { data: imgSigned, error: imgErr } = await db.storage
           .from('org-uploads')
           .createSignedUrl(storage_path, 3600);
@@ -120,13 +158,20 @@ Deno.serve(async (req) => {
         const imgResp = await fetch(imgSigned.signedUrl);
         const imgBuffer = await imgResp.arrayBuffer();
         const base64Img = btoa(String.fromCharCode(...new Uint8Array(imgBuffer)));
-        const imgMime = storage_path.endsWith('.png') ? 'image/png' : 'image/jpeg';
+        const imgMime = storage_path.endsWith('.png') ? 'image/png' 
+          : storage_path.endsWith('.webp') ? 'image/webp'
+          : 'image/jpeg';
 
         transcribedText = await transcribeWithGeminiInline(GEMINI_API_KEY, {
-          prompt: `You are an OCR assistant. Read and transcribe ALL handwritten or printed text visible in this image.
-          Organize the text logically with paragraphs and headings if applicable.
-          Preserve the original structure and meaning.
-          Return ONLY the transcribed text, clean and well-formatted.`,
+          prompt: `You are an expert OCR and text extraction assistant. Read and transcribe ALL handwritten or printed text visible in this image.
+
+Rules:
+- Organize the text logically with paragraphs and headings if applicable
+- Preserve the original structure, meaning and organization of the notes
+- If there are bullet points, numbered lists, or diagrams with labels, reproduce them
+- Correct obvious spelling mistakes but keep the original language
+- Return ONLY the transcribed text, clean and well-formatted
+- If some text is partially illegible, include your best interpretation in [brackets]`,
           base64Data: base64Img,
           mimeType: imgMime,
         });
@@ -135,6 +180,15 @@ Deno.serve(async (req) => {
 
       default:
         throw new Error(`Unknown source_type: ${source_type}`);
+    }
+
+    if (!transcribedText || transcribedText.trim().length < 10) {
+      return new Response(JSON.stringify({ 
+        ok: false, 
+        error: 'Could not extract meaningful text from the provided source. Please try with a different source or check the quality of the input.' 
+      }), {
+        status: 422, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const wordCount = transcribedText.split(/\s+/).filter(Boolean).length;
@@ -162,8 +216,8 @@ Deno.serve(async (req) => {
   }
 });
 
-/** Call Gemini with a URL-based prompt */
-async function transcribeWithGemini(apiKey: string, opts: { prompt: string; type: string; url: string }): Promise<string> {
+/** Call Gemini with a text-only prompt */
+async function transcribeWithGemini(apiKey: string, opts: { prompt: string }): Promise<string> {
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -173,7 +227,7 @@ async function transcribeWithGemini(apiKey: string, opts: { prompt: string; type
           { text: opts.prompt },
         ],
       }],
-      generationConfig: { maxOutputTokens: 8192, temperature: 0.1 },
+      generationConfig: { maxOutputTokens: 16384, temperature: 0.1 },
     }),
   });
   const data = await res.json();
@@ -192,7 +246,7 @@ async function transcribeWithGeminiInline(apiKey: string, opts: { prompt: string
           { inlineData: { mimeType: opts.mimeType, data: opts.base64Data } },
         ],
       }],
-      generationConfig: { maxOutputTokens: 8192, temperature: 0.1 },
+      generationConfig: { maxOutputTokens: 16384, temperature: 0.1 },
     }),
   });
   const data = await res.json();
