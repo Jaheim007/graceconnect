@@ -708,7 +708,7 @@ export default function WriteWizard() {
         description: err.message,
         variant: 'destructive',
       });
-      setStep(5);
+      setStep(PDF_PREVIEW_STEP);
     } finally {
       setPublishing(false);
     }
