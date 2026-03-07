@@ -120,10 +120,17 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     });
     if (!error) {
       refetchOrgs();
-      // Find org name for notification
-      const org = userOrgs.find(o => o.id === orgId);
+      // Fetch org name directly — userOrgs doesn't contain it yet since user just joined
+      let orgName = 'une organisation';
+      const localOrg = userOrgs.find(o => o.id === orgId);
+      if (localOrg?.name) {
+        orgName = localOrg.name;
+      } else {
+        const { data: orgRow } = await supabase.from('organizations').select('name').eq('id', orgId).single();
+        if (orgRow?.name) orgName = orgRow.name;
+      }
       const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Someone';
-      onMemberJoined(user.id, user.email || undefined, userName, orgId, org?.name || 'Organization');
+      onMemberJoined(user.id, user.email || undefined, userName, orgId, orgName);
     }
     return { error: error as Error | null };
   };
