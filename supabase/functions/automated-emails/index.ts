@@ -1068,6 +1068,148 @@ Deno.serve(async (req) => {
     }
     results['weekly_digest'] = digestCount;
 
+    // ═══════════════════════════════════════════
+    // WEEKLY AMBASSADOR DIGEST (Mondays — top products to promote)
+    // ═══════════════════════════════════════════
+    let ambassadorDigestCount = 0;
+    if (dayOfWeek === 1) { // Only on Mondays
+      const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000).toISOString();
+
+      // Get top 5 products with highest commission potential from last 7 days
+      const { data: topProducts } = await db.from('digital_products')
+        .select('title, slug, price, currency, is_free, cover_image_url, created_at, organizations!inner(name, slug, affiliation_enabled, affiliation_commission_percent)')
+        .eq('is_published', true)
+        .eq('is_express_demo', false)
+        .eq('organizations.affiliation_enabled', true)
+        .gte('created_at', sevenDaysAgo)
+        .order('price', { ascending: false })
+        .limit(20);
+
+      if (topProducts && topProducts.length > 0) {
+        // Sort by potential earning (price * commission%)
+        const ranked = topProducts
+          .map((p: any) => ({
+            ...p,
+            commission: p.organizations?.affiliation_commission_percent || 10,
+            earning: Math.round((p.price || 0) * (p.organizations?.affiliation_commission_percent || 10) / 100),
+          }))
+          .sort((a: any, b: any) => b.earning - a.earning)
+          .slice(0, 5);
+
+        const productList = ranked.map((p: any) => ({
+          title: p.title,
+          url: `https://siteviral.com/org/${p.organizations?.slug || ''}/p/${p.slug || ''}`,
+          image: p.cover_image_url || '',
+          price: p.is_free ? 'Gratuit' : `${p.price} ${p.currency || 'XOF'}`,
+          commission: `${p.commission}%`,
+          earning: `${p.earning} ${p.currency || 'XOF'}`,
+          org_name: p.organizations?.name || '',
+        }));
+
+        // Get all active ambassadors (users with at least 1 active affiliate link)
+        const { data: activeAmbassadors } = await db.from('affiliate_links')
+          .select('user_id')
+          .eq('is_active', true)
+          .limit(1000);
+
+        // Deduplicate user IDs
+        const uniqueUserIds = [...new Set((activeAmbassadors || []).map((a: any) => a.user_id))];
+
+        // Check who already received this week's digest
+        const { data: alreadySent } = await db.from('email_logs')
+          .select('recipient')
+          .eq('template', 'ambassador_weekly_digest')
+          .gte('created_at', sevenDaysAgo);
+        const sentEmails = new Set((alreadySent || []).map((e: any) => e.recipient));
+
+        for (const userId of uniqueUserIds) {
+          const email = await getUserEmail(userId as string);
+          if (email && !sentEmails.has(email)) {
+            await sendEmail({
+              template: 'ambassador_weekly_digest' as any,
+              to: email,
+              data: {
+                products: productList,
+                count: productList.length,
+                subject: '💰 Top 5 produits à promouvoir cette semaine',
+              },
+            });
+            ambassadorDigestCount++;
+          }
+        }
+      }
+    }
+    results['ambassador_weekly_digest'] = ambassadorDigestCount;
+
+    // ═══════════════════════════════════════════
+    // HIGH-COMMISSION PRODUCT INSTANT EMAIL ALERT
+    // (Runs every cycle — catches products published in last 2h)
+    // ═══════════════════════════════════════════
+    let highCommissionAlertCount = 0;
+    {
+      const twoHoursAgo = new Date(now.getTime() - 2 * 3600000).toISOString();
+
+      // Find recently published high-commission products
+      const { data: recentHighProducts } = await db.from('digital_products')
+        .select('id, title, slug, price, currency, cover_image_url, organizations!inner(id, name, slug, affiliation_enabled, affiliation_commission_percent)')
+        .eq('is_published', true)
+        .eq('is_express_demo', false)
+        .eq('organizations.affiliation_enabled', true)
+        .gte('created_at', twoHoursAgo)
+        .limit(10);
+
+      // Filter for high-value: >=20% commission OR high absolute earning
+      const highValueProducts = (recentHighProducts || []).filter((p: any) => {
+        const comm = p.organizations?.affiliation_commission_percent || 10;
+        const earning = Math.round((p.price || 0) * comm / 100);
+        const currency = p.currency || 'XOF';
+        return comm >= 20 || (currency === 'XOF' && earning >= 1000) || (currency !== 'XOF' && earning >= 2);
+      });
+
+      for (const product of highValueProducts) {
+        const comm = product.organizations?.affiliation_commission_percent || 10;
+        const earning = Math.round((product.price || 0) * comm / 100);
+
+        // Check if alert already sent for this product
+        const { count: alreadyAlerted } = await db.from('email_logs')
+          .select('*', { count: 'exact', head: true })
+          .eq('template', 'high_commission_alert')
+          .ilike('metadata->>product_id', product.id);
+        if ((alreadyAlerted || 0) > 0) continue;
+
+        // Get all active ambassadors
+        const { data: ambassadors } = await db.from('affiliate_links')
+          .select('user_id')
+          .eq('is_active', true)
+          .neq('organization_id', product.organizations?.id || '')
+          .limit(500);
+
+        const uniqueIds = [...new Set((ambassadors || []).map((a: any) => a.user_id))];
+
+        for (const userId of uniqueIds) {
+          const email = await getUserEmail(userId as string);
+          if (email) {
+            await sendEmail({
+              template: 'high_commission_alert' as any,
+              to: email,
+              data: {
+                product_title: product.title,
+                product_url: `https://siteviral.com/org/${product.organizations?.slug || ''}/p/${product.slug || ''}`,
+                product_image: product.cover_image_url || '',
+                commission_percent: `${comm}%`,
+                earning_amount: `${earning} ${product.currency || 'XOF'}`,
+                org_name: product.organizations?.name || '',
+                subject: `💰 ${comm}% de commission — "${product.title}" vient d'être publié !`,
+                product_id: product.id,
+              },
+            });
+            highCommissionAlertCount++;
+          }
+        }
+      }
+    }
+    results['high_commission_alerts'] = highCommissionAlertCount;
+
     return new Response(JSON.stringify({ ok: true, results }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
