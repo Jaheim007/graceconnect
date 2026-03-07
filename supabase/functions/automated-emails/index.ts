@@ -1069,10 +1069,11 @@ Deno.serve(async (req) => {
     results['weekly_digest'] = digestCount;
 
     // ═══════════════════════════════════════════
-    // WEEKLY AMBASSADOR DIGEST (Mondays — top products to promote)
+    // AMBASSADOR DIGEST (Weekly — top products to promote)
+    // Runs any day but dedup prevents re-sending within 7 days
     // ═══════════════════════════════════════════
     let ambassadorDigestCount = 0;
-    if (dayOfWeek === 1) { // Only on Mondays
+    {
       const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000).toISOString();
 
       // Get top 5 products with highest commission potential from last 7 days
