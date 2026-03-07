@@ -291,9 +291,19 @@ export function ProductForm() {
               <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={shareLink}><Share2 className="h-3.5 w-3.5" /></Button>
             </div>
           </div>
-          <Button type="button" variant="outline" size="sm" className="gap-2 w-full sm:w-auto" onClick={() => window.open(productUrl, '_blank')}>
-            <Eye className="h-4 w-4" /> Prévisualiser la page produit
-          </Button>
+          <div className="flex gap-2 flex-wrap">
+            <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => window.open(productUrl, '_blank')}>
+              <Eye className="h-4 w-4" /> Prévisualiser
+            </Button>
+            <PrintableQRCode
+              productTitle={watch('title') || ''}
+              productUrl={productUrl}
+              coverImageUrl={watch('cover_image_url')}
+              orgName={currentOrg?.name}
+              price={watch('price')}
+              currency={currentOrg?.currency || 'XOF'}
+            />
+          </div>
         </div>
       )}
 
