@@ -36,23 +36,12 @@ export function PrintableQRCode({ productTitle, productUrl, coverImageUrl, orgNa
 
   const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(shareUrl)}&color=1a1a2e&bgcolor=ffffff&margin=1`;
 
-  const handleDownload = async () => {
-    if (!cardRef.current) return;
-    try {
-      const { default: html2canvas } = await import('html2canvas' as any).catch(() => ({ default: null }));
-      if (html2canvas) {
-        const canvas = await html2canvas(cardRef.current, { scale: 3, useCORS: true });
-        const link = document.createElement('a');
-        link.download = `qr-${productTitle.slice(0, 30).replace(/\s+/g, '-')}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      } else {
-        // Fallback: download QR image directly
-        window.open(qrApiUrl, '_blank');
-      }
-    } catch {
-      window.open(qrApiUrl, '_blank');
-    }
+  const handleDownload = () => {
+    const link = document.createElement('a');
+    link.href = qrApiUrl;
+    link.target = '_blank';
+    link.download = `qr-${productTitle.slice(0, 30).replace(/\s+/g, '-')}.png`;
+    link.click();
   };
 
   const handlePrint = () => {
