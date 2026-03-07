@@ -19,7 +19,7 @@ export function PaymentMethodSelector({ value, onChange, currency, className, pa
   const effectiveValue: PaymentMethod = (showMoMo || showApplePay || showMoneroo) ? value : 'card';
 
   const methodCount = [showMoMo, showApplePay, showMoneroo, true].filter(Boolean).length;
-  const gridCols = methodCount >= 4 ? 'grid-cols-4' : methodCount === 3 ? 'grid-cols-3' : methodCount === 2 ? 'grid-cols-2' : 'grid-cols-1';
+  const gridCols = methodCount >= 5 ? 'grid-cols-3' : methodCount >= 4 ? 'grid-cols-2' : methodCount === 3 ? 'grid-cols-3' : methodCount === 2 ? 'grid-cols-2' : 'grid-cols-1';
 
   return (
     <div className={cn('space-y-2', className)}>

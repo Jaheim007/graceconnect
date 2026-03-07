@@ -371,7 +371,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
             <ShoppingBag className="h-4 w-4 text-primary" />
             {product.is_free ? 'Télécharger gratuitement' : 'Acheter ce produit'}
           </DialogTitle>
-          <DialogDescription className="line-clamp-4 break-words text-sm leading-relaxed">{product.description}</DialogDescription>
+          <DialogDescription className="line-clamp-4 break-words text-sm leading-relaxed">{product.description?.replace(/<[^>]*>/g, '') || ''}</DialogDescription>
         </DialogHeader>
 
         {/* ── CONFIRM ─── */}
