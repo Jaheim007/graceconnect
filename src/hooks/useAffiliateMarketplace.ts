@@ -24,7 +24,7 @@ export function useAffiliateMarketplace(search?: string) {
     queryKey: ['affiliate-marketplace', search],
     queryFn: async () => {
       let query = db.from('digital_products')
-        .select('id, title, cover_image_url, price, currency, is_free, product_type, sales_count, slug, organizations!inner(id, name, slug, logo_url, affiliation_enabled, affiliation_commission_percent)')
+        .select('id, title, cover_image_url, price, currency, is_free, product_type, sales_count, slug, created_at, organizations!inner(id, name, slug, logo_url, affiliation_enabled, affiliation_commission_percent)')
         .eq('is_published', true)
         .eq('organizations.affiliation_enabled', true)
         .order('sales_count', { ascending: false })

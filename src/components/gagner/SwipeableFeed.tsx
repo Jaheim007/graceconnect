@@ -8,7 +8,7 @@ import { useAffiliateMarketplace } from '@/hooks/useAffiliateMarketplace';
 import { ProductSwipeCard } from './ProductSwipeCard';
 import { cn } from '@/lib/utils';
 
-type SortMode = 'trending' | 'commission' | 'price';
+type SortMode = 'trending' | 'commission' | 'price' | 'newest';
 
 export function SwipeableFeed() {
   const [search, setSearch] = useState('');
@@ -24,6 +24,9 @@ export function SwipeableFeed() {
     }
     if (sortMode === 'price') {
       return (b.price || 0) - (a.price || 0);
+    }
+    if (sortMode === 'newest') {
+      return new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime();
     }
     // trending = by sales_count (default)
     return (b.sales_count || 0) - (a.sales_count || 0);
@@ -58,6 +61,7 @@ export function SwipeableFeed() {
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1 scrollbar-hide">
           {[
             { key: 'trending' as SortMode, label: '🔥 Tendances', icon: Flame },
+            { key: 'newest' as SortMode, label: '🆕 Nouveaux', icon: TrendingUp },
             { key: 'commission' as SortMode, label: '💰 Meilleures commissions', icon: DollarSign },
             { key: 'price' as SortMode, label: '💎 Plus chers', icon: TrendingUp },
           ].map(s => (
