@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { useI18n } from '@/i18n/I18nContext';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, UserPlus, Flame } from 'lucide-react';
+import { ShoppingBag, UserPlus, Flame, X } from 'lucide-react';
 
 interface Activity {
   id: string;
