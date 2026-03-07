@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Loader2, CheckCircle, BookOpen, ArrowLeft, ArrowRight } from 'lucide-react';
+import { Loader2, CheckCircle, BookOpen, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,6 +14,25 @@ interface Props {
 
 type Phase = 'thinking' | 'generating' | 'done' | 'error';
 
+function getPlainText(content: string) {
+  return content
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function hasExistingGeneratedChapters(chapters: WriteChapter[]) {
+  if (!Array.isArray(chapters) || chapters.length === 0) return false;
+
+  return chapters.some((chapter) => {
+    const title = (chapter.title || '').trim();
+    const content = getPlainText(chapter.content || '');
+    return title.length > 0 || content.length > 0;
+  });
+}
+
 export function StepGenerating({ state, update, onNext, onBack }: Props) {
   const { t } = useI18n();
   const [phase, setPhase] = useState<Phase>('thinking');
@@ -21,7 +40,6 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
   const [totalChapters, setTotalChapters] = useState(0);
   const [errorMsg, setErrorMsg] = useState('');
   const [thinkingProgress, setThinkingProgress] = useState(12);
-  const [requiresManualContinue, setRequiresManualContinue] = useState(false);
   const aborted = useRef(false);
   const ran = useRef(false);
 
@@ -77,7 +95,6 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
       setVisibleChapters([]);
       setTotalChapters(0);
       setErrorMsg('');
-      setRequiresManualContinue(false);
 
       const attemptPageCounts = Array.from(new Set([
         state.pageCount,
@@ -133,7 +150,6 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
       if (aborted.current) return;
 
       setPhase('done');
-      setRequiresManualContinue(false);
       update({ chapters: finalChapters });
       setTimeout(() => {
         if (!aborted.current) onNext();
@@ -151,11 +167,13 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
     ran.current = true;
     aborted.current = false;
 
-    if (state.chapters && state.chapters.length > 0 && state.chapters[0].content.length > 30) {
+    if (hasExistingGeneratedChapters(state.chapters)) {
       setPhase('done');
-      setVisibleChapters(state.chapters.map((ch) => ch.title));
+      setVisibleChapters(state.chapters.map((ch, i) => ch.title?.trim() || `Chapitre ${i + 1}`));
       setTotalChapters(state.chapters.length);
-      setRequiresManualContinue(true);
+      setTimeout(() => {
+        if (!aborted.current) onNext();
+      }, 180);
       return;
     }
 
@@ -231,12 +249,6 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
         <Button variant="outline" onClick={onBack} className="gap-2">
           <ArrowLeft className="h-4 w-4" /> {t('write.back')}
         </Button>
-
-        {phase === 'done' && requiresManualContinue && (
-          <Button onClick={onNext} className="gap-2">
-            {t('write.continue') || 'Continuer'} <ArrowRight className="h-4 w-4" />
-          </Button>
-        )}
 
         {phase === 'error' && (
           <>
