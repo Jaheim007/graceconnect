@@ -20,7 +20,7 @@ import { WritingMotivation } from './WritingMotivation';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 
 export type SourceType = 'idea' | 'document' | 'youtube' | 'audio' | 'notes_photo';
-export type BookStyle = 'ebook' | 'guide' | 'prayers';
+export type BookStyle = 'ebook' | 'guide' | 'prayers' | 'story' | 'novel' | 'devotional' | 'activity';
 export type WritingTone = 'professional' | 'conversational' | 'humorous' | 'spiritual' | 'poetic' | 'academic';
 export type LanguageLevel = 'simple' | 'intermediate' | 'advanced';
 export type TargetAudience = 'general' | 'children' | 'teens' | 'adults' | 'seniors' | 'professionals';
@@ -100,10 +100,13 @@ interface LoadedWriteDraft {
 const STORAGE_KEY = 'write_wizard_drafts_v2';
 const LEGACY_STORAGE_KEY = 'write_wizard_draft';
 
-const PDF_PREVIEW_STEP = 7;
-const PUBLISHING_STEP = 8;
-const CELEBRATION_STEP = 9;
-const STEP_LABELS = ['Source', 'Détails', '🎯 Stratégie', 'Création', 'Aperçu', 'Couverture', 'Prix', 'Aperçu PDF', 'Sauvegarde', '🎉'];
+const ILLUSTRATIONS_STEP = 5;
+const COVER_STEP = 6;
+const PRICING_STEP = 7;
+const PDF_PREVIEW_STEP = 8;
+const PUBLISHING_STEP = 9;
+const CELEBRATION_STEP = 10;
+const STEP_LABELS = ['Source', 'Détails', '🎯 Stratégie', 'Création', 'Aperçu', '🎨 Illustrations', 'Couverture', 'Prix', 'Aperçu PDF', 'Sauvegarde', '🎉'];
 
 type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
 
