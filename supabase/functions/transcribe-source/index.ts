@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
         if (!storage_path) throw new Error('storage_path required for audio source');
         // Get signed URL for the audio file
         const { data: signedData, error: signErr } = await db.storage
-          .from('uploads')
+          .from('org-uploads')
           .createSignedUrl(storage_path, 3600);
         if (signErr || !signedData?.signedUrl) throw new Error('Could not access audio file');
 
@@ -113,7 +113,7 @@ Deno.serve(async (req) => {
         if (!storage_path) throw new Error('storage_path required for notes photo');
         // Get signed URL for the image
         const { data: imgSigned, error: imgErr } = await db.storage
-          .from('uploads')
+          .from('org-uploads')
           .createSignedUrl(storage_path, 3600);
         if (imgErr || !imgSigned?.signedUrl) throw new Error('Could not access image file');
 
