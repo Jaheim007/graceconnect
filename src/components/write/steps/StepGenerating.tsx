@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { supabase } from '@/integrations/supabase/client';
 import type { WriteState, WriteChapter } from '../WriteWizard';
+import { hasGeneratedContent } from '../utils/hasGeneratedContent';
 
 interface Props {
   state: WriteState;
@@ -13,25 +14,6 @@ interface Props {
 }
 
 type Phase = 'thinking' | 'generating' | 'done' | 'error';
-
-function getPlainText(content: string) {
-  return content
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function hasExistingGeneratedChapters(chapters: WriteChapter[]) {
-  if (!Array.isArray(chapters) || chapters.length === 0) return false;
-
-  return chapters.some((chapter) => {
-    const title = (chapter.title || '').trim();
-    const content = getPlainText(chapter.content || '');
-    return title.length > 0 || content.length > 0;
-  });
-}
 
 export function StepGenerating({ state, update, onNext, onBack }: Props) {
   const { t } = useI18n();
@@ -167,7 +149,7 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
     ran.current = true;
     aborted.current = false;
 
-    if (hasExistingGeneratedChapters(state.chapters)) {
+    if (hasGeneratedContent(state.chapters)) {
       setPhase('done');
       setVisibleChapters(state.chapters.map((ch, i) => ch.title?.trim() || `Chapitre ${i + 1}`));
       setTotalChapters(state.chapters.length);
