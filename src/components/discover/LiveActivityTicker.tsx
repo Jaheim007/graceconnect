@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { useI18n } from '@/i18n/I18nContext';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, UserPlus, Flame } from 'lucide-react';
+import { ShoppingBag, UserPlus, Flame, X } from 'lucide-react';
 
 interface Activity {
   id: string;
@@ -31,6 +31,22 @@ export function LiveActivityTicker() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isClosed, setIsClosed] = useState(() => {
+    try {
+      return localStorage.getItem('live-ticker-closed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const handleClose = () => {
+    setIsClosed(true);
+    try {
+      localStorage.setItem('live-ticker-closed', 'true');
+    } catch {
+      // Silent fail
+    }
+  };
 
   const { data: activities = [] } = useQuery({
     queryKey: ['live-activity-ticker', locale],
@@ -121,12 +137,18 @@ export function LiveActivityTicker() {
     return () => clearInterval(interval);
   }, [activities.length]);
 
-  if (activities.length === 0) return null;
+  if (activities.length === 0 || isClosed) return null;
 
   const current = activities[currentIndex];
 
   return (
-    <div className="mb-5 overflow-hidden rounded-xl border border-border/60 bg-card/80 backdrop-blur-sm px-5 py-3.5 shadow-sm">
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.2 }}
+      className="mb-5 overflow-hidden rounded-xl border border-border/60 bg-card/80 backdrop-blur-sm px-5 py-3.5 shadow-sm"
+    >
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2 shrink-0">
           <span className="relative flex h-2.5 w-2.5">
@@ -152,7 +174,15 @@ export function LiveActivityTicker() {
             <span className="text-xs text-muted-foreground shrink-0">{current?.time}</span>
           </motion.div>
         </AnimatePresence>
+
+        <button
+          onClick={handleClose}
+          className="ml-auto shrink-0 p-1 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground"
+          aria-label={isFr ? "Fermer" : "Close"}
+        >
+          <X className="h-4 w-4" />
+        </button>
       </div>
-    </div>
+    </motion.div>
   );
 }
