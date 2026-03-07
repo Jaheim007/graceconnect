@@ -1,9 +1,12 @@
-import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, BookMarked, Users, Baby, User, Briefcase, UserCog, Globe, Wand2 } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, BookMarked, Users, Baby, User, Briefcase, UserCog, Globe, Wand2, Sparkles, Loader2, BookText, Palette, PenTool } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { useI18n } from '@/i18n/I18nContext';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import type { WriteState, BookStyle, WritingTone, LanguageLevel, TargetAudience, BookLanguage } from '../WriteWizard';
 
 interface Props {
@@ -15,11 +18,18 @@ interface Props {
 
 export function StepParams({ state, update, onNext, onBack }: Props) {
   const { t } = useI18n();
+  const { toast } = useToast();
+  const [suggestingTitles, setSuggestingTitles] = useState(false);
+  const [titleSuggestions, setTitleSuggestions] = useState<string[]>([]);
 
   const styles: { type: BookStyle; icon: typeof BookOpen; label: string; desc: string }[] = [
     { type: 'ebook', icon: BookOpen, label: t('write.style_ebook'), desc: t('write.style_ebook_desc') },
     { type: 'guide', icon: FileText, label: t('write.style_guide'), desc: t('write.style_guide_desc') },
     { type: 'prayers', icon: Heart, label: t('write.style_prayers'), desc: t('write.style_prayers_desc') },
+    { type: 'story', icon: BookText, label: t('write.style_story') || 'Conte / Histoire', desc: t('write.style_story_desc') || 'Histoires captivantes, personnages mémorables' },
+    { type: 'novel', icon: PenTool, label: t('write.style_novel') || 'Roman / Fiction', desc: t('write.style_novel_desc') || 'Récits fictionnels, nouvelles' },
+    { type: 'devotional', icon: Church, label: t('write.style_devotional') || 'Dévotion', desc: t('write.style_devotional_desc') || 'Journal spirituel, méditations quotidiennes' },
+    { type: 'activity', icon: Palette, label: t('write.style_activity') || 'Cahier d\'activités', desc: t('write.style_activity_desc') || 'Exercices, quiz, coloriage' },
   ];
 
   const tones: { type: WritingTone; icon: typeof MessageSquare; label: string }[] = [
@@ -58,6 +68,32 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
     ? state.topic.length > 40 ? state.topic.substring(0, 40) + '…' : state.topic
     : '';
 
+  const handleSuggestTitles = async () => {
+    if (suggestingTitles) return;
+    setSuggestingTitles(true);
+    setTitleSuggestions([]);
+    try {
+      const { data, error } = await supabase.functions.invoke('suggest-titles', {
+        body: {
+          topic: state.topic || state.title || '',
+          style: state.style,
+          audience: state.targetAudience,
+          language: state.language || 'fr',
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (Array.isArray(data?.titles)) {
+        setTitleSuggestions(data.titles);
+      }
+    } catch (err: any) {
+      console.error('Title suggestion error:', err);
+      toast({ title: '❌ Erreur', description: err?.message, variant: 'destructive' });
+    } finally {
+      setSuggestingTitles(false);
+    }
+  };
+
   return (
     <div className="space-y-6 pt-6">
       <div className="text-center space-y-2">
@@ -67,19 +103,51 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
 
       {/* Title */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">{t('write.title_label')}</label>
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium">{t('write.title_label')}</label>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="gap-1.5 text-xs h-7 text-primary"
+            disabled={suggestingTitles || !state.topic?.trim()}
+            onClick={handleSuggestTitles}
+          >
+            {suggestingTitles ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Sparkles className="h-3 w-3" />
+            )}
+            {t('write.suggest_titles') || '✨ Suggérer des titres'}
+          </Button>
+        </div>
         <Input
           value={state.title || suggestedTitle}
           onChange={e => update({ title: e.target.value })}
           placeholder={t('write.title_placeholder')}
           className="h-12 text-base"
         />
+        {/* Title suggestions */}
+        {titleSuggestions.length > 0 && (
+          <div className="space-y-1.5">
+            {titleSuggestions.map((suggestion, i) => (
+              <button
+                key={i}
+                onClick={() => { update({ title: suggestion }); setTitleSuggestions([]); }}
+                className="w-full text-left px-3 py-2 rounded-lg border border-border hover:border-primary/40 hover:bg-primary/5 transition-colors text-sm"
+              >
+                <span className="text-primary font-bold mr-2">{i + 1}.</span>
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Style */}
       <div className="space-y-2">
         <label className="text-sm font-medium">{t('write.style_label')}</label>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {styles.map(s => (
             <button
               key={s.type}

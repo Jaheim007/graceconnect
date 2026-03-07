@@ -11,6 +11,7 @@ import { StepEditorialStrategy } from './steps/StepEditorialStrategy';
 import { StepGenerating } from './steps/StepGenerating';
 import { StepPreview } from './steps/StepPreview';
 import { StepCover } from './steps/StepCover';
+import { StepIllustrations } from './steps/StepIllustrations';
 import { StepPricing } from './steps/StepPricing';
 import { StepCelebration } from './steps/StepCelebration';
 import { StepPublishing } from './steps/StepPublishing';
@@ -20,7 +21,7 @@ import { WritingMotivation } from './WritingMotivation';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 
 export type SourceType = 'idea' | 'document' | 'youtube' | 'audio' | 'notes_photo';
-export type BookStyle = 'ebook' | 'guide' | 'prayers';
+export type BookStyle = 'ebook' | 'guide' | 'prayers' | 'story' | 'novel' | 'devotional' | 'activity';
 export type WritingTone = 'professional' | 'conversational' | 'humorous' | 'spiritual' | 'poetic' | 'academic';
 export type LanguageLevel = 'simple' | 'intermediate' | 'advanced';
 export type TargetAudience = 'general' | 'children' | 'teens' | 'adults' | 'seniors' | 'professionals';
@@ -58,6 +59,7 @@ export interface WriteState {
   pageCount: number;
   editorialStrategy?: EditorialStrategy;
   chapters: WriteChapter[];
+  chapterIllustrations: Record<string, string>; // chapter id -> image URL
   coverTemplate: number;
   coverFile: File | null;
   coverUrl?: string;
@@ -100,10 +102,13 @@ interface LoadedWriteDraft {
 const STORAGE_KEY = 'write_wizard_drafts_v2';
 const LEGACY_STORAGE_KEY = 'write_wizard_draft';
 
-const PDF_PREVIEW_STEP = 7;
-const PUBLISHING_STEP = 8;
-const CELEBRATION_STEP = 9;
-const STEP_LABELS = ['Source', 'Détails', '🎯 Stratégie', 'Création', 'Aperçu', 'Couverture', 'Prix', 'Aperçu PDF', 'Sauvegarde', '🎉'];
+const ILLUSTRATIONS_STEP = 5;
+const COVER_STEP = 6;
+const PRICING_STEP = 7;
+const PDF_PREVIEW_STEP = 8;
+const PUBLISHING_STEP = 9;
+const CELEBRATION_STEP = 10;
+const STEP_LABELS = ['Source', 'Détails', '🎯 Stratégie', 'Création', 'Aperçu', '🎨 Illustrations', 'Couverture', 'Prix', 'Aperçu PDF', 'Sauvegarde', '🎉'];
 
 type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
 
@@ -122,6 +127,7 @@ const initialState: WriteState = {
   styleReference: '',
   pageCount: 20,
   chapters: [],
+  chapterIllustrations: {},
   coverTemplate: 0,
   coverFile: null,
   coverUrl: '',
@@ -749,8 +755,9 @@ export default function WriteWizard() {
             {step === 2 && <StepEditorialStrategy state={state} update={update} onNext={next} onBack={back} />}
             {step === 3 && <StepGenerating state={state} update={update} onNext={next} />}
             {step === 4 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
-            {step === 5 && <StepCover state={state} update={update} onNext={next} onBack={back} />}
-            {step === 6 && <StepPricing state={state} update={update} onNext={next} onBack={back} />}
+            {step === ILLUSTRATIONS_STEP && <StepIllustrations state={state} update={update} onNext={next} onBack={back} />}
+            {step === COVER_STEP && <StepCover state={state} update={update} onNext={next} onBack={back} />}
+            {step === PRICING_STEP && <StepPricing state={state} update={update} onNext={next} onBack={back} />}
             {step === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} onSaveDraft={saveCurrentDraftNow} saving={publishing} />}
             {step === PUBLISHING_STEP && <StepPublishing stage={publishingStage} willCreateOrg={willCreateOrg} />}
             {step === CELEBRATION_STEP && <StepCelebration state={state} onWriteAnother={handleCreateNewDraft} />}
