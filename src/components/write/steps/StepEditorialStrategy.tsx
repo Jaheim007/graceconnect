@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Loader2, Target, Lightbulb, BookOpen, Sparkles, RefreshCw, CheckCircle, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
+import { Loader2, Target, Lightbulb, BookOpen, Sparkles, RefreshCw, CheckCircle, ChevronDown, ChevronUp, Pencil, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useI18n } from '@/i18n/I18nContext';
@@ -149,6 +149,12 @@ export function StepEditorialStrategy({ state, update, onNext, onBack }: Props) 
     { key: 'narrative_arc', icon: BookOpen, label: t('write.strategy_arc'), color: 'text-emerald-500' },
   ];
 
+  const hasGeneratedBook = state.chapters.some((chapter) => {
+    const title = (chapter.title || '').trim();
+    const content = (chapter.content || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    return title.length > 0 || content.length > 0;
+  });
+
   return (
     <div className="space-y-6 pt-8">
       <div className="text-center space-y-2">
@@ -251,7 +257,7 @@ export function StepEditorialStrategy({ state, update, onNext, onBack }: Props) 
           <RefreshCw className="h-3.5 w-3.5" /> {t('write.strategy_regenerate')}
         </Button>
         <Button onClick={onNext} className="gap-2">
-          {t('write.strategy_continue')} <Sparkles className="h-4 w-4" />
+          {hasGeneratedBook ? t('common.next') : t('write.strategy_continue')} <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
     </div>
