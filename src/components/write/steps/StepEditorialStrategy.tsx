@@ -124,11 +124,14 @@ export function StepEditorialStrategy({ state, update, onNext, onBack }: Props) 
         </div>
         <h2 className="text-2xl font-extrabold">{t('write.strategy_error')}</h2>
         <p className="text-sm text-muted-foreground">{errorMsg}</p>
-        <div className="flex gap-2 justify-center">
+        <div className="flex gap-2 justify-center flex-wrap">
+          <Button variant="outline" onClick={onBack} className="gap-2">
+            {t('write.back')}
+          </Button>
           <Button onClick={() => { ran.current = false; void generate(); }} className="gap-2">
             <RefreshCw className="h-4 w-4" /> {t('write.ai_regenerate')}
           </Button>
-          <Button variant="outline" onClick={skipStrategy}>
+          <Button variant="ghost" onClick={skipStrategy}>
             {t('write.strategy_skip')}
           </Button>
         </div>
