@@ -18,7 +18,7 @@ import { WriteProgress } from './WriteProgress';
 import { WritingMotivation } from './WritingMotivation';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 
-export type SourceType = 'idea' | 'document';
+export type SourceType = 'idea' | 'document' | 'youtube' | 'audio' | 'notes_photo';
 export type BookStyle = 'ebook' | 'guide' | 'prayers';
 export type WritingTone = 'professional' | 'conversational' | 'humorous' | 'spiritual' | 'poetic' | 'academic';
 export type LanguageLevel = 'simple' | 'intermediate' | 'advanced';
@@ -34,7 +34,9 @@ export interface WriteChapter {
 export interface WriteState {
   source: SourceType;
   topic: string;
+  sourceUrl: string;
   uploadedFile: File | null;
+  transcribing: boolean;
   title: string;
   style: BookStyle;
   tone: WritingTone;
@@ -96,7 +98,9 @@ type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
 const initialState: WriteState = {
   source: 'idea',
   topic: '',
+  sourceUrl: '',
   uploadedFile: null,
+  transcribing: false,
   title: '',
   style: 'ebook',
   tone: 'professional',
