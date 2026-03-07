@@ -917,7 +917,7 @@ Deno.serve(async (req) => {
         .select('user_id')
         .eq('organization_id', org.id)
         .eq('status', 'completed')
-        .lt('created_at', thirtyDaysAgo)
+        .lt('created_at', thirtyDaysAgoWinback)
         .limit(50);
       const oldBuyerIds = [...new Set((oldBuyers || []).map((b: any) => b.user_id).filter(Boolean))];
       if (oldBuyerIds.length === 0) continue;
@@ -927,7 +927,7 @@ Deno.serve(async (req) => {
         .select('user_id')
         .eq('organization_id', org.id)
         .eq('status', 'completed')
-        .gte('created_at', thirtyDaysAgo)
+        .gte('created_at', thirtyDaysAgoWinback)
         .in('user_id', oldBuyerIds);
       const recentSet = new Set((recentBuyers || []).map((b: any) => b.user_id));
       const churned = oldBuyerIds.filter(id => !recentSet.has(id));
@@ -938,7 +938,7 @@ Deno.serve(async (req) => {
           .select('*', { count: 'exact', head: true })
           .eq('recipient', userId)
           .eq('template', 'win_back')
-          .gte('created_at', thirtyDaysAgo);
+          .gte('created_at', thirtyDaysAgoWinback);
         if ((sent || 0) > 0) continue;
 
         const email = await getUserEmail(userId);
