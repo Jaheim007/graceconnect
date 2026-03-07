@@ -147,7 +147,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
       refetchOrgs();
       if (currentOrg?.id === orgId) setCurrentOrg(null);
       const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Someone';
-      onMemberLeft(user.id, userName, orgId, org?.name || 'Organization');
+      onMemberLeft(user.id, userName, orgId, org?.name || 'une organisation');
     }
     return { error: error as Error | null };
   };
