@@ -1,7 +1,11 @@
-import { PenLine, FileText, Lightbulb, History, PlusCircle, Clock3 } from 'lucide-react';
+import { useState } from 'react';
+import { PenLine, FileText, Lightbulb, History, PlusCircle, Clock3, Video, Mic, Camera, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { useI18n } from '@/i18n/I18nContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import type { WriteState, SourceType, SavedWriteDraftSummary } from '../WriteWizard';
 
 const SUGGESTION_KEYS = [
@@ -31,15 +35,80 @@ export function StepSource({
   lastSavedAt,
 }: Props) {
   const { t } = useI18n();
+  const { toast } = useToast();
+  const [transcribing, setTranscribing] = useState(false);
 
   const sources: { type: SourceType; icon: typeof PenLine; label: string; desc: string }[] = [
     { type: 'idea', icon: Lightbulb, label: t('write.source_idea'), desc: t('write.source_idea_desc') },
     { type: 'document', icon: FileText, label: t('write.source_doc'), desc: t('write.source_doc_desc') },
+    { type: 'youtube', icon: Video, label: t('write.source_youtube'), desc: t('write.source_youtube_desc') },
+    { type: 'audio', icon: Mic, label: t('write.source_audio'), desc: t('write.source_audio_desc') },
+    { type: 'notes_photo', icon: Camera, label: t('write.source_notes'), desc: t('write.source_notes_desc') },
   ];
 
-  const canContinue = state.source === 'idea'
-    ? state.topic.trim().length >= 3
-    : state.uploadedFile !== null;
+  const canContinue = (() => {
+    if (transcribing) return false;
+    switch (state.source) {
+      case 'idea': return state.topic.trim().length >= 3;
+      case 'document': return state.uploadedFile !== null;
+      case 'youtube': return state.topic.trim().length >= 3 || (state.sourceUrl || '').trim().length > 10;
+      case 'audio': return state.topic.trim().length >= 3 || state.uploadedFile !== null;
+      case 'notes_photo': return state.topic.trim().length >= 3 || state.uploadedFile !== null;
+      default: return false;
+    }
+  })();
+
+  // For YouTube: need to transcribe before proceeding
+  const needsTranscription = (state.source === 'youtube' && state.topic.trim().length < 3 && (state.sourceUrl || '').trim().length > 10)
+    || ((state.source === 'audio' || state.source === 'notes_photo') && state.topic.trim().length < 3 && state.uploadedFile !== null);
+
+  const handleTranscribeAndNext = async () => {
+    if (!needsTranscription) {
+      onNext();
+      return;
+    }
+
+    setTranscribing(true);
+    try {
+      if (state.source === 'youtube') {
+        const { data, error } = await supabase.functions.invoke('transcribe-source', {
+          body: { source_type: 'youtube', url: state.sourceUrl },
+        });
+        if (error || !data?.ok) throw new Error(data?.error || 'Transcription failed');
+        update({ topic: data.text });
+        toast({ title: `✅ ${t('write.transcribe_success')}` });
+      } else if (state.source === 'audio' && state.uploadedFile) {
+        // Upload audio to storage first
+        const path = `transcribe/${Date.now()}-${state.uploadedFile.name}`;
+        const { error: uploadErr } = await supabase.storage.from('uploads').upload(path, state.uploadedFile);
+        if (uploadErr) throw uploadErr;
+
+        const { data, error } = await supabase.functions.invoke('transcribe-source', {
+          body: { source_type: 'audio', storage_path: path },
+        });
+        if (error || !data?.ok) throw new Error(data?.error || 'Transcription failed');
+        update({ topic: data.text });
+        toast({ title: `✅ ${t('write.transcribe_success')}` });
+      } else if (state.source === 'notes_photo' && state.uploadedFile) {
+        const path = `transcribe/${Date.now()}-${state.uploadedFile.name}`;
+        const { error: uploadErr } = await supabase.storage.from('uploads').upload(path, state.uploadedFile);
+        if (uploadErr) throw uploadErr;
+
+        const { data, error } = await supabase.functions.invoke('transcribe-source', {
+          body: { source_type: 'notes_photo', storage_path: path },
+        });
+        if (error || !data?.ok) throw new Error(data?.error || 'Transcription failed');
+        update({ topic: data.text });
+        toast({ title: `✅ ${t('write.transcribe_success')}` });
+      }
+      setTranscribing(false);
+      onNext();
+    } catch (err: any) {
+      console.error('Transcription error:', err);
+      setTranscribing(false);
+      toast({ title: `❌ ${t('write.transcribe_error')}`, description: err?.message, variant: 'destructive' });
+    }
+  };
 
   const visibleDrafts = savedDrafts.slice(0, 4);
 
@@ -55,86 +124,129 @@ export function StepSource({
       </div>
 
       {/* Draft manager */}
-      <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <History className="h-4 w-4 text-primary shrink-0" />
-            <p className="text-sm font-semibold truncate">{t('write.saved_drafts')}</p>
-          </div>
-          <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={onCreateDraft}>
-            <PlusCircle className="h-3.5 w-3.5" /> {t('write.new_draft')}
-          </Button>
-        </div>
-
-        {lastSavedAt && (
-          <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
-            <Clock3 className="h-3 w-3" />
-            <span>{t('write.last_saved')}: {new Date(lastSavedAt).toLocaleTimeString()}</span>
-          </div>
-        )}
-
-        {visibleDrafts.length > 0 ? (
-          <div className="space-y-2">
-            {visibleDrafts.map((draft) => (
-              <div
-                key={draft.id}
-                className={`rounded-xl border px-3 py-2 flex items-center gap-2 justify-between ${
-                  draft.id === activeDraftId
-                    ? 'border-primary/40 bg-primary/5'
-                    : 'border-border bg-background'
-                }`}
-              >
-                <div className="min-w-0">
-                  <p className="text-sm font-medium truncate">{draft.name}</p>
-                  <p className="text-[11px] text-muted-foreground truncate">
-                    {new Date(draft.updatedAt).toLocaleString()} · {t('write.step')} {draft.step + 1}/9
-                  </p>
-                </div>
-
-                {draft.id === activeDraftId ? (
-                  <span className="text-[10px] px-2 py-1 rounded-full bg-primary/10 text-primary font-semibold whitespace-nowrap">
-                    {t('write.current_draft')}
-                  </span>
-                ) : (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs"
-                    onClick={() => onLoadDraft(draft.id)}
-                  >
-                    {t('write.resume_draft')}
-                  </Button>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-xs text-muted-foreground">{t('write.no_saved_draft')}</p>
-        )}
-      </div>
+      <DraftManager
+        t={t}
+        visibleDrafts={visibleDrafts}
+        activeDraftId={activeDraftId}
+        onCreateDraft={onCreateDraft}
+        onLoadDraft={onLoadDraft}
+        lastSavedAt={lastSavedAt}
+      />
 
       {/* Source selection */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {sources.map((s) => (
           <button
             key={s.type}
             onClick={() => update({ source: s.type })}
-            className={`p-5 rounded-2xl border-2 text-left transition-all ${
+            className={`p-4 sm:p-5 rounded-2xl border-2 text-left transition-all ${
               state.source === s.type
                 ? 'border-primary bg-primary/5 shadow-md'
                 : 'border-border hover:border-primary/30 bg-card'
             }`}
           >
-            <s.icon className={`h-6 w-6 mb-3 ${state.source === s.type ? 'text-primary' : 'text-muted-foreground'}`} />
-            <p className="font-bold text-sm">{s.label}</p>
-            <p className="text-xs text-muted-foreground mt-1">{s.desc}</p>
+            <s.icon className={`h-5 w-5 sm:h-6 sm:w-6 mb-2 sm:mb-3 ${state.source === s.type ? 'text-primary' : 'text-muted-foreground'}`} />
+            <p className="font-bold text-xs sm:text-sm">{s.label}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 line-clamp-2">{s.desc}</p>
           </button>
         ))}
       </div>
 
-      {/* Idea input */}
-      {state.source === 'idea' && (
+      {/* Source-specific inputs */}
+      <SourceInput state={state} update={update} t={t} transcribing={transcribing} />
+
+      <Button
+        size="lg"
+        className="w-full h-14 text-base gap-2"
+        disabled={!canContinue || transcribing}
+        onClick={needsTranscription ? handleTranscribeAndNext : onNext}
+      >
+        {transcribing ? (
+          <>
+            <Loader2 className="h-5 w-5 animate-spin" />
+            {t('write.transcribing')}
+          </>
+        ) : (
+          <>
+            <PenLine className="h-5 w-5" />
+            {t('write.continue')}
+          </>
+        )}
+      </Button>
+    </div>
+  );
+}
+
+/* ---------- Draft Manager Sub-component ---------- */
+function DraftManager({ t, visibleDrafts, activeDraftId, onCreateDraft, onLoadDraft, lastSavedAt }: {
+  t: (key: string) => string;
+  visibleDrafts: SavedWriteDraftSummary[];
+  activeDraftId: string;
+  onCreateDraft: () => void;
+  onLoadDraft: (id: string) => void;
+  lastSavedAt: number | null;
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4 space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 min-w-0">
+          <History className="h-4 w-4 text-primary shrink-0" />
+          <p className="text-sm font-semibold truncate">{t('write.saved_drafts')}</p>
+        </div>
+        <Button type="button" variant="outline" size="sm" className="gap-1.5" onClick={onCreateDraft}>
+          <PlusCircle className="h-3.5 w-3.5" /> {t('write.new_draft')}
+        </Button>
+      </div>
+      {lastSavedAt && (
+        <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+          <Clock3 className="h-3 w-3" />
+          <span>{t('write.last_saved')}: {new Date(lastSavedAt).toLocaleTimeString()}</span>
+        </div>
+      )}
+      {visibleDrafts.length > 0 ? (
+        <div className="space-y-2">
+          {visibleDrafts.map((draft) => (
+            <div
+              key={draft.id}
+              className={`rounded-xl border px-3 py-2 flex items-center gap-2 justify-between ${
+                draft.id === activeDraftId ? 'border-primary/40 bg-primary/5' : 'border-border bg-background'
+              }`}
+            >
+              <div className="min-w-0">
+                <p className="text-sm font-medium truncate">{draft.name}</p>
+                <p className="text-[11px] text-muted-foreground truncate">
+                  {new Date(draft.updatedAt).toLocaleString()} · {t('write.step')} {draft.step + 1}/9
+                </p>
+              </div>
+              {draft.id === activeDraftId ? (
+                <span className="text-[10px] px-2 py-1 rounded-full bg-primary/10 text-primary font-semibold whitespace-nowrap">
+                  {t('write.current_draft')}
+                </span>
+              ) : (
+                <Button type="button" variant="ghost" size="sm" className="text-xs" onClick={() => onLoadDraft(draft.id)}>
+                  {t('write.resume_draft')}
+                </Button>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-xs text-muted-foreground">{t('write.no_saved_draft')}</p>
+      )}
+    </div>
+  );
+}
+
+/* ---------- Source Input Sub-component ---------- */
+function SourceInput({ state, update, t, transcribing }: {
+  state: WriteState;
+  update: (patch: Partial<WriteState>) => void;
+  t: (key: string) => string;
+  transcribing: boolean;
+}) {
+  switch (state.source) {
+    case 'idea':
+      return (
         <div className="space-y-4">
           <Textarea
             value={state.topic}
@@ -161,10 +273,10 @@ export function StepSource({
             </div>
           </div>
         </div>
-      )}
+      );
 
-      {/* Document upload */}
-      {state.source === 'document' && (
+    case 'document':
+      return (
         <div className="space-y-3">
           <label className="flex flex-col items-center justify-center border-2 border-dashed border-border rounded-2xl p-8 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-colors">
             <FileText className="h-10 w-10 text-muted-foreground mb-3" />
@@ -178,24 +290,90 @@ export function StepSource({
               className="hidden"
               onChange={(e) => {
                 const file = e.target.files?.[0];
-                if (file) {
-                  update({ uploadedFile: file, title: file.name.replace(/\.[^.]+$/, '') });
-                }
+                if (file) update({ uploadedFile: file, title: file.name.replace(/\.[^.]+$/, '') });
               }}
             />
           </label>
         </div>
-      )}
+      );
 
-      <Button
-        size="lg"
-        className="w-full h-14 text-base gap-2"
-        disabled={!canContinue}
-        onClick={onNext}
-      >
-        <PenLine className="h-5 w-5" />
-        {t('write.continue')}
-      </Button>
-    </div>
-  );
+    case 'youtube':
+      return (
+        <div className="space-y-4">
+          <Input
+            value={state.sourceUrl || ''}
+            onChange={(e) => update({ sourceUrl: e.target.value })}
+            placeholder={t('write.youtube_placeholder')}
+            className="text-base"
+            autoFocus
+            disabled={transcribing}
+          />
+          {state.topic.trim().length > 0 && (
+            <div className="rounded-xl border border-border bg-muted/30 p-3">
+              <p className="text-xs text-muted-foreground mb-1">📝 {t('write.transcribe_success')}</p>
+              <p className="text-sm line-clamp-4">{state.topic.slice(0, 300)}…</p>
+            </div>
+          )}
+        </div>
+      );
+
+    case 'audio':
+      return (
+        <div className="space-y-3">
+          <label className="flex flex-col items-center justify-center border-2 border-dashed border-border rounded-2xl p-8 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-colors">
+            <Mic className="h-10 w-10 text-muted-foreground mb-3" />
+            <p className="font-medium text-sm">
+              {state.uploadedFile ? state.uploadedFile.name : t('write.upload_audio')}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">{t('write.audio_formats')}</p>
+            <input
+              type="file"
+              accept=".mp3,.wav,.m4a,.ogg,.aac"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) update({ uploadedFile: file, title: file.name.replace(/\.[^.]+$/, '') });
+              }}
+            />
+          </label>
+          {state.topic.trim().length > 0 && (
+            <div className="rounded-xl border border-border bg-muted/30 p-3">
+              <p className="text-xs text-muted-foreground mb-1">📝 {t('write.transcribe_success')}</p>
+              <p className="text-sm line-clamp-4">{state.topic.slice(0, 300)}…</p>
+            </div>
+          )}
+        </div>
+      );
+
+    case 'notes_photo':
+      return (
+        <div className="space-y-3">
+          <label className="flex flex-col items-center justify-center border-2 border-dashed border-border rounded-2xl p-8 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-colors">
+            <Camera className="h-10 w-10 text-muted-foreground mb-3" />
+            <p className="font-medium text-sm">
+              {state.uploadedFile ? state.uploadedFile.name : t('write.upload_notes')}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">{t('write.notes_formats')}</p>
+            <input
+              type="file"
+              accept=".jpg,.jpeg,.png,.webp"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) update({ uploadedFile: file });
+              }}
+            />
+          </label>
+          {state.topic.trim().length > 0 && (
+            <div className="rounded-xl border border-border bg-muted/30 p-3">
+              <p className="text-xs text-muted-foreground mb-1">📝 {t('write.transcribe_success')}</p>
+              <p className="text-sm line-clamp-4">{state.topic.slice(0, 300)}…</p>
+            </div>
+          )}
+        </div>
+      );
+
+    default:
+      return null;
+  }
 }
