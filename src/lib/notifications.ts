@@ -209,7 +209,7 @@ export async function onContentPublished(
   const notifBody = `${orgName} a publié : "${contentTitle}"`;
 
   // In-app notification to all members
-  notifyOrgMembers(orgId, notifTitle, notifBody, 'org', publisherId);
+  notifyOrgMembers(orgId, notifTitle, notifBody, 'org', publisherId, `/feed`);
 
   // Email to org admins with the right template
   emailOrgAdmins(templates[contentType], orgId, {
