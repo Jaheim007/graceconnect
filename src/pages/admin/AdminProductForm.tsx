@@ -45,6 +45,8 @@ const schema = z.object({
   is_free: z.boolean().default(false),
   is_published: z.boolean().default(false),
   is_bundle: z.boolean().default(false),
+  is_pwyw: z.boolean().default(false),
+  min_price: z.coerce.number().min(0).optional(),
   guarantee_text: z.string().optional(),
 });
 
@@ -98,7 +100,7 @@ export function ProductForm() {
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { product_type: 'pdf', price: 0, is_free: false, is_published: true, is_bundle: false, guarantee_text: '' },
+    defaultValues: { product_type: 'pdf', price: 0, is_free: false, is_published: true, is_bundle: false, is_pwyw: false, min_price: 0, guarantee_text: '' },
   });
 
   useEffect(() => {
@@ -114,6 +116,8 @@ export function ProductForm() {
         is_free: item.is_free || false,
         is_published: item.is_published || false,
         is_bundle: item.is_bundle || false,
+        is_pwyw: item.is_pwyw || false,
+        min_price: item.min_price || 0,
         guarantee_text: item.guarantee_text || '',
       });
       setFaqItems(item.faq_json || []);
@@ -166,6 +170,8 @@ export function ProductForm() {
         created_by: user.id,
         currency: currentOrg.currency || 'XOF',
         price: data.is_free ? 0 : data.price,
+        is_pwyw: data.is_free ? false : data.is_pwyw,
+        min_price: data.is_pwyw && !data.is_free ? (data.min_price || 0) : null,
         cover_image_url: data.cover_image_url || null,
         file_url: data.file_url || null,
         external_link: data.external_link || null,
@@ -345,7 +351,27 @@ export function ProductForm() {
           </div>
         )}
 
-        {/* Cover image upload with AI generator */}
+        {/* Pay What You Want */}
+        {!isFree && (
+          <div className="bg-accent/30 border border-accent/50 rounded-xl p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Switch checked={watch('is_pwyw')} onCheckedChange={v => setValue('is_pwyw', v)} />
+              <Label className="text-sm font-semibold cursor-pointer">💰 Pay What You Want</Label>
+            </div>
+            {watch('is_pwyw') && (
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">L'acheteur choisit le montant qu'il souhaite payer, au-dessus du prix minimum.</p>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Prix minimum ({currentOrg?.currency || 'XOF'})</Label>
+                  <Input type="number" {...register('min_price')} placeholder="Ex: 500" className="h-8 text-xs" />
+                  <p className="text-[10px] text-muted-foreground">Le prix du produit ci-dessus sera utilisé comme prix suggéré.</p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+
         <div className="space-y-2">
           {(() => {
             const pt = watch('product_type');

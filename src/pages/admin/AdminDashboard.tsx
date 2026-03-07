@@ -43,6 +43,7 @@ import { CustomerLifetimeValue } from '@/components/admin/CustomerLifetimeValue'
 import { RevenueAttribution } from '@/components/admin/RevenueAttribution';
 import { SmartReEngagement } from '@/components/admin/SmartReEngagement';
 import { SmartCRMInsights } from '@/components/admin/SmartCRMInsights';
+import { TimeSinceLastSale } from '@/components/admin/TimeSinceLastSale';
 
 import { useBehavioralNotifications } from '@/hooks/useBehavioralNotifications';
 import { useI18n } from '@/i18n/I18nContext';
@@ -284,6 +285,7 @@ export default function AdminDashboard() {
           ZONE 4 — GUIDE DE DÉMARRAGE + PROCHAINE ACTION
       ═══════════════════════════════════════════ */}
       <OnboardingChecklist />
+      <TimeSinceLastSale />
       <SmartNextAction />
 
       {/* ═══════════════════════════════════════════

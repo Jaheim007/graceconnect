@@ -1309,6 +1309,8 @@ export type Database = {
           is_featured: boolean | null
           is_free: boolean | null
           is_published: boolean | null
+          is_pwyw: boolean
+          min_price: number | null
           order_bump_discount_percent: number | null
           order_bump_product_id: string | null
           organization_id: string
@@ -1354,6 +1356,8 @@ export type Database = {
           is_featured?: boolean | null
           is_free?: boolean | null
           is_published?: boolean | null
+          is_pwyw?: boolean
+          min_price?: number | null
           order_bump_discount_percent?: number | null
           order_bump_product_id?: string | null
           organization_id: string
@@ -1399,6 +1403,8 @@ export type Database = {
           is_featured?: boolean | null
           is_free?: boolean | null
           is_published?: boolean | null
+          is_pwyw?: boolean
+          min_price?: number | null
           order_bump_discount_percent?: number | null
           order_bump_product_id?: string | null
           organization_id?: string

@@ -59,6 +59,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const [result, setResult] = useState<VerifyPaymentResult | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pwywAmount, setPwywAmount] = useState<string>('');
 
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
@@ -149,7 +150,15 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const salePrice = (product as any).sale_price;
   const saleEndsAt = (product as any).sale_ends_at;
   const isFlashSale = salePrice != null && saleEndsAt && new Date(saleEndsAt) > new Date();
-  const effectiveBasePrice = isFlashSale ? salePrice : (product.price ?? 0);
+  const isPwyw = !!(product as any).is_pwyw;
+  const minPrice = (product as any).min_price || 0;
+  const suggestedPrice = product.price ?? 0;
+
+  // For PWYW, use the custom amount; otherwise use standard pricing
+  const pwywValue = isPwyw && pwywAmount ? parseFloat(pwywAmount) : 0;
+  const effectiveBasePrice = isPwyw
+    ? (pwywValue > 0 ? pwywValue : suggestedPrice)
+    : isFlashSale ? salePrice : (product.price ?? 0);
 
   const bumpPrice = bumpProduct ? Math.round((bumpProduct.price || 0) * (1 - bumpDiscount / 100)) : 0;
   const orderBumpTotal = orderBumpChecked && bumpProduct ? bumpPrice : 0;
@@ -218,10 +227,17 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   };
 
   const handleConfirmToBuyerInfo = () => {
+    // PWYW validation
+    if (isPwyw && !product.is_free) {
+      const amt = pwywValue > 0 ? pwywValue : suggestedPrice;
+      if (amt < minPrice) {
+        toast({ title: 'Montant trop bas', description: `Le minimum est ${fmt(minPrice)}`, variant: 'destructive' });
+        return;
+      }
+    }
     if (!user) {
       handleClose();
       const returnPath = pathname + '?action=buy';
-      // Persist returnTo for Google OAuth (which goes through /auth/callback)
       try { sessionStorage.setItem('sv_auth_returnTo', returnPath); } catch {}
       navigate(`/auth?returnTo=${encodeURIComponent(returnPath)}`);
       return;
@@ -371,13 +387,47 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                   <p className="font-semibold">{product.title}</p>
                   <Badge variant="outline" className="text-[10px] mt-1 capitalize">{product.product_type}</Badge>
                 </div>
-                <span className={`text-xl font-bold ${product.is_free ? 'text-green-500' : 'text-primary'}`}>
-                  {fmt(product.price)}
-                  {!product.is_free && (product.price ?? 0) > 0 && (
-                    <LocalPriceHint amount={product.price ?? 0} currency={product.currency || 'XOF'} className="block text-right" />
-                  )}
-                </span>
+                {!isPwyw && (
+                  <span className={`text-xl font-bold ${product.is_free ? 'text-green-500' : 'text-primary'}`}>
+                    {fmt(product.price)}
+                    {!product.is_free && (product.price ?? 0) > 0 && (
+                      <LocalPriceHint amount={product.price ?? 0} currency={product.currency || 'XOF'} className="block text-right" />
+                    )}
+                  </span>
+                )}
               </div>
+
+              {/* Pay What You Want */}
+              {isPwyw && !product.is_free && (
+                <div className="bg-accent/20 border border-accent/40 rounded-xl p-4 space-y-3">
+                  <p className="text-sm font-semibold flex items-center gap-2">💰 Payez ce que vous voulez</p>
+                  <p className="text-xs text-muted-foreground">
+                    Prix suggéré : <strong>{fmt(suggestedPrice)}</strong>
+                    {minPrice > 0 && <> · Minimum : <strong>{fmt(minPrice)}</strong></>}
+                  </p>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Votre prix ({product.currency || 'XOF'})</Label>
+                    <Input
+                      type="number"
+                      value={pwywAmount}
+                      onChange={e => setPwywAmount(e.target.value)}
+                      placeholder={String(suggestedPrice)}
+                      min={minPrice}
+                      className="h-9 text-sm font-semibold"
+                    />
+                    {pwywValue > 0 && pwywValue < minPrice && (
+                      <p className="text-xs text-destructive">Le montant minimum est {fmt(minPrice)}</p>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    {[minPrice || Math.round(suggestedPrice * 0.5), suggestedPrice, Math.round(suggestedPrice * 1.5)].filter(v => v > 0).map(v => (
+                      <Button key={v} type="button" variant={pwywValue === v ? 'default' : 'outline'} size="sm" className="text-xs flex-1" onClick={() => setPwywAmount(String(v))}>
+                        {fmt(v)}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Promo code - collapsible, hidden by default */}
               {!product.is_free && !product.external_link && (
