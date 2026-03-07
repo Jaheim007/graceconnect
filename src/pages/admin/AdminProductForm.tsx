@@ -100,7 +100,7 @@ export function ProductForm() {
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
-    defaultValues: { product_type: 'pdf', price: 0, is_free: false, is_published: true, is_bundle: false, guarantee_text: '' },
+    defaultValues: { product_type: 'pdf', price: 0, is_free: false, is_published: true, is_bundle: false, is_pwyw: false, min_price: 0, guarantee_text: '' },
   });
 
   useEffect(() => {
@@ -116,6 +116,8 @@ export function ProductForm() {
         is_free: item.is_free || false,
         is_published: item.is_published || false,
         is_bundle: item.is_bundle || false,
+        is_pwyw: item.is_pwyw || false,
+        min_price: item.min_price || 0,
         guarantee_text: item.guarantee_text || '',
       });
       setFaqItems(item.faq_json || []);
