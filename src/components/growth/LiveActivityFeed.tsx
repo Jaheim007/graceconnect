@@ -123,17 +123,32 @@ export function LiveActivityFeed({ className, limit = 5 }: LiveActivityFeedProps
     return () => clearInterval(timer);
   }, [activities.length]);
 
-  if (activities.length === 0) return null;
+  if (activities.length === 0 || isClosed) return null;
 
   return (
-    <div className={cn('space-y-3', className)}>
-      <div className="flex items-center gap-2">
-        <TrendingUp className="h-4 w-4 text-primary" />
-        <h3 className="text-sm font-bold">Activité récente</h3>
-        <span className="relative flex h-2 w-2 ml-1">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-        </span>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className={cn('space-y-3', className)}
+    >
+      <div className="flex items-center gap-2 justify-between">
+        <div className="flex items-center gap-2">
+          <TrendingUp className="h-4 w-4 text-primary" />
+          <h3 className="text-sm font-bold">Activité récente</h3>
+          <span className="relative flex h-2 w-2 ml-1">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+          </span>
+        </div>
+        <button
+          onClick={handleClose}
+          className="shrink-0 p-1 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground"
+          aria-label="Fermer"
+        >
+          <X className="h-4 w-4" />
+        </button>
       </div>
 
       <div className="space-y-1.5">
@@ -158,6 +173,5 @@ export function LiveActivityFeed({ className, limit = 5 }: LiveActivityFeedProps
           })}
         </AnimatePresence>
       </div>
-    </div>
+    </motion.div>
   );
-}
