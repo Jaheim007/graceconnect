@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Heart, BookOpen, Share2, Users, TrendingUp } from 'lucide-react';
+import { ShoppingBag, Heart, BookOpen, Share2, Users, TrendingUp, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { db } from '@/lib/db';
 
