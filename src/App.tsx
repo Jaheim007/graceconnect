@@ -90,6 +90,7 @@ const MigrerPage = lazy(() => import("@/pages/MigrerPage"));
 const CanvaCallbackPage = lazy(() => import("@/pages/canva/CanvaCallback"));
 const VendreLandingPage = lazy(() => import("@/pages/VendreLandingPage"));
 const ProtectionPage = lazy(() => import("@/pages/ProtectionPage"));
+const CertificateVerifyPage = lazy(() => import("@/pages/CertificateVerifyPage"));
 const TemoignagesPage = lazy(() => import("@/pages/TemoignagesPage"));
 const CalculateurPage = lazy(() => import("@/pages/CalculateurPage"));
 const PourEglisesPage = lazy(() => import("@/pages/persona/PourEglisesPage"));
@@ -299,6 +300,7 @@ const App = () => (
                 <Route path="/payment/success" element={<PaymentSuccessPage />} />
                 <Route path="/payment-success" element={<PaymentSuccessPage />} />
                 <Route path="/invite/:code" element={<InvitePage />} />
+                <Route path="/verify/:certNumber" element={<CertificateVerifyPage />} />
                 <Route path="/install" element={<InstallPage />} />
                 <Route path="/changelog" element={<ChangelogPage />} />
                 <Route path="/temoignages" element={<TemoignagesPage />} />

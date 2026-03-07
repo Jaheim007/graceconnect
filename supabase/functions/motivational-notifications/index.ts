@@ -280,6 +280,104 @@ Deno.serve(async (req) => {
     }
     results['first_sale'] = firstSaleCount;
 
+    // ═══════════════════════════════════════════
+    // 7. INACTIVE CREATOR NUDGE (7 days no login)
+    // ═══════════════════════════════════════════
+    let inactiveNudges = 0;
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000).toISOString();
+    const fourteenDaysAgo = new Date(now.getTime() - 14 * 86400000).toISOString();
+    const { data: inactiveOwners } = await db.from('organizations')
+      .select('owner_id, name')
+      .eq('is_active', true)
+      .limit(100);
+
+    for (const org of inactiveOwners || []) {
+      if (!org.owner_id) continue;
+      // Check if user has recent notifications (proxy for activity)
+      const { count: recentActivity } = await db.from('user_notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', org.owner_id)
+        .gte('created_at', sevenDaysAgo);
+      if ((recentActivity || 0) > 0) continue;
+
+      // Don't spam: check if already nudged in last 14 days
+      const { count: alreadyNudged } = await db.from('user_notifications')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', org.owner_id)
+        .eq('notification_type', 'inactive_nudge')
+        .gte('created_at', fourteenDaysAgo);
+      if ((alreadyNudged || 0) > 0) continue;
+
+      const messages = [
+        { title: '👋 Tu nous manques !', body: `Ton organisation « ${org.name} » t'attend. Publie un nouveau contenu pour booster ta visibilité ! 🚀` },
+        { title: '💡 Astuce du jour', body: `Les organisations actives vendent 3x plus. Ajoute un nouveau produit à « ${org.name} » cette semaine ! 📈` },
+        { title: '🎯 Tes fans attendent', body: `Tes membres et abonnés de « ${org.name} » n'ont rien reçu depuis un moment. Surprends-les avec du nouveau contenu !` },
+      ];
+      const msg = messages[Math.floor(Math.random() * messages.length)];
+
+      await db.from('user_notifications').insert({
+        user_id: org.owner_id,
+        title: msg.title,
+        body: msg.body,
+        notification_type: 'inactive_nudge',
+        action_url: '/admin',
+      });
+      inactiveNudges++;
+    }
+    results['inactive_nudges'] = inactiveNudges;
+
+    // ═══════════════════════════════════════════
+    // 8. PROGRAM PROGRESS ENCOURAGEMENT
+    // ═══════════════════════════════════════════
+    let progressNudges = 0;
+    const { data: enrollments } = await db.from('program_enrollments')
+      .select('id, user_id, program_id, programs(title)')
+      .limit(200);
+
+    for (const enrollment of enrollments || []) {
+      const programTitle = (enrollment as any).programs?.title;
+      if (!programTitle) continue;
+
+      // Get total lessons and completed lessons
+      const { count: totalLessons } = await db.from('program_lessons')
+        .select('*', { count: 'exact', head: true })
+        .in('module_id', (
+          await db.from('program_modules').select('id').eq('program_id', enrollment.program_id)
+        ).data?.map((m: any) => m.id) || []);
+
+      if (!totalLessons || totalLessons === 0) continue;
+
+      const { count: completedLessons } = await db.from('lesson_progress')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', enrollment.user_id)
+        .eq('completed', true);
+
+      const pct = Math.round(((completedLessons || 0) / totalLessons) * 100);
+
+      // Nudge at 50% and 75%
+      if (pct >= 50 && pct < 100) {
+        const milestoneLabel = pct >= 75 ? '75%' : '50%';
+        const { count: alreadyNotified } = await db.from('user_notifications')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', enrollment.user_id)
+          .like('body', `%${milestoneLabel}%${programTitle}%`)
+          .gte('created_at', fourteenDaysAgo);
+        if ((alreadyNotified || 0) === 0) {
+          await db.from('user_notifications').insert({
+            user_id: enrollment.user_id,
+            title: pct >= 75 ? `🏁 Presque terminé !` : `📚 Tu es à mi-chemin !`,
+            body: pct >= 75
+              ? `Tu es à ${milestoneLabel} de « ${programTitle} ». Plus que quelques leçons pour obtenir ton certificat ! 🎓`
+              : `Tu as complété ${milestoneLabel} de « ${programTitle} ». Continue, le certificat t'attend ! 💪`,
+            notification_type: 'progress_nudge',
+            action_url: `/program/${enrollment.program_id}`,
+          });
+          progressNudges++;
+        }
+      }
+    }
+    results['progress_nudges'] = progressNudges;
+
     return new Response(JSON.stringify({ ok: true, results, timestamp: now.toISOString() }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });

@@ -66,6 +66,18 @@ Deno.serve(async (req) => {
     const assetsCreated: string[] = [];
     const artStyle = style || project.art_style || 'colorful children illustration';
     const characterDesc = project.characters || '';
+    const ageRange = project.age_range || '4-8';
+    const isKids = project.project_type === 'kids_book';
+    const moral = project.moral || '';
+
+    // --- Build a consistent style prompt for kids books ---
+    const styleGuide = isKids
+      ? `Style: ${artStyle}. Target age: ${ageRange} years old. 
+         The illustration MUST be: safe for children, colorful, warm, friendly, expressive characters with big eyes.
+         NO scary elements, NO violence, NO realistic humans in distress.
+         ${characterDesc ? `Characters to maintain consistently across all pages: ${characterDesc}` : ''}
+         ${moral ? `Story moral: ${moral}` : ''}`
+      : `Style: ${artStyle}.`;
 
     // --- Generate images for each chapter/page ---
     for (let i = 0; i < chapters.length; i++) {
@@ -73,21 +85,22 @@ Deno.serve(async (req) => {
       const title = chapter.title || `Page ${i + 1}`;
 
       // Build image prompt
-      let imagePrompt = `Create an illustration for a page titled "${title}"`;
-      if (consistency_mode && characterDesc) {
-        imagePrompt += `. Characters: ${characterDesc}`;
-      }
-      imagePrompt += `. Art style: ${artStyle}. The image should be child-friendly, colorful, and engaging.`;
+      let imagePrompt = `Create a professional book illustration for a page titled "${title}". ${styleGuide}`;
 
       if (chapter.content) {
         const contentSnippet = (chapter.content as string)
           .replace(/<[^>]*>/g, '')
-          .slice(0, 200);
-        imagePrompt += ` Scene description: ${contentSnippet}`;
+          .slice(0, 300);
+        imagePrompt += ` Scene to illustrate: ${contentSnippet}`;
+      }
+
+      // Add consistency instructions for kids books
+      if (isKids && consistency_mode !== false) {
+        imagePrompt += ` IMPORTANT: Maintain exact same character designs, proportions, colors, and art style as previous pages for visual consistency throughout the book.`;
       }
 
       try {
-        // Call Lovable AI Gateway with image model
+        // Call Lovable AI Gateway with best image model
         const aiRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
           method: 'POST',
           headers: {
@@ -95,7 +108,7 @@ Deno.serve(async (req) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash-image',
+            model: 'google/gemini-3-pro-image-preview',
             messages: [
               { role: 'user', content: imagePrompt },
             ],
@@ -107,23 +120,59 @@ Deno.serve(async (req) => {
           console.error(`Image gen error for page ${i}:`, aiRes.status, errText);
 
           if (aiRes.status === 429) {
-            // Rate limited - stop generating more
             console.warn('Rate limited, stopping image generation');
             break;
           }
-          continue; // Skip this page but continue others
+          if (aiRes.status === 402) {
+            console.warn('Credits exhausted, stopping image generation');
+            break;
+          }
+          continue;
         }
 
         const aiData = await aiRes.json();
-        const imageContent = aiData.choices?.[0]?.message?.content;
+        const choice = aiData.choices?.[0]?.message;
 
-        // If the model returns base64 image data or a URL, store it
-        if (imageContent) {
-          const storagePath = `${org_id}/${project_id}/images/page-${i}-${Date.now()}.txt`;
-          const blob = new Blob([imageContent], { type: 'text/plain' });
+        // Handle different response formats (base64, URL, or text description)
+        let imageData: string | null = null;
+        let mimeType = 'text/plain';
+        let ext = 'txt';
+
+        // Check for inline_data (base64 image)
+        if (choice?.content && Array.isArray(choice.content)) {
+          const imgPart = choice.content.find((p: any) => p.type === 'image' || p.inline_data);
+          if (imgPart?.inline_data) {
+            imageData = imgPart.inline_data.data;
+            mimeType = imgPart.inline_data.mime_type || 'image/png';
+            ext = mimeType.includes('jpeg') ? 'jpg' : 'png';
+          }
+        }
+
+        // Fallback to text content
+        if (!imageData && choice?.content) {
+          const textContent = typeof choice.content === 'string' ? choice.content : JSON.stringify(choice.content);
+          imageData = textContent;
+        }
+
+        if (imageData) {
+          const storagePath = `${org_id}/${project_id}/images/page-${i}-${Date.now()}.${ext}`;
+          
+          let blob: Blob;
+          if (ext !== 'txt' && imageData.length > 100) {
+            // Base64 image data
+            const binaryString = atob(imageData);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let j = 0; j < binaryString.length; j++) {
+              bytes[j] = binaryString.charCodeAt(j);
+            }
+            blob = new Blob([bytes], { type: mimeType });
+          } else {
+            blob = new Blob([imageData], { type: 'text/plain' });
+            mimeType = 'text/plain';
+          }
 
           await admin.storage.from('org-uploads').upload(storagePath, blob, {
-            contentType: 'text/plain',
+            contentType: mimeType,
             upsert: true,
           });
 
@@ -134,21 +183,22 @@ Deno.serve(async (req) => {
             asset_type: 'image',
             storage_bucket: 'org-uploads',
             storage_path: storagePath,
-            mime_type: 'text/plain',
+            mime_type: mimeType,
             metadata: {
               page_index: i,
               title,
               style: artStyle,
               prompt: imagePrompt.slice(0, 500),
+              is_kids: isKids,
             },
           }, { onConflict: 'storage_bucket,storage_path' }).select('id').single();
 
           if (asset) assetsCreated.push(asset.id);
         }
 
-        // Add small delay to avoid rate limits
+        // Rate limit protection: delay between requests
         if (i < chapters.length - 1) {
-          await new Promise(r => setTimeout(r, 2000));
+          await new Promise(r => setTimeout(r, 3000));
         }
 
       } catch (imgErr) {
