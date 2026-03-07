@@ -5059,6 +5059,7 @@ export type Database = {
         }
         Returns: Json
       }
+      track_affiliate_click: { Args: { _code: string }; Returns: Json }
       transfer_partner_referral: {
         Args: { _new_partner_id: string; _reason: string; _referral_id: string }
         Returns: Json
