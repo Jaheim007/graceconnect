@@ -351,7 +351,27 @@ export function ProductForm() {
           </div>
         )}
 
-        {/* Cover image upload with AI generator */}
+        {/* Pay What You Want */}
+        {!isFree && (
+          <div className="bg-accent/30 border border-accent/50 rounded-xl p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Switch checked={watch('is_pwyw')} onCheckedChange={v => setValue('is_pwyw', v)} />
+              <Label className="text-sm font-semibold cursor-pointer">💰 Pay What You Want</Label>
+            </div>
+            {watch('is_pwyw') && (
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">L'acheteur choisit le montant qu'il souhaite payer, au-dessus du prix minimum.</p>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Prix minimum ({currentOrg?.currency || 'XOF'})</Label>
+                  <Input type="number" {...register('min_price')} placeholder="Ex: 500" className="h-8 text-xs" />
+                  <p className="text-[10px] text-muted-foreground">Le prix du produit ci-dessus sera utilisé comme prix suggéré.</p>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+
         <div className="space-y-2">
           {(() => {
             const pt = watch('product_type');
