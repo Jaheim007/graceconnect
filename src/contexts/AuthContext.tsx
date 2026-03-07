@@ -133,10 +133,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithGoogle = async (returnTo?: string) => {
-    const { error } = await supabase.auth.signInWithOAuth({
+    const isCustomDomain = !window.location.hostname.includes('lovable.app') && !window.location.hostname.includes('lovableproject.com');
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: 'https://siteviral.com/auth/callback' },
+      options: {
+        redirectTo: 'https://siteviral.com/auth/callback',
+        skipBrowserRedirect: isCustomDomain,
+      },
     });
+
+    if (!error && isCustomDomain && data?.url) {
+      window.location.href = data.url;
+    }
+
     return { error: error as Error | null };
   };
 
