@@ -68,6 +68,32 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
     ? state.topic.length > 40 ? state.topic.substring(0, 40) + '…' : state.topic
     : '';
 
+  const handleSuggestTitles = async () => {
+    if (suggestingTitles) return;
+    setSuggestingTitles(true);
+    setTitleSuggestions([]);
+    try {
+      const { data, error } = await supabase.functions.invoke('suggest-titles', {
+        body: {
+          topic: state.topic || state.title || '',
+          style: state.style,
+          audience: state.targetAudience,
+          language: state.language || 'fr',
+        },
+      });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      if (Array.isArray(data?.titles)) {
+        setTitleSuggestions(data.titles);
+      }
+    } catch (err: any) {
+      console.error('Title suggestion error:', err);
+      toast({ title: '❌ Erreur', description: err?.message, variant: 'destructive' });
+    } finally {
+      setSuggestingTitles(false);
+    }
+  };
+
   return (
     <div className="space-y-6 pt-6">
       <div className="text-center space-y-2">
@@ -77,19 +103,51 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
 
       {/* Title */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">{t('write.title_label')}</label>
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium">{t('write.title_label')}</label>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="gap-1.5 text-xs h-7 text-primary"
+            disabled={suggestingTitles || !state.topic?.trim()}
+            onClick={handleSuggestTitles}
+          >
+            {suggestingTitles ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Sparkles className="h-3 w-3" />
+            )}
+            {t('write.suggest_titles') || '✨ Suggérer des titres'}
+          </Button>
+        </div>
         <Input
           value={state.title || suggestedTitle}
           onChange={e => update({ title: e.target.value })}
           placeholder={t('write.title_placeholder')}
           className="h-12 text-base"
         />
+        {/* Title suggestions */}
+        {titleSuggestions.length > 0 && (
+          <div className="space-y-1.5">
+            {titleSuggestions.map((suggestion, i) => (
+              <button
+                key={i}
+                onClick={() => { update({ title: suggestion }); setTitleSuggestions([]); }}
+                className="w-full text-left px-3 py-2 rounded-lg border border-border hover:border-primary/40 hover:bg-primary/5 transition-colors text-sm"
+              >
+                <span className="text-primary font-bold mr-2">{i + 1}.</span>
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Style */}
       <div className="space-y-2">
         <label className="text-sm font-medium">{t('write.style_label')}</label>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
           {styles.map(s => (
             <button
               key={s.type}
