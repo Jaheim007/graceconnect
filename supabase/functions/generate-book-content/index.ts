@@ -571,6 +571,7 @@ RAPPEL : ${pages} pages sur "${topic || title}". Chaque chapitre ≈ ${chapterWo
 TITLE: "${title}"
 ${topic ? `IDEA / TOPIC: ${topic}` : ''}
 LANGUAGE: ${langName}
+${editorialContextEn}
 
 WRITING INSTRUCTIONS:
 - Exactly ${chapterCount} chapters, each exploring a unique and essential facet of "${topic || title}"
