@@ -96,7 +96,7 @@ async function notifyOrgAffiliates(
     const emailMap = new Map<string, string>((profiles || []).map(p => [p.id as string, p.email as string]));
 
     for (const userId of uniqueUserIds) {
-      notify(userId, title, body, type, orgId);
+      notify(userId, title, body, type, orgId, `/affiliation`);
       const email = emailMap.get(userId);
       if (email) {
         sendEmailNotification(template, email, { ...emailData, org_name: orgName }, orgId).catch(() => {});
