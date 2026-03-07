@@ -315,7 +315,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { title, topic, style, pageCount, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle, styleReference } = await req.json();
+    const { title, topic, style, pageCount, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle, styleReference, editorialStrategy } = await req.json();
 
     if (!title && !topic) {
       return new Response(JSON.stringify({ error: 'title or topic required' }), {
