@@ -227,10 +227,17 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   };
 
   const handleConfirmToBuyerInfo = () => {
+    // PWYW validation
+    if (isPwyw && !product.is_free) {
+      const amt = pwywValue > 0 ? pwywValue : suggestedPrice;
+      if (amt < minPrice) {
+        toast({ title: 'Montant trop bas', description: `Le minimum est ${fmt(minPrice)}`, variant: 'destructive' });
+        return;
+      }
+    }
     if (!user) {
       handleClose();
       const returnPath = pathname + '?action=buy';
-      // Persist returnTo for Google OAuth (which goes through /auth/callback)
       try { sessionStorage.setItem('sv_auth_returnTo', returnPath); } catch {}
       navigate(`/auth?returnTo=${encodeURIComponent(returnPath)}`);
       return;
