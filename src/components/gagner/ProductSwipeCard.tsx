@@ -190,7 +190,7 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
               {/* Primary share row */}
               <div className="flex gap-2">
                 <Button
-                  className="flex-1 gap-2 h-11 text-sm font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white"
+                  className="flex-1 gap-2 h-11 text-sm font-bold rounded-xl bg-accent hover:bg-accent/90 text-accent-foreground"
                   onClick={() => shareWhatsApp(0)}
                 >
                   <span className="text-base">💬</span> Partager WhatsApp
