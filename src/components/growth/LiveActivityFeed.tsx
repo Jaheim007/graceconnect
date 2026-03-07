@@ -48,6 +48,20 @@ interface LiveActivityFeedProps {
 export function LiveActivityFeed({ className, limit = 5 }: LiveActivityFeedProps) {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [visible, setVisible] = useState(0);
+  const [isClosed, setIsClosed] = useState(() => {
+    try {
+      return localStorage.getItem('live-activity-feed-closed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const handleClose = () => {
+    setIsClosed(true);
+    try {
+      localStorage.setItem('live-activity-feed-closed', 'true');
+    } catch {}
+  };
 
   const fetchActivity = useCallback(async () => {
     try {
