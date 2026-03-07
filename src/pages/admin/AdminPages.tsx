@@ -1,4 +1,5 @@
 // Generic stub for remaining admin pages
+import { stripHtml } from '@/lib/formatText';
 import { AdminPageShell } from './AdminPageShell';
 import OrgKYCForm from '@/components/org/OrgKYCForm';
 import { useOrg } from '@/contexts/OrgContext';

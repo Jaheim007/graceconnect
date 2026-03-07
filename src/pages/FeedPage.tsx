@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { stripHtml } from '@/lib/formatText';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {

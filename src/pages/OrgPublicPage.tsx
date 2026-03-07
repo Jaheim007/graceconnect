@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { stripHtml } from '@/lib/formatText';
 import { useParams, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
