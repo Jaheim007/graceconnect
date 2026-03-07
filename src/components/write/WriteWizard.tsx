@@ -11,6 +11,7 @@ import { StepEditorialStrategy } from './steps/StepEditorialStrategy';
 import { StepGenerating } from './steps/StepGenerating';
 import { StepPreview } from './steps/StepPreview';
 import { StepCover } from './steps/StepCover';
+import { StepIllustrations } from './steps/StepIllustrations';
 import { StepPricing } from './steps/StepPricing';
 import { StepCelebration } from './steps/StepCelebration';
 import { StepPublishing } from './steps/StepPublishing';
@@ -754,8 +755,9 @@ export default function WriteWizard() {
             {step === 2 && <StepEditorialStrategy state={state} update={update} onNext={next} onBack={back} />}
             {step === 3 && <StepGenerating state={state} update={update} onNext={next} />}
             {step === 4 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
-            {step === 5 && <StepCover state={state} update={update} onNext={next} onBack={back} />}
-            {step === 6 && <StepPricing state={state} update={update} onNext={next} onBack={back} />}
+            {step === ILLUSTRATIONS_STEP && <StepIllustrations state={state} update={update} onNext={next} onBack={back} />}
+            {step === COVER_STEP && <StepCover state={state} update={update} onNext={next} onBack={back} />}
+            {step === PRICING_STEP && <StepPricing state={state} update={update} onNext={next} onBack={back} />}
             {step === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} onSaveDraft={saveCurrentDraftNow} saving={publishing} />}
             {step === PUBLISHING_STEP && <StepPublishing stage={publishingStage} willCreateOrg={willCreateOrg} />}
             {step === CELEBRATION_STEP && <StepCelebration state={state} onWriteAnother={handleCreateNewDraft} />}
