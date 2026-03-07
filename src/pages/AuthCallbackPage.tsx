@@ -94,36 +94,3 @@ export default function AuthCallbackPage() {
     </div>
   );
 }
-      const createdAt = new Date(session.user.created_at).getTime();
-      const now = Date.now();
-      const isNewUser = now - createdAt < 60_000;
-
-      if (isNewUser) {
-        navigate('/welcome', { replace: true });
-      } else {
-        navigate('/dashboard', { replace: true });
-      }
-    };
-
-    supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        handleRedirect(session);
-      }
-    });
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        handleRedirect(session);
-      }
-    });
-  }, [navigate]);
-
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center space-y-4">
-        <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-        <p className="text-muted-foreground text-sm">{t('auth.connecting')}</p>
-      </div>
-    </div>
-  );
-}
