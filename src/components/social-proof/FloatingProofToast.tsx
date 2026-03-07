@@ -193,9 +193,11 @@ export function FloatingProofToast() {
               )}
               <p className="text-[11px] text-muted-foreground mt-0.5">{notification.subtext}</p>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
+            <button
+              onClick={(e) => { e.stopPropagation(); handleDismiss(); }}
+              className="shrink-0 p-1 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground"
+              aria-label="Fermer"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
 }
