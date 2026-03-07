@@ -126,6 +126,7 @@ const initialState: WriteState = {
   styleReference: '',
   pageCount: 20,
   chapters: [],
+  chapterIllustrations: {},
   coverTemplate: 0,
   coverFile: null,
   coverUrl: '',
