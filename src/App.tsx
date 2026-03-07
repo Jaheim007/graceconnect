@@ -300,6 +300,7 @@ const App = () => (
                 <Route path="/payment/success" element={<PaymentSuccessPage />} />
                 <Route path="/payment-success" element={<PaymentSuccessPage />} />
                 <Route path="/invite/:code" element={<InvitePage />} />
+                <Route path="/verify/:certNumber" element={<CertificateVerifyPage />} />
                 <Route path="/install" element={<InstallPage />} />
                 <Route path="/changelog" element={<ChangelogPage />} />
                 <Route path="/temoignages" element={<TemoignagesPage />} />
