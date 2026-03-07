@@ -1022,8 +1022,8 @@ Deno.serve(async (req) => {
     // WEEKLY DISCOVERY DIGEST (Mondays — personalized new products)
     // ═══════════════════════════════════════════
     let digestCount = 0;
-    const dayOfWeek = now.getUTCDay(); // 0=Sun, 1=Mon
-    if (dayOfWeek === 1) { // Only on Mondays
+    const dayOfWeek2 = now.getUTCDay(); // 0=Sun, 1=Mon
+    if (dayOfWeek2 === 1) { // Only on Mondays
       const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000).toISOString();
       // Get new products from last 7 days
       const { data: newProducts } = await db.from('digital_products')
