@@ -38,8 +38,9 @@ async function notifyAndEmail(
   emailData: Record<string, string | number>,
   type: string = 'system',
   orgId?: string,
+  actionUrl?: string,
 ) {
-  notify(userId, title, body, type, orgId);
+  notify(userId, title, body, type, orgId, actionUrl);
   if (email) {
     sendEmailNotification(template, email, emailData, orgId).catch(() => {});
   }
@@ -52,6 +53,7 @@ async function notifyOrgMembers(
   body: string,
   type: string = 'org',
   excludeUserId?: string,
+  actionUrl?: string,
 ) {
   try {
     const { data: members } = await db.from('organization_members')
@@ -59,7 +61,7 @@ async function notifyOrgMembers(
       .eq('organization_id', orgId);
     for (const m of members || []) {
       if (m.user_id !== excludeUserId) {
-        notify(m.user_id, title, body, type, orgId);
+        notify(m.user_id, title, body, type, orgId, actionUrl);
       }
     }
   } catch (e) {
