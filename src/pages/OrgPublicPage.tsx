@@ -224,7 +224,7 @@ export default function OrgPublicPage() {
                   <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><span className="text-xs">📌</span></div>
                   <div>
                     <h3 className="font-semibold text-sm">{pinnedAnnouncement.title}</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-3">{pinnedAnnouncement.body}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-3">{stripHtml(pinnedAnnouncement.body)}</p>
                   </div>
                 </div>
               </div>

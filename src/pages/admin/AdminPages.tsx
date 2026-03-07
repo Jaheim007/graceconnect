@@ -80,7 +80,7 @@ export function AdminAnnouncements() {
                 {a.is_pinned && <span className="text-sm shrink-0">📌</span>}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{a.title}</p>
-                  <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{a.body}</p>
+                  <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{stripHtml(a.body)}</p>
                 </div>
                 <Badge
                   variant="outline"
