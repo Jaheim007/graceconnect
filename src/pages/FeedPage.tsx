@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { stripHtml } from '@/lib/formatText';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -202,7 +203,7 @@ export default function FeedPage() {
             <div className="min-w-0">
               <span className="text-[10px] font-bold text-primary uppercase tracking-widest">{t('feed.pinned')}</span>
               <p className="font-bold text-sm mt-0.5 line-clamp-1">{announcements.find((a) => a.is_pinned)?.title}</p>
-              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{announcements.find((a) => a.is_pinned)?.body}</p>
+              <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{stripHtml(announcements.find((a) => a.is_pinned)?.body || '')}</p>
             </div>
           </motion.div>
         )}
@@ -232,7 +233,7 @@ export default function FeedPage() {
                           <div className="p-4">
                             {a.is_pinned && <span className="text-[10px] text-primary font-bold uppercase tracking-wider">{t('feed.pinned')}</span>}
                             <h3 className="font-bold text-sm mt-1 line-clamp-2">{a.title}</h3>
-                            <p className="text-xs text-muted-foreground mt-1.5 line-clamp-3">{a.body}</p>
+                            <p className="text-xs text-muted-foreground mt-1.5 line-clamp-3">{stripHtml(a.body)}</p>
                             {(a as any).organization_name && (
                               <p className="text-[11px] text-muted-foreground mt-2">Publié par <span className="font-semibold text-primary hover:underline cursor-pointer" onClick={(e) => { e.stopPropagation(); navigate(`/org/${(a as any).organization_slug}`); }}>{(a as any).organization_name}</span></p>
                             )}
@@ -344,7 +345,7 @@ export default function FeedPage() {
                               <div className="min-w-0">
                                 {a.is_pinned && <span className="text-[10px] text-primary font-bold uppercase tracking-wider">{t('feed.pinned')} · </span>}
                                 <p className="font-bold text-sm line-clamp-1">{a.title}</p>
-                                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{a.body}</p>
+                                <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{stripHtml(a.body)}</p>
                               </div>
                             </motion.div>
                           ))}

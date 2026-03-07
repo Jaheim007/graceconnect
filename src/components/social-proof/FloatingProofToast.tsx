@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, UserPlus, Download, Heart, Star, Globe, Flame, Users, TrendingUp, Award, Sparkles, BookOpen, Gift, Zap, Music, Camera, Laptop, GraduationCap } from 'lucide-react';
+import { ShoppingBag, UserPlus, Download, Heart, Star, Globe, Flame, Users, TrendingUp, Award, Sparkles, BookOpen, Gift, Zap, Music, Camera, Laptop, GraduationCap, X } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
 
@@ -130,28 +130,37 @@ export function FloatingProofToast() {
   const isFr = locale === 'fr';
   const [notification, setNotification] = useState<Notification | null>(null);
   const [visible, setVisible] = useState(false);
+  const [dismissed, setDismissed] = useState(() => {
+    try { return sessionStorage.getItem('floating-proof-dismissed') === 'true'; } catch { return false; }
+  });
 
   const isSuperadmin = location.pathname.startsWith('/superadmin');
 
+  const handleDismiss = useCallback(() => {
+    setVisible(false);
+    setDismissed(true);
+    try { sessionStorage.setItem('floating-proof-dismissed', 'true'); } catch {}
+  }, []);
+
   const showNext = useCallback(() => {
-    if (isSuperadmin) return;
+    if (isSuperadmin || dismissed) return;
     const notif = generateNotification(isFr);
     setNotification(notif);
     setVisible(true);
     setTimeout(() => setVisible(false), 4500);
-  }, [isSuperadmin, isFr]);
+  }, [isSuperadmin, isFr, dismissed]);
 
   useEffect(() => {
-    if (isSuperadmin) return;
+    if (isSuperadmin || dismissed) return;
     const initialDelay = setTimeout(() => showNext(), randInt(5000, 10000));
     const interval = setInterval(() => showNext(), randInt(7000, 13000));
     return () => {
       clearTimeout(initialDelay);
       clearInterval(interval);
     };
-  }, [showNext, isSuperadmin]);
+  }, [showNext, isSuperadmin, dismissed]);
 
-  if (isSuperadmin) return null;
+  if (isSuperadmin || dismissed) return null;
 
   return (
     <div className="fixed bottom-20 lg:bottom-4 left-4 z-50 max-w-xs sm:max-w-sm pointer-events-none">
@@ -184,6 +193,13 @@ export function FloatingProofToast() {
               )}
               <p className="text-[11px] text-muted-foreground mt-0.5">{notification.subtext}</p>
             </div>
+            <button
+              onClick={(e) => { e.stopPropagation(); handleDismiss(); }}
+              className="shrink-0 p-1 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground"
+              aria-label="Fermer"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
