@@ -2,6 +2,7 @@
 // Last-click wins within the attribution window
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 const STORAGE_KEY = 'sv_affiliate_ref';
 const COOKIE_NAME = 'sv_aff';
@@ -30,6 +31,9 @@ export function useAffiliateCapture() {
       // Last-click wins: overwrite any existing attribution
       setCookie(COOKIE_NAME, ref, COOKIE_DAYS);
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ code: ref, ts: Date.now() })); } catch {}
+
+      // Track click server-side (fire-and-forget) — increments counter + notifies ambassador
+      supabase.rpc('track_affiliate_click', { _code: ref }).then(() => {}, () => {});
     }
   }, [searchParams]);
 }
