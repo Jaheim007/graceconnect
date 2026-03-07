@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, ImagePlus, Loader2, SkipForward, Sparkles, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
@@ -25,7 +25,13 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
 
   const chapters = state.chapters || [];
   const illustrations = state.chapterIllustrations || {};
-  const illustratedCount = Object.keys(illustrations).length;
+  const illustrationsRef = useRef<Record<string, string>>(illustrations);
+
+  useEffect(() => {
+    illustrationsRef.current = state.chapterIllustrations || {};
+  }, [state.chapterIllustrations]);
+
+  const illustratedCount = chapters.filter((chapter) => Boolean(illustrations[chapter.id])).length;
 
   // Check if this book style benefits from illustrations
   const needsIllustrations = ['story', 'activity'].includes(state.style) || state.targetAudience === 'children';
@@ -55,7 +61,8 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
       if (data?.error) throw new Error(data.error);
       if (!data?.imageUrl) throw new Error('No image returned');
 
-      const updated = { ...illustrations, [chapterId]: data.imageUrl };
+      const updated = { ...illustrationsRef.current, [chapterId]: data.imageUrl };
+      illustrationsRef.current = updated;
       update({ chapterIllustrations: updated });
       toast({ title: `🎨 ${t('write.illust_generated') || 'Illustration générée !'}` });
     } catch (err: any) {
@@ -69,7 +76,7 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
   const generateAll = async () => {
     setGeneratingAll(true);
     for (const chapter of chapters) {
-      if (illustrations[chapter.id]) continue; // skip already generated
+      if (illustrationsRef.current[chapter.id]) continue; // skip already generated
       await generateIllustration(chapter.id, chapter.title, chapter.content);
     }
     setGeneratingAll(false);
@@ -110,14 +117,14 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
       {/* Generate all button */}
       <Button
         onClick={generateAll}
-        disabled={generatingAll || !!generating}
+        disabled={generatingAll || !!generating || chapters.length === 0}
         className="w-full gap-2"
         variant="outline"
       >
         {generatingAll ? (
           <><Loader2 className="h-4 w-4 animate-spin" /> {t('write.illust_generating_all') || 'Génération en cours...'}</>
         ) : (
-          <><Sparkles className="h-4 w-4" /> {t('write.illust_generate_all') || `Générer toutes les illustrations (${chapters.length - illustratedCount} restantes)`}</>
+          <><Sparkles className="h-4 w-4" /> {t('write.illust_generate_all') || `Générer toutes les illustrations (${Math.max(0, chapters.length - illustratedCount)} restantes)`}</>
         )}
       </Button>
 
@@ -133,6 +140,7 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
                     src={illustrations[chapter.id]}
                     alt={chapter.title}
                     className="w-full h-full object-cover rounded-lg"
+                    loading="lazy"
                   />
                 ) : (
                   <ImagePlus className="h-8 w-8 text-muted-foreground/40" />

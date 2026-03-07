@@ -19,6 +19,7 @@ export function StepPdfPreview({ state, update, onNext, onBack, onSaveDraft, sav
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const chapters = state.chapters || [];
+  const chapterIllustrations = state.chapterIllustrations || {};
   // Pages: cover + each chapter
   const totalPages = 1 + chapters.length;
 
@@ -26,6 +27,9 @@ export function StepPdfPreview({ state, update, onNext, onBack, onSaveDraft, sav
     setCurrentPage(Math.max(0, Math.min(page, totalPages - 1)));
     scrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  const currentChapter = currentPage > 0 ? chapters[currentPage - 1] : null;
+  const currentChapterImage = currentChapter ? chapterIllustrations[currentChapter.id] : null;
 
   return (
     <div className="space-y-6 pt-6">
@@ -85,17 +89,29 @@ export function StepPdfPreview({ state, update, onNext, onBack, onSaveDraft, sav
             </div>
           ) : (
             /* ─── CHAPTER PAGE ─── */
-            <div className="max-w-2xl mx-auto p-6 sm:p-10">
+            <div className="max-w-2xl mx-auto p-6 sm:p-10 space-y-6">
               <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">
                 Chapitre {currentPage}
               </p>
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-6 pb-3 border-b border-border">
-                {chapters[currentPage - 1]?.title || `Chapitre ${currentPage}`}
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground pb-3 border-b border-border">
+                {currentChapter?.title || `Chapitre ${currentPage}`}
               </h2>
+
+              {currentChapterImage && (
+                <figure className="rounded-xl overflow-hidden border border-border bg-muted/20">
+                  <img
+                    src={currentChapterImage}
+                    alt={`Illustration du chapitre ${currentChapter?.title || currentPage}`}
+                    className="w-full max-h-[280px] object-cover"
+                    loading="lazy"
+                  />
+                </figure>
+              )}
+
               <div
                 className="prose prose-sm dark:prose-invert max-w-none leading-relaxed text-foreground/90"
                 dangerouslySetInnerHTML={{
-                  __html: chapters[currentPage - 1]?.content || '<p class="text-muted-foreground italic">Contenu vide</p>',
+                  __html: currentChapter?.content || '<p class="text-muted-foreground italic">Contenu vide</p>',
                 }}
               />
             </div>
