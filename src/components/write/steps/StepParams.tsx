@@ -8,6 +8,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { WriteState, BookStyle, WritingTone, LanguageLevel, TargetAudience, BookLanguage } from '../WriteWizard';
+import { hasGeneratedContent } from '../utils/hasGeneratedContent';
 
 interface Props {
   state: WriteState;
@@ -67,6 +68,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
   const suggestedTitle = state.topic
     ? state.topic.length > 40 ? state.topic.substring(0, 40) + '…' : state.topic
     : '';
+  const hasSavedChapters = hasGeneratedContent(state.chapters);
 
   const handleSuggestTitles = async () => {
     if (suggestingTitles) return;
@@ -300,9 +302,10 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
             onNext();
           }}
         >
-          {t('write.generate')} <ArrowRight className="h-4 w-4" />
+          {hasSavedChapters ? t('common.next') : t('write.generate')} <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
     </div>
   );
 }
+
