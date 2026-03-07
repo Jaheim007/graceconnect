@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, UserPlus, Download, Heart, Star, Globe, Flame, Users, TrendingUp, Award, Sparkles, BookOpen, Gift, Zap, Music, Camera, Laptop, GraduationCap } from 'lucide-react';
+import { ShoppingBag, UserPlus, Download, Heart, Star, Globe, Flame, Users, TrendingUp, Award, Sparkles, BookOpen, Gift, Zap, Music, Camera, Laptop, GraduationCap, X } from 'lucide-react';
 import { useLocation, Link } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
 
