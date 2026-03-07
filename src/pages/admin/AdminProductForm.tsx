@@ -63,6 +63,7 @@ export function ProductForm() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const qc = useQueryClient();
   const isEdit = !!id;
   
   // Support pre-fill from AI Studio
