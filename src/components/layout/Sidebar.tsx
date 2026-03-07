@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
-  Home, Play, Bell, User, Store,
+  Home, Play, Bell, User, Store, Eye,
   Settings, ChevronLeft, ChevronRight, Shield,
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, LogOut,
   UserPlus, ChevronDown, Wallet, LayoutDashboard, Building2,
@@ -77,6 +77,23 @@ export function Sidebar() {
   const platformOverview: NavItem[] = [
     { to: '/admin', icon: BarChart3, label: t('sidebar.overview') },
   ];
+
+  // Build "Ma page" items — one per managed org
+  const myPageItems: NavItem[] = (() => {
+    const managedOrgs = userOrgs.filter((o) => {
+      const role = getRoleFor(o.id);
+      return role === 'owner' || role === 'admin';
+    });
+    if (managedOrgs.length === 1) {
+      return [{ to: `/org/${managedOrgs[0].slug}/store`, icon: Eye, label: t('sidebar.my_page'), desc: t('sidebar.my_page_desc') }];
+    }
+    return managedOrgs.map((o) => ({
+      to: `/org/${o.slug}/store`,
+      icon: Eye,
+      label: o.name,
+      desc: t('sidebar.my_page_desc'),
+    }));
+  })();
 
   // ═══════════════════════════════════════
   // CREATOR GROUPS — reorganized by priority
@@ -325,6 +342,16 @@ export function Sidebar() {
                 {renderSectionLabel(Building2, t('sidebar.creator_space'), 'text-primary')}
                 <div className="space-y-0.5">
                   {platformOverview.map(renderNavItem)}
+                  {myPageItems.length > 0 && (
+                    myPageItems.length === 1
+                      ? myPageItems.map(renderNavItem)
+                      : <>
+                          {!collapsed && (
+                            <p className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">{t('sidebar.my_page')}</p>
+                          )}
+                          {myPageItems.map(renderNavItem)}
+                        </>
+                  )}
                 </div>
                 {renderGroups(platformGroups)}
               </>
