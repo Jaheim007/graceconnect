@@ -15,7 +15,7 @@ export function PaymentMethodSelector({ value, onChange, currency, className, pa
   const moMoRegionAvailable = isMoMoAvailable(currency);
   const showMoMo = moMoRegionAvailable && paystackEnabled;
   const showApplePay = paystackEnabled && isPaystackCurrency(currency || '');
-  const showMoneroo = true; // Moneroo enabled — routes through Paystack gateway
+  const showMoneroo = false; // Moneroo temporarily hidden
   const effectiveValue: PaymentMethod = (showMoMo || showApplePay || showMoneroo) ? value : 'card';
 
   const methodCount = [showMoMo, showApplePay, showMoneroo, true].filter(Boolean).length;
