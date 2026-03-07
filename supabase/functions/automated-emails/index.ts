@@ -905,7 +905,7 @@ Deno.serve(async (req) => {
     // 23. WIN-BACK EMAIL (members inactive 30+ days with previous purchases)
     // ═══════════════════════════════════════════
     let winBackCount = 0;
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString();
+    const thirtyDaysAgoWinback = new Date(now.getTime() - 30 * 86400000).toISOString();
     const { data: inactiveOrgs } = await db.from('organizations')
       .select('id, name, slug, currency')
       .eq('is_active', true)
