@@ -5,6 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useI18n } from '@/i18n/I18nContext';
 import { supabase } from '@/integrations/supabase/client';
 import type { WriteState } from '../WriteWizard';
+import { hasGeneratedContent } from '../utils/hasGeneratedContent';
 
 interface Props {
   state: WriteState;
@@ -149,11 +150,7 @@ export function StepEditorialStrategy({ state, update, onNext, onBack }: Props) 
     { key: 'narrative_arc', icon: BookOpen, label: t('write.strategy_arc'), color: 'text-emerald-500' },
   ];
 
-  const hasGeneratedBook = state.chapters.some((chapter) => {
-    const title = (chapter.title || '').trim();
-    const content = (chapter.content || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
-    return title.length > 0 || content.length > 0;
-  });
+  const hasGeneratedBook = hasGeneratedContent(state.chapters);
 
   return (
     <div className="space-y-6 pt-8">
