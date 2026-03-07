@@ -12,6 +12,7 @@ async function notify(
   body: string,
   type: string = 'system',
   orgId?: string,
+  actionUrl?: string,
 ) {
   try {
     await db.from('user_notifications').insert({
@@ -20,6 +21,7 @@ async function notify(
       body,
       notification_type: type,
       organization_id: orgId || null,
+      action_url: actionUrl || null,
     });
   } catch (e) {
     console.error('notify insert failed:', e);
