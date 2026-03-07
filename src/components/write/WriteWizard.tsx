@@ -133,7 +133,7 @@ function clampDraftStep(step: number) {
 }
 
 function toSerializableState(state: WriteState): Partial<WriteState> {
-  const { uploadedFile, coverFile, previewPdfUrl, ...serializable } = state;
+  const { uploadedFile, coverFile, previewPdfUrl, transcribing, ...serializable } = state;
   return serializable;
 }
 
