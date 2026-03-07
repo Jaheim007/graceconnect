@@ -59,6 +59,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const [result, setResult] = useState<VerifyPaymentResult | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pwywAmount, setPwywAmount] = useState<string>('');
 
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
@@ -149,7 +150,15 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const salePrice = (product as any).sale_price;
   const saleEndsAt = (product as any).sale_ends_at;
   const isFlashSale = salePrice != null && saleEndsAt && new Date(saleEndsAt) > new Date();
-  const effectiveBasePrice = isFlashSale ? salePrice : (product.price ?? 0);
+  const isPwyw = !!(product as any).is_pwyw;
+  const minPrice = (product as any).min_price || 0;
+  const suggestedPrice = product.price ?? 0;
+
+  // For PWYW, use the custom amount; otherwise use standard pricing
+  const pwywValue = isPwyw && pwywAmount ? parseFloat(pwywAmount) : 0;
+  const effectiveBasePrice = isPwyw
+    ? (pwywValue > 0 ? pwywValue : suggestedPrice)
+    : isFlashSale ? salePrice : (product.price ?? 0);
 
   const bumpPrice = bumpProduct ? Math.round((bumpProduct.price || 0) * (1 - bumpDiscount / 100)) : 0;
   const orderBumpTotal = orderBumpChecked && bumpProduct ? bumpPrice : 0;
