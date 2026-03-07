@@ -335,7 +335,10 @@ export default function AdminDashboard() {
               <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
             <p className="text-3xl font-bold tracking-tight">{s.value}</p>
-            <p className="text-sm text-muted-foreground mt-0.5">{s.label}</p>
+            <div className="flex items-center gap-1 mt-0.5">
+              <p className="text-sm text-muted-foreground">{s.label}</p>
+              {'tipKey' in s && s.tipKey && <ContextTip tipKey={s.tipKey} side="bottom" />}
+            </div>
             <p className="text-xs text-primary font-medium mt-1">{s.published} {t('admin.published')}{s.published !== 1 ? 's' : ''}</p>
           </motion.button>
         ))}
