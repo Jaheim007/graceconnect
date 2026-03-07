@@ -724,7 +724,7 @@ export default function WriteWizard() {
         </>
       )}
 
-      <div className={`container px-4 ${step === 3 ? 'max-w-5xl' : 'max-w-2xl'}`}>
+      <div className={`container px-4 ${step === 4 ? 'max-w-5xl' : 'max-w-2xl'}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={`${draftId}-${step}`}
