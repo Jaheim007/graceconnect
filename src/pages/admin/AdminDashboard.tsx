@@ -52,6 +52,7 @@ import { downloadCSV } from '@/lib/csvExport';
 import { downloadDashboardPDF } from '@/lib/pdfExport';
 
 import { formatCurrency } from '@/lib/currency';
+import { ContextTip } from '@/components/admin/ContextualTooltips';
 const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
 
 const stagger = {
@@ -180,9 +181,9 @@ export default function AdminDashboard() {
     { label: t('admin.media'), value: media.length, published: media.filter(m => m.is_published).length, icon: Play, to: '/admin/media', colorClass: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
     { label: t('admin.announcements'), value: announcements.length, published: announcements.filter(a => a.is_published).length, icon: Megaphone, to: '/admin/announcements', colorClass: 'text-primary bg-primary/10 border-primary/20' },
     { label: t('admin.events'), value: events.length, published: events.filter(e => e.is_published).length, icon: CalendarDays, to: '/admin/events', colorClass: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
-    { label: t('admin.members'), value: members.length, published: members.length, icon: Users, to: '/admin/members', colorClass: 'text-violet-400 bg-violet-500/10 border-violet-500/20' },
-    { label: t('admin.campaigns'), value: campaigns.length, published: campaigns.filter(c => c.is_published).length, icon: Heart, to: '/admin/campaigns', colorClass: 'text-rose-400 bg-rose-500/10 border-rose-500/20' },
-    { label: t('admin.products'), value: products.length, published: products.filter(p => p.is_published).length, icon: ShoppingBag, to: '/admin/products', colorClass: 'text-amber-400 bg-amber-500/10 border-amber-500/20' },
+    { label: t('admin.members'), value: members.length, published: members.length, icon: Users, to: '/admin/members', colorClass: 'text-violet-400 bg-violet-500/10 border-violet-500/20', tipKey: 'dashboard_members' as const },
+    { label: t('admin.campaigns'), value: campaigns.length, published: campaigns.filter(c => c.is_published).length, icon: Heart, to: '/admin/campaigns', colorClass: 'text-rose-400 bg-rose-500/10 border-rose-500/20', tipKey: 'dashboard_campaigns' as const },
+    { label: t('admin.products'), value: products.length, published: products.filter(p => p.is_published).length, icon: ShoppingBag, to: '/admin/products', colorClass: 'text-amber-400 bg-amber-500/10 border-amber-500/20', tipKey: 'dashboard_products' as const },
   ];
 
   const quickActions = [
