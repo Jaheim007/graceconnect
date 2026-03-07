@@ -80,7 +80,7 @@ export function StepSource({
       } else if (state.source === 'audio' && state.uploadedFile) {
         // Upload audio to storage first
         const path = `transcribe/${Date.now()}-${state.uploadedFile.name}`;
-        const { error: uploadErr } = await supabase.storage.from('uploads').upload(path, state.uploadedFile);
+        const { error: uploadErr } = await supabase.storage.from('org-uploads').upload(path, state.uploadedFile);
         if (uploadErr) throw uploadErr;
 
         const { data, error } = await supabase.functions.invoke('transcribe-source', {
@@ -91,7 +91,7 @@ export function StepSource({
         toast({ title: `✅ ${t('write.transcribe_success')}` });
       } else if (state.source === 'notes_photo' && state.uploadedFile) {
         const path = `transcribe/${Date.now()}-${state.uploadedFile.name}`;
-        const { error: uploadErr } = await supabase.storage.from('uploads').upload(path, state.uploadedFile);
+        const { error: uploadErr } = await supabase.storage.from('org-uploads').upload(path, state.uploadedFile);
         if (uploadErr) throw uploadErr;
 
         const { data, error } = await supabase.functions.invoke('transcribe-source', {
