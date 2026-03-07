@@ -224,7 +224,16 @@ export function ProductForm() {
           }).catch(() => {});
         }
       }
-      if (isEdit) { toast({ title: 'Mis à jour ✅' }); navigate('/admin/products'); }
+      if (isEdit) {
+        // Invalidate cache so the product list shows fresh status
+        const { QueryClient } = await import('@tanstack/react-query');
+        const qc = (window as any).__queryClient;
+        if (qc) {
+          qc.invalidateQueries({ queryKey: ['org-products'] });
+          qc.invalidateQueries({ queryKey: ['product-item', id] });
+        }
+        toast({ title: 'Mis à jour ✅' }); navigate('/admin/products');
+      }
       else if (resultData) { setCreatedProduct({ id: resultData.id, slug: resultData.slug }); }
       else { navigate('/admin/products'); }
     } catch (err: any) {
