@@ -746,10 +746,11 @@ export default function WriteWizard() {
               />
             )}
             {step === 1 && <StepParams state={state} update={update} onNext={next} onBack={back} />}
-            {step === 2 && <StepGenerating state={state} update={update} onNext={next} />}
-            {step === 3 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
-            {step === 4 && <StepCover state={state} update={update} onNext={next} onBack={back} />}
-            {step === 5 && <StepPricing state={state} update={update} onNext={next} onBack={back} />}
+            {step === 2 && <StepEditorialStrategy state={state} update={update} onNext={next} onBack={back} />}
+            {step === 3 && <StepGenerating state={state} update={update} onNext={next} />}
+            {step === 4 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
+            {step === 5 && <StepCover state={state} update={update} onNext={next} onBack={back} />}
+            {step === 6 && <StepPricing state={state} update={update} onNext={next} onBack={back} />}
             {step === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} onSaveDraft={saveCurrentDraftNow} saving={publishing} />}
             {step === PUBLISHING_STEP && <StepPublishing stage={publishingStage} willCreateOrg={willCreateOrg} />}
             {step === CELEBRATION_STEP && <StepCelebration state={state} onWriteAnother={handleCreateNewDraft} />}
