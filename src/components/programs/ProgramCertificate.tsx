@@ -342,7 +342,7 @@ export function ProgramCertificate({
           <div className="p-4 bg-card">
             <canvas
               ref={canvasRef}
-              style={{ width: CERT_WIDTH, height: CERT_HEIGHT, maxWidth: '100%', height: 'auto' }}
+              style={{ width: CERT_WIDTH, maxWidth: '100%', height: 'auto' }}
               className="rounded-lg shadow-xl mx-auto block"
             />
           </div>
