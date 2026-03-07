@@ -173,3 +173,6 @@ verify_jwt = false
 
 [functions.generate-book-content]
 verify_jwt = false
+
+[functions.generate-editorial-strategy]
+verify_jwt = false

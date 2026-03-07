@@ -47,6 +47,7 @@ export function StepGenerating({ state, update, onNext }: Props) {
         languageLevel: state.languageLevel || 'intermediate',
         targetAudience: state.targetAudience || 'general',
         styleReference: state.styleReference || '',
+        editorialStrategy: state.editorialStrategy || null,
       },
     });
 

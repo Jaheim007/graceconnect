@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { StepSource } from './steps/StepSource';
 import { StepParams } from './steps/StepParams';
+import { StepEditorialStrategy } from './steps/StepEditorialStrategy';
 import { StepGenerating } from './steps/StepGenerating';
 import { StepPreview } from './steps/StepPreview';
 import { StepCover } from './steps/StepCover';
@@ -31,6 +32,16 @@ export interface WriteChapter {
   content: string;
 }
 
+export interface EditorialStrategy {
+  reader_problem: string;
+  book_promise: string;
+  unique_angle: string;
+  central_thesis: string;
+  narrative_arc: string;
+  suggested_stories: string[];
+  improved_title: string;
+}
+
 export interface WriteState {
   source: SourceType;
   topic: string;
@@ -45,6 +56,7 @@ export interface WriteState {
   language: BookLanguage;
   styleReference: string;
   pageCount: number;
+  editorialStrategy?: EditorialStrategy;
   chapters: WriteChapter[];
   coverTemplate: number;
   coverFile: File | null;
@@ -88,10 +100,10 @@ interface LoadedWriteDraft {
 const STORAGE_KEY = 'write_wizard_drafts_v2';
 const LEGACY_STORAGE_KEY = 'write_wizard_draft';
 
-const PDF_PREVIEW_STEP = 6;
-const PUBLISHING_STEP = 7;
-const CELEBRATION_STEP = 8;
-const STEP_LABELS = ['Source', 'Détails', 'Création', 'Aperçu', 'Couverture', 'Prix', 'Aperçu PDF', 'Sauvegarde', '🎉'];
+const PDF_PREVIEW_STEP = 7;
+const PUBLISHING_STEP = 8;
+const CELEBRATION_STEP = 9;
+const STEP_LABELS = ['Source', 'Détails', '🎯 Stratégie', 'Création', 'Aperçu', 'Couverture', 'Prix', 'Aperçu PDF', 'Sauvegarde', '🎉'];
 
 type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
 
@@ -712,7 +724,7 @@ export default function WriteWizard() {
         </>
       )}
 
-      <div className={`container px-4 ${step === 3 ? 'max-w-5xl' : 'max-w-2xl'}`}>
+      <div className={`container px-4 ${step === 4 ? 'max-w-5xl' : 'max-w-2xl'}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={`${draftId}-${step}`}
@@ -734,10 +746,11 @@ export default function WriteWizard() {
               />
             )}
             {step === 1 && <StepParams state={state} update={update} onNext={next} onBack={back} />}
-            {step === 2 && <StepGenerating state={state} update={update} onNext={next} />}
-            {step === 3 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
-            {step === 4 && <StepCover state={state} update={update} onNext={next} onBack={back} />}
-            {step === 5 && <StepPricing state={state} update={update} onNext={next} onBack={back} />}
+            {step === 2 && <StepEditorialStrategy state={state} update={update} onNext={next} onBack={back} />}
+            {step === 3 && <StepGenerating state={state} update={update} onNext={next} />}
+            {step === 4 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
+            {step === 5 && <StepCover state={state} update={update} onNext={next} onBack={back} />}
+            {step === 6 && <StepPricing state={state} update={update} onNext={next} onBack={back} />}
             {step === PDF_PREVIEW_STEP && <StepPdfPreview state={state} update={update} onNext={startPublishing} onBack={back} onSaveDraft={saveCurrentDraftNow} saving={publishing} />}
             {step === PUBLISHING_STEP && <StepPublishing stage={publishingStage} willCreateOrg={willCreateOrg} />}
             {step === CELEBRATION_STEP && <StepCelebration state={state} onWriteAnother={handleCreateNewDraft} />}
