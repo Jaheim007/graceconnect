@@ -12,6 +12,7 @@ async function notify(
   body: string,
   type: string = 'system',
   orgId?: string,
+  actionUrl?: string,
 ) {
   try {
     await db.from('user_notifications').insert({
@@ -20,6 +21,7 @@ async function notify(
       body,
       notification_type: type,
       organization_id: orgId || null,
+      action_url: actionUrl || null,
     });
   } catch (e) {
     console.error('notify insert failed:', e);
@@ -36,8 +38,9 @@ async function notifyAndEmail(
   emailData: Record<string, string | number>,
   type: string = 'system',
   orgId?: string,
+  actionUrl?: string,
 ) {
-  notify(userId, title, body, type, orgId);
+  notify(userId, title, body, type, orgId, actionUrl);
   if (email) {
     sendEmailNotification(template, email, emailData, orgId).catch(() => {});
   }
@@ -50,6 +53,7 @@ async function notifyOrgMembers(
   body: string,
   type: string = 'org',
   excludeUserId?: string,
+  actionUrl?: string,
 ) {
   try {
     const { data: members } = await db.from('organization_members')
@@ -57,7 +61,7 @@ async function notifyOrgMembers(
       .eq('organization_id', orgId);
     for (const m of members || []) {
       if (m.user_id !== excludeUserId) {
-        notify(m.user_id, title, body, type, orgId);
+        notify(m.user_id, title, body, type, orgId, actionUrl);
       }
     }
   } catch (e) {
@@ -92,7 +96,7 @@ async function notifyOrgAffiliates(
     const emailMap = new Map<string, string>((profiles || []).map(p => [p.id as string, p.email as string]));
 
     for (const userId of uniqueUserIds) {
-      notify(userId, title, body, type, orgId);
+      notify(userId, title, body, type, orgId, `/affiliation`);
       const email = emailMap.get(userId);
       if (email) {
         sendEmailNotification(template, email, { ...emailData, org_name: orgName }, orgId).catch(() => {});
@@ -120,7 +124,7 @@ export async function onMemberJoined(
   orgId: string,
   orgName: string,
 ) {
-  notify(userId, `🎉 Bienvenue dans ${orgName}`, `Vous avez rejoint l'organisation ${orgName}.`, 'org', orgId);
+  notify(userId, `🎉 Bienvenue dans ${orgName}`, `Vous avez rejoint l'organisation ${orgName}.`, 'org', orgId, `/feed`);
   emailOrgAdmins('new_member_joined', orgId, { org_name: orgName, member_name: userName });
 }
 
@@ -149,7 +153,7 @@ export async function onRoleChanged(
     `Votre rôle dans ${orgName} est maintenant : ${newRole}.`,
     'role_changed',
     { org_name: orgName, new_role: newRole, old_role: oldRole || '' },
-    'org', orgId,
+    'org', orgId, `/feed`,
   );
 }
 
@@ -167,7 +171,7 @@ export async function onInviteAccepted(
     `${memberName} a accepté votre invitation pour ${orgName}.`,
     'invite_accepted',
     { member_name: memberName, org_name: orgName },
-    'org', orgId,
+    'org', orgId, `/admin/members`,
   );
 }
 
@@ -205,7 +209,7 @@ export async function onContentPublished(
   const notifBody = `${orgName} a publié : "${contentTitle}"`;
 
   // In-app notification to all members
-  notifyOrgMembers(orgId, notifTitle, notifBody, 'org', publisherId);
+  notifyOrgMembers(orgId, notifTitle, notifBody, 'org', publisherId, `/feed`);
 
   // Email to org admins with the right template
   emailOrgAdmins(templates[contentType], orgId, {
@@ -328,12 +332,12 @@ export async function onDirectoryDecision(
 // ── Org suspended / unsuspended ──
 export async function onOrgSuspended(orgId: string, orgName: string, reason: string, until?: string) {
   emailOrgAdmins('org_suspended', orgId, { org_name: orgName, reason, until: until || '' });
-  notifyOrgMembers(orgId, '⚠️ Organisation suspendue', `${orgName} a été suspendue. Raison: ${reason}`, 'system');
+  notifyOrgMembers(orgId, '⚠️ Organisation suspendue', `${orgName} a été suspendue. Raison: ${reason}`, 'system', undefined, `/feed`);
 }
 
 export async function onOrgUnsuspended(orgId: string, orgName: string) {
   emailOrgAdmins('org_unsuspended', orgId, { org_name: orgName });
-  notifyOrgMembers(orgId, '✅ Suspension levée', `${orgName} est de nouveau active.`, 'system');
+  notifyOrgMembers(orgId, '✅ Suspension levée', `${orgName} est de nouveau active.`, 'system', undefined, `/feed`);
 }
 
 // ── Payouts frozen ──
@@ -361,7 +365,7 @@ export async function onKycStatusChanged(
     approved: `Le KYC de ${orgName} a été approuvé ! Vous pouvez activer la monétisation.`,
     rejected: `Le KYC de ${orgName} nécessite une attention. ${reason || 'Veuillez contacter le support.'}`,
   };
-  notifyOrgMembers(orgId, `${icons[status]} KYC ${status === 'submitted' ? 'soumis' : status === 'approved' ? 'approuvé' : 'rejeté'}`, msgs[status], 'org');
+  notifyOrgMembers(orgId, `${icons[status]} KYC ${status === 'submitted' ? 'soumis' : status === 'approved' ? 'approuvé' : 'rejeté'}`, msgs[status], 'org', undefined, `/admin/kyc`);
 }
 
 // ── Support tickets ──
@@ -378,7 +382,7 @@ export async function onTicketCreated(
     `Votre ticket "${subject}" a été enregistré. Notre équipe vous répondra sous 24–48h.`,
     'ticket_created',
     { ticket_id: ticketId, subject, category },
-    'support',
+    'support', undefined, `/support`,
   );
 }
 
@@ -394,7 +398,7 @@ export async function onTicketReplied(
     `Un agent a répondu à votre ticket.`,
     'ticket_replied',
     { ticket_id: ticketId, reply_preview: replyPreview },
-    'support',
+    'support', undefined, `/support`,
   );
 }
 
@@ -410,7 +414,7 @@ export async function onTicketResolved(
     `Votre ticket "${subject}" a été marqué comme résolu.`,
     'ticket_resolved',
     { ticket_id: ticketId, subject },
-    'support',
+    'support', undefined, `/support`,
   );
 }
 
