@@ -31,6 +31,22 @@ export function LiveActivityTicker() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isClosed, setIsClosed] = useState(() => {
+    try {
+      return localStorage.getItem('live-ticker-closed') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const handleClose = () => {
+    setIsClosed(true);
+    try {
+      localStorage.setItem('live-ticker-closed', 'true');
+    } catch {
+      // Silent fail
+    }
+  };
 
   const { data: activities = [] } = useQuery({
     queryKey: ['live-activity-ticker', locale],
