@@ -130,28 +130,37 @@ export function FloatingProofToast() {
   const isFr = locale === 'fr';
   const [notification, setNotification] = useState<Notification | null>(null);
   const [visible, setVisible] = useState(false);
+  const [dismissed, setDismissed] = useState(() => {
+    try { return sessionStorage.getItem('floating-proof-dismissed') === 'true'; } catch { return false; }
+  });
 
   const isSuperadmin = location.pathname.startsWith('/superadmin');
 
+  const handleDismiss = useCallback(() => {
+    setVisible(false);
+    setDismissed(true);
+    try { sessionStorage.setItem('floating-proof-dismissed', 'true'); } catch {}
+  }, []);
+
   const showNext = useCallback(() => {
-    if (isSuperadmin) return;
+    if (isSuperadmin || dismissed) return;
     const notif = generateNotification(isFr);
     setNotification(notif);
     setVisible(true);
     setTimeout(() => setVisible(false), 4500);
-  }, [isSuperadmin, isFr]);
+  }, [isSuperadmin, isFr, dismissed]);
 
   useEffect(() => {
-    if (isSuperadmin) return;
+    if (isSuperadmin || dismissed) return;
     const initialDelay = setTimeout(() => showNext(), randInt(5000, 10000));
     const interval = setInterval(() => showNext(), randInt(7000, 13000));
     return () => {
       clearTimeout(initialDelay);
       clearInterval(interval);
     };
-  }, [showNext, isSuperadmin]);
+  }, [showNext, isSuperadmin, dismissed]);
 
-  if (isSuperadmin) return null;
+  if (isSuperadmin || dismissed) return null;
 
   return (
     <div className="fixed bottom-20 lg:bottom-4 left-4 z-50 max-w-xs sm:max-w-sm pointer-events-none">
