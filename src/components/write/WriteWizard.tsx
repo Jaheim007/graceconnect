@@ -557,13 +557,23 @@ export default function WriteWizard() {
 
       setWillCreateOrg(shouldCreateOrg);
 
+      const chapterIllustrations = state.chapterIllustrations || {};
       const normalizedChapters = state.chapters
-        .map((chapter, index) => ({
-          id: chapter.id || `ch-${index + 1}`,
-          title: chapter.title.trim(),
-          content: chapter.content.trim(),
-          order: index,
-        }))
+        .map((chapter, index) => {
+          const baseContent = chapter.content.trim();
+          const illustrationUrl = chapterIllustrations[chapter.id];
+          const safeAlt = chapter.title.trim().replace(/"/g, '&quot;');
+          const illustrationBlock = illustrationUrl
+            ? `<figure style="margin:0 0 1.5rem 0;text-align:center;"><img src="${illustrationUrl}" alt="${safeAlt}" style="max-width:100%;height:auto;border-radius:12px;" /></figure>`
+            : '';
+
+          return {
+            id: chapter.id || `ch-${index + 1}`,
+            title: chapter.title.trim(),
+            content: `${illustrationBlock}${baseContent}`,
+            order: index,
+          };
+        })
         .filter((chapter) => chapter.title.length > 0);
 
       setPublishingStage('book');
@@ -598,6 +608,7 @@ export default function WriteWizard() {
       const projectPayload = {
         style: state.style,
         chapters: normalizedChapters,
+        chapter_illustrations: chapterIllustrations,
         page_count: state.pageCount,
         topic: state.topic || null,
         cover_url: state.coverUrl || null,
@@ -753,7 +764,7 @@ export default function WriteWizard() {
             )}
             {step === 1 && <StepParams state={state} update={update} onNext={next} onBack={back} />}
             {step === 2 && <StepEditorialStrategy state={state} update={update} onNext={next} onBack={back} />}
-            {step === 3 && <StepGenerating state={state} update={update} onNext={next} />}
+            {step === 3 && <StepGenerating state={state} update={update} onNext={next} onBack={back} />}
             {step === 4 && <StepPreview state={state} update={update} onNext={next} onBack={back} />}
             {step === ILLUSTRATIONS_STEP && <StepIllustrations state={state} update={update} onNext={next} onBack={back} />}
             {step === COVER_STEP && <StepCover state={state} update={update} onNext={next} onBack={back} />}

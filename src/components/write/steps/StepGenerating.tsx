@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Loader2, CheckCircle, BookOpen } from 'lucide-react';
+import { Loader2, CheckCircle, BookOpen, ArrowLeft, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -9,17 +9,19 @@ interface Props {
   state: WriteState;
   update: (patch: Partial<WriteState>) => void;
   onNext: () => void;
+  onBack: () => void;
 }
 
 type Phase = 'thinking' | 'generating' | 'done' | 'error';
 
-export function StepGenerating({ state, update, onNext }: Props) {
+export function StepGenerating({ state, update, onNext, onBack }: Props) {
   const { t } = useI18n();
   const [phase, setPhase] = useState<Phase>('thinking');
   const [visibleChapters, setVisibleChapters] = useState<string[]>([]);
   const [totalChapters, setTotalChapters] = useState(0);
   const [errorMsg, setErrorMsg] = useState('');
   const [thinkingProgress, setThinkingProgress] = useState(12);
+  const [requiresManualContinue, setRequiresManualContinue] = useState(false);
   const aborted = useRef(false);
   const ran = useRef(false);
 
@@ -75,6 +77,7 @@ export function StepGenerating({ state, update, onNext }: Props) {
       setVisibleChapters([]);
       setTotalChapters(0);
       setErrorMsg('');
+      setRequiresManualContinue(false);
 
       const attemptPageCounts = Array.from(new Set([
         state.pageCount,
@@ -130,6 +133,7 @@ export function StepGenerating({ state, update, onNext }: Props) {
       if (aborted.current) return;
 
       setPhase('done');
+      setRequiresManualContinue(false);
       update({ chapters: finalChapters });
       setTimeout(() => {
         if (!aborted.current) onNext();
@@ -151,9 +155,7 @@ export function StepGenerating({ state, update, onNext }: Props) {
       setPhase('done');
       setVisibleChapters(state.chapters.map((ch) => ch.title));
       setTotalChapters(state.chapters.length);
-      setTimeout(() => {
-        if (!aborted.current) onNext();
-      }, 300);
+      setRequiresManualContinue(true);
       return;
     }
 
@@ -211,18 +213,6 @@ export function StepGenerating({ state, update, onNext }: Props) {
         <p className="text-xs text-muted-foreground">{Math.round(progress)}%</p>
       </div>
 
-      {phase === 'error' && (
-        <div className="flex flex-col sm:flex-row gap-2 justify-center">
-          <Button onClick={() => void runGeneration()} className="gap-2">
-            <Loader2 className="h-4 w-4" />
-            {t('write.ai_regenerate')}
-          </Button>
-          <Button variant="outline" onClick={continueWithoutAi}>
-            Continuer sans IA
-          </Button>
-        </div>
-      )}
-
       {visibleChapters.length > 0 && (
         <div className="text-left max-w-sm mx-auto space-y-2">
           {visibleChapters.map((ch, i) => (
@@ -236,6 +226,30 @@ export function StepGenerating({ state, update, onNext }: Props) {
           ))}
         </div>
       )}
+
+      <div className="flex flex-col sm:flex-row gap-2 justify-center">
+        <Button variant="outline" onClick={onBack} className="gap-2">
+          <ArrowLeft className="h-4 w-4" /> {t('write.back')}
+        </Button>
+
+        {phase === 'done' && requiresManualContinue && (
+          <Button onClick={onNext} className="gap-2">
+            {t('write.continue') || 'Continuer'} <ArrowRight className="h-4 w-4" />
+          </Button>
+        )}
+
+        {phase === 'error' && (
+          <>
+            <Button onClick={() => void runGeneration()} className="gap-2">
+              <Loader2 className="h-4 w-4" />
+              {t('write.ai_regenerate')}
+            </Button>
+            <Button variant="outline" onClick={continueWithoutAi}>
+              Continuer sans IA
+            </Button>
+          </>
+        )}
+      </div>
 
       <p className="text-xs text-muted-foreground">
         « <strong className="text-foreground">{state.title || t('write.my_book')}</strong> » — {state.pageCount} {t('write.pages')}
