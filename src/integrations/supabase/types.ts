@@ -2272,6 +2272,53 @@ export type Database = {
           },
         ]
       }
+      moderation_actions: {
+        Row: {
+          action: string
+          created_at: string | null
+          id: string
+          notified_owner: boolean | null
+          organization_id: string | null
+          performed_by: string
+          reason: string | null
+          reason_category: string | null
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          id?: string
+          notified_owner?: boolean | null
+          organization_id?: string | null
+          performed_by: string
+          reason?: string | null
+          reason_category?: string | null
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          id?: string
+          notified_owner?: boolean | null
+          organization_id?: string | null
+          performed_by?: string
+          reason?: string | null
+          reason_category?: string | null
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderation_actions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_preferences: {
         Row: {
           affiliate: boolean
@@ -4920,6 +4967,7 @@ export type Database = {
         Returns: boolean
       }
       can_use_studio: { Args: { _org_id: string }; Returns: boolean }
+      check_product_quality: { Args: { _product_id: string }; Returns: Json }
       check_rate_limit: {
         Args: { _key: string; _max?: number; _window_seconds?: number }
         Returns: Json
@@ -5018,6 +5066,16 @@ export type Database = {
       }
       manage_partner: {
         Args: { _action: string; _partner_id: string; _reason?: string }
+        Returns: Json
+      }
+      moderate_content: {
+        Args: {
+          _action: string
+          _reason?: string
+          _reason_category?: string
+          _target_id: string
+          _target_type: string
+        }
         Returns: Json
       }
       org_affiliation_allowed: { Args: { _org_id: string }; Returns: boolean }

@@ -238,6 +238,7 @@ const LazySuperadminKYC = lazy(() => import("@/pages/superadmin/SuperadminPages"
 const LazySuperadminTransactions = lazy(() => import("@/pages/superadmin/SuperadminPages").then(m => ({ default: m.SuperadminTransactions })));
 const LazySuperadminReports = lazy(() => import("@/pages/superadmin/SuperadminPages").then(m => ({ default: m.SuperadminReports })));
 const LazySuperadminMetrics = lazy(() => import("@/pages/superadmin/SuperadminPages").then(m => ({ default: m.SuperadminMetrics })));
+const SuperadminModeration = lazy(() => import("@/pages/superadmin/SuperadminModeration"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -480,6 +481,7 @@ const App = () => (
                   <Route path="kyc" element={<LazySuperadminKYC />} />
                   <Route path="transactions" element={<LazySuperadminTransactions />} />
                   <Route path="reports" element={<LazySuperadminReports />} />
+                  <Route path="moderation" element={<Suspense fallback={<PageLoader />}><SuperadminModeration /></Suspense>} />
                   <Route path="metrics" element={<LazySuperadminMetrics />} />
                   <Route path="exports" element={<SuperadminExports />} />
                   <Route path="settings" element={<SuperadminSettings />} />
