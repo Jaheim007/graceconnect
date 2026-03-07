@@ -380,13 +380,47 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                   <p className="font-semibold">{product.title}</p>
                   <Badge variant="outline" className="text-[10px] mt-1 capitalize">{product.product_type}</Badge>
                 </div>
-                <span className={`text-xl font-bold ${product.is_free ? 'text-green-500' : 'text-primary'}`}>
-                  {fmt(product.price)}
-                  {!product.is_free && (product.price ?? 0) > 0 && (
-                    <LocalPriceHint amount={product.price ?? 0} currency={product.currency || 'XOF'} className="block text-right" />
-                  )}
-                </span>
+                {!isPwyw && (
+                  <span className={`text-xl font-bold ${product.is_free ? 'text-green-500' : 'text-primary'}`}>
+                    {fmt(product.price)}
+                    {!product.is_free && (product.price ?? 0) > 0 && (
+                      <LocalPriceHint amount={product.price ?? 0} currency={product.currency || 'XOF'} className="block text-right" />
+                    )}
+                  </span>
+                )}
               </div>
+
+              {/* Pay What You Want */}
+              {isPwyw && !product.is_free && (
+                <div className="bg-accent/20 border border-accent/40 rounded-xl p-4 space-y-3">
+                  <p className="text-sm font-semibold flex items-center gap-2">💰 Payez ce que vous voulez</p>
+                  <p className="text-xs text-muted-foreground">
+                    Prix suggéré : <strong>{fmt(suggestedPrice)}</strong>
+                    {minPrice > 0 && <> · Minimum : <strong>{fmt(minPrice)}</strong></>}
+                  </p>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Votre prix ({product.currency || 'XOF'})</Label>
+                    <Input
+                      type="number"
+                      value={pwywAmount}
+                      onChange={e => setPwywAmount(e.target.value)}
+                      placeholder={String(suggestedPrice)}
+                      min={minPrice}
+                      className="h-9 text-sm font-semibold"
+                    />
+                    {pwywValue > 0 && pwywValue < minPrice && (
+                      <p className="text-xs text-destructive">Le montant minimum est {fmt(minPrice)}</p>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    {[minPrice || Math.round(suggestedPrice * 0.5), suggestedPrice, Math.round(suggestedPrice * 1.5)].filter(v => v > 0).map(v => (
+                      <Button key={v} type="button" variant={pwywValue === v ? 'default' : 'outline'} size="sm" className="text-xs flex-1" onClick={() => setPwywAmount(String(v))}>
+                        {fmt(v)}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Promo code - collapsible, hidden by default */}
               {!product.is_free && !product.external_link && (
