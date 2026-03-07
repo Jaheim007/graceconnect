@@ -905,7 +905,7 @@ Deno.serve(async (req) => {
     // 23. WIN-BACK EMAIL (members inactive 30+ days with previous purchases)
     // ═══════════════════════════════════════════
     let winBackCount = 0;
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString();
+    const thirtyDaysAgoWinback = new Date(now.getTime() - 30 * 86400000).toISOString();
     const { data: inactiveOrgs } = await db.from('organizations')
       .select('id, name, slug, currency')
       .eq('is_active', true)
@@ -917,7 +917,7 @@ Deno.serve(async (req) => {
         .select('user_id')
         .eq('organization_id', org.id)
         .eq('status', 'completed')
-        .lt('created_at', thirtyDaysAgo)
+        .lt('created_at', thirtyDaysAgoWinback)
         .limit(50);
       const oldBuyerIds = [...new Set((oldBuyers || []).map((b: any) => b.user_id).filter(Boolean))];
       if (oldBuyerIds.length === 0) continue;
@@ -927,7 +927,7 @@ Deno.serve(async (req) => {
         .select('user_id')
         .eq('organization_id', org.id)
         .eq('status', 'completed')
-        .gte('created_at', thirtyDaysAgo)
+        .gte('created_at', thirtyDaysAgoWinback)
         .in('user_id', oldBuyerIds);
       const recentSet = new Set((recentBuyers || []).map((b: any) => b.user_id));
       const churned = oldBuyerIds.filter(id => !recentSet.has(id));
@@ -938,7 +938,7 @@ Deno.serve(async (req) => {
           .select('*', { count: 'exact', head: true })
           .eq('recipient', userId)
           .eq('template', 'win_back')
-          .gte('created_at', thirtyDaysAgo);
+          .gte('created_at', thirtyDaysAgoWinback);
         if ((sent || 0) > 0) continue;
 
         const email = await getUserEmail(userId);
@@ -1022,8 +1022,8 @@ Deno.serve(async (req) => {
     // WEEKLY DISCOVERY DIGEST (Mondays — personalized new products)
     // ═══════════════════════════════════════════
     let digestCount = 0;
-    const dayOfWeek = now.getUTCDay(); // 0=Sun, 1=Mon
-    if (dayOfWeek === 1) { // Only on Mondays
+    const dayOfWeek2 = now.getUTCDay(); // 0=Sun, 1=Mon
+    if (dayOfWeek2 === 1) { // Only on Mondays
       const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000).toISOString();
       // Get new products from last 7 days
       const { data: newProducts } = await db.from('digital_products')
@@ -1069,10 +1069,11 @@ Deno.serve(async (req) => {
     results['weekly_digest'] = digestCount;
 
     // ═══════════════════════════════════════════
-    // WEEKLY AMBASSADOR DIGEST (Mondays — top products to promote)
+    // AMBASSADOR DIGEST (Weekly — top products to promote)
+    // Runs any day but dedup prevents re-sending within 7 days
     // ═══════════════════════════════════════════
     let ambassadorDigestCount = 0;
-    if (dayOfWeek === 1) { // Only on Mondays
+    {
       const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000).toISOString();
 
       // Get top 5 products with highest commission potential from last 7 days
