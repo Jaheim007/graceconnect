@@ -18,6 +18,7 @@ const links = [
   { to: '/superadmin/kyc', label: 'KYC Review', icon: FileCheck },
   { to: '/superadmin/transactions', label: 'Transactions', icon: BarChart3 },
   { to: '/superadmin/reports', label: 'Reports', icon: Megaphone },
+  { to: '/superadmin/moderation', label: 'Modération', icon: ShieldAlert },
   { to: '/superadmin/metrics', label: 'Metrics', icon: BarChart3 },
   { to: '/superadmin/exports', label: 'Exports', icon: Download },
   { to: '/superadmin/investor', label: 'Investor', icon: Target },
