@@ -17,6 +17,7 @@ import { KeyboardShortcutsModal } from '@/components/a11y/KeyboardShortcutsModal
 import { OfflineIndicator } from '@/components/network/OfflineIndicator';
 import { BackToTopProgress } from '@/components/ui/BackToTopProgress';
 import { PerformanceWidget } from '@/components/dev/PerformanceWidget';
+import { CelebrationOverlay } from '@/components/celebrations/CelebrationOverlay';
 
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
 
@@ -79,6 +80,7 @@ export function AppLayout() {
       <PerformanceWidget />
       <CookieConsent />
       <FloatingHelpWidget />
+      <CelebrationOverlay />
       <KeyboardShortcutsModal />
     </div>
     </CompareProvider>

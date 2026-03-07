@@ -29,6 +29,10 @@ import { EmbedSnippetGen } from '@/components/products/EmbedSnippetGen';
 import { ContentTemplateSelector } from '@/components/admin/ContentTemplateSelector';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { AIWritingAssistant } from '@/components/admin/AIWritingAssistant';
+import { AIDescriptionButton } from '@/components/admin/AIDescriptionButton';
+import { SuggestedPriceHint } from '@/components/admin/SuggestedPriceHint';
+import { ContextTip } from '@/components/admin/ContextualTooltips';
+import { PrintableQRCode } from '@/components/sharing/PrintableQRCode';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { usePdfPreviewBlobUrl } from '@/hooks/usePdfPreviewBlobUrl';
 
@@ -287,9 +291,19 @@ export function ProductForm() {
               <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={shareLink}><Share2 className="h-3.5 w-3.5" /></Button>
             </div>
           </div>
-          <Button type="button" variant="outline" size="sm" className="gap-2 w-full sm:w-auto" onClick={() => window.open(productUrl, '_blank')}>
-            <Eye className="h-4 w-4" /> Prévisualiser la page produit
-          </Button>
+          <div className="flex gap-2 flex-wrap">
+            <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => window.open(productUrl, '_blank')}>
+              <Eye className="h-4 w-4" /> Prévisualiser
+            </Button>
+            <PrintableQRCode
+              productTitle={watch('title') || ''}
+              productUrl={productUrl}
+              coverImageUrl={watch('cover_image_url')}
+              orgName={currentOrg?.name}
+              price={watch('price')}
+              currency={currentOrg?.currency || 'XOF'}
+            />
+          </div>
         </div>
       )}
 
@@ -299,17 +313,30 @@ export function ProductForm() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
-          <Label>Titre du produit *</Label>
+          <div className="flex items-center gap-1.5">
+            <Label>Titre du produit *</Label>
+            <ContextTip tipKey="product_title" />
+          </div>
           <Input {...register('title')} placeholder="Ex: Guide d'étude biblique Vol. 1" />
           {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
         </div>
         <div className="space-y-1.5">
-          <Label>Description</Label>
+          <div className="flex items-center gap-1.5">
+            <Label>Description</Label>
+            <ContextTip tipKey="product_description" />
+          </div>
           <RichTextEditor
             value={watch('description') || ''}
             onChange={(html) => setValue('description', html)}
             placeholder="Décrivez votre produit en détail..."
             onAIAssist={() => setShowAI(true)}
+          />
+          <AIDescriptionButton
+            title={watch('title') || ''}
+            productType={watch('product_type') || 'pdf'}
+            price={watch('price') || 0}
+            currency={currentOrg?.currency || 'XOF'}
+            onGenerated={(html) => setValue('description', html, { shouldDirty: true })}
           />
         </div>
         <div className="grid grid-cols-2 gap-3">
@@ -328,8 +355,12 @@ export function ProductForm() {
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label>Prix ({currentOrg?.currency || 'XOF'})</Label>
+            <div className="flex items-center gap-1.5">
+              <Label>Prix ({currentOrg?.currency || 'XOF'})</Label>
+              <ContextTip tipKey="product_price" />
+            </div>
             <Input type="number" {...register('price')} disabled={isFree} placeholder="Ex: 5000" />
+            {!isFree && <SuggestedPriceHint productType={watch('product_type') || 'pdf'} />}
           </div>
         </div>
 
