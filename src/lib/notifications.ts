@@ -124,7 +124,7 @@ export async function onMemberJoined(
   orgId: string,
   orgName: string,
 ) {
-  notify(userId, `🎉 Bienvenue dans ${orgName}`, `Vous avez rejoint l'organisation ${orgName}.`, 'org', orgId);
+  notify(userId, `🎉 Bienvenue dans ${orgName}`, `Vous avez rejoint l'organisation ${orgName}.`, 'org', orgId, `/feed`);
   emailOrgAdmins('new_member_joined', orgId, { org_name: orgName, member_name: userName });
 }
 
