@@ -175,3 +175,4 @@ export function LiveActivityFeed({ className, limit = 5 }: LiveActivityFeedProps
       </div>
     </motion.div>
   );
+}
