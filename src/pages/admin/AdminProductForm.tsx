@@ -170,6 +170,8 @@ export function ProductForm() {
         created_by: user.id,
         currency: currentOrg.currency || 'XOF',
         price: data.is_free ? 0 : data.price,
+        is_pwyw: data.is_free ? false : data.is_pwyw,
+        min_price: data.is_pwyw && !data.is_free ? (data.min_price || 0) : null,
         cover_image_url: data.cover_image_url || null,
         file_url: data.file_url || null,
         external_link: data.external_link || null,
