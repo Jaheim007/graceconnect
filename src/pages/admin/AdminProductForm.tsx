@@ -45,6 +45,8 @@ const schema = z.object({
   is_free: z.boolean().default(false),
   is_published: z.boolean().default(false),
   is_bundle: z.boolean().default(false),
+  is_pwyw: z.boolean().default(false),
+  min_price: z.coerce.number().min(0).optional(),
   guarantee_text: z.string().optional(),
 });
 
