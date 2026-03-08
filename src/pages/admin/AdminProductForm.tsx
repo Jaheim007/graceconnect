@@ -192,6 +192,9 @@ export function ProductForm() {
         sale_price: data.is_free ? null : (salePrice ? parseFloat(salePrice) : null),
         sale_ends_at: data.is_free ? null : (saleEndsAt ? new Date(saleEndsAt).toISOString() : null),
         is_express_demo: false,
+        order_bump_product_id: orderBumpProductId || null,
+        order_bump_discount_percent: orderBumpDiscount ? parseFloat(orderBumpDiscount) : null,
+        upsell_product_ids: upsellProductIds.length > 0 ? upsellProductIds : null,
       };
       let error;
       let resultData: any;
