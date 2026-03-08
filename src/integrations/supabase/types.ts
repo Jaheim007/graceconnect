@@ -3469,6 +3469,7 @@ export type Database = {
           platform_fee: number | null
           product_id: string
           promo_code_id: string | null
+          review_request_sent: boolean | null
           settlement_released_at: string | null
           settlement_status: string | null
           status: Database["public"]["Enums"]["purchase_status"] | null
@@ -3497,6 +3498,7 @@ export type Database = {
           platform_fee?: number | null
           product_id: string
           promo_code_id?: string | null
+          review_request_sent?: boolean | null
           settlement_released_at?: string | null
           settlement_status?: string | null
           status?: Database["public"]["Enums"]["purchase_status"] | null
@@ -3525,6 +3527,7 @@ export type Database = {
           platform_fee?: number | null
           product_id?: string
           promo_code_id?: string | null
+          review_request_sent?: boolean | null
           settlement_released_at?: string | null
           settlement_status?: string | null
           status?: Database["public"]["Enums"]["purchase_status"] | null
