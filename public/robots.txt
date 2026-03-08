@@ -18,6 +18,15 @@ Allow: /
 User-agent: LinkedInBot
 Allow: /
 
+User-agent: Slackbot
+Allow: /
+
+User-agent: TelegramBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
 User-agent: *
 Allow: /
 Crawl-delay: 5
@@ -28,6 +37,7 @@ Disallow: /auth-callback
 Disallow: /profile
 Disallow: /dashboard
 Disallow: /notifications
+Disallow: /notification-preferences
 Disallow: /bookmarks
 Disallow: /invoices
 Disallow: /analytics
@@ -36,7 +46,26 @@ Disallow: /partner
 Disallow: /maintenance
 Disallow: /go/
 Disallow: /payment/
+Disallow: /payment-success
 Disallow: /invite/
 Disallow: /leaderboard
+Disallow: /canva/callback
+Disallow: /feed
+Disallow: /reels
+
+# Explicitly allow all public content
+Allow: /org/
+Allow: /discover
+Allow: /campaign/
+Allow: /event/
+Allow: /offering/
+Allow: /announcement/
+Allow: /program/
+Allow: /watch/
+Allow: /blog/
+Allow: /pour/
+Allow: /guide/
+Allow: /store/
+Allow: /verify/
 
 Sitemap: https://api.siteviral.com/functions/v1/sitemap
