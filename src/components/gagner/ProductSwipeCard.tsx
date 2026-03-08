@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Copy, Check, Zap, Eye, ChevronDown, ChevronUp, TrendingUp, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
 import { cn } from '@/lib/utils';
+import { getOrCreateShortLink } from '@/lib/shareMeta';
+import { getPublicOrigin } from '@/lib/publicUrl';
 
 interface ProductSwipeCardProps {
   product: any;
