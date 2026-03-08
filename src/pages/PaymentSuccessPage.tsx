@@ -696,6 +696,15 @@ export default function PaymentSuccessPage() {
             </div>
           )}
 
+          {/* Upsell — other products from the same org */}
+          {isCompleted && isProduct && tx.organization_id && (
+            <UpsellSection
+              productId={tx.product_id}
+              orgId={tx.organization_id}
+              currentProductId={tx.product_id}
+            />
+          )}
+
           {/* Ambassador Conversion — Full PostPurchaseCelebration */}
           {isCompleted && isProduct && (
             <PostPurchaseCelebration
