@@ -88,12 +88,13 @@ export default function SuperadminFullDashboard() {
     queryKey: ['sa-full-stats-v3'],
     queryFn: async () => {
       // Use server-side RPC for accurate totals (no 1000-row limit)
-      const [totalsRes, topOrgsRes, categoriesRes, countriesRes, recentDonations, recentUsers, members, payouts, reports, events, orgs] = await Promise.all([
+      const [totalsRes, topOrgsRes, categoriesRes, countriesRes, recentDonations, recentPurchases, recentUsers, members, payouts, reports, events, orgs] = await Promise.all([
         db.rpc('get_platform_totals'),
         db.rpc('get_top_orgs_by_revenue', { _limit: 8 }),
         db.rpc('get_org_category_breakdown'),
         db.rpc('get_org_country_breakdown', { _limit: 6 }),
-        db.from('donations').select('id, amount, status, donor_name, created_at').order('created_at', { ascending: false }).limit(10),
+        db.from('donations').select('id, amount, status, donor_name, created_at, currency').order('created_at', { ascending: false }).limit(15),
+        db.from('product_purchases').select('id, amount, status, buyer_name, created_at, currency').order('created_at', { ascending: false }).limit(15),
         db.from('profiles').select('id, display_name, created_at').order('created_at', { ascending: false }).limit(8),
         db.from('organization_members').select('role'),
         db.from('payout_requests').select('amount, status').eq('status', 'completed'),
