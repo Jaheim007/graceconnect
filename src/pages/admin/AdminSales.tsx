@@ -59,7 +59,7 @@ export default function AdminSales() {
     queryFn: async () => {
       if (!orgId) return [];
       const { data, error } = await db.from('product_purchases')
-        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, user_id, affiliate_link_id, product_id, digital_products(title)')
+        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, user_id, affiliate_link_id, product_id, buyer_name, buyer_email, digital_products(title)')
         .eq('organization_id', orgId)
         .order('created_at', { ascending: false })
         .limit(500);
@@ -92,7 +92,8 @@ export default function AdminSales() {
         type: 'purchase' as const,
         label: r.digital_products?.title || 'Produit',
         gateway: detectGateway(r.paystack_reference),
-        buyer_display: profileMap[r.user_id]?.display_name || '—',
+        buyer_display: r.buyer_name || profileMap[r.user_id]?.display_name || '—',
+        buyer_email: r.buyer_email || null,
         buyer_phone: profileMap[r.user_id]?.phone || null,
         affiliate_name: r.affiliate_link_id ? (affLinkMap[r.affiliate_link_id]?.name || '—') : null,
       }));
@@ -140,6 +141,7 @@ export default function AdminSales() {
         label: r.donation_campaigns?.title || r.donor_name || 'Don',
         gateway: detectGateway(r.paystack_reference),
         buyer_display: r.donor_name || profileMap[r.user_id]?.display_name || r.donor_email || 'Anonyme',
+        buyer_email: r.donor_email || null,
         buyer_phone: profileMap[r.user_id]?.phone || null,
         affiliate_name: r.affiliate_link_id ? (affLinkMap[r.affiliate_link_id]?.name || '—') : null,
       }));
@@ -164,6 +166,7 @@ export default function AdminSales() {
         t.label?.toLowerCase().includes(q) ||
         t.paystack_reference?.toLowerCase().includes(q) ||
         t.buyer_display?.toLowerCase().includes(q) ||
+        t.buyer_email?.toLowerCase().includes(q) ||
         t.buyer_phone?.toLowerCase().includes(q) ||
         t.affiliate_name?.toLowerCase().includes(q)
       );
@@ -191,6 +194,7 @@ export default function AdminSales() {
       type: t.type === 'purchase' ? 'Achat' : 'Don',
       produit: t.label,
       acheteur: t.buyer_display,
+      email: t.buyer_email || '',
       telephone: t.buyer_phone || '',
       montant: t.amount,
       devise: t.currency,
@@ -345,6 +349,7 @@ export default function AdminSales() {
                   </TableCell>
                   <TableCell>
                     <p className="text-sm font-medium truncate max-w-[140px]">{tx.buyer_display}</p>
+                    {tx.buyer_email && <p className="text-[10px] text-muted-foreground truncate max-w-[140px]">✉️ {tx.buyer_email}</p>}
                     {tx.buyer_phone && <p className="text-[10px] text-muted-foreground">📞 {tx.buyer_phone}</p>}
                   </TableCell>
                   <TableCell>

@@ -3450,7 +3450,9 @@ export type Database = {
           affiliate_commission: number | null
           affiliate_link_id: string | null
           amount: number
+          buyer_email: string | null
           buyer_ip: string | null
+          buyer_name: string | null
           completed_at: string | null
           created_at: string | null
           currency: string | null
@@ -3476,7 +3478,9 @@ export type Database = {
           affiliate_commission?: number | null
           affiliate_link_id?: string | null
           amount: number
+          buyer_email?: string | null
           buyer_ip?: string | null
+          buyer_name?: string | null
           completed_at?: string | null
           created_at?: string | null
           currency?: string | null
@@ -3502,7 +3506,9 @@ export type Database = {
           affiliate_commission?: number | null
           affiliate_link_id?: string | null
           amount?: number
+          buyer_email?: string | null
           buyer_ip?: string | null
+          buyer_name?: string | null
           completed_at?: string | null
           created_at?: string | null
           currency?: string | null
