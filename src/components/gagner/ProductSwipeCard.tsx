@@ -58,9 +58,26 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
   const productPath = product.slug
     ? `/org/${org?.slug}/p/${product.slug}`
     : `/org/${org?.slug}/product/${product.id}`;
-  const shareUrl = myLink
-    ? `${window.location.origin}${productPath}?ref=${myLink.code}`
-    : `${window.location.origin}${productPath}`;
+  const refPath = myLink ? `${productPath}?ref=${myLink.code}` : productPath;
+  
+  // Fallback URL (public domain, not preview domain)
+  const fallbackUrl = `${getPublicOrigin()}${refPath}`;
+
+  // Resolve short link for sharing (with proper OG meta)
+  const [shareUrl, setShareUrl] = useState(fallbackUrl);
+  useEffect(() => {
+    if (!isAffiliate) return;
+    let cancelled = false;
+    getOrCreateShortLink({
+      targetPath: refPath,
+      title: product.title,
+      description: product.description?.slice(0, 155) || undefined,
+      image: product.cover_image_url || undefined,
+    }).then(url => {
+      if (!cancelled) setShareUrl(url);
+    }).catch(() => { /* keep fallback */ });
+    return () => { cancelled = true; };
+  }, [refPath, isAffiliate, product.title, product.description, product.cover_image_url]);
 
   const handleEnroll = async () => {
     if (!user) {
