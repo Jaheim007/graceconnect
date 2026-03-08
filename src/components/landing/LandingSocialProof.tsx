@@ -10,16 +10,17 @@ const testimonials = [
   { name: 'Grace A.', role: 'Acheteuse', text: 'J\'adore la wishlist ! Je sauvegarde les ressources et je reçois une alerte dès qu\'il y a une promo.', flag: '🇳🇬' },
 ];
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.35 } },
-};
-
 export function LandingSocialProof() {
   return (
     <section className="py-16 px-4">
       <div className="container max-w-4xl">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-10">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.4, ease: 'easeOut' as const }}
+          className="text-center mb-10"
+        >
           <h2 className="text-2xl sm:text-3xl font-extrabold">
             Ils gagnent déjà avec <span className="text-primary">Siteviral</span>
           </h2>
@@ -29,12 +30,12 @@ export function LandingSocialProof() {
           {testimonials.map((t, i) => (
             <motion.div
               key={t.name}
-              initial="hidden"
-              whileInView="visible"
+              initial={{ opacity: 0, y: 20, scale: 0.97 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true }}
-              variants={fadeUp}
-              transition={{ delay: i * 0.1 }}
-              className="bg-card border border-border rounded-xl p-5 space-y-3"
+              transition={{ delay: i * 0.08, duration: 0.45, ease: 'easeOut' as const }}
+              whileHover={{ y: -3, transition: { duration: 0.2 } }}
+              className="bg-card border border-border rounded-xl p-5 space-y-3 transition-shadow hover:shadow-lg hover:shadow-primary/5"
             >
               <div className="flex gap-0.5">
                 {[1,2,3,4,5].map(s => <Star key={s} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />)}

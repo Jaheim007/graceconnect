@@ -20,8 +20,8 @@ const steps = [
 ];
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.35 } },
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' as const } },
 };
 
 export function LandingHowItWorksSimple() {
@@ -38,16 +38,22 @@ export function LandingHowItWorksSimple() {
           {steps.map((step, i) => (
             <motion.div
               key={step.title}
-              initial="hidden"
-              whileInView="visible"
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true }}
-              variants={fadeUp}
-              transition={{ delay: i * 0.1 }}
-              className="text-center space-y-3"
+              transition={{ delay: i * 0.15, duration: 0.5, ease: 'easeOut' as const }}
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className="text-center space-y-3 p-4 rounded-2xl hover:bg-muted/30 transition-colors cursor-default"
             >
-              <div className="h-14 w-14 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto">
+              <motion.div
+                initial={{ rotate: -10, scale: 0.8 }}
+                whileInView={{ rotate: 0, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15 + 0.1, duration: 0.4, type: 'spring' }}
+                className="h-14 w-14 rounded-2xl bg-accent/10 flex items-center justify-center mx-auto"
+              >
                 <step.icon className="h-7 w-7 text-accent" />
-              </div>
+              </motion.div>
               <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
                 <span className="text-xs font-bold text-primary">{i + 1}</span>
               </div>
@@ -57,7 +63,15 @@ export function LandingHowItWorksSimple() {
           ))}
         </div>
 
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mt-8 flex items-center gap-2 justify-center bg-accent/5 border border-accent/20 rounded-xl p-3 max-w-md mx-auto">
+        {/* Connecting line between steps on desktop */}
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.5, duration: 0.4 }}
+          className="mt-8 flex items-center gap-2 justify-center bg-accent/5 border border-accent/20 rounded-xl p-3 max-w-md mx-auto"
+        >
           <CheckCircle className="h-4 w-4 text-accent shrink-0" />
           <p className="text-sm font-medium text-accent">Zéro abonnement. Zéro risque. Commence en 5 minutes.</p>
         </motion.div>
