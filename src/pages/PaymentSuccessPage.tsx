@@ -8,6 +8,7 @@ import {
   PartyPopper, Share2, Users,
 } from 'lucide-react';
 import { PostPurchaseCelebration } from '@/components/growth/PostPurchaseCelebration';
+import { UpsellSection } from '@/components/payment/UpsellSection';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
