@@ -21,6 +21,7 @@ import { format, subDays } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatCurrency } from '@/lib/currency';
+import { PlatformHealthScore } from '@/components/superadmin/PlatformHealthScore';
 
 const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
 const fmtNum = (n: number) => new Intl.NumberFormat('fr-FR').format(n);
@@ -269,6 +270,9 @@ export default function SuperadminFullDashboard() {
           </motion.div>
         ))}
       </div>
+
+      {/* ═══ HEALTH SCORE ═══ */}
+      <PlatformHealthScore />
 
       {/* ═══ CHARTS ROW ═══ */}
       <div className="grid lg:grid-cols-2 gap-4">
