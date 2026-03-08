@@ -114,8 +114,8 @@ export function MarketingKit({
       )}
 
       <div className="space-y-3">
-        {TEMPLATES.map((tmpl, i) => {
-          const message = tmpl.template(productTitle, shareUrl);
+      {TEMPLATES.map((tmpl, i) => {
+          const message = tmpl.template(productTitle, resolvedUrl);
           const isCopied = copiedId === tmpl.id;
 
           return (

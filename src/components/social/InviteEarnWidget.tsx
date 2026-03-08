@@ -51,11 +51,13 @@ export function InviteEarnWidget() {
 
   const handleShare = async () => {
     if (navigator.share) {
-      await navigator.share({
-        title: 'Rejoins Siteviral',
-        text: 'Découvre des contenus exclusifs et gagne de l\'argent en partageant !',
-        url: inviteUrl,
-      });
+      try {
+        await navigator.share({
+          title: 'Rejoins Siteviral',
+          text: 'Découvre des contenus exclusifs et gagne de l\'argent en partageant !',
+          url: inviteUrl,
+        });
+      } catch { /* cancelled */ }
     } else {
       handleCopy();
     }
