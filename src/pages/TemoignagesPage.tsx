@@ -4,9 +4,11 @@ import { LandingFooter } from '@/components/landing/LandingFooter';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Star, Quote } from 'lucide-react';
+import { ArrowRight, Star, Quote, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { db } from '@/lib/db';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -21,26 +23,38 @@ interface Testimonial {
   flag: string;
   category: string;
   highlight?: string;
+  rating?: number;
 }
 
-const testimonials: Testimonial[] = [
-  { name: 'Pasteur K. M.', role: 'Leader communautaire', text: 'En une semaine, notre communauté a pu offrir plus de 200 prédications audio. Les dons arrivent aussi par Mobile Money. C\'est révolutionnaire.', flag: '🇳🇬', category: 'Église', highlight: '200 prédications en 1 semaine' },
-  { name: 'Marie-Claire B.', role: 'Coach & Auteure', text: 'J\'ai centralisé tous mes documents et ressources sur une seule plateforme. Mes clients achètent et téléchargent en un clic. Plus besoin d\'envoyer par WhatsApp.', flag: '🇨🇲', category: 'Formatrice', highlight: 'Ventes 100% automatisées' },
-  { name: 'Ibrahim T.', role: 'Ambassadeur Siteviral', text: 'Je n\'ai aucun contenu à moi. Je partage les ressources des autres et je gagne des commissions chaque semaine. C\'est incroyable, je n\'investis rien.', flag: '🇸🇳', category: 'Ambassadeur', highlight: 'Commissions chaque semaine' },
-  { name: 'Amara D.', role: 'Créatrice digitale', text: 'En 2 mois, j\'ai vendu plus de 500 ressources numériques. Les paiements sont automatiques et les retraits rapides. Je me concentre sur la création.', flag: '🇨🇮', category: 'Créatrice', highlight: '500 ventes en 2 mois' },
-  { name: 'Sophie N.', role: 'Responsable communautaire', text: 'La gestion de notre communauté de 2000 membres est devenue simple. Contenu, dons, événements : tout est centralisé sur notre page.', flag: '🇧🇯', category: 'Organisation', highlight: '2000 membres gérés' },
-  { name: 'David K.', role: 'Directeur ONG', text: 'Nos campagnes de collecte ont levé 3x plus qu\'avant. Les donateurs paient par Mobile Money en un clic. La transparence est totale.', flag: '🇬🇭', category: 'ONG', highlight: '3x plus de fonds levés' },
-  { name: 'Fatou S.', role: 'Étudiante ambassadrice', text: 'Je partage des cours et des e-books sur mes groupes WhatsApp et je touche entre 10% et 30% de commission. Ça paie mes frais de scolarité.', flag: '🇸🇳', category: 'Étudiante', highlight: 'Paie ses frais de scolarité' },
-  { name: 'Jean-Pierre M.', role: 'Auteur & Conférencier', text: 'J\'ai publié 12 e-books sur Siteviral. Avec le programme ambassadeur, mes lecteurs deviennent mes promoteurs. Les ventes se multiplient sans effort.', flag: '🇨🇩', category: 'Auteur', highlight: '12 e-books publiés' },
-  { name: 'Aïcha B.', role: 'Présidente d\'association', text: 'Notre association de la diaspora collecte désormais les cotisations mensuelles en ligne. Fini les virements Western Union et le suivi sur papier.', flag: '🇫🇷', category: 'Diaspora', highlight: 'Cotisations 100% en ligne' },
+// Fallback static testimonials
+const STATIC_TESTIMONIALS: Testimonial[] = [
+  { name: 'Pasteur K. M.', role: 'Leader communautaire', text: 'En une semaine, notre communauté a pu offrir plus de 200 prédications audio. Les dons arrivent aussi par Mobile Money.', flag: '🇳🇬', category: 'Église', highlight: '200 prédications en 1 semaine' },
+  { name: 'Marie-Claire B.', role: 'Coach & Auteure', text: 'J\'ai centralisé tous mes documents et ressources sur une seule plateforme. Mes clients achètent et téléchargent en un clic.', flag: '🇨🇲', category: 'Formatrice', highlight: 'Ventes 100% automatisées' },
+  { name: 'Ibrahim T.', role: 'Ambassadeur Siteviral', text: 'Je n\'ai aucun contenu à moi. Je partage les ressources des autres et je gagne des commissions chaque semaine.', flag: '🇸🇳', category: 'Ambassadeur', highlight: 'Commissions chaque semaine' },
+  { name: 'Amara D.', role: 'Créatrice digitale', text: 'En 2 mois, j\'ai vendu plus de 500 ressources numériques. Les paiements sont automatiques.', flag: '🇨🇮', category: 'Créatrice', highlight: '500 ventes en 2 mois' },
+  { name: 'David K.', role: 'Directeur ONG', text: 'Nos campagnes de collecte ont levé 3x plus qu\'avant. Les donateurs paient par Mobile Money en un clic.', flag: '🇬🇭', category: 'ONG', highlight: '3x plus de fonds levés' },
+  { name: 'Fatou S.', role: 'Étudiante ambassadrice', text: 'Je partage des cours et des e-books sur mes groupes WhatsApp et je touche entre 10% et 30% de commission.', flag: '🇸🇳', category: 'Étudiante', highlight: 'Paie ses frais de scolarité' },
 ];
-
-const categories = ['Tous', 'Église', 'ONG', 'Formatrice', 'Créatrice', 'Ambassadeur', 'Étudiante', 'Auteur', 'Organisation', 'Diaspora'];
 
 export default function TemoignagesPage() {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState('Tous');
 
+  const { data: dbTestimonials, isLoading } = useQuery({
+    queryKey: ['testimonials-public'],
+    queryFn: async () => {
+      const { data } = await db.from('testimonials').select('*').eq('is_approved', true).order('created_at', { ascending: false });
+      return (data || []).map((t: any) => ({
+        name: t.name, role: t.role || '', text: t.text, flag: t.flag || '🌍',
+        category: t.category || 'Général', highlight: t.highlight, rating: t.rating,
+      }));
+    },
+    staleTime: 5 * 60_000,
+  });
+
+  const testimonials: Testimonial[] = (dbTestimonials && dbTestimonials.length > 0) ? dbTestimonials : STATIC_TESTIMONIALS;
+
+  const categories = ['Tous', ...Array.from(new Set(testimonials.map(t => t.category)))];
   const filtered = activeCategory === 'Tous' ? testimonials : testimonials.filter(t => t.category === activeCategory);
 
   return (
@@ -52,7 +66,6 @@ export default function TemoignagesPage() {
       />
       <LandingNav />
 
-      {/* Hero */}
       <section className="pt-14">
         <div className="container max-w-4xl px-4 pt-24 pb-16 sm:pt-32 text-center space-y-5">
           <Badge variant="secondary" className="text-xs px-4 py-1.5 rounded-full border border-border">⭐ Témoignages</Badge>
@@ -65,55 +78,36 @@ export default function TemoignagesPage() {
         </div>
       </section>
 
-      {/* Category filter */}
       <section className="sticky top-14 z-20 bg-background/80 backdrop-blur-md border-b border-border py-3">
         <div className="container max-w-5xl px-4">
           <div className="flex gap-2 overflow-x-auto no-scrollbar">
             {categories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
+              <button key={cat} onClick={() => setActiveCategory(cat)}
                 className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors border ${
-                  activeCategory === cat
-                    ? 'bg-primary text-primary-foreground border-primary'
-                    : 'bg-card border-border text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {cat}
-              </button>
+                  activeCategory === cat ? 'bg-primary text-primary-foreground border-primary' : 'bg-card border-border text-muted-foreground hover:text-foreground'
+                }`}>{cat}</button>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Testimonials grid */}
       <section className="py-16 px-4">
         <div className="container max-w-5xl">
+          {isLoading && <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>}
           <motion.div initial="hidden" animate="visible" variants={stagger} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((t, i) => (
-              <motion.div
-                key={t.name}
-                variants={fadeUp}
-                className="relative p-6 rounded-2xl border border-border bg-card hover:border-primary/30 transition-colors group"
-              >
+              <motion.div key={t.name + i} variants={fadeUp} className="relative p-6 rounded-2xl border border-border bg-card hover:border-primary/30 transition-colors group">
                 <Quote className="h-8 w-8 text-primary/10 absolute top-4 right-4" />
                 <div className="flex items-center gap-3 mb-4">
                   <span className="text-3xl">{t.flag}</span>
-                  <div>
-                    <p className="font-bold text-sm">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.role}</p>
-                  </div>
+                  <div><p className="font-bold text-sm">{t.name}</p><p className="text-xs text-muted-foreground">{t.role}</p></div>
                 </div>
                 {t.highlight && (
-                  <Badge variant="secondary" className="text-[10px] px-2 py-0.5 rounded-full mb-3 bg-primary/10 text-primary border-0">
-                    {t.highlight}
-                  </Badge>
+                  <Badge variant="secondary" className="text-[10px] px-2 py-0.5 rounded-full mb-3 bg-primary/10 text-primary border-0">{t.highlight}</Badge>
                 )}
                 <p className="text-sm text-muted-foreground leading-relaxed italic">« {t.text} »</p>
                 <div className="flex gap-0.5 mt-4">
-                  {[...Array(5)].map((_, j) => (
-                    <Star key={j} className="h-3.5 w-3.5 text-accent fill-accent" />
-                  ))}
+                  {[...Array(t.rating || 5)].map((_, j) => (<Star key={j} className="h-3.5 w-3.5 text-accent fill-accent" />))}
                 </div>
               </motion.div>
             ))}
@@ -121,13 +115,10 @@ export default function TemoignagesPage() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="py-20 px-4 bg-primary text-primary-foreground">
         <div className="container max-w-3xl text-center space-y-6">
           <h2 className="text-2xl sm:text-4xl font-extrabold">Rejoignez-les</h2>
-          <p className="text-primary-foreground/80">
-            Créez votre plateforme gratuitement et commencez à transformer votre impact dès aujourd'hui.
-          </p>
+          <p className="text-primary-foreground/80">Créez votre plateforme gratuitement et commencez à transformer votre impact dès aujourd'hui.</p>
           <Button size="lg" variant="secondary" className="px-10 h-13 text-base gap-2 group" onClick={() => navigate('/auth?mode=signup')}>
             Commencer gratuitement <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
           </Button>

@@ -1,63 +1,24 @@
-import { ArrowLeft, Sparkles, Zap, Shield, Bug, Palette } from 'lucide-react';
+import { ArrowLeft, Sparkles, Zap, Shield, Bug, Palette, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { useQuery } from '@tanstack/react-query';
+import { db } from '@/lib/db';
 
-const CHANGELOG = [
-  {
-    version: '2.5.0',
-    date: '2026-02-25',
-    entries: [
-      { type: 'feature', text: 'Dashboard analytics personnel avec statistiques détaillées' },
-      { type: 'feature', text: 'Page "Mes factures" avec export PDF' },
-      { type: 'feature', text: 'Admin A/B Testing — créez et gérez vos expériences' },
-      { type: 'feature', text: 'Téléchargement sécurisé avec watermark PDF' },
-      { type: 'feature', text: 'Mode maintenance et feature flags' },
-      { type: 'feature', text: 'Widget de feedback intégré' },
-      { type: 'feature', text: 'Sélecteur de devise multi-currency' },
-      { type: 'feature', text: 'Pagination infinie sur les listes' },
-      { type: 'improvement', text: 'Routing des notifications au clic' },
-      { type: 'improvement', text: 'Skeleton loading systématique' },
-      { type: 'improvement', text: 'Transitions de page animées' },
-      { type: 'improvement', text: 'Polish du mode sombre' },
-    ],
-  },
-  {
-    version: '2.4.0',
-    date: '2026-02-20',
-    entries: [
-      { type: 'feature', text: 'Gamification complète : XP, badges, niveaux' },
-      { type: 'feature', text: 'Système de partenaires avec KYC et payouts' },
-      { type: 'feature', text: 'Stripe Connect intégré' },
-      { type: 'feature', text: 'Système de codes promo avancé' },
-      { type: 'security', text: 'Rate limiting sur toutes les edge functions critiques' },
-      { type: 'security', text: 'Validation HMAC des webhooks Paystack & Stripe' },
-    ],
-  },
-  {
-    version: '2.3.0',
-    date: '2026-02-15',
-    entries: [
-      { type: 'feature', text: 'Superadmin AI Chat avec insights intelligents' },
-      { type: 'feature', text: 'Programme Ambassadeur avec commissions' },
-      { type: 'feature', text: 'Bundles et upsells de produits' },
-      { type: 'improvement', text: 'Internationalisation FR/EN complète' },
-      { type: 'fix', text: 'Correction de l\'affichage des devises sur mobile' },
-    ],
-  },
-  {
-    version: '2.2.0',
-    date: '2026-02-10',
-    entries: [
-      { type: 'feature', text: 'PWA avec support hors ligne' },
-      { type: 'feature', text: 'Push notifications via VAPID' },
-      { type: 'feature', text: 'Commentaires imbriqués sur le contenu' },
-      { type: 'improvement', text: 'Optimisation des performances (lazy loading)' },
-      { type: 'fix', text: 'Correction du calcul des commissions affiliés' },
-    ],
-  },
+// Fallback static data shown while DB loads or if empty
+const STATIC_CHANGELOG = [
+  { version: '2.5.0', date: '2026-02-25', entries: [
+    { type: 'feature', text: 'Dashboard analytics personnel avec statistiques détaillées' },
+    { type: 'feature', text: 'Téléchargement sécurisé avec watermark PDF' },
+    { type: 'improvement', text: 'Transitions de page animées' },
+  ]},
+  { version: '2.4.0', date: '2026-02-20', entries: [
+    { type: 'feature', text: 'Gamification complète : XP, badges, niveaux' },
+    { type: 'feature', text: 'Système de partenaires avec KYC et payouts' },
+    { type: 'security', text: 'Rate limiting sur toutes les edge functions critiques' },
+  ]},
 ];
 
 const typeConfig: Record<string, { icon: typeof Sparkles; label: string; color: string }> = {
@@ -70,6 +31,26 @@ const typeConfig: Record<string, { icon: typeof Sparkles; label: string; color: 
 
 export default function ChangelogPage() {
   const navigate = useNavigate();
+
+  const { data: dbEntries, isLoading } = useQuery({
+    queryKey: ['changelog-entries'],
+    queryFn: async () => {
+      const { data } = await db.from('changelog_entries').select('*').order('release_date', { ascending: false }).order('created_at', { ascending: false });
+      return data || [];
+    },
+    staleTime: 5 * 60_000,
+  });
+
+  // Group DB entries by version
+  const dbGrouped = (dbEntries || []).reduce((acc: Record<string, { version: string; date: string; entries: { type: string; text: string }[] }>, e: any) => {
+    if (!acc[e.version]) acc[e.version] = { version: e.version, date: e.release_date, entries: [] };
+    acc[e.version].entries.push({ type: e.entry_type, text: e.text });
+    return acc;
+  }, {});
+
+  const changelog = Object.keys(dbGrouped).length > 0
+    ? Object.values(dbGrouped)
+    : STATIC_CHANGELOG;
 
   return (
     <div className="min-h-screen bg-background">
@@ -88,7 +69,11 @@ export default function ChangelogPage() {
           <p className="text-sm text-muted-foreground mt-1">Toutes les nouveautés et améliorations de SiteViral</p>
         </div>
 
-        {CHANGELOG.map((release) => (
+        {isLoading && (
+          <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+        )}
+
+        {(changelog as any[]).map((release: any) => (
           <div key={release.version} className="relative pl-6 border-l-2 border-border">
             <div className="absolute -left-2.5 top-0 h-5 w-5 rounded-full bg-primary flex items-center justify-center">
               <Sparkles className="h-3 w-3 text-primary-foreground" />
@@ -100,7 +85,7 @@ export default function ChangelogPage() {
               </div>
             </div>
             <div className="space-y-2">
-              {release.entries.map((entry, i) => {
+              {release.entries.map((entry: any, i: number) => {
                 const config = typeConfig[entry.type] || typeConfig.feature;
                 const Icon = config.icon;
                 return (
