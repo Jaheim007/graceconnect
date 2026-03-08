@@ -88,12 +88,13 @@ export default function SuperadminFullDashboard() {
     queryKey: ['sa-full-stats-v3'],
     queryFn: async () => {
       // Use server-side RPC for accurate totals (no 1000-row limit)
-      const [totalsRes, topOrgsRes, categoriesRes, countriesRes, recentDonations, recentUsers, members, payouts, reports, events, orgs] = await Promise.all([
+      const [totalsRes, topOrgsRes, categoriesRes, countriesRes, recentDonations, recentPurchases, recentUsers, members, payouts, reports, events, orgs] = await Promise.all([
         db.rpc('get_platform_totals'),
         db.rpc('get_top_orgs_by_revenue', { _limit: 8 }),
         db.rpc('get_org_category_breakdown'),
         db.rpc('get_org_country_breakdown', { _limit: 6 }),
-        db.from('donations').select('id, amount, status, donor_name, created_at').order('created_at', { ascending: false }).limit(10),
+        db.from('donations').select('id, amount, status, donor_name, created_at, currency').order('created_at', { ascending: false }).limit(15),
+        db.from('product_purchases').select('id, amount, status, buyer_name, created_at, currency').order('created_at', { ascending: false }).limit(15),
         db.from('profiles').select('id, display_name, created_at').order('created_at', { ascending: false }).limit(8),
         db.from('organization_members').select('role'),
         db.from('payout_requests').select('amount, status').eq('status', 'completed'),
@@ -104,8 +105,20 @@ export default function SuperadminFullDashboard() {
 
       const t = totalsRes.data || {};
 
-      const roleMap: Record<string, number> = {};
-      (members.data || []).forEach((m: any) => { roleMap[m.role || 'member'] = (roleMap[m.role || 'member'] || 0) + 1; });
+        // Merge donations + purchases into a single activity feed
+        const activityItems = [
+          ...(recentDonations.data || []).map((d: any) => ({
+            id: `don-${d.id}`, name: d.donor_name || 'Anonyme', amount: d.amount || 0,
+            status: d.status, created_at: d.created_at, type: 'donation' as const, currency: d.currency,
+          })),
+          ...(recentPurchases.data || []).map((p: any) => ({
+            id: `pur-${p.id}`, name: p.buyer_name || 'Acheteur', amount: p.amount || 0,
+            status: p.status, created_at: p.created_at, type: 'purchase' as const, currency: p.currency,
+          })),
+        ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 15);
+
+        const roleMap: Record<string, number> = {};
+        (members.data || []).forEach((m: any) => { roleMap[m.role || 'member'] = (roleMap[m.role || 'member'] || 0) + 1; });
 
       const planMap: Record<string, number> = {};
       (orgs.data || []).forEach((o: any) => { planMap[o.plan_type || 'free'] = (planMap[o.plan_type || 'free'] || 0) + 1; });
@@ -138,7 +151,7 @@ export default function SuperadminFullDashboard() {
         topOrgs: topOrgsRes.data || [],
         roleMap,
         plans,
-        recentDonations: recentDonations.data || [],
+        recentActivity: activityItems,
         newOrgs7d: t.new_orgs_7d || 0,
         newUsers7d: t.new_users_7d || 0,
         totalProducts: t.total_products || 0,
@@ -274,15 +287,17 @@ export default function SuperadminFullDashboard() {
       {/* ═══ ACTIVITY + GAUGES ═══ */}
       <div className="grid lg:grid-cols-3 gap-4">
         <Panel className="lg:col-span-2">
-          <SectionTitle icon={Activity} title="Activité récente" badge={`${stats?.recentDonations?.length || 0} dernières`} />
+          <SectionTitle icon={Activity} title="Activité récente" badge={`${stats?.recentActivity?.length || 0} dernières`} />
           <ScrollArea className="h-[200px]">
             <div className="space-y-0.5">
-              {(stats?.recentDonations || []).map((d: any, i: number) => (
+              {(stats?.recentActivity || []).map((d: any, i: number) => (
                 <div key={d.id || i} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/40 transition-colors">
                   <div className={cn('w-2 h-2 rounded-full shrink-0', d.status === 'completed' ? 'bg-emerald-500' : d.status === 'pending' ? 'bg-amber-500' : 'bg-red-500')} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold truncate">{d.donor_name || 'Anonyme'}</p>
-                    <p className="text-[10px] text-muted-foreground">{fmt(d.amount || 0)}</p>
+                    <p className="text-xs font-semibold truncate">{d.name}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {d.type === 'donation' ? '🤲 Don' : '🛒 Achat'} · {fmt(d.amount || 0, d.currency)}
+                    </p>
                   </div>
                   <Badge variant="outline" className="text-[9px] shrink-0 capitalize">{d.status}</Badge>
                   <span className="text-[9px] text-muted-foreground shrink-0">
@@ -290,7 +305,7 @@ export default function SuperadminFullDashboard() {
                   </span>
                 </div>
               ))}
-              {(!stats?.recentDonations || stats.recentDonations.length === 0) && (
+              {(!stats?.recentActivity || stats.recentActivity.length === 0) && (
                 <p className="text-xs text-muted-foreground text-center py-8">Aucune activité récente</p>
               )}
             </div>

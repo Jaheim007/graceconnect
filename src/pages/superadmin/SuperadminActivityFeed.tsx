@@ -27,7 +27,7 @@ export default function SuperadminActivityFeed() {
     queryFn: async () => {
       const [donations, purchases, profiles, kyc, members, reports] = await Promise.all([
         db.from('donations').select('id, donor_name, amount, status, created_at, currency').order('created_at', { ascending: false }).limit(30),
-        db.from('product_purchases').select('id, amount, status, created_at, currency').order('created_at', { ascending: false }).limit(30),
+        db.from('product_purchases').select('id, amount, status, created_at, currency, buyer_name').order('created_at', { ascending: false }).limit(30),
         db.from('profiles').select('id, display_name, created_at').order('created_at', { ascending: false }).limit(20),
         db.from('kyc_submissions').select('id, status, submitted_at, organization_id').order('submitted_at', { ascending: false }).limit(20),
         db.from('organization_members').select('id, role, joined_at, organizations(name)').order('joined_at', { ascending: false }).limit(20),
@@ -43,7 +43,7 @@ export default function SuperadminActivityFeed() {
       }));
 
       (purchases.data || []).forEach((p: any) => items.push({
-        id: `pur-${p.id}`, type: 'purchase', title: 'Achat produit',
+        id: `pur-${p.id}`, type: 'purchase', title: `Achat de ${p.buyer_name || 'Acheteur'}`,
         subtitle: `${fmt(p.amount)} ${p.currency || 'XOF'}`, amount: p.amount, status: p.status,
         timestamp: p.created_at,
       }));
