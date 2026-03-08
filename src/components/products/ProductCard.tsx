@@ -208,16 +208,26 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
                 <CheckCircle className="h-3 w-3" /> Acheté
               </Badge>
             )}
-            {/* A3: "Nouveau" badge for products < 7 days old */}
+            {/* "Nouveau" badge for products < 7 days old */}
             {!isPurchased && product.created_at && (Date.now() - new Date(product.created_at).getTime()) < 7 * 86400000 && (
               <Badge className="bg-blue-500/90 text-white border-0 text-[10px] font-semibold w-fit">
                 ✨ Nouveau
               </Badge>
             )}
-            {/* A3: "Bestseller" badge for 10+ sales */}
+            {/* "Bestseller" badge for 10+ sales */}
             {!isPurchased && (product.sales_count || 0) >= 10 && (
               <Badge className="bg-amber-500/90 text-white border-0 text-[10px] font-semibold w-fit">
                 🔥 Bestseller
+              </Badge>
+            )}
+            {/* "Trending" badge — deterministic per product+day, ~20% of recent products */}
+            {!isPurchased && (product.sales_count || 0) < 10 && product.created_at && (Date.now() - new Date(product.created_at).getTime()) < 14 * 86400000 && (() => {
+              const dayHash = new Date().getDate() * 31 + new Date().getMonth() * 7;
+              const idHash = product.id.charCodeAt(0) + product.id.charCodeAt(product.id.length - 1);
+              return (dayHash + idHash) % 5 === 0;
+            })() && (
+              <Badge className="bg-orange-500/90 text-white border-0 text-[10px] font-semibold w-fit">
+                🔥 Tendance
               </Badge>
             )}
             {isFlashSale && (

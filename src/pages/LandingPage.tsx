@@ -58,10 +58,13 @@ export default function LandingPage() {
       <LandingNav />
       <LandingHeroManifesto />
 
+      <LiveAuthorsCounter />
+
       <Suspense fallback={null}>
         <LandingHowItWorks />
         <LandingInteractiveDemo />
         <LandingLiveStats />
+        <CommunityProgressBar />
         <LandingAmbassadorLoop />
         <LandingSourcesSection />
         <LandingMobileMoney />
