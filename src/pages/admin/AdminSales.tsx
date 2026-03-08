@@ -166,6 +166,7 @@ export default function AdminSales() {
         t.label?.toLowerCase().includes(q) ||
         t.paystack_reference?.toLowerCase().includes(q) ||
         t.buyer_display?.toLowerCase().includes(q) ||
+        t.buyer_email?.toLowerCase().includes(q) ||
         t.buyer_phone?.toLowerCase().includes(q) ||
         t.affiliate_name?.toLowerCase().includes(q)
       );
