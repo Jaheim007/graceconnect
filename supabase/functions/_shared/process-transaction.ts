@@ -69,7 +69,8 @@ export async function processTransaction(
     reference, type, organization_id, gateway, source,
     amount_paid: amountPaid, currency,
     campaign_id, product_id, user_id,
-    donor_name, donor_email, affiliate_code, promo_code,
+    donor_name, donor_email, buyer_name, buyer_email,
+    affiliate_code, promo_code,
   } = input;
 
   // ── 1. Idempotency check ──
