@@ -83,11 +83,18 @@ const registerSW = async () => {
         },
         onRegisteredSW(swUrl, registration) {
           console.log('[PWA] Service Worker enregistré:', swUrl);
-          // Check for updates every 60 minutes
           if (registration) {
+            // Check for updates every 60 minutes
             setInterval(() => {
               registration.update();
             }, 60 * 60 * 1000);
+
+            // Register Periodic Background Sync
+            if ('periodicSync' in registration) {
+              (registration as any).periodicSync?.register('sv-content-sync', {
+                minInterval: 12 * 60 * 60 * 1000, // 12 hours
+              }).catch(() => { /* permission denied or not supported */ });
+            }
           }
         },
         onRegisterError(error) {

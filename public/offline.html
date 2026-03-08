@@ -2,8 +2,9 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Hors ligne — Siteviral</title>
+  <meta name="theme-color" content="#0d1117">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -28,6 +29,15 @@
       transition: opacity .2s;
     }
     button:hover { opacity: .85; }
+    button:active { transform: scale(0.97); }
+    .status {
+      margin-top: 1.5rem; font-size: .75rem; color: #484f58;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
   </style>
 </head>
 <body>
@@ -39,7 +49,11 @@
     </div>
     <h1>Vous êtes hors ligne</h1>
     <p>Vérifiez votre connexion internet puis réessayez. Les pages déjà visitées restent accessibles.</p>
-    <button onclick="location.reload()">Réessayer</button>
+    <button onclick="location.reload()">🔄 Réessayer</button>
+    <p class="status">Reconnexion automatique en cours...</p>
   </div>
+  <script>
+    window.addEventListener('online', () => window.location.reload());
+  </script>
 </body>
 </html>

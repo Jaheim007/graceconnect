@@ -118,6 +118,7 @@ const PourConsultantsPage = lazy(() => import("@/pages/persona/PourConsultantsPa
 const PourJuristesPage = lazy(() => import("@/pages/persona/PourJuristesPage"));
 const PourAgencesPage = lazy(() => import("@/pages/persona/PourAgencesPage"));
 const PourInfluenceursPage = lazy(() => import("@/pages/persona/PourInfluenceursPage"));
+const ShareTargetPage = lazy(() => import("@/pages/ShareTargetPage"));
 const PourSantePage = lazy(() => import("@/pages/persona/PourSantePage"));
 const PourFinancePage = lazy(() => import("@/pages/persona/PourFinancePage"));
 const PourFemmesEntrepreneurPage = lazy(() => import("@/pages/persona/PourFemmesEntrepreneurPage"));
@@ -303,6 +304,7 @@ const App = () => (
                 <Route path="/invite/:code" element={<InvitePage />} />
                 <Route path="/verify/:certNumber" element={<CertificateVerifyPage />} />
                 <Route path="/install" element={<InstallPage />} />
+                <Route path="/share-target" element={<ShareTargetPage />} />
                 <Route path="/changelog" element={<ChangelogPage />} />
                 <Route path="/temoignages" element={<TemoignagesPage />} />
                 <Route path="/calculateur" element={<CalculateurPage />} />

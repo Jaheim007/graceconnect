@@ -136,6 +136,15 @@ export default defineConfig(({ mode }) => ({
             icons: [{ src: "/pwa-96x96.png", sizes: "96x96" }],
           },
         ],
+        share_target: {
+          action: "/share-target",
+          method: "GET",
+          params: {
+            title: "title",
+            text: "text",
+            url: "url",
+          },
+        },
         handle_links: "preferred",
         launch_handler: {
           client_mode: "navigate-existing",
@@ -145,7 +154,7 @@ export default defineConfig(({ mode }) => ({
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,jpg,jpeg,webp,woff,woff2}"],
         navigateFallback: "/index.html",
-        navigateFallbackDenylist: [/^\/~oauth/],
+        navigateFallbackDenylist: [/^\/~oauth/, /^\/share-target/],
         cleanupOutdatedCaches: true,
         skipWaiting: true,
         clientsClaim: true,
