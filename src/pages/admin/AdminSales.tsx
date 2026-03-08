@@ -138,7 +138,7 @@ export default function AdminSales() {
       return (data || []).map((r: any) => ({
         ...r,
         type: 'donation' as const,
-        label: r.donation_campaigns?.title || r.donor_name || 'Don',
+        label: r.donation_campaigns?.title || 'Don (sans campagne)',
         gateway: detectGateway(r.paystack_reference),
         buyer_display: r.donor_name || profileMap[r.user_id]?.display_name || r.donor_email || 'Anonyme',
         buyer_email: r.donor_email || null,
