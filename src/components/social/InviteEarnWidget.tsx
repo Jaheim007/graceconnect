@@ -7,6 +7,7 @@ import { Copy, CheckCircle, MessageCircle, Users, Gift, Share2 } from 'lucide-re
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useShortLink } from '@/hooks/useShortLink';
 
 export function InviteEarnWidget() {
   const { user, profile } = useAuth();
@@ -28,9 +29,13 @@ export function InviteEarnWidget() {
     staleTime: 60_000,
   });
 
-  if (!user || !referralCode) return null;
+  const { shareUrl: inviteUrl } = useShortLink({
+    targetPath: `/invite/${referralCode || ''}`,
+    title: 'Rejoins Siteviral',
+    description: 'Découvre des contenus exclusifs, achète des formations, ou gagne de l\'argent en partageant.',
+  });
 
-  const inviteUrl = `${window.location.origin}/invite/${referralCode}`;
+  if (!user || !referralCode) return null;
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(inviteUrl);
@@ -46,11 +51,13 @@ export function InviteEarnWidget() {
 
   const handleShare = async () => {
     if (navigator.share) {
-      await navigator.share({
-        title: 'Rejoins Siteviral',
-        text: 'Découvre des contenus exclusifs et gagne de l\'argent en partageant !',
-        url: inviteUrl,
-      });
+      try {
+        await navigator.share({
+          title: 'Rejoins Siteviral',
+          text: 'Découvre des contenus exclusifs et gagne de l\'argent en partageant !',
+          url: inviteUrl,
+        });
+      } catch { /* cancelled */ }
     } else {
       handleCopy();
     }

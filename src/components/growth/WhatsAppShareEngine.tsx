@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Copy, Check, ExternalLink, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { getOrCreateShortLink } from '@/lib/shareMeta';
 
 export type ShareContext =
   | 'post-purchase'
@@ -101,12 +102,26 @@ export function WhatsAppShareEngine(props: WhatsAppShareProps) {
   const { context, variant = 'card', className, url, ...rest } = props;
   const [copied, setCopied] = useState(false);
   const [showAll, setShowAll] = useState(false);
+  const [resolvedUrl, setResolvedUrl] = useState(url);
 
-  const message = MESSAGES[context]({ url, ...rest });
+  // Resolve to short link for rich OG previews
+  useEffect(() => {
+    const path = url.replace('https://siteviral.com', '').replace(/^https?:\/\/[^/]+/, '');
+    if (!path || path === url) return; // skip if it's already a full external URL without a path
+    let cancelled = false;
+    getOrCreateShortLink({
+      targetPath: path,
+      title: rest.productTitle || rest.orgName || 'Siteviral',
+    }).then(shortUrl => { if (!cancelled) setResolvedUrl(shortUrl); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [url, rest.productTitle, rest.orgName]);
+
+  const message = MESSAGES[context]({ url: resolvedUrl, ...rest });
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(resolvedUrl);
       setCopied(true);
       toast.success('Lien copié !');
       setTimeout(() => setCopied(false), 2000);
