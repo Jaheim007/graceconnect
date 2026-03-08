@@ -30,7 +30,7 @@ export function RevenueCelebration({ amount, milestone, onDismiss }: RevenueCele
           animate={{ scale: 1, y: 0 }}
           exit={{ scale: 0.9, y: 10 }}
           transition={{ type: 'spring', damping: 20 }}
-          className="bg-card rounded-3xl border border-accent/20 shadow-2xl p-6 sm:p-8 max-w-sm w-full space-y-5 relative"
+          className="bg-card rounded-3xl border border-accent/20 shadow-2xl p-5 sm:p-8 max-w-sm w-[calc(100%-2rem)] space-y-5 relative overflow-y-auto max-h-[90dvh]"
           onClick={e => e.stopPropagation()}
         >
           <button
