@@ -289,6 +289,7 @@ export default function AdminDashboard() {
       <OnboardingChecklist />
       <TimeSinceLastSale />
       <SmartNextAction />
+      <AdminGrowthSuggestions />
 
       {/* ═══════════════════════════════════════════
           ZONE 5 — ACTIONS RAPIDES + APERÇU CONTENU
