@@ -151,6 +151,30 @@ export function useBehavioralNotifications() {
           type: 'content_nudge',
         });
       }
+
+      // 9. "Dernière chance" for inactive ambassadors
+      // Check if user has affiliate links but hasn't shared in a while
+      if (user?.id) {
+        const { data: myLinks } = await db
+          .from('affiliate_links')
+          .select('id, clicks, created_at')
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .limit(5);
+
+        if (myLinks && myLinks.length > 0) {
+          const hasLowActivity = myLinks.every((l: any) => (l.clicks || 0) < 3);
+          if (hasLowActivity) {
+            const futureDate = new Date(Date.now() + 48 * 3600000);
+            const dateStr = futureDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+            createNotif.mutate({
+              title: '⏳ Votre avantage ambassadeur est en pause',
+              body: `Vos liens n'ont reçu aucun clic récemment. Partagez avant le ${dateStr} pour réactiver votre visibilité et ne pas manquer de commissions.`,
+              type: 'ambassador_last_chance',
+            });
+          }
+        }
+      }
     };
 
     triggers();
