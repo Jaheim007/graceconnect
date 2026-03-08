@@ -265,7 +265,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <ModeProvider>
+              
               <SkipLink />
               <OfflineBanner />
               <ScrollToTop />
