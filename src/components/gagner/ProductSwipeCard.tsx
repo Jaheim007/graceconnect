@@ -77,7 +77,7 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
       if (!cancelled) setShareUrl(url);
     }).catch(() => { /* keep fallback */ });
     return () => { cancelled = true; };
-  }, [refPath, isAffiliate, product.title, product.description, product.cover_image_url]);
+  }, [refPath, myLink, product.title, product.description, product.cover_image_url]);
 
   const handleEnroll = async () => {
     if (!user) {
