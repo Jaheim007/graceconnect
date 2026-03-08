@@ -28,6 +28,7 @@ interface TransactionDetails {
   product_title?: string;
   product_type?: string;
   product_id?: string;
+  organization_id?: string;
   file_url?: string | null;
   external_link?: string | null;
   cover_image_url?: string | null;
