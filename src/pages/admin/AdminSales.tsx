@@ -116,7 +116,7 @@ export default function AdminSales() {
       const userIds = [...new Set((data || []).map((r: any) => r.user_id).filter(Boolean))];
       let profileMap: Record<string, any> = {};
       if (userIds.length > 0) {
-        const { data: profiles } = await db.from('profiles').select('id, display_name, phone, email').in('id', userIds);
+        const { data: profiles } = await db.from('profiles').select('id, display_name, phone').in('id', userIds);
         (profiles || []).forEach((p: any) => { profileMap[p.id] = p; });
       }
 
