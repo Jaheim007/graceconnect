@@ -33,6 +33,8 @@ export interface TransactionInput {
   user_id?: string | null;
   donor_name?: string | null;
   donor_email?: string | null;
+  buyer_name?: string | null;
+  buyer_email?: string | null;
   affiliate_code?: string | null;
   promo_code?: string | null;
 }
