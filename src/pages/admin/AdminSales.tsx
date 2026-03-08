@@ -194,6 +194,7 @@ export default function AdminSales() {
       type: t.type === 'purchase' ? 'Achat' : 'Don',
       produit: t.label,
       acheteur: t.buyer_display,
+      email: t.buyer_email || '',
       telephone: t.buyer_phone || '',
       montant: t.amount,
       devise: t.currency,
