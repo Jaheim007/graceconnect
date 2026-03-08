@@ -186,6 +186,9 @@ export default function GagnerPage() {
         {/* Social proof stats */}
         <SocialProofBanner />
 
+        {/* Live earnings ticker */}
+        <LiveEarningsTicker />
+
         {/* Quick share widget for logged-in users */}
         <QuickShareWidget />
 
