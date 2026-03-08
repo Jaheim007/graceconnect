@@ -136,6 +136,15 @@ export default defineConfig(({ mode }) => ({
             icons: [{ src: "/pwa-96x96.png", sizes: "96x96" }],
           },
         ],
+        share_target: {
+          action: "/share-target",
+          method: "GET",
+          params: {
+            title: "title",
+            text: "text",
+            url: "url",
+          },
+        },
         handle_links: "preferred",
         launch_handler: {
           client_mode: "navigate-existing",
