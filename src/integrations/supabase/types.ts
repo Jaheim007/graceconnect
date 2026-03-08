@@ -1000,6 +1000,36 @@ export type Database = {
           },
         ]
       }
+      changelog_entries: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          entry_type: string
+          id: string
+          release_date: string
+          text: string
+          version: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          entry_type?: string
+          id?: string
+          release_date?: string
+          text: string
+          version: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          entry_type?: string
+          id?: string
+          release_date?: string
+          text?: string
+          version?: string
+        }
+        Relationships: []
+      }
       client_events: {
         Row: {
           created_at: string
@@ -4260,6 +4290,24 @@ export type Database = {
           },
         ]
       }
+      review_request_sent: {
+        Row: {
+          id: string
+          purchase_id: string
+          sent_at: string | null
+        }
+        Insert: {
+          id?: string
+          purchase_id: string
+          sent_at?: string | null
+        }
+        Update: {
+          id?: string
+          purchase_id?: string
+          sent_at?: string | null
+        }
+        Relationships: []
+      }
       scripture_references: {
         Row: {
           book: string
@@ -4469,6 +4517,51 @@ export type Database = {
           notes?: string | null
           paystack_supported?: boolean | null
           transfer_api?: boolean | null
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          flag: string | null
+          highlight: string | null
+          id: string
+          is_approved: boolean | null
+          name: string
+          rating: number | null
+          role: string | null
+          source_review_id: string | null
+          text: string
+          user_id: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          flag?: string | null
+          highlight?: string | null
+          id?: string
+          is_approved?: boolean | null
+          name: string
+          rating?: number | null
+          role?: string | null
+          source_review_id?: string | null
+          text: string
+          user_id?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          flag?: string | null
+          highlight?: string | null
+          id?: string
+          is_approved?: boolean | null
+          name?: string
+          rating?: number | null
+          role?: string | null
+          source_review_id?: string | null
+          text?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -5090,6 +5183,7 @@ export type Database = {
       }
       org_affiliation_allowed: { Args: { _org_id: string }; Returns: boolean }
       org_monetization_allowed: { Args: { _org_id: string }; Returns: boolean }
+      recalculate_featured_scores: { Args: never; Returns: number }
       reject_ai_quality: {
         Args: { _notes?: string; _org_id: string; _quality_score_id: string }
         Returns: Json
