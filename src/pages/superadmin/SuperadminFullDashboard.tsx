@@ -117,6 +117,9 @@ export default function SuperadminFullDashboard() {
           })),
         ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 15);
 
+        const roleMap: Record<string, number> = {};
+        (members.data || []).forEach((m: any) => { roleMap[m.role || 'member'] = (roleMap[m.role || 'member'] || 0) + 1; });
+
       const planMap: Record<string, number> = {};
       (orgs.data || []).forEach((o: any) => { planMap[o.plan_type || 'free'] = (planMap[o.plan_type || 'free'] || 0) + 1; });
       const plans = Object.entries(planMap).map(([name, value]) => ({ name, value }));
@@ -148,7 +151,7 @@ export default function SuperadminFullDashboard() {
         topOrgs: topOrgsRes.data || [],
         roleMap,
         plans,
-        recentDonations: recentDonations.data || [],
+        recentActivity: activityItems,
         newOrgs7d: t.new_orgs_7d || 0,
         newUsers7d: t.new_users_7d || 0,
         totalProducts: t.total_products || 0,
