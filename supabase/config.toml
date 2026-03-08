@@ -188,3 +188,15 @@ verify_jwt = false
 
 [functions.abandoned-cart-reminder]
 verify_jwt = false
+
+[functions.drip-engine]
+verify_jwt = false
+
+[functions.platform-health-check]
+verify_jwt = false
+
+[functions.weekly-report]
+verify_jwt = false
+
+[functions.review-request]
+verify_jwt = false
