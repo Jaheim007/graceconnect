@@ -5035,6 +5035,7 @@ export type Database = {
         Args: { _from?: string; _to?: string }
         Returns: Json
       }
+      get_weekly_user_cohorts: { Args: { _weeks?: number }; Returns: Json }
       increment_campaign_amount: {
         Args: { _amount: number; _campaign_id: string }
         Returns: undefined

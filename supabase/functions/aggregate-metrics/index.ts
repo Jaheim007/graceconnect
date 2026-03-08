@@ -118,6 +118,13 @@ Deno.serve(async (req) => {
       .select('*', { count: 'exact', head: true })
       .eq('is_active', true);
 
+    // Count new users for the day
+    const { count: newUsersCount } = await supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', dayStart)
+      .lte('created_at', dayEnd);
+
     await supabase.from('platform_metrics_daily').upsert({
       metric_date: dateStr,
       total_revenue: totalGMV,
@@ -125,6 +132,7 @@ Deno.serve(async (req) => {
       total_transactions: totalTx,
       active_orgs: orgs.length,
       new_orgs: newOrgs?.length || 0,
+      new_users: newUsersCount || 0,
       active_affiliates: activeAffiliates || 0,
       gmv: totalGMV,
     }, { onConflict: 'metric_date' });

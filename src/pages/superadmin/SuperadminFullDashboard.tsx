@@ -12,7 +12,8 @@ import {
   TrendingUp, Users, DollarSign, BarChart3, Activity,
   Shield, AlertTriangle, CreditCard, Building2, UserPlus,
   Percent, Eye, Globe, Clock, ArrowUpRight,
-  ShoppingBag, Heart, Zap, Target, CalendarDays
+  ShoppingBag, Heart, Zap, Target, CalendarDays,
+  BookOpen, Bell, Mail, Link2, GraduationCap
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -85,44 +86,50 @@ export default function SuperadminFullDashboard() {
   const firstName = profile?.display_name?.split(' ')[0] || 'Admin';
 
   const { data: stats } = useQuery({
-    queryKey: ['sa-full-stats-v3'],
+    queryKey: ['sa-full-stats-v4'],
     queryFn: async () => {
-      // Use server-side RPC for accurate totals (no 1000-row limit)
-      const [totalsRes, topOrgsRes, categoriesRes, countriesRes, recentDonations, recentPurchases, recentUsers, members, payouts, reports, events, orgs] = await Promise.all([
+      const [totalsRes, topOrgsRes, categoriesRes, countriesRes, recentDonations, recentPurchases, recentUsers, members, payouts, reports, events, orgs, cohorts] = await Promise.all([
         db.rpc('get_platform_totals'),
         db.rpc('get_top_orgs_by_revenue', { _limit: 8 }),
         db.rpc('get_org_category_breakdown'),
         db.rpc('get_org_country_breakdown', { _limit: 6 }),
         db.from('donations').select('id, amount, status, donor_name, created_at, currency').order('created_at', { ascending: false }).limit(15),
         db.from('product_purchases').select('id, amount, status, buyer_name, created_at, currency').order('created_at', { ascending: false }).limit(15),
-        db.from('profiles').select('id, display_name, created_at').order('created_at', { ascending: false }).limit(8),
+        db.from('profiles').select('id, display_name, created_at').order('created_at', { ascending: false }).limit(10),
         db.from('organization_members').select('role'),
         db.from('payout_requests').select('amount, status').eq('status', 'completed'),
         db.from('content_reports').select('status, content_type, reason').order('created_at', { ascending: false }).limit(5),
         db.from('events').select('id, title, event_date, is_published').gte('event_date', new Date().toISOString()).order('event_date', { ascending: true }).limit(5),
         db.from('organizations').select('plan_type'),
+        db.rpc('get_weekly_user_cohorts', { _weeks: 8 }),
       ]);
 
       const t = totalsRes.data || {};
 
-        // Merge donations + purchases into a single activity feed
-        const activityItems = [
-          ...(recentDonations.data || []).map((d: any) => ({
-            id: `don-${d.id}`, name: d.donor_name || 'Anonyme', amount: d.amount || 0,
-            status: d.status, created_at: d.created_at, type: 'donation' as const, currency: d.currency,
-          })),
-          ...(recentPurchases.data || []).map((p: any) => ({
-            id: `pur-${p.id}`, name: p.buyer_name || 'Acheteur', amount: p.amount || 0,
-            status: p.status, created_at: p.created_at, type: 'purchase' as const, currency: p.currency,
-          })),
-        ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 15);
+      // Merge donations + purchases into a single activity feed
+      const activityItems = [
+        ...(recentDonations.data || []).map((d: any) => ({
+          id: `don-${d.id}`, name: d.donor_name || 'Anonyme', amount: d.amount || 0,
+          status: d.status, created_at: d.created_at, type: 'donation' as const, currency: d.currency,
+        })),
+        ...(recentPurchases.data || []).map((p: any) => ({
+          id: `pur-${p.id}`, name: p.buyer_name || 'Acheteur', amount: p.amount || 0,
+          status: p.status, created_at: p.created_at, type: 'purchase' as const, currency: p.currency,
+        })),
+      ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 15);
 
-        const roleMap: Record<string, number> = {};
-        (members.data || []).forEach((m: any) => { roleMap[m.role || 'member'] = (roleMap[m.role || 'member'] || 0) + 1; });
+      const roleMap: Record<string, number> = {};
+      (members.data || []).forEach((m: any) => { roleMap[m.role || 'member'] = (roleMap[m.role || 'member'] || 0) + 1; });
 
       const planMap: Record<string, number> = {};
       (orgs.data || []).forEach((o: any) => { planMap[o.plan_type || 'free'] = (planMap[o.plan_type || 'free'] || 0) + 1; });
       const plans = Object.entries(planMap).map(([name, value]) => ({ name, value }));
+
+      // Format cohort data
+      const cohortData = (cohorts.data || []).map((c: any) => ({
+        week: c.week ? format(new Date(c.week), 'dd/MM', { locale: fr }) : '',
+        users: c.users || 0,
+      }));
 
       return {
         totalOrgs: t.total_orgs || 0,
@@ -167,6 +174,15 @@ export default function SuperadminFullDashboard() {
         campaignRaised: t.campaign_raised || 0,
         recentUsers: recentUsers.data || [],
         recentReports: reports.data || [],
+        cohortData,
+        // New stats
+        totalEnrollments: t.total_enrollments || 0,
+        activePrograms: t.active_programs || 0,
+        totalPushSubs: t.total_push_subs || 0,
+        totalContacts: t.total_contacts || 0,
+        totalAffiliateLinks: t.total_affiliate_links || 0,
+        activeAffiliateLinks: t.active_affiliate_links || 0,
+        totalEmailCampaigns: t.total_email_campaigns || 0,
       };
     },
   });
@@ -196,6 +212,15 @@ export default function SuperadminFullDashboard() {
     { label: 'Signalements', value: stats?.pendingReports || 0, sub: 'En attente', icon: AlertTriangle },
   ];
 
+  const engagementStats = [
+    { label: 'Programmes', value: stats?.activePrograms || 0, sub: `${stats?.totalEnrollments || 0} inscrits`, icon: GraduationCap },
+    { label: 'Liens Affil.', value: stats?.totalAffiliateLinks || 0, sub: `${stats?.activeAffiliateLinks || 0} actifs`, icon: Link2 },
+    { label: 'Push Subs', value: stats?.totalPushSubs || 0, sub: 'abonnés notifs', icon: Bell },
+    { label: 'Contacts', value: stats?.totalContacts || 0, sub: 'abonnés email', icon: Mail },
+    { label: 'Campagnes Email', value: stats?.totalEmailCampaigns || 0, sub: 'envoyées', icon: Mail },
+    { label: 'Médias', value: stats?.totalMedia || 0, sub: `${fmtNum(stats?.totalViews || 0)} vues`, icon: Eye },
+  ];
+
   return (
     <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-6">
       {/* ═══ HEADER ═══ */}
@@ -216,7 +241,7 @@ export default function SuperadminFullDashboard() {
 
       {/* ═══ HERO KPIs ═══ */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {heroCards.map((c, i) => (
+        {heroCards.map((c) => (
           <motion.div key={c.label} variants={fadeUp}
             className="relative bg-card border border-border/60 rounded-2xl p-5 overflow-hidden group hover:border-border hover:scale-[1.01] transition-all duration-300">
             <div className={cn('absolute -top-16 -right-16 w-32 h-32 rounded-full blur-3xl opacity-15 pointer-events-none group-hover:opacity-25 transition-opacity', c.glow)} />
@@ -478,6 +503,18 @@ export default function SuperadminFullDashboard() {
         </Panel>
       </div>
 
+      {/* ═══ ENGAGEMENT STATS ═══ */}
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5">
+        {engagementStats.map(c => (
+          <motion.div key={c.label} variants={fadeUp} className="bg-card border border-border/50 rounded-xl p-3 text-center hover:border-primary/20 transition-colors">
+            <c.icon className="h-4 w-4 text-muted-foreground mx-auto mb-1.5" />
+            <p className="text-lg font-bold leading-none">{c.value}</p>
+            <p className="text-[10px] text-muted-foreground mt-1 font-medium">{c.label}</p>
+            <p className="text-[9px] text-muted-foreground/70">{c.sub}</p>
+          </motion.div>
+        ))}
+      </div>
+
       {/* ═══ CONTENT + ROLES + COHORTS ═══ */}
       <div className="grid lg:grid-cols-3 gap-4">
         <Panel>
@@ -511,29 +548,16 @@ export default function SuperadminFullDashboard() {
 
         <Panel>
           <SectionTitle icon={UserPlus} title="Cohortes" badge="8 semaines" />
-          {(() => {
-            const now = new Date();
-            const weekData = [];
-            for (let i = 7; i >= 0; i--) {
-              const start = subDays(now, (i + 1) * 7);
-              const end = subDays(now, i * 7);
-              const count = (stats?.recentUsers || []).filter((u: any) => {
-                const d = new Date(u.created_at);
-                return d >= start && d < end;
-              }).length;
-              weekData.push({ week: format(start, 'dd/MM', { locale: fr }), users: count });
-            }
-            return weekData.some(w => w.users > 0) ? (
-              <ResponsiveContainer width="100%" height={140}>
-                <BarChart data={weekData}>
-                  <XAxis dataKey="week" tick={{ fontSize: 9 }} tickLine={false} axisLine={false} />
-                  <YAxis tick={{ fontSize: 9 }} tickLine={false} axisLine={false} width={20} />
-                  <Tooltip contentStyle={tooltipStyle} />
-                  <Bar dataKey="users" name="Inscrits" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : <p className="text-xs text-muted-foreground text-center py-6">Aucune donnée</p>;
-          })()}
+          {(stats?.cohortData || []).length > 0 ? (
+            <ResponsiveContainer width="100%" height={140}>
+              <BarChart data={stats!.cohortData}>
+                <XAxis dataKey="week" tick={{ fontSize: 9 }} tickLine={false} axisLine={false} />
+                <YAxis tick={{ fontSize: 9 }} tickLine={false} axisLine={false} width={20} />
+                <Tooltip contentStyle={tooltipStyle} />
+                <Bar dataKey="users" name="Inscrits" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : <p className="text-xs text-muted-foreground text-center py-6">Aucune donnée</p>}
         </Panel>
       </div>
     </motion.div>
