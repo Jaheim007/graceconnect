@@ -8,6 +8,8 @@ import { LandingFooter } from './LandingFooter';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
+import { InternalLinksSection } from './InternalLinksSection';
 
 export interface PersonaLandingProps {
   seo: { title: string; description: string; url: string };
