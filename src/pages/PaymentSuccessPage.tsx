@@ -96,6 +96,7 @@ export default function PaymentSuccessPage() {
           product_title: product?.title,
           product_type: product?.product_type,
           product_id: product?.id,
+          organization_id: product?.organization_id,
           file_url: product?.file_url,
           external_link: product?.external_link,
           cover_image_url: product?.cover_image_url,
