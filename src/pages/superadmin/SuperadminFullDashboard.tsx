@@ -105,8 +105,17 @@ export default function SuperadminFullDashboard() {
 
       const t = totalsRes.data || {};
 
-      const roleMap: Record<string, number> = {};
-      (members.data || []).forEach((m: any) => { roleMap[m.role || 'member'] = (roleMap[m.role || 'member'] || 0) + 1; });
+        // Merge donations + purchases into a single activity feed
+        const activityItems = [
+          ...(recentDonations.data || []).map((d: any) => ({
+            id: `don-${d.id}`, name: d.donor_name || 'Anonyme', amount: d.amount || 0,
+            status: d.status, created_at: d.created_at, type: 'donation' as const, currency: d.currency,
+          })),
+          ...(recentPurchases.data || []).map((p: any) => ({
+            id: `pur-${p.id}`, name: p.buyer_name || 'Acheteur', amount: p.amount || 0,
+            status: p.status, created_at: p.created_at, type: 'purchase' as const, currency: p.currency,
+          })),
+        ].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 15);
 
       const planMap: Record<string, number> = {};
       (orgs.data || []).forEach((o: any) => { planMap[o.plan_type || 'free'] = (planMap[o.plan_type || 'free'] || 0) + 1; });
