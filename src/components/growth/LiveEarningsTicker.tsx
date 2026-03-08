@@ -63,7 +63,7 @@ export function LiveEarningsTicker() {
         {formatCurrency(amount, DEFAULT_CURRENCY)}
       </motion.p>
       <p className="text-[10px] text-muted-foreground mt-1 flex items-center justify-center gap-1">
-        <TrendingUp className="h-3 w-3" /> aujourd'hui
+        <TrendingUp className="h-3 w-3" /> en commissions
       </p>
     </motion.div>
   );

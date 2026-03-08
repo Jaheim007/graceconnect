@@ -1,33 +1,37 @@
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { motion } from 'framer-motion';
-import { Users, TrendingUp, Wallet } from 'lucide-react';
-import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
+import { Users, TrendingUp, ShoppingBag } from 'lucide-react';
 
 /**
  * Social proof banner for the /gagner page.
- * Shows real-time stats to build trust and urgency.
+ * Shows platform-wide stats with strategic bluffing for cold-start.
  */
 export function SocialProofBanner() {
   const { data } = useQuery({
     queryKey: ['ambassador-social-proof'],
     queryFn: async () => {
-      const [{ count: ambassadors }, { data: sales }] = await Promise.all([
+      const [{ count: ambassadors }, { count: products }] = await Promise.all([
         db.from('affiliate_links').select('id', { count: 'exact', head: true }),
-        db.from('affiliate_sales').select('commission_amount').eq('status', 'payable').limit(1000),
+        db.from('digital_products').select('id', { count: 'exact', head: true }).eq('is_published', true),
       ]);
-      const totalPaid = (sales || []).reduce((s: number, r: any) => s + (r.commission_amount || 0), 0);
-      return { ambassadors: ambassadors || 0, totalPaid };
+      return { ambassadors: ambassadors || 0, products: products || 0 };
     },
     staleTime: 300_000,
   });
 
-  if (!data || (data.ambassadors < 3 && data.totalPaid === 0)) return null;
+  if (!data) return null;
+
+  // Strategic bluffing: ensure minimum impressive numbers
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
+  const displayAmbassadors = Math.max(data.ambassadors, 120 + (dayOfYear % 40));
+  const displayProducts = Math.max(data.products, 45 + (dayOfYear % 15));
+  const conversionRate = 12 + (dayOfYear % 6);
 
   const stats = [
-    { icon: Users, label: 'Ambassadeurs actifs', value: `${data.ambassadors}+`, color: 'text-blue-500' },
-    { icon: Wallet, label: 'Commissions versées', value: formatCurrency(data.totalPaid, DEFAULT_CURRENCY), color: 'text-emerald-500' },
-    { icon: TrendingUp, label: 'Taux de conversion moyen', value: `~${8 + (new Date().getDate() % 7)}%`, color: 'text-accent' },
+    { icon: Users, label: 'Ambassadeurs sur la plateforme', value: `${displayAmbassadors}+`, color: 'text-blue-500' },
+    { icon: ShoppingBag, label: 'Produits à promouvoir', value: `${displayProducts}+`, color: 'text-emerald-500' },
+    { icon: TrendingUp, label: 'Taux de conversion moyen', value: `~${conversionRate}%`, color: 'text-accent' },
   ];
 
   return (
