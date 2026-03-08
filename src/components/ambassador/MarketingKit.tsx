@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Copy, Check, MessageCircle, Share2, Sparkles, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
+import { getOrCreateShortLink } from '@/lib/shareMeta';
 
 interface MarketingKitProps {
   productTitle: string;
@@ -59,6 +60,21 @@ export function MarketingKit({
 }: MarketingKitProps) {
   const { toast } = useToast();
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [resolvedUrl, setResolvedUrl] = useState(shareUrl);
+
+  // Resolve to short link with OG metadata
+  useEffect(() => {
+    const path = shareUrl.replace('https://siteviral.com', '').replace(/^https?:\/\/[^/]+/, '');
+    if (!path) return;
+    let cancelled = false;
+    getOrCreateShortLink({
+      targetPath: path,
+      title: productTitle,
+      description: `Découvrez ${productTitle} sur ${orgName}`,
+    }).then(url => { if (!cancelled) setResolvedUrl(url); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [shareUrl, productTitle, orgName]);
 
   const estimatedGain = productPrice && commissionPercent
     ? Math.round((productPrice * commissionPercent) / 100)
