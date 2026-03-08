@@ -213,6 +213,8 @@ export function PersonaLandingPage(props: PersonaLandingProps) {
         </div>
       </section>
 
+      <InternalLinksSection currentPath={location.pathname} maxLinks={6} />
+
       <LandingFooter />
     </div>
   );
