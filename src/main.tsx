@@ -52,7 +52,8 @@ window.addEventListener('error', (event) => {
 });
 
 // Apply saved theme before first render to avoid FOUC
-const savedTheme = localStorage.getItem('gc_theme') || 'dark';
+const savedTheme = localStorage.getItem('gc_theme')
+  || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 document.documentElement.classList.add(savedTheme);
 
 // Apply saved locale
