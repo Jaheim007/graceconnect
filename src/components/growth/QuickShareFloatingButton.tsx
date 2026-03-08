@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Copy, Check, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { getOrCreateShortLink } from '@/lib/shareMeta';
 
 interface QuickShareFloatingButtonProps {
   url: string;
@@ -13,7 +14,7 @@ interface QuickShareFloatingButtonProps {
 
 /**
  * QuickShareFloatingButton — sticky FAB for instant sharing on product pages
- * Shows WhatsApp + Copy as quick actions
+ * Automatically resolves a short link with OG metadata for rich previews.
  */
 export function QuickShareFloatingButton({
   url,
@@ -23,18 +24,32 @@ export function QuickShareFloatingButton({
 }: QuickShareFloatingButtonProps) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [resolvedUrl, setResolvedUrl] = useState(url);
+
+  // Resolve to short link
+  useEffect(() => {
+    const path = url.replace('https://siteviral.com', '').replace(/^https?:\/\/[^/]+/, '');
+    if (!path) return;
+    let cancelled = false;
+    getOrCreateShortLink({
+      targetPath: path,
+      title: productTitle || 'Produit Siteviral',
+    }).then(shortUrl => { if (!cancelled) setResolvedUrl(shortUrl); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [url, productTitle]);
 
   const shareWhatsApp = () => {
     const text = commissionPercent
-      ? `📖 ${productTitle || 'Découvre ce produit'} — gagne ${commissionPercent}% de commission ! 👉\n${url}`
-      : `📖 ${productTitle || 'Découvre ce produit'} — je te le recommande ! 👉\n${url}`;
+      ? `📖 ${productTitle || 'Découvre ce produit'} — gagne ${commissionPercent}% de commission ! 👉\n${resolvedUrl}`
+      : `📖 ${productTitle || 'Découvre ce produit'} — je te le recommande ! 👉\n${resolvedUrl}`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     setOpen(false);
   };
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(resolvedUrl);
       setCopied(true);
       toast.success('Lien copié !');
       setTimeout(() => setCopied(false), 2000);
