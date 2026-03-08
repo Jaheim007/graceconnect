@@ -349,6 +349,7 @@ export default function AdminSales() {
                   </TableCell>
                   <TableCell>
                     <p className="text-sm font-medium truncate max-w-[140px]">{tx.buyer_display}</p>
+                    {tx.buyer_email && <p className="text-[10px] text-muted-foreground truncate max-w-[140px]">✉️ {tx.buyer_email}</p>}
                     {tx.buyer_phone && <p className="text-[10px] text-muted-foreground">📞 {tx.buyer_phone}</p>}
                   </TableCell>
                   <TableCell>
