@@ -208,6 +208,7 @@ const AssetsLibrary = lazy(() => import("@/pages/admin/studio/AssetsLibrary"));
 const SuperadminLayout = lazy(() => import("@/pages/superadmin/SuperadminLayout"));
 const SuperadminFullDashboard = lazy(() => import("@/pages/superadmin/SuperadminFullDashboard"));
 const SuperadminAIChat = lazy(() => import("@/pages/superadmin/SuperadminAIChat"));
+const SuperadminCommandCenter = lazy(() => import("@/pages/superadmin/SuperadminCommandCenter"));
 const SuperadminUsers = lazy(() => import("@/pages/superadmin/SuperadminUsers"));
 const SuperadminActivityFeed = lazy(() => import("@/pages/superadmin/SuperadminActivityFeed"));
 const SuperadminSettings = lazy(() => import("@/pages/superadmin/SuperadminSettings"));
