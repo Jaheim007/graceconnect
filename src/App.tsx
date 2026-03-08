@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { OrgProvider } from "@/contexts/OrgContext";
-import { ModeProvider } from "@/contexts/ModeContext";
+// ModeContext removed — was dead code (useMode() not consumed anywhere)
 import { I18nProvider } from "@/i18n/I18nContext";
 
 // Layout (always loaded)
