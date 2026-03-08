@@ -232,6 +232,22 @@ export async function processTransaction(
     // Product purchase
     if (!product_id) throw new TransactionError('product_id required for product purchase', 400);
 
+    // Resolve buyer info: use explicit params, fallback to donor fields, then profile lookup
+    let resolvedBuyerName = buyer_name || donor_name || null;
+    let resolvedBuyerEmail = buyer_email || donor_email || null;
+    if (user_id && (!resolvedBuyerName || !resolvedBuyerEmail)) {
+      try {
+        if (!resolvedBuyerName) {
+          const { data: prof } = await db.from('profiles').select('display_name').eq('id', user_id).maybeSingle();
+          if (prof?.display_name) resolvedBuyerName = prof.display_name;
+        }
+        if (!resolvedBuyerEmail) {
+          const { data: authUser } = await db.auth.admin.getUserById(user_id);
+          if (authUser?.user?.email) resolvedBuyerEmail = authUser.user.email;
+        }
+      } catch (_) { /* non-fatal */ }
+    }
+
     const payload: Record<string, unknown> = {
       product_id,
       organization_id,
@@ -249,6 +265,8 @@ export async function processTransaction(
       discount_amount: discountAmount,
       settlement_status: 'held',
       gateway,
+      buyer_name: resolvedBuyerName,
+      buyer_email: resolvedBuyerEmail,
     };
 
     if (existing) {
