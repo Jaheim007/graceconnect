@@ -141,6 +141,7 @@ export default function AdminSales() {
         label: r.donation_campaigns?.title || r.donor_name || 'Don',
         gateway: detectGateway(r.paystack_reference),
         buyer_display: r.donor_name || profileMap[r.user_id]?.display_name || r.donor_email || 'Anonyme',
+        buyer_email: r.donor_email || profileMap[r.user_id]?.email || null,
         buyer_phone: profileMap[r.user_id]?.phone || null,
         affiliate_name: r.affiliate_link_id ? (affLinkMap[r.affiliate_link_id]?.name || '—') : null,
       }));
