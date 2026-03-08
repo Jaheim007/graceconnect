@@ -132,6 +132,9 @@ export function ProductForm() {
       setTestimonials(item.testimonials_json || []);
       setSalePrice(item.sale_price != null ? String(item.sale_price) : '');
       setSaleEndsAt(item.sale_ends_at ? item.sale_ends_at.slice(0, 16) : '');
+      setOrderBumpProductId(item.order_bump_product_id || '');
+      setOrderBumpDiscount(item.order_bump_discount_percent != null ? String(item.order_bump_discount_percent) : '');
+      setUpsellProductIds(item.upsell_product_ids || []);
     }
   }, [item, reset]);
 
