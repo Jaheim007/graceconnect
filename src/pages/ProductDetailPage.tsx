@@ -855,28 +855,7 @@ export default function ProductDetailPage() {
         />
       </div>
 
-      {/* Mobile sticky buy bar */}
-      {!isPurchased && (
-        <div className="fixed bottom-0 left-0 right-0 z-30 md:hidden bg-background/95 backdrop-blur-md border-t border-border px-4 py-3 flex items-center gap-3">
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium truncate">{product.title}</p>
-            <p className={cn('text-lg font-bold', product.is_free ? 'text-emerald-500' : 'text-primary')}>
-              {formatPrice(product.price || 0, product.is_free, product.currency)}
-            </p>
-          </div>
-          <Button
-            className="h-11 px-6 text-sm font-semibold text-white shrink-0 gap-2"
-            style={{ backgroundColor: orgPrimary || 'hsl(var(--primary))' }}
-            onClick={() => {
-              if (!user) { navigate(`/auth?returnTo=${encodeURIComponent(buildShareUrl())}`); return; }
-              setPurchaseProduct(product as DigitalProduct);
-            }}
-          >
-            <ShoppingBag className="h-4 w-4" />
-            {product.is_free ? t('product.get_free') : t('product.buy_now')}
-          </Button>
-        </div>
-      )}
+      {/* Mobile sticky buy bar (StickyBuyBar component handles visibility) */}
 
       <ProductPurchaseModal
         product={purchaseProduct}
