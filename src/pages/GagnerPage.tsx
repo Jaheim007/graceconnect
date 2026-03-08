@@ -4,6 +4,7 @@ import { GagnerTabs } from '@/components/gagner/GagnerTabs';
 import { QuickShareWidget } from '@/components/gagner/QuickShareWidget';
 import { SocialProofBanner } from '@/components/gagner/SocialProofBanner';
 import { TrustBadgesBar } from '@/components/trust/TrustBadgesBar';
+import { LiveEarningsTicker } from '@/components/growth/LiveEarningsTicker';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Share2, Zap, Search, Link2, Wallet } from 'lucide-react';
