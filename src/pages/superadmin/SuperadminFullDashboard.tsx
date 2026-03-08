@@ -271,6 +271,9 @@ export default function SuperadminFullDashboard() {
         ))}
       </div>
 
+      {/* ═══ HEALTH SCORE ═══ */}
+      <PlatformHealthScore />
+
       {/* ═══ CHARTS ROW ═══ */}
       <div className="grid lg:grid-cols-2 gap-4">
         <Panel glow="bg-primary">
