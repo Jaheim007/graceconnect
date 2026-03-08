@@ -38,6 +38,7 @@ const stagger = {
 
 export function PersonaLandingPage(props: PersonaLandingProps) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
