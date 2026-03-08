@@ -118,6 +118,7 @@ const PourConsultantsPage = lazy(() => import("@/pages/persona/PourConsultantsPa
 const PourJuristesPage = lazy(() => import("@/pages/persona/PourJuristesPage"));
 const PourAgencesPage = lazy(() => import("@/pages/persona/PourAgencesPage"));
 const PourInfluenceursPage = lazy(() => import("@/pages/persona/PourInfluenceursPage"));
+const ShareTargetPage = lazy(() => import("@/pages/ShareTargetPage"));
 const PourSantePage = lazy(() => import("@/pages/persona/PourSantePage"));
 const PourFinancePage = lazy(() => import("@/pages/persona/PourFinancePage"));
 const PourFemmesEntrepreneurPage = lazy(() => import("@/pages/persona/PourFemmesEntrepreneurPage"));
