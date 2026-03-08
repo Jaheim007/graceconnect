@@ -105,6 +105,14 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
     }
   };
 
+  // Only show reviews section if there are at least 3 published reviews OR user can write one
+  const canWriteReview = !!user && isPurchased && !myReview;
+  const hasEnoughReviews = reviews.length >= 3;
+  
+  if (!hasEnoughReviews && !canWriteReview && !myReview && !showForm) {
+    return null;
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
