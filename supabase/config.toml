@@ -185,3 +185,6 @@ verify_jwt = false
 
 [functions.ambassador-daily-digest]
 verify_jwt = false
+
+[functions.abandoned-cart-reminder]
+verify_jwt = false

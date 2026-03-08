@@ -1211,6 +1211,42 @@ Deno.serve(async (req) => {
     }
     results['high_commission_alerts'] = highCommissionAlertCount;
 
+    // ═══════════════════════════════════════════
+    // REVIEW REQUEST J+3 (3 days after purchase)
+    // ═══════════════════════════════════════════
+    let reviewRequestCount = 0;
+    const j3Start = new Date(now.getTime() - 74 * 3600000).toISOString();
+    const j3End = new Date(now.getTime() - 70 * 3600000).toISOString();
+    const { data: j3Purchases } = await db.from('product_purchases')
+      .select('id, user_id, product_id, organization_id, review_request_sent, digital_products(title, slug), organizations(name, slug)')
+      .eq('status', 'completed')
+      .eq('review_request_sent', false)
+      .gte('completed_at', j3End)
+      .lte('completed_at', j3Start)
+      .limit(50);
+    for (const purchase of j3Purchases || []) {
+      if (!purchase.user_id) continue;
+      const email = await getUserEmail(purchase.user_id);
+      const product = (purchase as any).digital_products;
+      const org = (purchase as any).organizations;
+      if (email && product && org) {
+        const reviewUrl = `https://siteviral.com/org/${org.slug}/product/${purchase.product_id}#reviews`;
+        await sendEmail({
+          template: 'review_request' as any,
+          to: email,
+          data: {
+            product_title: product.title,
+            org_name: org.name,
+            review_url: reviewUrl,
+          },
+          organization_id: purchase.organization_id,
+        });
+        await db.from('product_purchases').update({ review_request_sent: true }).eq('id', purchase.id);
+        reviewRequestCount++;
+      }
+    }
+    results['review_requests'] = reviewRequestCount;
+
     return new Response(JSON.stringify({ ok: true, results }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });

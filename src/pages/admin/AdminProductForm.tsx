@@ -81,6 +81,9 @@ export function ProductForm() {
   const [showAI, setShowAI] = useState(false);
   const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
   const [regeneratingPdf, setRegeneratingPdf] = useState(false);
+  const [orderBumpProductId, setOrderBumpProductId] = useState('');
+  const [orderBumpDiscount, setOrderBumpDiscount] = useState('');
+  const [upsellProductIds, setUpsellProductIds] = useState<string[]>([]);
 
   // Bundle & Recommendation hooks
   const { data: allProducts = [] } = useOrgProducts(currentOrg?.id, false);
@@ -129,6 +132,9 @@ export function ProductForm() {
       setTestimonials(item.testimonials_json || []);
       setSalePrice(item.sale_price != null ? String(item.sale_price) : '');
       setSaleEndsAt(item.sale_ends_at ? item.sale_ends_at.slice(0, 16) : '');
+      setOrderBumpProductId(item.order_bump_product_id || '');
+      setOrderBumpDiscount(item.order_bump_discount_percent != null ? String(item.order_bump_discount_percent) : '');
+      setUpsellProductIds(item.upsell_product_ids || []);
     }
   }, [item, reset]);
 
@@ -186,6 +192,9 @@ export function ProductForm() {
         sale_price: data.is_free ? null : (salePrice ? parseFloat(salePrice) : null),
         sale_ends_at: data.is_free ? null : (saleEndsAt ? new Date(saleEndsAt).toISOString() : null),
         is_express_demo: false,
+        order_bump_product_id: orderBumpProductId || null,
+        order_bump_discount_percent: orderBumpDiscount ? parseFloat(orderBumpDiscount) : null,
+        upsell_product_ids: upsellProductIds.length > 0 ? upsellProductIds : null,
       };
       let error;
       let resultData: any;
@@ -534,6 +543,57 @@ export function ProductForm() {
           <Label className="flex items-center gap-1"><Shield className="h-3.5 w-3.5" /> Garantie (optionnel)</Label>
           <Textarea {...register('guarantee_text')} rows={2} placeholder="Ex: Satisfait ou remboursé sous 30 jours" />
         </div>
+
+        {/* Order Bump & Upsells */}
+        {isEdit && !isFree && (
+          <div className="space-y-3 border border-amber-500/20 bg-amber-500/5 rounded-xl p-4">
+            <p className="text-sm font-semibold flex items-center gap-2">🚀 Upsell & Order Bump</p>
+            
+            {/* Order Bump */}
+            <div className="space-y-2">
+              <Label className="text-xs font-medium">Order Bump (ajout au panier)</Label>
+              <p className="text-[10px] text-muted-foreground">Proposer un produit complémentaire à prix réduit lors du checkout.</p>
+              <div className="grid grid-cols-2 gap-2">
+                <Select value={orderBumpProductId} onValueChange={setOrderBumpProductId}>
+                  <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Aucun" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">Aucun</SelectItem>
+                    {allProducts.filter((p: any) => p.id !== id && !p.is_free).map((p: any) => (
+                      <SelectItem key={p.id} value={p.id}>{p.title} — {p.price?.toLocaleString()} {currentOrg?.currency || 'XOF'}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="space-y-1">
+                  <Input type="number" value={orderBumpDiscount} onChange={e => setOrderBumpDiscount(e.target.value)} placeholder="Réduction %" className="h-8 text-xs" min={0} max={90} />
+                </div>
+              </div>
+            </div>
+
+            {/* Upsells */}
+            <div className="space-y-2">
+              <Label className="text-xs font-medium">Upsells (après achat)</Label>
+              <p className="text-[10px] text-muted-foreground">Proposer ces produits après un achat réussi.</p>
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {upsellProductIds.map(uid => {
+                  const p = allProducts.find((p: any) => p.id === uid);
+                  return (
+                    <Badge key={uid} variant="secondary" className="text-[10px] gap-1 cursor-pointer" onClick={() => setUpsellProductIds(prev => prev.filter(x => x !== uid))}>
+                      {p?.title || uid} ✕
+                    </Badge>
+                  );
+                })}
+              </div>
+              <Select value="" onValueChange={v => { if (v && !upsellProductIds.includes(v)) setUpsellProductIds(prev => [...prev, v]); }}>
+                <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Ajouter un upsell" /></SelectTrigger>
+                <SelectContent>
+                  {allProducts.filter((p: any) => p.id !== id && !upsellProductIds.includes(p.id)).map((p: any) => (
+                    <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
 
         {/* FAQ Section */}
         <div className="space-y-2 border border-border rounded-xl p-4">
