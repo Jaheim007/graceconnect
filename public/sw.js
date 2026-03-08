@@ -1,4 +1,4 @@
-// SiteViral Service Worker — Web Push Notifications
+// SiteViral Service Worker — Web Push Notifications + Badge API
 
 self.addEventListener('install', (event) => {
   self.skipWaiting();
@@ -35,7 +35,13 @@ self.addEventListener('push', (event) => {
   };
 
   event.waitUntil(
-    self.registration.showNotification(data.title, options)
+    self.registration.showNotification(data.title, options).then(() => {
+      // Update app badge count
+      if (self.navigator && self.navigator.setAppBadge) {
+        // Increment badge — read current count from a simple approach
+        self.navigator.setAppBadge();
+      }
+    })
   );
 });
 
@@ -44,6 +50,11 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
   if (event.action === 'dismiss') return;
+
+  // Clear badge when user interacts with notification
+  if (self.navigator && self.navigator.clearAppBadge) {
+    self.navigator.clearAppBadge();
+  }
 
   const url = event.notification.data?.url || '/';
   const fullUrl = url.startsWith('http') ? url : `${self.location.origin}${url}`;
@@ -61,4 +72,18 @@ self.addEventListener('notificationclick', (event) => {
       return self.clients.openWindow(fullUrl);
     })
   );
+});
+
+// Periodic Background Sync — refresh data when online
+self.addEventListener('periodicsync', (event) => {
+  if (event.tag === 'sv-content-sync') {
+    event.waitUntil(
+      // Notify all clients to refresh their data
+      self.clients.matchAll({ type: 'window' }).then((clients) => {
+        clients.forEach((client) => {
+          client.postMessage({ type: 'PERIODIC_SYNC', tag: event.tag });
+        });
+      })
+    );
+  }
 });
