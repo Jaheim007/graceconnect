@@ -497,6 +497,7 @@ const App = () => (
                   <Route path="settlements" element={<SuperadminSettlements />} />
                   <Route path="partners" element={<SuperadminPartners />} />
                   <Route path="ai" element={<SuperadminAIChat />} />
+                  <Route path="command-center" element={<SuperadminCommandCenter />} />
                   <Route path="studio/templates" element={<SuperadminGlobalTemplates />} />
                   <Route path="studio/policies" element={<SuperadminAiPolicies />} />
                   <Route path="studio/jobs" element={<SuperadminGlobalJobs />} />
