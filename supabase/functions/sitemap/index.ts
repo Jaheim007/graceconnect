@@ -5,6 +5,7 @@ const SITE_URL = "https://siteviral.com";
 const staticPages = [
   // Core pages
   { loc: "/", priority: "1.0", changefreq: "daily" },
+  { loc: "/discover", priority: "0.9", changefreq: "daily" },
   { loc: "/marketplace", priority: "0.9", changefreq: "daily" },
   { loc: "/ambassador", priority: "0.8", changefreq: "weekly" },
   { loc: "/affiliation", priority: "0.8", changefreq: "weekly" },
@@ -16,8 +17,12 @@ const staticPages = [
   { loc: "/contact", priority: "0.5", changefreq: "monthly" },
   { loc: "/resources", priority: "0.5", changefreq: "monthly" },
   { loc: "/changelog", priority: "0.4", changefreq: "monthly" },
-  { loc: "/gagner", priority: "0.7", changefreq: "monthly" },
+  { loc: "/gagner", priority: "0.7", changefreq: "weekly" },
+  { loc: "/gagner-info", priority: "0.7", changefreq: "monthly" },
   { loc: "/vendre", priority: "0.7", changefreq: "monthly" },
+  { loc: "/ecrire", priority: "0.7", changefreq: "monthly" },
+  { loc: "/migrer", priority: "0.6", changefreq: "monthly" },
+  { loc: "/protection", priority: "0.5", changefreq: "monthly" },
 
   // Blog
   { loc: "/blog", priority: "0.7", changefreq: "weekly" },
@@ -64,7 +69,7 @@ const staticPages = [
   { loc: "/pour/retraites", priority: "0.6", changefreq: "monthly" },
   { loc: "/pour/sante", priority: "0.6", changefreq: "monthly" },
 
-  // Guide pages (corrected to match actual routes)
+  // Guide pages
   { loc: "/guide/affiliation-sans-investissement", priority: "0.5", changefreq: "monthly" },
   { loc: "/guide/alternative-gofundme", priority: "0.5", changefreq: "monthly" },
   { loc: "/guide/boutique-digitale-gratuite", priority: "0.5", changefreq: "monthly" },
@@ -100,43 +105,48 @@ const staticPages = [
   { loc: "/partner-terms", priority: "0.3", changefreq: "yearly" },
 ];
 
+// Organization sub-page suffixes that are publicly indexable
+const ORG_SUB_PAGES = [
+  { suffix: "", priority: "0.8" },
+  { suffix: "/store", priority: "0.7" },
+  { suffix: "/content", priority: "0.6" },
+  { suffix: "/events", priority: "0.6" },
+  { suffix: "/donate", priority: "0.6" },
+  { suffix: "/photos", priority: "0.5" },
+  { suffix: "/offerings", priority: "0.5" },
+];
+
 Deno.serve(async () => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const sb = createClient(supabaseUrl, supabaseKey);
 
-    // Fetch public organizations
-    const { data: orgs } = await sb
-      .from("organizations")
-      .select("slug, updated_at")
-      .eq("is_active", true)
-      .eq("is_suspended", false);
-
-    // Fetch published products with org slug
-    const { data: products } = await sb
-      .from("digital_products")
-      .select("id, slug, updated_at, organizations(slug)")
-      .eq("is_published", true);
-
-    // Fetch active campaigns with org slug
-    const { data: campaigns } = await sb
-      .from("donation_campaigns")
-      .select("id, updated_at, organizations(slug)")
-      .eq("is_active", true)
-      .eq("is_published", true);
-
-    // Fetch published events with org slug
-    const { data: events } = await sb
-      .from("events")
-      .select("id, updated_at, organizations(slug)")
-      .eq("is_published", true);
+    // Parallel fetch all dynamic content
+    const [
+      { data: orgs },
+      { data: products },
+      { data: campaigns },
+      { data: events },
+      { data: offerings },
+      { data: announcements },
+      { data: programs },
+      { data: mediaContent },
+    ] = await Promise.all([
+      sb.from("organizations").select("slug, updated_at").eq("is_active", true).eq("is_suspended", false),
+      sb.from("digital_products").select("id, slug, updated_at, organizations(slug)").eq("is_published", true),
+      sb.from("donation_campaigns").select("id, updated_at, organizations(slug)").eq("is_active", true).eq("is_published", true),
+      sb.from("events").select("id, updated_at, organizations(slug)").eq("is_published", true),
+      sb.from("offerings").select("id, updated_at, organizations(slug)").eq("is_active", true),
+      sb.from("announcements").select("id, updated_at, organization_id, organizations(slug)").eq("is_published", true),
+      sb.from("programs").select("id, updated_at, organizations(slug)").eq("is_published", true),
+      sb.from("media_content").select("id, updated_at, organizations(slug)").eq("is_published", true),
+    ]);
 
     const today = new Date().toISOString().split("T")[0];
 
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 `;
 
     // Static pages
@@ -146,23 +156,23 @@ Deno.serve(async () => {
     <lastmod>${today}</lastmod>
     <changefreq>${p.changefreq}</changefreq>
     <priority>${p.priority}</priority>
-    <xhtml:link rel="alternate" hreflang="fr" href="${SITE_URL}${p.loc}" />
-    <xhtml:link rel="alternate" hreflang="en" href="${SITE_URL}${p.loc}" />
   </url>
 `;
     }
 
-    // Organization pages
+    // Organization pages (main + sub-pages)
     if (orgs) {
       for (const org of orgs) {
         const lastmod = org.updated_at?.split("T")[0] || today;
-        xml += `  <url>
-    <loc>${SITE_URL}/org/${org.slug}</loc>
+        for (const sub of ORG_SUB_PAGES) {
+          xml += `  <url>
+    <loc>${SITE_URL}/org/${org.slug}${sub.suffix}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <priority>${sub.priority}</priority>
   </url>
 `;
+        }
       }
     }
 
@@ -186,8 +196,6 @@ Deno.serve(async () => {
     // Campaign pages
     if (campaigns) {
       for (const c of campaigns) {
-        const orgSlug = (c as any).organizations?.slug;
-        if (!orgSlug) continue;
         const lastmod = c.updated_at?.split("T")[0] || today;
         xml += `  <url>
     <loc>${SITE_URL}/campaign/${c.id}</loc>
@@ -202,14 +210,68 @@ Deno.serve(async () => {
     // Event pages
     if (events) {
       for (const e of events) {
-        const orgSlug = (e as any).organizations?.slug;
-        if (!orgSlug) continue;
         const lastmod = e.updated_at?.split("T")[0] || today;
         xml += `  <url>
     <loc>${SITE_URL}/event/${e.id}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
+  </url>
+`;
+      }
+    }
+
+    // Offering pages
+    if (offerings) {
+      for (const o of offerings) {
+        const lastmod = (o as any).updated_at?.split("T")[0] || today;
+        xml += `  <url>
+    <loc>${SITE_URL}/offering/${o.id}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+`;
+      }
+    }
+
+    // Announcement pages
+    if (announcements) {
+      for (const a of announcements) {
+        const lastmod = a.updated_at?.split("T")[0] || today;
+        xml += `  <url>
+    <loc>${SITE_URL}/announcement/${a.id}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+`;
+      }
+    }
+
+    // Program pages
+    if (programs) {
+      for (const p of programs) {
+        const lastmod = (p as any).updated_at?.split("T")[0] || today;
+        xml += `  <url>
+    <loc>${SITE_URL}/program/${p.id}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+`;
+      }
+    }
+
+    // Media content (watch pages)
+    if (mediaContent) {
+      for (const m of mediaContent) {
+        const lastmod = (m as any).updated_at?.split("T")[0] || today;
+        xml += `  <url>
+    <loc>${SITE_URL}/watch/${m.id}</loc>
+    <lastmod>${lastmod}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
   </url>
 `;
       }
