@@ -85,7 +85,7 @@ export function LandingHeroManifesto() {
             <Button
               size="lg"
               variant="outline"
-              className="h-14 px-8 gap-2.5 text-base w-full sm:w-auto border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/5"
+              className="h-14 px-8 gap-2.5 text-base w-full sm:w-auto border-accent/30 text-accent hover:bg-accent/5"
               onClick={() => { trackEvent('cta_click', { cta: 'gagner_en_partageant', source: 'landing_hero' }, user?.id); navigate(user ? '/gagner' : '/auth?mode=signup&intent=ambassador'); }}
             >
               <Share2 className="h-5 w-5" />
