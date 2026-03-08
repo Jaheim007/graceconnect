@@ -81,6 +81,9 @@ export function ProductForm() {
   const [showAI, setShowAI] = useState(false);
   const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
   const [regeneratingPdf, setRegeneratingPdf] = useState(false);
+  const [orderBumpProductId, setOrderBumpProductId] = useState('');
+  const [orderBumpDiscount, setOrderBumpDiscount] = useState('');
+  const [upsellProductIds, setUpsellProductIds] = useState<string[]>([]);
 
   // Bundle & Recommendation hooks
   const { data: allProducts = [] } = useOrgProducts(currentOrg?.id, false);
