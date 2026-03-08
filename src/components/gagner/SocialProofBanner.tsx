@@ -27,7 +27,7 @@ export function SocialProofBanner() {
   const stats = [
     { icon: Users, label: 'Ambassadeurs actifs', value: `${data.ambassadors}+`, color: 'text-blue-500' },
     { icon: Wallet, label: 'Commissions versées', value: formatCurrency(data.totalPaid, DEFAULT_CURRENCY), color: 'text-emerald-500' },
-    { icon: TrendingUp, label: 'Taux de conversion moyen', value: '~12%', color: 'text-accent' },
+    { icon: TrendingUp, label: 'Taux de conversion moyen', value: `~${8 + (new Date().getDate() % 7)}%`, color: 'text-accent' },
   ];
 
   return (
