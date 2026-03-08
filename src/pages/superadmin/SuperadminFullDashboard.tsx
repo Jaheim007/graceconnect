@@ -287,15 +287,17 @@ export default function SuperadminFullDashboard() {
       {/* ═══ ACTIVITY + GAUGES ═══ */}
       <div className="grid lg:grid-cols-3 gap-4">
         <Panel className="lg:col-span-2">
-          <SectionTitle icon={Activity} title="Activité récente" badge={`${stats?.recentDonations?.length || 0} dernières`} />
+          <SectionTitle icon={Activity} title="Activité récente" badge={`${stats?.recentActivity?.length || 0} dernières`} />
           <ScrollArea className="h-[200px]">
             <div className="space-y-0.5">
-              {(stats?.recentDonations || []).map((d: any, i: number) => (
+              {(stats?.recentActivity || []).map((d: any, i: number) => (
                 <div key={d.id || i} className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/40 transition-colors">
                   <div className={cn('w-2 h-2 rounded-full shrink-0', d.status === 'completed' ? 'bg-emerald-500' : d.status === 'pending' ? 'bg-amber-500' : 'bg-red-500')} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold truncate">{d.donor_name || 'Anonyme'}</p>
-                    <p className="text-[10px] text-muted-foreground">{fmt(d.amount || 0)}</p>
+                    <p className="text-xs font-semibold truncate">{d.name}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {d.type === 'donation' ? '🤲 Don' : '🛒 Achat'} · {fmt(d.amount || 0, d.currency)}
+                    </p>
                   </div>
                   <Badge variant="outline" className="text-[9px] shrink-0 capitalize">{d.status}</Badge>
                   <span className="text-[9px] text-muted-foreground shrink-0">
@@ -303,7 +305,7 @@ export default function SuperadminFullDashboard() {
                   </span>
                 </div>
               ))}
-              {(!stats?.recentDonations || stats.recentDonations.length === 0) && (
+              {(!stats?.recentActivity || stats.recentActivity.length === 0) && (
                 <p className="text-xs text-muted-foreground text-center py-8">Aucune activité récente</p>
               )}
             </div>
