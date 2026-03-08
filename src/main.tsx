@@ -55,6 +55,11 @@ window.addEventListener('error', (event) => {
 const savedTheme = localStorage.getItem('gc_theme')
   || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
 document.documentElement.classList.add(savedTheme);
+// Set PWA theme-color immediately to prevent white flash on status bar
+const themeColorValue = savedTheme === 'dark' ? '#09090b' : '#ffffff';
+let themeMetaTag = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null;
+if (themeMetaTag) { themeMetaTag.content = themeColorValue; }
+else { const m = document.createElement('meta'); m.name = 'theme-color'; m.content = themeColorValue; document.head.appendChild(m); }
 
 // Apply saved locale
 const savedLocale = localStorage.getItem('sv_locale') || navigator.language.slice(0, 2) || 'fr';
