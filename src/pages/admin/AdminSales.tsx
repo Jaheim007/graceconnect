@@ -59,7 +59,7 @@ export default function AdminSales() {
     queryFn: async () => {
       if (!orgId) return [];
       const { data, error } = await db.from('product_purchases')
-        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, user_id, affiliate_link_id, product_id, digital_products(title)')
+        .select('id, amount, currency, status, created_at, completed_at, paystack_reference, platform_fee, affiliate_commission, organization_amount, user_id, affiliate_link_id, product_id, buyer_name, buyer_email, digital_products(title)')
         .eq('organization_id', orgId)
         .order('created_at', { ascending: false })
         .limit(500);
