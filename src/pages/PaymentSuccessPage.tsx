@@ -8,6 +8,7 @@ import {
   PartyPopper, Share2, Users,
 } from 'lucide-react';
 import { PostPurchaseCelebration } from '@/components/growth/PostPurchaseCelebration';
+import { UpsellSection } from '@/components/payment/UpsellSection';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -27,6 +28,7 @@ interface TransactionDetails {
   product_title?: string;
   product_type?: string;
   product_id?: string;
+  organization_id?: string;
   file_url?: string | null;
   external_link?: string | null;
   cover_image_url?: string | null;
@@ -94,6 +96,7 @@ export default function PaymentSuccessPage() {
           product_title: product?.title,
           product_type: product?.product_type,
           product_id: product?.id,
+          organization_id: product?.organization_id,
           file_url: product?.file_url,
           external_link: product?.external_link,
           cover_image_url: product?.cover_image_url,
@@ -691,6 +694,15 @@ export default function PaymentSuccessPage() {
                 </button>
               </div>
             </div>
+          )}
+
+          {/* Upsell — other products from the same org */}
+          {isCompleted && isProduct && tx.organization_id && (
+            <UpsellSection
+              productId={tx.product_id}
+              orgId={tx.organization_id}
+              currentProductId={tx.product_id}
+            />
           )}
 
           {/* Ambassador Conversion — Full PostPurchaseCelebration */}

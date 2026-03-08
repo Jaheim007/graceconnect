@@ -8,6 +8,8 @@ import { LandingFooter } from './LandingFooter';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ReactNode } from 'react';
+import { useLocation } from 'react-router-dom';
+import { InternalLinksSection } from './InternalLinksSection';
 
 export interface PersonaLandingProps {
   seo: { title: string; description: string; url: string };
@@ -36,6 +38,7 @@ const stagger = {
 
 export function PersonaLandingPage(props: PersonaLandingProps) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
@@ -209,6 +212,8 @@ export function PersonaLandingPage(props: PersonaLandingProps) {
           </Button>
         </div>
       </section>
+
+      <InternalLinksSection currentPath={location.pathname} maxLinks={6} />
 
       <LandingFooter />
     </div>

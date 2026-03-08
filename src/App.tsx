@@ -208,6 +208,7 @@ const AssetsLibrary = lazy(() => import("@/pages/admin/studio/AssetsLibrary"));
 const SuperadminLayout = lazy(() => import("@/pages/superadmin/SuperadminLayout"));
 const SuperadminFullDashboard = lazy(() => import("@/pages/superadmin/SuperadminFullDashboard"));
 const SuperadminAIChat = lazy(() => import("@/pages/superadmin/SuperadminAIChat"));
+const SuperadminCommandCenter = lazy(() => import("@/pages/superadmin/SuperadminCommandCenter"));
 const SuperadminUsers = lazy(() => import("@/pages/superadmin/SuperadminUsers"));
 const SuperadminActivityFeed = lazy(() => import("@/pages/superadmin/SuperadminActivityFeed"));
 const SuperadminSettings = lazy(() => import("@/pages/superadmin/SuperadminSettings"));
@@ -496,6 +497,7 @@ const App = () => (
                   <Route path="settlements" element={<SuperadminSettlements />} />
                   <Route path="partners" element={<SuperadminPartners />} />
                   <Route path="ai" element={<SuperadminAIChat />} />
+                  <Route path="command-center" element={<SuperadminCommandCenter />} />
                   <Route path="studio/templates" element={<SuperadminGlobalTemplates />} />
                   <Route path="studio/policies" element={<SuperadminAiPolicies />} />
                   <Route path="studio/jobs" element={<SuperadminGlobalJobs />} />
