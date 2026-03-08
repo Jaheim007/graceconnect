@@ -66,7 +66,7 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
   // Resolve short link for sharing (with proper OG meta)
   const [shareUrl, setShareUrl] = useState(fallbackUrl);
   useEffect(() => {
-    if (!isAffiliate) return;
+    if (!myLink) return;
     let cancelled = false;
     getOrCreateShortLink({
       targetPath: refPath,
