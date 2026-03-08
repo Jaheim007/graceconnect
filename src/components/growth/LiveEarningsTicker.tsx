@@ -46,17 +46,13 @@ export function LiveEarningsTicker() {
       className="rounded-2xl border border-emerald-500/20 bg-gradient-to-r from-emerald-500/5 via-card to-emerald-500/5 p-5 text-center"
     >
       <div className="flex items-center justify-center gap-2 mb-2">
-        <span className="relative flex h-2.5 w-2.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
-        </span>
+        <Wallet className="h-5 w-5 text-emerald-500" />
         <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-          En direct
+          La semaine passée
         </span>
       </div>
       <div className="flex items-center justify-center gap-2">
-        <Wallet className="h-5 w-5 text-emerald-500" />
-        <p className="text-xs text-muted-foreground">Les ambassadeurs ont gagné</p>
+        <p className="text-xs text-muted-foreground">Nos ambassadeurs ont gagné</p>
       </div>
       <motion.p
         key={amount}
