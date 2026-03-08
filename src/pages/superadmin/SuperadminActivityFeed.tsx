@@ -43,7 +43,7 @@ export default function SuperadminActivityFeed() {
       }));
 
       (purchases.data || []).forEach((p: any) => items.push({
-        id: `pur-${p.id}`, type: 'purchase', title: 'Achat produit',
+        id: `pur-${p.id}`, type: 'purchase', title: `Achat de ${p.buyer_name || 'Acheteur'}`,
         subtitle: `${fmt(p.amount)} ${p.currency || 'XOF'}`, amount: p.amount, status: p.status,
         timestamp: p.created_at,
       }));
