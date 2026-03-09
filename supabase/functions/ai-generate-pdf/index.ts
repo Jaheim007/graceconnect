@@ -711,6 +711,13 @@ async function buildProfessionalPdf(opts: {
       thickness: 0.5, color: C.rule,
     });
 
+    // ── CHAPTER ILLUSTRATION (from ai_project_assets) ──────
+    const chapterIllUrl = opts.chapterIllustrations?.[ci];
+    if (chapterIllUrl) {
+      const illResult = await drawInlineImage(pdfDoc, openerPage, chapterIllUrl, M.outer, cty - 20, pg.width - M.outer * 2, 220);
+      // If illustration drawn, it's on the opener page below the title
+    }
+
     // ── CHAPTER CONTENT PAGES ───────────────────────────────
     let contentPage = pdfDoc.addPage([pg.width, pg.height]);
     let y = pg.height - M.top;
