@@ -100,7 +100,7 @@ export function VideoImportButton() {
     try {
       const { error: insertError } = await db.from('media_content').insert({
         organization_id: currentOrg.id, created_by: user.id, title: video.title,
-        description: `Importé depuis ${video.platform} · Par ${video.author}`,
+        description: video.description || `Importé depuis ${video.platform} · Par ${video.author}`,
         media_type: 'video', media_url: video.url, thumbnail_url: video.thumbnail || null,
         is_published: true, speaker: video.author,
       });
