@@ -2590,6 +2590,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'write.new_draft_ready': 'Nouveau brouillon prêt',
     'write.draft_loaded': 'Brouillon chargé',
     'write.draft_not_found': 'Brouillon introuvable',
+    'write.actions_menu': 'Options',
     'write.save_and_new': 'Garder en brouillon & créer un nouveau',
     'write.delete_and_new': 'Supprimer & créer un nouveau',
     'write.exit_wizard': 'Quitter',
