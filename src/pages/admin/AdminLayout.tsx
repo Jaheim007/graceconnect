@@ -124,7 +124,7 @@ export default function AdminLayout() {
   const mobileSecondaryLinks = adminLinks.filter(l => !mobilePrimaryLinks.some(p => p.to === l.to) && shouldShow(l.showWhen));
 
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden">
+    <div className="h-[100dvh] flex flex-col bg-background overflow-hidden">
       {/* Admin sub-header */}
       <div className="border-b border-border/60 bg-card px-3 py-2 flex items-center gap-2">
         <Button
@@ -204,9 +204,9 @@ export default function AdminLayout() {
         </nav>
       </div>
 
-      <div className="flex">
+      <div className="flex flex-1 min-h-0">
         {/* Desktop sidebar */}
-        <aside className="hidden lg:flex flex-col w-52 border-r border-border/60 min-h-[calc(100vh-5rem)] p-3 gap-0.5 shrink-0 bg-card/30">
+        <aside className="hidden lg:flex flex-col w-52 border-r border-border/60 p-3 gap-0.5 shrink-0 bg-card/30 overflow-y-auto">
           {['main', 'create', 'sell', 'manage', 'more'].map((group) => {
             const groupItems = adminLinks.filter(l => l.group === group && shouldShow(l.showWhen));
             const { label, icon: GroupIcon } = groupLabels[group];
@@ -252,7 +252,7 @@ export default function AdminLayout() {
           })}
         </aside>
 
-        <main className="flex-1 min-w-0 p-3 sm:p-4 lg:p-6">
+        <main className="flex-1 min-w-0 p-3 sm:p-4 lg:p-6 overflow-y-auto">
           <Outlet />
         </main>
       </div>
