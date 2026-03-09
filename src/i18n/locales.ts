@@ -1651,6 +1651,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'auth.welcome': 'Bienvenue',
     'auth.sign_in_access': 'Connectez-vous pour accéder à vos plateformes',
     'auth.continue_google': 'Continuer avec Google',
+    'auth.continue_facebook': 'Continuer avec Facebook',
     'auth.redirecting': 'Redirection...',
     'auth.or': 'ou',
     'auth.continue_magic': 'Continuer avec un lien magique',
