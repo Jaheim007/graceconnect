@@ -209,3 +209,6 @@ verify_jwt = false
 
 [functions.kyc-auto-validate]
 verify_jwt = false
+
+[functions.ops-autopilot]
+verify_jwt = false
