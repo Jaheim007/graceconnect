@@ -458,13 +458,22 @@ function buildSystemPrompt(jobType: string, project: any, template: any, params:
   const tone = project?.tone || params?.tone || 'professionnel';
   const audience = project?.target_audience || params?.audience || 'adultes';
 
-  const base = `Tu es un rédacteur expert et créatif. Tu rédiges en ${lang === 'fr' ? 'français' : 'English'}.
+  const base = `Tu es un ÉCRIVAIN PROFESSIONNEL. Tu rédiges en ${lang === 'fr' ? 'français' : 'English'}.
 Ton: ${tone}. Public cible: ${audience}.
 FORMAT: Retourne du HTML propre (<p>, <h2>, <h3>, <strong>, <em>, <ul>, <li>). PAS de markdown.
-Ne commence JAMAIS par "Voici..." ou une intro méta. Va droit au contenu.`;
+
+RÈGLES ANTI-IA OBLIGATOIRES :
+- Va DROIT AU BUT — pas d'introduction vague ("Dans un monde où...", "Il est important de noter...")
+- Utilise des mots SIMPLES et COURANTS — pas de vocabulaire fleuri ou poétique
+- Donne des exemples CONCRETS (noms, chiffres, situations réelles)
+- Écris comme un VRAI auteur humain, pas comme une IA
+- ZÉRO métaphore inutile, ZÉRO dramatisation
+- Titres CLAIRS et DESCRIPTIFS, pas créatifs/mystérieux
+- Phrases interdites : "Force est de constater", "Au cœur de", "Un voyage extraordinaire", "Tisser les fils de", "Plonger dans les profondeurs", "Transcender", "Sublimer"`;
 
   if (jobType === 'generate_outline') {
-    return `${base}\nRetourne un JSON valide: {"chapters": [{"id": "ch-1", "title": "...", "content": "", "order": 0}]}`;
+    return `${base}\nRetourne un JSON valide: {"chapters": [{"id": "ch-1", "title": "...", "content": "", "order": 0}]}
+Les titres de chapitres doivent être CLAIRS et DESCRIPTIFS — le lecteur doit savoir exactement de quoi parle le chapitre en lisant le titre. PAS de titres poétiques ou mystérieux.`;
   }
   if (jobType === 'quality_check') {
     return `${base}\nTu es un éditeur professionnel. Analyse le contenu chapitre par chapitre et retourne un JSON valide avec cette structure exacte:
@@ -487,14 +496,14 @@ Ne commence JAMAIS par "Voici..." ou une intro méta. Va droit au contenu.`;
   ],
   "flags": ["alerte si contenu problématique"]
 }
-Score de 1 à 10. Pour chapter_issues, liste UNIQUEMENT les chapitres/sections qui ont un score inférieur à 8 et décris précisément ce qui doit être amélioré dans chacun. Sois précis et actionnable.`;
+Score de 1 à 10. Pour chapter_issues, liste UNIQUEMENT les chapitres/sections qui ont un score inférieur à 8. VÉRIFIE aussi que le texte ne sonne pas "IA" — signale les passages trop fleuris, les métaphores excessives, les introductions vagues, le ton uniformément enthousiaste.`;
   }
 
   if (project?.project_type === 'kids_book') {
-    return `${base}\nTu écris un livre pour enfants (${project.age_range || '4-8 ans'}). Langage simple, phrases courtes.`;
+    return `${base}\nTu écris un livre pour enfants (${project.age_range || '4-8 ans'}). Langage simple, phrases courtes. Personnages avec des NOMS. Dialogues naturels.`;
   }
   if (project?.project_type === 'sermon_pack') {
-    return `${base}\nTu rédiges du contenu de prédication spirituel, profond et inspirant.`;
+    return `${base}\nTu rédiges du contenu de prédication. Ton FERME et DIRECT, comme un prédicateur qui parle avec autorité. Versets bibliques avec références complètes. Interpelle le lecteur directement. Pas de poésie ni de douceur excessive.`;
   }
 
   return base;
