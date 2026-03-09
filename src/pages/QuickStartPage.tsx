@@ -27,7 +27,7 @@ export default function QuickStartPage() {
     queryFn: async () => {
       const { data } = await db
         .from('digital_products')
-        .select('id, title, cover_image_url, price, currency, sales_count, slug, organization_id, organizations(name, slug, logo_url, commission_rate, affiliation_enabled)')
+        .select('id, title, cover_image_url, price, currency, sales_count, slug, organization_id, organizations(name, slug, logo_url, affiliation_commission_percent, affiliation_enabled)')
         .eq('is_published', true)
         .gt('price', 0)
         .order('sales_count', { ascending: false })
