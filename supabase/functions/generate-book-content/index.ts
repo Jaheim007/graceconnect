@@ -710,6 +710,13 @@ function getEditorialBlueprint(lang: string, profile: EditorialProfile): string 
 - Corrigé en fin de chapitre
 - Adapté au public cible (enfants = simple/coloré, ados = dynamique, adultes = réflexif)
 - Format interactif : cases □, lignes _____, tableaux <table>, émojis`;
+      case 'coloring_book':
+        return `Blueprint livre de coloriage :
+- Chaque chapitre = 1 thème visuel (animaux, nature, personnages, véhicules...)
+- Chaque page = [ILLUSTRATION: description détaillée de la scène line art] + titre court
+- Texte MINIMAL — le livre est à 90% visuel
+- Descriptions d'illustrations PRÉCISES pour la génération d'images
+- Adapter la complexité au public (enfants = formes simples, adultes = motifs détaillés)`;
       default:
         return `Blueprint développement personnel :
 - Question centrale → démonstration → outils concrets → mise en pratique
@@ -730,6 +737,8 @@ function getEditorialBlueprint(lang: string, profile: EditorialProfile): string 
       return `Devotional blueprint: each entry = 1 verse (blockquote) + intimate first-person reflection + concrete application + short prayer. Thematic progression. Warm personal tone, NOT a lecture.`;
     case 'activity_workbook':
       return `Activity workbook blueprint: 5-8 varied activities per chapter (quiz, true/false, matching, fill-in-blank, creative, challenges). Clear objectives, answer key at end. Adapted to target audience.`;
+    case 'coloring_book':
+      return `Coloring book blueprint: each page = [ILLUSTRATION: detailed line art scene description] + short title. 90% visual, 10% text. Precise descriptions for image generation.`;
     default:
       return `Personal growth blueprint: core question → explanation → practical tools → reader application.`;
   }
