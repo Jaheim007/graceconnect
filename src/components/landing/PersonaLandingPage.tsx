@@ -10,6 +10,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { InternalLinksSection } from './InternalLinksSection';
+import { PlatformStatsBar } from './PlatformStatsBar';
 
 export interface PersonaLandingProps {
   seo: { title: string; description: string; url: string };
@@ -86,6 +87,8 @@ export function PersonaLandingPage(props: PersonaLandingProps) {
               </div>
             ))}
           </div>
+          {/* Live platform stats */}
+          <PlatformStatsBar />
         </div>
       </section>
 

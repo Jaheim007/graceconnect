@@ -17,6 +17,8 @@ import { useUnreadCount } from '@/hooks/useNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useMyPartner } from '@/hooks/usePartner';
+import { useQuery } from '@tanstack/react-query';
+import { db } from '@/lib/db';
 
 interface NavItem {
   to: string;
@@ -46,9 +48,29 @@ export function Sidebar() {
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
     Create: true, Sell: true,
   });
+  const [showMoreTools, setShowMoreTools] = useState(false);
 
   const hasOrgs = userOrgs.length > 0;
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
+
+  // Progressive disclosure: fetch org stats for conditional visibility
+  const { data: orgStats } = useQuery({
+    queryKey: ['sidebar-org-stats', currentOrg?.id],
+    queryFn: async () => {
+      if (!currentOrg?.id) return null;
+      const [{ count: productCount }, { count: saleCount }, { count: memberCount }] = await Promise.all([
+        db.from('digital_products').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrg.id),
+        db.from('product_purchases').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrg.id).eq('status', 'completed'),
+        db.from('organization_members').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrg.id),
+      ]);
+      return { products: productCount || 0, sales: saleCount || 0, members: memberCount || 0 };
+    },
+    enabled: !!currentOrg?.id && canManageCurrentOrg,
+    staleTime: 60_000,
+  });
+
+  const hasProducts = (orgStats?.products ?? 0) > 0;
+  const hasSales = (orgStats?.sales ?? 0) > 0;
 
   // ═══════════════════════════════════════
   // MON ESPACE — buyer/member items
@@ -96,7 +118,7 @@ export function Sidebar() {
   })();
 
   // ═══════════════════════════════════════
-  // CREATOR GROUPS — reorganized by priority
+  // CREATOR GROUPS — progressive disclosure
   // ═══════════════════════════════════════
   const platformGroups: NavGroup[] = [
     {
@@ -111,7 +133,8 @@ export function Sidebar() {
         { to: '/admin/events', icon: CalendarDays, label: t('sidebar.events') },
       ],
     },
-    {
+    // Only show Sell group if org has products
+    ...(hasProducts ? [{
       label: t('sidebar.sell') || 'Vendre',
       icon: Wallet,
       key: 'Sell',
@@ -122,35 +145,46 @@ export function Sidebar() {
         { to: '/admin/affiliation', icon: Link2, label: t('sidebar.ambassadors') },
         { to: '/admin/payouts', icon: TrendingUp, label: t('sidebar.payouts') },
       ],
-    },
-    {
+    }] as NavGroup[] : []),
+    // Show Manage group if org has products or sales
+    ...(hasProducts ? [{
       label: t('sidebar.manage') || 'Gérer',
       icon: Settings,
       key: 'Manage',
       defaultOpen: false,
       items: [
         { to: '/admin/members', icon: Users, label: t('sidebar.members') },
-        { to: '/admin/analytics', icon: BarChart3, label: t('sidebar.analytics') },
+        ...(hasSales ? [{ to: '/admin/analytics', icon: BarChart3, label: t('sidebar.analytics') }] : []),
         { to: '/admin/kyc', icon: FileCheck, label: t('sidebar.verification') },
         { to: '/admin/settings', icon: Settings, label: t('sidebar.settings') },
       ],
-    },
-    {
+    }] as NavGroup[] : [{
+      label: t('sidebar.manage') || 'Gérer',
+      icon: Settings,
+      key: 'Manage',
+      defaultOpen: false,
+      items: [
+        { to: '/admin/kyc', icon: FileCheck, label: t('sidebar.verification') },
+        { to: '/admin/settings', icon: Settings, label: t('sidebar.settings') },
+      ],
+    }] as NavGroup[]),
+    // "More" group — only visible on demand or if org has advanced usage
+    ...(showMoreTools || hasSales ? [{
       label: t('sidebar.more') || 'Plus',
       icon: MoreHorizontal,
       key: 'More',
       defaultOpen: false,
       items: [
         { to: '/admin/photos', icon: Camera, label: t('sidebar.photos') },
-        { to: '/admin/promo-codes', icon: Tag, label: t('sidebar.promo_codes') },
+        ...(hasProducts ? [{ to: '/admin/promo-codes', icon: Tag, label: t('sidebar.promo_codes') }] : []),
         { to: '/admin/subscriptions', icon: CreditCard, label: t('sidebar.subscriptions') },
-        { to: '/admin/crm', icon: MailCheck, label: t('sidebar.crm') },
+        ...(hasProducts ? [{ to: '/admin/crm', icon: MailCheck, label: t('sidebar.crm') }] : []),
         { to: '/admin/notifications', icon: Bell, label: t('sidebar.notifications') },
         { to: '/admin/waitlists', icon: Clock, label: t('sidebar.waitlists') },
         { to: '/admin/programs', icon: GraduationCap, label: t('sidebar.programs') },
         { to: '/admin/offerings', icon: Heart, label: t('sidebar.offerings') },
       ],
-    },
+    }] as NavGroup[] : []),
   ];
 
   // ═══════════════════════════════════════
@@ -354,6 +388,15 @@ export function Sidebar() {
                   )}
                 </div>
                 {renderGroups(platformGroups)}
+                {!showMoreTools && !hasSales && !collapsed && (
+                  <button
+                    onClick={() => setShowMoreTools(true)}
+                    className="flex items-center gap-2 px-3 py-2 mt-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors w-full"
+                  >
+                    <MoreHorizontal className="h-3 w-3" />
+                    {t('sidebar.more') || 'Plus d\'outils'}
+                  </button>
+                )}
               </>
             )}
           </>
