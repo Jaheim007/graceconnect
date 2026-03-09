@@ -353,6 +353,49 @@ export default function WriteWizard() {
   const navigate = useNavigate();
   const { t } = useI18n();
   const { toast } = useToast();
+  const [dbDrafts, setDbDrafts] = useState<SavedWriteDraftSummary[]>([]);
+
+  // Load DB-backed projects (previously generated books)
+  useEffect(() => {
+    if (!user?.id) return;
+    (async () => {
+      try {
+        const { data: membership } = await supabase
+          .from('organization_members')
+          .select('organization_id')
+          .eq('user_id', user.id)
+          .eq('role', 'owner')
+          .limit(1)
+          .maybeSingle();
+        if (!membership?.organization_id) return;
+
+        const { data: projects } = await supabase
+          .from('ai_content_projects')
+          .select('id, title, updated_at, status, structure_json')
+          .eq('organization_id', membership.organization_id)
+          .eq('created_by', user.id)
+          .in('project_type', ['ebook'])
+          .order('updated_at', { ascending: false })
+          .limit(10);
+
+        if (projects && projects.length > 0) {
+          const dbItems: SavedWriteDraftSummary[] = projects.map((p) => {
+            const structJson = (p.structure_json || {}) as any;
+            return {
+              id: `db:${p.id}`,
+              name: p.title || 'Sans titre',
+              updatedAt: new Date(p.updated_at).getTime(),
+              step: typeof structJson.step === 'number' ? structJson.step : 4,
+              isActive: false,
+            };
+          });
+          setDbDrafts(dbItems);
+        }
+      } catch {
+        // non-blocking
+      }
+    })();
+  }, [user?.id]);
 
   const syncDraftList = useCallback((store: WriteDraftStore, activeId: string | null) => {
     setSavedDrafts(listSavedDrafts(store, activeId));
