@@ -31,7 +31,7 @@ const schema = z.object({
   title: z.string().min(2, 'Required'),
   description: z.string().optional(),
   media_type: z.enum(['video', 'audio', 'reel', 'live_replay']),
-  media_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
+  media_url: z.string().optional().or(z.literal('')),
   thumbnail_url: z.string().optional(),
   speaker: z.string().optional(),
   series: z.string().optional(),
