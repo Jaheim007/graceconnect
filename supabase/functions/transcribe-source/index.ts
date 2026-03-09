@@ -6,6 +6,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
+const MAX_INLINE_BYTES = 18 * 1024 * 1024; // 18 MB – Gemini inline limit ~20 MB
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
@@ -22,7 +24,7 @@ Deno.serve(async (req) => {
   try {
     const body = await req.json();
     const { source_type, url, storage_path, project_id } = body;
-    console.log('[transcribe-source] source_type:', source_type, 'url:', url?.substring(0, 60));
+    console.log('[transcribe-source] source_type:', source_type, 'url:', url?.substring(0, 60), 'storage_path:', storage_path?.substring(0, 60));
 
     // Auth check
     const authHeader = req.headers.get('Authorization');
@@ -128,6 +130,56 @@ Please provide a complete transcription of everything said in the video.
         break;
       }
 
+      case 'document': {
+        if (!storage_path) throw new Error('storage_path required for document source');
+        console.log('[transcribe-source] Processing document:', storage_path);
+
+        const { data: signedData, error: signErr } = await db.storage
+          .from('org-uploads')
+          .createSignedUrl(storage_path, 3600);
+        if (signErr || !signedData?.signedUrl) throw new Error('Could not access document file');
+
+        const docResp = await fetch(signedData.signedUrl);
+        const docBuffer = await docResp.arrayBuffer();
+        
+        if (docBuffer.byteLength > MAX_INLINE_BYTES) {
+          throw new Error('Document too large (max 18 MB). Please use a smaller file.');
+        }
+
+        const base64Doc = base64Encode(docBuffer);
+        
+        // Detect MIME type
+        const lowerPath = storage_path.toLowerCase();
+        let mimeType = 'application/pdf';
+        if (lowerPath.endsWith('.docx')) mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        else if (lowerPath.endsWith('.doc')) mimeType = 'application/msword';
+        else if (lowerPath.endsWith('.txt')) mimeType = 'text/plain';
+
+        console.log('[transcribe-source] Document size:', docBuffer.byteLength, 'mime:', mimeType);
+
+        // For .txt files, just read the text directly
+        if (mimeType === 'text/plain') {
+          const decoder = new TextDecoder('utf-8');
+          transcribedText = decoder.decode(docBuffer);
+        } else {
+          transcribedText = await transcribeWithGeminiInline(GEMINI_API_KEY, {
+            prompt: `You are a professional document extraction assistant. Extract ALL text content from this document.
+
+Rules:
+- Preserve the original structure: headings, paragraphs, lists, tables
+- Reproduce ALL content faithfully – do NOT summarize or skip sections
+- If there are tables, reproduce them as formatted text
+- If the document has chapters or sections, use ## headings to separate them
+- Correct obvious OCR artifacts but keep the original language
+- Minimum output: the FULL document text
+- Return ONLY the extracted text, clean and well-formatted`,
+            base64Data: base64Doc,
+            mimeType,
+          });
+        }
+        break;
+      }
+
       case 'audio': {
         if (!storage_path) throw new Error('storage_path required for audio source');
         console.log('[transcribe-source] Processing audio:', storage_path);
@@ -139,14 +191,13 @@ Please provide a complete transcription of everything said in the video.
 
         const audioResp = await fetch(signedData.signedUrl);
         const audioBuffer = await audioResp.arrayBuffer();
-        // Use Deno's base64 encoding (safe for large files)
+
+        if (audioBuffer.byteLength > MAX_INLINE_BYTES) {
+          throw new Error('Audio file too large (max 18 MB). Please use a shorter or compressed audio file.');
+        }
+
         const base64Audio = base64Encode(audioBuffer);
-        const mimeType = storage_path.endsWith('.mp3') ? 'audio/mp3' 
-          : storage_path.endsWith('.wav') ? 'audio/wav'
-          : storage_path.endsWith('.m4a') ? 'audio/mp4'
-          : storage_path.endsWith('.ogg') ? 'audio/ogg'
-          : storage_path.endsWith('.aac') ? 'audio/aac'
-          : 'audio/mpeg';
+        const mimeType = guessMimeType(storage_path, 'audio');
 
         console.log('[transcribe-source] Audio size:', audioBuffer.byteLength, 'mime:', mimeType);
 
@@ -177,7 +228,6 @@ Rules:
 
         const imgResp = await fetch(imgSigned.signedUrl);
         const imgBuffer = await imgResp.arrayBuffer();
-        // Use Deno's base64 encoding (safe for large files)
         const base64Img = base64Encode(imgBuffer);
         const imgMime = storage_path.endsWith('.png') ? 'image/png' 
           : storage_path.endsWith('.webp') ? 'image/webp'
@@ -237,6 +287,24 @@ Rules:
     });
   }
 });
+
+function guessMimeType(path: string, category: 'audio' | 'document'): string {
+  const lower = path.toLowerCase();
+  if (category === 'audio') {
+    if (lower.endsWith('.mp3')) return 'audio/mp3';
+    if (lower.endsWith('.wav')) return 'audio/wav';
+    if (lower.endsWith('.m4a')) return 'audio/mp4';
+    if (lower.endsWith('.ogg')) return 'audio/ogg';
+    if (lower.endsWith('.aac')) return 'audio/aac';
+    if (lower.endsWith('.flac')) return 'audio/flac';
+    if (lower.endsWith('.wma')) return 'audio/x-ms-wma';
+    return 'audio/mpeg';
+  }
+  if (lower.endsWith('.pdf')) return 'application/pdf';
+  if (lower.endsWith('.docx')) return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  if (lower.endsWith('.doc')) return 'application/msword';
+  return 'text/plain';
+}
 
 async function transcribeWithGemini(apiKey: string, opts: { prompt: string }): Promise<string> {
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {

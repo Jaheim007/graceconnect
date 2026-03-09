@@ -50,17 +50,41 @@ export function StepSource({
     if (transcribing) return false;
     switch (state.source) {
       case 'idea': return state.topic.trim().length >= 3;
-      case 'document': return state.uploadedFile !== null;
+      case 'document': return state.uploadedFile !== null || state.topic.trim().length >= 3;
       case 'youtube': return state.topic.trim().length >= 3 || (state.sourceUrl || '').trim().length > 10;
-      case 'audio': return state.topic.trim().length >= 3 || state.uploadedFile !== null;
-      case 'notes_photo': return state.topic.trim().length >= 3 || state.uploadedFile !== null;
+      case 'audio': return state.uploadedFile !== null || state.topic.trim().length >= 3;
+      case 'notes_photo': return state.uploadedFile !== null || state.topic.trim().length >= 3;
       default: return false;
     }
   })();
 
-  // For YouTube: need to transcribe before proceeding
-  const needsTranscription = (state.source === 'youtube' && state.topic.trim().length < 3 && (state.sourceUrl || '').trim().length > 10)
-    || ((state.source === 'audio' || state.source === 'notes_photo') && state.topic.trim().length < 3 && state.uploadedFile !== null);
+  // Determine if we need to run transcription before proceeding
+  const needsTranscription = (() => {
+    // Already transcribed (topic has content) → no need
+    if (state.topic.trim().length >= 3) return false;
+    switch (state.source) {
+      case 'youtube': return (state.sourceUrl || '').trim().length > 10;
+      case 'audio': return state.uploadedFile !== null;
+      case 'notes_photo': return state.uploadedFile !== null;
+      case 'document': return state.uploadedFile !== null;
+      default: return false;
+    }
+  })();
+
+  const uploadAndTranscribe = async (file: File, sourceType: string) => {
+    const path = `transcribe/${Date.now()}-${file.name}`;
+    const { error: uploadErr } = await supabase.storage.from('org-uploads').upload(path, file, {
+      cacheControl: '3600',
+      upsert: false,
+    });
+    if (uploadErr) throw new Error(`Upload failed: ${uploadErr.message}`);
+
+    const { data, error } = await supabase.functions.invoke('transcribe-source', {
+      body: { source_type: sourceType, storage_path: path },
+    });
+    if (error || !data?.ok) throw new Error(data?.error || error?.message || 'Transcription failed');
+    return data.text as string;
+  };
 
   const handleTranscribeAndNext = async () => {
     if (!needsTranscription) {
@@ -70,37 +94,20 @@ export function StepSource({
 
     setTranscribing(true);
     try {
+      let text = '';
+
       if (state.source === 'youtube') {
         const { data, error } = await supabase.functions.invoke('transcribe-source', {
           body: { source_type: 'youtube', url: state.sourceUrl },
         });
         if (error || !data?.ok) throw new Error(data?.error || 'Transcription failed');
-        update({ topic: data.text });
-        toast({ title: `✅ ${t('write.transcribe_success')}` });
-      } else if (state.source === 'audio' && state.uploadedFile) {
-        // Upload audio to storage first
-        const path = `transcribe/${Date.now()}-${state.uploadedFile.name}`;
-        const { error: uploadErr } = await supabase.storage.from('org-uploads').upload(path, state.uploadedFile);
-        if (uploadErr) throw uploadErr;
-
-        const { data, error } = await supabase.functions.invoke('transcribe-source', {
-          body: { source_type: 'audio', storage_path: path },
-        });
-        if (error || !data?.ok) throw new Error(data?.error || 'Transcription failed');
-        update({ topic: data.text });
-        toast({ title: `✅ ${t('write.transcribe_success')}` });
-      } else if (state.source === 'notes_photo' && state.uploadedFile) {
-        const path = `transcribe/${Date.now()}-${state.uploadedFile.name}`;
-        const { error: uploadErr } = await supabase.storage.from('org-uploads').upload(path, state.uploadedFile);
-        if (uploadErr) throw uploadErr;
-
-        const { data, error } = await supabase.functions.invoke('transcribe-source', {
-          body: { source_type: 'notes_photo', storage_path: path },
-        });
-        if (error || !data?.ok) throw new Error(data?.error || 'Transcription failed');
-        update({ topic: data.text });
-        toast({ title: `✅ ${t('write.transcribe_success')}` });
+        text = data.text;
+      } else if (state.uploadedFile) {
+        text = await uploadAndTranscribe(state.uploadedFile, state.source);
       }
+
+      update({ topic: text });
+      toast({ title: `✅ ${t('write.transcribe_success')}` });
       setTranscribing(false);
       onNext();
     } catch (err: any) {
