@@ -21,6 +21,7 @@ interface Props {
   activeDraftId: string;
   onCreateDraft: () => void;
   onLoadDraft: (draftId: string) => void;
+  onDeleteDraft: (draftId: string) => void;
   lastSavedAt: number | null;
 }
 
