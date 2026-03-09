@@ -397,7 +397,7 @@ const App = () => (
 
                 {/* Authenticated shell */}
                 <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
-                  <Route path="/marketplace" element={<MarketplacePage />} />
+                  <Route path="/marketplace" element={<Navigate to="/discover" replace />} />
                   <Route path="/feed" element={<FeedPage />} />
                   <Route path="/reels" element={<ReelsPage />} />
                   <Route path="/reels/:id" element={<ReelsPage />} />
