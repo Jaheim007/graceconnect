@@ -360,7 +360,7 @@ function getInstruction(map: Record<string, Record<string, string>>, lang: strin
   return langMap[key] || langMap[fallbackKey] || Object.values(langMap)[0] || '';
 }
 
-const MAX_CHAPTERS = 8;
+const MAX_CHAPTERS = 20;
 const MIN_CHAPTERS = 3;
 const MIN_VALID_CHAPTER_RATIO = 0.7;
 const MAX_RETRIES = 3;
