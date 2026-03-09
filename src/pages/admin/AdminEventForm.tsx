@@ -53,7 +53,7 @@ export function EventForm() {
   });
 
   useEffect(() => {
-    if (item) { reset({ title: item.title, description: item.description || '', image_url: item.image_url || '', video_url: item.video_url || '', location: item.location || '', event_date: item.event_date ? item.event_date.slice(0, 16) : '', is_published: item.is_published || false }); }
+    if (item) { reset({ title: item.title, description: item.description || '', image_url: item.image_url || '', video_url: item.video_url || '', location: item.location || '', map_url: (item as any).map_url || '', event_date: item.event_date ? item.event_date.slice(0, 16) : '', is_published: item.is_published || false }); }
   }, [item, reset]);
 
   const onSubmit = async (data: FormData) => {
