@@ -213,6 +213,8 @@ function getInstruction(map: Record<string, Record<string, string>>, lang: strin
 
 const MAX_CHAPTERS = 8;
 const MIN_CHAPTERS = 3;
+const MIN_VALID_CHAPTER_RATIO = 0.7;
+const MAX_RETRIES = 3;
 
 function extractJsonObjectCandidate(raw: string): string | null {
   const text = raw.trim();
@@ -300,6 +302,8 @@ async function repairJsonWithAi(apiKey: string, rawContent: string, chapterCount
     },
     body: JSON.stringify({
       model: 'google/gemini-2.5-flash',
+      max_tokens: 7000,
+      response_format: { type: 'json_object' },
       messages: [
         {
           role: 'system',
@@ -326,6 +330,10 @@ function isAbortError(error: unknown): boolean {
     return (error as { name?: string }).name === 'AbortError';
   }
   return false;
+}
+
+async function wait(ms: number) {
+  await new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 Deno.serve(async (req) => {
@@ -624,24 +632,41 @@ REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterW
     const requestTimeoutMs = singleChapter ? 50_000 : 85_000;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), requestTimeoutMs);
+    const maxTokens = singleChapter ? 3200 : 16000;
 
-    let aiRes: Response;
+    let aiRes: Response | null = null;
     try {
-      aiRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt },
-          ],
-        }),
-        signal: controller.signal,
-      });
+      for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        aiRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash',
+            max_tokens: maxTokens,
+            response_format: { type: 'json_object' },
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt },
+            ],
+          }),
+          signal: controller.signal,
+        });
+
+        if (aiRes.ok) break;
+
+        const shouldRetry = (aiRes.status === 429 || aiRes.status >= 500) && attempt < MAX_RETRIES - 1;
+        if (shouldRetry) {
+          const backoffMs = 900 * (2 ** attempt);
+          console.warn(`[generate-book-content] AI request failed (${aiRes.status}), retrying in ${backoffMs}ms`);
+          await wait(backoffMs);
+          continue;
+        }
+
+        break;
+      }
     } catch (error) {
       if (isAbortError(error)) {
         return new Response(JSON.stringify({ error: 'Generation timeout. Please retry.' }), {
@@ -652,6 +677,12 @@ REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterW
       throw error;
     } finally {
       clearTimeout(timeoutId);
+    }
+
+    if (!aiRes) {
+      return new Response(JSON.stringify({ error: 'AI request failed before completion' }), {
+        status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     if (!aiRes.ok) {
@@ -692,6 +723,22 @@ REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterW
       return new Response(JSON.stringify({ error: 'AI returned empty chapters' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+    }
+
+    if (!singleChapter) {
+      const minimumExpected = Math.max(2, Math.ceil(chapterCount * MIN_VALID_CHAPTER_RATIO));
+      if (normalizedChapters.length < minimumExpected) {
+        console.warn(`[generate-book-content] Partial generation detected: got ${normalizedChapters.length}/${chapterCount} chapters`);
+        return new Response(JSON.stringify({
+          error: `Partial generation (${normalizedChapters.length}/${chapterCount} chapters). Please retry.`,
+          partial: true,
+          received_chapters: normalizedChapters.length,
+          expected_chapters: chapterCount,
+        }), {
+          status: 502,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     return new Response(JSON.stringify({ chapters: normalizedChapters }), {
