@@ -1,4 +1,5 @@
 import { AdminPageShell } from './AdminPageShell';
+import { ContextualFeedback } from '@/components/feedback/ContextualFeedback';
 import { useOrg } from '@/contexts/OrgContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
@@ -288,6 +289,10 @@ export default function AdminPayouts() {
               );
             })}
           </motion.div>
+        )}
+        {/* Post-versement feedback */}
+        {payouts?.some((p: any) => p.status === 'completed') && (
+          <ContextualFeedback context="post_payout" question="Avez-vous bien reçu vos fonds ?" />
         )}
       </div>
     </AdminPageShell>

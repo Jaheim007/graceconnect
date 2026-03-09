@@ -602,7 +602,43 @@ export async function processTransaction(
     }
   }
 
-  // ── 12. Audit log ──
+  // ── 12. Auto-capture contact in CRM ──
+  try {
+    const contactEmail = donor_email || buyer_email;
+    const contactName = donor_name || buyer_name;
+    if (contactEmail && organization_id) {
+      const tag = type === 'donation' ? 'donor' : 'buyer';
+      const { data: existingContact } = await db.from('contacts')
+        .select('id, tags')
+        .eq('organization_id', organization_id)
+        .eq('email', contactEmail)
+        .maybeSingle();
+
+      if (existingContact) {
+        // Add tag if not already present
+        const currentTags: string[] = existingContact.tags || [];
+        if (!currentTags.includes(tag)) {
+          await db.from('contacts').update({
+            tags: [...currentTags, tag],
+            name: contactName || existingContact.name || null,
+          }).eq('id', existingContact.id);
+        }
+      } else {
+        await db.from('contacts').insert({
+          organization_id,
+          email: contactEmail,
+          name: contactName || null,
+          source: type === 'donation' ? 'donation' : 'purchase',
+          tags: [tag],
+          is_subscribed: true,
+        });
+      }
+    }
+  } catch (crmErr) {
+    console.warn('[process-transaction] CRM contact capture error (non-fatal):', crmErr);
+  }
+
+  // ── 13. Audit log ──
   await db.from('audit_logs').insert({
     user_id: user_id || null,
     organization_id,

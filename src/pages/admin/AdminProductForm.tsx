@@ -34,6 +34,8 @@ import { SocialSnippetsViewer } from '@/components/products/SocialSnippetsViewer
 import { SuggestedPriceHint } from '@/components/admin/SuggestedPriceHint';
 import { ContextTip } from '@/components/admin/ContextualTooltips';
 import { PrintableQRCode } from '@/components/sharing/PrintableQRCode';
+import { ContentVersionHistory } from '@/components/admin/ContentVersionHistory';
+import { ContextualFeedback } from '@/components/feedback/ContextualFeedback';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { usePdfPreviewBlobUrl } from '@/hooks/usePdfPreviewBlobUrl';
 
@@ -671,8 +673,16 @@ export function ProductForm() {
 
         {isEdit && productUrl && (
           <div className="mt-6 space-y-4">
+            <div className="flex items-center gap-2">
+              <ContentVersionHistory contentId={id!} contentType="product" onRestore={(snapshot) => {
+                if (snapshot.title) setValue('title', snapshot.title as string);
+                if (snapshot.description) setValue('description', snapshot.description as string);
+                if (snapshot.price !== undefined) setValue('price', snapshot.price as number);
+              }} />
+            </div>
             <EmbedSnippetGen productId={id!} orgSlug={currentOrg?.slug || ''} productTitle={watch('title')} price={watch('price') || 0} currency={currentOrg?.currency || 'XOF'} isFree={watch('is_free')} />
             <SocialSnippetsViewer productId={id!} orgId={currentOrg?.id || ''} />
+            <ContextualFeedback context="post_publication" question="Comment s'est passée cette publication ?" />
           </div>
         )}
       </form>
