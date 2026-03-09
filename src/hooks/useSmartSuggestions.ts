@@ -15,7 +15,7 @@ interface SmartSuggestion {
 
 /**
  * useSmartSuggestions — analyses user state and returns contextual suggestions
- * to help them reach their first win.
+ * to help them reach their first win. Extended with more nudges for growth automation.
  */
 export function useSmartSuggestions() {
   const { user } = useAuth();
@@ -36,7 +36,7 @@ export function useSmartSuggestions() {
         .eq('user_id', user.id);
 
       if (!manageableOrg) {
-        // Pure consumer/ambassador path
+        // ── Pure consumer/ambassador path ──
         if ((affiliateCount || 0) === 0) {
           suggestions.push({
             id: 'become-ambassador',
@@ -48,11 +48,14 @@ export function useSmartSuggestions() {
             priority: 1,
           });
         } else {
+          // Ambassador with links — check activity
           const { data: links } = await db
             .from('affiliate_links')
-            .select('clicks')
+            .select('clicks, conversions')
             .eq('user_id', user.id);
           const totalClicks = (links || []).reduce((s: number, l: any) => s + (l.clicks || 0), 0);
+          const totalConversions = (links || []).reduce((s: number, l: any) => s + (l.conversions || 0), 0);
+
           if (totalClicks === 0) {
             suggestions.push({
               id: 'first-share',
@@ -61,6 +64,17 @@ export function useSmartSuggestions() {
               description: 'Tu as ton lien ambassadeur ! Partage-le sur WhatsApp pour recevoir tes premiers clics.',
               actionLabel: 'Partager',
               actionPath: '/gagner',
+              priority: 1,
+            });
+          } else if (totalClicks > 0 && totalConversions === 0) {
+            // Has clicks but no conversion — nudge with better product
+            suggestions.push({
+              id: 'try-popular-product',
+              emoji: '🔥',
+              title: 'Essaie un produit plus populaire',
+              description: `Tu as ${totalClicks} clic(s) mais pas encore de vente. Partage un produit tendance pour convertir.`,
+              actionLabel: 'Voir tendances',
+              actionPath: '/discover',
               priority: 1,
             });
           }
@@ -79,19 +93,34 @@ export function useSmartSuggestions() {
         return suggestions.sort((a, b) => a.priority - b.priority).slice(0, 3);
       }
 
-      // Creator path
+      // ── Creator path ──
       const orgId = manageableOrg.id;
 
-      const [productRes, publishedRes, salesRes] = await Promise.all([
+      const [productRes, publishedRes, salesRes, draftProjectsRes] = await Promise.all([
         db.from('digital_products').select('id, cover_image_url, is_published', { count: 'exact' }).eq('organization_id', orgId),
         db.from('digital_products').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).eq('is_published', true),
         db.from('product_purchases').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).eq('status', 'completed'),
+        db.from('ai_content_projects').select('id', { count: 'exact', head: true }).eq('organization_id', orgId).eq('status', 'draft'),
       ]);
 
       const products = productRes.data || [];
       const productCount = productRes.count || 0;
       const publishedCount = publishedRes.count || 0;
       const salesCount = salesRes.count || 0;
+      const draftCount = draftProjectsRes.count || 0;
+
+      // Nudge: unpublished AI draft
+      if (draftCount > 0) {
+        suggestions.push({
+          id: 'publish-draft',
+          emoji: '📝',
+          title: 'Publie ton livre en attente',
+          description: `Tu as ${draftCount} brouillon(s) IA non publié(s). Publie-les et gagne tes premiers revenus.`,
+          actionLabel: 'Voir mes projets',
+          actionPath: '/admin/studio/projects',
+          priority: 1,
+        });
+      }
 
       if (productCount === 0) {
         suggestions.push({
@@ -118,6 +147,7 @@ export function useSmartSuggestions() {
           });
         }
 
+        // Published but no sales after 48h
         if (publishedCount > 0 && salesCount === 0) {
           suggestions.push({
             id: 'first-sale',
@@ -129,9 +159,22 @@ export function useSmartSuggestions() {
             priority: 1,
           });
         }
+
+        // Has 10+ sales — nudge to enable affiliation
+        if (salesCount >= 10 && !manageableOrg.affiliation_enabled) {
+          suggestions.push({
+            id: 'enable-affiliation-sales',
+            emoji: '🚀',
+            title: 'Multipliez vos ventes x3',
+            description: `Vous avez ${salesCount} ventes ! Activez les ambassadeurs pour qu'ils vendent pour vous.`,
+            actionLabel: 'Activer',
+            actionPath: '/admin/settings',
+            priority: 1,
+          });
+        }
       }
 
-      if (!manageableOrg.affiliation_enabled) {
+      if (!manageableOrg.affiliation_enabled && salesCount < 10) {
         suggestions.push({
           id: 'enable-affiliation',
           emoji: '🤝',

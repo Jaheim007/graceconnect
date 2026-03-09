@@ -27,7 +27,7 @@ export default function QuickStartPage() {
     queryFn: async () => {
       const { data } = await db
         .from('digital_products')
-        .select('id, title, cover_image_url, price, currency, sales_count, slug, organization_id, organizations(name, slug, logo_url, commission_rate, affiliation_enabled)')
+        .select('id, title, cover_image_url, price, currency, sales_count, slug, organization_id, organizations(name, slug, logo_url, affiliation_commission_percent, affiliation_enabled)')
         .eq('is_published', true)
         .gt('price', 0)
         .order('sales_count', { ascending: false })
@@ -107,7 +107,7 @@ export default function QuickStartPage() {
     orgId: p.organization_id,
     orgName: p.organizations?.name,
     orgSlug: p.organizations?.slug,
-    commissionRate: p.organizations?.commission_rate || 10,
+    commissionRate: p.organizations?.affiliation_commission_percent || 10,
   }));
 
   return (
@@ -187,7 +187,7 @@ export default function QuickStartPage() {
           ) : items.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground text-sm">
               <p>Aucun produit disponible.</p>
-              <Button variant="outline" className="mt-3" onClick={() => navigate('/marketplace')}>Explorer la marketplace</Button>
+              <Button variant="outline" className="mt-3" onClick={() => navigate('/discover')}>Explorer la marketplace</Button>
             </div>
           ) : (
             items.map((item: any, i: number) => {

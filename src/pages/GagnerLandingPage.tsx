@@ -69,7 +69,7 @@ export default function GagnerLandingPage() {
               <Button size="lg" className="gap-2 text-sm" onClick={handleStart}>
                 💰 Commencer à gagner <ArrowRight className="h-4 w-4" />
               </Button>
-              <Button variant="outline" size="lg" className="text-sm" onClick={() => navigate('/marketplace')}>
+              <Button variant="outline" size="lg" className="text-sm" onClick={() => navigate('/discover')}>
                 Explorer la marketplace
               </Button>
             </div>

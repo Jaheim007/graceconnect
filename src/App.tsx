@@ -80,10 +80,8 @@ const AmbassadorPage = lazy(() => import("@/pages/AmbassadorPage"));
 const ChangelogPage = lazy(() => import("@/pages/ChangelogPage"));
 const MaintenancePage = lazy(() => import("@/pages/MaintenancePage"));
 const GoRedirectPage = lazy(() => import("@/pages/GoRedirectPage"));
-const MarketplacePage = lazy(() => import("@/pages/MarketplacePage"));
 const QuickStartPage = lazy(() => import("@/pages/QuickStartPage"));
 const QuickPublishPage = lazy(() => import("@/pages/QuickPublishPage"));
-const GagnerLandingPage = lazy(() => import("@/pages/GagnerLandingPage"));
 const GagnerPage = lazy(() => import("@/pages/GagnerPage"));
 const EcrirePage = lazy(() => import("@/pages/EcrirePage"));
 const MigrerPage = lazy(() => import("@/pages/MigrerPage"));
@@ -361,8 +359,8 @@ const App = () => (
                 <Route path="/maintenance" element={<MaintenancePage />} />
                 <Route path="/gagner" element={<GagnerPage />} />
                 <Route path="/earn" element={<Navigate to="/gagner" replace />} />
-                <Route path="/gagner-info" element={<GagnerLandingPage />} />
-                <Route path="/ecrire" element={<EcrirePage />} />
+                <Route path="/gagner-info" element={<Navigate to="/gagner" replace />} />
+                <Route path="/ecrire" element={<RequireAuth><EcrirePage /></RequireAuth>} />
                 <Route path="/write" element={<Navigate to="/ecrire" replace />} />
                 <Route path="/migrer" element={<MigrerPage />} />
                 <Route path="/migrate" element={<Navigate to="/migrer" replace />} />
@@ -397,7 +395,7 @@ const App = () => (
 
                 {/* Authenticated shell */}
                 <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
-                  <Route path="/marketplace" element={<MarketplacePage />} />
+                  <Route path="/marketplace" element={<Navigate to="/discover" replace />} />
                   <Route path="/feed" element={<FeedPage />} />
                   <Route path="/reels" element={<ReelsPage />} />
                   <Route path="/reels/:id" element={<ReelsPage />} />
