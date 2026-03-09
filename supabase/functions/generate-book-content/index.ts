@@ -657,22 +657,22 @@ OUTPUT FORMAT: Valid JSON only. No markdown, no code fences.`;
     // Style-specific chapter title guidance
     const titleGuidance = lang === 'fr'
       ? (_style === 'guide'
-        ? 'Titres 100% FONCTIONNELS : "Qu\'est-ce que X ?", "Comment Y", "Les étapes pour Z"'
+        ? 'Titres 100% FONCTIONNELS : "Qu\'est-ce que X ?", "Comment Y", "Les étapes pour Z". Premier chapitre = "Introduction" ou "Comment utiliser ce guide"'
         : _style === 'prayers'
-        ? 'Titres NUMÉROTÉS et DIRECTS : "Chapitre 1 : Neuf (9) exemples de...", "21 prières pour..."'
+        ? 'Titres NUMÉROTÉS et DIRECTS en MAJUSCULES : "LES ORDONNANCES DU CIEL", "LE MYSTÈRE DU DEUXIÈME CIEL", "COMMANDER LE MATIN". Sous-titres aussi en MAJUSCULES.'
         : _style === 'ebook'
-        ? 'Titres CLAIRS qui disent ce que le lecteur va apprendre : "Le fait d\'être X ne suffit pas", "Régler les désaccords sans se disputer"'
-        : isNarrative
-        ? 'Titres CRÉATIFS et INTRIGANTS'
+        ? 'Titres sous forme de QUESTIONS ou AFFIRMATIONS DIRECTES : "Qui êtes-vous ?", "Qu\'est-il arrivé au vrai vous ?", "Osez croire en votre potentiel". Premier chapitre = Introduction/Préface avec anecdote forte.'
+        : _style === 'story' || _style === 'novel'
+        ? 'Titres ÉVOCATEURS et LITTÉRAIRES : "Espoirs déçus", "Le double visage", "In vino veritas". Pas de titres descriptifs.'
         : 'Titres CLAIRS et DESCRIPTIFS')
       : (_style === 'guide'
-        ? '100% FUNCTIONAL titles: "What is X?", "How to Y", "The steps for Z"'
+        ? '100% FUNCTIONAL titles: "What is X?", "How to Y", "Steps for Z". First chapter = "Introduction" or "How to use this guide"'
         : _style === 'prayers'
-        ? 'NUMBERED, DIRECT titles: "Chapter 1: Nine (9) examples of...", "21 prayers for..."'
+        ? 'CAPITALIZED, DIRECT titles: "THE ORDINANCES OF HEAVEN", "THE MYSTERY OF THE SECOND HEAVEN", "COMMANDING THE MORNING"'
         : _style === 'ebook'
-        ? 'CLEAR titles telling reader what they\'ll learn: "Being in love is not enough", "Resolving disagreements without fighting"'
-        : isNarrative
-        ? 'CREATIVE, INTRIGUING titles'
+        ? 'QUESTION or STATEMENT titles: "Who Are You?", "What Happened to the Real You?", "Dare to Believe in Your Potential". First chapter = Introduction/Preface with strong anecdote.'
+        : _style === 'story' || _style === 'novel'
+        ? 'EVOCATIVE, LITERARY titles — not descriptive'
         : 'CLEAR, DESCRIPTIVE titles');
 
     if (singleChapter) {
