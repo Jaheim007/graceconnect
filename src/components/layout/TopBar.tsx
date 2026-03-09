@@ -104,7 +104,7 @@ export function TopBar() {
             </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigate('/profile')}><User className="h-3.5 w-3.5 mr-2" /> {t('topbar.my_account')}</DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate('/dashboard')}><Settings className="h-3.5 w-3.5 mr-2" /> Mon espace</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => navigate('/dashboard')}><Settings className="h-3.5 w-3.5 mr-2" /> {t('topbar.my_space')}</DropdownMenuItem>
             {userOrgs.length === 0 && (
               <DropdownMenuItem onClick={() => navigate('/create-org')}><Plus className="h-3.5 w-3.5 mr-2" /> {t('topbar.create_org')}</DropdownMenuItem>
             )}
