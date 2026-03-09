@@ -761,7 +761,13 @@ export default function WriteWizard() {
     <div className="pt-16 pb-20 min-h-screen">
       {step < CELEBRATION_STEP && (
         <>
-          <WriteProgress currentStep={step} labels={STEP_LABELS} />
+          <WriteProgress
+            currentStep={step}
+            labels={STEP_LABELS}
+            onSaveAndNew={handleCreateNewDraft}
+            onDeleteAndNew={handleDeleteAndNew}
+            onExit={handleExitWizard}
+          />
           <WritingMotivation step={step} />
         </>
       )}
