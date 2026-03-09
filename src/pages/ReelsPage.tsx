@@ -127,9 +127,9 @@ export default function ReelsPage() {
         <div className="h-full flex items-center justify-center">
           <EmptyState
             variant="content"
-            title="No reels yet"
-            description="Join communities to see reels in your feed."
-            action={{ label: 'Discover', onClick: () => navigate('/discover') }}
+             title="Aucun reel pour le moment"
+             description="Rejoignez des communautés pour voir des reels dans votre fil."
+             action={{ label: 'Découvrir', onClick: () => navigate('/discover') }}
           />
         </div>
       ) : (
