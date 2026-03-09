@@ -23,7 +23,7 @@ export default function AuthPage() {
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { signInWithGoogle, signInWithMagicLink, verifyOtp, user } = useAuth();
+  const { signInWithGoogle, signInWithFacebook, signInWithMagicLink, verifyOtp, user } = useAuth();
   const { userOrgs } = useOrg();
   const { t } = useI18n();
 
@@ -58,6 +58,7 @@ export default function AuthPage() {
   }, [user, navigate, returnTo]);
 
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [facebookLoading, setFacebookLoading] = useState(false);
 
   const handleGoogle = async () => {
     setError('');
@@ -68,6 +69,16 @@ export default function AuthPage() {
     }
     const { error: err } = await signInWithGoogle(returnTo || undefined);
     if (err) { setError(err.message); setGoogleLoading(false); }
+  };
+
+  const handleFacebook = async () => {
+    setError('');
+    setFacebookLoading(true);
+    if (returnTo) {
+      try { sessionStorage.setItem('sv_auth_returnTo', returnTo); } catch {}
+    }
+    const { error: err } = await signInWithFacebook(returnTo || undefined);
+    if (err) { setError(err.message); setFacebookLoading(false); }
   };
 
   const handleSendOtp = async (e: React.FormEvent) => {
@@ -205,6 +216,14 @@ export default function AuthPage() {
                       </svg>
                     )}
                     {googleLoading ? t('auth.redirecting') : t('auth.continue_google')}
+                  </Button>
+                  <Button variant="outline" className="w-full h-12 gap-2.5 text-sm font-medium" onClick={handleFacebook} disabled={facebookLoading}>
+                    {facebookLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
+                      <svg className="h-5 w-5" viewBox="0 0 24 24">
+                        <path fill="#1877F2" d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                      </svg>
+                    )}
+                    {facebookLoading ? t('auth.redirecting') : (t('auth.continue_facebook') || 'Continuer avec Facebook')}
                   </Button>
                   {!showEmailOption ? (
                     <button
