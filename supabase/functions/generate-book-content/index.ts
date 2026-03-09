@@ -415,7 +415,7 @@ FORBIDDEN: long paragraphs, quizzes, written exercises. This is for COLORING.`,
   es: {
     ebook: `Estructura de libro real: problema, experiencia del autor, ejemplos concretos, preguntas de reflexión al final de cada capítulo.`,
     guide: `Manual práctico: partes numeradas, casos prácticos con nombres, ejercicios, listas, resúmenes.`,
-    prayers: `Libro de combate espiritual: versículos con referencias, testimonios reales, puntos de oración NUMERADOS y COMANDANTES.`,
+    prayers: `Libro de oraciones: versículos/textos sagrados con referencias, oraciones NUMERADAS en primera persona, tono cálido e íntimo.`,
     story: `Novela: personajes con nombres completos, diálogos con rayas (—), descripciones sensoriales, prosa pura.`,
     novel: `Estructura novelística completa con arco narrativo.`,
     devotional: `Meditaciones diarias numeradas con versículos, reflexión y oración.`,
