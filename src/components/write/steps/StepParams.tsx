@@ -233,6 +233,57 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
         </div>
       </div>
 
+      {/* ═══ Prayer sub-selectors (only when style === 'prayers') ═══ */}
+      {state.style === 'prayers' && (
+        <div className="space-y-4 rounded-xl border-2 border-primary/20 bg-primary/5 p-4">
+          <p className="text-xs font-semibold text-primary">{t('write.prayer_customize') || '🙏 Précisez votre livre de prières'}</p>
+
+          {/* Religious tradition */}
+          <div className="space-y-2">
+            <label className="text-xs font-medium">{t('write.tradition_label') || 'Tradition religieuse'}</label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+              {religiousTraditions.map(rt => (
+                <button
+                  key={rt.type}
+                  onClick={() => update({ religiousTradition: rt.type })}
+                  className={`p-2.5 rounded-lg border text-center transition-all ${
+                    state.religiousTradition === rt.type
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border hover:border-primary/30 text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <rt.icon className="h-4 w-4 mx-auto mb-1" />
+                  <p className="text-[10px] font-semibold leading-tight">{rt.label}</p>
+                  <p className="text-[9px] text-muted-foreground mt-0.5 hidden sm:block">{rt.desc}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Prayer format */}
+          <div className="space-y-2">
+            <label className="text-xs font-medium">{t('write.format_label') || 'Type de contenu'}</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+              {prayerFormats.map(pf => (
+                <button
+                  key={pf.type}
+                  onClick={() => update({ prayerFormat: pf.type })}
+                  className={`p-2.5 rounded-lg border text-center transition-all ${
+                    state.prayerFormat === pf.type
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border hover:border-primary/30 text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <pf.icon className="h-4 w-4 mx-auto mb-1" />
+                  <p className="text-[10px] font-semibold leading-tight">{pf.label}</p>
+                  <p className="text-[9px] text-muted-foreground mt-0.5 hidden sm:block">{pf.desc}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Target audience */}
       <div className="space-y-2">
         <label className="text-sm font-medium">{t('write.audience_label')}</label>
