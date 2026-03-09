@@ -83,6 +83,7 @@ export function AppLayout() {
       <FloatingHelpWidget />
       <CelebrationOverlay />
       <KeyboardShortcutsModal />
+      <NpsSurvey />
     </div>
     </CompareProvider>
   );

@@ -15,33 +15,44 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 // ═══════════════════════════════════════
 // Admin links — reorganized by priority
 // ═══════════════════════════════════════
-const adminLinks = [
-  // Overview
-  { to: '/admin', label: 'Vue d\'ensemble', icon: BarChart3, end: true, group: 'main' },
-  // Créer — most used daily
-  { to: '/admin/products', label: 'Produits', icon: ShoppingBag, group: 'create' },
-  { to: '/admin/media', label: 'Médias', icon: Play, group: 'create' },
-  { to: '/admin/announcements', label: 'Annonces', icon: Megaphone, group: 'create' },
-  { to: '/admin/events', label: 'Événements', icon: CalendarDays, group: 'create' },
-  // Vendre — revenue
-  { to: '/admin/sales', label: 'Ventes', icon: Receipt, group: 'sell' },
-  { to: '/admin/campaigns', label: 'Campagnes', icon: Heart, group: 'sell' },
-  { to: '/admin/affiliation', label: 'Ambassadeurs', icon: Link2, group: 'sell' },
-  { to: '/admin/payouts', label: 'Retraits', icon: TrendingUp, group: 'sell' },
-  // Gérer — admin
-  { to: '/admin/members', label: 'Membres', icon: Users, group: 'manage' },
-  { to: '/admin/analytics', label: 'Analyses', icon: BarChart3, group: 'manage' },
-  { to: '/admin/kyc', label: 'Vérification', icon: FileCheck, group: 'manage' },
-  { to: '/admin/settings', label: 'Paramètres', icon: Settings, group: 'manage' },
-  // Plus — secondary
-  { to: '/admin/photos', label: 'Photos', icon: Camera, group: 'more' },
-  { to: '/admin/promo-codes', label: 'Codes promo', icon: Tag, group: 'more' },
-  { to: '/admin/subscriptions', label: 'Abonnements', icon: CreditCard, group: 'more' },
-  { to: '/admin/crm', label: 'CRM', icon: MailCheck, group: 'more' },
-  { to: '/admin/notifications', label: 'Notifications', icon: Bell, group: 'more' },
-  { to: '/admin/waitlists', label: 'Listes d\'attente', icon: Clock, group: 'more' },
-  { to: '/admin/programs', label: 'Programmes', icon: GraduationCap, group: 'more' },
-  { to: '/admin/offerings', label: 'Dons', icon: HandHeart, group: 'more' },
+// Progressive disclosure: items visibility depends on org state
+interface AdminLink {
+  to: string;
+  label: string;
+  icon: typeof BarChart3;
+  end?: boolean;
+  group: string;
+  /** If set, only show when this returns true */
+  showWhen?: 'always' | 'has-products' | 'has-sales' | 'affiliation-enabled';
+}
+
+const adminLinks: AdminLink[] = [
+  // Overview — always visible
+  { to: '/admin', label: 'Vue d\'ensemble', icon: BarChart3, end: true, group: 'main', showWhen: 'always' },
+  // Créer — always visible
+  { to: '/admin/products', label: 'Produits', icon: ShoppingBag, group: 'create', showWhen: 'always' },
+  { to: '/admin/media', label: 'Médias', icon: Play, group: 'create', showWhen: 'always' },
+  { to: '/admin/announcements', label: 'Annonces', icon: Megaphone, group: 'create', showWhen: 'always' },
+  { to: '/admin/events', label: 'Événements', icon: CalendarDays, group: 'create', showWhen: 'always' },
+  // Vendre — show when has products
+  { to: '/admin/sales', label: 'Ventes', icon: Receipt, group: 'sell', showWhen: 'has-products' },
+  { to: '/admin/campaigns', label: 'Campagnes', icon: Heart, group: 'sell', showWhen: 'always' },
+  { to: '/admin/affiliation', label: 'Ambassadeurs', icon: Link2, group: 'sell', showWhen: 'affiliation-enabled' },
+  { to: '/admin/payouts', label: 'Retraits', icon: TrendingUp, group: 'sell', showWhen: 'has-sales' },
+  // Gérer — progressive
+  { to: '/admin/members', label: 'Membres', icon: Users, group: 'manage', showWhen: 'always' },
+  { to: '/admin/analytics', label: 'Analyses', icon: BarChart3, group: 'manage', showWhen: 'has-products' },
+  { to: '/admin/kyc', label: 'Vérification', icon: FileCheck, group: 'manage', showWhen: 'always' },
+  { to: '/admin/settings', label: 'Paramètres', icon: Settings, group: 'manage', showWhen: 'always' },
+  // Plus — secondary, shown on expand
+  { to: '/admin/photos', label: 'Photos', icon: Camera, group: 'more', showWhen: 'always' },
+  { to: '/admin/promo-codes', label: 'Codes promo', icon: Tag, group: 'more', showWhen: 'has-products' },
+  { to: '/admin/subscriptions', label: 'Abonnements', icon: CreditCard, group: 'more', showWhen: 'has-products' },
+  { to: '/admin/crm', label: 'CRM', icon: MailCheck, group: 'more', showWhen: 'has-sales' },
+  { to: '/admin/notifications', label: 'Notifications', icon: Bell, group: 'more', showWhen: 'always' },
+  { to: '/admin/waitlists', label: 'Listes d\'attente', icon: Clock, group: 'more', showWhen: 'has-products' },
+  { to: '/admin/programs', label: 'Programmes', icon: GraduationCap, group: 'more', showWhen: 'always' },
+  { to: '/admin/offerings', label: 'Dons', icon: HandHeart, group: 'more', showWhen: 'always' },
 ];
 
 const groupLabels: Record<string, { label: string; icon: typeof BarChart3 }> = {
