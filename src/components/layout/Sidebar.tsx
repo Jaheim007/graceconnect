@@ -46,9 +46,29 @@ export function Sidebar() {
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({
     Create: true, Sell: true,
   });
+  const [showMoreTools, setShowMoreTools] = useState(false);
 
   const hasOrgs = userOrgs.length > 0;
   const canManageCurrentOrg = currentOrg ? canManage(currentOrg.id) : false;
+
+  // Progressive disclosure: fetch org stats for conditional visibility
+  const { data: orgStats } = useQuery({
+    queryKey: ['sidebar-org-stats', currentOrg?.id],
+    queryFn: async () => {
+      if (!currentOrg?.id) return null;
+      const [{ count: productCount }, { count: saleCount }, { count: memberCount }] = await Promise.all([
+        db.from('digital_products').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrg.id),
+        db.from('product_purchases').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrg.id).eq('status', 'completed'),
+        db.from('organization_members').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrg.id),
+      ]);
+      return { products: productCount || 0, sales: saleCount || 0, members: memberCount || 0 };
+    },
+    enabled: !!currentOrg?.id && canManageCurrentOrg,
+    staleTime: 60_000,
+  });
+
+  const hasProducts = (orgStats?.products ?? 0) > 0;
+  const hasSales = (orgStats?.sales ?? 0) > 0;
 
   // ═══════════════════════════════════════
   // MON ESPACE — buyer/member items
