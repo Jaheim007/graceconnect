@@ -49,7 +49,7 @@ export function useCreateCampaign() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: Partial<DonationCampaign>) => {
-      const { data, error } = await db.from('donation_campaigns').insert(payload).select().single();
+      const { data, error } = await db.from('donation_campaigns').insert(payload as any).select().single();
       if (error) throw error;
       return data;
     },
@@ -128,7 +128,7 @@ export function useCreateProduct() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: Partial<DigitalProduct>) => {
-      const { data, error } = await db.from('digital_products').insert(payload).select().single();
+      const { data, error } = await db.from('digital_products').insert(payload as any).select().single();
       if (error) throw error;
       return data;
     },

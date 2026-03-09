@@ -119,7 +119,7 @@ export function ProductForm() {
       reset({
         title: item.title,
         description: item.description || '',
-        product_type: item.product_type || 'pdf',
+        product_type: (item.product_type || 'pdf') as any,
         price: item.price || 0,
         cover_image_url: item.cover_image_url || '',
         file_url: item.file_url || '',
@@ -131,8 +131,8 @@ export function ProductForm() {
         min_price: item.min_price || 0,
         guarantee_text: item.guarantee_text || '',
       });
-      setFaqItems(item.faq_json || []);
-      setTestimonials(item.testimonials_json || []);
+      setFaqItems((item.faq_json as any) || []);
+      setTestimonials((item.testimonials_json as any) || []);
       setSalePrice(item.sale_price != null ? String(item.sale_price) : '');
       setSaleEndsAt(item.sale_ends_at ? item.sale_ends_at.slice(0, 16) : '');
       setOrderBumpProductId(item.order_bump_product_id || '');
@@ -204,7 +204,7 @@ export function ProductForm() {
       if (isEdit) {
         ({ error } = await db.from('digital_products').update(payload).eq('id', id));
       } else {
-        const res = await db.from('digital_products').insert(payload).select('id, slug').single();
+        const res = await db.from('digital_products').insert(payload as any).select('id, slug').single();
         error = res.error;
         resultData = res.data;
       }

@@ -48,7 +48,7 @@ export function useCreateEvent() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: Partial<Event>) => {
-      const { data, error } = await db.from('events').insert(payload).select().single();
+      const { data, error } = await db.from('events').insert(payload as any).select().single();
       if (error) throw error;
       return data;
     },

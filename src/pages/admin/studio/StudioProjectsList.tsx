@@ -47,8 +47,8 @@ export default function StudioProjectsList() {
         .select('*')
         .eq('organization_id', orgId)
         .order('updated_at', { ascending: false });
-      if (typeFilter !== 'all') q = q.eq('project_type', typeFilter);
-      if (statusFilter !== 'all') q = q.eq('status', statusFilter);
+      if (typeFilter !== 'all') q = q.eq('project_type', typeFilter as any);
+      if (statusFilter !== 'all') q = q.eq('status', statusFilter as any);
       const { data } = await q;
       return data || [];
     },

@@ -346,13 +346,13 @@ export default function ProjectEditor() {
 
     const chapterJob = activeJobs.find((job: any) =>
       job.job_type === 'generate_chapter' &&
-      typeof job?.output_data?.html === 'string' &&
-      job?.input_params?.chapter_id
+      typeof (job?.output_data as any)?.html === 'string' &&
+      (job?.input_params as any)?.chapter_id
     );
 
     if (chapterJob) {
-      const chapterId = chapterJob.input_params.chapter_id as string;
-      const partialHtml = chapterJob.output_data.html as string;
+      const chapterId = (chapterJob.input_params as any).chapter_id as string;
+      const partialHtml = (chapterJob.output_data as any).html as string;
       setChapters(prev => prev.map(ch =>
         ch.id === chapterId && ch.content !== partialHtml
           ? { ...ch, content: partialHtml }
@@ -362,12 +362,12 @@ export default function ProjectEditor() {
 
     const outlineJob = activeJobs.find((job: any) =>
       job.job_type === 'generate_outline' &&
-      Array.isArray(job?.output_data?.structure?.chapters) &&
-      job.output_data.structure.chapters.length > 0
+      Array.isArray((job?.output_data as any)?.structure?.chapters) &&
+      (job.output_data as any).structure.chapters.length > 0
     );
 
     if (outlineJob) {
-      const streamedChapters = outlineJob.output_data.structure.chapters.map((ch: any, i: number) => ({
+      const streamedChapters = (outlineJob.output_data as any).structure.chapters.map((ch: any, i: number) => ({
         ...ch,
         order: ch.order ?? i,
         content: ch.content || '',
@@ -464,7 +464,7 @@ export default function ProjectEditor() {
     mutationFn: async () => {
       if (!id) return;
       const { error } = await db.from('ai_content_projects')
-        .update({ structure_json: { chapters }, updated_at: new Date().toISOString() })
+        .update({ structure_json: { chapters } as any, updated_at: new Date().toISOString() })
         .eq('id', id);
       if (error) throw error;
     },
@@ -496,7 +496,7 @@ export default function ProjectEditor() {
     // Save first if dirty
     if (dirty) {
       await db.from('ai_content_projects')
-        .update({ structure_json: { chapters }, updated_at: new Date().toISOString() })
+        .update({ structure_json: { chapters } as any, updated_at: new Date().toISOString() })
         .eq('id', id);
       setDirty(false);
     }

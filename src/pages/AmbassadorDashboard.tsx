@@ -35,8 +35,8 @@ export default function AmbassadorDashboard() {
     queryKey: ['user-affiliate-links', user?.id],
     queryFn: async () => {
       if (!user) return [];
-      const { data } = await db.from('affiliate_links').select('*, organizations(name, slug, commission_percent)').eq('user_id', user.id).order('created_at', { ascending: false });
-      return (data || []) as (AffiliateLink & { organizations: { name: string; slug: string; commission_percent?: number } | null })[];
+      const { data } = await db.from('affiliate_links').select('*, organizations(name, slug, affiliation_commission_percent)').eq('user_id', user.id).order('created_at', { ascending: false });
+      return (data || []) as any[];
     },
     enabled: !!user,
   });

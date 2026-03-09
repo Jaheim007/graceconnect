@@ -81,7 +81,7 @@ export function CampaignForm() {
       const payload = { ...data, organization_id: currentOrg.id, created_by: user.id, currency: currentOrg.currency || 'XOF', image_url: data.image_url || null, goal_amount: data.goal_amount || null, end_date: data.end_date ? new Date(data.end_date).toISOString() : null, is_express_demo: false };
       let error;
       if (isEdit) { ({ error } = await db.from('donation_campaigns').update(payload).eq('id', id)); }
-      else { ({ error } = await db.from('donation_campaigns').insert(payload)); }
+      else { ({ error } = await db.from('donation_campaigns').insert(payload as any)); }
       if (error) throw error;
       if (!isEdit && payload.is_published) onContentPublished(currentOrg.id, currentOrg.name, 'campaign', payload.title, '', { goal_amount: String(payload.goal_amount || 0), currency: payload.currency }, user.id);
       if (isEdit && item && !item.is_published && payload.is_published) onContentPublished(currentOrg.id, currentOrg.name, 'campaign', payload.title, id!, {}, user.id);

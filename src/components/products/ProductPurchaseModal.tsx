@@ -197,7 +197,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
         setPromo(p => ({ ...p, validating: false, error: 'Ce code n\'est pas valide pour ce produit.' }));
         return;
       }
-      const discType = data.discount_type || 'percent';
+      const discType = (data.discount_type || 'percent') as 'fixed' | 'percent';
       const label = discType === 'fixed' ? `-${data.discount_amount} fixe` : `-${data.discount_percent}%`;
       setPromo(p => ({
         ...p, validating: false, applied: true,

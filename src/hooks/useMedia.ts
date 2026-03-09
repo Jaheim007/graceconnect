@@ -59,7 +59,7 @@ export function useCreateMedia() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: Partial<MediaContent>) => {
-      const { data, error } = await db.from('media_content').insert(payload).select().single();
+      const { data, error } = await db.from('media_content').insert(payload as any).select().single();
       if (error) throw error;
       return data;
     },

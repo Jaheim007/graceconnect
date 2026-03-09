@@ -131,7 +131,7 @@ export default function ProjectAssets() {
         organization_id: currentOrg.id,
         created_by: user.id,
         project_id: id,
-        job_type: 'image',
+        job_type: 'image' as any,
         input_params: {
           prompt: `Book cover for "${project.title}". Professional, modern design with bold typography. ${project.project_type === 'kids_book' ? 'Colorful, playful, for children.' : 'Elegant, minimalist.'}`,
           purpose: 'cover',

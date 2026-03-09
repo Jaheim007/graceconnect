@@ -23,7 +23,7 @@ export function usePublicOrgs(options: UseOrgsOptions = {}) {
         .range(page * pageSize, page * pageSize + pageSize - 1);
 
       if (search) query = query.ilike('name', `%${search}%`);
-      if (category) query = query.eq('category', category);
+      if (category) query = query.eq('category', category as any);
 
       const { data, count, error } = await query;
       return { orgs: (data || []) as Organization[], total: count || 0, error };

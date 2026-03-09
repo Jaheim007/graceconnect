@@ -127,13 +127,14 @@ export default function SuperadminFullDashboard() {
       const plans = Object.entries(planMap).map(([name, value]) => ({ name, value }));
 
       // Format cohort data
-      const cohortData = (cohorts.data || []).map((c: any) => ({
+      const cohortData = ((cohorts.data || []) as any[]).map((c: any) => ({
         week: c.week ? format(new Date(c.week), 'dd/MM', { locale: fr }) : '',
         users: c.users || 0,
       }));
 
+      const t = totals.data as any;
       return {
-        totalOrgs: t.total_orgs || 0,
+        totalOrgs: t?.total_orgs || 0,
         activeOrgs: t.active_orgs || 0,
         suspendedOrgs: t.suspended_orgs || 0,
         totalMembers: t.total_members || 0,

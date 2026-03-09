@@ -176,8 +176,8 @@ export function usePartnerCommissions(partnerId?: string) {
     refetchOnReconnect: true,
     queryFn: async () => {
       // Auto-release any matured commissions before fetching
-      await db.rpc('release_matured_partner_commissions').catch(() => {});
-      await db.rpc('release_matured_affiliate_sales').catch(() => {});
+      try { await db.rpc('release_matured_partner_commissions'); } catch {}
+      try { await db.rpc('release_matured_affiliate_sales'); } catch {}
 
       const { data, error } = await db.from('partner_commissions')
         .select('*, organization:organizations(name)')

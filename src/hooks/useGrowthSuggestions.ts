@@ -42,7 +42,7 @@ export function useGrowthSuggestions() {
         db.from('organization_members').select('*', { count: 'exact', head: true }).eq('organization_id', orgId),
         db.from('product_purchases').select('*', { count: 'exact', head: true }).eq('organization_id', orgId).eq('status', 'completed'),
         db.from('media_content').select('*', { count: 'exact', head: true }).eq('organization_id', orgId).eq('is_published', true),
-        db.from('organizations').select('affiliation_enabled, kyc_status, logo_url, description, cover_url').eq('id', orgId).single(),
+        db.from('organizations').select('affiliation_enabled, kyc_status, logo_url, description, banner_url').eq('id', orgId).single(),
       ]);
 
       const p = productCount || 0;
@@ -77,19 +77,19 @@ export function useGrowthSuggestions() {
       }
 
       // No cover image or description
-      if (org?.data && (!org.data.logo_url || !org.data.description)) {
+      if (org && (!org.logo_url || !org.description)) {
         suggestions.push({
           id: 'complete-profile',
           emoji: '🎨',
           title: 'Complétez votre page',
-          desc: !org.data.logo_url ? 'Ajoutez un logo pour inspirer confiance.' : 'Ajoutez une description pour présenter votre organisation.',
+          desc: !org.logo_url ? 'Ajoutez un logo pour inspirer confiance.' : 'Ajoutez une description pour présenter votre organisation.',
           actionUrl: '/admin/settings',
           priority: 85,
         });
       }
 
       // No KYC
-      if (org?.data && (!org.data.kyc_status || org.data.kyc_status === 'none') && s > 0) {
+      if (org && (!org.kyc_status || org.kyc_status === 'none') && s > 0) {
         suggestions.push({
           id: 'start-kyc',
           emoji: '🔒',
@@ -101,7 +101,7 @@ export function useGrowthSuggestions() {
       }
 
       // Affiliation not enabled
-      if (!org?.data?.affiliation_enabled && pub > 0) {
+      if (!org?.affiliation_enabled && pub > 0) {
         suggestions.push({
           id: 'enable-affiliation',
           emoji: '🤝',

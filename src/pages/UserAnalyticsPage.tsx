@@ -16,7 +16,8 @@ export default function UserAnalyticsPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { currentOrg } = useOrg();
-  const { data: points = 0 } = useMyPoints(currentOrg?.id);
+  const { data: pointsData } = useMyPoints(currentOrg?.id);
+  const points = typeof pointsData === 'number' ? pointsData : (pointsData as any)?.points ?? 0;
   const levelInfo = getLevel(points);
   const level = levelInfo.level;
   const xp = points;

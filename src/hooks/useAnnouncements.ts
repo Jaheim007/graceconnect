@@ -48,7 +48,7 @@ export function useCreateAnnouncement() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (payload: Partial<Announcement>) => {
-      const { data, error } = await db.from('announcements').insert(payload).select().single();
+      const { data, error } = await db.from('announcements').insert(payload as any).select().single();
       if (error) throw error;
       return data;
     },
