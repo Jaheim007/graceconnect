@@ -848,10 +848,12 @@ ${editorialContext}
 INSTRUCTIONS :
 - Exactement ${chapterCount} chapitres
 - ${titleGuidance}
+- Applique strictement ce blueprint : ${editorialBlueprint}
 - Chaque chapitre : environ ${chapterWordTarget} mots en HTML
 - COMMENCE chaque chapitre directement par le contenu, pas par une vague introduction
 - Donne des exemples CONCRETS et RÉELS
-- Écris comme un VRAI auteur humain — avec ta propre voix, tes propres opinions
+- Chaque chapitre doit produire un bloc actionnable (checklist, actions immédiates, questions de réflexion, ou points de prière selon le profil)
+- Écris comme un VRAI auteur humain — avec une voix ferme et identifiable
 - Varie la longueur des paragraphes (3-6 phrases max)
 
 Retourne UNIQUEMENT un JSON valide :
@@ -871,10 +873,12 @@ ${editorialContext}
 INSTRUCTIONS:
 - Exactly ${chapterCount} chapters
 - ${titleGuidance}
+- Strictly apply this blueprint: ${editorialBlueprint}
 - Each chapter: around ${chapterWordTarget} words in HTML
-- START each chapter directly with content, not a vague introduction
+- START each chapter directly with content, not a vague intro
 - Give CONCRETE, REAL examples
-- Write like a REAL human author — with your own voice, your own opinions
+- Every chapter must include an actionable block (checklist, immediate actions, reflection questions, or prayer points depending on profile)
+- Write like a REAL human author with a distinct voice
 - Vary paragraph lengths (3-6 sentences max)
 
 Return ONLY valid JSON:
