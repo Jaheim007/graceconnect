@@ -159,6 +159,9 @@ export default function FeedPage() {
       <SEOHead title="Mon fil — Siteviral" description="Retrouvez les dernières publications, produits et événements de vos communautés." noindex />
       <div className="container max-w-5xl px-4 py-5 sm:py-6 space-y-5 sm:space-y-6">
 
+        {/* Smart contextual suggestions */}
+        <SmartSuggestionsBanner />
+
         {/* Profile completion banner */}
         {needsProfileCompletion && (
           <motion.div
