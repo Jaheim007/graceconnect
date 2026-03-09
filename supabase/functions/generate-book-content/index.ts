@@ -701,11 +701,42 @@ function getEditorialBlueprint(lang: string, profile: EditorialProfile): string 
   if (lang === 'fr') {
     switch (profile) {
       case 'spiritual_warfare':
-        return `Blueprint spirituel :
+        return `Blueprint guerre spirituelle (chrétien) :
 - Progression: fondation doctrinale → application concrète → points de prière impératifs
 - Chaque chapitre contient au moins 2 versets complets (Livre Chapitre:Verset) + explication concrète
-- Inclure des déclarations directes et des consignes actionnables
-- Interdit: ton rêveur, flou mystique, formulations passives`;
+- Prières COMMANDANTES : "Je déclare...", "J'ordonne...", "Je résiste..."
+- Ton ferme, autoritaire. Sous-titres MAJUSCULES. C'est un COMBAT.`;
+      case 'simple_prayers':
+        return `Blueprint prières simples / dévotionnelles :
+- Chaque chapitre = 1 thème de prière (gratitude, guérison, famille, paix...)
+- Structure : court enseignement (1-2 §) → texte sacré en blockquote → 5-10 prières NUMÉROTÉES à la 1ère personne
+- Ton chaleureux, intime, sincère — PAS un sermon
+- Varier les types : louange, demande, intercession, confession, action de grâce
+- Adapter au contexte religieux choisi (chrétien, spirituel, etc.)`;
+      case 'islamic_devotional':
+        return `Blueprint livre de prières / invocations islamiques :
+- Chaque chapitre = 1 thème (repentance, protection, guidance, gratitude, famille, santé...)
+- Structure : enseignement court avec référence Coran (Sourate:Verset) ou Hadith → Du'as NUMÉROTÉES en arabe translittéré + traduction
+- Inclure les formules consacrées : Bismillah, Alhamdulillah, SubhanAllah, Astaghfirullah
+- Ton respectueux, humble devant Allah
+- Format : <blockquote> pour versets coraniques, <ol><li> pour du'as numérotées
+- Chaque du'a = translittération + traduction + contexte d'usage`;
+      case 'proclamations':
+        return `Blueprint livre de proclamations / déclarations :
+- Chaque chapitre = 1 domaine de proclamation (identité, finances, santé, famille, destinée...)
+- Structure : fondement scripturaire → DÉCLARATIONS NUMÉROTÉES en MAJUSCULES ou en gras
+- "JE DÉCLARE que...", "JE PROCLAME que...", "JE DÉCRÈTE que..."
+- Ton fort, affirmatif, sans hésitation
+- Chaque proclamation s'appuie sur un texte sacré référencé
+- Format : <strong> pour les déclarations, <blockquote> pour les textes fondateurs`;
+      case 'religious_teaching':
+        return `Blueprint livre d'enseignement religieux / doctrinal :
+- Chaque chapitre = 1 principe ou doctrine expliquée en profondeur
+- Structure : question/problème → enseignement avec multiples références scripturaires → application pratique
+- Citer abondamment les textes sacrés (Bible, Coran, ou autre selon la tradition)
+- Ton académique mais accessible — comme un cours de théologie/sciences religieuses
+- Terminer chaque chapitre par "Points clés à retenir" + questions de réflexion
+- PAS de prières — c'est un livre d'ÉTUDE et de COMPRÉHENSION`;
       case 'business_manual':
         return `Blueprint professionnel/tech :
 - Progression: problème métier → méthode → cas pratique → checklist d'exécution
@@ -751,7 +782,15 @@ function getEditorialBlueprint(lang: string, profile: EditorialProfile): string 
 
   switch (profile) {
     case 'spiritual_warfare':
-      return `Spiritual blueprint: doctrine foundation → practical application → commanding prayer points. At least 2 full scripture references per chapter.`;
+      return `Spiritual warfare blueprint: doctrine foundation → practical application → commanding prayer points. At least 2 full scripture references per chapter. Firm, authoritative tone.`;
+    case 'simple_prayers':
+      return `Simple prayers blueprint: each chapter = 1 prayer theme. Structure: short teaching + scripture in blockquote + 5-10 NUMBERED first-person prayers. Warm, intimate, sincere tone. Vary types: praise, petition, intercession, confession, thanksgiving.`;
+    case 'islamic_devotional':
+      return `Islamic prayers blueprint: each chapter = 1 theme. Structure: Quran reference (Surah:Verse) or Hadith + NUMBERED Du'as in transliterated Arabic + translation. Include Bismillah, Alhamdulillah, SubhanAllah. Respectful, humble tone before Allah.`;
+    case 'proclamations':
+      return `Proclamations blueprint: each chapter = 1 domain (identity, finances, health, family...). NUMBERED DECLARATIONS in bold/caps: "I DECLARE...", "I PROCLAIM...". Each backed by scripture. Strong, affirmative tone.`;
+    case 'religious_teaching':
+      return `Religious teaching blueprint: each chapter = 1 doctrine/principle. Multiple scripture references. Academic but accessible. End with "Key points" + reflection questions. NO prayers — this is a STUDY book.`;
     case 'business_manual':
       return `Professional blueprint: business problem → method → case study → execution checklist. Functional chapter titles only.`;
     case 'leadership':
