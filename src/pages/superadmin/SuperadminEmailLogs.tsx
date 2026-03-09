@@ -69,7 +69,7 @@ export default function SuperadminEmailLogs() {
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <Mail className="h-5 w-5 text-primary" />
-        <h1 className="text-xl font-bold">📧 Email Logs</h1>
+        <h1 className="text-xl font-bold">📧 Journaux d'emails</h1>
       </div>
 
       {/* Stats */}
@@ -80,11 +80,11 @@ export default function SuperadminEmailLogs() {
         </div>
         <div className="bg-card border border-border rounded-2xl p-4">
           <p className="text-2xl font-bold text-emerald-500">{totalSent}</p>
-          <p className="text-xs text-muted-foreground">Sent</p>
+          <p className="text-xs text-muted-foreground">Envoyés</p>
         </div>
         <div className="bg-card border border-border rounded-2xl p-4">
           <p className="text-2xl font-bold text-destructive">{totalFailed}</p>
-          <p className="text-xs text-muted-foreground">Failed</p>
+          <p className="text-xs text-muted-foreground">Échoués</p>
         </div>
       </div>
 
