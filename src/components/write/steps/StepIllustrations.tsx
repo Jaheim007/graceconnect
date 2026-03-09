@@ -56,7 +56,7 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
           bookTitle: state.title || '',
           chapterTitle,
           chapterSummary: chapterContent.replace(/<[^>]*>/g, ' ').slice(0, 500),
-          artStyle,
+          artStyle: effectiveArtStyle,
           audience: state.targetAudience || 'general',
           bookStyle: state.style,
         },
