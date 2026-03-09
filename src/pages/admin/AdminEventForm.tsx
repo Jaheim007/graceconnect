@@ -23,6 +23,7 @@ const schema = z.object({
   image_url: z.string().optional(),
   video_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   location: z.string().optional(),
+  map_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   event_date: z.string().optional(),
   is_published: z.boolean().default(false),
 });
