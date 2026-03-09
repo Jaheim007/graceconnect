@@ -84,7 +84,7 @@ export function ImageCropDialog({
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-lg p-0 gap-0 overflow-hidden">
         <DialogHeader className="px-4 pt-4 pb-2">
-          <DialogTitle className="text-sm">Crop Image</DialogTitle>
+          <DialogTitle className="text-sm">Recadrer l'image</DialogTitle>
         </DialogHeader>
 
         <div className="relative w-full h-[300px] bg-black">
@@ -132,9 +132,9 @@ export function ImageCropDialog({
         </div>
 
         <DialogFooter className="px-4 pb-4 gap-2">
-          <Button variant="outline" size="sm" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" size="sm" onClick={onClose}>Annuler</Button>
           <Button size="sm" onClick={handleConfirm} disabled={saving}>
-            {saving ? 'Cropping...' : 'Apply Crop'}
+            {saving ? 'Recadrage...' : 'Appliquer'}
           </Button>
         </DialogFooter>
       </DialogContent>

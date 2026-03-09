@@ -152,8 +152,8 @@ export function FileUploader({
               <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center">
                 <Upload className="h-5 w-5" />
               </div>
-              <p className="text-xs font-medium">Click to upload file</p>
-              <p className="text-[10px] text-muted-foreground">PDF, Word, PowerPoint, Audio, Video · Max 50 Mo</p>
+               <p className="text-xs font-medium">Cliquez pour uploader un fichier</p>
+               <p className="text-[10px] text-muted-foreground">PDF, Word, PowerPoint, Audio, Vidéo · Max 50 Mo</p>
             </>
           )}
         </div>
@@ -162,7 +162,7 @@ export function FileUploader({
           <Input
             value={urlInput}
             onChange={(e) => setUrlInput(e.target.value)}
-            placeholder="https://drive.google.com/... or direct link"
+            placeholder="https://drive.google.com/... ou lien direct"
             className="flex-1"
           />
           <Button
@@ -172,7 +172,7 @@ export function FileUploader({
             onClick={() => { onChange(urlInput); }}
             disabled={!urlInput}
           >
-            Set
+             Valider
           </Button>
         </div>
       )}

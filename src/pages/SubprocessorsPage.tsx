@@ -4,26 +4,26 @@ import { SEOHead } from '@/components/seo/SEOHead';
 const subprocessors = [
   {
     name: 'Supabase Inc.',
-    purpose: 'Database hosting, authentication, file storage, edge functions (serverless compute)',
-    location: 'United States',
+    purpose: 'Hébergement de base de données, authentification, stockage de fichiers, fonctions edge (calcul serverless)',
+    location: 'États-Unis',
     website: 'https://supabase.com',
   },
   {
     name: 'Paystack (Stripe Inc.)',
-    purpose: 'Payment processing, transaction verification, payout disbursement',
-    location: 'Nigeria / United States',
+    purpose: 'Traitement des paiements, vérification des transactions, versement des fonds',
+    location: 'Nigeria / États-Unis',
     website: 'https://paystack.com',
   },
   {
     name: 'Resend Inc.',
-    purpose: 'Transactional and campaign email delivery',
-    location: 'United States',
+    purpose: 'Envoi d\'e-mails transactionnels et de campagnes',
+    location: 'États-Unis',
     website: 'https://resend.com',
   },
   {
     name: 'Sentry (Functional Software Inc.)',
-    purpose: 'Frontend error monitoring and performance tracking',
-    location: 'United States',
+    purpose: 'Surveillance des erreurs frontend et suivi des performances',
+    location: 'États-Unis',
     website: 'https://sentry.io',
   },
 ];
@@ -31,23 +31,23 @@ const subprocessors = [
 export default function SubprocessorsPage() {
   return (
     <LegalPageShell>
-      <SEOHead title="Sub-Processors — Siteviral" description="List of third-party sub-processors used by Siteviral. Data processing, hosting, payments." canonicalUrl="https://siteviral.com/subprocessors" locale="en_US" />
-      <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-foreground">Sub-Processors</h1>
-      <p className="text-sm text-muted-foreground mb-8 font-medium">Last updated: February 2026</p>
+      <SEOHead title="Sous-traitants ultérieurs — Siteviral" description="Liste des sous-traitants tiers utilisés par Siteviral. Traitement des données, hébergement, paiements." canonicalUrl="https://siteviral.com/subprocessors" />
+      <h1 className="text-3xl sm:text-4xl font-extrabold mb-2 text-foreground">Sous-traitants ultérieurs</h1>
+      <p className="text-sm text-muted-foreground mb-8 font-medium">Dernière mise à jour : février 2026</p>
 
       <p className="text-foreground text-[15px] sm:text-base font-semibold leading-relaxed mb-6">
-        Siteviral, operated by Hacktualiz Inc., engages the following third-party sub-processors to deliver
-        our platform services. Each sub-processor is contractually bound to protect your data in accordance
-        with our <a href="/dpa" className="text-primary underline">Data Processing Agreement</a>.
+        Siteviral, opéré par Hacktualiz Inc., fait appel aux sous-traitants tiers suivants pour fournir
+        les services de la plateforme. Chaque sous-traitant est contractuellement tenu de protéger vos données
+        conformément à notre <a href="/dpa" className="text-primary underline">Accord de traitement des données</a>.
       </p>
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm border border-border rounded-lg">
           <thead>
             <tr className="border-b border-border bg-muted/30">
-              <th className="text-left p-3 font-bold text-foreground">Sub-Processor</th>
-              <th className="text-left p-3 font-bold text-foreground">Purpose</th>
-              <th className="text-left p-3 font-bold text-foreground">Location</th>
+              <th className="text-left p-3 font-bold text-foreground">Sous-traitant</th>
+              <th className="text-left p-3 font-bold text-foreground">Finalité</th>
+              <th className="text-left p-3 font-bold text-foreground">Localisation</th>
             </tr>
           </thead>
           <tbody>
@@ -67,15 +67,15 @@ export default function SubprocessorsPage() {
       </div>
 
       <div className="mt-8 space-y-4 text-[15px] sm:text-base font-semibold leading-relaxed text-foreground">
-        <h2 className="text-xl font-extrabold">Changes to this list</h2>
+        <h2 className="text-xl font-extrabold">Modifications de cette liste</h2>
         <p>
-          We will update this page when sub-processors are added or removed. Organizations using our platform
-          will be notified of material changes via email at least 30 days in advance.
+          Nous mettrons à jour cette page lorsque des sous-traitants seront ajoutés ou retirés. Les organisations
+          utilisant notre plateforme seront notifiées des changements importants par e-mail au moins 30 jours à l'avance.
         </p>
 
         <h2 className="text-xl font-extrabold mt-8">Contact</h2>
         <p className="font-medium">
-          For questions about our sub-processors or data processing practices:<br />
+          Pour toute question concernant nos sous-traitants ou nos pratiques de traitement des données :<br />
           <a href="mailto:privacy@siteviral.com" className="text-primary hover:underline">privacy@siteviral.com</a>
         </p>
       </div>
