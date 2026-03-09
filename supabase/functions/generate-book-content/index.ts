@@ -330,6 +330,10 @@ function isAbortError(error: unknown): boolean {
   return false;
 }
 
+async function wait(ms: number) {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
