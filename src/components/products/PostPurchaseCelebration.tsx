@@ -4,7 +4,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import {
   PartyPopper, Share2, ArrowRight, Download,
-  CheckCircle, Sparkles, Users, TrendingUp,
+  CheckCircle, Sparkles, Users, TrendingUp, Star,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
