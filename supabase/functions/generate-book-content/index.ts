@@ -536,6 +536,109 @@ STRICTLY BANNED WORDS/PHRASES:
 "Mosaic of", "Tapestry of", "Symphony of", "Alchemy of"`;
 }
 
+type EditorialProfile = 'business_manual' | 'leadership' | 'spiritual_warfare' | 'personal_growth' | 'narrative';
+
+function detectEditorialProfile(style: string, tone: string, title: string, topic: string, audience: string): EditorialProfile {
+  const haystack = `${title} ${topic}`.toLowerCase();
+  const narrativeStyles = ['story', 'novel'];
+  if (narrativeStyles.includes(style)) return 'narrative';
+
+  const spiritualSignals = ['prière', 'priere', 'anges', 'ange', 'spirituel', 'combat', 'delivrance', 'foi', 'satan', 'bataille', 'guerre', 'jesus', 'bible', 'miracle'];
+  if (style === 'prayers' || tone === 'spiritual' || spiritualSignals.some((word) => haystack.includes(word))) {
+    return 'spiritual_warfare';
+  }
+
+  const leadershipSignals = ['leadership', 'équipe', 'equipe', 'manager', 'travail en équipe', 'collaboration', 'influence', 'lois', 'principes'];
+  if (leadershipSignals.some((word) => haystack.includes(word))) {
+    return 'leadership';
+  }
+
+  const businessSignals = ['entreprise', 'business', 'startup', 'marketing', 'vente', 'sales', 'finance', 'gestion', 'productivité', 'productivite', 'technologie', 'tech', 'processus', 'stratégie', 'strategie'];
+  if (style === 'guide' || audience === 'professionals' || businessSignals.some((word) => haystack.includes(word))) {
+    return 'business_manual';
+  }
+
+  return 'personal_growth';
+}
+
+function getEditorialBlueprint(lang: string, profile: EditorialProfile): string {
+  if (lang === 'fr') {
+    switch (profile) {
+      case 'spiritual_warfare':
+        return `Blueprint spirituel :
+- Progression: fondation doctrinale → application concrète → points de prière impératifs
+- Chaque chapitre contient au moins 2 versets complets (Livre Chapitre:Verset) + explication concrète
+- Inclure des déclarations directes et des consignes actionnables
+- Interdit: ton rêveur, flou mystique, formulations passives`;
+      case 'business_manual':
+        return `Blueprint professionnel/tech :
+- Progression: problème métier → méthode → cas pratique → checklist d'exécution
+- Chaque chapitre doit livrer un livrable concret (cadre, procédure, indicateurs)
+- Titres strictement fonctionnels et explicites
+- Interdit: récits romanesques, métaphores décoratives, généralités vagues`;
+      case 'leadership':
+        return `Blueprint leadership :
+- Chaque chapitre = 1 principe fort + 1 phrase-slogan utile + 1 application terrain
+- Utiliser des titres mémorables mais fonctionnels (principe + promesse)
+- Conclure avec "Actions immédiates" (3 points)
+- Interdit: abstractions sans exemple réel`;
+      case 'narrative':
+        return `Blueprint narratif :
+- Arcs de scènes, dialogues crédibles, ancrage temporel et géographique
+- Pas de langage de manuel ni de checklist`;
+      default:
+        return `Blueprint développement personnel :
+- Question centrale → démonstration → outils concrets → mise en pratique
+- Chaque chapitre finit par des questions de réflexion ou actions`;
+    }
+  }
+
+  switch (profile) {
+    case 'spiritual_warfare':
+      return `Spiritual blueprint: doctrine foundation → practical application → commanding prayer points. At least 2 full scripture references per chapter.`;
+    case 'business_manual':
+      return `Professional blueprint: business problem → method → case study → execution checklist. Functional chapter titles only.`;
+    case 'leadership':
+      return `Leadership blueprint: one principle per chapter, one memorable line, one field application, then immediate actions.`;
+    case 'narrative':
+      return `Narrative blueprint: scene arcs, credible dialogue, time/place anchoring, no handbook-style sections.`;
+    default:
+      return `Personal growth blueprint: core question → explanation → practical tools → reader application.`;
+  }
+}
+
+function getTemperatureForProfile(profile: EditorialProfile, isNarrative: boolean): number {
+  if (isNarrative) return 0.8;
+  if (profile === 'business_manual') return 0.38;
+  if (profile === 'leadership') return 0.42;
+  if (profile === 'spiritual_warfare') return 0.45;
+  return 0.44;
+}
+
+function getTitleGuidance(lang: string, style: string, profile: EditorialProfile): string {
+  if (lang === 'fr') {
+    if (profile === 'business_manual') {
+      return 'Titres STRICTEMENT FONCTIONNELS : "Qu’est-ce que X ?", "Procédure Y", "Checklist Z". Premier chapitre = "Comment utiliser ce livre" ou "Fondations".';
+    }
+    if (profile === 'leadership') {
+      return 'Titres de type PRINCIPE + IMPACT : "ADAPTABLE — Si vous ne changez pas, l\'équipe vous changera", "LE PRINCIPE DE CLARTÉ".';
+    }
+    if (profile === 'spiritual_warfare') {
+      return 'Titres DIRECTS ET AUTORITAIRES (souvent en MAJUSCULES) : "IL Y A UNE GUERRE", "VOTRE STATUT EN CHRIST", "DÉCLAREZ LA VICTOIRE".';
+    }
+    if (style === 'story' || style === 'novel') {
+      return 'Titres ÉVOCATEURS et littéraires, non techniques.';
+    }
+    return 'Titres clairs, précis, orientés problème/résultat.';
+  }
+
+  if (profile === 'business_manual') return 'STRICTLY functional titles: "What is X?", "Procedure Y", "Checklist Z".';
+  if (profile === 'leadership') return 'Principle-driven titles with impact promise.';
+  if (profile === 'spiritual_warfare') return 'Direct, authoritative, often capitalized titles.';
+  if (style === 'story' || style === 'novel') return 'Evocative literary titles.';
+  return 'Clear, precise, result-oriented titles.';
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
