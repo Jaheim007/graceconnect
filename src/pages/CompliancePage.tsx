@@ -10,7 +10,7 @@ export default function CompliancePage() {
   const regulations = [
     { title: 'AML / KYC', key: 'compliance.aml_desc' },
     { title: 'GDPR / RGPD', key: 'compliance.gdpr_desc' },
-    { title: 'US Privacy Laws', key: 'compliance.us_privacy_desc' },
+    { title: 'Lois US sur la vie privée', key: 'compliance.us_privacy_desc' },
     { title: 'PCI-DSS', key: 'compliance.pci_desc' },
     { title: 'Sanctions (OFAC / EU)', key: 'compliance.sanctions_desc' },
   ];
