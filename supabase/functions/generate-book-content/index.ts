@@ -795,8 +795,11 @@ OUTPUT FORMAT: Valid JSON only. No markdown, no code fences.`;
 
 RÈGLES :
 - Commence DIRECTEMENT par le contenu — pas d'introduction vague
+- Respecte ce guide de titre: ${titleGuidance}
+- Applique strictement ce blueprint: ${editorialBlueprint}
 - 2-3 sous-titres <h3> clairs
 - Donne des exemples CONCRETS (noms, situations, chiffres)
+- Termine avec une section actionnable adaptée au profil (checklist, actions immédiates, questions de réflexion ou points de prière)
 - Environ ${chapterWordTarget} mots en HTML
 - Écris comme un VRAI auteur, pas comme une IA
 
@@ -811,9 +814,12 @@ Retourne UNIQUEMENT un JSON :
 Write this chapter.
 
 RULES:
-- Start DIRECTLY with the content — no vague introduction
-- 2-3 clear <h3> sub-headings
+- Start DIRECTLY with content — no vague opening
+- Follow this title guidance: ${titleGuidance}
+- Strictly apply this blueprint: ${editorialBlueprint}
+- Use 2-3 clear <h3> sub-headings
 - Give CONCRETE examples (names, situations, numbers)
+- End with an actionable section adapted to the profile (checklist, immediate actions, reflection questions, or prayer points)
 - Around ${chapterWordTarget} words in HTML
 - Write like a REAL author, not an AI
 
