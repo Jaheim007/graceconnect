@@ -37,8 +37,9 @@ export function WriteProgress({ currentStep, labels, onSaveAndNew, onDeleteAndNe
           {hasActions && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-foreground">
-                  <MoreVertical className="h-4 w-4" />
+                <Button variant="outline" size="sm" className="h-7 gap-1.5 px-2.5 text-xs text-muted-foreground hover:text-foreground border-border/60">
+                  <MoreVertical className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">{t('write.actions_menu')}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
