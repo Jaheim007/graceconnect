@@ -166,7 +166,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         currentOrg,
         currentOrgRole,
         setCurrentOrg,
-        isLoadingOrgs: isLoading,
+        isLoadingOrgs: isLoading || (userOrgs.length > 0 && !currentOrg),
         refetchOrgs,
         joinOrg,
         leaveOrg,
