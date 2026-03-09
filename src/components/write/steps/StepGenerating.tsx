@@ -155,7 +155,7 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
 
     if (hasGeneratedContent(state.chapters)) {
       setPhase('done');
-      setVisibleChapters(state.chapters.map((ch, i) => ch.title?.trim() || `Chapitre ${i + 1}`));
+      setVisibleChapters(state.chapters.map((ch, i) => ch.title?.trim() || `${t('write.chapter_label')} ${i + 1}`));
       setTotalChapters(state.chapters.length);
       setTimeout(() => {
         if (!aborted.current) onNext();
