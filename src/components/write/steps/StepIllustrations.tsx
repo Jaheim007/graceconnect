@@ -34,7 +34,7 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
   const illustratedCount = chapters.filter((chapter) => Boolean(illustrations[chapter.id])).length;
 
   // Check if this book style benefits from illustrations
-  const needsIllustrations = ['story', 'activity'].includes(state.style) || state.targetAudience === 'children';
+  const needsIllustrations = ['story', 'activity', 'coloring'].includes(state.style) || state.targetAudience === 'children';
 
   const styleLabels: Record<IllustrationStyle, string> = {
     children_book: t('write.illust_style_children') || 'Livre enfant',
