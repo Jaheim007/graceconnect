@@ -83,17 +83,31 @@ Deno.serve(async (req) => {
       .eq('id', project_id).eq('organization_id', org_id).single();
     if (projErr || !project) return jsonError('Project not found', 404);
 
-    const [{ data: coverAsset }, { data: org }, { data: linkedProduct }] = await Promise.all([
+    const [{ data: coverAsset }, { data: org }, { data: linkedProduct }, { data: chapterIllustrations }] = await Promise.all([
       admin.from('ai_project_assets').select('file_url')
         .eq('project_id', project_id).eq('is_cover', true).maybeSingle(),
       admin.from('organizations').select('name').eq('id', org_id).maybeSingle(),
       admin.from('digital_products').select('id, cover_image_url')
         .eq('ai_project_id', project_id).eq('organization_id', org_id).maybeSingle(),
+      admin.from('ai_project_assets').select('file_url, label, display_order')
+        .eq('project_id', project_id).eq('asset_type', 'illustration')
+        .order('display_order', { ascending: true }),
     ]);
 
     const resolvedCoverUrl = asText(coverAsset?.file_url, '')
       || asText(linkedProduct?.cover_image_url, '')
       || asText(directCoverUrl, '');
+
+    // Build chapter illustration map (by display_order = chapter index)
+    const illustrationMap: Record<number, string> = {};
+    if (chapterIllustrations && chapterIllustrations.length > 0) {
+      for (const ill of chapterIllustrations) {
+        const idx = ill.display_order ?? -1;
+        if (idx >= 0 && ill.file_url) {
+          illustrationMap[idx] = ill.file_url;
+        }
+      }
+    }
 
     const projectData = (project.structure_json || project.data_json || {}) as { chapters?: ChapterInput[] };
     const chapters = Array.isArray(projectData.chapters) ? projectData.chapters : [];
@@ -107,6 +121,7 @@ Deno.serve(async (req) => {
       coverUrl: resolvedCoverUrl,
       pageSize: normalizedPageSize,
       format: projectFormat,
+      chapterIllustrations: illustrationMap,
     });
 
     const storagePath = `${org_id}/${project_id}/exports/document-${Date.now()}.pdf`;
@@ -187,61 +202,130 @@ function decodeEntities(text: string): string {
 // ══════════════════════════════════════════════════════════════════════
 // HTML → structured blocks
 // ══════════════════════════════════════════════════════════════════════
-type Block = { type: 'paragraph' | 'heading' | 'subheading' | 'quote' | 'bullet' | 'numbered' | 'separator'; text: string; index?: number };
+type Block = { type: 'paragraph' | 'heading' | 'subheading' | 'quote' | 'bullet' | 'numbered' | 'separator' | 'image'; text: string; index?: number; imageUrl?: string };
 
 function htmlToBlocks(html: string): Block[] {
   const blocks: Block[] = [];
-  let remaining = html;
 
-  // Extract elements in order using regex scanning
-  const patterns: { re: RegExp; handler: (match: RegExpExecArray) => Block | null }[] = [
-    { re: /<h1[^>]*>(.*?)<\/h1>/gi, handler: m => ({ type: 'heading', text: stripTags(m[1]) }) },
-    { re: /<h2[^>]*>(.*?)<\/h2>/gi, handler: m => ({ type: 'heading', text: stripTags(m[1]) }) },
-    { re: /<h3[^>]*>(.*?)<\/h3>/gi, handler: m => ({ type: 'subheading', text: stripTags(m[1]) }) },
-    { re: /<h4[^>]*>(.*?)<\/h4>/gi, handler: m => ({ type: 'subheading', text: stripTags(m[1]) }) },
-    { re: /<blockquote[^>]*>(.*?)<\/blockquote>/gi, handler: m => ({ type: 'quote', text: stripTags(m[1]) }) },
-    { re: /<hr\s*\/?>/gi, handler: () => ({ type: 'separator', text: '' }) },
-  ];
+  // Tokenize all known HTML elements in ORDER OF APPEARANCE using a single-pass regex
+  // This preserves the original document order instead of grouping by type
+  const tokenRe = /<(h[1-2]|h[3-4]|blockquote|ol|ul|hr|p|div|img)(\s[^>]*)?\/?>([\s\S]*?)<\/\1>|<(hr|img)(\s[^>]*)?\s*\/?>/gi;
 
-  // Process ordered lists
-  remaining = remaining.replace(/<ol[^>]*>(.*?)<\/ol>/gis, (_, inner) => {
-    let idx = 1;
-    inner.replace(/<li[^>]*>(.*?)<\/li>/gi, (_: string, content: string) => {
-      blocks.push({ type: 'numbered', text: stripTags(content), index: idx++ });
-      return '';
-    });
-    return '';
-  });
+  let lastIndex = 0;
 
-  // Process unordered lists
-  remaining = remaining.replace(/<ul[^>]*>(.*?)<\/ul>/gis, (_, inner) => {
-    inner.replace(/<li[^>]*>(.*?)<\/li>/gi, (_: string, content: string) => {
-      blocks.push({ type: 'bullet', text: stripTags(content) });
-      return '';
-    });
-    return '';
-  });
+  // Helper: extract plain text between tokens
+  const flushText = (upTo: number) => {
+    if (upTo <= lastIndex) return;
+    const raw = html.slice(lastIndex, upTo);
+    const cleaned = raw
+      .replace(/<\s*br\s*\/?>/gi, '\n')
+      .replace(/<\/(p|div|section|article)>/gi, '\n')
+      .replace(/<[^>]+>/g, ' ');
+    decodeEntities(cleaned)
+      .split(/\n+/)
+      .map(l => l.replace(/\s+/g, ' ').trim())
+      .filter(l => l.length > 1)
+      .forEach(text => blocks.push({ type: 'paragraph', text }));
+  };
 
-  for (const { re, handler } of patterns) {
-    remaining = remaining.replace(re, (full, ...args) => {
-      const match = re.exec(full) || ([full, args[0]] as unknown as RegExpExecArray);
-      const block = handler({ ...match, 0: full, 1: args[0] } as RegExpExecArray);
-      if (block) blocks.push(block);
-      return '';
-    });
+  // Single pass: find every known element in order
+  const masterRe = /<(?:h1|h2|h3|h4|blockquote|ol|ul|hr|p|div|img)[^>]*(?:\/>|>)/gi;
+  const elements: { tag: string; start: number; end: number; inner: string; attrs: string }[] = [];
+
+  // Find opening tags and extract their full elements
+  const fullElementRe = /<(h[1-4]|blockquote|ol|ul|p|div)(\s[^>]*)?>[\s\S]*?<\/\1>/gi;
+  const selfClosingRe = /<(hr|img)(\s[^>]*?)?\s*\/?>/gi;
+
+  let m: RegExpExecArray | null;
+
+  // Collect all elements with positions
+  const allElements: { tag: string; start: number; end: number; inner: string; attrs: string }[] = [];
+
+  // Reset and find full elements
+  fullElementRe.lastIndex = 0;
+  while ((m = fullElementRe.exec(html)) !== null) {
+    const tag = m[1].toLowerCase();
+    const attrs = m[2] || '';
+    const full = m[0];
+    const inner = full.replace(new RegExp(`^<${m[1]}[^>]*>`, 'i'), '').replace(new RegExp(`</${m[1]}>$`, 'i'), '');
+    allElements.push({ tag, start: m.index, end: m.index + full.length, inner, attrs });
   }
 
-  // Remaining paragraphs
-  const withBreaks = remaining
-    .replace(/<\s*br\s*\/?>/gi, '\n')
-    .replace(/<\/(p|div|section|article)>/gi, '\n')
-    .replace(/<[^>]+>/g, ' ');
+  // Find self-closing elements
+  selfClosingRe.lastIndex = 0;
+  while ((m = selfClosingRe.exec(html)) !== null) {
+    allElements.push({ tag: m[1].toLowerCase(), start: m.index, end: m.index + m[0].length, inner: '', attrs: m[2] || '' });
+  }
 
-  decodeEntities(withBreaks)
-    .split(/\n+/)
-    .map(l => l.replace(/\s+/g, ' ').trim())
-    .filter(l => l.length > 1)
-    .forEach(text => blocks.push({ type: 'paragraph', text }));
+  // Sort by position to maintain document order
+  allElements.sort((a, b) => a.start - b.start);
+
+  // Remove nested/overlapping elements (keep outermost)
+  const filtered: typeof allElements = [];
+  let lastEnd = -1;
+  for (const el of allElements) {
+    if (el.start >= lastEnd) {
+      filtered.push(el);
+      lastEnd = el.end;
+    }
+  }
+
+  // Process each element in order
+  for (const el of filtered) {
+    // Flush any text before this element
+    flushText(el.start);
+    lastIndex = el.end;
+
+    switch (el.tag) {
+      case 'h1':
+      case 'h2':
+        blocks.push({ type: 'heading', text: stripTags(el.inner) });
+        break;
+      case 'h3':
+      case 'h4':
+        blocks.push({ type: 'subheading', text: stripTags(el.inner) });
+        break;
+      case 'blockquote':
+        blocks.push({ type: 'quote', text: stripTags(el.inner) });
+        break;
+      case 'hr':
+        blocks.push({ type: 'separator', text: '' });
+        break;
+      case 'img': {
+        const srcMatch = el.attrs.match(/src=["']([^"']+)["']/i);
+        if (srcMatch?.[1]) {
+          blocks.push({ type: 'image', text: '', imageUrl: srcMatch[1] });
+        }
+        break;
+      }
+      case 'ol': {
+        let idx = 1;
+        el.inner.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, (_: string, content: string) => {
+          blocks.push({ type: 'numbered', text: stripTags(content), index: idx++ });
+          return '';
+        });
+        break;
+      }
+      case 'ul': {
+        el.inner.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, (_: string, content: string) => {
+          blocks.push({ type: 'bullet', text: stripTags(content) });
+          return '';
+        });
+        break;
+      }
+      case 'p':
+      case 'div': {
+        const text = stripTags(el.inner);
+        if (text.length > 1) {
+          blocks.push({ type: 'paragraph', text });
+        }
+        break;
+      }
+    }
+  }
+
+  // Flush remaining text after last element
+  flushText(html.length);
 
   return blocks.length ? blocks : [{ type: 'paragraph', text: 'Contenu en cours de préparation.' }];
 }
@@ -306,6 +390,38 @@ function safeDrawText(page: PDFPage, text: string, opts: { x: number; y: number;
 }
 
 // ══════════════════════════════════════════════════════════════════════
+// Image embedding helpers
+// ══════════════════════════════════════════════════════════════════════
+async function tryEmbedImage(pdfDoc: any, imageUrl: string): Promise<any | null> {
+  if (!imageUrl) return null;
+  try {
+    const response = await fetch(imageUrl);
+    if (!response.ok) return null;
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    const ct = (response.headers.get('content-type') || '').toLowerCase();
+    const lower = imageUrl.toLowerCase();
+    if (ct.includes('png') || lower.endsWith('.png')) return await pdfDoc.embedPng(bytes);
+    if (ct.includes('jpeg') || ct.includes('jpg') || lower.endsWith('.jpg') || lower.endsWith('.jpeg') || ct.includes('image')) return await pdfDoc.embedJpg(bytes);
+    return null;
+  } catch (e) { console.error('Image embed error:', e); return null; }
+}
+
+async function drawInlineImage(
+  pdfDoc: any, page: PDFPage, imageUrl: string,
+  x: number, y: number, maxWidth: number, maxHeight: number
+): Promise<{ page: PDFPage; y: number; drawn: boolean }> {
+  const image = await tryEmbedImage(pdfDoc, imageUrl);
+  if (!image) return { page, y, drawn: false };
+  const dims = image.scale(1);
+  const scale = Math.min(maxWidth / dims.width, maxHeight / dims.height, 1);
+  const w = dims.width * scale;
+  const h = dims.height * scale;
+  const imgX = x + (maxWidth - w) / 2; // center horizontally
+  page.drawImage(image, { x: imgX, y: y - h, width: w, height: h });
+  return { page, y: y - h - 12, drawn: true };
+}
+
+// ══════════════════════════════════════════════════════════════════════
 // Cover image
 // ══════════════════════════════════════════════════════════════════════
 async function tryDrawCover(pdfDoc: any, page: PDFPage, coverUrl: string) {
@@ -356,6 +472,7 @@ const C = {
 async function buildProfessionalPdf(opts: {
   title: string; subtitle: string; orgName: string; language: string;
   chapters: ChapterInput[]; coverUrl: string; pageSize: 'A4' | 'LETTER'; format: string;
+  chapterIllustrations?: Record<number, string>;
 }) {
   const pdfDoc = await PDFDocument.create();
 
@@ -594,6 +711,13 @@ async function buildProfessionalPdf(opts: {
       thickness: 0.5, color: C.rule,
     });
 
+    // ── CHAPTER ILLUSTRATION (from ai_project_assets) ──────
+    const chapterIllUrl = opts.chapterIllustrations?.[ci];
+    if (chapterIllUrl) {
+      const illResult = await drawInlineImage(pdfDoc, openerPage, chapterIllUrl, M.outer, cty - 20, pg.width - M.outer * 2, 220);
+      // If illustration drawn, it's on the opener page below the title
+    }
+
     // ── CHAPTER CONTENT PAGES ───────────────────────────────
     let contentPage = pdfDoc.addPage([pg.width, pg.height]);
     let y = pg.height - M.top;
@@ -617,6 +741,20 @@ async function buildProfessionalPdf(opts: {
           size: 10, font: sans, color: C.mutedText,
         });
         y -= 32;
+        continue;
+      }
+
+      // ── Inline image ──
+      if (block.type === 'image' && block.imageUrl) {
+        if (y < M.bottom + 180) {
+          contentPage = addContentPage(pdfDoc, pg, M, chTitle, serifItalic, sans, contentWidth);
+          y = pg.height - M.top;
+          pageInChapter++;
+        }
+        const imgResult = await drawInlineImage(pdfDoc, contentPage, block.imageUrl, M.inner, y, contentWidth, 200);
+        if (imgResult.drawn) {
+          y = imgResult.y;
+        }
         continue;
       }
 
