@@ -650,7 +650,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { title, topic, style, pageCount, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle, styleReference, editorialStrategy } = await req.json();
+    const { title, subtitle, topic, style, pageCount, chapterCount: requestedChapterCount, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle, styleReference, editorialStrategy } = await req.json();
 
     if (!title && !topic) {
       return new Response(JSON.stringify({ error: 'title or topic required' }), {
@@ -663,10 +663,13 @@ Deno.serve(async (req) => {
     const pages = Number(pageCount) > 0 ? Number(pageCount) : 20;
     const chapterCount = singleChapter
       ? 1
-      : Math.max(MIN_CHAPTERS, Math.min(MAX_CHAPTERS, Math.round(pages / 5)));
+      : Number(requestedChapterCount) > 0
+        ? Math.max(MIN_CHAPTERS, Math.min(MAX_CHAPTERS, Number(requestedChapterCount)))
+        : Math.max(MIN_CHAPTERS, Math.min(MAX_CHAPTERS, Math.round(pages / 5)));
     const chapterWordTarget = singleChapter
       ? '450-700'
       : chapterCount >= 6 ? '320-520' : '420-650';
+    const subtitleLine = subtitle ? (lang === 'fr' ? `\nSous-titre : "${subtitle}"` : `\nSubtitle: "${subtitle}"`) : '';
 
     const _tone = tone || 'professional';
     const _level = languageLevel || 'intermediate';
