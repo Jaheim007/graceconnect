@@ -925,7 +925,7 @@ Deno.serve(async (req) => {
     // Narrative detection + editorial profile
     const narrativeStyles = ['story', 'novel'];
     const isNarrative = narrativeStyles.includes(_style);
-    const editorialProfile = detectEditorialProfile(_style, _tone, title || '', topic || '', _audience);
+    const editorialProfile = detectEditorialProfile(_style, _tone, title || '', topic || '', _audience, religiousTradition, prayerFormat);
     const editorialBlueprint = getEditorialBlueprint(lang, editorialProfile);
 
     // Style reference
