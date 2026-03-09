@@ -5,45 +5,27 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nContext';
 
-const pillars = [
-  {
-    id: 'write',
-    icon: PenLine,
-    title: 'Écris',
-    desc: "Crée ton livre avec l'IA en 5 min",
-    route: '/ecrire',
-    color: 'text-primary',
-    bg: 'bg-primary/10 border-primary/20',
-    cta: 'Écrire maintenant',
-    highlight: true,
-  },
-  {
-    id: 'sell',
-    icon: Store,
-    title: 'Vends',
-    desc: 'Publie et monétise ton contenu',
-    route: '/admin/products',
-    color: 'text-amber-500',
-    bg: 'bg-amber-500/10 border-amber-500/20',
-    cta: 'Mes produits',
-    highlight: false,
-  },
-  {
-    id: 'share',
-    icon: Share2,
-    title: 'Gagne',
-    desc: 'Partage et gagne des commissions',
-    route: '/gagner',
-    color: 'text-emerald-500',
-    bg: 'bg-emerald-500/10 border-emerald-500/20',
-    cta: 'Ambassadeurs',
-    highlight: false,
-  },
-];
-
 export function CreatorHeroBanner() {
   const navigate = useNavigate();
   const { t } = useI18n();
+
+  const pillars = [
+    {
+      id: 'write', icon: PenLine,
+      title: t('hero.write'), desc: t('hero.write_desc'), cta: t('hero.write_cta'),
+      route: '/ecrire', color: 'text-primary', bg: 'bg-primary/10 border-primary/20', highlight: true,
+    },
+    {
+      id: 'sell', icon: Store,
+      title: t('hero.sell'), desc: t('hero.sell_desc'), cta: t('hero.sell_cta'),
+      route: '/admin/products', color: 'text-amber-500', bg: 'bg-amber-500/10 border-amber-500/20', highlight: false,
+    },
+    {
+      id: 'share', icon: Share2,
+      title: t('hero.share'), desc: t('hero.share_desc'), cta: t('hero.share_cta'),
+      route: '/gagner', color: 'text-emerald-500', bg: 'bg-emerald-500/10 border-emerald-500/20', highlight: false,
+    },
+  ];
 
   return (
     <motion.div
@@ -52,21 +34,18 @@ export function CreatorHeroBanner() {
       transition={{ duration: 0.4 }}
       className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 via-card to-amber-500/5 p-5 sm:p-6"
     >
-      {/* Decorative glow */}
       <div className="absolute -top-20 -right-20 w-40 h-40 rounded-full bg-primary/10 blur-3xl pointer-events-none" />
 
-      {/* Header */}
       <div className="flex items-center gap-2 mb-4">
         <div className="h-8 w-8 rounded-lg bg-primary/15 flex items-center justify-center">
           <Sparkles className="h-4 w-4 text-primary" />
         </div>
         <div>
-          <h2 className="text-sm font-bold tracking-tight">Écris · Vends · Gagne</h2>
-          <p className="text-[11px] text-muted-foreground">Ton centre numérique en 3 étapes</p>
+          <h2 className="text-sm font-bold tracking-tight">{t('hero.tagline')}</h2>
+          <p className="text-[11px] text-muted-foreground">{t('hero.subtitle')}</p>
         </div>
       </div>
 
-      {/* 3 Pillars */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {pillars.map((p, i) => (
           <motion.button
@@ -99,17 +78,13 @@ export function CreatorHeroBanner() {
         ))}
       </div>
 
-      {/* Primary CTA */}
       <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-        <Button
-          onClick={() => navigate('/ecrire')}
-          className="gap-2 flex-1 sm:flex-none cta-glow"
-        >
+        <Button onClick={() => navigate('/ecrire')} className="gap-2 flex-1 sm:flex-none cta-glow">
           <PenLine className="h-4 w-4" />
-          Créer mon livre avec l'IA
+          {t('hero.main_cta')}
         </Button>
         <p className="text-[11px] text-muted-foreground text-center sm:text-left">
-          📖 Gratuit · 5 minutes · Publication instantanée
+          {t('hero.main_sub')}
         </p>
       </div>
     </motion.div>

@@ -7,6 +7,7 @@ import { ArrowRight, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useMemo } from 'react';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface Nudge {
   id: string;
@@ -23,6 +24,7 @@ export function SmartNudge() {
   const { userOrgs } = useOrg();
   const navigate = useNavigate();
   const [dismissedIds, setDismissedIds] = useState<string[]>([]);
+  const { t } = useI18n();
 
   const { data: state } = useQuery({
     queryKey: ['smart-nudge', user?.id],
@@ -53,34 +55,30 @@ export function SmartNudge() {
     if (!state.hasProfile) {
       all.push({
         id: 'profile', emoji: '👤', priority: 1, bg: 'bg-primary/5 border-primary/20',
-        text: 'Complète ton profil pour gagner en crédibilité',
-        cta: 'Mon profil', action: () => navigate('/profile'),
+        text: t('nudge.profile'), cta: t('nudge.profile_cta'), action: () => navigate('/profile'),
       });
     }
     if (!state.hasOrg) {
       all.push({
         id: 'write', emoji: '✏️', priority: 2, bg: 'bg-primary/5 border-primary/20',
-        text: "Écris ton premier livre en 5 min avec l'IA",
-        cta: 'Commencer', action: () => navigate('/ecrire'),
+        text: t('nudge.write'), cta: t('nudge.write_cta'), action: () => navigate('/ecrire'),
       });
     }
     if (!state.hasLinks) {
       all.push({
         id: 'ambassador', emoji: '💰', priority: 3, bg: 'bg-emerald-500/5 border-emerald-500/20',
-        text: 'Gagne de l\'argent en partageant des produits',
-        cta: 'Devenir ambassadeur', action: () => navigate('/gagner'),
+        text: t('nudge.ambassador'), cta: t('nudge.ambassador_cta'), action: () => navigate('/gagner'),
       });
     }
     if (state.hasOrg && !state.hasProducts) {
       all.push({
         id: 'publish', emoji: '🚀', priority: 2, bg: 'bg-amber-500/5 border-amber-500/20',
-        text: 'Tu as un espace — publie ton premier produit !',
-        cta: 'Publier', action: () => navigate('/admin/products'),
+        text: t('nudge.publish'), cta: t('nudge.publish_cta'), action: () => navigate('/admin/products'),
       });
     }
 
     return all.filter(n => !dismissedIds.includes(n.id)).sort((a, b) => a.priority - b.priority);
-  }, [state, dismissedIds, navigate]);
+  }, [state, dismissedIds, navigate, t]);
 
   const nudge = nudges[0];
   if (!nudge) return null;
