@@ -351,13 +351,24 @@ function SourceInput({ state, update, t, transcribing }: {
               {state.uploadedFile ? state.uploadedFile.name : t('write.upload_audio')}
             </p>
             <p className="text-xs text-muted-foreground mt-1">{t('write.audio_formats')}</p>
+            {state.uploadedFile && (
+              <p className="text-[11px] text-muted-foreground mt-1">
+                {(state.uploadedFile.size / (1024 * 1024)).toFixed(1)} MB
+              </p>
+            )}
             <input
               type="file"
-              accept=".mp3,.wav,.m4a,.ogg,.aac"
+              accept=".mp3,.wav,.m4a,.ogg,.aac,.flac,.wma"
               className="hidden"
               onChange={(e) => {
                 const file = e.target.files?.[0];
-                if (file) update({ uploadedFile: file, title: file.name.replace(/\.[^.]+$/, '') });
+                if (file) {
+                  if (file.size > 18 * 1024 * 1024) {
+                    alert(t('write.file_too_large') || 'File too large (max 18 MB)');
+                    return;
+                  }
+                  update({ uploadedFile: file, title: file.name.replace(/\.[^.]+$/, '') });
+                }
               }}
             />
           </label>
