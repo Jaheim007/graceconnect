@@ -304,6 +304,31 @@ ADAPTATION AU PUBLIC :
 - ADULTES : exercices de réflexion, auto-évaluation, plans d'action, journaling
 
 INTERDIT : longs paragraphes de texte, ton magistral, exercices monotones. C'est un cahier INTERACTIF, pas un manuel scolaire.`,
+
+    coloring: `STRUCTURE DE LIVRE DE COLORIAGE PROFESSIONNEL :
+
+STRUCTURE OBLIGATOIRE :
+1. CHAQUE CHAPITRE = 1 THÈME (ex: "Les animaux de la ferme", "Les fruits", "Les véhicules", "Les personnages bibliques")
+2. CHAQUE PAGE = 1 SCÈNE À COLORIER décrite entre [ILLUSTRATION: description détaillée]
+3. Format MINIMAL de texte — le livre est 90% IMAGES, 10% texte
+
+CONTENU DE CHAQUE PAGE :
+- [ILLUSTRATION: Description PRÉCISE et DÉTAILLÉE de la scène en line art — personnages, objets, décor, composition]
+- Titre court et fun (ex: "🦁 Le lion courageux", "🌻 Le jardin fleuri")
+- Optionnel : 1-2 phrases simples liées à l'image (fait amusant, verset court, consigne créative)
+
+ADAPTATION AU PUBLIC :
+- ENFANTS 3-6 ans : formes TRÈS simples, gros contours, peu de détails, 1-2 éléments par page
+- ENFANTS 6-10 ans : scènes moyennement détaillées, personnages expressifs, décors
+- ADOS/ADULTES : mandalas, motifs complexes, scènes détaillées, patterns zen
+
+FORMAT HTML :
+- <h2> pour le titre de chaque page/scène
+- <p class="coloring-desc">[ILLUSTRATION: ...]</p> pour la description de chaque illustration à générer
+- Très peu de texte entre les illustrations
+- Pas de longs paragraphes — ce n'est PAS un livre de lecture
+
+INTERDIT : longs textes, exercices écrits, quiz. C'est un livre VISUEL à colorier.`,
   },
   en: {
     ebook: `REAL PERSONAL DEVELOPMENT BOOK STRUCTURE (inspired by Myles Munroe "Understanding Your Potential" and Gary Chapman):
