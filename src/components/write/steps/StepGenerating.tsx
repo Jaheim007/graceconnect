@@ -122,7 +122,7 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
         if (aborted.current) return;
 
         const chapter = aiChapters[i];
-        const safeTitle = (chapter?.title || `Chapitre ${i + 1}`).trim();
+        const safeTitle = (chapter?.title || `${t('write.chapter_label')} ${i + 1}`).trim();
         finalChapters.push({
           id: chapter?.id || `ch-${i + 1}`,
           title: safeTitle,
