@@ -726,6 +726,15 @@ ${audienceInstruction}
 STRUCTURE ET FORMAT :
 ${formatInstruction}
 
+BLUEPRINT ÉDITORIAL À APPLIQUER (NON NÉGOCIABLE) :
+${editorialBlueprint}
+
+GARDE-FOUS D'AUTHENTICITÉ :
+- Chaque chapitre doit apporter une matière exploitable immédiatement
+- Interdit de générer des titres vagues, lyriques ou décoratifs hors fiction
+- Interdit d'écrire des paragraphes de remplissage
+- Chaque chapitre doit contenir au moins 1 élément concret vérifiable (cadre, étape, cas, référence, verset, checklist)
+
 HTML — UTILISE :
 - <p> pour les paragraphes
 - <h3> pour les sous-titres (2-3 par chapitre)
@@ -752,6 +761,15 @@ ${audienceInstruction}
 
 STRUCTURE AND FORMAT:
 ${formatInstruction}
+
+MANDATORY EDITORIAL BLUEPRINT:
+${editorialBlueprint}
+
+AUTHENTICITY GUARDRAILS:
+- Each chapter must deliver immediately usable substance
+- No vague, lyrical, decorative chapter titles outside fiction
+- No filler paragraphs
+- Each chapter must include at least one concrete artifact (framework, step, case, reference, verse, or checklist)
 
 HTML — USE:
 - <p> for paragraphs
