@@ -108,8 +108,6 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
       {/* ═══ ZONE 4 — Produits tendance (preuve sociale) ═══ */}
       <TrendingProducts limit={4} />
 
-      {/* ═══ ZONE 5 — Invite & Earn ═══ */}
-      <InviteEarnWidget />
 
       {/* ═══ ZONE 6 — Tips ═══ */}
       <GrowthTipsWidget category="all" />

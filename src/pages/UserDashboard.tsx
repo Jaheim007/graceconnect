@@ -332,10 +332,6 @@ export default function UserDashboard() {
           )}
         </motion.div>
 
-        {/* Invite & Earn — en bas */}
-        <motion.div {...fadeUp(0.25)}>
-          <InviteEarnWidget />
-        </motion.div>
       </div>
       <PartnerPendingPopup />
     </div>
