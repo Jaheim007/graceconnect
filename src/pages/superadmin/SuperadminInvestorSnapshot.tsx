@@ -189,11 +189,11 @@ export default function SuperadminInvestorSnapshot() {
           <h2 className="font-semibold text-sm mb-3 flex items-center gap-2">
             <Shield className="h-4 w-4 text-primary" /> Org Categories
           </h2>
-          {(s?.categories?.length || 0) > 0 ? (
+          {((s?.categories as any[])?.length || 0) > 0 ? (
             <div className="flex items-center gap-4">
               <PieChart width={120} height={120}>
-                <Pie data={s!.categories} cx={60} cy={60} innerRadius={30} outerRadius={55} dataKey="value" paddingAngle={2}>
-                  {s!.categories.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                <Pie data={s!.categories as any[]} cx={60} cy={60} innerRadius={30} outerRadius={55} dataKey="value" paddingAngle={2}>
+                  {(s!.categories as any[]).map((_: any, i: number) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
               </PieChart>
               <div className="space-y-1 flex-1">
