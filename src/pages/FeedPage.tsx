@@ -328,6 +328,136 @@ export default function FeedPage() {
   );
 }
 
+/**
+ * FeedEmptyFallback — shown when user has no orgs.
+ * Instead of an empty page, shows popular products, active campaigns, and CTAs.
+ */
+function FeedEmptyFallback() {
+  const navigate = useNavigate();
+  const { t } = useI18n();
+
+  const { data: popularProducts = [], isLoading: productsLoading } = useQuery({
+    queryKey: ['feed-popular-products'],
+    queryFn: async () => {
+      const { data } = await db
+        .from('digital_products')
+        .select('*, organizations(name, slug, logo_url)')
+        .eq('is_published', true)
+        .order('sales_count', { ascending: false })
+        .limit(6);
+      return data || [];
+    },
+    staleTime: 300_000,
+  });
+
+  const { data: activeCampaigns = [], isLoading: campaignsLoading } = useQuery({
+    queryKey: ['feed-active-campaigns'],
+    queryFn: async () => {
+      const { data } = await db
+        .from('donation_campaigns')
+        .select('*, organizations(name, slug, logo_url)')
+        .eq('is_active', true)
+        .eq('is_published', true)
+        .order('current_amount', { ascending: false })
+        .limit(4);
+      return data || [];
+    },
+    staleTime: 300_000,
+  });
+
+  const actions = [
+    { icon: <Rocket className="h-6 w-6" />, label: t('feed.action_create_org'), desc: t('feed.action_create_org_desc'), onClick: () => navigate('/create-org'), primary: true },
+    { icon: <Eye className="h-6 w-6" />, label: t('feed.action_browse_content'), desc: t('feed.action_browse_content_desc'), onClick: () => navigate('/discover') },
+  ];
+
+  return (
+    <div className="min-h-screen bg-background">
+      <SEOHead title="Mon fil — Siteviral" description="Découvrez les dernières publications, produits et événements sur Siteviral." noindex />
+      <div className="container max-w-5xl px-4 py-6 space-y-8">
+        {/* Smart suggestions */}
+        <SmartSuggestionsBanner />
+
+        {/* Welcome + actions */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center space-y-3">
+          <div className="h-16 w-16 rounded-2xl bg-primary flex items-center justify-center mx-auto">
+            <Compass className="h-8 w-8 text-primary-foreground" />
+          </div>
+          <h1 className="text-2xl font-bold">{t('feed.welcome')}</h1>
+          <p className="text-muted-foreground text-sm max-w-sm mx-auto">{t('feed.welcome_desc')}</p>
+        </motion.div>
+
+        <div className="grid gap-3 max-w-lg mx-auto">
+          {actions.map((a, i) => (
+            <motion.button
+              key={i}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 + i * 0.06 }}
+              onClick={a.onClick}
+              className={cn(
+                'flex items-center gap-4 w-full p-4 rounded-2xl border text-left transition-all duration-200 hover:-translate-y-0.5',
+                a.primary
+                  ? 'bg-primary/10 border-primary/30 hover:bg-primary/15 hover:shadow-elevated'
+                  : 'bg-card border-border hover:bg-accent/50 hover:shadow-card'
+              )}
+            >
+              <div className={cn(
+                'h-12 w-12 rounded-xl flex items-center justify-center shrink-0',
+                a.primary ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+              )}>
+                {a.icon}
+              </div>
+              <div className="min-w-0">
+                <p className="font-semibold text-sm">{a.label}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{a.desc}</p>
+              </div>
+            </motion.button>
+          ))}
+        </div>
+
+        {/* Popular products */}
+        {!productsLoading && popularProducts.length > 0 && (
+          <section>
+            <SectionHeader
+              icon={<ShoppingBag className="h-4 w-4 text-primary" />}
+              title={t('feed.popular_products') || 'Produits populaires'}
+              action={{ label: t('common.view_all') || 'Voir tout', onClick: () => navigate('/discover') }}
+            />
+            <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {popularProducts.map((p: any, i: number) => (
+                <motion.div key={p.id} variants={staggerItem}>
+                  <ProductCard product={p} index={i} hideCommission hideShare />
+                </motion.div>
+              ))}
+            </motion.div>
+          </section>
+        )}
+
+        {/* Active campaigns */}
+        {!campaignsLoading && activeCampaigns.length > 0 && (
+          <section>
+            <SectionHeader
+              icon={<Heart className="h-4 w-4 text-destructive" />}
+              title={t('feed.donation_campaigns') || 'Campagnes actives'}
+            />
+            <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {activeCampaigns.map((c: any, i: number) => (
+                <motion.div key={c.id} variants={staggerItem}>
+                  <CampaignCard campaign={c} index={i} />
+                </motion.div>
+              ))}
+            </motion.div>
+          </section>
+        )}
+
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="text-center pt-2">
+          <p className="text-xs text-muted-foreground">{t('feed.tip')}</p>
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
 function SectionHeader({ icon, title, action }: { icon: React.ReactNode; title: string; action?: { label: string; onClick: () => void } }) {
   return (
     <div className="flex items-center justify-between mb-4">
