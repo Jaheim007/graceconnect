@@ -666,10 +666,12 @@ export default function WriteWizard() {
           .eq('id', result.project_id);
       }
 
-      if (state.coverUrl && result.project_id && result.organization_id) {
-        await supabase
-          .from('ai_project_assets')
-          .insert({
+      if (result.project_id && result.organization_id) {
+        const assetInserts: any[] = [];
+
+        // Cover asset
+        if (state.coverUrl) {
+          assetInserts.push({
             project_id: result.project_id,
             organization_id: result.organization_id,
             asset_type: 'image',
@@ -679,6 +681,29 @@ export default function WriteWizard() {
             is_cover: true,
             display_order: 0,
           });
+        }
+
+        // Chapter illustrations — saved as 'illustration' so the PDF generator can find them
+        const chIll = state.chapterIllustrations || {};
+        state.chapters.forEach((chapter, idx) => {
+          const illUrl = chIll[chapter.id];
+          if (illUrl) {
+            assetInserts.push({
+              project_id: result.project_id,
+              organization_id: result.organization_id,
+              asset_type: 'illustration',
+              file_url: illUrl,
+              label: `Illustration ch. ${idx + 1}`,
+              mime_type: 'image/png',
+              is_cover: false,
+              display_order: idx,
+            });
+          }
+        });
+
+        if (assetInserts.length > 0) {
+          await supabase.from('ai_project_assets').insert(assetInserts);
+        }
       }
 
       setPublishingStage('pdf');
