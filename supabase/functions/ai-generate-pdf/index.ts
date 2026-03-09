@@ -390,6 +390,38 @@ function safeDrawText(page: PDFPage, text: string, opts: { x: number; y: number;
 }
 
 // ══════════════════════════════════════════════════════════════════════
+// Image embedding helpers
+// ══════════════════════════════════════════════════════════════════════
+async function tryEmbedImage(pdfDoc: any, imageUrl: string): Promise<any | null> {
+  if (!imageUrl) return null;
+  try {
+    const response = await fetch(imageUrl);
+    if (!response.ok) return null;
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    const ct = (response.headers.get('content-type') || '').toLowerCase();
+    const lower = imageUrl.toLowerCase();
+    if (ct.includes('png') || lower.endsWith('.png')) return await pdfDoc.embedPng(bytes);
+    if (ct.includes('jpeg') || ct.includes('jpg') || lower.endsWith('.jpg') || lower.endsWith('.jpeg') || ct.includes('image')) return await pdfDoc.embedJpg(bytes);
+    return null;
+  } catch (e) { console.error('Image embed error:', e); return null; }
+}
+
+async function drawInlineImage(
+  pdfDoc: any, page: PDFPage, imageUrl: string,
+  x: number, y: number, maxWidth: number, maxHeight: number
+): Promise<{ page: PDFPage; y: number; drawn: boolean }> {
+  const image = await tryEmbedImage(pdfDoc, imageUrl);
+  if (!image) return { page, y, drawn: false };
+  const dims = image.scale(1);
+  const scale = Math.min(maxWidth / dims.width, maxHeight / dims.height, 1);
+  const w = dims.width * scale;
+  const h = dims.height * scale;
+  const imgX = x + (maxWidth - w) / 2; // center horizontally
+  page.drawImage(image, { x: imgX, y: y - h, width: w, height: h });
+  return { page, y: y - h - 12, drawn: true };
+}
+
+// ══════════════════════════════════════════════════════════════════════
 // Cover image
 // ══════════════════════════════════════════════════════════════════════
 async function tryDrawCover(pdfDoc: any, page: PDFPage, coverUrl: string) {
