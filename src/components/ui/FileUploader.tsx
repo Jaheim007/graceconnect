@@ -162,7 +162,7 @@ export function FileUploader({
           <Input
             value={urlInput}
             onChange={(e) => setUrlInput(e.target.value)}
-            placeholder="https://drive.google.com/... or direct link"
+            placeholder="https://drive.google.com/... ou lien direct"
             className="flex-1"
           />
           <Button
