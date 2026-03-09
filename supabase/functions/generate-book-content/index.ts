@@ -500,7 +500,7 @@ STRUCTURE INTERDITE — Ne fais JAMAIS :
 ❌ Un dernier paragraphe qui "résume" avec une phrase inspirante creuse
 ❌ Des transitions entre chapitres ("Dans le chapitre suivant, nous verrons...")
 ❌ Des répétitions de la même idée en reformulant 3 fois
-❌ Un ton uniformément positif — un vrai auteur est parfois dur, critique, direct`;`;
+❌ Un ton uniformément positif — un vrai auteur est parfois dur, critique, direct`;
   }
 
   return `
