@@ -435,7 +435,7 @@ FORBIDDEN: long paragraphs, quizzes, written exercises. This is for COLORING.`,
   de: {
     ebook: `Echte Buchstruktur: Problem, Autorenerfahrung, konkrete Beispiele, Reflexionsfragen.`,
     guide: `Praktisches Handbuch: nummerierte Teile, Fallstudien, Übungen, Zusammenfassungen.`,
-    prayers: `Geistliches Kampfbuch: Bibelverse mit Referenzen, echte Zeugnisse, NUMMERIERTE Gebetspunkte.`,
+    prayers: `Gebetbuch: Bibelverse/heilige Texte mit Referenzen, NUMMERIERTE Gebete in erster Person, warmer Ton.`,
     story: `Roman: Figuren mit vollständigen Namen, Dialoge mit Gedankenstrich (—), reine Prosa.`,
     novel: `Romanstruktur mit immersiven Kapiteln.`,
     devotional: `Nummerierte tägliche Meditationen.`,
