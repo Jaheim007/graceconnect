@@ -42,7 +42,7 @@ export function useGrowthSuggestions() {
         db.from('organization_members').select('*', { count: 'exact', head: true }).eq('organization_id', orgId),
         db.from('product_purchases').select('*', { count: 'exact', head: true }).eq('organization_id', orgId).eq('status', 'completed'),
         db.from('media_content').select('*', { count: 'exact', head: true }).eq('organization_id', orgId).eq('is_published', true),
-        db.from('organizations').select('affiliation_enabled, kyc_status, logo_url, description, cover_url').eq('id', orgId).single(),
+        db.from('organizations').select('affiliation_enabled, kyc_status, logo_url, description, banner_url').eq('id', orgId).single(),
       ]);
 
       const p = productCount || 0;

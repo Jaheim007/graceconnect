@@ -19,7 +19,7 @@ export function FeaturedOrgs({ limit = 8 }: { limit?: number }) {
       const { data } = await db.from('organizations')
         .select('id, name, slug, logo_url, description, category, affiliation_enabled, affiliation_commission_percent')
         .eq('is_active', true)
-        .eq('in_directory', true)
+        .eq('is_verified', true)
         .order('created_at', { ascending: false })
         .limit(limit);
       return data || [];

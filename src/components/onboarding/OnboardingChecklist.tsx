@@ -64,7 +64,7 @@ export function OnboardingChecklist() {
         db.from('donation_campaigns').select('id', { count: 'exact', head: true }).eq('organization_id', orgId),
         db.from('announcements').select('id', { count: 'exact', head: true }).eq('organization_id', orgId),
         db.from('media_content').select('id', { count: 'exact', head: true }).eq('organization_id', orgId),
-        db.from('org_members').select('id', { count: 'exact', head: true }).eq('organization_id', orgId),
+        db.from('organization_members').select('id', { count: 'exact', head: true }).eq('organization_id', orgId),
         db.from('offerings').select('id', { count: 'exact', head: true }).eq('organization_id', orgId),
       ]);
       return {

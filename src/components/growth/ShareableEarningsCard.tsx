@@ -20,7 +20,7 @@ export function ShareableEarningsCard() {
     queryFn: async () => {
       if (!user) return null;
       const [salesRes, linksRes] = await Promise.all([
-        db.from('affiliate_sales').select('commission_amount').eq('affiliate_user_id', user.id).eq('status', 'approved'),
+        db.from('affiliate_sales').select('commission_amount').eq('affiliate_user_id', user.id).eq('status', 'paid' as any),
         db.from('affiliate_links').select('conversions').eq('user_id', user.id),
       ]);
 

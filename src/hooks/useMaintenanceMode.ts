@@ -37,7 +37,7 @@ export function useFeatureFlags() {
         .select('value')
         .eq('key', 'feature_flags')
         .maybeSingle();
-      return (data?.value as Record<string, boolean>) || {};
+      return (data?.value as unknown as Record<string, boolean>) || {};
     },
     staleTime: 60000,
   });

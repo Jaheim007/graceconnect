@@ -91,9 +91,9 @@ async function notifyOrgAffiliates(
 
     // Fetch emails for all affiliates
     const { data: profiles } = await db.from('profiles')
-      .select('id, email')
+      .select('id')
       .in('id', uniqueUserIds);
-    const emailMap = new Map<string, string>((profiles || []).map(p => [p.id as string, p.email as string]));
+    const emailMap = new Map<string, string>();
 
     for (const userId of uniqueUserIds) {
       notify(userId, title, body, type, orgId, `/affiliation`);

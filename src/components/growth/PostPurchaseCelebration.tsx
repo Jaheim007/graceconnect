@@ -52,11 +52,12 @@ export function PostPurchaseCelebration({
     setEnrolling(true);
     try {
       const { data, error } = await db.rpc('self_enroll_affiliate', {
-        p_org_slug: orgSlug,
+        _org_id: orgId,
       });
       if (error) throw error;
-      if (data?.code) {
-        setAffiliateCode(data.code);
+      const result = data as any;
+      if (result?.code) {
+        setAffiliateCode(result.code);
         setEnrolled(true);
         toast.success('🎉 Tu es maintenant ambassadeur !');
       }
