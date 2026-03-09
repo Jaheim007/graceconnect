@@ -357,9 +357,9 @@ export default function SuperadminFullDashboard() {
       <div className="grid lg:grid-cols-3 gap-4">
         <Panel>
           <SectionTitle icon={TrendingUp} title="Top Organisations" badge="Revenus" />
-          {(stats?.topOrgs || []).length > 0 ? (
+          {((stats?.topOrgs as any[]) || []).length > 0 ? (
             <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={stats!.topOrgs} layout="vertical">
+              <BarChart data={stats!.topOrgs as any[]} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis type="number" tick={{ fontSize: 9 }} stroke="hsl(var(--muted-foreground))" />
                 <YAxis type="category" dataKey="name" tick={{ fontSize: 9 }} stroke="hsl(var(--muted-foreground))" width={80} />
