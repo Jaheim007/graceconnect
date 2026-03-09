@@ -131,8 +131,8 @@ export function ProductForm() {
         min_price: item.min_price || 0,
         guarantee_text: item.guarantee_text || '',
       });
-      setFaqItems(item.faq_json || []);
-      setTestimonials(item.testimonials_json || []);
+      setFaqItems((item.faq_json as any) || []);
+      setTestimonials((item.testimonials_json as any) || []);
       setSalePrice(item.sale_price != null ? String(item.sale_price) : '');
       setSaleEndsAt(item.sale_ends_at ? item.sale_ends_at.slice(0, 16) : '');
       setOrderBumpProductId(item.order_bump_product_id || '');
