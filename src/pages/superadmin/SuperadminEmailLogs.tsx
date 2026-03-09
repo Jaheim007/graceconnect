@@ -108,13 +108,13 @@ export default function SuperadminEmailLogs() {
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-[120px]">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All status</SelectItem>
-            <SelectItem value="sent">Sent</SelectItem>
-            <SelectItem value="failed">Failed</SelectItem>
-          </SelectContent>
+             <SelectValue placeholder="Statut" />
+           </SelectTrigger>
+           <SelectContent>
+             <SelectItem value="all">Tous les statuts</SelectItem>
+             <SelectItem value="sent">Envoyé</SelectItem>
+             <SelectItem value="failed">Échoué</SelectItem>
+           </SelectContent>
         </Select>
       </div>
 
