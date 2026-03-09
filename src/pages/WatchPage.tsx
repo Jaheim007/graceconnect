@@ -1,19 +1,19 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { ArrowLeft, Heart, BookmarkPlus, Share2, Play, Pause, Loader2 } from 'lucide-react';
+import { ArrowLeft, Heart, BookmarkPlus, Share2, Play, Pause, Loader2, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useMediaById, useTrackView } from '@/hooks/useMedia';
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { SEOHead } from '@/components/seo/SEOHead';
 
-/** Detect social media / YouTube / Vimeo / Facebook URLs and return embeddable iframe src */
+/** Detect social media / YouTube / Vimeo URLs and return embeddable iframe src */
 function getEmbedUrl(url: string): string | null {
   try {
     const u = new URL(url);
     const host = u.hostname.replace('www.', '');
 
     // YouTube
-    if (host === 'youtube.com' || host === 'youtu.be') {
+    if (host === 'youtube.com' || host === 'youtu.be' || host === 'm.youtube.com') {
       let videoId = '';
       if (host === 'youtu.be') {
         videoId = u.pathname.slice(1).split('?')[0];
@@ -23,6 +23,8 @@ function getEmbedUrl(url: string): string | null {
         videoId = u.pathname.replace('/shorts/', '').split('?')[0];
       } else if (u.pathname.startsWith('/embed/')) {
         videoId = u.pathname.replace('/embed/', '').split('?')[0];
+      } else if (u.pathname.startsWith('/live/')) {
+        videoId = u.pathname.replace('/live/', '').split('?')[0];
       }
       if (videoId) return `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`;
     }
@@ -31,11 +33,6 @@ function getEmbedUrl(url: string): string | null {
     if (host === 'vimeo.com') {
       const videoId = u.pathname.split('/').filter(Boolean)[0];
       if (videoId) return `https://player.vimeo.com/video/${videoId}`;
-    }
-
-    // Facebook video
-    if (host === 'facebook.com' || host === 'fb.watch') {
-      return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&width=560`;
     }
 
     // Dailymotion
@@ -48,6 +45,16 @@ function getEmbedUrl(url: string): string | null {
   } catch {
     return null;
   }
+}
+
+/** Check if a URL is Facebook (cannot be iframe-embedded) */
+function isFacebookUrl(url: string): boolean {
+  return /(?:facebook\.com|fb\.watch|fb\.com)/i.test(url);
+}
+
+/** Check if a URL is TikTok */
+function isTikTokUrl(url: string): boolean {
+  return /tiktok\.com/i.test(url);
 }
 
 function isDirectMedia(url: string) {
@@ -73,6 +80,8 @@ export default function WatchPage() {
   const embedUrl = useMemo(() => (media?.media_url ? getEmbedUrl(media.media_url) : null), [media?.media_url]);
   const isDirect = media?.media_url ? isDirectMedia(media.media_url) : false;
   const isAudio = media?.media_type === 'audio';
+  const isFB = media?.media_url ? isFacebookUrl(media.media_url) : false;
+  const isTT = media?.media_url ? isTikTokUrl(media.media_url) : false;
 
   if (isLoading) {
     return (
@@ -93,7 +102,6 @@ export default function WatchPage() {
 
   const renderPlayer = () => {
     if (!media.media_url) {
-      // No URL — demo placeholder
       return (
         <div className="w-full h-full hero-gradient flex flex-col items-center justify-center gap-3">
           {media.thumbnail_url && (
@@ -121,7 +129,33 @@ export default function WatchPage() {
       );
     }
 
-    // Embedded social media player (YouTube, Vimeo, Facebook…)
+    // Facebook & TikTok: cannot be embedded via iframe — show clickable card
+    if (isFB || isTT) {
+      const platform = isFB ? 'Facebook' : 'TikTok';
+      return (
+        <div className="w-full h-full flex flex-col items-center justify-center gap-4 relative">
+          {media.thumbnail_url && (
+            <img src={media.thumbnail_url} alt={media.title} className="absolute inset-0 w-full h-full object-cover opacity-30" />
+          )}
+          <div className="relative z-10 text-center space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Cette vidéo {platform} ne peut pas être intégrée directement.
+            </p>
+            <a
+              href={media.media_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:bg-primary/90 transition-colors"
+            >
+              <ExternalLink className="h-4 w-4" />
+              Regarder sur {platform}
+            </a>
+          </div>
+        </div>
+      );
+    }
+
+    // Embedded social media player (YouTube, Vimeo…)
     if (embedUrl) {
       return (
         <iframe
