@@ -156,128 +156,199 @@ const audienceMap: Record<string, Record<string, string>> = {
 
 const styleFormatMap: Record<string, Record<string, string>> = {
   fr: {
-    ebook: `STRUCTURE DE VRAI LIVRE (style "Ce que j'aurais aimé savoir" de Gary Chapman) :
-- Introduction qui pose LE PROBLÈME du lecteur dès les premières lignes
-- Chaque chapitre commence par une affirmation forte ou une question ("Si seulement j'avais su que...")
-- L'auteur partage ses propres expériences et erreurs avec honnêteté
-- Mélange de : vécu personnel + conseils pratiques + données/études
-- Sous-titres <h3> clairs et descriptifs (pas poétiques)
-- Section "Discutez-en" ou "À retenir" avec 3-5 questions/points à la fin de chaque chapitre
-- Paragraphes de 3-6 phrases, jamais de pavés
-- Citations pertinentes en <blockquote> (avec source)`,
+    ebook: `STRUCTURE DE VRAI LIVRE DE DÉVELOPPEMENT PERSONNEL (inspiré de Myles Munroe "Understanding Your Potential" et Gary Chapman) :
+
+STRUCTURE OBLIGATOIRE DU LIVRE :
+1. PREMIER CHAPITRE = "Introduction" ou "Préface" — L'auteur pose LE PROBLÈME central avec une anecdote forte ou une histoire marquante. Il explique POURQUOI il écrit ce livre et ce que le lecteur va en tirer.
+2. CHAPITRES CENTRAUX — Chaque chapitre développe UN aspect du sujet :
+   - Commence par une affirmation forte, une question ou une courte histoire
+   - Développe l'idée avec des exemples CONCRETS (noms, lieux, dates, situations réelles)
+   - Inclut des listes à puces quand c'est pertinent (ex: liste des échecs de Lincoln avant sa victoire)
+   - Utilise des citations en <blockquote> avec la source
+   - Termine par des QUESTIONS DE RÉFLEXION ou "Points à retenir" (3-5 questions pratiques)
+3. DERNIER CHAPITRE = Conclusion ou "Osez croire" — Synthèse et appel à l'action
+
+TITRES DES CHAPITRES — Style questions ou affirmations directes :
+Exemples RÉELS tirés de vrais livres : "Qui êtes-vous ?", "Qu'est-il arrivé au vrai vous ?", "La clé de votre potentiel", "Si seulement j'avais su que..."
+
+FORMAT :
+- Paragraphes de 3-5 phrases, JAMAIS de pavés
+- Sous-titres <h3> clairs et fonctionnels
+- Listes <ul><li> pour les exemples concrets
+- <blockquote> pour les citations et principes-clés
+- L'auteur ASSUME ses opinions et parle à la première personne`,
 
     guide: `STRUCTURE DE VRAI MANUEL PRATIQUE (style "Gérez Mieux Votre Entreprise" de l'OIT) :
-- Découpage en PARTIES puis en sections numérotées (1., 2., 3.)
-- Sous-sections numérotées (1.1, 1.2, 1.3)
-- Titres 100% FONCTIONNELS : "Qu'est-ce que X ?", "Comment faire Y ?", "Les 5 étapes pour Z"
-- CAS PRATIQUES avec des noms fictifs de personnages/entreprises pour illustrer
-- EXERCICES pratiques : questions de réflexion, situations à résoudre
-- Listes à puces <ul><li> et listes numérotées <ol><li> abondantes
-- Encadrés <blockquote> pour les informations IMPORTANTES
-- Résumé en fin de section
-- Ton didactique : "Lorsque vous aurez terminé ce chapitre, vous serez en mesure de..."
-- ZÉRO narration littéraire, ZÉRO métaphore — c'est un OUTIL de travail`,
 
-    prayers: `STRUCTURE DE VRAI LIVRE DE PRIÈRES/COMBAT SPIRITUEL (style "Le Sorcier Va Mourir") :
-- Introduction DIRECTE qui pose le cadre spirituel avec autorité
-- Chapitres structurés avec des LISTES NUMÉROTÉES (ex: "9 exemples de...", "6 forces de...", "21 prières pour...")
-- Sous-titres en MAJUSCULES numérotés : "1. PREMIER POINT", "2. DEUXIÈME POINT"
-- Abondance de VERSETS BIBLIQUES avec références complètes (Livre chapitre:verset) en <blockquote>
-- Chaque verset est EXPLIQUÉ et APPLIQUÉ à la vie du lecteur
-- Ton d'interpellation directe : "Mesdames et messieurs", "Décidez aujourd'hui !"
-- Sections de PRIÈRES avec formules directes et puissantes
-- Pas de poésie ni de douceur excessive — c'est un COMBAT
-- Structure : enseignement biblique → explication → application → prière`,
+STRUCTURE OBLIGATOIRE :
+1. PREMIER CHAPITRE = Introduction méthodologique — "Ce que vous allez apprendre", "Comment utiliser ce guide"
+2. CHAPITRES = Parties numérotées avec sous-sections (1.1, 1.2, 1.3)
+3. DERNIER CHAPITRE = Résumé + Plan d'action
 
-    story: `Structure en chapitres narratifs courts. Personnages avec NOMS et personnalités distinctes. Dialogues vivants. Descriptions sensorielles. Cliffhangers.`,
-    novel: `Structure romanesque avec chapitres immersifs. Personnages profonds, intrigues, dialogues authentiques, arc narratif complet.`,
+CHAQUE CHAPITRE DOIT CONTENIR :
+- Un OBJECTIF clair en début ("À la fin de ce chapitre, vous saurez...")
+- Des CAS PRATIQUES avec noms fictifs (ex: "M. Kouadio, propriétaire d'une boutique à Abidjan...")
+- Des EXERCICES pratiques : questions, situations à résoudre, espaces de réflexion
+- Des LISTES structurées <ol><li> et <ul><li>
+- Des encadrés <blockquote> pour les INFORMATIONS IMPORTANTES
+- Un RÉSUMÉ en fin de chapitre
+
+TITRES 100% FONCTIONNELS :
+"Qu'est-ce que X ?", "Comment faire Y ?", "Les 5 étapes pour Z", "Erreurs courantes à éviter"
+
+ZÉRO narration littéraire, ZÉRO métaphore — c'est un OUTIL de travail`,
+
+    prayers: `STRUCTURE DE VRAI LIVRE DE COMBAT SPIRITUEL (inspiré de D.K. Olukoya "Commander le Matin" et "Le Sorcier Va Mourir") :
+
+STRUCTURE OBLIGATOIRE :
+1. PREMIER CHAPITRE = Enseignement fondamental qui pose le CADRE SPIRITUEL avec autorité. Explique le POURQUOI du combat.
+2. CHAPITRES CENTRAUX = Alternance entre :
+   - ENSEIGNEMENT BIBLIQUE avec versets en <blockquote> suivis d'EXPLICATIONS concrètes
+   - TÉMOIGNAGES RÉELS (histoires de délivrance, exemples de la vraie vie avec noms et situations)
+   - POINTS DE PRIÈRE NUMÉROTÉS (10-21 prières par section)
+3. DERNIER CHAPITRE = Section de prières intensives / déclarations de victoire
+
+STYLE DES PRIÈRES — Formules DIRECTES et COMMANDANTES :
+"1. Tout pouvoir qui [description], meurs au nom de Jésus."
+"2. Chaque [ennemi spirituel], je te [action] par le feu, au nom de Jésus."
+"3. Ô [élément], lève-toi et [action], au nom de Jésus."
+
+VERSETS BIBLIQUES :
+- Cités avec référence COMPLÈTE (Livre chapitre:verset)
+- En <blockquote> avec le texte complet
+- TOUJOURS suivis d'une EXPLICATION et APPLICATION
+
+SOUS-TITRES EN MAJUSCULES — Style D.K. Olukoya :
+"L'AUTORITÉ DU CROYANT", "LE SERPENT MALÉFIQUE", "IGNORANCE COÛTEUSE", "QUESTIONS PERTINENTES"
+
+TON : AUCUNE douceur. C'est un COMBAT. Interpellation directe du lecteur. Autorité totale.`,
+
+    story: `STRUCTURE DE VRAI ROMAN/CONTE (inspiré de "Des larmes d'or vert" de Marie-Amélie Laporte) :
+
+STRUCTURE OBLIGATOIRE :
+1. Les PERSONNAGES ont des NOMS complets, des descriptions physiques, un passé, des motivations
+2. Les DIALOGUES utilisent le TIRET (—) PAS les guillemets :
+   — Cela fait plusieurs mois que je fais attention à toi, dit-il.
+   — No problem ! Je ne t'avais pas remarqué.
+3. Chaque chapitre a un TITRE ÉVOCATEUR (pas descriptif) : "Espoirs déçus", "Le double visage", "Drôle de pastis"
+4. Les DESCRIPTIONS sont SENSORIELLES mais PRÉCISES (lieux réels, dates, contexte social)
+5. L'histoire AVANCE dans chaque chapitre — pas de remplissage
+
+FORMAT :
+- Longs paragraphes narratifs entrecoupés de dialogues
+- Pas de listes, pas de sous-titres — c'est de la PROSE PURE
+- Descriptions des LIEUX (ville, rue, intérieur) pour ancrer dans le réel
+- Le temps passe : indiquer les dates/saisons ("Septembre 2016", "Un matin glorieux de printemps")`,
+
+    novel: `STRUCTURE ROMANESQUE COMPLÈTE :
+- Chapitres immersifs avec arc narratif (situation initiale → conflit → résolution)
+- Personnages avec NOMS, traits physiques, voix distinctes
+- Dialogues avec tirets (—)
+- Descriptions d'ambiance et de lieu
+- Tension narrative, rebondissements
+- Fin qui donne envie de relire ou qui marque le lecteur`,
 
     devotional: `STRUCTURE DE MÉDITATIONS QUOTIDIENNES :
 - Format numéroté : "Jour 1", "Jour 2"...
-- Chaque méditation : verset sacré en <blockquote> avec référence → réflexion personnelle → application pratique → prière courte
+- Chaque méditation : verset sacré en <blockquote> avec référence complète → réflexion personnelle de l'auteur → application pratique concrète → prière courte
 - Ton intime et personnel, comme un journal spirituel
+- L'auteur partage ses PROPRES expériences de foi
 - 30 ou 90 jours`,
 
-    activity: `STRUCTURE INTERACTIVE :
+    activity: `STRUCTURE INTERACTIVE (Cahier d'activités) :
 - Exercices variés : quiz, questions de réflexion, espaces à remplir (_____)
 - Chaque activité a un objectif pédagogique clair
 - Instructions simples et encourageantes
-- Réponses en fin de chapitre`,
+- Réponses en fin de chapitre
+- Illustrations décrites entre [crochets]`,
   },
   en: {
-    ebook: `REAL BOOK STRUCTURE (Gary Chapman "Things I Wish I'd Known" style):
-- Introduction that states THE READER'S PROBLEM from the first lines
-- Each chapter starts with a strong statement or question
-- Author shares own experiences and mistakes honestly
-- Mix of: personal experience + practical advice + data/studies
-- Clear, descriptive <h3> sub-headings (not poetic)
-- "Discuss" or "Key Takeaways" section with 3-5 questions/points at end of each chapter
-- Paragraphs of 3-6 sentences, never walls of text
-- Relevant quotes in <blockquote> (with source)`,
+    ebook: `REAL PERSONAL DEVELOPMENT BOOK STRUCTURE (inspired by Myles Munroe "Understanding Your Potential" and Gary Chapman):
 
-    guide: `REAL PRACTICAL MANUAL STRUCTURE (ILO "Improve Your Business" style):
-- Split into PARTS then numbered sections (1., 2., 3.)
-- Numbered sub-sections (1.1, 1.2, 1.3)
-- 100% FUNCTIONAL titles: "What is X?", "How to do Y?", "The 5 steps for Z"
-- CASE STUDIES with fictional character/business names to illustrate
-- Practical EXERCISES: reflection questions, scenarios to solve
-- Abundant bullet <ul><li> and numbered <ol><li> lists
-- <blockquote> boxes for IMPORTANT information
-- Summary at end of section
-- Didactic tone: "When you finish this chapter, you will be able to..."
+MANDATORY STRUCTURE:
+1. FIRST CHAPTER = "Introduction" or "Preface" — Author states THE PROBLEM with a powerful story or anecdote. Explains WHY they wrote this book.
+2. CORE CHAPTERS — Each develops ONE aspect:
+   - Starts with a bold statement, question, or short story
+   - Develops with CONCRETE examples (names, places, dates, real situations)
+   - Includes bullet lists when relevant (e.g., Lincoln's failures list)
+   - Uses <blockquote> quotes with sources
+   - Ends with REFLECTION QUESTIONS or "Key Takeaways" (3-5 practical questions)
+3. LAST CHAPTER = Conclusion or "Dare to Believe" — Synthesis and call to action
+
+CHAPTER TITLES — Questions or direct statements:
+Real examples: "Who Are You?", "What Happened to the Real You?", "The Key to Your Potential", "Challenge Your Ability"
+
+FORMAT:
+- Paragraphs of 3-5 sentences, NEVER walls of text
+- Clear functional <h3> sub-headings
+- <ul><li> for concrete examples
+- <blockquote> for quotes and key principles
+- Author OWNS their opinions and speaks in first person`,
+
+    guide: `REAL PRACTICAL MANUAL STRUCTURE:
+- PARTS with numbered sections (1., 2., 3.) and sub-sections (1.1, 1.2)
+- 100% FUNCTIONAL titles: "What is X?", "How to Y?", "The 5 steps for Z"
+- CASE STUDIES with fictional character/business names
+- EXERCISES: reflection questions, scenarios
+- <blockquote> for IMPORTANT info boxes
+- Summary at end of each section
 - ZERO literary narrative, ZERO metaphors — it's a WORK TOOL`,
 
-    prayers: `REAL PRAYER/SPIRITUAL WARFARE BOOK STRUCTURE:
-- DIRECT introduction establishing spiritual authority
-- Chapters with NUMBERED LISTS ("9 examples of...", "6 forces of...", "21 prayers for...")
-- CAPITALIZED numbered sub-headings: "1. FIRST POINT", "2. SECOND POINT"
-- Abundant BIBLE VERSES with full references (Book chapter:verse) in <blockquote>
-- Each verse EXPLAINED and APPLIED to reader's life
-- Direct address: "Ladies and gentlemen", "Decide today!"
-- PRAYER sections with direct, powerful formulas
-- No poetry or excessive softness — this is WARFARE
-- Structure: biblical teaching → explanation → application → prayer`,
+    prayers: `REAL SPIRITUAL WARFARE BOOK STRUCTURE (inspired by D.K. Olukoya "Commanding the Morning"):
+- Biblical TEACHING with full verse references in <blockquote>
+- REAL TESTIMONIES (deliverance stories, real-life examples)
+- NUMBERED PRAYER POINTS (10-21 per section) — DIRECT, COMMANDING:
+  "1. Every power [description], die in the name of Jesus."
+  "2. Every [spiritual enemy], I [action] you by fire, in the name of Jesus."
+- CAPITALIZED sub-headings: "THE BELIEVER'S AUTHORITY", "COSTLY IGNORANCE"
+- NO softness. This is WARFARE.`,
 
-    story: `Short captivating narrative chapters. Characters with NAMES and distinct personalities. Lively dialogues. Sensory descriptions.`,
-    novel: `Novelistic structure with immersive chapters. Deep characters, plots, authentic dialogues, full narrative arc.`,
-    devotional: `Daily meditations: Day 1, Day 2... Each with verse, reflection, application, prayer.`,
-    activity: `Interactive: quizzes, questions, fill-in spaces, creative challenges. Clear objectives.`,
+    story: `REAL NOVEL STRUCTURE (inspired by literary fiction):
+- Characters with FULL NAMES, physical descriptions, backstory
+- Dialogues with dashes (—) not quotes
+- EVOCATIVE chapter titles: not descriptive
+- SENSORY descriptions anchored in real places and dates
+- PURE PROSE: no lists, no sub-headings`,
+
+    novel: `Full novelistic structure: immersive chapters, named characters, dash dialogues (—), narrative arc, tension, resolution.`,
+    devotional: `Daily meditations: Day 1, Day 2... Each with verse + personal reflection + application + prayer.`,
+    activity: `Interactive: quizzes, fill-in spaces, creative challenges. Clear objectives per activity.`,
   },
   es: {
-    ebook: `Estructura de libro real: problema del lector, experiencia del autor, consejos prácticos, preguntas de discusión.`,
-    guide: `Manual práctico: partes numeradas, casos prácticos, ejercicios, listas, resúmenes.`,
-    prayers: `Libro de oración: listas numeradas, versículos con referencias, interpelación directa, fórmulas de oración.`,
-    story: `Capítulos narrativos cortos, personajes con nombres, diálogos vivos.`,
-    novel: `Estructura novelística con capítulos inmersivos.`,
-    devotional: `Meditaciones diarias numeradas con versículos y oración.`,
+    ebook: `Estructura de libro real: problema, experiencia del autor, ejemplos concretos, preguntas de reflexión al final de cada capítulo.`,
+    guide: `Manual práctico: partes numeradas, casos prácticos con nombres, ejercicios, listas, resúmenes.`,
+    prayers: `Libro de combate espiritual: versículos con referencias, testimonios reales, puntos de oración NUMERADOS y COMANDANTES.`,
+    story: `Novela: personajes con nombres completos, diálogos con rayas (—), descripciones sensoriales, prosa pura.`,
+    novel: `Estructura novelística completa con arco narrativo.`,
+    devotional: `Meditaciones diarias numeradas con versículos, reflexión y oración.`,
     activity: `Estructura interactiva con ejercicios y actividades.`,
   },
   pt: {
-    ebook: `Estrutura de livro real: problema do leitor, experiência do autor, conselhos práticos, questões de discussão.`,
-    guide: `Manual prático: partes numeradas, casos práticos, exercícios, listas, resumos.`,
-    prayers: `Livro de oração: listas numeradas, versículos com referências, interpelação direta.`,
-    story: `Capítulos narrativos curtos, personagens com nomes, diálogos vivos.`,
-    novel: `Estrutura romanesca com capítulos imersivos.`,
-    devotional: `Meditações diárias numeradas com versículos e oração.`,
-    activity: `Estrutura interativa com exercícios e atividades.`,
+    ebook: `Estrutura de livro real: problema, experiência do autor, exemplos concretos, perguntas de reflexão.`,
+    guide: `Manual prático: partes numeradas, casos práticos, exercícios, resumos.`,
+    prayers: `Livro de combate espiritual: versículos com referências, testemunhos reais, pontos de oração NUMERADOS.`,
+    story: `Romance: personagens com nomes completos, diálogos com travessões (—), prosa pura.`,
+    novel: `Estrutura romanesca completa.`,
+    devotional: `Meditações diárias numeradas.`,
+    activity: `Estrutura interativa com exercícios.`,
   },
   de: {
-    ebook: `Echte Buchstruktur: Leserproblem, Autorenerfahrung, praktische Ratschläge, Diskussionsfragen.`,
-    guide: `Praktisches Handbuch: nummerierte Teile, Fallstudien, Übungen, Listen, Zusammenfassungen.`,
-    prayers: `Gebetbuch: nummerierte Listen, Bibelverse mit Referenzen, direkte Ansprache.`,
-    story: `Kurze narrative Kapitel, Figuren mit Namen, lebendige Dialoge.`,
+    ebook: `Echte Buchstruktur: Problem, Autorenerfahrung, konkrete Beispiele, Reflexionsfragen.`,
+    guide: `Praktisches Handbuch: nummerierte Teile, Fallstudien, Übungen, Zusammenfassungen.`,
+    prayers: `Geistliches Kampfbuch: Bibelverse mit Referenzen, echte Zeugnisse, NUMMERIERTE Gebetspunkte.`,
+    story: `Roman: Figuren mit vollständigen Namen, Dialoge mit Gedankenstrich (—), reine Prosa.`,
     novel: `Romanstruktur mit immersiven Kapiteln.`,
-    devotional: `Nummerierte tägliche Meditationen mit Versen und Gebet.`,
-    activity: `Interaktive Struktur mit Übungen und Aktivitäten.`,
+    devotional: `Nummerierte tägliche Meditationen.`,
+    activity: `Interaktive Struktur mit Übungen.`,
   },
   sw: {
-    ebook: `Muundo wa kitabu halisi: tatizo la msomaji, uzoefu wa mwandishi, ushauri wa vitendo.`,
-    guide: `Mwongozo wa vitendo: sehemu zilizohesabiwa, mifano, mazoezi, orodha.`,
-    prayers: `Kitabu cha maombi: orodha zilizohesabiwa, aya na marejeleo, anwani ya moja kwa moja.`,
-    story: `Sura fupi za kuvutia, wahusika wenye majina, mazungumzo hai.`,
-    novel: `Muundo wa riwaya na sura za kuzamisha.`,
-    devotional: `Kutafakari za kila siku zilizohesabiwa na aya na maombi.`,
-    activity: `Muundo wa maingiliano na mazoezi na shughuli.`,
+    ebook: `Muundo wa kitabu halisi: tatizo, uzoefu wa mwandishi, mifano halisi, maswali ya kutafakari.`,
+    guide: `Mwongozo wa vitendo: sehemu zilizohesabiwa, mifano, mazoezi, muhtasari.`,
+    prayers: `Kitabu cha vita vya kiroho: aya na marejeleo, ushuhuda halisi, pointi za maombi ZILIZOHESABIWA.`,
+    story: `Riwaya: wahusika wenye majina kamili, mazungumzo na dashi (—), nathari safi.`,
+    novel: `Muundo kamili wa riwaya.`,
+    devotional: `Kutafakari za kila siku zilizohesabiwa.`,
+    activity: `Muundo wa maingiliano na mazoezi.`,
   },
 };
 
