@@ -669,8 +669,9 @@ export function ProductForm() {
         </div>
 
         {isEdit && productUrl && (
-          <div className="mt-6">
+          <div className="mt-6 space-y-4">
             <EmbedSnippetGen productId={id!} orgSlug={currentOrg?.slug || ''} productTitle={watch('title')} price={watch('price') || 0} currency={currentOrg?.currency || 'XOF'} isFree={watch('is_free')} />
+            <SocialSnippetsViewer productId={id!} orgId={currentOrg?.id || ''} />
           </div>
         )}
       </form>
