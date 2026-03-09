@@ -132,8 +132,9 @@ export default function SuperadminFullDashboard() {
         users: c.users || 0,
       }));
 
+      const t = totals.data as any;
       return {
-        totalOrgs: t.total_orgs || 0,
+        totalOrgs: t?.total_orgs || 0,
         activeOrgs: t.active_orgs || 0,
         suspendedOrgs: t.suspended_orgs || 0,
         totalMembers: t.total_members || 0,

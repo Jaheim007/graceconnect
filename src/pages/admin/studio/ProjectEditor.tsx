@@ -496,7 +496,7 @@ export default function ProjectEditor() {
     // Save first if dirty
     if (dirty) {
       await db.from('ai_content_projects')
-        .update({ structure_json: { chapters }, updated_at: new Date().toISOString() })
+        .update({ structure_json: { chapters } as any, updated_at: new Date().toISOString() })
         .eq('id', id);
       setDirty(false);
     }
