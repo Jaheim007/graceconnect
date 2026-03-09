@@ -188,12 +188,13 @@ export function StepSource({
 }
 
 /* ---------- Draft Manager Sub-component ---------- */
-function DraftManager({ t, visibleDrafts, activeDraftId, onCreateDraft, onLoadDraft, lastSavedAt }: {
+function DraftManager({ t, visibleDrafts, activeDraftId, onCreateDraft, onLoadDraft, onDeleteDraft, lastSavedAt }: {
   t: (key: string) => string;
   visibleDrafts: SavedWriteDraftSummary[];
   activeDraftId: string;
   onCreateDraft: () => void;
   onLoadDraft: (id: string) => void;
+  onDeleteDraft: (id: string) => void;
   lastSavedAt: number | null;
 }) {
   return (
