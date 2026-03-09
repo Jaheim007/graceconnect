@@ -290,6 +290,10 @@ export default function AdminPayouts() {
             })}
           </motion.div>
         )}
+        {/* Post-versement feedback */}
+        {payouts?.some((p: any) => p.status === 'completed') && (
+          <ContextualFeedback context="post_payout" question="Avez-vous bien reçu vos fonds ?" />
+        )}
       </div>
     </AdminPageShell>
   );
