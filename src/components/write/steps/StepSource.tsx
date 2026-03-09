@@ -139,6 +139,7 @@ export function StepSource({
         activeDraftId={activeDraftId}
         onCreateDraft={onCreateDraft}
         onLoadDraft={onLoadDraft}
+        onDeleteDraft={onDeleteDraft}
         lastSavedAt={lastSavedAt}
       />
 
