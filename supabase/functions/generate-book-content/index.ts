@@ -638,14 +638,14 @@ STRICTLY BANNED WORDS/PHRASES:
 "Mosaic of", "Tapestry of", "Symphony of", "Alchemy of"`;
 }
 
-type EditorialProfile = 'business_manual' | 'leadership' | 'spiritual_warfare' | 'personal_growth' | 'narrative' | 'devotional_journal' | 'activity_workbook' | 'coloring_book';
+type EditorialProfile = 'business_manual' | 'leadership' | 'spiritual_warfare' | 'simple_prayers' | 'islamic_devotional' | 'proclamations' | 'religious_teaching' | 'personal_growth' | 'narrative' | 'devotional_journal' | 'activity_workbook' | 'coloring_book';
 
-function detectEditorialProfile(style: string, tone: string, title: string, topic: string, audience: string): EditorialProfile {
+function detectEditorialProfile(style: string, tone: string, title: string, topic: string, audience: string, religiousTradition?: string, prayerFormat?: string): EditorialProfile {
   const haystack = `${title} ${topic}`.toLowerCase();
   const narrativeStyles = ['story', 'novel'];
   if (narrativeStyles.includes(style)) return 'narrative';
 
-  // Devotional — must be checked BEFORE spiritual_warfare
+  // Devotional — must be checked BEFORE prayers
   if (style === 'devotional') return 'devotional_journal';
 
   // Activity book
@@ -654,8 +654,31 @@ function detectEditorialProfile(style: string, tone: string, title: string, topi
   // Coloring book
   if (style === 'coloring') return 'coloring_book';
 
+  // ═══ PRAYERS — Route based on religiousTradition + prayerFormat ═══
+  if (style === 'prayers') {
+    // If user selected a specific format, use it
+    if (prayerFormat === 'warfare_prayers') return 'spiritual_warfare';
+    if (prayerFormat === 'proclamations') return 'proclamations';
+    if (prayerFormat === 'religious_teaching') return 'religious_teaching';
+    if (prayerFormat === 'invocations') {
+      if (religiousTradition === 'muslim') return 'islamic_devotional';
+      return 'simple_prayers';
+    }
+    if (prayerFormat === 'simple_prayers') return 'simple_prayers';
+    
+    // Fallback: detect from tradition
+    if (religiousTradition === 'muslim') return 'islamic_devotional';
+    if (religiousTradition === 'spiritual' || religiousTradition === 'interfaith') return 'simple_prayers';
+    
+    // Default Christian: check signals for warfare vs simple
+    const warfareSignals = ['combat', 'guerre', 'warfare', 'delivrance', 'satan', 'bataille', 'commanding', 'fire'];
+    if (warfareSignals.some((w) => haystack.includes(w))) return 'spiritual_warfare';
+    return 'simple_prayers';
+  }
+
+  // Non-prayer spiritual content
   const spiritualSignals = ['prière', 'priere', 'anges', 'ange', 'spirituel', 'combat', 'delivrance', 'foi', 'satan', 'bataille', 'guerre', 'jesus', 'bible', 'miracle'];
-  if (style === 'prayers' || tone === 'spiritual' || spiritualSignals.some((word) => haystack.includes(word))) {
+  if (tone === 'spiritual' || spiritualSignals.some((word) => haystack.includes(word))) {
     return 'spiritual_warfare';
   }
 
