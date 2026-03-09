@@ -22,8 +22,59 @@ import { useI18n } from '@/i18n/I18nContext';
  * 4. Simple buyer → UserDashboard (purchases, discover)
  */
 export default function DashboardRouter() {
-  // Simplified: always redirect to /feed
-  return <Navigate to="/feed" replace />;
+  const { user } = useAuth();
+  const { userOrgs, canManage, isLoadingOrgs } = useOrg();
+
+  // Check if user has affiliate links or purchases
+  const { data: userState, isLoading: stateLoading } = useQuery({
+    queryKey: ['dashboard-state', user?.id],
+    queryFn: async () => {
+      if (!user) return { hasAffiliateLinks: false, hasPurchases: false, hasBook: false };
+      const [affiliateRes, purchaseRes, bookRes] = await Promise.all([
+        db.from('affiliate_links').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
+        db.from('product_purchases').select('id', { count: 'exact', head: true }).eq('user_id', user.id).eq('status', 'completed'),
+        db.from('ai_content_projects').select('id', { count: 'exact', head: true }).eq('created_by', user.id),
+      ]);
+      return {
+        hasAffiliateLinks: (affiliateRes.count || 0) > 0,
+        hasPurchases: (purchaseRes.count || 0) > 0,
+        hasBook: (bookRes.count || 0) > 0,
+      };
+    },
+    enabled: !!user,
+    staleTime: 60_000,
+  });
+
+  // Show loader while loading
+  if (isLoadingOrgs || stateLoading) {
+    return (
+      <div className="container max-w-2xl px-4 py-8 space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-24 w-full" />
+      </div>
+    );
+  }
+
+  // 1. Creator → redirect to /admin
+  const manageableOrg = userOrgs.find(o => canManage(o.id));
+  if (manageableOrg) {
+    return <Navigate to="/admin" replace />;
+  }
+
+  // 2. Ambassador (has affiliate links but no org to manage)
+  if (userState?.hasAffiliateLinks) {
+    return <AmbassadorDashboard />;
+  }
+
+  // 3. New user (no activity at all)
+  const isNewUser = !userState?.hasPurchases && !userState?.hasAffiliateLinks;
+  if (isNewUser) {
+    return <NewUserDashboard hasBook={userState?.hasBook || false} />;
+  }
+
+  // 4. Simple buyer
+  return <UserDashboard />;
 }
 
 function NewUserDashboard({ hasBook }: { hasBook: boolean }) {

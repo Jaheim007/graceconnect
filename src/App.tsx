@@ -361,7 +361,7 @@ const App = () => (
                 <Route path="/maintenance" element={<MaintenancePage />} />
                 <Route path="/gagner" element={<GagnerPage />} />
                 <Route path="/earn" element={<Navigate to="/gagner" replace />} />
-                <Route path="/gagner-info" element={<GagnerLandingPage />} />
+                <Route path="/gagner-info" element={<Navigate to="/gagner" replace />} />
                 <Route path="/ecrire" element={<RequireAuth><EcrirePage /></RequireAuth>} />
                 <Route path="/write" element={<Navigate to="/ecrire" replace />} />
                 <Route path="/migrer" element={<MigrerPage />} />
