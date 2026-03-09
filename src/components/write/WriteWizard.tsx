@@ -133,6 +133,8 @@ const initialState: WriteState = {
   authorName: '',
   keywords: [],
   style: 'ebook',
+  religiousTradition: undefined,
+  prayerFormat: undefined,
   tone: 'professional',
   languageLevel: 'intermediate',
   targetAudience: 'general',
