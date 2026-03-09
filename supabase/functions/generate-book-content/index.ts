@@ -401,6 +401,14 @@ FORMAT:
 5. LAST CHAPTER = "🏆 Certificate of completion"
 HTML: <table> for grids, <ul><li>□ for choices, <hr/> between activities, emojis throughout.
 FORBIDDEN: long text paragraphs, lecture tone, monotonous exercises.`,
+    coloring: `PROFESSIONAL COLORING BOOK STRUCTURE:
+- Each chapter = 1 THEME (animals, vehicles, characters, etc.)
+- Each page = 1 SCENE described in [ILLUSTRATION: detailed description of line art scene]
+- 90% IMAGES, 10% text. Minimal text — this is a VISUAL book
+- Short fun title per page + optional 1-2 sentence fact or instruction
+- [ILLUSTRATION: ...] descriptions must be PRECISE for image generation
+- Adapt complexity to audience (toddlers=simple shapes, adults=mandalas/detailed patterns)
+FORBIDDEN: long paragraphs, quizzes, written exercises. This is for COLORING.`,
   },
   es: {
     ebook: `Estructura de libro real: problema, experiencia del autor, ejemplos concretos, preguntas de reflexión al final de cada capítulo.`,
@@ -410,6 +418,7 @@ FORBIDDEN: long text paragraphs, lecture tone, monotonous exercises.`,
     novel: `Estructura novelística completa con arco narrativo.`,
     devotional: `Meditaciones diarias numeradas con versículos, reflexión y oración.`,
     activity: `Estructura interactiva con ejercicios y actividades.`,
+    coloring: `Libro de colorear: cada página = 1 escena descrita en [ILUSTRACIÓN: ...]. Mínimo texto, máximo visual.`,
   },
   pt: {
     ebook: `Estrutura de livro real: problema, experiência do autor, exemplos concretos, perguntas de reflexão.`,
@@ -419,6 +428,7 @@ FORBIDDEN: long text paragraphs, lecture tone, monotonous exercises.`,
     novel: `Estrutura romanesca completa.`,
     devotional: `Meditações diárias numeradas.`,
     activity: `Estrutura interativa com exercícios.`,
+    coloring: `Livro de colorir: cada página = 1 cena descrita em [ILUSTRAÇÃO: ...]. Mínimo texto, máximo visual.`,
   },
   de: {
     ebook: `Echte Buchstruktur: Problem, Autorenerfahrung, konkrete Beispiele, Reflexionsfragen.`,
@@ -428,6 +438,7 @@ FORBIDDEN: long text paragraphs, lecture tone, monotonous exercises.`,
     novel: `Romanstruktur mit immersiven Kapiteln.`,
     devotional: `Nummerierte tägliche Meditationen.`,
     activity: `Interaktive Struktur mit Übungen.`,
+    coloring: `Malbuch: jede Seite = 1 Szene beschrieben in [ILLUSTRATION: ...]. Minimaler Text, maximales Visuelles.`,
   },
   sw: {
     ebook: `Muundo wa kitabu halisi: tatizo, uzoefu wa mwandishi, mifano halisi, maswali ya kutafakari.`,
@@ -437,6 +448,7 @@ FORBIDDEN: long text paragraphs, lecture tone, monotonous exercises.`,
     novel: `Muundo kamili wa riwaya.`,
     devotional: `Kutafakari za kila siku zilizohesabiwa.`,
     activity: `Muundo wa maingiliano na mazoezi.`,
+    coloring: `Kitabu cha kupaka rangi: kila ukurasa = eneo 1 lililoelezwa katika [MCHORO: ...]. Maandishi kidogo.`,
   },
 };
 
