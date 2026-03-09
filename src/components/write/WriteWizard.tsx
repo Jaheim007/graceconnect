@@ -26,6 +26,7 @@ export type WritingTone = 'professional' | 'conversational' | 'humorous' | 'spir
 export type LanguageLevel = 'simple' | 'intermediate' | 'advanced';
 export type TargetAudience = 'general' | 'children' | 'teens' | 'adults' | 'seniors' | 'professionals';
 export type BookLanguage = 'fr' | 'en' | 'es' | 'pt' | 'de' | 'sw';
+export type BookLength = 'short' | 'medium' | 'long';
 
 export interface WriteChapter {
   id: string;
@@ -50,12 +51,15 @@ export interface WriteState {
   uploadedFile: File | null;
   transcribing: boolean;
   title: string;
+  subtitle: string;
   style: BookStyle;
   tone: WritingTone;
   languageLevel: LanguageLevel;
   targetAudience: TargetAudience;
   language: BookLanguage;
   styleReference: string;
+  bookLength: BookLength;
+  chapterCount: number;
   pageCount: number;
   editorialStrategy?: EditorialStrategy;
   chapters: WriteChapter[];
@@ -119,12 +123,15 @@ const initialState: WriteState = {
   uploadedFile: null,
   transcribing: false,
   title: '',
+  subtitle: '',
   style: 'ebook',
   tone: 'professional',
   languageLevel: 'intermediate',
   targetAudience: 'general',
   language: 'fr',
   styleReference: '',
+  bookLength: 'medium',
+  chapterCount: 8,
   pageCount: 20,
   chapters: [],
   chapterIllustrations: {},
