@@ -117,7 +117,7 @@ export function StepSource({
     }
   };
 
-  const visibleDrafts = savedDrafts.slice(0, 4);
+  const visibleDrafts = savedDrafts.slice(0, 8);
 
   return (
     <div className="space-y-8 pt-8">
