@@ -126,6 +126,8 @@ const initialState: WriteState = {
   transcribing: false,
   title: '',
   subtitle: '',
+  authorName: '',
+  keywords: [],
   style: 'ebook',
   tone: 'professional',
   languageLevel: 'intermediate',
