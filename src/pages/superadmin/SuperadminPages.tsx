@@ -328,7 +328,7 @@ export function SuperadminTransactions() {
         _from: dateRange.from?.toISOString() || null,
         _to: dateRange.to?.toISOString() || null,
       });
-      return data || { gmv: 0, platform_fees: 0, affiliate_commissions: 0, total_count: 0 };
+      return (data || { gmv: 0, platform_fees: 0, affiliate_commissions: 0, total_count: 0 }) as any;
     },
   });
 
