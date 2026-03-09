@@ -252,7 +252,7 @@ export default function AdminLayout() {
           })}
         </aside>
 
-        <main className="flex-1 min-w-0 p-3 sm:p-4 lg:p-6">
+        <main className="flex-1 min-w-0 p-3 sm:p-4 lg:p-6 overflow-y-auto">
           <Outlet />
         </main>
       </div>

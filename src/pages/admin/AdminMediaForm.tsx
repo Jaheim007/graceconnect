@@ -117,9 +117,16 @@ export function MediaForm() {
           <div className="space-y-1.5"><Label>Série</Label><Input {...register('series')} placeholder="Nom de la série..." /></div>
         </div>
         <div className="space-y-1.5">
-          <Label>URL du média *</Label>
-          <Input {...register('media_url')} placeholder="https://youtube.com/... ou lien direct" />
-          <p className="text-[11px] text-muted-foreground">YouTube, Vimeo ou lien direct (.mp4/.mp3)</p>
+          <Label>Média (upload ou URL) *</Label>
+          <FileUploader
+            value={watch('media_url') || ''}
+            onChange={(url) => setValue('media_url', url, { shouldDirty: true })}
+            folder="media"
+            label="Fichier média"
+            hint={selectedType === 'audio' ? 'MP3, AAC, WAV · Max 50 Mo' : 'MP4, WebM ou lien YouTube/Vimeo'}
+            accept={selectedType === 'audio' ? 'audio/*' : 'video/*'}
+            bucket="org-uploads"
+          />
           {errors.media_url && <p className="text-xs text-destructive">{errors.media_url.message}</p>}
         </div>
         <ImageUploader value={watch('thumbnail_url') || ''} onChange={(url) => setValue('thumbnail_url', url)} folder="thumbnails" label="Miniature" hint={selectedType === 'reel' ? '9:16 · 1080×1920px' : '16:9 · 1280×720px'} aspectRatio={selectedType === 'reel' ? 'square' : 'video'} />
