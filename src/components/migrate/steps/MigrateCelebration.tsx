@@ -4,6 +4,7 @@ import { PartyPopper, ExternalLink, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
+import { useI18n } from '@/i18n/I18nContext';
 import type { MigrateState } from '../MigrateWizard';
 
 interface Props {
@@ -13,10 +14,11 @@ interface Props {
 export function MigrateCelebration({ state }: Props) {
   const navigate = useNavigate();
   const [showConfetti, setShowConfetti] = useState(true);
+  const { t } = useI18n();
 
   useEffect(() => {
-    const t = setTimeout(() => setShowConfetti(false), 4000);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setShowConfetti(false), 4000);
+    return () => clearTimeout(timer);
   }, []);
 
   const shareUrl = `https://siteviral.com/discover`;
@@ -45,10 +47,10 @@ export function MigrateCelebration({ state }: Props) {
         <div className="h-20 w-20 mx-auto rounded-3xl bg-primary/10 flex items-center justify-center">
           <PartyPopper className="h-10 w-10 text-primary" />
         </div>
-        <h2 className="text-3xl sm:text-4xl font-extrabold">🎉 PUBLIÉ !</h2>
+        <h2 className="text-3xl sm:text-4xl font-extrabold">{t('migrate.published')}</h2>
         <p className="text-muted-foreground text-sm max-w-sm mx-auto">
-          « <strong className="text-foreground">{state.title}</strong> » est en vente.
-          <br />La différence ? <strong className="text-emerald-500">Ici, tes lecteurs vendent pour toi.</strong>
+          « <strong className="text-foreground">{state.title}</strong> » {t('migrate.on_sale')}
+          <br />{t('migrate.difference')} <strong className="text-emerald-500">{t('migrate.readers_sell')}</strong>
         </p>
       </motion.div>
 
@@ -56,7 +58,7 @@ export function MigrateCelebration({ state }: Props) {
         <SocialShareKit
           url={shareUrl}
           title={state.title}
-          description={`Découvre "${state.title}" sur SiteViral !`}
+          description={t('migrate.discover_title').replace('{title}', state.title)}
           context="post-publication"
           price={state.isFree ? undefined : state.price}
         />
@@ -64,11 +66,11 @@ export function MigrateCelebration({ state }: Props) {
 
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="space-y-3 pt-4">
         <Button variant="outline" className="gap-2 w-full sm:w-auto" onClick={() => navigate('/dashboard')}>
-          <ExternalLink className="h-4 w-4" /> Mon dashboard
+          <ExternalLink className="h-4 w-4" /> {t('migrate.dashboard')}
         </Button>
         <div>
           <Button variant="ghost" className="gap-2 text-sm" onClick={() => navigate('/migrer')}>
-            <Upload className="h-4 w-4" /> Importer un autre produit
+            <Upload className="h-4 w-4" /> {t('migrate.import_another')}
           </Button>
         </div>
       </motion.div>

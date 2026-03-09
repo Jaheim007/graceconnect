@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useIsWishlisted, useToggleWishlist } from '@/hooks/useWishlist';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface WishlistButtonProps {
   productId: string;
@@ -16,6 +17,7 @@ export function WishlistButton({ productId, variant = 'icon', className }: Wishl
   const navigate = useNavigate();
   const { data: isWishlisted = false } = useIsWishlisted(productId);
   const toggle = useToggleWishlist();
+  const { t } = useI18n();
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -41,7 +43,7 @@ export function WishlistButton({ productId, variant = 'icon', className }: Wishl
         ) : (
           <Heart className={cn('h-3.5 w-3.5 transition-all', isWishlisted && 'fill-red-500 text-red-500')} />
         )}
-        {isWishlisted ? 'Sauvegardé' : 'Sauvegarder'}
+        {isWishlisted ? t('wishlist.saved') : t('wishlist.save')}
       </Button>
     );
   }
@@ -55,7 +57,7 @@ export function WishlistButton({ productId, variant = 'icon', className }: Wishl
         isWishlisted && 'bg-red-50 border-red-200 dark:bg-red-950/50 dark:border-red-800',
         className,
       )}
-      aria-label={isWishlisted ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+      aria-label={isWishlisted ? t('wishlist.remove') : t('wishlist.add')}
     >
       {toggle.isPending ? (
         <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
