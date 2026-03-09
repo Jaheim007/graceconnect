@@ -39,6 +39,7 @@ interface VideoPreview {
   videoId: string;
   platform: string;
   url: string;
+  description?: string;
   selected?: boolean;
 }
 
@@ -85,7 +86,7 @@ export function VideoImportButton() {
       if (fnError) throw fnError;
       if (data?.error) throw new Error(data.error);
       if (data?.videos?.length) {
-        setChannelVideos(data.videos.map((v: any) => ({ ...v, platform: 'youtube', selected: true })));
+        setChannelVideos(data.videos.map((v: any) => ({ ...v, platform: 'youtube', selected: true, description: v.description || '' })));
         toast({ title: `📡 ${data.videos.length} vidéos trouvées`, description: `Chaîne: ${data.channelName}` });
       } else {
         setError('Aucune vidéo trouvée pour cette chaîne.');
@@ -99,7 +100,7 @@ export function VideoImportButton() {
     try {
       const { error: insertError } = await db.from('media_content').insert({
         organization_id: currentOrg.id, created_by: user.id, title: video.title,
-        description: `Importé depuis ${video.platform} · Par ${video.author}`,
+        description: video.description || `Importé depuis ${video.platform} · Par ${video.author}`,
         media_type: 'video', media_url: video.url, thumbnail_url: video.thumbnail || null,
         is_published: true, speaker: video.author,
       });

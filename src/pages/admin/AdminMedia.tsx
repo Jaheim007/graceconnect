@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useOrg } from '@/contexts/OrgContext';
-import { useOrgMedia, useDeleteMedia } from '@/hooks/useMedia';
+import { useOrgMedia, useDeleteMedia, useUpdateMedia } from '@/hooks/useMedia';
 import { AdminPageShell } from './AdminPageShell';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { VideoImportButton } from '@/components/admin/VideoImportButton';
 import { useToast } from '@/hooks/use-toast';
@@ -37,6 +37,7 @@ export default function AdminMedia() {
   const { t } = useI18n();
   const { data: media = [], isLoading } = useOrgMedia(currentOrg?.id, false);
   const deleteMutation = useDeleteMedia();
+  const updateMutation = useUpdateMedia();
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
 
   const handleConfirmDelete = async () => {
@@ -44,6 +45,11 @@ export default function AdminMedia() {
     await deleteMutation.mutateAsync({ id: deleteTarget.id, orgId: currentOrg!.id });
     toast({ title: t('admin_media.deleted') });
     setDeleteTarget(null);
+  };
+
+  const handleTogglePublish = async (m: any) => {
+    await updateMutation.mutateAsync({ id: m.id, updates: { is_published: !m.is_published } });
+    toast({ title: m.is_published ? 'Média dépublié' : 'Média publié ✅' });
   };
 
   return (
@@ -58,27 +64,27 @@ export default function AdminMedia() {
       ) : (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
           <div className="flex items-center justify-between gap-2">
-            <h2 className="font-semibold text-sm">{media.length} {media.length > 1 ? t('admin_media.count_plural') : t('admin_media.count')}</h2>
+            <h2 className="font-semibold text-base">{media.length} {media.length > 1 ? t('admin_media.count_plural') : t('admin_media.count')}</h2>
             <VideoImportButton />
           </div>
-          <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
+          <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2.5">
             {media.map((m) => (
               <motion.div
                 key={m.id}
                 variants={fadeUp}
-                className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all group"
+                className="flex items-center gap-4 p-4 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all group"
               >
-                <div className="h-12 w-20 rounded-lg bg-muted overflow-hidden shrink-0">
+                <div className="h-16 w-28 rounded-lg bg-muted overflow-hidden shrink-0">
                   {m.thumbnail_url ? <img src={m.thumbnail_url} alt={m.title} className="w-full h-full object-cover" /> : <div className="w-full h-full hero-gradient" />}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{m.title}</p>
-                  <div className="flex items-center gap-1.5 mt-0.5">
-                    <Badge variant="outline" className="text-[10px] px-1.5 capitalize border-0 bg-muted">{m.media_type}</Badge>
+                  <p className="text-base font-medium truncate">{m.title}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge variant="outline" className="text-xs px-2 capitalize border-0 bg-muted">{m.media_type}</Badge>
                     <Badge
                       variant="outline"
                       className={cn(
-                        'text-[10px] px-1.5 border-0',
+                        'text-xs px-2 border-0',
                         m.is_published ? 'bg-green-500/10 text-green-600 dark:text-green-400' : 'bg-muted text-muted-foreground'
                       )}
                     >
@@ -86,12 +92,16 @@ export default function AdminMedia() {
                     </Badge>
                   </div>
                 </div>
-                <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(`/admin/media/${m.id}/edit`)}>
-                    <Pencil className="h-3.5 w-3.5" />
+                <div className="flex items-center gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="icon" className="h-9 w-9" title={m.is_published ? 'Dépublier' : 'Publier'}
+                    onClick={() => handleTogglePublish(m)}>
+                    {m.is_published ? <Eye className="h-4 w-4 text-green-500" /> : <EyeOff className="h-4 w-4 text-muted-foreground" />}
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeleteTarget({ id: m.id, title: m.title })}>
-                    <Trash2 className="h-3.5 w-3.5" />
+                  <Button variant="ghost" size="icon" className="h-9 w-9" onClick={() => navigate(`/admin/media/${m.id}/edit`)}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive" onClick={() => setDeleteTarget({ id: m.id, title: m.title })}>
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </motion.div>

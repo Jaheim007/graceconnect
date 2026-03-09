@@ -61,8 +61,6 @@ Deno.serve(async (req) => {
       if (channelId) {
         feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
       } else {
-        // Fallback: try RSS feed by user handle directly
-        // Some handles work with the user parameter
         const testFeedUrl = `https://www.youtube.com/feeds/videos.xml?user=${handle}`;
         const testRes = await fetch(testFeedUrl, {
           headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
@@ -77,7 +75,7 @@ Deno.serve(async (req) => {
         }
 
         if (!channelId) {
-          console.error("Could not find channel ID. Page length:", pageText.length, "First 500 chars:", pageText.substring(0, 500));
+          console.error("Could not find channel ID. Page length:", pageText.length);
           return new Response(JSON.stringify({ error: "Impossible de trouver l'ID de la chaîne. Vérifiez l'URL." }), {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -113,6 +111,7 @@ Deno.serve(async (req) => {
       thumbnail: string;
       url: string;
       published: string;
+      description: string;
     }> = [];
 
     // Extract channel name
@@ -127,6 +126,8 @@ Deno.serve(async (req) => {
       const titleMatch = entry.match(/<title>([^<]+)<\/title>/);
       const videoIdMatch = entry.match(/<yt:videoId>([^<]+)<\/yt:videoId>/);
       const publishedMatch = entry.match(/<published>([^<]+)<\/published>/);
+      // Extract description from media:group > media:description
+      const descMatch = entry.match(/<media:description>([\s\S]*?)<\/media:description>/);
 
       if (titleMatch && videoIdMatch) {
         const vid = videoIdMatch[1];
@@ -137,6 +138,7 @@ Deno.serve(async (req) => {
           thumbnail: `https://img.youtube.com/vi/${vid}/hqdefault.jpg`,
           url: `https://www.youtube.com/watch?v=${vid}`,
           published: publishedMatch?.[1] || "",
+          description: descMatch?.[1]?.trim() || "",
         });
       }
     }

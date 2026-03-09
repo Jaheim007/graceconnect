@@ -350,14 +350,14 @@ export function AdminProducts() {
               { label: 'Supprimer', icon: Trash2, variant: 'destructive', onClick: handleBulkDelete },
             ]}
           />
-          <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
+          <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2.5">
             {items.map(p => (
               <motion.div key={p.id} variants={fadeUp}
-                className={cn("flex items-center gap-3 p-3 rounded-xl border bg-background/50 hover:bg-background transition-all group cursor-pointer",
+                className={cn("flex items-center gap-4 p-4 rounded-xl border bg-background/50 hover:bg-background transition-all group cursor-pointer",
                   bulk.isSelected(p.id) ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/20')}
                 onClick={() => bulk.toggle(p.id)}
               >
-                <div className="h-10 w-10 rounded-xl bg-muted shrink-0 overflow-hidden">
+                <div className="h-14 w-14 rounded-xl bg-muted shrink-0 overflow-hidden">
                   {p.cover_image_url ? (
                     <img src={p.cover_image_url} alt={p.title} className="w-full h-full object-cover" />
                   ) : (
@@ -366,34 +366,34 @@ export function AdminProducts() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
-                    <p className="text-sm font-medium truncate">{p.title}</p>
+                    <p className="text-base font-medium truncate">{p.title}</p>
                     {(p as any).is_express_demo && <Badge variant="outline" className="text-[9px] border-dashed">Démo</Badge>}
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     {p.is_free ? 'Gratuit' : `${p.price?.toLocaleString('fr-FR')} ${p.currency}`} · {p.sales_count || 0} vente{(p.sales_count || 0) > 1 ? 's' : ''}
                   </p>
                 </div>
-                <Badge variant="outline" className={cn('text-[10px] border-0 shrink-0', p.is_published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}>
+                <Badge variant="outline" className={cn('text-xs border-0 shrink-0', p.is_published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}>
                   {p.is_published ? 'Publié' : 'Brouillon'}
                 </Badge>
-                <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" title="Voir le produit"
+                <div className="flex items-center gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title="Voir le produit"
                     onClick={(e) => { e.stopPropagation(); navigate(`/org/${currentOrg?.slug}/product/${p.id}`); }}>
-                    <Eye className="h-3.5 w-3.5" />
+                    <Eye className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" title="Modifier"
+                  <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title="Modifier"
                     onClick={(e) => { e.stopPropagation(); navigate(`/admin/products/${p.id}/edit`); }}>
-                    <Pencil className="h-3.5 w-3.5" />
+                    <Pencil className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" title={p.is_published ? 'Dépublier' : 'Publier'}
+                  <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title={p.is_published ? 'Dépublier' : 'Publier'}
                     onClick={(e) => { e.stopPropagation(); handleTogglePublish(p); }}>
-                    {p.is_published ? <AlertTriangle className="h-3.5 w-3.5 text-amber-500" /> : <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />}
+                    {p.is_published ? <AlertTriangle className="h-4 w-4 text-amber-500" /> : <CheckCircle className="h-4 w-4 text-emerald-500" />}
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" title="Supprimer"
+                      <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive shrink-0" title="Supprimer"
                         onClick={(e) => e.stopPropagation()}>
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
