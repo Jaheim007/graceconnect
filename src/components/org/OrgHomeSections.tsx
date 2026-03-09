@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 import { ShoppingBag, Heart, Play, Camera, CalendarDays, HandHeart, GraduationCap } from 'lucide-react';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { Offering } from '@/hooks/useOfferings';
+import { EventCountdown } from '@/components/events/EventCountdown';
 
 interface OrgHomeSectionsProps {
   slug: string;
