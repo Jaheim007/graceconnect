@@ -51,7 +51,6 @@ export function MediaForm() {
   const [loading, setLoading] = useState(false);
   const [showAI, setShowAI] = useState(false);
   const qc = useQueryClient();
-  const [showAI, setShowAI] = useState(false);
 
   const { data: item } = useQuery({
     queryKey: ['media-item', id],
