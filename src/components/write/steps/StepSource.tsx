@@ -33,6 +33,7 @@ export function StepSource({
   activeDraftId,
   onCreateDraft,
   onLoadDraft,
+  onDeleteDraft,
   lastSavedAt,
 }: Props) {
   const { t } = useI18n();
