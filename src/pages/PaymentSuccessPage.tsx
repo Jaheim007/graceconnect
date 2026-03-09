@@ -719,6 +719,11 @@ export default function PaymentSuccessPage() {
             />
           )}
 
+          {/* Contextual feedback */}
+          {isCompleted && (
+            <ContextualFeedback context="post_purchase" question="Comment s'est passé votre achat ?" />
+          )}
+
           {user && (
             <Button
               onClick={() => navigate('/resources')}
