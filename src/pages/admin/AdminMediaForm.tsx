@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { ImageUploader } from '@/components/ui/ImageUploader';
+import { FileUploader } from '@/components/ui/FileUploader';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Film, Mic, Play, Radio } from 'lucide-react';
