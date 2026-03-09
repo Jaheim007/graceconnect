@@ -117,7 +117,7 @@ export function StepSource({
     }
   };
 
-  const visibleDrafts = savedDrafts.slice(0, 4);
+  const visibleDrafts = savedDrafts.slice(0, 8);
 
   return (
     <div className="space-y-8 pt-8">
@@ -220,7 +220,12 @@ function DraftManager({ t, visibleDrafts, activeDraftId, onCreateDraft, onLoadDr
               }`}
             >
               <div className="min-w-0">
-                <p className="text-sm font-medium truncate">{draft.name}</p>
+                <p className="text-sm font-medium truncate flex items-center gap-1.5">
+                  {draft.name}
+                  {draft.id.startsWith('db:') && (
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-accent/10 text-accent-foreground font-medium">☁️</span>
+                  )}
+                </p>
                 <p className="text-[11px] text-muted-foreground truncate">
                   {new Date(draft.updatedAt).toLocaleString()} · {t('write.step')} {draft.step + 1}/9
                 </p>

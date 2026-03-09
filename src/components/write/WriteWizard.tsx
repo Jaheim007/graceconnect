@@ -353,6 +353,49 @@ export default function WriteWizard() {
   const navigate = useNavigate();
   const { t } = useI18n();
   const { toast } = useToast();
+  const [dbDrafts, setDbDrafts] = useState<SavedWriteDraftSummary[]>([]);
+
+  // Load DB-backed projects (previously generated books)
+  useEffect(() => {
+    if (!user?.id) return;
+    (async () => {
+      try {
+        const { data: membership } = await supabase
+          .from('organization_members')
+          .select('organization_id')
+          .eq('user_id', user.id)
+          .eq('role', 'owner')
+          .limit(1)
+          .maybeSingle();
+        if (!membership?.organization_id) return;
+
+        const { data: projects } = await supabase
+          .from('ai_content_projects')
+          .select('id, title, updated_at, status, structure_json')
+          .eq('organization_id', membership.organization_id)
+          .eq('created_by', user.id)
+          .in('project_type', ['ebook'])
+          .order('updated_at', { ascending: false })
+          .limit(10);
+
+        if (projects && projects.length > 0) {
+          const dbItems: SavedWriteDraftSummary[] = projects.map((p) => {
+            const structJson = (p.structure_json || {}) as any;
+            return {
+              id: `db:${p.id}`,
+              name: p.title || 'Sans titre',
+              updatedAt: new Date(p.updated_at).getTime(),
+              step: typeof structJson.step === 'number' ? structJson.step : 4,
+              isActive: false,
+            };
+          });
+          setDbDrafts(dbItems);
+        }
+      } catch {
+        // non-blocking
+      }
+    })();
+  }, [user?.id]);
 
   const syncDraftList = useCallback((store: WriteDraftStore, activeId: string | null) => {
     setSavedDrafts(listSavedDrafts(store, activeId));
@@ -411,8 +454,66 @@ export default function WriteWizard() {
     navigate('/');
   }, [step, saveCurrentDraftNow, navigate]);
 
-  const handleLoadDraft = useCallback((targetDraftId: string) => {
+  const handleLoadDraft = useCallback(async (targetDraftId: string) => {
     if (targetDraftId === draftId) return;
+
+    // Handle DB-backed drafts (id starts with "db:")
+    if (targetDraftId.startsWith('db:')) {
+      const projectId = targetDraftId.slice(3);
+      if (step < CELEBRATION_STEP) saveCurrentDraftNow();
+
+      try {
+        const { data: project } = await supabase
+          .from('ai_content_projects')
+          .select('*')
+          .eq('id', projectId)
+          .single();
+
+        if (!project) {
+          toast({ title: `⚠️ ${t('write.draft_not_found')}`, variant: 'destructive' });
+          return;
+        }
+
+        const dataJson = (project.data_json || {}) as any;
+        const structJson = (project.structure_json || {}) as any;
+
+        // Reconstruct WriteState from DB project
+        const restoredState: WriteState = {
+          ...initialState,
+          title: project.title || '',
+          topic: project.description || dataJson.topic || '',
+          style: dataJson.style || 'ebook',
+          language: (project.language as BookLanguage) || 'fr',
+          chapters: (structJson.chapters || dataJson.chapters || []).map((ch: any, idx: number) => ({
+            id: ch.id || `ch-${idx + 1}`,
+            title: ch.title || '',
+            content: ch.content || '',
+          })),
+          chapterIllustrations: dataJson.chapter_illustrations || {},
+          coverUrl: dataJson.cover_url || '',
+          pageCount: dataJson.page_count || 20,
+          projectId: project.id,
+        };
+
+        const restoredStep = clampDraftStep(typeof structJson.step === 'number' ? structJson.step : 4);
+
+        // Create a local draft from it
+        const newDraftId = createDraftId();
+        const { store, updatedAt } = saveDraftSnapshot(newDraftId, restoredState, restoredStep);
+        dbSyncRef.current = project.id;
+
+        setDraftId(newDraftId);
+        setState(restoredState);
+        setStep(restoredStep);
+        setLastSavedAt(updatedAt);
+        syncDraftList(store, newDraftId);
+
+        toast({ title: `✅ ${t('write.draft_loaded')}` });
+      } catch (err: any) {
+        toast({ title: `❌ Erreur`, description: err?.message, variant: 'destructive' });
+      }
+      return;
+    }
 
     if (step < CELEBRATION_STEP) saveCurrentDraftNow();
 
@@ -666,10 +767,12 @@ export default function WriteWizard() {
           .eq('id', result.project_id);
       }
 
-      if (state.coverUrl && result.project_id && result.organization_id) {
-        await supabase
-          .from('ai_project_assets')
-          .insert({
+      if (result.project_id && result.organization_id) {
+        const assetInserts: any[] = [];
+
+        // Cover asset
+        if (state.coverUrl) {
+          assetInserts.push({
             project_id: result.project_id,
             organization_id: result.organization_id,
             asset_type: 'image',
@@ -679,6 +782,29 @@ export default function WriteWizard() {
             is_cover: true,
             display_order: 0,
           });
+        }
+
+        // Chapter illustrations — saved as 'illustration' so the PDF generator can find them
+        const chIll = state.chapterIllustrations || {};
+        state.chapters.forEach((chapter, idx) => {
+          const illUrl = chIll[chapter.id];
+          if (illUrl) {
+            assetInserts.push({
+              project_id: result.project_id,
+              organization_id: result.organization_id,
+              asset_type: 'illustration',
+              file_url: illUrl,
+              label: `Illustration ch. ${idx + 1}`,
+              mime_type: 'image/png',
+              is_cover: false,
+              display_order: idx,
+            });
+          }
+        });
+
+        if (assetInserts.length > 0) {
+          await supabase.from('ai_project_assets').insert(assetInserts);
+        }
       }
 
       setPublishingStage('pdf');
@@ -803,7 +929,7 @@ export default function WriteWizard() {
                 state={state}
                 update={update}
                 onNext={handleSourceNext}
-                savedDrafts={savedDrafts}
+                savedDrafts={[...savedDrafts, ...dbDrafts.filter(d => !savedDrafts.some(s => s.id === d.id))]}
                 activeDraftId={draftId}
                 onCreateDraft={handleCreateNewDraft}
                 onLoadDraft={handleLoadDraft}
