@@ -365,14 +365,13 @@ FORMAT:
 - Summary at end of each section
 - ZERO literary narrative, ZERO metaphors — it's a WORK TOOL`,
 
-    prayers: `REAL SPIRITUAL WARFARE BOOK STRUCTURE (inspired by D.K. Olukoya "Commanding the Morning"):
-- Biblical TEACHING with full verse references in <blockquote>
-- REAL TESTIMONIES (deliverance stories, real-life examples)
-- NUMBERED PRAYER POINTS (10-21 per section) — DIRECT, COMMANDING:
-  "1. Every power [description], die in the name of Jesus."
-  "2. Every [spiritual enemy], I [action] you by fire, in the name of Jesus."
-- CAPITALIZED sub-headings: "THE BELIEVER'S AUTHORITY", "COSTLY IGNORANCE"
-- NO softness. This is WARFARE.`,
+    prayers: `ADAPTIVE PRAYER / RELIGIOUS BOOK STRUCTURE:
+- Intro: why pray, how to use this book
+- Thematic chapters: short teaching + scripture in <blockquote> + 5-10 NUMBERED prayers (first person, sincere)
+- Vary prayer types: praise, petition, intercession, thanksgiving, confession
+- Final chapter: prayer commitment, blessing
+- Warm, intimate, accessible tone
+- Complete scripture references`,
 
     story: `REAL NOVEL STRUCTURE (inspired by literary fiction):
 - Characters with FULL NAMES, physical descriptions, backstory
