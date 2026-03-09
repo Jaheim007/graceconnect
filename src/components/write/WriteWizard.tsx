@@ -57,6 +57,8 @@ export interface WriteState {
   authorName: string;
   keywords: string[];
   style: BookStyle;
+  religiousTradition?: ReligiousTradition;
+  prayerFormat?: PrayerFormat;
   tone: WritingTone;
   languageLevel: LanguageLevel;
   targetAudience: TargetAudience;
