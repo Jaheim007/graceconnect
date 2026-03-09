@@ -259,6 +259,30 @@ export function ProductForm() {
   const copyLink = async () => { if (productUrl) { const url = await getProductShortLink(`/org/${currentOrg?.slug}/product/${id}`); navigator.clipboard.writeText(url); toast({ title: 'Lien copié ✅' }); } };
   const shareLink = async () => { if (productUrl) { const url = await getProductShortLink(`/org/${currentOrg?.slug}/product/${id}`); if (navigator.share) navigator.share({ title: watch('title'), url }); else { navigator.clipboard.writeText(url); toast({ title: 'Lien copié ✅' }); } } };
 
+  // Loading state for edit mode
+  if (isEdit && isLoadingItem) {
+    return (
+      <AdminPageShell title="Chargement…" backRoute="/admin/products">
+        <div className="flex items-center justify-center min-h-[40dvh]">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        </div>
+      </AdminPageShell>
+    );
+  }
+
+  // Product not found or error
+  if (isEdit && !isLoadingItem && (!item || isItemError)) {
+    return (
+      <AdminPageShell title="Produit introuvable" backRoute="/admin/products">
+        <div className="flex flex-col items-center justify-center min-h-[40dvh] gap-4 text-center">
+          <AlertTriangle className="h-10 w-10 text-destructive" />
+          <p className="text-muted-foreground">Ce produit n'existe pas ou vous n'avez pas les droits pour y accéder.</p>
+          <Button onClick={() => navigate('/admin/products')}>Retour à la boutique</Button>
+        </div>
+      </AdminPageShell>
+    );
+  }
+
   // Success screen
   if (createdProduct) {
     const newProductUrl = getPublicUrl(`/org/${currentOrg?.slug}/product/${createdProduct.id}`);
