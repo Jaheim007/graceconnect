@@ -17,6 +17,8 @@ import { useUnreadCount } from '@/hooks/useNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useMyPartner } from '@/hooks/usePartner';
+import { useQuery } from '@tanstack/react-query';
+import { db } from '@/lib/db';
 
 interface NavItem {
   to: string;
