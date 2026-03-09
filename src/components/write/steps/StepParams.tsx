@@ -36,6 +36,21 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
     { type: 'coloring', icon: Brush, label: t('write.style_coloring') || 'Livre de coloriage', desc: t('write.style_coloring_desc') || 'Pages à colorier, line art' },
   ];
 
+  const religiousTraditions: { type: ReligiousTradition; icon: typeof Church; label: string; desc: string }[] = [
+    { type: 'christian', icon: Church, label: t('write.tradition_christian') || 'Chrétien', desc: t('write.tradition_christian_desc') || 'Bible, Jésus, Saint-Esprit' },
+    { type: 'muslim', icon: BookOpen, label: t('write.tradition_muslim') || 'Musulman', desc: t('write.tradition_muslim_desc') || 'Coran, Du\'as, Hadiths' },
+    { type: 'spiritual', icon: Feather, label: t('write.tradition_spiritual') || 'Spirituel général', desc: t('write.tradition_spiritual_desc') || 'Méditation, énergie, univers' },
+    { type: 'interfaith', icon: Heart, label: t('write.tradition_interfaith') || 'Interreligieux', desc: t('write.tradition_interfaith_desc') || 'Universel, multi-traditions' },
+  ];
+
+  const prayerFormats: { type: PrayerFormat; icon: typeof Heart; label: string; desc: string }[] = [
+    { type: 'simple_prayers', icon: Heart, label: t('write.format_simple_prayers') || 'Prières simples', desc: t('write.format_simple_prayers_desc') || 'Prières douces, dévotionnelles' },
+    { type: 'warfare_prayers', icon: Feather, label: t('write.format_warfare') || 'Combat spirituel', desc: t('write.format_warfare_desc') || 'Guerre spirituelle, délivrance' },
+    { type: 'proclamations', icon: FileText, label: t('write.format_proclamations') || 'Proclamations', desc: t('write.format_proclamations_desc') || 'Déclarations, décrets de foi' },
+    { type: 'invocations', icon: Feather, label: t('write.format_invocations') || 'Invocations', desc: t('write.format_invocations_desc') || 'Du\'as, louanges, supplications' },
+    { type: 'religious_teaching', icon: BookOpen, label: t('write.format_teaching') || 'Enseignement religieux', desc: t('write.format_teaching_desc') || 'Principes, doctrine, étude' },
+  ];
+
   const tones: { type: WritingTone; icon: typeof MessageSquare; label: string }[] = [
     { type: 'professional', icon: Briefcase, label: t('write.tone_professional') },
     { type: 'conversational', icon: MessageSquare, label: t('write.tone_conversational') },
