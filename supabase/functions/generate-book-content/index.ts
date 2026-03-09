@@ -601,12 +601,18 @@ STRICTLY BANNED WORDS/PHRASES:
 "Mosaic of", "Tapestry of", "Symphony of", "Alchemy of"`;
 }
 
-type EditorialProfile = 'business_manual' | 'leadership' | 'spiritual_warfare' | 'personal_growth' | 'narrative';
+type EditorialProfile = 'business_manual' | 'leadership' | 'spiritual_warfare' | 'personal_growth' | 'narrative' | 'devotional_journal' | 'activity_workbook';
 
 function detectEditorialProfile(style: string, tone: string, title: string, topic: string, audience: string): EditorialProfile {
   const haystack = `${title} ${topic}`.toLowerCase();
   const narrativeStyles = ['story', 'novel'];
   if (narrativeStyles.includes(style)) return 'narrative';
+
+  // Devotional — must be checked BEFORE spiritual_warfare
+  if (style === 'devotional') return 'devotional_journal';
+
+  // Activity book
+  if (style === 'activity') return 'activity_workbook';
 
   const spiritualSignals = ['prière', 'priere', 'anges', 'ange', 'spirituel', 'combat', 'delivrance', 'foi', 'satan', 'bataille', 'guerre', 'jesus', 'bible', 'miracle'];
   if (style === 'prayers' || tone === 'spiritual' || spiritualSignals.some((word) => haystack.includes(word))) {
