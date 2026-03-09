@@ -638,7 +638,7 @@ STRICTLY BANNED WORDS/PHRASES:
 "Mosaic of", "Tapestry of", "Symphony of", "Alchemy of"`;
 }
 
-type EditorialProfile = 'business_manual' | 'leadership' | 'spiritual_warfare' | 'personal_growth' | 'narrative' | 'devotional_journal' | 'activity_workbook';
+type EditorialProfile = 'business_manual' | 'leadership' | 'spiritual_warfare' | 'personal_growth' | 'narrative' | 'devotional_journal' | 'activity_workbook' | 'coloring_book';
 
 function detectEditorialProfile(style: string, tone: string, title: string, topic: string, audience: string): EditorialProfile {
   const haystack = `${title} ${topic}`.toLowerCase();
