@@ -13,7 +13,7 @@ interface Props {
   onBack: () => void;
 }
 
-const ILLUSTRATION_STYLES = ['children_book', 'watercolor', 'cartoon', 'realistic'] as const;
+const ILLUSTRATION_STYLES = ['children_book', 'watercolor', 'cartoon', 'realistic', 'line_art'] as const;
 type IllustrationStyle = typeof ILLUSTRATION_STYLES[number];
 
 export function StepIllustrations({ state, update, onNext, onBack }: Props) {

@@ -33,6 +33,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
     { type: 'novel', icon: PenTool, label: t('write.style_novel') || 'Roman / Fiction', desc: t('write.style_novel_desc') || 'Récits fictionnels, nouvelles' },
     { type: 'devotional', icon: Church, label: t('write.style_devotional') || 'Dévotion', desc: t('write.style_devotional_desc') || 'Journal spirituel, méditations quotidiennes' },
     { type: 'activity', icon: Palette, label: t('write.style_activity') || 'Cahier d\'activités', desc: t('write.style_activity_desc') || 'Exercices, quiz, coloriage' },
+    { type: 'coloring', icon: Palette, label: t('write.style_coloring') || 'Livre de coloriage', desc: t('write.style_coloring_desc') || 'Pages à colorier, line art' },
   ];
 
   const tones: { type: WritingTone; icon: typeof MessageSquare; label: string }[] = [
