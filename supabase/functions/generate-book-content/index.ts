@@ -583,64 +583,68 @@ ${s.suggested_stories?.length ? `- STORIES TO INCLUDE:\n${s.suggested_stories.ma
       }
 
       userPrompt = lang === 'fr'
-        ? `Écris un livre COMPLET, CAPTIVANT et PROFONDÉMENT HUMAIN sur ce sujet :
+        ? `Écris un livre COMPLET sur ce sujet :
 
 TITRE : "${title}"
 ${topic ? `IDÉE / SUJET : ${topic}` : ''}
 LANGUE : ${langName}
 ${editorialContextFr}
 
-INSTRUCTIONS DE RÉDACTION :
-- Exactement ${chapterCount} chapitres, chacun explorant une facette unique et essentielle de "${topic || title}"
-- Titres de chapitres CRÉATIFS et INTRIGANTS — jamais "Introduction", "Chapitre 1: Le sujet", "Conclusion". Surprends le lecteur dès le sommaire.
-- Chaque chapitre : environ ${chapterWordTarget} mots de contenu RICHE en HTML
-- COMMENCE le chapitre 1 par une scène, une anecdote ou une question provocatrice — JAMAIS par une définition ou un état des lieux
-- TERMINE le dernier chapitre par quelque chose de MÉMORABLE — une histoire qui boucle, un appel personnel, une image forte — JAMAIS par un résumé
-- CHAQUE chapitre doit contenir au minimum : 1 anecdote concrète avec noms/lieux, 2-3 sous-titres <h3> intrigants, 1 citation ou formule mémorable en <blockquote>
-- INTERDICTION de commencer deux paragraphes consécutifs par le même mot
-- INTERDICTION d'utiliser les transitions "De plus", "En outre", "Par ailleurs", "Il est important de noter"
-- VARIE la longueur des paragraphes : certains de 1-2 phrases, d'autres de 6-8 phrases
-- Utilise des dialogues reconstitués quand c'est pertinent
-- Le lecteur doit SENTIR qu'un être humain passionné a écrit ce livre, pas une machine
+INSTRUCTIONS :
+- Exactement ${chapterCount} chapitres, chacun explorant une facette unique de "${topic || title}"
+- Titres de chapitres ${isNarrative ? 'CRÉATIFS et INTRIGANTS' : 'CLAIRS et DESCRIPTIFS — le lecteur doit savoir de quoi parle le chapitre en lisant le titre'}
+- Chaque chapitre : environ ${chapterWordTarget} mots en HTML
+${isNarrative
+  ? `- COMMENCE le chapitre 1 par une scène ou une anecdote
+- Inclus des histoires avec des noms et des lieux
+- Utilise des dialogues quand c'est pertinent`
+  : `- COMMENCE chaque chapitre directement par le contenu — 1-2 phrases de contexte puis entre dans le vif du sujet
+- Donne des exemples concrets et pratiques
+- Explique clairement, va droit au but
+- N'invente PAS d'histoires ou de scènes si le sujet ne s'y prête pas`}
+- Varie la longueur des paragraphes
+- Écris de façon naturelle, comme un professionnel qui s'adresse à son lecteur
 
 Retourne UNIQUEMENT un JSON valide :
 {
   "chapters": [
-    {"id": "ch-1", "title": "Un titre créatif qui intrigue...", "content": "<h3>Sous-titre accrocheur</h3><p>Il pleuvait ce matin-là quand j'ai compris que...</p>"},
-    {"id": "ch-2", "title": "Un autre titre surprenant...", "content": "..."}
+    {"id": "ch-1", "title": "Titre du chapitre", "content": "<h3>Sous-titre</h3><p>Contenu...</p>"},
+    {"id": "ch-2", "title": "Titre du chapitre 2", "content": "..."}
   ]
 }
 
-RAPPEL : ${pages} pages sur "${topic || title}". Chaque chapitre ≈ ${chapterWordTarget} mots. Qualité d'un best-seller. Zéro écriture robotique.`
-        : `Write a COMPLETE, CAPTIVATING and DEEPLY HUMAN book on this topic:
+RAPPEL : ${pages} pages sur "${topic || title}". Chaque chapitre ≈ ${chapterWordTarget} mots.`
+        : `Write a COMPLETE book on this topic:
 
 TITLE: "${title}"
 ${topic ? `IDEA / TOPIC: ${topic}` : ''}
 LANGUAGE: ${langName}
 ${editorialContextEn}
 
-WRITING INSTRUCTIONS:
-- Exactly ${chapterCount} chapters, each exploring a unique and essential facet of "${topic || title}"
-- Chapter titles must be CREATIVE and INTRIGUING — never "Introduction", "Chapter 1: The Topic", "Conclusion". Surprise the reader from the table of contents.
-- Each chapter: around ${chapterWordTarget} words of RICH HTML content
-- START chapter 1 with a scene, anecdote, or provocative question — NEVER with a definition or overview
-- END the last chapter with something MEMORABLE — a story that comes full circle, a personal call, a powerful image — NEVER with a summary
-- EVERY chapter must contain at minimum: 1 concrete anecdote with names/places, 2-3 intriguing <h3> sub-headings, 1 quote or memorable formula in <blockquote>
-- NEVER start two consecutive paragraphs with the same word
-- NEVER use transitions like "Furthermore", "Moreover", "Additionally", "It is important to note"
-- VARY paragraph lengths: some 1-2 sentences, others 6-8 sentences
-- Use reconstructed dialogues when relevant
-- The reader must FEEL that a passionate human being wrote this book, not a machine
+INSTRUCTIONS:
+- Exactly ${chapterCount} chapters, each exploring a unique facet of "${topic || title}"
+- Chapter titles must be ${isNarrative ? 'CREATIVE and INTRIGUING' : 'CLEAR and DESCRIPTIVE — the reader should know what the chapter is about from the title'}
+- Each chapter: around ${chapterWordTarget} words in HTML
+${isNarrative
+  ? `- START chapter 1 with a scene or anecdote
+- Include stories with names and places
+- Use dialogues when relevant`
+  : `- START each chapter directly with the content — 1-2 sentences of context then get to the point
+- Give concrete, practical examples
+- Explain clearly, get straight to the point
+- Do NOT invent stories or scenes if the topic doesn't call for it`}
+- Vary paragraph lengths
+- Write naturally, like a professional addressing their reader
 
 Return ONLY valid JSON:
 {
   "chapters": [
-    {"id": "ch-1", "title": "A creative intriguing title...", "content": "<h3>Catchy sub-heading</h3><p>It was raining that morning when I realized that...</p>"},
-    {"id": "ch-2", "title": "Another surprising title...", "content": "..."}
+    {"id": "ch-1", "title": "Chapter title", "content": "<h3>Sub-heading</h3><p>Content...</p>"},
+    {"id": "ch-2", "title": "Chapter 2 title", "content": "..."}
   ]
 }
 
-REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterWordTarget} words. Bestseller quality. Zero robotic writing.`;
+REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterWordTarget} words.`;
     }
 
     const requestTimeoutMs = singleChapter ? 50_000 : 85_000;
@@ -660,6 +664,7 @@ REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterW
           body: JSON.stringify({
             model: 'google/gemini-2.5-flash',
             max_tokens: maxTokens,
+            temperature: isNarrative ? 0.85 : 0.65,
             response_format: { type: 'json_object' },
             messages: [
               { role: 'system', content: systemPrompt },
