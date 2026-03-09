@@ -22,7 +22,7 @@ export function SuperadminDashboard() {
     queryKey: ['sa-stats'],
     queryFn: async () => {
       const { data } = await db.rpc('get_platform_totals');
-      const t = data || {};
+      const t = (data || {}) as any;
       return {
         orgs: t.total_orgs || 0,
         pendingKyc: t.pending_kyc || 0,
