@@ -246,19 +246,64 @@ FORMAT :
 - Tension narrative, rebondissements
 - Fin qui donne envie de relire ou qui marque le lecteur`,
 
-    devotional: `STRUCTURE DE MÉDITATIONS QUOTIDIENNES :
-- Format numéroté : "Jour 1", "Jour 2"...
-- Chaque méditation : verset sacré en <blockquote> avec référence complète → réflexion personnelle de l'auteur → application pratique concrète → prière courte
-- Ton intime et personnel, comme un journal spirituel
-- L'auteur partage ses PROPRES expériences de foi
-- 30 ou 90 jours`,
+    devotional: `STRUCTURE DE VRAI JOURNAL SPIRITUEL / DÉVOTION QUOTIDIENNE (inspiré de "Jesus Calling" de Sarah Young et "Chaque Jour les Écritures") :
 
-    activity: `STRUCTURE INTERACTIVE (Cahier d'activités) :
-- Exercices variés : quiz, questions de réflexion, espaces à remplir (_____)
-- Chaque activité a un objectif pédagogique clair
-- Instructions simples et encourageantes
-- Réponses en fin de chapitre
-- Illustrations décrites entre [crochets]`,
+STRUCTURE OBLIGATOIRE :
+1. FORMAT NUMÉROTÉ systématique : "Jour 1", "Jour 2"... (ou "Méditation 1", etc.)
+2. CHAQUE MÉDITATION suit ce schéma EXACT :
+   a) VERSET DU JOUR en <blockquote> avec référence COMPLÈTE (Livre Chapitre:Verset)
+   b) RÉFLEXION DE L'AUTEUR — ton intime, personnel, comme un journal. L'auteur parle à la PREMIÈRE PERSONNE de SES expériences ("J'ai vécu un moment où...", "Un matin, en priant, j'ai compris que...")
+   c) APPLICATION CONCRÈTE — une action précise pour aujourd'hui ("Aujourd'hui, prenez 5 minutes pour...", "Écrivez dans votre journal...")
+   d) PRIÈRE COURTE — 3-5 phrases, personnelle et sincère
+3. PROGRESSION THÉMATIQUE sur 30, 60 ou 90 jours (pas des méditations aléatoires)
+4. PREMIER JOUR = Introduction + comment utiliser ce journal
+5. DERNIER JOUR = Bilan + engagement de persévérance
+
+STYLE :
+- Ton intime, chaleureux mais JAMAIS mièvre
+- Comme une conversation entre l'auteur et Dieu, que le lecteur écoute
+- Versets tirés de DIFFÉRENTS livres de la Bible (pas toujours les mêmes)
+- Chaque méditation = 300-500 mots (concis, pas de remplissage)
+
+INTERDIT : sermon magistral, ton académique, listes de règles. C'est un JOURNAL SPIRITUEL, pas un cours de théologie.`,
+
+    activity: `STRUCTURE DE VRAI CAHIER D'ACTIVITÉS / WORKBOOK PROFESSIONNEL (inspiré de cahiers pédagogiques publiés) :
+
+STRUCTURE OBLIGATOIRE :
+1. PAGE D'ACCUEIL DU CHAPITRE : titre engageant + icône/emoji + "Ce que tu vas apprendre" (3 points)
+2. CHAQUE CHAPITRE = 5-8 ACTIVITÉS VARIÉES parmi :
+   - ✏️ QUIZ à choix multiples (A/B/C/D) avec cases à cocher □
+   - 📝 QUESTIONS OUVERTES avec lignes de réponse : ___________________________
+   - 🧩 EXERCICES DE CORRESPONDANCE (Relie la colonne A à la colonne B)
+   - 🎨 ESPACES CRÉATIFS : "Dessine ici..." avec cadre vide [ESPACE DESSIN]
+   - 🔍 MOTS CACHÉS ou MOTS CROISÉS (grille formatée en <table>)
+   - ✅ VRAI ou FAUX avec cases □ VRAI □ FAUX
+   - 📖 TEXTES À TROUS : "Le soleil est une _______ qui produit de la _______ et de la _______."
+   - 🎯 DÉFIS PRATIQUES : "Cette semaine, essaie de..."
+   - 🗣️ ACTIVITÉS DE GROUPE : "Avec un ami, discutez de..."
+   - 📊 TABLEAUX À REMPLIR avec colonnes vides
+3. CHAQUE ACTIVITÉ a :
+   - Un OBJECTIF PÉDAGOGIQUE clair ("Tu apprendras à...")
+   - Des INSTRUCTIONS simples, directes, encourageantes
+   - Un NIVEAU DE DIFFICULTÉ visuel (⭐, ⭐⭐, ⭐⭐⭐)
+   - De l'ESPACE pour écrire/dessiner (représenté par des lignes, des cases, des cadres)
+4. FIN DE CHAPITRE = "📋 CORRIGÉ" avec les réponses des quiz/exercices
+5. DERNIER CHAPITRE = "🏆 Certificat de réussite" + bilan des apprentissages
+
+FORMAT HTML SPÉCIFIQUE :
+- <table> pour les grilles, correspondances, tableaux à remplir
+- <ul><li>□ pour les choix multiples et vrai/faux
+- <hr/> entre chaque activité
+- <strong>Activité N :</strong> pour numéroter
+- [ESPACE DESSIN], [ESPACE RÉPONSE], [LIGNES RÉPONSE] pour les espaces interactifs
+- Emojis abondants pour rendre le cahier vivant et engageant
+
+ADAPTATION AU PUBLIC :
+- ENFANTS (6-10 ans) : phrases courtes, vocabulaire simple, beaucoup de dessins, couleurs, mascottes
+- ADOLESCENTS : défis, quiz culture, activités sociales, ton dynamique
+- ADULTES : exercices de réflexion, auto-évaluation, plans d'action, journaling
+
+INTERDIT : longs paragraphes de texte, ton magistral, exercices monotones. C'est un cahier INTERACTIF, pas un manuel scolaire.`,
   },
   en: {
     ebook: `REAL PERSONAL DEVELOPMENT BOOK STRUCTURE (inspired by Myles Munroe "Understanding Your Potential" and Gary Chapman):
