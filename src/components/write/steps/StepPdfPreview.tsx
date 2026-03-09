@@ -128,7 +128,7 @@ export function StepPdfPreview({ state, update, onNext, onBack, onSaveDraft, sav
             disabled={currentPage === 0}
             className="gap-1 text-xs"
           >
-            <ChevronLeft className="h-3.5 w-3.5" /> Précédent
+            <ChevronLeft className="h-3.5 w-3.5" /> {t('write.prev_chapter')}
           </Button>
 
           {/* Page dots (max 10 visible) */}
