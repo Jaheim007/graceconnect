@@ -595,16 +595,21 @@ function buildUserPrompt(jobType: string, project: any, template: any, params: a
 
   const title = project?.title || params?.title || 'Contenu';
   const objective = project?.objective || params?.objective || '';
+  const profile = detectAiRunProfile(params, project);
+  const titleRule = getAiRunTitleRule(project?.language || params?.language || 'fr', profile);
+  const blueprint = getAiRunBlueprint(project?.language || params?.language || 'fr', profile);
 
   switch (jobType) {
     case 'generate_outline':
-      return `Génère un plan détaillé pour: "${title}". Objectif: ${objective}. Longueur: ${project?.target_length || 10} chapitres.`;
+      return `Génère un plan détaillé pour: "${title}". Objectif: ${objective}. Longueur: ${project?.target_length || 10} chapitres.
+Règle des titres: ${titleRule}
+Blueprint: ${blueprint}`;
     case 'generate_chapter': {
       if (params?.mode === 'improve') {
         const issues = params.issues ? `\nProblèmes identifiés: ${params.issues}` : '';
-        return `Améliore et réécris le chapitre "${params.chapter_title || 'Chapitre'}" du projet "${title}".${issues}\n\nContenu actuel à améliorer:\n${params.current_content || '(contenu vide - rédige le chapitre complet)'}\n\nConsignes: Corrige les problèmes identifiés, enrichis le contenu, améliore le style et la structure. Garde le même thème et le même titre. Produis un contenu complet de 500-800 mots en HTML.`;
+        return `Améliore et réécris le chapitre "${params.chapter_title || 'Chapitre'}" du projet "${title}".${issues}\n\nContenu actuel à améliorer:\n${params.current_content || '(contenu vide - rédige le chapitre complet)'}\n\nConsignes: Corrige les problèmes identifiés, enrichis le contenu, améliore le style et la structure selon ce blueprint: ${blueprint}. Garde le même thème et le même titre. Produis un contenu complet de 500-800 mots en HTML.`;
       }
-      return `Rédige le chapitre "${params?.chapter_title || 'Chapitre'}". Projet: "${title}". 500-800 mots.`;
+      return `Rédige le chapitre "${params?.chapter_title || 'Chapitre'}". Projet: "${title}". 500-800 mots. Respecte ce blueprint: ${blueprint}.`;
     }
     case 'generate_description': {
       const chaptersForDesc = (project?.structure_json as any)?.chapters || [];
