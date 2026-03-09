@@ -632,24 +632,41 @@ REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterW
     const requestTimeoutMs = singleChapter ? 50_000 : 85_000;
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), requestTimeoutMs);
+    const maxTokens = singleChapter ? 3200 : 16000;
 
-    let aiRes: Response;
+    let aiRes: Response | null = null;
     try {
-      aiRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userPrompt },
-          ],
-        }),
-        signal: controller.signal,
-      });
+      for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        aiRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'google/gemini-2.5-flash',
+            max_tokens: maxTokens,
+            response_format: { type: 'json_object' },
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt },
+            ],
+          }),
+          signal: controller.signal,
+        });
+
+        if (aiRes.ok) break;
+
+        const shouldRetry = (aiRes.status === 429 || aiRes.status >= 500) && attempt < MAX_RETRIES - 1;
+        if (shouldRetry) {
+          const backoffMs = 900 * (2 ** attempt);
+          console.warn(`[generate-book-content] AI request failed (${aiRes.status}), retrying in ${backoffMs}ms`);
+          await wait(backoffMs);
+          continue;
+        }
+
+        break;
+      }
     } catch (error) {
       if (isAbortError(error)) {
         return new Response(JSON.stringify({ error: 'Generation timeout. Please retry.' }), {
@@ -660,6 +677,12 @@ REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterW
       throw error;
     } finally {
       clearTimeout(timeoutId);
+    }
+
+    if (!aiRes) {
+      return new Response(JSON.stringify({ error: 'AI request failed before completion' }), {
+        status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     if (!aiRes.ok) {
