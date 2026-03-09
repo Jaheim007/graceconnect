@@ -372,12 +372,12 @@ export default function SuperadminFullDashboard() {
 
         <Panel>
           <SectionTitle icon={Globe} title="Catégories" />
-          {(stats?.categories || []).length > 0 ? (
+          {((stats?.categories as any[]) || []).length > 0 ? (
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
-                <Pie data={stats!.categories} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={38}
+                <Pie data={stats!.categories as any[]} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={38}
                   label={({ name, value }) => `${name}: ${value}`} labelLine={{ strokeWidth: 1 }}>
-                  {stats!.categories.map((_: any, i: number) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  {(stats!.categories as any[]).map((_: any, i: number) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
                 <Tooltip />
               </PieChart>
