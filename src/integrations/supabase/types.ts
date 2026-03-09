@@ -2589,6 +2589,51 @@ export type Database = {
           },
         ]
       }
+      ops_autopilot_runs: {
+        Row: {
+          actions_taken: Json
+          alerts_generated: number
+          completed_at: string | null
+          created_at: string
+          department: string
+          error_message: string | null
+          id: string
+          notifications_sent: number
+          results: Json
+          run_mode: string
+          started_at: string
+          status: string
+        }
+        Insert: {
+          actions_taken?: Json
+          alerts_generated?: number
+          completed_at?: string | null
+          created_at?: string
+          department: string
+          error_message?: string | null
+          id?: string
+          notifications_sent?: number
+          results?: Json
+          run_mode: string
+          started_at?: string
+          status?: string
+        }
+        Update: {
+          actions_taken?: Json
+          alerts_generated?: number
+          completed_at?: string | null
+          created_at?: string
+          department?: string
+          error_message?: string | null
+          id?: string
+          notifications_sent?: number
+          results?: Json
+          run_mode?: string
+          started_at?: string
+          status?: string
+        }
+        Relationships: []
+      }
       org_daily_metrics: {
         Row: {
           affiliate_commission_total: number | null
@@ -5089,6 +5134,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      weekly_challenges: {
+        Row: {
+          badge_reward_name: string | null
+          challenge_type: string
+          created_at: string
+          description: string
+          id: string
+          is_active: boolean
+          target_value: number
+          title: string
+          week_end: string
+          week_start: string
+        }
+        Insert: {
+          badge_reward_name?: string | null
+          challenge_type?: string
+          created_at?: string
+          description: string
+          id?: string
+          is_active?: boolean
+          target_value?: number
+          title: string
+          week_end?: string
+          week_start?: string
+        }
+        Update: {
+          badge_reward_name?: string | null
+          challenge_type?: string
+          created_at?: string
+          description?: string
+          id?: string
+          is_active?: boolean
+          target_value?: number
+          title?: string
+          week_end?: string
+          week_start?: string
+        }
+        Relationships: []
       }
       wishlists: {
         Row: {
