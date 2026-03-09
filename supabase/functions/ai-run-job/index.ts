@@ -450,6 +450,68 @@ function checkPolicy(policy: any, params: any, content: string): { allowed: bool
   };
 }
 
+type AiRunProfile = 'business_manual' | 'leadership' | 'spiritual_warfare' | 'narrative' | 'general';
+
+function detectAiRunProfile(params: any, project: any): AiRunProfile {
+  const style = (params?.style || '').toLowerCase();
+  const tone = (project?.tone || params?.tone || '').toLowerCase();
+  const haystack = `${project?.title || ''} ${project?.objective || ''} ${params?.topic || ''}`.toLowerCase();
+
+  if (['story', 'novel'].includes(style)) return 'narrative';
+
+  const spiritualSignals = ['prière', 'priere', 'combat', 'ange', 'anges', 'foi', 'bible', 'jesus', 'guerre', 'delivrance'];
+  if (style === 'prayers' || tone.includes('spiritual') || spiritualSignals.some((word) => haystack.includes(word))) {
+    return 'spiritual_warfare';
+  }
+
+  const leadershipSignals = ['leadership', 'équipe', 'equipe', 'collaboration', 'manager', 'influence', 'loi', 'lois'];
+  if (leadershipSignals.some((word) => haystack.includes(word))) return 'leadership';
+
+  const businessSignals = ['entreprise', 'business', 'tech', 'technologie', 'vente', 'marketing', 'finance', 'processus', 'stratégie', 'strategie'];
+  if (style === 'guide' || businessSignals.some((word) => haystack.includes(word))) return 'business_manual';
+
+  return 'general';
+}
+
+function getAiRunBlueprint(lang: string, profile: AiRunProfile): string {
+  if (lang === 'fr') {
+    if (profile === 'spiritual_warfare') {
+      return 'Blueprint: fondation biblique + explication concrète + points de prière impératifs. Références bibliques complètes obligatoires.';
+    }
+    if (profile === 'business_manual') {
+      return 'Blueprint: problème métier → méthode → cas pratique → checklist. Ton direct, zéro poésie.';
+    }
+    if (profile === 'leadership') {
+      return 'Blueprint: 1 principe fort par chapitre + exemple terrain + actions immédiates.';
+    }
+    if (profile === 'narrative') {
+      return 'Blueprint: progression de scènes, dialogues crédibles, ancrage réel lieu/temps.';
+    }
+    return 'Blueprint: structure claire, idées concrètes, application pratique à la fin de chaque section.';
+  }
+
+  if (profile === 'spiritual_warfare') return 'Blueprint: biblical foundation + practical explanation + commanding prayer points with full verse references.';
+  if (profile === 'business_manual') return 'Blueprint: business problem → method → case study → checklist, direct non-poetic tone.';
+  if (profile === 'leadership') return 'Blueprint: one key principle per chapter + field example + immediate actions.';
+  if (profile === 'narrative') return 'Blueprint: scene progression, credible dialogue, real place/time anchors.';
+  return 'Blueprint: clear structure, concrete ideas, practical application at section end.';
+}
+
+function getAiRunTitleRule(lang: string, profile: AiRunProfile): string {
+  if (lang === 'fr') {
+    if (profile === 'business_manual') return 'Titres strictement fonctionnels et explicites.';
+    if (profile === 'leadership') return 'Titres orientés principe + impact.';
+    if (profile === 'spiritual_warfare') return 'Titres directs, autoritaires, souvent en MAJUSCULES.';
+    if (profile === 'narrative') return 'Titres évocateurs, non techniques.';
+    return 'Titres clairs et descriptifs.';
+  }
+  if (profile === 'business_manual') return 'Strictly functional, explicit titles.';
+  if (profile === 'leadership') return 'Principle + impact titles.';
+  if (profile === 'spiritual_warfare') return 'Direct, authoritative, often capitalized titles.';
+  if (profile === 'narrative') return 'Evocative, non-technical titles.';
+  return 'Clear descriptive titles.';
+}
+
 function buildSystemPrompt(jobType: string, project: any, template: any, params: any): string {
   // Use template prompt if available
   if (template?.prompt_system) return template.prompt_system;
@@ -457,6 +519,9 @@ function buildSystemPrompt(jobType: string, project: any, template: any, params:
   const lang = project?.language || params?.language || 'fr';
   const tone = project?.tone || params?.tone || 'professionnel';
   const audience = project?.target_audience || params?.audience || 'adultes';
+  const profile = detectAiRunProfile(params, project);
+  const blueprint = getAiRunBlueprint(lang, profile);
+  const titleRule = getAiRunTitleRule(lang, profile);
 
   const base = `Tu es un ÉCRIVAIN PROFESSIONNEL. Tu rédiges en ${lang === 'fr' ? 'français' : 'English'}.
 Ton: ${tone}. Public cible: ${audience}.
@@ -468,12 +533,14 @@ RÈGLES ANTI-IA OBLIGATOIRES :
 - Donne des exemples CONCRETS (noms, chiffres, situations réelles)
 - Écris comme un VRAI auteur humain, pas comme une IA
 - ZÉRO métaphore inutile, ZÉRO dramatisation
-- Titres CLAIRS et DESCRIPTIFS, pas créatifs/mystérieux
-- Phrases interdites : "Force est de constater", "Au cœur de", "Un voyage extraordinaire", "Tisser les fils de", "Plonger dans les profondeurs", "Transcender", "Sublimer"`;
+- Phrases interdites : "Force est de constater", "Au cœur de", "Un voyage extraordinaire", "Tisser les fils de", "Plonger dans les profondeurs", "Transcender", "Sublimer"
+
+BLUEPRINT ÉDITORIAL (OBLIGATOIRE) :
+${blueprint}`;
 
   if (jobType === 'generate_outline') {
     return `${base}\nRetourne un JSON valide: {"chapters": [{"id": "ch-1", "title": "...", "content": "", "order": 0}]}
-Les titres de chapitres doivent être CLAIRS et DESCRIPTIFS — le lecteur doit savoir exactement de quoi parle le chapitre en lisant le titre. PAS de titres poétiques ou mystérieux.`;
+Règle titres: ${titleRule}`;
   }
   if (jobType === 'quality_check') {
     return `${base}\nTu es un éditeur professionnel. Analyse le contenu chapitre par chapitre et retourne un JSON valide avec cette structure exacte:
@@ -496,7 +563,7 @@ Les titres de chapitres doivent être CLAIRS et DESCRIPTIFS — le lecteur doit 
   ],
   "flags": ["alerte si contenu problématique"]
 }
-Score de 1 à 10. Pour chapter_issues, liste UNIQUEMENT les chapitres/sections qui ont un score inférieur à 8. VÉRIFIE aussi que le texte ne sonne pas "IA" — signale les passages trop fleuris, les métaphores excessives, les introductions vagues, le ton uniformément enthousiaste.`;
+Score de 1 à 10. Pour chapter_issues, liste UNIQUEMENT les chapitres/sections qui ont un score inférieur à 8. VÉRIFIE aussi que le texte ne sonne pas "IA" — signale les passages trop fleuris, les métaphores excessives, les introductions vagues, le ton uniformément enthousiaste, et les titres hors-style.`;
   }
 
   if (project?.project_type === 'kids_book') {
@@ -528,16 +595,21 @@ function buildUserPrompt(jobType: string, project: any, template: any, params: a
 
   const title = project?.title || params?.title || 'Contenu';
   const objective = project?.objective || params?.objective || '';
+  const profile = detectAiRunProfile(params, project);
+  const titleRule = getAiRunTitleRule(project?.language || params?.language || 'fr', profile);
+  const blueprint = getAiRunBlueprint(project?.language || params?.language || 'fr', profile);
 
   switch (jobType) {
     case 'generate_outline':
-      return `Génère un plan détaillé pour: "${title}". Objectif: ${objective}. Longueur: ${project?.target_length || 10} chapitres.`;
+      return `Génère un plan détaillé pour: "${title}". Objectif: ${objective}. Longueur: ${project?.target_length || 10} chapitres.
+Règle des titres: ${titleRule}
+Blueprint: ${blueprint}`;
     case 'generate_chapter': {
       if (params?.mode === 'improve') {
         const issues = params.issues ? `\nProblèmes identifiés: ${params.issues}` : '';
-        return `Améliore et réécris le chapitre "${params.chapter_title || 'Chapitre'}" du projet "${title}".${issues}\n\nContenu actuel à améliorer:\n${params.current_content || '(contenu vide - rédige le chapitre complet)'}\n\nConsignes: Corrige les problèmes identifiés, enrichis le contenu, améliore le style et la structure. Garde le même thème et le même titre. Produis un contenu complet de 500-800 mots en HTML.`;
+        return `Améliore et réécris le chapitre "${params.chapter_title || 'Chapitre'}" du projet "${title}".${issues}\n\nContenu actuel à améliorer:\n${params.current_content || '(contenu vide - rédige le chapitre complet)'}\n\nConsignes: Corrige les problèmes identifiés, enrichis le contenu, améliore le style et la structure selon ce blueprint: ${blueprint}. Garde le même thème et le même titre. Produis un contenu complet de 500-800 mots en HTML.`;
       }
-      return `Rédige le chapitre "${params?.chapter_title || 'Chapitre'}". Projet: "${title}". 500-800 mots.`;
+      return `Rédige le chapitre "${params?.chapter_title || 'Chapitre'}". Projet: "${title}". 500-800 mots. Respecte ce blueprint: ${blueprint}.`;
     }
     case 'generate_description': {
       const chaptersForDesc = (project?.structure_json as any)?.chapters || [];

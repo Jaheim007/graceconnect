@@ -156,72 +156,70 @@ const audienceMap: Record<string, Record<string, string>> = {
 
 const styleFormatMap: Record<string, Record<string, string>> = {
   fr: {
-    ebook: `STRUCTURE DE VRAI LIVRE DE DÉVELOPPEMENT PERSONNEL (inspiré de Myles Munroe "Understanding Your Potential" et Gary Chapman) :
+    ebook: `STRUCTURE DE VRAI LIVRE DE DÉVELOPPEMENT / LEADERSHIP (inspiré de Myles Munroe, Gary Chapman et John C. Maxwell) :
 
 STRUCTURE OBLIGATOIRE DU LIVRE :
-1. PREMIER CHAPITRE = "Introduction" ou "Préface" — L'auteur pose LE PROBLÈME central avec une anecdote forte ou une histoire marquante. Il explique POURQUOI il écrit ce livre et ce que le lecteur va en tirer.
-2. CHAPITRES CENTRAUX — Chaque chapitre développe UN aspect du sujet :
-   - Commence par une affirmation forte, une question ou une courte histoire
-   - Développe l'idée avec des exemples CONCRETS (noms, lieux, dates, situations réelles)
-   - Inclut des listes à puces quand c'est pertinent (ex: liste des échecs de Lincoln avant sa victoire)
-   - Utilise des citations en <blockquote> avec la source
-   - Termine par des QUESTIONS DE RÉFLEXION ou "Points à retenir" (3-5 questions pratiques)
-3. DERNIER CHAPITRE = Conclusion ou "Osez croire" — Synthèse et appel à l'action
+1. PREMIER CHAPITRE = "Introduction" ou "Fondation" — pose le problème, l'enjeu, la promesse du livre.
+2. CHAPITRES CENTRAUX — chaque chapitre traite UN principe opérationnel :
+   - OUVERTURE DIRECTE (thèse forte ou question)
+   - EXPLICATION structurée en 2-4 sous-parties
+   - EXEMPLE concret (personne, organisation, situation réelle)
+   - APPLICATION (actions à exécuter)
+3. DERNIER CHAPITRE = Synthèse stratégique + plan d'action final
 
-TITRES DES CHAPITRES — Style questions ou affirmations directes :
-Exemples RÉELS tirés de vrais livres : "Qui êtes-vous ?", "Qu'est-il arrivé au vrai vous ?", "La clé de votre potentiel", "Si seulement j'avais su que..."
+MODÈLES DE TITRES (style auteur humain, non-poétique) :
+- Style "loi" (Maxwell) : "ADAPTABLE — Si vous ne changez pas, l'équipe vous changera"
+- Style "principe" : "Le principe de X"
+- Style "question" : "Qui êtes-vous quand tout vacille ?"
 
 FORMAT :
-- Paragraphes de 3-5 phrases, JAMAIS de pavés
-- Sous-titres <h3> clairs et fonctionnels
-- Listes <ul><li> pour les exemples concrets
-- <blockquote> pour les citations et principes-clés
-- L'auteur ASSUME ses opinions et parle à la première personne`,
+- Paragraphes nets de 3-5 phrases
+- Sous-titres <h3> FONCTIONNELS (pas décoratifs)
+- <ol><li> pour étapes / lois / actions
+- <blockquote> pour principes clés ou citations sourcées
+- Fin de chapitre: "À RETENIR" ou "Questions de réflexion" (3-5 points)`,
 
-    guide: `STRUCTURE DE VRAI MANUEL PRATIQUE (style "Gérez Mieux Votre Entreprise" de l'OIT) :
+    guide: `STRUCTURE DE VRAI MANUEL PROFESSIONNEL / TECHNIQUE (style OIT + manuel métier) :
 
 STRUCTURE OBLIGATOIRE :
-1. PREMIER CHAPITRE = Introduction méthodologique — "Ce que vous allez apprendre", "Comment utiliser ce guide"
-2. CHAPITRES = Parties numérotées avec sous-sections (1.1, 1.2, 1.3)
-3. DERNIER CHAPITRE = Résumé + Plan d'action
+1. PREMIER CHAPITRE = "Comment utiliser ce guide" + périmètre + résultat attendu
+2. CHAPITRES = progression logique : Diagnostic → Méthode → Mise en œuvre → Contrôle
+3. DERNIER CHAPITRE = Feuille de route 30/60/90 jours + checklist de déploiement
 
 CHAQUE CHAPITRE DOIT CONTENIR :
-- Un OBJECTIF clair en début ("À la fin de ce chapitre, vous saurez...")
-- Des CAS PRATIQUES avec noms fictifs (ex: "M. Kouadio, propriétaire d'une boutique à Abidjan...")
-- Des EXERCICES pratiques : questions, situations à résoudre, espaces de réflexion
-- Des LISTES structurées <ol><li> et <ul><li>
-- Des encadrés <blockquote> pour les INFORMATIONS IMPORTANTES
-- Un RÉSUMÉ en fin de chapitre
+- OBJECTIF clair au début ("À la fin de ce chapitre, vous saurez...")
+- MÉTHODE étape par étape (1, 2, 3...)
+- CAS PRATIQUE réaliste (nom, contexte, contraintes)
+- ERREURS COURANTES + comment les éviter
+- CHECKLIST d'exécution ou mini-plan d'action
+- RÉSUMÉ opérationnel final
 
 TITRES 100% FONCTIONNELS :
-"Qu'est-ce que X ?", "Comment faire Y ?", "Les 5 étapes pour Z", "Erreurs courantes à éviter"
+"Qu'est-ce que X ?", "Comment mettre en place Y", "Procédure complète", "Indicateurs à suivre"
 
-ZÉRO narration littéraire, ZÉRO métaphore — c'est un OUTIL de travail`,
+INTERDIT : narration romanesque, métaphores fleuries, intro vague. C'est un outil de travail.`,
 
-    prayers: `STRUCTURE DE VRAI LIVRE DE COMBAT SPIRITUEL (inspiré de D.K. Olukoya "Commander le Matin" et "Le Sorcier Va Mourir") :
+    prayers: `STRUCTURE DE VRAI LIVRE D'AUTORITÉ SPIRITUELLE (inspiré de D.K. Olukoya et David Oyedepo) :
 
 STRUCTURE OBLIGATOIRE :
-1. PREMIER CHAPITRE = Enseignement fondamental qui pose le CADRE SPIRITUEL avec autorité. Explique le POURQUOI du combat.
-2. CHAPITRES CENTRAUX = Alternance entre :
-   - ENSEIGNEMENT BIBLIQUE avec versets en <blockquote> suivis d'EXPLICATIONS concrètes
-   - TÉMOIGNAGES RÉELS (histoires de délivrance, exemples de la vraie vie avec noms et situations)
-   - POINTS DE PRIÈRE NUMÉROTÉS (10-21 prières par section)
-3. DERNIER CHAPITRE = Section de prières intensives / déclarations de victoire
+1. INTRODUCTION/FONDATION doctrinale (combat, autorité, position du croyant)
+2. CHAPITRES CENTRAUX en 3 blocs répétables :
+   - ENSEIGNEMENT BIBLIQUE (versets complets + référence Livre Chapitre:Verset)
+   - EXPLICATION PRATIQUE (ce que cela change aujourd'hui)
+   - DÉCLARATIONS / PRIÈRES NUMÉROTÉES, impératives et directes
+3. CHAPITRE FINAL = déclarations de victoire + directives pratiques de persévérance
 
-STYLE DES PRIÈRES — Formules DIRECTES et COMMANDANTES :
-"1. Tout pouvoir qui [description], meurs au nom de Jésus."
-"2. Chaque [ennemi spirituel], je te [action] par le feu, au nom de Jésus."
-"3. Ô [élément], lève-toi et [action], au nom de Jésus."
+STYLE :
+- Ton ferme, sans mollesse
+- Interpellation directe du lecteur
+- Sous-titres MAJUSCULES autoritaires
+- Verbes d'action: "DÉCLARE", "REJETTE", "ORDONNE", "RÉSISTE"
 
-VERSETS BIBLIQUES :
-- Cités avec référence COMPLÈTE (Livre chapitre:verset)
-- En <blockquote> avec le texte complet
-- TOUJOURS suivis d'une EXPLICATION et APPLICATION
-
-SOUS-TITRES EN MAJUSCULES — Style D.K. Olukoya :
-"L'AUTORITÉ DU CROYANT", "LE SERPENT MALÉFIQUE", "IGNORANCE COÛTEUSE", "QUESTIONS PERTINENTES"
-
-TON : AUCUNE douceur. C'est un COMBAT. Interpellation directe du lecteur. Autorité totale.`,
+FORMAT :
+- <blockquote> pour versets
+- <ol><li> pour points de prière (10+ quand pertinent)
+- Chaque verset doit être suivi d'une application concrète
+- ZÉRO poésie mystique, ZÉRO flou`,
 
     story: `STRUCTURE DE VRAI ROMAN/CONTE (inspiré de "Des larmes d'or vert" de Marie-Amélie Laporte) :
 
@@ -538,6 +536,109 @@ STRICTLY BANNED WORDS/PHRASES:
 "Mosaic of", "Tapestry of", "Symphony of", "Alchemy of"`;
 }
 
+type EditorialProfile = 'business_manual' | 'leadership' | 'spiritual_warfare' | 'personal_growth' | 'narrative';
+
+function detectEditorialProfile(style: string, tone: string, title: string, topic: string, audience: string): EditorialProfile {
+  const haystack = `${title} ${topic}`.toLowerCase();
+  const narrativeStyles = ['story', 'novel'];
+  if (narrativeStyles.includes(style)) return 'narrative';
+
+  const spiritualSignals = ['prière', 'priere', 'anges', 'ange', 'spirituel', 'combat', 'delivrance', 'foi', 'satan', 'bataille', 'guerre', 'jesus', 'bible', 'miracle'];
+  if (style === 'prayers' || tone === 'spiritual' || spiritualSignals.some((word) => haystack.includes(word))) {
+    return 'spiritual_warfare';
+  }
+
+  const leadershipSignals = ['leadership', 'équipe', 'equipe', 'manager', 'travail en équipe', 'collaboration', 'influence', 'lois', 'principes'];
+  if (leadershipSignals.some((word) => haystack.includes(word))) {
+    return 'leadership';
+  }
+
+  const businessSignals = ['entreprise', 'business', 'startup', 'marketing', 'vente', 'sales', 'finance', 'gestion', 'productivité', 'productivite', 'technologie', 'tech', 'processus', 'stratégie', 'strategie'];
+  if (style === 'guide' || audience === 'professionals' || businessSignals.some((word) => haystack.includes(word))) {
+    return 'business_manual';
+  }
+
+  return 'personal_growth';
+}
+
+function getEditorialBlueprint(lang: string, profile: EditorialProfile): string {
+  if (lang === 'fr') {
+    switch (profile) {
+      case 'spiritual_warfare':
+        return `Blueprint spirituel :
+- Progression: fondation doctrinale → application concrète → points de prière impératifs
+- Chaque chapitre contient au moins 2 versets complets (Livre Chapitre:Verset) + explication concrète
+- Inclure des déclarations directes et des consignes actionnables
+- Interdit: ton rêveur, flou mystique, formulations passives`;
+      case 'business_manual':
+        return `Blueprint professionnel/tech :
+- Progression: problème métier → méthode → cas pratique → checklist d'exécution
+- Chaque chapitre doit livrer un livrable concret (cadre, procédure, indicateurs)
+- Titres strictement fonctionnels et explicites
+- Interdit: récits romanesques, métaphores décoratives, généralités vagues`;
+      case 'leadership':
+        return `Blueprint leadership :
+- Chaque chapitre = 1 principe fort + 1 phrase-slogan utile + 1 application terrain
+- Utiliser des titres mémorables mais fonctionnels (principe + promesse)
+- Conclure avec "Actions immédiates" (3 points)
+- Interdit: abstractions sans exemple réel`;
+      case 'narrative':
+        return `Blueprint narratif :
+- Arcs de scènes, dialogues crédibles, ancrage temporel et géographique
+- Pas de langage de manuel ni de checklist`;
+      default:
+        return `Blueprint développement personnel :
+- Question centrale → démonstration → outils concrets → mise en pratique
+- Chaque chapitre finit par des questions de réflexion ou actions`;
+    }
+  }
+
+  switch (profile) {
+    case 'spiritual_warfare':
+      return `Spiritual blueprint: doctrine foundation → practical application → commanding prayer points. At least 2 full scripture references per chapter.`;
+    case 'business_manual':
+      return `Professional blueprint: business problem → method → case study → execution checklist. Functional chapter titles only.`;
+    case 'leadership':
+      return `Leadership blueprint: one principle per chapter, one memorable line, one field application, then immediate actions.`;
+    case 'narrative':
+      return `Narrative blueprint: scene arcs, credible dialogue, time/place anchoring, no handbook-style sections.`;
+    default:
+      return `Personal growth blueprint: core question → explanation → practical tools → reader application.`;
+  }
+}
+
+function getTemperatureForProfile(profile: EditorialProfile, isNarrative: boolean): number {
+  if (isNarrative) return 0.8;
+  if (profile === 'business_manual') return 0.38;
+  if (profile === 'leadership') return 0.42;
+  if (profile === 'spiritual_warfare') return 0.45;
+  return 0.44;
+}
+
+function getTitleGuidance(lang: string, style: string, profile: EditorialProfile): string {
+  if (lang === 'fr') {
+    if (profile === 'business_manual') {
+      return 'Titres STRICTEMENT FONCTIONNELS : "Qu’est-ce que X ?", "Procédure Y", "Checklist Z". Premier chapitre = "Comment utiliser ce livre" ou "Fondations".';
+    }
+    if (profile === 'leadership') {
+      return 'Titres de type PRINCIPE + IMPACT : "ADAPTABLE — Si vous ne changez pas, l\'équipe vous changera", "LE PRINCIPE DE CLARTÉ".';
+    }
+    if (profile === 'spiritual_warfare') {
+      return 'Titres DIRECTS ET AUTORITAIRES (souvent en MAJUSCULES) : "IL Y A UNE GUERRE", "VOTRE STATUT EN CHRIST", "DÉCLAREZ LA VICTOIRE".';
+    }
+    if (style === 'story' || style === 'novel') {
+      return 'Titres ÉVOCATEURS et littéraires, non techniques.';
+    }
+    return 'Titres clairs, précis, orientés problème/résultat.';
+  }
+
+  if (profile === 'business_manual') return 'STRICTLY functional titles: "What is X?", "Procedure Y", "Checklist Z".';
+  if (profile === 'leadership') return 'Principle-driven titles with impact promise.';
+  if (profile === 'spiritual_warfare') return 'Direct, authoritative, often capitalized titles.';
+  if (style === 'story' || style === 'novel') return 'Evocative literary titles.';
+  return 'Clear, precise, result-oriented titles.';
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
@@ -578,9 +679,11 @@ Deno.serve(async (req) => {
     const formatInstruction = getInstruction(styleFormatMap, lang, _style, 'ebook');
     const antiAiRules = getAntiAiRules(lang, _style);
 
-    // Narrative detection
+    // Narrative detection + editorial profile
     const narrativeStyles = ['story', 'novel'];
     const isNarrative = narrativeStyles.includes(_style);
+    const editorialProfile = detectEditorialProfile(_style, _tone, title || '', topic || '', _audience);
+    const editorialBlueprint = getEditorialBlueprint(lang, editorialProfile);
 
     // Style reference
     let styleRefInstruction = '';
@@ -601,8 +704,8 @@ Author wants you to write in the style of: "${ref}"
 - EVERY paragraph must sound like ${ref} wrote it.`;
     }
 
-    // Temperature: lower for non-narrative to reduce AI-ness
-    const temperature = isNarrative ? 0.8 : 0.5;
+    // Temperature by editorial profile
+    const temperature = getTemperatureForProfile(editorialProfile, isNarrative);
 
     // ═══ BUILD SYSTEM PROMPT ═══
     const systemPrompt = lang === 'fr'
@@ -622,6 +725,15 @@ ${audienceInstruction}
 
 STRUCTURE ET FORMAT :
 ${formatInstruction}
+
+BLUEPRINT ÉDITORIAL À APPLIQUER (NON NÉGOCIABLE) :
+${editorialBlueprint}
+
+GARDE-FOUS D'AUTHENTICITÉ :
+- Chaque chapitre doit apporter une matière exploitable immédiatement
+- Interdit de générer des titres vagues, lyriques ou décoratifs hors fiction
+- Interdit d'écrire des paragraphes de remplissage
+- Chaque chapitre doit contenir au moins 1 élément concret vérifiable (cadre, étape, cas, référence, verset, checklist)
 
 HTML — UTILISE :
 - <p> pour les paragraphes
@@ -650,6 +762,15 @@ ${audienceInstruction}
 STRUCTURE AND FORMAT:
 ${formatInstruction}
 
+MANDATORY EDITORIAL BLUEPRINT:
+${editorialBlueprint}
+
+AUTHENTICITY GUARDRAILS:
+- Each chapter must deliver immediately usable substance
+- No vague, lyrical, decorative chapter titles outside fiction
+- No filler paragraphs
+- Each chapter must include at least one concrete artifact (framework, step, case, reference, verse, or checklist)
+
 HTML — USE:
 - <p> for paragraphs
 - <h3> for sub-headings (2-3 per chapter)
@@ -663,26 +784,8 @@ OUTPUT FORMAT: Valid JSON only. No markdown, no code fences.`;
     // ═══ BUILD USER PROMPT ═══
     let userPrompt: string;
 
-    // Style-specific chapter title guidance
-    const titleGuidance = lang === 'fr'
-      ? (_style === 'guide'
-        ? 'Titres 100% FONCTIONNELS : "Qu\'est-ce que X ?", "Comment Y", "Les étapes pour Z". Premier chapitre = "Introduction" ou "Comment utiliser ce guide"'
-        : _style === 'prayers'
-        ? 'Titres NUMÉROTÉS et DIRECTS en MAJUSCULES : "LES ORDONNANCES DU CIEL", "LE MYSTÈRE DU DEUXIÈME CIEL", "COMMANDER LE MATIN". Sous-titres aussi en MAJUSCULES.'
-        : _style === 'ebook'
-        ? 'Titres sous forme de QUESTIONS ou AFFIRMATIONS DIRECTES : "Qui êtes-vous ?", "Qu\'est-il arrivé au vrai vous ?", "Osez croire en votre potentiel". Premier chapitre = Introduction/Préface avec anecdote forte.'
-        : _style === 'story' || _style === 'novel'
-        ? 'Titres ÉVOCATEURS et LITTÉRAIRES : "Espoirs déçus", "Le double visage", "In vino veritas". Pas de titres descriptifs.'
-        : 'Titres CLAIRS et DESCRIPTIFS')
-      : (_style === 'guide'
-        ? '100% FUNCTIONAL titles: "What is X?", "How to Y", "Steps for Z". First chapter = "Introduction" or "How to use this guide"'
-        : _style === 'prayers'
-        ? 'CAPITALIZED, DIRECT titles: "THE ORDINANCES OF HEAVEN", "THE MYSTERY OF THE SECOND HEAVEN", "COMMANDING THE MORNING"'
-        : _style === 'ebook'
-        ? 'QUESTION or STATEMENT titles: "Who Are You?", "What Happened to the Real You?", "Dare to Believe in Your Potential". First chapter = Introduction/Preface with strong anecdote.'
-        : _style === 'story' || _style === 'novel'
-        ? 'EVOCATIVE, LITERARY titles — not descriptive'
-        : 'CLEAR, DESCRIPTIVE titles');
+    // Style/profile-specific chapter title guidance
+    const titleGuidance = getTitleGuidance(lang, _style, editorialProfile);
 
     if (singleChapter) {
       userPrompt = lang === 'fr'
@@ -692,8 +795,11 @@ OUTPUT FORMAT: Valid JSON only. No markdown, no code fences.`;
 
 RÈGLES :
 - Commence DIRECTEMENT par le contenu — pas d'introduction vague
+- Respecte ce guide de titre: ${titleGuidance}
+- Applique strictement ce blueprint: ${editorialBlueprint}
 - 2-3 sous-titres <h3> clairs
 - Donne des exemples CONCRETS (noms, situations, chiffres)
+- Termine avec une section actionnable adaptée au profil (checklist, actions immédiates, questions de réflexion ou points de prière)
 - Environ ${chapterWordTarget} mots en HTML
 - Écris comme un VRAI auteur, pas comme une IA
 
@@ -708,9 +814,12 @@ Retourne UNIQUEMENT un JSON :
 Write this chapter.
 
 RULES:
-- Start DIRECTLY with the content — no vague introduction
-- 2-3 clear <h3> sub-headings
+- Start DIRECTLY with content — no vague opening
+- Follow this title guidance: ${titleGuidance}
+- Strictly apply this blueprint: ${editorialBlueprint}
+- Use 2-3 clear <h3> sub-headings
 - Give CONCRETE examples (names, situations, numbers)
+- End with an actionable section adapted to the profile (checklist, immediate actions, reflection questions, or prayer points)
 - Around ${chapterWordTarget} words in HTML
 - Write like a REAL author, not an AI
 
@@ -739,10 +848,12 @@ ${editorialContext}
 INSTRUCTIONS :
 - Exactement ${chapterCount} chapitres
 - ${titleGuidance}
+- Applique strictement ce blueprint : ${editorialBlueprint}
 - Chaque chapitre : environ ${chapterWordTarget} mots en HTML
 - COMMENCE chaque chapitre directement par le contenu, pas par une vague introduction
 - Donne des exemples CONCRETS et RÉELS
-- Écris comme un VRAI auteur humain — avec ta propre voix, tes propres opinions
+- Chaque chapitre doit produire un bloc actionnable (checklist, actions immédiates, questions de réflexion, ou points de prière selon le profil)
+- Écris comme un VRAI auteur humain — avec une voix ferme et identifiable
 - Varie la longueur des paragraphes (3-6 phrases max)
 
 Retourne UNIQUEMENT un JSON valide :
@@ -762,10 +873,12 @@ ${editorialContext}
 INSTRUCTIONS:
 - Exactly ${chapterCount} chapters
 - ${titleGuidance}
+- Strictly apply this blueprint: ${editorialBlueprint}
 - Each chapter: around ${chapterWordTarget} words in HTML
-- START each chapter directly with content, not a vague introduction
+- START each chapter directly with content, not a vague intro
 - Give CONCRETE, REAL examples
-- Write like a REAL human author — with your own voice, your own opinions
+- Every chapter must include an actionable block (checklist, immediate actions, reflection questions, or prayer points depending on profile)
+- Write like a REAL human author with a distinct voice
 - Vary paragraph lengths (3-6 sentences max)
 
 Return ONLY valid JSON:
