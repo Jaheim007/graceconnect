@@ -213,8 +213,8 @@ export function StepEditorialStrategy({ state, update, onNext, onBack }: Props) 
         ))}
       </div>
 
-      {/* Suggested stories (collapsible) */}
-      {strategy.suggested_stories && strategy.suggested_stories.length > 0 && (
+      {/* Suggested stories (collapsible + editable) */}
+      {strategy.suggested_stories && (
         <div className="bg-card border border-border rounded-xl overflow-hidden">
           <button
             onClick={() => setShowStories(!showStories)}
@@ -229,11 +229,64 @@ export function StepEditorialStrategy({ state, update, onNext, onBack }: Props) 
           {showStories && (
             <div className="px-4 pb-4 space-y-2">
               {strategy.suggested_stories.map((story, i) => (
-                <div key={i} className="flex gap-2 text-sm">
-                  <span className="text-primary font-bold shrink-0">{i + 1}.</span>
-                  <span className="text-muted-foreground">{story}</span>
+                <div key={i} className="flex gap-2 text-sm items-start group">
+                  <span className="text-primary font-bold shrink-0 mt-0.5">{i + 1}.</span>
+                  {editingField === `story_${i}` ? (
+                    <Textarea
+                      defaultValue={story}
+                      rows={2}
+                      className="text-sm flex-1"
+                      autoFocus
+                      onBlur={(e) => {
+                        const val = e.target.value.trim();
+                        const updated = [...strategy.suggested_stories];
+                        if (val) {
+                          updated[i] = val;
+                        } else {
+                          updated.splice(i, 1);
+                        }
+                        const newStrategy = { ...strategy, suggested_stories: updated };
+                        setStrategy(newStrategy);
+                        update({ editorialStrategy: newStrategy });
+                        setEditingField(null);
+                      }}
+                    />
+                  ) : (
+                    <span
+                      className="text-muted-foreground flex-1 cursor-pointer hover:text-foreground transition-colors"
+                      onClick={() => setEditingField(`story_${i}`)}
+                      title={t('write.strategy_click_edit') || 'Clique pour modifier'}
+                    >
+                      {story}
+                    </span>
+                  )}
+                  <button
+                    onClick={() => {
+                      const updated = strategy.suggested_stories.filter((_, idx) => idx !== i);
+                      const newStrategy = { ...strategy, suggested_stories: updated };
+                      setStrategy(newStrategy);
+                      update({ editorialStrategy: newStrategy });
+                    }}
+                    className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5"
+                    title={t('common.delete') || 'Supprimer'}
+                  >
+                    ×
+                  </button>
                 </div>
               ))}
+              {/* Add custom story */}
+              <button
+                onClick={() => {
+                  const updated = [...strategy.suggested_stories, ''];
+                  const newStrategy = { ...strategy, suggested_stories: updated };
+                  setStrategy(newStrategy);
+                  update({ editorialStrategy: newStrategy });
+                  setEditingField(`story_${updated.length - 1}`);
+                }}
+                className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 font-medium mt-2 transition-colors"
+              >
+                <span>+</span> {t('write.strategy_add_story') || 'Ajouter ma propre histoire'}
+              </button>
             </div>
           )}
         </div>
