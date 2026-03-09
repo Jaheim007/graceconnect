@@ -388,7 +388,7 @@ export default function SuperadminFullDashboard() {
         <Panel>
           <SectionTitle icon={Globe} title="Par pays" />
           <div className="space-y-3">
-            {(stats?.countries || []).map((c: any) => (
+            {((stats?.countries as any[]) || []).map((c: any) => (
               <div key={c.name} className="flex items-center gap-3">
                 <span className="text-xs font-medium w-20 truncate">{c.name}</span>
                 <div className="flex-1">
