@@ -172,7 +172,7 @@ export function FileUploader({
             onClick={() => { onChange(urlInput); }}
             disabled={!urlInput}
           >
-            Set
+             Valider
           </Button>
         </div>
       )}
