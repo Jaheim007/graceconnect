@@ -929,7 +929,7 @@ export default function WriteWizard() {
                 state={state}
                 update={update}
                 onNext={handleSourceNext}
-                savedDrafts={savedDrafts}
+                savedDrafts={[...savedDrafts, ...dbDrafts.filter(d => !savedDrafts.some(s => s.id === d.id))]}
                 activeDraftId={draftId}
                 onCreateDraft={handleCreateNewDraft}
                 onLoadDraft={handleLoadDraft}
