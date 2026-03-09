@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useOrg } from '@/contexts/OrgContext';
 import { useOrgMedia, useDeleteMedia } from '@/hooks/useMedia';
 import { AdminPageShell } from './AdminPageShell';
@@ -12,6 +13,16 @@ import { useToast } from '@/hooks/use-toast';
 import { useI18n } from '@/i18n/I18nContext';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
@@ -26,17 +37,24 @@ export default function AdminMedia() {
   const { t } = useI18n();
   const { data: media = [], isLoading } = useOrgMedia(currentOrg?.id, false);
   const deleteMutation = useDeleteMedia();
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm(t('admin_media.delete_confirm'))) return;
-    await deleteMutation.mutateAsync({ id, orgId: currentOrg!.id });
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    await deleteMutation.mutateAsync({ id: deleteTarget.id, orgId: currentOrg!.id });
     toast({ title: t('admin_media.deleted') });
+    setDeleteTarget(null);
   };
 
   return (
     <AdminPageShell title={t('admin_media.title')} newRoute="/admin/media/new" newLabel={t('admin_media.new')} backRoute="/admin">
       {isLoading ? <SkeletonRow count={5} /> : media.length === 0 ? (
-        <EmptyState variant="content" action={{ label: t('admin_media.add'), onClick: () => navigate('/admin/media/new') }} />
+        <div className="space-y-4">
+          <div className="flex justify-end">
+            <VideoImportButton />
+          </div>
+          <EmptyState variant="content" action={{ label: t('admin_media.add'), onClick: () => navigate('/admin/media/new') }} />
+        </div>
       ) : (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
           <div className="flex items-center justify-between gap-2">
@@ -72,7 +90,7 @@ export default function AdminMedia() {
                   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigate(`/admin/media/${m.id}/edit`)}>
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(m.id)}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeleteTarget({ id: m.id, title: m.title })}>
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
@@ -81,6 +99,24 @@ export default function AdminMedia() {
           </motion.div>
         </div>
       )}
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer ce média ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              « {deleteTarget?.title} » sera supprimé définitivement. Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminPageShell>
   );
 }

@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/db';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { AdminPageShell } from './AdminPageShell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -50,6 +50,7 @@ export function MediaForm() {
   const isEdit = !!id;
   const [loading, setLoading] = useState(false);
   const [showAI, setShowAI] = useState(false);
+  const qc = useQueryClient();
 
   const { data: item } = useQuery({
     queryKey: ['media-item', id],
@@ -78,6 +79,8 @@ export function MediaForm() {
       if (isEdit) { ({ error } = await db.from('media_content').update(payload).eq('id', id)); }
       else { ({ error } = await db.from('media_content').insert(payload as any)); }
       if (error) throw error;
+      qc.invalidateQueries({ queryKey: ['org-media'] });
+      if (isEdit) qc.invalidateQueries({ queryKey: ['media-by-id', id] });
       toast({ title: isEdit ? 'Mis à jour ✅' : 'Créé ✅' });
       navigate('/admin/media');
     } catch (err: any) { toast({ title: 'Erreur', description: err.message, variant: 'destructive' }); }

@@ -12,9 +12,20 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 
+/**
+ * Extract YouTube video ID from various URL formats:
+ * - youtube.com/watch?v=ID
+ * - youtu.be/ID
+ * - youtube.com/embed/ID
+ * - youtube.com/shorts/ID
+ * - youtube.com/live/ID
+ * - m.youtube.com/watch?v=ID
+ * - youtube.com/watch?v=ID&si=... (share links)
+ * - plain 11-char ID
+ */
 function extractYouTubeId(url: string): string | null {
   const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+    /(?:youtube\.com\/watch\?.*v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/|youtube\.com\/live\/|m\.youtube\.com\/watch\?.*v=)([a-zA-Z0-9_-]{11})/,
     /^([a-zA-Z0-9_-]{11})$/,
   ];
   for (const p of patterns) { const m = url.match(p); if (m) return m[1]; }
@@ -62,7 +73,7 @@ export function VideoImportButton() {
     if (trimmed.includes('facebook.com') || trimmed.includes('fb.watch')) { setPreview({ title: 'Vidéo Facebook', author: 'Facebook', thumbnail: '', videoId: trimmed, platform: 'facebook', url: trimmed }); return; }
     if (trimmed.includes('tiktok.com')) { setPreview({ title: 'Vidéo TikTok', author: 'TikTok', thumbnail: '', videoId: trimmed, platform: 'tiktok', url: trimmed }); return; }
     if (trimmed.startsWith('http')) { setPreview({ title: 'Vidéo externe', author: new URL(trimmed).hostname, thumbnail: '', videoId: trimmed, platform: 'other', url: trimmed }); return; }
-    setError('URL non reconnue.');
+    setError('URL non reconnue. Collez un lien YouTube (watch, share, shorts), Facebook ou TikTok.');
   };
 
   const fetchChannelVideos = async () => {
@@ -151,9 +162,12 @@ export function VideoImportButton() {
               <div className="space-y-2">
                 <Label>URL de la vidéo</Label>
                 <div className="flex gap-2">
-                  <Input value={url} onChange={(e) => { setUrl(e.target.value); setPreview(null); setError(''); }} placeholder="YouTube, Facebook, TikTok..." className="flex-1" />
+                  <Input value={url} onChange={(e) => { setUrl(e.target.value); setPreview(null); setError(''); }} placeholder="Collez le lien ici..." className="flex-1" />
                   <Button onClick={fetchSinglePreview} disabled={loading || !url.trim()} size="sm">{loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Aperçu'}</Button>
                 </div>
+                <p className="text-[10px] text-muted-foreground">
+                  💡 Sur YouTube, cliquez sur <strong>Partager</strong> et collez le lien (ex: youtu.be/xxx). Les liens watch, shorts et live marchent aussi.
+                </p>
                 <div className="flex gap-1.5 flex-wrap">
                   <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex items-center gap-1"><Youtube className="h-2.5 w-2.5 text-red-500" /> YouTube</span>
                   <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex items-center gap-1"><Globe className="h-2.5 w-2.5 text-blue-500" /> Facebook</span>
