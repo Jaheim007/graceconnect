@@ -95,6 +95,12 @@ export function EventForm() {
           <div className="space-y-1.5"><Label>Date & Heure</Label><Input type="datetime-local" {...register('event_date')} /></div>
           <div className="space-y-1.5"><Label>Lieu</Label><Input {...register('location')} placeholder="Ville ou adresse..." /></div>
         </div>
+        <div className="space-y-1.5">
+          <Label>Lien Google Maps (optionnel)</Label>
+          <Input {...register('map_url')} placeholder="https://maps.google.com/..." />
+          {errors.map_url && <p className="text-xs text-destructive">{errors.map_url.message}</p>}
+          <p className="text-[11px] text-muted-foreground">Collez un lien Google Maps pour afficher une carte interactive sur la page de l'événement</p>
+        </div>
         <ImageUploader value={watch('image_url') || ''} onChange={(url) => setValue('image_url', url)} folder="events" label="Bannière" hint="Recommandé: 1200×400px" aspectRatio="banner" />
         <div className="space-y-1.5">
           <Label>URL vidéo (optionnel)</Label>
