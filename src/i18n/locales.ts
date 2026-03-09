@@ -3266,6 +3266,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'auth.welcome': 'مرحباً',
     'auth.sign_in_access': 'سجل دخولك للوصول إلى منصاتك',
     'auth.continue_google': 'المتابعة مع Google',
+    'auth.continue_facebook': 'المتابعة مع Facebook',
     'auth.redirecting': 'جاري التوجيه...',
     'auth.or': 'أو',
     'auth.continue_magic': 'المتابعة برابط سحري',
