@@ -7,7 +7,7 @@ import { Slider } from '@/components/ui/slider';
 import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import type { WriteState, BookStyle, WritingTone, TargetAudience, BookLanguage, BookLength } from '../WriteWizard';
+import type { WriteState, BookStyle, WritingTone, TargetAudience, BookLanguage, BookLength, ReligiousTradition, PrayerFormat } from '../WriteWizard';
 import { hasGeneratedContent } from '../utils/hasGeneratedContent';
 
 interface Props {
