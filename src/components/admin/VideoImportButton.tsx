@@ -86,7 +86,7 @@ export function VideoImportButton() {
       if (fnError) throw fnError;
       if (data?.error) throw new Error(data.error);
       if (data?.videos?.length) {
-        setChannelVideos(data.videos.map((v: any) => ({ ...v, platform: 'youtube', selected: true })));
+        setChannelVideos(data.videos.map((v: any) => ({ ...v, platform: 'youtube', selected: true, description: v.description || '' })));
         toast({ title: `📡 ${data.videos.length} vidéos trouvées`, description: `Chaîne: ${data.channelName}` });
       } else {
         setError('Aucune vidéo trouvée pour cette chaîne.');
