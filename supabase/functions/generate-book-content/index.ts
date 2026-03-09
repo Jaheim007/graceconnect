@@ -354,8 +354,28 @@ FORMAT:
 - PURE PROSE: no lists, no sub-headings`,
 
     novel: `Full novelistic structure: immersive chapters, named characters, dash dialogues (—), narrative arc, tension, resolution.`,
-    devotional: `Daily meditations: Day 1, Day 2... Each with verse + personal reflection + application + prayer.`,
-    activity: `Interactive: quizzes, fill-in spaces, creative challenges. Clear objectives per activity.`,
+    devotional: `REAL DAILY DEVOTIONAL STRUCTURE (inspired by "Jesus Calling", "Our Daily Bread"):
+- Numbered format: "Day 1", "Day 2"... (or "Meditation 1", etc.)
+- Each entry follows: VERSE in <blockquote> with full reference → AUTHOR'S PERSONAL REFLECTION (first person, intimate) → CONCRETE APPLICATION for today → SHORT PRAYER (3-5 sentences)
+- Thematic progression over 30/60/90 days
+- First day = intro + how to use this journal
+- Tone: intimate, warm, like a spiritual diary. NOT a lecture.`,
+    activity: `PROFESSIONAL ACTIVITY BOOK / WORKBOOK STRUCTURE:
+1. CHAPTER LANDING: engaging title + emoji + "What you'll learn" (3 points)
+2. EACH CHAPTER = 5-8 VARIED ACTIVITIES:
+   - ✏️ MULTIPLE CHOICE QUIZ (A/B/C/D) with checkboxes □
+   - 📝 OPEN QUESTIONS with answer lines: ___________________________
+   - 🧩 MATCHING EXERCISES (Match column A to column B)
+   - 🎨 CREATIVE SPACES: "Draw here..." with empty frame [DRAWING SPACE]
+   - ✅ TRUE or FALSE with boxes □ TRUE □ FALSE
+   - 📖 FILL-IN-THE-BLANK texts
+   - 🎯 PRACTICAL CHALLENGES: "This week, try to..."
+   - 📊 TABLES TO FILL with empty columns
+3. Each activity has: clear objective, simple instructions, difficulty level (⭐⭐⭐)
+4. END OF CHAPTER = "📋 ANSWER KEY"
+5. LAST CHAPTER = "🏆 Certificate of completion"
+HTML: <table> for grids, <ul><li>□ for choices, <hr/> between activities, emojis throughout.
+FORBIDDEN: long text paragraphs, lecture tone, monotonous exercises.`,
   },
   es: {
     ebook: `Estructura de libro real: problema, experiencia del autor, ejemplos concretos, preguntas de reflexión al final de cada capítulo.`,
