@@ -83,7 +83,7 @@ export function StepPdfPreview({ state, update, onNext, onBack, onSaveDraft, sav
                   {state.title || t('write.my_book')}
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  {chapters.length} chapitre{chapters.length > 1 ? 's' : ''}
+                  {chapters.length} {chapters.length > 1 ? t('write.chapter_word_plural') : t('write.chapter_word')}
                 </p>
               </div>
             </div>
@@ -91,10 +91,10 @@ export function StepPdfPreview({ state, update, onNext, onBack, onSaveDraft, sav
             /* ─── CHAPTER PAGE ─── */
             <div className="max-w-2xl mx-auto p-6 sm:p-10 space-y-6">
               <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">
-                Chapitre {currentPage}
+                {t('write.chapter_label')} {currentPage}
               </p>
               <h2 className="text-xl sm:text-2xl font-bold text-foreground pb-3 border-b border-border">
-                {currentChapter?.title || `Chapitre ${currentPage}`}
+                {currentChapter?.title || `${t('write.chapter_label')} ${currentPage}`}
               </h2>
 
               {currentChapterImage && (
@@ -111,7 +111,7 @@ export function StepPdfPreview({ state, update, onNext, onBack, onSaveDraft, sav
               <div
                 className="prose prose-sm dark:prose-invert max-w-none leading-relaxed text-foreground/90"
                 dangerouslySetInnerHTML={{
-                  __html: currentChapter?.content || '<p class="text-muted-foreground italic">Contenu vide</p>',
+                  __html: currentChapter?.content || `<p class="text-muted-foreground italic">${t('write.empty_content')}</p>`,
                 }}
               />
             </div>
@@ -127,7 +127,7 @@ export function StepPdfPreview({ state, update, onNext, onBack, onSaveDraft, sav
             disabled={currentPage === 0}
             className="gap-1 text-xs"
           >
-            <ChevronLeft className="h-3.5 w-3.5" /> Précédent
+            <ChevronLeft className="h-3.5 w-3.5" /> {t('write.prev_chapter')}
           </Button>
 
           {/* Page dots (max 10 visible) */}
@@ -155,7 +155,7 @@ export function StepPdfPreview({ state, update, onNext, onBack, onSaveDraft, sav
             disabled={currentPage === totalPages - 1}
             className="gap-1 text-xs"
           >
-            Suivant <ChevronRight className="h-3.5 w-3.5" />
+            {t('write.next_chapter')} <ChevronRight className="h-3.5 w-3.5" />
           </Button>
         </div>
       </div>
@@ -179,12 +179,12 @@ export function StepPdfPreview({ state, update, onNext, onBack, onSaveDraft, sav
           {saving ? (
             <>
               <Loader2 className="h-5 w-5 animate-spin" />
-              Publication en cours…
+              {t('write.publishing_in_progress')}
             </>
           ) : (
             <>
               <ArrowRight className="h-5 w-5" />
-              Aller à la publication
+              {t('write.go_to_publish')}
             </>
           )}
         </Button>

@@ -122,7 +122,7 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
         if (aborted.current) return;
 
         const chapter = aiChapters[i];
-        const safeTitle = (chapter?.title || `Chapitre ${i + 1}`).trim();
+        const safeTitle = (chapter?.title || `${t('write.chapter_label')} ${i + 1}`).trim();
         finalChapters.push({
           id: chapter?.id || `ch-${i + 1}`,
           title: safeTitle,
@@ -155,7 +155,7 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
 
     if (hasGeneratedContent(state.chapters)) {
       setPhase('done');
-      setVisibleChapters(state.chapters.map((ch, i) => ch.title?.trim() || `Chapitre ${i + 1}`));
+      setVisibleChapters(state.chapters.map((ch, i) => ch.title?.trim() || `${t('write.chapter_label')} ${i + 1}`));
       setTotalChapters(state.chapters.length);
       setTimeout(() => {
         if (!aborted.current) onNext();
@@ -243,7 +243,7 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
               {t('write.ai_regenerate')}
             </Button>
             <Button variant="outline" onClick={continueWithoutAi}>
-              Continuer sans IA
+              {t('write.continue_without_ai')}
             </Button>
           </>
         )}

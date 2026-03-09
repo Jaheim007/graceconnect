@@ -82,7 +82,7 @@ export function StepCelebration({ state, onWriteAnother }: Props) {
         </h2>
 
         <p className="text-muted-foreground text-sm max-w-sm mx-auto">
-          « <strong className="text-foreground">{state.title || 'Mon livre'}</strong> » {t('write.celebration_sub')}
+          « <strong className="text-foreground">{state.title || t('write.my_book')}</strong> » {t('write.celebration_sub')}
         </p>
 
         {/* Draft notice */}
