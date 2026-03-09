@@ -180,12 +180,12 @@ export function StepPdfPreview({ state, update, onNext, onBack, onSaveDraft, sav
           {saving ? (
             <>
               <Loader2 className="h-5 w-5 animate-spin" />
-              Publication en cours…
+              {t('write.publishing_in_progress')}
             </>
           ) : (
             <>
               <ArrowRight className="h-5 w-5" />
-              Aller à la publication
+              {t('write.go_to_publish')}
             </>
           )}
         </Button>

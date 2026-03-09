@@ -78,7 +78,7 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
             ))}
           </div>
           <p className="text-[10px] text-amber-600 dark:text-amber-400 text-center">
-            ⚠️ Ces styles ne sont pas sauvegardés comme couverture. Importez une image pour une vraie couverture.
+            {t('write.cover_template_warning')}
           </p>
         </div>
       )}
