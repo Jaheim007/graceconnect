@@ -121,7 +121,7 @@ export default function AdminLayout() {
     );
   }
 
-  const mobileSecondaryLinks = adminLinks.filter(l => !mobilePrimaryLinks.some(p => p.to === l.to));
+  const mobileSecondaryLinks = adminLinks.filter(l => !mobilePrimaryLinks.some(p => p.to === l.to) && shouldShow(l.showWhen));
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
