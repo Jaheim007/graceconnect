@@ -46,6 +46,7 @@ import { SmartCRMInsights } from '@/components/admin/SmartCRMInsights';
 import { TimeSinceLastSale } from '@/components/admin/TimeSinceLastSale';
 import { AdminGrowthSuggestions } from '@/components/growth/AdminGrowthSuggestions';
 import { SmartPromotionSuggestions } from '@/components/admin/SmartPromotionSuggestions';
+import { SmartCoach } from '@/components/smart/SmartCoach';
 
 import { useBehavioralNotifications } from '@/hooks/useBehavioralNotifications';
 import { useI18n } from '@/i18n/I18nContext';
