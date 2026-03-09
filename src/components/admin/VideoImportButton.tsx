@@ -39,6 +39,7 @@ interface VideoPreview {
   videoId: string;
   platform: string;
   url: string;
+  description?: string;
   selected?: boolean;
 }
 
