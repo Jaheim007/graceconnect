@@ -83,7 +83,32 @@ Deno.serve(async (req) => {
         }))),
       });
 
-      if (res.ok) sentCount += batch.length;
+      if (res.ok) {
+        sentCount += batch.length;
+      } else if (res.status === 429) {
+        // Rate limited — wait and retry once
+        console.warn('[send-campaign] Rate limited by Resend, waiting 2s before retry...');
+        await new Promise(r => setTimeout(r, 2000));
+        const retryRes = await fetch('https://api.resend.com/emails/batch', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(emails.map((email: string) => ({
+            from: `${org?.name || 'Siteviral'} <noreply@siteviral.com>`,
+            to: email,
+            subject: campaign.subject,
+            html: campaign.body,
+          }))),
+        });
+        if (retryRes.ok) sentCount += batch.length;
+        else console.error('[send-campaign] Retry failed:', await retryRes.text());
+      } else {
+        console.error('[send-campaign] Batch send failed:', res.status, await res.text());
+      }
+
+      // Rate limit: wait 1.5s between batches to stay under Resend's 2 req/s limit
+      if (i + batchSize < recipients.length) {
+        await new Promise(r => setTimeout(r, 1500));
+      }
     }
 
     // Update campaign
