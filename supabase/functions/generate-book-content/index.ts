@@ -849,8 +849,8 @@ Return ONLY JSON:
       userPrompt = lang === 'fr'
         ? `Écris un livre COMPLET :
 
-TITRE : "${title}"${subtitleLine}
-${topic ? `SUJET : ${topic}` : ''}
+TITRE : "${title}"${subtitleLine}${authorLine}
+${topic ? `SUJET : ${topic}` : ''}${keywordsLine}
 ${editorialContext}
 INSTRUCTIONS :
 - Exactement ${chapterCount} chapitres
@@ -874,8 +874,8 @@ Retourne UNIQUEMENT un JSON valide :
 RAPPEL : ${pages} pages. Chaque chapitre ≈ ${chapterWordTarget} mots. VRAI livre, pas texte IA.`
         : `Write a COMPLETE book:
 
-TITLE: "${title}"
-${topic ? `TOPIC: ${topic}` : ''}
+TITLE: "${title}"${subtitleLine}${authorLine}
+${topic ? `TOPIC: ${topic}` : ''}${keywordsLine}
 ${editorialContext}
 INSTRUCTIONS:
 - Exactly ${chapterCount} chapters
