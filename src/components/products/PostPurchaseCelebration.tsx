@@ -213,6 +213,23 @@ export function PostPurchaseCelebration({
                     )}
                   </div>
 
+                  {/* ★ LEAVE A REVIEW CTA ★ */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full gap-1.5 text-xs"
+                    onClick={() => {
+                      onClose();
+                      // Navigate to product page review section
+                      const reviewUrl = productSlug
+                        ? `/org/${orgSlug}/p/${productSlug}#reviews`
+                        : `/org/${orgSlug}/product/${productId}#reviews`;
+                      window.location.href = reviewUrl;
+                    }}
+                  >
+                    <Star className="h-3.5 w-3.5" /> Laisser un avis sur ce produit
+                  </Button>
+
                   {/* ★ HIGH-CONVERSION AMBASSADOR CTA ★ */}
                   {!isFreePurchase && price > 0 && (
                     <motion.div

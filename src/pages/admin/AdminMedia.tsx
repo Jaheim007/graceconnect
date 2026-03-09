@@ -39,8 +39,9 @@ export default function AdminMedia() {
         <EmptyState variant="content" action={{ label: t('admin_media.add'), onClick: () => navigate('/admin/media/new') }} />
       ) : (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <h2 className="font-semibold text-sm">{media.length} {media.length > 1 ? t('admin_media.count_plural') : t('admin_media.count')}</h2>
+            <VideoImportButton />
           </div>
           <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
             {media.map((m) => (
