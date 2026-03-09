@@ -716,6 +716,12 @@ function getTitleGuidance(lang: string, style: string, profile: EditorialProfile
     if (profile === 'spiritual_warfare') {
       return 'Titres DIRECTS ET AUTORITAIRES (souvent en MAJUSCULES) : "IL Y A UNE GUERRE", "VOTRE STATUT EN CHRIST", "DÉCLAREZ LA VICTOIRE".';
     }
+    if (profile === 'devotional_journal') {
+      return 'Titres numérotés et thématiques : "Jour 1 — La confiance", "Jour 15 — Lâcher prise". Le numéro du jour EST le titre.';
+    }
+    if (profile === 'activity_workbook') {
+      return 'Titres engageants et ludiques : "🎯 Chapitre 3 : Découvre tes talents !", "🧩 Les animaux du monde". Utiliser des emojis.';
+    }
     if (style === 'story' || style === 'novel') {
       return 'Titres ÉVOCATEURS et littéraires, non techniques.';
     }
@@ -725,6 +731,8 @@ function getTitleGuidance(lang: string, style: string, profile: EditorialProfile
   if (profile === 'business_manual') return 'STRICTLY functional titles: "What is X?", "Procedure Y", "Checklist Z".';
   if (profile === 'leadership') return 'Principle-driven titles with impact promise.';
   if (profile === 'spiritual_warfare') return 'Direct, authoritative, often capitalized titles.';
+  if (profile === 'devotional_journal') return 'Numbered thematic titles: "Day 1 — Trust", "Day 15 — Letting Go".';
+  if (profile === 'activity_workbook') return 'Engaging playful titles with emojis: "🎯 Chapter 3: Discover Your Talents!"';
   if (style === 'story' || style === 'novel') return 'Evocative literary titles.';
   return 'Clear, precise, result-oriented titles.';
 }
