@@ -772,6 +772,9 @@ function getTitleGuidance(lang: string, style: string, profile: EditorialProfile
     if (profile === 'activity_workbook') {
       return 'Titres engageants et ludiques : "🎯 Chapitre 3 : Découvre tes talents !", "🧩 Les animaux du monde". Utiliser des emojis.';
     }
+    if (profile === 'coloring_book') {
+      return 'Titres courts et visuels : "🦁 Les animaux de la savane", "🌸 Le jardin enchanté", "🚀 L\'espace". Emojis + thème.';
+    }
     if (style === 'story' || style === 'novel') {
       return 'Titres ÉVOCATEURS et littéraires, non techniques.';
     }
