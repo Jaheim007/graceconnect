@@ -360,7 +360,7 @@ function getInstruction(map: Record<string, Record<string, string>>, lang: strin
   return langMap[key] || langMap[fallbackKey] || Object.values(langMap)[0] || '';
 }
 
-const MAX_CHAPTERS = 8;
+const MAX_CHAPTERS = 20;
 const MIN_CHAPTERS = 3;
 const MIN_VALID_CHAPTER_RATIO = 0.7;
 const MAX_RETRIES = 3;
@@ -742,12 +742,15 @@ GARDE-FOUS D'AUTHENTICITÉ :
 - Interdit d'écrire des paragraphes de remplissage
 - Chaque chapitre doit contenir au moins 1 élément concret vérifiable (cadre, étape, cas, référence, verset, checklist)
 
-HTML — UTILISE :
-- <p> pour les paragraphes
-- <h3> pour les sous-titres (2-3 par chapitre)
-- <blockquote> pour citations, versets ou points importants
-- <strong> pour les concepts-clés (avec parcimonie)
-- <em> pour l'emphase
+HTML — FORMATAGE PROFESSIONNEL (comme un vrai livre édité) :
+- <p> pour les paragraphes de corps de texte (3-5 phrases chacun)
+- <h2> pour les TITRES DE SECTIONS MAJUSCULES (ex: "1. LE PÉCHÉ", "A- CINQ RAISONS MAJEURES")
+- <h3> pour les sous-sections (ex: "1.1. L'orgueil", "4.2. Solution dans l'ancien testament")
+- <blockquote> pour les VERSETS BIBLIQUES complets avec référence en <strong> (ex: <blockquote><strong>Éphésiens 6v12</strong> : <em>"nous n'avons pas à lutter contre la chair et le sang..."</em></blockquote>)
+- <ol><li> pour les listes NUMÉROTÉES (points de prière, étapes, arguments)
+- <ul><li> pour les listes à puces (thèmes, exemples)
+- <strong> pour les mots-clés, références bibliques et concepts importants
+- <em> pour les citations, les versets en italique, l'emphase
 - <ul><li> ou <ol><li> pour les listes
 ${styleRefInstruction}
 FORMAT DE SORTIE : JSON valide uniquement. Pas de markdown, pas de code fences.`
@@ -778,13 +781,15 @@ AUTHENTICITY GUARDRAILS:
 - No filler paragraphs
 - Each chapter must include at least one concrete artifact (framework, step, case, reference, verse, or checklist)
 
-HTML — USE:
-- <p> for paragraphs
-- <h3> for sub-headings (2-3 per chapter)
-- <blockquote> for quotes, verses, or important points
-- <strong> for key concepts (sparingly)
-- <em> for emphasis
-- <ul><li> or <ol><li> for lists
+HTML — PROFESSIONAL FORMATTING (like a real published book):
+- <p> for body text paragraphs (3-5 sentences each)
+- <h2> for MAJOR SECTION TITLES (e.g. "1. THE PROBLEM", "A- FIVE MAJOR REASONS")
+- <h3> for sub-sections (e.g. "1.1. Pride", "4.2. Old Testament solution")
+- <blockquote> for FULL SCRIPTURE VERSES with reference in <strong> (e.g. <blockquote><strong>Ephesians 6:12</strong>: <em>"For we wrestle not against flesh..."</em></blockquote>)
+- <ol><li> for NUMBERED lists (prayer points, steps, arguments)
+- <ul><li> for bullet lists (themes, examples)
+- <strong> for key terms, biblical references, important concepts
+- <em> for quotes, verse text in italics, emphasis
 ${styleRefInstruction}
 OUTPUT FORMAT: Valid JSON only. No markdown, no code fences.`;
 
