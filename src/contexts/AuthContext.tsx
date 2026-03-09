@@ -187,6 +187,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loading,
         isSuperadmin,
         signInWithGoogle,
+        signInWithFacebook,
         signInWithMagicLink,
         verifyOtp,
         signOut,
