@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 import { ShoppingBag, Heart, Play, Camera, CalendarDays, HandHeart, GraduationCap } from 'lucide-react';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { Offering } from '@/hooks/useOfferings';
+import { EventCountdown } from '@/components/events/EventCountdown';
 
 interface OrgHomeSectionsProps {
   slug: string;
@@ -151,22 +152,29 @@ export function OrgHomeSections({
         </div>
         <div className="space-y-2 px-5 pb-5">
           {events.slice(0, 3).map((ev) => (
-            <div key={ev.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/30 hover:bg-muted/60 transition-colors cursor-pointer" onClick={() => navigate(`/event/${ev.id}`)}>
-              <div className="h-12 w-12 rounded-xl bg-primary/10 flex flex-col items-center justify-center shrink-0">
-                {ev.event_date ? (
-                  <>
-                    <span className="text-[10px] font-bold text-primary uppercase">{new Date(ev.event_date).toLocaleDateString(dateFmt, { month: 'short' })}</span>
-                    <span className="text-sm font-bold leading-none">{new Date(ev.event_date).getDate()}</span>
-                  </>
-                ) : (
-                  <CalendarDays className="h-5 w-5 text-primary" />
-                )}
+            <div key={ev.id} className="rounded-xl border border-border bg-muted/30 hover:bg-muted/60 transition-colors cursor-pointer overflow-hidden" onClick={() => navigate(`/event/${ev.id}`)}>
+              <div className="flex items-center gap-3 p-3">
+                <div className="h-12 w-12 rounded-xl bg-primary/10 flex flex-col items-center justify-center shrink-0">
+                  {ev.event_date ? (
+                    <>
+                      <span className="text-[10px] font-bold text-primary uppercase">{new Date(ev.event_date).toLocaleDateString(dateFmt, { month: 'short' })}</span>
+                      <span className="text-sm font-bold leading-none">{new Date(ev.event_date).getDate()}</span>
+                    </>
+                  ) : (
+                    <CalendarDays className="h-5 w-5 text-primary" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm truncate">{ev.title}</p>
+                  <p className="text-xs text-muted-foreground">{ev.event_date ? new Date(ev.event_date).toLocaleDateString(dateFmt, { weekday: 'long' }) : t('org_public.date_tbc')}</p>
+                </div>
+                {ev.location && <span className="text-xs text-muted-foreground hidden sm:block">{ev.location}</span>}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-semibold text-sm truncate">{ev.title}</p>
-                <p className="text-xs text-muted-foreground">{ev.event_date ? new Date(ev.event_date).toLocaleDateString(dateFmt, { weekday: 'long' }) : t('org_public.date_tbc')}</p>
-              </div>
-              {ev.location && <span className="text-xs text-muted-foreground hidden sm:block">{ev.location}</span>}
+              {ev.event_date && new Date(ev.event_date) > new Date() && (
+                <div className="px-3 pb-3">
+                  <EventCountdown endDate={ev.event_date} compact />
+                </div>
+              )}
             </div>
           ))}
         </div>

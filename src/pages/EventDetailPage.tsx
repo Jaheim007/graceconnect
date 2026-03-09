@@ -15,6 +15,8 @@ import { Badge } from '@/components/ui/badge';
 import { CommentSection } from '@/components/comments/CommentSection';
 import { BookmarkButton } from '@/components/bookmarks/BookmarkButton';
 import { useShortLink } from '@/hooks/useShortLink';
+import { EventCountdown } from '@/components/events/EventCountdown';
+import { GoogleMapCard } from '@/components/events/GoogleMapCard';
 
 export default function EventDetailPage() {
   const { eventId } = useParams<{ eventId: string }>();
@@ -152,6 +154,11 @@ export default function EventDetailPage() {
             </div>
           </div>
 
+          {/* Countdown */}
+          {!isPast && eventDate && (
+            <EventCountdown endDate={event.event_date} />
+          )}
+
           {event.description && (
             <div className="space-y-3">
               <h2 className="text-base font-semibold">À propos de cet événement</h2>
@@ -160,6 +167,11 @@ export default function EventDetailPage() {
                 className="text-sm text-muted-foreground leading-relaxed break-words"
               />
             </div>
+          )}
+
+          {/* Google Map */}
+          {(event.location || (event as any).map_url) && (
+            <GoogleMapCard location={event.location || undefined} mapUrl={(event as any).map_url || undefined} />
           )}
 
           {/* Share buttons */}

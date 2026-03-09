@@ -1842,6 +1842,7 @@ export type Database = {
           is_featured: boolean | null
           is_published: boolean | null
           location: string | null
+          map_url: string | null
           organization_id: string
           publication_status: string
           reviewed_at: string | null
@@ -1864,6 +1865,7 @@ export type Database = {
           is_featured?: boolean | null
           is_published?: boolean | null
           location?: string | null
+          map_url?: string | null
           organization_id: string
           publication_status?: string
           reviewed_at?: string | null
@@ -1886,6 +1888,7 @@ export type Database = {
           is_featured?: boolean | null
           is_published?: boolean | null
           location?: string | null
+          map_url?: string | null
           organization_id?: string
           publication_status?: string
           reviewed_at?: string | null

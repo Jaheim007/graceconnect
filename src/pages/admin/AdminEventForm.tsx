@@ -23,6 +23,7 @@ const schema = z.object({
   image_url: z.string().optional(),
   video_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   location: z.string().optional(),
+  map_url: z.string().url('Must be a valid URL').optional().or(z.literal('')),
   event_date: z.string().optional(),
   is_published: z.boolean().default(false),
 });
@@ -52,14 +53,14 @@ export function EventForm() {
   });
 
   useEffect(() => {
-    if (item) { reset({ title: item.title, description: item.description || '', image_url: item.image_url || '', video_url: item.video_url || '', location: item.location || '', event_date: item.event_date ? item.event_date.slice(0, 16) : '', is_published: item.is_published || false }); }
+    if (item) { reset({ title: item.title, description: item.description || '', image_url: item.image_url || '', video_url: item.video_url || '', location: item.location || '', map_url: (item as any).map_url || '', event_date: item.event_date ? item.event_date.slice(0, 16) : '', is_published: item.is_published || false }); }
   }, [item, reset]);
 
   const onSubmit = async (data: FormData) => {
     if (!currentOrg || !user) { toast({ title: 'Error', variant: 'destructive' }); return; }
     setLoading(true);
     try {
-      const payload = { ...data, organization_id: currentOrg.id, created_by: user.id, image_url: data.image_url || null, video_url: data.video_url || null, event_date: data.event_date ? new Date(data.event_date).toISOString() : null };
+      const payload = { ...data, organization_id: currentOrg.id, created_by: user.id, image_url: data.image_url || null, video_url: data.video_url || null, map_url: data.map_url || null, event_date: data.event_date ? new Date(data.event_date).toISOString() : null };
       let error;
       if (isEdit) { ({ error } = await db.from('events').update(payload).eq('id', id)); }
       else { ({ error } = await db.from('events').insert(payload as any)); }
@@ -93,6 +94,12 @@ export function EventForm() {
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5"><Label>Date & Heure</Label><Input type="datetime-local" {...register('event_date')} /></div>
           <div className="space-y-1.5"><Label>Lieu</Label><Input {...register('location')} placeholder="Ville ou adresse..." /></div>
+        </div>
+        <div className="space-y-1.5">
+          <Label>Lien Google Maps (optionnel)</Label>
+          <Input {...register('map_url')} placeholder="https://maps.google.com/..." />
+          {errors.map_url && <p className="text-xs text-destructive">{errors.map_url.message}</p>}
+          <p className="text-[11px] text-muted-foreground">Collez un lien Google Maps pour afficher une carte interactive sur la page de l'événement</p>
         </div>
         <ImageUploader value={watch('image_url') || ''} onChange={(url) => setValue('image_url', url)} folder="events" label="Bannière" hint="Recommandé: 1200×400px" aspectRatio="banner" />
         <div className="space-y-1.5">
