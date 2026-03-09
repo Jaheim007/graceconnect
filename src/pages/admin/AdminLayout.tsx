@@ -3,6 +3,8 @@ import { useOrg } from '@/contexts/OrgContext';
 import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
+import { db } from '@/lib/db';
 import {
   BarChart3, Play, Megaphone, CalendarDays, Heart, ShoppingBag,
   Users, Link2, FileCheck, Settings, ChevronDown, ArrowLeft, Loader2,
