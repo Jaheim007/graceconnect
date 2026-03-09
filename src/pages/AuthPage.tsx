@@ -58,6 +58,7 @@ export default function AuthPage() {
   }, [user, navigate, returnTo]);
 
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [facebookLoading, setFacebookLoading] = useState(false);
 
   const handleGoogle = async () => {
     setError('');
