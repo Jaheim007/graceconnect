@@ -44,7 +44,26 @@ Deno.serve(async (req) => {
     const stylePrompt = artStylePrompts[artStyle] || artStylePrompts['children_book'];
     const audiencePrompt = audiencePrompts[audience] || audiencePrompts['general'];
 
-    const prompt = `Create a beautiful illustration for a book chapter.
+    const isColoring = artStyle === 'line_art' || bookStyle === 'coloring';
+
+    const prompt = isColoring
+      ? `Create a coloring book page. BLACK AND WHITE LINE ART ONLY.
+
+Book: "${bookTitle || 'Untitled'}"
+Page theme: "${chapterTitle}"
+Context: ${chapterSummary || chapterTitle}
+
+CRITICAL RULES:
+- ONLY black outlines on pure white background
+- NO shading, NO fills, NO gray tones, NO colors
+- Bold clean contour lines (2-3px thickness)
+- Large enclosed areas for children to color in
+- Simple, recognizable shapes
+- ${audiencePrompt}
+- Fun and engaging composition
+- NO text in the image
+- Style: professional coloring book page, print-ready quality`
+      : `Create a beautiful illustration for a book chapter.
 
 Book: "${bookTitle || 'Untitled'}"
 Chapter: "${chapterTitle}"
