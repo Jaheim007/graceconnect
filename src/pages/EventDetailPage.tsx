@@ -15,6 +15,8 @@ import { Badge } from '@/components/ui/badge';
 import { CommentSection } from '@/components/comments/CommentSection';
 import { BookmarkButton } from '@/components/bookmarks/BookmarkButton';
 import { useShortLink } from '@/hooks/useShortLink';
+import { EventCountdown } from '@/components/events/EventCountdown';
+import { GoogleMapCard } from '@/components/events/GoogleMapCard';
 
 export default function EventDetailPage() {
   const { eventId } = useParams<{ eventId: string }>();
