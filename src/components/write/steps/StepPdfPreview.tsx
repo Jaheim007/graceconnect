@@ -92,7 +92,7 @@ export function StepPdfPreview({ state, update, onNext, onBack, onSaveDraft, sav
             /* ─── CHAPTER PAGE ─── */
             <div className="max-w-2xl mx-auto p-6 sm:p-10 space-y-6">
               <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-2">
-                Chapitre {currentPage}
+                {t('write.chapter_label')} {currentPage}
               </p>
               <h2 className="text-xl sm:text-2xl font-bold text-foreground pb-3 border-b border-border">
                 {currentChapter?.title || `Chapitre ${currentPage}`}
