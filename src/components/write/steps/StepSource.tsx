@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PenLine, FileText, Lightbulb, History, PlusCircle, Clock3, Video, Mic, Camera, Loader2 } from 'lucide-react';
+import { PenLine, FileText, Lightbulb, History, PlusCircle, Clock3, Video, Mic, Camera, Loader2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -21,6 +21,7 @@ interface Props {
   activeDraftId: string;
   onCreateDraft: () => void;
   onLoadDraft: (draftId: string) => void;
+  onDeleteDraft: (draftId: string) => void;
   lastSavedAt: number | null;
 }
 
@@ -32,6 +33,7 @@ export function StepSource({
   activeDraftId,
   onCreateDraft,
   onLoadDraft,
+  onDeleteDraft,
   lastSavedAt,
 }: Props) {
   const { t } = useI18n();
@@ -137,6 +139,7 @@ export function StepSource({
         activeDraftId={activeDraftId}
         onCreateDraft={onCreateDraft}
         onLoadDraft={onLoadDraft}
+        onDeleteDraft={onDeleteDraft}
         lastSavedAt={lastSavedAt}
       />
 
@@ -185,12 +188,13 @@ export function StepSource({
 }
 
 /* ---------- Draft Manager Sub-component ---------- */
-function DraftManager({ t, visibleDrafts, activeDraftId, onCreateDraft, onLoadDraft, lastSavedAt }: {
+function DraftManager({ t, visibleDrafts, activeDraftId, onCreateDraft, onLoadDraft, onDeleteDraft, lastSavedAt }: {
   t: (key: string) => string;
   visibleDrafts: SavedWriteDraftSummary[];
   activeDraftId: string;
   onCreateDraft: () => void;
   onLoadDraft: (id: string) => void;
+  onDeleteDraft: (id: string) => void;
   lastSavedAt: number | null;
 }) {
   return (
@@ -230,15 +234,26 @@ function DraftManager({ t, visibleDrafts, activeDraftId, onCreateDraft, onLoadDr
                   {new Date(draft.updatedAt).toLocaleString()} · {t('write.step')} {draft.step + 1}/9
                 </p>
               </div>
-              {draft.id === activeDraftId ? (
-                <span className="text-[10px] px-2 py-1 rounded-full bg-primary/10 text-primary font-semibold whitespace-nowrap">
-                  {t('write.current_draft')}
-                </span>
-              ) : (
-                <Button type="button" variant="ghost" size="sm" className="text-xs" onClick={() => onLoadDraft(draft.id)}>
-                  {t('write.resume_draft')}
+              <div className="flex items-center gap-1.5 shrink-0">
+                {draft.id === activeDraftId ? (
+                  <span className="text-[10px] px-2 py-1 rounded-full bg-primary/10 text-primary font-semibold whitespace-nowrap">
+                    {t('write.current_draft')}
+                  </span>
+                ) : (
+                  <Button type="button" variant="ghost" size="sm" className="text-xs" onClick={() => onLoadDraft(draft.id)}>
+                    {t('write.resume_draft')}
+                  </Button>
+                )}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-muted-foreground hover:text-destructive"
+                  onClick={() => onDeleteDraft(draft.id)}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
                 </Button>
-              )}
+              </div>
             </div>
           ))}
         </div>
