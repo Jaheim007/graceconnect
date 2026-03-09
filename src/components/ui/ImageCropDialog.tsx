@@ -132,9 +132,9 @@ export function ImageCropDialog({
         </div>
 
         <DialogFooter className="px-4 pb-4 gap-2">
-          <Button variant="outline" size="sm" onClick={onClose}>Cancel</Button>
+          <Button variant="outline" size="sm" onClick={onClose}>Annuler</Button>
           <Button size="sm" onClick={handleConfirm} disabled={saving}>
-            {saving ? 'Cropping...' : 'Apply Crop'}
+            {saving ? 'Recadrage...' : 'Appliquer'}
           </Button>
         </DialogFooter>
       </DialogContent>
