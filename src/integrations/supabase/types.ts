@@ -3417,6 +3417,7 @@ export type Database = {
           created_at: string
           gmv: number | null
           id: string
+          k_factor: number | null
           metric_date: string
           new_orgs: number | null
           new_users: number | null
@@ -3430,6 +3431,7 @@ export type Database = {
           created_at?: string
           gmv?: number | null
           id?: string
+          k_factor?: number | null
           metric_date: string
           new_orgs?: number | null
           new_users?: number | null
@@ -3443,6 +3445,7 @@ export type Database = {
           created_at?: string
           gmv?: number | null
           id?: string
+          k_factor?: number | null
           metric_date?: string
           new_orgs?: number | null
           new_users?: number | null
@@ -3722,6 +3725,7 @@ export type Database = {
           country: string | null
           created_at: string | null
           display_name: string | null
+          first_action_at: string | null
           id: string
           onboarding_intent: string | null
           payout_account_name: string | null
@@ -3743,6 +3747,7 @@ export type Database = {
           country?: string | null
           created_at?: string | null
           display_name?: string | null
+          first_action_at?: string | null
           id: string
           onboarding_intent?: string | null
           payout_account_name?: string | null
@@ -3764,6 +3769,7 @@ export type Database = {
           country?: string | null
           created_at?: string | null
           display_name?: string | null
+          first_action_at?: string | null
           id?: string
           onboarding_intent?: string | null
           payout_account_name?: string | null
