@@ -118,7 +118,7 @@ export function Sidebar() {
   })();
 
   // ═══════════════════════════════════════
-  // CREATOR GROUPS — reorganized by priority
+  // CREATOR GROUPS — progressive disclosure
   // ═══════════════════════════════════════
   const platformGroups: NavGroup[] = [
     {
@@ -133,7 +133,8 @@ export function Sidebar() {
         { to: '/admin/events', icon: CalendarDays, label: t('sidebar.events') },
       ],
     },
-    {
+    // Only show Sell group if org has products
+    ...(hasProducts ? [{
       label: t('sidebar.sell') || 'Vendre',
       icon: Wallet,
       key: 'Sell',
@@ -144,35 +145,46 @@ export function Sidebar() {
         { to: '/admin/affiliation', icon: Link2, label: t('sidebar.ambassadors') },
         { to: '/admin/payouts', icon: TrendingUp, label: t('sidebar.payouts') },
       ],
-    },
-    {
+    }] as NavGroup[] : []),
+    // Show Manage group if org has products or sales
+    ...(hasProducts ? [{
       label: t('sidebar.manage') || 'Gérer',
       icon: Settings,
       key: 'Manage',
       defaultOpen: false,
       items: [
         { to: '/admin/members', icon: Users, label: t('sidebar.members') },
-        { to: '/admin/analytics', icon: BarChart3, label: t('sidebar.analytics') },
+        ...(hasSales ? [{ to: '/admin/analytics', icon: BarChart3, label: t('sidebar.analytics') }] : []),
         { to: '/admin/kyc', icon: FileCheck, label: t('sidebar.verification') },
         { to: '/admin/settings', icon: Settings, label: t('sidebar.settings') },
       ],
-    },
-    {
+    }] as NavGroup[] : [{
+      label: t('sidebar.manage') || 'Gérer',
+      icon: Settings,
+      key: 'Manage',
+      defaultOpen: false,
+      items: [
+        { to: '/admin/kyc', icon: FileCheck, label: t('sidebar.verification') },
+        { to: '/admin/settings', icon: Settings, label: t('sidebar.settings') },
+      ],
+    }] as NavGroup[]),
+    // "More" group — only visible on demand or if org has advanced usage
+    ...(showMoreTools || hasSales ? [{
       label: t('sidebar.more') || 'Plus',
       icon: MoreHorizontal,
       key: 'More',
       defaultOpen: false,
       items: [
         { to: '/admin/photos', icon: Camera, label: t('sidebar.photos') },
-        { to: '/admin/promo-codes', icon: Tag, label: t('sidebar.promo_codes') },
+        ...(hasProducts ? [{ to: '/admin/promo-codes', icon: Tag, label: t('sidebar.promo_codes') }] : []),
         { to: '/admin/subscriptions', icon: CreditCard, label: t('sidebar.subscriptions') },
-        { to: '/admin/crm', icon: MailCheck, label: t('sidebar.crm') },
+        ...(hasProducts ? [{ to: '/admin/crm', icon: MailCheck, label: t('sidebar.crm') }] : []),
         { to: '/admin/notifications', icon: Bell, label: t('sidebar.notifications') },
         { to: '/admin/waitlists', icon: Clock, label: t('sidebar.waitlists') },
         { to: '/admin/programs', icon: GraduationCap, label: t('sidebar.programs') },
         { to: '/admin/offerings', icon: Heart, label: t('sidebar.offerings') },
       ],
-    },
+    }] as NavGroup[] : []),
   ];
 
   // ═══════════════════════════════════════
