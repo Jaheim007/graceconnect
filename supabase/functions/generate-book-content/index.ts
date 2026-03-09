@@ -302,6 +302,8 @@ async function repairJsonWithAi(apiKey: string, rawContent: string, chapterCount
     },
     body: JSON.stringify({
       model: 'google/gemini-2.5-flash',
+      max_tokens: 7000,
+      response_format: { type: 'json_object' },
       messages: [
         {
           role: 'system',
