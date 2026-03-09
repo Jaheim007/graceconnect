@@ -933,6 +933,7 @@ export default function WriteWizard() {
                 activeDraftId={draftId}
                 onCreateDraft={handleCreateNewDraft}
                 onLoadDraft={handleLoadDraft}
+                onDeleteDraft={handleDeleteDraftById}
                 lastSavedAt={lastSavedAt}
               />
             )}
