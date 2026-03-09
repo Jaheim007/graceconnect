@@ -82,7 +82,7 @@ export function useGrowthSuggestions() {
           id: 'complete-profile',
           emoji: '🎨',
           title: 'Complétez votre page',
-          desc: !org.data.logo_url ? 'Ajoutez un logo pour inspirer confiance.' : 'Ajoutez une description pour présenter votre organisation.',
+          desc: !org.logo_url ? 'Ajoutez un logo pour inspirer confiance.' : 'Ajoutez une description pour présenter votre organisation.',
           actionUrl: '/admin/settings',
           priority: 85,
         });
