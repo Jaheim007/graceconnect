@@ -834,6 +834,18 @@ function getTitleGuidance(lang: string, style: string, profile: EditorialProfile
     if (profile === 'spiritual_warfare') {
       return 'Titres DIRECTS ET AUTORITAIRES (souvent en MAJUSCULES) : "IL Y A UNE GUERRE", "VOTRE STATUT EN CHRIST", "DÉCLAREZ LA VICTOIRE".';
     }
+    if (profile === 'simple_prayers') {
+      return 'Titres thématiques et chaleureux : "Prières pour la paix intérieure", "Gratitude et louange", "Quand le cœur est lourd".';
+    }
+    if (profile === 'islamic_devotional') {
+      return 'Titres respectueux avec formules : "Du\'as pour la guidance divine", "Invocations du matin et du soir", "Se rapprocher d\'Allah".';
+    }
+    if (profile === 'proclamations') {
+      return 'Titres FORTS et AFFIRMATIFS : "JE SUIS BÉNI", "MA DESTINÉE EST SCELLÉE", "DÉCLARATIONS DE VICTOIRE".';
+    }
+    if (profile === 'religious_teaching') {
+      return 'Titres académiques mais accessibles : "Comprendre la grâce", "Les fondements de la foi", "Qu\'enseigne réellement le texte ?".';
+    }
     if (profile === 'devotional_journal') {
       return 'Titres numérotés et thématiques : "Jour 1 — La confiance", "Jour 15 — Lâcher prise". Le numéro du jour EST le titre.';
     }
