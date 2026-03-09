@@ -83,7 +83,8 @@ export function StepPdfPreview({ state, update, onNext, onBack, onSaveDraft, sav
                   {state.title || t('write.my_book')}
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  {chapters.length} chapitre{chapters.length > 1 ? 's' : ''}
+                  {chapters.length} {chapters.length > 1 ? t('write.chapter_word_plural') : t('write.chapter_word')}
+                </p>
                 </p>
               </div>
             </div>
