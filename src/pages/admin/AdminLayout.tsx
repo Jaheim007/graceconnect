@@ -124,7 +124,7 @@ export default function AdminLayout() {
   const mobileSecondaryLinks = adminLinks.filter(l => !mobilePrimaryLinks.some(p => p.to === l.to) && shouldShow(l.showWhen));
 
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden">
+    <div className="h-[100dvh] flex flex-col bg-background overflow-hidden">
       {/* Admin sub-header */}
       <div className="border-b border-border/60 bg-card px-3 py-2 flex items-center gap-2">
         <Button
