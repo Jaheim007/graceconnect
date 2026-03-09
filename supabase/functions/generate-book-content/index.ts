@@ -5,203 +5,283 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
 };
 
-// ─── Tone instructions by language ───
+// ═══════════════════════════════════════════════════════════════
+// TONE MAP — Grounded, natural, anti-flowery instructions
+// Based on analysis of REAL published books:
+// - "Le Sorcier Va Mourir" (prayer/spiritual combat)
+// - "Gérez Mieux Votre Entreprise" (professional manual)
+// - "Ce que j'aurais aimé savoir avant de me marier" (personal dev)
+// ═══════════════════════════════════════════════════════════════
+
 const toneMap: Record<string, Record<string, string>> = {
   fr: {
-    professional: `Ton d'un auteur professionnel chevronné, comme un essayiste du Monde Diplomatique ou de Harvard Business Review. Tu construis une argumentation serrée mais accessible, tu interpelles le lecteur par des questions provocatrices, tu ponctues tes démonstrations d'anecdotes vécues et de cas concrets tirés de la vie réelle. Tu assumes tes opinions avec assurance. Ton style est incisif, jamais fade. Tu varies entre phrases courtes percutantes et développements plus longs et nuancés. Tu n'hésites pas à faire des apartés personnels ("J'ai longtemps cru que...", "Ce qui m'a frappé, c'est...").`,
-    conversational: `Ton d'un conteur né qui partage son expérience au coin du feu. Tu tutoies l'intelligence du lecteur sans le noyer dans le jargon. Tu racontes des histoires vraies — les tiennes ou celles de gens que tu as rencontrés. Tu utilises des expressions du quotidien, des métaphores tirées de la vie de tous les jours. Tu interpelles : "Vous voyez ce que je veux dire ?", "Imaginez un instant...". Tes paragraphes respirent, alternent entre réflexion et récit. Tu es chaleureux sans être mièvre, simple sans être simpliste.`,
-    humorous: `Ton d'un humoriste cultivé — pense à un mélange entre Terry Pratchett et un chroniqueur de magazine. L'humour est intégré naturellement dans la prose, jamais forcé. Tu utilises l'autodérision, les situations absurdes du quotidien, les exagérations savamment dosées. Tu fais des parallèles inattendus et des comparaisons décalées. L'humour sert le propos — il rend les idées mémorables. Derrière chaque moment drôle, il y a une vérité profonde. Tu n'as pas peur des digressions amusantes si elles enrichissent le texte.`,
-    spiritual: `Ton d'un grand guide spirituel — pas un prédicateur qui fait la morale, mais un sage qui partage des révélations intimes. Intègre les Écritures sacrées (versets bibliques avec références livre/chapitre/verset, sourates du Coran, sagesses ancestrales) comme des joyaux dans un écrin de réflexion personnelle. Chaque verset est contextualisé, médité, appliqué à la vie quotidienne du lecteur. Tu partages des témoignages de transformation, des moments de doute suivis d'illumination. Ta prose est à la fois profonde et accessible — elle touche le cœur avant l'intellect. Tu inspires sans culpabiliser, tu défies sans brusquer.`,
-    poetic: `Ton d'un écrivain littéraire accompli — ta prose est ciselée comme celle de Khalil Gibran, d'Aimé Césaire ou de Gabriel García Márquez. Tu tisses des métaphores filées qui traversent les paragraphes, tu crées des images sensorielles (odeurs, textures, sons, lumières). Ton rythme varie — phrases brèves et sèches qui claquent, puis longues périodes ondulantes qui bercent. Tu utilises l'anaphore, la gradation, le chiasme naturellement, pas comme des exercices de style mais comme des respirations du texte. Chaque chapitre a sa propre couleur émotionnelle.`,
-    academic: `Ton d'un chercheur passionné qui rend la science accessible — pense à Yuval Noah Harari ou Malcolm Gladwell. Tu appuies tes arguments sur des études nommées, des statistiques contextualisées, des théories attribuées à leurs auteurs. Mais tu ne te contentes pas d'empiler les références : tu les mets en perspective, tu les confrontes, tu en tires des conclusions originales. Tu poses des questions que personne ne se pose. Tu structures ta pensée avec rigueur mais tu gardes un souffle narratif. Tu commences souvent par un cas particulier fascinant avant de monter vers la théorie.`,
+    professional: `Ton d'un auteur qui SAIT de quoi il parle et qui explique clairement. Comme un expert qui donne une conférence — il est précis, structuré, va droit au but. Il utilise des données, des exemples concrets, des cas réels. Il n'embellit pas, il ne dramatise pas. Il dit les choses telles qu'elles sont. Ses phrases sont nettes. Il peut interpeller le lecteur ("Posez-vous la question...") mais sans excès. Il assume ses positions avec autorité. ZÉRO poésie, ZÉRO métaphore inutile. Le style est celui d'un bon article de fond, pas d'un roman.`,
+    conversational: `Ton d'un ami sage qui partage son vécu autour d'un café. Il raconte SA vie, SES erreurs, SES leçons — avec des prénoms réels, des situations précises ("Quand j'ai rencontré Marie en 2015...", "Je me souviens du jour où..."). Il alterne entre anecdotes personnelles et conseils pratiques. Il pose des questions au lecteur ("Vous vous êtes déjà retrouvé dans cette situation ?"). Il utilise un langage courant, des expressions naturelles. Il est chaleureux mais jamais mièvre. Pas de grandes envolées lyriques — juste un être humain qui parle à un autre être humain.`,
+    humorous: `Ton d'un chroniqueur qui fait sourire en disant la vérité. L'humour vient de l'observation fine du quotidien, de l'autodérision, des situations absurdes que tout le monde connaît. Pas de blagues forcées. L'humour est AU SERVICE du message — il rend les idées mémorables. Le style est celui d'une bonne chronique de radio ou d'un stand-up intelligent. Derrière chaque trait d'esprit, il y a une vérité utile.`,
+    spiritual: `Ton d'un prédicateur/leader spirituel qui parle avec AUTORITÉ et CONVICTION. Il cite les Écritures avec les références complètes (livre, chapitre, verset) et les explique concrètement. Il interpelle directement le lecteur : "Mesdames et messieurs", "Écoutez bien", "Vous devez comprendre que...". Il ne tourne pas autour du pot. Il est FERME, DIRECT, PUISSANT. Il donne des instructions claires ("Faites ceci", "Priez ainsi"). Il utilise des listes numérotées pour structurer ses enseignements. Il n'est PAS doux ni rêveur — il est un guerrier spirituel qui enseigne avec force. Style similaire à un sermon percutant, pas à un poème mystique.`,
+    poetic: `Ton littéraire assumé — ici et UNIQUEMENT ici, les métaphores, les images, le rythme poétique sont bienvenus. Prose ciselée avec des descriptions sensorielles (odeurs, textures, sons, lumières). Phrases courtes qui claquent alternant avec des périodes longues. Ce ton est RÉSERVÉ aux œuvres explicitement littéraires/poétiques. Ne jamais l'appliquer par défaut.`,
+    academic: `Ton d'un chercheur rigoureux qui vulgarise sans simplifier. Chaque affirmation est sourcée ou argumentée. Il structure sa pensée : hypothèse, développement, conclusion. Il utilise des études, des statistiques, des théories nommées. Mais il reste lisible — pas de jargon inaccessible. Il commence souvent par un cas concret avant de monter vers la théorie. Le style ressemble à un cours magistral passionnant, pas à un article de journal scientifique.`,
   },
   en: {
-    professional: `Tone of a seasoned professional author, like an essayist from The Atlantic or Harvard Business Review. You build tight but accessible arguments, provoke readers with challenging questions, punctuate demonstrations with lived anecdotes and real-world cases. You own your opinions with confidence. Your style is incisive, never bland. You alternate between punchy short sentences and longer nuanced developments. You make personal asides ("I used to believe...", "What struck me was...").`,
-    conversational: `Tone of a born storyteller sharing experience by the fireside. You respect the reader's intelligence without drowning them in jargon. You tell true stories — yours or people you've met. You use everyday expressions and real-life metaphors. You engage: "You know what I mean?", "Picture this for a moment...". Your paragraphs breathe, alternating between reflection and narrative. You're warm without being saccharine, simple without being simplistic.`,
-    humorous: `Tone of a cultured humorist — think Terry Pratchett meets a magazine columnist. Humor is woven naturally into the prose, never forced. You use self-deprecation, absurd everyday situations, carefully measured exaggeration. You draw unexpected parallels and quirky comparisons. Humor serves the point — it makes ideas memorable. Behind every funny moment lies a profound truth. You're not afraid of amusing digressions if they enrich the text.`,
-    spiritual: `Tone of a great spiritual guide — not a moralizing preacher, but a wise soul sharing intimate revelations. Integrate sacred Scriptures (Bible verses with book/chapter/verse references, Quran surahs, ancestral wisdom) like jewels set in personal reflection. Each verse is contextualized, meditated upon, applied to the reader's daily life. You share transformation testimonies, moments of doubt followed by illumination. Your prose is both deep and accessible — touching the heart before the intellect. You inspire without guilt-tripping, challenge without forcing.`,
-    poetic: `Tone of an accomplished literary writer — your prose is crafted like Khalil Gibran, Toni Morrison, or García Márquez. You weave extended metaphors across paragraphs, create sensory imagery (smells, textures, sounds, light). Your rhythm varies — short, dry sentences that crack, then long undulating periods that soothe. You use anaphora, gradation, chiasmus naturally, not as style exercises but as the text's breathing. Each chapter has its own emotional color.`,
-    academic: `Tone of a passionate researcher making science accessible — think Yuval Noah Harari or Malcolm Gladwell. You support arguments with named studies, contextualized statistics, theories attributed to their authors. But you don't just stack references: you put them in perspective, confront them, draw original conclusions. You ask questions nobody asks. You structure thought rigorously while maintaining narrative momentum. You often start with a fascinating particular case before building toward theory.`,
+    professional: `Tone of an author who KNOWS their subject and explains clearly. Like an expert giving a talk — precise, structured, to the point. Uses data, concrete examples, real cases. Doesn't embellish or dramatize. States things as they are. Sentences are crisp. May address the reader ("Ask yourself...") but without excess. Owns their positions with authority. ZERO poetry, ZERO unnecessary metaphors. Style of a solid long-form article, not a novel.`,
+    conversational: `Tone of a wise friend sharing their experience over coffee. They tell THEIR life, THEIR mistakes, THEIR lessons — with real names, specific situations ("When I met Sarah in 2015...", "I remember the day when..."). Alternates between personal stories and practical advice. Asks the reader questions ("Have you been in this situation?"). Uses everyday language, natural expressions. Warm but never sappy. No lyrical flights — just one human being talking to another.`,
+    humorous: `Tone of a columnist who makes you smile while telling the truth. Humor comes from keen observation of everyday life, self-deprecation, absurd situations everyone knows. No forced jokes. Humor SERVES the message — makes ideas memorable. Style of a good radio column or smart stand-up. Behind every witticism lies a useful truth.`,
+    spiritual: `Tone of a preacher/spiritual leader speaking with AUTHORITY and CONVICTION. Quotes Scripture with full references (book, chapter, verse) and explains them concretely. Directly addresses the reader: "Ladies and gentlemen", "Listen carefully", "You must understand that...". Doesn't beat around the bush. Is FIRM, DIRECT, POWERFUL. Gives clear instructions ("Do this", "Pray like this"). Uses numbered lists to structure teachings. Is NOT soft or dreamy — is a spiritual warrior teaching with force. Style like a hard-hitting sermon, not a mystic poem.`,
+    poetic: `Literary tone — here and ONLY here, metaphors, imagery, poetic rhythm are welcome. Crafted prose with sensory descriptions. Short sharp sentences alternating with long flowing periods. This tone is RESERVED for explicitly literary/poetic works. Never apply by default.`,
+    academic: `Tone of a rigorous researcher who popularizes without oversimplifying. Every claim is sourced or argued. Structures thought: hypothesis, development, conclusion. Uses studies, statistics, named theories. But stays readable — no inaccessible jargon. Often starts with a concrete case before building to theory.`,
   },
   es: {
-    professional: `Tono de un ensayista consagrado — piensa en Eduardo Galeano o Isabel Allende en modo no-ficción. Construyes argumentos con la precisión de un arquitecto pero los envuelves en historias que el lector no puede soltar. Alternas entre la frase corta que golpea y el desarrollo largo que seduce. Haces apartes personales sin pudor ("Recuerdo que una vez...", "Lo que aprendí fue que..."). Cada párrafo tiene nervio, jamás relleno. Usas datos concretos pero siempre al servicio de una narrativa, nunca como lista fría.`,
-    conversational: `Tono de un narrador nato en una sobremesa larga — piensa en un abuelo sabio que cautiva a toda la mesa. Cuentas historias verdaderas con nombres, lugares, fechas. Usas expresiones coloquiales pero nunca vulgares. Interpelas al lector: "¿Te ha pasado alguna vez que...?", "Imagina por un momento...". Eres cálido sin ser empalagoso, directo sin ser brusco. Tus párrafos respiran — alternan entre reflexión íntima y anécdota viva.`,
-    humorous: `Tono de un humorista culto — piensa en Jorge Drexler escribiendo prosa o un cronista de Jot Down. El humor está tejido en la trama, nunca es un chiste suelto. Usas la autoironía con elegancia, las situaciones absurdas del cotidiano como espejo de verdades profundas, las exageraciones medidas que arrancan una sonrisa cómplice. Cada momento divertido esconde una observación aguda sobre la condición humana.`,
-    spiritual: `Tono de un gran guía espiritual que ha caminado el desierto y vuelve con revelaciones — no un predicador que señala, sino un compañero de viaje que comparte. Integras las Escrituras sagradas (versículos con referencias precisas) como quien muestra una joya encontrada en la arena. Cada versículo está contextualizado, meditado, conectado con una historia real de transformación. Inspiras sin culpabilizar, desafías sin juzgar. Tu prosa toca el corazón antes que el intelecto.`,
-    poetic: `Tono de un escritor literario consumado — piensa en Neruda en prosa o Borges contando una revelación. Prosa cincelada con metáforas que se despliegan a lo largo de párrafos enteros, imágenes sensoriales (olores, texturas, luces, sonidos). Tu ritmo varía: frases secas que cortan, luego períodos largos que mecen. Cada capítulo tiene su propio color emocional, su propia temperatura.`,
-    academic: `Tono de un investigador apasionado que hace la ciencia irresistible — piensa en Yuval Noah Harari o Steven Pinker traducidos al español. Apoyas cada argumento con estudios nombrados, estadísticas contextualizadas, teorías atribuidas. Pero nunca apilas referencias: las confrontas, las cuestionas, sacas conclusiones originales. Empiezas siempre con un caso particular fascinante antes de subir hacia la teoría.`,
+    professional: `Tono de un experto que SABE de lo que habla y explica con claridad. Preciso, estructurado, directo. Datos concretos, ejemplos reales. CERO poesía, CERO metáforas innecesarias.`,
+    conversational: `Tono de un amigo sabio compartiendo su experiencia. Cuenta SU vida, SUS errores, con nombres y situaciones reales. Alterna entre anécdotas personales y consejos prácticos. Lenguaje cotidiano, natural.`,
+    humorous: `Tono de un cronista que hace sonreír diciendo la verdad. Humor al servicio del mensaje. Autodepreciación, situaciones absurdas del cotidiano.`,
+    spiritual: `Tono de un líder espiritual que habla con AUTORIDAD. Cita las Escrituras con referencias completas. Interpela directamente: "Escuchen bien". FIRME, DIRECTO, PODEROSO. Instrucciones claras. Listas numeradas.`,
+    poetic: `Tono literario — SOLO aquí se permiten metáforas e imágenes poéticas. Reservado para obras explícitamente literarias.`,
+    academic: `Tono de investigador riguroso que vulgariza sin simplificar. Afirmaciones argumentadas, estudios citados, estructura clara.`,
   },
   pt: {
-    professional: `Tom de um ensaísta consagrado — pense em Mia Couto ou Eliane Brum. Construis argumentos com precisão de arquiteto mas os envolves em histórias que o leitor não consegue largar. Alternas entre a frase curta que impacta e o desenvolvimento longo que seduz. Fazes apartes pessoais sem pudor ("Lembro-me de quando...", "O que aprendi foi que..."). Cada parágrafo tem nervo, jamais enchimento. Usas dados concretos mas sempre ao serviço de uma narrativa.`,
-    conversational: `Tom de um contador de histórias nato numa longa conversa de café — pense num avô sábio que cativa toda a mesa. Contas histórias verdadeiras com nomes, lugares, datas. Usas expressões do cotidiano mas nunca vulgares. Interpelas o leitor: "Já te aconteceu de...?", "Imagina por um momento...". És caloroso sem ser piegas, direto sem ser rude. Os teus parágrafos respiram — alternam entre reflexão íntima e anedota viva.`,
-    humorous: `Tom de um humorista culto — pense em Luís Fernando Veríssimo ou uma crónica de revista. O humor está tecido na trama, nunca é piada solta. Usas a autoironia com elegância, as situações absurdas do cotidiano como espelho de verdades profundas. Cada momento engraçado esconde uma observação aguda sobre a condição humana.`,
-    spiritual: `Tom de um grande guia espiritual que caminhou o deserto e volta com revelações — não um pregador que aponta, mas um companheiro de viagem que partilha. Integras as Escrituras como joias encontradas na areia. Cada versículo está contextualizado, meditado, conectado com uma história real de transformação. Inspiras sem culpar, desafias sem julgar.`,
-    poetic: `Tom de um escritor literário consumado — pense em Clarice Lispector ou Mia Couto. Prosa cinzelada com metáforas que se desdobram ao longo de parágrafos, imagens sensoriais (cheiros, texturas, luzes, sons). O teu ritmo varia: frases secas que cortam, depois períodos longos que embalam. Cada capítulo tem a sua cor emocional própria.`,
-    academic: `Tom de um pesquisador apaixonado que torna a ciência irresistível — pense em Harari ou Gladwell traduzidos. Apoias argumentos com estudos nomeados, estatísticas contextualizadas, teorias atribuídas. Mas nunca empilhas referências: confronta-as, questiona-as, tiras conclusões originais. Começas sempre com um caso fascinante antes de subir para a teoria.`,
+    professional: `Tom de especialista que explica com clareza. Preciso, estruturado, direto. Dados concretos, exemplos reais. ZERO poesia.`,
+    conversational: `Tom de amigo sábio partilhando experiência. Conta a SUA vida com nomes e situações reais. Linguagem natural.`,
+    humorous: `Tom de cronista que faz sorrir dizendo a verdade. Humor ao serviço da mensagem.`,
+    spiritual: `Tom de líder espiritual com AUTORIDADE. Citações com referências completas. FIRME, DIRETO, PODEROSO.`,
+    poetic: `Tom literário — APENAS aqui se permitem metáforas e imagens poéticas.`,
+    academic: `Tom de investigador rigoroso que populariza sem simplificar.`,
   },
   de: {
-    professional: `Ton eines versierten Essayisten — denke an Richard David Precht oder Nassim Taleb auf Deutsch. Du baust Argumente mit der Präzision eines Architekten, verpackst sie aber in Geschichten, die der Leser nicht loslassen kann. Du wechselst zwischen kurzen, schlagkräftigen Sätzen und langen, verführerischen Entwicklungen. Du machst persönliche Einschübe ohne Scheu ("Ich erinnere mich, als...", "Was ich gelernt habe, war..."). Jeder Absatz hat Substanz, niemals Füllmaterial.`,
-    conversational: `Ton eines geborenen Geschichtenerzählers bei einem langen Abendessen — denke an einen weisen Großvater, der den ganzen Tisch fesselt. Du erzählst wahre Geschichten mit Namen, Orten, Daten. Du verwendest Alltagsausdrücke, aber nie vulgäre. Du sprichst den Leser an: "Ist dir das schon mal passiert?", "Stell dir mal vor...". Warm ohne kitschig, direkt ohne grob.`,
-    humorous: `Ton eines kultivierten Humoristen — denke an einen Kolumnisten des SZ-Magazins. Humor ist natürlich in die Prosa eingewebt, nie als einzelner Witz. Selbstironie mit Eleganz, absurde Alltagssituationen als Spiegel tiefer Wahrheiten, dosierte Übertreibungen, die ein wissendes Lächeln hervorrufen.`,
-    spiritual: `Ton eines großen geistlichen Führers, der durch die Wüste gewandert ist und mit Offenbarungen zurückkehrt — kein moralisierender Prediger, sondern ein Wegbegleiter. Heilige Schriften als Juwelen im Sand gefunden. Jeder Vers kontextualisiert, meditiert, mit einer realen Verwandlungsgeschichte verbunden. Inspirieren ohne Schuldgefühle, herausfordern ohne zu urteilen.`,
-    poetic: `Ton eines vollendeten literarischen Schriftstellers — denke an Rilke in Prosa oder Hesse bei einer Offenbarung. Gemeißelte Prosa mit Metaphern, die sich über ganze Absätze entfalten, sinnliche Bilder (Gerüche, Texturen, Licht, Klänge). Dein Rhythmus variiert: trockene Sätze, die schneiden, dann lange wogende Perioden, die wiegen. Jedes Kapitel hat seine eigene emotionale Farbe.`,
-    academic: `Ton eines leidenschaftlichen Forschers, der Wissenschaft unwiderstehlich macht — denke an Harari oder Gladwell auf Deutsch. Argumente gestützt auf benannte Studien, kontextualisierte Statistiken, zugeordnete Theorien. Aber nie Referenzen stapeln: konfrontieren, hinterfragen, originelle Schlüsse ziehen. Immer mit einem faszinierenden Einzelfall beginnen, bevor es zur Theorie geht.`,
+    professional: `Ton eines Experten der WEISS wovon er spricht und klar erklärt. Präzise, strukturiert, direkt. KEINE Poesie, KEINE unnötigen Metaphern.`,
+    conversational: `Ton eines weisen Freundes der seine Erfahrung teilt. Erzählt SEIN Leben mit echten Namen und Situationen. Natürliche Sprache.`,
+    humorous: `Ton eines Kolumnisten der zum Lächeln bringt. Humor dient der Botschaft. Selbstironie, absurde Alltagssituationen.`,
+    spiritual: `Ton eines geistlichen Führers mit AUTORITÄT. Bibelzitate mit vollständigen Referenzen. FEST, DIREKT, KRAFTVOLL.`,
+    poetic: `Literarischer Ton — NUR hier sind Metaphern und poetische Bilder willkommen.`,
+    academic: `Ton eines rigorosen Forschers der populär macht ohne zu vereinfachen.`,
   },
   sw: {
-    professional: `Sauti ya mwandishi mtaalamu aliyekomaa — fikiria mwandishi wa makala za kiwango cha juu kama Ngugi wa Thiong'o katika hali ya kutofanya hadithi. Unajenga hoja kwa usahihi wa mbunifu lakini unazifunga katika hadithi ambazo msomaji hawezi kuziacha. Unabadilisha kati ya sentensi fupi zenye nguvu na maendeleo marefu yanayovutia. Unafanya maoni ya kibinafsi bila aibu ("Nakumbuka wakati...", "Nilichojifunza ni kwamba..."). Kila aya ina nguvu, kamwe kujaza tu.`,
-    conversational: `Sauti ya msimulizi wa asili katika mazungumzo marefu ya chai — fikiria babu mwenye hekima anayevutia meza nzima. Unasimulia hadithi za kweli na majina, maeneo, tarehe. Unatumia maneno ya kila siku lakini kamwe ya kibaya. Unamshirikisha msomaji: "Je, imeshawahi kukutokea...?", "Fikiria kwa muda...". Una joto bila kuwa mtamu kupita kiasi, moja kwa moja bila kuwa mkali.`,
-    humorous: `Sauti ya mcheshi mwenye elimu. Ucheshi umefumwa katika simulizi kwa kawaida, kamwe kama utani uliotengwa. Kujidharau kwa umaridadi, hali za ajabu za kila siku kama kioo cha ukweli wa kina. Kila wakati wa kuchekesha unaficha uchunguzi mkali kuhusu hali ya binadamu.`,
-    spiritual: `Sauti ya kiongozi mkuu wa kiroho ambaye ametembea jangwani na kurudi na ufunuo — si mhubiri anayeonyesha, bali mwenzako wa safari anayeshiriki. Maandiko matakatifu kama vito vilivyopatikana mchangani. Kila aya imezingirwa, kutafakariwa, kuunganishwa na hadithi halisi ya mabadiliko. Kuhamasisha bila hatia, kutoa changamoto bila kulazimisha.`,
-    poetic: `Sauti ya mwandishi wa fasihi aliyekamilika — fikiria Shaaban Robert katika nathari ya kisasa. Nathari iliyochongwa na sitiari zinazojitokeza katika aya nzima, picha za hisi (harufu, ngozi, mwanga, sauti). Mdundo wako unabadilika: sentensi kavu zinazokata, kisha vipindi virefu vinavyotingisha. Kila sura ina rangi yake ya kihisia.`,
-    academic: `Sauti ya mtafiti mwenye shauku anayefanya sayansi isiyozuilika — fikiria Harari au Gladwell kwa Kiswahili. Hoja zinazotegemezwa na tafiti zilizotajwa, takwimu zilizowekwa katika muktadha, nadharia zilizohusishwa. Lakini kamwe usirundike marejeleo: yakabiliane, yahoji, toa hitimisho za asili. Daima anza na kesi ya kipekee ya kuvutia kabla ya kupanda kwenye nadharia.`,
+    professional: `Sauti ya mtaalamu anayeeleza kwa uwazi. Sahihi, iliyoundwa, ya moja kwa moja. SIFURI ushairi.`,
+    conversational: `Sauti ya rafiki mwenye hekima anayeshiriki uzoefu. Lugha ya asili, hadithi za kweli.`,
+    humorous: `Sauti ya mwandishi wa habari anayekufanya utabasamu. Ucheshi unatumikia ujumbe.`,
+    spiritual: `Sauti ya kiongozi wa kiroho na MAMLAKA. Maandiko na marejeleo kamili. IMARA, ya MOJA kwa MOJA.`,
+    poetic: `Sauti ya fasihi — HAPA TU sitiari na picha za kishairi zinaruhusiwa.`,
+    academic: `Sauti ya mtafiti mkali anayeeleza bila kupunguza.`,
   },
 };
 
 // ─── Language level instructions ───
 const levelMap: Record<string, Record<string, string>> = {
   fr: {
-    simple: `Utilise un vocabulaire simple et des phrases courtes (max 15-20 mots). Le texte doit être compréhensible par un enfant de 12 ans ou un non-natif. Évite le jargon. Explique chaque concept nouveau.`,
-    intermediate: `Utilise un vocabulaire courant avec quelques termes spécialisés toujours expliqués entre parenthèses ou par le contexte. Phrases de longueur moyenne. Accessible au grand public éduqué.`,
-    advanced: `Utilise un vocabulaire riche, soutenu et varié. Le texte peut inclure des termes techniques, des tournures littéraires élaborées, des néologismes et un style sophistiqué. Pour un lectorat cultivé.`,
+    simple: `Vocabulaire simple, phrases courtes (max 15-20 mots). Compréhensible par un enfant de 12 ans. Pas de jargon. Explique chaque concept.`,
+    intermediate: `Vocabulaire courant avec quelques termes spécialisés expliqués. Phrases de longueur moyenne. Grand public éduqué.`,
+    advanced: `Vocabulaire riche et varié. Termes techniques possibles, style soutenu. Pour un lectorat cultivé.`,
   },
   en: {
-    simple: `Use simple vocabulary and short sentences (max 15-20 words). Text should be understandable by a 12-year-old or non-native speaker. Avoid jargon. Explain every new concept.`,
-    intermediate: `Use common vocabulary with some specialized terms always explained in context. Medium-length sentences. Accessible to the educated general public.`,
-    advanced: `Use rich, sophisticated and varied vocabulary. Text can include technical terms, elaborate literary devices, and a polished style. For a well-read audience.`,
+    simple: `Simple vocabulary, short sentences (max 15-20 words). Understandable by a 12-year-old. No jargon. Explain every new concept.`,
+    intermediate: `Common vocabulary with some specialized terms explained in context. Medium-length sentences. Educated general public.`,
+    advanced: `Rich, varied vocabulary. Technical terms possible, sophisticated style. For well-read audience.`,
   },
   es: {
-    simple: `Vocabulario simple y oraciones cortas (máximo 15-20 palabras). Comprensible por un niño de 12 años o un no nativo. Evita la jerga. Explica cada concepto nuevo con ejemplos cotidianos. Frases directas, sin subordinadas complejas.`,
-    intermediate: `Vocabulario corriente con algunos términos especializados siempre explicados entre paréntesis o por el contexto. Frases de longitud media. Accesible para el público general educado. Puedes usar metáforas simples y referencias culturales ampliamente conocidas.`,
-    advanced: `Vocabulario rico, sostenido y variado. El texto puede incluir términos técnicos, giros literarios elaborados, neologismos y un estilo sofisticado. Para un lectorado culto. Juega con los registros, alterna entre lo coloquial y lo elevado para crear contraste y ritmo.`,
+    simple: `Vocabulario simple, oraciones cortas (máximo 15-20 palabras). Comprensible por un niño de 12 años.`,
+    intermediate: `Vocabulario corriente con términos especializados explicados. Público general educado.`,
+    advanced: `Vocabulario rico y variado. Términos técnicos posibles. Para lectores cultos.`,
   },
   pt: {
-    simple: `Vocabulário simples e frases curtas (máximo 15-20 palavras). Compreensível por uma criança de 12 anos ou um não nativo. Evita jargão. Explica cada conceito novo com exemplos do cotidiano. Frases diretas, sem subordinadas complexas.`,
-    intermediate: `Vocabulário corrente com alguns termos especializados sempre explicados em contexto. Frases de comprimento médio. Acessível ao público geral educado. Podes usar metáforas simples e referências culturais amplamente conhecidas.`,
-    advanced: `Vocabulário rico, sustentado e variado. O texto pode incluir termos técnicos, recursos literários elaborados, neologismos e um estilo sofisticado. Para um leitorado culto. Joga com os registros, alterna entre o coloquial e o elevado para criar contraste e ritmo.`,
+    simple: `Vocabulário simples, frases curtas. Compreensível por criança de 12 anos.`,
+    intermediate: `Vocabulário corrente com termos explicados. Público geral educado.`,
+    advanced: `Vocabulário rico e variado. Para leitores cultos.`,
   },
   de: {
-    simple: `Einfaches Vokabular und kurze Sätze (maximal 15-20 Wörter). Verständlich für ein 12-jähriges Kind oder einen Nicht-Muttersprachler. Vermeide Fachjargon. Erkläre jedes neue Konzept mit Alltagsbeispielen. Direkte Sätze ohne komplexe Nebensätze.`,
-    intermediate: `Gebräuchliches Vokabular mit einigen Fachbegriffen, die im Kontext erklärt werden. Sätze mittlerer Länge. Zugänglich für das gebildete allgemeine Publikum. Einfache Metaphern und weithin bekannte kulturelle Referenzen sind erlaubt.`,
-    advanced: `Reiches, gehobenes und abwechslungsreiches Vokabular. Der Text kann Fachbegriffe, ausgearbeitete literarische Wendungen, Neologismen und einen anspruchsvollen Stil enthalten. Für ein gebildetes Lesepublikum. Spiele mit Registern, wechsle zwischen umgangssprachlich und gehoben für Kontrast und Rhythmus.`,
+    simple: `Einfaches Vokabular, kurze Sätze. Verständlich für 12-Jährige.`,
+    intermediate: `Gebräuchliches Vokabular mit erklärten Fachbegriffen. Gebildetes Publikum.`,
+    advanced: `Reiches Vokabular. Fachbegriffe möglich. Für gebildete Leser.`,
   },
   sw: {
-    simple: `Maneno rahisi na sentensi fupi (maneno 15-20 zaidi). Inaeleweka na mtoto wa miaka 12 au mtu asiye mzungumzaji wa asili. Epuka istilahi. Eleza kila dhana mpya na mifano ya kila siku. Sentensi za moja kwa moja bila miundo ngumu.`,
-    intermediate: `Maneno ya kawaida na istilahi chache zilizofafanuliwa katika muktadha. Sentensi za urefu wa kati. Inapatikana kwa hadhira ya jumla yenye elimu. Sitiari rahisi na marejeleo ya kitamaduni yanayojulikana sana yanaruhusiwa.`,
-    advanced: `Maneno tajiri, ya hali ya juu na tofauti. Maandishi yanaweza kujumuisha istilahi za kitaalamu, mbinu za fasihi zilizofanyiwa kazi na mtindo wa kisasa. Kwa wasomaji wenye elimu. Cheza na rejista, badilisha kati ya mazungumzo na ya juu kwa tofauti na mdundo.`,
+    simple: `Maneno rahisi, sentensi fupi. Inaeleweka na mtoto wa miaka 12.`,
+    intermediate: `Maneno ya kawaida na istilahi zilizofafanuliwa. Hadhira yenye elimu.`,
+    advanced: `Maneno tajiri na tofauti. Kwa wasomaji wenye elimu.`,
   },
 };
 
 // ─── Target audience instructions ───
 const audienceMap: Record<string, Record<string, string>> = {
   fr: {
-    general: `Public général, tout âge confondu. Contenu universel et inclusif qui parle à l'humanité partagée du lecteur — ses espoirs, ses peurs, ses rêves. Utilise des exemples transgénérationnels.`,
-    children: `Livre pour enfants (6-12 ans). Utilise un langage simple et imagé, des histoires courtes et captivantes avec des personnages attachants qui ont des NOMS et des PERSONNALITÉS distinctes. Dialogues vivants et naturels ("Maman, pourquoi le ciel est bleu ?"). Descriptions colorées et sensorielles. Beaucoup d'imagination mais toujours ancrée dans l'émotion. Chaque chapitre se termine sur une leçon de vie douce, jamais moralisatrice.`,
-    teens: `Adolescents (13-18 ans). Ton dynamique et authentique — tu ne fais pas semblant de comprendre les jeunes, tu LES comprends. Exemples de la vraie vie (école, amitié, identité, premiers amours, rêves, pression sociale, réseaux sociaux). Style engageant avec références culturelles ACTUELLES. Tu abordes les sujets difficiles avec honnêteté et empathie, sans condescendance.`,
-    adults: `Adultes. Contenu mature avec réflexions profondes qui résonnent avec l'expérience vécue — les défis professionnels, les relations, la quête de sens, les transitions de vie. Analyses nuancées qui reconnaissent la complexité du réel. Perspectives multiples qui enrichissent sans imposer. Le lecteur doit sentir que l'auteur a vécu ce dont il parle.`,
-    seniors: `Seniors. Ton respectueux et chaleureux qui honore l'expérience vécue. Références culturelles classiques et intemporelles. Sagesse accumulée présentée non pas comme des leçons mais comme des trésors partagés. Nostalgie constructive — le passé éclaire le présent. Expériences de vie inspirantes qui donnent du sens au chemin parcouru.`,
-    professionals: `Professionnels et experts du domaine. Contenu avancé avec données concrètes sourcées, études de cas détaillées avec contexte et résultats, méthodologies éprouvées et applicables immédiatement, frameworks pratiques et résultats mesurables. Le lecteur doit pouvoir AGIR dès la fin de chaque chapitre.`,
+    general: `Public général, tout âge. Contenu universel et inclusif. Exemples transgénérationnels.`,
+    children: `Enfants (6-12 ans). Langage simple et imagé, histoires courtes, personnages avec des NOMS. Dialogues naturels. Chaque chapitre a une leçon douce, jamais moralisatrice.`,
+    teens: `Adolescents (13-18 ans). Ton dynamique et authentique. Exemples de la vraie vie (école, amitié, identité, réseaux sociaux). Références culturelles actuelles.`,
+    adults: `Adultes. Réflexions profondes qui résonnent avec l'expérience vécue — défis professionnels, relations, quête de sens. Analyses nuancées.`,
+    seniors: `Seniors. Ton respectueux et chaleureux. Références classiques. Sagesse présentée comme des trésors partagés.`,
+    professionals: `Professionnels et experts. Données concrètes, études de cas détaillées, méthodologies applicables immédiatement. Le lecteur doit pouvoir AGIR dès la fin de chaque chapitre.`,
   },
   en: {
-    general: `General audience, all ages. Universal and inclusive content that speaks to the reader's shared humanity — their hopes, fears, dreams. Use cross-generational examples.`,
-    children: `Book for children (6-12 years). Simple, vivid language with short captivating stories featuring lovable characters with NAMES and distinct PERSONALITIES. Natural, lively dialogues ("Mom, why is the sky blue?"). Colorful sensory descriptions. Rich imagination always grounded in emotion. Each chapter ends with a gentle life lesson, never preachy.`,
-    teens: `Teenagers (13-18 years). Dynamic, authentic tone — you don't pretend to understand teens, you ACTUALLY understand them. Real-life examples (school, friendship, identity, first love, dreams, social pressure, social media). Engaging style with CURRENT cultural references. Address difficult topics with honesty and empathy, never condescension.`,
-    adults: `Adults. Mature content with deep reflections that resonate with lived experience — career challenges, relationships, the search for meaning, life transitions. Nuanced analyses that acknowledge real-world complexity. Multiple perspectives that enrich without imposing. The reader should feel the author has lived what they write about.`,
-    seniors: `Seniors. Respectful, warm tone that honors lived experience. Classic, timeless cultural references. Accumulated wisdom presented not as lessons but as shared treasures. Constructive nostalgia — the past illuminating the present. Inspiring life experiences that give meaning to the journey traveled.`,
-    professionals: `Professionals and domain experts. Advanced content with sourced concrete data, detailed case studies with context and outcomes, proven and immediately applicable methodologies, practical frameworks and measurable results. The reader should be able to ACT by the end of each chapter.`,
+    general: `General audience, all ages. Universal, inclusive content. Cross-generational examples.`,
+    children: `Children (6-12). Simple vivid language, short stories, characters with NAMES. Natural dialogues. Gentle life lessons, never preachy.`,
+    teens: `Teenagers (13-18). Dynamic, authentic tone. Real-life examples. Current cultural references.`,
+    adults: `Adults. Deep reflections resonating with lived experience. Nuanced analyses.`,
+    seniors: `Seniors. Respectful, warm tone. Classic references. Wisdom as shared treasures.`,
+    professionals: `Professionals and experts. Concrete data, case studies, actionable methodologies. Reader should ACT by chapter end.`,
   },
   es: {
-    general: `Público general, todas las edades. Contenido universal e inclusivo que habla a la humanidad compartida del lector — sus esperanzas, miedos, sueños. Usa ejemplos transgeneracionales.`,
-    children: `Libro para niños (6-12 años). Lenguaje simple e imaginativo con historias cautivadoras, personajes entrañables con NOMBRES y personalidades distintas. Diálogos vivos y naturales. Descripciones sensoriales coloridas. Cada capítulo termina con una lección de vida suave, nunca moralizante.`,
-    teens: `Adolescentes (13-18 años). Tono dinámico y auténtico con ejemplos de la vida real (escuela, amistad, identidad, primeros amores, redes sociales). Referencias culturales ACTUALES. Aborda temas difíciles con honestidad y empatía, sin condescendencia.`,
-    adults: `Adultos. Contenido maduro con reflexiones profundas que resuenan con la experiencia vivida. Análisis matizados que reconocen la complejidad del mundo real. Perspectivas múltiples que enriquecen sin imponer.`,
-    seniors: `Personas mayores. Tono respetuoso y cálido que honra la experiencia vivida. Referencias culturales clásicas. Sabiduría presentada como tesoros compartidos, no como lecciones. Nostalgia constructiva y experiencias inspiradoras.`,
-    professionals: `Profesionales y expertos. Contenido avanzado con datos concretos, estudios de caso detallados, metodologías probadas y aplicables inmediatamente. El lector debe poder ACTUAR al final de cada capítulo.`,
+    general: `Público general. Contenido universal e inclusivo.`,
+    children: `Niños (6-12). Lenguaje simple, historias cortas, personajes con NOMBRES.`,
+    teens: `Adolescentes (13-18). Tono auténtico, ejemplos reales.`,
+    adults: `Adultos. Reflexiones profundas, análisis matizados.`,
+    seniors: `Personas mayores. Tono respetuoso y cálido.`,
+    professionals: `Profesionales. Datos concretos, metodologías aplicables.`,
   },
   pt: {
-    general: `Público geral, todas as idades. Conteúdo universal e inclusivo que fala à humanidade partilhada do leitor — as suas esperanças, medos, sonhos. Usa exemplos transgeracionais.`,
-    children: `Livro para crianças (6-12 anos). Linguagem simples e imaginativa com histórias cativantes, personagens adoráveis com NOMES e personalidades distintas. Diálogos vivos e naturais. Descrições sensoriais coloridas. Cada capítulo termina com uma lição de vida suave, nunca moralizante.`,
-    teens: `Adolescentes (13-18 anos). Tom dinâmico e autêntico com exemplos da vida real (escola, amizade, identidade, redes sociais). Referências culturais ATUAIS. Aborda temas difíceis com honestidade e empatia, sem condescendência.`,
-    adults: `Adultos. Conteúdo maduro com reflexões profundas que ressoam com a experiência vivida. Análises matizadas que reconhecem a complexidade do mundo real.`,
-    seniors: `Idosos. Tom respeitoso e caloroso que honra a experiência vivida. Referências culturais clássicas. Sabedoria apresentada como tesouros partilhados. Nostalgia construtiva e experiências inspiradoras.`,
-    professionals: `Profissionais e especialistas. Conteúdo avançado com dados concretos, estudos de caso detalhados, metodologias comprovadas e aplicáveis imediatamente. O leitor deve poder AGIR no final de cada capítulo.`,
+    general: `Público geral. Conteúdo universal e inclusivo.`,
+    children: `Crianças (6-12). Linguagem simples, histórias curtas.`,
+    teens: `Adolescentes (13-18). Tom autêntico, exemplos reais.`,
+    adults: `Adultos. Reflexões profundas.`,
+    seniors: `Idosos. Tom respeitoso e caloroso.`,
+    professionals: `Profissionais. Dados concretos, metodologias aplicáveis.`,
   },
   de: {
-    general: `Allgemeines Publikum, alle Altersgruppen. Universeller, inklusiver Inhalt, der die gemeinsame Menschlichkeit des Lesers anspricht — Hoffnungen, Ängste, Träume. Generationsübergreifende Beispiele verwenden.`,
-    children: `Buch für Kinder (6-12 Jahre). Einfache, bildhafte Sprache mit kurzen fesselnden Geschichten, liebenswerten Figuren mit NAMEN und eigenen Persönlichkeiten. Lebendige, natürliche Dialoge. Farbenfrohe, sinnliche Beschreibungen. Jedes Kapitel endet mit einer sanften Lebenslektion, nie moralisierend.`,
-    teens: `Teenager (13-18 Jahre). Dynamischer, authentischer Ton mit Beispielen aus dem echten Leben (Schule, Freundschaft, Identität, soziale Medien). AKTUELLE kulturelle Referenzen. Schwierige Themen mit Ehrlichkeit und Empathie ansprechen, nie herablassend.`,
-    adults: `Erwachsene. Reifer Inhalt mit tiefen Reflexionen, die mit gelebter Erfahrung resonieren. Nuancierte Analysen, die die Komplexität der realen Welt anerkennen.`,
-    seniors: `Senioren. Respektvoller, warmer Ton, der gelebte Erfahrung ehrt. Klassische kulturelle Referenzen. Weisheit als geteilte Schätze präsentiert. Konstruktive Nostalgie und inspirierende Lebenserfahrungen.`,
-    professionals: `Fachleute und Experten. Fortgeschrittener Inhalt mit konkreten Daten, detaillierten Fallstudien, bewährten und sofort anwendbaren Methoden. Der Leser soll am Ende jedes Kapitels HANDELN können.`,
+    general: `Allgemeines Publikum. Universeller Inhalt.`,
+    children: `Kinder (6-12). Einfache Sprache, kurze Geschichten.`,
+    teens: `Teenager (13-18). Authentischer Ton, echte Beispiele.`,
+    adults: `Erwachsene. Tiefe Reflexionen.`,
+    seniors: `Senioren. Respektvoller, warmer Ton.`,
+    professionals: `Fachleute. Konkrete Daten, anwendbare Methoden.`,
   },
   sw: {
-    general: `Hadhira ya jumla, umri wote. Maudhui ya ulimwengu na jumuishi yanayozungumza na ubinadamu wa pamoja wa msomaji — matumaini, hofu, ndoto zao. Tumia mifano ya vizazi vyote.`,
-    children: `Kitabu cha watoto (miaka 6-12). Lugha rahisi na ya picha na hadithi fupi za kuvutia, wahusika wapenzi wenye MAJINA na tabia tofauti. Mazungumzo hai na ya asili. Maelezo ya rangi na hisi. Kila sura inaisha na somo la maisha laini, kamwe la kuhubiri.`,
-    teens: `Vijana (miaka 13-18). Sauti yenye nguvu na ya kweli na mifano ya maisha halisi (shule, urafiki, utambulisho, mitandao ya kijamii). Marejeleo ya kitamaduni ya SASA. Kushughulikia mada ngumu kwa uaminifu na huruma, kamwe kwa kiburi.`,
-    adults: `Watu wazima. Yaliyomo ya kukomaa na tafakuri za kina zinazogusa uzoefu ulioishi. Uchambuzi wa nuanced unaotambua ugumu wa ulimwengu halisi.`,
-    seniors: `Wazee. Sauti ya heshima na joto inayoheshimu uzoefu ulioishi. Marejeleo ya kitamaduni ya zamani. Hekima iliyowasilishwa kama hazina zilizoshirikiwa. Nostalgia yenye kujenga na uzoefu wa maisha wa kuhamasisha.`,
-    professionals: `Wataalamu na wataalam. Yaliyomo ya juu na data halisi, tafiti za kesi zilizofafanuliwa, mbinu zilizothibitishwa na zinazoweza kutumika mara moja. Msomaji anapaswa kuweza KUTENDA mwishoni mwa kila sura.`,
+    general: `Hadhira ya jumla. Maudhui ya ulimwengu.`,
+    children: `Watoto (6-12). Lugha rahisi, hadithi fupi.`,
+    teens: `Vijana (13-18). Sauti ya kweli, mifano halisi.`,
+    adults: `Watu wazima. Tafakuri za kina.`,
+    seniors: `Wazee. Sauti ya heshima na joto.`,
+    professionals: `Wataalamu. Data halisi, mbinu zinazoweza kutumika.`,
   },
 };
 
-// ─── Style format instructions ───
+// ═══════════════════════════════════════════════════════════════
+// STYLE FORMAT MAP — Detailed structural guidance from REAL books
+// ═══════════════════════════════════════════════════════════════
+
 const styleFormatMap: Record<string, Record<string, string>> = {
   fr: {
-    ebook: `Structure en chapitres narratifs avec des introductions captivantes, des transitions fluides, des sous-sections claires (<h3>), des paragraphes bien développés, des citations marquantes en <blockquote>, et une conclusion mémorable par chapitre.`,
-    guide: `Structure pratique avec des étapes numérotées, des listes à puces (<ul><li>), des encadrés de conseils en <blockquote>, des exercices pratiques, des check-lists, des exemples avant/après et des résumés de chapitre.`,
-    prayers: `Structure en sections de prières, méditations guidées et réflexions spirituelles. Inclus des versets sacrés en <blockquote> avec leurs références, des invocations, des moments de silence méditatif et des intentions de prière.`,
-    story: `Structure en chapitres narratifs courts et captivants pour enfants ou lecteurs de fiction. Personnages avec des NOMS et des PERSONNALITÉS distinctes. Dialogues vivants et naturels. Descriptions sensorielles colorées. Chaque chapitre se termine sur un cliffhanger ou une leçon de vie douce. Beaucoup d'imagination, de rythme et d'émotion.`,
-    novel: `Structure romanesque avec des chapitres narratifs immersifs. Développement de personnages profonds, intrigues et tensions narratives, descriptions atmosphériques, dialogues authentiques, arc narratif avec montée en tension, climax et résolution. Style littéraire avec alternance de scènes d'action et de réflexion.`,
-    devotional: `Structure en méditations quotidiennes numérotées (Jour 1, Jour 2...). Chaque méditation comprend : un verset ou passage sacré en <blockquote>, une réflexion personnelle, une application pratique pour la journée, et une prière ou intention. Format de journal spirituel sur 30 ou 90 jours.`,
-    activity: `Structure interactive avec des exercices variés par chapitre : quiz, questions de réflexion, espaces à remplir (indiqués par des lignes _____), jeux de mots, défis créatifs, coloriages décrits en texte, labyrinthes de questions. Chaque activité a un objectif pédagogique clair. Instructions simples et encourageantes.`,
+    ebook: `STRUCTURE DE VRAI LIVRE (style "Ce que j'aurais aimé savoir" de Gary Chapman) :
+- Introduction qui pose LE PROBLÈME du lecteur dès les premières lignes
+- Chaque chapitre commence par une affirmation forte ou une question ("Si seulement j'avais su que...")
+- L'auteur partage ses propres expériences et erreurs avec honnêteté
+- Mélange de : vécu personnel + conseils pratiques + données/études
+- Sous-titres <h3> clairs et descriptifs (pas poétiques)
+- Section "Discutez-en" ou "À retenir" avec 3-5 questions/points à la fin de chaque chapitre
+- Paragraphes de 3-6 phrases, jamais de pavés
+- Citations pertinentes en <blockquote> (avec source)`,
+
+    guide: `STRUCTURE DE VRAI MANUEL PRATIQUE (style "Gérez Mieux Votre Entreprise" de l'OIT) :
+- Découpage en PARTIES puis en sections numérotées (1., 2., 3.)
+- Sous-sections numérotées (1.1, 1.2, 1.3)
+- Titres 100% FONCTIONNELS : "Qu'est-ce que X ?", "Comment faire Y ?", "Les 5 étapes pour Z"
+- CAS PRATIQUES avec des noms fictifs de personnages/entreprises pour illustrer
+- EXERCICES pratiques : questions de réflexion, situations à résoudre
+- Listes à puces <ul><li> et listes numérotées <ol><li> abondantes
+- Encadrés <blockquote> pour les informations IMPORTANTES
+- Résumé en fin de section
+- Ton didactique : "Lorsque vous aurez terminé ce chapitre, vous serez en mesure de..."
+- ZÉRO narration littéraire, ZÉRO métaphore — c'est un OUTIL de travail`,
+
+    prayers: `STRUCTURE DE VRAI LIVRE DE PRIÈRES/COMBAT SPIRITUEL (style "Le Sorcier Va Mourir") :
+- Introduction DIRECTE qui pose le cadre spirituel avec autorité
+- Chapitres structurés avec des LISTES NUMÉROTÉES (ex: "9 exemples de...", "6 forces de...", "21 prières pour...")
+- Sous-titres en MAJUSCULES numérotés : "1. PREMIER POINT", "2. DEUXIÈME POINT"
+- Abondance de VERSETS BIBLIQUES avec références complètes (Livre chapitre:verset) en <blockquote>
+- Chaque verset est EXPLIQUÉ et APPLIQUÉ à la vie du lecteur
+- Ton d'interpellation directe : "Mesdames et messieurs", "Décidez aujourd'hui !"
+- Sections de PRIÈRES avec formules directes et puissantes
+- Pas de poésie ni de douceur excessive — c'est un COMBAT
+- Structure : enseignement biblique → explication → application → prière`,
+
+    story: `Structure en chapitres narratifs courts. Personnages avec NOMS et personnalités distinctes. Dialogues vivants. Descriptions sensorielles. Cliffhangers.`,
+    novel: `Structure romanesque avec chapitres immersifs. Personnages profonds, intrigues, dialogues authentiques, arc narratif complet.`,
+
+    devotional: `STRUCTURE DE MÉDITATIONS QUOTIDIENNES :
+- Format numéroté : "Jour 1", "Jour 2"...
+- Chaque méditation : verset sacré en <blockquote> avec référence → réflexion personnelle → application pratique → prière courte
+- Ton intime et personnel, comme un journal spirituel
+- 30 ou 90 jours`,
+
+    activity: `STRUCTURE INTERACTIVE :
+- Exercices variés : quiz, questions de réflexion, espaces à remplir (_____)
+- Chaque activité a un objectif pédagogique clair
+- Instructions simples et encourageantes
+- Réponses en fin de chapitre`,
   },
   en: {
-    ebook: `Structure with narrative chapters featuring captivating introductions, smooth transitions, clear sub-sections (<h3>), well-developed paragraphs, striking quotes in <blockquote>, and a memorable conclusion per chapter.`,
-    guide: `Practical structure with numbered steps, bullet lists (<ul><li>), tip boxes in <blockquote>, practical exercises, checklists, before/after examples and chapter summaries.`,
-    prayers: `Structure with prayer sections, guided meditations and spiritual reflections. Include sacred verses in <blockquote> with references, invocations, moments of meditative silence and prayer intentions.`,
-    story: `Structure with short, captivating narrative chapters for children or fiction readers. Characters with NAMES and distinct PERSONALITIES. Lively, natural dialogues. Colorful sensory descriptions. Each chapter ends with a cliffhanger or gentle life lesson. Lots of imagination, rhythm and emotion.`,
-    novel: `Novelistic structure with immersive narrative chapters. Deep character development, plots and narrative tensions, atmospheric descriptions, authentic dialogues, narrative arc with rising tension, climax and resolution. Literary style alternating between action and reflection scenes.`,
-    devotional: `Structure as numbered daily meditations (Day 1, Day 2...). Each meditation includes: a sacred verse or passage in <blockquote>, personal reflection, practical application for the day, and a prayer or intention. Spiritual journal format over 30 or 90 days.`,
-    activity: `Interactive structure with varied exercises per chapter: quizzes, reflection questions, fill-in spaces (indicated by _____ lines), word games, creative challenges, text-described coloring pages, question mazes. Each activity has a clear educational objective. Simple, encouraging instructions.`,
+    ebook: `REAL BOOK STRUCTURE (Gary Chapman "Things I Wish I'd Known" style):
+- Introduction that states THE READER'S PROBLEM from the first lines
+- Each chapter starts with a strong statement or question
+- Author shares own experiences and mistakes honestly
+- Mix of: personal experience + practical advice + data/studies
+- Clear, descriptive <h3> sub-headings (not poetic)
+- "Discuss" or "Key Takeaways" section with 3-5 questions/points at end of each chapter
+- Paragraphs of 3-6 sentences, never walls of text
+- Relevant quotes in <blockquote> (with source)`,
+
+    guide: `REAL PRACTICAL MANUAL STRUCTURE (ILO "Improve Your Business" style):
+- Split into PARTS then numbered sections (1., 2., 3.)
+- Numbered sub-sections (1.1, 1.2, 1.3)
+- 100% FUNCTIONAL titles: "What is X?", "How to do Y?", "The 5 steps for Z"
+- CASE STUDIES with fictional character/business names to illustrate
+- Practical EXERCISES: reflection questions, scenarios to solve
+- Abundant bullet <ul><li> and numbered <ol><li> lists
+- <blockquote> boxes for IMPORTANT information
+- Summary at end of section
+- Didactic tone: "When you finish this chapter, you will be able to..."
+- ZERO literary narrative, ZERO metaphors — it's a WORK TOOL`,
+
+    prayers: `REAL PRAYER/SPIRITUAL WARFARE BOOK STRUCTURE:
+- DIRECT introduction establishing spiritual authority
+- Chapters with NUMBERED LISTS ("9 examples of...", "6 forces of...", "21 prayers for...")
+- CAPITALIZED numbered sub-headings: "1. FIRST POINT", "2. SECOND POINT"
+- Abundant BIBLE VERSES with full references (Book chapter:verse) in <blockquote>
+- Each verse EXPLAINED and APPLIED to reader's life
+- Direct address: "Ladies and gentlemen", "Decide today!"
+- PRAYER sections with direct, powerful formulas
+- No poetry or excessive softness — this is WARFARE
+- Structure: biblical teaching → explanation → application → prayer`,
+
+    story: `Short captivating narrative chapters. Characters with NAMES and distinct personalities. Lively dialogues. Sensory descriptions.`,
+    novel: `Novelistic structure with immersive chapters. Deep characters, plots, authentic dialogues, full narrative arc.`,
+    devotional: `Daily meditations: Day 1, Day 2... Each with verse, reflection, application, prayer.`,
+    activity: `Interactive: quizzes, questions, fill-in spaces, creative challenges. Clear objectives.`,
   },
   es: {
-    ebook: `Estructura con capítulos narrativos, introducciones cautivadoras, transiciones fluidas y conclusiones memorables.`,
-    guide: `Estructura práctica con pasos numerados, listas, ejercicios y resúmenes.`,
-    prayers: `Estructura con secciones de oración, meditaciones y reflexiones espirituales con versículos.`,
-    story: `Estructura con capítulos narrativos cortos y cautivadores. Personajes con nombres y personalidades distintas. Diálogos vivos. Descripciones sensoriales. Imaginación y emoción.`,
-    novel: `Estructura novelística con capítulos inmersivos. Desarrollo de personajes, intriga, diálogos auténticos y arco narrativo completo.`,
-    devotional: `Estructura de meditaciones diarias numeradas con versículos, reflexión y oración.`,
-    activity: `Estructura interactiva con ejercicios, quiz, juegos y actividades creativas por capítulo.`,
+    ebook: `Estructura de libro real: problema del lector, experiencia del autor, consejos prácticos, preguntas de discusión.`,
+    guide: `Manual práctico: partes numeradas, casos prácticos, ejercicios, listas, resúmenes.`,
+    prayers: `Libro de oración: listas numeradas, versículos con referencias, interpelación directa, fórmulas de oración.`,
+    story: `Capítulos narrativos cortos, personajes con nombres, diálogos vivos.`,
+    novel: `Estructura novelística con capítulos inmersivos.`,
+    devotional: `Meditaciones diarias numeradas con versículos y oración.`,
+    activity: `Estructura interactiva con ejercicios y actividades.`,
   },
   pt: {
-    ebook: `Estrutura com capítulos narrativos, introduções cativantes, transições fluidas e conclusões memoráveis.`,
-    guide: `Estrutura prática com etapas numeradas, listas, exercícios e resumos.`,
-    prayers: `Estrutura com seções de oração, meditações e reflexões espirituais com versículos.`,
-    story: `Estrutura com capítulos narrativos curtos e cativantes. Personagens com nomes e personalidades distintas. Diálogos vivos. Imaginação e emoção.`,
-    novel: `Estrutura romanesca com capítulos imersivos. Desenvolvimento de personagens, intriga e arco narrativo completo.`,
-    devotional: `Estrutura de meditações diárias numeradas com versículos, reflexão e oração.`,
-    activity: `Estrutura interativa com exercícios, quiz, jogos e atividades criativas por capítulo.`,
+    ebook: `Estrutura de livro real: problema do leitor, experiência do autor, conselhos práticos, questões de discussão.`,
+    guide: `Manual prático: partes numeradas, casos práticos, exercícios, listas, resumos.`,
+    prayers: `Livro de oração: listas numeradas, versículos com referências, interpelação direta.`,
+    story: `Capítulos narrativos curtos, personagens com nomes, diálogos vivos.`,
+    novel: `Estrutura romanesca com capítulos imersivos.`,
+    devotional: `Meditações diárias numeradas com versículos e oração.`,
+    activity: `Estrutura interativa com exercícios e atividades.`,
   },
   de: {
-    ebook: `Struktur mit narrativen Kapiteln, fesselnden Einleitungen, fließenden Übergängen und einprägsamen Schlussfolgerungen.`,
-    guide: `Praktische Struktur mit nummerierten Schritten, Listen, Übungen und Zusammenfassungen.`,
-    prayers: `Struktur mit Gebetsabschnitten, Meditationen und spirituellen Reflexionen mit Bibelversen.`,
-    story: `Struktur mit kurzen, fesselnden Erzählkapiteln. Figuren mit Namen und eigenen Persönlichkeiten. Lebendige Dialoge. Fantasie und Emotion.`,
-    novel: `Romanstruktur mit immersiven Kapiteln. Figurenentwicklung, Spannung und vollständiger Erzählbogen.`,
-    devotional: `Struktur als nummerierte tägliche Meditationen mit Versen, Reflexion und Gebet.`,
-    activity: `Interaktive Struktur mit Übungen, Quiz, Spielen und kreativen Aktivitäten pro Kapitel.`,
+    ebook: `Echte Buchstruktur: Leserproblem, Autorenerfahrung, praktische Ratschläge, Diskussionsfragen.`,
+    guide: `Praktisches Handbuch: nummerierte Teile, Fallstudien, Übungen, Listen, Zusammenfassungen.`,
+    prayers: `Gebetbuch: nummerierte Listen, Bibelverse mit Referenzen, direkte Ansprache.`,
+    story: `Kurze narrative Kapitel, Figuren mit Namen, lebendige Dialoge.`,
+    novel: `Romanstruktur mit immersiven Kapiteln.`,
+    devotional: `Nummerierte tägliche Meditationen mit Versen und Gebet.`,
+    activity: `Interaktive Struktur mit Übungen und Aktivitäten.`,
   },
   sw: {
-    ebook: `Muundo wa sura za simulizi zenye utangulizi wa kuvutia na hitimisho la kukumbukwa.`,
-    guide: `Muundo wa vitendo na hatua zilizohesabiwa, orodha na mazoezi.`,
-    prayers: `Muundo na sehemu za maombi, kutafakari na tafakuri za kiroho.`,
-    story: `Muundo na sura fupi za kuvutia. Wahusika wenye majina na tabia tofauti. Mazungumzo hai. Ndoto na hisia.`,
-    novel: `Muundo wa riwaya na sura za kuzamisha. Maendeleo ya wahusika, mvutano na mtiririko kamili wa simulizi.`,
-    devotional: `Muundo wa kutafakari za kila siku zilizohesabiwa na aya, tafakuri na maombi.`,
-    activity: `Muundo wa maingiliano na mazoezi, maswali, michezo na shughuli za ubunifu kwa kila sura.`,
+    ebook: `Muundo wa kitabu halisi: tatizo la msomaji, uzoefu wa mwandishi, ushauri wa vitendo.`,
+    guide: `Mwongozo wa vitendo: sehemu zilizohesabiwa, mifano, mazoezi, orodha.`,
+    prayers: `Kitabu cha maombi: orodha zilizohesabiwa, aya na marejeleo, anwani ya moja kwa moja.`,
+    story: `Sura fupi za kuvutia, wahusika wenye majina, mazungumzo hai.`,
+    novel: `Muundo wa riwaya na sura za kuzamisha.`,
+    devotional: `Kutafakari za kila siku zilizohesabiwa na aya na maombi.`,
+    activity: `Muundo wa maingiliano na mazoezi na shughuli.`,
   },
 };
 
-// ─── Language name map for prompts ───
+// ─── Language name map ───
 const langNameMap: Record<string, string> = {
   fr: 'français', en: 'English', es: 'español', pt: 'português', de: 'Deutsch', sw: 'Kiswahili',
 };
@@ -227,31 +307,16 @@ function extractJsonObjectCandidate(raw: string): string | null {
 
   for (let i = start; i < text.length; i++) {
     const char = text[i];
-
-    if (escaped) {
-      escaped = false;
-      continue;
-    }
-
-    if (char === '\\') {
-      escaped = true;
-      continue;
-    }
-
-    if (char === '"') {
-      inString = !inString;
-      continue;
-    }
-
+    if (escaped) { escaped = false; continue; }
+    if (char === '\\') { escaped = true; continue; }
+    if (char === '"') { inString = !inString; continue; }
     if (inString) continue;
-
     if (char === '{') depth += 1;
     if (char === '}') {
       depth -= 1;
       if (depth === 0) return text.slice(start, i + 1);
     }
   }
-
   return null;
 }
 
@@ -261,29 +326,20 @@ function parseCandidate(candidate: string): any | null {
     .replace(/```\n?/g, '')
     .replace(/,\s*([}\]])/g, '$1')
     .trim();
-
   if (!cleaned) return null;
-
-  try {
-    return JSON.parse(cleaned);
-  } catch {
-    return null;
-  }
+  try { return JSON.parse(cleaned); } catch { return null; }
 }
 
 function tryParsePayload(raw: string): any | null {
   const direct = parseCandidate(raw);
   if (direct) return direct;
-
   const candidate = extractJsonObjectCandidate(raw);
   if (!candidate) return null;
-
   return parseCandidate(candidate);
 }
 
 function normalizeGeneratedChapters(parsed: any): { id: string; title: string; content: string }[] {
   const chapters = Array.isArray(parsed?.chapters) ? parsed.chapters : [];
-
   return chapters
     .map((chapter: any, index: number) => ({
       id: typeof chapter?.id === 'string' && chapter.id.trim().length > 0 ? chapter.id.trim() : `ch-${index + 1}`,
@@ -296,27 +352,17 @@ function normalizeGeneratedChapters(parsed: any): { id: string; title: string; c
 async function repairJsonWithAi(apiKey: string, rawContent: string, chapterCount: number): Promise<any | null> {
   const repairRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
+    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       model: 'google/gemini-2.5-flash',
       max_tokens: 7000,
       response_format: { type: 'json_object' },
       messages: [
-        {
-          role: 'system',
-          content: `You repair malformed JSON only. Return ONLY valid JSON with this shape: {"chapters":[{"id":"ch-1","title":"...","content":"<p>...</p>"}]}. Keep HTML in content. Do not summarize.`,
-        },
-        {
-          role: 'user',
-          content: `Repair this malformed payload into valid JSON. Keep as much original content as possible. Expected chapter count around ${chapterCount}.\n\n${rawContent.slice(0, 80000)}`,
-        },
+        { role: 'system', content: `You repair malformed JSON only. Return ONLY valid JSON with this shape: {"chapters":[{"id":"ch-1","title":"...","content":"<p>...</p>"}]}. Keep HTML in content. Do not summarize.` },
+        { role: 'user', content: `Repair this malformed payload into valid JSON. Keep as much original content as possible. Expected chapter count around ${chapterCount}.\n\n${rawContent.slice(0, 80000)}` },
       ],
     }),
   });
-
   if (!repairRes.ok) return null;
   const repairData = await repairRes.json().catch(() => null);
   const repairedRaw = repairData?.choices?.[0]?.message?.content || '';
@@ -326,14 +372,90 @@ async function repairJsonWithAi(apiKey: string, rawContent: string, chapterCount
 function isAbortError(error: unknown): boolean {
   if (error instanceof DOMException && error.name === 'AbortError') return true;
   if (error instanceof Error && error.name === 'AbortError') return true;
-  if (typeof error === 'object' && error !== null && 'name' in error) {
-    return (error as { name?: string }).name === 'AbortError';
-  }
   return false;
 }
 
 async function wait(ms: number) {
   await new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ANTI-AI WRITING RULES — The core of producing REAL books
+// ═══════════════════════════════════════════════════════════════
+
+function getAntiAiRules(lang: string, style: string): string {
+  const isNarrative = ['story', 'novel'].includes(style);
+  if (isNarrative) return ''; // Narrative styles can use literary techniques
+
+  if (lang === 'fr') {
+    return `
+
+═══ RÈGLES ANTI-IA — PRODUIRE UN VRAI LIVRE, PAS UN LIVRE IA ═══
+
+Tu dois écrire comme un VRAI AUTEUR HUMAIN, pas comme une IA. Voici les différences :
+
+CE QU'UN VRAI AUTEUR FAIT :
+✅ Il va DROIT AU BUT — pas de longue introduction qui tourne autour du pot
+✅ Il utilise des mots SIMPLES et COURANTS — le mot juste, pas le mot fleuri
+✅ Il structure ses idées avec des titres CLAIRS ("Comment faire X", "Les 3 erreurs à éviter", "Pourquoi Y est important")
+✅ Il donne des EXEMPLES CONCRETS tirés de la réalité (noms, lieux, chiffres, dates)
+✅ Il INTERPELLE le lecteur directement quand c'est naturel
+✅ Il alterne phrases courtes et phrases longues NATURELLEMENT
+✅ Il a un POINT DE VUE qu'il assume — il ne reste pas neutre sur tout
+✅ Il écrit comme il PARLERAIT à quelqu'un — avec sa vraie voix
+
+CE QU'UNE IA FAIT (ET QUE TU NE DOIS JAMAIS FAIRE) :
+❌ Commencer par "Dans un monde où...", "Il est important de noter que...", "Depuis la nuit des temps..."
+❌ Mettre des métaphores dans chaque paragraphe ("une lumière qui brille", "un chemin sinueux", "une danse entre...")
+❌ Utiliser des adjectifs en cascade ("magnifique, resplendissant et inoubliable")
+❌ Dramatiser inutilement ("Ce jour-là, tout allait changer à jamais...")
+❌ Faire des transitions pompeuses ("Fort de cette compréhension, explorons maintenant...")
+❌ Être vague et générique au lieu de donner des détails précis
+❌ Terminer chaque chapitre par une phrase "inspirante" artificielle
+❌ Utiliser un ton uniformément enthousiaste et positif — un vrai auteur a des moments de doute, de critique, de nuance
+
+MOTS ET EXPRESSIONS STRICTEMENT INTERDITS :
+"Force est de constater", "Il est indéniable que", "Dans un monde en perpétuelle évolution",
+"Au cœur de", "Un voyage extraordinaire", "Une danse entre", "Tisser les fils de",
+"Plonger dans les profondeurs de", "Explorer les méandres de", "Un souffle nouveau",
+"Transcender", "Sublimer", "Résonner au plus profond", "Éveiller la conscience",
+"Embrasser le changement", "Un monde de possibilités", "La clé réside dans",
+"Mosaïque de", "Tapisserie de", "Symphonie de", "Alchimie de"`;
+  }
+
+  return `
+
+═══ ANTI-AI WRITING RULES — PRODUCE A REAL BOOK, NOT AN AI BOOK ═══
+
+Write like a REAL HUMAN AUTHOR, not an AI. Here's the difference:
+
+WHAT A REAL AUTHOR DOES:
+✅ Gets STRAIGHT TO THE POINT — no long winding introductions
+✅ Uses SIMPLE, COMMON words — the right word, not the fancy word
+✅ Structures ideas with CLEAR headings ("How to do X", "3 mistakes to avoid", "Why Y matters")
+✅ Gives CONCRETE EXAMPLES from reality (names, places, numbers, dates)
+✅ ADDRESSES the reader directly when natural
+✅ Alternates short and long sentences NATURALLY
+✅ Has a POINT OF VIEW and owns it — doesn't stay neutral on everything
+✅ Writes like they would TALK to someone — with their real voice
+
+WHAT AN AI DOES (AND YOU MUST NEVER DO):
+❌ Start with "In a world where...", "It is important to note...", "Since the dawn of time..."
+❌ Put metaphors in every paragraph ("a light that shines", "a winding path", "a dance between...")
+❌ Use cascading adjectives ("magnificent, resplendent and unforgettable")
+❌ Dramatize unnecessarily ("That day, everything was about to change forever...")
+❌ Make pompous transitions ("With this understanding, let us now explore...")
+❌ Be vague and generic instead of giving precise details
+❌ End every chapter with an artificial "inspirational" sentence
+❌ Use a uniformly enthusiastic, positive tone — real authors have doubt, criticism, nuance
+
+STRICTLY BANNED WORDS/PHRASES:
+"It goes without saying", "In today's ever-changing world", "At the heart of",
+"An extraordinary journey", "A dance between", "Weave the threads of",
+"Delve into the depths of", "Explore the intricacies of", "A breath of fresh",
+"Transcend", "Elevate", "Resonate deeply", "Awaken consciousness",
+"Embrace change", "A world of possibilities", "The key lies in",
+"Mosaic of", "Tapestry of", "Symphony of", "Alchemy of"`;
 }
 
 Deno.serve(async (req) => {
@@ -363,77 +485,51 @@ Deno.serve(async (req) => {
       : Math.max(MIN_CHAPTERS, Math.min(MAX_CHAPTERS, Math.round(pages / 5)));
     const chapterWordTarget = singleChapter
       ? '450-700'
-      : chapterCount >= 6
-        ? '320-520'
-        : '420-650';
+      : chapterCount >= 6 ? '320-520' : '420-650';
 
     const _tone = tone || 'professional';
     const _level = languageLevel || 'intermediate';
     const _audience = targetAudience || 'general';
+    const _style = style || 'ebook';
 
     const toneInstruction = getInstruction(toneMap, lang, _tone, 'professional');
     const levelInstruction = getInstruction(levelMap, lang, _level, 'intermediate');
     const audienceInstruction = getInstruction(audienceMap, lang, _audience, 'general');
-    const formatInstruction = getInstruction(styleFormatMap, lang, style || 'ebook', 'ebook');
+    const formatInstruction = getInstruction(styleFormatMap, lang, _style, 'ebook');
+    const antiAiRules = getAntiAiRules(lang, _style);
 
-    // Build custom style reference instruction if provided
+    // Narrative detection
+    const narrativeStyles = ['story', 'novel'];
+    const isNarrative = narrativeStyles.includes(_style);
+
+    // Style reference
     let styleRefInstruction = '';
     if (styleReference && styleReference.trim().length > 0) {
       const ref = styleReference.trim();
       styleRefInstruction = lang === 'fr'
-        ? `\n\n⚠️ INSTRUCTION PRIORITAIRE — RÉFÉRENCE DE STYLE PERSONNALISÉE ⚠️
-L'auteur a EXPLICITEMENT demandé que tu imites un style particulier. C'est l'instruction LA PLUS IMPORTANTE de tout ce prompt.
-
-RÉFÉRENCE FOURNIE : «${ref}»
-
-ANALYSE ET APPLICATION OBLIGATOIRES :
-- Si c'est un NOM D'AUTEUR, DE PRÉDICATEUR ou de PERSONNALITÉ (ex: Bishop Olukoya, Joel Osteen, Victor Hugo, etc.) : tu DOIS connaître leur style d'écriture/de prédication et le reproduire FIDÈLEMENT. Étudie leur vocabulaire typique, leurs tournures de phrases, leur rythme, leur façon de structurer leurs arguments, leurs expressions récurrentes, leur niveau de langue réel.
-- Si c'est un EXTRAIT DE TEXTE : analyse le vocabulaire, la longueur des phrases, le rythme, les figures de style, le niveau de langue et reproduis-les exactement.
-- Le ton défini plus haut (${_tone}) est SECONDAIRE. La référence de style est PRIORITAIRE et ÉCRASE le ton prédéfini en cas de conflit.
-- Le niveau de langue défini plus haut peut aussi être ajusté pour correspondre à la référence. Si la référence utilise un langage simple et direct, utilise un langage simple et direct, MÊME si le niveau demandé est "avancé".
-- CHAQUE paragraphe que tu écris doit sonner comme si ${ref} l'avait écrit lui-même/elle-même.`
-        : `\n\n⚠️ PRIORITY INSTRUCTION — CUSTOM STYLE REFERENCE ⚠️
-The author has EXPLICITLY requested that you mimic a specific style. This is the MOST IMPORTANT instruction in this entire prompt.
-
-REFERENCE PROVIDED: "${ref}"
-
-MANDATORY ANALYSIS AND APPLICATION:
-- If it's an AUTHOR, PREACHER, or PUBLIC FIGURE name (e.g., Bishop Olukoya, Joel Osteen, Victor Hugo, etc.): you MUST know their writing/preaching style and reproduce it FAITHFULLY. Study their typical vocabulary, sentence patterns, rhythm, argument structure, recurring expressions, and actual language level.
-- If it's a TEXT EXCERPT: analyze the vocabulary, sentence length, rhythm, literary devices, language level and reproduce them exactly.
-- The tone defined above (${_tone}) is SECONDARY. The style reference is the PRIORITY and OVERRIDES the predefined tone if they conflict.
-- The language level defined above may also be adjusted to match the reference. If the reference uses simple, direct language, use simple, direct language, EVEN if the requested level is "advanced".
-- EVERY paragraph you write must sound as if ${ref} wrote it themselves.`;
+        ? `\n\n⚠️ RÉFÉRENCE DE STYLE PRIORITAIRE ⚠️
+L'auteur veut que tu écrives dans le style de : «${ref}»
+- Si c'est un NOM (auteur, prédicateur, etc.) : reproduis FIDÈLEMENT son style réel — vocabulaire, rythme, niveau de langue, façon de structurer.
+- Si c'est un EXTRAIT : analyse et reproduis le style exactement.
+- Cette référence ÉCRASE les autres instructions de ton en cas de conflit.
+- CHAQUE paragraphe doit sonner comme si ${ref} l'avait écrit.`
+        : `\n\n⚠️ PRIORITY STYLE REFERENCE ⚠️
+Author wants you to write in the style of: "${ref}"
+- If it's a NAME: faithfully reproduce their real style — vocabulary, rhythm, language level, structure.
+- If it's an EXCERPT: analyze and reproduce the style exactly.
+- This reference OVERRIDES other tone instructions if they conflict.
+- EVERY paragraph must sound like ${ref} wrote it.`;
     }
 
-    // Determine if style is narrative (story/novel) vs expository (ebook/guide/academic etc.)
-    const narrativeStyles = ['story', 'novel'];
-    const isNarrative = narrativeStyles.includes(style || 'ebook');
+    // Temperature: lower for non-narrative to reduce AI-ness
+    const temperature = isNarrative ? 0.8 : 0.5;
 
-    // Build system prompt - adapted by style category
+    // ═══ BUILD SYSTEM PROMPT ═══
     const systemPrompt = lang === 'fr'
-      ? `Tu es un ÉCRIVAIN PROFESSIONNEL expérimenté. Tu écris en ${langName}.${isNarrative ? '' : `
+      ? `Tu es un ÉCRIVAIN PROFESSIONNEL. Tu écris en ${langName}.
 
-⚠️ RÈGLE FONDAMENTALE — ÉCRITURE DIRECTE ET STANDARD ⚠️
-Tu écris un ${style === 'guide' ? 'guide pratique' : style === 'prayers' ? 'livre de prières' : style === 'devotional' ? 'livre de méditations' : style === 'activity' ? 'livre d\'activités' : 'livre'}. PAS un roman. PAS un conte. PAS de la poésie.
-
-CE QUE TU DOIS FAIRE :
-- Écrire de manière CLAIRE, DIRECTE et NATURELLE — comme un professionnel qui parle à son lecteur
-- Expliquer les concepts de façon précise et concrète
-- Utiliser un vocabulaire STANDARD et accessible — pas de mots fleuris ni de tournures poétiques
-- Structurer tes idées avec logique : une idée par paragraphe, bien articulé
-- Donner des exemples concrets et pratiques quand nécessaire
-- Garder un ton humain et personnel sans tomber dans le romanesque
-
-CE QUE TU NE DOIS JAMAIS FAIRE :
-- Raconter des histoires fictives ou inventer des scènes dramatiques (sauf si le sujet l'exige)
-- Utiliser un style "merveilleux", "rêveur" ou "poétique"
-- Mettre des métaphores et images littéraires dans chaque paragraphe
-- Écrire comme si tu racontais un roman ou un conte
-- Utiliser des titres de chapitres trop créatifs ou mystérieux — préfère des titres CLAIRS qui disent de quoi parle le chapitre
-- Exagérer les émotions ou dramatiser inutilement
-- Ajouter des descriptions sensorielles inutiles (odeurs, sons, lumières) sauf si pertinent`}${isNarrative ? `
-
-Tu écris un texte NARRATIF (${style}). Tu peux utiliser des techniques littéraires : personnages, dialogues, descriptions sensorielles, tension narrative. Rends le récit vivant et immersif.` : ''}
+TON OBJECTIF : Produire un VRAI livre qui ressemble à un livre écrit par un VRAI auteur humain — pas un texte généré par IA.
+${antiAiRules}
 
 STYLE D'ÉCRITURE :
 ${toneInstruction}
@@ -444,45 +540,23 @@ ${levelInstruction}
 PUBLIC CIBLE :
 ${audienceInstruction}
 
-FORMAT :
+STRUCTURE ET FORMAT :
 ${formatInstruction}
 
 HTML — UTILISE :
 - <p> pour les paragraphes
-- <h3> pour 2-3 sous-titres ${isNarrative ? 'créatifs' : 'clairs et descriptifs'} par chapitre
+- <h3> pour les sous-titres (2-3 par chapitre)
 - <blockquote> pour citations, versets ou points importants
 - <strong> pour les concepts-clés (avec parcimonie)
-- <em> pour l'emphase subtile
-- <ul><li> ou <ol><li> pour les listes quand utile
+- <em> pour l'emphase
+- <ul><li> ou <ol><li> pour les listes
+${styleRefInstruction}
+FORMAT DE SORTIE : JSON valide uniquement. Pas de markdown, pas de code fences.`
 
-EXPRESSIONS INTERDITES :
-"Il est important de noter", "Force est de constater", "Dans un monde où", "Il est essentiel de", "En conclusion", "Pour résumer", "Il convient de souligner", "Il va sans dire".
+      : `You are a PROFESSIONAL WRITER. You write in ${langName}.
 
-Tu DOIS créer les chapitres EN FONCTION DU SUJET/IDÉE fourni. Chaque chapitre explore un aspect unique et essentiel du sujet.${styleRefInstruction}
-FORMAT DE SORTIE : Retourne un JSON valide. Pas de markdown, pas de code fences.`
-      : `You are an experienced PROFESSIONAL WRITER. You write in ${langName}.${isNarrative ? '' : `
-
-⚠️ FUNDAMENTAL RULE — DIRECT, STANDARD WRITING ⚠️
-You are writing a ${style === 'guide' ? 'practical guide' : style === 'prayers' ? 'prayer book' : style === 'devotional' ? 'devotional book' : style === 'activity' ? 'activity book' : 'book'}. NOT a novel. NOT a fairy tale. NOT poetry.
-
-WHAT YOU MUST DO:
-- Write in a CLEAR, DIRECT and NATURAL way — like a professional speaking to their reader
-- Explain concepts precisely and concretely
-- Use STANDARD, accessible vocabulary — no flowery words or poetic turns of phrase
-- Structure ideas logically: one idea per paragraph, well-articulated
-- Give concrete, practical examples when needed
-- Keep a human, personal tone without falling into novelistic writing
-
-WHAT YOU MUST NEVER DO:
-- Tell fictional stories or invent dramatic scenes (unless the topic requires it)
-- Use a "magical", "dreamy" or "poetic" style
-- Put metaphors and literary imagery in every paragraph
-- Write as if telling a novel or fairy tale
-- Use overly creative or mysterious chapter titles — prefer CLEAR titles that say what the chapter is about
-- Exaggerate emotions or dramatize unnecessarily
-- Add unnecessary sensory descriptions (smells, sounds, lights) unless relevant`}${isNarrative ? `
-
-You are writing a NARRATIVE text (${style}). You can use literary techniques: characters, dialogues, sensory descriptions, narrative tension. Make the story vivid and immersive.` : ''}
+YOUR GOAL: Produce a REAL book that reads like it was written by a REAL human author — not AI-generated text.
+${antiAiRules}
 
 WRITING STYLE:
 ${toneInstruction}
@@ -493,39 +567,55 @@ ${levelInstruction}
 TARGET AUDIENCE:
 ${audienceInstruction}
 
-FORMAT:
+STRUCTURE AND FORMAT:
 ${formatInstruction}
 
 HTML — USE:
 - <p> for paragraphs
-- <h3> for 2-3 ${isNarrative ? 'creative' : 'clear and descriptive'} sub-headings per chapter
+- <h3> for sub-headings (2-3 per chapter)
 - <blockquote> for quotes, verses, or important points
 - <strong> for key concepts (sparingly)
-- <em> for subtle emphasis
-- <ul><li> or <ol><li> for lists when useful
+- <em> for emphasis
+- <ul><li> or <ol><li> for lists
+${styleRefInstruction}
+OUTPUT FORMAT: Valid JSON only. No markdown, no code fences.`;
 
-BANNED EXPRESSIONS:
-"It is important to note", "In today's world", "It is essential to", "In conclusion", "To summarize", "It should be emphasized", "It goes without saying".
-
-You MUST create chapters BASED ON THE TOPIC/IDEA provided. Each chapter explores a unique and essential aspect of the topic.${styleRefInstruction}
-OUTPUT FORMAT: Return valid JSON. No markdown, no code fences.`;
-
-
+    // ═══ BUILD USER PROMPT ═══
     let userPrompt: string;
+
+    // Style-specific chapter title guidance
+    const titleGuidance = lang === 'fr'
+      ? (_style === 'guide'
+        ? 'Titres 100% FONCTIONNELS : "Qu\'est-ce que X ?", "Comment Y", "Les étapes pour Z"'
+        : _style === 'prayers'
+        ? 'Titres NUMÉROTÉS et DIRECTS : "Chapitre 1 : Neuf (9) exemples de...", "21 prières pour..."'
+        : _style === 'ebook'
+        ? 'Titres CLAIRS qui disent ce que le lecteur va apprendre : "Le fait d\'être X ne suffit pas", "Régler les désaccords sans se disputer"'
+        : isNarrative
+        ? 'Titres CRÉATIFS et INTRIGANTS'
+        : 'Titres CLAIRS et DESCRIPTIFS')
+      : (_style === 'guide'
+        ? '100% FUNCTIONAL titles: "What is X?", "How to Y", "The steps for Z"'
+        : _style === 'prayers'
+        ? 'NUMBERED, DIRECT titles: "Chapter 1: Nine (9) examples of...", "21 prayers for..."'
+        : _style === 'ebook'
+        ? 'CLEAR titles telling reader what they\'ll learn: "Being in love is not enough", "Resolving disagreements without fighting"'
+        : isNarrative
+        ? 'CREATIVE, INTRIGUING titles'
+        : 'CLEAR, DESCRIPTIVE titles');
 
     if (singleChapter) {
       userPrompt = lang === 'fr'
         ? `Sujet du chapitre : ${topic}
 
-Écris ce chapitre UNIQUE.${isNarrative ? ' Ce chapitre est un MOMENT dans un récit — il a un début qui accroche, un milieu captivant, une fin qui donne envie de tourner la page.' : ' Ce chapitre explique et développe clairement le sujet. Il informe, guide et apporte de la valeur au lecteur.'}
+Écris ce chapitre.
 
 RÈGLES :
-- ${isNarrative ? 'Commence par une scène ou une anecdote' : 'Commence directement par le contenu — pose le contexte en 1-2 phrases puis entre dans le vif du sujet'}
-- 2-3 sous-titres <h3> ${isNarrative ? 'créatifs' : 'clairs et descriptifs'}
-- ${isNarrative ? 'Inclus au moins 1 histoire avec des noms et des lieux' : 'Donne des exemples concrets et pratiques'}
-- Varie la longueur des paragraphes
+- Commence DIRECTEMENT par le contenu — pas d'introduction vague
+- 2-3 sous-titres <h3> clairs
+- Donne des exemples CONCRETS (noms, situations, chiffres)
 - Environ ${chapterWordTarget} mots en HTML
-- Écris de façon naturelle et directe
+- Écris comme un VRAI auteur, pas comme une IA
 
 Retourne UNIQUEMENT un JSON :
 {
@@ -535,15 +625,14 @@ Retourne UNIQUEMENT un JSON :
 }`
         : `Chapter topic: ${topic}
 
-Write this SINGLE chapter.${isNarrative ? ' This chapter is a MOMENT in a story — it has a hooking opening, captivating middle, and an ending that makes you want to turn the page.' : ' This chapter explains and develops the topic clearly. It informs, guides, and delivers value to the reader.'}
+Write this chapter.
 
 RULES:
-- ${isNarrative ? 'Start with a scene or anecdote' : 'Start directly with the content — set context in 1-2 sentences then get to the point'}
-- 2-3 ${isNarrative ? 'creative' : 'clear and descriptive'} <h3> sub-headings
-- ${isNarrative ? 'Include at least 1 story with names and places' : 'Give concrete, practical examples'}
-- Vary paragraph lengths
-- Around ${chapterWordTarget} words in rich HTML
-- Write naturally and directly
+- Start DIRECTLY with the content — no vague introduction
+- 2-3 clear <h3> sub-headings
+- Give CONCRETE examples (names, situations, numbers)
+- Around ${chapterWordTarget} words in HTML
+- Write like a REAL author, not an AI
 
 Return ONLY JSON:
 {
@@ -552,99 +641,62 @@ Return ONLY JSON:
   ]
 }`;
     } else {
-      // Build editorial strategy injection if available
-      let editorialContextFr = '';
-      let editorialContextEn = '';
+      // Editorial strategy injection
+      let editorialContext = '';
       if (editorialStrategy && typeof editorialStrategy === 'object') {
         const s = editorialStrategy;
-        editorialContextFr = `
-
-📋 POSITIONNEMENT ÉDITORIAL (OBLIGATOIRE — guide toute l'écriture) :
-- PROBLÈME DU LECTEUR : ${s.reader_problem || ''}
-- PROMESSE DU LIVRE : ${s.book_promise || ''}
-- ANGLE UNIQUE : ${s.unique_angle || ''}
-- THÈSE CENTRALE : ${s.central_thesis || ''}
-- ARC NARRATIF : ${s.narrative_arc || ''}
-${s.suggested_stories?.length ? `- HISTOIRES À INTÉGRER :\n${s.suggested_stories.map((st: string, i: number) => `  ${i + 1}. ${st}`).join('\n')}` : ''}
-
-⚠️ CHAQUE chapitre doit servir la thèse centrale et l'angle unique. Le livre doit tenir sa promesse au lecteur.`;
-
-        editorialContextEn = `
-
-📋 EDITORIAL POSITIONING (MANDATORY — guides all writing):
-- READER PROBLEM: ${s.reader_problem || ''}
-- BOOK PROMISE: ${s.book_promise || ''}
-- UNIQUE ANGLE: ${s.unique_angle || ''}
-- CENTRAL THESIS: ${s.central_thesis || ''}
-- NARRATIVE ARC: ${s.narrative_arc || ''}
-${s.suggested_stories?.length ? `- STORIES TO INCLUDE:\n${s.suggested_stories.map((st: string, i: number) => `  ${i + 1}. ${st}`).join('\n')}` : ''}
-
-⚠️ EVERY chapter must serve the central thesis and unique angle. The book must deliver on its promise to the reader.`;
+        editorialContext = lang === 'fr'
+          ? `\n📋 POSITIONNEMENT ÉDITORIAL :\n- PROBLÈME DU LECTEUR : ${s.reader_problem || ''}\n- PROMESSE DU LIVRE : ${s.book_promise || ''}\n- ANGLE UNIQUE : ${s.unique_angle || ''}\n- THÈSE CENTRALE : ${s.central_thesis || ''}\n⚠️ Chaque chapitre doit servir la thèse et tenir la promesse.\n`
+          : `\n📋 EDITORIAL POSITIONING:\n- READER PROBLEM: ${s.reader_problem || ''}\n- BOOK PROMISE: ${s.book_promise || ''}\n- UNIQUE ANGLE: ${s.unique_angle || ''}\n- CENTRAL THESIS: ${s.central_thesis || ''}\n⚠️ Every chapter must serve the thesis and deliver the promise.\n`;
       }
 
       userPrompt = lang === 'fr'
-        ? `Écris un livre COMPLET sur ce sujet :
+        ? `Écris un livre COMPLET :
 
 TITRE : "${title}"
-${topic ? `IDÉE / SUJET : ${topic}` : ''}
-LANGUE : ${langName}
-${editorialContextFr}
-
+${topic ? `SUJET : ${topic}` : ''}
+${editorialContext}
 INSTRUCTIONS :
-- Exactement ${chapterCount} chapitres, chacun explorant une facette unique de "${topic || title}"
-- Titres de chapitres ${isNarrative ? 'CRÉATIFS et INTRIGANTS' : 'CLAIRS et DESCRIPTIFS — le lecteur doit savoir de quoi parle le chapitre en lisant le titre'}
+- Exactement ${chapterCount} chapitres
+- ${titleGuidance}
 - Chaque chapitre : environ ${chapterWordTarget} mots en HTML
-${isNarrative
-  ? `- COMMENCE le chapitre 1 par une scène ou une anecdote
-- Inclus des histoires avec des noms et des lieux
-- Utilise des dialogues quand c'est pertinent`
-  : `- COMMENCE chaque chapitre directement par le contenu — 1-2 phrases de contexte puis entre dans le vif du sujet
-- Donne des exemples concrets et pratiques
-- Explique clairement, va droit au but
-- N'invente PAS d'histoires ou de scènes si le sujet ne s'y prête pas`}
-- Varie la longueur des paragraphes
-- Écris de façon naturelle, comme un professionnel qui s'adresse à son lecteur
+- COMMENCE chaque chapitre directement par le contenu, pas par une vague introduction
+- Donne des exemples CONCRETS et RÉELS
+- Écris comme un VRAI auteur humain — avec ta propre voix, tes propres opinions
+- Varie la longueur des paragraphes (3-6 phrases max)
 
 Retourne UNIQUEMENT un JSON valide :
 {
   "chapters": [
-    {"id": "ch-1", "title": "Titre du chapitre", "content": "<h3>Sous-titre</h3><p>Contenu...</p>"},
-    {"id": "ch-2", "title": "Titre du chapitre 2", "content": "..."}
+    {"id": "ch-1", "title": "Titre clair", "content": "<h3>Sous-titre</h3><p>Contenu...</p>"},
+    {"id": "ch-2", "title": "Titre clair 2", "content": "..."}
   ]
 }
 
-RAPPEL : ${pages} pages sur "${topic || title}". Chaque chapitre ≈ ${chapterWordTarget} mots.`
-        : `Write a COMPLETE book on this topic:
+RAPPEL : ${pages} pages. Chaque chapitre ≈ ${chapterWordTarget} mots. VRAI livre, pas texte IA.`
+        : `Write a COMPLETE book:
 
 TITLE: "${title}"
-${topic ? `IDEA / TOPIC: ${topic}` : ''}
-LANGUAGE: ${langName}
-${editorialContextEn}
-
+${topic ? `TOPIC: ${topic}` : ''}
+${editorialContext}
 INSTRUCTIONS:
-- Exactly ${chapterCount} chapters, each exploring a unique facet of "${topic || title}"
-- Chapter titles must be ${isNarrative ? 'CREATIVE and INTRIGUING' : 'CLEAR and DESCRIPTIVE — the reader should know what the chapter is about from the title'}
+- Exactly ${chapterCount} chapters
+- ${titleGuidance}
 - Each chapter: around ${chapterWordTarget} words in HTML
-${isNarrative
-  ? `- START chapter 1 with a scene or anecdote
-- Include stories with names and places
-- Use dialogues when relevant`
-  : `- START each chapter directly with the content — 1-2 sentences of context then get to the point
-- Give concrete, practical examples
-- Explain clearly, get straight to the point
-- Do NOT invent stories or scenes if the topic doesn't call for it`}
-- Vary paragraph lengths
-- Write naturally, like a professional addressing their reader
+- START each chapter directly with content, not a vague introduction
+- Give CONCRETE, REAL examples
+- Write like a REAL human author — with your own voice, your own opinions
+- Vary paragraph lengths (3-6 sentences max)
 
 Return ONLY valid JSON:
 {
   "chapters": [
-    {"id": "ch-1", "title": "Chapter title", "content": "<h3>Sub-heading</h3><p>Content...</p>"},
-    {"id": "ch-2", "title": "Chapter 2 title", "content": "..."}
+    {"id": "ch-1", "title": "Clear title", "content": "<h3>Sub-heading</h3><p>Content...</p>"},
+    {"id": "ch-2", "title": "Clear title 2", "content": "..."}
   ]
 }
 
-REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterWordTarget} words.`;
+REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL book, not AI text.`;
     }
 
     const requestTimeoutMs = singleChapter ? 50_000 : 85_000;
@@ -664,7 +716,7 @@ REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterW
           body: JSON.stringify({
             model: 'google/gemini-2.5-flash',
             max_tokens: maxTokens,
-            temperature: isNarrative ? 0.85 : 0.65,
+            temperature,
             response_format: { type: 'json_object' },
             messages: [
               { role: 'system', content: systemPrompt },
@@ -683,14 +735,12 @@ REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterW
           await wait(backoffMs);
           continue;
         }
-
         break;
       }
     } catch (error) {
       if (isAbortError(error)) {
         return new Response(JSON.stringify({ error: 'Generation timeout. Please retry.' }), {
-          status: 504,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 504, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
       throw error;
@@ -754,8 +804,7 @@ REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterW
           received_chapters: normalizedChapters.length,
           expected_chapters: chapterCount,
         }), {
-          status: 502,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
     }
