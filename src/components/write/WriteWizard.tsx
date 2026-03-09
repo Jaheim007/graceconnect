@@ -26,6 +26,7 @@ export type WritingTone = 'professional' | 'conversational' | 'humorous' | 'spir
 export type LanguageLevel = 'simple' | 'intermediate' | 'advanced';
 export type TargetAudience = 'general' | 'children' | 'teens' | 'adults' | 'seniors' | 'professionals';
 export type BookLanguage = 'fr' | 'en' | 'es' | 'pt' | 'de' | 'sw';
+export type BookLength = 'short' | 'medium' | 'long';
 
 export interface WriteChapter {
   id: string;
