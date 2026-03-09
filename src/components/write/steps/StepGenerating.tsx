@@ -42,10 +42,12 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
       body: {
         title: state.title || t('write.my_book'),
         subtitle: state.subtitle || '',
+        authorName: state.authorName || '',
         topic: state.topic || state.title || '',
         style: state.style,
         pageCount: requestedPageCount,
         chapterCount: state.chapterCount || 8,
+        keywords: state.keywords || [],
         language: state.language || 'fr',
         tone: state.tone || 'professional',
         languageLevel: state.languageLevel || 'intermediate',
