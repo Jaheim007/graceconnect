@@ -3,6 +3,8 @@ import { useOrg } from '@/contexts/OrgContext';
 import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
+import { db } from '@/lib/db';
 import {
   BarChart3, Play, Megaphone, CalendarDays, Heart, ShoppingBag,
   Users, Link2, FileCheck, Settings, ChevronDown, ArrowLeft, Loader2,
@@ -76,6 +78,30 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const [showMore, setShowMore] = useState(false);
 
+  // Progressive disclosure: fetch org stats for conditional visibility
+  const { data: orgStats } = useQuery({
+    queryKey: ['admin-layout-org-stats', currentOrg?.id],
+    queryFn: async () => {
+      if (!currentOrg?.id) return null;
+      const [{ count: productCount }, { count: saleCount }] = await Promise.all([
+        db.from('digital_products').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrg.id),
+        db.from('product_purchases').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrg.id).eq('status', 'completed'),
+      ]);
+      const affiliationEnabled = (currentOrg as any).affiliation_enabled ?? false;
+      return { products: productCount || 0, sales: saleCount || 0, affiliationEnabled };
+    },
+    enabled: !!currentOrg?.id,
+    staleTime: 60_000,
+  });
+
+  const shouldShow = (condition?: string) => {
+    if (!condition || condition === 'always') return true;
+    if (condition === 'has-products') return (orgStats?.products ?? 0) > 0;
+    if (condition === 'has-sales') return (orgStats?.sales ?? 0) > 0;
+    if (condition === 'affiliation-enabled') return orgStats?.affiliationEnabled ?? false;
+    return true;
+  };
+
   if (isLoadingOrgs && !currentOrg) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -95,7 +121,7 @@ export default function AdminLayout() {
     );
   }
 
-  const mobileSecondaryLinks = adminLinks.filter(l => !mobilePrimaryLinks.some(p => p.to === l.to));
+  const mobileSecondaryLinks = adminLinks.filter(l => !mobilePrimaryLinks.some(p => p.to === l.to) && shouldShow(l.showWhen));
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
@@ -182,7 +208,7 @@ export default function AdminLayout() {
         {/* Desktop sidebar */}
         <aside className="hidden lg:flex flex-col w-52 border-r border-border/60 min-h-[calc(100vh-5rem)] p-3 gap-0.5 shrink-0 bg-card/30">
           {['main', 'create', 'sell', 'manage', 'more'].map((group) => {
-            const groupItems = adminLinks.filter(l => l.group === group);
+            const groupItems = adminLinks.filter(l => l.group === group && shouldShow(l.showWhen));
             const { label, icon: GroupIcon } = groupLabels[group];
             const isMoreGroup = group === 'more';
 

@@ -18,7 +18,7 @@ import { Progress } from '@/components/ui/progress';
 import PartnerPendingPopup from '@/components/partner/PartnerPendingPopup';
 import { QuickStartPaths } from '@/components/growth/QuickStartPaths';
 import { SmartNudge } from '@/components/growth/SmartNudge';
-import { InviteEarnWidget } from '@/components/social/InviteEarnWidget';
+
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 12 },
@@ -332,10 +332,6 @@ export default function UserDashboard() {
           )}
         </motion.div>
 
-        {/* Invite & Earn — en bas */}
-        <motion.div {...fadeUp(0.25)}>
-          <InviteEarnWidget />
-        </motion.div>
       </div>
       <PartnerPendingPopup />
     </div>

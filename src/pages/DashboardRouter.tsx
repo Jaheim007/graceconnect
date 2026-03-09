@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { PenLine, Share2, Upload, Store, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FirstWinChecklist } from '@/components/dashboard/FirstWinChecklist';
-import { InviteEarnWidget } from '@/components/referral/InviteEarnWidget';
+
 import { TrendingProducts } from '@/components/discover/TrendingProducts';
 import { GrowthTipsWidget } from '@/components/growth/GrowthTipsWidget';
 import AmbassadorDashboard from '@/pages/AmbassadorDashboard';
@@ -108,8 +108,6 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
       {/* ═══ ZONE 4 — Produits tendance (preuve sociale) ═══ */}
       <TrendingProducts limit={4} />
 
-      {/* ═══ ZONE 5 — Invite & Earn ═══ */}
-      <InviteEarnWidget />
 
       {/* ═══ ZONE 6 — Tips ═══ */}
       <GrowthTipsWidget category="all" />

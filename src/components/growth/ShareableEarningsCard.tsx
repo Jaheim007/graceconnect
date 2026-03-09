@@ -38,7 +38,7 @@ export function ShareableEarningsCard() {
   const displayName = profile?.display_name?.split(' ')[0] || 'Ambassadeur';
 
   const shareOnWhatsApp = () => {
-    const msg = `🔥 J'ai gagné ${fmt(stats.totalEarned)} en partageant des produits sur Siteviral !\n\n💰 ${stats.totalSales} ventes réalisées\n📲 Rejoins-moi et commence à gagner toi aussi !\n\nhttps://siteviral.com/marketplace${profile?.referral_code ? `?ref=${profile.referral_code}` : ''}`;
+    const msg = `🔥 J'ai gagné ${fmt(stats.totalEarned)} en partageant des produits sur Siteviral !\n\n💰 ${stats.totalSales} ventes réalisées\n📲 Rejoins-moi et commence à gagner toi aussi !\n\nhttps://siteviral.com/marketplace`;
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
