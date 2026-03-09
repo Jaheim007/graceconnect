@@ -34,6 +34,8 @@ import { SocialSnippetsViewer } from '@/components/products/SocialSnippetsViewer
 import { SuggestedPriceHint } from '@/components/admin/SuggestedPriceHint';
 import { ContextTip } from '@/components/admin/ContextualTooltips';
 import { PrintableQRCode } from '@/components/sharing/PrintableQRCode';
+import { ContentVersionHistory } from '@/components/admin/ContentVersionHistory';
+import { ContextualFeedback } from '@/components/feedback/ContextualFeedback';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { usePdfPreviewBlobUrl } from '@/hooks/usePdfPreviewBlobUrl';
 
