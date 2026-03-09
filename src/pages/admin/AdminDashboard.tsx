@@ -442,6 +442,9 @@ export default function AdminDashboard() {
             {/* Bundles */}
             <BundleManager />
 
+            {/* Smart promotion suggestions */}
+            <SmartPromotionSuggestions />
+
             {/* Suggestions + Benchmark */}
             <div className="grid lg:grid-cols-2 gap-3">
               <ContentSuggestionEngine />
