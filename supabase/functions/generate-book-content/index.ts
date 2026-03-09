@@ -864,6 +864,10 @@ function getTitleGuidance(lang: string, style: string, profile: EditorialProfile
   if (profile === 'business_manual') return 'STRICTLY functional titles: "What is X?", "Procedure Y", "Checklist Z".';
   if (profile === 'leadership') return 'Principle-driven titles with impact promise.';
   if (profile === 'spiritual_warfare') return 'Direct, authoritative, often capitalized titles.';
+  if (profile === 'simple_prayers') return 'Warm thematic titles: "Prayers for Inner Peace", "Gratitude and Praise".';
+  if (profile === 'islamic_devotional') return 'Respectful titles with formulas: "Du\'as for Divine Guidance", "Morning and Evening Invocations".';
+  if (profile === 'proclamations') return 'STRONG affirmative titles: "I AM BLESSED", "DECLARATIONS OF VICTORY".';
+  if (profile === 'religious_teaching') return 'Academic but accessible: "Understanding Grace", "What Does the Text Really Teach?".';
   if (profile === 'devotional_journal') return 'Numbered thematic titles: "Day 1 — Trust", "Day 15 — Letting Go".';
   if (profile === 'activity_workbook') return 'Engaging playful titles with emojis: "🎯 Chapter 3: Discover Your Talents!"';
   if (profile === 'coloring_book') return 'Short visual titles with emojis: "🦁 Safari Animals", "🌸 Enchanted Garden"';
