@@ -18,6 +18,7 @@ import { OfflineIndicator } from '@/components/network/OfflineIndicator';
 import { BackToTopProgress } from '@/components/ui/BackToTopProgress';
 import { PerformanceWidget } from '@/components/dev/PerformanceWidget';
 import { CelebrationOverlay } from '@/components/celebrations/CelebrationOverlay';
+import { NpsSurvey } from '@/components/feedback/NpsSurvey';
 
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
 
