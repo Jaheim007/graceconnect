@@ -454,8 +454,66 @@ export default function WriteWizard() {
     navigate('/');
   }, [step, saveCurrentDraftNow, navigate]);
 
-  const handleLoadDraft = useCallback((targetDraftId: string) => {
+  const handleLoadDraft = useCallback(async (targetDraftId: string) => {
     if (targetDraftId === draftId) return;
+
+    // Handle DB-backed drafts (id starts with "db:")
+    if (targetDraftId.startsWith('db:')) {
+      const projectId = targetDraftId.slice(3);
+      if (step < CELEBRATION_STEP) saveCurrentDraftNow();
+
+      try {
+        const { data: project } = await supabase
+          .from('ai_content_projects')
+          .select('*')
+          .eq('id', projectId)
+          .single();
+
+        if (!project) {
+          toast({ title: `⚠️ ${t('write.draft_not_found')}`, variant: 'destructive' });
+          return;
+        }
+
+        const dataJson = (project.data_json || {}) as any;
+        const structJson = (project.structure_json || {}) as any;
+
+        // Reconstruct WriteState from DB project
+        const restoredState: WriteState = {
+          ...initialState,
+          title: project.title || '',
+          topic: project.description || dataJson.topic || '',
+          style: dataJson.style || 'ebook',
+          language: (project.language as BookLanguage) || 'fr',
+          chapters: (structJson.chapters || dataJson.chapters || []).map((ch: any, idx: number) => ({
+            id: ch.id || `ch-${idx + 1}`,
+            title: ch.title || '',
+            content: ch.content || '',
+          })),
+          chapterIllustrations: dataJson.chapter_illustrations || {},
+          coverUrl: dataJson.cover_url || '',
+          pageCount: dataJson.page_count || 20,
+          projectId: project.id,
+        };
+
+        const restoredStep = clampDraftStep(typeof structJson.step === 'number' ? structJson.step : 4);
+
+        // Create a local draft from it
+        const newDraftId = createDraftId();
+        const { store, updatedAt } = saveDraftSnapshot(newDraftId, restoredState, restoredStep);
+        dbSyncRef.current = project.id;
+
+        setDraftId(newDraftId);
+        setState(restoredState);
+        setStep(restoredStep);
+        setLastSavedAt(updatedAt);
+        syncDraftList(store, newDraftId);
+
+        toast({ title: `✅ ${t('write.draft_loaded')}` });
+      } catch (err: any) {
+        toast({ title: `❌ Erreur`, description: err?.message, variant: 'destructive' });
+      }
+      return;
+    }
 
     if (step < CELEBRATION_STEP) saveCurrentDraftNow();
 
