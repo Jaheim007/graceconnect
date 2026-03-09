@@ -51,12 +51,15 @@ export interface WriteState {
   uploadedFile: File | null;
   transcribing: boolean;
   title: string;
+  subtitle: string;
   style: BookStyle;
   tone: WritingTone;
   languageLevel: LanguageLevel;
   targetAudience: TargetAudience;
   language: BookLanguage;
   styleReference: string;
+  bookLength: BookLength;
+  chapterCount: number;
   pageCount: number;
   editorialStrategy?: EditorialStrategy;
   chapters: WriteChapter[];
