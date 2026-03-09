@@ -50,6 +50,8 @@ export function MediaForm() {
   const isEdit = !!id;
   const [loading, setLoading] = useState(false);
   const [showAI, setShowAI] = useState(false);
+  const qc = useQueryClient();
+  const [showAI, setShowAI] = useState(false);
 
   const { data: item } = useQuery({
     queryKey: ['media-item', id],
