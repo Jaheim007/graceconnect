@@ -100,13 +100,15 @@ export function ProductForm() {
   const [selectedRecommendation, setSelectedRecommendation] = useState('');
   const [recommendationType, setRecommendationType] = useState<string>('related');
 
-  const { data: item } = useQuery({
+  const { data: item, isLoading: isLoadingItem, isError: isItemError } = useQuery({
     queryKey: ['product-item', id],
     queryFn: async () => {
-      const { data } = await db.from('digital_products').select('*').eq('id', id).single();
+      const { data, error } = await db.from('digital_products').select('*').eq('id', id!).maybeSingle();
+      if (error) throw error;
       return data;
     },
-    enabled: isEdit,
+    enabled: isEdit && !!id,
+    retry: 2,
   });
 
   const { register, handleSubmit, setValue, watch, reset, formState: { errors } } = useForm<FormData>({
