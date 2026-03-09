@@ -583,10 +583,10 @@ export function ProductForm() {
               <Label className="text-xs font-medium">Order Bump (ajout au panier)</Label>
               <p className="text-[10px] text-muted-foreground">Proposer un produit complémentaire à prix réduit lors du checkout.</p>
               <div className="grid grid-cols-2 gap-2">
-                <Select value={orderBumpProductId} onValueChange={setOrderBumpProductId}>
+                <Select value={orderBumpProductId || '_none'} onValueChange={(v) => setOrderBumpProductId(v === '_none' ? '' : v)}>
                   <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Aucun" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Aucun</SelectItem>
+                    <SelectItem value="_none">Aucun</SelectItem>
                     {allProducts.filter((p: any) => p.id !== id && !p.is_free).map((p: any) => (
                       <SelectItem key={p.id} value={p.id}>{p.title} — {p.price?.toLocaleString()} {currentOrg?.currency || 'XOF'}</SelectItem>
                     ))}
