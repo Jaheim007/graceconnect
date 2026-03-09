@@ -83,17 +83,31 @@ Deno.serve(async (req) => {
       .eq('id', project_id).eq('organization_id', org_id).single();
     if (projErr || !project) return jsonError('Project not found', 404);
 
-    const [{ data: coverAsset }, { data: org }, { data: linkedProduct }] = await Promise.all([
+    const [{ data: coverAsset }, { data: org }, { data: linkedProduct }, { data: chapterIllustrations }] = await Promise.all([
       admin.from('ai_project_assets').select('file_url')
         .eq('project_id', project_id).eq('is_cover', true).maybeSingle(),
       admin.from('organizations').select('name').eq('id', org_id).maybeSingle(),
       admin.from('digital_products').select('id, cover_image_url')
         .eq('ai_project_id', project_id).eq('organization_id', org_id).maybeSingle(),
+      admin.from('ai_project_assets').select('file_url, label, display_order')
+        .eq('project_id', project_id).eq('asset_type', 'illustration')
+        .order('display_order', { ascending: true }),
     ]);
 
     const resolvedCoverUrl = asText(coverAsset?.file_url, '')
       || asText(linkedProduct?.cover_image_url, '')
       || asText(directCoverUrl, '');
+
+    // Build chapter illustration map (by display_order = chapter index)
+    const illustrationMap: Record<number, string> = {};
+    if (chapterIllustrations && chapterIllustrations.length > 0) {
+      for (const ill of chapterIllustrations) {
+        const idx = ill.display_order ?? -1;
+        if (idx >= 0 && ill.file_url) {
+          illustrationMap[idx] = ill.file_url;
+        }
+      }
+    }
 
     const projectData = (project.structure_json || project.data_json || {}) as { chapters?: ChapterInput[] };
     const chapters = Array.isArray(projectData.chapters) ? projectData.chapters : [];
@@ -107,6 +121,7 @@ Deno.serve(async (req) => {
       coverUrl: resolvedCoverUrl,
       pageSize: normalizedPageSize,
       format: projectFormat,
+      chapterIllustrations: illustrationMap,
     });
 
     const storagePath = `${org_id}/${project_id}/exports/document-${Date.now()}.pdf`;
