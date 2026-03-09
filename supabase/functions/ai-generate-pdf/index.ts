@@ -440,6 +440,7 @@ const C = {
 async function buildProfessionalPdf(opts: {
   title: string; subtitle: string; orgName: string; language: string;
   chapters: ChapterInput[]; coverUrl: string; pageSize: 'A4' | 'LETTER'; format: string;
+  chapterIllustrations?: Record<number, string>;
 }) {
   const pdfDoc = await PDFDocument.create();
 
