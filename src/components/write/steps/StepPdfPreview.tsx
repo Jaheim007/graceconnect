@@ -112,7 +112,7 @@ export function StepPdfPreview({ state, update, onNext, onBack, onSaveDraft, sav
               <div
                 className="prose prose-sm dark:prose-invert max-w-none leading-relaxed text-foreground/90"
                 dangerouslySetInnerHTML={{
-                  __html: currentChapter?.content || '<p class="text-muted-foreground italic">Contenu vide</p>',
+                  __html: currentChapter?.content || `<p class="text-muted-foreground italic">${t('write.empty_content')}</p>`,
                 }}
               />
             </div>
