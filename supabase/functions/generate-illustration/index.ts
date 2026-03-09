@@ -10,6 +10,7 @@ const artStylePrompts: Record<string, string> = {
   watercolor: 'watercolor painting style, soft washes of color, artistic and elegant, fluid brushstrokes, delicate details',
   cartoon: 'modern cartoon illustration, bold colors, clean lines, fun and engaging, digital art style',
   realistic: 'realistic digital painting, detailed and lifelike, professional book illustration, rich colors and lighting',
+  line_art: 'black and white line art for coloring book, clean bold outlines only, NO shading NO fills NO colors NO gradients, thick black contour lines on pure white background, simple shapes suitable for coloring with crayons or markers, large areas to color in, children-friendly coloring page design',
 };
 
 const audiencePrompts: Record<string, string> = {
