@@ -78,6 +78,30 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const [showMore, setShowMore] = useState(false);
 
+  // Progressive disclosure: fetch org stats for conditional visibility
+  const { data: orgStats } = useQuery({
+    queryKey: ['admin-layout-org-stats', currentOrg?.id],
+    queryFn: async () => {
+      if (!currentOrg?.id) return null;
+      const [{ count: productCount }, { count: saleCount }] = await Promise.all([
+        db.from('digital_products').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrg.id),
+        db.from('product_purchases').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrg.id).eq('status', 'completed'),
+      ]);
+      const affiliationEnabled = (currentOrg as any).affiliation_enabled ?? false;
+      return { products: productCount || 0, sales: saleCount || 0, affiliationEnabled };
+    },
+    enabled: !!currentOrg?.id,
+    staleTime: 60_000,
+  });
+
+  const shouldShow = (condition?: string) => {
+    if (!condition || condition === 'always') return true;
+    if (condition === 'has-products') return (orgStats?.products ?? 0) > 0;
+    if (condition === 'has-sales') return (orgStats?.sales ?? 0) > 0;
+    if (condition === 'affiliation-enabled') return orgStats?.affiliationEnabled ?? false;
+    return true;
+  };
+
   if (isLoadingOrgs && !currentOrg) {
     return (
       <div className="min-h-screen flex items-center justify-center">
