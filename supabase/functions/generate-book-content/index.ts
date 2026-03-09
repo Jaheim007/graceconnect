@@ -246,19 +246,64 @@ FORMAT :
 - Tension narrative, rebondissements
 - Fin qui donne envie de relire ou qui marque le lecteur`,
 
-    devotional: `STRUCTURE DE MÉDITATIONS QUOTIDIENNES :
-- Format numéroté : "Jour 1", "Jour 2"...
-- Chaque méditation : verset sacré en <blockquote> avec référence complète → réflexion personnelle de l'auteur → application pratique concrète → prière courte
-- Ton intime et personnel, comme un journal spirituel
-- L'auteur partage ses PROPRES expériences de foi
-- 30 ou 90 jours`,
+    devotional: `STRUCTURE DE VRAI JOURNAL SPIRITUEL / DÉVOTION QUOTIDIENNE (inspiré de "Jesus Calling" de Sarah Young et "Chaque Jour les Écritures") :
 
-    activity: `STRUCTURE INTERACTIVE (Cahier d'activités) :
-- Exercices variés : quiz, questions de réflexion, espaces à remplir (_____)
-- Chaque activité a un objectif pédagogique clair
-- Instructions simples et encourageantes
-- Réponses en fin de chapitre
-- Illustrations décrites entre [crochets]`,
+STRUCTURE OBLIGATOIRE :
+1. FORMAT NUMÉROTÉ systématique : "Jour 1", "Jour 2"... (ou "Méditation 1", etc.)
+2. CHAQUE MÉDITATION suit ce schéma EXACT :
+   a) VERSET DU JOUR en <blockquote> avec référence COMPLÈTE (Livre Chapitre:Verset)
+   b) RÉFLEXION DE L'AUTEUR — ton intime, personnel, comme un journal. L'auteur parle à la PREMIÈRE PERSONNE de SES expériences ("J'ai vécu un moment où...", "Un matin, en priant, j'ai compris que...")
+   c) APPLICATION CONCRÈTE — une action précise pour aujourd'hui ("Aujourd'hui, prenez 5 minutes pour...", "Écrivez dans votre journal...")
+   d) PRIÈRE COURTE — 3-5 phrases, personnelle et sincère
+3. PROGRESSION THÉMATIQUE sur 30, 60 ou 90 jours (pas des méditations aléatoires)
+4. PREMIER JOUR = Introduction + comment utiliser ce journal
+5. DERNIER JOUR = Bilan + engagement de persévérance
+
+STYLE :
+- Ton intime, chaleureux mais JAMAIS mièvre
+- Comme une conversation entre l'auteur et Dieu, que le lecteur écoute
+- Versets tirés de DIFFÉRENTS livres de la Bible (pas toujours les mêmes)
+- Chaque méditation = 300-500 mots (concis, pas de remplissage)
+
+INTERDIT : sermon magistral, ton académique, listes de règles. C'est un JOURNAL SPIRITUEL, pas un cours de théologie.`,
+
+    activity: `STRUCTURE DE VRAI CAHIER D'ACTIVITÉS / WORKBOOK PROFESSIONNEL (inspiré de cahiers pédagogiques publiés) :
+
+STRUCTURE OBLIGATOIRE :
+1. PAGE D'ACCUEIL DU CHAPITRE : titre engageant + icône/emoji + "Ce que tu vas apprendre" (3 points)
+2. CHAQUE CHAPITRE = 5-8 ACTIVITÉS VARIÉES parmi :
+   - ✏️ QUIZ à choix multiples (A/B/C/D) avec cases à cocher □
+   - 📝 QUESTIONS OUVERTES avec lignes de réponse : ___________________________
+   - 🧩 EXERCICES DE CORRESPONDANCE (Relie la colonne A à la colonne B)
+   - 🎨 ESPACES CRÉATIFS : "Dessine ici..." avec cadre vide [ESPACE DESSIN]
+   - 🔍 MOTS CACHÉS ou MOTS CROISÉS (grille formatée en <table>)
+   - ✅ VRAI ou FAUX avec cases □ VRAI □ FAUX
+   - 📖 TEXTES À TROUS : "Le soleil est une _______ qui produit de la _______ et de la _______."
+   - 🎯 DÉFIS PRATIQUES : "Cette semaine, essaie de..."
+   - 🗣️ ACTIVITÉS DE GROUPE : "Avec un ami, discutez de..."
+   - 📊 TABLEAUX À REMPLIR avec colonnes vides
+3. CHAQUE ACTIVITÉ a :
+   - Un OBJECTIF PÉDAGOGIQUE clair ("Tu apprendras à...")
+   - Des INSTRUCTIONS simples, directes, encourageantes
+   - Un NIVEAU DE DIFFICULTÉ visuel (⭐, ⭐⭐, ⭐⭐⭐)
+   - De l'ESPACE pour écrire/dessiner (représenté par des lignes, des cases, des cadres)
+4. FIN DE CHAPITRE = "📋 CORRIGÉ" avec les réponses des quiz/exercices
+5. DERNIER CHAPITRE = "🏆 Certificat de réussite" + bilan des apprentissages
+
+FORMAT HTML SPÉCIFIQUE :
+- <table> pour les grilles, correspondances, tableaux à remplir
+- <ul><li>□ pour les choix multiples et vrai/faux
+- <hr/> entre chaque activité
+- <strong>Activité N :</strong> pour numéroter
+- [ESPACE DESSIN], [ESPACE RÉPONSE], [LIGNES RÉPONSE] pour les espaces interactifs
+- Emojis abondants pour rendre le cahier vivant et engageant
+
+ADAPTATION AU PUBLIC :
+- ENFANTS (6-10 ans) : phrases courtes, vocabulaire simple, beaucoup de dessins, couleurs, mascottes
+- ADOLESCENTS : défis, quiz culture, activités sociales, ton dynamique
+- ADULTES : exercices de réflexion, auto-évaluation, plans d'action, journaling
+
+INTERDIT : longs paragraphes de texte, ton magistral, exercices monotones. C'est un cahier INTERACTIF, pas un manuel scolaire.`,
   },
   en: {
     ebook: `REAL PERSONAL DEVELOPMENT BOOK STRUCTURE (inspired by Myles Munroe "Understanding Your Potential" and Gary Chapman):
@@ -309,8 +354,28 @@ FORMAT:
 - PURE PROSE: no lists, no sub-headings`,
 
     novel: `Full novelistic structure: immersive chapters, named characters, dash dialogues (—), narrative arc, tension, resolution.`,
-    devotional: `Daily meditations: Day 1, Day 2... Each with verse + personal reflection + application + prayer.`,
-    activity: `Interactive: quizzes, fill-in spaces, creative challenges. Clear objectives per activity.`,
+    devotional: `REAL DAILY DEVOTIONAL STRUCTURE (inspired by "Jesus Calling", "Our Daily Bread"):
+- Numbered format: "Day 1", "Day 2"... (or "Meditation 1", etc.)
+- Each entry follows: VERSE in <blockquote> with full reference → AUTHOR'S PERSONAL REFLECTION (first person, intimate) → CONCRETE APPLICATION for today → SHORT PRAYER (3-5 sentences)
+- Thematic progression over 30/60/90 days
+- First day = intro + how to use this journal
+- Tone: intimate, warm, like a spiritual diary. NOT a lecture.`,
+    activity: `PROFESSIONAL ACTIVITY BOOK / WORKBOOK STRUCTURE:
+1. CHAPTER LANDING: engaging title + emoji + "What you'll learn" (3 points)
+2. EACH CHAPTER = 5-8 VARIED ACTIVITIES:
+   - ✏️ MULTIPLE CHOICE QUIZ (A/B/C/D) with checkboxes □
+   - 📝 OPEN QUESTIONS with answer lines: ___________________________
+   - 🧩 MATCHING EXERCISES (Match column A to column B)
+   - 🎨 CREATIVE SPACES: "Draw here..." with empty frame [DRAWING SPACE]
+   - ✅ TRUE or FALSE with boxes □ TRUE □ FALSE
+   - 📖 FILL-IN-THE-BLANK texts
+   - 🎯 PRACTICAL CHALLENGES: "This week, try to..."
+   - 📊 TABLES TO FILL with empty columns
+3. Each activity has: clear objective, simple instructions, difficulty level (⭐⭐⭐)
+4. END OF CHAPTER = "📋 ANSWER KEY"
+5. LAST CHAPTER = "🏆 Certificate of completion"
+HTML: <table> for grids, <ul><li>□ for choices, <hr/> between activities, emojis throughout.
+FORBIDDEN: long text paragraphs, lecture tone, monotonous exercises.`,
   },
   es: {
     ebook: `Estructura de libro real: problema, experiencia del autor, ejemplos concretos, preguntas de reflexión al final de cada capítulo.`,
@@ -536,12 +601,18 @@ STRICTLY BANNED WORDS/PHRASES:
 "Mosaic of", "Tapestry of", "Symphony of", "Alchemy of"`;
 }
 
-type EditorialProfile = 'business_manual' | 'leadership' | 'spiritual_warfare' | 'personal_growth' | 'narrative';
+type EditorialProfile = 'business_manual' | 'leadership' | 'spiritual_warfare' | 'personal_growth' | 'narrative' | 'devotional_journal' | 'activity_workbook';
 
 function detectEditorialProfile(style: string, tone: string, title: string, topic: string, audience: string): EditorialProfile {
   const haystack = `${title} ${topic}`.toLowerCase();
   const narrativeStyles = ['story', 'novel'];
   if (narrativeStyles.includes(style)) return 'narrative';
+
+  // Devotional — must be checked BEFORE spiritual_warfare
+  if (style === 'devotional') return 'devotional_journal';
+
+  // Activity book
+  if (style === 'activity') return 'activity_workbook';
 
   const spiritualSignals = ['prière', 'priere', 'anges', 'ange', 'spirituel', 'combat', 'delivrance', 'foi', 'satan', 'bataille', 'guerre', 'jesus', 'bible', 'miracle'];
   if (style === 'prayers' || tone === 'spiritual' || spiritualSignals.some((word) => haystack.includes(word))) {
@@ -586,6 +657,19 @@ function getEditorialBlueprint(lang: string, profile: EditorialProfile): string 
         return `Blueprint narratif :
 - Arcs de scènes, dialogues crédibles, ancrage temporel et géographique
 - Pas de langage de manuel ni de checklist`;
+      case 'devotional_journal':
+        return `Blueprint dévotion quotidienne :
+- Chaque entrée = 1 verset (blockquote) + réflexion intime 1ère personne + application concrète + prière courte
+- Progression thématique cohérente sur la durée du journal
+- Ton personnel et chaleureux — PAS un sermon, PAS un cours
+- Varier les livres bibliques cités (AT + NT)`;
+      case 'activity_workbook':
+        return `Blueprint cahier d'activités :
+- Chaque chapitre = 5-8 activités VARIÉES en types (quiz, vrai/faux, dessin, texte à trous, correspondance, défi)
+- Chaque activité = objectif + instructions + espace de réponse + niveau de difficulté
+- Corrigé en fin de chapitre
+- Adapté au public cible (enfants = simple/coloré, ados = dynamique, adultes = réflexif)
+- Format interactif : cases □, lignes _____, tableaux <table>, émojis`;
       default:
         return `Blueprint développement personnel :
 - Question centrale → démonstration → outils concrets → mise en pratique
@@ -602,6 +686,10 @@ function getEditorialBlueprint(lang: string, profile: EditorialProfile): string 
       return `Leadership blueprint: one principle per chapter, one memorable line, one field application, then immediate actions.`;
     case 'narrative':
       return `Narrative blueprint: scene arcs, credible dialogue, time/place anchoring, no handbook-style sections.`;
+    case 'devotional_journal':
+      return `Devotional blueprint: each entry = 1 verse (blockquote) + intimate first-person reflection + concrete application + short prayer. Thematic progression. Warm personal tone, NOT a lecture.`;
+    case 'activity_workbook':
+      return `Activity workbook blueprint: 5-8 varied activities per chapter (quiz, true/false, matching, fill-in-blank, creative, challenges). Clear objectives, answer key at end. Adapted to target audience.`;
     default:
       return `Personal growth blueprint: core question → explanation → practical tools → reader application.`;
   }
@@ -612,6 +700,8 @@ function getTemperatureForProfile(profile: EditorialProfile, isNarrative: boolea
   if (profile === 'business_manual') return 0.38;
   if (profile === 'leadership') return 0.42;
   if (profile === 'spiritual_warfare') return 0.45;
+  if (profile === 'devotional_journal') return 0.50;
+  if (profile === 'activity_workbook') return 0.42;
   return 0.44;
 }
 
@@ -626,6 +716,12 @@ function getTitleGuidance(lang: string, style: string, profile: EditorialProfile
     if (profile === 'spiritual_warfare') {
       return 'Titres DIRECTS ET AUTORITAIRES (souvent en MAJUSCULES) : "IL Y A UNE GUERRE", "VOTRE STATUT EN CHRIST", "DÉCLAREZ LA VICTOIRE".';
     }
+    if (profile === 'devotional_journal') {
+      return 'Titres numérotés et thématiques : "Jour 1 — La confiance", "Jour 15 — Lâcher prise". Le numéro du jour EST le titre.';
+    }
+    if (profile === 'activity_workbook') {
+      return 'Titres engageants et ludiques : "🎯 Chapitre 3 : Découvre tes talents !", "🧩 Les animaux du monde". Utiliser des emojis.';
+    }
     if (style === 'story' || style === 'novel') {
       return 'Titres ÉVOCATEURS et littéraires, non techniques.';
     }
@@ -635,6 +731,8 @@ function getTitleGuidance(lang: string, style: string, profile: EditorialProfile
   if (profile === 'business_manual') return 'STRICTLY functional titles: "What is X?", "Procedure Y", "Checklist Z".';
   if (profile === 'leadership') return 'Principle-driven titles with impact promise.';
   if (profile === 'spiritual_warfare') return 'Direct, authoritative, often capitalized titles.';
+  if (profile === 'devotional_journal') return 'Numbered thematic titles: "Day 1 — Trust", "Day 15 — Letting Go".';
+  if (profile === 'activity_workbook') return 'Engaging playful titles with emojis: "🎯 Chapter 3: Discover Your Talents!"';
   if (style === 'story' || style === 'novel') return 'Evocative literary titles.';
   return 'Clear, precise, result-oriented titles.';
 }
