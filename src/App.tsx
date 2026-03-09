@@ -502,6 +502,7 @@ const App = () => (
                   <Route path="studio/policies" element={<SuperadminAiPolicies />} />
                   <Route path="studio/jobs" element={<SuperadminGlobalJobs />} />
                   <Route path="studio/abuse-monitor" element={<SuperadminAiAbuse />} />
+                  <Route path="health" element={<Suspense fallback={<PageLoader />}><SuperadminHealthDashboard /></Suspense>} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />
