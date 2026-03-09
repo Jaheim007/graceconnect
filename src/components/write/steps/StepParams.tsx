@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, BookMarked, Users, Baby, User, Briefcase, UserCog, Globe, Wand2, Sparkles, Loader2, BookText, Palette, PenTool } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, Users, Baby, User, Briefcase, UserCog, Globe, Wand2, Sparkles, Loader2, BookText, Palette, PenTool, ChevronDown, ChevronUp, Tag, UserPen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,6 +22,8 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
   const { toast } = useToast();
   const [suggestingTitles, setSuggestingTitles] = useState(false);
   const [titleSuggestions, setTitleSuggestions] = useState<string[]>([]);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [keywordInput, setKeywordInput] = useState('');
 
   const styles: { type: BookStyle; icon: typeof BookOpen; label: string; desc: string }[] = [
     { type: 'ebook', icon: BookOpen, label: t('write.style_ebook'), desc: t('write.style_ebook_desc') },
@@ -59,10 +61,10 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
     { type: 'sw', flag: '🇰🇪', label: t('write.lang_sw') },
   ];
 
-  const bookLengths: { type: BookLength; label: string; desc: string; pages: string; chapters: string }[] = [
-    { type: 'short', label: t('write.length_short') || 'Court', desc: t('write.length_short_desc') || 'Livret, guide rapide', pages: '30-50', chapters: '3-6' },
-    { type: 'medium', label: t('write.length_medium') || 'Moyen', desc: t('write.length_medium_desc') || 'Livre standard', pages: '50-100', chapters: '7-12' },
-    { type: 'long', label: t('write.length_long') || 'Long', desc: t('write.length_long_desc') || 'Ouvrage complet', pages: '100-200', chapters: '12-20' },
+  const bookLengths: { type: BookLength; label: string; desc: string; pages: string }[] = [
+    { type: 'short', label: t('write.length_short') || 'Court', desc: t('write.length_short_desc') || 'Livret, guide rapide', pages: '30-50' },
+    { type: 'medium', label: t('write.length_medium') || 'Moyen', desc: t('write.length_medium_desc') || 'Livre standard', pages: '50-100' },
+    { type: 'long', label: t('write.length_long') || 'Long', desc: t('write.length_long_desc') || 'Ouvrage complet', pages: '100-200' },
   ];
 
   const suggestedTitle = state.topic
@@ -70,11 +72,22 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
     : '';
   const hasSavedChapters = hasGeneratedContent(state.chapters);
 
-  // Auto-set chapter count when bookLength changes
   const handleBookLengthChange = (length: BookLength) => {
     const chapterDefaults: Record<BookLength, number> = { short: 5, medium: 8, long: 15 };
     const pageDefaults: Record<BookLength, number> = { short: 35, medium: 70, long: 150 };
     update({ bookLength: length, chapterCount: chapterDefaults[length], pageCount: pageDefaults[length] });
+  };
+
+  const addKeyword = () => {
+    const kw = keywordInput.trim();
+    if (kw && (state.keywords || []).length < 5 && !state.keywords?.includes(kw)) {
+      update({ keywords: [...(state.keywords || []), kw] });
+      setKeywordInput('');
+    }
+  };
+
+  const removeKeyword = (kw: string) => {
+    update({ keywords: (state.keywords || []).filter(k => k !== kw) });
   };
 
   const handleSuggestTitles = async () => {
@@ -110,6 +123,8 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
         <p className="text-muted-foreground text-sm">{t('write.customize_sub')}</p>
       </div>
 
+      {/* ═══ SECTION 1: Identité du livre ═══ */}
+
       {/* Title */}
       <div className="space-y-2">
         <div className="flex items-center justify-between">
@@ -136,7 +151,6 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
           placeholder={t('write.title_placeholder')}
           className="h-12 text-base"
         />
-        {/* Title suggestions */}
         {titleSuggestions.length > 0 && (
           <div className="space-y-1.5">
             {titleSuggestions.map((suggestion, i) => (
@@ -166,6 +180,21 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
         />
       </div>
 
+      {/* Author name */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium flex items-center gap-1.5">
+          <UserPen className="h-3.5 w-3.5" /> {t('write.author_label') || "Nom de l'auteur"}
+        </label>
+        <Input
+          value={state.authorName || ''}
+          onChange={e => update({ authorName: e.target.value })}
+          placeholder={t('write.author_placeholder') || 'Le nom qui apparaîtra sur votre livre'}
+          className="h-10 text-sm"
+        />
+      </div>
+
+      {/* ═══ SECTION 2: Style & Public ═══ */}
+
       {/* Style */}
       <div className="space-y-2">
         <label className="text-sm font-medium">{t('write.style_label')}</label>
@@ -183,6 +212,27 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
               <s.icon className={`h-4 w-4 mx-auto mb-1.5 ${state.style === s.type ? 'text-primary' : 'text-muted-foreground'}`} />
               <p className="font-bold text-xs">{s.label}</p>
               <p className="text-[10px] text-muted-foreground mt-0.5 hidden sm:block">{s.desc}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Target audience */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium">{t('write.audience_label')}</label>
+        <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
+          {audiences.map(a => (
+            <button
+              key={a.type}
+              onClick={() => update({ targetAudience: a.type })}
+              className={`p-2 rounded-lg border text-center transition-all ${
+                state.targetAudience === a.type
+                  ? 'border-primary bg-primary/5 text-primary'
+                  : 'border-border hover:border-primary/30 text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <a.icon className="h-3.5 w-3.5 mx-auto mb-1" />
+              <p className="text-[10px] font-semibold leading-tight">{a.label}</p>
             </button>
           ))}
         </div>
@@ -209,107 +259,141 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
         </div>
       </div>
 
-      {/* Custom style reference */}
+      {/* Keywords / Themes */}
       <div className="space-y-2">
         <label className="text-sm font-medium flex items-center gap-1.5">
-          <Wand2 className="h-3.5 w-3.5" /> {t('write.style_ref_label')}
+          <Tag className="h-3.5 w-3.5" /> {t('write.keywords_label') || 'Mots-clés / Thèmes'} <span className="text-muted-foreground font-normal text-xs">({t('common.optional') || 'optionnel'})</span>
         </label>
-        <Textarea
-          value={state.styleReference || ''}
-          onChange={e => update({ styleReference: e.target.value })}
-          placeholder={t('write.style_ref_placeholder')}
-          className="min-h-[80px] text-sm resize-none"
-          maxLength={1000}
-        />
-        <p className="text-[10px] text-muted-foreground">{t('write.style_ref_hint')}</p>
-      </div>
-
-      {/* Target audience */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium">{t('write.audience_label')}</label>
-        <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
-          {audiences.map(a => (
-            <button
-              key={a.type}
-              onClick={() => update({ targetAudience: a.type })}
-              className={`p-2 rounded-lg border text-center transition-all ${
-                state.targetAudience === a.type
-                  ? 'border-primary bg-primary/5 text-primary'
-                  : 'border-border hover:border-primary/30 text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <a.icon className="h-3.5 w-3.5 mx-auto mb-1" />
-              <p className="text-[10px] font-semibold leading-tight">{a.label}</p>
-            </button>
-          ))}
+        <div className="flex gap-2">
+          <Input
+            value={keywordInput}
+            onChange={e => setKeywordInput(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addKeyword(); } }}
+            placeholder={t('write.keywords_placeholder') || 'Ex: leadership, foi, finances...'}
+            className="h-9 text-sm flex-1"
+            maxLength={30}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            className="h-9 px-3"
+            disabled={(state.keywords || []).length >= 5 || !keywordInput.trim()}
+            onClick={addKeyword}
+          >
+            +
+          </Button>
         </div>
+        {(state.keywords || []).length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {state.keywords!.map(kw => (
+              <span
+                key={kw}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium"
+              >
+                {kw}
+                <button onClick={() => removeKeyword(kw)} className="hover:text-destructive transition-colors ml-0.5">×</button>
+              </span>
+            ))}
+          </div>
+        )}
+        <p className="text-[10px] text-muted-foreground">{t('write.keywords_hint') || 'Max 5 thèmes pour guider le contenu du livre'}</p>
       </div>
 
-      {/* Language */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium flex items-center gap-1.5">
-          <Globe className="h-3.5 w-3.5" /> {t('write.language_label')}
-        </label>
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
-          {languages.map(l => (
-            <button
-              key={l.type}
-              onClick={() => update({ language: l.type })}
-              className={`p-2 rounded-lg border text-center transition-all ${
-                state.language === l.type
-                  ? 'border-primary bg-primary/5 text-primary'
-                  : 'border-border hover:border-primary/30 text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              <span className="text-lg block">{l.flag}</span>
-              <p className="text-[10px] font-semibold leading-tight mt-0.5">{l.label}</p>
-            </button>
-          ))}
+      {/* ═══ SECTION 3: Options avancées (collapsible) ═══ */}
+      <button
+        type="button"
+        onClick={() => setShowAdvanced(!showAdvanced)}
+        className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors w-full"
+      >
+        {showAdvanced ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+        {t('write.advanced_options') || 'Options avancées'}
+      </button>
+
+      {showAdvanced && (
+        <div className="space-y-6 border-t border-border pt-4">
+          {/* Custom style reference */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium flex items-center gap-1.5">
+              <Wand2 className="h-3.5 w-3.5" /> {t('write.style_ref_label')}
+            </label>
+            <Textarea
+              value={state.styleReference || ''}
+              onChange={e => update({ styleReference: e.target.value })}
+              placeholder={t('write.style_ref_placeholder')}
+              className="min-h-[80px] text-sm resize-none"
+              maxLength={1000}
+            />
+            <p className="text-[10px] text-muted-foreground">{t('write.style_ref_hint')}</p>
+          </div>
+
+          {/* Language */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium flex items-center gap-1.5">
+              <Globe className="h-3.5 w-3.5" /> {t('write.language_label')}
+            </label>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+              {languages.map(l => (
+                <button
+                  key={l.type}
+                  onClick={() => update({ language: l.type })}
+                  className={`p-2 rounded-lg border text-center transition-all ${
+                    state.language === l.type
+                      ? 'border-primary bg-primary/5 text-primary'
+                      : 'border-border hover:border-primary/30 text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <span className="text-lg block">{l.flag}</span>
+                  <p className="text-[10px] font-semibold leading-tight mt-0.5">{l.label}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Book length */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium">{t('write.length_label') || 'Longueur du livre'}</label>
+            <div className="grid grid-cols-3 gap-2">
+              {bookLengths.map(bl => (
+                <button
+                  key={bl.type}
+                  onClick={() => handleBookLengthChange(bl.type)}
+                  className={`p-3 rounded-xl border-2 text-center transition-all ${
+                    state.bookLength === bl.type
+                      ? 'border-primary bg-primary/5'
+                      : 'border-border hover:border-primary/30 bg-card'
+                  }`}
+                >
+                  <p className="font-bold text-xs">{bl.label}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{bl.desc}</p>
+                  <p className="text-[10px] text-primary font-semibold mt-1">~{bl.pages} p.</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Chapter count */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium">
+              {t('write.chapters_label') || 'Nombre de chapitres'} : <span className="text-primary font-bold">{state.chapterCount}</span>
+            </label>
+            <Slider
+              value={[state.chapterCount]}
+              onValueChange={([v]) => update({ chapterCount: v })}
+              min={3}
+              max={20}
+              step={1}
+              className="w-full"
+            />
+            <div className="flex justify-between text-[10px] text-muted-foreground">
+              <span>3 {t('write.chapters') || 'chapitres'}</span>
+              <span>20 {t('write.chapters') || 'chapitres'}</span>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Book length */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium">{t('write.length_label') || 'Longueur du livre'}</label>
-        <div className="grid grid-cols-3 gap-2">
-          {bookLengths.map(bl => (
-            <button
-              key={bl.type}
-              onClick={() => handleBookLengthChange(bl.type)}
-              className={`p-3 rounded-xl border-2 text-center transition-all ${
-                state.bookLength === bl.type
-                  ? 'border-primary bg-primary/5'
-                  : 'border-border hover:border-primary/30 bg-card'
-              }`}
-            >
-              <p className="font-bold text-xs">{bl.label}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{bl.desc}</p>
-              <p className="text-[10px] text-primary font-semibold mt-1">~{bl.pages} p.</p>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Chapter count */}
-      <div className="space-y-3">
-        <label className="text-sm font-medium">
-          {t('write.chapters_label') || 'Nombre de chapitres'} : <span className="text-primary font-bold">{state.chapterCount}</span>
-        </label>
-        <Slider
-          value={[state.chapterCount]}
-          onValueChange={([v]) => update({ chapterCount: v })}
-          min={3}
-          max={20}
-          step={1}
-          className="w-full"
-        />
-        <div className="flex justify-between text-[10px] text-muted-foreground">
-          <span>3 {t('write.chapters') || 'chapitres'}</span>
-          <span>20 {t('write.chapters') || 'chapitres'}</span>
-        </div>
-      </div>
-
-      {/* Actions */}
+      {/* ═══ Actions ═══ */}
       <div className="flex gap-3">
         <Button variant="outline" size="lg" onClick={onBack} className="gap-2">
           <ArrowLeft className="h-4 w-4" /> {t('write.back')}

@@ -650,7 +650,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { title, subtitle, topic, style, pageCount, chapterCount: requestedChapterCount, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle, styleReference, editorialStrategy } = await req.json();
+    const { title, subtitle, authorName, topic, style, pageCount, chapterCount: requestedChapterCount, keywords, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle, styleReference, editorialStrategy } = await req.json();
 
     if (!title && !topic) {
       return new Response(JSON.stringify({ error: 'title or topic required' }), {
@@ -670,6 +670,10 @@ Deno.serve(async (req) => {
       ? '450-700'
       : chapterCount >= 6 ? '320-520' : '420-650';
     const subtitleLine = subtitle ? (lang === 'fr' ? `\nSous-titre : "${subtitle}"` : `\nSubtitle: "${subtitle}"`) : '';
+    const authorLine = authorName ? (lang === 'fr' ? `\nAuteur : ${authorName}` : `\nAuthor: ${authorName}`) : '';
+    const keywordsLine = Array.isArray(keywords) && keywords.length > 0
+      ? (lang === 'fr' ? `\nThèmes clés à couvrir : ${keywords.join(', ')}` : `\nKey themes to cover: ${keywords.join(', ')}`)
+      : '';
 
     const _tone = tone || 'professional';
     const _level = languageLevel || 'intermediate';
@@ -845,8 +849,8 @@ Return ONLY JSON:
       userPrompt = lang === 'fr'
         ? `Écris un livre COMPLET :
 
-TITRE : "${title}"${subtitleLine}
-${topic ? `SUJET : ${topic}` : ''}
+TITRE : "${title}"${subtitleLine}${authorLine}
+${topic ? `SUJET : ${topic}` : ''}${keywordsLine}
 ${editorialContext}
 INSTRUCTIONS :
 - Exactement ${chapterCount} chapitres
@@ -870,8 +874,8 @@ Retourne UNIQUEMENT un JSON valide :
 RAPPEL : ${pages} pages. Chaque chapitre ≈ ${chapterWordTarget} mots. VRAI livre, pas texte IA.`
         : `Write a COMPLETE book:
 
-TITLE: "${title}"
-${topic ? `TOPIC: ${topic}` : ''}
+TITLE: "${title}"${subtitleLine}${authorLine}
+${topic ? `TOPIC: ${topic}` : ''}${keywordsLine}
 ${editorialContext}
 INSTRUCTIONS:
 - Exactly ${chapterCount} chapters

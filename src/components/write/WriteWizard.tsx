@@ -52,6 +52,8 @@ export interface WriteState {
   transcribing: boolean;
   title: string;
   subtitle: string;
+  authorName: string;
+  keywords: string[];
   style: BookStyle;
   tone: WritingTone;
   languageLevel: LanguageLevel;
@@ -124,6 +126,8 @@ const initialState: WriteState = {
   transcribing: false,
   title: '',
   subtitle: '',
+  authorName: '',
+  keywords: [],
   style: 'ebook',
   tone: 'professional',
   languageLevel: 'intermediate',
