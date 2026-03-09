@@ -7,7 +7,7 @@ import { Slider } from '@/components/ui/slider';
 import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import type { WriteState, BookStyle, WritingTone, LanguageLevel, TargetAudience, BookLanguage } from '../WriteWizard';
+import type { WriteState, BookStyle, WritingTone, TargetAudience, BookLanguage, BookLength } from '../WriteWizard';
 import { hasGeneratedContent } from '../utils/hasGeneratedContent';
 
 interface Props {
@@ -42,12 +42,6 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
     { type: 'academic', icon: GraduationCap, label: t('write.tone_academic') },
   ];
 
-  const levels: { type: LanguageLevel; label: string; desc: string }[] = [
-    { type: 'simple', label: t('write.level_simple'), desc: t('write.level_simple_desc') },
-    { type: 'intermediate', label: t('write.level_intermediate'), desc: t('write.level_intermediate_desc') },
-    { type: 'advanced', label: t('write.level_advanced'), desc: t('write.level_advanced_desc') },
-  ];
-
   const audiences: { type: TargetAudience; icon: typeof Users; label: string }[] = [
     { type: 'general', icon: Users, label: t('write.audience_general') },
     { type: 'children', icon: Baby, label: t('write.audience_children') },
@@ -65,10 +59,23 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
     { type: 'sw', flag: '🇰🇪', label: t('write.lang_sw') },
   ];
 
+  const bookLengths: { type: BookLength; label: string; desc: string; pages: string; chapters: string }[] = [
+    { type: 'short', label: t('write.length_short') || 'Court', desc: t('write.length_short_desc') || 'Livret, guide rapide', pages: '30-50', chapters: '3-6' },
+    { type: 'medium', label: t('write.length_medium') || 'Moyen', desc: t('write.length_medium_desc') || 'Livre standard', pages: '50-100', chapters: '7-12' },
+    { type: 'long', label: t('write.length_long') || 'Long', desc: t('write.length_long_desc') || 'Ouvrage complet', pages: '100-200', chapters: '12-20' },
+  ];
+
   const suggestedTitle = state.topic
     ? state.topic.length > 40 ? state.topic.substring(0, 40) + '…' : state.topic
     : '';
   const hasSavedChapters = hasGeneratedContent(state.chapters);
+
+  // Auto-set chapter count when bookLength changes
+  const handleBookLengthChange = (length: BookLength) => {
+    const chapterDefaults: Record<BookLength, number> = { short: 5, medium: 8, long: 15 };
+    const pageDefaults: Record<BookLength, number> = { short: 35, medium: 70, long: 150 };
+    update({ bookLength: length, chapterCount: chapterDefaults[length], pageCount: pageDefaults[length] });
+  };
 
   const handleSuggestTitles = async () => {
     if (suggestingTitles) return;
@@ -146,6 +153,19 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
         )}
       </div>
 
+      {/* Subtitle */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium">
+          {t('write.subtitle_label') || 'Sous-titre'} <span className="text-muted-foreground font-normal text-xs">({t('common.optional') || 'optionnel'})</span>
+        </label>
+        <Input
+          value={state.subtitle || ''}
+          onChange={e => update({ subtitle: e.target.value })}
+          placeholder={t('write.subtitle_placeholder') || 'Ex: "Découvrir la personne que Dieu a créée"'}
+          className="h-10 text-sm"
+        />
+      </div>
+
       {/* Style */}
       <div className="space-y-2">
         <label className="text-sm font-medium">{t('write.style_label')}</label>
@@ -204,27 +224,6 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
         <p className="text-[10px] text-muted-foreground">{t('write.style_ref_hint')}</p>
       </div>
 
-      {/* Language level */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium">{t('write.level_label')}</label>
-        <div className="grid grid-cols-3 gap-2">
-          {levels.map(l => (
-            <button
-              key={l.type}
-              onClick={() => update({ languageLevel: l.type })}
-              className={`p-3 rounded-xl border-2 text-center transition-all ${
-                state.languageLevel === l.type
-                  ? 'border-primary bg-primary/5'
-                  : 'border-border hover:border-primary/30 bg-card'
-              }`}
-            >
-              <p className="font-bold text-xs">{l.label}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{l.desc}</p>
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Target audience */}
       <div className="space-y-2">
         <label className="text-sm font-medium">{t('write.audience_label')}</label>
@@ -269,22 +268,44 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
         </div>
       </div>
 
-      {/* Page count */}
+      {/* Book length */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium">{t('write.length_label') || 'Longueur du livre'}</label>
+        <div className="grid grid-cols-3 gap-2">
+          {bookLengths.map(bl => (
+            <button
+              key={bl.type}
+              onClick={() => handleBookLengthChange(bl.type)}
+              className={`p-3 rounded-xl border-2 text-center transition-all ${
+                state.bookLength === bl.type
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border hover:border-primary/30 bg-card'
+              }`}
+            >
+              <p className="font-bold text-xs">{bl.label}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{bl.desc}</p>
+              <p className="text-[10px] text-primary font-semibold mt-1">~{bl.pages} p.</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Chapter count */}
       <div className="space-y-3">
         <label className="text-sm font-medium">
-          {t('write.pages_label')} : <span className="text-primary font-bold">{state.pageCount}</span>
+          {t('write.chapters_label') || 'Nombre de chapitres'} : <span className="text-primary font-bold">{state.chapterCount}</span>
         </label>
         <Slider
-          value={[state.pageCount]}
-          onValueChange={([v]) => update({ pageCount: v })}
-          min={10}
-          max={50}
-          step={5}
+          value={[state.chapterCount]}
+          onValueChange={([v]) => update({ chapterCount: v })}
+          min={3}
+          max={20}
+          step={1}
           className="w-full"
         />
         <div className="flex justify-between text-[10px] text-muted-foreground">
-          <span>10 pages</span>
-          <span>50 pages</span>
+          <span>3 {t('write.chapters') || 'chapitres'}</span>
+          <span>20 {t('write.chapters') || 'chapitres'}</span>
         </div>
       </div>
 
@@ -308,4 +329,3 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
     </div>
   );
 }
-

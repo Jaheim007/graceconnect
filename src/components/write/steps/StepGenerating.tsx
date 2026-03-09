@@ -41,9 +41,11 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
     const generationPromise = supabase.functions.invoke('generate-book-content', {
       body: {
         title: state.title || t('write.my_book'),
+        subtitle: state.subtitle || '',
         topic: state.topic || state.title || '',
         style: state.style,
         pageCount: requestedPageCount,
+        chapterCount: state.chapterCount || 8,
         language: state.language || 'fr',
         tone: state.tone || 'professional',
         languageLevel: state.languageLevel || 'intermediate',
