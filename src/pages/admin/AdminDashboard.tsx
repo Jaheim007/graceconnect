@@ -290,6 +290,7 @@ export default function AdminDashboard() {
       ═══════════════════════════════════════════ */}
       <OnboardingChecklist />
       <TimeSinceLastSale />
+      <SmartCoach />
       <SmartNextAction />
       <AdminGrowthSuggestions />
 
