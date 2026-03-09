@@ -240,7 +240,7 @@ export function OnboardingTour() {
                 <button
                   onClick={finish}
                   className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                  aria-label="Close tour"
+                  aria-label="Fermer le guide"
                 >
                   <X className="h-4 w-4" />
                 </button>

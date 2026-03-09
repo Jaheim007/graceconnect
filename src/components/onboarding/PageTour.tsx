@@ -53,7 +53,7 @@ export function PageTour({ pageId, steps }: PageTourProps) {
         <button
           onClick={dismiss}
           className="absolute top-3 right-3 h-6 w-6 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-          aria-label="Close"
+          aria-label="Fermer"
         >
           <X className="h-3.5 w-3.5" />
         </button>
