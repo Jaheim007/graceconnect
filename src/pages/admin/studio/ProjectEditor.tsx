@@ -464,7 +464,7 @@ export default function ProjectEditor() {
     mutationFn: async () => {
       if (!id) return;
       const { error } = await db.from('ai_content_projects')
-        .update({ structure_json: { chapters }, updated_at: new Date().toISOString() })
+        .update({ structure_json: { chapters } as any, updated_at: new Date().toISOString() })
         .eq('id', id);
       if (error) throw error;
     },
