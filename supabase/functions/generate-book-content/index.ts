@@ -156,72 +156,70 @@ const audienceMap: Record<string, Record<string, string>> = {
 
 const styleFormatMap: Record<string, Record<string, string>> = {
   fr: {
-    ebook: `STRUCTURE DE VRAI LIVRE DE DÉVELOPPEMENT PERSONNEL (inspiré de Myles Munroe "Understanding Your Potential" et Gary Chapman) :
+    ebook: `STRUCTURE DE VRAI LIVRE DE DÉVELOPPEMENT / LEADERSHIP (inspiré de Myles Munroe, Gary Chapman et John C. Maxwell) :
 
 STRUCTURE OBLIGATOIRE DU LIVRE :
-1. PREMIER CHAPITRE = "Introduction" ou "Préface" — L'auteur pose LE PROBLÈME central avec une anecdote forte ou une histoire marquante. Il explique POURQUOI il écrit ce livre et ce que le lecteur va en tirer.
-2. CHAPITRES CENTRAUX — Chaque chapitre développe UN aspect du sujet :
-   - Commence par une affirmation forte, une question ou une courte histoire
-   - Développe l'idée avec des exemples CONCRETS (noms, lieux, dates, situations réelles)
-   - Inclut des listes à puces quand c'est pertinent (ex: liste des échecs de Lincoln avant sa victoire)
-   - Utilise des citations en <blockquote> avec la source
-   - Termine par des QUESTIONS DE RÉFLEXION ou "Points à retenir" (3-5 questions pratiques)
-3. DERNIER CHAPITRE = Conclusion ou "Osez croire" — Synthèse et appel à l'action
+1. PREMIER CHAPITRE = "Introduction" ou "Fondation" — pose le problème, l'enjeu, la promesse du livre.
+2. CHAPITRES CENTRAUX — chaque chapitre traite UN principe opérationnel :
+   - OUVERTURE DIRECTE (thèse forte ou question)
+   - EXPLICATION structurée en 2-4 sous-parties
+   - EXEMPLE concret (personne, organisation, situation réelle)
+   - APPLICATION (actions à exécuter)
+3. DERNIER CHAPITRE = Synthèse stratégique + plan d'action final
 
-TITRES DES CHAPITRES — Style questions ou affirmations directes :
-Exemples RÉELS tirés de vrais livres : "Qui êtes-vous ?", "Qu'est-il arrivé au vrai vous ?", "La clé de votre potentiel", "Si seulement j'avais su que..."
+MODÈLES DE TITRES (style auteur humain, non-poétique) :
+- Style "loi" (Maxwell) : "ADAPTABLE — Si vous ne changez pas, l'équipe vous changera"
+- Style "principe" : "Le principe de X"
+- Style "question" : "Qui êtes-vous quand tout vacille ?"
 
 FORMAT :
-- Paragraphes de 3-5 phrases, JAMAIS de pavés
-- Sous-titres <h3> clairs et fonctionnels
-- Listes <ul><li> pour les exemples concrets
-- <blockquote> pour les citations et principes-clés
-- L'auteur ASSUME ses opinions et parle à la première personne`,
+- Paragraphes nets de 3-5 phrases
+- Sous-titres <h3> FONCTIONNELS (pas décoratifs)
+- <ol><li> pour étapes / lois / actions
+- <blockquote> pour principes clés ou citations sourcées
+- Fin de chapitre: "À RETENIR" ou "Questions de réflexion" (3-5 points)`,
 
-    guide: `STRUCTURE DE VRAI MANUEL PRATIQUE (style "Gérez Mieux Votre Entreprise" de l'OIT) :
+    guide: `STRUCTURE DE VRAI MANUEL PROFESSIONNEL / TECHNIQUE (style OIT + manuel métier) :
 
 STRUCTURE OBLIGATOIRE :
-1. PREMIER CHAPITRE = Introduction méthodologique — "Ce que vous allez apprendre", "Comment utiliser ce guide"
-2. CHAPITRES = Parties numérotées avec sous-sections (1.1, 1.2, 1.3)
-3. DERNIER CHAPITRE = Résumé + Plan d'action
+1. PREMIER CHAPITRE = "Comment utiliser ce guide" + périmètre + résultat attendu
+2. CHAPITRES = progression logique : Diagnostic → Méthode → Mise en œuvre → Contrôle
+3. DERNIER CHAPITRE = Feuille de route 30/60/90 jours + checklist de déploiement
 
 CHAQUE CHAPITRE DOIT CONTENIR :
-- Un OBJECTIF clair en début ("À la fin de ce chapitre, vous saurez...")
-- Des CAS PRATIQUES avec noms fictifs (ex: "M. Kouadio, propriétaire d'une boutique à Abidjan...")
-- Des EXERCICES pratiques : questions, situations à résoudre, espaces de réflexion
-- Des LISTES structurées <ol><li> et <ul><li>
-- Des encadrés <blockquote> pour les INFORMATIONS IMPORTANTES
-- Un RÉSUMÉ en fin de chapitre
+- OBJECTIF clair au début ("À la fin de ce chapitre, vous saurez...")
+- MÉTHODE étape par étape (1, 2, 3...)
+- CAS PRATIQUE réaliste (nom, contexte, contraintes)
+- ERREURS COURANTES + comment les éviter
+- CHECKLIST d'exécution ou mini-plan d'action
+- RÉSUMÉ opérationnel final
 
 TITRES 100% FONCTIONNELS :
-"Qu'est-ce que X ?", "Comment faire Y ?", "Les 5 étapes pour Z", "Erreurs courantes à éviter"
+"Qu'est-ce que X ?", "Comment mettre en place Y", "Procédure complète", "Indicateurs à suivre"
 
-ZÉRO narration littéraire, ZÉRO métaphore — c'est un OUTIL de travail`,
+INTERDIT : narration romanesque, métaphores fleuries, intro vague. C'est un outil de travail.`,
 
-    prayers: `STRUCTURE DE VRAI LIVRE DE COMBAT SPIRITUEL (inspiré de D.K. Olukoya "Commander le Matin" et "Le Sorcier Va Mourir") :
+    prayers: `STRUCTURE DE VRAI LIVRE D'AUTORITÉ SPIRITUELLE (inspiré de D.K. Olukoya et David Oyedepo) :
 
 STRUCTURE OBLIGATOIRE :
-1. PREMIER CHAPITRE = Enseignement fondamental qui pose le CADRE SPIRITUEL avec autorité. Explique le POURQUOI du combat.
-2. CHAPITRES CENTRAUX = Alternance entre :
-   - ENSEIGNEMENT BIBLIQUE avec versets en <blockquote> suivis d'EXPLICATIONS concrètes
-   - TÉMOIGNAGES RÉELS (histoires de délivrance, exemples de la vraie vie avec noms et situations)
-   - POINTS DE PRIÈRE NUMÉROTÉS (10-21 prières par section)
-3. DERNIER CHAPITRE = Section de prières intensives / déclarations de victoire
+1. INTRODUCTION/FONDATION doctrinale (combat, autorité, position du croyant)
+2. CHAPITRES CENTRAUX en 3 blocs répétables :
+   - ENSEIGNEMENT BIBLIQUE (versets complets + référence Livre Chapitre:Verset)
+   - EXPLICATION PRATIQUE (ce que cela change aujourd'hui)
+   - DÉCLARATIONS / PRIÈRES NUMÉROTÉES, impératives et directes
+3. CHAPITRE FINAL = déclarations de victoire + directives pratiques de persévérance
 
-STYLE DES PRIÈRES — Formules DIRECTES et COMMANDANTES :
-"1. Tout pouvoir qui [description], meurs au nom de Jésus."
-"2. Chaque [ennemi spirituel], je te [action] par le feu, au nom de Jésus."
-"3. Ô [élément], lève-toi et [action], au nom de Jésus."
+STYLE :
+- Ton ferme, sans mollesse
+- Interpellation directe du lecteur
+- Sous-titres MAJUSCULES autoritaires
+- Verbes d'action: "DÉCLARE", "REJETTE", "ORDONNE", "RÉSISTE"
 
-VERSETS BIBLIQUES :
-- Cités avec référence COMPLÈTE (Livre chapitre:verset)
-- En <blockquote> avec le texte complet
-- TOUJOURS suivis d'une EXPLICATION et APPLICATION
-
-SOUS-TITRES EN MAJUSCULES — Style D.K. Olukoya :
-"L'AUTORITÉ DU CROYANT", "LE SERPENT MALÉFIQUE", "IGNORANCE COÛTEUSE", "QUESTIONS PERTINENTES"
-
-TON : AUCUNE douceur. C'est un COMBAT. Interpellation directe du lecteur. Autorité totale.`,
+FORMAT :
+- <blockquote> pour versets
+- <ol><li> pour points de prière (10+ quand pertinent)
+- Chaque verset doit être suivi d'une application concrète
+- ZÉRO poésie mystique, ZÉRO flou`,
 
     story: `STRUCTURE DE VRAI ROMAN/CONTE (inspiré de "Des larmes d'or vert" de Marie-Amélie Laporte) :
 
