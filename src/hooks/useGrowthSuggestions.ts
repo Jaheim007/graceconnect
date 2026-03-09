@@ -89,7 +89,7 @@ export function useGrowthSuggestions() {
       }
 
       // No KYC
-      if (org?.data && (!org.data.kyc_status || org.data.kyc_status === 'none') && s > 0) {
+      if (org && (!org.kyc_status || org.kyc_status === 'none') && s > 0) {
         suggestions.push({
           id: 'start-kyc',
           emoji: '🔒',
