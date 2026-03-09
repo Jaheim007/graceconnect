@@ -49,8 +49,8 @@ export default function SuperadminInvestorSnapshot() {
         db.rpc('get_transaction_stats', { _from: sixtyDaysAgo.toISOString(), _to: thirtyDaysAgo.toISOString() }),
       ]);
 
-      const gmvLast30 = last30Res.data?.gmv || 0;
-      const gmvPrev30 = prev30Res.data?.gmv || 0;
+      const gmvLast30 = (last30Res.data as any)?.gmv || 0;
+      const gmvPrev30 = (prev30Res.data as any)?.gmv || 0;
       const momGrowth = gmvPrev30 > 0 ? ((gmvLast30 - gmvPrev30) / gmvPrev30 * 100).toFixed(0) : 'N/A';
 
       const takeRate = t.gmv > 0 ? ((t.platform_fees / t.gmv) * 100).toFixed(1) : '0';
