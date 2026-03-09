@@ -291,16 +291,34 @@ function SourceInput({ state, update, t, transcribing }: {
               {state.uploadedFile ? state.uploadedFile.name : t('write.upload_click')}
             </p>
             <p className="text-xs text-muted-foreground mt-1">{t('write.upload_formats')}</p>
+            {state.uploadedFile && (
+              <p className="text-[11px] text-muted-foreground mt-1">
+                {(state.uploadedFile.size / (1024 * 1024)).toFixed(1)} MB
+              </p>
+            )}
             <input
               type="file"
               accept=".pdf,.docx,.doc,.txt"
               className="hidden"
               onChange={(e) => {
                 const file = e.target.files?.[0];
-                if (file) update({ uploadedFile: file, title: file.name.replace(/\.[^.]+$/, '') });
+                if (file) {
+                  if (file.size > 18 * 1024 * 1024) {
+                    // We can't inline > 18MB to Gemini
+                    alert(t('write.file_too_large') || 'File too large (max 18 MB)');
+                    return;
+                  }
+                  update({ uploadedFile: file, title: file.name.replace(/\.[^.]+$/, '') });
+                }
               }}
             />
           </label>
+          {state.topic.trim().length > 0 && (
+            <div className="rounded-xl border border-border bg-muted/30 p-3">
+              <p className="text-xs text-muted-foreground mb-1">📝 {t('write.transcribe_success')}</p>
+              <p className="text-sm line-clamp-4">{state.topic.slice(0, 300)}…</p>
+            </div>
+          )}
         </div>
       );
 
