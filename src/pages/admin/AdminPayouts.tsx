@@ -1,4 +1,5 @@
 import { AdminPageShell } from './AdminPageShell';
+import { ContextualFeedback } from '@/components/feedback/ContextualFeedback';
 import { useOrg } from '@/contexts/OrgContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
