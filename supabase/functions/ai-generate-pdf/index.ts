@@ -392,12 +392,18 @@ function safeDrawText(page: PDFPage, text: string, opts: { x: number; y: number;
 // ══════════════════════════════════════════════════════════════════════
 // Image embedding helpers
 // ══════════════════════════════════════════════════════════════════════
+const MAX_IMAGE_BYTES = 1_500_000; // 1.5 MB per image to keep PDF under 50 MB
+
 async function tryEmbedImage(pdfDoc: any, imageUrl: string): Promise<any | null> {
   if (!imageUrl) return null;
   try {
     const response = await fetch(imageUrl);
     if (!response.ok) return null;
     const bytes = new Uint8Array(await response.arrayBuffer());
+    if (bytes.length > MAX_IMAGE_BYTES) {
+      console.warn(`Skipping large image (${(bytes.length / 1e6).toFixed(1)} MB): ${imageUrl.slice(0, 80)}`);
+      return null;
+    }
     const ct = (response.headers.get('content-type') || '').toLowerCase();
     const lower = imageUrl.toLowerCase();
     if (ct.includes('png') || lower.endsWith('.png')) return await pdfDoc.embedPng(bytes);
