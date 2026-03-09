@@ -346,13 +346,13 @@ export default function ProjectEditor() {
 
     const chapterJob = activeJobs.find((job: any) =>
       job.job_type === 'generate_chapter' &&
-      typeof job?.output_data?.html === 'string' &&
-      job?.input_params?.chapter_id
+      typeof (job?.output_data as any)?.html === 'string' &&
+      (job?.input_params as any)?.chapter_id
     );
 
     if (chapterJob) {
-      const chapterId = chapterJob.input_params.chapter_id as string;
-      const partialHtml = chapterJob.output_data.html as string;
+      const chapterId = (chapterJob.input_params as any).chapter_id as string;
+      const partialHtml = (chapterJob.output_data as any).html as string;
       setChapters(prev => prev.map(ch =>
         ch.id === chapterId && ch.content !== partialHtml
           ? { ...ch, content: partialHtml }
