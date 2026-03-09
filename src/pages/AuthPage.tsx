@@ -71,6 +71,16 @@ export default function AuthPage() {
     if (err) { setError(err.message); setGoogleLoading(false); }
   };
 
+  const handleFacebook = async () => {
+    setError('');
+    setFacebookLoading(true);
+    if (returnTo) {
+      try { sessionStorage.setItem('sv_auth_returnTo', returnTo); } catch {}
+    }
+    const { error: err } = await signInWithFacebook(returnTo || undefined);
+    if (err) { setError(err.message); setFacebookLoading(false); }
+  };
+
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
