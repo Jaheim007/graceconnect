@@ -36,6 +36,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'auth.welcome': 'Welcome',
     'auth.sign_in_access': 'Sign in to access your platforms',
     'auth.continue_google': 'Continue with Google',
+    'auth.continue_facebook': 'Continue with Facebook',
     'auth.redirecting': 'Redirecting...',
     'auth.or': 'or',
     'auth.continue_magic': 'Continue with magic link',
