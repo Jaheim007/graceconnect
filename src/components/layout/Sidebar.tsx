@@ -388,6 +388,15 @@ export function Sidebar() {
                   )}
                 </div>
                 {renderGroups(platformGroups)}
+                {!showMoreTools && !hasSales && !collapsed && (
+                  <button
+                    onClick={() => setShowMoreTools(true)}
+                    className="flex items-center gap-2 px-3 py-2 mt-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors w-full"
+                  >
+                    <MoreHorizontal className="h-3 w-3" />
+                    {t('sidebar.more') || 'Plus d\'outils'}
+                  </button>
+                )}
               </>
             )}
           </>

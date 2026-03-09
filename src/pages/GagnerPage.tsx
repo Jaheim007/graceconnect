@@ -195,6 +195,9 @@ export default function GagnerPage() {
         {/* Earnings calculator */}
         <EarningsCalculator />
 
+        {/* Ambassador leaderboard */}
+        <AmbassadorLeaderboard />
+
         {/* Main tabs */}
         <GagnerTabs />
 
