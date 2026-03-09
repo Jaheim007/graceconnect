@@ -393,7 +393,7 @@ export function SuperadminTransactions() {
           { label: 'Total GMV', value: fmt(totalGMV), icon: DollarSign },
           { label: 'Frais Plateforme', value: fmt(totalFees), icon: TrendingUp },
           { label: 'Comm. Affiliés', value: fmt(totalAffComm), icon: Users },
-          { label: 'Transactions', value: (txStats?.total_count ?? allTx.length).toString(), icon: BarChart3 },
+          { label: 'Transactions', value: ((txStats as any)?.total_count ?? allTx.length).toString(), icon: BarChart3 },
         ].map(c => (
           <div key={c.label} className="p-4 rounded-xl border border-border bg-card">
             <div className="flex items-center gap-2 mb-1">
