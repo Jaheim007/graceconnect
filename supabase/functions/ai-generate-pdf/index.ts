@@ -744,6 +744,20 @@ async function buildProfessionalPdf(opts: {
         continue;
       }
 
+      // ── Inline image ──
+      if (block.type === 'image' && block.imageUrl) {
+        if (y < M.bottom + 180) {
+          contentPage = addContentPage(pdfDoc, pg, M, chTitle, serifItalic, sans, contentWidth);
+          y = pg.height - M.top;
+          pageInChapter++;
+        }
+        const imgResult = await drawInlineImage(pdfDoc, contentPage, block.imageUrl, M.inner, y, contentWidth, 200);
+        if (imgResult.drawn) {
+          y = imgResult.y;
+        }
+        continue;
+      }
+
       // ── Heading ──
       if (block.type === 'heading') {
         if (y < M.bottom + 70) {
