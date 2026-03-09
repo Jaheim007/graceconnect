@@ -218,7 +218,14 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
           {styles.map(s => (
             <button
               key={s.type}
-              onClick={() => update({ style: s.type })}
+              onClick={() => {
+                const patch: Partial<WriteState> = { style: s.type };
+                if (s.type !== 'prayers') {
+                  patch.religiousTradition = undefined;
+                  patch.prayerFormat = undefined;
+                }
+                update(patch);
+              }}
               className={`p-3 rounded-xl border-2 text-center transition-all ${
                 state.style === s.type
                   ? 'border-primary bg-primary/5'
