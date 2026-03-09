@@ -209,6 +209,7 @@ const SuperadminLayout = lazy(() => import("@/pages/superadmin/SuperadminLayout"
 const SuperadminFullDashboard = lazy(() => import("@/pages/superadmin/SuperadminFullDashboard"));
 const SuperadminAIChat = lazy(() => import("@/pages/superadmin/SuperadminAIChat"));
 const SuperadminCommandCenter = lazy(() => import("@/pages/superadmin/SuperadminCommandCenter"));
+const SuperadminHealthDashboard = lazy(() => import("@/pages/superadmin/SuperadminHealthDashboard"));
 const SuperadminUsers = lazy(() => import("@/pages/superadmin/SuperadminUsers"));
 const SuperadminActivityFeed = lazy(() => import("@/pages/superadmin/SuperadminActivityFeed"));
 const SuperadminSettings = lazy(() => import("@/pages/superadmin/SuperadminSettings"));
@@ -502,6 +503,7 @@ const App = () => (
                   <Route path="studio/policies" element={<SuperadminAiPolicies />} />
                   <Route path="studio/jobs" element={<SuperadminGlobalJobs />} />
                   <Route path="studio/abuse-monitor" element={<SuperadminAiAbuse />} />
+                  <Route path="health" element={<Suspense fallback={<PageLoader />}><SuperadminHealthDashboard /></Suspense>} />
                 </Route>
 
                 <Route path="*" element={<NotFound />} />

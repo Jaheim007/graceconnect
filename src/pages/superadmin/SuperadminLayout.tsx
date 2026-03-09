@@ -13,6 +13,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 const links = [
   { to: '/superadmin', label: 'Overview', icon: LayoutDashboard, end: true },
   { to: '/superadmin/command-center', label: 'Command Center', icon: Shield },
+  { to: '/superadmin/health', label: 'Health', icon: Activity },
   { to: '/superadmin/orgs', label: 'Organizations', icon: Users },
   { to: '/superadmin/users', label: 'Users', icon: UserCircle },
   { to: '/superadmin/activity', label: 'Activity', icon: Activity },

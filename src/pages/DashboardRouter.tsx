@@ -22,85 +22,8 @@ import { useI18n } from '@/i18n/I18nContext';
  * 4. Simple buyer → UserDashboard (purchases, discover)
  */
 export default function DashboardRouter() {
-  const { user } = useAuth();
-  const { userOrgs, isLoadingOrgs, canManage } = useOrg();
-
-  const hasManageableOrg = userOrgs.some(o => canManage(o.id));
-
-  const { data: affiliateData, isLoading: isLoadingAff } = useQuery({
-    queryKey: ['affiliate-summary', user?.id],
-    queryFn: async () => {
-      if (!user) return { count: 0, totalEarned: 0, totalClicks: 0, totalConversions: 0, firstCode: null };
-      const { data: links } = await db.from('affiliate_links')
-        .select('code, total_earned, clicks, conversions')
-        .eq('user_id', user.id);
-      if (!links?.length) return { count: 0, totalEarned: 0, totalClicks: 0, totalConversions: 0, firstCode: null };
-      return {
-        count: links.length,
-        totalEarned: links.reduce((s: number, l: any) => s + (l.total_earned || 0), 0),
-        totalClicks: links.reduce((s: number, l: any) => s + (l.clicks || 0), 0),
-        totalConversions: links.reduce((s: number, l: any) => s + (l.conversions || 0), 0),
-        firstCode: links[0]?.code || null,
-      };
-    },
-    enabled: !!user && !hasManageableOrg,
-    staleTime: 60_000,
-  });
-
-  const { data: purchaseCount, isLoading: isLoadingPurch } = useQuery({
-    queryKey: ['purchase-count', user?.id],
-    queryFn: async () => {
-      if (!user) return 0;
-      const { count } = await db.from('product_purchases')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', user.id);
-      return count || 0;
-    },
-    enabled: !!user && !hasManageableOrg && !(affiliateData && affiliateData.count > 0),
-    staleTime: 60_000,
-  });
-
-  const { data: bookCount } = useQuery({
-    queryKey: ['user-book-count', user?.id],
-    queryFn: async () => {
-      if (!user) return 0;
-      const { count } = await db.from('digital_products')
-        .select('id', { count: 'exact', head: true })
-        .eq('created_by', user.id)
-        .eq('ai_generated', true);
-      return count || 0;
-    },
-    enabled: !!user && !hasManageableOrg,
-    staleTime: 60_000,
-  });
-
-  if (isLoadingOrgs || (!hasManageableOrg && isLoadingAff)) {
-    return (
-      <div className="container max-w-2xl px-4 py-8 space-y-4">
-        <Skeleton className="h-12 w-48" />
-        <Skeleton className="h-40 w-full rounded-2xl" />
-        <Skeleton className="h-40 w-full rounded-2xl" />
-      </div>
-    );
-  }
-
-  // 1. Creator → admin dashboard
-  if (hasManageableOrg) {
-    return <Navigate to="/admin" replace />;
-  }
-
-  // 2. Ambassador (has affiliate links)
-  if ((affiliateData?.count ?? 0) > 0) {
-    return <AmbassadorDashboard />;
-  }
-
-  // 3. Brand new user (no purchases, no affiliates) → Welcome
-  if ((purchaseCount ?? 0) === 0 && (affiliateData?.count ?? 0) === 0 && !isLoadingPurch) {
-    return <NewUserDashboard hasBook={(bookCount ?? 0) > 0} />;
-  }
-
-  // 4. Simple buyer
-  return <UserDashboard />;
+  // Simplified: always redirect to /feed
+  return <Navigate to="/feed" replace />;
 }
 
 function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
