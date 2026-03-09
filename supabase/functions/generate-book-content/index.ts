@@ -445,7 +445,7 @@ FORBIDDEN: long paragraphs, quizzes, written exercises. This is for COLORING.`,
   sw: {
     ebook: `Muundo wa kitabu halisi: tatizo, uzoefu wa mwandishi, mifano halisi, maswali ya kutafakari.`,
     guide: `Mwongozo wa vitendo: sehemu zilizohesabiwa, mifano, mazoezi, muhtasari.`,
-    prayers: `Kitabu cha vita vya kiroho: aya na marejeleo, ushuhuda halisi, pointi za maombi ZILIZOHESABIWA.`,
+    prayers: `Kitabu cha maombi: aya/maandiko matakatifu na marejeleo, maombi YALIYOHESABIWA kwa nafsi ya kwanza, sauti ya joto.`,
     story: `Riwaya: wahusika wenye majina kamili, mazungumzo na dashi (—), nathari safi.`,
     novel: `Muundo kamili wa riwaya.`,
     devotional: `Kutafakari za kila siku zilizohesabiwa.`,
