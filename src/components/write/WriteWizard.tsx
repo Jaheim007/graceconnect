@@ -52,6 +52,8 @@ export interface WriteState {
   transcribing: boolean;
   title: string;
   subtitle: string;
+  authorName: string;
+  keywords: string[];
   style: BookStyle;
   tone: WritingTone;
   languageLevel: LanguageLevel;
