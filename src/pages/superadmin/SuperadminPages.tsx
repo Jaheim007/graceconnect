@@ -618,11 +618,11 @@ export function SuperadminMetrics() {
         db.rpc('get_platform_totals'),
       ]);
       return {
-        gmv30: txRes.data?.gmv || 0,
-        fees30: txRes.data?.platform_fees || 0,
-        tx30: txRes.data?.total_count || 0,
-        activeOrgs: totalsRes.data?.active_orgs || 0,
-        newUsers7d: totalsRes.data?.new_users_7d || 0,
+        gmv30: (txRes.data as any)?.gmv || 0,
+        fees30: (txRes.data as any)?.platform_fees || 0,
+        tx30: (txRes.data as any)?.total_count || 0,
+        activeOrgs: (totalsRes.data as any)?.active_orgs || 0,
+        newUsers7d: (totalsRes.data as any)?.new_users_7d || 0,
       };
     },
   });

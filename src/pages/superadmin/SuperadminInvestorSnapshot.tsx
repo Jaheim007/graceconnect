@@ -222,7 +222,7 @@ export default function SuperadminInvestorSnapshot() {
                 <Badge variant="secondary" className="text-[10px]">{c.value} orgs</Badge>
               </div>
             ))}
-            {(!s?.countries?.length) && <p className="text-xs text-muted-foreground text-center py-4">—</p>}
+            {(!(s?.countries as any[])?.length) && <p className="text-xs text-muted-foreground text-center py-4">—</p>}
           </div>
         </motion.div>
       </div>

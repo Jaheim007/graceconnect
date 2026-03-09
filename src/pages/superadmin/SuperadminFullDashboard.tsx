@@ -397,7 +397,7 @@ export default function SuperadminFullDashboard() {
                 <span className="text-xs font-semibold text-muted-foreground w-8 text-right">{c.value}</span>
               </div>
             ))}
-            {(!stats?.countries || stats.countries.length === 0) && (
+            {(!stats?.countries || (stats.countries as any[]).length === 0) && (
               <p className="text-xs text-muted-foreground text-center py-8">Aucune donnée</p>
             )}
           </div>
