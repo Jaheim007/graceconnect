@@ -845,7 +845,7 @@ Return ONLY JSON:
       userPrompt = lang === 'fr'
         ? `Écris un livre COMPLET :
 
-TITRE : "${title}"
+TITRE : "${title}"${subtitleLine}
 ${topic ? `SUJET : ${topic}` : ''}
 ${editorialContext}
 INSTRUCTIONS :
