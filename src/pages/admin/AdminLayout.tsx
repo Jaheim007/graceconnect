@@ -208,7 +208,7 @@ export default function AdminLayout() {
         {/* Desktop sidebar */}
         <aside className="hidden lg:flex flex-col w-52 border-r border-border/60 min-h-[calc(100vh-5rem)] p-3 gap-0.5 shrink-0 bg-card/30">
           {['main', 'create', 'sell', 'manage', 'more'].map((group) => {
-            const groupItems = adminLinks.filter(l => l.group === group);
+            const groupItems = adminLinks.filter(l => l.group === group && shouldShow(l.showWhen));
             const { label, icon: GroupIcon } = groupLabels[group];
             const isMoreGroup = group === 'more';
 
