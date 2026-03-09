@@ -37,7 +37,7 @@ export default function SuperadminInvestorSnapshot() {
         db.from('platform_metrics_daily').select('*').order('metric_date', { ascending: true }).limit(90),
       ]);
 
-      const t = totalsRes.data || {};
+      const t = (totalsRes.data || {}) as any;
 
       // Monthly GMV for growth calc via RPC
       const now = new Date();
@@ -49,8 +49,8 @@ export default function SuperadminInvestorSnapshot() {
         db.rpc('get_transaction_stats', { _from: sixtyDaysAgo.toISOString(), _to: thirtyDaysAgo.toISOString() }),
       ]);
 
-      const gmvLast30 = last30Res.data?.gmv || 0;
-      const gmvPrev30 = prev30Res.data?.gmv || 0;
+      const gmvLast30 = (last30Res.data as any)?.gmv || 0;
+      const gmvPrev30 = (prev30Res.data as any)?.gmv || 0;
       const momGrowth = gmvPrev30 > 0 ? ((gmvLast30 - gmvPrev30) / gmvPrev30 * 100).toFixed(0) : 'N/A';
 
       const takeRate = t.gmv > 0 ? ((t.platform_fees / t.gmv) * 100).toFixed(1) : '0';
@@ -66,7 +66,7 @@ export default function SuperadminInvestorSnapshot() {
         totalUsers: t.total_users || 0,
         newUsers30d: 0, // simplified - use 7d from totals
         newOrgs30d: 0,
-        txCount30d: last30Res.data?.total_count || 0,
+        txCount30d: (last30Res.data as any)?.total_count || 0,
         gmvLast30,
         metrics: metrics.data || [],
         categories: categoriesRes.data || [],
@@ -189,15 +189,15 @@ export default function SuperadminInvestorSnapshot() {
           <h2 className="font-semibold text-sm mb-3 flex items-center gap-2">
             <Shield className="h-4 w-4 text-primary" /> Org Categories
           </h2>
-          {(s?.categories?.length || 0) > 0 ? (
+          {((s?.categories as any[])?.length || 0) > 0 ? (
             <div className="flex items-center gap-4">
               <PieChart width={120} height={120}>
-                <Pie data={s!.categories} cx={60} cy={60} innerRadius={30} outerRadius={55} dataKey="value" paddingAngle={2}>
-                  {s!.categories.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                <Pie data={s!.categories as any[]} cx={60} cy={60} innerRadius={30} outerRadius={55} dataKey="value" paddingAngle={2}>
+                  {(s!.categories as any[]).map((_: any, i: number) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
               </PieChart>
               <div className="space-y-1 flex-1">
-                {s!.categories.map((c, i) => (
+                {(s!.categories as any[]).map((c: any, i: number) => (
                   <div key={c.name} className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5">
                       <div className="h-2 w-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
@@ -216,13 +216,13 @@ export default function SuperadminInvestorSnapshot() {
             <Globe className="h-4 w-4 text-primary" /> Géographie
           </h2>
           <div className="space-y-2">
-            {(s?.countries || []).map((c, i) => (
+            {((s?.countries as any[]) || []).map((c: any, i: number) => (
               <div key={c.name} className="flex items-center justify-between p-2 rounded-lg bg-muted/30">
                 <span className="text-xs font-medium">{c.name}</span>
                 <Badge variant="secondary" className="text-[10px]">{c.value} orgs</Badge>
               </div>
             ))}
-            {(!s?.countries?.length) && <p className="text-xs text-muted-foreground text-center py-4">—</p>}
+            {(!(s?.countries as any[])?.length) && <p className="text-xs text-muted-foreground text-center py-4">—</p>}
           </div>
         </motion.div>
       </div>

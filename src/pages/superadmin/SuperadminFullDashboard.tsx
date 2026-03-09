@@ -105,7 +105,7 @@ export default function SuperadminFullDashboard() {
         db.rpc('get_weekly_user_cohorts', { _weeks: 8 }),
       ]);
 
-      const t = totalsRes.data || {};
+      const totalsRaw = totalsRes.data as any || {};
 
       // Merge donations + purchases into a single activity feed
       const activityItems = [
@@ -132,7 +132,7 @@ export default function SuperadminFullDashboard() {
         users: c.users || 0,
       }));
 
-      const t = totals.data as any;
+      const t = totalsRaw as any;
       return {
         totalOrgs: t?.total_orgs || 0,
         activeOrgs: t.active_orgs || 0,
@@ -357,9 +357,9 @@ export default function SuperadminFullDashboard() {
       <div className="grid lg:grid-cols-3 gap-4">
         <Panel>
           <SectionTitle icon={TrendingUp} title="Top Organisations" badge="Revenus" />
-          {(stats?.topOrgs || []).length > 0 ? (
+          {((stats?.topOrgs as any[]) || []).length > 0 ? (
             <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={stats!.topOrgs} layout="vertical">
+              <BarChart data={stats!.topOrgs as any[]} layout="vertical">
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                 <XAxis type="number" tick={{ fontSize: 9 }} stroke="hsl(var(--muted-foreground))" />
                 <YAxis type="category" dataKey="name" tick={{ fontSize: 9 }} stroke="hsl(var(--muted-foreground))" width={80} />
@@ -372,12 +372,12 @@ export default function SuperadminFullDashboard() {
 
         <Panel>
           <SectionTitle icon={Globe} title="Catégories" />
-          {(stats?.categories || []).length > 0 ? (
+          {((stats?.categories as any[]) || []).length > 0 ? (
             <ResponsiveContainer width="100%" height={200}>
               <PieChart>
-                <Pie data={stats!.categories} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={38}
+                <Pie data={stats!.categories as any[]} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={70} innerRadius={38}
                   label={({ name, value }) => `${name}: ${value}`} labelLine={{ strokeWidth: 1 }}>
-                  {stats!.categories.map((_: any, i: number) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  {(stats!.categories as any[]).map((_: any, i: number) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                 </Pie>
                 <Tooltip />
               </PieChart>
@@ -388,7 +388,7 @@ export default function SuperadminFullDashboard() {
         <Panel>
           <SectionTitle icon={Globe} title="Par pays" />
           <div className="space-y-3">
-            {(stats?.countries || []).map((c: any) => (
+            {((stats?.countries as any[]) || []).map((c: any) => (
               <div key={c.name} className="flex items-center gap-3">
                 <span className="text-xs font-medium w-20 truncate">{c.name}</span>
                 <div className="flex-1">
@@ -397,7 +397,7 @@ export default function SuperadminFullDashboard() {
                 <span className="text-xs font-semibold text-muted-foreground w-8 text-right">{c.value}</span>
               </div>
             ))}
-            {(!stats?.countries || stats.countries.length === 0) && (
+            {(!stats?.countries || (stats.countries as any[]).length === 0) && (
               <p className="text-xs text-muted-foreground text-center py-8">Aucune donnée</p>
             )}
           </div>

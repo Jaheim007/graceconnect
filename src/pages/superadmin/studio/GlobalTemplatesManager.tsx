@@ -56,7 +56,7 @@ export default function GlobalTemplatesManager() {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const payload = { name, description: description || null, project_type: projectType, prompt_template: promptTemplate || null, is_global: true, is_active: isActive };
+      const payload = { name, description: description || null, project_type: projectType, prompt_template: promptTemplate || null, is_global: true, is_active: isActive } as any;
       if (editingId) {
         const { error } = await db.from('ai_templates').update(payload).eq('id', editingId);
         if (error) throw error;

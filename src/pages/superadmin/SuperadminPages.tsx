@@ -22,7 +22,7 @@ export function SuperadminDashboard() {
     queryKey: ['sa-stats'],
     queryFn: async () => {
       const { data } = await db.rpc('get_platform_totals');
-      const t = data || {};
+      const t = (data || {}) as any;
       return {
         orgs: t.total_orgs || 0,
         pendingKyc: t.pending_kyc || 0,
@@ -328,7 +328,7 @@ export function SuperadminTransactions() {
         _from: dateRange.from?.toISOString() || null,
         _to: dateRange.to?.toISOString() || null,
       });
-      return data || { gmv: 0, platform_fees: 0, affiliate_commissions: 0, total_count: 0 };
+      return (data || { gmv: 0, platform_fees: 0, affiliate_commissions: 0, total_count: 0 }) as any;
     },
   });
 
@@ -393,7 +393,7 @@ export function SuperadminTransactions() {
           { label: 'Total GMV', value: fmt(totalGMV), icon: DollarSign },
           { label: 'Frais Plateforme', value: fmt(totalFees), icon: TrendingUp },
           { label: 'Comm. Affiliés', value: fmt(totalAffComm), icon: Users },
-          { label: 'Transactions', value: (txStats?.total_count ?? allTx.length).toString(), icon: BarChart3 },
+          { label: 'Transactions', value: ((txStats as any)?.total_count ?? allTx.length).toString(), icon: BarChart3 },
         ].map(c => (
           <div key={c.label} className="p-4 rounded-xl border border-border bg-card">
             <div className="flex items-center gap-2 mb-1">
@@ -618,11 +618,11 @@ export function SuperadminMetrics() {
         db.rpc('get_platform_totals'),
       ]);
       return {
-        gmv30: txRes.data?.gmv || 0,
-        fees30: txRes.data?.platform_fees || 0,
-        tx30: txRes.data?.total_count || 0,
-        activeOrgs: totalsRes.data?.active_orgs || 0,
-        newUsers7d: totalsRes.data?.new_users_7d || 0,
+        gmv30: (txRes.data as any)?.gmv || 0,
+        fees30: (txRes.data as any)?.platform_fees || 0,
+        tx30: (txRes.data as any)?.total_count || 0,
+        activeOrgs: (totalsRes.data as any)?.active_orgs || 0,
+        newUsers7d: (totalsRes.data as any)?.new_users_7d || 0,
       };
     },
   });

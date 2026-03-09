@@ -28,7 +28,7 @@ export default function GoRedirectPage() {
 
         if (data?.target_path) {
           // Increment clicks (fire-and-forget)
-          (supabase as any).rpc('increment_short_link_clicks', { _code: code }).then(() => {}).catch(() => {});
+          Promise.resolve(supabase.rpc('increment_short_link_clicks', { _code: code })).catch(() => {});
           window.location.replace(data.target_path);
         } else {
           setError(true);
