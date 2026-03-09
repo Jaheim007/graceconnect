@@ -491,7 +491,16 @@ MOTS ET EXPRESSIONS STRICTEMENT INTERDITS :
 "Plonger dans les profondeurs de", "Explorer les méandres de", "Un souffle nouveau",
 "Transcender", "Sublimer", "Résonner au plus profond", "Éveiller la conscience",
 "Embrasser le changement", "Un monde de possibilités", "La clé réside dans",
-"Mosaïque de", "Tapisserie de", "Symphonie de", "Alchimie de"`;
+"Mosaïque de", "Tapisserie de", "Symphonie de", "Alchimie de",
+"Naviguer dans", "Incarner", "S'épanouir", "Façonner", "Illuminer",
+"Vibrer", "Insuffler", "Catalyser", "Rayonner", "Florissant"
+
+STRUCTURE INTERDITE — Ne fais JAMAIS :
+❌ Un premier paragraphe qui "présente le chapitre" de manière vague
+❌ Un dernier paragraphe qui "résume" avec une phrase inspirante creuse
+❌ Des transitions entre chapitres ("Dans le chapitre suivant, nous verrons...")
+❌ Des répétitions de la même idée en reformulant 3 fois
+❌ Un ton uniformément positif — un vrai auteur est parfois dur, critique, direct`;`;
   }
 
   return `
