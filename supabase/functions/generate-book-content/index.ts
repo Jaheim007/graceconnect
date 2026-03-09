@@ -786,6 +786,7 @@ function getTitleGuidance(lang: string, style: string, profile: EditorialProfile
   if (profile === 'spiritual_warfare') return 'Direct, authoritative, often capitalized titles.';
   if (profile === 'devotional_journal') return 'Numbered thematic titles: "Day 1 — Trust", "Day 15 — Letting Go".';
   if (profile === 'activity_workbook') return 'Engaging playful titles with emojis: "🎯 Chapter 3: Discover Your Talents!"';
+  if (profile === 'coloring_book') return 'Short visual titles with emojis: "🦁 Safari Animals", "🌸 Enchanted Garden"';
   if (style === 'story' || style === 'novel') return 'Evocative literary titles.';
   return 'Clear, precise, result-oriented titles.';
 }
