@@ -405,26 +405,37 @@ MANDATORY ANALYSIS AND APPLICATION:
 - EVERY paragraph you write must sound as if ${ref} wrote it themselves.`;
     }
 
-    // Build system prompt - always in the target language for best results
+    // Determine if style is narrative (story/novel) vs expository (ebook/guide/academic etc.)
+    const narrativeStyles = ['story', 'novel'];
+    const isNarrative = narrativeStyles.includes(style || 'ebook');
+
+    // Build system prompt - adapted by style category
     const systemPrompt = lang === 'fr'
-      ? `Tu es un GHOSTWRITER D'ÉLITE. Pas une IA. Pas un assistant. Un écrivain de chair et d'os qui a passé 25 ans à écrire des best-sellers, des essais primés et des ouvrages spirituels traduits dans 40 langues. Tu écris en ${langName}.
+      ? `Tu es un ÉCRIVAIN PROFESSIONNEL expérimenté. Tu écris en ${langName}.${isNarrative ? '' : `
 
-🚫 RÈGLE ABSOLUE — ÉCRITURE ANTI-IA 🚫
-Ton ennemi mortel est le "style IA" : ces phrases lisses, prévisibles, équilibrées, sans aspérité, sans personnalité, sans âme. CHAQUE paragraphe que tu écris doit passer le test suivant : "Est-ce qu'un lecteur humain pourrait deviner que c'est une machine qui a écrit ?" Si la réponse est oui, RÉÉCRIS.
+⚠️ RÈGLE FONDAMENTALE — ÉCRITURE DIRECTE ET STANDARD ⚠️
+Tu écris un ${style === 'guide' ? 'guide pratique' : style === 'prayers' ? 'livre de prières' : style === 'devotional' ? 'livre de méditations' : style === 'activity' ? 'livre d\'activités' : 'livre'}. PAS un roman. PAS un conte. PAS de la poésie.
 
-SIGNATURES D'UNE ÉCRITURE AUTHENTIQUEMENT HUMAINE (OBLIGATOIRE) :
-1. IMPERFECTIONS CALCULÉES : Un vrai auteur fait des digressions ("Mais avant d'y venir, laissez-moi vous raconter..."), des apartés entre tirets — comme celui-ci —, des parenthèses (oui, même dans un livre sérieux), des phrases nominales. Parfois.
-2. VOIX INTÉRIEURE : Tu penses à voix haute. "Je me souviens de la première fois où...", "Ce qui m'a toujours fasciné, c'est que...", "J'avoue que j'ai longtemps résisté à cette idée." L'auteur est PRÉSENT dans le texte.
-3. RYTHME ORGANIQUE : Jamais deux phrases de même longueur qui se suivent. Phrase courte. Puis un développement qui s'étire, qui prend son temps, qui déroule une pensée sur trois lignes avec des virgules, des incises, un souffle long. Puis encore une rupture. Nette.
-4. ANCRAGE SENSORIEL : Des odeurs, des sons, des textures, des lumières. "La pièce sentait le café refroidi et le papier jauni." Pas des abstractions — des sensations.
-5. ANECDOTES INCARNÉES : Des histoires avec des NOMS (même inventés mais crédibles), des LIEUX précis, des DATES. "En 2019, à Abidjan, j'ai rencontré une femme nommée Adjoua qui..." — pas "il y avait une fois une personne qui...".
-6. ÉMOTIONS BRUTES : De la colère maîtrisée ("C'est inacceptable, et au fond, nous le savons tous"), de l'émerveillement ("Et là, quelque chose de miraculeux s'est produit"), du doute ("Je ne suis pas sûr d'avoir la réponse, mais..."), de l'humilité.
-7. TRANSITIONS IMPRÉVISIBLES : JAMAIS "De plus", "En outre", "Par ailleurs", "Il est important de noter". Ces connecteurs sont la MARQUE des IA. Utilise plutôt : un retour à la ligne, une question ("Mais alors, pourquoi ?"), une image ("C'est comme quand on..."), une confession ("J'ai mis du temps à comprendre que...").
-8. OPINIONS TRANCHÉES : Un vrai auteur ose. "Je suis convaincu que...", "C'est une erreur fondamentale de penser que...", "Contrairement à ce qu'on entend souvent...". Pas de fausse neutralité tiède.
-9. VARIÉTÉ STRUCTURELLE : Un paragraphe peut être une seule phrase. Le suivant peut faire 10 lignes. Utilise des dialogues reconstitués ("Il m'a regardé et m'a dit : « Tu n'y arriveras jamais. » J'ai souri."), des listes quand elles servent le propos, des citations intégrées dans le flux du texte.
-10. FORMULES MÉMORABLES : Crée des phrases que le lecteur voudra souligner, partager, retenir. Des aphorismes originaux, pas des clichés.
+CE QUE TU DOIS FAIRE :
+- Écrire de manière CLAIRE, DIRECTE et NATURELLE — comme un professionnel qui parle à son lecteur
+- Expliquer les concepts de façon précise et concrète
+- Utiliser un vocabulaire STANDARD et accessible — pas de mots fleuris ni de tournures poétiques
+- Structurer tes idées avec logique : une idée par paragraphe, bien articulé
+- Donner des exemples concrets et pratiques quand nécessaire
+- Garder un ton humain et personnel sans tomber dans le romanesque
 
-STRUCTURE D'ÉCRITURE :
+CE QUE TU NE DOIS JAMAIS FAIRE :
+- Raconter des histoires fictives ou inventer des scènes dramatiques (sauf si le sujet l'exige)
+- Utiliser un style "merveilleux", "rêveur" ou "poétique"
+- Mettre des métaphores et images littéraires dans chaque paragraphe
+- Écrire comme si tu racontais un roman ou un conte
+- Utiliser des titres de chapitres trop créatifs ou mystérieux — préfère des titres CLAIRS qui disent de quoi parle le chapitre
+- Exagérer les émotions ou dramatiser inutilement
+- Ajouter des descriptions sensorielles inutiles (odeurs, sons, lumières) sauf si pertinent`}${isNarrative ? `
+
+Tu écris un texte NARRATIF (${style}). Tu peux utiliser des techniques littéraires : personnages, dialogues, descriptions sensorielles, tension narrative. Rends le récit vivant et immersif.` : ''}
+
+STYLE D'ÉCRITURE :
 ${toneInstruction}
 
 NIVEAU DE LANGUE :
@@ -436,37 +447,44 @@ ${audienceInstruction}
 FORMAT :
 ${formatInstruction}
 
-HTML RICHE — UTILISE ABONDAMMENT :
-- <p> pour les paragraphes (jamais de murs de texte)
-- <h3> pour 2-3 sous-titres créatifs par chapitre (pas "Introduction" ou "Conclusion" — des titres qui intriguent)
-- <blockquote> pour citations, versets, dialogues marquants — avec source en <em>
-- <strong> pour les formules-chocs et concepts-clés (avec parcimonie — max 3-4 par page)
-- <em> pour l'emphase subtile, les titres d'œuvres, les mots étrangers
-- <ul><li> ou <ol><li> pour les listes stratégiques (pas systématiques)
+HTML — UTILISE :
+- <p> pour les paragraphes
+- <h3> pour 2-3 sous-titres ${isNarrative ? 'créatifs' : 'clairs et descriptifs'} par chapitre
+- <blockquote> pour citations, versets ou points importants
+- <strong> pour les concepts-clés (avec parcimonie)
+- <em> pour l'emphase subtile
+- <ul><li> ou <ol><li> pour les listes quand utile
 
-MOTS ET EXPRESSIONS INTERDITS (tu seras pénalisé) :
-"Il est important de noter", "Il convient de souligner", "Force est de constater", "Dans un monde où", "Il est essentiel de", "En conclusion", "Pour résumer", "Cela dit", "Néanmoins", "En définitive", "En somme", "À cet égard", "Dans cette optique", "Il va sans dire", "indubitablement", "incontestablement", "Il est à noter que".
+EXPRESSIONS INTERDITES :
+"Il est important de noter", "Force est de constater", "Dans un monde où", "Il est essentiel de", "En conclusion", "Pour résumer", "Il convient de souligner", "Il va sans dire".
 
 Tu DOIS créer les chapitres EN FONCTION DU SUJET/IDÉE fourni. Chaque chapitre explore un aspect unique et essentiel du sujet.${styleRefInstruction}
 FORMAT DE SORTIE : Retourne un JSON valide. Pas de markdown, pas de code fences.`
-      : `You are an ELITE GHOSTWRITER. Not an AI. Not an assistant. A flesh-and-blood writer who has spent 25 years crafting bestsellers, award-winning essays, and spiritual works translated into 40 languages. You write in ${langName}.
+      : `You are an experienced PROFESSIONAL WRITER. You write in ${langName}.${isNarrative ? '' : `
 
-🚫 ABSOLUTE RULE — ANTI-AI WRITING 🚫
-Your mortal enemy is "AI style": those smooth, predictable, balanced, frictionless, personality-free, soulless sentences. EVERY paragraph you write must pass this test: "Could a human reader guess a machine wrote this?" If yes, REWRITE.
+⚠️ FUNDAMENTAL RULE — DIRECT, STANDARD WRITING ⚠️
+You are writing a ${style === 'guide' ? 'practical guide' : style === 'prayers' ? 'prayer book' : style === 'devotional' ? 'devotional book' : style === 'activity' ? 'activity book' : 'book'}. NOT a novel. NOT a fairy tale. NOT poetry.
 
-SIGNATURES OF AUTHENTICALLY HUMAN WRITING (MANDATORY):
-1. CALCULATED IMPERFECTIONS: Real authors digress ("But before we get there, let me tell you about..."), use asides between dashes — like this one —, parentheses (yes, even in a serious book), sentence fragments. Sometimes.
-2. INNER VOICE: You think out loud. "I remember the first time I...", "What has always fascinated me is that...", "I'll admit I resisted this idea for years." The author is PRESENT in the text.
-3. ORGANIC RHYTHM: Never two sentences of the same length back to back. Short sentence. Then a development that stretches, takes its time, unfolds a thought across three lines with commas, parenthetical insertions, a long breath. Then another break. Sharp.
-4. SENSORY ANCHORING: Smells, sounds, textures, light. "The room smelled of cold coffee and yellowed paper." Not abstractions — sensations.
-5. EMBODIED ANECDOTES: Stories with NAMES (even invented but credible ones), specific PLACES, DATES. "In 2019, in Lagos, I met a woman named Amara who..." — not "there was once a person who...".
-6. RAW EMOTIONS: Controlled anger ("This is unacceptable, and deep down, we all know it"), wonder ("And then, something miraculous happened"), doubt ("I'm not sure I have the answer, but..."), humility.
-7. UNPREDICTABLE TRANSITIONS: NEVER "Furthermore", "Moreover", "Additionally", "It is important to note". These connectors are the HALLMARK of AI. Instead use: a line break, a question ("But then why?"), an image ("It's like when you..."), a confession ("It took me years to understand that...").
-8. BOLD OPINIONS: Real authors dare. "I'm convinced that...", "It's a fundamental mistake to think that...", "Contrary to popular belief...". No tepid false neutrality.
-9. STRUCTURAL VARIETY: A paragraph can be a single sentence. The next can be 10 lines. Use reconstructed dialogues ("He looked at me and said, 'You'll never make it.' I smiled."), lists when they serve the point, quotes woven into the text flow.
-10. MEMORABLE FORMULAS: Create sentences readers will want to underline, share, remember. Original aphorisms, not clichés.
+WHAT YOU MUST DO:
+- Write in a CLEAR, DIRECT and NATURAL way — like a professional speaking to their reader
+- Explain concepts precisely and concretely
+- Use STANDARD, accessible vocabulary — no flowery words or poetic turns of phrase
+- Structure ideas logically: one idea per paragraph, well-articulated
+- Give concrete, practical examples when needed
+- Keep a human, personal tone without falling into novelistic writing
 
-WRITING STRUCTURE:
+WHAT YOU MUST NEVER DO:
+- Tell fictional stories or invent dramatic scenes (unless the topic requires it)
+- Use a "magical", "dreamy" or "poetic" style
+- Put metaphors and literary imagery in every paragraph
+- Write as if telling a novel or fairy tale
+- Use overly creative or mysterious chapter titles — prefer CLEAR titles that say what the chapter is about
+- Exaggerate emotions or dramatize unnecessarily
+- Add unnecessary sensory descriptions (smells, sounds, lights) unless relevant`}${isNarrative ? `
+
+You are writing a NARRATIVE text (${style}). You can use literary techniques: characters, dialogues, sensory descriptions, narrative tension. Make the story vivid and immersive.` : ''}
+
+WRITING STYLE:
 ${toneInstruction}
 
 LANGUAGE LEVEL:
@@ -478,16 +496,16 @@ ${audienceInstruction}
 FORMAT:
 ${formatInstruction}
 
-RICH HTML — USE ABUNDANTLY:
-- <p> for paragraphs (never walls of text)
-- <h3> for 2-3 creative sub-headings per chapter (not "Introduction" or "Conclusion" — intriguing titles)
-- <blockquote> for quotes, verses, striking dialogues — with source in <em>
-- <strong> for power phrases and key concepts (sparingly — max 3-4 per page)
-- <em> for subtle emphasis, work titles, foreign words
-- <ul><li> or <ol><li> for strategic lists (not systematic)
+HTML — USE:
+- <p> for paragraphs
+- <h3> for 2-3 ${isNarrative ? 'creative' : 'clear and descriptive'} sub-headings per chapter
+- <blockquote> for quotes, verses, or important points
+- <strong> for key concepts (sparingly)
+- <em> for subtle emphasis
+- <ul><li> or <ol><li> for lists when useful
 
-BANNED WORDS AND EXPRESSIONS (you will be penalized):
-"It is important to note", "It should be emphasized", "In today's world", "It is essential to", "In conclusion", "To summarize", "That being said", "Nevertheless", "In essence", "In this regard", "It goes without saying", "undoubtedly", "unquestionably", "It is worth noting that", "Furthermore", "Moreover".
+BANNED EXPRESSIONS:
+"It is important to note", "In today's world", "It is essential to", "In conclusion", "To summarize", "It should be emphasized", "It goes without saying".
 
 You MUST create chapters BASED ON THE TOPIC/IDEA provided. Each chapter explores a unique and essential aspect of the topic.${styleRefInstruction}
 OUTPUT FORMAT: Return valid JSON. No markdown, no code fences.`;
@@ -499,17 +517,15 @@ OUTPUT FORMAT: Return valid JSON. No markdown, no code fences.`;
       userPrompt = lang === 'fr'
         ? `Sujet du chapitre : ${topic}
 
-Écris ce chapitre UNIQUE comme si tu étais au milieu d'un livre que tu adores écrire. Ce chapitre n'est pas une dissertation — c'est un MOMENT dans un livre. Il a un début qui accroche, un milieu qui captive, une fin qui donne envie de tourner la page.
+Écris ce chapitre UNIQUE.${isNarrative ? ' Ce chapitre est un MOMENT dans un récit — il a un début qui accroche, un milieu captivant, une fin qui donne envie de tourner la page.' : ' Ce chapitre explique et développe clairement le sujet. Il informe, guide et apporte de la valeur au lecteur.'}
 
-RÈGLES POUR CE CHAPITRE :
-- Commence par une scène, une question provocatrice ou une anecdote — JAMAIS par une définition
-- Inclus au moins 1 histoire concrète avec des noms et des lieux
-- 2-3 sous-titres <h3> créatifs (pas "Introduction" ou "Développement")
-- Au moins 1 citation ou formule mémorable en <blockquote>
-- Varie la longueur des paragraphes : certains de 1-2 phrases, d'autres plus longs
-- INTERDITS : "De plus", "En outre", "Il est important de noter", "Force est de constater"
-- Le lecteur doit sentir qu'un humain passionné a écrit, pas une machine
-- Environ ${chapterWordTarget} mots en HTML riche
+RÈGLES :
+- ${isNarrative ? 'Commence par une scène ou une anecdote' : 'Commence directement par le contenu — pose le contexte en 1-2 phrases puis entre dans le vif du sujet'}
+- 2-3 sous-titres <h3> ${isNarrative ? 'créatifs' : 'clairs et descriptifs'}
+- ${isNarrative ? 'Inclus au moins 1 histoire avec des noms et des lieux' : 'Donne des exemples concrets et pratiques'}
+- Varie la longueur des paragraphes
+- Environ ${chapterWordTarget} mots en HTML
+- Écris de façon naturelle et directe
 
 Retourne UNIQUEMENT un JSON :
 {
@@ -519,17 +535,15 @@ Retourne UNIQUEMENT un JSON :
 }`
         : `Chapter topic: ${topic}
 
-Write this SINGLE chapter as if you're in the middle of a book you love writing. This chapter is not an essay — it's a MOMENT in a book. It has a hooking opening, a captivating middle, and an ending that makes you want to turn the page.
+Write this SINGLE chapter.${isNarrative ? ' This chapter is a MOMENT in a story — it has a hooking opening, captivating middle, and an ending that makes you want to turn the page.' : ' This chapter explains and develops the topic clearly. It informs, guides, and delivers value to the reader.'}
 
-RULES FOR THIS CHAPTER:
-- Start with a scene, a provocative question, or an anecdote — NEVER with a definition
-- Include at least 1 concrete story with names and places
-- 2-3 creative <h3> sub-headings (not "Introduction" or "Development")
-- At least 1 quote or memorable formula in <blockquote>
-- Vary paragraph lengths: some 1-2 sentences, others longer
-- BANNED: "Furthermore", "Moreover", "It is important to note", "It should be emphasized"
-- The reader must feel a passionate human wrote this, not a machine
+RULES:
+- ${isNarrative ? 'Start with a scene or anecdote' : 'Start directly with the content — set context in 1-2 sentences then get to the point'}
+- 2-3 ${isNarrative ? 'creative' : 'clear and descriptive'} <h3> sub-headings
+- ${isNarrative ? 'Include at least 1 story with names and places' : 'Give concrete, practical examples'}
+- Vary paragraph lengths
 - Around ${chapterWordTarget} words in rich HTML
+- Write naturally and directly
 
 Return ONLY JSON:
 {
@@ -569,64 +583,68 @@ ${s.suggested_stories?.length ? `- STORIES TO INCLUDE:\n${s.suggested_stories.ma
       }
 
       userPrompt = lang === 'fr'
-        ? `Écris un livre COMPLET, CAPTIVANT et PROFONDÉMENT HUMAIN sur ce sujet :
+        ? `Écris un livre COMPLET sur ce sujet :
 
 TITRE : "${title}"
 ${topic ? `IDÉE / SUJET : ${topic}` : ''}
 LANGUE : ${langName}
 ${editorialContextFr}
 
-INSTRUCTIONS DE RÉDACTION :
-- Exactement ${chapterCount} chapitres, chacun explorant une facette unique et essentielle de "${topic || title}"
-- Titres de chapitres CRÉATIFS et INTRIGANTS — jamais "Introduction", "Chapitre 1: Le sujet", "Conclusion". Surprends le lecteur dès le sommaire.
-- Chaque chapitre : environ ${chapterWordTarget} mots de contenu RICHE en HTML
-- COMMENCE le chapitre 1 par une scène, une anecdote ou une question provocatrice — JAMAIS par une définition ou un état des lieux
-- TERMINE le dernier chapitre par quelque chose de MÉMORABLE — une histoire qui boucle, un appel personnel, une image forte — JAMAIS par un résumé
-- CHAQUE chapitre doit contenir au minimum : 1 anecdote concrète avec noms/lieux, 2-3 sous-titres <h3> intrigants, 1 citation ou formule mémorable en <blockquote>
-- INTERDICTION de commencer deux paragraphes consécutifs par le même mot
-- INTERDICTION d'utiliser les transitions "De plus", "En outre", "Par ailleurs", "Il est important de noter"
-- VARIE la longueur des paragraphes : certains de 1-2 phrases, d'autres de 6-8 phrases
-- Utilise des dialogues reconstitués quand c'est pertinent
-- Le lecteur doit SENTIR qu'un être humain passionné a écrit ce livre, pas une machine
+INSTRUCTIONS :
+- Exactement ${chapterCount} chapitres, chacun explorant une facette unique de "${topic || title}"
+- Titres de chapitres ${isNarrative ? 'CRÉATIFS et INTRIGANTS' : 'CLAIRS et DESCRIPTIFS — le lecteur doit savoir de quoi parle le chapitre en lisant le titre'}
+- Chaque chapitre : environ ${chapterWordTarget} mots en HTML
+${isNarrative
+  ? `- COMMENCE le chapitre 1 par une scène ou une anecdote
+- Inclus des histoires avec des noms et des lieux
+- Utilise des dialogues quand c'est pertinent`
+  : `- COMMENCE chaque chapitre directement par le contenu — 1-2 phrases de contexte puis entre dans le vif du sujet
+- Donne des exemples concrets et pratiques
+- Explique clairement, va droit au but
+- N'invente PAS d'histoires ou de scènes si le sujet ne s'y prête pas`}
+- Varie la longueur des paragraphes
+- Écris de façon naturelle, comme un professionnel qui s'adresse à son lecteur
 
 Retourne UNIQUEMENT un JSON valide :
 {
   "chapters": [
-    {"id": "ch-1", "title": "Un titre créatif qui intrigue...", "content": "<h3>Sous-titre accrocheur</h3><p>Il pleuvait ce matin-là quand j'ai compris que...</p>"},
-    {"id": "ch-2", "title": "Un autre titre surprenant...", "content": "..."}
+    {"id": "ch-1", "title": "Titre du chapitre", "content": "<h3>Sous-titre</h3><p>Contenu...</p>"},
+    {"id": "ch-2", "title": "Titre du chapitre 2", "content": "..."}
   ]
 }
 
-RAPPEL : ${pages} pages sur "${topic || title}". Chaque chapitre ≈ ${chapterWordTarget} mots. Qualité d'un best-seller. Zéro écriture robotique.`
-        : `Write a COMPLETE, CAPTIVATING and DEEPLY HUMAN book on this topic:
+RAPPEL : ${pages} pages sur "${topic || title}". Chaque chapitre ≈ ${chapterWordTarget} mots.`
+        : `Write a COMPLETE book on this topic:
 
 TITLE: "${title}"
 ${topic ? `IDEA / TOPIC: ${topic}` : ''}
 LANGUAGE: ${langName}
 ${editorialContextEn}
 
-WRITING INSTRUCTIONS:
-- Exactly ${chapterCount} chapters, each exploring a unique and essential facet of "${topic || title}"
-- Chapter titles must be CREATIVE and INTRIGUING — never "Introduction", "Chapter 1: The Topic", "Conclusion". Surprise the reader from the table of contents.
-- Each chapter: around ${chapterWordTarget} words of RICH HTML content
-- START chapter 1 with a scene, anecdote, or provocative question — NEVER with a definition or overview
-- END the last chapter with something MEMORABLE — a story that comes full circle, a personal call, a powerful image — NEVER with a summary
-- EVERY chapter must contain at minimum: 1 concrete anecdote with names/places, 2-3 intriguing <h3> sub-headings, 1 quote or memorable formula in <blockquote>
-- NEVER start two consecutive paragraphs with the same word
-- NEVER use transitions like "Furthermore", "Moreover", "Additionally", "It is important to note"
-- VARY paragraph lengths: some 1-2 sentences, others 6-8 sentences
-- Use reconstructed dialogues when relevant
-- The reader must FEEL that a passionate human being wrote this book, not a machine
+INSTRUCTIONS:
+- Exactly ${chapterCount} chapters, each exploring a unique facet of "${topic || title}"
+- Chapter titles must be ${isNarrative ? 'CREATIVE and INTRIGUING' : 'CLEAR and DESCRIPTIVE — the reader should know what the chapter is about from the title'}
+- Each chapter: around ${chapterWordTarget} words in HTML
+${isNarrative
+  ? `- START chapter 1 with a scene or anecdote
+- Include stories with names and places
+- Use dialogues when relevant`
+  : `- START each chapter directly with the content — 1-2 sentences of context then get to the point
+- Give concrete, practical examples
+- Explain clearly, get straight to the point
+- Do NOT invent stories or scenes if the topic doesn't call for it`}
+- Vary paragraph lengths
+- Write naturally, like a professional addressing their reader
 
 Return ONLY valid JSON:
 {
   "chapters": [
-    {"id": "ch-1", "title": "A creative intriguing title...", "content": "<h3>Catchy sub-heading</h3><p>It was raining that morning when I realized that...</p>"},
-    {"id": "ch-2", "title": "Another surprising title...", "content": "..."}
+    {"id": "ch-1", "title": "Chapter title", "content": "<h3>Sub-heading</h3><p>Content...</p>"},
+    {"id": "ch-2", "title": "Chapter 2 title", "content": "..."}
   ]
 }
 
-REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterWordTarget} words. Bestseller quality. Zero robotic writing.`;
+REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterWordTarget} words.`;
     }
 
     const requestTimeoutMs = singleChapter ? 50_000 : 85_000;
@@ -646,6 +664,7 @@ REMINDER: ${pages}-page book on "${topic || title}". Each chapter ≈ ${chapterW
           body: JSON.stringify({
             model: 'google/gemini-2.5-flash',
             max_tokens: maxTokens,
+            temperature: isNarrative ? 0.85 : 0.65,
             response_format: { type: 'json_object' },
             messages: [
               { role: 'system', content: systemPrompt },
