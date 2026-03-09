@@ -4,7 +4,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import {
   PartyPopper, Share2, ArrowRight, Download,
-  CheckCircle, Sparkles, Users, TrendingUp,
+  CheckCircle, Sparkles, Users, TrendingUp, Star,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
@@ -212,6 +212,23 @@ export function PostPurchaseCelebration({
                       </Button>
                     )}
                   </div>
+
+                  {/* ★ LEAVE A REVIEW CTA ★ */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full gap-1.5 text-xs"
+                    onClick={() => {
+                      onClose();
+                      // Navigate to product page review section
+                      const reviewUrl = productSlug
+                        ? `/org/${orgSlug}/p/${productSlug}#reviews`
+                        : `/org/${orgSlug}/product/${productId}#reviews`;
+                      window.location.href = reviewUrl;
+                    }}
+                  >
+                    <Star className="h-3.5 w-3.5" /> Laisser un avis sur ce produit
+                  </Button>
 
                   {/* ★ HIGH-CONVERSION AMBASSADOR CTA ★ */}
                   {!isFreePurchase && price > 0 && (

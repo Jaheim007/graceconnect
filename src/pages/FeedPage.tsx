@@ -29,6 +29,7 @@ import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nContext';
 import { PageTour } from '@/components/onboarding/PageTour';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { SmartSuggestionsBanner } from '@/components/smart/SmartSuggestionsBanner';
 import { Home } from 'lucide-react';
 
 type Tab = 'all' | 'media' | 'store' | 'campaigns' | 'events';
@@ -157,6 +158,9 @@ export default function FeedPage() {
     <div className="min-h-screen bg-background">
       <SEOHead title="Mon fil — Siteviral" description="Retrouvez les dernières publications, produits et événements de vos communautés." noindex />
       <div className="container max-w-5xl px-4 py-5 sm:py-6 space-y-5 sm:space-y-6">
+
+        {/* Smart contextual suggestions */}
+        <SmartSuggestionsBanner />
 
         {/* Profile completion banner */}
         {needsProfileCompletion && (

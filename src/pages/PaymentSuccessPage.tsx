@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { PostPurchaseCelebration } from '@/components/growth/PostPurchaseCelebration';
 import { UpsellSection } from '@/components/payment/UpsellSection';
+import { ContextualFeedback } from '@/components/feedback/ContextualFeedback';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -716,6 +717,11 @@ export default function PaymentSuccessPage() {
               currency={tx.currency}
               coverImage={tx.cover_image_url}
             />
+          )}
+
+          {/* Contextual feedback */}
+          {isCompleted && (
+            <ContextualFeedback context="post_purchase" question="Comment s'est passé votre achat ?" />
           )}
 
           {user && (
