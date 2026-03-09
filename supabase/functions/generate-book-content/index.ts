@@ -781,13 +781,15 @@ AUTHENTICITY GUARDRAILS:
 - No filler paragraphs
 - Each chapter must include at least one concrete artifact (framework, step, case, reference, verse, or checklist)
 
-HTML — USE:
-- <p> for paragraphs
-- <h3> for sub-headings (2-3 per chapter)
-- <blockquote> for quotes, verses, or important points
-- <strong> for key concepts (sparingly)
-- <em> for emphasis
-- <ul><li> or <ol><li> for lists
+HTML — PROFESSIONAL FORMATTING (like a real published book):
+- <p> for body text paragraphs (3-5 sentences each)
+- <h2> for MAJOR SECTION TITLES (e.g. "1. THE PROBLEM", "A- FIVE MAJOR REASONS")
+- <h3> for sub-sections (e.g. "1.1. Pride", "4.2. Old Testament solution")
+- <blockquote> for FULL SCRIPTURE VERSES with reference in <strong> (e.g. <blockquote><strong>Ephesians 6:12</strong>: <em>"For we wrestle not against flesh..."</em></blockquote>)
+- <ol><li> for NUMBERED lists (prayer points, steps, arguments)
+- <ul><li> for bullet lists (themes, examples)
+- <strong> for key terms, biblical references, important concepts
+- <em> for quotes, verse text in italics, emphasis
 ${styleRefInstruction}
 OUTPUT FORMAT: Valid JSON only. No markdown, no code fences.`;
 
