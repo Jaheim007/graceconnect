@@ -12,7 +12,11 @@ export function useOrgEvents(orgId: string | undefined, publishedOnly = true) {
         .select('*')
         .eq('organization_id', orgId)
         .order('event_date', { ascending: true });
-      if (publishedOnly) q = q.eq('is_published', true);
+      if (publishedOnly) {
+        q = q.eq('is_published', true);
+        // Filter out past events for public views
+        q = q.gte('event_date', new Date().toISOString());
+      }
       const { data } = await q;
       return (data || []) as Event[];
     },
