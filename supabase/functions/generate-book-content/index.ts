@@ -651,6 +651,9 @@ function detectEditorialProfile(style: string, tone: string, title: string, topi
   // Activity book
   if (style === 'activity') return 'activity_workbook';
 
+  // Coloring book
+  if (style === 'coloring') return 'coloring_book';
+
   const spiritualSignals = ['prière', 'priere', 'anges', 'ange', 'spirituel', 'combat', 'delivrance', 'foi', 'satan', 'bataille', 'guerre', 'jesus', 'bible', 'miracle'];
   if (style === 'prayers' || tone === 'spiritual' || spiritualSignals.some((word) => haystack.includes(word))) {
     return 'spiritual_warfare';
