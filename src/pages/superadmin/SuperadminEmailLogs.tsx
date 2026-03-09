@@ -100,7 +100,7 @@ export default function SuperadminEmailLogs() {
             <SelectValue placeholder="Catégorie" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All categories</SelectItem>
+            <SelectItem value="all">Toutes les catégories</SelectItem>
             {Object.keys(TEMPLATE_CATEGORIES).map(c => (
               <SelectItem key={c} value={c}>{c}</SelectItem>
             ))}
