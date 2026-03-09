@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { PenLine, Share2, Upload, Store, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FirstWinChecklist } from '@/components/dashboard/FirstWinChecklist';
-import { InviteEarnWidget } from '@/components/referral/InviteEarnWidget';
+
 import { TrendingProducts } from '@/components/discover/TrendingProducts';
 import { GrowthTipsWidget } from '@/components/growth/GrowthTipsWidget';
 import AmbassadorDashboard from '@/pages/AmbassadorDashboard';
