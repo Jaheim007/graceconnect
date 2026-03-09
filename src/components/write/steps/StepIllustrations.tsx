@@ -41,7 +41,12 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
     watercolor: t('write.illust_style_watercolor') || 'Aquarelle',
     cartoon: t('write.illust_style_cartoon') || 'Cartoon',
     realistic: t('write.illust_style_realistic') || 'Réaliste',
+    line_art: t('write.illust_style_line_art') || 'Coloriage (line art)',
   };
+
+  // Auto-select line_art for coloring books
+  const isColoringBook = state.style === 'coloring';
+  const effectiveArtStyle = isColoringBook ? 'line_art' : artStyle;
 
   const generateIllustration = async (chapterId: string, chapterTitle: string, chapterContent: string) => {
     setGenerating(chapterId);
