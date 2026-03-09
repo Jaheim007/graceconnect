@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 import {
   Terminal, Zap, Shield, AlertTriangle, TrendingUp, Users, DollarSign,
   FileCheck, ShieldAlert, Mail, Bell, RefreshCw, ArrowRight, Activity,
-  BarChart3, Megaphone, Settings, Wallet, Handshake, Download
+  BarChart3, Megaphone, Settings, Wallet, Handshake, Download, Bot,
+  CheckCircle2, Clock, XCircle, Play
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,8 +14,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { db } from '@/lib/db';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/currency';
-import { format, subDays } from 'date-fns';
+import { format, subDays, formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
@@ -32,8 +35,8 @@ interface QuickAction {
 
 export default function SuperadminCommandCenter() {
   const navigate = useNavigate();
-  const today = new Date().toISOString().split('T')[0];
   const weekAgo = subDays(new Date(), 7).toISOString();
+  const [triggeringMode, setTriggeringMode] = useState<string | null>(null);
 
   // Aggregate critical stats
   const { data: stats, isLoading } = useQuery({
@@ -75,6 +78,36 @@ export default function SuperadminCommandCenter() {
     staleTime: 60_000,
   });
 
+  // Autopilot runs
+  const { data: autopilotRuns, refetch: refetchRuns } = useQuery({
+    queryKey: ['autopilot-runs'],
+    queryFn: async () => {
+      const { data } = await db
+        .from('ops_autopilot_runs' as any)
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(10);
+      return (data || []) as any[];
+    },
+    staleTime: 30_000,
+  });
+
+  const triggerAutopilot = async (mode: 'daily' | 'weekly') => {
+    setTriggeringMode(mode);
+    try {
+      const { data, error } = await supabase.functions.invoke('ops-autopilot', {
+        body: { mode },
+      });
+      if (error) throw error;
+      toast.success(`Autopilot ${mode} exécuté : ${data?.actions || 0} actions, ${data?.notifications || 0} notifications`);
+      refetchRuns();
+    } catch (e: any) {
+      toast.error('Erreur : ' + (e.message || 'Échec'));
+    } finally {
+      setTriggeringMode(null);
+    }
+  };
+
   const quickActions: QuickAction[] = [
     { label: 'KYC Review', icon: FileCheck, path: '/superadmin/kyc', color: 'text-amber-500', badge: stats?.pendingKyc ? `${stats.pendingKyc}` : undefined },
     { label: 'Reports', icon: Megaphone, path: '/superadmin/reports', color: 'text-rose-500', badge: stats?.pendingReports ? `${stats.pendingReports}` : undefined },
@@ -97,6 +130,12 @@ export default function SuperadminCommandCenter() {
     stats?.pendingPayouts && stats.pendingPayouts > 0 && { level: 'info' as const, text: `${stats.pendingPayouts} demande(s) de paiement en attente`, path: '/superadmin/settlements' },
     stats?.suspendedOrgs && stats.suspendedOrgs > 0 && { level: 'danger' as const, text: `${stats.suspendedOrgs} organisation(s) suspendue(s)`, path: '/superadmin/orgs' },
   ].filter(Boolean) as { level: string; text: string; path: string }[];
+
+  const getRunStatusIcon = (status: string) => {
+    if (status === 'completed') return <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />;
+    if (status === 'failed') return <XCircle className="h-3.5 w-3.5 text-destructive" />;
+    return <Clock className="h-3.5 w-3.5 text-amber-500 animate-spin" />;
+  };
 
   return (
     <div className="space-y-6">
@@ -155,6 +194,86 @@ export default function SuperadminCommandCenter() {
           </motion.div>
         ))}
       </motion.div>
+
+      {/* Ops Autopilot Panel */}
+      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-sm font-semibold flex items-center gap-2">
+              <Bot className="h-4 w-4 text-primary" />
+              Ops Autopilot
+              <Badge variant="secondary" className="text-[9px] px-1.5">6 départements</Badge>
+            </CardTitle>
+            <div className="flex gap-1.5">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 text-xs gap-1"
+                onClick={() => triggerAutopilot('daily')}
+                disabled={!!triggeringMode}
+              >
+                {triggeringMode === 'daily' ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Play className="h-3 w-3" />}
+                Daily
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 text-xs gap-1"
+                onClick={() => triggerAutopilot('weekly')}
+                disabled={!!triggeringMode}
+              >
+                {triggeringMode === 'weekly' ? <RefreshCw className="h-3 w-3 animate-spin" /> : <Play className="h-3 w-3" />}
+                Weekly
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0 space-y-3">
+          {/* Departments covered */}
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+            {[
+              { label: 'Growth', icon: '🚀', desc: 'TTFV, activation, rétention' },
+              { label: 'Support', icon: '🛟', desc: 'SLA, KYC, signalements' },
+              { label: 'Communauté', icon: '👥', desc: 'Leaderboard, onboarding' },
+              { label: 'Marketing', icon: '📣', desc: 'Pages, analytics' },
+              { label: 'Partenariats', icon: '🤝', desc: 'Churn, niveaux' },
+              { label: 'Contenu', icon: '✍️', desc: 'Blog, qualité' },
+            ].map((dept) => (
+              <div key={dept.label} className="text-center p-2 rounded-lg bg-background/50 border border-border/40">
+                <div className="text-lg">{dept.icon}</div>
+                <div className="text-[10px] font-medium">{dept.label}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Recent runs */}
+          {autopilotRuns && autopilotRuns.length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Dernières exécutions</p>
+              {autopilotRuns.slice(0, 5).map((run: any) => (
+                <div key={run.id} className="flex items-center gap-2 text-xs py-1.5 px-2 rounded-lg bg-background/60 border border-border/30">
+                  {getRunStatusIcon(run.status)}
+                  <Badge variant="outline" className="text-[9px] px-1.5 py-0">
+                    {run.run_mode}
+                  </Badge>
+                  <span className="flex-1 text-muted-foreground truncate">
+                    {run.alerts_generated} alertes · {run.notifications_sent} notifs · {(run.actions_taken as any[])?.length || 0} actions
+                  </span>
+                  <span className="text-[10px] text-muted-foreground shrink-0">
+                    {formatDistanceToNow(new Date(run.created_at), { addSuffix: true, locale: fr })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {(!autopilotRuns || autopilotRuns.length === 0) && (
+            <p className="text-xs text-muted-foreground text-center py-3">
+              Aucune exécution encore. Cliquez sur "Daily" ou "Weekly" pour lancer l'autopilot.
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Quick Actions Grid */}
       <div>
