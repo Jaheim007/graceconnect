@@ -18,7 +18,7 @@ import { Progress } from '@/components/ui/progress';
 import PartnerPendingPopup from '@/components/partner/PartnerPendingPopup';
 import { QuickStartPaths } from '@/components/growth/QuickStartPaths';
 import { SmartNudge } from '@/components/growth/SmartNudge';
-import { InviteEarnWidget } from '@/components/social/InviteEarnWidget';
+
 
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 12 },
