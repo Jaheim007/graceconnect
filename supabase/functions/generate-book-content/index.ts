@@ -213,6 +213,8 @@ function getInstruction(map: Record<string, Record<string, string>>, lang: strin
 
 const MAX_CHAPTERS = 8;
 const MIN_CHAPTERS = 3;
+const MIN_VALID_CHAPTER_RATIO = 0.7;
+const MAX_RETRIES = 3;
 
 function extractJsonObjectCandidate(raw: string): string | null {
   const text = raw.trim();
