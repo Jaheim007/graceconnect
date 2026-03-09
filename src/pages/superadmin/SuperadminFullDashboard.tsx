@@ -105,7 +105,7 @@ export default function SuperadminFullDashboard() {
         db.rpc('get_weekly_user_cohorts', { _weeks: 8 }),
       ]);
 
-      const t = totalsRes.data || {};
+      const totalsRaw = totalsRes.data as any || {};
 
       // Merge donations + purchases into a single activity feed
       const activityItems = [
