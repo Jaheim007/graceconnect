@@ -679,9 +679,11 @@ Deno.serve(async (req) => {
     const formatInstruction = getInstruction(styleFormatMap, lang, _style, 'ebook');
     const antiAiRules = getAntiAiRules(lang, _style);
 
-    // Narrative detection
+    // Narrative detection + editorial profile
     const narrativeStyles = ['story', 'novel'];
     const isNarrative = narrativeStyles.includes(_style);
+    const editorialProfile = detectEditorialProfile(_style, _tone, title || '', topic || '', _audience);
+    const editorialBlueprint = getEditorialBlueprint(lang, editorialProfile);
 
     // Style reference
     let styleRefInstruction = '';
@@ -702,8 +704,8 @@ Author wants you to write in the style of: "${ref}"
 - EVERY paragraph must sound like ${ref} wrote it.`;
     }
 
-    // Temperature: lower for non-narrative to reduce AI-ness
-    const temperature = isNarrative ? 0.8 : 0.5;
+    // Temperature by editorial profile
+    const temperature = getTemperatureForProfile(editorialProfile, isNarrative);
 
     // ═══ BUILD SYSTEM PROMPT ═══
     const systemPrompt = lang === 'fr'
