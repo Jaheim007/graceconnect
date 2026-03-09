@@ -657,6 +657,19 @@ function getEditorialBlueprint(lang: string, profile: EditorialProfile): string 
         return `Blueprint narratif :
 - Arcs de scènes, dialogues crédibles, ancrage temporel et géographique
 - Pas de langage de manuel ni de checklist`;
+      case 'devotional_journal':
+        return `Blueprint dévotion quotidienne :
+- Chaque entrée = 1 verset (blockquote) + réflexion intime 1ère personne + application concrète + prière courte
+- Progression thématique cohérente sur la durée du journal
+- Ton personnel et chaleureux — PAS un sermon, PAS un cours
+- Varier les livres bibliques cités (AT + NT)`;
+      case 'activity_workbook':
+        return `Blueprint cahier d'activités :
+- Chaque chapitre = 5-8 activités VARIÉES en types (quiz, vrai/faux, dessin, texte à trous, correspondance, défi)
+- Chaque activité = objectif + instructions + espace de réponse + niveau de difficulté
+- Corrigé en fin de chapitre
+- Adapté au public cible (enfants = simple/coloré, ados = dynamique, adultes = réflexif)
+- Format interactif : cases □, lignes _____, tableaux <table>, émojis`;
       default:
         return `Blueprint développement personnel :
 - Question centrale → démonstration → outils concrets → mise en pratique
@@ -673,6 +686,10 @@ function getEditorialBlueprint(lang: string, profile: EditorialProfile): string 
       return `Leadership blueprint: one principle per chapter, one memorable line, one field application, then immediate actions.`;
     case 'narrative':
       return `Narrative blueprint: scene arcs, credible dialogue, time/place anchoring, no handbook-style sections.`;
+    case 'devotional_journal':
+      return `Devotional blueprint: each entry = 1 verse (blockquote) + intimate first-person reflection + concrete application + short prayer. Thematic progression. Warm personal tone, NOT a lecture.`;
+    case 'activity_workbook':
+      return `Activity workbook blueprint: 5-8 varied activities per chapter (quiz, true/false, matching, fill-in-blank, creative, challenges). Clear objectives, answer key at end. Adapted to target audience.`;
     default:
       return `Personal growth blueprint: core question → explanation → practical tools → reader application.`;
   }
@@ -683,6 +700,8 @@ function getTemperatureForProfile(profile: EditorialProfile, isNarrative: boolea
   if (profile === 'business_manual') return 0.38;
   if (profile === 'leadership') return 0.42;
   if (profile === 'spiritual_warfare') return 0.45;
+  if (profile === 'devotional_journal') return 0.50;
+  if (profile === 'activity_workbook') return 0.42;
   return 0.44;
 }
 
