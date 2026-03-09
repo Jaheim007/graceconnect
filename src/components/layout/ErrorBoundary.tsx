@@ -63,6 +63,12 @@ export class ErrorBoundary extends Component<Props, State> {
             <p className="text-sm text-muted-foreground">
               Une erreur inattendue est survenue. Essayez de recharger la page.
             </p>
+            {this.state.error && (
+              <details className="text-left bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground max-w-full overflow-auto">
+                <summary className="cursor-pointer font-medium text-foreground">Détails de l'erreur</summary>
+                <pre className="mt-2 whitespace-pre-wrap break-all">{this.state.error.message}{'\n'}{this.state.error.stack}</pre>
+              </details>
+            )}
             <div className="flex gap-2 justify-center">
               <Button variant="outline" size="sm" onClick={this.handleReset}>
                 <RefreshCw className="h-4 w-4 mr-1" /> Réessayer
