@@ -1358,6 +1358,7 @@ export type Database = {
           sales_count: number | null
           scheduled_at: string | null
           slug: string | null
+          social_snippets_json: Json | null
           submitted_for_review_at: string | null
           testimonials_json: Json | null
           title: string
@@ -1405,6 +1406,7 @@ export type Database = {
           sales_count?: number | null
           scheduled_at?: string | null
           slug?: string | null
+          social_snippets_json?: Json | null
           submitted_for_review_at?: string | null
           testimonials_json?: Json | null
           title: string
@@ -1452,6 +1454,7 @@ export type Database = {
           sales_count?: number | null
           scheduled_at?: string | null
           slug?: string | null
+          social_snippets_json?: Json | null
           submitted_for_review_at?: string | null
           testimonials_json?: Json | null
           title?: string
@@ -1936,6 +1939,42 @@ export type Database = {
           traffic_percent?: number
           updated_at?: string
           variants?: Json
+        }
+        Relationships: []
+      }
+      faq_items: {
+        Row: {
+          answer: string
+          category: string
+          created_at: string
+          display_order: number
+          id: string
+          is_published: boolean
+          locale: string
+          question: string
+          updated_at: string
+        }
+        Insert: {
+          answer: string
+          category?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_published?: boolean
+          locale?: string
+          question: string
+          updated_at?: string
+        }
+        Update: {
+          answer?: string
+          category?: string
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_published?: boolean
+          locale?: string
+          question?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -4624,6 +4663,33 @@ export type Database = {
           content_type?: string
           created_at?: string
           id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_feedback: {
+        Row: {
+          comment: string | null
+          context: string
+          created_at: string
+          id: string
+          score: number
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          context: string
+          created_at?: string
+          id?: string
+          score: number
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          context?: string
+          created_at?: string
+          id?: string
+          score?: number
           user_id?: string
         }
         Relationships: []
