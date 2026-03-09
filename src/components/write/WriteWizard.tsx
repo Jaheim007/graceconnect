@@ -22,6 +22,8 @@ import { trackEvent } from '@/hooks/useClientAnalytics';
 
 export type SourceType = 'idea' | 'document' | 'youtube' | 'audio' | 'notes_photo';
 export type BookStyle = 'ebook' | 'guide' | 'prayers' | 'story' | 'novel' | 'devotional' | 'activity' | 'coloring';
+export type ReligiousTradition = 'christian' | 'muslim' | 'spiritual' | 'interfaith';
+export type PrayerFormat = 'simple_prayers' | 'warfare_prayers' | 'proclamations' | 'invocations' | 'religious_teaching';
 export type WritingTone = 'professional' | 'conversational' | 'humorous' | 'spiritual' | 'poetic' | 'academic';
 export type LanguageLevel = 'simple' | 'intermediate' | 'advanced';
 export type TargetAudience = 'general' | 'children' | 'teens' | 'adults' | 'seniors' | 'professionals';
@@ -55,6 +57,8 @@ export interface WriteState {
   authorName: string;
   keywords: string[];
   style: BookStyle;
+  religiousTradition?: ReligiousTradition;
+  prayerFormat?: PrayerFormat;
   tone: WritingTone;
   languageLevel: LanguageLevel;
   targetAudience: TargetAudience;
@@ -129,6 +133,8 @@ const initialState: WriteState = {
   authorName: '',
   keywords: [],
   style: 'ebook',
+  religiousTradition: undefined,
+  prayerFormat: undefined,
   tone: 'professional',
   languageLevel: 'intermediate',
   targetAudience: 'general',

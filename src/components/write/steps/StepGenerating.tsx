@@ -54,6 +54,8 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
         targetAudience: state.targetAudience || 'general',
         styleReference: state.styleReference || '',
         editorialStrategy: state.editorialStrategy || null,
+        religiousTradition: state.religiousTradition || null,
+        prayerFormat: state.prayerFormat || null,
       },
     });
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, Users, Baby, User, Briefcase, UserCog, Globe, Wand2, Sparkles, Loader2, BookText, Palette, PenTool, ChevronDown, ChevronUp, Tag, UserPen, Brush } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, Users, Baby, User, Briefcase, UserCog, Globe, Wand2, Sparkles, Loader2, BookText, Palette, PenTool, ChevronDown, ChevronUp, Tag, UserPen, Brush, Cross, Moon, Flame, BookHeart, Megaphone, ScrollText, Swords, HandHeart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,7 +7,7 @@ import { Slider } from '@/components/ui/slider';
 import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import type { WriteState, BookStyle, WritingTone, TargetAudience, BookLanguage, BookLength } from '../WriteWizard';
+import type { WriteState, BookStyle, WritingTone, TargetAudience, BookLanguage, BookLength, ReligiousTradition, PrayerFormat } from '../WriteWizard';
 import { hasGeneratedContent } from '../utils/hasGeneratedContent';
 
 interface Props {
@@ -34,6 +34,21 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
     { type: 'devotional', icon: Church, label: t('write.style_devotional') || 'Dévotion', desc: t('write.style_devotional_desc') || 'Journal spirituel, méditations quotidiennes' },
     { type: 'activity', icon: Palette, label: t('write.style_activity') || 'Cahier d\'activités', desc: t('write.style_activity_desc') || 'Exercices, quiz, coloriage' },
     { type: 'coloring', icon: Brush, label: t('write.style_coloring') || 'Livre de coloriage', desc: t('write.style_coloring_desc') || 'Pages à colorier, line art' },
+  ];
+
+  const religiousTraditions: { type: ReligiousTradition; icon: typeof Church; label: string; desc: string }[] = [
+    { type: 'christian', icon: Church, label: t('write.tradition_christian') || 'Chrétien', desc: t('write.tradition_christian_desc') || 'Bible, Jésus, Saint-Esprit' },
+    { type: 'muslim', icon: BookOpen, label: t('write.tradition_muslim') || 'Musulman', desc: t('write.tradition_muslim_desc') || 'Coran, Du\'as, Hadiths' },
+    { type: 'spiritual', icon: Feather, label: t('write.tradition_spiritual') || 'Spirituel général', desc: t('write.tradition_spiritual_desc') || 'Méditation, énergie, univers' },
+    { type: 'interfaith', icon: Heart, label: t('write.tradition_interfaith') || 'Interreligieux', desc: t('write.tradition_interfaith_desc') || 'Universel, multi-traditions' },
+  ];
+
+  const prayerFormats: { type: PrayerFormat; icon: typeof Heart; label: string; desc: string }[] = [
+    { type: 'simple_prayers', icon: Heart, label: t('write.format_simple_prayers') || 'Prières simples', desc: t('write.format_simple_prayers_desc') || 'Prières douces, dévotionnelles' },
+    { type: 'warfare_prayers', icon: Feather, label: t('write.format_warfare') || 'Combat spirituel', desc: t('write.format_warfare_desc') || 'Guerre spirituelle, délivrance' },
+    { type: 'proclamations', icon: FileText, label: t('write.format_proclamations') || 'Proclamations', desc: t('write.format_proclamations_desc') || 'Déclarations, décrets de foi' },
+    { type: 'invocations', icon: Feather, label: t('write.format_invocations') || 'Invocations', desc: t('write.format_invocations_desc') || 'Du\'as, louanges, supplications' },
+    { type: 'religious_teaching', icon: BookOpen, label: t('write.format_teaching') || 'Enseignement religieux', desc: t('write.format_teaching_desc') || 'Principes, doctrine, étude' },
   ];
 
   const tones: { type: WritingTone; icon: typeof MessageSquare; label: string }[] = [
@@ -203,7 +218,14 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
           {styles.map(s => (
             <button
               key={s.type}
-              onClick={() => update({ style: s.type })}
+              onClick={() => {
+                const patch: Partial<WriteState> = { style: s.type };
+                if (s.type !== 'prayers') {
+                  patch.religiousTradition = undefined;
+                  patch.prayerFormat = undefined;
+                }
+                update(patch);
+              }}
               className={`p-3 rounded-xl border-2 text-center transition-all ${
                 state.style === s.type
                   ? 'border-primary bg-primary/5'
@@ -217,6 +239,57 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
           ))}
         </div>
       </div>
+
+      {/* ═══ Prayer sub-selectors (only when style === 'prayers') ═══ */}
+      {state.style === 'prayers' && (
+        <div className="space-y-4 rounded-xl border-2 border-primary/20 bg-primary/5 p-4">
+          <p className="text-xs font-semibold text-primary">{t('write.prayer_customize') || '🙏 Précisez votre livre de prières'}</p>
+
+          {/* Religious tradition */}
+          <div className="space-y-2">
+            <label className="text-xs font-medium">{t('write.tradition_label') || 'Tradition religieuse'}</label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+              {religiousTraditions.map(rt => (
+                <button
+                  key={rt.type}
+                  onClick={() => update({ religiousTradition: rt.type })}
+                  className={`p-2.5 rounded-lg border text-center transition-all ${
+                    state.religiousTradition === rt.type
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border hover:border-primary/30 text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <rt.icon className="h-4 w-4 mx-auto mb-1" />
+                  <p className="text-[10px] font-semibold leading-tight">{rt.label}</p>
+                  <p className="text-[9px] text-muted-foreground mt-0.5 hidden sm:block">{rt.desc}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Prayer format */}
+          <div className="space-y-2">
+            <label className="text-xs font-medium">{t('write.format_label') || 'Type de contenu'}</label>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
+              {prayerFormats.map(pf => (
+                <button
+                  key={pf.type}
+                  onClick={() => update({ prayerFormat: pf.type })}
+                  className={`p-2.5 rounded-lg border text-center transition-all ${
+                    state.prayerFormat === pf.type
+                      ? 'border-primary bg-primary/10 text-primary'
+                      : 'border-border hover:border-primary/30 text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  <pf.icon className="h-4 w-4 mx-auto mb-1" />
+                  <p className="text-[10px] font-semibold leading-tight">{pf.label}</p>
+                  <p className="text-[9px] text-muted-foreground mt-0.5 hidden sm:block">{pf.desc}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Target audience */}
       <div className="space-y-2">

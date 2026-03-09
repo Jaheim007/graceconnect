@@ -199,27 +199,30 @@ TITRES 100% FONCTIONNELS :
 
 INTERDIT : narration romanesque, métaphores fleuries, intro vague. C'est un outil de travail.`,
 
-    prayers: `STRUCTURE DE VRAI LIVRE D'AUTORITÉ SPIRITUELLE (inspiré de D.K. Olukoya et David Oyedepo) :
+    prayers: `STRUCTURE ADAPTATIVE DE LIVRE DE PRIÈRES / LIVRE RELIGIEUX :
 
-STRUCTURE OBLIGATOIRE :
-1. INTRODUCTION/FONDATION doctrinale (combat, autorité, position du croyant)
-2. CHAPITRES CENTRAUX en 3 blocs répétables :
-   - ENSEIGNEMENT BIBLIQUE (versets complets + référence Livre Chapitre:Verset)
-   - EXPLICATION PRATIQUE (ce que cela change aujourd'hui)
-   - DÉCLARATIONS / PRIÈRES NUMÉROTÉES, impératives et directes
-3. CHAPITRE FINAL = déclarations de victoire + directives pratiques de persévérance
+Ce prompt s'adapte à la tradition et au format choisis par l'utilisateur.
+
+STRUCTURE PAR DÉFAUT (prières chrétiennes simples) :
+1. INTRODUCTION : pourquoi prier, comment utiliser ce livre
+2. CHAPITRES THÉMATIQUES — chaque chapitre couvre UN thème de prière :
+   - Court enseignement introductif (1-2 paragraphes)
+   - Verset ou texte sacré en <blockquote> avec référence
+   - 5-10 PRIÈRES numérotées, sincères, personnelles
+   - Courte méditation ou réflexion finale
+3. CHAPITRE FINAL : engagement de prière, bénédiction
 
 STYLE :
-- Ton ferme, sans mollesse
-- Interpellation directe du lecteur
-- Sous-titres MAJUSCULES autoritaires
-- Verbes d'action: "DÉCLARE", "REJETTE", "ORDONNE", "RÉSISTE"
+- Ton chaleureux, intime, accessible
+- Les prières sont à la PREMIÈRE PERSONNE ("Seigneur, je viens à toi...")
+- Varier les types : louange, demande, intercession, action de grâce, confession
+- Versets/textes sacrés avec références COMPLÈTES
 
 FORMAT :
-- <blockquote> pour versets
-- <ol><li> pour points de prière (10+ quand pertinent)
-- Chaque verset doit être suivi d'une application concrète
-- ZÉRO poésie mystique, ZÉRO flou`,
+- <blockquote> pour versets/textes sacrés
+- <ol><li> pour prières numérotées
+- <em> pour les paroles de prière en italique
+- Chaque prière fait 3-6 phrases (pas trop longue, pas trop courte)`,
 
     story: `STRUCTURE DE VRAI ROMAN/CONTE (inspiré de "Des larmes d'or vert" de Marie-Amélie Laporte) :
 
@@ -362,14 +365,13 @@ FORMAT:
 - Summary at end of each section
 - ZERO literary narrative, ZERO metaphors — it's a WORK TOOL`,
 
-    prayers: `REAL SPIRITUAL WARFARE BOOK STRUCTURE (inspired by D.K. Olukoya "Commanding the Morning"):
-- Biblical TEACHING with full verse references in <blockquote>
-- REAL TESTIMONIES (deliverance stories, real-life examples)
-- NUMBERED PRAYER POINTS (10-21 per section) — DIRECT, COMMANDING:
-  "1. Every power [description], die in the name of Jesus."
-  "2. Every [spiritual enemy], I [action] you by fire, in the name of Jesus."
-- CAPITALIZED sub-headings: "THE BELIEVER'S AUTHORITY", "COSTLY IGNORANCE"
-- NO softness. This is WARFARE.`,
+    prayers: `ADAPTIVE PRAYER / RELIGIOUS BOOK STRUCTURE:
+- Intro: why pray, how to use this book
+- Thematic chapters: short teaching + scripture in <blockquote> + 5-10 NUMBERED prayers (first person, sincere)
+- Vary prayer types: praise, petition, intercession, thanksgiving, confession
+- Final chapter: prayer commitment, blessing
+- Warm, intimate, accessible tone
+- Complete scripture references`,
 
     story: `REAL NOVEL STRUCTURE (inspired by literary fiction):
 - Characters with FULL NAMES, physical descriptions, backstory
@@ -413,7 +415,7 @@ FORBIDDEN: long paragraphs, quizzes, written exercises. This is for COLORING.`,
   es: {
     ebook: `Estructura de libro real: problema, experiencia del autor, ejemplos concretos, preguntas de reflexión al final de cada capítulo.`,
     guide: `Manual práctico: partes numeradas, casos prácticos con nombres, ejercicios, listas, resúmenes.`,
-    prayers: `Libro de combate espiritual: versículos con referencias, testimonios reales, puntos de oración NUMERADOS y COMANDANTES.`,
+    prayers: `Libro de oraciones: versículos/textos sagrados con referencias, oraciones NUMERADAS en primera persona, tono cálido e íntimo.`,
     story: `Novela: personajes con nombres completos, diálogos con rayas (—), descripciones sensoriales, prosa pura.`,
     novel: `Estructura novelística completa con arco narrativo.`,
     devotional: `Meditaciones diarias numeradas con versículos, reflexión y oración.`,
@@ -423,7 +425,7 @@ FORBIDDEN: long paragraphs, quizzes, written exercises. This is for COLORING.`,
   pt: {
     ebook: `Estrutura de livro real: problema, experiência do autor, exemplos concretos, perguntas de reflexão.`,
     guide: `Manual prático: partes numeradas, casos práticos, exercícios, resumos.`,
-    prayers: `Livro de combate espiritual: versículos com referências, testemunhos reais, pontos de oração NUMERADOS.`,
+    prayers: `Livro de orações: versículos/textos sagrados com referências, orações NUMERADAS em primeira pessoa, tom caloroso.`,
     story: `Romance: personagens com nomes completos, diálogos com travessões (—), prosa pura.`,
     novel: `Estrutura romanesca completa.`,
     devotional: `Meditações diárias numeradas.`,
@@ -433,7 +435,7 @@ FORBIDDEN: long paragraphs, quizzes, written exercises. This is for COLORING.`,
   de: {
     ebook: `Echte Buchstruktur: Problem, Autorenerfahrung, konkrete Beispiele, Reflexionsfragen.`,
     guide: `Praktisches Handbuch: nummerierte Teile, Fallstudien, Übungen, Zusammenfassungen.`,
-    prayers: `Geistliches Kampfbuch: Bibelverse mit Referenzen, echte Zeugnisse, NUMMERIERTE Gebetspunkte.`,
+    prayers: `Gebetbuch: Bibelverse/heilige Texte mit Referenzen, NUMMERIERTE Gebete in erster Person, warmer Ton.`,
     story: `Roman: Figuren mit vollständigen Namen, Dialoge mit Gedankenstrich (—), reine Prosa.`,
     novel: `Romanstruktur mit immersiven Kapiteln.`,
     devotional: `Nummerierte tägliche Meditationen.`,
@@ -443,7 +445,7 @@ FORBIDDEN: long paragraphs, quizzes, written exercises. This is for COLORING.`,
   sw: {
     ebook: `Muundo wa kitabu halisi: tatizo, uzoefu wa mwandishi, mifano halisi, maswali ya kutafakari.`,
     guide: `Mwongozo wa vitendo: sehemu zilizohesabiwa, mifano, mazoezi, muhtasari.`,
-    prayers: `Kitabu cha vita vya kiroho: aya na marejeleo, ushuhuda halisi, pointi za maombi ZILIZOHESABIWA.`,
+    prayers: `Kitabu cha maombi: aya/maandiko matakatifu na marejeleo, maombi YALIYOHESABIWA kwa nafsi ya kwanza, sauti ya joto.`,
     story: `Riwaya: wahusika wenye majina kamili, mazungumzo na dashi (—), nathari safi.`,
     novel: `Muundo kamili wa riwaya.`,
     devotional: `Kutafakari za kila siku zilizohesabiwa.`,
@@ -638,14 +640,14 @@ STRICTLY BANNED WORDS/PHRASES:
 "Mosaic of", "Tapestry of", "Symphony of", "Alchemy of"`;
 }
 
-type EditorialProfile = 'business_manual' | 'leadership' | 'spiritual_warfare' | 'personal_growth' | 'narrative' | 'devotional_journal' | 'activity_workbook' | 'coloring_book';
+type EditorialProfile = 'business_manual' | 'leadership' | 'spiritual_warfare' | 'simple_prayers' | 'islamic_devotional' | 'proclamations' | 'religious_teaching' | 'personal_growth' | 'narrative' | 'devotional_journal' | 'activity_workbook' | 'coloring_book';
 
-function detectEditorialProfile(style: string, tone: string, title: string, topic: string, audience: string): EditorialProfile {
+function detectEditorialProfile(style: string, tone: string, title: string, topic: string, audience: string, religiousTradition?: string, prayerFormat?: string): EditorialProfile {
   const haystack = `${title} ${topic}`.toLowerCase();
   const narrativeStyles = ['story', 'novel'];
   if (narrativeStyles.includes(style)) return 'narrative';
 
-  // Devotional — must be checked BEFORE spiritual_warfare
+  // Devotional — must be checked BEFORE prayers
   if (style === 'devotional') return 'devotional_journal';
 
   // Activity book
@@ -654,8 +656,31 @@ function detectEditorialProfile(style: string, tone: string, title: string, topi
   // Coloring book
   if (style === 'coloring') return 'coloring_book';
 
+  // ═══ PRAYERS — Route based on religiousTradition + prayerFormat ═══
+  if (style === 'prayers') {
+    // If user selected a specific format, use it
+    if (prayerFormat === 'warfare_prayers') return 'spiritual_warfare';
+    if (prayerFormat === 'proclamations') return 'proclamations';
+    if (prayerFormat === 'religious_teaching') return 'religious_teaching';
+    if (prayerFormat === 'invocations') {
+      if (religiousTradition === 'muslim') return 'islamic_devotional';
+      return 'simple_prayers';
+    }
+    if (prayerFormat === 'simple_prayers') return 'simple_prayers';
+    
+    // Fallback: detect from tradition
+    if (religiousTradition === 'muslim') return 'islamic_devotional';
+    if (religiousTradition === 'spiritual' || religiousTradition === 'interfaith') return 'simple_prayers';
+    
+    // Default Christian: check signals for warfare vs simple
+    const warfareSignals = ['combat', 'guerre', 'warfare', 'delivrance', 'satan', 'bataille', 'commanding', 'fire'];
+    if (warfareSignals.some((w) => haystack.includes(w))) return 'spiritual_warfare';
+    return 'simple_prayers';
+  }
+
+  // Non-prayer spiritual content
   const spiritualSignals = ['prière', 'priere', 'anges', 'ange', 'spirituel', 'combat', 'delivrance', 'foi', 'satan', 'bataille', 'guerre', 'jesus', 'bible', 'miracle'];
-  if (style === 'prayers' || tone === 'spiritual' || spiritualSignals.some((word) => haystack.includes(word))) {
+  if (tone === 'spiritual' || spiritualSignals.some((word) => haystack.includes(word))) {
     return 'spiritual_warfare';
   }
 
@@ -676,11 +701,42 @@ function getEditorialBlueprint(lang: string, profile: EditorialProfile): string 
   if (lang === 'fr') {
     switch (profile) {
       case 'spiritual_warfare':
-        return `Blueprint spirituel :
+        return `Blueprint guerre spirituelle (chrétien) :
 - Progression: fondation doctrinale → application concrète → points de prière impératifs
 - Chaque chapitre contient au moins 2 versets complets (Livre Chapitre:Verset) + explication concrète
-- Inclure des déclarations directes et des consignes actionnables
-- Interdit: ton rêveur, flou mystique, formulations passives`;
+- Prières COMMANDANTES : "Je déclare...", "J'ordonne...", "Je résiste..."
+- Ton ferme, autoritaire. Sous-titres MAJUSCULES. C'est un COMBAT.`;
+      case 'simple_prayers':
+        return `Blueprint prières simples / dévotionnelles :
+- Chaque chapitre = 1 thème de prière (gratitude, guérison, famille, paix...)
+- Structure : court enseignement (1-2 §) → texte sacré en blockquote → 5-10 prières NUMÉROTÉES à la 1ère personne
+- Ton chaleureux, intime, sincère — PAS un sermon
+- Varier les types : louange, demande, intercession, confession, action de grâce
+- Adapter au contexte religieux choisi (chrétien, spirituel, etc.)`;
+      case 'islamic_devotional':
+        return `Blueprint livre de prières / invocations islamiques :
+- Chaque chapitre = 1 thème (repentance, protection, guidance, gratitude, famille, santé...)
+- Structure : enseignement court avec référence Coran (Sourate:Verset) ou Hadith → Du'as NUMÉROTÉES en arabe translittéré + traduction
+- Inclure les formules consacrées : Bismillah, Alhamdulillah, SubhanAllah, Astaghfirullah
+- Ton respectueux, humble devant Allah
+- Format : <blockquote> pour versets coraniques, <ol><li> pour du'as numérotées
+- Chaque du'a = translittération + traduction + contexte d'usage`;
+      case 'proclamations':
+        return `Blueprint livre de proclamations / déclarations :
+- Chaque chapitre = 1 domaine de proclamation (identité, finances, santé, famille, destinée...)
+- Structure : fondement scripturaire → DÉCLARATIONS NUMÉROTÉES en MAJUSCULES ou en gras
+- "JE DÉCLARE que...", "JE PROCLAME que...", "JE DÉCRÈTE que..."
+- Ton fort, affirmatif, sans hésitation
+- Chaque proclamation s'appuie sur un texte sacré référencé
+- Format : <strong> pour les déclarations, <blockquote> pour les textes fondateurs`;
+      case 'religious_teaching':
+        return `Blueprint livre d'enseignement religieux / doctrinal :
+- Chaque chapitre = 1 principe ou doctrine expliquée en profondeur
+- Structure : question/problème → enseignement avec multiples références scripturaires → application pratique
+- Citer abondamment les textes sacrés (Bible, Coran, ou autre selon la tradition)
+- Ton académique mais accessible — comme un cours de théologie/sciences religieuses
+- Terminer chaque chapitre par "Points clés à retenir" + questions de réflexion
+- PAS de prières — c'est un livre d'ÉTUDE et de COMPRÉHENSION`;
       case 'business_manual':
         return `Blueprint professionnel/tech :
 - Progression: problème métier → méthode → cas pratique → checklist d'exécution
@@ -726,7 +782,15 @@ function getEditorialBlueprint(lang: string, profile: EditorialProfile): string 
 
   switch (profile) {
     case 'spiritual_warfare':
-      return `Spiritual blueprint: doctrine foundation → practical application → commanding prayer points. At least 2 full scripture references per chapter.`;
+      return `Spiritual warfare blueprint: doctrine foundation → practical application → commanding prayer points. At least 2 full scripture references per chapter. Firm, authoritative tone.`;
+    case 'simple_prayers':
+      return `Simple prayers blueprint: each chapter = 1 prayer theme. Structure: short teaching + scripture in blockquote + 5-10 NUMBERED first-person prayers. Warm, intimate, sincere tone. Vary types: praise, petition, intercession, confession, thanksgiving.`;
+    case 'islamic_devotional':
+      return `Islamic prayers blueprint: each chapter = 1 theme. Structure: Quran reference (Surah:Verse) or Hadith + NUMBERED Du'as in transliterated Arabic + translation. Include Bismillah, Alhamdulillah, SubhanAllah. Respectful, humble tone before Allah.`;
+    case 'proclamations':
+      return `Proclamations blueprint: each chapter = 1 domain (identity, finances, health, family...). NUMBERED DECLARATIONS in bold/caps: "I DECLARE...", "I PROCLAIM...". Each backed by scripture. Strong, affirmative tone.`;
+    case 'religious_teaching':
+      return `Religious teaching blueprint: each chapter = 1 doctrine/principle. Multiple scripture references. Academic but accessible. End with "Key points" + reflection questions. NO prayers — this is a STUDY book.`;
     case 'business_manual':
       return `Professional blueprint: business problem → method → case study → execution checklist. Functional chapter titles only.`;
     case 'leadership':
@@ -749,6 +813,10 @@ function getTemperatureForProfile(profile: EditorialProfile, isNarrative: boolea
   if (profile === 'business_manual') return 0.38;
   if (profile === 'leadership') return 0.42;
   if (profile === 'spiritual_warfare') return 0.45;
+  if (profile === 'simple_prayers') return 0.48;
+  if (profile === 'islamic_devotional') return 0.45;
+  if (profile === 'proclamations') return 0.42;
+  if (profile === 'religious_teaching') return 0.40;
   if (profile === 'devotional_journal') return 0.50;
   if (profile === 'activity_workbook') return 0.42;
   if (profile === 'coloring_book') return 0.40;
@@ -765,6 +833,18 @@ function getTitleGuidance(lang: string, style: string, profile: EditorialProfile
     }
     if (profile === 'spiritual_warfare') {
       return 'Titres DIRECTS ET AUTORITAIRES (souvent en MAJUSCULES) : "IL Y A UNE GUERRE", "VOTRE STATUT EN CHRIST", "DÉCLAREZ LA VICTOIRE".';
+    }
+    if (profile === 'simple_prayers') {
+      return 'Titres thématiques et chaleureux : "Prières pour la paix intérieure", "Gratitude et louange", "Quand le cœur est lourd".';
+    }
+    if (profile === 'islamic_devotional') {
+      return 'Titres respectueux avec formules : "Du\'as pour la guidance divine", "Invocations du matin et du soir", "Se rapprocher d\'Allah".';
+    }
+    if (profile === 'proclamations') {
+      return 'Titres FORTS et AFFIRMATIFS : "JE SUIS BÉNI", "MA DESTINÉE EST SCELLÉE", "DÉCLARATIONS DE VICTOIRE".';
+    }
+    if (profile === 'religious_teaching') {
+      return 'Titres académiques mais accessibles : "Comprendre la grâce", "Les fondements de la foi", "Qu\'enseigne réellement le texte ?".';
     }
     if (profile === 'devotional_journal') {
       return 'Titres numérotés et thématiques : "Jour 1 — La confiance", "Jour 15 — Lâcher prise". Le numéro du jour EST le titre.';
@@ -784,6 +864,10 @@ function getTitleGuidance(lang: string, style: string, profile: EditorialProfile
   if (profile === 'business_manual') return 'STRICTLY functional titles: "What is X?", "Procedure Y", "Checklist Z".';
   if (profile === 'leadership') return 'Principle-driven titles with impact promise.';
   if (profile === 'spiritual_warfare') return 'Direct, authoritative, often capitalized titles.';
+  if (profile === 'simple_prayers') return 'Warm thematic titles: "Prayers for Inner Peace", "Gratitude and Praise".';
+  if (profile === 'islamic_devotional') return 'Respectful titles with formulas: "Du\'as for Divine Guidance", "Morning and Evening Invocations".';
+  if (profile === 'proclamations') return 'STRONG affirmative titles: "I AM BLESSED", "DECLARATIONS OF VICTORY".';
+  if (profile === 'religious_teaching') return 'Academic but accessible: "Understanding Grace", "What Does the Text Really Teach?".';
   if (profile === 'devotional_journal') return 'Numbered thematic titles: "Day 1 — Trust", "Day 15 — Letting Go".';
   if (profile === 'activity_workbook') return 'Engaging playful titles with emojis: "🎯 Chapter 3: Discover Your Talents!"';
   if (profile === 'coloring_book') return 'Short visual titles with emojis: "🦁 Safari Animals", "🌸 Enchanted Garden"';
@@ -802,7 +886,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { title, subtitle, authorName, topic, style, pageCount, chapterCount: requestedChapterCount, keywords, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle, styleReference, editorialStrategy } = await req.json();
+    const { title, subtitle, authorName, topic, style, pageCount, chapterCount: requestedChapterCount, keywords, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle, styleReference, editorialStrategy, religiousTradition, prayerFormat } = await req.json();
 
     if (!title && !topic) {
       return new Response(JSON.stringify({ error: 'title or topic required' }), {
@@ -841,7 +925,7 @@ Deno.serve(async (req) => {
     // Narrative detection + editorial profile
     const narrativeStyles = ['story', 'novel'];
     const isNarrative = narrativeStyles.includes(_style);
-    const editorialProfile = detectEditorialProfile(_style, _tone, title || '', topic || '', _audience);
+    const editorialProfile = detectEditorialProfile(_style, _tone, title || '', topic || '', _audience, religiousTradition, prayerFormat);
     const editorialBlueprint = getEditorialBlueprint(lang, editorialProfile);
 
     // Style reference
