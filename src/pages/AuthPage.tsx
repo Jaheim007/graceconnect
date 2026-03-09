@@ -23,7 +23,7 @@ export default function AuthPage() {
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { signInWithGoogle, signInWithMagicLink, verifyOtp, user } = useAuth();
+  const { signInWithGoogle, signInWithFacebook, signInWithMagicLink, verifyOtp, user } = useAuth();
   const { userOrgs } = useOrg();
   const { t } = useI18n();
 
