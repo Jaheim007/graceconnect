@@ -132,7 +132,7 @@ export default function SuperadminFullDashboard() {
         users: c.users || 0,
       }));
 
-      const t = totals.data as any;
+      const t = totalsRaw as any;
       return {
         totalOrgs: t?.total_orgs || 0,
         activeOrgs: t.active_orgs || 0,
