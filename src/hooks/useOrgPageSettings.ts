@@ -56,7 +56,7 @@ export function useUpsertOrgPageSettings() {
       if (existing) {
         const { data, error } = await db
           .from('org_page_settings')
-          .update(updates)
+          .update(updates as any)
           .eq('organization_id', orgId)
           .select()
           .single();
