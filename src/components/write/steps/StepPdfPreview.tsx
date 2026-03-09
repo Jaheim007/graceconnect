@@ -85,7 +85,6 @@ export function StepPdfPreview({ state, update, onNext, onBack, onSaveDraft, sav
                 <p className="text-sm text-muted-foreground">
                   {chapters.length} {chapters.length > 1 ? t('write.chapter_word_plural') : t('write.chapter_word')}
                 </p>
-                </p>
               </div>
             </div>
           ) : (
