@@ -37,7 +37,7 @@ export default function SuperadminInvestorSnapshot() {
         db.from('platform_metrics_daily').select('*').order('metric_date', { ascending: true }).limit(90),
       ]);
 
-      const t = totalsRes.data || {};
+      const t = (totalsRes.data || {}) as any;
 
       // Monthly GMV for growth calc via RPC
       const now = new Date();
