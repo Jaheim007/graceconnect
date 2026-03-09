@@ -21,7 +21,7 @@ import { WritingMotivation } from './WritingMotivation';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 
 export type SourceType = 'idea' | 'document' | 'youtube' | 'audio' | 'notes_photo';
-export type BookStyle = 'ebook' | 'guide' | 'prayers' | 'story' | 'novel' | 'devotional' | 'activity';
+export type BookStyle = 'ebook' | 'guide' | 'prayers' | 'story' | 'novel' | 'devotional' | 'activity' | 'coloring';
 export type WritingTone = 'professional' | 'conversational' | 'humorous' | 'spiritual' | 'poetic' | 'academic';
 export type LanguageLevel = 'simple' | 'intermediate' | 'advanced';
 export type TargetAudience = 'general' | 'children' | 'teens' | 'adults' | 'seniors' | 'professionals';

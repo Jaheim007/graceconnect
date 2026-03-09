@@ -13,7 +13,7 @@ interface Props {
   onBack: () => void;
 }
 
-const ILLUSTRATION_STYLES = ['children_book', 'watercolor', 'cartoon', 'realistic'] as const;
+const ILLUSTRATION_STYLES = ['children_book', 'watercolor', 'cartoon', 'realistic', 'line_art'] as const;
 type IllustrationStyle = typeof ILLUSTRATION_STYLES[number];
 
 export function StepIllustrations({ state, update, onNext, onBack }: Props) {
@@ -34,14 +34,19 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
   const illustratedCount = chapters.filter((chapter) => Boolean(illustrations[chapter.id])).length;
 
   // Check if this book style benefits from illustrations
-  const needsIllustrations = ['story', 'activity'].includes(state.style) || state.targetAudience === 'children';
+  const needsIllustrations = ['story', 'activity', 'coloring'].includes(state.style) || state.targetAudience === 'children';
 
   const styleLabels: Record<IllustrationStyle, string> = {
     children_book: t('write.illust_style_children') || 'Livre enfant',
     watercolor: t('write.illust_style_watercolor') || 'Aquarelle',
     cartoon: t('write.illust_style_cartoon') || 'Cartoon',
     realistic: t('write.illust_style_realistic') || 'Réaliste',
+    line_art: t('write.illust_style_line_art') || 'Coloriage (line art)',
   };
+
+  // Auto-select line_art for coloring books
+  const isColoringBook = state.style === 'coloring';
+  const effectiveArtStyle = isColoringBook ? 'line_art' : artStyle;
 
   const generateIllustration = async (chapterId: string, chapterTitle: string, chapterContent: string) => {
     setGenerating(chapterId);
@@ -51,7 +56,7 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
           bookTitle: state.title || '',
           chapterTitle,
           chapterSummary: chapterContent.replace(/<[^>]*>/g, ' ').slice(0, 500),
-          artStyle,
+          artStyle: effectiveArtStyle,
           audience: state.targetAudience || 'general',
           bookStyle: state.style,
         },
@@ -94,25 +99,35 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
         </p>
       </div>
 
-      {/* Art style selection */}
-      <div className="space-y-2">
-        <label className="text-sm font-medium">{t('write.illust_art_style') || 'Style artistique'}</label>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {ILLUSTRATION_STYLES.map((s) => (
-            <button
-              key={s}
-              onClick={() => setArtStyle(s)}
-              className={`p-3 rounded-xl border-2 text-center transition-all text-xs font-semibold ${
-                artStyle === s
-                  ? 'border-primary bg-primary/5 text-primary'
-                  : 'border-border hover:border-primary/30 text-muted-foreground'
-              }`}
-            >
-              {styleLabels[s]}
-            </button>
-          ))}
+      {/* Art style selection — hidden for coloring books (forced to line_art) */}
+      {!isColoringBook && (
+        <div className="space-y-2">
+          <label className="text-sm font-medium">{t('write.illust_art_style') || 'Style artistique'}</label>
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            {ILLUSTRATION_STYLES.map((s) => (
+              <button
+                key={s}
+                onClick={() => setArtStyle(s)}
+                className={`p-3 rounded-xl border-2 text-center transition-all text-xs font-semibold ${
+                  artStyle === s
+                    ? 'border-primary bg-primary/5 text-primary'
+                    : 'border-border hover:border-primary/30 text-muted-foreground'
+                }`}
+              >
+                {styleLabels[s]}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
+
+      {isColoringBook && (
+        <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 text-center">
+          <p className="text-sm font-medium text-primary">
+            🖍️ {t('write.coloring_auto_line_art') || 'Mode coloriage activé — les illustrations seront générées en line art noir & blanc'}
+          </p>
+        </div>
+      )}
 
       {/* Generate all button */}
       <Button

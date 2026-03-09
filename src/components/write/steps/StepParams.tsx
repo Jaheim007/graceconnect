@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, Users, Baby, User, Briefcase, UserCog, Globe, Wand2, Sparkles, Loader2, BookText, Palette, PenTool, ChevronDown, ChevronUp, Tag, UserPen } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, Users, Baby, User, Briefcase, UserCog, Globe, Wand2, Sparkles, Loader2, BookText, Palette, PenTool, ChevronDown, ChevronUp, Tag, UserPen, Brush } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -33,6 +33,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
     { type: 'novel', icon: PenTool, label: t('write.style_novel') || 'Roman / Fiction', desc: t('write.style_novel_desc') || 'Récits fictionnels, nouvelles' },
     { type: 'devotional', icon: Church, label: t('write.style_devotional') || 'Dévotion', desc: t('write.style_devotional_desc') || 'Journal spirituel, méditations quotidiennes' },
     { type: 'activity', icon: Palette, label: t('write.style_activity') || 'Cahier d\'activités', desc: t('write.style_activity_desc') || 'Exercices, quiz, coloriage' },
+    { type: 'coloring', icon: Brush, label: t('write.style_coloring') || 'Livre de coloriage', desc: t('write.style_coloring_desc') || 'Pages à colorier, line art' },
   ];
 
   const tones: { type: WritingTone; icon: typeof MessageSquare; label: string }[] = [

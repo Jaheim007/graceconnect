@@ -10,6 +10,7 @@ const artStylePrompts: Record<string, string> = {
   watercolor: 'watercolor painting style, soft washes of color, artistic and elegant, fluid brushstrokes, delicate details',
   cartoon: 'modern cartoon illustration, bold colors, clean lines, fun and engaging, digital art style',
   realistic: 'realistic digital painting, detailed and lifelike, professional book illustration, rich colors and lighting',
+  line_art: 'black and white line art for coloring book, clean bold outlines only, NO shading NO fills NO colors NO gradients, thick black contour lines on pure white background, simple shapes suitable for coloring with crayons or markers, large areas to color in, children-friendly coloring page design',
 };
 
 const audiencePrompts: Record<string, string> = {
@@ -43,7 +44,26 @@ Deno.serve(async (req) => {
     const stylePrompt = artStylePrompts[artStyle] || artStylePrompts['children_book'];
     const audiencePrompt = audiencePrompts[audience] || audiencePrompts['general'];
 
-    const prompt = `Create a beautiful illustration for a book chapter.
+    const isColoring = artStyle === 'line_art' || bookStyle === 'coloring';
+
+    const prompt = isColoring
+      ? `Create a coloring book page. BLACK AND WHITE LINE ART ONLY.
+
+Book: "${bookTitle || 'Untitled'}"
+Page theme: "${chapterTitle}"
+Context: ${chapterSummary || chapterTitle}
+
+CRITICAL RULES:
+- ONLY black outlines on pure white background
+- NO shading, NO fills, NO gray tones, NO colors
+- Bold clean contour lines (2-3px thickness)
+- Large enclosed areas for children to color in
+- Simple, recognizable shapes
+- ${audiencePrompt}
+- Fun and engaging composition
+- NO text in the image
+- Style: professional coloring book page, print-ready quality`
+      : `Create a beautiful illustration for a book chapter.
 
 Book: "${bookTitle || 'Untitled'}"
 Chapter: "${chapterTitle}"

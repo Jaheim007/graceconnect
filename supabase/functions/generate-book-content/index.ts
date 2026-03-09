@@ -304,6 +304,31 @@ ADAPTATION AU PUBLIC :
 - ADULTES : exercices de réflexion, auto-évaluation, plans d'action, journaling
 
 INTERDIT : longs paragraphes de texte, ton magistral, exercices monotones. C'est un cahier INTERACTIF, pas un manuel scolaire.`,
+
+    coloring: `STRUCTURE DE LIVRE DE COLORIAGE PROFESSIONNEL :
+
+STRUCTURE OBLIGATOIRE :
+1. CHAQUE CHAPITRE = 1 THÈME (ex: "Les animaux de la ferme", "Les fruits", "Les véhicules", "Les personnages bibliques")
+2. CHAQUE PAGE = 1 SCÈNE À COLORIER décrite entre [ILLUSTRATION: description détaillée]
+3. Format MINIMAL de texte — le livre est 90% IMAGES, 10% texte
+
+CONTENU DE CHAQUE PAGE :
+- [ILLUSTRATION: Description PRÉCISE et DÉTAILLÉE de la scène en line art — personnages, objets, décor, composition]
+- Titre court et fun (ex: "🦁 Le lion courageux", "🌻 Le jardin fleuri")
+- Optionnel : 1-2 phrases simples liées à l'image (fait amusant, verset court, consigne créative)
+
+ADAPTATION AU PUBLIC :
+- ENFANTS 3-6 ans : formes TRÈS simples, gros contours, peu de détails, 1-2 éléments par page
+- ENFANTS 6-10 ans : scènes moyennement détaillées, personnages expressifs, décors
+- ADOS/ADULTES : mandalas, motifs complexes, scènes détaillées, patterns zen
+
+FORMAT HTML :
+- <h2> pour le titre de chaque page/scène
+- <p class="coloring-desc">[ILLUSTRATION: ...]</p> pour la description de chaque illustration à générer
+- Très peu de texte entre les illustrations
+- Pas de longs paragraphes — ce n'est PAS un livre de lecture
+
+INTERDIT : longs textes, exercices écrits, quiz. C'est un livre VISUEL à colorier.`,
   },
   en: {
     ebook: `REAL PERSONAL DEVELOPMENT BOOK STRUCTURE (inspired by Myles Munroe "Understanding Your Potential" and Gary Chapman):
@@ -376,6 +401,14 @@ FORMAT:
 5. LAST CHAPTER = "🏆 Certificate of completion"
 HTML: <table> for grids, <ul><li>□ for choices, <hr/> between activities, emojis throughout.
 FORBIDDEN: long text paragraphs, lecture tone, monotonous exercises.`,
+    coloring: `PROFESSIONAL COLORING BOOK STRUCTURE:
+- Each chapter = 1 THEME (animals, vehicles, characters, etc.)
+- Each page = 1 SCENE described in [ILLUSTRATION: detailed description of line art scene]
+- 90% IMAGES, 10% text. Minimal text — this is a VISUAL book
+- Short fun title per page + optional 1-2 sentence fact or instruction
+- [ILLUSTRATION: ...] descriptions must be PRECISE for image generation
+- Adapt complexity to audience (toddlers=simple shapes, adults=mandalas/detailed patterns)
+FORBIDDEN: long paragraphs, quizzes, written exercises. This is for COLORING.`,
   },
   es: {
     ebook: `Estructura de libro real: problema, experiencia del autor, ejemplos concretos, preguntas de reflexión al final de cada capítulo.`,
@@ -385,6 +418,7 @@ FORBIDDEN: long text paragraphs, lecture tone, monotonous exercises.`,
     novel: `Estructura novelística completa con arco narrativo.`,
     devotional: `Meditaciones diarias numeradas con versículos, reflexión y oración.`,
     activity: `Estructura interactiva con ejercicios y actividades.`,
+    coloring: `Libro de colorear: cada página = 1 escena descrita en [ILUSTRACIÓN: ...]. Mínimo texto, máximo visual.`,
   },
   pt: {
     ebook: `Estrutura de livro real: problema, experiência do autor, exemplos concretos, perguntas de reflexão.`,
@@ -394,6 +428,7 @@ FORBIDDEN: long text paragraphs, lecture tone, monotonous exercises.`,
     novel: `Estrutura romanesca completa.`,
     devotional: `Meditações diárias numeradas.`,
     activity: `Estrutura interativa com exercícios.`,
+    coloring: `Livro de colorir: cada página = 1 cena descrita em [ILUSTRAÇÃO: ...]. Mínimo texto, máximo visual.`,
   },
   de: {
     ebook: `Echte Buchstruktur: Problem, Autorenerfahrung, konkrete Beispiele, Reflexionsfragen.`,
@@ -403,6 +438,7 @@ FORBIDDEN: long text paragraphs, lecture tone, monotonous exercises.`,
     novel: `Romanstruktur mit immersiven Kapiteln.`,
     devotional: `Nummerierte tägliche Meditationen.`,
     activity: `Interaktive Struktur mit Übungen.`,
+    coloring: `Malbuch: jede Seite = 1 Szene beschrieben in [ILLUSTRATION: ...]. Minimaler Text, maximales Visuelles.`,
   },
   sw: {
     ebook: `Muundo wa kitabu halisi: tatizo, uzoefu wa mwandishi, mifano halisi, maswali ya kutafakari.`,
@@ -412,6 +448,7 @@ FORBIDDEN: long text paragraphs, lecture tone, monotonous exercises.`,
     novel: `Muundo kamili wa riwaya.`,
     devotional: `Kutafakari za kila siku zilizohesabiwa.`,
     activity: `Muundo wa maingiliano na mazoezi.`,
+    coloring: `Kitabu cha kupaka rangi: kila ukurasa = eneo 1 lililoelezwa katika [MCHORO: ...]. Maandishi kidogo.`,
   },
 };
 
@@ -601,7 +638,7 @@ STRICTLY BANNED WORDS/PHRASES:
 "Mosaic of", "Tapestry of", "Symphony of", "Alchemy of"`;
 }
 
-type EditorialProfile = 'business_manual' | 'leadership' | 'spiritual_warfare' | 'personal_growth' | 'narrative' | 'devotional_journal' | 'activity_workbook';
+type EditorialProfile = 'business_manual' | 'leadership' | 'spiritual_warfare' | 'personal_growth' | 'narrative' | 'devotional_journal' | 'activity_workbook' | 'coloring_book';
 
 function detectEditorialProfile(style: string, tone: string, title: string, topic: string, audience: string): EditorialProfile {
   const haystack = `${title} ${topic}`.toLowerCase();
@@ -613,6 +650,9 @@ function detectEditorialProfile(style: string, tone: string, title: string, topi
 
   // Activity book
   if (style === 'activity') return 'activity_workbook';
+
+  // Coloring book
+  if (style === 'coloring') return 'coloring_book';
 
   const spiritualSignals = ['prière', 'priere', 'anges', 'ange', 'spirituel', 'combat', 'delivrance', 'foi', 'satan', 'bataille', 'guerre', 'jesus', 'bible', 'miracle'];
   if (style === 'prayers' || tone === 'spiritual' || spiritualSignals.some((word) => haystack.includes(word))) {
@@ -670,6 +710,13 @@ function getEditorialBlueprint(lang: string, profile: EditorialProfile): string 
 - Corrigé en fin de chapitre
 - Adapté au public cible (enfants = simple/coloré, ados = dynamique, adultes = réflexif)
 - Format interactif : cases □, lignes _____, tableaux <table>, émojis`;
+      case 'coloring_book':
+        return `Blueprint livre de coloriage :
+- Chaque chapitre = 1 thème visuel (animaux, nature, personnages, véhicules...)
+- Chaque page = [ILLUSTRATION: description détaillée de la scène line art] + titre court
+- Texte MINIMAL — le livre est à 90% visuel
+- Descriptions d'illustrations PRÉCISES pour la génération d'images
+- Adapter la complexité au public (enfants = formes simples, adultes = motifs détaillés)`;
       default:
         return `Blueprint développement personnel :
 - Question centrale → démonstration → outils concrets → mise en pratique
@@ -690,6 +737,8 @@ function getEditorialBlueprint(lang: string, profile: EditorialProfile): string 
       return `Devotional blueprint: each entry = 1 verse (blockquote) + intimate first-person reflection + concrete application + short prayer. Thematic progression. Warm personal tone, NOT a lecture.`;
     case 'activity_workbook':
       return `Activity workbook blueprint: 5-8 varied activities per chapter (quiz, true/false, matching, fill-in-blank, creative, challenges). Clear objectives, answer key at end. Adapted to target audience.`;
+    case 'coloring_book':
+      return `Coloring book blueprint: each page = [ILLUSTRATION: detailed line art scene description] + short title. 90% visual, 10% text. Precise descriptions for image generation.`;
     default:
       return `Personal growth blueprint: core question → explanation → practical tools → reader application.`;
   }
@@ -702,6 +751,7 @@ function getTemperatureForProfile(profile: EditorialProfile, isNarrative: boolea
   if (profile === 'spiritual_warfare') return 0.45;
   if (profile === 'devotional_journal') return 0.50;
   if (profile === 'activity_workbook') return 0.42;
+  if (profile === 'coloring_book') return 0.40;
   return 0.44;
 }
 
@@ -722,6 +772,9 @@ function getTitleGuidance(lang: string, style: string, profile: EditorialProfile
     if (profile === 'activity_workbook') {
       return 'Titres engageants et ludiques : "🎯 Chapitre 3 : Découvre tes talents !", "🧩 Les animaux du monde". Utiliser des emojis.';
     }
+    if (profile === 'coloring_book') {
+      return 'Titres courts et visuels : "🦁 Les animaux de la savane", "🌸 Le jardin enchanté", "🚀 L\'espace". Emojis + thème.';
+    }
     if (style === 'story' || style === 'novel') {
       return 'Titres ÉVOCATEURS et littéraires, non techniques.';
     }
@@ -733,6 +786,7 @@ function getTitleGuidance(lang: string, style: string, profile: EditorialProfile
   if (profile === 'spiritual_warfare') return 'Direct, authoritative, often capitalized titles.';
   if (profile === 'devotional_journal') return 'Numbered thematic titles: "Day 1 — Trust", "Day 15 — Letting Go".';
   if (profile === 'activity_workbook') return 'Engaging playful titles with emojis: "🎯 Chapter 3: Discover Your Talents!"';
+  if (profile === 'coloring_book') return 'Short visual titles with emojis: "🦁 Safari Animals", "🌸 Enchanted Garden"';
   if (style === 'story' || style === 'novel') return 'Evocative literary titles.';
   return 'Clear, precise, result-oriented titles.';
 }
