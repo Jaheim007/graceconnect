@@ -197,7 +197,7 @@ export default function SuperadminInvestorSnapshot() {
                 </Pie>
               </PieChart>
               <div className="space-y-1 flex-1">
-                {s!.categories.map((c, i) => (
+                {(s!.categories as any[]).map((c: any, i: number) => (
                   <div key={c.name} className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5">
                       <div className="h-2 w-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
