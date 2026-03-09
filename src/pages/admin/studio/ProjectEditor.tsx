@@ -362,12 +362,12 @@ export default function ProjectEditor() {
 
     const outlineJob = activeJobs.find((job: any) =>
       job.job_type === 'generate_outline' &&
-      Array.isArray(job?.output_data?.structure?.chapters) &&
-      job.output_data.structure.chapters.length > 0
+      Array.isArray((job?.output_data as any)?.structure?.chapters) &&
+      (job.output_data as any).structure.chapters.length > 0
     );
 
     if (outlineJob) {
-      const streamedChapters = outlineJob.output_data.structure.chapters.map((ch: any, i: number) => ({
+      const streamedChapters = (outlineJob.output_data as any).structure.chapters.map((ch: any, i: number) => ({
         ...ch,
         order: ch.order ?? i,
         content: ch.content || '',
