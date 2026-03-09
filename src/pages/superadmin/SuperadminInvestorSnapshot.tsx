@@ -66,7 +66,7 @@ export default function SuperadminInvestorSnapshot() {
         totalUsers: t.total_users || 0,
         newUsers30d: 0, // simplified - use 7d from totals
         newOrgs30d: 0,
-        txCount30d: last30Res.data?.total_count || 0,
+        txCount30d: (last30Res.data as any)?.total_count || 0,
         gmvLast30,
         metrics: metrics.data || [],
         categories: categoriesRes.data || [],
