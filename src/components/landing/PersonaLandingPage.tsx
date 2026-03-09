@@ -87,6 +87,8 @@ export function PersonaLandingPage(props: PersonaLandingProps) {
               </div>
             ))}
           </div>
+          {/* Live platform stats */}
+          <PlatformStatsBar />
         </div>
       </section>
 
