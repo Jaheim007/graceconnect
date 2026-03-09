@@ -77,7 +77,7 @@ export function useGrowthSuggestions() {
       }
 
       // No cover image or description
-      if (org?.data && (!org.data.logo_url || !org.data.description)) {
+      if (org && (!org.logo_url || !org.description)) {
         suggestions.push({
           id: 'complete-profile',
           emoji: '🎨',
