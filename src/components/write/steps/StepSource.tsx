@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PenLine, FileText, Lightbulb, History, PlusCircle, Clock3, Video, Mic, Camera, Loader2 } from 'lucide-react';
+import { PenLine, FileText, Lightbulb, History, PlusCircle, Clock3, Video, Mic, Camera, Loader2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
