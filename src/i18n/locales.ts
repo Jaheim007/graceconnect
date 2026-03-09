@@ -3158,6 +3158,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'write.new_draft_ready': 'المسودة الجديدة جاهزة',
     'write.draft_loaded': 'تم تحميل المسودة',
     'write.draft_not_found': 'المسودة غير موجودة',
+    'write.actions_menu': 'خيارات',
     'write.save_and_new': 'حفظ كمسودة وإنشاء جديد',
     'write.delete_and_new': 'حذف وإنشاء جديد',
     'write.exit_wizard': 'خروج',
