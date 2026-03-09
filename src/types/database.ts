@@ -115,6 +115,7 @@ export interface Event {
   image_url?: string;
   video_url?: string;
   location?: string;
+  map_url?: string;
   event_date?: string;
   is_featured: boolean;
   is_published: boolean;
