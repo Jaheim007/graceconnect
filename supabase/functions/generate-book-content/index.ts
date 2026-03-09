@@ -813,6 +813,10 @@ function getTemperatureForProfile(profile: EditorialProfile, isNarrative: boolea
   if (profile === 'business_manual') return 0.38;
   if (profile === 'leadership') return 0.42;
   if (profile === 'spiritual_warfare') return 0.45;
+  if (profile === 'simple_prayers') return 0.48;
+  if (profile === 'islamic_devotional') return 0.45;
+  if (profile === 'proclamations') return 0.42;
+  if (profile === 'religious_teaching') return 0.40;
   if (profile === 'devotional_journal') return 0.50;
   if (profile === 'activity_workbook') return 0.42;
   if (profile === 'coloring_book') return 0.40;
