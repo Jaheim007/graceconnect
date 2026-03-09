@@ -99,7 +99,7 @@ export default function CreateOrgPage() {
         .eq('id', orgId)
         .maybeSingle();
 
-      if (newOrg) setCurrentOrg(newOrg);
+      if (newOrg) setCurrentOrg(newOrg as any);
       refetchOrgs();
 
       // Partner attribution

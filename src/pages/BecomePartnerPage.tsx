@@ -157,7 +157,7 @@ export default function BecomePartnerPage() {
       const { error } = await db.from('partners').insert({
         ...partnerData,
         user_id: user.id,
-      });
+      } as any);
       if (error) throw error;
       sessionStorage.removeItem('sv_pending_partner');
       setSubmitted(true);

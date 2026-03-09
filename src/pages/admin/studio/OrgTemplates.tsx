@@ -81,7 +81,7 @@ export default function OrgTemplates() {
         const { error } = await db.from('ai_templates').update(payload as any).eq('id', editingId);
         if (error) throw error;
       } else {
-        const { error } = await db.from('ai_templates').insert(payload);
+        const { error } = await db.from('ai_templates').insert(payload as any);
         if (error) throw error;
       }
     },

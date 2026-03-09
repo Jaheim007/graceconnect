@@ -48,16 +48,20 @@ export function PostPurchaseCelebration({
     : window.location.origin;
 
   const enrollAsAmbassador = async () => {
-    if (!user || enrolling) return;
+    if (!user || enrolling || !orgSlug) return;
     setEnrolling(true);
     try {
-      const { data, error } = await db.rpc('self_enroll_affiliate', {
-        _org_id: orgId,
+      // Get org id from slug first
+      const { data: orgData } = await db.from('organizations').select('id').eq('slug', orgSlug).single();
+      if (!orgData) throw new Error('Org not found');
+      const { error } = await db.rpc('self_enroll_affiliate', {
+        _org_id: orgData.id,
       });
       if (error) throw error;
-      const result = data as any;
-      if (result?.code) {
-        setAffiliateCode(result.code);
+      // Get the affiliate link code
+      const { data: linkData } = await db.from('affiliate_links').select('code').eq('user_id', user.id).eq('organization_id', orgData.id).maybeSingle();
+      if (linkData?.code) {
+        setAffiliateCode(linkData.code);
         setEnrolled(true);
         toast.success('🎉 Tu es maintenant ambassadeur !');
       }

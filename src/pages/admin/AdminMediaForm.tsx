@@ -76,7 +76,7 @@ export function MediaForm() {
       const payload = { ...data, organization_id: currentOrg.id, created_by: user.id, tags: data.tags ? data.tags.split(',').map(t => t.trim()).filter(Boolean) : [], media_url: data.media_url || null, thumbnail_url: data.thumbnail_url || null };
       let error;
       if (isEdit) { ({ error } = await db.from('media_content').update(payload).eq('id', id)); }
-      else { ({ error } = await db.from('media_content').insert(payload)); }
+      else { ({ error } = await db.from('media_content').insert(payload as any)); }
       if (error) throw error;
       toast({ title: isEdit ? 'Mis à jour ✅' : 'Créé ✅' });
       navigate('/admin/media');

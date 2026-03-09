@@ -66,7 +66,7 @@ export function AnnouncementForm() {
       const payload = { ...data, organization_id: currentOrg.id, created_by: user.id, image_url: data.image_url || null, expires_at: data.expires_at ? new Date(data.expires_at).toISOString() : null };
       let error;
       if (isEdit) { ({ error } = await db.from('announcements').update(payload).eq('id', id)); }
-      else { ({ error } = await db.from('announcements').insert(payload)); }
+      else { ({ error } = await db.from('announcements').insert(payload as any)); }
       if (error) throw error;
       await queryClient.invalidateQueries({ queryKey: ['org-announcements'] });
       toast({ title: isEdit ? 'Mis à jour ✅' : 'Créé ✅' });

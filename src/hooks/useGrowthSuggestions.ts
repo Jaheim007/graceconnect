@@ -101,7 +101,7 @@ export function useGrowthSuggestions() {
       }
 
       // Affiliation not enabled
-      if (!org?.data?.affiliation_enabled && pub > 0) {
+      if (!org?.affiliation_enabled && pub > 0) {
         suggestions.push({
           id: 'enable-affiliation',
           emoji: '🤝',

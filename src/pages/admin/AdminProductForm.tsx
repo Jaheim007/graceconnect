@@ -204,7 +204,7 @@ export function ProductForm() {
       if (isEdit) {
         ({ error } = await db.from('digital_products').update(payload).eq('id', id));
       } else {
-        const res = await db.from('digital_products').insert(payload).select('id, slug').single();
+        const res = await db.from('digital_products').insert(payload as any).select('id, slug').single();
         error = res.error;
         resultData = res.data;
       }

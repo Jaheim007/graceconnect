@@ -62,7 +62,7 @@ export function EventForm() {
       const payload = { ...data, organization_id: currentOrg.id, created_by: user.id, image_url: data.image_url || null, video_url: data.video_url || null, event_date: data.event_date ? new Date(data.event_date).toISOString() : null };
       let error;
       if (isEdit) { ({ error } = await db.from('events').update(payload).eq('id', id)); }
-      else { ({ error } = await db.from('events').insert(payload)); }
+      else { ({ error } = await db.from('events').insert(payload as any)); }
       if (error) throw error;
       await queryClient.invalidateQueries({ queryKey: ['org-events'] });
       toast({ title: isEdit ? 'Mis à jour ✅' : 'Créé ✅' });
