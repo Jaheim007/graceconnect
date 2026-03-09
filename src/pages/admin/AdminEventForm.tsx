@@ -60,7 +60,7 @@ export function EventForm() {
     if (!currentOrg || !user) { toast({ title: 'Error', variant: 'destructive' }); return; }
     setLoading(true);
     try {
-      const payload = { ...data, organization_id: currentOrg.id, created_by: user.id, image_url: data.image_url || null, video_url: data.video_url || null, event_date: data.event_date ? new Date(data.event_date).toISOString() : null };
+      const payload = { ...data, organization_id: currentOrg.id, created_by: user.id, image_url: data.image_url || null, video_url: data.video_url || null, map_url: data.map_url || null, event_date: data.event_date ? new Date(data.event_date).toISOString() : null };
       let error;
       if (isEdit) { ({ error } = await db.from('events').update(payload).eq('id', id)); }
       else { ({ error } = await db.from('events').insert(payload as any)); }
