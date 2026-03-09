@@ -216,7 +216,7 @@ export default function SuperadminInvestorSnapshot() {
             <Globe className="h-4 w-4 text-primary" /> Géographie
           </h2>
           <div className="space-y-2">
-            {(s?.countries || []).map((c, i) => (
+            {((s?.countries as any[]) || []).map((c: any, i: number) => (
               <div key={c.name} className="flex items-center justify-between p-2 rounded-lg bg-muted/30">
                 <span className="text-xs font-medium">{c.name}</span>
                 <Badge variant="secondary" className="text-[10px]">{c.value} orgs</Badge>
