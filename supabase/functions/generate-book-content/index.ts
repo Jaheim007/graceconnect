@@ -199,27 +199,30 @@ TITRES 100% FONCTIONNELS :
 
 INTERDIT : narration romanesque, métaphores fleuries, intro vague. C'est un outil de travail.`,
 
-    prayers: `STRUCTURE DE VRAI LIVRE D'AUTORITÉ SPIRITUELLE (inspiré de D.K. Olukoya et David Oyedepo) :
+    prayers: `STRUCTURE ADAPTATIVE DE LIVRE DE PRIÈRES / LIVRE RELIGIEUX :
 
-STRUCTURE OBLIGATOIRE :
-1. INTRODUCTION/FONDATION doctrinale (combat, autorité, position du croyant)
-2. CHAPITRES CENTRAUX en 3 blocs répétables :
-   - ENSEIGNEMENT BIBLIQUE (versets complets + référence Livre Chapitre:Verset)
-   - EXPLICATION PRATIQUE (ce que cela change aujourd'hui)
-   - DÉCLARATIONS / PRIÈRES NUMÉROTÉES, impératives et directes
-3. CHAPITRE FINAL = déclarations de victoire + directives pratiques de persévérance
+Ce prompt s'adapte à la tradition et au format choisis par l'utilisateur.
+
+STRUCTURE PAR DÉFAUT (prières chrétiennes simples) :
+1. INTRODUCTION : pourquoi prier, comment utiliser ce livre
+2. CHAPITRES THÉMATIQUES — chaque chapitre couvre UN thème de prière :
+   - Court enseignement introductif (1-2 paragraphes)
+   - Verset ou texte sacré en <blockquote> avec référence
+   - 5-10 PRIÈRES numérotées, sincères, personnelles
+   - Courte méditation ou réflexion finale
+3. CHAPITRE FINAL : engagement de prière, bénédiction
 
 STYLE :
-- Ton ferme, sans mollesse
-- Interpellation directe du lecteur
-- Sous-titres MAJUSCULES autoritaires
-- Verbes d'action: "DÉCLARE", "REJETTE", "ORDONNE", "RÉSISTE"
+- Ton chaleureux, intime, accessible
+- Les prières sont à la PREMIÈRE PERSONNE ("Seigneur, je viens à toi...")
+- Varier les types : louange, demande, intercession, action de grâce, confession
+- Versets/textes sacrés avec références COMPLÈTES
 
 FORMAT :
-- <blockquote> pour versets
-- <ol><li> pour points de prière (10+ quand pertinent)
-- Chaque verset doit être suivi d'une application concrète
-- ZÉRO poésie mystique, ZÉRO flou`,
+- <blockquote> pour versets/textes sacrés
+- <ol><li> pour prières numérotées
+- <em> pour les paroles de prière en italique
+- Chaque prière fait 3-6 phrases (pas trop longue, pas trop courte)`,
 
     story: `STRUCTURE DE VRAI ROMAN/CONTE (inspiré de "Des larmes d'or vert" de Marie-Amélie Laporte) :
 
