@@ -125,6 +125,27 @@ Deno.serve(async (req) => {
       .gte('created_at', dayStart)
       .lte('created_at', dayEnd);
 
+    // ── K-Factor calculation ──
+    // K = (total affiliate clicks × conversion rate) / total active users
+    let kFactor = 0;
+    try {
+      const { data: affLinks } = await supabase
+        .from('affiliate_links')
+        .select('clicks, conversions')
+        .eq('is_active', true);
+      const totalClicks = (affLinks || []).reduce((s: number, l: any) => s + (l.clicks || 0), 0);
+      const totalConversions = (affLinks || []).reduce((s: number, l: any) => s + (l.conversions || 0), 0);
+      const conversionRate = totalClicks > 0 ? totalConversions / totalClicks : 0;
+      const { count: totalActiveUsers } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true });
+      if (totalActiveUsers && totalActiveUsers > 0) {
+        kFactor = parseFloat(((totalClicks * conversionRate) / totalActiveUsers).toFixed(3));
+      }
+    } catch (kErr) {
+      console.warn('K-Factor calculation error:', kErr);
+    }
+
     await supabase.from('platform_metrics_daily').upsert({
       metric_date: dateStr,
       total_revenue: totalGMV,
@@ -135,6 +156,7 @@ Deno.serve(async (req) => {
       new_users: newUsersCount || 0,
       active_affiliates: activeAffiliates || 0,
       gmv: totalGMV,
+      k_factor: kFactor,
     }, { onConflict: 'metric_date' });
 
     return new Response(

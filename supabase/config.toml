@@ -200,3 +200,12 @@ verify_jwt = false
 
 [functions.review-request]
 verify_jwt = false
+
+[functions.performance-alerts]
+verify_jwt = false
+
+[functions.auto-blog-draft]
+verify_jwt = false
+
+[functions.kyc-auto-validate]
+verify_jwt = false
