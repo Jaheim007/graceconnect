@@ -1,11 +1,9 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
@@ -23,29 +21,68 @@ serve(async (req) => {
     let feedUrl = "";
 
     const channelIdMatch = channelUrl.match(/youtube\.com\/channel\/([a-zA-Z0-9_-]+)/);
-    const handleMatch = channelUrl.match(/youtube\.com\/@([a-zA-Z0-9_-]+)/);
-    const cMatch = channelUrl.match(/youtube\.com\/c\/([a-zA-Z0-9_-]+)/);
+    const handleMatch = channelUrl.match(/youtube\.com\/@([a-zA-Z0-9_.-]+)/);
+    const cMatch = channelUrl.match(/youtube\.com\/c\/([a-zA-Z0-9_.-]+)/);
 
     if (channelIdMatch) {
       channelId = channelIdMatch[1];
       feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
     } else if (handleMatch || cMatch) {
-      // For handles, we need to resolve the channel ID first
       const handle = handleMatch?.[1] || cMatch?.[1];
       // Fetch the channel page to extract the channel ID
       const pageRes = await fetch(`https://www.youtube.com/@${handle}`, {
-        headers: { "User-Agent": "Mozilla/5.0" },
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          "Accept-Language": "en-US,en;q=0.9",
+          "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        },
       });
       const pageText = await pageRes.text();
-      const cidMatch = pageText.match(/\"channelId\":\"([a-zA-Z0-9_-]+)\"/);
-      if (cidMatch) {
-        channelId = cidMatch[1];
+
+      // Try multiple patterns to find channel ID
+      const patterns = [
+        /\"channelId\":\"(UC[a-zA-Z0-9_-]+)\"/,
+        /\"externalId\":\"(UC[a-zA-Z0-9_-]+)\"/,
+        /channel_id=(UC[a-zA-Z0-9_-]+)/,
+        /\"browseId\":\"(UC[a-zA-Z0-9_-]+)\"/,
+        /<meta\s+itemprop="channelId"\s+content="(UC[a-zA-Z0-9_-]+)"/,
+        /data-channel-external-id="(UC[a-zA-Z0-9_-]+)"/,
+        /\/channel\/(UC[a-zA-Z0-9_-]+)/,
+      ];
+
+      for (const pattern of patterns) {
+        const m = pageText.match(pattern);
+        if (m) {
+          channelId = m[1];
+          break;
+        }
+      }
+
+      if (channelId) {
         feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
       } else {
-        return new Response(JSON.stringify({ error: "Impossible de trouver l'ID de la chaîne. Vérifiez l'URL." }), {
-          status: 400,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        // Fallback: try RSS feed by user handle directly
+        // Some handles work with the user parameter
+        const testFeedUrl = `https://www.youtube.com/feeds/videos.xml?user=${handle}`;
+        const testRes = await fetch(testFeedUrl, {
+          headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
         });
+        if (testRes.ok) {
+          const testText = await testRes.text();
+          const testCidMatch = testText.match(/<yt:channelId>([^<]+)<\/yt:channelId>/);
+          if (testCidMatch) {
+            channelId = testCidMatch[1];
+            feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+          }
+        }
+
+        if (!channelId) {
+          console.error("Could not find channel ID. Page length:", pageText.length, "First 500 chars:", pageText.substring(0, 500));
+          return new Response(JSON.stringify({ error: "Impossible de trouver l'ID de la chaîne. Vérifiez l'URL." }), {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
       }
     } else {
       return new Response(JSON.stringify({ error: "Format d'URL non reconnu. Utilisez https://youtube.com/@NomDeLaChaine" }), {
@@ -56,7 +93,7 @@ serve(async (req) => {
 
     // Fetch the RSS feed (returns latest 15 videos)
     const feedRes = await fetch(feedUrl, {
-      headers: { "User-Agent": "Mozilla/5.0" },
+      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
     });
 
     if (!feedRes.ok) {
