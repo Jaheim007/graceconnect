@@ -369,6 +369,31 @@ export default function WriteWizard() {
     toast({ title: `📝 ${t('write.new_draft_ready')}` });
   }, [saveCurrentDraftNow, step, syncDraftList, toast, t]);
 
+  const handleDeleteAndNew = useCallback(() => {
+    if (!window.confirm(t('write.confirm_delete_draft'))) return;
+
+    // Remove current draft
+    const store = removeDraftSnapshot(draftId);
+
+    // Create fresh draft
+    const newDraftId = createDraftId();
+    const freshState = toHydratedState();
+    const { store: updatedStore, updatedAt } = saveDraftSnapshot(newDraftId, freshState, 0);
+
+    setDraftId(newDraftId);
+    setState(freshState);
+    setStep(0);
+    setLastSavedAt(updatedAt);
+    syncDraftList(updatedStore, newDraftId);
+
+    toast({ title: `🗑️ ${t('write.draft_deleted')}` });
+  }, [draftId, syncDraftList, toast, t]);
+
+  const handleExitWizard = useCallback(() => {
+    if (step < CELEBRATION_STEP) saveCurrentDraftNow();
+    navigate('/');
+  }, [step, saveCurrentDraftNow, navigate]);
+
   const handleLoadDraft = useCallback((targetDraftId: string) => {
     if (targetDraftId === draftId) return;
 
@@ -736,7 +761,13 @@ export default function WriteWizard() {
     <div className="pt-16 pb-20 min-h-screen">
       {step < CELEBRATION_STEP && (
         <>
-          <WriteProgress currentStep={step} labels={STEP_LABELS} />
+          <WriteProgress
+            currentStep={step}
+            labels={STEP_LABELS}
+            onSaveAndNew={handleCreateNewDraft}
+            onDeleteAndNew={handleDeleteAndNew}
+            onExit={handleExitWizard}
+          />
           <WritingMotivation step={step} />
         </>
       )}
