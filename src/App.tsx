@@ -83,7 +83,6 @@ const GoRedirectPage = lazy(() => import("@/pages/GoRedirectPage"));
 const QuickStartPage = lazy(() => import("@/pages/QuickStartPage"));
 const QuickPublishPage = lazy(() => import("@/pages/QuickPublishPage"));
 const GagnerPage = lazy(() => import("@/pages/GagnerPage"));
-const GagnerPage = lazy(() => import("@/pages/GagnerPage"));
 const EcrirePage = lazy(() => import("@/pages/EcrirePage"));
 const MigrerPage = lazy(() => import("@/pages/MigrerPage"));
 const CanvaCallbackPage = lazy(() => import("@/pages/canva/CanvaCallback"));
