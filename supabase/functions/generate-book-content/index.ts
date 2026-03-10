@@ -872,7 +872,7 @@ function getTitleGuidance(lang: string, style: string, profile: EditorialProfile
 }
 
 import { requireAuth, corsHeaders as sharedCors, jsonResp as jResp, adminClient } from '../_shared/auth.ts';
-import { consumeCreditsOrThrow, normalizeTier } from '../_shared/credits.ts';
+import { consumeCreditsWithRefund, normalizeTier } from '../_shared/credits.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
