@@ -653,7 +653,7 @@ export async function onCampaignGoalReached(orgId: string, orgName: string, camp
     org_name: orgName, campaign_name: campaignName,
     goal_amount: goalAmount, current_amount: currentAmount, currency,
   });
-  notifyOrgMembers(orgId, '🏆 Objectif atteint !', `La campagne "${campaignName}" a atteint son objectif de ${goalAmount} ${currency} !`, 'milestone');
+  notifyOrgMembers(orgId, '🏆 Objectif atteint !', `La campagne "${campaignName}" a atteint son objectif de ${goalAmount} ${currency} !`, 'milestone', undefined, `/admin/campaigns`);
 }
 
 // ═══════════════════════════════════════════════════════════
