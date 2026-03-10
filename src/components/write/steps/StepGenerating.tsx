@@ -144,6 +144,7 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
 
       setPhase('done');
       update({ chapters: finalChapters });
+      refreshCredits();
       setTimeout(() => {
         if (!aborted.current) onNext();
       }, 700);
