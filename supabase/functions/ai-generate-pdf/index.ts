@@ -680,7 +680,11 @@ async function buildProfessionalPdf(opts: {
   // ══════════════════════════════════════════════════════════════
   for (let ci = 0; ci < chapters.length; ci++) {
     const chapter = chapters[ci];
-    const chTitle = asText(chapter.title, `${chapterWord} ${ci + 1}`);
+    let chTitle = asText(chapter.title, `${chapterWord} ${ci + 1}`);
+    // Strip leading numbering from AI (e.g. "1. ", "1- ", "Chapitre 1 : ", etc.)
+    chTitle = chTitle.replace(/^(\d+[\.\-\)]\s*|(?:chapitre|chapter)\s+\d+\s*[:\-–—]?\s*)/i, '').trim();
+    // Capitalize first letter
+    if (chTitle.length > 0) chTitle = chTitle.charAt(0).toUpperCase() + chTitle.slice(1);
 
     // ── CHAPTER OPENER PAGE ─────────────────────────────────
     const openerPage = pdfDoc.addPage([pg.width, pg.height]);
