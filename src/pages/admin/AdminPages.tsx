@@ -939,6 +939,8 @@ export function AdminSettings() {
   const [whatsapp, setWhatsapp] = useState(currentOrg?.whatsapp ?? '');
   const [logoUrl, setLogoUrl] = useState(currentOrg?.logo_url ?? '');
   const [bannerUrl, setBannerUrl] = useState(currentOrg?.banner_url ?? '');
+  const [orgCurrency, setOrgCurrency] = useState(currentOrg?.currency ?? 'XOF');
+  const [orgCountry, setOrgCountry] = useState((currentOrg as any)?.country ?? '');
   const [savingProfile, setSavingProfile] = useState(false);
 
   const slugify = (v: string) => v.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
