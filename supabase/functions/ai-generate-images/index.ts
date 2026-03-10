@@ -91,10 +91,7 @@ Deno.serve(async (req) => {
         console.error(`Image gen error page ${i}:`, imgErr);
         // Refund credits for this failed image
         if (imgDebited > 0) {
-          try {
-            const { refundCreditsAsBonus } = await import('../_shared/credits.ts');
-            await refundCreditsAsBonus({ admin, userId: auth.userId, amount: imgDebited, source: 'generate_illustration', expiresInDays: 30 });
-          } catch (_) { /* best effort */ }
+          try { await refundCreditsAsBonus({ admin, userId: auth.userId, amount: imgDebited, source: 'generate_illustration', expiresInDays: 30 }); } catch (_) { /* best effort */ }
         }
         continue;
       }
