@@ -324,6 +324,8 @@ function guessMimeType(path: string, category: 'audio' | 'document'): string {
 }
 
 async function transcribeWithGemini(apiKey: string, opts: { prompt: string }): Promise<string> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 120_000);
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -331,7 +333,9 @@ async function transcribeWithGemini(apiKey: string, opts: { prompt: string }): P
       contents: [{ parts: [{ text: opts.prompt }] }],
       generationConfig: { maxOutputTokens: 16384, temperature: 0.1 },
     }),
+    signal: controller.signal,
   });
+  clearTimeout(timeoutId);
   const data = await res.json();
   if (data?.error) {
     console.error('[transcribe-source] Gemini text error:', JSON.stringify(data.error).substring(0, 300));
