@@ -7,6 +7,7 @@ import { ShoppingBag, X, GitCompareArrows, Star, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 
 interface CompareProduct {
   id: string;
