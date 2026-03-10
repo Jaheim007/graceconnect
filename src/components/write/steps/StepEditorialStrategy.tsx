@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useI18n } from '@/i18n/I18nContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useCreditGuard } from '@/hooks/useCreditGuard';
+import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 import type { WriteState } from '../WriteWizard';
 import { hasGeneratedContent } from '../utils/hasGeneratedContent';
 
@@ -34,6 +36,7 @@ export function StepEditorialStrategy({ state, update, onNext, onBack }: Props) 
   const [showStories, setShowStories] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
   const ran = useRef(false);
+  const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
 
   const generate = async () => {
     setPhase('loading');
@@ -58,15 +61,14 @@ export function StepEditorialStrategy({ state, update, onNext, onBack }: Props) 
       const s = data.strategy as EditorialStrategy;
       setStrategy(s);
       update({ editorialStrategy: s });
-
-      // Always show improved title suggestion — removed the !state.title check
-      // so user always gets the suggestion even if they pre-filled a title
-
+      refreshCredits();
       setPhase('ready');
     } catch (err: any) {
       console.error('Editorial strategy error:', err);
-      setPhase('error');
-      setErrorMsg(err?.message || 'Erreur de génération');
+      if (!handleAiError(err)) {
+        setPhase('error');
+        setErrorMsg(err?.message || 'Erreur de génération');
+      }
     }
   };
 
@@ -310,6 +312,7 @@ export function StepEditorialStrategy({ state, update, onNext, onBack }: Props) 
           {hasGeneratedBook ? t('common.next') : t('write.strategy_continue')} <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
+      <InsufficientCreditsDialog open={showCreditDialog} onOpenChange={setShowCreditDialog} message={creditErrorMessage} />
     </div>
   );
 }

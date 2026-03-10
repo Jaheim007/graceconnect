@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useCreditGuard } from '@/hooks/useCreditGuard';
+import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 import type { WriteState } from '../WriteWizard';
 
 interface Props {
@@ -22,6 +24,7 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
   const [generating, setGenerating] = useState<string | null>(null);
   const [artStyle, setArtStyle] = useState<IllustrationStyle>('children_book');
   const [generatingAll, setGeneratingAll] = useState(false);
+  const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
 
   const chapters = state.chapters || [];
   const illustrations = state.chapterIllustrations || {};
@@ -85,10 +88,13 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
       const updated = { ...illustrationsRef.current, [chapterId]: data.imageUrl };
       illustrationsRef.current = updated;
       update({ chapterIllustrations: updated });
+      refreshCredits();
       toast({ title: `🎨 ${t('write.illust_generated') || 'Illustration générée !'}` });
     } catch (err: any) {
       console.error('Illustration generation error:', err);
-      toast({ title: '❌ Erreur', description: err?.message, variant: 'destructive' });
+      if (!handleAiError(err)) {
+        toast({ title: '❌ Erreur', description: err?.message, variant: 'destructive' });
+      }
     } finally {
       setGenerating(null);
     }
@@ -234,6 +240,7 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
           )}
         </Button>
       </div>
+      <InsufficientCreditsDialog open={showCreditDialog} onOpenChange={setShowCreditDialog} message={creditErrorMessage} />
     </div>
   );
 }

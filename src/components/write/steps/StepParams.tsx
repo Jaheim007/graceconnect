@@ -7,6 +7,8 @@ import { Slider } from '@/components/ui/slider';
 import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useCreditGuard } from '@/hooks/useCreditGuard';
+import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 import type { WriteState, BookStyle, WritingTone, TargetAudience, BookLanguage, BookLength, ReligiousTradition, PrayerFormat } from '../WriteWizard';
 import { hasGeneratedContent } from '../utils/hasGeneratedContent';
 
@@ -24,6 +26,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
   const [titleSuggestions, setTitleSuggestions] = useState<string[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [keywordInput, setKeywordInput] = useState('');
+  const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
 
   const styles: { type: BookStyle; icon: typeof BookOpen; label: string; desc: string }[] = [
     { type: 'ebook', icon: BookOpen, label: t('write.style_ebook'), desc: t('write.style_ebook_desc') },
@@ -124,9 +127,12 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
       if (Array.isArray(data?.titles)) {
         setTitleSuggestions(data.titles);
       }
+      refreshCredits();
     } catch (err: any) {
       console.error('Title suggestion error:', err);
-      toast({ title: '❌ Erreur', description: err?.message, variant: 'destructive' });
+      if (!handleAiError(err)) {
+        toast({ title: '❌ Erreur', description: err?.message, variant: 'destructive' });
+      }
     } finally {
       setSuggestingTitles(false);
     }
@@ -484,6 +490,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
           {hasSavedChapters ? t('common.next') : t('write.generate')} <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
+      <InsufficientCreditsDialog open={showCreditDialog} onOpenChange={setShowCreditDialog} message={creditErrorMessage} />
     </div>
   );
 }

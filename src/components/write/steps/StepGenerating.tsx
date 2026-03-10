@@ -3,6 +3,8 @@ import { Loader2, CheckCircle, BookOpen, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useCreditGuard } from '@/hooks/useCreditGuard';
+import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 import type { WriteState, WriteChapter } from '../WriteWizard';
 import { hasGeneratedContent } from '../utils/hasGeneratedContent';
 
@@ -24,6 +26,7 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
   const [thinkingProgress, setThinkingProgress] = useState(12);
   const aborted = useRef(false);
   const ran = useRef(false);
+  const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
 
   useEffect(() => {
     if (phase !== 'thinking') return;
@@ -109,6 +112,8 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
           break;
         } catch (err: any) {
           lastError = err instanceof Error ? err : new Error(err?.message || 'Generation failed');
+          // Check if it's a credit error — stop retrying
+          if (handleAiError(lastError)) break;
         }
       }
 
@@ -139,14 +144,17 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
 
       setPhase('done');
       update({ chapters: finalChapters });
+      refreshCredits();
       setTimeout(() => {
         if (!aborted.current) onNext();
       }, 700);
     } catch (err: any) {
       console.error('Book generation error:', err);
       if (aborted.current) return;
-      setPhase('error');
-      setErrorMsg(err?.message || 'Generation failed');
+      if (!handleAiError(err)) {
+        setPhase('error');
+        setErrorMsg(err?.message || 'Generation failed');
+      }
     }
   };
 
@@ -182,6 +190,7 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
         : 0;
 
   return (
+    <>
     <div className="space-y-8 pt-16 text-center">
       <div className="space-y-4">
         <div className="h-20 w-20 mx-auto rounded-3xl bg-primary/10 flex items-center justify-center">
@@ -255,5 +264,7 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
         « <strong className="text-foreground">{state.title || t('write.my_book')}</strong> » — {state.pageCount} {t('write.pages')}
       </p>
     </div>
+    <InsufficientCreditsDialog open={showCreditDialog} onOpenChange={setShowCreditDialog} message={creditErrorMessage} />
+    </>
   );
 }

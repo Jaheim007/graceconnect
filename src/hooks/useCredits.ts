@@ -53,8 +53,8 @@ export function useCreditsBalance() {
       return data as unknown as CreditSummary;
     },
     enabled: !!user,
-    staleTime: 30_000,
-    refetchInterval: 60_000,
+    staleTime: 10_000,
+    refetchInterval: 30_000,
   });
 }
 
