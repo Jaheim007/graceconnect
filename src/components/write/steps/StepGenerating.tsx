@@ -101,8 +101,27 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
         try {
           const { data, error } = await invokeGeneration(pageCount);
           if (aborted.current) return;
-          if (error) throw error;
-          if (data?.error) throw new Error(data.error);
+          if (error) {
+            // Parse the invoke error properly
+            let parsed: { message: string; status?: number } = { message: error?.message || 'Erreur serveur' };
+            try {
+              const ctx = (error as any)?.context;
+              if (ctx?.status) parsed.status = ctx.status;
+              if (ctx && typeof ctx.json === 'function') {
+                const details = await ctx.json().catch(() => null);
+                if (details?.error) parsed.message = details.error;
+              }
+              if (ctx?.status === 402) parsed = { message: 'Crédits insuffisants', status: 402 };
+            } catch { /* ignore */ }
+            const err = new Error(parsed.message);
+            (err as any).status = parsed.status;
+            throw err;
+          }
+          if (data?.error) {
+            const err = new Error(data.error);
+            if (data.error.includes('insuffisant') || data.error.includes('insufficient')) (err as any).status = 402;
+            throw err;
+          }
 
           if (!Array.isArray(data?.chapters) || data.chapters.length === 0) {
             throw new Error('No chapters returned from AI');
