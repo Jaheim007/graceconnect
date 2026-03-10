@@ -225,23 +225,12 @@ export default function AuthPage() {
                     )}
                     {facebookLoading ? t('auth.redirecting') : t('auth.continue_facebook')}
                   </Button>
-                  {!showEmailOption ? (
-                    <button
-                      className="w-full text-xs text-muted-foreground hover:text-foreground text-center py-2 transition-colors"
-                      onClick={() => setShowEmailOption(true)}
-                    >
-                      {t('auth.continue_magic')} →
-                    </button>
-                  ) : (
-                    <>
-                      <div className="flex items-center gap-3">
-                        <div className="h-px flex-1 bg-border" /><span className="text-xs text-muted-foreground">{t('auth.or')}</span><div className="h-px flex-1 bg-border" />
-                      </div>
-                      <Button variant="outline" className="w-full h-12 gap-2.5 text-sm font-medium" onClick={() => setMethod('magic-link')}>
-                        <Mail className="h-5 w-5" /> {t('auth.continue_magic')}
-                      </Button>
-                    </>
-                  )}
+                  <div className="flex items-center gap-3">
+                    <div className="h-px flex-1 bg-border" /><span className="text-xs text-muted-foreground">{t('auth.or')}</span><div className="h-px flex-1 bg-border" />
+                  </div>
+                  <Button variant="outline" className="w-full h-12 gap-2.5 text-sm font-medium" onClick={() => setMethod('magic-link')}>
+                    <Mail className="h-5 w-5" /> {t('auth.continue_magic')}
+                  </Button>
                   <p className="text-[11px] text-center text-muted-foreground pt-2">{t('auth.no_password')}</p>
                 </motion.div>
               ) : (
