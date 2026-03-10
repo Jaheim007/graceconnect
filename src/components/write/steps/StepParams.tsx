@@ -127,9 +127,12 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
       if (Array.isArray(data?.titles)) {
         setTitleSuggestions(data.titles);
       }
+      refreshCredits();
     } catch (err: any) {
       console.error('Title suggestion error:', err);
-      toast({ title: '❌ Erreur', description: err?.message, variant: 'destructive' });
+      if (!handleAiError(err)) {
+        toast({ title: '❌ Erreur', description: err?.message, variant: 'destructive' });
+      }
     } finally {
       setSuggestingTitles(false);
     }
