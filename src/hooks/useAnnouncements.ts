@@ -28,7 +28,7 @@ export function useFeedAnnouncements(orgIds: string[]) {
       if (!orgIds.length) return [];
       const { data } = await db
         .from('announcements')
-        .select('*, organizations(name, slug)')
+        .select('*, organizations(name, slug, is_verified)')
         .in('organization_id', orgIds)
         .eq('is_published', true)
         .order('is_pinned', { ascending: false })
