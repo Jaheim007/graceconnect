@@ -137,6 +137,9 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Resolve user_id: prefer authenticated user, fallback to metadata
+    const resolvedUserId = userId || readMetaString(metadata, 'user_id') || null;
+
     // ── Delegate to shared core ──
     const result = await processTransaction(db, {
       reference,
@@ -148,7 +151,7 @@ Deno.serve(async (req) => {
       currency,
       campaign_id: resolvedCampaignId,
       product_id: resolvedProductId,
-      user_id: userId,
+      user_id: resolvedUserId,
       donor_name: resolvedDonorName,
       donor_email: resolvedDonorEmail,
       affiliate_code: resolvedAffiliateCode,
