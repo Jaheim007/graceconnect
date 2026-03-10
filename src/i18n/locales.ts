@@ -2100,7 +2100,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'page.affiliation_clicks': 'Clics',
     'page.affiliation_earned': 'Gagné',
     'page.affiliation_request_payout': 'Demander un retrait',
-    'page.affiliation_kyc_required': 'La vérification KYC est requise avant tout retrait.',
+    'page.affiliation_kyc_required': 'La vérification d\'identité est requise avant tout retrait.',
     'page.affiliation_search_org': 'Rechercher une plateforme...',
     'page.affiliation_your_orgs': 'Vos plateformes',
     'page.affiliation_other_orgs': 'Autres plateformes',
