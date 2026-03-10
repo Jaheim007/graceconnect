@@ -769,7 +769,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'payouts.available_balance': 'Balance available for withdrawal',
     'payouts.already_withdrawn': 'Already withdrawn',
     'payouts.in_progress': 'In progress',
-    'payouts.kyc_required': 'KYC required',
+    'payouts.kyc_required': 'Verification required',
     'payouts.no_payouts': 'No withdrawals',
     'payouts.no_payouts_desc': 'Withdrawal requests will appear here once made.',
     'payouts.status_requested': 'Requested',
