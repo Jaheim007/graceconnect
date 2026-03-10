@@ -70,7 +70,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
   const { data: orgData } = useQuery({
     queryKey: ['org-slug-for-card', organizationId],
     queryFn: async () => {
-      const { data } = await db.from('organizations').select('slug, is_verified').eq('id', organizationId).maybeSingle();
+      const { data } = await db.from('organizations').select('slug, is_verified, kyc_status, category').eq('id', organizationId).maybeSingle();
       return data;
     },
     enabled: !orgSlug && !!organizationId,
