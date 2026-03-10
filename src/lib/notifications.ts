@@ -490,7 +490,7 @@ export async function onAffiliateFirstConversion(
     `Votre premier referral a converti ! Commission: ${commission} ${currency}`,
     'affiliate_first_conversion',
     { org_name: orgName, commission, currency },
-    'affiliate',
+    'affiliate', undefined, `/affiliation`,
   );
 }
 
