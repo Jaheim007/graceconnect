@@ -490,7 +490,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                   value={selfieUrl}
                   onChange={setSelfieUrl}
                   folder={`${folder}/selfie`}
-                  bucket="org-uploads"
+                  bucket="kyc-documents"
                   label="Selfie"
                   hint="Utilisez la caméra frontale pour prendre un selfie clair"
                 />
