@@ -295,6 +295,11 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen bg-background" style={orgThemeStyle}>
+      <PixelInjector
+        facebookPixelId={(product as any).facebook_pixel_id || (pageSettings as any)?.facebook_pixel_id}
+        tiktokPixelId={(product as any).tiktok_pixel_id || (pageSettings as any)?.tiktok_pixel_id}
+        googleTagId={(product as any).google_tag_id || (pageSettings as any)?.google_tag_id}
+      />
       <ReadingProgressBar />
       <SEOHead
         title={`${product.title} — ${org?.name || 'Siteviral'}`}
