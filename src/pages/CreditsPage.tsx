@@ -37,19 +37,6 @@ function timeUntil(dateStr: string | null): string {
   return `${mins}m`;
 }
 
-const categoryLabels: Record<string, { label: string; icon: typeof Coins }> = {
-  studio: { label: 'Studio IA — Création de livres', icon: BookOpen },
-  product: { label: 'Produits — Marketing & vente', icon: ShoppingBag },
-  media: { label: 'Média — Transcription & audio', icon: Mic },
-  content: { label: 'Contenu — Rédaction IA', icon: FileText },
-};
-
-const categoryIcons: Record<string, typeof Coins> = {
-  studio: BookOpen,
-  product: ShoppingBag,
-  media: Mic,
-  content: FileText,
-};
 
 export default function CreditsPage() {
   const { user } = useAuth();
