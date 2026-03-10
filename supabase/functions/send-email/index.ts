@@ -418,15 +418,24 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Unknown template' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    // If `to` is empty but org_id provided, send to all org admins/owners
+    // If `to` is empty but org_id provided, send to org admins/owners (or owner only if __owner_only flag)
+    const ownerOnly = data?.__owner_only === 1 || data?.__owner_only === '1';
+    // Remove internal flag from data before building template
+    if (data?.__owner_only !== undefined) delete data.__owner_only;
+
     let recipients: string[] = [];
     if (to) {
       recipients = [to];
     } else if (organization_id) {
-      const { data: admins } = await supabaseAdmin.from('organization_members')
+      let query = supabaseAdmin.from('organization_members')
         .select('user_id')
-        .eq('organization_id', organization_id)
-        .in('role', ['owner', 'admin']);
+        .eq('organization_id', organization_id);
+      if (ownerOnly) {
+        query = query.eq('role', 'owner');
+      } else {
+        query = query.in('role', ['owner', 'admin']);
+      }
+      const { data: admins } = await query;
       if (admins?.length) {
         for (const admin of admins) {
           const { data: { user } } = await supabaseAdmin.auth.admin.getUserById(admin.user_id);

@@ -128,9 +128,14 @@ async function notifyOrgAffiliates(
   }
 }
 
-// ── Email to org members (via edge function) ──
+// ── Email to org admins/owners (via edge function) ──
 function emailOrgAdmins(template: EmailTemplate, orgId: string, data: Record<string, string | number>) {
   sendEmailNotification(template, '', data, orgId).catch(() => {});
+}
+
+// ── Email only to org owner (via edge function with owner_only flag) ──
+function emailOrgOwnerOnly(template: EmailTemplate, orgId: string, data: Record<string, string | number>) {
+  sendEmailNotification(template, '', { ...data, __owner_only: 1 }, orgId).catch(() => {});
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -196,6 +201,26 @@ export async function onInviteAccepted(
   );
 }
 
+// ── Notify only owner of an org (in-app only) ──
+async function notifyOrgOwnerOnly(
+  orgId: string,
+  title: string,
+  body: string,
+  type: string = 'org',
+  actionUrl?: string,
+) {
+  try {
+    const { data: members } = await db.from('organization_members')
+      .select('user_id, role')
+      .eq('organization_id', orgId)
+      .eq('role', 'owner');
+    for (const m of members || []) {
+      notify(m.user_id, title, body, type, orgId, actionUrl);
+    }
+  } catch (e) {
+    console.error('notifyOrgOwnerOnly failed:', e);
+  }
+}
 
 // ── Content published (events, announcements, media, products, campaigns) ──
 export async function onContentPublished(
@@ -386,15 +411,15 @@ export async function onKycStatusChanged(
     approved: 'kyc_approved',
     rejected: 'kyc_rejected',
   };
-  emailOrgAdmins(templates[status], orgId, { org_name: orgName, reason: reason || '' });
-  // In-app notification for KYC status
+  emailOrgOwnerOnly(templates[status], orgId, { org_name: orgName, reason: reason || '' });
+  // In-app notification for KYC status — owner only
   const icons: Record<string, string> = { submitted: '📄', approved: '✅', rejected: '❌' };
   const msgs: Record<string, string> = {
-    submitted: `Les documents KYC de ${orgName} ont été soumis et sont en cours d'examen.`,
-    approved: `Le KYC de ${orgName} a été approuvé ! Vous pouvez activer la monétisation.`,
-    rejected: `Le KYC de ${orgName} nécessite une attention. ${reason || 'Veuillez contacter le support.'}`,
+    submitted: `Les documents de vérification de ${orgName} ont été soumis et sont en cours d'examen.`,
+    approved: `La vérification de ${orgName} a été approuvée ! Vous pouvez activer la monétisation.`,
+    rejected: `La vérification de ${orgName} nécessite une attention. ${reason || 'Veuillez contacter le support.'}`,
   };
-  notifyOrgOwnersAdmins(orgId, `${icons[status]} KYC ${status === 'submitted' ? 'soumis' : status === 'approved' ? 'approuvé' : 'rejeté'}`, msgs[status], 'org', `/admin/kyc`);
+  notifyOrgOwnerOnly(orgId, `${icons[status]} Vérification ${status === 'submitted' ? 'soumise' : status === 'approved' ? 'approuvée' : 'refusée'}`, msgs[status], 'org', `/admin/kyc`);
 }
 
 // ── Support tickets ──
