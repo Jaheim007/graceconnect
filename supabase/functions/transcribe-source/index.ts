@@ -320,7 +320,13 @@ Rules:
 
   } catch (err) {
     console.error('[transcribe-source] ERROR:', err);
-    return new Response(JSON.stringify({ error: String(err) }), {
+    // Note: credits already refunded in specific failure paths above.
+    // For unexpected errors, we also refund here.
+    // userId and creditDebited may not be defined if error happened early
+    if (typeof creditDebited === 'number' && creditDebited > 0 && userId) {
+      try { await refundCreditsAsBonus({ admin: db, userId, amount: creditDebited, source: 'transcribe_media', expiresInDays: 30 }); } catch (_) { /* best effort */ }
+    }
+    return new Response(JSON.stringify({ error: String(err), credits_refunded: typeof creditDebited === 'number' && creditDebited > 0 }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

@@ -52,22 +52,26 @@ Deno.serve(async (req) => {
     if (!topic && !title) return jsonResp({ error: 'topic or title required' }, 400);
 
     const admin = adminClient(auth.supabaseUrl, auth.serviceKey);
-    await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: 'editorial_strategy', tier: normalizeTier(tier) });
+    const result = await consumeCreditsWithRefund({
+      admin, userId: auth.userId, actionKey: 'editorial_strategy', tier: normalizeTier(tier),
+      action: async () => {
+        const lang = language === 'en' ? 'en' : 'fr';
+        const prompts = langPrompts[lang];
+        const params = { topic: topic || title, title, style, audience, tone };
 
-    const lang = language === 'en' ? 'en' : 'fr';
-    const prompts = langPrompts[lang];
-    const params = { topic: topic || title, title, style, audience, tone };
+        const raw = await aiGenerateText({
+          geminiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash',
+          system: prompts.system, prompt: prompts.user(params),
+          maxOutputTokens: 2048, jsonMode: true,
+        });
 
-    const raw = await aiGenerateText({
-      geminiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash',
-      system: prompts.system, prompt: prompts.user(params),
-      maxOutputTokens: 2048, jsonMode: true,
+        const strategy = extractJson(raw);
+        if (!strategy) throw new Error('Failed to parse AI response');
+        return strategy;
+      },
     });
 
-    const strategy = extractJson(raw);
-    if (!strategy) return jsonResp({ error: 'Failed to parse AI response' }, 500);
-
-    return jsonResp({ strategy });
+    return jsonResp({ strategy: result });
   } catch (e: any) {
     if (e?.status === 402) return jsonResp({ error: e.message }, 402);
     if (e?.status === 429) return jsonResp({ error: 'Rate limit. Please retry.' }, 429);
