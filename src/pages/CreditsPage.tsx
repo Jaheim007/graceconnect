@@ -375,7 +375,7 @@ export default function CreditsPage() {
             {packs?.map(pack => {
               const bonusCredits = Math.round(pack.credits * (pack.bonus_percent || 0) / 100);
               const totalCredits = pack.credits + bonusCredits;
-              const pricePerCredit = (pack.price_xof / totalCredits).toFixed(0);
+              const isPurchasing = purchasing === pack.pack_key;
               const isPurchasing = purchasing === pack.pack_key;
 
               return (
