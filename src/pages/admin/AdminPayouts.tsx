@@ -11,7 +11,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
   Wallet, Clock, CheckCircle, XCircle, ArrowUpRight, AlertTriangle,
-  DollarSign, Shield, Download, Info, CreditCard, ExternalLink, Loader2
+  DollarSign, Shield, Download, Info, CreditCard, ExternalLink, Loader2, Send
 } from 'lucide-react';
 import { downloadCSV } from '@/lib/csvExport';
 import { format } from 'date-fns';
@@ -19,6 +19,10 @@ import { fr, enUS } from 'date-fns/locale';
 import { useI18n } from '@/i18n/I18nContext';
 import { startStripeConnectOnboarding, checkStripeConnectStatus } from '@/lib/api';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { onPayoutRequested } from '@/lib/notifications';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { useState } from 'react';
 
 import { formatCurrency } from '@/lib/currency';
 const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
@@ -31,11 +35,48 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } }
 
 export default function AdminPayouts() {
   const { currentOrg } = useOrg();
+  const { user } = useAuth();
   const { t, locale } = useI18n();
   const queryClient = useQueryClient();
   const orgId = currentOrg?.id;
   const currency = currentOrg?.currency || 'XOF';
   const dateFnsLocale = locale === 'fr' ? fr : enUS;
+  const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
+
+  const MIN_WITHDRAWAL = 1000; // XOF minimum
+  const kycApproved = currentOrg?.kyc_status === 'level1' || currentOrg?.kyc_status === 'level2';
+
+  // Withdrawal request mutation
+  const withdrawMutation = useMutation({
+    mutationFn: async () => {
+      if (!user || !orgId || !fundSummary) throw new Error('Missing data');
+      const available = Math.max(0, fundSummary.availableBalance);
+      if (available < MIN_WITHDRAWAL) throw new Error(`Solde insuffisant (minimum ${MIN_WITHDRAWAL} ${currency})`);
+      if (!kycApproved) throw new Error('KYC requis avant tout retrait');
+
+      const { error } = await db.from('payout_requests').insert({
+        user_id: user.id,
+        organization_id: orgId,
+        amount: available,
+        currency,
+        payout_type: 'organization',
+        status: 'pending',
+      });
+      if (error) throw error;
+
+      // Fire notifications
+      onPayoutRequested(orgId, currentOrg?.name || '', available, currency);
+    },
+    onSuccess: () => {
+      toast.success('Demande de retrait envoyée ! Traitement sous 3-8 jours ouvrés.');
+      setShowWithdrawDialog(false);
+      queryClient.invalidateQueries({ queryKey: ['admin-payouts', orgId] });
+      queryClient.invalidateQueries({ queryKey: ['admin-fund-summary', orgId] });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
 
   const statusConfig: Record<string, { label: string; icon: typeof Clock; colorClass: string }> = {
     requested: { label: t('payouts.status_requested'), icon: Clock, colorClass: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
@@ -238,13 +279,57 @@ export default function AdminPayouts() {
                 )}
               </p>
             </div>
-            {currentOrg?.kyc_status === 'none' && (
-              <Badge variant="outline" className="text-[10px] border-amber-500/30 text-amber-600">
-                <AlertTriangle className="h-3 w-3 mr-1" /> {t('payouts.kyc_required')}
-              </Badge>
-            )}
+            <div className="flex items-center gap-2">
+              {!kycApproved ? (
+                <Badge variant="outline" className="text-[10px] border-amber-500/30 text-amber-600">
+                  <AlertTriangle className="h-3 w-3 mr-1" /> {t('payouts.kyc_required')}
+                </Badge>
+              ) : fundSummary.availableBalance >= MIN_WITHDRAWAL && fundSummary.pendingPayouts === 0 ? (
+                <Button
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => setShowWithdrawDialog(true)}
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  Demander un retrait
+                </Button>
+              ) : fundSummary.pendingPayouts > 0 ? (
+                <Badge variant="outline" className="text-[10px] border-blue-500/30 text-blue-600">
+                  <Clock className="h-3 w-3 mr-1" /> Retrait en cours
+                </Badge>
+              ) : null}
+            </div>
           </div>
         )}
+
+        {/* Withdrawal confirmation dialog */}
+        <Dialog open={showWithdrawDialog} onOpenChange={setShowWithdrawDialog}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Confirmer le retrait</DialogTitle>
+              <DialogDescription>
+                L'intégralité de votre solde disponible sera demandée en retrait. Le traitement prend 3 à 8 jours ouvrés.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="p-4 rounded-xl bg-muted/50 border border-border text-center">
+              <p className="text-xs text-muted-foreground">Montant du retrait</p>
+              <p className="text-2xl font-bold text-primary mt-1">
+                {fmt(Math.max(0, fundSummary?.availableBalance || 0), currency)}
+              </p>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowWithdrawDialog(false)}>Annuler</Button>
+              <Button
+                onClick={() => withdrawMutation.mutate()}
+                disabled={withdrawMutation.isPending}
+                className="gap-1.5"
+              >
+                {withdrawMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                Confirmer
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {payouts.length > 0 && (
           <div className="flex justify-end">

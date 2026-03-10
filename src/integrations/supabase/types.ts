@@ -3739,6 +3739,8 @@ export type Database = {
           organization_id: string | null
           payout_type: string
           processed_at: string | null
+          processed_by: string | null
+          reject_reason: string | null
           requested_at: string | null
           status: string | null
           user_id: string
@@ -3751,6 +3753,8 @@ export type Database = {
           organization_id?: string | null
           payout_type: string
           processed_at?: string | null
+          processed_by?: string | null
+          reject_reason?: string | null
           requested_at?: string | null
           status?: string | null
           user_id: string
@@ -3763,6 +3767,8 @@ export type Database = {
           organization_id?: string | null
           payout_type?: string
           processed_at?: string | null
+          processed_by?: string | null
+          reject_reason?: string | null
           requested_at?: string | null
           status?: string | null
           user_id?: string

@@ -125,6 +125,14 @@ export default function ManualPayoutsDashboard() {
         }).eq('id', selectedPayout.source_request_id);
       }
 
+      // Send notifications
+      if (selectedPayout.organization_id) {
+        const { onPayoutApproved } = await import('@/lib/notifications');
+        // Get org name
+        const { data: org } = await db.from('organizations').select('name').eq('id', selectedPayout.organization_id).maybeSingle();
+        onPayoutApproved(selectedPayout.organization_id, org?.name || '', selectedPayout.amount, selectedPayout.currency || 'XOF');
+      }
+
       toast.success('Payout marqué comme effectué ✅');
       setSelectedPayout(null);
       setProofUrl('');
@@ -149,7 +157,14 @@ export default function ManualPayoutsDashboard() {
     }).eq('id', selectedPayout.id);
 
     if (selectedPayout.source_request_id) {
-      await db.from('payout_requests').update({ status: 'pending' }).eq('id', selectedPayout.source_request_id);
+      await db.from('payout_requests').update({ status: 'rejected', reject_reason: reason } as any).eq('id', selectedPayout.source_request_id);
+    }
+
+    // Send rejection notification
+    if (selectedPayout.organization_id) {
+      const { onPayoutRejected } = await import('@/lib/notifications');
+      const { data: org } = await db.from('organizations').select('name').eq('id', selectedPayout.organization_id).maybeSingle();
+      onPayoutRejected(selectedPayout.organization_id, org?.name || '', reason);
     }
 
     toast.success('Payout marqué comme échoué');
