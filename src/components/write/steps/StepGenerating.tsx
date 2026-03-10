@@ -263,5 +263,7 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
         « <strong className="text-foreground">{state.title || t('write.my_book')}</strong> » — {state.pageCount} {t('write.pages')}
       </p>
     </div>
+      <InsufficientCreditsDialog open={showCreditDialog} onOpenChange={setShowCreditDialog} message={creditErrorMessage} />
+    </>
   );
 }
