@@ -566,7 +566,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
             )}
 
             {/* STEP: Selfie */}
-            {currentStep.id === 'selfie' && (
+            {currentStep?.id === 'selfie' && (
               <div className="space-y-4">
                 <div className="text-center py-2">
                   <div className="mx-auto mb-3 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
