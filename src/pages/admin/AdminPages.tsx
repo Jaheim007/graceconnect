@@ -77,9 +77,19 @@ export function AdminAnnouncements() {
           <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
             {items.map(a => (
               <motion.div key={a.id} variants={fadeUp} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all group">
-                {a.is_pinned && <span className="text-sm shrink-0">📌</span>}
+                {a.image_url ? (
+                  <div className="h-16 w-28 rounded-xl overflow-hidden shrink-0 border border-border">
+                    <img src={a.image_url} alt={a.title} className="w-full h-full object-cover" />
+                  </div>
+                ) : a.is_pinned ? (
+                  <span className="text-sm shrink-0">📌</span>
+                ) : (
+                  <div className="h-16 w-28 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <Megaphone className="h-6 w-6 text-primary/40" />
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{a.title}</p>
+                  <p className="text-base font-medium truncate">{a.title}</p>
                   <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{stripHtml(a.body)}</p>
                 </div>
                 <Badge
