@@ -3,6 +3,8 @@ import { Loader2, CheckCircle, BookOpen, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useCreditGuard } from '@/hooks/useCreditGuard';
+import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 import type { WriteState, WriteChapter } from '../WriteWizard';
 import { hasGeneratedContent } from '../utils/hasGeneratedContent';
 
