@@ -495,7 +495,7 @@ export default function ProductDetailPage() {
               )}
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">{t('product.sold_by')}</p>
-                <p className="font-bold text-sm">{org.name}</p>
+                <p className="font-bold text-sm flex items-center gap-1">{org.name} {org.is_verified && <VerifiedBadge size="sm" label="Vendeur vérifié" />}</p>
                 {org.description && (
                   <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{org.description}</p>
                 )}

@@ -52,7 +52,7 @@ export function TrendingBanner() {
                 {org.name?.charAt(0)}
               </div>
             )}
-            <span className="text-xs font-medium whitespace-nowrap">{org.name}</span>
+            <span className="text-xs font-medium whitespace-nowrap flex items-center gap-1">{org.name} <VerifiedBadge size="xs" showTooltip={false} /></span>
             <ArrowRight className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
         ))}
