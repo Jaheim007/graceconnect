@@ -53,7 +53,7 @@ const features: Feature[] = [
   { icon: Palette, title: 'Page personnalisable', desc: 'Éditez textes, images, couleurs. Réordonnez les sections. Votre identité, votre plateforme.', persona: ['org'] },
   { icon: Bell, title: 'Notifications push', desc: 'Envoyez des notifications en temps réel pour garder votre audience engagée.', persona: ['org'] },
   { icon: Smartphone, title: 'App PWA installable', desc: 'Installable depuis le navigateur, fonctionne hors ligne, chargement ultra-rapide.', persona: ['org', 'buyer'] },
-  { icon: Shield, title: 'KYC & Conformité', desc: 'Vérification d\'identité multi-niveaux, détection de fraude, conformité GDPR.', persona: ['org'] },
+  { icon: Shield, title: 'Vérification & Conformité', desc: 'Vérification d\'identité multi-niveaux, détection de fraude, conformité GDPR.', persona: ['org'] },
   { icon: Search, title: 'SEO intégré', desc: 'Balises meta, slugs personnalisés, pages optimisées pour Google.', persona: ['org'] },
   { icon: Award, title: 'Badges de confiance', desc: 'Badges organisation vérifiée, featured, certifiée. Renforcez la confiance.', persona: ['org'] },
   { icon: FileText, title: 'Export de données', desc: 'Exportez membres, transactions, affiliés en CSV. Vos données vous appartiennent.', persona: ['org'] },

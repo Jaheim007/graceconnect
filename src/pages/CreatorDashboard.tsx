@@ -203,7 +203,7 @@ export default function CreatorDashboard() {
             { label: 'Produits', value: productCount, icon: ShoppingBag, color: 'text-primary' },
             { label: 'Ventes', value: salesData?.count || 0, icon: TrendingUp, color: 'text-emerald-500' },
             { label: 'Ambassadeurs', value: ambassadorCount, icon: Users, color: 'text-amber-500' },
-            { label: 'KYC', value: (kycStatus === 'level1' || kycStatus === 'level2') ? '✓' : '⏳', icon: Shield, color: (kycStatus === 'level1' || kycStatus === 'level2') ? 'text-emerald-500' : 'text-amber-500' },
+            { label: 'Vérification', value: (kycStatus === 'level1' || kycStatus === 'level2') ? '✓' : '⏳', icon: Shield, color: (kycStatus === 'level1' || kycStatus === 'level2') ? 'text-emerald-500' : 'text-amber-500' },
           ].map((stat) => (
             <div key={stat.label} className="bg-card border border-border rounded-xl p-4 text-center">
               <stat.icon className={cn('h-5 w-5 mx-auto mb-2', stat.color)} />

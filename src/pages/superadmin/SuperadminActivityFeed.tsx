@@ -54,7 +54,7 @@ export default function SuperadminActivityFeed() {
       }));
 
       (kyc.data || []).forEach((k: any) => items.push({
-        id: `kyc-${k.id}`, type: 'kyc', title: 'Soumission KYC',
+        id: `kyc-${k.id}`, type: 'kyc', title: 'Vérification d\'identité',
         subtitle: `Statut: ${k.status}`, status: k.status, timestamp: k.submitted_at,
       }));
 

@@ -17,7 +17,7 @@ const links = [
   { to: '/superadmin/orgs', label: 'Organizations', icon: Users },
   { to: '/superadmin/users', label: 'Users', icon: UserCircle },
   { to: '/superadmin/activity', label: 'Activity', icon: Activity },
-  { to: '/superadmin/kyc', label: 'KYC Review', icon: FileCheck },
+  { to: '/superadmin/kyc', label: 'Vérification ID', icon: FileCheck },
   { to: '/superadmin/transactions', label: 'Transactions', icon: BarChart3 },
   { to: '/superadmin/reports', label: 'Reports', icon: Megaphone },
   { to: '/superadmin/moderation', label: 'Modération', icon: ShieldCheck },

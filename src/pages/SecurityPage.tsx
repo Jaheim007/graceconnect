@@ -86,7 +86,7 @@ export default function SecurityPage() {
         <section>
           <h2>7. Data Protection</h2>
           <ul className="list-disc pl-5 space-y-1">
-            <li>KYC documents stored in private, access-controlled storage buckets</li>
+            <li>Identity verification documents stored in private, access-controlled storage buckets</li>
             <li>File downloads require time-limited signed URLs</li>
             <li>No sensitive data exposed in client-side code or API responses</li>
             <li>API keys and secrets stored in encrypted environment variables</li>

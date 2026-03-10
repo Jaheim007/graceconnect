@@ -89,7 +89,7 @@ export default function SuperadminAIChat() {
   const suggestions = [
     "Analyse mes métriques et dis-moi ce qui va bien et ce qu'il faut améliorer",
     "Quelles organisations ont le plus de revenus ?",
-    "Quels sont les KYC en attente et les payouts à traiter ?",
+    "Quelles vérifications d'identité sont en attente et quels payouts traiter ?",
     "Propose 5 idées pour augmenter la croissance de la plateforme",
   ];
 

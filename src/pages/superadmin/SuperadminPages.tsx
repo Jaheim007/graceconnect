@@ -44,7 +44,7 @@ export function SuperadminDashboard() {
   const cards = [
     { label: 'Total Organisations', value: stats?.orgs ?? '—', icon: Users, color: 'text-blue-500' },
     { label: 'GMV Total (XOF)', value: stats?.gmv ? stats.gmv.toLocaleString('fr-FR') : '—', icon: DollarSign, color: 'text-primary' },
-    { label: 'KYC en attente', value: stats?.pendingKyc ?? '—', icon: Activity, color: 'text-amber-500' },
+    { label: 'Vérifications en attente', value: stats?.pendingKyc ?? '—', icon: Activity, color: 'text-amber-500' },
     { label: 'Payouts en attente', value: stats?.pendingPayouts ?? '—', icon: TrendingUp, color: 'text-emerald-500' },
   ];
 

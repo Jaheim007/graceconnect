@@ -17,7 +17,7 @@ export function ProtectionShield({ compact = false }: { compact?: boolean }) {
     return (
       <div className="flex flex-wrap items-center gap-3 text-[10px] text-muted-foreground">
         <Shield className="h-3.5 w-3.5 text-accent" />
-        {['SSL', 'PCI-DSS', 'KYC', 'Anti-fraude', 'RGPD'].map(tag => (
+        {['SSL', 'PCI-DSS', 'ID Vérifié', 'Anti-fraude', 'RGPD'].map(tag => (
           <span key={tag} className="font-medium">{tag}</span>
         ))}
       </div>
