@@ -82,7 +82,7 @@ export function ProductForm() {
   const [salePrice, setSalePrice] = useState('');
   const [saleEndsAt, setSaleEndsAt] = useState('');
   const [showAI, setShowAI] = useState(false);
-  const [pdfPreviewOpen, setPdfPreviewOpen] = useState(false);
+  
   const [regeneratingPdf, setRegeneratingPdf] = useState(false);
   const [orderBumpProductId, setOrderBumpProductId] = useState('');
   const [orderBumpDiscount, setOrderBumpDiscount] = useState('');
