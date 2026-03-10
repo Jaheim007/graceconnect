@@ -475,11 +475,13 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
               <div className="space-y-4">
                 <div className="text-center py-4">
                   <h3 className="text-xl font-bold">
-                    {mode === 'org' ? "Pièce d'identité du responsable" : "Quel type de document ?"}
+                    {verificationType === 'organization' 
+                      ? "Pièce d'identité du responsable" 
+                      : "Votre pièce d'identité"}
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {mode === 'org'
-                      ? "Choisissez le type de document d'identité du responsable de l'organisation"
+                    {verificationType === 'organization'
+                      ? "Document d'identité du responsable légal de l'organisation"
                       : "Choisissez un document d'identité valide"}
                   </p>
                 </div>
