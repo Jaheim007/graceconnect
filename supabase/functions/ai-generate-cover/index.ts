@@ -1,7 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { requireAuth, corsHeaders, jsonResp, adminClient } from '../_shared/auth.ts';
 import { consumeCreditsOrThrow, normalizeTier } from '../_shared/credits.ts';
-import { geminiGenerateImageBase64 } from '../_shared/ai-gemini.ts';
+import { aiGenerateImageBase64 } from '../_shared/ai-fallback.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
 
     const prompt = `Create ${typeHint} design for a digital product titled "${title}". ${shortDesc ? `The product is about: ${shortDesc}.` : ''} Style: modern, clean, professional, vibrant colors, high contrast text-free design suitable as a product cover image. Aspect ratio 2:3 portrait. Ultra high resolution.`;
 
-    const { base64, mimeType } = await geminiGenerateImageBase64({ apiKey: GEMINI_API_KEY, prompt, timeoutMs: 90_000 });
+    const { base64, mimeType } = await aiGenerateImageBase64({ geminiKey: GEMINI_API_KEY, prompt, timeoutMs: 90_000 });
 
     // Decode and upload
     const imageBytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));

@@ -1154,7 +1154,9 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
     await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: creditActionKey, tier: normalizeTier(tier) });
 
     let aiRes: Response | null = null;
+    let usedProvider = 'gemini';
     try {
+      // ─── Try Gemini first ───
       for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
         aiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
           method: 'POST',
@@ -1182,6 +1184,40 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
         }
         break;
       }
+
+      // ─── If Gemini failed, fallback to OpenAI ───
+      if (!aiRes || !aiRes.ok) {
+        const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+        if (OPENAI_API_KEY) {
+          console.warn(`[generate-book-content] Gemini failed (${aiRes?.status}), falling back to OpenAI`);
+          usedProvider = 'openai';
+
+          const openaiController = new AbortController();
+          const openaiTimeout = setTimeout(() => openaiController.abort(), requestTimeoutMs);
+          try {
+            aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${OPENAI_API_KEY}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model: 'gpt-4o-mini',
+                messages: [
+                  { role: 'system', content: systemPrompt },
+                  { role: 'user', content: userPrompt },
+                ],
+                temperature,
+                max_tokens: maxTokens,
+                response_format: { type: 'json_object' },
+              }),
+              signal: openaiController.signal,
+            });
+          } finally {
+            clearTimeout(openaiTimeout);
+          }
+        }
+      }
     } catch (error) {
       if (isAbortError(error)) {
         return new Response(JSON.stringify({ error: 'Generation timeout. Please retry.' }), {
@@ -1206,14 +1242,16 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
         });
       }
       const errText = await aiRes.text();
-      console.error('Gemini error:', aiRes.status, errText);
+      console.error(`${usedProvider} error:`, aiRes.status, errText);
       return new Response(JSON.stringify({ error: `AI error (${aiRes.status})` }), {
         status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
     const aiData = await aiRes.json();
-    const rawContent = aiData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const rawContent = usedProvider === 'openai'
+      ? (aiData?.choices?.[0]?.message?.content || '')
+      : (aiData?.candidates?.[0]?.content?.parts?.[0]?.text || '');
 
     let parsed = tryParsePayload(rawContent);
     if (!parsed) {

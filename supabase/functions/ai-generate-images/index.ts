@@ -1,7 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { requireAuth, corsHeaders, jsonResp, adminClient } from '../_shared/auth.ts';
 import { consumeCreditsOrThrow, normalizeTier } from '../_shared/credits.ts';
-import { geminiGenerateImageBase64 } from '../_shared/ai-gemini.ts';
+import { aiGenerateImageBase64 } from '../_shared/ai-fallback.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
       }
 
       try {
-        const { base64, mimeType } = await geminiGenerateImageBase64({ apiKey: GEMINI_API_KEY, prompt: imagePrompt, timeoutMs: 60_000 });
+        const { base64, mimeType } = await aiGenerateImageBase64({ geminiKey: GEMINI_API_KEY, prompt: imagePrompt, timeoutMs: 60_000 });
         const ext = mimeType.includes('jpeg') ? 'jpg' : 'png';
         const storagePath = `${org_id}/${project_id}/images/page-${i}-${Date.now()}.${ext}`;
 

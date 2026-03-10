@@ -1,6 +1,6 @@
 import { requireAuth, corsHeaders, jsonResp, adminClient } from '../_shared/auth.ts';
 import { consumeCreditsOrThrow, normalizeTier } from '../_shared/credits.ts';
-import { geminiGenerateText, extractJson } from '../_shared/ai-gemini.ts';
+import { aiGenerateText, extractJson } from '../_shared/ai-fallback.ts';
 
 const langPrompts: Record<string, { system: string; user: (p: any) => string }> = {
   fr: {
@@ -58,8 +58,8 @@ Deno.serve(async (req) => {
     const prompts = langPrompts[lang];
     const params = { topic: topic || title, title, style, audience, tone };
 
-    const raw = await geminiGenerateText({
-      apiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash',
+    const raw = await aiGenerateText({
+      geminiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash',
       system: prompts.system, prompt: prompts.user(params),
       maxOutputTokens: 2048, jsonMode: true,
     });

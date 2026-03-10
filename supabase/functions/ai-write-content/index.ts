@@ -1,6 +1,6 @@
 import { requireAuth, corsHeaders, jsonResp, adminClient } from '../_shared/auth.ts';
 import { consumeCreditsOrThrow, normalizeTier } from '../_shared/credits.ts';
-import { geminiGenerateText } from '../_shared/ai-gemini.ts';
+import { aiGenerateText } from '../_shared/ai-fallback.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
@@ -42,8 +42,8 @@ Règles:
 - IMPORTANT: N'utilise JAMAIS de markdown. Uniquement du HTML.
 - Va droit au but`;
 
-    const content = await geminiGenerateText({
-      apiKey: GEMINI_API_KEY,
+    const content = await aiGenerateText({
+      geminiKey: GEMINI_API_KEY,
       model: 'gemini-2.5-flash',
       system: systemPrompt,
       prompt,

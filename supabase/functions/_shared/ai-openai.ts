@@ -67,3 +67,48 @@ export async function openaiStreamSse(opts: {
     },
   });
 }
+
+/** Generate an image using OpenAI DALL-E 3 and return base64 */
+export async function openaiGenerateImageBase64(opts: {
+  apiKey: string;
+  prompt: string;
+  size?: string;
+  timeoutMs?: number;
+}): Promise<{ base64: string; mimeType: string }> {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), opts.timeoutMs ?? 90_000);
+
+  try {
+    const res = await fetch('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${opts.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-image-1',
+        prompt: opts.prompt,
+        n: 1,
+        size: opts.size || '1024x1024',
+        output_format: 'png',
+      }),
+      signal: controller.signal,
+    });
+
+    if (!res.ok) {
+      const t = await res.text();
+      const err = new Error(res.status === 429 ? 'Rate limit. Please retry.' : `OpenAI image error (${res.status})`);
+      (err as any).status = res.status;
+      (err as any).detail = t.slice(0, 800);
+      throw err;
+    }
+
+    const data = await res.json();
+    const b64 = data?.data?.[0]?.b64_json;
+    if (!b64) throw new Error('No image data returned by OpenAI');
+
+    return { base64: b64, mimeType: 'image/png' };
+  } finally {
+    clearTimeout(id);
+  }
+}

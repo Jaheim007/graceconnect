@@ -1,7 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders, jsonResp } from '../_shared/auth.ts';
 import { consumeCreditsOrThrow } from '../_shared/credits.ts';
-import { geminiGenerateText, extractJson } from '../_shared/ai-gemini.ts';
+import { aiGenerateText, extractJson } from '../_shared/ai-fallback.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
@@ -53,8 +53,8 @@ Deno.serve(async (req) => {
 
     const prompt = `Tu es un expert en marketing viral. Génère des extraits partageables pour ce produit numérique.\n\nProduit: "${product.title}"\nDescription: ${product.description || 'Non fournie'}\nType: ${product.product_type || 'ebook'}\nCréateur: ${org?.name || 'Créateur'}\n\nGénère exactement 10 éléments viraux au format JSON array. Chaque élément: {"type":"quote"|"hook"|"benefit"|"social_post", "text":"...", "platform":"whatsapp"|"facebook"|"twitter"|"instagram"|"universal"}`;
 
-    const raw = await geminiGenerateText({
-      apiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash-lite',
+    const raw = await aiGenerateText({
+      geminiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash-lite',
       system: 'Tu génères du contenu marketing viral en français. Réponds uniquement en JSON array.',
       prompt,
     });

@@ -1,6 +1,6 @@
 import { requireAuth, corsHeaders, jsonResp, adminClient } from '../_shared/auth.ts';
 import { consumeCreditsOrThrow, normalizeTier } from '../_shared/credits.ts';
-import { geminiGenerateImageBase64 } from '../_shared/ai-gemini.ts';
+import { aiGenerateImageBase64 } from '../_shared/ai-fallback.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const artStylePrompts: Record<string, string> = {
@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
       ? `Create a coloring book page. BLACK AND WHITE LINE ART ONLY.\nBook: "${bookTitle || 'Untitled'}"\nPage theme: "${chapterTitle}"\nContext: ${chapterSummary || chapterTitle}\nCRITICAL: ONLY black outlines on pure white, NO shading/fills/colors, bold clean lines, large enclosed areas for coloring. ${audiencePrompt}. NO text in image.`
       : `Create a beautiful illustration for a book chapter.\nBook: "${bookTitle || 'Untitled'}"\nChapter: "${chapterTitle}"\nContext: ${chapterSummary || chapterTitle}\nStyle: ${stylePrompt}\nAudience: ${audiencePrompt}\nSingle captivating illustration, no text, professional book illustration.`;
 
-    const { base64, mimeType } = await geminiGenerateImageBase64({ apiKey: GEMINI_API_KEY, prompt, timeoutMs: 60_000 });
+    const { base64, mimeType } = await aiGenerateImageBase64({ geminiKey: GEMINI_API_KEY, prompt, timeoutMs: 60_000 });
 
     // Upload to storage
     const sb = createClient(auth.supabaseUrl, auth.serviceKey);

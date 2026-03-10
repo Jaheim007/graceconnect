@@ -1,6 +1,6 @@
 import { requireAuth, corsHeaders, jsonResp, adminClient } from '../_shared/auth.ts';
 import { consumeCreditsOrThrow, normalizeTier } from '../_shared/credits.ts';
-import { geminiGenerateText, extractJson } from '../_shared/ai-gemini.ts';
+import { aiGenerateText, extractJson } from '../_shared/ai-fallback.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
@@ -49,8 +49,8 @@ Deno.serve(async (req) => {
       ...(faqItems.length > 0 ? { faq_items: faqItems.map(f => ({ question: f.question, answer: f.answer })) } : {}),
     });
 
-    const raw = await geminiGenerateText({
-      apiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash',
+    const raw = await aiGenerateText({
+      geminiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash',
       system: `You are a professional translator. Translate to ${targetLang}. Maintain HTML formatting and marketing tone. Return ONLY a JSON object with the same keys.`,
       prompt: payload,
       jsonMode: true,

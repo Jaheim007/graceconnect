@@ -324,46 +324,146 @@ function guessMimeType(path: string, category: 'audio' | 'document'): string {
 }
 
 async function transcribeWithGemini(apiKey: string, opts: { prompt: string }): Promise<string> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 120_000);
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: opts.prompt }] }],
-      generationConfig: { maxOutputTokens: 16384, temperature: 0.1 },
-    }),
-    signal: controller.signal,
-  });
-  clearTimeout(timeoutId);
-  const data = await res.json();
-  if (data?.error) {
-    console.error('[transcribe-source] Gemini text error:', JSON.stringify(data.error).substring(0, 300));
+  // Try Gemini first
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120_000);
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: opts.prompt }] }],
+        generationConfig: { maxOutputTokens: 16384, temperature: 0.1 },
+      }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    const data = await res.json();
+    if (data?.error) {
+      console.error('[transcribe-source] Gemini text error:', JSON.stringify(data.error).substring(0, 300));
+      throw new Error(`Gemini error: ${data.error.message || data.error.status}`);
+    }
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    if (text) return text;
+    throw new Error('Empty Gemini response');
+  } catch (geminiErr: any) {
+    console.warn('[transcribe-source] Gemini text failed, trying OpenAI fallback:', geminiErr?.message?.slice(0, 200));
   }
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+  // Fallback to OpenAI
+  const OPENAI_KEY = Deno.env.get('OPENAI_API_KEY');
+  if (!OPENAI_KEY) return '';
+
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${OPENAI_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: opts.prompt }],
+      temperature: 0.1,
+      max_tokens: 16384,
+    }),
+  });
+  if (!res.ok) return '';
+  const data = await res.json();
+  return data?.choices?.[0]?.message?.content || '';
 }
 
 async function transcribeWithGeminiInline(apiKey: string, opts: { prompt: string; base64Data: string; mimeType: string }): Promise<string> {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 120_000);
-  const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{
-        parts: [
-          { text: opts.prompt },
-          { inlineData: { mimeType: opts.mimeType, data: opts.base64Data } },
-        ],
-      }],
-      generationConfig: { maxOutputTokens: 16384, temperature: 0.1 },
-    }),
-    signal: controller.signal,
-  });
-  clearTimeout(timeoutId);
-  const data = await res.json();
-  if (data?.error) {
-    console.error('[transcribe-source] Gemini inline error:', JSON.stringify(data.error).substring(0, 300));
+  // Try Gemini first
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120_000);
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{
+          parts: [
+            { text: opts.prompt },
+            { inlineData: { mimeType: opts.mimeType, data: opts.base64Data } },
+          ],
+        }],
+        generationConfig: { maxOutputTokens: 16384, temperature: 0.1 },
+      }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    const data = await res.json();
+    if (data?.error) {
+      console.error('[transcribe-source] Gemini inline error:', JSON.stringify(data.error).substring(0, 300));
+      throw new Error(`Gemini inline error: ${data.error.message || data.error.status}`);
+    }
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    if (text) return text;
+    throw new Error('Empty Gemini inline response');
+  } catch (geminiErr: any) {
+    console.warn('[transcribe-source] Gemini inline failed, trying OpenAI fallback:', geminiErr?.message?.slice(0, 200));
   }
-  return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+  // Fallback to OpenAI with base64 content (only for images, audio not supported via chat)
+  const OPENAI_KEY = Deno.env.get('OPENAI_API_KEY');
+  if (!OPENAI_KEY) return '';
+
+  // For images, we can use GPT-4o vision
+  const isImage = opts.mimeType.startsWith('image/');
+  if (isImage) {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${OPENAI_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'text', text: opts.prompt },
+            { type: 'image_url', image_url: { url: `data:${opts.mimeType};base64,${opts.base64Data}` } },
+          ],
+        }],
+        max_tokens: 16384,
+      }),
+    });
+    if (!res.ok) return '';
+    const data = await res.json();
+    return data?.choices?.[0]?.message?.content || '';
+  }
+
+  // For audio, use OpenAI Whisper
+  const isAudio = opts.mimeType.startsWith('audio/');
+  if (isAudio) {
+    try {
+      const audioBytes = Uint8Array.from(atob(opts.base64Data), c => c.charCodeAt(0));
+      const ext = opts.mimeType.includes('mp3') ? 'mp3' : opts.mimeType.includes('wav') ? 'wav' : opts.mimeType.includes('mp4') || opts.mimeType.includes('m4a') ? 'm4a' : 'mp3';
+      const blob = new Blob([audioBytes], { type: opts.mimeType });
+      const form = new FormData();
+      form.append('file', blob, `audio.${ext}`);
+      form.append('model', 'whisper-1');
+
+      const res = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${OPENAI_KEY}` },
+        body: form,
+      });
+      if (!res.ok) return '';
+      const data = await res.json();
+      return data?.text || '';
+    } catch (e) {
+      console.error('[transcribe-source] OpenAI Whisper fallback error:', e);
+      return '';
+    }
+  }
+
+  // For other types (PDF etc.), use text-only prompt
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${OPENAI_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: opts.prompt }],
+      max_tokens: 16384,
+    }),
+  });
+  if (!res.ok) return '';
+  const data = await res.json();
+  return data?.choices?.[0]?.message?.content || '';
 }
