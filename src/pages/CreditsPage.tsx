@@ -41,7 +41,7 @@ function timeUntil(dateStr: string | null): string {
 export default function CreditsPage() {
   const { user } = useAuth();
   const { data: summary, isLoading: loadingSummary } = useCreditsBalance();
-  const { data: pricing } = useActionPricing();
+  
   const { data: packs } = useCreditPacks();
   const { data: history } = useCreditHistory(50);
   const grantDaily = useGrantDailyCredits();
