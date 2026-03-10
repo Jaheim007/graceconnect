@@ -692,6 +692,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                 <SmartCameraCapture
                   value={selfieUrl}
                   onChange={setSelfieUrl}
+                  onPreviewCapture={setPreview('selfie')}
                   folder={`${folder}/selfie`}
                   bucket="kyc-documents"
                   label="Selfie"
