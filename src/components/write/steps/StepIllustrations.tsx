@@ -240,6 +240,7 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
           )}
         </Button>
       </div>
+      <InsufficientCreditsDialog open={showCreditDialog} onOpenChange={setShowCreditDialog} message={creditErrorMessage} />
     </div>
   );
 }
