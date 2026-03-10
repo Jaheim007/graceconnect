@@ -1267,7 +1267,8 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
     }
 
     if (!parsed) {
-      return new Response(JSON.stringify({ error: 'Failed to parse AI response' }), {
+      if (creditDebited > 0) { try { await refundCreditsAsBonus({ admin, userId: auth.userId, amount: creditDebited, source: creditActionKey, expiresInDays: 30 }); } catch (_) {} }
+      return new Response(JSON.stringify({ error: 'Failed to parse AI response', credits_refunded: creditDebited > 0 }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
