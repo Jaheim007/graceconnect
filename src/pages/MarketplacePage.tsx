@@ -56,7 +56,7 @@ export default function MarketplacePage() {
       const orderCol = sortBy === 'commission' ? 'price' : sortBy === 'newest' ? 'created_at' : sortBy === 'bestseller' ? 'sales_count' : 'sales_count';
       let q = db
         .from('digital_products')
-        .select('*, organizations(name, slug, logo_url, currency, affiliation_commission_percent)')
+        .select('*, organizations(name, slug, logo_url, currency, affiliation_commission_percent, is_verified)')
         .eq('is_published', true)
         .eq('is_express_demo', false)
         .order(orderCol, { ascending: false })
