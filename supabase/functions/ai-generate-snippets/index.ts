@@ -1,7 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders, jsonResp } from '../_shared/auth.ts';
 import { consumeCreditsOrThrow } from '../_shared/credits.ts';
-import { geminiGenerateText, extractJson } from '../_shared/ai-gemini.ts';
+import { aiGenerateText, extractJson } from '../_shared/ai-fallback.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
