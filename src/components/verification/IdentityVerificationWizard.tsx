@@ -387,8 +387,90 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
             transition={{ duration: 0.2 }}
             className="min-h-[300px]"
           >
+            {/* STEP: Choose verification type */}
+            {currentStep?.id === 'choose_type' && (
+              <div className="space-y-4">
+                <div className="text-center py-4">
+                  <h3 className="text-xl font-bold">Vous vérifiez en tant que…</h3>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Choisissez le type qui correspond à votre situation <strong>réelle</strong>, 
+                    quel que soit le type de compte que vous avez créé sur la plateforme.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-xl bg-muted/50 border border-border">
+                  <p className="text-xs text-muted-foreground">
+                    ℹ️ <strong>Pourquoi cette question ?</strong> Avoir créé un compte « organisation » ne signifie pas forcément que vous représentez une entité légale. 
+                    Inversement, un compte « créateur » peut être géré par une vraie organisation. 
+                    Choisissez ce qui reflète votre <strong>réalité juridique</strong>.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Individual option */}
+                  <button
+                    onClick={() => setVerificationType('individual')}
+                    className={`w-full flex items-start gap-4 p-4 rounded-xl border-2 transition-all text-left ${
+                      verificationType === 'individual'
+                        ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
+                        : 'border-border hover:border-primary/30'
+                    }`}
+                  >
+                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <User className="h-6 w-6 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold">👤 Personne / Créateur individuel</p>
+                        {verificationType === 'individual' && <CheckCircle className="h-4 w-4 text-primary shrink-0" />}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Vous agissez en votre nom propre. Vous n'avez pas de structure légale enregistrée (pas d'association, d'entreprise ou d'ONG).
+                      </p>
+                      <p className="text-[10px] text-primary/70 mt-1.5 font-medium">
+                        → Résultat : « Créateur vérifié ✅ »
+                      </p>
+                    </div>
+                  </button>
+
+                  {/* Organization option */}
+                  <button
+                    onClick={() => setVerificationType('organization')}
+                    className={`w-full flex items-start gap-4 p-4 rounded-xl border-2 transition-all text-left ${
+                      verificationType === 'organization'
+                        ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
+                        : 'border-border hover:border-primary/30'
+                    }`}
+                  >
+                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <Building className="h-6 w-6 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold">🏢 Organisation / Entité légale</p>
+                        {verificationType === 'organization' && <CheckCircle className="h-4 w-4 text-primary shrink-0" />}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Vous représentez une structure officiellement enregistrée : église, association, ONG, entreprise, communauté, etc. 
+                        Vous devrez fournir les documents de l'organisation en plus de votre pièce d'identité.
+                      </p>
+                      <p className="text-[10px] text-primary/70 mt-1.5 font-medium">
+                        → Résultat : « Organisation vérifiée ✅ »
+                      </p>
+                    </div>
+                  </button>
+                </div>
+
+                <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                  <p className="text-[11px] text-amber-800 dark:text-amber-200">
+                    ⚠️ <strong>Important :</strong> Choisir « Organisation » alors que vous êtes un individu (ou l'inverse) peut entraîner un rejet de votre vérification. Soyez honnête dans votre choix.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* STEP: Document type */}
-            {currentStep.id === 'doc_type' && (
+            {currentStep?.id === 'doc_type' && (
               <div className="space-y-4">
                 <div className="text-center py-4">
                   <h3 className="text-xl font-bold">
