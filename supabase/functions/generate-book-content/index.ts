@@ -1234,7 +1234,8 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
     }
 
     if (!aiRes) {
-      return new Response(JSON.stringify({ error: 'AI request failed before completion' }), {
+      if (creditDebited > 0) { try { await refundCreditsAsBonus({ admin, userId: auth.userId, amount: creditDebited, source: creditActionKey, expiresInDays: 30 }); } catch (_) {} }
+      return new Response(JSON.stringify({ error: 'AI request failed before completion', credits_refunded: creditDebited > 0 }), {
         status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
