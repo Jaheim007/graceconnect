@@ -60,21 +60,25 @@ export function usePaymentGateway() {
 
     if (usePaystackGateway) {
       // ── PAYSTACK (Mobile Money / Apple Pay) ──
+      // Build metadata: spread custom metadata LAST so caller can override defaults
+      // (e.g. credit purchases set type='credit_purchase' which must not be overwritten)
+      const paystackMeta = {
+        type,
+        organization_id,
+        campaign_id: campaign_id || null,
+        product_id: product_id || null,
+        buyer_name: buyer_name || null,
+        affiliate_code: affiliate_code || null,
+        payment_channel: method === 'apple_pay' ? 'apple_pay' : 'mobile_money',
+        ...metadata, // caller metadata takes priority
+      };
+
       await openPaystack({
         email,
         amount,
         currency,
         channels: method === 'apple_pay' ? ['apple_pay'] : undefined,
-        metadata: {
-          ...metadata,
-          type,
-          organization_id,
-          campaign_id: campaign_id || null,
-          product_id: product_id || null,
-          buyer_name: buyer_name || null,
-          affiliate_code: affiliate_code || null,
-          payment_channel: method === 'apple_pay' ? 'apple_pay' : 'mobile_money',
-        },
+        metadata: paystackMeta,
         onSuccess: (reference) => onSuccess(reference, 'paystack'),
         onClose,
       });
