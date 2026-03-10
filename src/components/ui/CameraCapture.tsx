@@ -1,7 +1,7 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { brandUrl } from '@/lib/storageUrl';
-import { Camera, RotateCcw, Check, X, Loader2, SwitchCamera } from 'lucide-react';
+import { Camera, RotateCcw, Check, X, Loader2, SwitchCamera, Smartphone, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -25,34 +25,55 @@ export function CameraCapture({
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  const pendingStreamRef = useRef<MediaStream | null>(null);
 
   const [cameraActive, setCameraActive] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(value || null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cameraFailed, setCameraFailed] = useState(false);
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
+
+  // When video element mounts and we have a pending stream, attach it
+  useEffect(() => {
+    if (cameraActive && videoRef.current && pendingStreamRef.current) {
+      const video = videoRef.current;
+      video.srcObject = pendingStreamRef.current;
+      video.play().catch(console.error);
+      pendingStreamRef.current = null;
+    }
+  }, [cameraActive]);
 
   const startCamera = useCallback(async (facing: 'user' | 'environment' = facingMode) => {
     setError(null);
+    setCameraFailed(false);
     try {
       // Stop any existing stream
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(t => t.stop());
       }
+      // CRITICAL: getUserMedia called directly in click handler
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: facing, width: { ideal: 1280 }, height: { ideal: 960 } },
         audio: false,
       });
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
+      pendingStreamRef.current = stream;
+
+      // Set camera active AFTER getting the stream — video element will mount,
+      // then useEffect will attach the stream
       setCameraActive(true);
       setCapturedImage(null);
     } catch (err: any) {
       console.error('Camera error:', err);
-      setError("Impossible d'accéder à la caméra. Vérifiez les permissions de votre navigateur.");
+      setCameraFailed(true);
+      if (err.name === 'NotAllowedError') {
+        setError("Accès à la caméra refusé. Veuillez autoriser l'accès dans les paramètres de votre navigateur.");
+      } else if (err.name === 'NotFoundError') {
+        setError("Aucune caméra détectée sur cet appareil.");
+      } else {
+        setError("Impossible d'accéder à la caméra. Essayez sur votre téléphone mobile.");
+      }
     }
   }, [facingMode]);
 
@@ -61,6 +82,7 @@ export function CameraCapture({
       streamRef.current.getTracks().forEach(t => t.stop());
       streamRef.current = null;
     }
+    pendingStreamRef.current = null;
     setCameraActive(false);
   }, []);
 
@@ -121,6 +143,8 @@ export function CameraCapture({
   const clear = useCallback(() => {
     stopCamera();
     setCapturedImage(null);
+    setCameraFailed(false);
+    setError(null);
     onChange('');
   }, [stopCamera, onChange]);
 
@@ -140,7 +164,7 @@ export function CameraCapture({
               autoPlay
               playsInline
               muted
-              className="w-full h-[280px] object-cover rounded-xl"
+              className="w-full h-[280px] object-cover rounded-xl bg-black"
             />
             <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-3">
               <Button
@@ -214,7 +238,7 @@ export function CameraCapture({
         )}
 
         {/* Value from server (already uploaded) but no local capture */}
-        {!capturedImage && !cameraActive && value && (
+        {!capturedImage && !cameraActive && value && !cameraFailed && (
           <div className="relative">
             <img
               src={value}
@@ -246,8 +270,61 @@ export function CameraCapture({
           </div>
         )}
 
+        {/* Camera failed — show mobile fallback */}
+        {!cameraActive && !capturedImage && !value && cameraFailed && (
+          <div className="flex flex-col items-center justify-center gap-4 py-8 px-4">
+            <div className="h-14 w-14 rounded-full bg-destructive/10 flex items-center justify-center">
+              <AlertTriangle className="h-7 w-7 text-destructive" />
+            </div>
+            <div className="text-center space-y-1">
+              <p className="text-sm font-medium">Caméra indisponible</p>
+              <p className="text-xs text-muted-foreground max-w-xs">
+                {error || "Impossible d'accéder à la caméra sur cet appareil."}
+              </p>
+            </div>
+            <div className="flex flex-col gap-2 w-full max-w-xs">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => startCamera()}
+                className="w-full"
+              >
+                <Camera className="h-4 w-4 mr-2" />
+                Réessayer
+              </Button>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs">
+                  <span className="bg-muted/30 px-2 text-muted-foreground">ou</span>
+                </div>
+              </div>
+              <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-center">
+                <div className="flex items-center justify-center gap-2 mb-1.5">
+                  <Smartphone className="h-4 w-4 text-primary" />
+                  <p className="text-xs font-medium text-primary">Utilisez votre téléphone</p>
+                </div>
+                <p className="text-[10px] text-muted-foreground leading-relaxed">
+                  Ouvrez ce lien sur votre téléphone mobile pour effectuer la vérification avec la caméra de votre appareil.
+                </p>
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={clear}
+              className="text-xs text-muted-foreground"
+            >
+              Annuler
+            </Button>
+          </div>
+        )}
+
         {/* Empty state — start camera */}
-        {!cameraActive && !capturedImage && !value && (
+        {!cameraActive && !capturedImage && !value && !cameraFailed && (
           <div
             className={cn(
               'flex flex-col items-center justify-center gap-3 py-10 cursor-pointer hover:border-primary/50 transition-colors'
@@ -265,7 +342,7 @@ export function CameraCapture({
         )}
       </div>
 
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && !cameraFailed && <p className="text-xs text-destructive">{error}</p>}
       <canvas ref={canvasRef} className="hidden" />
     </div>
   );
