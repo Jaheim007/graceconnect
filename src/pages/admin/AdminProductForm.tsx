@@ -143,6 +143,9 @@ export function ProductForm() {
       setOrderBumpProductId(item.order_bump_product_id || '');
       setOrderBumpDiscount(item.order_bump_discount_percent != null ? String(item.order_bump_discount_percent) : '');
       setUpsellProductIds(item.upsell_product_ids || []);
+      setFbPixel((item as any).facebook_pixel_id || '');
+      setTtPixel((item as any).tiktok_pixel_id || '');
+      setGTag((item as any).google_tag_id || '');
     }
   }, [item, reset]);
 
