@@ -287,6 +287,12 @@
   animation: glow-pulse 1.5s ease-in-out infinite;
 }
 
+/* Credit coin spin */
+@keyframes coin-spin {
+  0%, 100% { transform: rotateY(0deg); }
+  50% { transform: rotateY(180deg); }
+}
+
 /* Ensure Paystack popup appears above ALL layers */
 #paystack-checkout,
 #paystack-checkout ~ div,
