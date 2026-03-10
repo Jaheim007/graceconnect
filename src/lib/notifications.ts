@@ -458,7 +458,7 @@ export async function onAffiliateWelcome(
     `Votre lien affilié pour ${orgName} est prêt ! Code: ${code}`,
     'affiliate_welcome',
     { org_name: orgName, code, commission_percent: commissionPercent },
-    'affiliate', orgId,
+    'affiliate', orgId, `/affiliation`,
   );
 }
 
