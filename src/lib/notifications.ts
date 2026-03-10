@@ -854,7 +854,7 @@ export async function onOfferingReceived(
   currency: string,
 ) {
   emailOrgAdmins('offering_received', orgId, { org_name: orgName, offering_title: offeringTitle, donor_name: donorName, amount, currency });
-  notifyOrgMembers(orgId, '🙏 Offrande reçue', `${donorName} a fait une offrande de ${amount} ${currency} pour "${offeringTitle}"`, 'transaction');
+  notifyOrgOwnerOnly(orgId, '🙏 Offrande reçue', `${donorName} a fait une offrande de ${amount} ${currency} pour "${offeringTitle}"`, 'transaction');
 }
 
 export async function onOfferingReceipt(
