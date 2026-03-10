@@ -530,7 +530,7 @@ export async function onAffiliatePayoutRequested(
     `Votre demande de retrait de ${amount} ${currency} depuis ${orgName} a été soumise.`,
     'affiliate_payout_requested',
     { org_name: orgName, amount, currency },
-    'affiliate', orgId,
+    'affiliate', orgId, `/affiliation`,
   );
 }
 
