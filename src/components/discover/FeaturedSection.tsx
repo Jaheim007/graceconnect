@@ -17,6 +17,8 @@ function mapProducts(data: any[]) {
     organization_slug: p.organizations?.slug,
     organization_logo: p.organizations?.logo_url,
     is_org_verified: p.organizations?.is_verified,
+    org_kyc_status: p.organizations?.kyc_status,
+    org_category: p.organizations?.category,
   }));
 }
 
@@ -49,7 +51,7 @@ export function FeaturedSection() {
       const [mostBought, mostViewed, mostRecent] = await Promise.all([
         // Most bought: ONLY products with at least 1 sale, exclude express demos
         db.from('digital_products')
-          .select('*, organizations(name, slug, logo_url, currency, is_verified)')
+          .select('*, organizations(name, slug, logo_url, currency, is_verified, kyc_status, category)')
           .eq('is_published', true)
           .eq('is_express_demo', false)
           .gt('sales_count', 0)
@@ -57,14 +59,14 @@ export function FeaturedSection() {
           .limit(8),
         // Most viewed: exclude express demos
         db.from('digital_products')
-          .select('*, organizations(name, slug, logo_url, currency, is_verified)')
+          .select('*, organizations(name, slug, logo_url, currency, is_verified, kyc_status, category)')
           .eq('is_published', true)
           .eq('is_express_demo', false)
           .order('featured_score', { ascending: false })
           .limit(8),
         // Most recent: exclude express demos
         db.from('digital_products')
-          .select('*, organizations(name, slug, logo_url, currency, is_verified)')
+          .select('*, organizations(name, slug, logo_url, currency, is_verified, kyc_status, category)')
           .eq('is_published', true)
           .eq('is_express_demo', false)
           .order('created_at', { ascending: false })

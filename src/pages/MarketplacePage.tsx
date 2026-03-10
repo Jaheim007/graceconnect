@@ -56,7 +56,7 @@ export default function MarketplacePage() {
       const orderCol = sortBy === 'commission' ? 'price' : sortBy === 'newest' ? 'created_at' : sortBy === 'bestseller' ? 'sales_count' : 'sales_count';
       let q = db
         .from('digital_products')
-        .select('*, organizations(name, slug, logo_url, currency, affiliation_commission_percent, is_verified)')
+        .select('*, organizations(name, slug, logo_url, currency, affiliation_commission_percent, is_verified, kyc_status, category)')
         .eq('is_published', true)
         .eq('is_express_demo', false)
         .order(orderCol, { ascending: false })
@@ -71,6 +71,8 @@ export default function MarketplacePage() {
         organization_logo: p.organizations?.logo_url,
         commission_percent: p.organizations?.affiliation_commission_percent,
         is_org_verified: p.organizations?.is_verified,
+        org_kyc_status: p.organizations?.kyc_status,
+        org_category: p.organizations?.category,
       }));
     },
   });
@@ -80,7 +82,7 @@ export default function MarketplacePage() {
     queryFn: async () => {
       let q = db
         .from('donation_campaigns')
-        .select('*, organizations(name, slug, logo_url, currency, is_verified)')
+        .select('*, organizations(name, slug, logo_url, currency, is_verified, kyc_status, category)')
         .eq('is_published', true)
         .eq('is_active', true)
         .eq('is_express_demo', false)
@@ -93,6 +95,8 @@ export default function MarketplacePage() {
         organization_name: c.organizations?.name,
         organization_slug: c.organizations?.slug,
         is_org_verified: c.organizations?.is_verified,
+        org_kyc_status: c.organizations?.kyc_status,
+        org_category: c.organizations?.category,
       }));
     },
   });

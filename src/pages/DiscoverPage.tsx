@@ -14,6 +14,7 @@ import { SkeletonList } from '@/components/ui/SkeletonCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useNavigate } from 'react-router-dom';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
+import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
@@ -98,7 +99,7 @@ export default function DiscoverPage() {
     queryFn: async ({ pageParam = 0 }) => {
       let q = db
         .from('digital_products')
-        .select('*, organizations(name, slug, logo_url, currency, is_verified)')
+        .select('*, organizations(name, slug, logo_url, currency, is_verified, kyc_status, category)')
         .eq('is_published', true)
         .eq('is_express_demo', false);
 
@@ -125,6 +126,8 @@ export default function DiscoverPage() {
         organization_slug: p.organizations?.slug,
         organization_logo: p.organizations?.logo_url,
         is_org_verified: p.organizations?.is_verified,
+        org_kyc_status: p.organizations?.kyc_status,
+        org_category: p.organizations?.category,
       }));
       return { items: sortBy === 'mixed' ? mixByOrg(mapped) : mapped, page: pageParam };
     },
@@ -144,7 +147,7 @@ export default function DiscoverPage() {
     queryFn: async () => {
       let q = db
         .from('donation_campaigns')
-        .select('*, organizations(name, slug, logo_url, currency, is_verified)')
+        .select('*, organizations(name, slug, logo_url, currency, is_verified, kyc_status, category)')
         .eq('is_published', true)
         .eq('is_active', true)
         .eq('is_express_demo', false)
@@ -158,6 +161,8 @@ export default function DiscoverPage() {
         organization_name: c.organizations?.name,
         organization_slug: c.organizations?.slug,
         is_org_verified: c.organizations?.is_verified,
+        org_kyc_status: c.organizations?.kyc_status,
+        org_category: c.organizations?.category,
       }));
     },
     enabled: showCampaigns,
@@ -170,7 +175,7 @@ export default function DiscoverPage() {
     queryFn: async () => {
       let q = db
         .from('offerings')
-        .select('*, organizations!inner(name, slug, logo_url, currency, offerings_enabled, is_verified)')
+        .select('*, organizations!inner(name, slug, logo_url, currency, offerings_enabled, is_verified, kyc_status, category)')
         .eq('is_active', true)
         .eq('organizations.offerings_enabled', true)
         .order('created_at', { ascending: false })
@@ -183,6 +188,8 @@ export default function DiscoverPage() {
         organization_name: o.organizations?.name,
         organization_slug: o.organizations?.slug,
         is_org_verified: o.organizations?.is_verified,
+        org_kyc_status: o.organizations?.kyc_status,
+        org_category: o.organizations?.category,
       }));
     },
     enabled: showOfferings,
@@ -358,7 +365,7 @@ export default function DiscoverPage() {
                     <motion.div key={o.id} variants={fadeUp}>
                       <div className="relative">
                         {o.organization_name && (
-                          <button onClick={() => navigate(`/org/${o.organization_slug}`)} className="text-[10px] text-muted-foreground hover:text-primary mb-1 flex items-center gap-1">{o.organization_name} {o.is_org_verified && <VerifiedBadge size="xs" showTooltip={false} />}</button>
+                          <button onClick={() => navigate(`/org/${o.organization_slug}`)} className="text-[10px] text-muted-foreground hover:text-primary mb-1 flex items-center gap-1">{o.organization_name} {isOrgVerifiedOrKyc(o.is_org_verified, o.org_kyc_status) && <VerifiedBadge size="xs" label={getVerifiedLabel(o.org_category)} />}</button>
                         )}
                         <OfferingCard offering={o} onSelect={setSelectedOffering} />
                       </div>

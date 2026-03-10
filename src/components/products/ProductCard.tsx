@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen, Eye, GitCompareArrows } from 'lucide-react';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
+import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { FlashSaleBadge } from './FlashSaleBadge';
 import { ContentSizeBadge } from './ContentSizeBadge';
 import { ShareWidget } from './ShareWidget';
@@ -69,14 +70,17 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
   const { data: orgData } = useQuery({
     queryKey: ['org-slug-for-card', organizationId],
     queryFn: async () => {
-      const { data } = await db.from('organizations').select('slug, is_verified').eq('id', organizationId).maybeSingle();
+      const { data } = await db.from('organizations').select('slug, is_verified, kyc_status, category').eq('id', organizationId).maybeSingle();
       return data;
     },
     enabled: !orgSlug && !!organizationId,
     staleTime: 1000 * 60 * 30,
   });
 
-  const isOrgVerified = (product as any).is_org_verified ?? orgData?.is_verified ?? false;
+  const orgKycStatus = (product as any).org_kyc_status ?? orgData?.kyc_status;
+  const orgCategory = (product as any).org_category ?? orgData?.category;
+  const showVerified = isOrgVerifiedOrKyc((product as any).is_org_verified ?? orgData?.is_verified, orgKycStatus);
+  const verifiedLabel = getVerifiedLabel(orgCategory);
 
   const resolvedSlug = orgSlug || orgData?.slug || '';
   const pSlug = (product as any).slug;
@@ -272,7 +276,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
                 >
                   {(product as any).organization_name}
                 </span>
-                {isOrgVerified && <VerifiedBadge size="xs" label="Vendeur vérifié" />}
+                {showVerified && <VerifiedBadge size="xs" label={verifiedLabel} />}
               </p>
             )}
             {!hideCommission && commissionPercent != null && commissionPercent > 0 && (

@@ -272,7 +272,7 @@ export default function ProfilePage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate flex items-center gap-1">
                         {org.name}
-                        {org.is_verified && <VerifiedBadge size="sm" />}
+                        {(org.is_verified || (org as any).kyc_status === 'level1' || (org as any).kyc_status === 'level2') && <VerifiedBadge size="sm" />}
                       </p>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <span className={cn('text-[10px] px-1.5 py-0.5 rounded-md font-medium', roleColor)}>{roleLabel}</span>

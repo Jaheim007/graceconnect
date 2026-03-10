@@ -7,6 +7,7 @@ import { Heart, Target, Share2, Copy, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
+import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
@@ -83,7 +84,7 @@ export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
               >
                 {(campaign as any).organization_name}
               </span>
-              {(campaign as any).is_org_verified && <VerifiedBadge size="xs" showTooltip={false} />}
+              {isOrgVerifiedOrKyc((campaign as any).is_org_verified, (campaign as any).org_kyc_status) && <VerifiedBadge size="xs" label={getVerifiedLabel((campaign as any).org_category)} />}
             </p>
           )}
           {campaign.current_amount > 0 && (

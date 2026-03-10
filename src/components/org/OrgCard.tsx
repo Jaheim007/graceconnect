@@ -6,6 +6,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { MapPin } from 'lucide-react';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
+import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -66,7 +67,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
         ) : (
           <div className="w-full h-full hero-gradient opacity-40" />
         )}
-        {(org.is_verified || (org as any).kyc_status === 'level1' || (org as any).kyc_status === 'level2') && (
+        {isOrgVerifiedOrKyc(org.is_verified, (org as any).kyc_status) && (
           <div className="absolute top-2 right-2">
             <VerifiedBadge size="md" showTooltip={false} />
           </div>
@@ -98,7 +99,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
           <div className="min-w-0 flex-1">
             <h3 className="font-semibold text-sm leading-tight line-clamp-1 flex items-center gap-1.5">
               {org.name}
-              {(org.is_verified || (org as any).kyc_status === 'level1' || (org as any).kyc_status === 'level2') && <VerifiedBadge size="sm" />}
+              {isOrgVerifiedOrKyc(org.is_verified, (org as any).kyc_status) && <VerifiedBadge size="sm" label={getVerifiedLabel(org.category)} />}
             </h3>
             {org.description ? (
               <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5 leading-relaxed">

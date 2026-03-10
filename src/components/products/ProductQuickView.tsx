@@ -9,6 +9,7 @@ import { LocalPriceHint } from '@/components/payments/LocalPriceHint';
 import { WishlistButton } from './WishlistButton';
 import { useI18n } from '@/i18n/I18nContext';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
+import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 
 interface ProductQuickViewProps {
   product: any;
@@ -78,7 +79,7 @@ export function ProductQuickView({ product, open, onClose }: ProductQuickViewPro
                 >
                   {product.organization_name}
                 </button>
-                {product.is_org_verified && <VerifiedBadge size="xs" showTooltip={false} />}
+                {isOrgVerifiedOrKyc(product.is_org_verified, product.org_kyc_status) && <VerifiedBadge size="xs" label={getVerifiedLabel(product.org_category)} />}
               </p>
             )}
           </DialogHeader>

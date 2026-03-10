@@ -104,7 +104,7 @@ export function QuickViewModal({ product, orgSlug, open, onClose, isPurchased }:
                   {product.organizations.name?.[0]}
                 </div>
               )}
-              <span className="font-medium flex items-center gap-1">{product.organizations.name} {product.organizations.is_verified && <VerifiedBadge size="xs" showTooltip={false} />}</span>
+              <span className="font-medium flex items-center gap-1">{product.organizations.name} {(product.organizations.is_verified || (product.organizations as any).kyc_status === 'level1' || (product.organizations as any).kyc_status === 'level2') && <VerifiedBadge size="xs" showTooltip={false} />}</span>
             </div>
           )}
 
