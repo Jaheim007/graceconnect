@@ -98,9 +98,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
           <div className="min-w-0 flex-1">
             <h3 className="font-semibold text-sm leading-tight line-clamp-1 flex items-center gap-1">
               {org.name}
-              {org.is_verified && (
-                <CheckCircle2 className="h-3.5 w-3.5 text-accent shrink-0 inline" />
-              )}
+              {org.is_verified && <VerifiedBadge size="sm" />}
             </h3>
             {org.description ? (
               <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5 leading-relaxed">
