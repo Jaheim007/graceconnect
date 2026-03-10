@@ -1316,6 +1316,215 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_action_pricing: {
+        Row: {
+          action_key: string
+          action_label: string
+          category: string
+          cost_premium: number
+          cost_standard: number
+          created_at: string
+          description: string | null
+          display_order: number | null
+          id: string
+          is_active: boolean
+          updated_at: string
+        }
+        Insert: {
+          action_key: string
+          action_label: string
+          category: string
+          cost_premium: number
+          cost_standard: number
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Update: {
+          action_key?: string
+          action_label?: string
+          category?: string
+          cost_premium?: number
+          cost_standard?: number
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      credit_lots: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          granted_at: string
+          id: string
+          initial_amount: number
+          is_expired: boolean
+          lot_type: Database["public"]["Enums"]["credit_lot_type"]
+          remaining: number
+          source: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          granted_at?: string
+          id?: string
+          initial_amount: number
+          is_expired?: boolean
+          lot_type: Database["public"]["Enums"]["credit_lot_type"]
+          remaining?: number
+          source: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          granted_at?: string
+          id?: string
+          initial_amount?: number
+          is_expired?: boolean
+          lot_type?: Database["public"]["Enums"]["credit_lot_type"]
+          remaining?: number
+          source?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      credit_packs: {
+        Row: {
+          bonus_percent: number | null
+          created_at: string
+          credits: number
+          display_order: number | null
+          id: string
+          is_active: boolean
+          is_popular: boolean | null
+          name: string
+          pack_key: string
+          price_xof: number
+        }
+        Insert: {
+          bonus_percent?: number | null
+          created_at?: string
+          credits: number
+          display_order?: number | null
+          id?: string
+          is_active?: boolean
+          is_popular?: boolean | null
+          name: string
+          pack_key: string
+          price_xof: number
+        }
+        Update: {
+          bonus_percent?: number | null
+          created_at?: string
+          credits?: number
+          display_order?: number | null
+          id?: string
+          is_active?: boolean
+          is_popular?: boolean | null
+          name?: string
+          pack_key?: string
+          price_xof?: number
+        }
+        Relationships: []
+      }
+      credit_purchases: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          credits_amount: number
+          id: string
+          pack_key: string
+          payment_gateway: string | null
+          payment_reference: string | null
+          price_amount: number
+          price_currency: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          credits_amount: number
+          id?: string
+          pack_key: string
+          payment_gateway?: string | null
+          payment_reference?: string | null
+          price_amount: number
+          price_currency?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          credits_amount?: number
+          id?: string
+          pack_key?: string
+          payment_gateway?: string | null
+          payment_reference?: string | null
+          price_amount?: number
+          price_currency?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      credit_transactions: {
+        Row: {
+          action_key: string | null
+          action_label: string | null
+          amount: number
+          balance_after: number
+          created_at: string
+          id: string
+          lot_id: string | null
+          metadata: Json | null
+          tx_type: Database["public"]["Enums"]["credit_tx_type"]
+          user_id: string
+        }
+        Insert: {
+          action_key?: string | null
+          action_label?: string | null
+          amount: number
+          balance_after: number
+          created_at?: string
+          id?: string
+          lot_id?: string | null
+          metadata?: Json | null
+          tx_type: Database["public"]["Enums"]["credit_tx_type"]
+          user_id: string
+        }
+        Update: {
+          action_key?: string | null
+          action_label?: string | null
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          id?: string
+          lot_id?: string | null
+          metadata?: Json | null
+          tx_type?: Database["public"]["Enums"]["credit_tx_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_transactions_lot_id_fkey"
+            columns: ["lot_id"]
+            isOneToOne: false
+            referencedRelation: "credit_lots"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       digital_products: {
         Row: {
           ai_generated: boolean
@@ -4721,6 +4930,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_credits: {
+        Row: {
+          balance: number
+          created_at: string
+          last_daily_grant: string | null
+          lifetime_earned: number
+          lifetime_spent: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          last_daily_grant?: string | null
+          lifetime_earned?: number
+          lifetime_spent?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          last_daily_grant?: string | null
+          lifetime_earned?: number
+          lifetime_spent?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_feedback: {
         Row: {
           comment: string | null
@@ -5234,7 +5473,21 @@ export type Database = {
         Returns: Json
       }
       cleanup_rate_limits: { Args: never; Returns: undefined }
+      complete_credit_purchase: {
+        Args: { _payment_reference: string; _purchase_id: string }
+        Returns: Json
+      }
       compute_partner_level: { Args: { _partner_id: string }; Returns: number }
+      consume_credits: {
+        Args: {
+          _action_key: string
+          _action_label?: string
+          _amount: number
+          _metadata?: Json
+          _user_id: string
+        }
+        Returns: Json
+      }
       create_ai_project: {
         Args: {
           _data_json?: Json
@@ -5277,6 +5530,8 @@ export type Database = {
       delete_organization: { Args: { _org_id: string }; Returns: Json }
       delete_partner: { Args: { _partner_id: string }; Returns: Json }
       delete_user_account: { Args: { _user_id: string }; Returns: undefined }
+      expire_credit_lots: { Args: { _user_id: string }; Returns: number }
+      get_credit_summary: { Args: { _user_id: string }; Returns: Json }
       get_org_category_breakdown: { Args: never; Returns: Json }
       get_org_country_breakdown: { Args: { _limit?: number }; Returns: Json }
       get_org_role: {
@@ -5291,6 +5546,23 @@ export type Database = {
         Returns: Json
       }
       get_weekly_user_cohorts: { Args: { _weeks?: number }; Returns: Json }
+      grant_bonus_credits: {
+        Args: {
+          _amount: number
+          _expires_in_days?: number
+          _source: string
+          _user_id: string
+        }
+        Returns: Json
+      }
+      grant_cashback_credits: {
+        Args: { _currency?: string; _sale_amount: number; _user_id: string }
+        Returns: Json
+      }
+      grant_daily_credits: {
+        Args: { _amount?: number; _user_id: string }
+        Returns: Json
+      }
       increment_campaign_amount: {
         Args: { _amount: number; _campaign_id: string }
         Returns: undefined
@@ -5441,6 +5713,15 @@ export type Database = {
         | "sermon_pack"
         | "bible_pack"
         | "marketing_pack"
+      credit_lot_type: "daily" | "bonus" | "purchased"
+      credit_tx_type:
+        | "daily_grant"
+        | "bonus_grant"
+        | "purchase"
+        | "consumption"
+        | "expiration"
+        | "refund"
+        | "cashback"
       kyc_status: "none" | "pending" | "level1" | "level2" | "rejected"
       media_type: "video" | "audio" | "reel" | "live_replay"
       org_category:
@@ -5634,6 +5915,16 @@ export const Constants = {
         "sermon_pack",
         "bible_pack",
         "marketing_pack",
+      ],
+      credit_lot_type: ["daily", "bonus", "purchased"],
+      credit_tx_type: [
+        "daily_grant",
+        "bonus_grant",
+        "purchase",
+        "consumption",
+        "expiration",
+        "refund",
+        "cashback",
       ],
       kyc_status: ["none", "pending", "level1", "level2", "rejected"],
       media_type: ["video", "audio", "reel", "live_replay"],

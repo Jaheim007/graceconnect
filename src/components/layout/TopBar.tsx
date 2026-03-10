@@ -12,6 +12,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
+import { CreditBalance } from '@/components/credits/CreditBalance';
 
 export function TopBar() {
   const { theme, toggleTheme } = useTheme();
@@ -68,6 +69,8 @@ export function TopBar() {
           </DropdownMenuContent>
         </DropdownMenu>
       )}
+
+      <CreditBalance />
 
       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
         {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
