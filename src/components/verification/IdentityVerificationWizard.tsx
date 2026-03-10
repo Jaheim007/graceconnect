@@ -138,7 +138,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
 
   const selectedDoc = DOC_TYPES.find(d => d.value === docType)!;
   const folder = mode === 'org' ? `kyc/${entityId}` : `partner-kyc/${entityId}`;
-  const activeSteps = getSteps(mode);
+  const activeSteps = getSteps(mode, verificationType);
   const currentStep = activeSteps[step];
   const totalSteps = activeSteps.length;
   const progress = ((step + 1) / totalSteps) * 100;
