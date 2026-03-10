@@ -232,17 +232,50 @@ export async function processTransaction(
     // Product purchase
     if (!product_id) throw new TransactionError('product_id required for product purchase', 400);
 
+    // ── Resolve user_id: CRITICAL — product_purchases.user_id is NOT NULL ──
+    let resolvedUserId = user_id || null;
+    if (!resolvedUserId) {
+      // Last resort: try to find user by email
+      const lookupEmail = buyer_email || donor_email;
+      if (lookupEmail) {
+        try {
+          const { data: users } = await db.auth.admin.listUsers({ perPage: 1 });
+          // Search by email via admin API
+          const { data: userByEmail } = await db.rpc('get_user_id_by_email' as any, { _email: lookupEmail }).maybeSingle();
+          if (userByEmail?.id) resolvedUserId = userByEmail.id;
+        } catch (_) { /* non-fatal */ }
+      }
+      // If still null, check the most recent auth user with this email via admin API
+      if (!resolvedUserId && lookupEmail) {
+        try {
+          const { data: { users } } = await db.auth.admin.listUsers({ page: 1, perPage: 1 });
+          // Direct lookup
+          for (const u of (users || [])) {
+            if (u.email === lookupEmail) {
+              resolvedUserId = u.id;
+              break;
+            }
+          }
+        } catch (_) { /* non-fatal */ }
+      }
+      if (!resolvedUserId) {
+        console.error(`[process-transaction] CRITICAL: No user_id for product purchase ref=${reference} email=${buyer_email || donor_email}`);
+        throw new TransactionError('User identification required for product purchase. Please log in and try again.', 400);
+      }
+      console.warn(`[process-transaction] Resolved user_id from email lookup: ${resolvedUserId} for ref=${reference}`);
+    }
+
     // Resolve buyer info: use explicit params, fallback to donor fields, then profile lookup
     let resolvedBuyerName = buyer_name || donor_name || null;
     let resolvedBuyerEmail = buyer_email || donor_email || null;
-    if (user_id && (!resolvedBuyerName || !resolvedBuyerEmail)) {
+    if (resolvedUserId && (!resolvedBuyerName || !resolvedBuyerEmail)) {
       try {
         if (!resolvedBuyerName) {
-          const { data: prof } = await db.from('profiles').select('display_name').eq('id', user_id).maybeSingle();
+          const { data: prof } = await db.from('profiles').select('display_name').eq('id', resolvedUserId).maybeSingle();
           if (prof?.display_name) resolvedBuyerName = prof.display_name;
         }
         if (!resolvedBuyerEmail) {
-          const { data: authUser } = await db.auth.admin.getUserById(user_id);
+          const { data: authUser } = await db.auth.admin.getUserById(resolvedUserId);
           if (authUser?.user?.email) resolvedBuyerEmail = authUser.user.email;
         }
       } catch (_) { /* non-fatal */ }
@@ -251,7 +284,7 @@ export async function processTransaction(
     const payload: Record<string, unknown> = {
       product_id,
       organization_id,
-      user_id: user_id || null,
+      user_id: resolvedUserId,
       amount: amountPaid,
       currency,
       paystack_reference: reference,
@@ -729,11 +762,11 @@ function isUniqueViolation(err: unknown): boolean {
 /** Fire-and-forget email with error logging instead of silent swallowing */
 function safeEmail(fn: () => Promise<{ ok: boolean; error?: string }>): void {
   fn().then(res => {
-    if (!res.ok) {
-      console.error('[process-transaction] Email send failed:', res.error);
+    if (!res?.ok) {
+      console.warn('[process-transaction] Email send failed:', res?.error || 'unknown');
     }
   }).catch(err => {
-    console.error('[process-transaction] Email send error:', err);
+    console.warn('[process-transaction] Email send error (non-fatal):', err);
   });
 }
 
