@@ -72,6 +72,8 @@ Deno.serve(async (req) => {
         // Try Gemini with fileData for native YouTube video understanding
         try {
           console.log('[transcribe-source] Attempting Gemini fileData approach...');
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 120_000); // 2 min timeout
           const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -98,7 +100,9 @@ Rules:
               }],
               generationConfig: { maxOutputTokens: 16384, temperature: 0.1 },
             }),
+            signal: controller.signal,
           });
+          clearTimeout(timeoutId);
           
           const data = await res.json();
           console.log('[transcribe-source] Gemini fileData response status:', res.status);
