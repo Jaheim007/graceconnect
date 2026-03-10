@@ -379,6 +379,7 @@ export function ProductForm() {
             productType={watch('product_type') || 'pdf'}
             price={watch('price') || 0}
             currency={currentOrg?.currency || 'XOF'}
+            existingDescription={watch('description') || ''}
             onGenerated={(html) => setValue('description', html, { shouldDirty: true })}
           />
         </div>
