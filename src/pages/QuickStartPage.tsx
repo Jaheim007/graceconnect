@@ -217,7 +217,7 @@ export default function QuickStartPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold truncate">{item.title}</p>
-                      <p className="text-xs text-muted-foreground">{item.orgName}</p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">{item.orgName} {item.isOrgVerified && <VerifiedBadge size="xs" showTooltip={false} />}</p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-xs text-muted-foreground">{formatCurrency(item.price, item.currency)}</span>
                         <span className="text-[10px] bg-accent/10 text-accent px-1.5 py-0.5 rounded font-bold">{item.commissionRate}%</span>
