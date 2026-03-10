@@ -185,7 +185,7 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
       const orgName = (data as any).organizations?.name || 'Siteviral';
       return {
         title: `${data.title} — ${orgName}`,
-        description: (data.description || `Découvrez ${data.title}`).slice(0, 300),
+        description: stripHtml(data.description || `Découvrez ${data.title}`).slice(0, 300),
         image: data.cover_image_url || DEFAULT_IMAGE,
       };
     }
