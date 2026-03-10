@@ -556,45 +556,6 @@ export function ProductForm() {
           </div>
         )}
 
-        {isPdfFile && (
-          <div className="space-y-2">
-            <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => setPdfPreviewOpen(true)}>
-              <Eye className="h-4 w-4" /> Aperçu du document
-            </Button>
-            <Dialog open={pdfPreviewOpen} onOpenChange={setPdfPreviewOpen}>
-              <DialogContent className="max-w-4xl h-[85vh] flex flex-col">
-                <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2">
-                    <Eye className="h-5 w-5 text-primary" />
-                    Aperçu du document
-                  </DialogTitle>
-                </DialogHeader>
-                <div className="flex-1 min-h-0 rounded-lg overflow-hidden border bg-background">
-                  {pdfPreviewLoading ? (
-                    <div className="flex items-center justify-center h-full text-muted-foreground">Chargement de l’aperçu...</div>
-                  ) : pdfPreviewError ? (
-                    <div className="flex items-center justify-center h-full text-destructive text-sm gap-2">
-                      <AlertTriangle className="h-4 w-4" /> {pdfPreviewError}
-                    </div>
-                  ) : pdfPreviewUrl ? (
-                    <object data={pdfPreviewUrl} type="application/pdf" className="w-full h-full">
-                      <div className="flex flex-col items-center justify-center h-full gap-4 text-muted-foreground">
-                        <p className="text-sm">Impossible d'afficher l'aperçu dans le navigateur.</p>
-                        <a href={pdfPreviewUrl} target="_blank" rel="noopener noreferrer" className="text-primary underline text-sm">
-                          Ouvrir le PDF dans un nouvel onglet
-                        </a>
-                      </div>
-                    </object>
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-muted-foreground">
-                      Aucun aperçu disponible
-                    </div>
-                  )}
-                </div>
-              </DialogContent>
-            </Dialog>
-          </div>
-        )}
 
         <div className="space-y-1.5">
           <Label>Lien externe (optionnel)</Label>
