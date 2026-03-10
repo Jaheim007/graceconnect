@@ -70,6 +70,7 @@ export default function MarketplacePage() {
         organization_slug: p.organizations?.slug,
         organization_logo: p.organizations?.logo_url,
         commission_percent: p.organizations?.affiliation_commission_percent,
+        is_org_verified: p.organizations?.is_verified,
       }));
     },
   });

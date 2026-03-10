@@ -182,6 +182,7 @@ export default function DiscoverPage() {
         _type: 'offering' as const,
         organization_name: o.organizations?.name,
         organization_slug: o.organizations?.slug,
+        is_org_verified: o.organizations?.is_verified,
       }));
     },
     enabled: showOfferings,
