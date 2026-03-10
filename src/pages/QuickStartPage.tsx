@@ -104,7 +104,7 @@ export default function QuickStartPage() {
     id: p.id,
     title: p.title,
     image: p.cover_image_url,
-    price: p.price,
+    price: getEffectivePrice(p),
     currency: p.currency || 'XOF',
     orgId: p.organization_id,
     orgName: p.organizations?.name,
