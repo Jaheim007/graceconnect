@@ -68,6 +68,10 @@ Deno.serve(async (req) => {
     return jsonResp({ ok: true, count: aiSnippets.length, method: 'ai' });
   } catch (err) {
     console.error('Snippet generation error:', err);
+    // Refund if debited
+    if (typeof snippetDebited !== 'undefined' && snippetDebited > 0 && userId) {
+      try { await refundCreditsAsBonus({ admin, userId: userId!, amount: snippetDebited, source: 'generate_snippets', expiresInDays: 30 }); } catch (_) {}
+    }
     return jsonResp({ error: err instanceof Error ? err.message : 'Unknown error' }, 500);
   }
 });
