@@ -150,9 +150,21 @@ export function OrgHomeSections({
             <h2 className="font-bold text-base">{t('org_public.upcoming_events')}</h2>
           </div>
         </div>
-        <div className="space-y-2 px-5 pb-5">
+        <div className="space-y-3 px-5 pb-5">
           {events.slice(0, 3).map((ev) => (
             <div key={ev.id} className="rounded-xl border border-border bg-muted/30 hover:bg-muted/60 transition-colors cursor-pointer overflow-hidden" onClick={() => navigate(`/event/${ev.id}`)}>
+              {/* Event image/banner */}
+              {ev.image_url && (
+                <div className="aspect-video w-full overflow-hidden">
+                  <img src={ev.image_url} alt={ev.title} className="w-full h-full object-cover" />
+                </div>
+              )}
+              {/* Countdown overlay for events with images */}
+              {ev.event_date && new Date(ev.event_date) > new Date() && (
+                <div className="px-3 pt-3">
+                  <EventCountdown endDate={ev.event_date} />
+                </div>
+              )}
               <div className="flex items-center gap-3 p-3">
                 <div className="h-12 w-12 rounded-xl bg-primary/10 flex flex-col items-center justify-center shrink-0">
                   {ev.event_date ? (
@@ -166,15 +178,9 @@ export function OrgHomeSections({
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm truncate">{ev.title}</p>
-                  <p className="text-xs text-muted-foreground">{ev.event_date ? new Date(ev.event_date).toLocaleDateString(dateFmt, { weekday: 'long' }) : t('org_public.date_tbc')}</p>
+                  <p className="text-xs text-muted-foreground">{ev.event_date ? new Date(ev.event_date).toLocaleDateString(dateFmt, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : t('org_public.date_tbc')}</p>
                 </div>
-                {ev.location && <span className="text-xs text-muted-foreground hidden sm:block">{ev.location}</span>}
               </div>
-              {ev.event_date && new Date(ev.event_date) > new Date() && (
-                <div className="px-3 pb-3">
-                  <EventCountdown endDate={ev.event_date} compact />
-                </div>
-              )}
             </div>
           ))}
         </div>

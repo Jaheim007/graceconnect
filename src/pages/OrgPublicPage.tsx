@@ -266,7 +266,7 @@ export default function OrgPublicPage() {
                 </div>
 
                 {/* HOME */}
-                <TabsContent value="home" className="space-y-8">
+                <TabsContent value="home" className="space-y-8 pb-12">
                   <OrgHomeSections
                     slug={slug!}
                     products={products}
