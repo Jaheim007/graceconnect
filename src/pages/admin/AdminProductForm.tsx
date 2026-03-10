@@ -187,7 +187,13 @@ export function ProductForm() {
         currency: currentOrg.currency || 'XOF',
         price: data.is_free ? 0 : data.price,
         is_pwyw: data.is_free ? false : data.is_pwyw,
-        min_price: data.is_pwyw && !data.is_free ? (data.min_price || 0) : null,
+        min_price: (() => {
+          if (!data.is_pwyw || data.is_free) return null;
+          const cur = currentOrg?.currency || 'XOF';
+          const floors: Record<string, number> = { XOF: 500, XAF: 500, NGN: 500, USD: 1, EUR: 1, GBP: 1, GHS: 5, KES: 100, ZAR: 10, MAD: 10, TND: 3 };
+          const floor = floors[cur] || 500;
+          return Math.max(data.min_price || 0, floor);
+        })(),
         cover_image_url: data.cover_image_url || null,
         file_url: data.file_url || null,
         external_link: data.external_link || null,
@@ -427,24 +433,48 @@ export function ProductForm() {
         )}
 
         {/* Pay What You Want */}
-        {!isFree && (
-          <div className="bg-accent/30 border border-accent/50 rounded-xl p-4 space-y-3">
-            <div className="flex items-center gap-2">
-              <Switch checked={watch('is_pwyw')} onCheckedChange={v => setValue('is_pwyw', v)} />
-              <Label className="text-sm font-semibold cursor-pointer">💰 Pay What You Want</Label>
-            </div>
-            {watch('is_pwyw') && (
-              <div className="space-y-2">
-                <p className="text-xs text-muted-foreground">L'acheteur choisit le montant qu'il souhaite payer, au-dessus du prix minimum.</p>
-                <div className="space-y-1.5">
-                  <Label className="text-xs">Prix minimum ({currentOrg?.currency || 'XOF'})</Label>
-                  <Input type="number" {...register('min_price')} placeholder="Ex: 500" className="h-8 text-xs" />
-                  <p className="text-[10px] text-muted-foreground">Le prix du produit ci-dessus sera utilisé comme prix suggéré.</p>
-                </div>
+        {!isFree && (() => {
+          const pwywCurrency = currentOrg?.currency || 'XOF';
+          const minFloors: Record<string, number> = { XOF: 500, XAF: 500, NGN: 500, USD: 1, EUR: 1, GBP: 1, GHS: 5, KES: 100, ZAR: 10, MAD: 10, TND: 3 };
+          const pwywFloor = minFloors[pwywCurrency] || 500;
+
+          return (
+            <div className="bg-accent/30 border border-accent/50 rounded-xl p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Switch checked={watch('is_pwyw')} onCheckedChange={v => {
+                  setValue('is_pwyw', v);
+                  if (v) {
+                    const current = watch('min_price') || 0;
+                    if (current < pwywFloor) setValue('min_price', pwywFloor);
+                  }
+                }} />
+                <Label className="text-sm font-semibold cursor-pointer">💰 Pay What You Want</Label>
               </div>
-            )}
-          </div>
-        )}
+              {watch('is_pwyw') && (
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground">L'acheteur choisit le montant qu'il souhaite payer, au-dessus du prix minimum.</p>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Prix minimum ({pwywCurrency})</Label>
+                    <Input
+                      type="number"
+                      min={pwywFloor}
+                      value={watch('min_price') || pwywFloor}
+                      onChange={e => {
+                        const val = Number(e.target.value);
+                        setValue('min_price', val < pwywFloor ? pwywFloor : val);
+                      }}
+                      placeholder={`Min: ${pwywFloor}`}
+                      className="h-8 text-xs"
+                    />
+                    <p className="text-[10px] text-muted-foreground">
+                      Minimum : {pwywFloor.toLocaleString('fr-FR')} {pwywCurrency}. Le prix du produit ci-dessus sera utilisé comme prix suggéré.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })()}
 
 
         <div className="space-y-2">
