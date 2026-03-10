@@ -121,7 +121,7 @@ export default function SuperadminPartners() {
             <Building2 className="h-3.5 w-3.5" /> Organisations référées
           </TabsTrigger>
           <TabsTrigger value="kyc" className="rounded-lg text-xs gap-1.5">
-            <Shield className="h-3.5 w-3.5" /> KYC
+            <Shield className="h-3.5 w-3.5" /> Vérification
           </TabsTrigger>
           <TabsTrigger value="payouts" className="rounded-lg text-xs gap-1.5">
             <Wallet className="h-3.5 w-3.5" /> Versements
