@@ -264,7 +264,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
           )}
           <div className="flex items-center gap-2 mt-1.5">
             {(product as any).organization_name && (
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground inline-flex items-center gap-1">
                 par{' '}
                 <span
                   className="font-semibold text-primary hover:underline cursor-pointer"
@@ -272,6 +272,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
                 >
                   {(product as any).organization_name}
                 </span>
+                {isOrgVerified && <VerifiedBadge size="xs" label="Vendeur vérifié" />}
               </p>
             )}
             {!hideCommission && commissionPercent != null && commissionPercent > 0 && (
