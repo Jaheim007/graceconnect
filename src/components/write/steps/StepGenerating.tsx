@@ -112,6 +112,8 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
           break;
         } catch (err: any) {
           lastError = err instanceof Error ? err : new Error(err?.message || 'Generation failed');
+          // Check if it's a credit error — stop retrying
+          if (handleAiError(lastError)) break;
         }
       }
 
