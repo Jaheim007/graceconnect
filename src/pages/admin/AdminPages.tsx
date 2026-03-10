@@ -672,14 +672,14 @@ export function AdminAnalytics() {
 export function AdminKYC() {
   const { currentOrg } = useOrg();
   return (
-    <AdminPageShell title="Vérification KYC" backRoute="/admin">
+    <AdminPageShell title="Vérification de compte" backRoute="/admin">
       <div className="space-y-4">
         {/* Info banner */}
         <div className="p-4 rounded-2xl border border-primary/20 bg-primary/8">
-          <p className="font-semibold text-sm mb-1">💡 Le KYC est requis uniquement pour les retraits</p>
+          <p className="font-semibold text-sm mb-1">💡 La vérification est requise uniquement pour les retraits</p>
           <p className="text-xs text-muted-foreground">
-            Vous pouvez accepter les dons, vendre des produits et gérer le programme d'affiliation sans KYC.
-            La vérification KYC est nécessaire uniquement pour retirer vos revenus.
+            Vous pouvez accepter les dons, vendre des produits et gérer le programme d'affiliation sans vérification.
+            Elle est nécessaire uniquement pour retirer vos revenus.
           </p>
         </div>
 

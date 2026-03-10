@@ -128,76 +128,160 @@ export function SuperadminOrgs() {
 
 export function SuperadminKYC() {
   const { toast } = useToast();
+  const [filter, setFilter] = useState<'pending' | 'all' | 'approved' | 'rejected'>('pending');
+  
   const { data: submissions = [], isLoading, refetch } = useQuery({
-    queryKey: ['sa-kyc'],
-    queryFn: async () => { const { data } = await db.from('kyc_submissions').select('*').eq('status', 'pending').order('submitted_at', { ascending: true }); return data || []; },
+    queryKey: ['sa-kyc', filter],
+    queryFn: async () => {
+      let q = db.from('kyc_submissions').select('*, organizations!left(name, category, slug)').order('submitted_at', { ascending: false });
+      if (filter !== 'all') q = q.eq('status', filter);
+      const { data } = await q.limit(100);
+      return data || [];
+    },
   });
+
   const approve = async (id: string, orgId: string) => {
-    await db.from('kyc_submissions').update({ status: 'approved', reviewed_at: new Date().toISOString() }).eq('id', id);
-    await db.from('organizations').update({ kyc_status: 'level1', monetization_enabled: true }).eq('id', orgId);
+    const { error } = await db.rpc('review_org_kyc', { _org_id: orgId, _action: 'approve' });
+    if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
     toast({ title: 'Vérification approuvée ✅' }); refetch();
   };
-  const reject = async (id: string) => {
-    const reason = prompt('Rejection reason:');
+
+  const reject = async (id: string, orgId: string) => {
+    const reason = prompt('Motif du refus :');
     if (!reason) return;
-    await db.from('kyc_submissions').update({ status: 'rejected', rejection_reason: reason, reviewed_at: new Date().toISOString() }).eq('id', id);
-    toast({ title: 'Vérification rejetée' }); refetch();
+    const { error } = await db.rpc('review_org_kyc', { _org_id: orgId, _action: 'reject', _reason: reason });
+    if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
+    toast({ title: 'Vérification refusée' }); refetch();
   };
+
+  const triggerLevel2 = async (orgId: string) => {
+    if (!confirm("Déclencher la vérification externe (Niveau 2) pour cette organisation ? L'utilisateur sera redirigé vers Stripe/Paystack pour une vérification approfondie.")) return;
+    await db.from('organizations').update({ kyc_status: 'level2_required' as any }).eq('id', orgId);
+    toast({ title: 'Vérification externe déclenchée' }); refetch();
+  };
+
+  const pendingCount = submissions.filter((s: any) => s.status === 'pending').length;
+
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-bold">Vérification d'identité ({submissions.length} en attente)</h1>
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h1 className="text-xl font-bold">
+          Vérifications de compte
+          {filter === 'pending' && pendingCount > 0 && (
+            <Badge variant="destructive" className="ml-2">{pendingCount}</Badge>
+          )}
+        </h1>
+        <div className="flex gap-1">
+          {(['pending', 'approved', 'rejected', 'all'] as const).map(f => (
+            <Button key={f} size="sm" variant={filter === f ? 'default' : 'outline'} onClick={() => setFilter(f)} className="text-xs h-8">
+              {f === 'pending' ? '⏳ En attente' : f === 'approved' ? '✅ Approuvées' : f === 'rejected' ? '❌ Refusées' : '📋 Toutes'}
+            </Button>
+          ))}
+        </div>
+      </div>
+
       {isLoading ? <SkeletonRow count={3} /> : submissions.length === 0 ? (
-        <div className="p-8 text-center text-muted-foreground text-sm">Aucune vérification en attente 🎉</div>
+        <div className="p-8 text-center text-muted-foreground text-sm">
+          {filter === 'pending' ? 'Aucune vérification en attente 🎉' : 'Aucun résultat'}
+        </div>
       ) : (
         <div className="space-y-4">
-          {submissions.map((s: any) => (
-            <div key={s.id} className="p-4 rounded-2xl border border-border bg-card space-y-3">
-              <div className="flex items-center justify-between">
-                <p className="font-medium text-sm">Niveau {s.kyc_level} · Org: {s.organization_id?.slice(0, 8)}…</p>
-                <p className="text-xs text-muted-foreground">{new Date(s.submitted_at).toLocaleDateString('fr-FR')}</p>
-              </div>
+          {submissions.map((s: any) => {
+            const org = s.organizations;
+            return (
+              <div key={s.id} className="p-4 rounded-2xl border border-border bg-card space-y-3">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div>
+                    <p className="font-medium text-sm">
+                      {org?.name || s.organization_id?.slice(0, 8)}
+                      {org?.category && (
+                        <Badge variant="secondary" className="ml-2 text-[10px]">{org.category}</Badge>
+                      )}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {org?.slug ? `/${org.slug}` : ''} · Soumis le {new Date(s.submitted_at).toLocaleDateString('fr-FR')}
+                    </p>
+                  </div>
+                  <Badge variant={s.status === 'pending' ? 'default' : s.status === 'approved' ? 'secondary' : 'destructive'}>
+                    {s.status === 'pending' ? '⏳ En attente' : s.status === 'approved' ? '✅ Approuvé' : '❌ Refusé'}
+                  </Badge>
+                </div>
 
-              {/* Documents preview */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                {s.id_document_url && (
-                  <a href={s.id_document_url} target="_blank" rel="noopener noreferrer" className="block">
-                    <img src={s.id_document_url} alt="ID Recto" className="h-24 w-full object-cover rounded-lg border" />
-                    <p className="text-[10px] text-muted-foreground text-center mt-0.5">ID Recto</p>
-                  </a>
-                )}
-                {s.id_document_back_url && (
-                  <a href={s.id_document_back_url} target="_blank" rel="noopener noreferrer" className="block">
-                    <img src={s.id_document_back_url} alt="ID Verso" className="h-24 w-full object-cover rounded-lg border" />
-                    <p className="text-[10px] text-muted-foreground text-center mt-0.5">ID Verso</p>
-                  </a>
-                )}
-                {s.selfie_url && (
-                  <a href={s.selfie_url} target="_blank" rel="noopener noreferrer" className="block">
-                    <img src={s.selfie_url} alt="Selfie" className="h-24 w-24 object-cover rounded-full border mx-auto" />
-                    <p className="text-[10px] text-muted-foreground text-center mt-0.5">Selfie</p>
-                  </a>
-                )}
-                {s.selfie_with_doc_url && (
-                  <a href={s.selfie_with_doc_url} target="_blank" rel="noopener noreferrer" className="block">
-                    <img src={s.selfie_with_doc_url} alt="Selfie + Doc" className="h-24 w-full object-cover rounded-lg border" />
-                    <p className="text-[10px] text-muted-foreground text-center mt-0.5">Selfie + Doc</p>
-                  </a>
-                )}
-              </div>
+                {/* Identity documents (KYC) */}
+                <div>
+                  <p className="text-xs font-semibold mb-1.5">👤 Identité du responsable</p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {s.id_document_url && (
+                      <a href={s.id_document_url} target="_blank" rel="noopener noreferrer" className="block">
+                        <img src={s.id_document_url} alt="ID Recto" className="h-24 w-full object-cover rounded-lg border" />
+                        <p className="text-[10px] text-muted-foreground text-center mt-0.5">ID Recto</p>
+                      </a>
+                    )}
+                    {s.id_document_back_url && (
+                      <a href={s.id_document_back_url} target="_blank" rel="noopener noreferrer" className="block">
+                        <img src={s.id_document_back_url} alt="ID Verso" className="h-24 w-full object-cover rounded-lg border" />
+                        <p className="text-[10px] text-muted-foreground text-center mt-0.5">ID Verso</p>
+                      </a>
+                    )}
+                    {s.selfie_url && (
+                      <a href={s.selfie_url} target="_blank" rel="noopener noreferrer" className="block">
+                        <img src={s.selfie_url} alt="Selfie" className="h-24 w-24 object-cover rounded-full border mx-auto" />
+                        <p className="text-[10px] text-muted-foreground text-center mt-0.5">Selfie</p>
+                      </a>
+                    )}
+                    {s.selfie_with_doc_url && (
+                      <a href={s.selfie_with_doc_url} target="_blank" rel="noopener noreferrer" className="block">
+                        <img src={s.selfie_with_doc_url} alt="Selfie + Doc" className="h-24 w-full object-cover rounded-lg border" />
+                        <p className="text-[10px] text-muted-foreground text-center mt-0.5">Selfie + Doc</p>
+                      </a>
+                    )}
+                  </div>
+                </div>
 
-              {/* Payout info */}
-              <div className="text-xs text-muted-foreground space-y-0.5">
-                {s.id_document_type && <p>📄 Type: {s.id_document_type}</p>}
-                {s.bank_name && <p>🏦 Banque: {s.bank_name} · {s.bank_account_name} · {s.bank_account_number}</p>}
-                {s.payout_method && <p>💳 Paiement: {s.payout_method} {s.payout_phone ? `· ${s.payout_phone}` : ''} {s.payout_provider ? `· ${s.payout_provider}` : ''}</p>}
-              </div>
+                {/* Organization documents (KYB) */}
+                {(s.org_document_url || s.org_document_type) && (
+                  <div>
+                    <p className="text-xs font-semibold mb-1.5">🏢 Documents organisation</p>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {s.org_document_url && (
+                        <a href={s.org_document_url} target="_blank" rel="noopener noreferrer" className="block">
+                          {s.org_document_url.endsWith('.pdf') ? (
+                            <div className="h-24 w-full rounded-lg border bg-muted flex items-center justify-center">
+                              <span className="text-2xl">📄</span>
+                            </div>
+                          ) : (
+                            <img src={s.org_document_url} alt="Doc Org" className="h-24 w-full object-cover rounded-lg border" />
+                          )}
+                          <p className="text-[10px] text-muted-foreground text-center mt-0.5">
+                            {s.org_document_type || 'Document org'}
+                          </p>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                )}
 
-              <div className="flex gap-2">
-                <Button size="sm" className="h-7 text-xs" onClick={() => approve(s.id, s.organization_id)}>✅ Approuver</Button>
-                <Button size="sm" variant="outline" className="h-7 text-xs text-destructive border-destructive/30" onClick={() => reject(s.id)}>❌ Rejeter</Button>
+                {/* Details */}
+                <div className="text-xs text-muted-foreground space-y-0.5">
+                  {s.id_document_type && <p>📄 Type ID : {s.id_document_type}</p>}
+                  {s.bank_name && <p>🏦 Banque : {s.bank_name} · {s.bank_account_name} · {s.bank_account_number}</p>}
+                  {s.payout_method && <p>💳 Paiement : {s.payout_method} {s.payout_phone ? `· ${s.payout_phone}` : ''} {s.payout_provider ? `· ${s.payout_provider}` : ''}</p>}
+                  {s.rejection_reason && <p className="text-destructive">❌ Motif : {s.rejection_reason}</p>}
+                </div>
+
+                {/* Actions */}
+                {s.status === 'pending' && (
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" className="h-7 text-xs" onClick={() => approve(s.id, s.organization_id)}>✅ Approuver</Button>
+                    <Button size="sm" variant="outline" className="h-7 text-xs text-destructive border-destructive/30" onClick={() => reject(s.id, s.organization_id)}>❌ Rejeter</Button>
+                    <Button size="sm" variant="outline" className="h-7 text-xs ml-auto" onClick={() => triggerLevel2(s.organization_id)}>
+                      🔗 Déclencher vérification externe
+                    </Button>
+                  </div>
+                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
