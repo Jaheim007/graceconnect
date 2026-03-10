@@ -1,164 +1,79 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { corsHeaders, jsonResp } from '../_shared/auth.ts';
+import { geminiStreamResponse } from '../_shared/ai-gemini.ts';
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
-
-serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("Not authenticated");
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) throw new Error('Not authenticated');
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: authHeader } } }
-    );
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    if (!GEMINI_API_KEY) throw new Error('GEMINI_API_KEY not configured');
 
-    // Verify superadmin
+    const supabase = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error("Not authenticated");
+    if (!user) throw new Error('Not authenticated');
 
-    const svcClient = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
-
-    const { data: roleData } = await svcClient
-      .from("user_platform_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .single();
-
-    if (roleData?.role !== "superadmin") {
-      return new Response(JSON.stringify({ error: "Forbidden" }), {
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const svcClient = createClient(supabaseUrl, serviceKey);
+    const { data: roleData } = await svcClient.from('user_platform_roles').select('role').eq('user_id', user.id).single();
+    if (roleData?.role !== 'superadmin') return jsonResp({ error: 'Forbidden' }, 403);
 
     const { messages } = await req.json();
-
-    // Input validation
-    if (!Array.isArray(messages) || messages.length > 50) {
-      return new Response(JSON.stringify({ error: "Invalid messages format" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    if (!Array.isArray(messages) || messages.length > 50) return jsonResp({ error: 'Invalid messages' }, 400);
     for (const msg of messages) {
-      if (!msg || typeof msg.role !== 'string' || !['user', 'assistant'].includes(msg.role) || typeof msg.content !== 'string' || msg.content.length > 5000) {
-        return new Response(JSON.stringify({ error: "Invalid message format" }), {
-          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+      if (!msg || !['user', 'assistant'].includes(msg.role) || typeof msg.content !== 'string' || msg.content.length > 5000) {
+        return jsonResp({ error: 'Invalid message format' }, 400);
       }
     }
 
-    // Fetch platform stats for AI context (anonymized - no org names/slugs)
+    // Fetch platform stats (same as before)
     const [orgsRes, donationsRes, purchasesRes, membersRes, metricsRes, kycRes, payoutsRes, reportsRes] = await Promise.all([
-      svcClient.from("organizations").select("id, plan_type, kyc_status, is_active, is_suspended, category, country", { count: "exact" }),
-      svcClient.from("donations").select("amount, status, currency, created_at, organization_id").eq("status", "completed").order("created_at", { ascending: false }).limit(200),
-      svcClient.from("product_purchases").select("amount, status, currency, created_at, organization_id").eq("status", "completed").order("created_at", { ascending: false }).limit(200),
-      svcClient.from("organization_members").select("id, role, joined_at", { count: "exact" }),
-      svcClient.from("platform_metrics_daily").select("*").order("metric_date", { ascending: false }).limit(30),
-      svcClient.from("kyc_submissions").select("status, organization_id").eq("status", "pending"),
-      svcClient.from("payout_requests").select("amount, status").eq("status", "requested"),
-      svcClient.from("content_reports").select("status").eq("status", "pending"),
+      svcClient.from('organizations').select('id, plan_type, kyc_status, is_active, is_suspended, category, country', { count: 'exact' }),
+      svcClient.from('donations').select('amount, status, currency').eq('status', 'completed').order('created_at', { ascending: false }).limit(200),
+      svcClient.from('product_purchases').select('amount, status, currency').eq('status', 'completed').order('created_at', { ascending: false }).limit(200),
+      svcClient.from('organization_members').select('id', { count: 'exact', head: true }),
+      svcClient.from('platform_metrics_daily').select('*').order('metric_date', { ascending: false }).limit(7),
+      svcClient.from('kyc_submissions').select('status').eq('status', 'pending'),
+      svcClient.from('payout_requests').select('status').eq('status', 'requested'),
+      svcClient.from('content_reports').select('status').eq('status', 'pending'),
     ]);
 
     const orgs = orgsRes.data || [];
     const donations = donationsRes.data || [];
     const purchases = purchasesRes.data || [];
-    const totalDonationGMV = donations.reduce((s: number, d: any) => s + (d.amount || 0), 0);
-    const totalPurchaseGMV = purchases.reduce((s: number, p: any) => s + (p.amount || 0), 0);
-    const totalGMV = totalDonationGMV + totalPurchaseGMV;
-    const totalMembers = membersRes.count || 0;
-    const pendingKYC = (kycRes.data || []).length;
-    const pendingPayouts = (payoutsRes.data || []).length;
-    const pendingReports = (reportsRes.data || []).length;
+    const totalGMV = donations.reduce((s, d: any) => s + (d.amount || 0), 0) + purchases.reduce((s, p: any) => s + (p.amount || 0), 0);
 
-    // Org breakdown
     const orgsByCategory: Record<string, number> = {};
-    const orgsByCountry: Record<string, number> = {};
-    orgs.forEach((o: any) => {
-      orgsByCategory[o.category || "unknown"] = (orgsByCategory[o.category || "unknown"] || 0) + 1;
-      orgsByCountry[o.country || "unknown"] = (orgsByCountry[o.country || "unknown"] || 0) + 1;
+    orgs.forEach((o: any) => { orgsByCategory[o.category || 'unknown'] = (orgsByCategory[o.category || 'unknown'] || 0) + 1; });
+
+    const systemPrompt = `Tu es l'assistant IA du superadmin de Siteviral (plateforme SaaS). Données agrégées :
+- ${orgs.length} organisations (actives: ${orgs.filter((o: any) => o.is_active && !o.is_suspended).length})
+- Catégories: ${JSON.stringify(orgsByCategory)}
+- Membres: ${membersRes.count || 0}
+- GMV: ${totalGMV.toLocaleString()} (${donations.length} dons, ${purchases.length} achats)
+- KYC en attente: ${(kycRes.data || []).length}, Payouts: ${(payoutsRes.data || []).length}, Signalements: ${(reportsRes.data || []).length}
+- Métriques: ${JSON.stringify((metricsRes.data || []).slice(0, 3))}
+
+Réponds en français, sois concis et actionnable. Ne révèle jamais de données sensibles.`;
+
+    // NO credit debit for superadmin chat
+    const streamResponse = await geminiStreamResponse({
+      apiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash',
+      system: systemPrompt, messages,
     });
 
-    const activeOrgs = orgs.filter((o: any) => o.is_active && !o.is_suspended).length;
-    const suspendedOrgs = orgs.filter((o: any) => o.is_suspended).length;
+    // Add CORS headers to stream response
+    const headers = new Headers(streamResponse.headers);
+    Object.entries(corsHeaders).forEach(([k, v]) => headers.set(k, v));
 
-    const systemPrompt = `Tu es l'assistant IA du superadmin de Siteviral, une plateforme SaaS multi-tenant internationale pour les organisations, leaders et communautés. Opérée par Hacktualiz Inc. (Delaware, USA).
-
-DONNÉES AGRÉGÉES DE LA PLATEFORME (anonymisées) :
-- Total organisations: ${orgs.length} (actives: ${activeOrgs}, suspendues: ${suspendedOrgs})
-- Répartition par catégorie: ${JSON.stringify(orgsByCategory)}
-- Répartition par pays: ${JSON.stringify(orgsByCountry)}
-- Total membres (tous orgs): ${totalMembers}
-- GMV total: ${totalGMV.toLocaleString()} (donations: ${totalDonationGMV.toLocaleString()}, achats: ${totalPurchaseGMV.toLocaleString()})
-- Transactions: ${donations.length} dons complétés, ${purchases.length} achats complétés
-- KYC en attente: ${pendingKYC}
-- Payouts en attente: ${pendingPayouts}
-- Signalements en attente: ${pendingReports}
-- Métriques quotidiennes récentes: ${JSON.stringify((metricsRes.data || []).slice(0, 7))}
-
-Tu dois :
-1. Répondre en français
-2. Analyser les données agrégées et fournir des insights actionnables
-3. Suggérer des améliorations produit basées sur les patterns observés
-4. Alerter sur les problèmes potentiels (KYC en attente, payouts, fraude)
-5. Proposer des stratégies de croissance
-6. Être concis et direct
-
-IMPORTANT : Ne révèle jamais d'informations sensibles (clés API, mots de passe, noms d'organisations spécifiques, emails utilisateurs). Travaille uniquement avec des données agrégées.`;
-
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
-
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages,
-        ],
-        stream: true,
-      }),
-    });
-
-    if (!response.ok) {
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limited, réessayez dans quelques secondes." }), {
-          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Crédits AI épuisés." }), {
-          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const t = await response.text();
-      console.error("AI gateway error:", response.status, t);
-      return new Response(JSON.stringify({ error: "AI gateway error" }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    return new Response(response.body, {
-      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
-    });
+    return new Response(streamResponse.body, { status: streamResponse.status, headers });
   } catch (e) {
-    console.error("superadmin-ai-chat error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
-      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    console.error('superadmin-ai-chat error:', e);
+    return jsonResp({ error: e instanceof Error ? e.message : 'Unknown error' }, 500);
   }
 });

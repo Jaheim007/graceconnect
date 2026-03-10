@@ -1,24 +1,21 @@
+import { requireAuth, corsHeaders, jsonResp, adminClient } from '../_shared/auth.ts';
+import { consumeCreditsOrThrow, normalizeTier } from '../_shared/credits.ts';
+import { geminiGenerateImageBase64 } from '../_shared/ai-gemini.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
-};
-
 const artStylePrompts: Record<string, string> = {
-  children_book: 'children book illustration style, warm colors, friendly characters, soft lighting, storybook feel, gentle and inviting',
-  watercolor: 'watercolor painting style, soft washes of color, artistic and elegant, fluid brushstrokes, delicate details',
-  cartoon: 'modern cartoon illustration, bold colors, clean lines, fun and engaging, digital art style',
-  realistic: 'realistic digital painting, detailed and lifelike, professional book illustration, rich colors and lighting',
-  line_art: 'black and white line art for coloring book, clean bold outlines only, NO shading NO fills NO colors NO gradients, thick black contour lines on pure white background, simple shapes suitable for coloring with crayons or markers, large areas to color in, children-friendly coloring page design',
+  children_book: 'children book illustration style, warm colors, friendly characters, soft lighting, storybook feel',
+  watercolor: 'watercolor painting style, soft washes of color, artistic, fluid brushstrokes',
+  cartoon: 'modern cartoon illustration, bold colors, clean lines, fun and engaging',
+  realistic: 'realistic digital painting, detailed and lifelike, rich colors',
+  line_art: 'black and white line art for coloring book, clean bold outlines only, NO shading NO fills NO colors, thick black contour lines on pure white background, large areas to color in',
 };
 
 const audiencePrompts: Record<string, string> = {
-  children: 'age-appropriate for children 6-12 years old, safe and friendly imagery, no scary elements',
+  children: 'age-appropriate for children 6-12, safe and friendly imagery',
   teens: 'suitable for teenagers, modern and dynamic',
   general: 'suitable for all audiences',
   adults: 'sophisticated and mature illustration',
-  seniors: 'warm and classic illustration style',
   professionals: 'clean professional illustration',
 };
 
@@ -26,145 +23,46 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      return new Response(JSON.stringify({ error: 'AI not configured' }), {
-        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    const auth = await requireAuth(req);
+    if (auth instanceof Response) return auth;
 
-    const { bookTitle, chapterTitle, chapterSummary, artStyle, audience, bookStyle } = await req.json();
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    if (!GEMINI_API_KEY) return jsonResp({ error: 'AI not configured' }, 500);
 
-    if (!chapterTitle) {
-      return new Response(JSON.stringify({ error: 'chapterTitle required' }), {
-        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    const { bookTitle, chapterTitle, chapterSummary, artStyle, audience, bookStyle, tier } = await req.json();
+    if (!chapterTitle) return jsonResp({ error: 'chapterTitle required' }, 400);
+
+    const admin = adminClient(auth.supabaseUrl, auth.serviceKey);
+    await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: 'generate_illustration', tier: normalizeTier(tier) });
 
     const stylePrompt = artStylePrompts[artStyle] || artStylePrompts['children_book'];
     const audiencePrompt = audiencePrompts[audience] || audiencePrompts['general'];
-
     const isColoring = artStyle === 'line_art' || bookStyle === 'coloring';
 
     const prompt = isColoring
-      ? `Create a coloring book page. BLACK AND WHITE LINE ART ONLY.
+      ? `Create a coloring book page. BLACK AND WHITE LINE ART ONLY.\nBook: "${bookTitle || 'Untitled'}"\nPage theme: "${chapterTitle}"\nContext: ${chapterSummary || chapterTitle}\nCRITICAL: ONLY black outlines on pure white, NO shading/fills/colors, bold clean lines, large enclosed areas for coloring. ${audiencePrompt}. NO text in image.`
+      : `Create a beautiful illustration for a book chapter.\nBook: "${bookTitle || 'Untitled'}"\nChapter: "${chapterTitle}"\nContext: ${chapterSummary || chapterTitle}\nStyle: ${stylePrompt}\nAudience: ${audiencePrompt}\nSingle captivating illustration, no text, professional book illustration.`;
 
-Book: "${bookTitle || 'Untitled'}"
-Page theme: "${chapterTitle}"
-Context: ${chapterSummary || chapterTitle}
+    const { base64, mimeType } = await geminiGenerateImageBase64({ apiKey: GEMINI_API_KEY, prompt, timeoutMs: 60_000 });
 
-CRITICAL RULES:
-- ONLY black outlines on pure white background
-- NO shading, NO fills, NO gray tones, NO colors
-- Bold clean contour lines (2-3px thickness)
-- Large enclosed areas for children to color in
-- Simple, recognizable shapes
-- ${audiencePrompt}
-- Fun and engaging composition
-- NO text in the image
-- Style: professional coloring book page, print-ready quality`
-      : `Create a beautiful illustration for a book chapter.
+    // Upload to storage
+    const sb = createClient(auth.supabaseUrl, auth.serviceKey);
+    const imageBytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+    const ext = mimeType.includes('jpeg') ? 'jpg' : 'png';
+    const fileName = `illustrations/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
 
-Book: "${bookTitle || 'Untitled'}"
-Chapter: "${chapterTitle}"
-Context: ${chapterSummary || chapterTitle}
-
-Style: ${stylePrompt}
-Audience: ${audiencePrompt}
-
-Create a single, captivating illustration that represents the key theme of this chapter. No text in the image. High quality, professional book illustration.`;
-
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60_000);
-
-    let aiRes: Response;
-    try {
-      aiRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'google/gemini-3-pro-image-preview',
-          messages: [{ role: 'user', content: prompt }],
-          modalities: ['image', 'text'],
-        }),
-        signal: controller.signal,
-      });
-    } catch (error) {
-      if (error instanceof DOMException && error.name === 'AbortError') {
-        return new Response(JSON.stringify({ error: 'Generation timeout. Please retry.' }), {
-          status: 504, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      throw error;
-    } finally {
-      clearTimeout(timeoutId);
-    }
-
-    if (!aiRes.ok) {
-      if (aiRes.status === 429) {
-        return new Response(JSON.stringify({ error: 'Rate limit. Please retry.' }), {
-          status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      if (aiRes.status === 402) {
-        return new Response(JSON.stringify({ error: 'AI credits exhausted.' }), {
-          status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      const errText = await aiRes.text();
-      console.error('AI gateway error:', aiRes.status, errText);
-      return new Response(JSON.stringify({ error: `AI error (${aiRes.status})` }), {
-        status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    const aiData = await aiRes.json();
-    const imageData = aiData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-
-    if (!imageData) {
-      return new Response(JSON.stringify({ error: 'No image generated' }), {
-        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
-
-    // Upload the base64 image to Supabase storage
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const sb = createClient(supabaseUrl, supabaseKey);
-
-    // Convert base64 to Uint8Array
-    const base64Data = imageData.replace(/^data:image\/\w+;base64,/, '');
-    const binaryString = atob(base64Data);
-    const bytes = new Uint8Array(binaryString.length);
-    for (let i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
-
-    const fileName = `illustrations/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.png`;
-    const { error: uploadError } = await sb.storage
-      .from('org-uploads')
-      .upload(fileName, bytes, { contentType: 'image/png', upsert: false });
-
+    const { error: uploadError } = await sb.storage.from('org-uploads').upload(fileName, imageBytes, { contentType: mimeType, upsert: false });
     if (uploadError) {
-      console.error('Upload error:', uploadError);
-      // Fallback: return the base64 data directly
-      return new Response(JSON.stringify({ imageUrl: imageData }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      // Fallback: return base64 data URL
+      return jsonResp({ imageUrl: `data:${mimeType};base64,${base64}` });
     }
 
     const { data: publicUrlData } = sb.storage.from('org-uploads').getPublicUrl(fileName);
-
-    return new Response(JSON.stringify({ imageUrl: publicUrlData.publicUrl }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  } catch (e) {
+    return jsonResp({ imageUrl: publicUrlData.publicUrl });
+  } catch (e: any) {
+    if (e?.status === 402) return jsonResp({ error: e.message }, 402);
+    if (e?.status === 429) return jsonResp({ error: 'Rate limit. Please retry.' }, 429);
     console.error('generate-illustration error:', e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : 'Internal error' }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return jsonResp({ error: e instanceof Error ? e.message : 'Internal error' }, 500);
   }
 });

@@ -1,114 +1,54 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { requireAuth, corsHeaders, jsonResp, adminClient } from '../_shared/auth.ts';
+import { consumeCreditsOrThrow, normalizeTier } from '../_shared/credits.ts';
+import { geminiGenerateImageBase64 } from '../_shared/ai-gemini.ts';
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
-
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) throw new Error("Missing auth");
+    const auth = await requireAuth(req);
+    if (auth instanceof Response) return auth;
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    if (!GEMINI_API_KEY) return jsonResp({ error: 'AI not configured' }, 500);
 
-    // Verify user
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: authErr } = await createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!
-    ).auth.getUser(token);
-    if (authErr || !user) throw new Error("Unauthorized");
+    const { product_id, title, product_type, description, tier } = await req.json();
+    if (!product_id || !title) return jsonResp({ error: 'Missing product_id or title' }, 400);
 
-    const { product_id, title, product_type, description } = await req.json();
-    if (!product_id || !title) throw new Error("Missing product_id or title");
+    const admin = adminClient(auth.supabaseUrl, auth.serviceKey);
+    await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: 'ai_generate_cover', tier: normalizeTier(tier) });
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
-
-    // Build prompt
     const typeHints: Record<string, string> = {
-      pdf: "a professional PDF document cover",
-      ebook: "an elegant e-book cover",
-      audio: "a modern audio content cover with headphones/sound waves",
-      video: "a cinematic video thumbnail",
-      course: "a professional course/training cover",
-      link: "a clean digital resource cover",
+      pdf: 'a professional PDF document cover',
+      ebook: 'an elegant e-book cover',
+      audio: 'a modern audio content cover with headphones/sound waves',
+      video: 'a cinematic video thumbnail',
+      course: 'a professional course/training cover',
+      link: 'a clean digital resource cover',
     };
-    const typeHint = typeHints[product_type || ""] || "a professional digital product cover";
-    const shortDesc = (description || "").slice(0, 200);
+    const typeHint = typeHints[product_type || ''] || 'a professional digital product cover';
+    const shortDesc = (description || '').slice(0, 200);
 
-    const prompt = `Create ${typeHint} design for a digital product titled "${title}". ${shortDesc ? `The product is about: ${shortDesc}.` : ""} Style: modern, clean, professional, vibrant colors, high contrast text-free design suitable as a product cover image. Aspect ratio 2:3 portrait. Ultra high resolution.`;
+    const prompt = `Create ${typeHint} design for a digital product titled "${title}". ${shortDesc ? `The product is about: ${shortDesc}.` : ''} Style: modern, clean, professional, vibrant colors, high contrast text-free design suitable as a product cover image. Aspect ratio 2:3 portrait. Ultra high resolution.`;
 
-    // Call AI image generation via chat completions with image modality
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image",
-        messages: [{ role: "user", content: prompt }],
-        modalities: ["image", "text"],
-      }),
-    });
+    const { base64, mimeType } = await geminiGenerateImageBase64({ apiKey: GEMINI_API_KEY, prompt, timeoutMs: 90_000 });
 
-    if (!aiResponse.ok) {
-      const errText = await aiResponse.text();
-      console.error("AI gateway error:", aiResponse.status, errText.slice(0, 500));
-      throw new Error(`AI API error: ${aiResponse.status} - ${errText.slice(0, 200)}`);
-    }
+    // Decode and upload
+    const imageBytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+    const ext = mimeType.includes('jpeg') ? 'jpg' : 'png';
+    const fileName = `ai-covers/${product_id}-${Date.now()}.${ext}`;
 
-    const aiData = await aiResponse.json();
-    console.log("AI response keys:", JSON.stringify(Object.keys(aiData)));
-    console.log("Choice message keys:", JSON.stringify(Object.keys(aiData.choices?.[0]?.message || {})));
-
-    // Extract base64 image from response
-    const imageB64Url = aiData.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-    if (!imageB64Url) {
-      console.error("No image in response. Full response:", JSON.stringify(aiData).slice(0, 1000));
-      throw new Error("No image generated by AI");
-    }
-
-    // Decode base64 to bytes
-    const base64Data = imageB64Url.replace(/^data:image\/\w+;base64,/, "");
-    const imageBytes = Uint8Array.from(atob(base64Data), (c) => c.charCodeAt(0));
-
-    const fileName = `ai-covers/${product_id}-${Date.now()}.png`;
-
-    const { error: uploadErr } = await supabase.storage
-      .from("org-uploads")
-      .upload(fileName, imageBytes, {
-        contentType: "image/png",
-        upsert: true,
-      });
-
+    const { error: uploadErr } = await admin.storage.from('org-uploads').upload(fileName, imageBytes, { contentType: mimeType, upsert: true });
     if (uploadErr) throw new Error(`Upload failed: ${uploadErr.message}`);
 
-    const { data: urlData } = supabase.storage
-      .from("org-uploads")
-      .getPublicUrl(fileName);
-
+    const { data: urlData } = admin.storage.from('org-uploads').getPublicUrl(fileName);
     const publicUrl = urlData.publicUrl.replace('https://xzgpzbrgsxtcsktiprik.supabase.co', 'https://api.siteviral.com');
 
-    return new Response(
-      JSON.stringify({ ok: true, cover_url: publicUrl }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResp({ ok: true, cover_url: publicUrl });
   } catch (e: any) {
-    return new Response(
-      JSON.stringify({ ok: false, error: e.message }),
-      { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    if (e?.status === 402) return jsonResp({ error: e.message }, 402);
+    console.error('ai-generate-cover error:', e);
+    return jsonResp({ ok: false, error: e instanceof Error ? e.message : 'Internal error' }, 400);
   }
 });
