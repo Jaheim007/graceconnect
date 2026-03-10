@@ -175,53 +175,64 @@ export default function AdminPayouts() {
           </div>
         </div>
 
-        {/* ═══ Financial Summary Cards ═══ */}
+        {/* ═══ Revenue Breakdown – Sales ═══ */}
         {fundSummary && (
-           <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-            {[
-              { label: t('payouts.org_share'), value: fmt(fundSummary.totalOrgReceived, currency), icon: Wallet, colorClass: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/20', sub: t('payouts.after_platform_fees') },
-              { label: t('payouts.platform_fees'), value: fmt(fundSummary.totalPlatformFees, currency), icon: Shield, colorClass: 'from-primary/15 to-primary/5 border-primary/20', sub: `${currentOrg?.platform_fee_percent ?? 10}% ${t('payouts.deducted')}` },
-              { label: t('payouts.affiliate_commissions'), value: fmt(fundSummary.totalAffiliateCommissionsPaid, currency), icon: ArrowUpRight, colorClass: 'from-amber-500/15 to-amber-500/5 border-amber-500/20', sub: t('payouts.paid_to_affiliates') },
-            ].map(c => (
-              <motion.div key={c.label} variants={fadeUp} className={cn('rounded-2xl border p-4 bg-gradient-to-br', c.colorClass)}>
-                <c.icon className="h-4 w-4 text-muted-foreground mb-1" />
-                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">{c.label}</p>
-                <p className="text-lg font-bold mt-0.5">{c.value}</p>
-                <p className="text-[10px] text-muted-foreground">{c.sub}</p>
-              </motion.div>
-            ))}
+          <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Revenus des ventes</p>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {[
+                { label: "Chiffre d'affaires", value: fmt(fundSummary.totalGMV, currency), icon: DollarSign, colorClass: 'from-muted/60 to-muted/30 border-border', sub: 'Total brut' },
+                { label: t('payouts.org_share'), value: fmt(fundSummary.totalOrgReceived, currency), icon: Wallet, colorClass: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/20', sub: t('payouts.after_platform_fees') },
+                { label: t('payouts.platform_fees'), value: fmt(fundSummary.totalPlatformFees, currency), icon: Shield, colorClass: 'from-primary/15 to-primary/5 border-primary/20', sub: `${currentOrg?.platform_fee_percent ?? 10}% ${t('payouts.deducted')}` },
+                { label: t('payouts.affiliate_commissions'), value: fmt(fundSummary.totalAffiliateCommissionsPaid, currency), icon: ArrowUpRight, colorClass: 'from-amber-500/15 to-amber-500/5 border-amber-500/20', sub: t('payouts.paid_to_affiliates') },
+              ].map(c => (
+                <motion.div key={c.label} variants={fadeUp} className={cn('rounded-2xl border p-4 bg-gradient-to-br', c.colorClass)}>
+                  <c.icon className="h-4 w-4 text-muted-foreground mb-1" />
+                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">{c.label}</p>
+                  <p className="text-lg font-bold mt-0.5">{c.value}</p>
+                  <p className="text-[10px] text-muted-foreground">{c.sub}</p>
+                </motion.div>
+              ))}
+            </div>
           </motion.div>
         )}
 
-        {/* ═══ Ambassador Earnings Card ═══ */}
-        {fundSummary && fundSummary.totalAmbassadorEarned > 0 && (
+        {/* ═══ Revenue Breakdown – Ambassador Earnings ═══ */}
+        {fundSummary && (
+          <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Gains Ambassadeur (Earn by Sharing)</p>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {[
+                { label: 'Total gagné', value: fmt(fundSummary.totalAmbassadorEarned, currency), icon: ArrowUpRight, colorClass: 'from-purple-500/15 to-purple-500/5 border-purple-500/20', sub: 'Commissions cumulées' },
+                { label: 'Disponible', value: fmt(fundSummary.ambassadorPayable, currency), icon: CheckCircle, colorClass: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/20', sub: 'Après 15 jours' },
+                { label: 'En attente (15j)', value: fmt(fundSummary.ambassadorPending, currency), icon: TimerReset, colorClass: 'from-amber-500/15 to-amber-500/5 border-amber-500/20', sub: 'Période de rétention' },
+                { label: 'Déjà versé', value: fmt(fundSummary.ambassadorPaid, currency), icon: CheckCircle, colorClass: 'from-muted/60 to-muted/30 border-border', sub: 'Retraits effectués' },
+              ].map(c => (
+                <motion.div key={c.label} variants={fadeUp} className={cn('rounded-2xl border p-4 bg-gradient-to-br', c.colorClass)}>
+                  <c.icon className="h-4 w-4 text-muted-foreground mb-1" />
+                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">{c.label}</p>
+                  <p className="text-lg font-bold mt-0.5">{c.value}</p>
+                  <p className="text-[10px] text-muted-foreground">{c.sub}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* ═══ Combined Total Balance ═══ */}
+        {fundSummary && (
           <motion.div variants={fadeUp} initial="hidden" animate="visible"
-            className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-purple-500/10 to-purple-500/5 p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <ArrowUpRight className="h-4 w-4 text-purple-500" />
-              <p className="text-xs font-semibold uppercase tracking-wide">Commissions Ambassadeur gagnées</p>
+            className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 p-5">
+            <div className="flex items-center gap-2 mb-1">
+              <Wallet className="h-5 w-5 text-primary" />
+              <p className="text-sm font-semibold">Balance totale</p>
             </div>
-            <p className="text-xl font-bold">{fmt(fundSummary.totalAmbassadorEarned, currency)}</p>
-            <div className="grid grid-cols-3 gap-3 mt-3 pt-3 border-t border-purple-500/10">
-              <div className="space-y-0.5">
-                <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                  <CheckCircle className="h-3 w-3 text-emerald-500" /> Disponible
-                </p>
-                <p className="text-sm font-semibold text-emerald-600">{fmt(fundSummary.ambassadorPayable, currency)}</p>
-              </div>
-              <div className="space-y-0.5">
-                <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                  <TimerReset className="h-3 w-3 text-amber-500" /> En attente (15j)
-                </p>
-                <p className="text-sm font-semibold text-amber-600">{fmt(fundSummary.ambassadorPending, currency)}</p>
-              </div>
-              <div className="space-y-0.5">
-                <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                  <CheckCircle className="h-3 w-3 text-muted-foreground" /> Déjà versé
-                </p>
-                <p className="text-sm font-semibold">{fmt(fundSummary.ambassadorPaid, currency)}</p>
-              </div>
-            </div>
+            <p className="text-3xl font-bold text-primary">
+              {fmt(fundSummary.totalOrgReceived + fundSummary.totalAmbassadorEarned - fundSummary.ambassadorPaid, currency)}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Votre part ventes ({fmt(fundSummary.totalOrgReceived, currency)}) + Gains ambassadeur ({fmt(fundSummary.totalAmbassadorEarned, currency)}) − Déjà versé ({fmt(fundSummary.ambassadorPaid, currency)})
+            </p>
           </motion.div>
         )}
 
