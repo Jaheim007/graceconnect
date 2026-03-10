@@ -145,21 +145,56 @@ export function SuperadminKYC() {
   };
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-bold">KYC Review ({submissions.length} pending)</h1>
+      <h1 className="text-xl font-bold">Vérification d'identité ({submissions.length} en attente)</h1>
       {isLoading ? <SkeletonRow count={3} /> : submissions.length === 0 ? (
-        <div className="p-8 text-center text-muted-foreground text-sm">No pending KYC submissions 🎉</div>
+        <div className="p-8 text-center text-muted-foreground text-sm">Aucune vérification en attente 🎉</div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {submissions.map((s: any) => (
-            <div key={s.id} className="p-4 rounded-2xl border border-border bg-card space-y-2">
+            <div key={s.id} className="p-4 rounded-2xl border border-border bg-card space-y-3">
               <div className="flex items-center justify-between">
-                <p className="font-medium text-sm">Level {s.kyc_level} submission</p>
+                <p className="font-medium text-sm">Niveau {s.kyc_level} · Org: {s.organization_id?.slice(0, 8)}…</p>
                 <p className="text-xs text-muted-foreground">{new Date(s.submitted_at).toLocaleDateString('fr-FR')}</p>
               </div>
-              {s.bank_name && <p className="text-xs text-muted-foreground">Bank: {s.bank_name} · {s.bank_account_name}</p>}
+
+              {/* Documents preview */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {s.id_document_url && (
+                  <a href={s.id_document_url} target="_blank" rel="noopener noreferrer" className="block">
+                    <img src={s.id_document_url} alt="ID Recto" className="h-24 w-full object-cover rounded-lg border" />
+                    <p className="text-[10px] text-muted-foreground text-center mt-0.5">ID Recto</p>
+                  </a>
+                )}
+                {s.id_document_back_url && (
+                  <a href={s.id_document_back_url} target="_blank" rel="noopener noreferrer" className="block">
+                    <img src={s.id_document_back_url} alt="ID Verso" className="h-24 w-full object-cover rounded-lg border" />
+                    <p className="text-[10px] text-muted-foreground text-center mt-0.5">ID Verso</p>
+                  </a>
+                )}
+                {s.selfie_url && (
+                  <a href={s.selfie_url} target="_blank" rel="noopener noreferrer" className="block">
+                    <img src={s.selfie_url} alt="Selfie" className="h-24 w-24 object-cover rounded-full border mx-auto" />
+                    <p className="text-[10px] text-muted-foreground text-center mt-0.5">Selfie</p>
+                  </a>
+                )}
+                {s.selfie_with_doc_url && (
+                  <a href={s.selfie_with_doc_url} target="_blank" rel="noopener noreferrer" className="block">
+                    <img src={s.selfie_with_doc_url} alt="Selfie + Doc" className="h-24 w-full object-cover rounded-lg border" />
+                    <p className="text-[10px] text-muted-foreground text-center mt-0.5">Selfie + Doc</p>
+                  </a>
+                )}
+              </div>
+
+              {/* Payout info */}
+              <div className="text-xs text-muted-foreground space-y-0.5">
+                {s.id_document_type && <p>📄 Type: {s.id_document_type}</p>}
+                {s.bank_name && <p>🏦 Banque: {s.bank_name} · {s.bank_account_name} · {s.bank_account_number}</p>}
+                {s.payout_method && <p>💳 Paiement: {s.payout_method} {s.payout_phone ? `· ${s.payout_phone}` : ''} {s.payout_provider ? `· ${s.payout_provider}` : ''}</p>}
+              </div>
+
               <div className="flex gap-2">
-                <Button size="sm" className="h-7 text-xs bg-green-500 hover:bg-green-600 text-white border-0" onClick={() => approve(s.id, s.organization_id)}>Approve</Button>
-                <Button size="sm" variant="outline" className="h-7 text-xs text-destructive border-destructive/30" onClick={() => reject(s.id)}>Reject</Button>
+                <Button size="sm" className="h-7 text-xs" onClick={() => approve(s.id, s.organization_id)}>✅ Approuver</Button>
+                <Button size="sm" variant="outline" className="h-7 text-xs text-destructive border-destructive/30" onClick={() => reject(s.id)}>❌ Rejeter</Button>
               </div>
             </div>
           ))}

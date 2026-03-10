@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import ManualPayoutsDashboard from '@/components/superadmin/ManualPayoutsDashboard';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Badge } from '@/components/ui/badge';
@@ -195,6 +196,11 @@ export default function SuperadminSettlements() {
             ))}
           </div>
         )}
+      </div>
+
+      {/* Manual Payouts Dashboard */}
+      <div className="mt-8 pt-8 border-t border-border">
+        <ManualPayoutsDashboard />
       </div>
     </div>
   );

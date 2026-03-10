@@ -1,7 +1,7 @@
 // Generic stub for remaining admin pages
 import { stripHtml } from '@/lib/formatText';
 import { AdminPageShell } from './AdminPageShell';
-import OrgKYCForm from '@/components/org/OrgKYCForm';
+import IdentityVerificationWizard from '@/components/verification/IdentityVerificationWizard';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrgAnnouncements, useDeleteAnnouncement } from '@/hooks/useAnnouncements';
@@ -684,10 +684,11 @@ export function AdminKYC() {
         </div>
 
         {currentOrg && (
-          <OrgKYCForm
-            orgId={currentOrg.id}
+          <IdentityVerificationWizard
+            mode="org"
+            entityId={currentOrg.id}
+            status={currentOrg.kyc_status || 'none'}
             orgCategory={currentOrg.category}
-            kycStatus={currentOrg.kyc_status || 'none'}
           />
         )}
       </div>
