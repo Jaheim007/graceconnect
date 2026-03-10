@@ -142,7 +142,7 @@ export function useSmartSuggestions() {
             title: 'Ajoutez une couverture',
             description: `${noCover.length} produit(s) sans couverture. +40% de ventes avec une bonne image.`,
             actionLabel: 'Modifier',
-            actionPath: `/admin/products/${noCover[0].id}`,
+            actionPath: `/admin/products/${noCover[0].id}/edit`,
             priority: 2,
           });
         }
