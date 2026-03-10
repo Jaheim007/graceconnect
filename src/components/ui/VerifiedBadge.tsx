@@ -15,10 +15,10 @@ interface VerifiedBadgeProps {
 }
 
 const sizePx = {
-  xs: 14,
-  sm: 16,
-  md: 20,
-  lg: 24,
+  xs: 16,
+  sm: 20,
+  md: 26,
+  lg: 32,
 };
 
 /**
