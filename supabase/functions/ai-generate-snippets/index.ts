@@ -36,9 +36,11 @@ Deno.serve(async (req) => {
     const { data: org } = await admin.from('organizations').select('name, slug').eq('id', org_id).single();
 
     // Debit credits only if user-initiated (not auto-triggered)
+    let snippetDebited = 0;
     if (userId) {
       try {
-        await consumeCreditsOrThrow({ admin, userId, actionKey: 'generate_snippets', tier: 'standard' });
+        const dr = await consumeCreditsOrThrow({ admin, userId, actionKey: 'generate_snippets', tier: 'standard' });
+        if (!('skipped' in dr)) snippetDebited = dr.debited;
       } catch (e: any) {
         if (e?.status === 402) return jsonResp({ error: e.message }, 402);
         throw e;
