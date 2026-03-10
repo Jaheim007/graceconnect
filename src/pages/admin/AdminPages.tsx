@@ -993,6 +993,8 @@ export function AdminSettings() {
     setLeaderTitle(oa?.leader_title ?? '');
     setLeaderBio(oa?.leader_bio ?? '');
     setLeaderImageUrl(oa?.leader_image_url ?? '');
+    setOrgCurrency(currentOrg.currency ?? 'XOF');
+    setOrgCountry(oa?.country ?? '');
     setAffiliationEnabled(currentOrg.affiliation_enabled ?? false);
     setCommissionPercent(String(currentOrg.affiliation_commission_percent ?? 10));
     setOfferingsEnabled(oa?.offerings_enabled ?? false);
