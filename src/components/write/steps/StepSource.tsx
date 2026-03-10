@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { useI18n } from '@/i18n/I18nContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useCreditGuard } from '@/hooks/useCreditGuard';
+import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 import type { WriteState, SourceType, SavedWriteDraftSummary } from '../WriteWizard';
 
 const SUGGESTION_KEYS = [
