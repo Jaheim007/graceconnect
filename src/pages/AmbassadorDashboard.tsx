@@ -1,4 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
+import { getEffectivePrice } from '@/lib/effectivePrice';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { AffiliateLink } from '@/types/database';
@@ -58,7 +59,7 @@ export default function AmbassadorDashboard() {
     queryFn: async () => {
       // Try ordering by org commission (joined)
       const { data } = await db.from('digital_products')
-        .select('id, title, price, cover_image_url, slug, currency, organization_id, organizations(name, slug, commission_percent)')
+        .select('id, title, price, sale_price, sale_ends_at, cover_image_url, slug, currency, organization_id, organizations(name, slug, commission_percent)')
         .eq('is_published', true)
         .order('sales_count', { ascending: false })
         .limit(6);
@@ -70,7 +71,7 @@ export default function AmbassadorDashboard() {
       }
       // Fallback: newest products
       const { data: fallback } = await db.from('digital_products')
-        .select('id, title, price, cover_image_url, slug, currency, organization_id, organizations(name, slug, commission_percent)')
+        .select('id, title, price, sale_price, sale_ends_at, cover_image_url, slug, currency, organization_id, organizations(name, slug, commission_percent)')
         .eq('is_published', true)
         .order('created_at', { ascending: false })
         .limit(3);
@@ -218,7 +219,7 @@ export default function AmbassadorDashboard() {
               </div>
             ) : topProducts.map((product: any) => {
               const commission = product.organizations?.commission_percent || 10;
-              const estimatedGain = product.price ? Math.round((product.price * commission) / 100) : 0;
+              const estimatedGain = Math.round(getEffectivePrice(product) * commission / 100);
               const orgSlug = product.organizations?.slug;
               const shareUrl = orgSlug ? `${window.location.origin}/org/${orgSlug}/p/${product.slug || product.id}` : '';
 

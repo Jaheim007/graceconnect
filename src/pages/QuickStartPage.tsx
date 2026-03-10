@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { getEffectivePrice } from '@/lib/effectivePrice';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,7 +29,7 @@ export default function QuickStartPage() {
     queryFn: async () => {
       const { data } = await db
         .from('digital_products')
-        .select('id, title, cover_image_url, price, currency, sales_count, slug, organization_id, organizations(name, slug, logo_url, affiliation_commission_percent, affiliation_enabled, is_verified)')
+        .select('id, title, cover_image_url, price, sale_price, sale_ends_at, currency, sales_count, slug, organization_id, organizations(name, slug, logo_url, affiliation_commission_percent, affiliation_enabled, is_verified)')
         .eq('is_published', true)
         .gt('price', 0)
         .order('sales_count', { ascending: false })
@@ -103,7 +104,7 @@ export default function QuickStartPage() {
     id: p.id,
     title: p.title,
     image: p.cover_image_url,
-    price: p.price,
+    price: getEffectivePrice(p),
     currency: p.currency || 'XOF',
     orgId: p.organization_id,
     orgName: p.organizations?.name,

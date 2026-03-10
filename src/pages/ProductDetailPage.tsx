@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { formatCurrency, formatPrice } from '@/lib/currency';
+import { getEffectivePrice } from '@/lib/effectivePrice';
 import { LocalPriceHint } from '@/components/payments/LocalPriceHint';
 import { useI18n } from '@/i18n/I18nContext';
 import { FormattedText, stripHtml } from '@/lib/formatText';
@@ -782,7 +783,7 @@ export default function ProductDetailPage() {
               {/* Marketing Kit for ambassadors */}
               <MarketingKit
                 productTitle={product.title}
-                productPrice={((product as any).sale_price && (!((product as any).sale_ends_at) || new Date((product as any).sale_ends_at) > new Date())) ? (product as any).sale_price : product.price || undefined}
+                productPrice={getEffectivePrice(product as any)}
                 productCurrency={product.currency || 'XOF'}
                 commissionPercent={(product as any).commission_percent || 10}
                 shareUrl={buildShareUrl()}
@@ -888,6 +889,8 @@ export default function ProductDetailPage() {
         coverImageUrl={product.cover_image_url}
         isFreePurchase={product.is_free || false}
         productType={product.product_type || undefined}
+        price={getEffectivePrice(product as any)}
+        commissionRate={(product as any).commission_percent || (org as any)?.affiliation_commission_percent || 20}
         onGoToResources={() => { setShowCelebration(false); navigate('/resources'); }}
       />
 
