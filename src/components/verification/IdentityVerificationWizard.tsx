@@ -308,8 +308,8 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: 'spring', stiffness: 150, damping: 12 }}
             >
-              <div className="h-24 w-24 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                <CheckCircle className="h-14 w-14 text-green-600" />
+              <div className="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center">
+                <CheckCircle className="h-14 w-14 text-primary" />
               </div>
             </motion.div>
             <div>
@@ -320,6 +320,60 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                 Vous serez notifié du résultat sous <strong>72 heures</strong>.
               </p>
             </div>
+
+            {/* AI Analysis status */}
+            {aiAnalyzing && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="w-full max-w-sm p-4 rounded-xl bg-muted/50 border border-border"
+              >
+                <div className="flex items-center gap-3">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary shrink-0" />
+                  <div className="text-left">
+                    <p className="text-sm font-medium">🤖 Analyse IA en cours...</p>
+                    <p className="text-[10px] text-muted-foreground">Vérification automatique de vos documents</p>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {aiResult && !aiAnalyzing && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="w-full max-w-sm space-y-3"
+              >
+                <div className="p-4 rounded-xl bg-muted/50 border border-border text-left space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold">🤖 Analyse IA terminée</p>
+                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                      aiResult.confidence_score >= 80 ? 'bg-primary/10 text-primary' :
+                      aiResult.confidence_score >= 50 ? 'bg-accent text-accent-foreground' :
+                      'bg-destructive/10 text-destructive'
+                    }`}>
+                      {aiResult.confidence_score}%
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{aiResult.quality_summary}</p>
+                  {aiResult.ocr_data?.full_name && (
+                    <p className="text-xs">📋 Nom détecté : <strong>{aiResult.ocr_data.full_name}</strong></p>
+                  )}
+                  {aiResult.face_match?.id_vs_selfie && aiResult.face_match.id_vs_selfie !== 'not_available' && (
+                    <p className="text-xs">
+                      {aiResult.face_match.id_vs_selfie === 'match' ? '✅' : 
+                       aiResult.face_match.id_vs_selfie === 'likely_match' ? '🟡' : '⚠️'} 
+                      {' '}Correspondance visage : {
+                        aiResult.face_match.id_vs_selfie === 'match' ? 'Confirmée' :
+                        aiResult.face_match.id_vs_selfie === 'likely_match' ? 'Probable' :
+                        aiResult.face_match.id_vs_selfie === 'uncertain' ? 'Incertaine' : 'Non concordante'
+                      }
+                    </p>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
             <Button
               onClick={() => window.location.reload()}
               className="w-full max-w-xs"
