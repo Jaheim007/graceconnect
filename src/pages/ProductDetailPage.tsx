@@ -435,6 +435,7 @@ export default function ProductDetailPage() {
               </div>
             )}
             <span className="text-sm font-bold truncate max-w-[180px]">{org.name}</span>
+            {org.is_verified && <VerifiedBadge size="sm" />}
           </Link>
         ) : (
           <Link to={user ? '/feed' : '/'}>
