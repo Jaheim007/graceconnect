@@ -762,11 +762,11 @@ function isUniqueViolation(err: unknown): boolean {
 /** Fire-and-forget email with error logging instead of silent swallowing */
 function safeEmail(fn: () => Promise<{ ok: boolean; error?: string }>): void {
   fn().then(res => {
-    if (!res.ok) {
-      console.error('[process-transaction] Email send failed:', res.error);
+    if (!res?.ok) {
+      console.warn('[process-transaction] Email send failed:', res?.error || 'unknown');
     }
   }).catch(err => {
-    console.error('[process-transaction] Email send error:', err);
+    console.warn('[process-transaction] Email send error (non-fatal):', err);
   });
 }
 
