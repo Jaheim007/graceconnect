@@ -357,7 +357,7 @@ function FeedEmptyFallback() {
     queryFn: async () => {
       const { data } = await db
         .from('donation_campaigns')
-        .select('*, organizations(name, slug, logo_url)')
+        .select('*, organizations(name, slug, logo_url, is_verified)')
         .eq('is_active', true)
         .eq('is_published', true)
         .order('current_amount', { ascending: false })

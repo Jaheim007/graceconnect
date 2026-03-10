@@ -38,6 +38,7 @@ export function useFeedAnnouncements(orgIds: string[]) {
         ...a,
         organization_name: a.organizations?.name,
         organization_slug: a.organizations?.slug,
+        is_org_verified: a.organizations?.is_verified ?? false,
       })) as Announcement[];
     },
     enabled: orgIds.length > 0,
