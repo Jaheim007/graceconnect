@@ -212,6 +212,9 @@ export function ProductForm() {
         order_bump_product_id: orderBumpProductId || null,
         order_bump_discount_percent: orderBumpDiscount ? parseFloat(orderBumpDiscount) : null,
         upsell_product_ids: upsellProductIds.length > 0 ? upsellProductIds : null,
+        facebook_pixel_id: fbPixel.trim() || null,
+        tiktok_pixel_id: ttPixel.trim() || null,
+        google_tag_id: gTag.trim() || null,
       };
       let error;
       let resultData: any;
