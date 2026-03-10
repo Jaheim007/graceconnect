@@ -83,6 +83,7 @@ export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
               >
                 {(campaign as any).organization_name}
               </span>
+              {(campaign as any).is_org_verified && <VerifiedBadge size="xs" showTooltip={false} />}
             </p>
           )}
           {campaign.current_amount > 0 && (

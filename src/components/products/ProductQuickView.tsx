@@ -78,6 +78,7 @@ export function ProductQuickView({ product, open, onClose }: ProductQuickViewPro
                 >
                   {product.organization_name}
                 </button>
+                {product.is_org_verified && <VerifiedBadge size="xs" showTooltip={false} />}
               </p>
             )}
           </DialogHeader>
