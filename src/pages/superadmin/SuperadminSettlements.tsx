@@ -222,6 +222,66 @@ export default function SuperadminSettlements() {
         )}
       </div>
 
+      {/* Payment Reconciliation */}
+      <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-semibold text-sm flex items-center gap-2">
+              <Search className="h-4 w-4 text-primary" /> Réconciliation des paiements
+            </h2>
+            <p className="text-xs text-muted-foreground mt-1">
+              Scanne Paystack et rattrape automatiquement les transactions manquantes dans notre base
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => handleReconcile(7)} disabled={reconciling}>
+              {reconciling ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Search className="h-3 w-3 mr-1" />}
+              7 derniers jours
+            </Button>
+            <Button size="sm" onClick={() => handleReconcile(30)} disabled={reconciling}
+              className="bg-primary text-primary-foreground">
+              {reconciling ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : <Search className="h-3 w-3 mr-1" />}
+              30 derniers jours
+            </Button>
+          </div>
+        </div>
+
+        {reconcileLog && (
+          <div className="rounded-xl bg-muted/50 p-3 space-y-2 text-xs">
+            <div className="flex items-center gap-4">
+              <p><span className="font-semibold">Scannées:</span> {reconcileLog.total_scanned}</p>
+              <p><span className="font-semibold text-emerald-600">Réconciliées:</span> {reconcileLog.reconciled?.length || 0}</p>
+              <p><span className="font-semibold text-destructive">Erreurs:</span> {reconcileLog.errors?.length || 0}</p>
+              <p><span className="font-semibold">Déjà existantes:</span> {reconcileLog.already_existed || 0}</p>
+            </div>
+            {reconcileLog.reconciled?.length > 0 && (
+              <div className="space-y-1 mt-2">
+                <p className="font-semibold text-emerald-600">Transactions récupérées :</p>
+                {reconcileLog.reconciled.map((r: any, i: number) => (
+                  <div key={i} className="flex items-center gap-2 p-1.5 rounded bg-emerald-500/10">
+                    <CheckCircle className="h-3 w-3 text-emerald-600 shrink-0" />
+                    <span className="font-mono text-[10px]">{r.reference}</span>
+                    <span className="ml-auto font-medium">{formatCurrency(r.amount)} XOF</span>
+                  </div>
+                ))}
+              </div>
+            )}
+            {reconcileLog.errors?.length > 0 && (
+              <div className="space-y-1 mt-2">
+                <p className="font-semibold text-destructive">Erreurs :</p>
+                {reconcileLog.errors.map((r: any, i: number) => (
+                  <div key={i} className="flex items-center gap-2 p-1.5 rounded bg-destructive/10">
+                    <AlertTriangle className="h-3 w-3 text-destructive shrink-0" />
+                    <span className="font-mono text-[10px]">{r.reference}</span>
+                    <span className="ml-auto text-destructive truncate max-w-48">{r.error}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Manual Payouts Dashboard */}
       <div className="mt-8 pt-8 border-t border-border">
         <ManualPayoutsDashboard />
