@@ -16,6 +16,7 @@ function mapProducts(data: any[]) {
     organization_name: p.organizations?.name,
     organization_slug: p.organizations?.slug,
     organization_logo: p.organizations?.logo_url,
+    is_org_verified: p.organizations?.is_verified,
   }));
 }
 
