@@ -127,6 +127,56 @@ export function StepSource({
 
   const visibleDrafts = savedDrafts.slice(0, 8);
 
+  if (showTranscriptionPreview) {
+    return (
+      <div className="space-y-6 pt-8">
+        <div className="text-center space-y-3">
+          <h1 className="text-2xl sm:text-3xl font-extrabold">
+            ✅ {t('write.transcription_ready') || 'Transcription terminée'}
+          </h1>
+          <p className="text-muted-foreground text-sm max-w-md mx-auto">
+            {t('write.transcription_review_desc') || 'Vérifiez et corrigez le texte extrait avant de continuer. L\'IA utilisera ce contenu pour générer votre livre.'}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-3">
+          <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+            <FileText className="h-4 w-4" />
+            {t('write.extracted_content') || 'Contenu extrait'}
+            <span className="ml-auto text-xs font-normal text-muted-foreground">
+              {state.topic.length} {t('write.characters') || 'caractères'}
+            </span>
+          </div>
+          <Textarea
+            value={state.topic}
+            onChange={(e) => update({ topic: e.target.value })}
+            className="min-h-[200px] sm:min-h-[300px] text-sm resize-y bg-background"
+          />
+        </div>
+
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            size="lg"
+            className="flex-1 h-12"
+            onClick={() => setShowTranscriptionPreview(false)}
+          >
+            ← {t('write.back') || 'Retour'}
+          </Button>
+          <Button
+            size="lg"
+            className="flex-1 h-12 gap-2"
+            disabled={state.topic.trim().length < 3}
+            onClick={handleConfirmTranscription}
+          >
+            <PenLine className="h-5 w-5" />
+            {t('write.confirm_and_continue') || 'Confirmer et continuer'}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8 pt-8">
       <div className="text-center space-y-3">
