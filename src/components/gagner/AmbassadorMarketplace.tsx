@@ -80,7 +80,8 @@ export function AmbassadorMarketplace() {
           {products.map((product: any, i: number) => {
             const org = product.organizations;
             const commission = org?.affiliation_commission_percent || 10;
-            const potentialEarning = Math.round((product.price || 0) * commission / 100);
+            const effectivePrice = (product.sale_price && (!product.sale_ends_at || new Date(product.sale_ends_at) > new Date())) ? product.sale_price : (product.price || 0);
+            const potentialEarning = Math.round(effectivePrice * commission / 100);
 
             return (
               <motion.div
