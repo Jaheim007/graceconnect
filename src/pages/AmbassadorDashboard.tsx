@@ -71,7 +71,7 @@ export default function AmbassadorDashboard() {
       }
       // Fallback: newest products
       const { data: fallback } = await db.from('digital_products')
-        .select('id, title, price, cover_image_url, slug, currency, organization_id, organizations(name, slug, commission_percent)')
+        .select('id, title, price, sale_price, sale_ends_at, cover_image_url, slug, currency, organization_id, organizations(name, slug, commission_percent)')
         .eq('is_published', true)
         .order('created_at', { ascending: false })
         .limit(3);
