@@ -57,9 +57,7 @@ export default function CreditsPage() {
 
   return (
     <>
-      <Helmet>
-        <title>Mes Crédits IA | Siteviral</title>
-      </Helmet>
+      <title>Mes Crédits IA | Siteviral</title>
 
       <div className="max-w-5xl mx-auto space-y-6 py-4 px-2 sm:px-4">
         {/* Header */}
