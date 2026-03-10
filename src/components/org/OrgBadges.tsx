@@ -1,4 +1,4 @@
-import { ShieldCheck, ShieldAlert } from 'lucide-react';
+import { ShieldAlert } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
