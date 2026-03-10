@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 const PROTECTIONS = [
   { icon: Lock, label: 'Chiffrement SSL/TLS', desc: 'Toutes les données sont chiffrées de bout en bout' },
   { icon: CreditCard, label: 'Paiement sécurisé', desc: 'Stripe & Paystack certifiés PCI-DSS' },
-  { icon: UserCheck, label: 'KYC obligatoire', desc: 'Vérification d\'identité pour les vendeurs' },
+  { icon: UserCheck, label: 'Identité vérifiée', desc: 'Vérification d\'identité pour les vendeurs' },
   { icon: RefreshCw, label: 'Remboursement 7j', desc: 'Garantie satisfait ou remboursé' },
   { icon: Scale, label: 'Anti-fraude', desc: 'Détection automatique des transactions suspectes' },
   { icon: Eye, label: 'Transparence', desc: 'Commissions et frais clairement affichés' },
