@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
     if (!topic && !title) return jsonResp({ error: 'topic or title required' }, 400);
 
     const admin = adminClient(auth.supabaseUrl, auth.serviceKey);
-    await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: 'generate_editorial_strategy', tier: normalizeTier(tier) });
+    await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: 'editorial_strategy', tier: normalizeTier(tier) });
 
     const lang = language === 'en' ? 'en' : 'fr';
     const prompts = langPrompts[lang];

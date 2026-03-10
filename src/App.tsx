@@ -162,6 +162,7 @@ const NotificationPreferencesPage = lazy(() => import("@/pages/NotificationPrefe
 const MyInvoicesPage = lazy(() => import("@/pages/MyInvoicesPage"));
 const MyProgramsPage = lazy(() => import("@/pages/MyProgramsPage"));
 const UserAnalyticsPage = lazy(() => import("@/pages/UserAnalyticsPage"));
+const CreditsPage = lazy(() => import("@/pages/CreditsPage"));
 
 // Admin
 const AdminShell = lazy(() => import("@/pages/admin/AdminShell"));
@@ -421,6 +422,7 @@ const App = () => (
                   <Route path="/invoices" element={<MyInvoicesPage />} />
                   <Route path="/my-analytics" element={<UserAnalyticsPage />} />
                   <Route path="/my-programs" element={<MyProgramsPage />} />
+                  <Route path="/credits" element={<CreditsPage />} />
 
                   {/* Admin — inside AppLayout for seamless navigation */}
                   <Route path="/admin" element={<RequireOrgManage><AdminShell /></RequireOrgManage>}>

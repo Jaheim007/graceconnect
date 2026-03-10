@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
     if (!GEMINI_API_KEY) return jsonResp({ error: 'AI not configured' }, 500);
 
     const admin = adminClient(auth.supabaseUrl, auth.serviceKey);
-    await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: 'ai_write_content', tier: normalizeTier(tier) });
+    await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: 'write_content', tier: normalizeTier(tier) });
 
     const toneInstructions: Record<string, string> = {
       professional: 'Utilise un ton professionnel, clair et structuré.',

@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
     if (!GEMINI_API_KEY) return jsonResp({ error: 'AI not configured' }, 500);
 
     const admin = adminClient(auth.supabaseUrl, auth.serviceKey);
-    await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: 'ai_generate_description', tier: normalizeTier(tier) });
+    await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: 'generate_description', tier: normalizeTier(tier) });
 
     const isFr = language === 'fr';
     const priceText = price > 0 ? `${price} ${currency || 'XOF'}` : (isFr ? 'Gratuit' : 'Free');

@@ -48,7 +48,7 @@ Deno.serve(async (req) => {
 
       // Debit credits per image
       try {
-        await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: 'ai_generate_image', tier: creditTier });
+        await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: 'generate_illustration', tier: creditTier });
       } catch (e: any) {
         if (e?.status === 402) {
           console.warn(`Credits exhausted at image ${i}/${chapters.length}`);
