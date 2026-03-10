@@ -390,7 +390,7 @@ export async function onOrgSuspended(orgId: string, orgName: string, reason: str
 }
 
 export async function onOrgUnsuspended(orgId: string, orgName: string) {
-  emailOrgAdmins('org_unsuspended', orgId, { org_name: orgName });
+  emailOrgOwnerOnly('org_unsuspended', orgId, { org_name: orgName });
   notifyOrgOwnerOnly(orgId, '✅ Suspension levée', `${orgName} est de nouveau active.`, 'system', `/admin`);
 }
 
