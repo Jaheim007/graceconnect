@@ -16,7 +16,7 @@ import authBg from '@/assets/auth-bg.jpg';
 export default function AuthPage() {
   const [searchParams] = useSearchParams();
   const [method, setMethod] = useState<'choose' | 'magic-link' | 'otp-verify'>('choose');
-  const [showEmailOption, setShowEmailOption] = useState(false);
+  
   const [email, setEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [sending, setSending] = useState(false);
