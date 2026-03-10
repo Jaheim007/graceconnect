@@ -559,7 +559,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     value={orgDocUrl}
                     onChange={setOrgDocUrl}
                     folder={`kyc/${entityId}/org-docs`}
-                    bucket="org-uploads"
+                    bucket="kyc-documents"
                     accept="image/*,.pdf"
                     label="Document de l'organisation"
                     hint="Récépissé, certificat, statuts ou autorisation officielle (PDF ou image)"
