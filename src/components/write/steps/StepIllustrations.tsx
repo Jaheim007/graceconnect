@@ -88,10 +88,13 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
       const updated = { ...illustrationsRef.current, [chapterId]: data.imageUrl };
       illustrationsRef.current = updated;
       update({ chapterIllustrations: updated });
+      refreshCredits();
       toast({ title: `🎨 ${t('write.illust_generated') || 'Illustration générée !'}` });
     } catch (err: any) {
       console.error('Illustration generation error:', err);
-      toast({ title: '❌ Erreur', description: err?.message, variant: 'destructive' });
+      if (!handleAiError(err)) {
+        toast({ title: '❌ Erreur', description: err?.message, variant: 'destructive' });
+      }
     } finally {
       setGenerating(null);
     }
