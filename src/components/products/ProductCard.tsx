@@ -77,7 +77,10 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
     staleTime: 1000 * 60 * 30,
   });
 
-  const isOrgVerified = (product as any).is_org_verified ?? orgData?.is_verified ?? false;
+  const orgKycStatus = (product as any).org_kyc_status ?? orgData?.kyc_status;
+  const orgCategory = (product as any).org_category ?? orgData?.category;
+  const showVerified = isOrgVerifiedOrKyc((product as any).is_org_verified ?? orgData?.is_verified, orgKycStatus);
+  const verifiedLabel = getVerifiedLabel(orgCategory);
 
   const resolvedSlug = orgSlug || orgData?.slug || '';
   const pSlug = (product as any).slug;
