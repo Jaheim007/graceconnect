@@ -94,7 +94,11 @@ export function StepSource({
     const { data, error } = await supabase.functions.invoke('transcribe-source', {
       body: { source_type: sourceType, storage_path: path },
     });
-    if (error || !data?.ok) throw new Error(data?.error || error?.message || 'Transcription failed');
+    if (error || !data?.ok) {
+      const err: any = new Error(data?.error || error?.message || 'Transcription failed');
+      if (data?.error?.includes?.('insuffisant') || error?.message?.includes?.('402')) err.status = 402;
+      throw err;
+    }
     return data.text as string;
   };
 
