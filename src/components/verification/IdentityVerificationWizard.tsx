@@ -152,7 +152,8 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
   }
 
   const canProceed = useCallback(() => {
-    switch (currentStep.id) {
+    switch (currentStep?.id) {
+      case 'choose_type': return !!verificationType;
       case 'doc_type': return !!docType;
       case 'document': return !!docFrontUrl && (!selectedDoc.hasBack || !!docBackUrl);
       case 'selfie': return !!selfieUrl;
@@ -164,7 +165,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
       case 'review': return true;
       default: return false;
     }
-  }, [currentStep?.id, docType, docFrontUrl, docBackUrl, selfieUrl, selfieWithDocUrl, orgDocUrl, payoutMethod, accountNumber, accountName, payoutProvider, bankName, selectedDoc]);
+  }, [currentStep?.id, verificationType, docType, docFrontUrl, docBackUrl, selfieUrl, selfieWithDocUrl, orgDocUrl, payoutMethod, accountNumber, accountName, payoutProvider, bankName, selectedDoc]);
 
   const handleSubmit = async () => {
     setSubmitting(true);
