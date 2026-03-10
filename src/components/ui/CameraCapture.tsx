@@ -104,16 +104,27 @@ export function CameraCapture({
 
     const video = videoRef.current;
     const canvas = canvasRef.current;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+
+    // Wait for video to have actual dimensions
+    const vw = video.videoWidth || video.clientWidth;
+    const vh = video.videoHeight || video.clientHeight;
+    if (vw === 0 || vh === 0) {
+      setError("La caméra n'est pas encore prête. Réessayez.");
+      return;
+    }
+
+    canvas.width = vw;
+    canvas.height = vh;
     const ctx = canvas.getContext('2d')!;
-    ctx.drawImage(video, 0, 0);
+    ctx.drawImage(video, 0, 0, vw, vh);
 
     const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
-    setCapturedImage(dataUrl);
+    
+    // Stop camera FIRST, then show captured image
     stopCamera();
+    setCapturedImage(dataUrl);
 
-    // Upload immediately
+    // Upload
     setUploading(true);
     setError(null);
     try {
@@ -124,7 +135,7 @@ export function CameraCapture({
         .upload(fileName, blob, { contentType: 'image/jpeg', upsert: true });
       if (uploadError) throw uploadError;
 
-      if (bucket === 'private-products') {
+      if (bucket === 'private-products' || bucket === 'kyc-documents') {
         const fullUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/${bucket}/${fileName}`;
         onChange(fullUrl);
       } else {
@@ -133,7 +144,7 @@ export function CameraCapture({
       }
     } catch (err: any) {
       setError(err.message || 'Échec du téléchargement');
-      setCapturedImage(null);
+      // Keep the captured image visible even on upload error so user sees what was taken
     } finally {
       setUploading(false);
     }
