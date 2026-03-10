@@ -319,6 +319,14 @@ export default function CreditsPage() {
             Les crédits achetés <strong>n'expirent jamais</strong>.
           </p>
 
+          {/* Payment method selector — same as all other payments */}
+          <PaymentMethodSelector
+            value={paymentMethod}
+            onChange={setPaymentMethod}
+            currency={creditCurrency}
+            paystackEnabled={hasPaystackKey}
+          />
+
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {packs?.map(pack => {
               const bonusCredits = Math.round(pack.credits * (pack.bonus_percent || 0) / 100);
