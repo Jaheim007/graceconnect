@@ -37,7 +37,7 @@ import { PrintableQRCode } from '@/components/sharing/PrintableQRCode';
 import { ContentVersionHistory } from '@/components/admin/ContentVersionHistory';
 import { ContextualFeedback } from '@/components/feedback/ContextualFeedback';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { usePdfPreviewBlobUrl } from '@/hooks/usePdfPreviewBlobUrl';
+
 
 import type { ProductTemplate } from '@/lib/contentTemplates';
 
