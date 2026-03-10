@@ -36,6 +36,7 @@ export function StepEditorialStrategy({ state, update, onNext, onBack }: Props) 
   const [showStories, setShowStories] = useState(false);
   const [editingField, setEditingField] = useState<string | null>(null);
   const ran = useRef(false);
+  const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
 
   const generate = async () => {
     setPhase('loading');
