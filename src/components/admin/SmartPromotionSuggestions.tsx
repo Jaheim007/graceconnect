@@ -3,9 +3,8 @@ import { db } from '@/lib/db';
 import { useOrg } from '@/contexts/OrgContext';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { TrendingDown, Zap, Tag, ArrowRight } from 'lucide-react';
+import { Zap, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/currency';
 import { useI18n } from '@/i18n/I18nContext';
 
@@ -34,7 +33,9 @@ export function SmartPromotionSuggestions() {
         currency: string;
         sales: number;
         issueKey: string;
+        issueText: string;
         actionKey: string;
+        actionText: string;
         actionUrl: string;
         emoji: string;
       }> = [];
@@ -47,19 +48,28 @@ export function SmartPromotionSuggestions() {
         if (sales === 0 && !p.cover_image_url) {
           result.push({
             id: p.id, title: p.title, price: p.price || 0, currency: p.currency || 'XOF', sales: 0,
-            issueKey: 'promo.no_cover', actionKey: 'promo.add_cover',
+            issueKey: 'promo.no_cover',
+            issueText: 'Pas de couverture — les produits avec image se vendent 3x mieux.',
+            actionKey: 'promo.add_cover',
+            actionText: 'Ajouter une couverture',
             actionUrl: `/admin/products/${p.id}`, emoji: '🖼️',
           });
         } else if (sales === 0 && !hasDescription) {
           result.push({
             id: p.id, title: p.title, price: p.price || 0, currency: p.currency || 'XOF', sales: 0,
-            issueKey: 'promo.short_desc', actionKey: 'promo.improve_desc',
+            issueKey: 'promo.short_desc',
+            issueText: 'Description trop courte — ajoutez des bénéfices pour convaincre.',
+            actionKey: 'promo.improve_desc',
+            actionText: 'Améliorer la description',
             actionUrl: `/admin/products/${p.id}`, emoji: '✍️',
           });
         } else if (sales === 0 && hasCover && hasDescription) {
           result.push({
             id: p.id, title: p.title, price: p.price || 0, currency: p.currency || 'XOF', sales: 0,
-            issueKey: 'promo.zero_sales', actionKey: 'promo.create_code',
+            issueKey: 'promo.zero_sales',
+            issueText: 'Produit complet mais 0 vente — un code promo peut booster le lancement.',
+            actionKey: 'promo.create_code',
+            actionText: 'Créer un code promo',
             actionUrl: '/admin/promo-codes', emoji: '🏷️',
           });
         }
@@ -74,34 +84,43 @@ export function SmartPromotionSuggestions() {
   if (suggestions.length === 0) return null;
 
   return (
-    <Card className="border-amber-500/20 bg-amber-500/5">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm flex items-center gap-2">
-          <Zap className="h-4 w-4 text-amber-500" />
-          {t('promo.suggestions_title')}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-card border border-amber-500/20 rounded-2xl p-5 space-y-3"
+    >
+      <div className="flex items-center gap-2 mb-1">
+        <Zap className="h-4 w-4 text-amber-500" />
+        <h2 className="font-semibold text-sm">{t('promo.suggestions_title')}</h2>
+      </div>
+
+      <div className="space-y-2">
         {suggestions.map((s, i) => (
           <motion.div
             key={s.id}
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className="flex items-start gap-3 p-3 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors cursor-pointer group"
-            onClick={() => navigate(s.actionUrl)}
+            className="flex flex-col sm:flex-row sm:items-center gap-3 p-3.5 rounded-xl border border-border bg-muted/30 hover:bg-muted/50 transition-colors"
           >
-            <span className="text-lg shrink-0">{s.emoji}</span>
+            <span className="text-xl shrink-0">{s.emoji}</span>
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-semibold truncate">{s.title}</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">{t(s.issueKey)}</p>
+              <p className="text-xs font-semibold">{s.title}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed">
+                {s.issueText}
+              </p>
             </div>
-            <Button variant="ghost" size="sm" className="h-6 text-[10px] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-              {t(s.actionKey)} <ArrowRight className="h-3 w-3 ml-1" />
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-[11px] shrink-0 gap-1 border-amber-500/30 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10"
+              onClick={() => navigate(s.actionUrl)}
+            >
+              {s.actionText} <ArrowRight className="h-3 w-3" />
             </Button>
           </motion.div>
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </motion.div>
   );
 }
