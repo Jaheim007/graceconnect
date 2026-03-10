@@ -239,9 +239,9 @@ export default function AdminPayouts() {
         {/* ═══ Balance & Withdrawal Section ═══ */}
         {fundSummary && (
           <div className="rounded-2xl border border-border bg-card overflow-hidden">
-            {/* Available balance */}
+            {/* Available balance for withdrawal */}
             <div className="p-5">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
                   <p className="text-xs text-muted-foreground font-medium">{t('payouts.available_balance')}</p>
                   <p className="text-3xl font-bold text-emerald-500 mt-1">{fmt(Math.max(0, fundSummary.availableBalance), currency)}</p>
@@ -249,17 +249,16 @@ export default function AdminPayouts() {
                     Ventes (après 72h) + Commissions ambassadeur (après 15j) − Retraits
                   </p>
                 </div>
-                <div>
+                <div className="flex flex-col items-end gap-2">
                   {!kycApproved ? (
-                    <Badge variant="outline" className="text-xs border-amber-500/30 text-amber-600 gap-1">
-                      <AlertTriangle className="h-3 w-3" /> {t('payouts.kyc_required')}
-                    </Badge>
+                    <a href="/admin/verification" className="block">
+                      <Button variant="destructive" size="default" className="gap-2">
+                        <AlertTriangle className="h-4 w-4" />
+                        Vérifier mon identité pour retirer
+                      </Button>
+                    </a>
                   ) : fundSummary.availableBalance >= MIN_WITHDRAWAL && fundSummary.pendingPayouts === 0 ? (
-                    <Button
-                      size="default"
-                      className="gap-2"
-                      onClick={() => setShowWithdrawDialog(true)}
-                    >
+                    <Button size="default" className="gap-2" onClick={() => setShowWithdrawDialog(true)}>
                       <Send className="h-4 w-4" />
                       Demander un retrait
                     </Button>
@@ -293,14 +292,24 @@ export default function AdminPayouts() {
                     <p className="text-sm font-semibold text-purple-600">{fmt(fundSummary.ambassadorPending, currency)}</p>
                   </div>
                 )}
-                {!kycApproved && (
-                  <div className="space-y-0.5">
-                    <p className="text-[10px] text-muted-foreground flex items-center gap-1"><Lock className="h-3 w-3 text-destructive" /> KYC</p>
-                    <p className="text-xs text-destructive font-medium">Vérification requise pour retirer</p>
-                  </div>
-                )}
               </div>
             </div>
+
+            {/* KYC warning banner */}
+            {!kycApproved && (
+              <div className="bg-destructive/5 border-t border-destructive/20 px-5 py-3 flex items-center gap-3">
+                <Lock className="h-4 w-4 text-destructive shrink-0" />
+                <div className="flex-1">
+                  <p className="text-xs font-semibold text-destructive">Vérification d'identité requise</p>
+                  <p className="text-[10px] text-muted-foreground">Vous devez vérifier votre identité avant de pouvoir demander un retrait.</p>
+                </div>
+                <a href="/admin/verification">
+                  <Button variant="outline" size="sm" className="text-xs gap-1 border-destructive/30 text-destructive hover:bg-destructive/10">
+                    <Shield className="h-3 w-3" /> Vérifier
+                  </Button>
+                </a>
+              </div>
+            )}
 
             {/* How it works mini-guide */}
             <div className="bg-muted/30 border-t border-border px-5 py-3">
