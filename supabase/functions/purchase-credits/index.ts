@@ -3,6 +3,7 @@ import { requireAuth, corsHeaders, jsonResp, adminClient } from '../_shared/auth
 /**
  * purchase-credits: Initiates a credit pack purchase.
  * Creates a pending credit_purchases record and returns pack info for frontend payment.
+ * Supports both Paystack (MoMo) and Stripe (card) via the unified payment routing.
  */
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
@@ -11,10 +12,12 @@ Deno.serve(async (req) => {
     const auth = await requireAuth(req);
     if (auth instanceof Response) return auth;
 
-    const { pack_key } = await req.json();
+    const { pack_key, payment_gateway } = await req.json();
     if (!pack_key || typeof pack_key !== 'string') {
       return jsonResp({ error: 'pack_key is required' }, 400);
     }
+
+    const gateway = payment_gateway === 'stripe' ? 'stripe' : 'paystack';
 
     const admin = adminClient(auth.supabaseUrl, auth.serviceKey);
 
@@ -30,7 +33,7 @@ Deno.serve(async (req) => {
       return jsonResp({ error: 'Pack not found or inactive' }, 404);
     }
 
-    // Get user email for Paystack
+    // Get user email
     const { data: { user }, error: userErr } = await admin.auth.admin.getUserById(auth.userId);
     if (userErr || !user) {
       return jsonResp({ error: 'User not found' }, 404);
@@ -49,7 +52,7 @@ Deno.serve(async (req) => {
         credits_amount: totalCredits,
         price_amount: pack.price_xof,
         price_currency: 'XOF',
-        payment_gateway: 'paystack',
+        payment_gateway: gateway,
         status: 'pending',
       })
       .select('id')
@@ -68,6 +71,7 @@ Deno.serve(async (req) => {
       currency: 'XOF',
       credits: totalCredits,
       pack_name: pack.name,
+      gateway,
       metadata: {
         purchase_id: purchase.id,
         pack_key: pack.pack_key,

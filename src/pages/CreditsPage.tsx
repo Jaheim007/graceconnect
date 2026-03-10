@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   Coins, Zap, Gift, ShoppingBag, Clock, TrendingUp, TrendingDown,
   ArrowRight, Sparkles, Star, History, BookOpen, Image, Mic, FileText,
@@ -6,7 +6,9 @@ import {
 } from 'lucide-react';
 import { useCreditsBalance, useActionPricing, useCreditPacks, useCreditHistory, useGrantDailyCredits } from '@/hooks/useCredits';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePaystack } from '@/hooks/usePaystack';
+import { usePaymentGateway, PaymentMethod } from '@/hooks/usePaymentGateway';
+import { PaymentMethodSelector } from '@/components/payments/PaymentMethodSelector';
+import { isMoMoAvailable } from '@/lib/paymentRouting';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -56,10 +58,19 @@ export default function CreditsPage() {
   const { data: packs } = useCreditPacks();
   const { data: history } = useCreditHistory(50);
   const grantDaily = useGrantDailyCredits();
-  const { openPayment } = usePaystack();
+  const { openPayment, hasPaystackKey } = usePaymentGateway();
   const qc = useQueryClient();
   const [selectedTab, setSelectedTab] = useState('overview');
   const [purchasing, setPurchasing] = useState<string | null>(null);
+
+  // Credit packs are priced in XOF
+  const creditCurrency = 'XOF';
+  const defaultMethod: PaymentMethod = isMoMoAvailable(creditCurrency) ? 'mobile_money' : 'card';
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(defaultMethod);
+
+  useEffect(() => {
+    setPaymentMethod(defaultMethod);
+  }, [defaultMethod]);
 
   const handlePurchase = useCallback(async (packKey: string) => {
     if (!user?.email) {
@@ -70,25 +81,29 @@ export default function CreditsPage() {
     setPurchasing(packKey);
     try {
       // 1. Create pending purchase on backend
+      const gateway = paymentMethod === 'mobile_money' || paymentMethod === 'apple_pay' ? 'paystack' : 'stripe';
       const { data, error } = await supabase.functions.invoke('purchase-credits', {
-        body: { pack_key: packKey },
+        body: { pack_key: packKey, payment_gateway: gateway },
       });
 
       if (error || !data?.ok) {
         throw new Error(data?.error || error?.message || 'Erreur lors de la création de l\'achat');
       }
 
-      // 2. Open Paystack popup
+      // 2. Open unified payment gateway
       await openPayment({
+        method: paymentMethod,
         email: data.email,
         amount: data.amount,
-        currency: data.currency || 'XOF',
+        currency: data.currency || creditCurrency,
+        type: 'donation' as const, // credit purchase uses simple flow
+        organization_id: 'platform', // platform-level purchase
         metadata: data.metadata,
-        onSuccess: async (reference: string) => {
+        onSuccess: async (reference: string, gw) => {
           // 3. Verify payment and grant credits
           try {
             const { data: verifyData, error: verifyErr } = await supabase.functions.invoke('verify-credit-purchase', {
-              body: { reference, purchase_id: data.purchase_id },
+              body: { reference, purchase_id: data.purchase_id, gateway: gw },
             });
 
             if (verifyErr || !verifyData?.ok) {
@@ -111,7 +126,7 @@ export default function CreditsPage() {
     } finally {
       setPurchasing(null);
     }
-  }, [user, openPayment, qc]);
+  }, [user, openPayment, qc, paymentMethod, creditCurrency]);
 
   if (!user) return null;
 
@@ -303,6 +318,14 @@ export default function CreditsPage() {
             Besoin de plus de crédits ? Achetez un pack et créez sans limites. 
             Les crédits achetés <strong>n'expirent jamais</strong>.
           </p>
+
+          {/* Payment method selector — same as all other payments */}
+          <PaymentMethodSelector
+            value={paymentMethod}
+            onChange={setPaymentMethod}
+            currency={creditCurrency}
+            paystackEnabled={hasPaystackKey}
+          />
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {packs?.map(pack => {
