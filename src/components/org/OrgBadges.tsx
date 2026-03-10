@@ -1,5 +1,6 @@
-import { CheckCircle2, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { ShieldCheck, ShieldAlert } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { cn } from '@/lib/utils';
 
 interface OrgBadgesProps {
@@ -18,7 +19,7 @@ export function OrgBadges({ isVerified, kycStatus, isSuspended, className, size 
     <div className={cn('flex flex-wrap items-center gap-1', className)}>
       {isVerified && (
         <Badge variant="outline" className={cn('gap-1 border-0 bg-primary/10 text-primary', textSize)}>
-          <CheckCircle2 className={iconSize} /> Verified
+          <VerifiedBadge size={size === 'sm' ? 'xs' : 'sm'} showTooltip={false} /> Vérifié
         </Badge>
       )}
       {kycStatus && kycStatus !== 'none' && (
