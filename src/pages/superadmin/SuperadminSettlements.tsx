@@ -104,6 +104,28 @@ export default function SuperadminSettlements() {
     }
   };
 
+  const handleReconcile = async (days: number) => {
+    setReconciling(true);
+    setReconcileLog(null);
+    try {
+      const from = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+      const result = await callFn('reconcile-payments', { pages: 10, from }, true);
+      setReconcileLog(result);
+      const count = result?.reconciled?.length || 0;
+      toast({
+        title: count > 0 ? `✅ ${count} transaction(s) réconciliée(s)` : '✅ Aucune transaction manquante',
+        description: `${result?.total_scanned || 0} scannées, ${result?.errors?.length || 0} erreur(s)`,
+      });
+      if (count > 0) {
+        queryClient.invalidateQueries({ queryKey: ['sa-settlement-stats'] });
+      }
+    } catch (err: any) {
+      toast({ title: 'Erreur', description: err.message, variant: 'destructive' });
+    } finally {
+      setReconciling(false);
+    }
+  };
+
   const cards = settlementStats ? [
     { label: 'Held (72h)', value: fmt(settlementStats.held), count: settlementStats.heldCount, icon: Clock, color: 'from-amber-500/15 to-amber-500/5 border-amber-500/20 text-amber-600' },
     { label: 'Released', value: fmt(settlementStats.released), count: settlementStats.releasedCount, icon: CheckCircle, color: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/20 text-emerald-600' },
