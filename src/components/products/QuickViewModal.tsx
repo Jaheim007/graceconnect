@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { FormattedText, stripHtml } from '@/lib/formatText';
 import { ContentSizeBadge } from '@/components/products/ContentSizeBadge';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 
 interface QuickViewModalProps {
   product: any;
