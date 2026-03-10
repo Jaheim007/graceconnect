@@ -61,15 +61,14 @@ export function StepEditorialStrategy({ state, update, onNext, onBack }: Props) 
       const s = data.strategy as EditorialStrategy;
       setStrategy(s);
       update({ editorialStrategy: s });
-
-      // Always show improved title suggestion — removed the !state.title check
-      // so user always gets the suggestion even if they pre-filled a title
-
+      refreshCredits();
       setPhase('ready');
     } catch (err: any) {
       console.error('Editorial strategy error:', err);
-      setPhase('error');
-      setErrorMsg(err?.message || 'Erreur de génération');
+      if (!handleAiError(err)) {
+        setPhase('error');
+        setErrorMsg(err?.message || 'Erreur de génération');
+      }
     }
   };
 
