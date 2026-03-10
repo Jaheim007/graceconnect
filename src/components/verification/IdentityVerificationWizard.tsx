@@ -677,7 +677,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
             )}
 
             {/* STEP: Payout method (org only) */}
-            {currentStep.id === 'payout' && (
+            {currentStep?.id === 'payout' && (
               <div className="space-y-4">
                 <div className="text-center py-2">
                   <h3 className="text-xl font-bold">Méthode de paiement</h3>
