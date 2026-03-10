@@ -292,7 +292,7 @@ export default function AmbassadorDashboard() {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate flex items-center gap-1">
                       {link.organizations?.name || 'Organisation'}
-                      {(link.organizations as any)?.is_verified && <VerifiedBadge size="xs" />}
+                      {((link.organizations as any)?.is_verified || (link.organizations as any)?.kyc_status === 'level1' || (link.organizations as any)?.kyc_status === 'level2') && <VerifiedBadge size="xs" />}
                     </p>
                     <p className="text-[10px] text-muted-foreground">{link.clicks || 0} clics · {link.conversions || 0} ventes</p>
                   </div>

@@ -141,7 +141,7 @@ export default function MyProgramsPage() {
                   {org && (
                     <p className="text-[10px] text-muted-foreground truncate flex items-center gap-1">
                       par {org.name}
-                      {org.is_verified && <VerifiedBadge size="xs" />}
+                      {(org.is_verified || (org as any).kyc_status === 'level1' || (org as any).kyc_status === 'level2') && <VerifiedBadge size="xs" />}
                     </p>
                   )}
                   <div className="flex items-center gap-3">

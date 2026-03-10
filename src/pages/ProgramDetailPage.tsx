@@ -92,7 +92,7 @@ export default function ProgramDetailPage() {
             <div className="flex-1 min-w-0">
               <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
                 {orgName}
-                {(program as any).organizations?.is_verified && <VerifiedBadge size="xs" />}
+                {((program as any).organizations?.is_verified || (program as any).organizations?.kyc_status === 'level1' || (program as any).organizations?.kyc_status === 'level2') && <VerifiedBadge size="xs" />}
               </p>
               <h1 className="text-2xl font-bold mb-2">{program.title}</h1>
               {program.description && <p className="text-sm text-muted-foreground mb-4">{program.description}</p>}
