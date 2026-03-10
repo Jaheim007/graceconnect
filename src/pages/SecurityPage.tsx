@@ -61,7 +61,7 @@ export default function SecurityPage() {
         <section>
           <h2>5. Monitoring & Audit</h2>
           <ul className="list-disc pl-5 space-y-1">
-            <li>Permanent audit trail on all sensitive actions (KYC, payouts, account changes)</li>
+            <li>Permanent audit trail on all sensitive actions (identity verification, payouts, account changes)</li>
             <li>Fraud detection flags with automatic alerts for suspicious transaction patterns</li>
             <li>Download logs for proof-of-delivery in dispute resolution</li>
             <li>Sentry error monitoring on frontend for rapid incident detection</li>
