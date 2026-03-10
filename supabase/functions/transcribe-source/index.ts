@@ -31,6 +31,7 @@ Deno.serve(async (req) => {
     const authHeader = req.headers.get('Authorization');
     const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
     let userId: string | null = null;
+    let creditDebited = 0;
     
     if (authHeader) {
       const token = authHeader.replace('Bearer ', '');
@@ -46,7 +47,6 @@ Deno.serve(async (req) => {
     }
 
     // Debit credits for transcription (will be refunded if transcription fails)
-    let creditDebited = 0;
     try {
       const debitResult = await consumeCreditsOrThrow({ admin: db, userId, actionKey: 'transcribe_media', tier: 'standard' });
       if (!('skipped' in debitResult)) creditDebited = debitResult.debited;
@@ -92,25 +92,21 @@ Deno.serve(async (req) => {
           }
         }
 
-        // ===== METHOD 3: Gemini fileData (can process some YouTube videos) =====
+        // ===== METHOD 3: Gemini with YouTube URL (use gemini-2.0-flash which handles video URLs better) =====
         if (!transcribedText || transcribedText.length < 50) {
           try {
-            console.log('[transcribe-source] Falling back to Gemini fileData...');
+            console.log('[transcribe-source] Falling back to Gemini video processing...');
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 120_000);
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+            const timeoutId = setTimeout(() => controller.abort(), 180_000);
+            
+            // Use gemini-2.0-flash-exp for video — it has native video understanding
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 contents: [{
                   parts: [
-                    { 
-                      fileData: { 
-                        fileUri: videoUrl,
-                        mimeType: 'video/mp4'
-                      }
-                    },
-                    { text: `You are a professional content transcription assistant. Extract and transcribe ALL spoken content from this YouTube video.
+                    { text: `You are a professional transcription assistant. Visit and transcribe ALL spoken content from this YouTube video: https://www.youtube.com/watch?v=${videoId}
 
 Rules:
 - Return ONLY the transcribed text, well-formatted with clear paragraphs
@@ -129,16 +125,16 @@ Rules:
             clearTimeout(timeoutId);
 
             const data = await res.json();
-            console.log('[transcribe-source] Gemini fileData response status:', res.status);
+            console.log('[transcribe-source] Gemini video response status:', res.status);
 
             if (data?.error) {
-              console.log('[transcribe-source] Gemini fileData error:', JSON.stringify(data.error).substring(0, 200));
+              console.log('[transcribe-source] Gemini video error:', JSON.stringify(data.error).substring(0, 200));
             }
 
             transcribedText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-            console.log('[transcribe-source] fileData result length:', transcribedText.length);
+            console.log('[transcribe-source] Gemini video result length:', transcribedText.length);
           } catch (e) {
-            console.log('[transcribe-source] Gemini fileData failed:', String(e).substring(0, 200));
+            console.log('[transcribe-source] Gemini video failed:', String(e).substring(0, 200));
           }
         }
 
@@ -496,35 +492,70 @@ async function transcribeWithGeminiInline(apiKey: string, opts: { prompt: string
 }
 
 /**
- * Fetch actual YouTube captions using the Innertube API.
- * This uses YouTube's internal player API to get caption track URLs,
- * then fetches and parses the caption XML.
+ * Fetch YouTube captions by scraping the watch page HTML.
+ * This is more reliable than Innertube API calls which get blocked.
  */
 async function fetchYouTubeCaptions(videoId: string): Promise<string> {
-  // Try multiple Innertube client types — YouTube restricts some clients from accessing captions
+  // METHOD A: Scrape watch page for captions data
+  try {
+    console.log('[transcribe-source] Scraping YouTube watch page for captions...');
+    const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
+    const pageRes = await fetch(watchUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+      },
+    });
+
+    if (!pageRes.ok) throw new Error(`Watch page returned ${pageRes.status}`);
+    const html = await pageRes.text();
+
+    // Extract captions from ytInitialPlayerResponse
+    const playerMatch = html.match(/ytInitialPlayerResponse\s*=\s*(\{.+?\});/s);
+    if (!playerMatch) throw new Error('Could not find ytInitialPlayerResponse');
+
+    const playerData = JSON.parse(playerMatch[1]);
+    const captionTracks = playerData?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
+
+    if (!captionTracks || captionTracks.length === 0) {
+      throw new Error('No caption tracks in page data');
+    }
+
+    console.log('[transcribe-source] Found caption tracks from page:', captionTracks.map((t: any) => `${t.languageCode} (${t.kind || 'manual'})`).join(', '));
+
+    // Prefer manual captions over ASR
+    const selectedTrack = captionTracks.find((t: any) => t.kind !== 'asr') || captionTracks[0];
+    const captionText = await fetchAndParseCaptionTrack(selectedTrack);
+
+    if (captionText && captionText.length >= 50) {
+      const videoTitle = playerData?.videoDetails?.title || 'YouTube Video';
+      return formatTranscription(captionText, videoTitle);
+    }
+  } catch (e) {
+    console.log('[transcribe-source] Page scraping failed:', String(e).substring(0, 200));
+  }
+
+  // METHOD B: Innertube API with multiple clients
   const clientConfigs = [
     {
-      clientName: 'ANDROID',
-      clientVersion: '19.29.37',
-      apiKey: 'AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w',
-      userAgent: 'com.google.android.youtube/19.29.37 (Linux; U; Android 14) gzip',
-    },
-    {
-      clientName: 'IOS',
-      clientVersion: '19.29.1',
-      apiKey: 'AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc',
-      userAgent: 'com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)',
-    },
-    {
       clientName: 'WEB',
-      clientVersion: '2.20240726.00.00',
+      clientVersion: '2.20241126.01.00',
       apiKey: '',
-      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0.0.0 Safari/537.36',
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0.0.0 Safari/537.36',
+    },
+    {
+      clientName: 'ANDROID',
+      clientVersion: '19.44.38',
+      apiKey: 'AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w',
+      userAgent: 'com.google.android.youtube/19.44.38 (Linux; U; Android 14) gzip',
+    },
+    {
+      clientName: 'MWEB',
+      clientVersion: '2.20241126.01.00',
+      apiKey: '',
+      userAgent: 'Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/131.0.0.0 Mobile Safari/537.36',
     },
   ];
-
-  let playerData: any = null;
-  let captionTracks: any[] | null = null;
 
   for (const cfg of clientConfigs) {
     try {
@@ -534,18 +565,10 @@ async function fetchYouTubeCaptions(videoId: string): Promise<string> {
 
       const playerRes = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'User-Agent': cfg.userAgent,
-        },
+        headers: { 'Content-Type': 'application/json', 'User-Agent': cfg.userAgent },
         body: JSON.stringify({
           context: {
-            client: {
-              hl: 'fr',
-              gl: 'FR',
-              clientName: cfg.clientName,
-              clientVersion: cfg.clientVersion,
-            },
+            client: { hl: 'fr', gl: 'FR', clientName: cfg.clientName, clientVersion: cfg.clientVersion },
           },
           videoId,
         }),
@@ -556,122 +579,89 @@ async function fetchYouTubeCaptions(videoId: string): Promise<string> {
         continue;
       }
 
-      playerData = await playerRes.json();
-      captionTracks = playerData?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
+      const playerData = await playerRes.json();
+      const captionTracks = playerData?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
 
-      if (captionTracks && captionTracks.length > 0) {
-        console.log(`[transcribe-source] Innertube ${cfg.clientName} found ${captionTracks.length} caption tracks`);
-        break;
+      if (!captionTracks || captionTracks.length === 0) {
+        console.log(`[transcribe-source] Innertube ${cfg.clientName}: no caption tracks`);
+        continue;
       }
-      console.log(`[transcribe-source] Innertube ${cfg.clientName}: no caption tracks`);
+
+      console.log(`[transcribe-source] Innertube ${cfg.clientName} found ${captionTracks.length} tracks`);
+      const selectedTrack = captionTracks.find((t: any) => t.kind !== 'asr') || captionTracks[0];
+      const captionText = await fetchAndParseCaptionTrack(selectedTrack);
+
+      if (captionText && captionText.length >= 50) {
+        const videoTitle = playerData?.videoDetails?.title || 'YouTube Video';
+        return formatTranscription(captionText, videoTitle);
+      }
     } catch (e) {
       console.log(`[transcribe-source] Innertube ${cfg.clientName} error:`, String(e).substring(0, 150));
     }
   }
 
-  if (!captionTracks || captionTracks.length === 0) {
-    throw new Error('No caption tracks available for this video');
-  }
+  throw new Error('No caption tracks available for this video');
+}
 
-  console.log('[transcribe-source] Available caption tracks:', captionTracks.map((t: any) => `${t.languageCode} (${t.kind || 'manual'})`).join(', '));
+async function fetchAndParseCaptionTrack(track: any): Promise<string> {
+  let captionUrl = track.baseUrl;
 
-  // Step 2: Pick the best caption track
-  // Prefer manual captions over auto-generated (ASR)
-  let selectedTrack = captionTracks.find((t: any) => t.kind !== 'asr') || captionTracks[0];
-  
-  console.log('[transcribe-source] Selected caption track:', selectedTrack.languageCode, selectedTrack.kind || 'manual');
-
-  // Step 3: Fetch the caption XML
-  let captionUrl = selectedTrack.baseUrl;
-  // Request JSON3 format for easier parsing
-  if (!captionUrl.includes('fmt=')) {
-    captionUrl += (captionUrl.includes('?') ? '&' : '?') + 'fmt=json3';
-  }
-
-  const captionRes = await fetch(captionUrl);
-  if (!captionRes.ok) {
-    throw new Error(`Caption fetch returned ${captionRes.status}`);
-  }
-
-  const contentType = captionRes.headers.get('content-type') || '';
-  
-  let fullText = '';
-  
-  if (contentType.includes('json') || captionUrl.includes('fmt=json3')) {
-    // Parse JSON3 format
-    try {
-      const json3 = await captionRes.json();
+  // Try JSON3 first
+  const json3Url = captionUrl + (captionUrl.includes('?') ? '&' : '?') + 'fmt=json3';
+  try {
+    const res = await fetch(json3Url);
+    if (res.ok) {
+      const json3 = await res.json();
       const events = json3?.events || [];
       const segments: string[] = [];
-      
       for (const event of events) {
         if (event.segs) {
-          const line = event.segs.map((s: any) => s.utf8 || '').join('');
-          if (line.trim() && line.trim() !== '\n') {
-            segments.push(line.trim());
-          }
+          const line = event.segs.map((s: any) => s.utf8 || '').join('').trim();
+          if (line && line !== '\n') segments.push(line);
         }
       }
-      fullText = segments.join(' ');
-    } catch {
-      // If JSON parsing fails, try XML fallback
-      console.log('[transcribe-source] JSON3 parsing failed, trying XML...');
+      const text = segments.join(' ');
+      if (text.length >= 20) return text;
     }
-  }
-  
-  // Fallback: fetch XML format
-  if (!fullText || fullText.length < 20) {
-    const xmlUrl = selectedTrack.baseUrl; // without fmt=json3
-    const xmlRes = await fetch(xmlUrl);
-    if (xmlRes.ok) {
-      const xmlText = await xmlRes.text();
-      // Simple XML parsing: extract text between <text> tags
+  } catch { /* fall through to XML */ }
+
+  // Fallback to XML
+  try {
+    const res = await fetch(captionUrl);
+    if (res.ok) {
+      const xmlText = await res.text();
       const textMatches = xmlText.matchAll(/<text[^>]*>([\s\S]*?)<\/text>/gi);
       const segments: string[] = [];
       for (const match of textMatches) {
-        let text = match[1]
-          .replace(/&amp;/g, '&')
-          .replace(/&lt;/g, '<')
-          .replace(/&gt;/g, '>')
-          .replace(/&quot;/g, '"')
-          .replace(/&#39;/g, "'")
-          .replace(/<[^>]+>/g, '') // strip any HTML tags within
-          .trim();
+        const text = decodeEntities(match[1]).replace(/<[^>]+>/g, '').trim();
         if (text) segments.push(text);
       }
-      fullText = segments.join(' ');
+      return segments.join(' ');
     }
-  }
+  } catch { /* ignore */ }
 
-  if (!fullText || fullText.length < 20) {
-    throw new Error('Caption track was empty or too short');
-  }
+  return '';
+}
 
-  // Clean up: remove excessive whitespace, format into paragraphs
-  fullText = fullText
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  // Split into paragraphs every ~200 words for readability
-  const words = fullText.split(' ');
+function formatTranscription(text: string, title: string): string {
+  const cleaned = text.replace(/\s+/g, ' ').trim();
+  const words = cleaned.split(' ');
   const paragraphs: string[] = [];
   for (let i = 0; i < words.length; i += 200) {
     paragraphs.push(words.slice(i, i + 200).join(' '));
   }
-  
-  // Get video title for heading
-  const videoTitle = playerData?.videoDetails?.title || 'YouTube Video';
-  
-  return `## ${videoTitle}\n\n${paragraphs.join('\n\n')}`;
+  return `## ${title}\n\n${paragraphs.join('\n\n')}`;
 }
 
 async function fetchYouTubeCaptionsViaInvidious(videoId: string): Promise<string> {
   const instances = [
+    'https://vid.puffyan.us',
+    'https://invidious.fdn.fr',
+    'https://y.com.sb',
+    'https://inv.tux.pizza',
+    'https://invidious.protokoll-11.dev',
     'https://inv.nadeko.net',
     'https://iv.ggtyler.dev',
-    'https://invidious.nerdvpn.de',
-    'https://yt.artemislena.eu',
-    'https://invidious.privacyredirect.com',
   ];
 
   let lastError = 'No available Invidious instance';
