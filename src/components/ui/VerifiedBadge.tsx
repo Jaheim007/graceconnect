@@ -49,8 +49,8 @@ export function VerifiedBadge({
         width={s}
         height={s}
         xmlns="http://www.w3.org/2000/svg"
-        className="block relative z-[1] drop-shadow-sm"
-        style={{ overflow: 'visible' }}
+        className="block relative z-[1]"
+        style={{ overflow: 'visible', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))' }}
       >
         {/* Starburst rosette */}
         <path
@@ -59,13 +59,13 @@ export function VerifiedBadge({
              L13.8 20.4 L12 24 L10.2 20.4 L6.8 22.4 L6.8 18.6 L3 18.8
              L4.6 15.2 L1 14 L3.8 12 L1 10 L4.6 8.8 L3 5.2 L6.8 5.4
              L6.8 1.6 L10.2 3.6 Z"
-          className="fill-primary"
+          style={{ fill: 'hsl(var(--primary))' }}
         />
 
         {/* Checkmark */}
         <path
           d="M8.5 12.5 L11 15 L16 9.5"
-          className="stroke-primary-foreground"
+          style={{ stroke: 'hsl(var(--primary-foreground))' }}
           strokeWidth="2.4"
           strokeLinecap="round"
           strokeLinejoin="round"
