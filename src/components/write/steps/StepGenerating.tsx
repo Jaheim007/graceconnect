@@ -175,6 +175,7 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
         const friendlyMsg = err?.message?.includes('Edge Function')
           ? 'Le serveur est temporairement indisponible. Réessaie dans un instant.'
           : (err?.message || 'La génération a échoué. Réessaie.');
+        setErrorMsg(friendlyMsg);
       }
     }
   };
