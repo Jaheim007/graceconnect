@@ -38,8 +38,8 @@ export function InsufficientCreditsDialog({ open, onOpenChange, message }: Insuf
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
         <DialogHeader className="text-center space-y-3">
-          <div className="h-14 w-14 mx-auto rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-            <AlertTriangle className="h-7 w-7 text-amber-600 dark:text-amber-400" />
+          <div className="h-14 w-14 mx-auto rounded-2xl bg-destructive/10 flex items-center justify-center">
+            <AlertTriangle className="h-7 w-7 text-destructive" />
           </div>
           <DialogTitle className="text-xl">
             {t('credits.insufficient_title') || 'Crédits insuffisants'}
