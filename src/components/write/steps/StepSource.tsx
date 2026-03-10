@@ -44,7 +44,6 @@ export function StepSource({
   const sources: { type: SourceType; icon: typeof PenLine; label: string; desc: string }[] = [
     { type: 'idea', icon: Lightbulb, label: t('write.source_idea'), desc: t('write.source_idea_desc') },
     { type: 'document', icon: FileText, label: t('write.source_doc'), desc: t('write.source_doc_desc') },
-    { type: 'youtube', icon: Video, label: t('write.source_youtube'), desc: t('write.source_youtube_desc') },
     { type: 'audio', icon: Mic, label: t('write.source_audio'), desc: t('write.source_audio_desc') },
     { type: 'notes_photo', icon: Camera, label: t('write.source_notes'), desc: t('write.source_notes_desc') },
   ];
