@@ -644,14 +644,15 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                 {selectedDoc.hasBack && (
                   <div>
                     <Label className="text-sm font-semibold">Verso (face arrière) *</Label>
-                    <CameraCapture
+                    <SmartCameraCapture
                       value={docBackUrl}
                       onChange={setDocBackUrl}
                       folder={`${folder}/doc-back`}
                       bucket="kyc-documents"
                       label="Face arrière du document"
-                      hint="Retournez le document et prenez une photo du verso"
+                      hint="La capture se fait automatiquement quand le document est bien cadré"
                       captureMode="document"
+                      smartCapture
                     />
                   </div>
                 )}
