@@ -276,7 +276,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
                 >
                   {(product as any).organization_name}
                 </span>
-                {isOrgVerified && <VerifiedBadge size="xs" label="Vendeur vérifié" />}
+                {showVerified && <VerifiedBadge size="xs" label={verifiedLabel} />}
               </p>
             )}
             {!hideCommission && commissionPercent != null && commissionPercent > 0 && (
