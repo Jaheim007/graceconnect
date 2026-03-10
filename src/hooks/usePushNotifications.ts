@@ -15,6 +15,70 @@ function urlBase64ToUint8Array(base64String: string) {
   return outputArray;
 }
 
+function detectBrowserAndDevice(): { browser: string; isMobile: boolean; isIOS: boolean } {
+  const ua = navigator.userAgent;
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isMobile = isIOS || /Android/i.test(ua);
+  let browser = 'other';
+  if (/CriOS|Chrome/i.test(ua) && !/Edg/i.test(ua)) browser = 'chrome';
+  else if (/Safari/i.test(ua) && !/Chrome/i.test(ua)) browser = 'safari';
+  else if (/Firefox/i.test(ua)) browser = 'firefox';
+  else if (/Edg/i.test(ua)) browser = 'edge';
+  return { browser, isMobile, isIOS };
+}
+
+function getNotificationInstructions(): { title: string; description: string } {
+  const { browser, isMobile, isIOS } = detectBrowserAndDevice();
+
+  if (isIOS && browser === 'safari') {
+    return {
+      title: '🔔 Notifications bloquées',
+      description: 'Sur iPhone/iPad : Ouvrez Réglages → faites défiler jusqu\'à Safari → Notifications → autorisez ce site.',
+    };
+  }
+  if (isIOS) {
+    return {
+      title: '🔔 Notifications bloquées',
+      description: 'Sur iPhone/iPad : Ouvrez Réglages → Notifications → trouvez votre navigateur → activez « Autoriser les notifications ».',
+    };
+  }
+  if (isMobile && browser === 'chrome') {
+    return {
+      title: '🔔 Notifications bloquées',
+      description: 'Sur Android : Appuyez sur le cadenas 🔒 à gauche de l\'adresse du site → Notifications → Autoriser. Puis rechargez la page.',
+    };
+  }
+  if (browser === 'chrome') {
+    return {
+      title: '🔔 Notifications bloquées',
+      description: 'Dans Chrome : Cliquez sur le cadenas 🔒 à gauche de l\'adresse → « Paramètres du site » → Notifications → Autoriser. Puis rechargez.',
+    };
+  }
+  if (browser === 'firefox') {
+    return {
+      title: '🔔 Notifications bloquées',
+      description: 'Dans Firefox : Cliquez sur l\'icône 🔒 à gauche de l\'adresse → Permissions → cochez « Autoriser les notifications ». Puis rechargez.',
+    };
+  }
+  if (browser === 'safari') {
+    return {
+      title: '🔔 Notifications bloquées',
+      description: 'Dans Safari : Allez dans Safari → Réglages → Sites web → Notifications → trouvez ce site et choisissez « Autoriser ».',
+    };
+  }
+  if (browser === 'edge') {
+    return {
+      title: '🔔 Notifications bloquées',
+      description: 'Dans Edge : Cliquez sur le cadenas 🔒 à gauche de l\'adresse → « Autorisations pour ce site » → Notifications → Autoriser. Puis rechargez.',
+    };
+  }
+  return {
+    title: '🔔 Notifications bloquées',
+    description: 'Cliquez sur l\'icône cadenas 🔒 à gauche de l\'adresse du site → cherchez « Notifications » → choisissez « Autoriser ». Puis rechargez la page.',
+  };
+}
+
+
 export function usePushNotifications() {
   const { user } = useAuth();
   const { currentOrg } = useOrg();
@@ -51,7 +115,14 @@ export function usePushNotifications() {
       // Request permission
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
-        toast({ title: 'Permission refusée', description: 'Autorisez les notifications dans les paramètres de votre navigateur.', variant: 'destructive' });
+        // Show browser/device-specific instructions
+        const instructions = getNotificationInstructions();
+        toast({
+          title: instructions.title,
+          description: instructions.description,
+          variant: 'destructive',
+          duration: 12000,
+        });
         setLoading(false);
         return;
       }
