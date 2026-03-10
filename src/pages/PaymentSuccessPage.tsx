@@ -203,8 +203,8 @@ export default function PaymentSuccessPage() {
   }, [reference, user?.id]);
 
   useEffect(() => {
-    // Allow proceeding with session_id alone for Stripe, or paymentId for Moneroo
-    if (!reference && !sessionId && !paymentId) {
+    // Allow proceeding with session_id alone for Stripe
+    if (!reference && !sessionId) {
       setError('Aucune référence de transaction trouvée.');
       setLoading(false);
       return;
