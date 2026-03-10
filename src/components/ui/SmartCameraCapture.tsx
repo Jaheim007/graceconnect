@@ -150,22 +150,46 @@ export function SmartCameraCapture({
       let edgeCount = 0;
       let pixelCount = 0;
       let contrastSum = 0;
+      let skinPixels = 0;
+      let horizontalEdges = 0;
+      let verticalEdges = 0;
 
       for (let y = Math.max(0, startY); y < Math.min(canvas.height, endY); y += 2) {
         for (let x = Math.max(0, startX); x < Math.min(canvas.width, endX); x += 2) {
           const i = (y * canvas.width + x) * 4;
-          const gray = pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114;
+          const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2];
+          const gray = r * 0.299 + g * 0.587 + b * 0.114;
           totalBrightness += gray;
           pixelCount++;
+
+          // Skin tone detection (works for diverse skin tones)
+          if (captureMode === 'document') {
+            const isSkin = (
+              r > 60 && g > 40 && b > 20 &&
+              r > g && r > b &&
+              (r - g) > 10 &&
+              Math.abs(r - g) < 130 &&
+              gray > 50 && gray < 230
+            );
+            if (isSkin) skinPixels++;
+          }
 
           if (x > startX && y > startY) {
             const prevX = ((y) * canvas.width + (x - 2)) * 4;
             const prevY = ((y - 2) * canvas.width + (x)) * 4;
             const grayPrevX = pixels[prevX] * 0.299 + pixels[prevX + 1] * 0.587 + pixels[prevX + 2] * 0.114;
             const grayPrevY = pixels[prevY] * 0.299 + pixels[prevY + 1] * 0.587 + pixels[prevY + 2] * 0.114;
-            const gradient = Math.abs(gray - grayPrevX) + Math.abs(gray - grayPrevY);
+            const gradH = Math.abs(gray - grayPrevX);
+            const gradV = Math.abs(gray - grayPrevY);
+            const gradient = gradH + gradV;
             if (gradient > 30) edgeCount++;
             contrastSum += gradient;
+
+            // Track edge directions for document (rectangular shapes)
+            if (captureMode === 'document') {
+              if (gradH > 25 && gradH > gradV * 1.5) horizontalEdges++;
+              if (gradV > 25 && gradV > gradH * 1.5) verticalEdges++;
+            }
           }
         }
       }
@@ -174,32 +198,63 @@ export function SmartCameraCapture({
       const edgeDensity = pixelCount > 0 ? edgeCount / pixelCount : 0;
       const avgContrast = pixelCount > 0 ? contrastSum / pixelCount : 0;
 
-      const brightnessOk = avgBrightness > 60 && avgBrightness < 220;
-      const hasContent = captureMode === 'document'
-        ? edgeDensity > 0.05 && avgContrast > 5
-        : edgeDensity > 0.03;
-      const isSharp = avgContrast > 3;
+      if (captureMode === 'document') {
+        // Document-specific checks
+        const skinRatio = pixelCount > 0 ? skinPixels / pixelCount : 0;
+        const totalDirectional = horizontalEdges + verticalEdges;
+        const directionalRatio = edgeCount > 0 ? totalDirectional / edgeCount : 0;
 
-      if (!brightnessOk || !hasContent) {
-        readyCountRef.current = 0;
-        setFrameStatus(hasContent ? 'adjusting' : 'searching');
-      } else if (!isSharp) {
-        readyCountRef.current = 0;
-        setFrameStatus('adjusting');
-      } else {
-        readyCountRef.current++;
-        if (readyCountRef.current >= 5) {
-          setFrameStatus('ready');
-          autoCapturedRef.current = true;
+        const brightnessOk = avgBrightness > 60 && avgBrightness < 220;
+        const hasDocContent = edgeDensity > 0.08 && avgContrast > 8;
+        const isSharp = avgContrast > 6;
+        const notFace = skinRatio < 0.35;
+        const hasRectEdges = directionalRatio > 0.15;
 
-          // For selfie with liveness: start liveness challenge instead of auto-capture
-          if (isLivenessEnabled) {
-            startLivenessChallenge();
-          } else {
-            setTimeout(() => takePhotoInternal(), 400);
-          }
-        } else if (readyCountRef.current >= 2) {
+        if (!brightnessOk || !hasDocContent) {
+          readyCountRef.current = 0;
+          setFrameStatus(hasDocContent ? 'adjusting' : 'searching');
+        } else if (!notFace) {
+          // Too much skin = probably a face, not a document
+          readyCountRef.current = 0;
+          setFrameStatus('searching');
+        } else if (!isSharp || !hasRectEdges) {
+          readyCountRef.current = 0;
           setFrameStatus('adjusting');
+        } else {
+          readyCountRef.current++;
+          if (readyCountRef.current >= 7) {
+            setFrameStatus('ready');
+            autoCapturedRef.current = true;
+            setTimeout(() => takePhotoInternal(), 500);
+          } else if (readyCountRef.current >= 3) {
+            setFrameStatus('adjusting');
+          }
+        }
+      } else {
+        // Selfie mode (original logic)
+        const brightnessOk = avgBrightness > 60 && avgBrightness < 220;
+        const hasContent = edgeDensity > 0.03;
+        const isSharp = avgContrast > 3;
+
+        if (!brightnessOk || !hasContent) {
+          readyCountRef.current = 0;
+          setFrameStatus(hasContent ? 'adjusting' : 'searching');
+        } else if (!isSharp) {
+          readyCountRef.current = 0;
+          setFrameStatus('adjusting');
+        } else {
+          readyCountRef.current++;
+          if (readyCountRef.current >= 5) {
+            setFrameStatus('ready');
+            autoCapturedRef.current = true;
+            if (isLivenessEnabled) {
+              startLivenessChallenge();
+            } else {
+              setTimeout(() => takePhotoInternal(), 400);
+            }
+          } else if (readyCountRef.current >= 2) {
+            setFrameStatus('adjusting');
+          }
         }
       }
     };
