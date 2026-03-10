@@ -71,7 +71,12 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
 
       if (error) {
         const status = (error as any)?.context?.status;
-        const details = await (error as any)?.context?.json?.().catch(() => null);
+        let details: any = null;
+        try {
+          if ((error as any)?.context) details = await (error as any).context.json();
+        } catch {
+          details = null;
+        }
         throw new Error(details?.error || details?.message || (status === 401 ? 'Non autorisé. Reconnecte-toi.' : error.message));
       }
       if (data?.error) throw new Error(data.error);
