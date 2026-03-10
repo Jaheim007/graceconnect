@@ -415,7 +415,7 @@ export default function CreditsPage() {
 
                     <div className="space-y-1 text-xs text-muted-foreground">
                       <p>≈ {Math.floor(totalCredits / 2.7)} chapitres de livre</p>
-                      <p>≈ {Math.floor(totalCredits / 7.5)} couvertures IA</p>
+                      <p>≈ {Math.floor(totalCredits / 7.6)} couvertures IA</p>
                       <p>≈ {Math.floor(totalCredits / 5.8)} images / illustrations IA</p>
                       <p className="flex items-center gap-1"><Infinity className="h-3 w-3" /> N'expire jamais</p>
                     </div>
