@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { LocalPriceHint } from '@/components/payments/LocalPriceHint';
 import { WishlistButton } from './WishlistButton';
 import { useI18n } from '@/i18n/I18nContext';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 
 interface ProductQuickViewProps {
   product: any;
