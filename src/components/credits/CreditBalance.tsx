@@ -45,9 +45,9 @@ export function CreditBalance() {
 
   if (isLoading || !summary) {
     return (
-      <div className="flex items-center gap-1.5 h-8 px-2.5 rounded-full bg-muted/50 border border-border animate-pulse">
+      <div className="flex items-center gap-1.5 h-8 px-3 rounded-full bg-muted/50 border border-border animate-pulse">
         <Coins className="h-3.5 w-3.5 text-muted-foreground" />
-        <span className="text-xs text-muted-foreground">---</span>
+        <span className="text-xs text-muted-foreground">--</span>
       </div>
     );
   }
@@ -58,10 +58,10 @@ export function CreditBalance() {
         <TooltipTrigger asChild>
           <button
             onClick={() => navigate('/credits')}
-            className="flex items-center gap-1.5 h-8 px-2.5 rounded-full bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20 hover:border-amber-500/40 transition-all group"
+            className="flex items-center gap-2 h-8 px-3 rounded-full border border-border hover:border-primary/30 bg-card/80 hover:bg-card transition-all group"
           >
-            <Coins className="h-3.5 w-3.5 text-amber-500 group-hover:scale-110 transition-transform" />
-            <span className="text-xs font-bold text-amber-700 dark:text-amber-400">
+            <Coins className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
+            <span className="text-sm font-semibold tabular-nums">
               {formatCredits(summary.balance)}
             </span>
           </button>
@@ -69,7 +69,7 @@ export function CreditBalance() {
         <TooltipContent side="bottom" className="w-56 p-3">
           <div className="space-y-2">
             <p className="text-sm font-semibold flex items-center gap-1.5">
-              <Coins className="h-4 w-4 text-amber-500" />
+              <Coins className="h-4 w-4 text-primary" />
               {summary.balance.toFixed(1)} crédits
             </p>
             <div className="space-y-1.5 text-xs">

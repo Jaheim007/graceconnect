@@ -5,7 +5,7 @@ import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuLabel,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -17,7 +17,7 @@ import { CreditBalance } from '@/components/credits/CreditBalance';
 export function TopBar() {
   const { theme, toggleTheme } = useTheme();
   const { user, profile, isSuperadmin, signOut } = useAuth();
-  const { currentOrg, userOrgs, setCurrentOrg } = useOrg();
+  const { currentOrg, userOrgs, setCurrentOrg, getRoleFor } = useOrg();
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const navigate = useNavigate();
   const { t } = useI18n();
@@ -27,6 +27,29 @@ export function TopBar() {
   const initials = profile?.display_name
     ? profile.display_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
     : user?.email?.[0]?.toUpperCase() || 'U';
+
+  // Separate managed orgs (owner/admin) from member-only orgs
+  const managedOrgs = userOrgs.filter((o) => {
+    const role = getRoleFor(o.id);
+    return role === 'owner' || role === 'admin';
+  });
+  const memberOrgs = userOrgs.filter((o) => {
+    const role = getRoleFor(o.id);
+    return role !== 'owner' && role !== 'admin';
+  });
+
+  const handleOrgSelect = (org: typeof currentOrg) => {
+    if (!org) return;
+    const role = getRoleFor(org.id);
+    const isManager = role === 'owner' || role === 'admin';
+    if (isManager) {
+      setCurrentOrg(org);
+      navigate('/admin');
+    } else {
+      // Navigate to public page for member-only orgs
+      navigate(`/org/${org.slug}`);
+    }
+  };
 
   return (
     <header className="h-14 shrink-0 z-40 glass border-b border-border flex items-center px-4 gap-3">
@@ -46,26 +69,52 @@ export function TopBar() {
 
       <div className="flex-1" />
 
-      {/* Org switcher (mobile, for users with multiple orgs) */}
+      {/* Org switcher (mobile) — separated by role */}
       {user && currentOrg && userOrgs.length > 1 && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-7 text-[11px] font-semibold gap-1 max-w-[120px] lg:hidden">
-              <Building2 className="h-3 w-3 shrink-0" />
+            <Button variant="ghost" size="sm" className="h-8 text-xs font-semibold gap-1.5 max-w-[140px] lg:hidden border border-border">
+              <Building2 className="h-3.5 w-3.5 shrink-0 text-primary" />
               <span className="truncate">{currentOrg.name}</span>
-              <ChevronDown className="h-3 w-3 shrink-0" />
+              <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            {userOrgs.map((o) => (
-              <DropdownMenuItem
-                key={o.id}
-                onClick={() => setCurrentOrg(o)}
-                className={cn('text-xs', o.id === currentOrg.id && 'text-primary font-semibold')}
-              >
-                {o.name}
-              </DropdownMenuItem>
-            ))}
+          <DropdownMenuContent align="start" className="w-56">
+            {managedOrgs.length > 0 && (
+              <>
+                <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  {t('sidebar.managing') || 'Mes organisations'}
+                </DropdownMenuLabel>
+                {managedOrgs.map((o) => (
+                  <DropdownMenuItem
+                    key={o.id}
+                    onClick={() => handleOrgSelect(o)}
+                    className={cn('text-xs gap-2', o.id === currentOrg.id && 'text-primary font-semibold')}
+                  >
+                    <Building2 className="h-3 w-3 shrink-0" />
+                    {o.name}
+                  </DropdownMenuItem>
+                ))}
+              </>
+            )}
+            {memberOrgs.length > 0 && (
+              <>
+                {managedOrgs.length > 0 && <DropdownMenuSeparator />}
+                <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Membre de
+                </DropdownMenuLabel>
+                {memberOrgs.map((o) => (
+                  <DropdownMenuItem
+                    key={o.id}
+                    onClick={() => handleOrgSelect(o)}
+                    className="text-xs gap-2 text-muted-foreground"
+                  >
+                    <User className="h-3 w-3 shrink-0" />
+                    {o.name}
+                  </DropdownMenuItem>
+                ))}
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       )}
