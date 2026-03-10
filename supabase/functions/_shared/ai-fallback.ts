@@ -1,8 +1,11 @@
 /**
  * AI Fallback Layer — Gemini first, OpenAI fallback. ALWAYS.
  * 
- * Every AI call goes through here so that if Gemini fails (500, 503, timeout, etc.)
- * the system automatically retries with OpenAI before giving up.
+ * Every AI call goes through here so that if the primary fails (500, 503, timeout, etc.)
+ * the system automatically retries with the fallback before giving up.
+ * 
+ * TEXT: Gemini first → OpenAI fallback
+ * IMAGES: OpenAI first → Gemini fallback (better quality for covers/illustrations)
  * 
  * Rate-limit (429) and credit (402) errors are NOT retried — they bubble up immediately.
  */
@@ -16,7 +19,7 @@ function shouldNotFallback(err: any): boolean {
   return status === 402 || status === 401 || status === 403;
 }
 
-// ─── Text Generation with Fallback ───
+// ─── Text Generation with Fallback (Gemini → OpenAI) ───
 
 export async function aiGenerateText(opts: {
   geminiKey: string;
@@ -41,7 +44,6 @@ export async function aiGenerateText(opts: {
     });
   } catch (geminiErr: any) {
     if (shouldNotFallback(geminiErr)) throw geminiErr;
-    // 429 on Gemini: also try OpenAI
     console.warn('[ai-fallback] Gemini text failed, falling back to OpenAI:', geminiErr?.message?.slice(0, 200));
   }
 
@@ -65,7 +67,8 @@ export async function aiGenerateText(opts: {
   });
 }
 
-// ─── Image Generation with Fallback ───
+// ─── Image Generation with Fallback (OpenAI FIRST → Gemini fallback) ───
+// OpenAI produces higher quality images for covers, illustrations, etc.
 
 export async function aiGenerateImageBase64(opts: {
   geminiKey: string;
@@ -73,7 +76,23 @@ export async function aiGenerateImageBase64(opts: {
   prompt: string;
   timeoutMs?: number;
 }): Promise<{ base64: string; mimeType: string }> {
-  // Try Gemini first
+  const openaiKey = opts.openaiKey || Deno.env.get('OPENAI_API_KEY');
+
+  // Try OpenAI FIRST for images
+  if (openaiKey) {
+    try {
+      return await openaiGenerateImageBase64({
+        apiKey: openaiKey,
+        prompt: opts.prompt,
+        timeoutMs: opts.timeoutMs,
+      });
+    } catch (openaiErr: any) {
+      if (shouldNotFallback(openaiErr)) throw openaiErr;
+      console.warn('[ai-fallback] OpenAI image failed, falling back to Gemini:', openaiErr?.message?.slice(0, 200));
+    }
+  }
+
+  // Fallback to Gemini
   try {
     return await geminiGenerateImageBase64({
       apiKey: opts.geminiKey,
@@ -82,20 +101,8 @@ export async function aiGenerateImageBase64(opts: {
     });
   } catch (geminiErr: any) {
     if (shouldNotFallback(geminiErr)) throw geminiErr;
-    console.warn('[ai-fallback] Gemini image failed, falling back to OpenAI:', geminiErr?.message?.slice(0, 200));
+    throw new Error(`Both OpenAI and Gemini image generation failed. Last error: ${geminiErr?.message?.slice(0, 200)}`);
   }
-
-  // Fallback to OpenAI DALL-E
-  const openaiKey = opts.openaiKey || Deno.env.get('OPENAI_API_KEY');
-  if (!openaiKey) {
-    throw new Error('Gemini image failed and no OpenAI key available for fallback');
-  }
-
-  return await openaiGenerateImageBase64({
-    apiKey: openaiKey,
-    prompt: opts.prompt,
-    timeoutMs: opts.timeoutMs,
-  });
 }
 
 // Re-export extractJson for convenience
