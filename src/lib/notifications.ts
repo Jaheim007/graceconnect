@@ -576,7 +576,7 @@ export async function onEmailChanged(userId: string, oldEmail: string | undefine
   if (oldEmail) {
     sendEmailNotification('email_changed', oldEmail, { new_email: newEmail }).catch(() => {});
   }
-  notify(userId, '📧 Email modifié', `Votre email a été changé pour ${newEmail}.`, 'security');
+  notify(userId, '📧 Email modifié', `Votre email a été changé pour ${newEmail}.`, 'security', undefined, `/profile`);
 }
 
 export async function onAccountDeleted(email: string) {
