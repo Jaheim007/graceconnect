@@ -1056,7 +1056,9 @@ export function AdminSettings() {
         whatsapp: whatsapp.trim() || null,
         logo_url: logoUrl || null,
         banner_url: bannerUrl || null,
-      })
+        currency: orgCurrency,
+        country: orgCountry.trim() || null,
+      } as any)
       .eq('id', currentOrg.id);
     setSavingProfile(false);
     if (error) {
