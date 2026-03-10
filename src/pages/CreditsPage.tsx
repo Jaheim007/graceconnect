@@ -418,7 +418,7 @@ export default function CreditsPage() {
                       <p>≈ {Math.floor(totalCredits / 2.7)} chapitres de livre</p>
                       <p>≈ {Math.floor(totalCredits / 7.5)} couvertures IA</p>
                       <p className="flex items-center gap-1"><Infinity className="h-3 w-3" /> N'expire jamais</p>
-                      <p className="text-[10px]">{pricePerCredit} FCFA / crédit</p>
+                      
                     </div>
 
                     <Button
