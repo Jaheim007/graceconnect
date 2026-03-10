@@ -16,6 +16,7 @@ import {
 
 // ── Types ──
 type VerificationMode = 'org' | 'partner';
+type VerificationType = 'individual' | 'organization';
 
 interface Props {
   mode: VerificationMode;
@@ -82,26 +83,39 @@ const CATEGORY_ORG_DOC_HINTS: Record<string, string> = {
   other: "Documents officiels de votre organisation (certificat, statuts, autorisation).",
 };
 
-// ── Build steps dynamically based on mode ──
-function getSteps(mode: VerificationMode) {
-  const steps = [
-    { id: 'doc_type', label: 'Type de document', icon: FileText },
-    { id: 'document', label: 'Document d\'identité', icon: CreditCard },
-    { id: 'selfie', label: 'Selfie', icon: User },
-    { id: 'selfie_doc', label: 'Selfie + Document', icon: Camera },
+// ── Build steps dynamically based on mode and verification type ──
+function getSteps(mode: VerificationMode, verificationType: VerificationType | null) {
+  const steps: { id: string; label: string; icon: typeof FileText }[] = [
+    { id: 'choose_type', label: 'Type de vérification', icon: Shield },
   ];
 
-  // For organizations: add org documents step (KYB)
-  if (mode === 'org') {
-    steps.push({ id: 'org_docs', label: 'Documents organisation', icon: Building });
-    steps.push({ id: 'payout', label: 'Méthode de paiement', icon: Smartphone });
+  // Only add remaining steps once type is chosen
+  if (verificationType) {
+    steps.push(
+      { id: 'doc_type', label: 'Type de document', icon: FileText },
+      { id: 'document', label: 'Document d\'identité', icon: CreditCard },
+      { id: 'selfie', label: 'Selfie', icon: User },
+      { id: 'selfie_doc', label: 'Selfie + Document', icon: Camera },
+    );
+
+    // For organizations: add org documents step (KYB)
+    if (verificationType === 'organization' && mode === 'org') {
+      steps.push({ id: 'org_docs', label: 'Documents organisation', icon: Building });
+    }
+
+    // Payout for org mode
+    if (mode === 'org') {
+      steps.push({ id: 'payout', label: 'Méthode de paiement', icon: Smartphone });
+    }
+
+    steps.push({ id: 'review', label: 'Vérification', icon: CheckCircle });
   }
 
-  steps.push({ id: 'review', label: 'Vérification', icon: CheckCircle });
   return steps;
 }
 
 export default function IdentityVerificationWizard({ mode, entityId, status, rejectionReason, orgCategory }: Props) {
+  const [verificationType, setVerificationType] = useState<VerificationType | null>(null);
   const [step, setStep] = useState(0);
   const [docType, setDocType] = useState('national_id');
   const [docFrontUrl, setDocFrontUrl] = useState('');
@@ -124,7 +138,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
 
   const selectedDoc = DOC_TYPES.find(d => d.value === docType)!;
   const folder = mode === 'org' ? `kyc/${entityId}` : `partner-kyc/${entityId}`;
-  const activeSteps = getSteps(mode);
+  const activeSteps = getSteps(mode, verificationType);
   const currentStep = activeSteps[step];
   const totalSteps = activeSteps.length;
   const progress = ((step + 1) / totalSteps) * 100;
@@ -138,7 +152,8 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
   }
 
   const canProceed = useCallback(() => {
-    switch (currentStep.id) {
+    switch (currentStep?.id) {
+      case 'choose_type': return !!verificationType;
       case 'doc_type': return !!docType;
       case 'document': return !!docFrontUrl && (!selectedDoc.hasBack || !!docBackUrl);
       case 'selfie': return !!selfieUrl;
@@ -150,7 +165,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
       case 'review': return true;
       default: return false;
     }
-  }, [currentStep?.id, docType, docFrontUrl, docBackUrl, selfieUrl, selfieWithDocUrl, orgDocUrl, payoutMethod, accountNumber, accountName, payoutProvider, bankName, selectedDoc]);
+  }, [currentStep?.id, verificationType, docType, docFrontUrl, docBackUrl, selfieUrl, selfieWithDocUrl, orgDocUrl, payoutMethod, accountNumber, accountName, payoutProvider, bankName, selectedDoc]);
 
   const handleSubmit = async () => {
     setSubmitting(true);
@@ -164,8 +179,9 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
           _id_document_back_url: docBackUrl || null,
           _selfie_url: selfieUrl,
           _selfie_with_doc_url: selfieWithDocUrl,
-          _org_document_url: orgDocUrl || null,
-          _org_document_type: orgDocType || null,
+          _org_document_url: verificationType === 'organization' ? (orgDocUrl || null) : null,
+          _org_document_type: verificationType === 'organization' ? (orgDocType || null) : null,
+          _verification_type: verificationType,
           _bank_account_name: accountName || null,
           _bank_account_number: accountNumber || null,
           _bank_name: payoutMethod === 'bank' ? bankName : payoutProvider,
@@ -291,15 +307,19 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
           <div className="flex items-center justify-center">
             <Shield className="h-6 w-6 text-primary mr-2" />
             <h2 className="text-lg font-bold">
-              {mode === 'org' ? 'Vérification de compte' : "Vérification d'identité"}
+              {verificationType === 'organization' ? 'Vérification organisation' : 
+               verificationType === 'individual' ? 'Vérification créateur' : 
+               'Vérification de compte'}
             </h2>
           </div>
           <p className="text-xs text-muted-foreground">
-            {mode === 'org'
-              ? "Identité du responsable + documents de l'organisation. Requis pour activer les retraits."
-              : "Vos documents sont chiffrés et stockés de manière sécurisée."}
+            {!verificationType 
+              ? "Choisissez votre type de vérification pour commencer."
+              : verificationType === 'organization'
+                ? "Identité du responsable + documents officiels de l'organisation."
+                : "Vos documents personnels. Stockés de manière sécurisée et chiffrée."}
           </p>
-          {mode === 'org' && orgCategory && (
+          {verificationType === 'organization' && orgCategory && (
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
               <Building className="h-3 w-3" />
               {CATEGORY_LABELS[orgCategory] || orgCategory}
@@ -361,23 +381,107 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
         {/* ── Step content ── */}
         <AnimatePresence mode="wait">
           <motion.div
-            key={currentStep.id}
+            key={currentStep?.id}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2 }}
             className="min-h-[300px]"
           >
+            {/* STEP: Choose verification type */}
+            {currentStep?.id === 'choose_type' && (
+              <div className="space-y-4">
+                <div className="text-center py-4">
+                  <h3 className="text-xl font-bold">Vous vérifiez en tant que…</h3>
+                  <p className="text-sm text-muted-foreground mt-2">
+                    Choisissez le type qui correspond à votre situation <strong>réelle</strong>, 
+                    quel que soit le type de compte que vous avez créé sur la plateforme.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-xl bg-muted/50 border border-border">
+                  <p className="text-xs text-muted-foreground">
+                    ℹ️ <strong>Pourquoi cette question ?</strong> Avoir créé un compte « organisation » ne signifie pas forcément que vous représentez une entité légale. 
+                    Inversement, un compte « créateur » peut être géré par une vraie organisation. 
+                    Choisissez ce qui reflète votre <strong>réalité juridique</strong>.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  {/* Individual option */}
+                  <button
+                    onClick={() => setVerificationType('individual')}
+                    className={`w-full flex items-start gap-4 p-4 rounded-xl border-2 transition-all text-left ${
+                      verificationType === 'individual'
+                        ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
+                        : 'border-border hover:border-primary/30'
+                    }`}
+                  >
+                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <User className="h-6 w-6 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold">👤 Personne / Créateur individuel</p>
+                        {verificationType === 'individual' && <CheckCircle className="h-4 w-4 text-primary shrink-0" />}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Vous agissez en votre nom propre. Vous n'avez pas de structure légale enregistrée (pas d'association, d'entreprise ou d'ONG).
+                      </p>
+                      <p className="text-[10px] text-primary/70 mt-1.5 font-medium">
+                        → Résultat : « Créateur vérifié ✅ »
+                      </p>
+                    </div>
+                  </button>
+
+                  {/* Organization option */}
+                  <button
+                    onClick={() => setVerificationType('organization')}
+                    className={`w-full flex items-start gap-4 p-4 rounded-xl border-2 transition-all text-left ${
+                      verificationType === 'organization'
+                        ? 'border-primary bg-primary/5 ring-1 ring-primary/20'
+                        : 'border-border hover:border-primary/30'
+                    }`}
+                  >
+                    <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <Building className="h-6 w-6 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="font-semibold">🏢 Organisation / Entité légale</p>
+                        {verificationType === 'organization' && <CheckCircle className="h-4 w-4 text-primary shrink-0" />}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Vous représentez une structure officiellement enregistrée : église, association, ONG, entreprise, communauté, etc. 
+                        Vous devrez fournir les documents de l'organisation en plus de votre pièce d'identité.
+                      </p>
+                      <p className="text-[10px] text-primary/70 mt-1.5 font-medium">
+                        → Résultat : « Organisation vérifiée ✅ »
+                      </p>
+                    </div>
+                  </button>
+                </div>
+
+                <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800">
+                  <p className="text-[11px] text-amber-800 dark:text-amber-200">
+                    ⚠️ <strong>Important :</strong> Choisir « Organisation » alors que vous êtes un individu (ou l'inverse) peut entraîner un rejet de votre vérification. Soyez honnête dans votre choix.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* STEP: Document type */}
-            {currentStep.id === 'doc_type' && (
+            {currentStep?.id === 'doc_type' && (
               <div className="space-y-4">
                 <div className="text-center py-4">
                   <h3 className="text-xl font-bold">
-                    {mode === 'org' ? "Pièce d'identité du responsable" : "Quel type de document ?"}
+                    {verificationType === 'organization' 
+                      ? "Pièce d'identité du responsable" 
+                      : "Votre pièce d'identité"}
                   </h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {mode === 'org'
-                      ? "Choisissez le type de document d'identité du responsable de l'organisation"
+                    {verificationType === 'organization'
+                      ? "Document d'identité du responsable légal de l'organisation"
                       : "Choisissez un document d'identité valide"}
                   </p>
                 </div>
@@ -411,7 +515,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
             )}
 
             {/* STEP: Document photos */}
-            {currentStep.id === 'document' && (
+            {currentStep?.id === 'document' && (
               <div className="space-y-4">
                 <div className="text-center py-2">
                   <h3 className="text-xl font-bold">Photo de votre {selectedDoc.label}</h3>
@@ -465,7 +569,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
             )}
 
             {/* STEP: Selfie */}
-            {currentStep.id === 'selfie' && (
+            {currentStep?.id === 'selfie' && (
               <div className="space-y-4">
                 <div className="text-center py-2">
                   <div className="mx-auto mb-3 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
@@ -498,7 +602,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
             )}
 
             {/* STEP: Selfie with document */}
-            {currentStep.id === 'selfie_doc' && (
+            {currentStep?.id === 'selfie_doc' && (
               <div className="space-y-4">
                 <div className="text-center py-2">
                   <div className="mx-auto mb-3 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
@@ -529,7 +633,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
             )}
 
             {/* STEP: Organization documents (KYB — org mode only) */}
-            {currentStep.id === 'org_docs' && (
+            {currentStep?.id === 'org_docs' && (
               <div className="space-y-4">
                 <div className="text-center py-2">
                   <div className="mx-auto mb-3 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
@@ -576,7 +680,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
             )}
 
             {/* STEP: Payout method (org only) */}
-            {currentStep.id === 'payout' && (
+            {currentStep?.id === 'payout' && (
               <div className="space-y-4">
                 <div className="text-center py-2">
                   <h3 className="text-xl font-bold">Méthode de paiement</h3>
@@ -683,13 +787,27 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
             )}
 
             {/* STEP: Review */}
-            {currentStep.id === 'review' && (
+            {currentStep?.id === 'review' && (
               <div className="space-y-4">
                 <div className="text-center py-2">
                   <h3 className="text-xl font-bold">Vérifiez vos informations</h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Assurez-vous que tout est correct avant de soumettre
+                    {verificationType === 'organization' 
+                      ? 'Vérification en tant qu\'organisation. Assurez-vous que tout est correct.'
+                      : 'Vérification en tant que créateur individuel. Assurez-vous que tout est correct.'}
                   </p>
+                </div>
+
+                {/* Verification type badge */}
+                <div className="flex justify-center">
+                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${
+                    verificationType === 'organization' 
+                      ? 'bg-primary/10 text-primary' 
+                      : 'bg-accent text-accent-foreground'
+                  }`}>
+                    {verificationType === 'organization' ? <Building className="h-4 w-4" /> : <User className="h-4 w-4" />}
+                    {verificationType === 'organization' ? 'Organisation vérifiée' : 'Créateur vérifié'}
+                  </div>
                 </div>
 
                 <div className="space-y-3">
@@ -720,7 +838,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     onEdit={() => setStep(activeSteps.findIndex(s => s.id === 'selfie_doc'))}
                   />
                   {/* Org document (org mode) */}
-                  {mode === 'org' && orgDocUrl && (
+                  {verificationType === 'organization' && orgDocUrl && (
                     <div className="p-3 rounded-xl bg-muted/50 border border-border">
                       <div className="flex items-center justify-between">
                         <div>
@@ -788,7 +906,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
               Précédent
             </Button>
           )}
-          {currentStep.id !== 'review' ? (
+          {currentStep?.id !== 'review' ? (
             <Button
               onClick={() => setStep(s => s + 1)}
               disabled={!canProceed()}

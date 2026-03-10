@@ -2313,6 +2313,7 @@ export type Database = {
           status: string | null
           submitted_at: string | null
           submitted_by: string
+          verification_type: string | null
         }
         Insert: {
           bank_account_name?: string | null
@@ -2341,6 +2342,7 @@ export type Database = {
           status?: string | null
           submitted_at?: string | null
           submitted_by: string
+          verification_type?: string | null
         }
         Update: {
           bank_account_name?: string | null
@@ -2369,6 +2371,7 @@ export type Database = {
           status?: string | null
           submitted_at?: string | null
           submitted_by?: string
+          verification_type?: string | null
         }
         Relationships: [
           {
@@ -5782,6 +5785,27 @@ export type Database = {
               _org_document_url?: string
               _org_id: string
               _selfie_url?: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              _bank_account_name?: string
+              _bank_account_number?: string
+              _bank_name?: string
+              _id_document_back_url?: string
+              _id_document_type?: string
+              _id_document_url?: string
+              _kyc_level: number
+              _org_document_type?: string
+              _org_document_url?: string
+              _org_id: string
+              _payout_method?: string
+              _payout_phone?: string
+              _payout_provider?: string
+              _selfie_url?: string
+              _selfie_with_doc_url?: string
+              _verification_type?: string
             }
             Returns: Json
           }
