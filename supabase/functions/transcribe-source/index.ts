@@ -144,7 +144,10 @@ Rules:
 
         // ===== METHOD 4: Final failure =====
         if (!transcribedText || transcribedText.length < 50) {
-          console.log('[transcribe-source] All YouTube transcription methods failed');
+          console.log('[transcribe-source] All YouTube transcription methods failed — refunding credits');
+          if (creditDebited > 0) {
+            try { await refundCreditsAsBonus({ admin: db, userId, amount: creditDebited, source: 'transcribe_media', expiresInDays: 30 }); } catch (re) { console.error('[transcribe-source] Refund failed:', re); }
+          }
           throw new Error('Could not extract transcription from this video. Please try another YouTube link or upload the audio file directly.');
         }
         break;
