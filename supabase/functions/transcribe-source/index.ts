@@ -79,7 +79,18 @@ Deno.serve(async (req) => {
           console.log('[transcribe-source] Innertube captions failed:', String(e).substring(0, 300));
         }
 
-        // ===== METHOD 2: Gemini fileData (can actually process YouTube videos) =====
+        // ===== METHOD 2: Invidious captions fallback =====
+        if (!transcribedText || transcribedText.length < 50) {
+          try {
+            console.log('[transcribe-source] Falling back to Invidious captions...');
+            transcribedText = await fetchYouTubeCaptionsViaInvidious(videoId);
+            console.log('[transcribe-source] Invidious captions result length:', transcribedText.length);
+          } catch (e) {
+            console.log('[transcribe-source] Invidious captions failed:', String(e).substring(0, 300));
+          }
+        }
+
+        // ===== METHOD 3: Gemini fileData (can process some YouTube videos) =====
         if (!transcribedText || transcribedText.length < 50) {
           try {
             console.log('[transcribe-source] Falling back to Gemini fileData...');
@@ -114,14 +125,14 @@ Rules:
               signal: controller.signal,
             });
             clearTimeout(timeoutId);
-            
+
             const data = await res.json();
             console.log('[transcribe-source] Gemini fileData response status:', res.status);
-            
+
             if (data?.error) {
               console.log('[transcribe-source] Gemini fileData error:', JSON.stringify(data.error).substring(0, 200));
             }
-            
+
             transcribedText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
             console.log('[transcribe-source] fileData result length:', transcribedText.length);
           } catch (e) {
@@ -129,10 +140,10 @@ Rules:
           }
         }
 
-        // ===== METHOD 3: OpenAI fallback - ask to describe based on title/metadata =====
+        // ===== METHOD 4: Final failure =====
         if (!transcribedText || transcribedText.length < 50) {
           console.log('[transcribe-source] All YouTube transcription methods failed');
-          throw new Error('Could not extract captions from this video. The video may not have subtitles/captions available. Please try uploading the audio file directly instead.');
+          throw new Error('Could not extract transcription from this video. Please try another YouTube link or upload the audio file directly.');
         }
         break;
       }
