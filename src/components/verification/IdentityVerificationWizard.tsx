@@ -123,6 +123,12 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
   const [selfieUrl, setSelfieUrl] = useState('');
   const [selfieWithDocUrl, setSelfieWithDocUrl] = useState('');
   
+  // Local preview data URLs for private bucket images
+  const [previews, setPreviews] = useState<Record<string, string>>({});
+  const setPreview = useCallback((key: string) => (dataUrl: string) => {
+    setPreviews(prev => ({ ...prev, [key]: dataUrl }));
+  }, []);
+  
   // Org document state (KYB)
   const [orgDocType, setOrgDocType] = useState('');
   const [orgDocUrl, setOrgDocUrl] = useState('');
