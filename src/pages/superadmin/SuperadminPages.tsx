@@ -383,10 +383,10 @@ export function SuperadminKYC() {
                     )}
 
                     {/* Recommendations */}
-                    {s.ai_recommendations?.length > 0 && (
+                    {s.ai_recommendations && (
                       <div className="text-[9px]">
                         <p className="font-semibold text-muted-foreground mb-0.5">💡 Recommandations :</p>
-                        {s.ai_recommendations.map((r: string, i: number) => (
+                        {(Array.isArray(s.ai_recommendations) ? s.ai_recommendations : [s.ai_recommendations]).map((r: string, i: number) => (
                           <p key={i} className="text-muted-foreground">→ {r}</p>
                         ))}
                       </div>
