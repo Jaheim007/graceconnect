@@ -51,7 +51,7 @@ export function FeaturedSection() {
       const [mostBought, mostViewed, mostRecent] = await Promise.all([
         // Most bought: ONLY products with at least 1 sale, exclude express demos
         db.from('digital_products')
-          .select('*, organizations(name, slug, logo_url, currency, is_verified)')
+          .select('*, organizations(name, slug, logo_url, currency, is_verified, kyc_status, category)')
           .eq('is_published', true)
           .eq('is_express_demo', false)
           .gt('sales_count', 0)
