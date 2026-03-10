@@ -784,13 +784,27 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
             )}
 
             {/* STEP: Review */}
-            {currentStep.id === 'review' && (
+            {currentStep?.id === 'review' && (
               <div className="space-y-4">
                 <div className="text-center py-2">
                   <h3 className="text-xl font-bold">Vérifiez vos informations</h3>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Assurez-vous que tout est correct avant de soumettre
+                    {verificationType === 'organization' 
+                      ? 'Vérification en tant qu\'organisation. Assurez-vous que tout est correct.'
+                      : 'Vérification en tant que créateur individuel. Assurez-vous que tout est correct.'}
                   </p>
+                </div>
+
+                {/* Verification type badge */}
+                <div className="flex justify-center">
+                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium ${
+                    verificationType === 'organization' 
+                      ? 'bg-primary/10 text-primary' 
+                      : 'bg-accent text-accent-foreground'
+                  }`}>
+                    {verificationType === 'organization' ? <Building className="h-4 w-4" /> : <User className="h-4 w-4" />}
+                    {verificationType === 'organization' ? 'Organisation vérifiée' : 'Créateur vérifié'}
+                  </div>
                 </div>
 
                 <div className="space-y-3">
