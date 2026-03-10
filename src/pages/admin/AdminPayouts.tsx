@@ -100,32 +100,57 @@ export default function AdminPayouts() {
     enabled: !!orgId,
   });
 
-  // Fund summary
+  // Fund summary (org sales + ambassador commissions earned)
   const { data: fundSummary } = useQuery({
     queryKey: ['admin-fund-summary', orgId],
     queryFn: async () => {
-      if (!orgId) return null;
-      const [{ data: donations }, { data: purchases }, { data: payoutData }] = await Promise.all([
+      if (!orgId || !user) return null;
+      const [{ data: donations }, { data: purchases }, { data: payoutData }, { data: affiliateSales }] = await Promise.all([
         db.from('donations').select('amount, organization_amount, platform_fee, affiliate_commission, completed_at').eq('organization_id', orgId).eq('status', 'completed'),
         db.from('product_purchases').select('amount, organization_amount, platform_fee, affiliate_commission, completed_at').eq('organization_id', orgId).eq('status', 'completed'),
         db.from('payout_requests').select('amount, status').eq('organization_id', orgId),
+        // Ambassador commissions earned by the org owner
+        db.from('affiliate_sales').select('commission_amount, status, payable_at, created_at').eq('affiliate_user_id', user.id),
       ]);
+
+      // ── Org sales breakdown ──
       const allTxns = [...(donations || []), ...(purchases || [])];
       const totalGMV = allTxns.reduce((s, t) => s + (t.amount || 0), 0);
       const totalOrgReceived = allTxns.reduce((s, t) => s + (t.organization_amount || 0), 0);
       const totalPlatformFees = allTxns.reduce((s, t) => s + (t.platform_fee || 0), 0);
-      const totalAffiliateCommissions = allTxns.reduce((s, t) => s + (t.affiliate_commission || 0), 0);
+      const totalAffiliateCommissionsPaid = allTxns.reduce((s, t) => s + (t.affiliate_commission || 0), 0);
+
+      // ── Ambassador commissions earned ──
+      const allAffSales = affiliateSales || [];
+      const totalAmbassadorEarned = allAffSales.reduce((s: number, a: any) => s + (a.commission_amount || 0), 0);
+      const ambassadorPaid = allAffSales.filter((a: any) => a.status === 'paid').reduce((s: number, a: any) => s + (a.commission_amount || 0), 0);
+      const now = new Date();
+      const ambassadorPayable = allAffSales
+        .filter((a: any) => a.status === 'payable' || (a.status === 'pending' && a.payable_at && new Date(a.payable_at) <= now))
+        .reduce((s: number, a: any) => s + (a.commission_amount || 0), 0);
+      const ambassadorPending = totalAmbassadorEarned - ambassadorPaid - ambassadorPayable;
+
+      // ── Payouts ──
       const completedPayouts = (payoutData || []).filter((p: any) => p.status === 'completed').reduce((s: number, p: any) => s + (p.amount || 0), 0);
       const pendingPayouts = (payoutData || []).filter((p: any) => ['pending', 'requested', 'approved', 'processing'].includes(p.status)).reduce((s: number, p: any) => s + (p.amount || 0), 0);
-      // Only count transactions completed more than 72h ago as available
-      const holdCutoff = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
-      const clearedOrgReceived = allTxns
-        .filter((t: any) => t.completed_at && t.completed_at <= holdCutoff)
-        .reduce((s, t) => s + (t.organization_amount || 0), 0);
-      const pendingClearance = totalOrgReceived - clearedOrgReceived;
-      const availableBalance = clearedOrgReceived - completedPayouts - pendingPayouts;
 
-      return { totalGMV, totalOrgReceived, totalPlatformFees, totalAffiliateCommissions, completedPayouts, pendingPayouts, availableBalance, pendingClearance };
+      // ── Org sales: 72h hold ──
+      const holdCutoff72h = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
+      const clearedOrgReceived = allTxns
+        .filter((t: any) => t.completed_at && t.completed_at <= holdCutoff72h)
+        .reduce((s, t) => s + (t.organization_amount || 0), 0);
+      const pendingClearanceOrg = totalOrgReceived - clearedOrgReceived;
+
+      // ── Total available = cleared org sales + payable ambassador commissions - payouts ──
+      const availableBalance = clearedOrgReceived + ambassadorPayable - completedPayouts - pendingPayouts;
+      const totalPendingClearance = pendingClearanceOrg + ambassadorPending;
+
+      return {
+        totalGMV, totalOrgReceived, totalPlatformFees, totalAffiliateCommissionsPaid,
+        totalAmbassadorEarned, ambassadorPayable, ambassadorPending, ambassadorPaid,
+        completedPayouts, pendingPayouts, availableBalance,
+        pendingClearance: totalPendingClearance, pendingClearanceOrg,
+      };
     },
     enabled: !!orgId,
   });
