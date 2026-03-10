@@ -18,7 +18,7 @@ interface AIDescriptionButtonProps {
  * One-click "Write my sales description" button using AI.
  * Generates a compelling sales description based on product title and type.
  */
-export function AIDescriptionButton({ title, productType, price, currency = 'XOF', onGenerated }: AIDescriptionButtonProps) {
+export function AIDescriptionButton({ title, productType, price, currency = 'XOF', existingDescription, onGenerated }: AIDescriptionButtonProps) {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const { locale } = useI18n();
