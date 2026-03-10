@@ -393,6 +393,7 @@ export function SmartCameraCapture({
     stopCamera();
     setFrameStatus('captured');
     setCapturedImage(dataUrl);
+    onPreviewCapture?.(dataUrl);
 
     setUploading(true);
     setError(null);
@@ -423,7 +424,7 @@ export function SmartCameraCapture({
     } finally {
       setUploading(false);
     }
-  }, [folder, bucket, onChange, stopCamera]);
+  }, [folder, bucket, onChange, onPreviewCapture, stopCamera]);
 
   const takePhoto = useCallback(() => {
     autoCapturedRef.current = true;
