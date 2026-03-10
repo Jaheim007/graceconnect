@@ -95,6 +95,8 @@ export default function MarketplacePage() {
         organization_name: c.organizations?.name,
         organization_slug: c.organizations?.slug,
         is_org_verified: c.organizations?.is_verified,
+        org_kyc_status: c.organizations?.kyc_status,
+        org_category: c.organizations?.category,
       }));
     },
   });
