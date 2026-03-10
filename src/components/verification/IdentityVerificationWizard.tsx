@@ -550,6 +550,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     bucket="kyc-documents"
                     label={selectedDoc.hasBack ? 'Face avant du document' : selectedDoc.label}
                     hint="Prenez une photo claire du document entier"
+                    captureMode="document"
                   />
                 </div>
                 {selectedDoc.hasBack && (
@@ -562,6 +563,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                       bucket="kyc-documents"
                       label="Face arrière du document"
                       hint="Retournez le document et prenez une photo du verso"
+                      captureMode="document"
                     />
                   </div>
                 )}
@@ -597,6 +599,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                   bucket="kyc-documents"
                   label="Selfie"
                   hint="Utilisez la caméra frontale pour prendre un selfie clair"
+                  captureMode="selfie"
                 />
               </div>
             )}
