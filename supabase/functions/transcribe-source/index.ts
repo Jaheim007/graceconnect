@@ -45,9 +45,11 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Debit credits for transcription
+    // Debit credits for transcription (will be refunded if transcription fails)
+    let creditDebited = 0;
     try {
-      await consumeCreditsOrThrow({ admin: db, userId, actionKey: 'transcribe_media', tier: 'standard' });
+      const debitResult = await consumeCreditsOrThrow({ admin: db, userId, actionKey: 'transcribe_media', tier: 'standard' });
+      if (!('skipped' in debitResult)) creditDebited = debitResult.debited;
     } catch (e: any) {
       if (e?.status === 402) {
         return new Response(JSON.stringify({ error: e.message }), {
