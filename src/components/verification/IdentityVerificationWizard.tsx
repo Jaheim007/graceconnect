@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CameraCapture } from '@/components/ui/CameraCapture';
+import { SmartCameraCapture } from '@/components/ui/SmartCameraCapture';
 import { FileUploader } from '@/components/ui/FileUploader';
 import { Input } from '@/components/ui/input';
 import { db } from '@/lib/db';
@@ -630,27 +630,29 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                   <Label className="text-sm font-semibold">
                     {selectedDoc.hasBack ? 'Recto (face avant) *' : 'Photo du document *'}
                   </Label>
-                  <CameraCapture
+                  <SmartCameraCapture
                     value={docFrontUrl}
                     onChange={setDocFrontUrl}
                     folder={`${folder}/doc-front`}
                     bucket="kyc-documents"
                     label={selectedDoc.hasBack ? 'Face avant du document' : selectedDoc.label}
-                    hint="Prenez une photo claire du document entier"
+                    hint="La capture se fait automatiquement quand le document est bien cadré"
                     captureMode="document"
+                    smartCapture
                   />
                 </div>
                 {selectedDoc.hasBack && (
                   <div>
                     <Label className="text-sm font-semibold">Verso (face arrière) *</Label>
-                    <CameraCapture
+                    <SmartCameraCapture
                       value={docBackUrl}
                       onChange={setDocBackUrl}
                       folder={`${folder}/doc-back`}
                       bucket="kyc-documents"
                       label="Face arrière du document"
-                      hint="Retournez le document et prenez une photo du verso"
+                      hint="La capture se fait automatiquement quand le document est bien cadré"
                       captureMode="document"
+                      smartCapture
                     />
                   </div>
                 )}
@@ -679,14 +681,15 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     <p className="text-xs text-muted-foreground">Bonne luminosité, fond neutre si possible</p>
                   </div>
                 </div>
-                <CameraCapture
+                <SmartCameraCapture
                   value={selfieUrl}
                   onChange={setSelfieUrl}
                   folder={`${folder}/selfie`}
                   bucket="kyc-documents"
                   label="Selfie"
-                  hint="Utilisez la caméra frontale pour prendre un selfie clair"
+                  hint="La capture se fait automatiquement quand votre visage est bien cadré"
                   captureMode="selfie"
+                  smartCapture
                 />
               </div>
             )}
@@ -711,13 +714,15 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     <li>• Le texte du document doit être lisible</li>
                   </ul>
                 </div>
-                <CameraCapture
+                <SmartCameraCapture
                   value={selfieWithDocUrl}
                   onChange={setSelfieWithDocUrl}
                   folder={`${folder}/selfie-with-doc`}
                   bucket="kyc-documents"
                   label="Selfie avec document"
                   hint="Prenez un selfie en tenant votre pièce d'identité visible à côté de votre visage"
+                  captureMode="selfie"
+                  smartCapture
                 />
               </div>
             )}

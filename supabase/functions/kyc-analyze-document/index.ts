@@ -255,6 +255,40 @@ Respond in French for all human-readable fields (quality_summary, fraud_notes, r
       },
     });
 
+    // Auto-notify superadmins on low score or fraud flags
+    const isHighRisk = analysis.confidence_score < 50 ||
+      analysis.fraud_detection?.risk_level === 'high' ||
+      analysis.fraud_detection?.risk_level === 'critical' ||
+      analysis.fraud_detection?.tampering_detected ||
+      analysis.fraud_detection?.is_screenshot;
+
+    if (isHighRisk && submission_id) {
+      // Get org name for context
+      const orgName = submission_id ? await (async () => {
+        const { data: sub } = await supabase.from("kyc_submissions")
+          .select("organization_id, organizations!left(name)")
+          .eq("id", submission_id).single();
+        return (sub?.organizations as any)?.name || "Inconnue";
+      })() : "Inconnue";
+
+      // Get all superadmin user IDs
+      const { data: superadmins } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "admin");
+
+      if (superadmins && superadmins.length > 0) {
+        const alerts = superadmins.map((sa: any) => ({
+          user_id: sa.user_id,
+          title: `🚨 Alerte vérification – Score ${analysis.confidence_score}%`,
+          body: `La soumission KYC de "${orgName}" a un score IA de ${analysis.confidence_score}% avec risque ${analysis.fraud_detection?.risk_level || 'inconnu'}. Vérification manuelle recommandée.`,
+          notification_type: "kyc_fraud_alert",
+          action_url: "/superadmin/kyc",
+        }));
+        await supabase.from("user_notifications").insert(alerts);
+      }
+    }
+
     return new Response(JSON.stringify({ analysis }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

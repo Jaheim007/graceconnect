@@ -3,7 +3,7 @@ import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Shield, Users, FileCheck, BarChart3, Megaphone, Sparkles, LayoutDashboard, Activity, Settings, Download,
-  UserCircle, Target, ShieldAlert, Mail, ChevronLeft, ChevronRight, ArrowLeft, Bell, HelpCircle, Wallet, Handshake, ShieldCheck
+  UserCircle, Target, ShieldAlert, Mail, ChevronLeft, ChevronRight, ArrowLeft, Bell, HelpCircle, Wallet, Handshake, ShieldCheck, Brain
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ const links = [
   { to: '/superadmin/users', label: 'Users', icon: UserCircle },
   { to: '/superadmin/activity', label: 'Activity', icon: Activity },
   { to: '/superadmin/kyc', label: 'Vérification ID', icon: FileCheck },
+  { to: '/superadmin/ai-history', label: 'Historique IA', icon: Brain },
   { to: '/superadmin/transactions', label: 'Transactions', icon: BarChart3 },
   { to: '/superadmin/reports', label: 'Reports', icon: Megaphone },
   { to: '/superadmin/moderation', label: 'Modération', icon: ShieldCheck },
