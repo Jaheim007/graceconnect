@@ -215,3 +215,6 @@ verify_jwt = false
 
 [functions.ops-autopilot]
 verify_jwt = false
+
+[functions.kyc-analyze-document]
+verify_jwt = false

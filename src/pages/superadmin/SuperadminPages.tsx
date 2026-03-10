@@ -301,6 +301,133 @@ export function SuperadminKYC() {
                   </div>
                 )}
 
+                {/* AI Analysis Report */}
+                {s.ai_analyzed_at && (
+                  <div className="p-3 rounded-xl bg-muted/30 border border-border space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-semibold">🤖 Rapport IA</p>
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                        (s.ai_confidence_score || 0) >= 80 ? 'bg-primary/10 text-primary' :
+                        (s.ai_confidence_score || 0) >= 50 ? 'bg-accent text-accent-foreground' :
+                        'bg-destructive/10 text-destructive'
+                      }`}>
+                        Score : {s.ai_confidence_score || 0}%
+                      </span>
+                    </div>
+                    
+                    {s.ai_summary && (
+                      <p className="text-[11px] text-muted-foreground">{s.ai_summary}</p>
+                    )}
+
+                    {/* OCR Data */}
+                    {s.ai_ocr_data && Object.keys(s.ai_ocr_data).length > 0 && s.ai_ocr_data.full_name && (
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-semibold text-muted-foreground">📋 Données OCR extraites :</p>
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 text-[10px]">
+                          {s.ai_ocr_data.full_name && <p><span className="text-muted-foreground">Nom :</span> <strong>{s.ai_ocr_data.full_name}</strong></p>}
+                          {s.ai_ocr_data.date_of_birth && <p><span className="text-muted-foreground">Né(e) le :</span> {s.ai_ocr_data.date_of_birth}</p>}
+                          {s.ai_ocr_data.document_number && <p><span className="text-muted-foreground">N° doc :</span> {s.ai_ocr_data.document_number}</p>}
+                          {s.ai_ocr_data.expiry_date && <p><span className="text-muted-foreground">Expire :</span> {s.ai_ocr_data.expiry_date}</p>}
+                          {s.ai_ocr_data.nationality && <p><span className="text-muted-foreground">Nationalité :</span> {s.ai_ocr_data.nationality}</p>}
+                          {s.ai_ocr_data.gender && <p><span className="text-muted-foreground">Genre :</span> {s.ai_ocr_data.gender}</p>}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Face Match */}
+                    {s.ai_face_match && s.ai_face_match.id_vs_selfie && s.ai_face_match.id_vs_selfie !== 'not_available' && (
+                      <div className="flex items-center gap-2 text-[10px]">
+                        <span>{s.ai_face_match.id_vs_selfie === 'match' ? '✅' : s.ai_face_match.id_vs_selfie === 'likely_match' ? '🟡' : '⚠️'}</span>
+                        <span>Correspondance visage : <strong>{
+                          s.ai_face_match.id_vs_selfie === 'match' ? 'Confirmée' :
+                          s.ai_face_match.id_vs_selfie === 'likely_match' ? 'Probable' :
+                          s.ai_face_match.id_vs_selfie === 'uncertain' ? 'Incertaine' : 'Non concordante'
+                        }</strong></span>
+                        {s.ai_face_match.notes && <span className="text-muted-foreground ml-1">— {s.ai_face_match.notes}</span>}
+                      </div>
+                    )}
+
+                    {/* Fraud Detection */}
+                    {s.ai_fraud_detection && s.ai_fraud_detection.risk_level && s.ai_fraud_detection.risk_level !== 'none' && (
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 text-[10px]">
+                          <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${
+                            s.ai_fraud_detection.risk_level === 'critical' || s.ai_fraud_detection.risk_level === 'high' 
+                              ? 'bg-destructive/10 text-destructive' 
+                              : s.ai_fraud_detection.risk_level === 'medium' ? 'bg-accent text-accent-foreground' 
+                              : 'bg-muted text-muted-foreground'
+                          }`}>
+                            ⚠️ Risque : {s.ai_fraud_detection.risk_level.toUpperCase()}
+                          </span>
+                          {s.ai_fraud_detection.is_screenshot && <span className="text-destructive">📱 Capture d'écran</span>}
+                          {s.ai_fraud_detection.is_photocopy && <span className="text-destructive">📄 Photocopie</span>}
+                          {s.ai_fraud_detection.is_expired && <span className="text-destructive">⏰ Expiré</span>}
+                          {s.ai_fraud_detection.tampering_detected && <span className="text-destructive">🔧 Falsification</span>}
+                        </div>
+                        {s.ai_fraud_detection.flags?.length > 0 && (
+                          <ul className="text-[9px] text-muted-foreground space-y-0.5 ml-2">
+                            {s.ai_fraud_detection.flags.map((f: string, i: number) => <li key={i}>• {f}</li>)}
+                          </ul>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Quality Assessment Issues */}
+                    {s.ai_quality_assessment?.issues?.length > 0 && (
+                      <div className="text-[9px] text-muted-foreground">
+                        <p className="font-semibold mb-0.5">📸 Problèmes de qualité :</p>
+                        {s.ai_quality_assessment.issues.map((issue: string, i: number) => (
+                          <p key={i}>• {issue}</p>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Recommendations */}
+                    {s.ai_recommendations?.length > 0 && (
+                      <div className="text-[9px]">
+                        <p className="font-semibold text-muted-foreground mb-0.5">💡 Recommandations :</p>
+                        {s.ai_recommendations.map((r: string, i: number) => (
+                          <p key={i} className="text-muted-foreground">→ {r}</p>
+                        ))}
+                      </div>
+                    )}
+
+                    <p className="text-[8px] text-muted-foreground text-right">
+                      Analysé le {new Date(s.ai_analyzed_at).toLocaleString('fr-FR')}
+                    </p>
+                  </div>
+                )}
+
+                {/* Re-analyze button for pending submissions without AI analysis */}
+                {s.status === 'pending' && !s.ai_analyzed_at && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs"
+                    onClick={async () => {
+                      try {
+                        toast({ title: '🤖 Analyse IA lancée...' });
+                        await db.functions.invoke('kyc-analyze-document', {
+                          body: {
+                            submission_id: s.id,
+                            doc_front_url: s.id_document_url,
+                            doc_back_url: s.id_document_back_url || null,
+                            selfie_url: s.selfie_url || null,
+                            selfie_with_doc_url: s.selfie_with_doc_url || null,
+                            doc_type: s.id_document_type,
+                          },
+                        });
+                        toast({ title: '✅ Analyse IA terminée' });
+                        refetch();
+                      } catch (err: any) {
+                        toast({ title: 'Erreur IA', description: err.message, variant: 'destructive' });
+                      }
+                    }}
+                  >
+                    🤖 Lancer l'analyse IA
+                  </Button>
+                )}
+
                 {/* Details */}
                 <div className="text-xs text-muted-foreground space-y-0.5">
                   {s.id_document_type && <p>📄 Type ID : {s.id_document_type}</p>}
