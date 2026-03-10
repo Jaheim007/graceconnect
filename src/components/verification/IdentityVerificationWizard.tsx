@@ -681,14 +681,15 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     <p className="text-xs text-muted-foreground">Bonne luminosité, fond neutre si possible</p>
                   </div>
                 </div>
-                <CameraCapture
+                <SmartCameraCapture
                   value={selfieUrl}
                   onChange={setSelfieUrl}
                   folder={`${folder}/selfie`}
                   bucket="kyc-documents"
                   label="Selfie"
-                  hint="Utilisez la caméra frontale pour prendre un selfie clair"
+                  hint="La capture se fait automatiquement quand votre visage est bien cadré"
                   captureMode="selfie"
+                  smartCapture
                 />
               </div>
             )}
