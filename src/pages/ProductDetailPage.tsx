@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { SiteLogo } from '@/components/ui/SiteLogo';
 import { formatCurrency, formatPrice } from '@/lib/currency';
+import { getEffectivePrice } from '@/lib/effectivePrice';
 import { LocalPriceHint } from '@/components/payments/LocalPriceHint';
 import { useI18n } from '@/i18n/I18nContext';
 import { FormattedText, stripHtml } from '@/lib/formatText';

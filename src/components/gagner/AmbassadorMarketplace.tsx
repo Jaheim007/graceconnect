@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { getEffectivePrice } from '@/lib/effectivePrice';
 import { motion } from 'framer-motion';
 import { Search, Zap, TrendingUp, ExternalLink } from 'lucide-react';
 import { Input } from '@/components/ui/input';

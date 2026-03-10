@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { getEffectivePrice } from '@/lib/effectivePrice';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, Copy, Check, Zap, Eye, ChevronDown, ChevronUp, TrendingUp, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
