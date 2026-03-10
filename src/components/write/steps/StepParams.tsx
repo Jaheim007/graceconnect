@@ -26,6 +26,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
   const [titleSuggestions, setTitleSuggestions] = useState<string[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [keywordInput, setKeywordInput] = useState('');
+  const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
 
   const styles: { type: BookStyle; icon: typeof BookOpen; label: string; desc: string }[] = [
     { type: 'ebook', icon: BookOpen, label: t('write.style_ebook'), desc: t('write.style_ebook_desc') },
