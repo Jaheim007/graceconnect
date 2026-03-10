@@ -11,7 +11,7 @@ import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
   Wallet, Clock, CheckCircle, XCircle, ArrowUpRight, AlertTriangle,
-  DollarSign, Shield, Download, Info, CreditCard, ExternalLink, Loader2
+  DollarSign, Shield, Download, Info, CreditCard, ExternalLink, Loader2, Send
 } from 'lucide-react';
 import { downloadCSV } from '@/lib/csvExport';
 import { format } from 'date-fns';
@@ -19,6 +19,10 @@ import { fr, enUS } from 'date-fns/locale';
 import { useI18n } from '@/i18n/I18nContext';
 import { startStripeConnectOnboarding, checkStripeConnectStatus } from '@/lib/api';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { onPayoutRequested } from '@/lib/notifications';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { useState } from 'react';
 
 import { formatCurrency } from '@/lib/currency';
 const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
