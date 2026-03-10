@@ -167,11 +167,38 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
     }
   }, [currentStep?.id, verificationType, docType, docFrontUrl, docBackUrl, selfieUrl, selfieWithDocUrl, orgDocUrl, payoutMethod, accountNumber, accountName, payoutProvider, bankName, selectedDoc]);
 
+  const [aiAnalyzing, setAiAnalyzing] = useState(false);
+  const [aiResult, setAiResult] = useState<any>(null);
+
+  const triggerAiAnalysis = async (submissionId: string) => {
+    setAiAnalyzing(true);
+    try {
+      const { data, error } = await db.functions.invoke('kyc-analyze-document', {
+        body: {
+          submission_id: submissionId,
+          doc_front_url: docFrontUrl,
+          doc_back_url: docBackUrl || null,
+          selfie_url: selfieUrl,
+          selfie_with_doc_url: selfieWithDocUrl,
+          doc_type: docType,
+        },
+      });
+      if (error) throw error;
+      setAiResult(data?.analysis || null);
+    } catch (err: any) {
+      console.error('AI analysis error:', err);
+      // Non-blocking: don't prevent submission success
+    } finally {
+      setAiAnalyzing(false);
+    }
+  };
+
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
+      let submissionId: string | null = null;
       if (mode === 'org') {
-        const { error } = await db.rpc('submit_org_kyc', {
+        const { data, error } = await db.rpc('submit_org_kyc', {
           _org_id: entityId,
           _kyc_level: 1,
           _id_document_url: docFrontUrl,
@@ -190,6 +217,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
           _payout_provider: payoutProvider || null,
         });
         if (error) throw error;
+        submissionId = (data as any)?.submission_id || null;
       } else {
         const { error } = await db.rpc('submit_partner_kyc', {
           _partner_id: entityId,
@@ -203,6 +231,11 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
       }
       setSubmitted(true);
       toast.success('Documents soumis avec succès !');
+
+      // Trigger AI analysis in background (non-blocking)
+      if (submissionId) {
+        triggerAiAnalysis(submissionId);
+      }
     } catch (err: any) {
       toast.error(err.message || 'Erreur lors de la soumission');
     } finally {
