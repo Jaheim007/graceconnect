@@ -36,7 +36,7 @@ import { ContextTip } from '@/components/admin/ContextualTooltips';
 import { PrintableQRCode } from '@/components/sharing/PrintableQRCode';
 import { ContentVersionHistory } from '@/components/admin/ContentVersionHistory';
 import { ContextualFeedback } from '@/components/feedback/ContextualFeedback';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
 
 
 import type { ProductTemplate } from '@/lib/contentTemplates';
