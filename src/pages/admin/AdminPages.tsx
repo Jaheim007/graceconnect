@@ -1,5 +1,6 @@
 // Generic stub for remaining admin pages
 import { stripHtml } from '@/lib/formatText';
+import { CurrencySelector } from '@/components/currency/CurrencySelector';
 import { AdminPageShell } from './AdminPageShell';
 import IdentityVerificationWizard from '@/components/verification/IdentityVerificationWizard';
 import { useOrg } from '@/contexts/OrgContext';
@@ -939,6 +940,8 @@ export function AdminSettings() {
   const [whatsapp, setWhatsapp] = useState(currentOrg?.whatsapp ?? '');
   const [logoUrl, setLogoUrl] = useState(currentOrg?.logo_url ?? '');
   const [bannerUrl, setBannerUrl] = useState(currentOrg?.banner_url ?? '');
+  const [orgCurrency, setOrgCurrency] = useState(currentOrg?.currency ?? 'XOF');
+  const [orgCountry, setOrgCountry] = useState((currentOrg as any)?.country ?? '');
   const [savingProfile, setSavingProfile] = useState(false);
 
   const slugify = (v: string) => v.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -991,6 +994,8 @@ export function AdminSettings() {
     setLeaderTitle(oa?.leader_title ?? '');
     setLeaderBio(oa?.leader_bio ?? '');
     setLeaderImageUrl(oa?.leader_image_url ?? '');
+    setOrgCurrency(currentOrg.currency ?? 'XOF');
+    setOrgCountry(oa?.country ?? '');
     setAffiliationEnabled(currentOrg.affiliation_enabled ?? false);
     setCommissionPercent(String(currentOrg.affiliation_commission_percent ?? 10));
     setOfferingsEnabled(oa?.offerings_enabled ?? false);
@@ -1052,7 +1057,9 @@ export function AdminSettings() {
         whatsapp: whatsapp.trim() || null,
         logo_url: logoUrl || null,
         banner_url: bannerUrl || null,
-      })
+        currency: orgCurrency,
+        country: orgCountry.trim() || null,
+      } as any)
       .eq('id', currentOrg.id);
     setSavingProfile(false);
     if (error) {
@@ -1245,18 +1252,22 @@ export function AdminSettings() {
             </p>
           </div>
 
-          {/* Read-only info */}
-          <div className="grid gap-1.5 text-xs border-t border-border/60 pt-3">
-            {[
-              { label: 'Plan', value: currentOrg?.plan_type },
-              { label: 'Pays', value: currentOrg?.country },
-              { label: 'Devise', value: currentOrg?.currency },
-            ].map(({ label, value }) => (
-              <div key={label} className="flex justify-between">
-                <span className="text-muted-foreground">{label}</span>
-                <span className="font-medium capitalize">{value || '—'}</span>
+          {/* Editable currency & country + read-only plan */}
+          <div className="grid gap-3 border-t border-border/60 pt-3">
+            <div className="grid sm:grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="org-currency" className="text-xs font-medium">Devise</Label>
+                <CurrencySelector value={orgCurrency} onChange={(c) => setOrgCurrency(c)} className="h-8 text-xs" />
               </div>
-            ))}
+              <div className="space-y-1.5">
+                <Label htmlFor="org-country" className="text-xs font-medium">Pays</Label>
+                <Input id="org-country" value={orgCountry} onChange={e => setOrgCountry(e.target.value)} placeholder="Ex: CI, SN, FR…" className="h-8 text-xs" />
+              </div>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">Plan</span>
+              <span className="font-medium capitalize">{currentOrg?.plan_type || 'Free'}</span>
+            </div>
           </div>
 
           <Button
