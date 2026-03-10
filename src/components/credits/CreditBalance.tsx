@@ -1,4 +1,3 @@
-import { Sparkles } from 'lucide-react';
 import { useCreditsBalance, useGrantDailyCredits } from '@/hooks/useCredits';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +8,38 @@ function formatCredits(n: number): string {
   if (n >= 100) return Math.floor(n).toString();
   if (Number.isInteger(n)) return n.toString();
   return n.toFixed(1);
+}
+
+/** Animated spinning coin icon */
+function CoinIcon({ className }: { className?: string }) {
+  return (
+    <span className={className} style={{ display: 'inline-flex', perspective: '60px' }}>
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-full w-full"
+        style={{
+          animation: 'coin-spin 3s ease-in-out infinite',
+        }}
+      >
+        <circle cx="12" cy="12" r="10" fill="currentColor" opacity="0.15" />
+        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="1.5" />
+        <circle cx="12" cy="12" r="7" stroke="currentColor" strokeWidth="1" opacity="0.4" />
+        <text
+          x="12"
+          y="16"
+          textAnchor="middle"
+          fill="currentColor"
+          fontSize="11"
+          fontWeight="bold"
+          fontFamily="system-ui, sans-serif"
+        >
+          C
+        </text>
+      </svg>
+    </span>
+  );
 }
 
 export function CreditBalance() {
@@ -30,7 +61,7 @@ export function CreditBalance() {
   if (isLoading || !summary) {
     return (
       <div className="flex items-center gap-1 h-7 px-2 rounded-full bg-muted/50 border border-border animate-pulse shrink-0">
-        <Sparkles className="h-3 w-3 text-muted-foreground" />
+        <CoinIcon className="h-3.5 w-3.5 text-muted-foreground" />
         <span className="text-xs text-muted-foreground">--</span>
       </div>
     );
@@ -39,10 +70,10 @@ export function CreditBalance() {
   return (
     <button
       onClick={() => navigate('/credits')}
-      className="inline-flex items-center gap-1 h-7 px-2.5 rounded-full border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all shrink-0 whitespace-nowrap"
+      className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all shrink-0 whitespace-nowrap"
       title={`${summary.balance.toFixed(1)} crédits`}
     >
-      <Sparkles className="h-3 w-3 text-primary shrink-0" />
+      <CoinIcon className="h-4 w-4 text-primary shrink-0" />
       <span className="text-xs font-bold tabular-nums text-primary leading-none">
         {formatCredits(summary.balance)}
       </span>
