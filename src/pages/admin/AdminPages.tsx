@@ -131,13 +131,19 @@ export function AdminEvents() {
           <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
             {items.map(ev => (
               <motion.div key={ev.id} variants={fadeUp} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all group">
-                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <span className="text-xs font-bold text-primary">
-                    {ev.event_date ? new Date(ev.event_date).getDate() : '?'}
-                  </span>
-                </div>
+                {ev.image_url ? (
+                  <div className="h-16 w-28 rounded-xl overflow-hidden shrink-0 border border-border">
+                    <img src={ev.image_url} alt={ev.title} className="w-full h-full object-cover" />
+                  </div>
+                ) : (
+                  <div className="h-16 w-28 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <span className="text-lg font-bold text-primary">
+                      {ev.event_date ? new Date(ev.event_date).getDate() : '?'}
+                    </span>
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{ev.title}</p>
+                  <p className="text-base font-medium truncate">{ev.title}</p>
                   <p className="text-xs text-muted-foreground">
                     {ev.event_date ? new Date(ev.event_date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric', year: 'numeric' }) : 'À définir'}
                     {ev.location ? ` · ${ev.location}` : ''}
