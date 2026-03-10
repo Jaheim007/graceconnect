@@ -1249,7 +1249,9 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
     }
 
     const aiData = await aiRes.json();
-    const rawContent = aiData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const rawContent = usedProvider === 'openai'
+      ? (aiData?.choices?.[0]?.message?.content || '')
+      : (aiData?.candidates?.[0]?.content?.parts?.[0]?.text || '');
 
     let parsed = tryParsePayload(rawContent);
     if (!parsed) {
