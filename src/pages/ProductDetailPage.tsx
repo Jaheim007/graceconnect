@@ -889,6 +889,8 @@ export default function ProductDetailPage() {
         coverImageUrl={product.cover_image_url}
         isFreePurchase={product.is_free || false}
         productType={product.product_type || undefined}
+        price={getEffectivePrice(product as any)}
+        commissionRate={(product as any).commission_percent || (org as any)?.affiliation_commission_percent || 20}
         onGoToResources={() => { setShowCelebration(false); navigate('/resources'); }}
       />
 
