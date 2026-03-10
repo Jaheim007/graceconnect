@@ -8,6 +8,7 @@ import {
   Camera, LogOut, ChevronRight, User, Lock, Bell, Globe,
   Info, Moon, Sun, HelpCircle, Mail, Shield, ArrowLeft, Trash2, BookOpen, Languages
 } from 'lucide-react';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
