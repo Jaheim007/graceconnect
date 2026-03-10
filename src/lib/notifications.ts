@@ -650,7 +650,7 @@ export async function onPaymentFailed(
 // ── Milestones ──
 export async function onFirstDonationReceived(orgId: string, orgName: string, amount: number, currency: string) {
   emailOrgAdmins('first_donation_milestone', orgId, { org_name: orgName, amount, currency });
-  notifyOrgMembers(orgId, '🎉 Premier don reçu !', `${orgName} a reçu son tout premier don de ${amount} ${currency} !`, 'milestone', undefined, `/admin/campaigns`);
+  notifyOrgOwnerOnly(orgId, '🎉 Premier don reçu !', `${orgName} a reçu son tout premier don de ${amount} ${currency} !`, 'milestone', `/admin/campaigns`);
 }
 
 export async function onFirstSale(orgId: string, orgName: string, productName: string, amount: number, currency: string) {
