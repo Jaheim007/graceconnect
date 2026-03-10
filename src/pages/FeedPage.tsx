@@ -28,6 +28,7 @@ import { useFeedProducts, useFeedCampaigns } from '@/hooks/useMonetization';
 import { useMyPurchases } from '@/hooks/usePurchases';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { cn } from '@/lib/utils';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { useI18n } from '@/i18n/I18nContext';
 import { PageTour } from '@/components/onboarding/PageTour';
 import { SEOHead } from '@/components/seo/SEOHead';

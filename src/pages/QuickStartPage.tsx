@@ -107,6 +107,7 @@ export default function QuickStartPage() {
     orgId: p.organization_id,
     orgName: p.organizations?.name,
     orgSlug: p.organizations?.slug,
+    isOrgVerified: p.organizations?.is_verified ?? false,
     commissionRate: p.organizations?.affiliation_commission_percent || 10,
   }));
 
