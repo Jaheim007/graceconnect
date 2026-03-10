@@ -792,7 +792,7 @@ export async function onPayoutRequested(orgId: string, orgName: string, amount: 
 
 export async function onPayoutApproved(orgId: string, orgName: string, amount: number, currency: string) {
   emailOrgAdmins('payout_approved', orgId, { org_name: orgName, amount, currency });
-  notifyOrgMembers(orgId, '✅ Retrait approuvé', `Le retrait de ${amount} ${currency} pour ${orgName} a été approuvé.`, 'transaction');
+  notifyOrgOwnerOnly(orgId, '✅ Retrait approuvé', `Le retrait de ${amount} ${currency} pour ${orgName} a été approuvé.`, 'transaction');
 }
 
 export async function onPayoutRejected(orgId: string, orgName: string, reason: string) {
