@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area } from 'recharts';
-import { TrendingUp, Users, DollarSign, BarChart3, Activity, ShoppingBag, Heart, Filter, Download, Search, CalendarIcon } from 'lucide-react';
+import { TrendingUp, Users, DollarSign, BarChart3, Activity, ShoppingBag, Heart, Filter, Download, Search, CalendarIcon, Shield, Loader2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useState, useMemo } from 'react';
 import { downloadCSV } from '@/lib/csvExport';
