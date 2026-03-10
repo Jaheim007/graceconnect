@@ -2328,7 +2328,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'admin.top_products': 'Top Produits',
     'admin.sales': 'ventes',
     'admin.complete_verification': 'Complétez votre vérification pour retirer vos fonds',
-    'admin.accept_payments': 'Vous pouvez accepter les paiements dès maintenant. La vérification KYC est requise uniquement pour les retraits.',
+    'admin.accept_payments': 'Vous pouvez accepter les paiements dès maintenant. La vérification d\'identité est requise uniquement pour les retraits.',
     'admin.verify_account': 'Vérifier mon compte',
     'admin.public_page': 'Page publique',
     'admin.quickstart': 'QuickStart',
