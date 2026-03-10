@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { requireAuth, corsHeaders, jsonResp, adminClient } from '../_shared/auth.ts';
-import { consumeCreditsWithRefund, consumeCreditsOrThrow, normalizeTier } from '../_shared/credits.ts';
+import { consumeCreditsOrThrow, refundCreditsAsBonus, normalizeTier } from '../_shared/credits.ts';
 import { aiGenerateImageBase64 } from '../_shared/ai-fallback.ts';
 
 Deno.serve(async (req) => {
