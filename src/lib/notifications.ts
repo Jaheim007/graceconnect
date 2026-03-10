@@ -511,7 +511,7 @@ export async function onAffiliateSale(
     `Vous avez gagné ${commission} ${currency} de commission sur une ${transactionType} de ${grossAmount} ${currency} pour ${orgName}.`,
     'affiliate_sale',
     { org_name: orgName, commission, currency, gross_amount: grossAmount, transaction_type: transactionType },
-    'affiliate', orgId,
+    'affiliate', orgId, `/affiliation`,
   );
 }
 
