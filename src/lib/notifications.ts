@@ -569,7 +569,7 @@ export async function onPasswordChanged(userId: string, userEmail: string | unde
   if (userEmail) {
     sendEmailNotification('password_changed', userEmail, {}).catch(() => {});
   }
-  notify(userId, '🔑 Mot de passe modifié', 'Votre mot de passe a été modifié avec succès.', 'security');
+  notify(userId, '🔑 Mot de passe modifié', 'Votre mot de passe a été modifié avec succès.', 'security', undefined, `/profile`);
 }
 
 export async function onEmailChanged(userId: string, oldEmail: string | undefined, newEmail: string) {
