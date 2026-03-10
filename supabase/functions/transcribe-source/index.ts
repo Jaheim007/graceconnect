@@ -467,3 +467,129 @@ async function transcribeWithGeminiInline(apiKey: string, opts: { prompt: string
   const data = await res.json();
   return data?.choices?.[0]?.message?.content || '';
 }
+
+/**
+ * Fetch actual YouTube captions using the Innertube API.
+ * This uses YouTube's internal player API to get caption track URLs,
+ * then fetches and parses the caption XML.
+ */
+async function fetchYouTubeCaptions(videoId: string): Promise<string> {
+  // Step 1: Get caption tracks via Innertube player API
+  const playerRes = await fetch('https://www.youtube.com/youtubei/v1/player?prettyPrint=false', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      context: {
+        client: {
+          hl: 'en',
+          gl: 'US',
+          clientName: 'WEB',
+          clientVersion: '2.20240101.00.00',
+        },
+      },
+      videoId,
+    }),
+  });
+
+  if (!playerRes.ok) {
+    throw new Error(`Innertube player API returned ${playerRes.status}`);
+  }
+
+  const playerData = await playerRes.json();
+  const captionTracks = playerData?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
+
+  if (!captionTracks || captionTracks.length === 0) {
+    throw new Error('No caption tracks available for this video');
+  }
+
+  console.log('[transcribe-source] Available caption tracks:', captionTracks.map((t: any) => `${t.languageCode} (${t.kind || 'manual'})`).join(', '));
+
+  // Step 2: Pick the best caption track
+  // Prefer manual captions over auto-generated (ASR)
+  let selectedTrack = captionTracks.find((t: any) => t.kind !== 'asr') || captionTracks[0];
+  
+  console.log('[transcribe-source] Selected caption track:', selectedTrack.languageCode, selectedTrack.kind || 'manual');
+
+  // Step 3: Fetch the caption XML
+  let captionUrl = selectedTrack.baseUrl;
+  // Request JSON3 format for easier parsing
+  if (!captionUrl.includes('fmt=')) {
+    captionUrl += (captionUrl.includes('?') ? '&' : '?') + 'fmt=json3';
+  }
+
+  const captionRes = await fetch(captionUrl);
+  if (!captionRes.ok) {
+    throw new Error(`Caption fetch returned ${captionRes.status}`);
+  }
+
+  const contentType = captionRes.headers.get('content-type') || '';
+  
+  let fullText = '';
+  
+  if (contentType.includes('json') || captionUrl.includes('fmt=json3')) {
+    // Parse JSON3 format
+    try {
+      const json3 = await captionRes.json();
+      const events = json3?.events || [];
+      const segments: string[] = [];
+      
+      for (const event of events) {
+        if (event.segs) {
+          const line = event.segs.map((s: any) => s.utf8 || '').join('');
+          if (line.trim() && line.trim() !== '\n') {
+            segments.push(line.trim());
+          }
+        }
+      }
+      fullText = segments.join(' ');
+    } catch {
+      // If JSON parsing fails, try XML fallback
+      console.log('[transcribe-source] JSON3 parsing failed, trying XML...');
+    }
+  }
+  
+  // Fallback: fetch XML format
+  if (!fullText || fullText.length < 20) {
+    const xmlUrl = selectedTrack.baseUrl; // without fmt=json3
+    const xmlRes = await fetch(xmlUrl);
+    if (xmlRes.ok) {
+      const xmlText = await xmlRes.text();
+      // Simple XML parsing: extract text between <text> tags
+      const textMatches = xmlText.matchAll(/<text[^>]*>([\s\S]*?)<\/text>/gi);
+      const segments: string[] = [];
+      for (const match of textMatches) {
+        let text = match[1]
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/<[^>]+>/g, '') // strip any HTML tags within
+          .trim();
+        if (text) segments.push(text);
+      }
+      fullText = segments.join(' ');
+    }
+  }
+
+  if (!fullText || fullText.length < 20) {
+    throw new Error('Caption track was empty or too short');
+  }
+
+  // Clean up: remove excessive whitespace, format into paragraphs
+  fullText = fullText
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // Split into paragraphs every ~200 words for readability
+  const words = fullText.split(' ');
+  const paragraphs: string[] = [];
+  for (let i = 0; i < words.length; i += 200) {
+    paragraphs.push(words.slice(i, i + 200).join(' '));
+  }
+  
+  // Get video title for heading
+  const videoTitle = playerData?.videoDetails?.title || 'YouTube Video';
+  
+  return `## ${videoTitle}\n\n${paragraphs.join('\n\n')}`;
+}
