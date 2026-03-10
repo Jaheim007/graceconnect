@@ -684,12 +684,11 @@ export async function onNewDonation(
   amount: number,
   currency: string,
 ) {
-  notifyOrgMembers(
+  notifyOrgOwnerOnly(
     orgId,
     '🙏 Nouveau don !',
     `${donorName} a fait un don de ${amount} ${currency} pour "${campaignName}"`,
-    'transaction',
-    undefined, `/admin/campaigns`,
+    'transaction', `/admin/campaigns`,
   );
 }
 
