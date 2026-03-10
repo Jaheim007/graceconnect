@@ -18,6 +18,7 @@ import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
 import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
 import { EarningsCard } from '@/components/ambassador/EarningsCard';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { DailyTip } from '@/components/ambassador/DailyTip';
 
 export default function AmbassadorDashboard() {
