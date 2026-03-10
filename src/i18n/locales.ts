@@ -713,7 +713,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'admin.top_products': 'Top Products',
     'admin.sales': 'sales',
     'admin.complete_verification': 'Complete your verification to withdraw funds',
-    'admin.accept_payments': 'You can accept payments now. KYC verification is required for withdrawals only.',
+    'admin.accept_payments': 'You can accept payments now. Identity verification is required for withdrawals only.',
     'admin.verify_account': 'Verify my account',
     'admin.public_page': 'Public page',
     'admin.quickstart': 'QuickStart',
