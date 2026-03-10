@@ -87,23 +87,34 @@ export default function NotificationsPage() {
       </div>
 
       <div className="container max-w-2xl py-5 space-y-4">
-        {/* Push notification toggle */}
+        {/* Push notification toggle — show even when denied, with instructions */}
         {pushSupported && !pushSubscribed && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-primary/8 border border-primary/20 rounded-2xl p-4 flex items-center gap-3"
+            className={cn(
+              'rounded-2xl p-4 flex flex-col gap-3 border',
+              typeof Notification !== 'undefined' && Notification.permission === 'denied'
+                ? 'bg-destructive/8 border-destructive/20'
+                : 'bg-primary/8 border-primary/20'
+            )}
           >
-            <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-              <BellRing className="h-5 w-5 text-primary" />
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <BellRing className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold">Notifications push</p>
+                <p className="text-xs text-muted-foreground">Recevez des alertes même quand l'app est fermée</p>
+              </div>
+              <Button size="sm" className="bg-primary text-primary-foreground shrink-0" onClick={subscribePush} disabled={pushLoading}>
+                {pushLoading ? '...' : 'Activer'}
+              </Button>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold">Notifications push</p>
-              <p className="text-xs text-muted-foreground">Recevez des alertes même quand l'app est fermée</p>
-            </div>
-            <Button size="sm" className="bg-primary text-primary-foreground shrink-0" onClick={subscribePush} disabled={pushLoading}>
-              {pushLoading ? '...' : 'Activer'}
-            </Button>
+            {/* Show step-by-step instructions when permission is denied */}
+            {typeof Notification !== 'undefined' && Notification.permission === 'denied' && (
+              <DeniedInstructions />
+            )}
           </motion.div>
         )}
 
