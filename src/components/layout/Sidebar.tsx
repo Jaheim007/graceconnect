@@ -334,7 +334,7 @@ export function Sidebar() {
                       onClick={() => setCurrentOrg(o)}
                       className={cn('text-xs', o.id === currentOrg.id && 'text-primary font-semibold')}
                     >
-                      <span className="flex items-center gap-1">{o.name} {o.is_verified && <VerifiedBadge size="xs" showTooltip={false} />}</span>
+                      <span className="flex items-center gap-1">{o.name} {isOrgVerifiedOrKyc(o.is_verified, (o as any).kyc_status) && <VerifiedBadge size="xs" showTooltip={false} />}</span>
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
