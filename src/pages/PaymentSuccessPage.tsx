@@ -52,7 +52,7 @@ export default function PaymentSuccessPage() {
   const rawReference = searchParams.get('reference') || searchParams.get('trxref') || '';
   const gateway = searchParams.get('gateway') || 'paystack';
   const sessionId = searchParams.get('session_id') || '';
-  const paymentId = searchParams.get('paymentId') || ''; // Moneroo returns this
+  const urlType = searchParams.get('type') as 'donation' | 'product' | null;
   const urlType = searchParams.get('type') as 'donation' | 'product' | null;
   const urlOrgId = searchParams.get('organization_id') || '';
   const urlCampaignId = searchParams.get('campaign_id') || '';
