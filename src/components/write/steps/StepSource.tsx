@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { useI18n } from '@/i18n/I18nContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useCreditGuard } from '@/hooks/useCreditGuard';
+import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 import type { WriteState, SourceType, SavedWriteDraftSummary } from '../WriteWizard';
 
 const SUGGESTION_KEYS = [
@@ -40,6 +42,7 @@ export function StepSource({
   const { toast } = useToast();
   const [transcribing, setTranscribing] = useState(false);
   const [showTranscriptionPreview, setShowTranscriptionPreview] = useState(false);
+  const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
 
   const sources: { type: SourceType; icon: typeof PenLine; label: string; desc: string }[] = [
     { type: 'idea', icon: Lightbulb, label: t('write.source_idea'), desc: t('write.source_idea_desc') },
@@ -91,7 +94,11 @@ export function StepSource({
     const { data, error } = await supabase.functions.invoke('transcribe-source', {
       body: { source_type: sourceType, storage_path: path },
     });
-    if (error || !data?.ok) throw new Error(data?.error || error?.message || 'Transcription failed');
+    if (error || !data?.ok) {
+      const err: any = new Error(data?.error || error?.message || 'Transcription failed');
+      if (data?.error?.includes?.('insuffisant') || error?.message?.includes?.('402')) err.status = 402;
+      throw err;
+    }
     return data.text as string;
   };
 
@@ -127,7 +134,9 @@ export function StepSource({
     } catch (err: any) {
       console.error('Transcription error:', err);
       setTranscribing(false);
-      toast({ title: `❌ ${t('write.transcribe_error')}`, description: err?.message, variant: 'destructive' });
+      if (!handleAiError(err)) {
+        toast({ title: `❌ ${t('write.transcribe_error')}`, description: err?.message, variant: 'destructive' });
+      }
     }
   };
 
@@ -250,6 +259,7 @@ export function StepSource({
           </>
         )}
       </Button>
+      <InsufficientCreditsDialog open={showCreditDialog} onOpenChange={setShowCreditDialog} message={creditErrorMessage} />
     </div>
   );
 }
