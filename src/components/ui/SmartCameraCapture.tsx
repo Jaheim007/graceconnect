@@ -405,7 +405,7 @@ export function SmartCameraCapture({
       const fileName = `${folder}/${Date.now()}-capture.jpg`;
       const { error: uploadError } = await supabase.storage
         .from(bucket)
-        .upload(fileName, blob, { contentType: 'image/jpeg', upsert: true });
+        .upload(fileName, blob, { contentType: 'image/jpeg' });
       if (uploadError) throw uploadError;
 
       if (bucket === 'private-products' || bucket === 'kyc-documents') {
