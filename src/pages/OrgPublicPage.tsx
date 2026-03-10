@@ -41,8 +41,9 @@ import { useWaitlists } from '@/hooks/useWaitlists';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { cn } from '@/lib/utils';
 import {
-  Home, ShoppingBag, Heart, Play, Camera, CalendarDays, HandHeart, Plus, ChevronDown, ChevronUp, Settings, GraduationCap
+  Home, ShoppingBag, Heart, Play, Camera, CalendarDays, HandHeart, Plus, ChevronDown, ChevronUp, Settings, GraduationCap, ExternalLink, MapPin
 } from 'lucide-react';
+import { EventCountdown } from '@/components/events/EventCountdown';
 import React, { useCallback } from 'react';
 
 export default function OrgPublicPage() {
