@@ -43,6 +43,7 @@ export function AIDescriptionButton({ title, productType, price, currency = 'XOF
           price,
           currency,
           language: locale,
+          existing_description: existingDescription || undefined,
         },
       });
 
