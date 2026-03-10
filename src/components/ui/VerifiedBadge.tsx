@@ -39,7 +39,7 @@ export function VerifiedBadge({
   const icon = (
     <span
       className={cn(
-        'inline-flex items-center shrink-0 relative overflow-hidden',
+        'inline-flex items-center shrink-0 relative',
         animate && 'sv-badge-shimmer',
         className,
       )}
