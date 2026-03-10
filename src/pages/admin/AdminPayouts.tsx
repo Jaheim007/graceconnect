@@ -175,62 +175,73 @@ export default function AdminPayouts() {
           </div>
         </div>
 
-        {/* ═══ Financial Summary Cards ═══ */}
+        {/* ═══ Revenue Breakdown – Sales ═══ */}
         {fundSummary && (
-           <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 lg:grid-cols-3 gap-3">
-            {[
-              { label: t('payouts.org_share'), value: fmt(fundSummary.totalOrgReceived, currency), icon: Wallet, colorClass: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/20', sub: t('payouts.after_platform_fees') },
-              { label: t('payouts.platform_fees'), value: fmt(fundSummary.totalPlatformFees, currency), icon: Shield, colorClass: 'from-primary/15 to-primary/5 border-primary/20', sub: `${currentOrg?.platform_fee_percent ?? 10}% ${t('payouts.deducted')}` },
-              { label: t('payouts.affiliate_commissions'), value: fmt(fundSummary.totalAffiliateCommissionsPaid, currency), icon: ArrowUpRight, colorClass: 'from-amber-500/15 to-amber-500/5 border-amber-500/20', sub: t('payouts.paid_to_affiliates') },
-            ].map(c => (
-              <motion.div key={c.label} variants={fadeUp} className={cn('rounded-2xl border p-4 bg-gradient-to-br', c.colorClass)}>
-                <c.icon className="h-4 w-4 text-muted-foreground mb-1" />
-                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">{c.label}</p>
-                <p className="text-lg font-bold mt-0.5">{c.value}</p>
-                <p className="text-[10px] text-muted-foreground">{c.sub}</p>
-              </motion.div>
-            ))}
+          <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Revenus des ventes</p>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {[
+                { label: "Chiffre d'affaires", value: fmt(fundSummary.totalGMV, currency), icon: DollarSign, colorClass: 'from-muted/60 to-muted/30 border-border', sub: 'Total brut' },
+                { label: t('payouts.org_share'), value: fmt(fundSummary.totalOrgReceived, currency), icon: Wallet, colorClass: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/20', sub: t('payouts.after_platform_fees') },
+                { label: t('payouts.platform_fees'), value: fmt(fundSummary.totalPlatformFees, currency), icon: Shield, colorClass: 'from-primary/15 to-primary/5 border-primary/20', sub: `${currentOrg?.platform_fee_percent ?? 10}% ${t('payouts.deducted')}` },
+                { label: t('payouts.affiliate_commissions'), value: fmt(fundSummary.totalAffiliateCommissionsPaid, currency), icon: ArrowUpRight, colorClass: 'from-amber-500/15 to-amber-500/5 border-amber-500/20', sub: t('payouts.paid_to_affiliates') },
+              ].map(c => (
+                <motion.div key={c.label} variants={fadeUp} className={cn('rounded-2xl border p-4 bg-gradient-to-br', c.colorClass)}>
+                  <c.icon className="h-4 w-4 text-muted-foreground mb-1" />
+                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">{c.label}</p>
+                  <p className="text-lg font-bold mt-0.5">{c.value}</p>
+                  <p className="text-[10px] text-muted-foreground">{c.sub}</p>
+                </motion.div>
+              ))}
+            </div>
           </motion.div>
         )}
 
-        {/* ═══ Ambassador Earnings Card ═══ */}
-        {fundSummary && fundSummary.totalAmbassadorEarned > 0 && (
+        {/* ═══ Revenue Breakdown – Ambassador Earnings ═══ */}
+        {fundSummary && (
+          <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Gains Ambassadeur (Earn by Sharing)</p>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              {[
+                { label: 'Total gagné', value: fmt(fundSummary.totalAmbassadorEarned, currency), icon: ArrowUpRight, colorClass: 'from-purple-500/15 to-purple-500/5 border-purple-500/20', sub: 'Commissions cumulées' },
+                { label: 'Disponible', value: fmt(fundSummary.ambassadorPayable, currency), icon: CheckCircle, colorClass: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/20', sub: 'Après 15 jours' },
+                { label: 'En attente (15j)', value: fmt(fundSummary.ambassadorPending, currency), icon: TimerReset, colorClass: 'from-amber-500/15 to-amber-500/5 border-amber-500/20', sub: 'Période de rétention' },
+                { label: 'Déjà versé', value: fmt(fundSummary.ambassadorPaid, currency), icon: CheckCircle, colorClass: 'from-muted/60 to-muted/30 border-border', sub: 'Retraits effectués' },
+              ].map(c => (
+                <motion.div key={c.label} variants={fadeUp} className={cn('rounded-2xl border p-4 bg-gradient-to-br', c.colorClass)}>
+                  <c.icon className="h-4 w-4 text-muted-foreground mb-1" />
+                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">{c.label}</p>
+                  <p className="text-lg font-bold mt-0.5">{c.value}</p>
+                  <p className="text-[10px] text-muted-foreground">{c.sub}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {/* ═══ Combined Total Balance ═══ */}
+        {fundSummary && (
           <motion.div variants={fadeUp} initial="hidden" animate="visible"
-            className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-purple-500/10 to-purple-500/5 p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <ArrowUpRight className="h-4 w-4 text-purple-500" />
-              <p className="text-xs font-semibold uppercase tracking-wide">Commissions Ambassadeur gagnées</p>
+            className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 p-5">
+            <div className="flex items-center gap-2 mb-1">
+              <Wallet className="h-5 w-5 text-primary" />
+              <p className="text-sm font-semibold">Balance totale</p>
             </div>
-            <p className="text-xl font-bold">{fmt(fundSummary.totalAmbassadorEarned, currency)}</p>
-            <div className="grid grid-cols-3 gap-3 mt-3 pt-3 border-t border-purple-500/10">
-              <div className="space-y-0.5">
-                <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                  <CheckCircle className="h-3 w-3 text-emerald-500" /> Disponible
-                </p>
-                <p className="text-sm font-semibold text-emerald-600">{fmt(fundSummary.ambassadorPayable, currency)}</p>
-              </div>
-              <div className="space-y-0.5">
-                <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                  <TimerReset className="h-3 w-3 text-amber-500" /> En attente (15j)
-                </p>
-                <p className="text-sm font-semibold text-amber-600">{fmt(fundSummary.ambassadorPending, currency)}</p>
-              </div>
-              <div className="space-y-0.5">
-                <p className="text-[10px] text-muted-foreground flex items-center gap-1">
-                  <CheckCircle className="h-3 w-3 text-muted-foreground" /> Déjà versé
-                </p>
-                <p className="text-sm font-semibold">{fmt(fundSummary.ambassadorPaid, currency)}</p>
-              </div>
-            </div>
+            <p className="text-3xl font-bold text-primary">
+              {fmt(fundSummary.totalOrgReceived + fundSummary.totalAmbassadorEarned - fundSummary.ambassadorPaid, currency)}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Votre part ventes ({fmt(fundSummary.totalOrgReceived, currency)}) + Gains ambassadeur ({fmt(fundSummary.totalAmbassadorEarned, currency)}) − Déjà versé ({fmt(fundSummary.ambassadorPaid, currency)})
+            </p>
           </motion.div>
         )}
 
         {/* ═══ Balance & Withdrawal Section ═══ */}
         {fundSummary && (
           <div className="rounded-2xl border border-border bg-card overflow-hidden">
-            {/* Available balance */}
+            {/* Available balance for withdrawal */}
             <div className="p-5">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
                   <p className="text-xs text-muted-foreground font-medium">{t('payouts.available_balance')}</p>
                   <p className="text-3xl font-bold text-emerald-500 mt-1">{fmt(Math.max(0, fundSummary.availableBalance), currency)}</p>
@@ -238,17 +249,16 @@ export default function AdminPayouts() {
                     Ventes (après 72h) + Commissions ambassadeur (après 15j) − Retraits
                   </p>
                 </div>
-                <div>
+                <div className="flex flex-col items-end gap-2">
                   {!kycApproved ? (
-                    <Badge variant="outline" className="text-xs border-amber-500/30 text-amber-600 gap-1">
-                      <AlertTriangle className="h-3 w-3" /> {t('payouts.kyc_required')}
-                    </Badge>
+                    <a href="/admin/verification" className="block">
+                      <Button variant="destructive" size="default" className="gap-2">
+                        <AlertTriangle className="h-4 w-4" />
+                        Vérifier mon identité pour retirer
+                      </Button>
+                    </a>
                   ) : fundSummary.availableBalance >= MIN_WITHDRAWAL && fundSummary.pendingPayouts === 0 ? (
-                    <Button
-                      size="default"
-                      className="gap-2"
-                      onClick={() => setShowWithdrawDialog(true)}
-                    >
+                    <Button size="default" className="gap-2" onClick={() => setShowWithdrawDialog(true)}>
                       <Send className="h-4 w-4" />
                       Demander un retrait
                     </Button>
@@ -282,14 +292,24 @@ export default function AdminPayouts() {
                     <p className="text-sm font-semibold text-purple-600">{fmt(fundSummary.ambassadorPending, currency)}</p>
                   </div>
                 )}
-                {!kycApproved && (
-                  <div className="space-y-0.5">
-                    <p className="text-[10px] text-muted-foreground flex items-center gap-1"><Lock className="h-3 w-3 text-destructive" /> KYC</p>
-                    <p className="text-xs text-destructive font-medium">Vérification requise pour retirer</p>
-                  </div>
-                )}
               </div>
             </div>
+
+            {/* KYC warning banner */}
+            {!kycApproved && (
+              <div className="bg-destructive/5 border-t border-destructive/20 px-5 py-3 flex items-center gap-3">
+                <Lock className="h-4 w-4 text-destructive shrink-0" />
+                <div className="flex-1">
+                  <p className="text-xs font-semibold text-destructive">Vérification d'identité requise</p>
+                  <p className="text-[10px] text-muted-foreground">Vous devez vérifier votre identité avant de pouvoir demander un retrait.</p>
+                </div>
+                <a href="/admin/verification">
+                  <Button variant="outline" size="sm" className="text-xs gap-1 border-destructive/30 text-destructive hover:bg-destructive/10">
+                    <Shield className="h-3 w-3" /> Vérifier
+                  </Button>
+                </a>
+              </div>
+            )}
 
             {/* How it works mini-guide */}
             <div className="bg-muted/30 border-t border-border px-5 py-3">
