@@ -123,6 +123,12 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
   const [selfieUrl, setSelfieUrl] = useState('');
   const [selfieWithDocUrl, setSelfieWithDocUrl] = useState('');
   
+  // Local preview data URLs for private bucket images
+  const [previews, setPreviews] = useState<Record<string, string>>({});
+  const setPreview = useCallback((key: string) => (dataUrl: string) => {
+    setPreviews(prev => ({ ...prev, [key]: dataUrl }));
+  }, []);
+  
   // Org document state (KYB)
   const [orgDocType, setOrgDocType] = useState('');
   const [orgDocUrl, setOrgDocUrl] = useState('');
@@ -633,6 +639,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                   <SmartCameraCapture
                     value={docFrontUrl}
                     onChange={setDocFrontUrl}
+                    onPreviewCapture={setPreview('docFront')}
                     folder={`${folder}/doc-front`}
                     bucket="kyc-documents"
                     label={selectedDoc.hasBack ? 'Face avant du document' : selectedDoc.label}
@@ -647,6 +654,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     <SmartCameraCapture
                       value={docBackUrl}
                       onChange={setDocBackUrl}
+                      onPreviewCapture={setPreview('docBack')}
                       folder={`${folder}/doc-back`}
                       bucket="kyc-documents"
                       label="Face arrière du document"
@@ -684,6 +692,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                 <SmartCameraCapture
                   value={selfieUrl}
                   onChange={setSelfieUrl}
+                  onPreviewCapture={setPreview('selfie')}
                   folder={`${folder}/selfie`}
                   bucket="kyc-documents"
                   label="Selfie"
@@ -718,6 +727,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                 <SmartCameraCapture
                   value={selfieWithDocUrl}
                   onChange={setSelfieWithDocUrl}
+                  onPreviewCapture={setPreview('selfieDoc')}
                   folder={`${folder}/selfie-with-doc`}
                   bucket="kyc-documents"
                   label="Selfie avec document"
@@ -911,27 +921,27 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                   {/* Document */}
                   <ReviewItem
                     label={`${selectedDoc.label} (recto)`}
-                    imageUrl={docFrontUrl}
+                    imageUrl={previews.docFront || docFrontUrl}
                     onEdit={() => setStep(activeSteps.findIndex(s => s.id === 'document'))}
                   />
                   {selectedDoc.hasBack && docBackUrl && (
                     <ReviewItem
                       label={`${selectedDoc.label} (verso)`}
-                      imageUrl={docBackUrl}
+                      imageUrl={previews.docBack || docBackUrl}
                       onEdit={() => setStep(activeSteps.findIndex(s => s.id === 'document'))}
                     />
                   )}
                   {/* Selfie */}
                   <ReviewItem
                     label="Selfie"
-                    imageUrl={selfieUrl}
+                    imageUrl={previews.selfie || selfieUrl}
                     isRound
                     onEdit={() => setStep(activeSteps.findIndex(s => s.id === 'selfie'))}
                   />
                   {/* Selfie with doc */}
                   <ReviewItem
                     label="Selfie + Document"
-                    imageUrl={selfieWithDocUrl}
+                    imageUrl={previews.selfieDoc || selfieWithDocUrl}
                     onEdit={() => setStep(activeSteps.findIndex(s => s.id === 'selfie_doc'))}
                   />
                   {/* Org document (org mode) */}

@@ -2287,6 +2287,14 @@ export type Database = {
       }
       kyc_submissions: {
         Row: {
+          ai_analyzed_at: string | null
+          ai_confidence_score: number | null
+          ai_face_match: Json | null
+          ai_fraud_detection: Json | null
+          ai_ocr_data: Json | null
+          ai_quality_assessment: Json | null
+          ai_recommendations: string | null
+          ai_summary: string | null
           bank_account_name: string | null
           bank_account_number: string | null
           bank_name: string | null
@@ -2316,6 +2324,14 @@ export type Database = {
           verification_type: string | null
         }
         Insert: {
+          ai_analyzed_at?: string | null
+          ai_confidence_score?: number | null
+          ai_face_match?: Json | null
+          ai_fraud_detection?: Json | null
+          ai_ocr_data?: Json | null
+          ai_quality_assessment?: Json | null
+          ai_recommendations?: string | null
+          ai_summary?: string | null
           bank_account_name?: string | null
           bank_account_number?: string | null
           bank_name?: string | null
@@ -2345,6 +2361,14 @@ export type Database = {
           verification_type?: string | null
         }
         Update: {
+          ai_analyzed_at?: string | null
+          ai_confidence_score?: number | null
+          ai_face_match?: Json | null
+          ai_fraud_detection?: Json | null
+          ai_ocr_data?: Json | null
+          ai_quality_assessment?: Json | null
+          ai_recommendations?: string | null
+          ai_summary?: string | null
           bank_account_name?: string | null
           bank_account_number?: string | null
           bank_name?: string | null

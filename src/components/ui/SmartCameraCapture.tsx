@@ -14,6 +14,8 @@ type LivenessChallenge = 'turn_left' | 'turn_right' | 'smile' | 'blink';
 interface SmartCameraCaptureProps {
   value: string;
   onChange: (url: string) => void;
+  /** Called with the local data URL preview after capture (useful for private buckets) */
+  onPreviewCapture?: (dataUrl: string) => void;
   folder?: string;
   label?: string;
   hint?: string;
@@ -52,6 +54,7 @@ function pickRandomChallenge(): typeof LIVENESS_CHALLENGES[0] {
 export function SmartCameraCapture({
   value,
   onChange,
+  onPreviewCapture,
   folder = 'captures',
   label = 'Photo',
   hint,
@@ -390,6 +393,7 @@ export function SmartCameraCapture({
     stopCamera();
     setFrameStatus('captured');
     setCapturedImage(dataUrl);
+    onPreviewCapture?.(dataUrl);
 
     setUploading(true);
     setError(null);
@@ -420,7 +424,7 @@ export function SmartCameraCapture({
     } finally {
       setUploading(false);
     }
-  }, [folder, bucket, onChange, stopCamera]);
+  }, [folder, bucket, onChange, onPreviewCapture, stopCamera]);
 
   const takePhoto = useCallback(() => {
     autoCapturedRef.current = true;
