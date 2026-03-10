@@ -275,12 +275,12 @@ export default function SuperadminPartners() {
         <TabsContent value="kyc">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Vérifications KYC</CardTitle>
+              <CardTitle className="text-base">Vérifications d'identité</CardTitle>
             </CardHeader>
             <CardContent>
               {(() => {
                 const kycPartners = partners.filter(p => (p as any).kyc_status && (p as any).kyc_status !== 'none');
-                if (kycPartners.length === 0) return <p className="text-sm text-muted-foreground py-8 text-center">Aucune soumission KYC.</p>;
+                if (kycPartners.length === 0) return <p className="text-sm text-muted-foreground py-8 text-center">Aucune soumission de vérification.</p>;
                 return (
                   <div className="space-y-2">
                     {kycPartners.map(p => {

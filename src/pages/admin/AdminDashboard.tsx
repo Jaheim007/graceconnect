@@ -237,7 +237,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* KYC Banner — urgent */}
+      {/* Verification Banner — urgent */}
       {currentOrg?.kyc_status !== 'level1' && currentOrg?.kyc_status !== 'level2' && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -251,7 +251,7 @@ export default function AdminDashboard() {
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-sm">{t('admin.complete_verification')}</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {t('admin.accept_payments')} — Les fonds sont retenus jusqu'à la vérification KYC.
+                {t('admin.accept_payments')} — Les fonds sont retenus jusqu'à la vérification d'identité.
               </p>
             </div>
           </div>
