@@ -39,6 +39,7 @@ export function StepSource({
   const { t } = useI18n();
   const { toast } = useToast();
   const [transcribing, setTranscribing] = useState(false);
+  const [showTranscriptionPreview, setShowTranscriptionPreview] = useState(false);
 
   const sources: { type: SourceType; icon: typeof PenLine; label: string; desc: string }[] = [
     { type: 'idea', icon: Lightbulb, label: t('write.source_idea'), desc: t('write.source_idea_desc') },
