@@ -644,6 +644,7 @@ export async function onNewDonation(
     '🙏 Nouveau don !',
     `${donorName} a fait un don de ${amount} ${currency} pour "${campaignName}"`,
     'transaction',
+    undefined, `/admin/campaigns`,
   );
 }
 
