@@ -200,9 +200,8 @@ Deno.serve(async (req) => {
         }
 
         const type = (meta.type === 'product' ? 'product' : 'donation') as 'donation' | 'product';
-        const organizationId = meta.organization_id as string | undefined;
 
-        if (!organizationId) {
+        if (!organizationId || organizationId === 'platform') {
           reconciled.push({ reference, amount: tx.amount / 100, status: 'skipped_no_org' });
           continue;
         }
