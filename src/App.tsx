@@ -422,6 +422,7 @@ const App = () => (
                   <Route path="/invoices" element={<MyInvoicesPage />} />
                   <Route path="/my-analytics" element={<UserAnalyticsPage />} />
                   <Route path="/my-programs" element={<MyProgramsPage />} />
+                  <Route path="/credits" element={<CreditsPage />} />
 
                   {/* Admin — inside AppLayout for seamless navigation */}
                   <Route path="/admin" element={<RequireOrgManage><AdminShell /></RequireOrgManage>}>
