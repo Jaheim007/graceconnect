@@ -613,6 +613,26 @@ export function ProductForm() {
           <Textarea {...register('guarantee_text')} rows={2} placeholder="Ex: Satisfait ou remboursé sous 30 jours" />
         </div>
 
+        {/* Tracking Pixels */}
+        <div className="space-y-3 border border-border rounded-xl p-4">
+          <p className="text-sm font-semibold flex items-center gap-2">📊 Pixels de tracking (optionnel)</p>
+          <p className="text-[10px] text-muted-foreground">Ajoutez vos pixels pour suivre les conversions et faire du retargeting sur ce produit spécifique.</p>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="space-y-1">
+              <Label className="text-xs font-medium">Facebook Pixel ID</Label>
+              <Input value={fbPixel} onChange={e => setFbPixel(e.target.value)} placeholder="123456789012345" className="h-8 text-xs font-mono" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs font-medium">TikTok Pixel ID</Label>
+              <Input value={ttPixel} onChange={e => setTtPixel(e.target.value)} placeholder="ABCDEF123456" className="h-8 text-xs font-mono" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs font-medium">Google Tag ID</Label>
+              <Input value={gTag} onChange={e => setGTag(e.target.value)} placeholder="G-XXXXXXXXXX" className="h-8 text-xs font-mono" />
+            </div>
+          </div>
+        </div>
+
         {/* Order Bump & Upsells */}
         {isEdit && !isFree && (
           <div className="space-y-3 border border-amber-500/20 bg-amber-500/5 rounded-xl p-4">
