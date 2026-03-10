@@ -473,7 +473,7 @@ export async function onAffiliateFirstClick(
     `Quelqu'un a cliqué sur votre lien affilié pour ${orgName}.`,
     'affiliate_first_click',
     { org_name: orgName },
-    'affiliate',
+    'affiliate', undefined, `/affiliation`,
   );
 }
 
