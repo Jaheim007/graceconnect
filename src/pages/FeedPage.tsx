@@ -343,7 +343,7 @@ function FeedEmptyFallback() {
     queryFn: async () => {
       const { data } = await db
         .from('digital_products')
-        .select('*, organizations(name, slug, logo_url)')
+        .select('*, organizations(name, slug, logo_url, is_verified)')
         .eq('is_published', true)
         .order('sales_count', { ascending: false })
         .limit(6);
