@@ -485,29 +485,73 @@ async function transcribeWithGeminiInline(apiKey: string, opts: { prompt: string
  * then fetches and parses the caption XML.
  */
 async function fetchYouTubeCaptions(videoId: string): Promise<string> {
-  // Step 1: Get caption tracks via Innertube player API
-  const playerRes = await fetch('https://www.youtube.com/youtubei/v1/player?prettyPrint=false', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      context: {
-        client: {
-          hl: 'en',
-          gl: 'US',
-          clientName: 'WEB',
-          clientVersion: '2.20240101.00.00',
+  // Try multiple Innertube client types — YouTube restricts some clients from accessing captions
+  const clientConfigs = [
+    {
+      clientName: 'ANDROID',
+      clientVersion: '19.29.37',
+      apiKey: 'AIzaSyA8eiZmM1FaDVjRy-df2KTyQ_vz_yYM39w',
+      userAgent: 'com.google.android.youtube/19.29.37 (Linux; U; Android 14) gzip',
+    },
+    {
+      clientName: 'IOS',
+      clientVersion: '19.29.1',
+      apiKey: 'AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc',
+      userAgent: 'com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X;)',
+    },
+    {
+      clientName: 'WEB',
+      clientVersion: '2.20240726.00.00',
+      apiKey: '',
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0.0.0 Safari/537.36',
+    },
+  ];
+
+  let playerData: any = null;
+  let captionTracks: any[] | null = null;
+
+  for (const cfg of clientConfigs) {
+    try {
+      const url = cfg.apiKey
+        ? `https://www.youtube.com/youtubei/v1/player?key=${cfg.apiKey}&prettyPrint=false`
+        : 'https://www.youtube.com/youtubei/v1/player?prettyPrint=false';
+
+      const playerRes = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': cfg.userAgent,
         },
-      },
-      videoId,
-    }),
-  });
+        body: JSON.stringify({
+          context: {
+            client: {
+              hl: 'fr',
+              gl: 'FR',
+              clientName: cfg.clientName,
+              clientVersion: cfg.clientVersion,
+            },
+          },
+          videoId,
+        }),
+      });
 
-  if (!playerRes.ok) {
-    throw new Error(`Innertube player API returned ${playerRes.status}`);
+      if (!playerRes.ok) {
+        console.log(`[transcribe-source] Innertube ${cfg.clientName} returned ${playerRes.status}`);
+        continue;
+      }
+
+      playerData = await playerRes.json();
+      captionTracks = playerData?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
+
+      if (captionTracks && captionTracks.length > 0) {
+        console.log(`[transcribe-source] Innertube ${cfg.clientName} found ${captionTracks.length} caption tracks`);
+        break;
+      }
+      console.log(`[transcribe-source] Innertube ${cfg.clientName}: no caption tracks`);
+    } catch (e) {
+      console.log(`[transcribe-source] Innertube ${cfg.clientName} error:`, String(e).substring(0, 150));
+    }
   }
-
-  const playerData = await playerRes.json();
-  const captionTracks = playerData?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
 
   if (!captionTracks || captionTracks.length === 0) {
     throw new Error('No caption tracks available for this video');
