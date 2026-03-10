@@ -391,15 +391,15 @@ export async function onKycStatusChanged(
     approved: 'kyc_approved',
     rejected: 'kyc_rejected',
   };
-  emailOrgAdmins(templates[status], orgId, { org_name: orgName, reason: reason || '' });
-  // In-app notification for KYC status
+  emailOrgOwnerOnly(templates[status], orgId, { org_name: orgName, reason: reason || '' });
+  // In-app notification for KYC status — owner only
   const icons: Record<string, string> = { submitted: '📄', approved: '✅', rejected: '❌' };
   const msgs: Record<string, string> = {
-    submitted: `Les documents KYC de ${orgName} ont été soumis et sont en cours d'examen.`,
-    approved: `Le KYC de ${orgName} a été approuvé ! Vous pouvez activer la monétisation.`,
-    rejected: `Le KYC de ${orgName} nécessite une attention. ${reason || 'Veuillez contacter le support.'}`,
+    submitted: `Les documents de vérification de ${orgName} ont été soumis et sont en cours d'examen.`,
+    approved: `La vérification de ${orgName} a été approuvée ! Vous pouvez activer la monétisation.`,
+    rejected: `La vérification de ${orgName} nécessite une attention. ${reason || 'Veuillez contacter le support.'}`,
   };
-  notifyOrgOwnersAdmins(orgId, `${icons[status]} KYC ${status === 'submitted' ? 'soumis' : status === 'approved' ? 'approuvé' : 'rejeté'}`, msgs[status], 'org', `/admin/kyc`);
+  notifyOrgOwnerOnly(orgId, `${icons[status]} Vérification ${status === 'submitted' ? 'soumise' : status === 'approved' ? 'approuvée' : 'refusée'}`, msgs[status], 'org', `/admin/kyc`);
 }
 
 // ── Support tickets ──
