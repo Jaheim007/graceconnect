@@ -2258,7 +2258,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'sidebar.manage': 'Gérer',
     'sidebar.more': 'Plus',
     'sidebar.organizations': 'Plateformes',
-    'sidebar.kyc': 'KYC',
+    'sidebar.kyc': 'Vérification',
     'sidebar.transactions': 'Transactions',
     'sidebar.reports': 'Rapports',
     'sidebar.risk_aml': 'Risque & AML',
