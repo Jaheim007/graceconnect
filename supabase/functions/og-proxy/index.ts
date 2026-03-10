@@ -39,6 +39,20 @@ const escapeHtml = (v: string) =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 
+/** Strip HTML tags and return clean plain text for OG descriptions */
+function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function renderOgHtml(title: string, description: string, image: string, canonicalUrl: string): string {
   const t = escapeHtml(title);
   const d = escapeHtml(description);
