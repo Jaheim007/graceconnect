@@ -151,6 +151,42 @@ export function CameraCapture({
     onChange('');
   }, [stopCamera, onChange]);
 
+  const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = () => setCapturedImage(reader.result as string);
+    reader.readAsDataURL(file);
+    
+    stopCamera();
+    setUploading(true);
+    setError(null);
+    try {
+      const fileName = `${folder}/${Date.now()}-upload.${file.name.split('.').pop()}`;
+      const { error: uploadError } = await supabase.storage
+        .from(bucket)
+        .upload(fileName, file, { contentType: file.type, upsert: true });
+      if (uploadError) throw uploadError;
+
+      if (bucket === 'private-products' || bucket === 'kyc-documents') {
+        const fullUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/${bucket}/${fileName}`;
+        onChange(fullUrl);
+      } else {
+        const { data } = supabase.storage.from(bucket).getPublicUrl(fileName);
+        onChange(brandUrl(data.publicUrl));
+      }
+    } catch (err: any) {
+      setError(err.message || 'Échec du téléchargement');
+      setCapturedImage(null);
+    } finally {
+      setUploading(false);
+      // Reset input so same file can be re-selected
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  }, [folder, bucket, onChange, stopCamera]);
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
