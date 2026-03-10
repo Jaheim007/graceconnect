@@ -263,26 +263,6 @@ export default function PaymentSuccessPage() {
             } catch (verifyErr) {
               console.error('[PaymentSuccess] stripe-verify error:', verifyErr);
             }
-          } else if (gateway === 'moneroo' || paymentId) {
-            // ── MONEROO VERIFY ──
-            try {
-              const result = await verifyMonerooPayment(paymentId || undefined, referenceRef.current || undefined);
-              if (result?.reference && !referenceRef.current) {
-                referenceRef.current = result.reference;
-              }
-              if (result?.ok) {
-                await wait(1500);
-                const found2 = await lookupTransaction(referenceRef.current);
-                if (found2) {
-                  await queryClient.invalidateQueries({ queryKey: ['my-purchases'] });
-                  setTx(found2);
-                  setLoading(false);
-                  return;
-                }
-              }
-            } catch (verifyErr) {
-              console.error('[PaymentSuccess] moneroo-verify error:', verifyErr);
-            }
           } else if (referenceRef.current.startsWith('SV-')) {
             try {
               const { verifyPayment } = await import('@/lib/api');
