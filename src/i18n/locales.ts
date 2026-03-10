@@ -1893,7 +1893,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'dash.request_failed': 'Échec de la demande',
     'dash.you_are_affiliate': 'Vous êtes affilié !',
     'dash.affiliate_ready': 'Votre lien de parrainage est prêt.',
-    'dash.kyc_required_short': 'KYC requis',
+    'dash.kyc_required_short': 'Vérification requise',
     'dash.available_amount': 'disponible',
     // TopBar
     'topbar.my_account': 'Mon Compte',
