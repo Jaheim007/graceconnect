@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   Coins, Zap, Gift, ShoppingBag, Clock, TrendingUp, TrendingDown,
   ArrowRight, Sparkles, Star, History, BookOpen, Image, Mic, FileText,
@@ -6,7 +6,9 @@ import {
 } from 'lucide-react';
 import { useCreditsBalance, useActionPricing, useCreditPacks, useCreditHistory, useGrantDailyCredits } from '@/hooks/useCredits';
 import { useAuth } from '@/contexts/AuthContext';
-import { usePaystack } from '@/hooks/usePaystack';
+import { usePaymentGateway, PaymentMethod } from '@/hooks/usePaymentGateway';
+import { PaymentMethodSelector } from '@/components/payments/PaymentMethodSelector';
+import { isMoMoAvailable } from '@/lib/paymentRouting';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
