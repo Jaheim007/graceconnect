@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Heart, Target, Share2, Copy, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
