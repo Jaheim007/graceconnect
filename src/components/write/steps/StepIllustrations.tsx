@@ -24,6 +24,7 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
   const [generating, setGenerating] = useState<string | null>(null);
   const [artStyle, setArtStyle] = useState<IllustrationStyle>('children_book');
   const [generatingAll, setGeneratingAll] = useState(false);
+  const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
 
   const chapters = state.chapters || [];
   const illustrations = state.chapterIllustrations || {};
