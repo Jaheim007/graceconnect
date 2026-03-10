@@ -6,7 +6,7 @@
 
 import { detectCountryFromTimezone } from '@/lib/countryDetect';
 
-export type PaymentGateway = 'paystack' | 'stripe' | 'moneroo';
+export type PaymentGateway = 'paystack' | 'stripe';
 
 /** Currencies natively supported by Paystack */
 const PAYSTACK_CURRENCIES = new Set([
