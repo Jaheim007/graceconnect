@@ -67,7 +67,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
         ) : (
           <div className="w-full h-full hero-gradient opacity-40" />
         )}
-        {(org.is_verified || (org as any).kyc_status === 'level1' || (org as any).kyc_status === 'level2') && (
+        {isOrgVerifiedOrKyc(org.is_verified, (org as any).kyc_status) && (
           <div className="absolute top-2 right-2">
             <VerifiedBadge size="md" showTooltip={false} />
           </div>
