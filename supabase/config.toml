@@ -48,6 +48,9 @@ verify_jwt = false
 [functions.watermark-download]
 verify_jwt = false
 
+[functions.kyc-signed-url]
+verify_jwt = false
+
 [functions.create-transfer-recipient]
 verify_jwt = false
 

@@ -11,7 +11,7 @@ interface CameraCaptureProps {
   folder?: string;
   label?: string;
   hint?: string;
-  bucket?: 'org-uploads' | 'private-products';
+  bucket?: 'org-uploads' | 'private-products' | 'kyc-documents';
 }
 
 export function CameraCapture({

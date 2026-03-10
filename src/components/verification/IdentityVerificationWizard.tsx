@@ -443,7 +443,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     value={docFrontUrl}
                     onChange={setDocFrontUrl}
                     folder={`${folder}/doc-front`}
-                    bucket="org-uploads"
+                    bucket="kyc-documents"
                     label={selectedDoc.hasBack ? 'Face avant du document' : selectedDoc.label}
                     hint="Prenez une photo claire du document entier"
                   />
@@ -455,7 +455,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                       value={docBackUrl}
                       onChange={setDocBackUrl}
                       folder={`${folder}/doc-back`}
-                      bucket="org-uploads"
+                      bucket="kyc-documents"
                       label="Face arrière du document"
                       hint="Retournez le document et prenez une photo du verso"
                     />
@@ -490,7 +490,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                   value={selfieUrl}
                   onChange={setSelfieUrl}
                   folder={`${folder}/selfie`}
-                  bucket="org-uploads"
+                  bucket="kyc-documents"
                   label="Selfie"
                   hint="Utilisez la caméra frontale pour prendre un selfie clair"
                 />
@@ -521,7 +521,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                   value={selfieWithDocUrl}
                   onChange={setSelfieWithDocUrl}
                   folder={`${folder}/selfie-with-doc`}
-                  bucket="org-uploads"
+                  bucket="kyc-documents"
                   label="Selfie avec document"
                   hint="Prenez un selfie en tenant votre pièce d'identité visible à côté de votre visage"
                 />
@@ -559,7 +559,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     value={orgDocUrl}
                     onChange={setOrgDocUrl}
                     folder={`kyc/${entityId}/org-docs`}
-                    bucket="org-uploads"
+                    bucket="kyc-documents"
                     accept="image/*,.pdf"
                     label="Document de l'organisation"
                     hint="Récépissé, certificat, statuts ou autorisation officielle (PDF ou image)"

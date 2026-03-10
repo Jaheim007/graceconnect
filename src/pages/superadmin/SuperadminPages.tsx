@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { useToast } from '@/hooks/use-toast';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, AreaChart, Area } from 'recharts';
-import { TrendingUp, Users, DollarSign, BarChart3, Activity, ShoppingBag, Heart, Filter, Download, Search, CalendarIcon } from 'lucide-react';
+import { TrendingUp, Users, DollarSign, BarChart3, Activity, ShoppingBag, Heart, Filter, Download, Search, CalendarIcon, Shield, Loader2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useState, useMemo } from 'react';
 import { downloadCSV } from '@/lib/csvExport';
@@ -129,6 +129,8 @@ export function SuperadminOrgs() {
 export function SuperadminKYC() {
   const { toast } = useToast();
   const [filter, setFilter] = useState<'pending' | 'all' | 'approved' | 'rejected'>('pending');
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
+  const [loadingUrls, setLoadingUrls] = useState<Record<string, boolean>>({});
   
   const { data: submissions = [], isLoading, refetch } = useQuery({
     queryKey: ['sa-kyc', filter],
@@ -139,6 +141,30 @@ export function SuperadminKYC() {
       return data || [];
     },
   });
+
+  // Get signed URL for a document
+  const getSignedUrl = async (url: string, orgId: string, docType: string) => {
+    const cacheKey = `${orgId}-${docType}`;
+    if (signedUrls[cacheKey]) {
+      window.open(signedUrls[cacheKey], '_blank');
+      return;
+    }
+    setLoadingUrls(prev => ({ ...prev, [cacheKey]: true }));
+    try {
+      const { data, error } = await db.functions.invoke('kyc-signed-url', {
+        body: { url, org_id: orgId, document_type: docType },
+      });
+      if (error) throw error;
+      if (data?.signedUrl) {
+        setSignedUrls(prev => ({ ...prev, [cacheKey]: data.signedUrl }));
+        window.open(data.signedUrl, '_blank');
+      }
+    } catch (err: any) {
+      toast({ title: 'Erreur', description: err.message || 'Impossible de générer l\'URL sécurisée', variant: 'destructive' });
+    } finally {
+      setLoadingUrls(prev => ({ ...prev, [cacheKey]: false }));
+    }
+  };
 
   const approve = async (id: string, orgId: string) => {
     const { error } = await db.rpc('review_org_kyc', { _org_id: orgId, _action: 'approve' });
@@ -162,6 +188,31 @@ export function SuperadminKYC() {
 
   const pendingCount = submissions.filter((s: any) => s.status === 'pending').length;
 
+  // Secure document viewer button
+  const SecureDocButton = ({ url, orgId, docType, label, isRound }: { url: string; orgId: string; docType: string; label: string; isRound?: boolean }) => {
+    const cacheKey = `${orgId}-${docType}`;
+    const isLoading = loadingUrls[cacheKey];
+    return (
+      <button
+        onClick={() => getSignedUrl(url, orgId, docType)}
+        disabled={isLoading}
+        className="block text-left w-full group"
+      >
+        <div className={`h-24 w-full rounded-lg border bg-muted/50 flex items-center justify-center group-hover:border-primary/50 transition-colors ${isRound ? 'w-24 mx-auto rounded-full' : ''}`}>
+          {isLoading ? (
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+          ) : (
+            <div className="text-center">
+              <Shield className="h-5 w-5 text-primary mx-auto mb-1" />
+              <p className="text-[9px] text-muted-foreground">🔒 Cliquer pour voir</p>
+            </div>
+          )}
+        </div>
+        <p className="text-[10px] text-muted-foreground text-center mt-0.5">{label}</p>
+      </button>
+    );
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
@@ -178,6 +229,15 @@ export function SuperadminKYC() {
             </Button>
           ))}
         </div>
+      </div>
+
+      {/* Security notice */}
+      <div className="flex items-start gap-2 p-3 rounded-xl bg-muted/50 border border-border">
+        <Shield className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+        <p className="text-[10px] text-muted-foreground">
+          🔒 Les documents sont stockés dans un bucket privé chiffré. Chaque consultation génère une URL temporaire (5 min) et est enregistrée dans le journal d'audit.
+          Rétention : <strong>5 ans</strong> conformément aux réglementations BCEAO/CENTIF.
+        </p>
       </div>
 
       {isLoading ? <SkeletonRow count={3} /> : submissions.length === 0 ? (
@@ -200,6 +260,9 @@ export function SuperadminKYC() {
                     </p>
                     <p className="text-[10px] text-muted-foreground">
                       {org?.slug ? `/${org.slug}` : ''} · Soumis le {new Date(s.submitted_at).toLocaleDateString('fr-FR')}
+                      {s.document_expires_at && (
+                        <span> · Expire le {new Date(s.document_expires_at).toLocaleDateString('fr-FR')}</span>
+                      )}
                     </p>
                   </div>
                   <Badge variant={s.status === 'pending' ? 'default' : s.status === 'approved' ? 'secondary' : 'destructive'}>
@@ -207,55 +270,32 @@ export function SuperadminKYC() {
                   </Badge>
                 </div>
 
-                {/* Identity documents (KYC) */}
+                {/* Identity documents (KYC) — secured */}
                 <div>
                   <p className="text-xs font-semibold mb-1.5">👤 Identité du responsable</p>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {s.id_document_url && (
-                      <a href={s.id_document_url} target="_blank" rel="noopener noreferrer" className="block">
-                        <img src={s.id_document_url} alt="ID Recto" className="h-24 w-full object-cover rounded-lg border" />
-                        <p className="text-[10px] text-muted-foreground text-center mt-0.5">ID Recto</p>
-                      </a>
+                      <SecureDocButton url={s.id_document_url} orgId={s.organization_id} docType="id_front" label="ID Recto" />
                     )}
                     {s.id_document_back_url && (
-                      <a href={s.id_document_back_url} target="_blank" rel="noopener noreferrer" className="block">
-                        <img src={s.id_document_back_url} alt="ID Verso" className="h-24 w-full object-cover rounded-lg border" />
-                        <p className="text-[10px] text-muted-foreground text-center mt-0.5">ID Verso</p>
-                      </a>
+                      <SecureDocButton url={s.id_document_back_url} orgId={s.organization_id} docType="id_back" label="ID Verso" />
                     )}
                     {s.selfie_url && (
-                      <a href={s.selfie_url} target="_blank" rel="noopener noreferrer" className="block">
-                        <img src={s.selfie_url} alt="Selfie" className="h-24 w-24 object-cover rounded-full border mx-auto" />
-                        <p className="text-[10px] text-muted-foreground text-center mt-0.5">Selfie</p>
-                      </a>
+                      <SecureDocButton url={s.selfie_url} orgId={s.organization_id} docType="selfie" label="Selfie" isRound />
                     )}
                     {s.selfie_with_doc_url && (
-                      <a href={s.selfie_with_doc_url} target="_blank" rel="noopener noreferrer" className="block">
-                        <img src={s.selfie_with_doc_url} alt="Selfie + Doc" className="h-24 w-full object-cover rounded-lg border" />
-                        <p className="text-[10px] text-muted-foreground text-center mt-0.5">Selfie + Doc</p>
-                      </a>
+                      <SecureDocButton url={s.selfie_with_doc_url} orgId={s.organization_id} docType="selfie_with_doc" label="Selfie + Doc" />
                     )}
                   </div>
                 </div>
 
-                {/* Organization documents (KYB) */}
+                {/* Organization documents (KYB) — secured */}
                 {(s.org_document_url || s.org_document_type) && (
                   <div>
                     <p className="text-xs font-semibold mb-1.5">🏢 Documents organisation</p>
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                       {s.org_document_url && (
-                        <a href={s.org_document_url} target="_blank" rel="noopener noreferrer" className="block">
-                          {s.org_document_url.endsWith('.pdf') ? (
-                            <div className="h-24 w-full rounded-lg border bg-muted flex items-center justify-center">
-                              <span className="text-2xl">📄</span>
-                            </div>
-                          ) : (
-                            <img src={s.org_document_url} alt="Doc Org" className="h-24 w-full object-cover rounded-lg border" />
-                          )}
-                          <p className="text-[10px] text-muted-foreground text-center mt-0.5">
-                            {s.org_document_type || 'Document org'}
-                          </p>
-                        </a>
+                        <SecureDocButton url={s.org_document_url} orgId={s.organization_id} docType="org_document" label={s.org_document_type || 'Document org'} />
                       )}
                     </div>
                   </div>
