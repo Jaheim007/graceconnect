@@ -127,7 +127,7 @@ Deno.serve(async (req) => {
           const { data: existingPurchase } = await db
             .from('credit_purchases')
             .select('id, status')
-            .eq('id', purchaseId)
+            .eq('id', resolvedPurchaseId)
             .maybeSingle();
 
           if (existingPurchase?.status === 'completed') {
@@ -136,19 +136,13 @@ Deno.serve(async (req) => {
           }
 
           if (!existingPurchase) {
-            // Purchase record missing — try to recreate from metadata
-            const userId = meta.user_id as string || tx.customer?.email;
-            if (!userId) {
-              reconciled.push({ reference, amount: tx.amount / 100, status: 'error', error: 'No user_id in credit_purchase metadata' });
-              continue;
-            }
-            reconciled.push({ reference, amount: tx.amount / 100, status: 'error', error: 'Purchase record not found for id: ' + purchaseId });
+            reconciled.push({ reference, amount: tx.amount / 100, status: 'error', error: 'Purchase record not found for id: ' + resolvedPurchaseId });
             continue;
           }
 
           try {
             const { data: result, error: completeErr } = await db.rpc('complete_credit_purchase', {
-              _purchase_id: purchaseId,
+              _purchase_id: resolvedPurchaseId,
               _payment_reference: reference,
             });
 
