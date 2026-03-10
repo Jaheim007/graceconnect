@@ -8,6 +8,7 @@ import { Share2, CheckCircle, Circle, Copy, MessageCircle, Rocket, Award, Target
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/lib/currency';
 import { cn } from '@/lib/utils';
