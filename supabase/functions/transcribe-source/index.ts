@@ -66,27 +66,38 @@ Deno.serve(async (req) => {
         const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?.*v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
         if (!ytMatch) throw new Error('Invalid YouTube URL');
         
-        const videoUrl = `https://www.youtube.com/watch?v=${ytMatch[1]}`;
-        console.log('[transcribe-source] YouTube video:', videoUrl);
+        const videoId = ytMatch[1];
+        const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
+        console.log('[transcribe-source] YouTube video:', videoUrl, 'id:', videoId);
 
-        // Try Gemini with fileData for native YouTube video understanding
+        // ===== METHOD 1: Fetch real captions via Innertube API =====
         try {
-          console.log('[transcribe-source] Attempting Gemini fileData approach...');
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 120_000); // 2 min timeout
-          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{
-                parts: [
-                  { 
-                    fileData: { 
-                      fileUri: videoUrl,
-                      mimeType: 'video/mp4'
-                    }
-                  },
-                  { text: `You are a professional content transcription assistant. Extract and transcribe ALL spoken content from this YouTube video.
+          console.log('[transcribe-source] Attempting Innertube captions...');
+          transcribedText = await fetchYouTubeCaptions(videoId);
+          console.log('[transcribe-source] Innertube captions result length:', transcribedText.length);
+        } catch (e) {
+          console.log('[transcribe-source] Innertube captions failed:', String(e).substring(0, 300));
+        }
+
+        // ===== METHOD 2: Gemini fileData (can actually process YouTube videos) =====
+        if (!transcribedText || transcribedText.length < 50) {
+          try {
+            console.log('[transcribe-source] Falling back to Gemini fileData...');
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 120_000);
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{
+                  parts: [
+                    { 
+                      fileData: { 
+                        fileUri: videoUrl,
+                        mimeType: 'video/mp4'
+                      }
+                    },
+                    { text: `You are a professional content transcription assistant. Extract and transcribe ALL spoken content from this YouTube video.
 
 Rules:
 - Return ONLY the transcribed text, well-formatted with clear paragraphs
@@ -96,43 +107,32 @@ Rules:
 - If there are multiple speakers, indicate speaker changes with "**Speaker 1:**", "**Speaker 2:**", etc.
 - Minimum output: 500 words (transcribe everything, don't summarize)
 - Language: transcribe in the ORIGINAL language of the video` },
-                ],
-              }],
-              generationConfig: { maxOutputTokens: 16384, temperature: 0.1 },
-            }),
-            signal: controller.signal,
-          });
-          clearTimeout(timeoutId);
-          
-          const data = await res.json();
-          console.log('[transcribe-source] Gemini fileData response status:', res.status);
-          
-          if (data?.error) {
-            console.log('[transcribe-source] Gemini fileData error:', JSON.stringify(data.error).substring(0, 200));
+                  ],
+                }],
+                generationConfig: { maxOutputTokens: 16384, temperature: 0.1 },
+              }),
+              signal: controller.signal,
+            });
+            clearTimeout(timeoutId);
+            
+            const data = await res.json();
+            console.log('[transcribe-source] Gemini fileData response status:', res.status);
+            
+            if (data?.error) {
+              console.log('[transcribe-source] Gemini fileData error:', JSON.stringify(data.error).substring(0, 200));
+            }
+            
+            transcribedText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            console.log('[transcribe-source] fileData result length:', transcribedText.length);
+          } catch (e) {
+            console.log('[transcribe-source] Gemini fileData failed:', String(e).substring(0, 200));
           }
-          
-          transcribedText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-          console.log('[transcribe-source] fileData result length:', transcribedText.length);
-        } catch (e) {
-          console.log('[transcribe-source] fileData approach failed:', String(e).substring(0, 200));
         }
-        
-        // Fallback: text-only prompt with URL
+
+        // ===== METHOD 3: OpenAI fallback - ask to describe based on title/metadata =====
         if (!transcribedText || transcribedText.length < 50) {
-          console.log('[transcribe-source] Falling back to text-only prompt...');
-          transcribedText = await transcribeWithGemini(GEMINI_API_KEY, {
-            prompt: `You are a content transcription assistant. I need you to transcribe a YouTube video.
-
-The video URL is: ${videoUrl}
-
-Please provide a complete transcription of everything said in the video. 
-- Use clear paragraphs and headings where appropriate
-- If there are multiple speakers, indicate speaker changes
-- Minimum output: 500 words - transcribe everything, don't summarize
-- Return ONLY the transcribed text, formatted cleanly
-- Transcribe in the ORIGINAL language of the video`,
-          });
-          console.log('[transcribe-source] Fallback result length:', transcribedText.length);
+          console.log('[transcribe-source] All YouTube transcription methods failed');
+          throw new Error('Could not extract captions from this video. The video may not have subtitles/captions available. Please try uploading the audio file directly instead.');
         }
         break;
       }
@@ -466,4 +466,130 @@ async function transcribeWithGeminiInline(apiKey: string, opts: { prompt: string
   if (!res.ok) return '';
   const data = await res.json();
   return data?.choices?.[0]?.message?.content || '';
+}
+
+/**
+ * Fetch actual YouTube captions using the Innertube API.
+ * This uses YouTube's internal player API to get caption track URLs,
+ * then fetches and parses the caption XML.
+ */
+async function fetchYouTubeCaptions(videoId: string): Promise<string> {
+  // Step 1: Get caption tracks via Innertube player API
+  const playerRes = await fetch('https://www.youtube.com/youtubei/v1/player?prettyPrint=false', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      context: {
+        client: {
+          hl: 'en',
+          gl: 'US',
+          clientName: 'WEB',
+          clientVersion: '2.20240101.00.00',
+        },
+      },
+      videoId,
+    }),
+  });
+
+  if (!playerRes.ok) {
+    throw new Error(`Innertube player API returned ${playerRes.status}`);
+  }
+
+  const playerData = await playerRes.json();
+  const captionTracks = playerData?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
+
+  if (!captionTracks || captionTracks.length === 0) {
+    throw new Error('No caption tracks available for this video');
+  }
+
+  console.log('[transcribe-source] Available caption tracks:', captionTracks.map((t: any) => `${t.languageCode} (${t.kind || 'manual'})`).join(', '));
+
+  // Step 2: Pick the best caption track
+  // Prefer manual captions over auto-generated (ASR)
+  let selectedTrack = captionTracks.find((t: any) => t.kind !== 'asr') || captionTracks[0];
+  
+  console.log('[transcribe-source] Selected caption track:', selectedTrack.languageCode, selectedTrack.kind || 'manual');
+
+  // Step 3: Fetch the caption XML
+  let captionUrl = selectedTrack.baseUrl;
+  // Request JSON3 format for easier parsing
+  if (!captionUrl.includes('fmt=')) {
+    captionUrl += (captionUrl.includes('?') ? '&' : '?') + 'fmt=json3';
+  }
+
+  const captionRes = await fetch(captionUrl);
+  if (!captionRes.ok) {
+    throw new Error(`Caption fetch returned ${captionRes.status}`);
+  }
+
+  const contentType = captionRes.headers.get('content-type') || '';
+  
+  let fullText = '';
+  
+  if (contentType.includes('json') || captionUrl.includes('fmt=json3')) {
+    // Parse JSON3 format
+    try {
+      const json3 = await captionRes.json();
+      const events = json3?.events || [];
+      const segments: string[] = [];
+      
+      for (const event of events) {
+        if (event.segs) {
+          const line = event.segs.map((s: any) => s.utf8 || '').join('');
+          if (line.trim() && line.trim() !== '\n') {
+            segments.push(line.trim());
+          }
+        }
+      }
+      fullText = segments.join(' ');
+    } catch {
+      // If JSON parsing fails, try XML fallback
+      console.log('[transcribe-source] JSON3 parsing failed, trying XML...');
+    }
+  }
+  
+  // Fallback: fetch XML format
+  if (!fullText || fullText.length < 20) {
+    const xmlUrl = selectedTrack.baseUrl; // without fmt=json3
+    const xmlRes = await fetch(xmlUrl);
+    if (xmlRes.ok) {
+      const xmlText = await xmlRes.text();
+      // Simple XML parsing: extract text between <text> tags
+      const textMatches = xmlText.matchAll(/<text[^>]*>([\s\S]*?)<\/text>/gi);
+      const segments: string[] = [];
+      for (const match of textMatches) {
+        let text = match[1]
+          .replace(/&amp;/g, '&')
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/<[^>]+>/g, '') // strip any HTML tags within
+          .trim();
+        if (text) segments.push(text);
+      }
+      fullText = segments.join(' ');
+    }
+  }
+
+  if (!fullText || fullText.length < 20) {
+    throw new Error('Caption track was empty or too short');
+  }
+
+  // Clean up: remove excessive whitespace, format into paragraphs
+  fullText = fullText
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  // Split into paragraphs every ~200 words for readability
+  const words = fullText.split(' ');
+  const paragraphs: string[] = [];
+  for (let i = 0; i < words.length; i += 200) {
+    paragraphs.push(words.slice(i, i + 200).join(' '));
+  }
+  
+  // Get video title for heading
+  const videoTitle = playerData?.videoDetails?.title || 'YouTube Video';
+  
+  return `## ${videoTitle}\n\n${paragraphs.join('\n\n')}`;
 }
