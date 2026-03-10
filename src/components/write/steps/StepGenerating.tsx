@@ -26,6 +26,7 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
   const [thinkingProgress, setThinkingProgress] = useState(12);
   const aborted = useRef(false);
   const ran = useRef(false);
+  const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
 
   useEffect(() => {
     if (phase !== 'thinking') return;
