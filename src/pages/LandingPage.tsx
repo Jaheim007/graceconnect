@@ -1,9 +1,10 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useState, useCallback } from 'react';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { LandingHeroManifesto } from '@/components/landing/LandingHeroManifesto';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { LiveAuthorsCounter } from '@/components/growth/LiveAuthorsCounter';
 import { CommunityProgressBar } from '@/components/growth/CommunityProgressBar';
+import { SplashScreen, wasSplashShown } from '@/components/splash/SplashScreen';
 
 const LandingHowItWorks = lazy(() => import('@/components/landing/LandingHowItWorksSimple').then(m => ({ default: m.LandingHowItWorksSimple })));
 const LandingInteractiveDemo = lazy(() => import('@/components/landing/LandingInteractiveDemo').then(m => ({ default: m.LandingInteractiveDemo })));
