@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useI18n } from '@/i18n/I18nContext';
 import { supabase } from '@/integrations/supabase/client';
+import { useCreditGuard } from '@/hooks/useCreditGuard';
+import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 import type { WriteState } from '../WriteWizard';
 import { hasGeneratedContent } from '../utils/hasGeneratedContent';
 
