@@ -1,6 +1,6 @@
 import { requireAuth, corsHeaders, jsonResp, adminClient } from '../_shared/auth.ts';
 import { consumeCreditsOrThrow, normalizeTier } from '../_shared/credits.ts';
-import { geminiGenerateText, extractJson } from '../_shared/ai-gemini.ts';
+import { aiGenerateText, extractJson } from '../_shared/ai-fallback.ts';
 
 const langPrompts: Record<string, { system: string; user: (p: any) => string }> = {
   fr: {
