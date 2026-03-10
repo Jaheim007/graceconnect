@@ -152,36 +152,9 @@ Deno.serve(async (req) => {
     results['click_milestones'] = clickMilestones;
 
     // ═══════════════════════════════════════════
-    // 4. WEEKLY TOP AMBASSADOR (Monday only)
+    // 4. WEEKLY TOP AMBASSADOR — DISABLED (bluff strategy: re-enable when real volume exists)
     // ═══════════════════════════════════════════
-    let topAmbassadorNotifs = 0;
-    if (now.getDay() === 1) { // Monday
-      const weekAgo = new Date(now.getTime() - 7 * 86400000).toISOString();
-      const { data: topAmbassadors } = await db.from('affiliate_sales')
-        .select('affiliate_user_id, commission_amount')
-        .gte('created_at', weekAgo)
-        .order('commission_amount', { ascending: false })
-        .limit(10);
-
-      const seen = new Set<string>();
-      let rank = 0;
-      for (const sale of topAmbassadors || []) {
-        if (seen.has(sale.affiliate_user_id)) continue;
-        seen.add(sale.affiliate_user_id);
-        rank++;
-        if (rank <= 5) {
-          await db.from('user_notifications').insert({
-            user_id: sale.affiliate_user_id,
-            title: `🏆 Top ${rank} ambassadeur cette semaine !`,
-            body: `Bravo ! Tu fais partie des ${rank <= 3 ? 'meilleurs' : 'top 5'} ambassadeurs de la semaine. Continue ! 🔥`,
-            notification_type: 'ranking',
-            action_url: '/gagner',
-          });
-          topAmbassadorNotifs++;
-        }
-      }
-    }
-    results['top_ambassadors'] = topAmbassadorNotifs;
+    results['top_ambassadors'] = 0;
 
     // ═══════════════════════════════════════════
     // 5. TRENDING PRODUCT SUGGESTIONS (for active ambassadors)

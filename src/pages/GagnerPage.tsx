@@ -196,8 +196,7 @@ export default function GagnerPage() {
         {/* Earnings calculator */}
         <EarningsCalculator />
 
-        {/* Ambassador leaderboard */}
-        <AmbassadorLeaderboard />
+        {/* Ambassador leaderboard — hidden until real volume (bluff strategy) */}
 
         {/* Main tabs */}
         <GagnerTabs />
