@@ -1060,9 +1060,24 @@ async function buildProfessionalPdf(opts: {
       tocY = pg.height - M.top;
     }
 
-    const chTitle = asText(chapters[ci].title, `${chapterWord} ${ci + 1}`);
+    let chTitle = asText(chapters[ci].title, `${chapterWord} ${ci + 1}`);
+    // Strip leading numbering from AI (e.g. "1. ", "1- ", "Chapitre 1 : ", "Chapter 1:", etc.)
+    chTitle = chTitle.replace(/^(\d+[\.\-\)]\s*|(?:chapitre|chapter)\s+\d+\s*[:\-–—]?\s*)/i, '').trim();
+    // Capitalize first letter
+    if (chTitle.length > 0) {
+      chTitle = chTitle.charAt(0).toUpperCase() + chTitle.slice(1);
+    }
     const numStr = `${ci + 1}`;
-    const displayTitle = chTitle.length > 55 ? chTitle.slice(0, 52) + '...' : chTitle;
+
+    // Calculate max title width dynamically instead of fixed char limit
+    const titleX = M.outer + 32;
+    const pageNumX = pg.width - M.outer - 18;
+    const maxTitleWidth = pageNumX - titleX - 30; // leave space for dots + page num
+    let displayTitle = chTitle;
+    // Truncate only if title overflows available width
+    while (serif.widthOfTextAtSize(displayTitle, T.tocEntry) > maxTitleWidth && displayTitle.length > 10) {
+      displayTitle = displayTitle.slice(0, displayTitle.length - 4).trimEnd() + '…';
+    }
 
     // Chapter number — accent gold, bold
     safeDrawText(currentTocPage, numStr, {
