@@ -39,6 +39,20 @@ const escapeHtml = (v: string) =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 
+/** Strip HTML tags and return clean plain text for OG descriptions */
+function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function renderOgHtml(title: string, description: string, image: string, canonicalUrl: string): string {
   const t = escapeHtml(title);
   const d = escapeHtml(description);
@@ -135,7 +149,7 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
       const orgName = (data as any).organizations?.name || 'Siteviral';
       return {
         title: `${data.title} — ${orgName}`,
-        description: (data.description || `Découvrez ${data.title}`).slice(0, 300),
+        description: stripHtml(data.description || `Découvrez ${data.title}`).slice(0, 300),
         image: data.cover_image_url || DEFAULT_IMAGE,
       };
     }
@@ -153,7 +167,7 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
     if (data)
       return {
         title: `${data.name} — Siteviral`,
-        description: (data.description || `Découvrez ${data.name} sur Siteviral`).slice(0, 300),
+        description: stripHtml(data.description || `Découvrez ${data.name} sur Siteviral`).slice(0, 300),
         image: data.banner_url || data.logo_url || DEFAULT_IMAGE,
       };
   }
@@ -171,7 +185,7 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
       const orgName = (data as any).organizations?.name || 'Siteviral';
       return {
         title: `${data.title} — ${orgName}`,
-        description: (data.description || `Découvrez ${data.title}`).slice(0, 300),
+        description: stripHtml(data.description || `Découvrez ${data.title}`).slice(0, 300),
         image: data.cover_image_url || DEFAULT_IMAGE,
       };
     }
@@ -190,7 +204,7 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
       const orgName = (data as any).organizations?.name || 'Siteviral';
       return {
         title: `${data.title} — ${orgName}`,
-        description: (data.description || `Soutenez ${data.title}`).slice(0, 300),
+        description: stripHtml(data.description || `Soutenez ${data.title}`).slice(0, 300),
         image: data.image_url || DEFAULT_IMAGE,
       };
     }
@@ -209,7 +223,7 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
       const orgName = (data as any).organizations?.name || 'Siteviral';
       return {
         title: `${data.title} — ${orgName}`,
-        description: (data.description || `Événement sur Siteviral`).slice(0, 300),
+        description: stripHtml(data.description || `Événement sur Siteviral`).slice(0, 300),
         image: data.image_url || DEFAULT_IMAGE,
       };
     }
