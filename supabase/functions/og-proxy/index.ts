@@ -167,7 +167,7 @@ async function resolveFromPath(path: string): Promise<MetaResult | null> {
     if (data)
       return {
         title: `${data.name} — Siteviral`,
-        description: (data.description || `Découvrez ${data.name} sur Siteviral`).slice(0, 300),
+        description: stripHtml(data.description || `Découvrez ${data.name} sur Siteviral`).slice(0, 300),
         image: data.banner_url || data.logo_url || DEFAULT_IMAGE,
       };
   }
