@@ -124,7 +124,7 @@ export async function onMemberJoined(
   orgId: string,
   orgName: string,
 ) {
-  notify(userId, `🎉 Bienvenue dans ${orgName}`, `Vous avez rejoint l'organisation ${orgName}.`, 'org', orgId, `/feed`);
+  notify(userId, `🎉 Bienvenue dans ${orgName}`, `Vous avez rejoint l'organisation ${orgName}.`, 'org', orgId, `/org/${orgId}`);
   emailOrgAdmins('new_member_joined', orgId, { org_name: orgName, member_name: userName });
 }
 
@@ -153,7 +153,7 @@ export async function onRoleChanged(
     `Votre rôle dans ${orgName} est maintenant : ${newRole}.`,
     'role_changed',
     { org_name: orgName, new_role: newRole, old_role: oldRole || '' },
-    'org', orgId, `/feed`,
+    'org', orgId, `/admin/members`,
   );
 }
 
@@ -208,8 +208,16 @@ export async function onContentPublished(
   const notifTitle = `${icons[contentType]} Nouveau ${labels[contentType]}`;
   const notifBody = `${orgName} a publié : "${contentTitle}"`;
 
-  // In-app notification to all members
-  notifyOrgMembers(orgId, notifTitle, notifBody, 'org', publisherId, `/feed`);
+  // In-app notification to all members — deep link to the relevant content page
+  const contentRoutes: Record<string, string> = {
+    event: `/admin/events`,
+    announcement: `/admin/announcements`,
+    media: `/admin/media`,
+    product: `/admin/products`,
+    campaign: `/admin/campaigns`,
+    program: `/admin/programs`,
+  };
+  notifyOrgMembers(orgId, notifTitle, notifBody, 'org', publisherId, contentRoutes[contentType] || `/feed`);
 
   // Email to org admins with the right template
   emailOrgAdmins(templates[contentType], orgId, {
@@ -332,12 +340,12 @@ export async function onDirectoryDecision(
 // ── Org suspended / unsuspended ──
 export async function onOrgSuspended(orgId: string, orgName: string, reason: string, until?: string) {
   emailOrgAdmins('org_suspended', orgId, { org_name: orgName, reason, until: until || '' });
-  notifyOrgMembers(orgId, '⚠️ Organisation suspendue', `${orgName} a été suspendue. Raison: ${reason}`, 'system', undefined, `/feed`);
+  notifyOrgMembers(orgId, '⚠️ Organisation suspendue', `${orgName} a été suspendue. Raison: ${reason}`, 'system', undefined, `/admin`);
 }
 
 export async function onOrgUnsuspended(orgId: string, orgName: string) {
   emailOrgAdmins('org_unsuspended', orgId, { org_name: orgName });
-  notifyOrgMembers(orgId, '✅ Suspension levée', `${orgName} est de nouveau active.`, 'system', undefined, `/feed`);
+  notifyOrgMembers(orgId, '✅ Suspension levée', `${orgName} est de nouveau active.`, 'system', undefined, `/admin`);
 }
 
 // ── Payouts frozen ──
@@ -450,7 +458,7 @@ export async function onAffiliateWelcome(
     `Votre lien affilié pour ${orgName} est prêt ! Code: ${code}`,
     'affiliate_welcome',
     { org_name: orgName, code, commission_percent: commissionPercent },
-    'affiliate', orgId,
+    'affiliate', orgId, `/affiliation`,
   );
 }
 
@@ -465,7 +473,7 @@ export async function onAffiliateFirstClick(
     `Quelqu'un a cliqué sur votre lien affilié pour ${orgName}.`,
     'affiliate_first_click',
     { org_name: orgName },
-    'affiliate',
+    'affiliate', undefined, `/affiliation`,
   );
 }
 
@@ -482,7 +490,7 @@ export async function onAffiliateFirstConversion(
     `Votre premier referral a converti ! Commission: ${commission} ${currency}`,
     'affiliate_first_conversion',
     { org_name: orgName, commission, currency },
-    'affiliate',
+    'affiliate', undefined, `/affiliation`,
   );
 }
 
@@ -503,7 +511,7 @@ export async function onAffiliateSale(
     `Vous avez gagné ${commission} ${currency} de commission sur une ${transactionType} de ${grossAmount} ${currency} pour ${orgName}.`,
     'affiliate_sale',
     { org_name: orgName, commission, currency, gross_amount: grossAmount, transaction_type: transactionType },
-    'affiliate', orgId,
+    'affiliate', orgId, `/affiliation`,
   );
 }
 
@@ -522,7 +530,7 @@ export async function onAffiliatePayoutRequested(
     `Votre demande de retrait de ${amount} ${currency} depuis ${orgName} a été soumise.`,
     'affiliate_payout_requested',
     { org_name: orgName, amount, currency },
-    'affiliate', orgId,
+    'affiliate', orgId, `/affiliation`,
   );
 }
 
@@ -541,7 +549,7 @@ export async function onAffiliatePayoutCompleted(
     `Votre retrait de ${amount} ${currency} depuis ${orgName} a été envoyé sur votre compte.`,
     'affiliate_payout_completed',
     { org_name: orgName, amount, currency },
-    'affiliate', orgId,
+    'affiliate', orgId, `/affiliation`,
   );
 }
 
@@ -554,21 +562,21 @@ export async function onNewDeviceLogin(
   if (userEmail) {
     sendEmailNotification('new_device_login', userEmail, { device, time: new Date().toISOString() }).catch(() => {});
   }
-  notify(userId, '🔒 Nouvelle connexion', `Connexion détectée depuis: ${device}`, 'security');
+  notify(userId, '🔒 Nouvelle connexion', `Connexion détectée depuis: ${device}`, 'security', undefined, `/profile`);
 }
 
 export async function onPasswordChanged(userId: string, userEmail: string | undefined) {
   if (userEmail) {
     sendEmailNotification('password_changed', userEmail, {}).catch(() => {});
   }
-  notify(userId, '🔑 Mot de passe modifié', 'Votre mot de passe a été modifié avec succès.', 'security');
+  notify(userId, '🔑 Mot de passe modifié', 'Votre mot de passe a été modifié avec succès.', 'security', undefined, `/profile`);
 }
 
 export async function onEmailChanged(userId: string, oldEmail: string | undefined, newEmail: string) {
   if (oldEmail) {
     sendEmailNotification('email_changed', oldEmail, { new_email: newEmail }).catch(() => {});
   }
-  notify(userId, '📧 Email modifié', `Votre email a été changé pour ${newEmail}.`, 'security');
+  notify(userId, '📧 Email modifié', `Votre email a été changé pour ${newEmail}.`, 'security', undefined, `/profile`);
 }
 
 export async function onAccountDeleted(email: string) {
@@ -589,19 +597,19 @@ export async function onPaymentFailed(
     `Votre paiement de ${amount} ${currency} n'a pas pu être traité.`,
     'payment_failed',
     { amount, currency, reference },
-    'transaction',
+    'transaction', undefined, `/resources`,
   );
 }
 
 // ── Milestones ──
 export async function onFirstDonationReceived(orgId: string, orgName: string, amount: number, currency: string) {
   emailOrgAdmins('first_donation_milestone', orgId, { org_name: orgName, amount, currency });
-  notifyOrgMembers(orgId, '🎉 Premier don reçu !', `${orgName} a reçu son tout premier don de ${amount} ${currency} !`, 'milestone');
+  notifyOrgMembers(orgId, '🎉 Premier don reçu !', `${orgName} a reçu son tout premier don de ${amount} ${currency} !`, 'milestone', undefined, `/admin/campaigns`);
 }
 
 export async function onFirstSale(orgId: string, orgName: string, productName: string, amount: number, currency: string) {
   emailOrgAdmins('first_sale_milestone', orgId, { org_name: orgName, product_name: productName, amount, currency });
-  notifyOrgMembers(orgId, '🎉 Première vente !', `${orgName} a réalisé sa première vente : "${productName}" — ${amount} ${currency}`, 'milestone');
+  notifyOrgMembers(orgId, '🎉 Première vente !', `${orgName} a réalisé sa première vente : "${productName}" — ${amount} ${currency}`, 'milestone', undefined, `/admin/products`);
 }
 
 // ── New sale (every purchase) ──
@@ -618,6 +626,7 @@ export async function onNewSale(
     '💰 Nouvelle vente !',
     `${buyerName} a acheté "${productName}" — ${amount} ${currency}`,
     'transaction',
+    undefined, `/admin/products`,
   );
 }
 
@@ -635,6 +644,7 @@ export async function onNewDonation(
     '🙏 Nouveau don !',
     `${donorName} a fait un don de ${amount} ${currency} pour "${campaignName}"`,
     'transaction',
+    undefined, `/admin/campaigns`,
   );
 }
 
@@ -643,7 +653,7 @@ export async function onCampaignGoalReached(orgId: string, orgName: string, camp
     org_name: orgName, campaign_name: campaignName,
     goal_amount: goalAmount, current_amount: currentAmount, currency,
   });
-  notifyOrgMembers(orgId, '🏆 Objectif atteint !', `La campagne "${campaignName}" a atteint son objectif de ${goalAmount} ${currency} !`, 'milestone');
+  notifyOrgMembers(orgId, '🏆 Objectif atteint !', `La campagne "${campaignName}" a atteint son objectif de ${goalAmount} ${currency} !`, 'milestone', undefined, `/admin/campaigns`);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -666,7 +676,7 @@ export async function onPurchaseConfirmed(
     `Votre achat de "${productName}" sur ${orgName} a été confirmé. Montant: ${amount} ${currency}`,
     'purchase_confirmation',
     { product_name: productName, org_name: orgName, amount, currency, reference, access_link: 'https://siteviral.com/resources' },
-    'transaction',
+    'transaction', undefined, `/resources`,
   );
 }
 
