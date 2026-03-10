@@ -60,7 +60,7 @@ export default function CreditsPage() {
   const grantDaily = useGrantDailyCredits();
   const { openPayment, hasPaystackKey } = usePaymentGateway();
   const qc = useQueryClient();
-  const [selectedTab, setSelectedTab] = useState('overview');
+  const [selectedTab, setSelectedTab] = useState('packs');
   const [purchasing, setPurchasing] = useState<string | null>(null);
 
   // Credit packs are priced in XOF
