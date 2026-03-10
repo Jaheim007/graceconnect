@@ -145,8 +145,8 @@ Deno.serve(async (req) => {
     const productId = meta.product_id as string | undefined;
     const campaignId = meta.campaign_id as string | undefined;
     const userId = meta.user_id as string | undefined;
-    const donorName = meta.donor_name as string | undefined;
-    const donorEmail = (meta.donor_email as string | undefined) || txData.customer?.email;
+    const donorName = (meta.donor_name as string | undefined) || (meta.buyer_name as string | undefined);
+    const donorEmail = (meta.donor_email as string | undefined) || (meta.buyer_email as string | undefined) || txData.customer?.email;
     const affiliateCode = meta.affiliate_code as string | undefined;
 
     if (!organizationId) {
