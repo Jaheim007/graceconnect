@@ -10,6 +10,7 @@ interface AIDescriptionButtonProps {
   productType: string;
   price: number;
   currency?: string;
+  existingDescription?: string;
   onGenerated: (html: string) => void;
 }
 
