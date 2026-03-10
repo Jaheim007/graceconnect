@@ -322,7 +322,7 @@ export function Sidebar() {
                   <button className="w-full p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/15 transition-colors text-left group">
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{t('sidebar.managing')}</p>
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-semibold text-primary truncate flex items-center gap-1">{currentOrg.name} {currentOrg.is_verified && <VerifiedBadge size="xs" showTooltip={false} />}</p>
+                      <p className="text-xs font-semibold text-primary truncate flex items-center gap-1">{currentOrg.name} {isOrgVerifiedOrKyc(currentOrg.is_verified, (currentOrg as any).kyc_status) && <VerifiedBadge size="xs" showTooltip={false} />}</p>
                       <ChevronDown className="h-3 w-3 text-primary shrink-0 group-hover:translate-y-0.5 transition-transform" />
                     </div>
                   </button>
