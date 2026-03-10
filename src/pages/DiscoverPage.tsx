@@ -98,7 +98,7 @@ export default function DiscoverPage() {
     queryFn: async ({ pageParam = 0 }) => {
       let q = db
         .from('digital_products')
-        .select('*, organizations(name, slug, logo_url, currency)')
+        .select('*, organizations(name, slug, logo_url, currency, is_verified)')
         .eq('is_published', true)
         .eq('is_express_demo', false);
 
@@ -124,6 +124,7 @@ export default function DiscoverPage() {
         organization_name: p.organizations?.name,
         organization_slug: p.organizations?.slug,
         organization_logo: p.organizations?.logo_url,
+        is_org_verified: p.organizations?.is_verified,
       }));
       return { items: sortBy === 'mixed' ? mixByOrg(mapped) : mapped, page: pageParam };
     },
@@ -143,7 +144,7 @@ export default function DiscoverPage() {
     queryFn: async () => {
       let q = db
         .from('donation_campaigns')
-        .select('*, organizations(name, slug, logo_url, currency)')
+        .select('*, organizations(name, slug, logo_url, currency, is_verified)')
         .eq('is_published', true)
         .eq('is_active', true)
         .eq('is_express_demo', false)
@@ -156,6 +157,7 @@ export default function DiscoverPage() {
         _type: 'campaign' as const,
         organization_name: c.organizations?.name,
         organization_slug: c.organizations?.slug,
+        is_org_verified: c.organizations?.is_verified,
       }));
     },
     enabled: showCampaigns,
@@ -168,7 +170,7 @@ export default function DiscoverPage() {
     queryFn: async () => {
       let q = db
         .from('offerings')
-        .select('*, organizations!inner(name, slug, logo_url, currency, offerings_enabled)')
+        .select('*, organizations!inner(name, slug, logo_url, currency, offerings_enabled, is_verified)')
         .eq('is_active', true)
         .eq('organizations.offerings_enabled', true)
         .order('created_at', { ascending: false })
@@ -180,6 +182,7 @@ export default function DiscoverPage() {
         _type: 'offering' as const,
         organization_name: o.organizations?.name,
         organization_slug: o.organizations?.slug,
+        is_org_verified: o.organizations?.is_verified,
       }));
     },
     enabled: showOfferings,

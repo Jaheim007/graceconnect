@@ -16,6 +16,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { useMyPartner } from '@/hooks/usePartner';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
@@ -320,7 +321,7 @@ export function Sidebar() {
                   <button className="w-full p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/15 transition-colors text-left group">
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{t('sidebar.managing')}</p>
                     <div className="flex items-center justify-between">
-                      <p className="text-xs font-semibold text-primary truncate">{currentOrg.name}</p>
+                      <p className="text-xs font-semibold text-primary truncate flex items-center gap-1">{currentOrg.name} {currentOrg.is_verified && <VerifiedBadge size="xs" showTooltip={false} />}</p>
                       <ChevronDown className="h-3 w-3 text-primary shrink-0 group-hover:translate-y-0.5 transition-transform" />
                     </div>
                   </button>
@@ -332,7 +333,7 @@ export function Sidebar() {
                       onClick={() => setCurrentOrg(o)}
                       className={cn('text-xs', o.id === currentOrg.id && 'text-primary font-semibold')}
                     >
-                      {o.name}
+                      <span className="flex items-center gap-1">{o.name} {o.is_verified && <VerifiedBadge size="xs" showTooltip={false} />}</span>
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
@@ -340,7 +341,7 @@ export function Sidebar() {
             ) : (
               <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{t('sidebar.managing')}</p>
-                <p className="text-xs font-semibold text-primary truncate">{currentOrg.name}</p>
+                <p className="text-xs font-semibold text-primary truncate flex items-center gap-1">{currentOrg.name} {currentOrg.is_verified && <VerifiedBadge size="xs" showTooltip={false} />}</p>
               </div>
             );
           })()}
