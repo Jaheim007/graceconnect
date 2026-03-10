@@ -39,11 +39,11 @@ const faqs_fr = [
     ],
   },
   {
-    category: 'KYC & Vérification',
+    category: 'Vérification d\'identité',
     items: [
-      { q: "Qu'est-ce que le KYC ?", a: "Le KYC (Know Your Customer) est une vérification d'identité obligatoire pour recevoir des paiements. C'est une obligation légale pour prévenir le blanchiment d'argent et protéger tous les utilisateurs. En tant qu'organisation américaine (Delaware C-Corp), nous respectons les réglementations internationales. La vérification est principalement assurée par nos partenaires Paystack et Stripe." },
-      { q: 'Combien de temps prend la vérification KYC ?', a: 'La vérification est traitée sous 48 heures ouvrées. Pour les volumes élevés, une vérification renforcée peut être requise avec des documents supplémentaires.' },
-      { q: 'Pourquoi mes fonds sont-ils gelés ?', a: 'Les fonds peuvent être gelés en cas de suspicion de fraude, activité suspecte, dispute en cours ou non-conformité KYC. Vous serez notifié du motif et pourrez fournir des justificatifs. Ces mesures protègent l\'ensemble de l\'écosystème — vendeurs, acheteurs et ambassadeurs.' },
+      { q: "Pourquoi vérifier mon identité ?", a: "La vérification d'identité est obligatoire pour recevoir des paiements. C'est une obligation légale pour prévenir le blanchiment d'argent et protéger tous les utilisateurs. En tant qu'organisation américaine (Delaware C-Corp), nous respectons les réglementations internationales. La vérification est assurée en interne ou par nos partenaires Paystack et Stripe." },
+      { q: 'Combien de temps prend la vérification ?', a: 'La vérification est traitée sous 72 heures ouvrées. Pour les volumes élevés, une vérification renforcée peut être requise avec des documents supplémentaires.' },
+      { q: 'Pourquoi mes fonds sont-ils gelés ?', a: 'Les fonds peuvent être gelés en cas de suspicion de fraude, activité suspecte, dispute en cours ou non-conformité de la vérification d\'identité. Vous serez notifié du motif et pourrez fournir des justificatifs. Ces mesures protègent l\'ensemble de l\'écosystème — vendeurs, acheteurs et ambassadeurs.' },
     ],
   },
   {
