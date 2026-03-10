@@ -609,7 +609,7 @@ export async function onFirstDonationReceived(orgId: string, orgName: string, am
 
 export async function onFirstSale(orgId: string, orgName: string, productName: string, amount: number, currency: string) {
   emailOrgAdmins('first_sale_milestone', orgId, { org_name: orgName, product_name: productName, amount, currency });
-  notifyOrgMembers(orgId, '🎉 Première vente !', `${orgName} a réalisé sa première vente : "${productName}" — ${amount} ${currency}`, 'milestone');
+  notifyOrgMembers(orgId, '🎉 Première vente !', `${orgName} a réalisé sa première vente : "${productName}" — ${amount} ${currency}`, 'milestone', undefined, `/admin/products`);
 }
 
 // ── New sale (every purchase) ──
