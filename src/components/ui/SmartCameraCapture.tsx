@@ -466,7 +466,7 @@ export function SmartCameraCapture({
               <Eye className="h-3 w-3" /> Anti-fraude
             </span>
           )}
-          {smartCapture && captureMode !== 'free' && (
+          {smartCapture && captureMode === 'selfie' && (
             <span className="text-[10px] text-muted-foreground flex items-center gap-1">
               <Scan className="h-3 w-3" /> Auto-capture
             </span>
