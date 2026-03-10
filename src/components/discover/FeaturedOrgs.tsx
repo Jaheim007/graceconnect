@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Building2, ArrowRight, Users, ShoppingBag } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 
 /**
  * Featured organizations carousel — shows active orgs with affiliation enabled.
