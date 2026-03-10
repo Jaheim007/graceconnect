@@ -421,55 +421,55 @@ export default function AdminDashboard() {
             animate={{ opacity: 1, height: 'auto' }}
             className="p-4 pt-0 space-y-4"
           >
-            {/* Objectifs + Prévisions */}
+            {/* 1. Objectifs + Prévisions — savoir où on va */}
             <div className="grid lg:grid-cols-2 gap-3">
               <AdminRevenueGoals />
               <RevenueForecast />
             </div>
 
-            {/* Missions + WhatsApp */}
+            {/* 2. Actions concrètes — que faire maintenant */}
             <div className="grid lg:grid-cols-2 gap-3">
               <WeeklyMissions />
               <WhatsAppShareNudge />
             </div>
 
-            {/* Simulateur + Funnel */}
+            {/* 3. Promotions intelligentes */}
+            <SmartPromotionSuggestions />
+
+            {/* 4. Bundles */}
+            <BundleManager />
+
+            {/* 5. Simulateur + Funnel — comprendre le flux */}
             <div className="grid lg:grid-cols-2 gap-3">
               <RevenueSimulator />
               <ConversionFunnel />
             </div>
 
-            {/* Bundles */}
-            <BundleManager />
-
-            {/* Smart promotion suggestions */}
-            <SmartPromotionSuggestions />
-
-            {/* Suggestions + Benchmark */}
+            {/* 6. Idées + Contenu — grandir */}
             <div className="grid lg:grid-cols-2 gap-3">
+              <SmartProductIdeas />
               <ContentSuggestionEngine />
+            </div>
+
+            {/* 7. Prix + Benchmark — se positionner */}
+            <div className="grid lg:grid-cols-2 gap-3">
+              <SmartPricingHelper />
               <OrgBenchmark />
             </div>
 
-            {/* Idées produits + Prix */}
-            <div className="grid lg:grid-cols-2 gap-3">
-              <SmartProductIdeas />
-              <SmartPricingHelper />
-            </div>
-
-            {/* Défis + Heatmap */}
+            {/* 8. Défis + Engagement — gamifier */}
             <div className="grid lg:grid-cols-2 gap-3">
               <MonthlyChallenges />
               <EngagementHeatmap />
             </div>
 
-            {/* CLV + Attribution */}
+            {/* 9. CLV + Attribution — analyser */}
             <div className="grid lg:grid-cols-2 gap-3">
               <CustomerLifetimeValue />
               <RevenueAttribution />
             </div>
 
-            {/* Ré-engagement + CRM */}
+            {/* 10. Ré-engagement + CRM — retenir */}
             <SmartReEngagement />
             <SmartCRMInsights />
           </motion.div>
