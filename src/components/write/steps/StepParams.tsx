@@ -490,6 +490,7 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
           {hasSavedChapters ? t('common.next') : t('write.generate')} <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
+      <InsufficientCreditsDialog open={showCreditDialog} onOpenChange={setShowCreditDialog} message={creditErrorMessage} />
     </div>
   );
 }
