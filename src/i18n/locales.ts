@@ -2051,7 +2051,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'compliance.sanctions_desc': 'Conformité avec les programmes de sanctions internationaux. Interdiction de servir des entités ou pays sous embargo.',
     'compliance.sec_1': 'Chiffrement SSL/TLS sur toutes les communications',
     'compliance.sec_2': 'Row Level Security (RLS) sur toutes les tables de données',
-    'compliance.sec_3': 'Vérification KYC multi-niveaux pour les plateformes',
+    'compliance.sec_3': 'Vérification d\'identité multi-niveaux pour les plateformes',
     'compliance.sec_4': 'Détection de fraude automatique',
     'compliance.sec_5': 'Audit trail permanent sur toutes les actions sensibles',
     'compliance.sec_6': 'Isolation des données par plateforme (multi-tenant)',
