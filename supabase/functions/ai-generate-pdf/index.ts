@@ -1089,14 +1089,12 @@ async function buildProfessionalPdf(opts: {
     });
 
     // Chapter title
-    const titleX = M.outer + 32;
     safeDrawText(currentTocPage, displayTitle, {
       x: titleX, y: tocY, size: T.tocEntry, font: serif, color: C.darkText,
     });
 
     // Dot leader
     const titleEnd = titleX + serif.widthOfTextAtSize(displayTitle, T.tocEntry) + 10;
-    const pageNumX = pg.width - M.outer - 18;
     if (pageNumX > titleEnd + 20) {
       let dotX = titleEnd;
       while (dotX < pageNumX - 5) {
