@@ -31,6 +31,7 @@ Deno.serve(async (req) => {
     const authHeader = req.headers.get('Authorization');
     const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
     let userId: string | null = null;
+    let creditDebited = 0;
     
     if (authHeader) {
       const token = authHeader.replace('Bearer ', '');
@@ -46,7 +47,6 @@ Deno.serve(async (req) => {
     }
 
     // Debit credits for transcription (will be refunded if transcription fails)
-    let creditDebited = 0;
     try {
       const debitResult = await consumeCreditsOrThrow({ admin: db, userId, actionKey: 'transcribe_media', tier: 'standard' });
       if (!('skipped' in debitResult)) creditDebited = debitResult.debited;
