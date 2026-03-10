@@ -458,9 +458,9 @@ export default function CreditsPage() {
             <AccordionItem value="q4">
               <AccordionTrigger className="text-sm">Quelle est la différence Standard / Premium ?</AccordionTrigger>
               <AccordionContent className="text-sm text-muted-foreground">
-                Le mode <strong>Standard</strong> utilise Google Gemini : rapide et économique, parfait pour la plupart des usages. 
-                Le mode <strong>Premium</strong> utilise OpenAI : résultats de meilleure qualité, idéal pour les contenus exigeants. 
-                Le mode Premium coûte environ 50-80% de crédits en plus.
+                Le mode <strong>Standard</strong> est rapide et économique, parfait pour la plupart des usages. 
+                Le mode <strong>Premium</strong> offre des résultats de meilleure qualité, idéal pour les contenus exigeants. 
+                Le mode Premium consomme environ 50-80% de crédits en plus.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q5">
