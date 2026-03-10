@@ -80,11 +80,45 @@ Deno.serve(async (req) => {
         }
 
         const meta = tx.metadata || {};
+        const purchaseId = meta.purchase_id as string | undefined;
+        const organizationId = meta.organization_id as string | undefined;
+
+        // ── Detect credit purchase by multiple signals ──
+        const isCreditPurchase = meta.type === 'credit_purchase' || !!purchaseId || organizationId === 'platform';
 
         // ── CREDIT PURCHASE reconciliation (no org needed) ──
-        if (meta.type === 'credit_purchase') {
-          const purchaseId = meta.purchase_id as string | undefined;
-          if (!purchaseId) {
+        if (isCreditPurchase) {
+          // Try to resolve purchase_id from metadata or DB lookup
+          let resolvedPurchaseId = purchaseId;
+
+          if (!resolvedPurchaseId) {
+            // Fallback: search credit_purchases by payment_reference
+            const { data: cpByRef } = await db
+              .from('credit_purchases')
+              .select('id, status')
+              .eq('payment_reference', reference)
+              .maybeSingle();
+            if (cpByRef) resolvedPurchaseId = cpByRef.id;
+          }
+
+          if (!resolvedPurchaseId) {
+            // Fallback: search pending purchases by user email
+            const customerEmail = tx.customer?.email;
+            if (customerEmail) {
+              // Find user by email, then find their pending purchase
+              const { data: authUser } = await db.rpc('get_user_id_by_email', { _email: customerEmail }).maybeSingle ? 
+                await db.from('credit_purchases')
+                  .select('id, status')
+                  .eq('status', 'pending')
+                  .order('created_at', { ascending: false })
+                  .limit(1) : { data: null };
+              if (authUser && Array.isArray(authUser) && authUser.length > 0) {
+                resolvedPurchaseId = authUser[0].id;
+              }
+            }
+          }
+
+          if (!resolvedPurchaseId) {
             reconciled.push({ reference, amount: tx.amount / 100, status: 'skipped_no_purchase_id' });
             continue;
           }
@@ -93,7 +127,7 @@ Deno.serve(async (req) => {
           const { data: existingPurchase } = await db
             .from('credit_purchases')
             .select('id, status')
-            .eq('id', purchaseId)
+            .eq('id', resolvedPurchaseId)
             .maybeSingle();
 
           if (existingPurchase?.status === 'completed') {
@@ -102,19 +136,13 @@ Deno.serve(async (req) => {
           }
 
           if (!existingPurchase) {
-            // Purchase record missing — try to recreate from metadata
-            const userId = meta.user_id as string || tx.customer?.email;
-            if (!userId) {
-              reconciled.push({ reference, amount: tx.amount / 100, status: 'error', error: 'No user_id in credit_purchase metadata' });
-              continue;
-            }
-            reconciled.push({ reference, amount: tx.amount / 100, status: 'error', error: 'Purchase record not found for id: ' + purchaseId });
+            reconciled.push({ reference, amount: tx.amount / 100, status: 'error', error: 'Purchase record not found for id: ' + resolvedPurchaseId });
             continue;
           }
 
           try {
             const { data: result, error: completeErr } = await db.rpc('complete_credit_purchase', {
-              _purchase_id: purchaseId,
+              _purchase_id: resolvedPurchaseId,
               _payment_reference: reference,
             });
 
@@ -127,7 +155,7 @@ Deno.serve(async (req) => {
                 // Send notification
                 const { data: purchase } = await db.from('credit_purchases')
                   .select('user_id, credits_amount')
-                  .eq('id', purchaseId)
+                  .eq('id', resolvedPurchaseId)
                   .maybeSingle();
 
                 if (purchase) {
@@ -166,9 +194,8 @@ Deno.serve(async (req) => {
         }
 
         const type = (meta.type === 'product' ? 'product' : 'donation') as 'donation' | 'product';
-        const organizationId = meta.organization_id as string | undefined;
 
-        if (!organizationId) {
+        if (!organizationId || organizationId === 'platform') {
           reconciled.push({ reference, amount: tx.amount / 100, status: 'skipped_no_org' });
           continue;
         }

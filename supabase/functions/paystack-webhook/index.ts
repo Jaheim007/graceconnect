@@ -149,6 +149,85 @@ Deno.serve(async (req) => {
     const donorEmail = (meta.donor_email as string | undefined) || (meta.buyer_email as string | undefined) || txData.customer?.email;
     const affiliateCode = meta.affiliate_code as string | undefined;
 
+    // ── CREDIT PURCHASE: dedicated branch (no org needed) ──
+    const purchaseId = meta.purchase_id as string | undefined;
+    const isCreditPurchase = type === 'credit_purchase' || !!purchaseId || organizationId === 'platform';
+
+    if (isCreditPurchase) {
+      // Try to find the pending purchase by reference or purchase_id
+      let resolvedPurchaseId = purchaseId;
+
+      if (!resolvedPurchaseId) {
+        // Fallback: look up by reference prefix in credit_purchases
+        const { data: cp } = await db.from('credit_purchases')
+          .select('id')
+          .eq('status', 'pending')
+          .order('created_at', { ascending: false })
+          .limit(10);
+
+        // Match by user email
+        if (cp && txData.customer?.email) {
+          const { data: cpByEmail } = await db.from('credit_purchases')
+            .select('id, user_id')
+            .eq('status', 'pending')
+            .order('created_at', { ascending: false })
+            .limit(1);
+          if (cpByEmail && cpByEmail.length > 0) {
+            resolvedPurchaseId = cpByEmail[0].id;
+          }
+        }
+      }
+
+      if (!resolvedPurchaseId) {
+        console.error(`[webhook] credit_purchase: no purchase_id found for ${reference}`);
+        await db.from('payment_events').update({ status: 'error', processed_at: new Date().toISOString() }).eq('event_id', String(eventId));
+        return new Response(JSON.stringify({ ok: false, error: 'No purchase_id for credit purchase' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+
+      try {
+        const { data: result, error: completeErr } = await db.rpc('complete_credit_purchase', {
+          _purchase_id: resolvedPurchaseId,
+          _payment_reference: reference,
+        });
+
+        if (completeErr) {
+          console.error(`[webhook] credit_purchase error for ${reference}:`, completeErr.message);
+          await db.from('payment_events').update({ status: 'error', processed_at: new Date().toISOString() }).eq('event_id', String(eventId));
+          return new Response(JSON.stringify({ ok: false, error: completeErr.message }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+        }
+
+        const res = result as any;
+        if (res?.ok) {
+          // Send notification
+          const { data: purchase } = await db.from('credit_purchases')
+            .select('user_id, credits_amount')
+            .eq('id', resolvedPurchaseId)
+            .maybeSingle();
+
+          if (purchase) {
+            await db.from('user_notifications').insert({
+              user_id: purchase.user_id,
+              title: '💰 Crédits reçus !',
+              body: `Vous avez reçu ${purchase.credits_amount} crédits IA. Merci pour votre achat !`,
+              notification_type: 'credit_purchase',
+              action_url: '/credits',
+            });
+          }
+
+          console.log(`[webhook] credit_purchase completed for ${reference}, purchase ${resolvedPurchaseId}`);
+        } else {
+          console.warn(`[webhook] credit_purchase RPC returned not ok for ${reference}:`, res?.reason);
+        }
+
+        await db.from('payment_events').update({ status: 'processed', processed_at: new Date().toISOString() }).eq('event_id', String(eventId));
+        return new Response(JSON.stringify({ ok: true, credit_purchase: true }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      } catch (err) {
+        console.error(`[webhook] credit_purchase exception for ${reference}:`, err);
+        await db.from('payment_events').update({ status: 'error', processed_at: new Date().toISOString() }).eq('event_id', String(eventId));
+        return new Response(JSON.stringify({ ok: false, error: String(err) }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+    }
+
     if (!organizationId) {
       await db.from('payment_events').update({ status: 'skipped', processed_at: new Date().toISOString() }).eq('event_id', String(eventId));
       return new Response(JSON.stringify({ ok: true, warning: 'no_metadata' }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });

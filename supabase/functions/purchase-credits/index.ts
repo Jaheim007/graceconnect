@@ -77,6 +77,7 @@ Deno.serve(async (req) => {
         pack_key: pack.pack_key,
         credits: totalCredits,
         type: 'credit_purchase',
+        user_id: auth.userId,
       },
     });
   } catch (e: any) {
