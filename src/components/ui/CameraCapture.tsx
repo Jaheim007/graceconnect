@@ -25,6 +25,7 @@ export function CameraCapture({
   label = 'Photo',
   hint,
   bucket = 'org-uploads',
+  captureMode = 'free',
 }: CameraCaptureProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
