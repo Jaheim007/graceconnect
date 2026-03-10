@@ -295,66 +295,28 @@ export default function CreditsPage() {
         </CardContent>
       </Card>
 
+      {/* What can you do with daily free credits */}
+      <Card className="bg-muted/30">
+        <CardContent className="p-4">
+          <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+            <Zap className="h-4 w-4 text-blue-500" />
+            Que pouvez-vous faire avec 38,5 crédits gratuits/jour ?
+          </h3>
+          <div className="grid sm:grid-cols-2 gap-2 text-xs text-muted-foreground">
+            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> Générer un livre complet (8 chapitres)</div>
+            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> Créer 5 couvertures de produit</div>
+            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> Rédiger 21 descriptions de produit</div>
+            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> Transcrire 8 fichiers audio/vidéo</div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="overview" className="gap-1.5"><Sparkles className="h-3.5 w-3.5" /> Actions IA</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="packs" className="gap-1.5"><ShoppingBag className="h-3.5 w-3.5" /> Acheter</TabsTrigger>
           <TabsTrigger value="history" className="gap-1.5"><History className="h-3.5 w-3.5" /> Historique</TabsTrigger>
         </TabsList>
-
-        {/* Actions Tab */}
-        <TabsContent value="overview" className="space-y-4 mt-4">
-          <p className="text-sm text-muted-foreground">
-            Chaque action IA consomme un nombre de crédits selon sa complexité. 
-            Choisissez le mode <strong>Standard</strong> (rapide et économique) ou 
-            <Star className="h-3 w-3 inline text-purple-500 mx-0.5" /><strong>Premium</strong> (qualité supérieure) selon vos besoins.
-          </p>
-
-          {Object.entries(pricingByCategory).map(([cat, actions]) => {
-            const catInfo = categoryLabels[cat];
-            const CatIcon = categoryIcons[cat] || Coins;
-            return (
-              <Card key={cat}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <CatIcon className="h-4 w-4 text-primary" />
-                    {catInfo?.label || cat}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="divide-y divide-border">
-                    {actions!.map(a => (
-                      <div key={a.action_key} className="flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-muted/20 transition-colors">
-                        <Sparkles className="h-3.5 w-3.5 text-primary/50 shrink-0" />
-                        <div className="min-w-0">
-                          <span className="font-medium">{a.action_label}</span>
-                          {a.description && <p className="text-xs text-muted-foreground mt-0.5">{a.description}</p>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-
-          {/* What can you do with daily credits */}
-          <Card className="bg-muted/30">
-            <CardContent className="p-4">
-              <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                <Zap className="h-4 w-4 text-blue-500" />
-                Que pouvez-vous faire avec 38,5 crédits gratuits/jour ?
-              </h3>
-              <div className="grid sm:grid-cols-2 gap-2 text-xs text-muted-foreground">
-                <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> Générer un livre complet (8 chapitres)</div>
-                <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> Créer 5 couvertures de produit</div>
-                <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> Rédiger 21 descriptions de produit</div>
-                <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> Transcrire 8 fichiers audio/vidéo</div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
 
         {/* Packs Tab */}
         <TabsContent value="packs" className="mt-4 space-y-4">
