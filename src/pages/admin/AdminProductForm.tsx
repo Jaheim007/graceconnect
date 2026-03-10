@@ -87,6 +87,9 @@ export function ProductForm() {
   const [orderBumpProductId, setOrderBumpProductId] = useState('');
   const [orderBumpDiscount, setOrderBumpDiscount] = useState('');
   const [upsellProductIds, setUpsellProductIds] = useState<string[]>([]);
+  const [fbPixel, setFbPixel] = useState('');
+  const [ttPixel, setTtPixel] = useState('');
+  const [gTag, setGTag] = useState('');
 
   // Bundle & Recommendation hooks
   const { data: allProducts = [] } = useOrgProducts(currentOrg?.id, false);
