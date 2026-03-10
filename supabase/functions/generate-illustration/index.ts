@@ -1,6 +1,6 @@
 import { requireAuth, corsHeaders, jsonResp, adminClient } from '../_shared/auth.ts';
 import { consumeCreditsOrThrow, normalizeTier } from '../_shared/credits.ts';
-import { geminiGenerateImageBase64 } from '../_shared/ai-gemini.ts';
+import { aiGenerateImageBase64 } from '../_shared/ai-fallback.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const artStylePrompts: Record<string, string> = {
