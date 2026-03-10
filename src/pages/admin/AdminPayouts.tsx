@@ -100,32 +100,57 @@ export default function AdminPayouts() {
     enabled: !!orgId,
   });
 
-  // Fund summary
+  // Fund summary (org sales + ambassador commissions earned)
   const { data: fundSummary } = useQuery({
     queryKey: ['admin-fund-summary', orgId],
     queryFn: async () => {
-      if (!orgId) return null;
-      const [{ data: donations }, { data: purchases }, { data: payoutData }] = await Promise.all([
+      if (!orgId || !user) return null;
+      const [{ data: donations }, { data: purchases }, { data: payoutData }, { data: affiliateSales }] = await Promise.all([
         db.from('donations').select('amount, organization_amount, platform_fee, affiliate_commission, completed_at').eq('organization_id', orgId).eq('status', 'completed'),
         db.from('product_purchases').select('amount, organization_amount, platform_fee, affiliate_commission, completed_at').eq('organization_id', orgId).eq('status', 'completed'),
         db.from('payout_requests').select('amount, status').eq('organization_id', orgId),
+        // Ambassador commissions earned by the org owner
+        db.from('affiliate_sales').select('commission_amount, status, payable_at, created_at').eq('affiliate_user_id', user.id),
       ]);
+
+      // ── Org sales breakdown ──
       const allTxns = [...(donations || []), ...(purchases || [])];
       const totalGMV = allTxns.reduce((s, t) => s + (t.amount || 0), 0);
       const totalOrgReceived = allTxns.reduce((s, t) => s + (t.organization_amount || 0), 0);
       const totalPlatformFees = allTxns.reduce((s, t) => s + (t.platform_fee || 0), 0);
-      const totalAffiliateCommissions = allTxns.reduce((s, t) => s + (t.affiliate_commission || 0), 0);
+      const totalAffiliateCommissionsPaid = allTxns.reduce((s, t) => s + (t.affiliate_commission || 0), 0);
+
+      // ── Ambassador commissions earned ──
+      const allAffSales = affiliateSales || [];
+      const totalAmbassadorEarned = allAffSales.reduce((s: number, a: any) => s + (a.commission_amount || 0), 0);
+      const ambassadorPaid = allAffSales.filter((a: any) => a.status === 'paid').reduce((s: number, a: any) => s + (a.commission_amount || 0), 0);
+      const now = new Date();
+      const ambassadorPayable = allAffSales
+        .filter((a: any) => a.status === 'payable' || (a.status === 'pending' && a.payable_at && new Date(a.payable_at) <= now))
+        .reduce((s: number, a: any) => s + (a.commission_amount || 0), 0);
+      const ambassadorPending = totalAmbassadorEarned - ambassadorPaid - ambassadorPayable;
+
+      // ── Payouts ──
       const completedPayouts = (payoutData || []).filter((p: any) => p.status === 'completed').reduce((s: number, p: any) => s + (p.amount || 0), 0);
       const pendingPayouts = (payoutData || []).filter((p: any) => ['pending', 'requested', 'approved', 'processing'].includes(p.status)).reduce((s: number, p: any) => s + (p.amount || 0), 0);
-      // Only count transactions completed more than 72h ago as available
-      const holdCutoff = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
-      const clearedOrgReceived = allTxns
-        .filter((t: any) => t.completed_at && t.completed_at <= holdCutoff)
-        .reduce((s, t) => s + (t.organization_amount || 0), 0);
-      const pendingClearance = totalOrgReceived - clearedOrgReceived;
-      const availableBalance = clearedOrgReceived - completedPayouts - pendingPayouts;
 
-      return { totalGMV, totalOrgReceived, totalPlatformFees, totalAffiliateCommissions, completedPayouts, pendingPayouts, availableBalance, pendingClearance };
+      // ── Org sales: 72h hold ──
+      const holdCutoff72h = new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString();
+      const clearedOrgReceived = allTxns
+        .filter((t: any) => t.completed_at && t.completed_at <= holdCutoff72h)
+        .reduce((s, t) => s + (t.organization_amount || 0), 0);
+      const pendingClearanceOrg = totalOrgReceived - clearedOrgReceived;
+
+      // ── Total available = cleared org sales + payable ambassador commissions - payouts ──
+      const availableBalance = clearedOrgReceived + ambassadorPayable - completedPayouts - pendingPayouts;
+      const totalPendingClearance = pendingClearanceOrg + ambassadorPending;
+
+      return {
+        totalGMV, totalOrgReceived, totalPlatformFees, totalAffiliateCommissionsPaid,
+        totalAmbassadorEarned, ambassadorPayable, ambassadorPending, ambassadorPaid,
+        completedPayouts, pendingPayouts, availableBalance,
+        pendingClearance: totalPendingClearance, pendingClearanceOrg,
+      };
     },
     enabled: !!orgId,
   });
@@ -152,12 +177,11 @@ export default function AdminPayouts() {
 
         {/* ═══ Financial Summary Cards ═══ */}
         {fundSummary && (
-          <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+           <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 lg:grid-cols-3 gap-3">
             {[
-              { label: t('payouts.gmv_total'), value: fmt(fundSummary.totalGMV, currency), icon: DollarSign, colorClass: 'from-muted to-muted/50 border-border', sub: t('payouts.gross_before_fees') },
               { label: t('payouts.org_share'), value: fmt(fundSummary.totalOrgReceived, currency), icon: Wallet, colorClass: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/20', sub: t('payouts.after_platform_fees') },
               { label: t('payouts.platform_fees'), value: fmt(fundSummary.totalPlatformFees, currency), icon: Shield, colorClass: 'from-primary/15 to-primary/5 border-primary/20', sub: `${currentOrg?.platform_fee_percent ?? 10}% ${t('payouts.deducted')}` },
-              { label: t('payouts.affiliate_commissions'), value: fmt(fundSummary.totalAffiliateCommissions, currency), icon: ArrowUpRight, colorClass: 'from-amber-500/15 to-amber-500/5 border-amber-500/20', sub: t('payouts.paid_to_affiliates') },
+              { label: t('payouts.affiliate_commissions'), value: fmt(fundSummary.totalAffiliateCommissionsPaid, currency), icon: ArrowUpRight, colorClass: 'from-amber-500/15 to-amber-500/5 border-amber-500/20', sub: t('payouts.paid_to_affiliates') },
             ].map(c => (
               <motion.div key={c.label} variants={fadeUp} className={cn('rounded-2xl border p-4 bg-gradient-to-br', c.colorClass)}>
                 <c.icon className="h-4 w-4 text-muted-foreground mb-1" />
@@ -166,6 +190,38 @@ export default function AdminPayouts() {
                 <p className="text-[10px] text-muted-foreground">{c.sub}</p>
               </motion.div>
             ))}
+          </motion.div>
+        )}
+
+        {/* ═══ Ambassador Earnings Card ═══ */}
+        {fundSummary && fundSummary.totalAmbassadorEarned > 0 && (
+          <motion.div variants={fadeUp} initial="hidden" animate="visible"
+            className="rounded-2xl border border-purple-500/20 bg-gradient-to-br from-purple-500/10 to-purple-500/5 p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <ArrowUpRight className="h-4 w-4 text-purple-500" />
+              <p className="text-xs font-semibold uppercase tracking-wide">Commissions Ambassadeur gagnées</p>
+            </div>
+            <p className="text-xl font-bold">{fmt(fundSummary.totalAmbassadorEarned, currency)}</p>
+            <div className="grid grid-cols-3 gap-3 mt-3 pt-3 border-t border-purple-500/10">
+              <div className="space-y-0.5">
+                <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                  <CheckCircle className="h-3 w-3 text-emerald-500" /> Disponible
+                </p>
+                <p className="text-sm font-semibold text-emerald-600">{fmt(fundSummary.ambassadorPayable, currency)}</p>
+              </div>
+              <div className="space-y-0.5">
+                <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                  <TimerReset className="h-3 w-3 text-amber-500" /> En attente (15j)
+                </p>
+                <p className="text-sm font-semibold text-amber-600">{fmt(fundSummary.ambassadorPending, currency)}</p>
+              </div>
+              <div className="space-y-0.5">
+                <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                  <CheckCircle className="h-3 w-3 text-muted-foreground" /> Déjà versé
+                </p>
+                <p className="text-sm font-semibold">{fmt(fundSummary.ambassadorPaid, currency)}</p>
+              </div>
+            </div>
           </motion.div>
         )}
 
@@ -178,6 +234,9 @@ export default function AdminPayouts() {
                 <div>
                   <p className="text-xs text-muted-foreground font-medium">{t('payouts.available_balance')}</p>
                   <p className="text-3xl font-bold text-emerald-500 mt-1">{fmt(Math.max(0, fundSummary.availableBalance), currency)}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">
+                    Ventes (après 72h) + Commissions ambassadeur (après 15j) − Retraits
+                  </p>
                 </div>
                 <div>
                   {!kycApproved ? (
@@ -211,10 +270,16 @@ export default function AdminPayouts() {
                   <p className="text-[10px] text-muted-foreground flex items-center gap-1"><Loader2 className="h-3 w-3 text-blue-500" /> {t('payouts.in_progress')}</p>
                   <p className="text-sm font-semibold">{fmt(fundSummary.pendingPayouts, currency)}</p>
                 </div>
-                {fundSummary.pendingClearance > 0 && (
+                {fundSummary.pendingClearanceOrg > 0 && (
                   <div className="space-y-0.5">
-                    <p className="text-[10px] text-muted-foreground flex items-center gap-1"><TimerReset className="h-3 w-3 text-amber-500" /> En attente (72h)</p>
-                    <p className="text-sm font-semibold text-amber-600">{fmt(fundSummary.pendingClearance, currency)}</p>
+                    <p className="text-[10px] text-muted-foreground flex items-center gap-1"><TimerReset className="h-3 w-3 text-amber-500" /> Ventes en attente (72h)</p>
+                    <p className="text-sm font-semibold text-amber-600">{fmt(fundSummary.pendingClearanceOrg, currency)}</p>
+                  </div>
+                )}
+                {fundSummary.ambassadorPending > 0 && (
+                  <div className="space-y-0.5">
+                    <p className="text-[10px] text-muted-foreground flex items-center gap-1"><TimerReset className="h-3 w-3 text-purple-500" /> Commissions en attente (15j)</p>
+                    <p className="text-sm font-semibold text-purple-600">{fmt(fundSummary.ambassadorPending, currency)}</p>
                   </div>
                 )}
                 {!kycApproved && (
@@ -229,7 +294,7 @@ export default function AdminPayouts() {
             {/* How it works mini-guide */}
             <div className="bg-muted/30 border-t border-border px-5 py-3">
               <p className="text-[10px] text-muted-foreground">
-                <strong>Comment ça marche :</strong> Vous demandez un retrait → L'équipe vérifie votre KYC et traite le transfert sous 3-8 jours → Vous recevez une notification avec la preuve de paiement.
+                <strong>Comment ça marche :</strong> Ventes disponibles après 72h · Commissions ambassadeur après 15 jours · Demandez un retrait → L'équipe vérifie et traite sous 3-8 jours.
               </p>
             </div>
           </div>
