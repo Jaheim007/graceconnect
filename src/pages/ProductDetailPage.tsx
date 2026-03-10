@@ -46,6 +46,7 @@ import { PostPurchaseCelebration } from '@/components/products/PostPurchaseCeleb
 import { SocialProofWidget } from '@/components/products/SocialProofWidget';
 import { trackProductView } from '@/components/discover/RecentlyViewedProducts';
 import { SellerTrustBadges } from '@/components/products/SellerTrustBadges';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { UrgencyWidget } from '@/components/products/UrgencyWidget';
 import { ContentSizeBadge } from '@/components/products/ContentSizeBadge';
 import { SmartCTA } from '@/components/products/SmartCTA';
