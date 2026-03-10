@@ -1537,10 +1537,12 @@ export type Database = {
           description: string | null
           display_order: number | null
           external_link: string | null
+          facebook_pixel_id: string | null
           faq_json: Json | null
           featured_score: number | null
           file_url: string | null
           fts_vector: unknown
+          google_tag_id: string | null
           guarantee_text: string | null
           id: string
           is_bundle: boolean | null
@@ -1570,6 +1572,7 @@ export type Database = {
           social_snippets_json: Json | null
           submitted_for_review_at: string | null
           testimonials_json: Json | null
+          tiktok_pixel_id: string | null
           title: string
           updated_at: string | null
           upsell_product_ids: string[] | null
@@ -1585,10 +1588,12 @@ export type Database = {
           description?: string | null
           display_order?: number | null
           external_link?: string | null
+          facebook_pixel_id?: string | null
           faq_json?: Json | null
           featured_score?: number | null
           file_url?: string | null
           fts_vector?: unknown
+          google_tag_id?: string | null
           guarantee_text?: string | null
           id?: string
           is_bundle?: boolean | null
@@ -1618,6 +1623,7 @@ export type Database = {
           social_snippets_json?: Json | null
           submitted_for_review_at?: string | null
           testimonials_json?: Json | null
+          tiktok_pixel_id?: string | null
           title: string
           updated_at?: string | null
           upsell_product_ids?: string[] | null
@@ -1633,10 +1639,12 @@ export type Database = {
           description?: string | null
           display_order?: number | null
           external_link?: string | null
+          facebook_pixel_id?: string | null
           faq_json?: Json | null
           featured_score?: number | null
           file_url?: string | null
           fts_vector?: unknown
+          google_tag_id?: string | null
           guarantee_text?: string | null
           id?: string
           is_bundle?: boolean | null
@@ -1666,6 +1674,7 @@ export type Database = {
           social_snippets_json?: Json | null
           submitted_for_review_at?: string | null
           testimonials_json?: Json | null
+          tiktok_pixel_id?: string | null
           title?: string
           updated_at?: string | null
           upsell_product_ids?: string[] | null

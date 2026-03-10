@@ -87,6 +87,9 @@ export function ProductForm() {
   const [orderBumpProductId, setOrderBumpProductId] = useState('');
   const [orderBumpDiscount, setOrderBumpDiscount] = useState('');
   const [upsellProductIds, setUpsellProductIds] = useState<string[]>([]);
+  const [fbPixel, setFbPixel] = useState('');
+  const [ttPixel, setTtPixel] = useState('');
+  const [gTag, setGTag] = useState('');
 
   // Bundle & Recommendation hooks
   const { data: allProducts = [] } = useOrgProducts(currentOrg?.id, false);
@@ -140,6 +143,9 @@ export function ProductForm() {
       setOrderBumpProductId(item.order_bump_product_id || '');
       setOrderBumpDiscount(item.order_bump_discount_percent != null ? String(item.order_bump_discount_percent) : '');
       setUpsellProductIds(item.upsell_product_ids || []);
+      setFbPixel((item as any).facebook_pixel_id || '');
+      setTtPixel((item as any).tiktok_pixel_id || '');
+      setGTag((item as any).google_tag_id || '');
     }
   }, [item, reset]);
 
@@ -206,6 +212,9 @@ export function ProductForm() {
         order_bump_product_id: orderBumpProductId || null,
         order_bump_discount_percent: orderBumpDiscount ? parseFloat(orderBumpDiscount) : null,
         upsell_product_ids: upsellProductIds.length > 0 ? upsellProductIds : null,
+        facebook_pixel_id: fbPixel.trim() || null,
+        tiktok_pixel_id: ttPixel.trim() || null,
+        google_tag_id: gTag.trim() || null,
       };
       let error;
       let resultData: any;
@@ -602,6 +611,26 @@ export function ProductForm() {
         <div className="space-y-1.5">
           <Label className="flex items-center gap-1"><Shield className="h-3.5 w-3.5" /> Garantie (optionnel)</Label>
           <Textarea {...register('guarantee_text')} rows={2} placeholder="Ex: Satisfait ou remboursé sous 30 jours" />
+        </div>
+
+        {/* Tracking Pixels */}
+        <div className="space-y-3 border border-border rounded-xl p-4">
+          <p className="text-sm font-semibold flex items-center gap-2">📊 Pixels de tracking (optionnel)</p>
+          <p className="text-[10px] text-muted-foreground">Ajoutez vos pixels pour suivre les conversions et faire du retargeting sur ce produit spécifique.</p>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div className="space-y-1">
+              <Label className="text-xs font-medium">Facebook Pixel ID</Label>
+              <Input value={fbPixel} onChange={e => setFbPixel(e.target.value)} placeholder="123456789012345" className="h-8 text-xs font-mono" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs font-medium">TikTok Pixel ID</Label>
+              <Input value={ttPixel} onChange={e => setTtPixel(e.target.value)} placeholder="ABCDEF123456" className="h-8 text-xs font-mono" />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs font-medium">Google Tag ID</Label>
+              <Input value={gTag} onChange={e => setGTag(e.target.value)} placeholder="G-XXXXXXXXXX" className="h-8 text-xs font-mono" />
+            </div>
+          </div>
         </div>
 
         {/* Order Bump & Upsells */}

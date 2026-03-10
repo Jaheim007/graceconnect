@@ -55,6 +55,7 @@ import { ProductImageGallery } from '@/components/products/ProductImageGallery';
 import { StickyBuyBar } from '@/components/products/StickyBuyBar';
 import { ReadingProgressBar } from '@/components/ui/ReadingProgressBar';
 import { ProductTableOfContents } from '@/components/products/ProductTableOfContents';
+import { PixelInjector } from '@/components/org/PixelInjector';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -140,14 +141,14 @@ export default function ProductDetailPage() {
     enabled: !!user && !!product?.organization_id,
   });
 
-  // Fetch org page settings for theme colors
+  // Fetch org page settings for theme colors + org-level pixels
   const orgId = product?.organization_id;
   const { data: pageSettings } = useQuery({
     queryKey: ['org-page-settings-product', orgId],
     queryFn: async () => {
       const { data } = await db
         .from('org_page_settings')
-        .select('theme_primary_color, theme_accent_color')
+        .select('theme_primary_color, theme_accent_color, facebook_pixel_id, tiktok_pixel_id, google_tag_id')
         .eq('organization_id', orgId!)
         .maybeSingle();
       return data;
@@ -295,6 +296,11 @@ export default function ProductDetailPage() {
 
   return (
     <div className="min-h-screen bg-background" style={orgThemeStyle}>
+      <PixelInjector
+        facebookPixelId={(product as any).facebook_pixel_id || (pageSettings as any)?.facebook_pixel_id}
+        tiktokPixelId={(product as any).tiktok_pixel_id || (pageSettings as any)?.tiktok_pixel_id}
+        googleTagId={(product as any).google_tag_id || (pageSettings as any)?.google_tag_id}
+      />
       <ReadingProgressBar />
       <SEOHead
         title={`${product.title} — ${org?.name || 'Siteviral'}`}
