@@ -512,7 +512,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
             )}
 
             {/* STEP: Document photos */}
-            {currentStep.id === 'document' && (
+            {currentStep?.id === 'document' && (
               <div className="space-y-4">
                 <div className="text-center py-2">
                   <h3 className="text-xl font-bold">Photo de votre {selectedDoc.label}</h3>
