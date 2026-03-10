@@ -45,6 +45,18 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Debit credits for transcription
+    try {
+      await consumeCreditsOrThrow({ admin: db, userId, actionKey: 'transcribe_source', tier: 'standard' });
+    } catch (e: any) {
+      if (e?.status === 402) {
+        return new Response(JSON.stringify({ error: e.message }), {
+          status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      throw e;
+    }
+
     let transcribedText = '';
 
     switch (source_type) {

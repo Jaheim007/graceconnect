@@ -1149,24 +1149,24 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
     const timeoutId = setTimeout(() => controller.abort(), requestTimeoutMs);
     const maxTokens = singleChapter ? 3200 : 16000;
 
+    // Credit debit
+    const creditActionKey = singleChapter ? 'generate_chapter' : 'generate_book';
+    await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: creditActionKey, tier: normalizeTier(tier) });
+
     let aiRes: Response | null = null;
     try {
       for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-        aiRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        aiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash',
-            max_tokens: maxTokens,
-            temperature,
-            response_format: { type: 'json_object' },
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: userPrompt },
-            ],
+            system_instruction: { parts: [{ text: systemPrompt }] },
+            contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+            generationConfig: {
+              temperature,
+              maxOutputTokens: maxTokens,
+              responseMimeType: 'application/json',
+            },
           }),
           signal: controller.signal,
         });
@@ -1205,25 +1205,20 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
           status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      if (aiRes.status === 402) {
-        return new Response(JSON.stringify({ error: 'AI credits exhausted. Please add credits.' }), {
-          status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
       const errText = await aiRes.text();
-      console.error('AI gateway error:', aiRes.status, errText);
+      console.error('Gemini error:', aiRes.status, errText);
       return new Response(JSON.stringify({ error: `AI error (${aiRes.status})` }), {
         status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
     const aiData = await aiRes.json();
-    const rawContent = aiData.choices?.[0]?.message?.content || '';
+    const rawContent = aiData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
     let parsed = tryParsePayload(rawContent);
     if (!parsed) {
       console.error('Direct parse failed, attempting AI JSON repair. Payload preview:', rawContent.slice(0, 500));
-      parsed = await repairJsonWithAi(LOVABLE_API_KEY, rawContent, chapterCount);
+      parsed = await repairJsonWithAi(GEMINI_API_KEY, rawContent, chapterCount);
     }
 
     if (!parsed) {
