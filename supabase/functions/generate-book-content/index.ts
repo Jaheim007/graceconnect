@@ -1285,11 +1285,13 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
       const minimumExpected = Math.max(2, Math.ceil(chapterCount * MIN_VALID_CHAPTER_RATIO));
       if (normalizedChapters.length < minimumExpected) {
         console.warn(`[generate-book-content] Partial generation detected: got ${normalizedChapters.length}/${chapterCount} chapters`);
+        if (creditDebited > 0) { try { await refundCreditsAsBonus({ admin, userId: auth.userId, amount: creditDebited, source: creditActionKey, expiresInDays: 30 }); } catch (_) {} }
         return new Response(JSON.stringify({
           error: `Partial generation (${normalizedChapters.length}/${chapterCount} chapters). Please retry.`,
           partial: true,
           received_chapters: normalizedChapters.length,
           expected_chapters: chapterCount,
+          credits_refunded: creditDebited > 0,
         }), {
           status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
