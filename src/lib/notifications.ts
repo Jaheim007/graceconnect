@@ -667,12 +667,11 @@ export async function onNewSale(
   amount: number,
   currency: string,
 ) {
-  notifyOrgMembers(
+  notifyOrgOwnerOnly(
     orgId,
     '💰 Nouvelle vente !',
     `${buyerName} a acheté "${productName}" — ${amount} ${currency}`,
-    'transaction',
-    undefined, `/admin/products`,
+    'transaction', `/admin/products`,
   );
 }
 
