@@ -201,6 +201,26 @@ export async function onInviteAccepted(
   );
 }
 
+// ── Notify only owner of an org (in-app only) ──
+async function notifyOrgOwnerOnly(
+  orgId: string,
+  title: string,
+  body: string,
+  type: string = 'org',
+  actionUrl?: string,
+) {
+  try {
+    const { data: members } = await db.from('organization_members')
+      .select('user_id, role')
+      .eq('organization_id', orgId)
+      .eq('role', 'owner');
+    for (const m of members || []) {
+      notify(m.user_id, title, body, type, orgId, actionUrl);
+    }
+  } catch (e) {
+    console.error('notifyOrgOwnerOnly failed:', e);
+  }
+}
 
 // ── Content published (events, announcements, media, products, campaigns) ──
 export async function onContentPublished(
