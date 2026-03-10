@@ -54,6 +54,7 @@ function pickRandomChallenge(): typeof LIVENESS_CHALLENGES[0] {
 export function SmartCameraCapture({
   value,
   onChange,
+  onPreviewCapture,
   folder = 'captures',
   label = 'Photo',
   hint,
