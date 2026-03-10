@@ -1241,14 +1241,16 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
     }
 
     if (!aiRes.ok) {
+      // Refund on AI error
+      if (creditDebited > 0) { try { await refundCreditsAsBonus({ admin, userId: auth.userId, amount: creditDebited, source: creditActionKey, expiresInDays: 30 }); } catch (_) {} }
       if (aiRes.status === 429) {
-        return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }), {
+        return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.', credits_refunded: creditDebited > 0 }), {
           status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
       const errText = await aiRes.text();
       console.error(`${usedProvider} error:`, aiRes.status, errText);
-      return new Response(JSON.stringify({ error: `AI error (${aiRes.status})` }), {
+      return new Response(JSON.stringify({ error: `AI error (${aiRes.status})`, credits_refunded: creditDebited > 0 }), {
         status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
