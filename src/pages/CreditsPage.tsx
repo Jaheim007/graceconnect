@@ -173,13 +173,6 @@ export default function CreditsPage() {
 
   const dailyPercent = summary ? Math.min((summary.daily_remaining / 38.5) * 100, 100) : 0;
 
-  // Group pricing by category
-  const pricingByCategory = pricing?.reduce((acc, p) => {
-    const cat = p.category || 'other';
-    if (!acc[cat]) acc[cat] = [];
-    acc[cat].push(p);
-    return acc;
-  }, {} as Record<string, typeof pricing>) || {};
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 py-4 px-2 sm:px-4">
