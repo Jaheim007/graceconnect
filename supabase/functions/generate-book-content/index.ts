@@ -1301,7 +1301,10 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
     return new Response(JSON.stringify({ chapters: normalizedChapters }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  } catch (e) {
+  } catch (e: any) {
+    if (e?.status === 402) {
+      return new Response(JSON.stringify({ error: e.message }), { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
     console.error('generate-book-content error:', e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : 'Internal error' }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
