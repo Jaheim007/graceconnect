@@ -572,7 +572,7 @@ export function SmartCameraCapture({
             )}
 
             {/* Smart status indicator (when not in liveness mode) */}
-            {smartCapture && captureMode !== 'free' && livenessPhase === 'idle' && (
+            {smartCapture && captureMode === 'selfie' && livenessPhase === 'idle' && (
               <div className="absolute top-3 left-0 right-0 flex justify-center z-30">
                 <div className={`px-3 py-1.5 rounded-full bg-black/70 backdrop-blur flex items-center gap-2 ${statusColor}`}>
                   {frameStatus === 'searching' && <Scan className="h-3.5 w-3.5 animate-pulse" />}

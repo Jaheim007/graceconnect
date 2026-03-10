@@ -650,7 +650,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                       folder={`${folder}/doc-back`}
                       bucket="kyc-documents"
                       label="Face arrière du document"
-                      hint="La capture se fait automatiquement quand le document est bien cadré"
+                      hint="Cadrez bien le document et appuyez sur le bouton pour capturer"
                       captureMode="document"
                       smartCapture
                     />
