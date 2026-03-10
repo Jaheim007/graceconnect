@@ -455,7 +455,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                       value={docBackUrl}
                       onChange={setDocBackUrl}
                       folder={`${folder}/doc-back`}
-                      bucket="org-uploads"
+                      bucket="kyc-documents"
                       label="Face arrière du document"
                       hint="Retournez le document et prenez une photo du verso"
                     />
