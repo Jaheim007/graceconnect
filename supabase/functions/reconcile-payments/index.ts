@@ -155,7 +155,7 @@ Deno.serve(async (req) => {
                 // Send notification
                 const { data: purchase } = await db.from('credit_purchases')
                   .select('user_id, credits_amount')
-                  .eq('id', purchaseId)
+                  .eq('id', resolvedPurchaseId)
                   .maybeSingle();
 
                 if (purchase) {
