@@ -599,6 +599,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                   bucket="kyc-documents"
                   label="Selfie"
                   hint="Utilisez la caméra frontale pour prendre un selfie clair"
+                  captureMode="selfie"
                 />
               </div>
             )}
