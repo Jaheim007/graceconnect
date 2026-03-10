@@ -66,7 +66,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
         ) : (
           <div className="w-full h-full hero-gradient opacity-40" />
         )}
-        {org.is_verified && (
+        {(org.is_verified || (org as any).kyc_status === 'level1' || (org as any).kyc_status === 'level2') && (
           <div className="absolute top-2 right-2">
             <VerifiedBadge size="md" showTooltip={false} />
           </div>
@@ -98,7 +98,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
           <div className="min-w-0 flex-1">
             <h3 className="font-semibold text-sm leading-tight line-clamp-1 flex items-center gap-1.5">
               {org.name}
-              {org.is_verified && <VerifiedBadge size="sm" />}
+              {(org.is_verified || (org as any).kyc_status === 'level1' || (org as any).kyc_status === 'level2') && <VerifiedBadge size="sm" />}
             </h3>
             {org.description ? (
               <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5 leading-relaxed">
