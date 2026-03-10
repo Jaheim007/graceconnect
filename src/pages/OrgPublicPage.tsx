@@ -219,14 +219,33 @@ export default function OrgPublicPage() {
           <div className="flex-1 min-w-0">
             {/* Pinned announcement */}
             {pinnedAnnouncement && (
-              <div className="mb-6 p-4 rounded-2xl bg-primary/10 border border-primary/20 cursor-pointer hover:bg-primary/15 transition-colors" onClick={() => navigate(`/announcement/${pinnedAnnouncement.id}`)}>
-                <div className="flex items-start gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><span className="text-xs">📌</span></div>
-                  <div>
-                    <h3 className="font-semibold text-sm">{pinnedAnnouncement.title}</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-3">{stripHtml(pinnedAnnouncement.body)}</p>
+              <div
+                className="mb-6 group relative rounded-2xl overflow-hidden border border-primary/30 bg-gradient-to-r from-primary/10 via-card to-primary/5 shadow-card hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
+                onClick={() => navigate(`/announcement/${pinnedAnnouncement.id}`)}
+              >
+                {pinnedAnnouncement.image_url && (
+                  <div className="h-32 overflow-hidden">
+                    <img src={pinnedAnnouncement.image_url} alt={pinnedAnnouncement.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <div className="absolute inset-0 h-32 bg-gradient-to-t from-card via-card/50 to-transparent" />
+                  </div>
+                )}
+                <div className="p-4 flex items-start gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-primary/15 border border-primary/20 flex items-center justify-center shrink-0">
+                    <span className="text-base">📌</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Annonce épinglée</span>
+                    </div>
+                    <h3 className="font-bold text-sm group-hover:text-primary transition-colors">{pinnedAnnouncement.title}</h3>
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">{stripHtml(pinnedAnnouncement.body)}</p>
+                  </div>
+                  <div className="shrink-0 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <ExternalLink className="h-3.5 w-3.5 text-primary" />
                   </div>
                 </div>
+                {/* Animated accent line */}
+                <div className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-primary via-primary/60 to-transparent w-0 group-hover:w-full transition-all duration-500" />
               </div>
             )}
 
