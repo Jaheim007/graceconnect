@@ -2291,17 +2291,23 @@ export type Database = {
           bank_account_number: string | null
           bank_name: string | null
           id: string
+          id_document_back_url: string | null
           id_document_type: string | null
           id_document_url: string | null
           kyc_level: number | null
           org_document_type: string | null
           org_document_url: string | null
           organization_id: string
+          payout_method: string | null
+          payout_phone: string | null
+          payout_provider: string | null
           paystack_recipient_code: string | null
           phone_verified: boolean | null
           rejection_reason: string | null
           reviewed_at: string | null
           reviewed_by: string | null
+          selfie_url: string | null
+          selfie_with_doc_url: string | null
           status: string | null
           submitted_at: string | null
           submitted_by: string
@@ -2311,17 +2317,23 @@ export type Database = {
           bank_account_number?: string | null
           bank_name?: string | null
           id?: string
+          id_document_back_url?: string | null
           id_document_type?: string | null
           id_document_url?: string | null
           kyc_level?: number | null
           org_document_type?: string | null
           org_document_url?: string | null
           organization_id: string
+          payout_method?: string | null
+          payout_phone?: string | null
+          payout_provider?: string | null
           paystack_recipient_code?: string | null
           phone_verified?: boolean | null
           rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          selfie_url?: string | null
+          selfie_with_doc_url?: string | null
           status?: string | null
           submitted_at?: string | null
           submitted_by: string
@@ -2331,17 +2343,23 @@ export type Database = {
           bank_account_number?: string | null
           bank_name?: string | null
           id?: string
+          id_document_back_url?: string | null
           id_document_type?: string | null
           id_document_url?: string | null
           kyc_level?: number | null
           org_document_type?: string | null
           org_document_url?: string | null
           organization_id?: string
+          payout_method?: string | null
+          payout_phone?: string | null
+          payout_provider?: string | null
           paystack_recipient_code?: string | null
           phone_verified?: boolean | null
           rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
+          selfie_url?: string | null
+          selfie_with_doc_url?: string | null
           status?: string | null
           submitted_at?: string | null
           submitted_by?: string
@@ -2387,6 +2405,87 @@ export type Database = {
             columns: ["lesson_id"]
             isOneToOne: false
             referencedRelation: "program_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      manual_payouts: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          metadata: Json | null
+          organization_id: string | null
+          partner_id: string | null
+          payout_type: string
+          processed_at: string | null
+          processed_by: string | null
+          proof_url: string | null
+          recipient_account: string
+          recipient_method: string
+          recipient_name: string
+          recipient_provider: string | null
+          source_request_id: string | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          metadata?: Json | null
+          organization_id?: string | null
+          partner_id?: string | null
+          payout_type?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          proof_url?: string | null
+          recipient_account: string
+          recipient_method: string
+          recipient_name: string
+          recipient_provider?: string | null
+          source_request_id?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          metadata?: Json | null
+          organization_id?: string | null
+          partner_id?: string | null
+          payout_type?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          proof_url?: string | null
+          recipient_account?: string
+          recipient_method?: string
+          recipient_name?: string
+          recipient_provider?: string | null
+          source_request_id?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manual_payouts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manual_payouts_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
             referencedColumns: ["id"]
           },
         ]
@@ -3365,6 +3464,7 @@ export type Database = {
           full_name: string
           how_heard_about_us: string | null
           id: string
+          id_document_back_url: string | null
           id_document_type: string | null
           id_document_url: string | null
           invite_code: string | null
@@ -3395,6 +3495,7 @@ export type Database = {
           rate_percent: number
           scope: Database["public"]["Enums"]["partner_scope"]
           selfie_url: string | null
+          selfie_with_doc_url: string | null
           social_media_url: string | null
           status: Database["public"]["Enums"]["partner_status"]
           suspended_at: string | null
@@ -3417,6 +3518,7 @@ export type Database = {
           full_name: string
           how_heard_about_us?: string | null
           id?: string
+          id_document_back_url?: string | null
           id_document_type?: string | null
           id_document_url?: string | null
           invite_code?: string | null
@@ -3447,6 +3549,7 @@ export type Database = {
           rate_percent?: number
           scope?: Database["public"]["Enums"]["partner_scope"]
           selfie_url?: string | null
+          selfie_with_doc_url?: string | null
           social_media_url?: string | null
           status?: Database["public"]["Enums"]["partner_status"]
           suspended_at?: string | null
@@ -3469,6 +3572,7 @@ export type Database = {
           full_name?: string
           how_heard_about_us?: string | null
           id?: string
+          id_document_back_url?: string | null
           id_document_type?: string | null
           id_document_url?: string | null
           invite_code?: string | null
@@ -3499,6 +3603,7 @@ export type Database = {
           rate_percent?: number
           scope?: Database["public"]["Enums"]["partner_scope"]
           selfie_url?: string | null
+          selfie_with_doc_url?: string | null
           social_media_url?: string | null
           status?: Database["public"]["Enums"]["partner_status"]
           suspended_at?: string | null
@@ -5634,30 +5739,63 @@ export type Database = {
         Args: { _partner_id: string; _rate: number }
         Returns: Json
       }
-      submit_org_kyc: {
-        Args: {
-          _bank_account_name?: string
-          _bank_account_number?: string
-          _bank_name?: string
-          _id_document_type?: string
-          _id_document_url?: string
-          _kyc_level: number
-          _org_document_type?: string
-          _org_document_url?: string
-          _org_id: string
-          _selfie_url?: string
-        }
-        Returns: Json
-      }
-      submit_partner_kyc: {
-        Args: {
-          _id_document_type: string
-          _id_document_url: string
-          _partner_id: string
-          _selfie_url?: string
-        }
-        Returns: Json
-      }
+      submit_org_kyc:
+        | {
+            Args: {
+              _bank_account_name?: string
+              _bank_account_number?: string
+              _bank_name?: string
+              _id_document_back_url?: string
+              _id_document_type?: string
+              _id_document_url?: string
+              _kyc_level: number
+              _org_document_type?: string
+              _org_document_url?: string
+              _org_id: string
+              _payout_method?: string
+              _payout_phone?: string
+              _payout_provider?: string
+              _selfie_url?: string
+              _selfie_with_doc_url?: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              _bank_account_name?: string
+              _bank_account_number?: string
+              _bank_name?: string
+              _id_document_type?: string
+              _id_document_url?: string
+              _kyc_level: number
+              _org_document_type?: string
+              _org_document_url?: string
+              _org_id: string
+              _selfie_url?: string
+            }
+            Returns: Json
+          }
+      submit_partner_kyc:
+        | {
+            Args: {
+              _id_document_back_url?: string
+              _id_document_type: string
+              _id_document_url: string
+              _partner_id: string
+              _selfie_url?: string
+              _selfie_with_doc_url?: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              _id_document_type: string
+              _id_document_url: string
+              _partner_id: string
+              _selfie_url?: string
+            }
+            Returns: Json
+          }
       track_affiliate_click: { Args: { _code: string }; Returns: Json }
       transfer_partner_referral: {
         Args: { _new_partner_id: string; _reason: string; _referral_id: string }
