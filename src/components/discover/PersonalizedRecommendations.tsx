@@ -35,7 +35,7 @@ export function PersonalizedRecommendations() {
       let results: any[] = [];
       if (orgIds.length > 0) {
         const { data: orgProducts } = await db.from('digital_products')
-          .select('id, title, description, price, currency, cover_image_url, organization_id, sales_count, average_rating, is_free, slug, organizations(name, slug)')
+          .select('id, title, description, price, currency, cover_image_url, organization_id, sales_count, average_rating, is_free, slug, organizations(name, slug, is_verified)')
           .in('organization_id', orgIds)
           .eq('is_published', true)
           .order('sales_count', { ascending: false })
@@ -46,7 +46,7 @@ export function PersonalizedRecommendations() {
       // If not enough, add trending from other orgs
       if (results.length < 6) {
         const { data: trending } = await db.from('digital_products')
-          .select('id, title, description, price, currency, cover_image_url, organization_id, sales_count, average_rating, is_free, slug, organizations(name, slug)')
+          .select('id, title, description, price, currency, cover_image_url, organization_id, sales_count, average_rating, is_free, slug, organizations(name, slug, is_verified)')
           .eq('is_published', true)
           .order('sales_count', { ascending: false })
           .limit(12);

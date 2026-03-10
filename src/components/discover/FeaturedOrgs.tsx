@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { Building2, ArrowRight, Users, ShoppingBag } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 
 /**
  * Featured organizations carousel — shows active orgs with affiliation enabled.
@@ -59,7 +60,7 @@ export function FeaturedOrgs({ limit = 8 }: { limit?: number }) {
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold truncate">{org.name}</p>
+                <p className="text-xs font-bold truncate flex items-center gap-1">{org.name} <VerifiedBadge size="xs" showTooltip={false} /></p>
                 {org.affiliation_enabled && (
                   <Badge variant="secondary" className="text-[9px] mt-0.5 gap-0.5">
                     <ShoppingBag className="h-2.5 w-2.5" />

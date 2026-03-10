@@ -13,6 +13,7 @@ import { useState, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { ProgramCertificate } from '@/components/programs/ProgramCertificate';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 
 const CONTENT_ICONS: Record<string, typeof FileText> = {
   text: FileText,
@@ -89,7 +90,10 @@ export default function ProgramDetailPage() {
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-muted-foreground mb-1">{orgName}</p>
+              <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
+                {orgName}
+                {(program as any).organizations?.is_verified && <VerifiedBadge size="xs" />}
+              </p>
               <h1 className="text-2xl font-bold mb-2">{program.title}</h1>
               {program.description && <p className="text-sm text-muted-foreground mb-4">{program.description}</p>}
               <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">

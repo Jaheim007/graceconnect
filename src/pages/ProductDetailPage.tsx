@@ -46,6 +46,7 @@ import { PostPurchaseCelebration } from '@/components/products/PostPurchaseCeleb
 import { SocialProofWidget } from '@/components/products/SocialProofWidget';
 import { trackProductView } from '@/components/discover/RecentlyViewedProducts';
 import { SellerTrustBadges } from '@/components/products/SellerTrustBadges';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { UrgencyWidget } from '@/components/products/UrgencyWidget';
 import { ContentSizeBadge } from '@/components/products/ContentSizeBadge';
 import { SmartCTA } from '@/components/products/SmartCTA';
@@ -109,7 +110,7 @@ export default function ProductDetailPage() {
     queryFn: async () => {
       let q = db
         .from('digital_products')
-        .select('*, organizations(name, slug, logo_url, currency, description, banner_url)');
+        .select('*, organizations(name, slug, logo_url, currency, description, banner_url, is_verified)');
       if (productId) {
         q = q.eq('id', productId);
       } else if (productSlug && slug) {
@@ -434,6 +435,7 @@ export default function ProductDetailPage() {
               </div>
             )}
             <span className="text-sm font-bold truncate max-w-[180px]">{org.name}</span>
+            {org.is_verified && <VerifiedBadge size="sm" />}
           </Link>
         ) : (
           <Link to={user ? '/feed' : '/'}>
@@ -493,7 +495,7 @@ export default function ProductDetailPage() {
               )}
               <div className="flex-1 min-w-0">
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">{t('product.sold_by')}</p>
-                <p className="font-bold text-sm">{org.name}</p>
+                <p className="font-bold text-sm flex items-center gap-1">{org.name} {org.is_verified && <VerifiedBadge size="sm" label="Vendeur vérifié" />}</p>
                 {org.description && (
                   <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{org.description}</p>
                 )}

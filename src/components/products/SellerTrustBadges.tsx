@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { useI18n } from '@/i18n/I18nContext';
 import { ShieldCheck, Award, BadgeCheck, TrendingUp, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
@@ -48,7 +49,7 @@ export function SellerTrustBadges({ organizationId, orgName, kycStatus }: Seller
 
   if (isVerified) {
     badges.push({
-      icon: ShieldCheck,
+      icon: () => <VerifiedBadge size="xs" showTooltip={false} />,
       label: isFr ? 'Vendeur vérifié' : 'Verified seller',
       className: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
     });

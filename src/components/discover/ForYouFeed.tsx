@@ -62,7 +62,7 @@ export function ForYouFeed() {
       // Fetch products, media, programs in parallel
       const [productsRes, mediaRes, programsRes] = await Promise.all([
         db.from('digital_products')
-          .select('*, organizations(name, slug, logo_url, currency)')
+          .select('*, organizations(name, slug, logo_url, currency, is_verified)')
           .eq('is_published', true)
           .eq('is_express_demo', false)
           .order('featured_score', { ascending: false })

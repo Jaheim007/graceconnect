@@ -26,7 +26,7 @@ export function CategoryCarousels() {
     queryFn: async () => {
       let q = db
         .from('digital_products')
-        .select('*, organizations(name, slug, logo_url, currency)')
+        .select('*, organizations(name, slug, logo_url, currency, is_verified)')
         .eq('is_published', true)
         .eq('is_express_demo', false)
         .order('featured_score', { ascending: false })
@@ -43,6 +43,7 @@ export function CategoryCarousels() {
         organization_name: p.organizations?.name,
         organization_slug: p.organizations?.slug,
         organization_logo: p.organizations?.logo_url,
+        is_org_verified: p.organizations?.is_verified,
       }));
     },
     staleTime: 2 * 60 * 1000,
