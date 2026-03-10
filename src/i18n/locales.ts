@@ -541,7 +541,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'page.help_tcat_account': 'Account & Login',
     'page.help_tcat_technical': 'Technical issue',
     'page.help_tcat_content': 'Content & Products',
-    'page.help_tcat_payout': 'Withdrawals & KYC',
+    'page.help_tcat_payout': 'Withdrawals & Verification',
     'page.help_tcat_other': 'Other',
     // Onboarding tour
     'tour.skip': 'Skip',
