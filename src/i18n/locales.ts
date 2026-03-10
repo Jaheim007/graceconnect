@@ -278,7 +278,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'dash.request_failed': 'Request failed',
     'dash.you_are_affiliate': 'You are now an affiliate!',
     'dash.affiliate_ready': 'Your referral link is ready.',
-    'dash.kyc_required_short': 'KYC required',
+    'dash.kyc_required_short': 'Verification required',
     'dash.available_amount': 'available',
     // TopBar
     'topbar.my_account': 'My Account',
