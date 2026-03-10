@@ -903,7 +903,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
               Précédent
             </Button>
           )}
-          {currentStep.id !== 'review' ? (
+          {currentStep?.id !== 'review' ? (
             <Button
               onClick={() => setStep(s => s + 1)}
               disabled={!canProceed()}
