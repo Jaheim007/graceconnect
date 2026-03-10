@@ -80,6 +80,5 @@ export function isPaystackCurrency(currency: string): boolean {
 /** Get a human-readable label for the active gateway */
 export function gatewayLabel(gw: PaymentGateway): string {
   if (gw === 'paystack') return 'Paystack';
-  if (gw === 'moneroo') return 'Moneroo';
   return 'Stripe';
 }
