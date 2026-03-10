@@ -13,7 +13,7 @@ interface FileUploaderProps {
   label?: string;
   hint?: string;
   accept?: string;
-  bucket?: 'org-uploads' | 'private-products';
+  bucket?: 'org-uploads' | 'private-products' | 'kyc-documents';
   hideUrlMode?: boolean;
 }
 
