@@ -72,6 +72,40 @@ export default function CreditsPage() {
     setPaymentMethod(defaultMethod);
   }, [defaultMethod]);
 
+  // Handle Stripe redirect back (after credit checkout)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const creditPurchaseId = params.get('credit_purchase_id');
+    const stripeSessionId = params.get('stripe_session_id');
+
+    if (creditPurchaseId && stripeSessionId) {
+      // Clean URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete('credit_purchase_id');
+      url.searchParams.delete('stripe_session_id');
+      window.history.replaceState({}, '', url.toString());
+
+      // Verify the Stripe credit purchase
+      (async () => {
+        try {
+          const { data: verifyData, error: verifyErr } = await supabase.functions.invoke('verify-credit-purchase', {
+            body: { reference: stripeSessionId, purchase_id: creditPurchaseId, gateway: 'stripe' },
+          });
+
+          if (verifyErr || !verifyData?.ok) {
+            toast.error(verifyData?.error || 'Erreur de vérification Stripe. Contactez le support.');
+            return;
+          }
+
+          toast.success(`🎉 ${verifyData.credits} crédits ajoutés à votre compte !`);
+          qc.invalidateQueries({ queryKey: ['credits'] });
+        } catch {
+          toast.error('Erreur lors de la vérification. Vos crédits seront ajoutés sous peu.');
+        }
+      })();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handlePurchase = useCallback(async (packKey: string) => {
     if (!user?.email) {
       toast.error('Veuillez vous connecter pour acheter des crédits.');
@@ -90,14 +124,34 @@ export default function CreditsPage() {
         throw new Error(data?.error || error?.message || 'Erreur lors de la création de l\'achat');
       }
 
-      // 2. Open unified payment gateway
+      if (gateway === 'stripe') {
+        // 2a. Stripe: Create dedicated credit checkout session
+        const currentUrl = window.location.origin + '/credits';
+        const { data: stripeData, error: stripeErr } = await supabase.functions.invoke('stripe-credit-checkout', {
+          body: {
+            purchase_id: data.purchase_id,
+            success_url: currentUrl,
+            cancel_url: currentUrl,
+          },
+        });
+
+        if (stripeErr || !stripeData?.checkout_url) {
+          throw new Error(stripeData?.error || 'Erreur lors de la création du paiement Stripe');
+        }
+
+        // Redirect to Stripe Checkout
+        window.location.href = stripeData.checkout_url;
+        return;
+      }
+
+      // 2b. Paystack: Open inline payment popup
       await openPayment({
         method: paymentMethod,
         email: data.email,
         amount: data.amount,
         currency: data.currency || creditCurrency,
-        type: 'donation' as const, // credit purchase uses simple flow
-        organization_id: 'platform', // platform-level purchase
+        type: 'donation' as const,
+        organization_id: 'platform',
         metadata: data.metadata,
         onSuccess: async (reference: string, gw) => {
           // 3. Verify payment and grant credits
