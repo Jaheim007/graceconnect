@@ -655,11 +655,13 @@ function formatTranscription(text: string, title: string): string {
 
 async function fetchYouTubeCaptionsViaInvidious(videoId: string): Promise<string> {
   const instances = [
+    'https://vid.puffyan.us',
+    'https://invidious.fdn.fr',
+    'https://y.com.sb',
+    'https://inv.tux.pizza',
+    'https://invidious.protokoll-11.dev',
     'https://inv.nadeko.net',
     'https://iv.ggtyler.dev',
-    'https://invidious.nerdvpn.de',
-    'https://yt.artemislena.eu',
-    'https://invidious.privacyredirect.com',
   ];
 
   let lastError = 'No available Invidious instance';
