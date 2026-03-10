@@ -110,7 +110,7 @@ export default function ProductDetailPage() {
     queryFn: async () => {
       let q = db
         .from('digital_products')
-        .select('*, organizations(name, slug, logo_url, currency, description, banner_url)');
+        .select('*, organizations(name, slug, logo_url, currency, description, banner_url, is_verified)');
       if (productId) {
         q = q.eq('id', productId);
       } else if (productSlug && slug) {
