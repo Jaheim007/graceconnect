@@ -91,7 +91,7 @@ export default function CreatorDashboard() {
   } else {
     if (productCount === 0) nextActions.push({ label: 'Crée ton premier produit', desc: 'eBook, PDF, vidéo, cours…', icon: Plus, action: () => navigate('/admin/products/new'), color: 'text-primary' });
     if (ambassadorCount === 0) nextActions.push({ label: 'Active ton programme ambassadeur', desc: 'Laisse d\'autres vendre pour toi', icon: Users, action: () => navigate('/admin/affiliation'), color: 'text-amber-500' });
-    if (kycStatus === 'none') nextActions.push({ label: 'Vérifie ton identité pour retirer', desc: 'KYC requis pour les retraits', icon: Shield, action: () => navigate('/admin/kyc'), color: 'text-destructive' });
+    if (kycStatus === 'none') nextActions.push({ label: 'Vérifie ton identité pour retirer', desc: 'Vérification requise pour les retraits', icon: Shield, action: () => navigate('/admin/kyc'), color: 'text-destructive' });
   }
 
   const monthGoal = 100000;
