@@ -835,7 +835,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     onEdit={() => setStep(activeSteps.findIndex(s => s.id === 'selfie_doc'))}
                   />
                   {/* Org document (org mode) */}
-                  {mode === 'org' && orgDocUrl && (
+                  {verificationType === 'organization' && orgDocUrl && (
                     <div className="p-3 rounded-xl bg-muted/50 border border-border">
                       <div className="flex items-center justify-between">
                         <div>
