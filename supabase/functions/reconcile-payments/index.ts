@@ -79,7 +79,82 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        // Check if already in DB (donations or purchases)
+        const meta = tx.metadata || {};
+
+        // ── CREDIT PURCHASE reconciliation (no org needed) ──
+        if (meta.type === 'credit_purchase') {
+          const purchaseId = meta.purchase_id as string | undefined;
+          if (!purchaseId) {
+            reconciled.push({ reference, amount: tx.amount / 100, status: 'skipped_no_purchase_id' });
+            continue;
+          }
+
+          // Check if already completed
+          const { data: existingPurchase } = await db
+            .from('credit_purchases')
+            .select('id, status')
+            .eq('id', purchaseId)
+            .maybeSingle();
+
+          if (existingPurchase?.status === 'completed') {
+            skipped.push(reference);
+            continue;
+          }
+
+          if (!existingPurchase) {
+            // Purchase record missing — try to recreate from metadata
+            const userId = meta.user_id as string || tx.customer?.email;
+            if (!userId) {
+              reconciled.push({ reference, amount: tx.amount / 100, status: 'error', error: 'No user_id in credit_purchase metadata' });
+              continue;
+            }
+            reconciled.push({ reference, amount: tx.amount / 100, status: 'error', error: 'Purchase record not found for id: ' + purchaseId });
+            continue;
+          }
+
+          try {
+            const { data: result, error: completeErr } = await db.rpc('complete_credit_purchase', {
+              _purchase_id: purchaseId,
+              _payment_reference: reference,
+            });
+
+            if (completeErr) {
+              reconciled.push({ reference, amount: tx.amount / 100, status: 'error', error: completeErr.message });
+              console.error(`[reconcile] credit_purchase error for ${reference}:`, completeErr.message);
+            } else {
+              const res = result as any;
+              if (res?.ok) {
+                // Send notification
+                const { data: purchase } = await db.from('credit_purchases')
+                  .select('user_id, credits_amount')
+                  .eq('id', purchaseId)
+                  .maybeSingle();
+
+                if (purchase) {
+                  await db.from('user_notifications').insert({
+                    user_id: purchase.user_id,
+                    title: '💰 Crédits reçus (réconciliation) !',
+                    body: `Vous avez reçu ${purchase.credits_amount} crédits IA. Désolé pour le délai !`,
+                    notification_type: 'credit_purchase',
+                    action_url: '/credits',
+                  });
+                }
+
+                reconciled.push({ reference, amount: tx.amount / 100, status: 'reconciled' });
+              } else {
+                reconciled.push({ reference, amount: tx.amount / 100, status: 'error', error: res?.reason || 'complete_credit_purchase failed' });
+              }
+            }
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : String(err);
+            reconciled.push({ reference, amount: tx.amount / 100, status: 'error', error: msg });
+            console.error(`[reconcile] credit_purchase exception for ${reference}:`, msg);
+          }
+          continue;
+        }
+
+        // ── DONATION / PRODUCT reconciliation ──
+        // Check if already in DB
         const [{ data: donationExists }, { data: purchaseExists }] = await Promise.all([
           db.from('donations').select('id').eq('paystack_reference', reference).eq('status', 'completed').maybeSingle(),
           db.from('product_purchases').select('id').eq('paystack_reference', reference).eq('status', 'completed').maybeSingle(),
@@ -90,8 +165,6 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        // Missing transaction — process it
-        const meta = tx.metadata || {};
         const type = (meta.type === 'product' ? 'product' : 'donation') as 'donation' | 'product';
         const organizationId = meta.organization_id as string | undefined;
 
@@ -106,7 +179,7 @@ Deno.serve(async (req) => {
             type,
             organization_id: organizationId,
             gateway: 'paystack',
-            source: 'webhook', // treat as webhook-level processing
+            source: 'webhook',
             amount_paid: tx.amount / 100,
             currency: tx.currency || 'XOF',
             campaign_id: meta.campaign_id || null,
