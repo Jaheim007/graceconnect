@@ -521,7 +521,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                   value={selfieWithDocUrl}
                   onChange={setSelfieWithDocUrl}
                   folder={`${folder}/selfie-with-doc`}
-                  bucket="org-uploads"
+                  bucket="kyc-documents"
                   label="Selfie avec document"
                   hint="Prenez un selfie en tenant votre pièce d'identité visible à côté de votre visage"
                 />
