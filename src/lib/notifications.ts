@@ -797,7 +797,7 @@ export async function onPayoutApproved(orgId: string, orgName: string, amount: n
 
 export async function onPayoutRejected(orgId: string, orgName: string, reason: string) {
   emailOrgAdmins('payout_rejected', orgId, { org_name: orgName, reason });
-  notifyOrgMembers(orgId, '❌ Retrait rejeté', `Le retrait pour ${orgName} a été rejeté. Raison: ${reason}`, 'transaction');
+  notifyOrgOwnerOnly(orgId, '❌ Retrait rejeté', `Le retrait pour ${orgName} a été rejeté. Raison: ${reason}`, 'transaction');
 }
 
 // ═══════════════════════════════════════════════════════════
