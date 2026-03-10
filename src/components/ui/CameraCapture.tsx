@@ -5,6 +5,8 @@ import { Camera, RotateCcw, Check, X, Loader2, SwitchCamera, Smartphone, AlertTr
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
+type CaptureMode = 'document' | 'selfie' | 'free';
+
 interface CameraCaptureProps {
   value: string;
   onChange: (url: string) => void;
@@ -12,6 +14,8 @@ interface CameraCaptureProps {
   label?: string;
   hint?: string;
   bucket?: 'org-uploads' | 'private-products' | 'kyc-documents';
+  /** Controls the frame overlay shape: 'document' for ID/passport, 'selfie' for face oval, 'free' for no overlay */
+  captureMode?: CaptureMode;
 }
 
 export function CameraCapture({
