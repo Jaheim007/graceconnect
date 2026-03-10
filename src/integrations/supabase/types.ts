@@ -2290,6 +2290,8 @@ export type Database = {
           bank_account_name: string | null
           bank_account_number: string | null
           bank_name: string | null
+          document_expires_at: string | null
+          documents_purged_at: string | null
           id: string
           id_document_back_url: string | null
           id_document_type: string | null
@@ -2316,6 +2318,8 @@ export type Database = {
           bank_account_name?: string | null
           bank_account_number?: string | null
           bank_name?: string | null
+          document_expires_at?: string | null
+          documents_purged_at?: string | null
           id?: string
           id_document_back_url?: string | null
           id_document_type?: string | null
@@ -2342,6 +2346,8 @@ export type Database = {
           bank_account_name?: string | null
           bank_account_number?: string | null
           bank_name?: string | null
+          document_expires_at?: string | null
+          documents_purged_at?: string | null
           id?: string
           id_document_back_url?: string | null
           id_document_type?: string | null
@@ -5702,6 +5708,10 @@ export type Database = {
           _scripture_reference_id: string
         }
         Returns: string
+      }
+      log_kyc_document_access: {
+        Args: { _document_type: string; _org_id: string }
+        Returns: undefined
       }
       manage_partner: {
         Args: { _action: string; _partner_id: string; _reason?: string }
