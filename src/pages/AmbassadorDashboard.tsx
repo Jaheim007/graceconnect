@@ -219,7 +219,7 @@ export default function AmbassadorDashboard() {
               </div>
             ) : topProducts.map((product: any) => {
               const commission = product.organizations?.commission_percent || 10;
-              const estimatedGain = product.price ? Math.round((product.price * commission) / 100) : 0;
+              const estimatedGain = Math.round(getEffectivePrice(product) * commission / 100);
               const orgSlug = product.organizations?.slug;
               const shareUrl = orgSlug ? `${window.location.origin}/org/${orgSlug}/p/${product.slug || product.id}` : '';
 
