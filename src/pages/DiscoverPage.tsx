@@ -14,6 +14,7 @@ import { SkeletonList } from '@/components/ui/SkeletonCard';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useNavigate } from 'react-router-dom';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
+import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
