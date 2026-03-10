@@ -51,6 +51,23 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
   const isColoringBook = state.style === 'coloring';
   const effectiveArtStyle = isColoringBook ? 'line_art' : artStyle;
 
+  const parseInvokeError = async (error: any): Promise<{ message: string; status?: number }> => {
+    try {
+      const ctx = error?.context;
+      const status = ctx?.status;
+      if (ctx && typeof ctx.json === 'function') {
+        const details = await ctx.json().catch(() => null);
+        if (details?.error) return { message: details.error, status };
+      }
+      if (status === 402) return { message: 'Crédits insuffisants', status: 402 };
+      if (status === 401) return { message: 'Session expirée. Reconnecte-toi.', status: 401 };
+      if (status === 429) return { message: 'Trop de requêtes. Réessaie dans un instant.', status: 429 };
+      return { message: error?.message || 'Erreur de connexion au serveur', status };
+    } catch {
+      return { message: error?.message || 'Erreur inconnue' };
+    }
+  };
+
   const generateIllustration = async (chapterId: string, chapterTitle: string, chapterContent: string) => {
     setGenerating(chapterId);
     try {
@@ -73,17 +90,17 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
       });
 
       if (error) {
-        const status = (error as any)?.context?.status;
-        let details: any = null;
-        try {
-          if ((error as any)?.context) details = await (error as any).context.json();
-        } catch {
-          details = null;
-        }
-        throw new Error(details?.error || details?.message || (status === 401 ? 'Non autorisé. Reconnecte-toi.' : error.message));
+        const parsed = await parseInvokeError(error);
+        const err = new Error(parsed.message);
+        (err as any).status = parsed.status;
+        throw err;
       }
-      if (data?.error) throw new Error(data.error);
-      if (!data?.imageUrl) throw new Error('No image returned');
+      if (data?.error) {
+        const err = new Error(data.error);
+        if (data.error.includes('insuffisant') || data.error.includes('insufficient')) (err as any).status = 402;
+        throw err;
+      }
+      if (!data?.imageUrl) throw new Error('Aucune image générée. Réessaie.');
 
       const updated = { ...illustrationsRef.current, [chapterId]: data.imageUrl };
       illustrationsRef.current = updated;
@@ -93,7 +110,10 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
     } catch (err: any) {
       console.error('Illustration generation error:', err);
       if (!handleAiError(err)) {
-        toast({ title: '❌ Erreur', description: err?.message, variant: 'destructive' });
+        const friendlyMsg = err?.message?.includes('Edge Function')
+          ? (t('write.illust_server_error') || 'Le serveur est temporairement indisponible. Réessaie dans un instant.')
+          : err?.message || 'Erreur inconnue';
+        toast({ title: '❌ Erreur', description: friendlyMsg, variant: 'destructive' });
       }
     } finally {
       setGenerating(null);
