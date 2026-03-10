@@ -162,6 +162,7 @@ const NotificationPreferencesPage = lazy(() => import("@/pages/NotificationPrefe
 const MyInvoicesPage = lazy(() => import("@/pages/MyInvoicesPage"));
 const MyProgramsPage = lazy(() => import("@/pages/MyProgramsPage"));
 const UserAnalyticsPage = lazy(() => import("@/pages/UserAnalyticsPage"));
+const CreditsPage = lazy(() => import("@/pages/CreditsPage"));
 
 // Admin
 const AdminShell = lazy(() => import("@/pages/admin/AdminShell"));
