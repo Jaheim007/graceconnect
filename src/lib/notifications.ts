@@ -562,7 +562,7 @@ export async function onNewDeviceLogin(
   if (userEmail) {
     sendEmailNotification('new_device_login', userEmail, { device, time: new Date().toISOString() }).catch(() => {});
   }
-  notify(userId, '🔒 Nouvelle connexion', `Connexion détectée depuis: ${device}`, 'security');
+  notify(userId, '🔒 Nouvelle connexion', `Connexion détectée depuis: ${device}`, 'security', undefined, `/profile`);
 }
 
 export async function onPasswordChanged(userId: string, userEmail: string | undefined) {
