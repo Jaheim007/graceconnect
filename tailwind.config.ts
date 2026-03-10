@@ -120,6 +120,10 @@ export default {
           "0%": { transform: "translateX(-50%)" },
           "100%": { transform: "translateX(0)" },
         },
+        "badge-shimmer": {
+          "0%": { transform: "translateX(-120%) rotate(35deg)" },
+          "100%": { transform: "translateX(120%) rotate(35deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
