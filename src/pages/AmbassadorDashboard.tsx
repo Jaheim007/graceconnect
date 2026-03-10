@@ -1,4 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext';
+import { getEffectivePrice } from '@/lib/effectivePrice';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { AffiliateLink } from '@/types/database';
