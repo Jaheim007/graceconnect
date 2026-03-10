@@ -289,7 +289,10 @@ export default function AmbassadorDashboard() {
               {affiliateLinks.slice(0, 3).map((link) => (
                 <div key={link.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{link.organizations?.name || 'Organisation'}</p>
+                    <p className="text-sm font-medium truncate flex items-center gap-1">
+                      {link.organizations?.name || 'Organisation'}
+                      {(link.organizations as any)?.is_verified && <VerifiedBadge size="xs" />}
+                    </p>
                     <p className="text-[10px] text-muted-foreground">{link.clicks || 0} clics · {link.conversions || 0} ventes</p>
                   </div>
                   <AffiliateShareTools

@@ -139,8 +139,9 @@ export default function MyProgramsPage() {
                     )}
                   </div>
                   {org && (
-                    <p className="text-[10px] text-muted-foreground truncate">
+                    <p className="text-[10px] text-muted-foreground truncate flex items-center gap-1">
                       par {org.name}
+                      {org.is_verified && <VerifiedBadge size="xs" />}
                     </p>
                   )}
                   <div className="flex items-center gap-3">
