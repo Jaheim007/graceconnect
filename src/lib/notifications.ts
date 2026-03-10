@@ -549,7 +549,7 @@ export async function onAffiliatePayoutCompleted(
     `Votre retrait de ${amount} ${currency} depuis ${orgName} a été envoyé sur votre compte.`,
     'affiliate_payout_completed',
     { org_name: orgName, amount, currency },
-    'affiliate', orgId,
+    'affiliate', orgId, `/affiliation`,
   );
 }
 
