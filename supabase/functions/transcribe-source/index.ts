@@ -92,25 +92,21 @@ Deno.serve(async (req) => {
           }
         }
 
-        // ===== METHOD 3: Gemini fileData (can process some YouTube videos) =====
+        // ===== METHOD 3: Gemini with YouTube URL (use gemini-2.0-flash which handles video URLs better) =====
         if (!transcribedText || transcribedText.length < 50) {
           try {
-            console.log('[transcribe-source] Falling back to Gemini fileData...');
+            console.log('[transcribe-source] Falling back to Gemini video processing...');
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 120_000);
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+            const timeoutId = setTimeout(() => controller.abort(), 180_000);
+            
+            // Use gemini-2.0-flash-exp for video — it has native video understanding
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 contents: [{
                   parts: [
-                    { 
-                      fileData: { 
-                        fileUri: videoUrl,
-                        mimeType: 'video/mp4'
-                      }
-                    },
-                    { text: `You are a professional content transcription assistant. Extract and transcribe ALL spoken content from this YouTube video.
+                    { text: `You are a professional transcription assistant. Visit and transcribe ALL spoken content from this YouTube video: https://www.youtube.com/watch?v=${videoId}
 
 Rules:
 - Return ONLY the transcribed text, well-formatted with clear paragraphs
@@ -129,16 +125,16 @@ Rules:
             clearTimeout(timeoutId);
 
             const data = await res.json();
-            console.log('[transcribe-source] Gemini fileData response status:', res.status);
+            console.log('[transcribe-source] Gemini video response status:', res.status);
 
             if (data?.error) {
-              console.log('[transcribe-source] Gemini fileData error:', JSON.stringify(data.error).substring(0, 200));
+              console.log('[transcribe-source] Gemini video error:', JSON.stringify(data.error).substring(0, 200));
             }
 
             transcribedText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
-            console.log('[transcribe-source] fileData result length:', transcribedText.length);
+            console.log('[transcribe-source] Gemini video result length:', transcribedText.length);
           } catch (e) {
-            console.log('[transcribe-source] Gemini fileData failed:', String(e).substring(0, 200));
+            console.log('[transcribe-source] Gemini video failed:', String(e).substring(0, 200));
           }
         }
 
