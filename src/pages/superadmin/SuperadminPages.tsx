@@ -135,7 +135,7 @@ export function SuperadminKYC() {
   const approve = async (id: string, orgId: string) => {
     await db.from('kyc_submissions').update({ status: 'approved', reviewed_at: new Date().toISOString() }).eq('id', id);
     await db.from('organizations').update({ kyc_status: 'level1', monetization_enabled: true }).eq('id', orgId);
-    toast({ title: 'KYC approved ✅' }); refetch();
+    toast({ title: 'Vérification approuvée ✅' }); refetch();
   };
   const reject = async (id: string) => {
     const reason = prompt('Rejection reason:');
