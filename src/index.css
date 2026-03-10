@@ -315,3 +315,30 @@ body > div[style*="position: fixed"][style*="opacity"] {
   z-index: 2147483646 !important;
   pointer-events: auto !important;
 }
+
+/* ── SiteViral Verified Badge shimmer ── */
+@keyframes sv-shimmer {
+  0%, 85% { opacity: 0; transform: translateX(-120%) rotate(35deg); }
+  90% { opacity: 1; transform: translateX(0%) rotate(35deg); }
+  95%, 100% { opacity: 0; transform: translateX(120%) rotate(35deg); }
+}
+
+.sv-badge-shimmer {
+  position: relative;
+}
+
+.sv-badge-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 100%
+  );
+  width: 60%;
+  animation: sv-shimmer 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 2;
+}
