@@ -42,6 +42,7 @@ export function StepSource({
   const { toast } = useToast();
   const [transcribing, setTranscribing] = useState(false);
   const [showTranscriptionPreview, setShowTranscriptionPreview] = useState(false);
+  const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
 
   const sources: { type: SourceType; icon: typeof PenLine; label: string; desc: string }[] = [
     { type: 'idea', icon: Lightbulb, label: t('write.source_idea'), desc: t('write.source_idea_desc') },
