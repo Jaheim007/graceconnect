@@ -110,3 +110,50 @@ export async function refundCreditsAsBonus(opts: {
     _expires_in_days: opts.expiresInDays ?? 7,
   });
 }
+
+/**
+ * Debit credits, run an async action, and auto-refund if the action fails.
+ * This prevents users from losing credits on system/AI errors.
+ */
+export async function consumeCreditsWithRefund<T>(opts: {
+  admin: ReturnType<typeof createClient>;
+  userId: string;
+  actionKey: string;
+  tier: CreditTier;
+  action: () => Promise<T>;
+  idempotencyKey?: string;
+  metadata?: Record<string, unknown>;
+}): Promise<T> {
+  const { admin, userId, actionKey, tier, action } = opts;
+
+  // Debit first
+  const debitResult = await consumeCreditsOrThrow({
+    admin, userId, actionKey, tier,
+    idempotencyKey: opts.idempotencyKey,
+    metadata: opts.metadata,
+  });
+
+  // If idempotency skipped, still run the action
+  const debited = 'skipped' in debitResult ? 0 : debitResult.debited;
+
+  try {
+    return await action();
+  } catch (err) {
+    // Auto-refund on failure (best-effort, don't mask original error)
+    if (debited > 0) {
+      try {
+        console.warn(`[credit-refund] Refunding ${debited} credits to ${userId} for failed ${actionKey}`);
+        await refundCreditsAsBonus({
+          admin, userId,
+          amount: debited,
+          source: actionKey,
+          expiresInDays: 30,
+          metadata: { reason: 'auto_refund_on_failure', error: String(err).slice(0, 200) },
+        });
+      } catch (refundErr) {
+        console.error(`[credit-refund] Failed to refund:`, refundErr);
+      }
+    }
+    throw err;
+  }
+}
