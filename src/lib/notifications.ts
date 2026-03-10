@@ -385,13 +385,13 @@ export async function onDirectoryDecision(
 
 // ── Org suspended / unsuspended ──
 export async function onOrgSuspended(orgId: string, orgName: string, reason: string, until?: string) {
-  emailOrgAdmins('org_suspended', orgId, { org_name: orgName, reason, until: until || '' });
-  notifyOrgMembers(orgId, '⚠️ Organisation suspendue', `${orgName} a été suspendue. Raison: ${reason}`, 'system', undefined, `/admin`);
+  emailOrgOwnerOnly('org_suspended', orgId, { org_name: orgName, reason, until: until || '' });
+  notifyOrgOwnerOnly(orgId, '⚠️ Organisation suspendue', `${orgName} a été suspendue. Raison: ${reason}`, 'system', `/admin`);
 }
 
 export async function onOrgUnsuspended(orgId: string, orgName: string) {
-  emailOrgAdmins('org_unsuspended', orgId, { org_name: orgName });
-  notifyOrgMembers(orgId, '✅ Suspension levée', `${orgName} est de nouveau active.`, 'system', undefined, `/admin`);
+  emailOrgOwnerOnly('org_unsuspended', orgId, { org_name: orgName });
+  notifyOrgOwnerOnly(orgId, '✅ Suspension levée', `${orgName} est de nouveau active.`, 'system', `/admin`);
 }
 
 // ── Payouts frozen ──
@@ -649,13 +649,13 @@ export async function onPaymentFailed(
 
 // ── Milestones ──
 export async function onFirstDonationReceived(orgId: string, orgName: string, amount: number, currency: string) {
-  emailOrgAdmins('first_donation_milestone', orgId, { org_name: orgName, amount, currency });
-  notifyOrgMembers(orgId, '🎉 Premier don reçu !', `${orgName} a reçu son tout premier don de ${amount} ${currency} !`, 'milestone', undefined, `/admin/campaigns`);
+  emailOrgOwnerOnly('first_donation_milestone', orgId, { org_name: orgName, amount, currency });
+  notifyOrgOwnerOnly(orgId, '🎉 Premier don reçu !', `${orgName} a reçu son tout premier don de ${amount} ${currency} !`, 'milestone', `/admin/campaigns`);
 }
 
 export async function onFirstSale(orgId: string, orgName: string, productName: string, amount: number, currency: string) {
-  emailOrgAdmins('first_sale_milestone', orgId, { org_name: orgName, product_name: productName, amount, currency });
-  notifyOrgMembers(orgId, '🎉 Première vente !', `${orgName} a réalisé sa première vente : "${productName}" — ${amount} ${currency}`, 'milestone', undefined, `/admin/products`);
+  emailOrgOwnerOnly('first_sale_milestone', orgId, { org_name: orgName, product_name: productName, amount, currency });
+  notifyOrgOwnerOnly(orgId, '🎉 Première vente !', `${orgName} a réalisé sa première vente : "${productName}" — ${amount} ${currency}`, 'milestone', `/admin/products`);
 }
 
 // ── New sale (every purchase) ──
@@ -667,12 +667,11 @@ export async function onNewSale(
   amount: number,
   currency: string,
 ) {
-  notifyOrgMembers(
+  notifyOrgOwnerOnly(
     orgId,
     '💰 Nouvelle vente !',
     `${buyerName} a acheté "${productName}" — ${amount} ${currency}`,
-    'transaction',
-    undefined, `/admin/products`,
+    'transaction', `/admin/products`,
   );
 }
 
@@ -685,21 +684,20 @@ export async function onNewDonation(
   amount: number,
   currency: string,
 ) {
-  notifyOrgMembers(
+  notifyOrgOwnerOnly(
     orgId,
     '🙏 Nouveau don !',
     `${donorName} a fait un don de ${amount} ${currency} pour "${campaignName}"`,
-    'transaction',
-    undefined, `/admin/campaigns`,
+    'transaction', `/admin/campaigns`,
   );
 }
 
 export async function onCampaignGoalReached(orgId: string, orgName: string, campaignName: string, goalAmount: number, currentAmount: number, currency: string) {
-  emailOrgAdmins('campaign_goal_reached', orgId, {
+  emailOrgOwnerOnly('campaign_goal_reached', orgId, {
     org_name: orgName, campaign_name: campaignName,
     goal_amount: goalAmount, current_amount: currentAmount, currency,
   });
-  notifyOrgMembers(orgId, '🏆 Objectif atteint !', `La campagne "${campaignName}" a atteint son objectif de ${goalAmount} ${currency} !`, 'milestone', undefined, `/admin/campaigns`);
+  notifyOrgOwnerOnly(orgId, '🏆 Objectif atteint !', `La campagne "${campaignName}" a atteint son objectif de ${goalAmount} ${currency} !`, 'milestone', `/admin/campaigns`);
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -788,18 +786,18 @@ export async function onRefundCompleted(
 // ═══════════════════════════════════════════════════════════
 
 export async function onPayoutRequested(orgId: string, orgName: string, amount: number, currency: string) {
-  emailOrgAdmins('payout_requested', orgId, { org_name: orgName, amount, currency });
-  notifyOrgMembers(orgId, '💸 Retrait demandé', `Un retrait de ${amount} ${currency} a été demandé pour ${orgName}.`, 'transaction');
+  emailOrgOwnerOnly('payout_requested', orgId, { org_name: orgName, amount, currency });
+  notifyOrgOwnerOnly(orgId, '💸 Retrait demandé', `Un retrait de ${amount} ${currency} a été demandé pour ${orgName}.`, 'transaction');
 }
 
 export async function onPayoutApproved(orgId: string, orgName: string, amount: number, currency: string) {
-  emailOrgAdmins('payout_approved', orgId, { org_name: orgName, amount, currency });
-  notifyOrgMembers(orgId, '✅ Retrait approuvé', `Le retrait de ${amount} ${currency} pour ${orgName} a été approuvé.`, 'transaction');
+  emailOrgOwnerOnly('payout_approved', orgId, { org_name: orgName, amount, currency });
+  notifyOrgOwnerOnly(orgId, '✅ Retrait approuvé', `Le retrait de ${amount} ${currency} pour ${orgName} a été approuvé.`, 'transaction');
 }
 
 export async function onPayoutRejected(orgId: string, orgName: string, reason: string) {
-  emailOrgAdmins('payout_rejected', orgId, { org_name: orgName, reason });
-  notifyOrgMembers(orgId, '❌ Retrait rejeté', `Le retrait pour ${orgName} a été rejeté. Raison: ${reason}`, 'transaction');
+  emailOrgOwnerOnly('payout_rejected', orgId, { org_name: orgName, reason });
+  notifyOrgOwnerOnly(orgId, '❌ Retrait rejeté', `Le retrait pour ${orgName} a été rejeté. Raison: ${reason}`, 'transaction');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -855,8 +853,8 @@ export async function onOfferingReceived(
   amount: number,
   currency: string,
 ) {
-  emailOrgAdmins('offering_received', orgId, { org_name: orgName, offering_title: offeringTitle, donor_name: donorName, amount, currency });
-  notifyOrgMembers(orgId, '🙏 Offrande reçue', `${donorName} a fait une offrande de ${amount} ${currency} pour "${offeringTitle}"`, 'transaction');
+  emailOrgOwnerOnly('offering_received', orgId, { org_name: orgName, offering_title: offeringTitle, donor_name: donorName, amount, currency });
+  notifyOrgOwnerOnly(orgId, '🙏 Offrande reçue', `${donorName} a fait une offrande de ${amount} ${currency} pour "${offeringTitle}"`, 'transaction');
 }
 
 export async function onOfferingReceipt(
@@ -1136,7 +1134,7 @@ export async function onPromoCodeUsed(
   discount: string,
   buyerName: string,
 ) {
-  notifyOrgMembers(orgId, '🎟️ Code promo utilisé', `${buyerName} a utilisé le code "${promoCode}" (${discount}).`, 'transaction');
+  notifyOrgOwnerOnly(orgId, '🎟️ Code promo utilisé', `${buyerName} a utilisé le code "${promoCode}" (${discount}).`, 'transaction');
   emailOrgAdmins('promo_code_used', orgId, { org_name: orgName, promo_code: promoCode, discount, buyer_name: buyerName });
 }
 
