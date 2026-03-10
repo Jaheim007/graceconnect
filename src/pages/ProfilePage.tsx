@@ -8,6 +8,7 @@ import {
   Camera, LogOut, ChevronRight, User, Lock, Bell, Globe,
   Info, Moon, Sun, HelpCircle, Mail, Shield, ArrowLeft, Trash2, BookOpen, Languages
 } from 'lucide-react';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -269,7 +270,10 @@ export default function ProfilePage() {
                       {org.logo_url ? <img src={org.logo_url} alt={org.name} className="w-full h-full object-cover" /> : <span className="text-xs font-bold text-primary-foreground">{org.name.slice(0, 2).toUpperCase()}</span>}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{org.name}</p>
+                      <p className="text-sm font-medium truncate flex items-center gap-1">
+                        {org.name}
+                        {org.is_verified && <VerifiedBadge size="sm" />}
+                      </p>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <span className={cn('text-[10px] px-1.5 py-0.5 rounded-md font-medium', roleColor)}>{roleLabel}</span>
                         <span className="text-[10px] text-muted-foreground">{getOrgCategoryLabel(org.category)}</span>

@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Organization } from '@/types/database';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { CheckCircle2, MapPin } from 'lucide-react';
+import { MapPin } from 'lucide-react';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -67,7 +68,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
         )}
         {org.is_verified && (
           <div className="absolute top-2 right-2">
-            <CheckCircle2 className="h-4 w-4 text-accent drop-shadow" />
+            <VerifiedBadge size="md" showTooltip={false} />
           </div>
         )}
         <div className="absolute bottom-2 right-2">
@@ -97,9 +98,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
           <div className="min-w-0 flex-1">
             <h3 className="font-semibold text-sm leading-tight line-clamp-1 flex items-center gap-1">
               {org.name}
-              {org.is_verified && (
-                <CheckCircle2 className="h-3.5 w-3.5 text-accent shrink-0 inline" />
-              )}
+              {org.is_verified && <VerifiedBadge size="sm" />}
             </h3>
             {org.description ? (
               <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5 leading-relaxed">
