@@ -144,7 +144,7 @@ export default function DiscoverPage() {
     queryFn: async () => {
       let q = db
         .from('donation_campaigns')
-        .select('*, organizations(name, slug, logo_url, currency)')
+        .select('*, organizations(name, slug, logo_url, currency, is_verified)')
         .eq('is_published', true)
         .eq('is_active', true)
         .eq('is_express_demo', false)
