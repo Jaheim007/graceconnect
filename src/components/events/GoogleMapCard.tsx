@@ -11,28 +11,26 @@ function extractEmbedUrl(url: string): string | null {
     // If it's already an embed URL
     if (url.includes('/embed')) return url;
     
-    // Extract place query from various Google Maps URL formats
-    const u = new URL(url);
-    
-    // Handle maps.google.com/maps?q= or google.com/maps/place/
-    if (u.searchParams.has('q')) {
-      return `https://www.google.com/maps/embed/v1/place?key=&q=${encodeURIComponent(u.searchParams.get('q')!)}`;
-    }
-    
     // For place URLs like /maps/place/Name/@lat,lng
     const placeMatch = url.match(/\/place\/([^/@]+)/);
     if (placeMatch) {
-      return `https://maps.google.com/maps?q=${encodeURIComponent(decodeURIComponent(placeMatch[1]))}&output=embed`;
+      return `https://maps.google.com/maps?q=${encodeURIComponent(decodeURIComponent(placeMatch[1]))}&output=embed&z=15`;
+    }
+
+    // Handle maps.google.com/maps?q=
+    const u = new URL(url);
+    if (u.searchParams.has('q')) {
+      return `https://maps.google.com/maps?q=${encodeURIComponent(u.searchParams.get('q')!)}&output=embed&z=15`;
     }
     
     // For @lat,lng URLs
     const coordMatch = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
     if (coordMatch) {
-      return `https://maps.google.com/maps?q=${coordMatch[1]},${coordMatch[2]}&output=embed`;
+      return `https://maps.google.com/maps?q=${coordMatch[1]},${coordMatch[2]}&output=embed&z=15`;
     }
     
-    // Fallback: use the location name
-    return null;
+    // Fallback: use the full URL as query
+    return `https://maps.google.com/maps?q=${encodeURIComponent(url)}&output=embed&z=15`;
   } catch {
     return null;
   }

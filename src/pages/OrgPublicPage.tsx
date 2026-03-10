@@ -41,8 +41,9 @@ import { useWaitlists } from '@/hooks/useWaitlists';
 import { DonationCampaign, DigitalProduct } from '@/types/database';
 import { cn } from '@/lib/utils';
 import {
-  Home, ShoppingBag, Heart, Play, Camera, CalendarDays, HandHeart, Plus, ChevronDown, ChevronUp, Settings, GraduationCap
+  Home, ShoppingBag, Heart, Play, Camera, CalendarDays, HandHeart, Plus, ChevronDown, ChevronUp, Settings, GraduationCap, ExternalLink, MapPin
 } from 'lucide-react';
+import { EventCountdown } from '@/components/events/EventCountdown';
 import React, { useCallback } from 'react';
 
 export default function OrgPublicPage() {
@@ -219,14 +220,33 @@ export default function OrgPublicPage() {
           <div className="flex-1 min-w-0">
             {/* Pinned announcement */}
             {pinnedAnnouncement && (
-              <div className="mb-6 p-4 rounded-2xl bg-primary/10 border border-primary/20 cursor-pointer hover:bg-primary/15 transition-colors" onClick={() => navigate(`/announcement/${pinnedAnnouncement.id}`)}>
-                <div className="flex items-start gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0"><span className="text-xs">📌</span></div>
-                  <div>
-                    <h3 className="font-semibold text-sm">{pinnedAnnouncement.title}</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-3">{stripHtml(pinnedAnnouncement.body)}</p>
+              <div
+                className="mb-6 group relative rounded-2xl overflow-hidden border border-primary/30 bg-gradient-to-r from-primary/10 via-card to-primary/5 shadow-card hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
+                onClick={() => navigate(`/announcement/${pinnedAnnouncement.id}`)}
+              >
+                {pinnedAnnouncement.image_url && (
+                  <div className="h-32 overflow-hidden">
+                    <img src={pinnedAnnouncement.image_url} alt={pinnedAnnouncement.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <div className="absolute inset-0 h-32 bg-gradient-to-t from-card via-card/50 to-transparent" />
+                  </div>
+                )}
+                <div className="p-4 flex items-start gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-primary/15 border border-primary/20 flex items-center justify-center shrink-0">
+                    <span className="text-base">📌</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-primary">Annonce épinglée</span>
+                    </div>
+                    <h3 className="font-bold text-sm group-hover:text-primary transition-colors">{pinnedAnnouncement.title}</h3>
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2 leading-relaxed">{stripHtml(pinnedAnnouncement.body)}</p>
+                  </div>
+                  <div className="shrink-0 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <ExternalLink className="h-3.5 w-3.5 text-primary" />
                   </div>
                 </div>
+                {/* Animated accent line */}
+                <div className="absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-primary via-primary/60 to-transparent w-0 group-hover:w-full transition-all duration-500" />
               </div>
             )}
 
@@ -379,18 +399,58 @@ export default function OrgPublicPage() {
                   {events.length === 0 ? (
                     <EmptyState variant="generic" title={t('org_public.no_events')} description={t('org_public.no_events_desc')} />
                   ) : (
-                    <div className="space-y-3">
-                      {events.map((ev) => (
-                        <div key={ev.id} className="p-4 rounded-2xl border border-border bg-card shadow-card">
-                          {ev.image_url && <div className="h-40 rounded-xl overflow-hidden mb-3"><img src={ev.image_url} alt={ev.title} className="w-full h-full object-cover" /></div>}
-                          <h3 className="font-semibold">{ev.title}</h3>
-                          {ev.description && <p className="text-sm text-muted-foreground mt-1">{ev.description}</p>}
-                          <div className="flex gap-4 mt-2">
-                            {ev.event_date && <span className="text-xs text-muted-foreground">{new Date(ev.event_date).toLocaleDateString(dateFmt, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>}
-                            {ev.location && <span className="text-xs text-primary">{ev.location}</span>}
+                    <div className="space-y-4">
+                      {events.map((ev) => {
+                        const evDate = ev.event_date ? new Date(ev.event_date) : null;
+                        const isFuture = evDate && evDate > new Date();
+                        return (
+                          <div
+                            key={ev.id}
+                            className="group rounded-2xl border border-border bg-card shadow-card hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-300 cursor-pointer overflow-hidden"
+                            onClick={() => navigate(`/event/${ev.id}`)}
+                          >
+                            {ev.image_url && (
+                              <div className="aspect-video overflow-hidden relative">
+                                <img src={ev.image_url} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
+                              </div>
+                            )}
+                            {/* Countdown */}
+                            {isFuture && (
+                              <div className="px-4 pt-4">
+                                <EventCountdown endDate={ev.event_date} />
+                              </div>
+                            )}
+                            <div className="p-4">
+                              <div className="flex items-start gap-3">
+                                <div className="h-12 w-12 rounded-xl bg-primary/10 flex flex-col items-center justify-center shrink-0">
+                                  {evDate ? (
+                                    <>
+                                      <span className="text-[10px] font-bold text-primary uppercase">{evDate.toLocaleDateString(dateFmt, { month: 'short' })}</span>
+                                      <span className="text-sm font-bold leading-none">{evDate.getDate()}</span>
+                                    </>
+                                  ) : (
+                                    <CalendarDays className="h-5 w-5 text-primary" />
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-bold text-sm group-hover:text-primary transition-colors">{ev.title}</h3>
+                                  {evDate && <p className="text-xs text-muted-foreground mt-0.5">{evDate.toLocaleDateString(dateFmt, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>}
+                                  {ev.location && (
+                                    <div className="flex items-center gap-1 mt-1">
+                                      <MapPin className="h-3 w-3 text-primary shrink-0" />
+                                      <span className="text-xs text-primary truncate">{ev.location}</span>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="shrink-0 h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                                  <ExternalLink className="h-3.5 w-3.5 text-primary" />
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </TabsContent>
