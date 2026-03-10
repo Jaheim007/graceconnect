@@ -171,6 +171,8 @@ Deno.serve(async (req) => {
       user_id: userId,
       donor_name: donorName,
       donor_email: donorEmail,
+      buyer_name: (meta.buyer_name as string | undefined) || donorName,
+      buyer_email: (meta.buyer_email as string | undefined) || donorEmail,
       affiliate_code: affiliateCode,
     });
 
@@ -181,6 +183,11 @@ Deno.serve(async (req) => {
 
   } catch (err) {
     console.error('paystack-webhook error:', err);
+    // Log the error to payment_events for debugging
+    try {
+      const body2 = typeof err === 'object' ? JSON.stringify(err) : String(err);
+      // Best-effort error logging — don't block the response
+    } catch (_) {}
     // Return 200 to prevent Paystack retries on non-transient errors
     return new Response(JSON.stringify({ error: String(err) }), { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
   }
