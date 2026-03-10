@@ -340,7 +340,7 @@ export async function onDirectoryDecision(
 // ── Org suspended / unsuspended ──
 export async function onOrgSuspended(orgId: string, orgName: string, reason: string, until?: string) {
   emailOrgAdmins('org_suspended', orgId, { org_name: orgName, reason, until: until || '' });
-  notifyOrgMembers(orgId, '⚠️ Organisation suspendue', `${orgName} a été suspendue. Raison: ${reason}`, 'system', undefined, `/feed`);
+  notifyOrgMembers(orgId, '⚠️ Organisation suspendue', `${orgName} a été suspendue. Raison: ${reason}`, 'system', undefined, `/admin`);
 }
 
 export async function onOrgUnsuspended(orgId: string, orgName: string) {
