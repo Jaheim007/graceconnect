@@ -255,6 +255,7 @@ export function StepSource({
           </>
         )}
       </Button>
+      <InsufficientCreditsDialog open={showCreditDialog} onOpenChange={setShowCreditDialog} message={creditErrorMessage} />
     </div>
   );
 }
