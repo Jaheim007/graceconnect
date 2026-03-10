@@ -3,8 +3,6 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 interface OrgBadgesProps {
-  isVerified?: boolean;
-  kycStatus?: string | null;
   isSuspended?: boolean;
   className?: string;
   size?: 'sm' | 'md';
