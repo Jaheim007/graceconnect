@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 
 function formatCredits(n: number): string {
-  if (n >= 10000) return Math.floor(n).toLocaleString('fr-FR');
+  if (n >= 1000) return Math.floor(n).toLocaleString('fr-FR');
   if (n >= 100) return Math.floor(n).toString();
   if (Number.isInteger(n)) return n.toString();
   return n.toFixed(1);
@@ -29,8 +29,8 @@ export function CreditBalance() {
 
   if (isLoading || !summary) {
     return (
-      <div className="flex items-center gap-1.5 h-8 px-3 rounded-full bg-muted/50 border border-border animate-pulse">
-        <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
+      <div className="flex items-center gap-1 h-7 px-2 rounded-full bg-muted/50 border border-border animate-pulse shrink-0">
+        <Sparkles className="h-3 w-3 text-muted-foreground" />
         <span className="text-xs text-muted-foreground">--</span>
       </div>
     );
@@ -39,11 +39,11 @@ export function CreditBalance() {
   return (
     <button
       onClick={() => navigate('/credits')}
-      className="flex items-center gap-1.5 h-8 px-3 rounded-full border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all group"
-      title={`${summary.balance.toFixed(1)} crédits – Cliquez pour gérer`}
+      className="inline-flex items-center gap-1 h-7 px-2.5 rounded-full border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all shrink-0 whitespace-nowrap"
+      title={`${summary.balance.toFixed(1)} crédits`}
     >
-      <Sparkles className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
-      <span className="text-sm font-bold tabular-nums text-primary">
+      <Sparkles className="h-3 w-3 text-primary shrink-0" />
+      <span className="text-xs font-bold tabular-nums text-primary leading-none">
         {formatCredits(summary.balance)}
       </span>
     </button>

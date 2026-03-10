@@ -52,31 +52,45 @@ export function TopBar() {
   };
 
   return (
-    <header className="h-14 shrink-0 z-40 glass border-b border-border flex items-center px-4 gap-3">
-      <div className="flex lg:hidden items-center mr-1">
+    <header className="h-14 shrink-0 z-40 glass border-b border-border flex items-center px-3 sm:px-4 gap-2">
+      <div className="flex lg:hidden items-center mr-0.5">
         <SiteLogo size="sm" animate />
       </div>
-      <GlobalSearch />
 
-      {/* Cmd+K hint */}
+      {/* Search — hidden on very small screens */}
+      <div className="hidden sm:block">
+        <GlobalSearch />
+      </div>
+
+      {/* Cmd+K hint — desktop only */}
       <button
         onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-        className="hidden md:flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border bg-muted/50 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors text-xs"
+        className="hidden lg:flex items-center gap-1.5 h-7 px-2.5 rounded-md border border-border bg-muted/50 text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors text-xs shrink-0"
       >
         <Search className="h-3 w-3" />
         <span className="text-[11px]">Cmd+K</span>
       </button>
 
-      <div className="flex-1" />
+      <div className="flex-1 min-w-0" />
 
-      {/* Org switcher (mobile) — separated by role */}
+      {/* Mobile search icon */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-8 w-8 sm:hidden shrink-0"
+        onClick={() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
+      >
+        <Search className="h-4 w-4" />
+      </Button>
+
+      {/* Org switcher (mobile) */}
       {user && currentOrg && userOrgs.length > 1 && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-8 text-xs font-semibold gap-1.5 max-w-[140px] lg:hidden border border-border">
-              <Building2 className="h-3.5 w-3.5 shrink-0 text-primary" />
+            <Button variant="ghost" size="sm" className="h-7 text-[11px] font-semibold gap-1 max-w-[100px] lg:hidden border border-border px-2 shrink-0">
+              <Building2 className="h-3 w-3 shrink-0 text-primary" />
               <span className="truncate">{currentOrg.name}</span>
-              <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />
+              <ChevronDown className="h-2.5 w-2.5 shrink-0 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-56">
@@ -119,14 +133,15 @@ export function TopBar() {
         </DropdownMenu>
       )}
 
+      {/* Credits — always visible with enough room */}
       <CreditBalance />
 
-      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
+      <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={toggleTheme}>
         {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
       </Button>
 
       {user && (
-        <Button variant="ghost" size="icon" className="h-8 w-8 relative" data-tour="nav-notifications" onClick={() => navigate('/notifications')}>
+        <Button variant="ghost" size="icon" className="h-8 w-8 relative shrink-0" data-tour="nav-notifications" onClick={() => navigate('/notifications')}>
           <Bell className="h-4 w-4" />
           {unread > 0 && <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-destructive animate-pulse" />}
         </Button>
@@ -135,13 +150,13 @@ export function TopBar() {
       {user ? (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button data-tour="nav-profile" className="flex items-center gap-2 h-9 px-2 rounded-full ring-1 ring-border hover:ring-primary/40 transition-all bg-card/60">
-              <div className="h-7 w-7 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold shrink-0">
+            <button data-tour="nav-profile" className="flex items-center gap-1.5 h-8 px-1.5 rounded-full ring-1 ring-border hover:ring-primary/40 transition-all bg-card/60 shrink-0">
+              <div className="h-6 w-6 rounded-full overflow-hidden flex items-center justify-center text-[10px] font-bold shrink-0">
                 {avatarUrl ? <img src={avatarUrl} alt={initials} className="h-full w-full rounded-full object-cover" /> : (
                   <div className="h-full w-full bg-primary flex items-center justify-center text-primary-foreground">{initials}</div>
                 )}
               </div>
-              <span className="hidden sm:block text-sm font-medium truncate max-w-[120px]">{profile?.display_name || 'User'}</span>
+              <span className="hidden md:block text-xs font-medium truncate max-w-[90px]">{profile?.display_name || 'User'}</span>
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-52">
@@ -168,7 +183,7 @@ export function TopBar() {
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <Button size="sm" className="h-8 text-xs" onClick={() => navigate('/auth')}>{t('topbar.sign_in')}</Button>
+        <Button size="sm" className="h-7 text-xs shrink-0" onClick={() => navigate('/auth')}>{t('topbar.sign_in')}</Button>
       )}
     </header>
   );
