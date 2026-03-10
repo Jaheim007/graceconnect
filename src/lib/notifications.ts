@@ -626,6 +626,7 @@ export async function onNewSale(
     '💰 Nouvelle vente !',
     `${buyerName} a acheté "${productName}" — ${amount} ${currency}`,
     'transaction',
+    undefined, `/admin/products`,
   );
 }
 
