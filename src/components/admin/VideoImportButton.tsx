@@ -142,8 +142,8 @@ export function VideoImportButton() {
 
   return (
     <>
-      <Button variant="outline" size="sm" onClick={() => setOpen(true)} className="gap-2 text-xs h-8 sm:h-9 border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-500/10">
-        <Video className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Importer vidéo
+      <Button variant="outline" size="sm" onClick={() => setOpen(true)} className="gap-2 text-xs h-8 sm:h-9 shrink-0">
+        <Video className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Importer
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>

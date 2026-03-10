@@ -16,7 +16,6 @@ interface Mission {
   id: string;
   label: string;
   description: string;
-  xp: number;
   icon: typeof Target;
   check: () => boolean;
   route?: string;
@@ -101,7 +100,6 @@ export function WeeklyMissions() {
       id: 'publish-content',
       label: 'Publiez un contenu cette semaine',
       description: 'Vidéo, audio ou reel — gardez votre audience engagée.',
-      xp: 15,
       icon: Sparkles,
       check: () => weekMedia > 0,
       route: '/admin/media/new',
@@ -110,15 +108,13 @@ export function WeeklyMissions() {
       id: 'share-whatsapp',
       label: 'Partagez un produit sur WhatsApp',
       description: 'Le partage WhatsApp convertit 4x mieux que les autres canaux.',
-      xp: 10,
       icon: Share2,
-      check: () => false, // Can't verify client-side
+      check: () => false,
     },
     {
       id: 'add-preview',
       label: 'Ajoutez des images de preview',
       description: 'Les produits avec images de preview se vendent 30% mieux.',
-      xp: 10,
       icon: Image,
       check: () => products.some(p => (p as any).preview_images?.length > 0),
       route: '/admin/products',
@@ -127,7 +123,6 @@ export function WeeklyMissions() {
       id: 'get-sale',
       label: 'Obtenez une vente cette semaine',
       description: 'Chaque vente renforce votre crédibilité et votre classement.',
-      xp: 25,
       icon: Tag,
       check: () => weekSales > 0,
     },
@@ -135,7 +130,6 @@ export function WeeklyMissions() {
       id: 'get-member',
       label: 'Gagnez un nouveau membre',
       description: 'Plus de membres = plus de portée pour votre contenu.',
-      xp: 15,
       icon: Users,
       check: () => weekMembers > 0,
     },
@@ -143,7 +137,6 @@ export function WeeklyMissions() {
       id: 'update-description',
       label: 'Améliorez une description produit',
       description: 'Ajoutez des détails, des bénéfices et des emojis pour convertir.',
-      xp: 10,
       icon: MessageSquare,
       check: () => products.some(p => (p.description?.length || 0) > 100),
       route: '/admin/products',
@@ -152,7 +145,6 @@ export function WeeklyMissions() {
       id: 'create-bundle',
       label: 'Créez un bundle ou promotion',
       description: 'Les bundles augmentent le panier moyen de 25%.',
-      xp: 20,
       icon: Gift,
       check: () => products.some(p => (p as any).is_bundle),
       route: '/admin/products/new',
@@ -165,8 +157,7 @@ export function WeeklyMissions() {
   }, [allMissions]);
 
   const completed = weekMissions.filter(m => m.check()).length;
-  const totalXP = weekMissions.reduce((s, m) => s + (m.check() ? m.xp : 0), 0);
-  const maxXP = weekMissions.reduce((s, m) => s + m.xp, 0);
+  const total = weekMissions.length;
 
   // Calculate days left in week
   const daysLeft = 7 - new Date().getDay();
@@ -180,22 +171,22 @@ export function WeeklyMissions() {
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Target className="h-4 w-4 text-primary" />
-          <h3 className="font-semibold text-sm">Missions de la semaine</h3>
+          <h3 className="font-semibold text-sm">Objectifs de la semaine</h3>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground flex items-center gap-1">
             <Clock className="h-3 w-3" /> {daysLeft}j restants
           </span>
-          <span className="text-xs font-bold text-primary">{totalXP}/{maxXP} XP</span>
+          <span className="text-xs font-bold text-primary">{completed}/{total}</span>
         </div>
       </div>
 
-      {/* XP progress bar */}
+      {/* Progress bar */}
       <div className="h-2 rounded-full bg-muted overflow-hidden mb-4">
         <motion.div
           className="h-full rounded-full bg-gradient-to-r from-primary to-primary/60"
           initial={{ width: 0 }}
-          animate={{ width: `${(totalXP / maxXP) * 100}%` }}
+          animate={{ width: `${(completed / total) * 100}%` }}
           transition={{ duration: 0.8 }}
         />
       </div>
@@ -228,24 +219,23 @@ export function WeeklyMissions() {
                   <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{mission.description}</p>
                 )}
               </div>
-              <span className={cn(
-                'text-[10px] font-bold shrink-0 px-1.5 py-0.5 rounded-md',
-                done ? 'bg-primary/15 text-primary' : 'bg-muted text-muted-foreground'
-              )}>
-                +{mission.xp} XP
-              </span>
+              {done ? (
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+              ) : (
+                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              )}
             </div>
           );
         })}
       </div>
 
-      {completed === weekMissions.length && (
+      {completed === total && (
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="mt-3 p-3 rounded-xl bg-gradient-to-r from-primary/10 to-amber-500/10 border border-primary/20 text-center"
         >
-          <p className="text-xs font-bold text-primary">🏆 Toutes les missions accomplies ! Bravo !</p>
+          <p className="text-xs font-bold text-primary">🏆 Tous les objectifs accomplis ! Bravo !</p>
         </motion.div>
       )}
     </motion.div>

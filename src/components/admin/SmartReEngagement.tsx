@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { motion } from 'framer-motion';
-import { UserX, Clock, Send, AlertTriangle, CheckCircle, TrendingDown } from 'lucide-react';
+import { UserX, Clock, Send, AlertTriangle, TrendingDown, Mail, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -15,6 +15,7 @@ interface AtRiskUser {
   userId: string;
   name: string;
   email: string | null;
+  phone: string | null;
   lastActivity: string;
   daysSince: number;
   totalSpent: number;
@@ -33,7 +34,6 @@ export function SmartReEngagement() {
     queryFn: async () => {
       if (!currentOrg?.id) return null;
 
-      // Get all members
       const { data: members } = await db.from('organization_members')
         .select('user_id, joined_at')
         .eq('organization_id', currentOrg.id);
@@ -41,14 +41,12 @@ export function SmartReEngagement() {
 
       const userIds = members.map((m: any) => m.user_id);
 
-      // Get profiles
       const { data: profiles } = await db.from('profiles')
         .select('id, display_name, email, phone')
         .in('id', userIds);
       const profileMap: Record<string, any> = {};
       (profiles || []).forEach((p: any) => { profileMap[p.id] = p; });
 
-      // Get last purchase/donation for each user
       const { data: purchases } = await db.from('product_purchases')
         .select('user_id, created_at, amount')
         .eq('organization_id', currentOrg.id)
@@ -61,7 +59,6 @@ export function SmartReEngagement() {
         .eq('status', 'completed')
         .in('user_id', userIds);
 
-      // Build user activity map
       const activityMap: Record<string, { lastDate: string; totalSpent: number }> = {};
       for (const tx of [...(purchases || []), ...(donations || [])]) {
         if (!tx.user_id) continue;
@@ -74,7 +71,6 @@ export function SmartReEngagement() {
         activityMap[tx.user_id].totalSpent += tx.amount || 0;
       }
 
-      // Classify at-risk users
       const now = new Date();
       const atRisk: AtRiskUser[] = [];
 
@@ -84,7 +80,6 @@ export function SmartReEngagement() {
         const daysSince = differenceInDays(now, new Date(lastDate));
         const profile = profileMap[member.user_id];
 
-        // Only show users inactive for 7+ days
         if (daysSince < 7) continue;
 
         let segment: AtRiskUser['segment'] = 'warm';
@@ -92,10 +87,17 @@ export function SmartReEngagement() {
         else if (daysSince >= 30) segment = 'cold';
         else if (daysSince >= 14) segment = 'cooling';
 
+        // Use email as primary identifier, fallback to name
+        const displayName = profile?.display_name || null;
+        const email = profile?.email || null;
+        const phone = profile?.phone || null;
+        const label = displayName || email || phone || (isFr ? 'Membre' : 'Member');
+
         atRisk.push({
           userId: member.user_id,
-          name: profile?.display_name || (isFr ? 'Utilisateur' : 'User'),
-          email: profile?.email || null,
+          name: label,
+          email,
+          phone,
           lastActivity: lastDate,
           daysSince,
           totalSpent: activity?.totalSpent || 0,
@@ -103,7 +105,6 @@ export function SmartReEngagement() {
         });
       }
 
-      // Sort by value (highest spenders first within each segment)
       atRisk.sort((a, b) => {
         const segOrder = { warm: 0, cooling: 1, cold: 2, lost: 3 };
         if (segOrder[a.segment] !== segOrder[b.segment]) return segOrder[a.segment] - segOrder[b.segment];
@@ -187,13 +188,33 @@ export function SmartReEngagement() {
       <div className="space-y-2">
         {data.atRisk.map((user) => {
           const cfg = segmentConfig[user.segment];
+          // Determine initials from email or name
+          const initials = user.email
+            ? user.email[0].toUpperCase()
+            : user.name[0]?.toUpperCase() || '?';
+
           return (
             <div key={user.userId} className="flex items-center gap-3 p-2.5 rounded-xl border border-border hover:bg-muted/30 transition-colors">
               <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center shrink-0">
-                <span className="text-[10px] font-bold">{user.name[0]}</span>
+                <span className="text-[10px] font-bold">{initials}</span>
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-xs font-medium truncate">{user.name}</p>
+                {/* Show email or phone as primary identifier */}
+                <div className="flex items-center gap-1.5">
+                  {user.email ? (
+                    <p className="text-xs font-medium truncate flex items-center gap-1">
+                      <Mail className="h-3 w-3 text-muted-foreground shrink-0" />
+                      {user.email}
+                    </p>
+                  ) : user.phone ? (
+                    <p className="text-xs font-medium truncate flex items-center gap-1">
+                      <Phone className="h-3 w-3 text-muted-foreground shrink-0" />
+                      {user.phone}
+                    </p>
+                  ) : (
+                    <p className="text-xs font-medium truncate">{user.name}</p>
+                  )}
+                </div>
                 <p className="text-[10px] text-muted-foreground">
                   {user.daysSince}j {isFr ? 'd\'inactivité' : 'inactive'}
                   {user.totalSpent > 0 && ` · ${user.totalSpent.toLocaleString()} ${currentOrg?.currency || 'XOF'} ${isFr ? 'dépensé' : 'spent'}`}
