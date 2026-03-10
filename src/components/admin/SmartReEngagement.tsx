@@ -3,7 +3,7 @@ import { db } from '@/lib/db';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { motion } from 'framer-motion';
-import { UserX, Clock, Send, AlertTriangle, TrendingDown, Mail, Phone } from 'lucide-react';
+import { UserX, Clock, Send, AlertTriangle, TrendingDown, Mail, Phone, MessageCircle, Copy, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -28,6 +28,7 @@ export function SmartReEngagement() {
   const isFr = locale === 'fr';
   const { toast } = useToast();
   const [sending, setSending] = useState<string | null>(null);
+  const [copied, setCopied] = useState<string | null>(null);
 
   const { data } = useQuery({
     queryKey: ['admin-re-engagement', currentOrg?.id],
@@ -87,11 +88,14 @@ export function SmartReEngagement() {
         else if (daysSince >= 30) segment = 'cold';
         else if (daysSince >= 14) segment = 'cooling';
 
-        // Use email as primary identifier, fallback to name
         const displayName = profile?.display_name || null;
         const email = profile?.email || null;
         const phone = profile?.phone || null;
-        const label = displayName || email || phone || (isFr ? 'Membre' : 'Member');
+
+        // Skip users with no contact info — can't re-engage them
+        if (!email && !phone && !displayName) continue;
+
+        const label = displayName || email || phone || '';
 
         atRisk.push({
           userId: member.user_id,
@@ -147,6 +151,25 @@ export function SmartReEngagement() {
     }
   };
 
+  const handleWhatsApp = (user: AtRiskUser) => {
+    const phone = user.phone?.replace(/\s/g, '');
+    if (!phone) return;
+    const msg = encodeURIComponent(
+      isFr
+        ? `Bonjour ${user.name !== user.phone ? user.name : ''} ! Vous nous manquez chez ${currentOrg?.name}. Venez découvrir nos nouveautés 👉 ${window.location.origin}/org/${currentOrg?.slug}`
+        : `Hi ${user.name !== user.phone ? user.name : ''}! We miss you at ${currentOrg?.name}. Check out what's new 👉 ${window.location.origin}/org/${currentOrg?.slug}`
+    );
+    window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+  };
+
+  const handleCopyContact = (user: AtRiskUser) => {
+    const contact = user.email || user.phone || '';
+    navigator.clipboard.writeText(contact);
+    setCopied(user.userId);
+    setTimeout(() => setCopied(null), 2000);
+    toast({ title: isFr ? 'Contact copié' : 'Contact copied' });
+  };
+
   if (!data || data.total === 0) return null;
 
   const segmentConfig = {
@@ -188,25 +211,27 @@ export function SmartReEngagement() {
       <div className="space-y-2">
         {data.atRisk.map((user) => {
           const cfg = segmentConfig[user.segment];
-          // Determine initials from email or name
+          const hasEmail = !!user.email;
+          const hasPhone = !!user.phone;
           const initials = user.email
             ? user.email[0].toUpperCase()
             : user.name[0]?.toUpperCase() || '?';
 
           return (
-            <div key={user.userId} className="flex items-center gap-3 p-2.5 rounded-xl border border-border hover:bg-muted/30 transition-colors">
-              <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center shrink-0">
-                <span className="text-[10px] font-bold">{initials}</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                {/* Show email or phone as primary identifier */}
-                <div className="flex items-center gap-1.5">
-                  {user.email ? (
+            <div key={user.userId} className="flex flex-col gap-2 p-3 rounded-xl border border-border hover:bg-muted/30 transition-colors">
+              {/* Top row: avatar + info + segment badge */}
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+                  <span className="text-[11px] font-bold">{initials}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  {/* Primary identifier */}
+                  {hasEmail ? (
                     <p className="text-xs font-medium truncate flex items-center gap-1">
                       <Mail className="h-3 w-3 text-muted-foreground shrink-0" />
                       {user.email}
                     </p>
-                  ) : user.phone ? (
+                  ) : hasPhone ? (
                     <p className="text-xs font-medium truncate flex items-center gap-1">
                       <Phone className="h-3 w-3 text-muted-foreground shrink-0" />
                       {user.phone}
@@ -214,27 +239,58 @@ export function SmartReEngagement() {
                   ) : (
                     <p className="text-xs font-medium truncate">{user.name}</p>
                   )}
+                  {/* Secondary info */}
+                  <p className="text-[10px] text-muted-foreground mt-0.5">
+                    {user.daysSince}j {isFr ? 'd\'inactivité' : 'inactive'}
+                    {user.totalSpent > 0 && ` · ${user.totalSpent.toLocaleString()} ${currentOrg?.currency || 'XOF'} ${isFr ? 'dépensé' : 'spent'}`}
+                    {/* Show secondary contact if available */}
+                    {hasEmail && hasPhone && (
+                      <span className="ml-1">· <Phone className="h-2.5 w-2.5 inline" /> {user.phone}</span>
+                    )}
+                  </p>
                 </div>
-                <p className="text-[10px] text-muted-foreground">
-                  {user.daysSince}j {isFr ? 'd\'inactivité' : 'inactive'}
-                  {user.totalSpent > 0 && ` · ${user.totalSpent.toLocaleString()} ${currentOrg?.currency || 'XOF'} ${isFr ? 'dépensé' : 'spent'}`}
-                </p>
+                <Badge variant="outline" className={`text-[9px] border ${cfg.color} shrink-0`}>
+                  {cfg.icon}
+                </Badge>
               </div>
-              <Badge variant="outline" className={`text-[9px] border ${cfg.color} shrink-0`}>
-                {cfg.icon}
-              </Badge>
-              {user.email && (
+
+              {/* Action buttons row */}
+              <div className="flex items-center gap-1.5 pl-11">
+                {hasEmail && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 px-2.5 text-[10px] gap-1"
+                    disabled={sending === user.userId}
+                    onClick={() => handleSendNudge(user)}
+                  >
+                    <Send className="h-3 w-3" />
+                    {sending === user.userId
+                      ? (isFr ? 'Envoi...' : 'Sending...')
+                      : (isFr ? 'Relancer par email' : 'Email nudge')}
+                  </Button>
+                )}
+                {hasPhone && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 px-2.5 text-[10px] gap-1 text-green-600 border-green-500/30 hover:bg-green-500/10"
+                    onClick={() => handleWhatsApp(user)}
+                  >
+                    <MessageCircle className="h-3 w-3" />
+                    WhatsApp
+                  </Button>
+                )}
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="h-7 px-2 text-[10px] gap-1 shrink-0"
-                  disabled={sending === user.userId}
-                  onClick={() => handleSendNudge(user)}
+                  className="h-7 px-2 text-[10px] gap-1 text-muted-foreground"
+                  onClick={() => handleCopyContact(user)}
                 >
-                  <Send className="h-3 w-3" />
-                  {isFr ? 'Relancer' : 'Nudge'}
+                  {copied === user.userId ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                  {copied === user.userId ? (isFr ? 'Copié' : 'Copied') : (isFr ? 'Copier' : 'Copy')}
                 </Button>
-              )}
+              </div>
             </div>
           );
         })}
