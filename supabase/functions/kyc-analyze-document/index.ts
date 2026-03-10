@@ -30,8 +30,8 @@ serve(async (req) => {
     const { submission_id, doc_front_url, doc_back_url, selfie_url, selfie_with_doc_url, doc_type } = await req.json();
     if (!submission_id && !doc_front_url) throw new Error("Missing required fields");
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY not configured");
 
     // Helper to get signed URL for private bucket images
     async function getAccessibleUrl(url: string): Promise<string> {
