@@ -16,6 +16,7 @@ import {
 
 // ── Types ──
 type VerificationMode = 'org' | 'partner';
+type VerificationType = 'individual' | 'organization';
 
 interface Props {
   mode: VerificationMode;
