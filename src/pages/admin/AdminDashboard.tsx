@@ -20,7 +20,6 @@ import { motion } from 'framer-motion';
 import { CreatorHeroBanner } from '@/components/admin/CreatorHeroBanner';
 import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist';
 import { SmartNextAction } from '@/components/admin/SmartNextAction';
-import { ExpressSetupButton } from '@/components/admin/ExpressSetupButton';
 import { VideoImportButton } from '@/components/admin/VideoImportButton';
 import { QuickStartWizard } from '@/components/onboarding/QuickStartWizard';
 
