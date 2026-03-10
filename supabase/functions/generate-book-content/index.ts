@@ -523,22 +523,18 @@ function normalizeGeneratedChapters(parsed: any): { id: string; title: string; c
 }
 
 async function repairJsonWithAi(apiKey: string, rawContent: string, chapterCount: number): Promise<any | null> {
-  const repairRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+  const repairRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'google/gemini-2.5-flash',
-      max_tokens: 7000,
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: `You repair malformed JSON only. Return ONLY valid JSON with this shape: {"chapters":[{"id":"ch-1","title":"...","content":"<p>...</p>"}]}. Keep HTML in content. Do not summarize.` },
-        { role: 'user', content: `Repair this malformed payload into valid JSON. Keep as much original content as possible. Expected chapter count around ${chapterCount}.\n\n${rawContent.slice(0, 80000)}` },
-      ],
+      system_instruction: { parts: [{ text: 'You repair malformed JSON only. Return ONLY valid JSON with this shape: {"chapters":[{"id":"ch-1","title":"...","content":"<p>...</p>"}]}. Keep HTML in content. Do not summarize.' }] },
+      contents: [{ role: 'user', parts: [{ text: `Repair this malformed payload into valid JSON. Expected ${chapterCount} chapters.\n\n${rawContent.slice(0, 80000)}` }] }],
+      generationConfig: { maxOutputTokens: 7000, responseMimeType: 'application/json' },
     }),
   });
   if (!repairRes.ok) return null;
   const repairData = await repairRes.json().catch(() => null);
-  const repairedRaw = repairData?.choices?.[0]?.message?.content || '';
+  const repairedRaw = repairData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
   return tryParsePayload(repairedRaw);
 }
 
@@ -875,18 +871,26 @@ function getTitleGuidance(lang: string, style: string, profile: EditorialProfile
   return 'Clear, precise, result-oriented titles.';
 }
 
+import { requireAuth, corsHeaders as sharedCors, jsonResp as jResp, adminClient } from '../_shared/auth.ts';
+import { consumeCreditsOrThrow, normalizeTier } from '../_shared/credits.ts';
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    if (!GEMINI_API_KEY) {
       return new Response(JSON.stringify({ error: 'AI not configured' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const { title, subtitle, authorName, topic, style, pageCount, chapterCount: requestedChapterCount, keywords, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle, styleReference, editorialStrategy, religiousTradition, prayerFormat } = await req.json();
+    // Auth + credit debit
+    const auth = await requireAuth(req);
+    if (auth instanceof Response) return auth;
+    const admin = adminClient(auth.supabaseUrl, auth.serviceKey);
+
+    const { title, subtitle, authorName, topic, style, pageCount, chapterCount: requestedChapterCount, keywords, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle, styleReference, editorialStrategy, religiousTradition, prayerFormat, tier } = await req.json();
 
     if (!title && !topic) {
       return new Response(JSON.stringify({ error: 'title or topic required' }), {
@@ -1145,24 +1149,24 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
     const timeoutId = setTimeout(() => controller.abort(), requestTimeoutMs);
     const maxTokens = singleChapter ? 3200 : 16000;
 
+    // Credit debit
+    const creditActionKey = singleChapter ? 'generate_chapter' : 'generate_book';
+    await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: creditActionKey, tier: normalizeTier(tier) });
+
     let aiRes: Response | null = null;
     try {
       for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-        aiRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        aiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
           method: 'POST',
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash',
-            max_tokens: maxTokens,
-            temperature,
-            response_format: { type: 'json_object' },
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: userPrompt },
-            ],
+            system_instruction: { parts: [{ text: systemPrompt }] },
+            contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+            generationConfig: {
+              temperature,
+              maxOutputTokens: maxTokens,
+              responseMimeType: 'application/json',
+            },
           }),
           signal: controller.signal,
         });
@@ -1201,25 +1205,20 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
           status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
-      if (aiRes.status === 402) {
-        return new Response(JSON.stringify({ error: 'AI credits exhausted. Please add credits.' }), {
-          status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
       const errText = await aiRes.text();
-      console.error('AI gateway error:', aiRes.status, errText);
+      console.error('Gemini error:', aiRes.status, errText);
       return new Response(JSON.stringify({ error: `AI error (${aiRes.status})` }), {
         status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
     const aiData = await aiRes.json();
-    const rawContent = aiData.choices?.[0]?.message?.content || '';
+    const rawContent = aiData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
     let parsed = tryParsePayload(rawContent);
     if (!parsed) {
       console.error('Direct parse failed, attempting AI JSON repair. Payload preview:', rawContent.slice(0, 500));
-      parsed = await repairJsonWithAi(LOVABLE_API_KEY, rawContent, chapterCount);
+      parsed = await repairJsonWithAi(GEMINI_API_KEY, rawContent, chapterCount);
     }
 
     if (!parsed) {

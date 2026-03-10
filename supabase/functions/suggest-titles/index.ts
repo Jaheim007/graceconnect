@@ -1,108 +1,49 @@
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
-};
+import { requireAuth, corsHeaders, jsonResp, adminClient } from '../_shared/auth.ts';
+import { consumeCreditsOrThrow, normalizeTier } from '../_shared/credits.ts';
+import { geminiGenerateText, extractJson } from '../_shared/ai-gemini.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      return new Response(JSON.stringify({ error: 'AI not configured' }), {
-        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    const auth = await requireAuth(req);
+    if (auth instanceof Response) return auth;
 
-    const { topic, style, audience, language } = await req.json();
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    if (!GEMINI_API_KEY) return jsonResp({ error: 'AI not configured' }, 500);
 
-    if (!topic) {
-      return new Response(JSON.stringify({ error: 'topic required' }), {
-        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
-    }
+    const { topic, style, audience, language, tier } = await req.json();
+    if (!topic) return jsonResp({ error: 'topic required' }, 400);
 
-    const lang = language === 'en' ? 'en' : language === 'es' ? 'es' : language === 'pt' ? 'pt' : language === 'de' ? 'de' : language === 'sw' ? 'sw' : 'fr';
+    const admin = adminClient(auth.supabaseUrl, auth.serviceKey);
+
+    // Debit credits
+    await consumeCreditsOrThrow({
+      admin, userId: auth.userId, actionKey: 'suggest_titles', tier: normalizeTier(tier),
+    });
+
+    const lang = ['en', 'es', 'pt', 'de', 'sw'].includes(language) ? language : 'fr';
 
     const prompt = lang === 'fr'
-      ? `Tu es un éditeur expert en titres de bestsellers. Propose exactement 3 titres percutants, créatifs et vendeurs pour un livre sur ce sujet :
+      ? `Propose exactement 3 titres percutants, créatifs et vendeurs pour un livre.\n\nSujet : "${topic}"\nStyle : ${style || 'ebook'}\nPublic : ${audience || 'général'}\n\nRègles :\n- Titres courts (3-8 mots max)\n- Percutants, mémorables\n- Variés : un provocateur, un promesse claire, un intrigant\n- En français\n\nRetourne UNIQUEMENT : {"titles": ["Titre 1", "Titre 2", "Titre 3"]}`
+      : `Suggest exactly 3 punchy, creative, marketable titles for a book.\n\nTopic: "${topic}"\nStyle: ${style || 'ebook'}\nAudience: ${audience || 'general'}\n\nRules:\n- Short (3-8 words)\n- Varied: one provocative, one clear promise, one intriguing\n- In ${lang}\n\nReturn ONLY: {"titles": ["Title 1", "Title 2", "Title 3"]}`;
 
-Sujet : "${topic}"
-Style : ${style || 'ebook'}
-Public : ${audience || 'général'}
-
-Règles :
-- Titres courts (3-8 mots max)
-- Percutants, mémorables, qui donnent envie de lire
-- Variés : un provocateur, un promesse claire, un intrigant
-- En français
-
-Retourne UNIQUEMENT un JSON : {"titles": ["Titre 1", "Titre 2", "Titre 3"]}`
-      : `You are an expert bestseller title editor. Suggest exactly 3 punchy, creative, marketable titles for a book on this topic:
-
-Topic: "${topic}"
-Style: ${style || 'ebook'}
-Audience: ${audience || 'general'}
-
-Rules:
-- Short titles (3-8 words max)
-- Punchy, memorable, makes you want to read
-- Varied: one provocative, one clear promise, one intriguing
-- In ${lang}
-
-Return ONLY JSON: {"titles": ["Title 1", "Title 2", "Title 3"]}`;
-
-    const aiRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash-lite',
-        messages: [
-          { role: 'system', content: 'Return ONLY valid JSON. No markdown, no code fences.' },
-          { role: 'user', content: prompt },
-        ],
-      }),
+    const raw = await geminiGenerateText({
+      apiKey: GEMINI_API_KEY,
+      model: 'gemini-2.5-flash-lite',
+      system: 'Return ONLY valid JSON. No markdown, no code fences.',
+      prompt,
     });
 
-    if (!aiRes.ok) {
-      if (aiRes.status === 429) {
-        return new Response(JSON.stringify({ error: 'Rate limit. Please retry.' }), {
-          status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-      return new Response(JSON.stringify({ error: `AI error (${aiRes.status})` }), {
-        status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+    const parsed = extractJson(raw);
+    if (parsed?.titles && Array.isArray(parsed.titles)) {
+      return jsonResp({ titles: parsed.titles.slice(0, 3) });
     }
 
-    const aiData = await aiRes.json();
-    const raw = aiData.choices?.[0]?.message?.content || '';
-
-    // Parse JSON
-    let cleaned = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-    const start = cleaned.indexOf('{');
-    const end = cleaned.lastIndexOf('}');
-    if (start >= 0 && end > start) cleaned = cleaned.slice(start, end + 1);
-
-    try {
-      const parsed = JSON.parse(cleaned);
-      if (Array.isArray(parsed?.titles)) {
-        return new Response(JSON.stringify({ titles: parsed.titles.slice(0, 3) }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-      }
-    } catch {}
-
-    return new Response(JSON.stringify({ error: 'Failed to parse titles' }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  } catch (e) {
+    return jsonResp({ error: 'Failed to parse titles' }, 500);
+  } catch (e: any) {
+    if (e?.status === 402) return jsonResp({ error: e.message }, 402);
     console.error('suggest-titles error:', e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : 'Internal error' }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return jsonResp({ error: e instanceof Error ? e.message : 'Internal error' }, 500);
   }
 });

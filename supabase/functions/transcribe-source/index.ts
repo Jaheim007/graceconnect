@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { encode as base64Encode } from 'https://deno.land/std@0.168.0/encoding/base64.ts';
+import { consumeCreditsOrThrow } from '../_shared/credits.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -42,6 +43,18 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Not authenticated' }), {
         status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
+    }
+
+    // Debit credits for transcription
+    try {
+      await consumeCreditsOrThrow({ admin: db, userId, actionKey: 'transcribe_source', tier: 'standard' });
+    } catch (e: any) {
+      if (e?.status === 402) {
+        return new Response(JSON.stringify({ error: e.message }), {
+          status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      throw e;
     }
 
     let transcribedText = '';
