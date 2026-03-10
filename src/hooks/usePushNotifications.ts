@@ -51,7 +51,14 @@ export function usePushNotifications() {
       // Request permission
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') {
-        toast({ title: 'Permission refusée', description: 'Autorisez les notifications dans les paramètres de votre navigateur.', variant: 'destructive' });
+        // Show browser/device-specific instructions
+        const instructions = getNotificationInstructions();
+        toast({
+          title: instructions.title,
+          description: instructions.description,
+          variant: 'destructive',
+          duration: 12000,
+        });
         setLoading(false);
         return;
       }
