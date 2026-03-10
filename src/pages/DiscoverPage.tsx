@@ -157,6 +157,7 @@ export default function DiscoverPage() {
         _type: 'campaign' as const,
         organization_name: c.organizations?.name,
         organization_slug: c.organizations?.slug,
+        is_org_verified: c.organizations?.is_verified,
       }));
     },
     enabled: showCampaigns,
