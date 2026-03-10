@@ -443,7 +443,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     value={docFrontUrl}
                     onChange={setDocFrontUrl}
                     folder={`${folder}/doc-front`}
-                    bucket="org-uploads"
+                    bucket="kyc-documents"
                     label={selectedDoc.hasBack ? 'Face avant du document' : selectedDoc.label}
                     hint="Prenez une photo claire du document entier"
                   />
