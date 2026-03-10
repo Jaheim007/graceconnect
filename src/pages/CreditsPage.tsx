@@ -253,47 +253,9 @@ export default function CreditsPage() {
         <TabsContent value="overview" className="space-y-4 mt-4">
           <p className="text-sm text-muted-foreground">
             Chaque action IA consomme un nombre de crédits dépendant de sa complexité. 
-            Le mode <strong>Standard</strong> utilise Gemini (rapide et économique), 
-            le mode <Star className="h-3 w-3 inline text-purple-500 mx-0.5" /><strong>Premium</strong> utilise OpenAI (meilleure qualité).
+            Le mode <strong>Standard</strong> est rapide et économique, 
+            le mode <Star className="h-3 w-3 inline text-purple-500 mx-0.5" /><strong>Premium</strong> offre une qualité supérieure pour les contenus exigeants.
           </p>
-
-          {Object.entries(pricingByCategory).map(([cat, actions]) => {
-            const catInfo = categoryLabels[cat];
-            const CatIcon = categoryIcons[cat] || Coins;
-            return (
-              <Card key={cat}>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <CatIcon className="h-4 w-4 text-primary" />
-                    {catInfo?.label || cat}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="divide-y divide-border">
-                    <div className="flex items-center justify-between px-4 py-1.5 text-[10px] text-muted-foreground font-medium uppercase tracking-wider bg-muted/30">
-                      <span>Action</span>
-                      <div className="flex items-center gap-6">
-                        <span>Standard</span>
-                        <span className="flex items-center gap-0.5"><Star className="h-2.5 w-2.5" /> Premium</span>
-                      </div>
-                    </div>
-                    {actions!.map(a => (
-                      <div key={a.action_key} className="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-muted/20 transition-colors">
-                        <div className="min-w-0 mr-4">
-                          <span className="font-medium">{a.action_label}</span>
-                          {a.description && <p className="text-xs text-muted-foreground mt-0.5 truncate">{a.description}</p>}
-                        </div>
-                        <div className="flex items-center gap-6 text-xs shrink-0">
-                          <span className="font-mono font-semibold w-8 text-right">{a.cost_standard}</span>
-                          <span className="font-mono text-purple-500 font-semibold w-8 text-right">{a.cost_premium}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
 
           {/* What can you do with daily credits */}
           <Card className="bg-muted/30">
@@ -496,9 +458,9 @@ export default function CreditsPage() {
             <AccordionItem value="q4">
               <AccordionTrigger className="text-sm">Quelle est la différence Standard / Premium ?</AccordionTrigger>
               <AccordionContent className="text-sm text-muted-foreground">
-                Le mode <strong>Standard</strong> utilise Google Gemini : rapide et économique, parfait pour la plupart des usages. 
-                Le mode <strong>Premium</strong> utilise OpenAI : résultats de meilleure qualité, idéal pour les contenus exigeants. 
-                Le mode Premium coûte environ 50-80% de crédits en plus.
+                Le mode <strong>Standard</strong> est rapide et économique, parfait pour la plupart des usages. 
+                Le mode <strong>Premium</strong> offre des résultats de meilleure qualité, idéal pour les contenus exigeants. 
+                Le mode Premium consomme environ 50-80% de crédits en plus.
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q5">

@@ -324,7 +324,7 @@ function SourceInput({ state, update, t, transcribing }: {
                 const file = e.target.files?.[0];
                 if (file) {
                   if (file.size > 18 * 1024 * 1024) {
-                    // We can't inline > 18MB to Gemini
+                    // File size limit for AI processing
                     alert(t('write.file_too_large') || 'File too large (max 18 MB)');
                     return;
                   }
