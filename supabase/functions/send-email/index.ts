@@ -160,13 +160,13 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
     case 'first_sale_milestone':
       return { subject: `🎉 Première vente ! – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">🎉 Première Vente !</h1><p>Félicitations ! <strong>${d.org_name}</strong> a réalisé sa première vente : <strong>${d.product_name}</strong> pour <strong>${d.amount} ${d.currency}</strong>.</p><p>Continuez comme ça ! 🚀</p>`) };
 
-    // ═══ KYC ═══
+    // ═══ VÉRIFICATION D'IDENTITÉ ═══
     case 'kyc_submitted':
-      return { subject: `KYC soumis – ${d.org_name}`, html: wrap(`<h1 style="color:${info}">📄 KYC Soumis</h1><p>Vos documents KYC pour <strong>${d.org_name}</strong> ont été soumis avec succès.</p><p>Nous les examinerons sous 2 à 3 jours ouvrés.</p>`) };
+      return { subject: `Vérification soumise – ${d.org_name}`, html: wrap(`<h1 style="color:${info}">📄 Vérification Soumise</h1><p>Vos documents de vérification d'identité pour <strong>${d.org_name}</strong> ont été soumis avec succès.</p><p>Nous les examinerons sous 2 à 3 jours ouvrés.</p>`) };
     case 'kyc_approved':
-      return { subject: `KYC approuvé – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">✅ KYC Approuvé</h1><p>Votre vérification KYC pour <strong>${d.org_name}</strong> a été approuvée.</p><p>Vous pouvez maintenant activer les fonctions de monétisation.</p>`) };
+      return { subject: `Identité vérifiée – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">✅ Identité Vérifiée</h1><p>Votre vérification d'identité pour <strong>${d.org_name}</strong> a été approuvée.</p><p>Vous pouvez maintenant activer les fonctions de monétisation.</p>`) };
     case 'kyc_rejected':
-      return { subject: `KYC – Action requise – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ KYC Non Approuvé</h1><p>Votre soumission KYC pour <strong>${d.org_name}</strong> n'a pas été approuvée.</p><p>Raison : ${d.reason || 'Veuillez contacter le support.'}</p>`) };
+      return { subject: `Vérification – Action requise – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ Vérification Non Approuvée</h1><p>Votre vérification d'identité pour <strong>${d.org_name}</strong> n'a pas été approuvée.</p><p>Raison : ${d.reason || 'Veuillez contacter le support.'}</p>`) };
 
     // ═══ ORG LIFECYCLE ═══
     case 'org_created':
