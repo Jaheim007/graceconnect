@@ -132,9 +132,9 @@ export default function SuperadminAIHistory() {
                   {fraud?.tampering_detected && <span className="px-2 py-0.5 rounded bg-destructive/10 text-destructive">🔧 Falsification</span>}
                 </div>
 
-                {a.ai_recommendations?.length > 0 && (
+                {a.ai_recommendations && (
                   <div className="text-[10px] text-muted-foreground">
-                    {a.ai_recommendations.map((r: string, i: number) => (
+                    {(Array.isArray(a.ai_recommendations) ? a.ai_recommendations : [a.ai_recommendations]).map((r: string, i: number) => (
                       <span key={i} className="inline-block mr-2">→ {r}</span>
                     ))}
                   </div>
