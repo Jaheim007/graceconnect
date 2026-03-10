@@ -5778,21 +5778,6 @@ export type Database = {
               _bank_account_name?: string
               _bank_account_number?: string
               _bank_name?: string
-              _id_document_type?: string
-              _id_document_url?: string
-              _kyc_level: number
-              _org_document_type?: string
-              _org_document_url?: string
-              _org_id: string
-              _selfie_url?: string
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              _bank_account_name?: string
-              _bank_account_number?: string
-              _bank_name?: string
               _id_document_back_url?: string
               _id_document_type?: string
               _id_document_url?: string
@@ -5806,6 +5791,21 @@ export type Database = {
               _selfie_url?: string
               _selfie_with_doc_url?: string
               _verification_type?: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              _bank_account_name?: string
+              _bank_account_number?: string
+              _bank_name?: string
+              _id_document_type?: string
+              _id_document_url?: string
+              _kyc_level: number
+              _org_document_type?: string
+              _org_document_url?: string
+              _org_id: string
+              _selfie_url?: string
             }
             Returns: Json
           }
