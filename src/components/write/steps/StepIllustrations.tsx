@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useCreditGuard } from '@/hooks/useCreditGuard';
+import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 import type { WriteState } from '../WriteWizard';
 
 interface Props {
