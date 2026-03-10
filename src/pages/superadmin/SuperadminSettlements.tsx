@@ -29,6 +29,8 @@ export default function SuperadminSettlements() {
   const [releasing, setReleasing] = useState(false);
   const [migrating, setMigrating] = useState(false);
   const [migrateLog, setMigrateLog] = useState<any>(null);
+  const [reconciling, setReconciling] = useState(false);
+  const [reconcileLog, setReconcileLog] = useState<any>(null);
 
   // Settlement overview: held vs released transactions
   const { data: settlementStats, isLoading } = useQuery({
