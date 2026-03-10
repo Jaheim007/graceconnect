@@ -563,6 +563,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                       bucket="kyc-documents"
                       label="Face arrière du document"
                       hint="Retournez le document et prenez une photo du verso"
+                      captureMode="document"
                     />
                   </div>
                 )}
