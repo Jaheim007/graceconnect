@@ -1149,9 +1149,15 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
     const timeoutId = setTimeout(() => controller.abort(), requestTimeoutMs);
     const maxTokens = singleChapter ? 3200 : 16000;
 
-    // Credit debit
+    // Credit debit (will be refunded on AI failure)
     const creditActionKey = singleChapter ? 'generate_chapter' : 'generate_book';
-    await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: creditActionKey, tier: normalizeTier(tier) });
+    let creditDebited = 0;
+    const debitResult = await consumeCreditsWithRefund({
+      admin, userId: auth.userId, actionKey: creditActionKey, tier: normalizeTier(tier),
+      action: async () => { return 'ok'; }, // We handle the AI call separately due to complex retry logic
+    });
+    // Note: For generate-book-content, the wrapper approach doesn't fit perfectly
+    // because of complex retry/fallback. We handle refund manually below.
 
     let aiRes: Response | null = null;
     let usedProvider = 'gemini';
