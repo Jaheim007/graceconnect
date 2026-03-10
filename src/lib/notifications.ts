@@ -786,7 +786,7 @@ export async function onRefundCompleted(
 // ═══════════════════════════════════════════════════════════
 
 export async function onPayoutRequested(orgId: string, orgName: string, amount: number, currency: string) {
-  emailOrgAdmins('payout_requested', orgId, { org_name: orgName, amount, currency });
+  emailOrgOwnerOnly('payout_requested', orgId, { org_name: orgName, amount, currency });
   notifyOrgOwnerOnly(orgId, '💸 Retrait demandé', `Un retrait de ${amount} ${currency} a été demandé pour ${orgName}.`, 'transaction');
 }
 
