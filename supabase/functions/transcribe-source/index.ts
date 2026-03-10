@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { encode as base64Encode } from 'https://deno.land/std@0.168.0/encoding/base64.ts';
-import { consumeCreditsOrThrow } from '../_shared/credits.ts';
+import { consumeCreditsOrThrow, refundCreditsAsBonus } from '../_shared/credits.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -45,9 +45,11 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Debit credits for transcription
+    // Debit credits for transcription (will be refunded if transcription fails)
+    let creditDebited = 0;
     try {
-      await consumeCreditsOrThrow({ admin: db, userId, actionKey: 'transcribe_media', tier: 'standard' });
+      const debitResult = await consumeCreditsOrThrow({ admin: db, userId, actionKey: 'transcribe_media', tier: 'standard' });
+      if (!('skipped' in debitResult)) creditDebited = debitResult.debited;
     } catch (e: any) {
       if (e?.status === 402) {
         return new Response(JSON.stringify({ error: e.message }), {
@@ -142,7 +144,10 @@ Rules:
 
         // ===== METHOD 4: Final failure =====
         if (!transcribedText || transcribedText.length < 50) {
-          console.log('[transcribe-source] All YouTube transcription methods failed');
+          console.log('[transcribe-source] All YouTube transcription methods failed — refunding credits');
+          if (creditDebited > 0) {
+            try { await refundCreditsAsBonus({ admin: db, userId, amount: creditDebited, source: 'transcribe_media', expiresInDays: 30 }); } catch (re) { console.error('[transcribe-source] Refund failed:', re); }
+          }
           throw new Error('Could not extract transcription from this video. Please try another YouTube link or upload the audio file directly.');
         }
         break;
@@ -284,9 +289,14 @@ Rules:
     console.log('[transcribe-source] Final text length:', transcribedText?.length || 0);
 
     if (!transcribedText || transcribedText.trim().length < 10) {
+      // Refund credits — transcription produced no usable content
+      if (creditDebited > 0) {
+        try { await refundCreditsAsBonus({ admin: db, userId, amount: creditDebited, source: 'transcribe_media', expiresInDays: 30 }); } catch (re) { console.error('[transcribe-source] Refund failed:', re); }
+      }
       return new Response(JSON.stringify({ 
         ok: false, 
-        error: 'Could not extract meaningful text from the provided source. Please try with a different source or check the quality of the input.' 
+        error: 'Could not extract meaningful text from the provided source. Please try with a different source or check the quality of the input.',
+        credits_refunded: creditDebited > 0,
       }), {
         status: 422, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -310,7 +320,13 @@ Rules:
 
   } catch (err) {
     console.error('[transcribe-source] ERROR:', err);
-    return new Response(JSON.stringify({ error: String(err) }), {
+    // Note: credits already refunded in specific failure paths above.
+    // For unexpected errors, we also refund here.
+    // userId and creditDebited may not be defined if error happened early
+    if (typeof creditDebited === 'number' && creditDebited > 0 && userId) {
+      try { await refundCreditsAsBonus({ admin: db, userId, amount: creditDebited, source: 'transcribe_media', expiresInDays: 30 }); } catch (_) { /* best effort */ }
+    }
+    return new Response(JSON.stringify({ error: String(err), credits_refunded: typeof creditDebited === 'number' && creditDebited > 0 }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

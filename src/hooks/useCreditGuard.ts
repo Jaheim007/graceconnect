@@ -29,6 +29,9 @@ export function useCreditGuard() {
     const message = err?.message || err?.error || '';
     const status = err?.status || err?.context?.status;
 
+    // Check if credits were auto-refunded (new feature)
+    const creditsRefunded = err?.credits_refunded === true;
+
     const isInsufficientCredits =
       status === 402 ||
       message.includes('insuffisant') ||
@@ -40,6 +43,12 @@ export function useCreditGuard() {
       setCreditErrorMessage(message || undefined);
       setShowCreditDialog(true);
       return true;
+    }
+
+    // If credits were refunded on a server error, notify the user
+    if (creditsRefunded) {
+      // Don't show as credit error — the refund already happened
+      console.log('[credit-guard] Credits auto-refunded for failed AI action');
     }
 
     return false;

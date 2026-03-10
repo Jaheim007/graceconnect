@@ -1,6 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { requireAuth, corsHeaders, jsonResp, adminClient } from '../_shared/auth.ts';
-import { consumeCreditsOrThrow, normalizeTier } from '../_shared/credits.ts';
+import { consumeCreditsOrThrow, refundCreditsAsBonus, normalizeTier } from '../_shared/credits.ts';
 import { aiGenerateImageBase64 } from '../_shared/ai-fallback.ts';
 
 Deno.serve(async (req) => {
@@ -47,8 +47,10 @@ Deno.serve(async (req) => {
       const title = chapter.title || `Page ${i + 1}`;
 
       // Debit credits per image
+      let imgDebited = 0;
       try {
-        await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: 'generate_illustration', tier: creditTier });
+        const debitResult = await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: 'generate_illustration', tier: creditTier });
+        if (!('skipped' in debitResult)) imgDebited = debitResult.debited;
       } catch (e: any) {
         if (e?.status === 402) {
           console.warn(`Credits exhausted at image ${i}/${chapters.length}`);
@@ -87,6 +89,10 @@ Deno.serve(async (req) => {
         if (i < chapters.length - 1) await new Promise(r => setTimeout(r, 2000));
       } catch (imgErr) {
         console.error(`Image gen error page ${i}:`, imgErr);
+        // Refund credits for this failed image
+        if (imgDebited > 0) {
+          try { await refundCreditsAsBonus({ admin, userId: auth.userId, amount: imgDebited, source: 'generate_illustration', expiresInDays: 30 }); } catch (_) { /* best effort */ }
+        }
         continue;
       }
     }

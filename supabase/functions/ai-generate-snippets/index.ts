@@ -1,10 +1,14 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders, jsonResp } from '../_shared/auth.ts';
-import { consumeCreditsOrThrow } from '../_shared/credits.ts';
+import { consumeCreditsOrThrow, refundCreditsAsBonus } from '../_shared/credits.ts';
 import { aiGenerateText, extractJson } from '../_shared/ai-fallback.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
+
+  let snippetDebited = 0;
+  let userId: string | null = null;
+  let admin: any = null;
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -14,7 +18,6 @@ Deno.serve(async (req) => {
 
     // Auth (may be auto-triggered without user context)
     const authHeader = req.headers.get('Authorization');
-    let userId: string | null = null;
 
     if (authHeader?.startsWith('Bearer ')) {
       const userClient = createClient(supabaseUrl, anonKey, { global: { headers: { Authorization: authHeader } } });
@@ -25,7 +28,7 @@ Deno.serve(async (req) => {
     const { product_id, org_id } = await req.json();
     if (!product_id || !org_id) return jsonResp({ error: 'product_id and org_id required' }, 400);
 
-    const admin = createClient(supabaseUrl, serviceKey);
+    admin = createClient(supabaseUrl, serviceKey);
 
     // Fetch product
     const { data: product, error: pErr } = await admin.from('digital_products')
@@ -38,7 +41,8 @@ Deno.serve(async (req) => {
     // Debit credits only if user-initiated (not auto-triggered)
     if (userId) {
       try {
-        await consumeCreditsOrThrow({ admin, userId, actionKey: 'generate_snippets', tier: 'standard' });
+        const dr = await consumeCreditsOrThrow({ admin, userId, actionKey: 'generate_snippets', tier: 'standard' });
+        if (!('skipped' in dr)) snippetDebited = dr.debited;
       } catch (e: any) {
         if (e?.status === 402) return jsonResp({ error: e.message }, 402);
         throw e;
@@ -66,6 +70,9 @@ Deno.serve(async (req) => {
     return jsonResp({ ok: true, count: aiSnippets.length, method: 'ai' });
   } catch (err) {
     console.error('Snippet generation error:', err);
+    if (snippetDebited > 0 && userId && admin) {
+      try { await refundCreditsAsBonus({ admin, userId, amount: snippetDebited, source: 'generate_snippets', expiresInDays: 30 }); } catch (_) {}
+    }
     return jsonResp({ error: err instanceof Error ? err.message : 'Unknown error' }, 500);
   }
 });

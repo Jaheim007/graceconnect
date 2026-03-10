@@ -872,7 +872,7 @@ function getTitleGuidance(lang: string, style: string, profile: EditorialProfile
 }
 
 import { requireAuth, corsHeaders as sharedCors, jsonResp as jResp, adminClient } from '../_shared/auth.ts';
-import { consumeCreditsOrThrow, normalizeTier } from '../_shared/credits.ts';
+import { consumeCreditsOrThrow, refundCreditsAsBonus, normalizeTier } from '../_shared/credits.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
@@ -1149,9 +1149,11 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
     const timeoutId = setTimeout(() => controller.abort(), requestTimeoutMs);
     const maxTokens = singleChapter ? 3200 : 16000;
 
-    // Credit debit
+    // Credit debit (will be refunded on AI failure)
     const creditActionKey = singleChapter ? 'generate_chapter' : 'generate_book';
-    await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: creditActionKey, tier: normalizeTier(tier) });
+    let creditDebited = 0;
+    const debitResult = await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: creditActionKey, tier: normalizeTier(tier) });
+    if (!('skipped' in debitResult)) creditDebited = debitResult.debited;
 
     let aiRes: Response | null = null;
     let usedProvider = 'gemini';
@@ -1220,7 +1222,9 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
       }
     } catch (error) {
       if (isAbortError(error)) {
-        return new Response(JSON.stringify({ error: 'Generation timeout. Please retry.' }), {
+        // Refund on timeout
+        if (creditDebited > 0) { try { await refundCreditsAsBonus({ admin, userId: auth.userId, amount: creditDebited, source: creditActionKey, expiresInDays: 30 }); } catch (_) {} }
+        return new Response(JSON.stringify({ error: 'Generation timeout. Please retry.', credits_refunded: creditDebited > 0 }), {
           status: 504, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
@@ -1230,20 +1234,23 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
     }
 
     if (!aiRes) {
-      return new Response(JSON.stringify({ error: 'AI request failed before completion' }), {
+      if (creditDebited > 0) { try { await refundCreditsAsBonus({ admin, userId: auth.userId, amount: creditDebited, source: creditActionKey, expiresInDays: 30 }); } catch (_) {} }
+      return new Response(JSON.stringify({ error: 'AI request failed before completion', credits_refunded: creditDebited > 0 }), {
         status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
     if (!aiRes.ok) {
+      // Refund on AI error
+      if (creditDebited > 0) { try { await refundCreditsAsBonus({ admin, userId: auth.userId, amount: creditDebited, source: creditActionKey, expiresInDays: 30 }); } catch (_) {} }
       if (aiRes.status === 429) {
-        return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }), {
+        return new Response(JSON.stringify({ error: 'Rate limit exceeded. Please try again later.', credits_refunded: creditDebited > 0 }), {
           status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
       const errText = await aiRes.text();
       console.error(`${usedProvider} error:`, aiRes.status, errText);
-      return new Response(JSON.stringify({ error: `AI error (${aiRes.status})` }), {
+      return new Response(JSON.stringify({ error: `AI error (${aiRes.status})`, credits_refunded: creditDebited > 0 }), {
         status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
@@ -1260,14 +1267,16 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
     }
 
     if (!parsed) {
-      return new Response(JSON.stringify({ error: 'Failed to parse AI response' }), {
+      if (creditDebited > 0) { try { await refundCreditsAsBonus({ admin, userId: auth.userId, amount: creditDebited, source: creditActionKey, expiresInDays: 30 }); } catch (_) {} }
+      return new Response(JSON.stringify({ error: 'Failed to parse AI response', credits_refunded: creditDebited > 0 }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
     const normalizedChapters = normalizeGeneratedChapters(parsed);
     if (normalizedChapters.length === 0) {
-      return new Response(JSON.stringify({ error: 'AI returned empty chapters' }), {
+      if (creditDebited > 0) { try { await refundCreditsAsBonus({ admin, userId: auth.userId, amount: creditDebited, source: creditActionKey, expiresInDays: 30 }); } catch (_) {} }
+      return new Response(JSON.stringify({ error: 'AI returned empty chapters', credits_refunded: creditDebited > 0 }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
@@ -1276,11 +1285,13 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
       const minimumExpected = Math.max(2, Math.ceil(chapterCount * MIN_VALID_CHAPTER_RATIO));
       if (normalizedChapters.length < minimumExpected) {
         console.warn(`[generate-book-content] Partial generation detected: got ${normalizedChapters.length}/${chapterCount} chapters`);
+        if (creditDebited > 0) { try { await refundCreditsAsBonus({ admin, userId: auth.userId, amount: creditDebited, source: creditActionKey, expiresInDays: 30 }); } catch (_) {} }
         return new Response(JSON.stringify({
           error: `Partial generation (${normalizedChapters.length}/${chapterCount} chapters). Please retry.`,
           partial: true,
           received_chapters: normalizedChapters.length,
           expected_chapters: chapterCount,
+          credits_refunded: creditDebited > 0,
         }), {
           status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -1290,7 +1301,10 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
     return new Response(JSON.stringify({ chapters: normalizedChapters }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  } catch (e) {
+  } catch (e: any) {
+    if (e?.status === 402) {
+      return new Response(JSON.stringify({ error: e.message }), { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
     console.error('generate-book-content error:', e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : 'Internal error' }), {
       status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
