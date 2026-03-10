@@ -35,11 +35,48 @@ const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } }
 
 export default function AdminPayouts() {
   const { currentOrg } = useOrg();
+  const { user } = useAuth();
   const { t, locale } = useI18n();
   const queryClient = useQueryClient();
   const orgId = currentOrg?.id;
   const currency = currentOrg?.currency || 'XOF';
   const dateFnsLocale = locale === 'fr' ? fr : enUS;
+  const [showWithdrawDialog, setShowWithdrawDialog] = useState(false);
+
+  const MIN_WITHDRAWAL = 1000; // XOF minimum
+  const kycApproved = currentOrg?.kyc_status === 'level1' || currentOrg?.kyc_status === 'level2';
+
+  // Withdrawal request mutation
+  const withdrawMutation = useMutation({
+    mutationFn: async () => {
+      if (!user || !orgId || !fundSummary) throw new Error('Missing data');
+      const available = Math.max(0, fundSummary.availableBalance);
+      if (available < MIN_WITHDRAWAL) throw new Error(`Solde insuffisant (minimum ${MIN_WITHDRAWAL} ${currency})`);
+      if (!kycApproved) throw new Error('KYC requis avant tout retrait');
+
+      const { error } = await db.from('payout_requests').insert({
+        user_id: user.id,
+        organization_id: orgId,
+        amount: available,
+        currency,
+        payout_type: 'organization',
+        status: 'pending',
+      });
+      if (error) throw error;
+
+      // Fire notifications
+      onPayoutRequested(orgId, currentOrg?.name || '', available, currency);
+    },
+    onSuccess: () => {
+      toast.success('Demande de retrait envoyée ! Traitement sous 3-8 jours ouvrés.');
+      setShowWithdrawDialog(false);
+      queryClient.invalidateQueries({ queryKey: ['admin-payouts', orgId] });
+      queryClient.invalidateQueries({ queryKey: ['admin-fund-summary', orgId] });
+    },
+    onError: (err: Error) => {
+      toast.error(err.message);
+    },
+  });
 
   const statusConfig: Record<string, { label: string; icon: typeof Clock; colorClass: string }> = {
     requested: { label: t('payouts.status_requested'), icon: Clock, colorClass: 'bg-amber-500/10 text-amber-600 border-amber-500/20' },
