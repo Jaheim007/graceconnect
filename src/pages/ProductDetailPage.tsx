@@ -48,6 +48,7 @@ import { SocialProofWidget } from '@/components/products/SocialProofWidget';
 import { trackProductView } from '@/components/discover/RecentlyViewedProducts';
 import { SellerTrustBadges } from '@/components/products/SellerTrustBadges';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
+import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { UrgencyWidget } from '@/components/products/UrgencyWidget';
 import { ContentSizeBadge } from '@/components/products/ContentSizeBadge';
 import { SmartCTA } from '@/components/products/SmartCTA';
