@@ -174,7 +174,7 @@ export default function DiscoverPage() {
     queryFn: async () => {
       let q = db
         .from('offerings')
-        .select('*, organizations!inner(name, slug, logo_url, currency, offerings_enabled, is_verified)')
+        .select('*, organizations!inner(name, slug, logo_url, currency, offerings_enabled, is_verified, kyc_status, category)')
         .eq('is_active', true)
         .eq('organizations.offerings_enabled', true)
         .order('created_at', { ascending: false })
