@@ -687,9 +687,10 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                   folder={`${folder}/selfie`}
                   bucket="kyc-documents"
                   label="Selfie"
-                  hint="La capture se fait automatiquement quand votre visage est bien cadré"
+                  hint="Un test de vivacité sera effectué pour vérifier que c'est bien vous"
                   captureMode="selfie"
                   smartCapture
+                  livenessCheck
                 />
               </div>
             )}
