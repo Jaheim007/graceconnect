@@ -228,6 +228,16 @@ export function CameraCapture({
                 size="icon"
                 variant="secondary"
                 className="h-10 w-10 rounded-full bg-background/80 backdrop-blur"
+                onClick={() => fileInputRef.current?.click()}
+                title="Importer un fichier"
+              >
+                <Upload className="h-4 w-4" />
+              </Button>
+              <Button
+                type="button"
+                size="icon"
+                variant="secondary"
+                className="h-10 w-10 rounded-full bg-background/80 backdrop-blur"
                 onClick={stopCamera}
               >
                 <X className="h-4 w-4" />
@@ -309,7 +319,7 @@ export function CameraCapture({
           </div>
         )}
 
-        {/* Camera failed — show mobile fallback */}
+        {/* Camera failed — show upload + mobile fallback */}
         {!cameraActive && !capturedImage && !value && cameraFailed && (
           <div className="flex flex-col items-center justify-center gap-4 py-8 px-4">
             <div className="h-14 w-14 rounded-full bg-destructive/10 flex items-center justify-center">
@@ -324,15 +334,25 @@ export function CameraCapture({
             <div className="flex flex-col gap-2 w-full max-w-xs">
               <Button
                 type="button"
+                variant="default"
+                size="sm"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full"
+              >
+                <Upload className="h-4 w-4 mr-2" />
+                Importer une photo depuis vos fichiers
+              </Button>
+              <Button
+                type="button"
                 variant="outline"
                 size="sm"
                 onClick={() => startCamera()}
                 className="w-full"
               >
                 <Camera className="h-4 w-4 mr-2" />
-                Réessayer
+                Réessayer la caméra
               </Button>
-              <div className="relative">
+              <div className="relative my-1">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t border-border" />
                 </div>
@@ -362,25 +382,54 @@ export function CameraCapture({
           </div>
         )}
 
-        {/* Empty state — start camera */}
+        {/* Empty state — camera + upload options */}
         {!cameraActive && !capturedImage && !value && !cameraFailed && (
-          <div
-            className={cn(
-              'flex flex-col items-center justify-center gap-3 py-10 cursor-pointer hover:border-primary/50 transition-colors'
+          <div className="flex flex-col items-center justify-center gap-3 py-8 px-4">
+            <div
+              className="flex flex-col items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => startCamera()}
+            >
+              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Camera className="h-6 w-6 text-primary" />
+              </div>
+              <p className="text-sm font-medium">Prendre une photo</p>
+            </div>
+            
+            {!isMobile && (
+              <>
+                <div className="relative w-full max-w-[200px]">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border" />
+                  </div>
+                  <div className="relative flex justify-center text-xs">
+                    <span className="bg-muted/30 px-2 text-muted-foreground">ou</span>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload className="h-3.5 w-3.5 mr-1.5" />
+                  Importer un fichier
+                </Button>
+                <p className="text-[10px] text-muted-foreground text-center max-w-xs">
+                  Sur ordinateur, nous recommandons d'importer une photo ou d'utiliser votre téléphone pour une meilleure qualité.
+                </p>
+              </>
             )}
-            onClick={() => startCamera()}
-          >
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Camera className="h-6 w-6 text-primary" />
-            </div>
-            <div className="text-center">
-              <p className="text-sm font-medium">Appuyez pour prendre une photo</p>
-              <p className="text-[10px] text-muted-foreground">La caméra de votre appareil sera activée</p>
-            </div>
           </div>
         )}
       </div>
 
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={handleFileSelect}
+      />
       {error && !cameraFailed && <p className="text-xs text-destructive">{error}</p>}
       <canvas ref={canvasRef} className="hidden" />
     </div>
