@@ -69,6 +69,27 @@ async function notifyOrgMembers(
   }
 }
 
+// ── Notify only owners & admins of an org (in-app only) ──
+async function notifyOrgOwnersAdmins(
+  orgId: string,
+  title: string,
+  body: string,
+  type: string = 'org',
+  actionUrl?: string,
+) {
+  try {
+    const { data: members } = await db.from('organization_members')
+      .select('user_id, role')
+      .eq('organization_id', orgId)
+      .in('role', ['owner', 'admin']);
+    for (const m of members || []) {
+      notify(m.user_id, title, body, type, orgId, actionUrl);
+    }
+  } catch (e) {
+    console.error('notifyOrgOwnersAdmins failed:', e);
+  }
+}
+
 // ── Notify all affiliates of an org (in-app + email) ──
 async function notifyOrgAffiliates(
   orgId: string,
