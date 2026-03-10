@@ -190,6 +190,7 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
         : 0;
 
   return (
+    <>
     <div className="space-y-8 pt-16 text-center">
       <div className="space-y-4">
         <div className="h-20 w-20 mx-auto rounded-3xl bg-primary/10 flex items-center justify-center">
@@ -263,7 +264,7 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
         « <strong className="text-foreground">{state.title || t('write.my_book')}</strong> » — {state.pageCount} {t('write.pages')}
       </p>
     </div>
-      <InsufficientCreditsDialog open={showCreditDialog} onOpenChange={setShowCreditDialog} message={creditErrorMessage} />
+    <InsufficientCreditsDialog open={showCreditDialog} onOpenChange={setShowCreditDialog} message={creditErrorMessage} />
     </>
   );
 }
