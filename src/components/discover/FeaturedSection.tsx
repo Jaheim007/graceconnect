@@ -64,7 +64,7 @@ export function FeaturedSection() {
           .limit(8),
         // Most recent: exclude express demos
         db.from('digital_products')
-          .select('*, organizations(name, slug, logo_url, currency)')
+          .select('*, organizations(name, slug, logo_url, currency, is_verified)')
           .eq('is_published', true)
           .eq('is_express_demo', false)
           .order('created_at', { ascending: false })

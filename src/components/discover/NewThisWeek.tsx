@@ -18,7 +18,7 @@ export function NewThisWeek() {
     queryFn: async () => {
       const { data } = await db
         .from('digital_products')
-        .select('*, organizations(name, slug, logo_url, currency)')
+        .select('*, organizations(name, slug, logo_url, currency, is_verified)')
         .eq('is_published', true)
         .eq('is_express_demo', false)
         .order('created_at', { ascending: false })
@@ -28,6 +28,7 @@ export function NewThisWeek() {
         organization_name: p.organizations?.name,
         organization_slug: p.organizations?.slug,
         organization_logo: p.organizations?.logo_url,
+        is_org_verified: p.organizations?.is_verified,
       }));
     },
     staleTime: 1000 * 60 * 5,
