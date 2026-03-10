@@ -98,7 +98,7 @@ export default function DiscoverPage() {
     queryFn: async ({ pageParam = 0 }) => {
       let q = db
         .from('digital_products')
-        .select('*, organizations(name, slug, logo_url, currency, is_verified)')
+        .select('*, organizations(name, slug, logo_url, currency, is_verified, kyc_status, category)')
         .eq('is_published', true)
         .eq('is_express_demo', false);
 
