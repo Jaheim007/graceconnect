@@ -249,7 +249,7 @@ export function ProductPreviewViewer({
       </div>
 
       <Dialog open={open} onOpenChange={handleDialogOpenChange}>
-        <DialogContent className="max-w-4xl w-[96vw] h-[90dvh] max-h-[90dvh] p-0 gap-0 overflow-hidden grid-rows-[auto_minmax(0,1fr)]">
+        <DialogContent hideCloseButton className="max-w-4xl w-[96vw] h-[90dvh] max-h-[90dvh] p-0 gap-0 overflow-hidden grid-rows-[auto_minmax(0,1fr)]">
           <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 border-b bg-background/95 backdrop-blur-sm">
             <div className="flex items-center gap-3 min-w-0">
               <FileText className="h-4 w-4 text-primary shrink-0" />
@@ -288,8 +288,14 @@ export function ProductPreviewViewer({
                   </Button>
                 </div>
               )}
-              <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => handleDialogOpenChange(false)}>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-9 w-9 rounded-full"
+                onClick={() => handleDialogOpenChange(false)}
+              >
                 <X className="h-4 w-4" />
+                <span className="sr-only">Fermer</span>
               </Button>
             </div>
           </div>
