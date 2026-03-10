@@ -11,7 +11,7 @@ import { Loader2, Copy, Users, TrendingUp, Wallet, Clock, CheckCircle, XCircle, 
 import { toast } from 'sonner';
 import { SEOHead } from '@/components/seo/SEOHead';
 import PartnerPayoutConfig from '@/components/partner/PartnerPayoutConfig';
-import PartnerKYCForm from '@/components/partner/PartnerKYCForm';
+import IdentityVerificationWizard from '@/components/verification/IdentityVerificationWizard';
 import { motion } from 'framer-motion';
 
 const LEVEL_LABELS: Record<number, string> = { 1: 'Bronze', 2: 'Argent', 3: 'Or', 4: 'Platine', 5: 'Diamant' };
