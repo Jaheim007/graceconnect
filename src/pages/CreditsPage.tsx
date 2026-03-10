@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Helmet } from 'react-helmet-async';
+
 
 function formatCredits(n: number): string {
   if (Number.isInteger(n)) return n.toString();
