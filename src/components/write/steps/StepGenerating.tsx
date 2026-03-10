@@ -172,7 +172,9 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
       if (aborted.current) return;
       if (!handleAiError(err)) {
         setPhase('error');
-        setErrorMsg(err?.message || 'Generation failed');
+        const friendlyMsg = err?.message?.includes('Edge Function')
+          ? 'Le serveur est temporairement indisponible. Réessaie dans un instant.'
+          : (err?.message || 'La génération a échoué. Réessaie.');
       }
     }
   };
