@@ -53,7 +53,6 @@ export default function PaymentSuccessPage() {
   const gateway = searchParams.get('gateway') || 'paystack';
   const sessionId = searchParams.get('session_id') || '';
   const urlType = searchParams.get('type') as 'donation' | 'product' | null;
-  const urlType = searchParams.get('type') as 'donation' | 'product' | null;
   const urlOrgId = searchParams.get('organization_id') || '';
   const urlCampaignId = searchParams.get('campaign_id') || '';
   const urlProductId = searchParams.get('product_id') || '';
