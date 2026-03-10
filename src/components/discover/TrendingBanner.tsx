@@ -4,6 +4,7 @@ import { TrendingUp, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 
 export function TrendingBanner() {
   const navigate = useNavigate();
