@@ -630,7 +630,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
             )}
 
             {/* STEP: Organization documents (KYB — org mode only) */}
-            {currentStep.id === 'org_docs' && (
+            {currentStep?.id === 'org_docs' && (
               <div className="space-y-4">
                 <div className="text-center py-2">
                   <div className="mx-auto mb-3 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
