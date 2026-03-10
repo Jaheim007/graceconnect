@@ -169,9 +169,49 @@ export function CameraCapture({
               autoPlay
               playsInline
               muted
-              className="w-full h-[280px] object-cover rounded-xl bg-black"
+              className="w-full h-[320px] sm:h-[360px] object-cover rounded-xl bg-black"
             />
-            <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-3">
+            {/* Frame overlay */}
+            {captureMode === 'document' && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                {/* Dark overlay with cutout */}
+                <div className="absolute inset-0 bg-black/50 rounded-xl" />
+                <div
+                  className="relative border-2 border-white rounded-lg bg-transparent z-10"
+                  style={{
+                    width: 'min(85%, 420px)',
+                    aspectRatio: '85.6 / 53.98', /* ISO/IEC 7810 ID-1 card ratio */
+                    boxShadow: '0 0 0 9999px rgba(0,0,0,0.5)',
+                  }}
+                >
+                  {/* Corner markers */}
+                  <div className="absolute -top-px -left-px w-5 h-5 border-t-[3px] border-l-[3px] border-white rounded-tl-lg" />
+                  <div className="absolute -top-px -right-px w-5 h-5 border-t-[3px] border-r-[3px] border-white rounded-tr-lg" />
+                  <div className="absolute -bottom-px -left-px w-5 h-5 border-b-[3px] border-l-[3px] border-white rounded-bl-lg" />
+                  <div className="absolute -bottom-px -right-px w-5 h-5 border-b-[3px] border-r-[3px] border-white rounded-br-lg" />
+                  <p className="absolute -bottom-7 left-0 right-0 text-center text-[11px] text-white/80 font-medium">
+                    Cadrez votre document ici
+                  </p>
+                </div>
+              </div>
+            )}
+            {captureMode === 'selfie' && (
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="absolute inset-0 bg-black/50 rounded-xl" />
+                <div
+                  className="relative border-2 border-white rounded-full bg-transparent z-10"
+                  style={{
+                    width: 'min(55%, 220px)',
+                    aspectRatio: '3 / 4',
+                    boxShadow: '0 0 0 9999px rgba(0,0,0,0.5)',
+                  }}
+                />
+                <p className="absolute bottom-16 left-0 right-0 text-center text-[11px] text-white/80 font-medium z-10">
+                  Cadrez votre visage ici
+                </p>
+              </div>
+            )}
+            <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-3 z-20">
               <Button
                 type="button"
                 size="icon"
