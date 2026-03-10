@@ -3,6 +3,7 @@ import { db } from '@/lib/db';
 import { useI18n } from '@/i18n/I18nContext';
 import { ShieldCheck, Award, BadgeCheck, TrendingUp, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { motion } from 'framer-motion';
 import { formatDistanceToNow } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
