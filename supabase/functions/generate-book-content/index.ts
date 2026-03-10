@@ -1275,7 +1275,8 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
 
     const normalizedChapters = normalizeGeneratedChapters(parsed);
     if (normalizedChapters.length === 0) {
-      return new Response(JSON.stringify({ error: 'AI returned empty chapters' }), {
+      if (creditDebited > 0) { try { await refundCreditsAsBonus({ admin, userId: auth.userId, amount: creditDebited, source: creditActionKey, expiresInDays: 30 }); } catch (_) {} }
+      return new Response(JSON.stringify({ error: 'AI returned empty chapters', credits_refunded: creditDebited > 0 }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
