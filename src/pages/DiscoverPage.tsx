@@ -187,6 +187,8 @@ export default function DiscoverPage() {
         organization_name: o.organizations?.name,
         organization_slug: o.organizations?.slug,
         is_org_verified: o.organizations?.is_verified,
+        org_kyc_status: o.organizations?.kyc_status,
+        org_category: o.organizations?.category,
       }));
     },
     enabled: showOfferings,
