@@ -394,7 +394,7 @@ export async function onKycStatusChanged(
     approved: `Le KYC de ${orgName} a été approuvé ! Vous pouvez activer la monétisation.`,
     rejected: `Le KYC de ${orgName} nécessite une attention. ${reason || 'Veuillez contacter le support.'}`,
   };
-  notifyOrgMembers(orgId, `${icons[status]} KYC ${status === 'submitted' ? 'soumis' : status === 'approved' ? 'approuvé' : 'rejeté'}`, msgs[status], 'org', undefined, `/admin/kyc`);
+  notifyOrgOwnersAdmins(orgId, `${icons[status]} KYC ${status === 'submitted' ? 'soumis' : status === 'approved' ? 'approuvé' : 'rejeté'}`, msgs[status], 'org', `/admin/kyc`);
 }
 
 // ── Support tickets ──
