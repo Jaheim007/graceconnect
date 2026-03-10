@@ -485,7 +485,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'page.affiliation_clicks': 'Clicks',
     'page.affiliation_earned': 'Earned',
     'page.affiliation_request_payout': 'Request payout',
-    'page.affiliation_kyc_required': 'KYC verification required before withdrawal.',
+    'page.affiliation_kyc_required': 'Identity verification required before withdrawal.',
     'page.affiliation_search_org': 'Search a platform...',
     'page.affiliation_your_orgs': 'Your platforms',
     'page.affiliation_other_orgs': 'Other platforms',
