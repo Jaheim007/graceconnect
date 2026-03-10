@@ -279,13 +279,57 @@ export default function AdminPayouts() {
                 )}
               </p>
             </div>
-            {currentOrg?.kyc_status === 'none' && (
-              <Badge variant="outline" className="text-[10px] border-amber-500/30 text-amber-600">
-                <AlertTriangle className="h-3 w-3 mr-1" /> {t('payouts.kyc_required')}
-              </Badge>
-            )}
+            <div className="flex items-center gap-2">
+              {!kycApproved ? (
+                <Badge variant="outline" className="text-[10px] border-amber-500/30 text-amber-600">
+                  <AlertTriangle className="h-3 w-3 mr-1" /> {t('payouts.kyc_required')}
+                </Badge>
+              ) : fundSummary.availableBalance >= MIN_WITHDRAWAL && fundSummary.pendingPayouts === 0 ? (
+                <Button
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => setShowWithdrawDialog(true)}
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  Demander un retrait
+                </Button>
+              ) : fundSummary.pendingPayouts > 0 ? (
+                <Badge variant="outline" className="text-[10px] border-blue-500/30 text-blue-600">
+                  <Clock className="h-3 w-3 mr-1" /> Retrait en cours
+                </Badge>
+              ) : null}
+            </div>
           </div>
         )}
+
+        {/* Withdrawal confirmation dialog */}
+        <Dialog open={showWithdrawDialog} onOpenChange={setShowWithdrawDialog}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle>Confirmer le retrait</DialogTitle>
+              <DialogDescription>
+                L'intégralité de votre solde disponible sera demandée en retrait. Le traitement prend 3 à 8 jours ouvrés.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="p-4 rounded-xl bg-muted/50 border border-border text-center">
+              <p className="text-xs text-muted-foreground">Montant du retrait</p>
+              <p className="text-2xl font-bold text-primary mt-1">
+                {fmt(Math.max(0, fundSummary?.availableBalance || 0), currency)}
+              </p>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setShowWithdrawDialog(false)}>Annuler</Button>
+              <Button
+                onClick={() => withdrawMutation.mutate()}
+                disabled={withdrawMutation.isPending}
+                className="gap-1.5"
+              >
+                {withdrawMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                Confirmer
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {payouts.length > 0 && (
           <div className="flex justify-end">
