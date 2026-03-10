@@ -684,10 +684,11 @@ export function AdminKYC() {
         </div>
 
         {currentOrg && (
-          <OrgKYCForm
-            orgId={currentOrg.id}
+          <IdentityVerificationWizard
+            mode="org"
+            entityId={currentOrg.id}
+            status={currentOrg.kyc_status || 'none'}
             orgCategory={currentOrg.category}
-            kycStatus={currentOrg.kyc_status || 'none'}
           />
         )}
       </div>

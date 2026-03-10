@@ -431,9 +431,10 @@ export default function PartnerPortalPage() {
 
         {/* ── KYC ── */}
         <TabsContent value="kyc">
-          <PartnerKYCForm
-            partnerId={partner.id}
-            kycStatus={(partner as any).kyc_status || 'none'}
+          <IdentityVerificationWizard
+            mode="partner"
+            entityId={partner.id}
+            status={(partner as any).kyc_status || 'none'}
             rejectionReason={(partner as any).kyc_rejection_reason}
           />
         </TabsContent>
