@@ -109,9 +109,9 @@ export function SmartCameraCapture({
     };
   }, []);
 
-  // Smart frame analysis (for documents and non-liveness selfies)
+  // Smart frame analysis (only for selfie mode — document auto-capture is disabled)
   useEffect(() => {
-    if (!cameraActive || !smartCapture || captureMode === 'free') return;
+    if (!cameraActive || !smartCapture || captureMode !== 'selfie') return;
     // If liveness is active for selfie, skip auto-capture (liveness handles it)
     if (isLivenessEnabled && livenessPhase !== 'idle') return;
 
@@ -139,8 +139,8 @@ export function SmartCameraCapture({
 
       const centerX = canvas.width / 2;
       const centerY = canvas.height / 2;
-      const regionW = captureMode === 'document' ? canvas.width * 0.8 : canvas.width * 0.5;
-      const regionH = captureMode === 'document' ? regionW * (53.98 / 85.6) : regionW * (4 / 3);
+      const regionW = canvas.width * 0.5;
+      const regionH = regionW * (4 / 3);
       const startX = Math.round(centerX - regionW / 2);
       const startY = Math.round(centerY - regionH / 2);
       const endX = Math.round(centerX + regionW / 2);
@@ -150,46 +150,22 @@ export function SmartCameraCapture({
       let edgeCount = 0;
       let pixelCount = 0;
       let contrastSum = 0;
-      let skinPixels = 0;
-      let horizontalEdges = 0;
-      let verticalEdges = 0;
 
       for (let y = Math.max(0, startY); y < Math.min(canvas.height, endY); y += 2) {
         for (let x = Math.max(0, startX); x < Math.min(canvas.width, endX); x += 2) {
           const i = (y * canvas.width + x) * 4;
-          const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2];
-          const gray = r * 0.299 + g * 0.587 + b * 0.114;
+          const gray = pixels[i] * 0.299 + pixels[i + 1] * 0.587 + pixels[i + 2] * 0.114;
           totalBrightness += gray;
           pixelCount++;
-
-          // Skin tone detection (works for diverse skin tones)
-          if (captureMode === 'document') {
-            const isSkin = (
-              r > 60 && g > 40 && b > 20 &&
-              r > g && r > b &&
-              (r - g) > 10 &&
-              Math.abs(r - g) < 130 &&
-              gray > 50 && gray < 230
-            );
-            if (isSkin) skinPixels++;
-          }
 
           if (x > startX && y > startY) {
             const prevX = ((y) * canvas.width + (x - 2)) * 4;
             const prevY = ((y - 2) * canvas.width + (x)) * 4;
             const grayPrevX = pixels[prevX] * 0.299 + pixels[prevX + 1] * 0.587 + pixels[prevX + 2] * 0.114;
             const grayPrevY = pixels[prevY] * 0.299 + pixels[prevY + 1] * 0.587 + pixels[prevY + 2] * 0.114;
-            const gradH = Math.abs(gray - grayPrevX);
-            const gradV = Math.abs(gray - grayPrevY);
-            const gradient = gradH + gradV;
+            const gradient = Math.abs(gray - grayPrevX) + Math.abs(gray - grayPrevY);
             if (gradient > 30) edgeCount++;
             contrastSum += gradient;
-
-            // Track edge directions for document (rectangular shapes)
-            if (captureMode === 'document') {
-              if (gradH > 25 && gradH > gradV * 1.5) horizontalEdges++;
-              if (gradV > 25 && gradV > gradH * 1.5) verticalEdges++;
-            }
           }
         }
       }
@@ -198,63 +174,28 @@ export function SmartCameraCapture({
       const edgeDensity = pixelCount > 0 ? edgeCount / pixelCount : 0;
       const avgContrast = pixelCount > 0 ? contrastSum / pixelCount : 0;
 
-      if (captureMode === 'document') {
-        // Document-specific checks
-        const skinRatio = pixelCount > 0 ? skinPixels / pixelCount : 0;
-        const totalDirectional = horizontalEdges + verticalEdges;
-        const directionalRatio = edgeCount > 0 ? totalDirectional / edgeCount : 0;
+      const brightnessOk = avgBrightness > 60 && avgBrightness < 220;
+      const hasContent = edgeDensity > 0.03;
+      const isSharp = avgContrast > 3;
 
-        const brightnessOk = avgBrightness > 60 && avgBrightness < 220;
-        const hasDocContent = edgeDensity > 0.08 && avgContrast > 8;
-        const isSharp = avgContrast > 6;
-        const notFace = skinRatio < 0.35;
-        const hasRectEdges = directionalRatio > 0.15;
-
-        if (!brightnessOk || !hasDocContent) {
-          readyCountRef.current = 0;
-          setFrameStatus(hasDocContent ? 'adjusting' : 'searching');
-        } else if (!notFace) {
-          // Too much skin = probably a face, not a document
-          readyCountRef.current = 0;
-          setFrameStatus('searching');
-        } else if (!isSharp || !hasRectEdges) {
-          readyCountRef.current = 0;
-          setFrameStatus('adjusting');
-        } else {
-          readyCountRef.current++;
-          if (readyCountRef.current >= 7) {
-            setFrameStatus('ready');
-            autoCapturedRef.current = true;
-            setTimeout(() => takePhotoInternal(), 500);
-          } else if (readyCountRef.current >= 3) {
-            setFrameStatus('adjusting');
-          }
-        }
+      if (!brightnessOk || !hasContent) {
+        readyCountRef.current = 0;
+        setFrameStatus(hasContent ? 'adjusting' : 'searching');
+      } else if (!isSharp) {
+        readyCountRef.current = 0;
+        setFrameStatus('adjusting');
       } else {
-        // Selfie mode (original logic)
-        const brightnessOk = avgBrightness > 60 && avgBrightness < 220;
-        const hasContent = edgeDensity > 0.03;
-        const isSharp = avgContrast > 3;
-
-        if (!brightnessOk || !hasContent) {
-          readyCountRef.current = 0;
-          setFrameStatus(hasContent ? 'adjusting' : 'searching');
-        } else if (!isSharp) {
-          readyCountRef.current = 0;
-          setFrameStatus('adjusting');
-        } else {
-          readyCountRef.current++;
-          if (readyCountRef.current >= 5) {
-            setFrameStatus('ready');
-            autoCapturedRef.current = true;
-            if (isLivenessEnabled) {
-              startLivenessChallenge();
-            } else {
-              setTimeout(() => takePhotoInternal(), 400);
-            }
-          } else if (readyCountRef.current >= 2) {
-            setFrameStatus('adjusting');
+        readyCountRef.current++;
+        if (readyCountRef.current >= 5) {
+          setFrameStatus('ready');
+          autoCapturedRef.current = true;
+          if (isLivenessEnabled) {
+            startLivenessChallenge();
+          } else {
+            setTimeout(() => takePhotoInternal(), 400);
           }
+        } else if (readyCountRef.current >= 2) {
+          setFrameStatus('adjusting');
         }
       }
     };
@@ -464,7 +405,7 @@ export function SmartCameraCapture({
       const fileName = `${folder}/${Date.now()}-capture.jpg`;
       const { error: uploadError } = await supabase.storage
         .from(bucket)
-        .upload(fileName, blob, { contentType: 'image/jpeg', upsert: true });
+        .upload(fileName, blob, { contentType: 'image/jpeg' });
       if (uploadError) throw uploadError;
 
       if (bucket === 'private-products' || bucket === 'kyc-documents') {
@@ -525,7 +466,7 @@ export function SmartCameraCapture({
               <Eye className="h-3 w-3" /> Anti-fraude
             </span>
           )}
-          {smartCapture && captureMode !== 'free' && (
+          {smartCapture && captureMode === 'selfie' && (
             <span className="text-[10px] text-muted-foreground flex items-center gap-1">
               <Scan className="h-3 w-3" /> Auto-capture
             </span>
@@ -631,7 +572,7 @@ export function SmartCameraCapture({
             )}
 
             {/* Smart status indicator (when not in liveness mode) */}
-            {smartCapture && captureMode !== 'free' && livenessPhase === 'idle' && (
+            {smartCapture && captureMode === 'selfie' && livenessPhase === 'idle' && (
               <div className="absolute top-3 left-0 right-0 flex justify-center z-30">
                 <div className={`px-3 py-1.5 rounded-full bg-black/70 backdrop-blur flex items-center gap-2 ${statusColor}`}>
                   {frameStatus === 'searching' && <Scan className="h-3.5 w-3.5 animate-pulse" />}
