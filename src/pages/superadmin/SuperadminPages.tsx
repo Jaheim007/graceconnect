@@ -141,7 +141,7 @@ export function SuperadminKYC() {
     const reason = prompt('Rejection reason:');
     if (!reason) return;
     await db.from('kyc_submissions').update({ status: 'rejected', rejection_reason: reason, reviewed_at: new Date().toISOString() }).eq('id', id);
-    toast({ title: 'KYC rejected' }); refetch();
+    toast({ title: 'Vérification rejetée' }); refetch();
   };
   return (
     <div className="space-y-4">

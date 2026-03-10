@@ -27,7 +27,7 @@ const PLATFORM_PERKS = [
   { icon: ShoppingBag, label: 'Boutique digitale avec paiement Mobile Money & carte' },
   { icon: Users, label: 'Armée d\'ambassadeurs qui vendent pour toi (5-50% commission)' },
   { icon: BarChart3, label: 'Analytics avancés : ventes, clics, CRM, tout en temps réel' },
-  { icon: Shield, label: 'KYC intégré & protection anti-fraude 8 couches' },
+  { icon: Shield, label: 'Vérification d\'identité intégrée & protection anti-fraude 8 couches' },
   { icon: Wallet, label: 'Retraits Mobile Money & virement — sans minimum bloquant' },
   { icon: Heart, label: 'Campagnes de dons et collectes intégrées' },
 ];

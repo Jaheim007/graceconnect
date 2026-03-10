@@ -28,7 +28,7 @@ const LAYERS = [
   },
   {
     icon: UserCheck,
-    title: 'KYC vendeur obligatoire',
+    title: 'Vérification vendeur obligatoire',
     desc: 'Tout vendeur doit vérifier son identité avant de pouvoir retirer ses gains. Les fonds sont sécurisés tant que la vérification n\'est pas complète.',
     color: 'text-amber-500',
     bg: 'bg-amber-500/10',

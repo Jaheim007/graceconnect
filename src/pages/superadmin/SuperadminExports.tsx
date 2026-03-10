@@ -25,7 +25,7 @@ export default function SuperadminExports() {
     const { data } = await db.from('organizations').select('*').order('created_at', { ascending: false });
     if (!data?.length) { toast({ title: 'Aucune donnée' }); return; }
     downloadCSV('organizations',
-      ['ID', 'Nom', 'Slug', 'Catégorie', 'Pays', 'Plan', 'KYC', 'Actif', 'Suspendu', 'Monétisation', 'Créé le'],
+      ['ID', 'Nom', 'Slug', 'Catégorie', 'Pays', 'Plan', 'Vérification', 'Actif', 'Suspendu', 'Monétisation', 'Créé le'],
       data.map((o: any) => [o.id, o.name, o.slug, o.category, o.country, o.plan_type, o.kyc_status, o.is_active, o.is_suspended, o.monetization_enabled, o.created_at])
     );
     toast({ title: 'Export organisations téléchargé ✅' });
