@@ -49,7 +49,7 @@ export function SellerTrustBadges({ organizationId, orgName, kycStatus }: Seller
 
   if (isVerified) {
     badges.push({
-      icon: ShieldCheck,
+      icon: () => <VerifiedBadge size="xs" showTooltip={false} />,
       label: isFr ? 'Vendeur vérifié' : 'Verified seller',
       className: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
     });
