@@ -3,7 +3,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { GagnerTabs } from '@/components/gagner/GagnerTabs';
 import { QuickShareWidget } from '@/components/gagner/QuickShareWidget';
 import { SocialProofBanner } from '@/components/gagner/SocialProofBanner';
-import { AmbassadorLeaderboard } from '@/components/gagner/AmbassadorLeaderboard';
+// AmbassadorLeaderboard hidden temporarily (bluff strategy — re-enable when real volume exists)
 import { TrustBadgesBar } from '@/components/trust/TrustBadgesBar';
 import { LiveEarningsTicker } from '@/components/growth/LiveEarningsTicker';
 import { useAuth } from '@/contexts/AuthContext';
@@ -196,8 +196,7 @@ export default function GagnerPage() {
         {/* Earnings calculator */}
         <EarningsCalculator />
 
-        {/* Ambassador leaderboard */}
-        <AmbassadorLeaderboard />
+        {/* Ambassador leaderboard — hidden until real volume (bluff strategy) */}
 
         {/* Main tabs */}
         <GagnerTabs />
