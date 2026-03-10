@@ -58,10 +58,19 @@ export default function CreditsPage() {
   const { data: packs } = useCreditPacks();
   const { data: history } = useCreditHistory(50);
   const grantDaily = useGrantDailyCredits();
-  const { openPayment } = usePaystack();
+  const { openPayment, hasPaystackKey } = usePaymentGateway();
   const qc = useQueryClient();
   const [selectedTab, setSelectedTab] = useState('overview');
   const [purchasing, setPurchasing] = useState<string | null>(null);
+
+  // Credit packs are priced in XOF
+  const creditCurrency = 'XOF';
+  const defaultMethod: PaymentMethod = isMoMoAvailable(creditCurrency) ? 'mobile_money' : 'card';
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(defaultMethod);
+
+  useEffect(() => {
+    setPaymentMethod(defaultMethod);
+  }, [defaultMethod]);
 
   const handlePurchase = useCallback(async (packKey: string) => {
     if (!user?.email) {
@@ -72,25 +81,29 @@ export default function CreditsPage() {
     setPurchasing(packKey);
     try {
       // 1. Create pending purchase on backend
+      const gateway = paymentMethod === 'mobile_money' || paymentMethod === 'apple_pay' ? 'paystack' : 'stripe';
       const { data, error } = await supabase.functions.invoke('purchase-credits', {
-        body: { pack_key: packKey },
+        body: { pack_key: packKey, payment_gateway: gateway },
       });
 
       if (error || !data?.ok) {
         throw new Error(data?.error || error?.message || 'Erreur lors de la création de l\'achat');
       }
 
-      // 2. Open Paystack popup
+      // 2. Open unified payment gateway
       await openPayment({
+        method: paymentMethod,
         email: data.email,
         amount: data.amount,
-        currency: data.currency || 'XOF',
+        currency: data.currency || creditCurrency,
+        type: 'donation' as const, // credit purchase uses simple flow
+        organization_id: 'platform', // platform-level purchase
         metadata: data.metadata,
-        onSuccess: async (reference: string) => {
+        onSuccess: async (reference: string, gw) => {
           // 3. Verify payment and grant credits
           try {
             const { data: verifyData, error: verifyErr } = await supabase.functions.invoke('verify-credit-purchase', {
-              body: { reference, purchase_id: data.purchase_id },
+              body: { reference, purchase_id: data.purchase_id, gateway: gw },
             });
 
             if (verifyErr || !verifyData?.ok) {
@@ -113,7 +126,7 @@ export default function CreditsPage() {
     } finally {
       setPurchasing(null);
     }
-  }, [user, openPayment, qc]);
+  }, [user, openPayment, qc, paymentMethod, creditCurrency]);
 
   if (!user) return null;
 
