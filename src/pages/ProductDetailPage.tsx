@@ -140,14 +140,14 @@ export default function ProductDetailPage() {
     enabled: !!user && !!product?.organization_id,
   });
 
-  // Fetch org page settings for theme colors
+  // Fetch org page settings for theme colors + org-level pixels
   const orgId = product?.organization_id;
   const { data: pageSettings } = useQuery({
     queryKey: ['org-page-settings-product', orgId],
     queryFn: async () => {
       const { data } = await db
         .from('org_page_settings')
-        .select('theme_primary_color, theme_accent_color')
+        .select('theme_primary_color, theme_accent_color, facebook_pixel_id, tiktok_pixel_id, google_tag_id')
         .eq('organization_id', orgId!)
         .maybeSingle();
       return data;
