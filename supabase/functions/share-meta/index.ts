@@ -19,6 +19,20 @@ const escapeHtml = (v: string) =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
 
+/** Strip HTML tags and return clean plain text for OG descriptions */
+function stripHtml(html: string): string {
+  return html
+    .replace(/<[^>]*>/g, ' ')       // replace tags with space
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;/gi, "'")
+    .replace(/\s+/g, ' ')           // collapse whitespace
+    .trim();
+}
+
 // ─── Bot detection ───
 
 const BOT_UA_PATTERNS = [
