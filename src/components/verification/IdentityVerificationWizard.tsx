@@ -639,6 +639,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                   <SmartCameraCapture
                     value={docFrontUrl}
                     onChange={setDocFrontUrl}
+                    onPreviewCapture={setPreview('docFront')}
                     folder={`${folder}/doc-front`}
                     bucket="kyc-documents"
                     label={selectedDoc.hasBack ? 'Face avant du document' : selectedDoc.label}
@@ -653,6 +654,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     <SmartCameraCapture
                       value={docBackUrl}
                       onChange={setDocBackUrl}
+                      onPreviewCapture={setPreview('docBack')}
                       folder={`${folder}/doc-back`}
                       bucket="kyc-documents"
                       label="Face arrière du document"
