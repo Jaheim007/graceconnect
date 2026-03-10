@@ -365,7 +365,7 @@ export default function DiscoverPage() {
                     <motion.div key={o.id} variants={fadeUp}>
                       <div className="relative">
                         {o.organization_name && (
-                          <button onClick={() => navigate(`/org/${o.organization_slug}`)} className="text-[10px] text-muted-foreground hover:text-primary mb-1 flex items-center gap-1">{o.organization_name} {o.is_org_verified && <VerifiedBadge size="xs" showTooltip={false} />}</button>
+                          <button onClick={() => navigate(`/org/${o.organization_slug}`)} className="text-[10px] text-muted-foreground hover:text-primary mb-1 flex items-center gap-1">{o.organization_name} {isOrgVerifiedOrKyc(o.is_org_verified, o.org_kyc_status) && <VerifiedBadge size="xs" label={getVerifiedLabel(o.org_category)} />}</button>
                         )}
                         <OfferingCard offering={o} onSelect={setSelectedOffering} />
                       </div>
