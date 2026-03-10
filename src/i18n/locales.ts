@@ -2156,7 +2156,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'page.help_tcat_account': 'Compte & Connexion',
     'page.help_tcat_technical': 'Problème technique',
     'page.help_tcat_content': 'Contenu & Produits',
-    'page.help_tcat_payout': 'Retraits & KYC',
+    'page.help_tcat_payout': 'Retraits & Vérification',
     'page.help_tcat_other': 'Autre',
     // Onboarding tour
     'tour.skip': 'Passer',
