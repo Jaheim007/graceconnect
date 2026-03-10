@@ -261,7 +261,7 @@ export function OrgPublicHeader({
               <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
                 <div className="flex flex-wrap items-center gap-2 mb-1">
                   <InlineEditableText value={org.name} onSave={(v) => saveOrgField('name', v)} canEdit={isAdmin} tag="h1" className="text-2xl sm:text-3xl font-bold truncate" />
-                  {org.is_verified && <CheckCircle2 className="h-6 w-6 text-primary shrink-0" />}
+                  {org.is_verified && <VerifiedBadge size="lg" label="Organisation vérifiée" />}
                 </div>
                 <OrgBadges isVerified={org.is_verified} kycStatus={orgAny.kyc_status} isSuspended={orgAny.is_suspended} size="sm" className="mt-1" />
                 <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
