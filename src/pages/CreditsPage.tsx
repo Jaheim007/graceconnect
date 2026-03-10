@@ -376,7 +376,6 @@ export default function CreditsPage() {
               const bonusCredits = Math.round(pack.credits * (pack.bonus_percent || 0) / 100);
               const totalCredits = pack.credits + bonusCredits;
               const isPurchasing = purchasing === pack.pack_key;
-              const isPurchasing = purchasing === pack.pack_key;
 
               return (
                 <Card
