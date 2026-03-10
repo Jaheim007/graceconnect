@@ -237,7 +237,7 @@ export function StepSource({
         size="lg"
         className="w-full h-14 text-base gap-2"
         disabled={!canContinue || transcribing}
-        onClick={needsTranscription ? handleTranscribeAndNext : onNext}
+        onClick={needsTranscription || shouldShowPreviewOnContinue ? handleTranscribeAndNext : onNext}
       >
         {transcribing ? (
           <>
