@@ -151,7 +151,10 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const saleEndsAt = (product as any).sale_ends_at;
   const isFlashSale = salePrice != null && saleEndsAt && new Date(saleEndsAt) > new Date();
   const isPwyw = !!(product as any).is_pwyw;
-  const minPrice = (product as any).min_price || 0;
+  const rawMinPrice = (product as any).min_price || 0;
+  const productCurrency = (product as any).currency || 'XOF';
+  const pwywFloors: Record<string, number> = { XOF: 500, XAF: 500, NGN: 500, USD: 1, EUR: 1, GBP: 1, GHS: 5, KES: 100, ZAR: 10, MAD: 10, TND: 3 };
+  const minPrice = Math.max(rawMinPrice, pwywFloors[productCurrency] || 500);
   const suggestedPrice = product.price ?? 0;
 
   // For PWYW, use the custom amount; otherwise use standard pricing
