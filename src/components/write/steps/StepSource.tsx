@@ -112,12 +112,17 @@ export function StepSource({
       update({ topic: text });
       toast({ title: `✅ ${t('write.transcribe_success')}` });
       setTranscribing(false);
-      onNext();
+      setShowTranscriptionPreview(true);
     } catch (err: any) {
       console.error('Transcription error:', err);
       setTranscribing(false);
       toast({ title: `❌ ${t('write.transcribe_error')}`, description: err?.message, variant: 'destructive' });
     }
+  };
+
+  const handleConfirmTranscription = () => {
+    setShowTranscriptionPreview(false);
+    onNext();
   };
 
   const visibleDrafts = savedDrafts.slice(0, 8);
