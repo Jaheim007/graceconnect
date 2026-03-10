@@ -68,7 +68,7 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
         )}
         {org.is_verified && (
           <div className="absolute top-2 right-2">
-            <CheckCircle2 className="h-4 w-4 text-accent drop-shadow" />
+            <VerifiedBadge size="md" showTooltip={false} />
           </div>
         )}
         <div className="absolute bottom-2 right-2">
