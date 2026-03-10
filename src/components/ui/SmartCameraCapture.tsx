@@ -14,6 +14,8 @@ type LivenessChallenge = 'turn_left' | 'turn_right' | 'smile' | 'blink';
 interface SmartCameraCaptureProps {
   value: string;
   onChange: (url: string) => void;
+  /** Called with the local data URL preview after capture (useful for private buckets) */
+  onPreviewCapture?: (dataUrl: string) => void;
   folder?: string;
   label?: string;
   hint?: string;
