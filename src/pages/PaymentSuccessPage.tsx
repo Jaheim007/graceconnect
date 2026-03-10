@@ -17,7 +17,7 @@ import { db } from '@/lib/db';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { fetchWatermarkedFile, isPdfLikeFile, openFileInline, triggerBrowserDownload } from '@/lib/secureDownload';
-import { verifyStripePayment, verifyMonerooPayment } from '@/lib/api';
+import { verifyStripePayment } from '@/lib/api';
 
 interface TransactionDetails {
   type: 'product' | 'donation';
