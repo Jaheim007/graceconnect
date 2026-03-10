@@ -597,7 +597,7 @@ export async function onPaymentFailed(
     `Votre paiement de ${amount} ${currency} n'a pas pu être traité.`,
     'payment_failed',
     { amount, currency, reference },
-    'transaction',
+    'transaction', undefined, `/resources`,
   );
 }
 
