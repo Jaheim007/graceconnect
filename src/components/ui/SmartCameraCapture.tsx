@@ -1,12 +1,15 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { brandUrl } from '@/lib/storageUrl';
-import { Camera, RotateCcw, Check, X, Loader2, SwitchCamera, Smartphone, AlertTriangle, Scan, CheckCircle } from 'lucide-react';
+import { Camera, RotateCcw, X, Loader2, SwitchCamera, Smartphone, AlertTriangle, Scan, CheckCircle, Eye, RotateCw, Smile } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type CaptureMode = 'document' | 'selfie' | 'free';
 type FrameStatus = 'searching' | 'adjusting' | 'ready' | 'captured';
+type LivenessPhase = 'idle' | 'challenge' | 'verifying' | 'passed' | 'failed';
+type LivenessChallenge = 'turn_left' | 'turn_right' | 'smile' | 'blink';
 
 interface SmartCameraCaptureProps {
   value: string;
@@ -16,8 +19,9 @@ interface SmartCameraCaptureProps {
   hint?: string;
   bucket?: 'org-uploads' | 'private-products' | 'kyc-documents';
   captureMode?: CaptureMode;
-  /** Enable smart auto-capture when document/face is properly framed */
   smartCapture?: boolean;
+  /** Enable liveness detection for selfie captures */
+  livenessCheck?: boolean;
 }
 
 const FRAME_MESSAGES: Record<FrameStatus, string> = {
@@ -34,6 +38,17 @@ const SELFIE_MESSAGES: Record<FrameStatus, string> = {
   captured: 'Photo capturée !',
 };
 
+const LIVENESS_CHALLENGES: { type: LivenessChallenge; label: string; icon: typeof Eye; instruction: string }[] = [
+  { type: 'turn_left', label: 'Tournez la tête à gauche', icon: RotateCw, instruction: '← Tournez lentement la tête vers la gauche' },
+  { type: 'turn_right', label: 'Tournez la tête à droite', icon: RotateCw, instruction: 'Tournez lentement la tête vers la droite →' },
+  { type: 'smile', label: 'Souriez', icon: Smile, instruction: '😊 Faites un grand sourire !' },
+  { type: 'blink', label: 'Clignez des yeux', icon: Eye, instruction: '👁️ Clignez lentement des yeux' },
+];
+
+function pickRandomChallenge(): typeof LIVENESS_CHALLENGES[0] {
+  return LIVENESS_CHALLENGES[Math.floor(Math.random() * LIVENESS_CHALLENGES.length)];
+}
+
 export function SmartCameraCapture({
   value,
   onChange,
@@ -43,6 +58,7 @@ export function SmartCameraCapture({
   bucket = 'org-uploads',
   captureMode = 'free',
   smartCapture = true,
+  livenessCheck = false,
 }: SmartCameraCaptureProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -53,6 +69,12 @@ export function SmartCameraCapture({
   const readyCountRef = useRef(0);
   const autoCapturedRef = useRef(false);
 
+  // Liveness refs
+  const livenessIntervalRef = useRef<number | null>(null);
+  const previousFrameRef = useRef<ImageData | null>(null);
+  const motionScoresRef = useRef<number[]>([]);
+  const livenessTimeoutRef = useRef<number | null>(null);
+
   const [cameraActive, setCameraActive] = useState(false);
   const [capturedImage, setCapturedImage] = useState<string | null>(value || null);
   const [uploading, setUploading] = useState(false);
@@ -61,6 +83,12 @@ export function SmartCameraCapture({
   const [facingMode, setFacingMode] = useState<'user' | 'environment'>('environment');
   const [frameStatus, setFrameStatus] = useState<FrameStatus>('searching');
 
+  // Liveness state
+  const [livenessPhase, setLivenessPhase] = useState<LivenessPhase>('idle');
+  const [currentChallenge, setCurrentChallenge] = useState<typeof LIVENESS_CHALLENGES[0] | null>(null);
+  const [livenessProgress, setLivenessProgress] = useState(0);
+
+  const isLivenessEnabled = livenessCheck && captureMode === 'selfie';
   const messages = captureMode === 'selfie' ? SELFIE_MESSAGES : FRAME_MESSAGES;
 
   // Attach pending stream when video element mounts
@@ -73,9 +101,19 @@ export function SmartCameraCapture({
     }
   }, [cameraActive]);
 
-  // Smart frame analysis
+  // Cleanup liveness on unmount
+  useEffect(() => {
+    return () => {
+      if (livenessIntervalRef.current) clearInterval(livenessIntervalRef.current);
+      if (livenessTimeoutRef.current) clearTimeout(livenessTimeoutRef.current);
+    };
+  }, []);
+
+  // Smart frame analysis (for documents and non-liveness selfies)
   useEffect(() => {
     if (!cameraActive || !smartCapture || captureMode === 'free') return;
+    // If liveness is active for selfie, skip auto-capture (liveness handles it)
+    if (isLivenessEnabled && livenessPhase !== 'idle') return;
 
     autoCapturedRef.current = false;
     readyCountRef.current = 0;
@@ -90,7 +128,6 @@ export function SmartCameraCapture({
       const vh = video.videoHeight || video.clientHeight;
       if (vw === 0 || vh === 0) return;
 
-      // Downsample for performance
       const scale = 0.25;
       canvas.width = Math.round(vw * scale);
       canvas.height = Math.round(vh * scale);
@@ -100,7 +137,6 @@ export function SmartCameraCapture({
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const pixels = imageData.data;
 
-      // Analyze frame region (center area matching the overlay)
       const centerX = canvas.width / 2;
       const centerY = canvas.height / 2;
       const regionW = captureMode === 'document' ? canvas.width * 0.8 : canvas.width * 0.5;
@@ -122,7 +158,6 @@ export function SmartCameraCapture({
           totalBrightness += gray;
           pixelCount++;
 
-          // Edge detection (simple Sobel-like)
           if (x > startX && y > startY) {
             const prevX = ((y) * canvas.width + (x - 2)) * 4;
             const prevY = ((y - 2) * canvas.width + (x)) * 4;
@@ -139,11 +174,10 @@ export function SmartCameraCapture({
       const edgeDensity = pixelCount > 0 ? edgeCount / pixelCount : 0;
       const avgContrast = pixelCount > 0 ? contrastSum / pixelCount : 0;
 
-      // Heuristic scoring
       const brightnessOk = avgBrightness > 60 && avgBrightness < 220;
-      const hasContent = captureMode === 'document' 
+      const hasContent = captureMode === 'document'
         ? edgeDensity > 0.05 && avgContrast > 5
-        : edgeDensity > 0.03; // Selfie has softer edges
+        : edgeDensity > 0.03;
       const isSharp = avgContrast > 3;
 
       if (!brightnessOk || !hasContent) {
@@ -154,16 +188,18 @@ export function SmartCameraCapture({
         setFrameStatus('adjusting');
       } else {
         readyCountRef.current++;
-        // Require 5 consecutive "ready" frames (~1.5s at 300ms intervals) before auto-capture
         if (readyCountRef.current >= 5) {
           setFrameStatus('ready');
           autoCapturedRef.current = true;
-          // Auto-capture after brief visual feedback
-          setTimeout(() => {
-            takePhotoInternal();
-          }, 400);
+
+          // For selfie with liveness: start liveness challenge instead of auto-capture
+          if (isLivenessEnabled) {
+            startLivenessChallenge();
+          } else {
+            setTimeout(() => takePhotoInternal(), 400);
+          }
         } else if (readyCountRef.current >= 2) {
-          setFrameStatus('adjusting'); // Almost ready
+          setFrameStatus('adjusting');
         }
       }
     };
@@ -176,7 +212,104 @@ export function SmartCameraCapture({
         analysisIntervalRef.current = null;
       }
     };
-  }, [cameraActive, smartCapture, captureMode]);
+  }, [cameraActive, smartCapture, captureMode, isLivenessEnabled, livenessPhase]);
+
+  // ── Liveness Detection ──
+  const startLivenessChallenge = useCallback(() => {
+    const challenge = pickRandomChallenge();
+    setCurrentChallenge(challenge);
+    setLivenessPhase('challenge');
+    setLivenessProgress(0);
+    previousFrameRef.current = null;
+    motionScoresRef.current = [];
+
+    // Start motion detection
+    livenessIntervalRef.current = window.setInterval(() => {
+      if (!videoRef.current || !analysisCanvasRef.current) return;
+
+      const video = videoRef.current;
+      const canvas = analysisCanvasRef.current;
+      const vw = video.videoWidth || video.clientWidth;
+      const vh = video.videoHeight || video.clientHeight;
+      if (vw === 0 || vh === 0) return;
+
+      const scale = 0.15; // Very low res for speed
+      canvas.width = Math.round(vw * scale);
+      canvas.height = Math.round(vh * scale);
+      const ctx = canvas.getContext('2d', { willReadFrequently: true })!;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      const currentFrame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+      if (previousFrameRef.current) {
+        const prev = previousFrameRef.current.data;
+        const curr = currentFrame.data;
+        let diffSum = 0;
+        let totalPixels = 0;
+
+        // Focus on center face region
+        const faceStartX = Math.round(canvas.width * 0.2);
+        const faceEndX = Math.round(canvas.width * 0.8);
+        const faceStartY = Math.round(canvas.height * 0.1);
+        const faceEndY = Math.round(canvas.height * 0.7);
+
+        for (let y = faceStartY; y < faceEndY; y += 2) {
+          for (let x = faceStartX; x < faceEndX; x += 2) {
+            const i = (y * canvas.width + x) * 4;
+            const grayPrev = prev[i] * 0.299 + prev[i + 1] * 0.587 + prev[i + 2] * 0.114;
+            const grayCurr = curr[i] * 0.299 + curr[i + 1] * 0.587 + curr[i + 2] * 0.114;
+            diffSum += Math.abs(grayCurr - grayPrev);
+            totalPixels++;
+          }
+        }
+
+        const motionScore = totalPixels > 0 ? diffSum / totalPixels : 0;
+        motionScoresRef.current.push(motionScore);
+
+        // Update progress based on accumulated motion
+        const scores = motionScoresRef.current;
+        const significantMotions = scores.filter(s => s > 3).length; // Threshold for "real motion"
+        const progress = Math.min(100, (significantMotions / 8) * 100); // Need ~8 significant motion frames
+        setLivenessProgress(progress);
+
+        if (progress >= 100) {
+          // Liveness passed!
+          if (livenessIntervalRef.current) clearInterval(livenessIntervalRef.current);
+          setLivenessPhase('passed');
+          // Auto-capture after showing success feedback
+          setTimeout(() => {
+            takePhotoInternal();
+          }, 800);
+        }
+      }
+
+      previousFrameRef.current = currentFrame;
+    }, 200);
+
+    // Timeout: fail after 10 seconds of insufficient motion
+    livenessTimeoutRef.current = window.setTimeout(() => {
+      if (livenessIntervalRef.current) clearInterval(livenessIntervalRef.current);
+      const scores = motionScoresRef.current;
+      const significantMotions = scores.filter(s => s > 3).length;
+      if (significantMotions < 5) {
+        setLivenessPhase('failed');
+      } else {
+        // Partial motion detected — pass anyway
+        setLivenessPhase('passed');
+        setTimeout(() => takePhotoInternal(), 800);
+      }
+    }, 10000);
+  }, []);
+
+  const retryLiveness = useCallback(() => {
+    setLivenessPhase('idle');
+    setLivenessProgress(0);
+    autoCapturedRef.current = false;
+    readyCountRef.current = 0;
+    setFrameStatus('searching');
+    previousFrameRef.current = null;
+    motionScoresRef.current = [];
+  }, []);
 
   const startCamera = useCallback(async (facing: 'user' | 'environment' = facingMode) => {
     setError(null);
@@ -184,6 +317,10 @@ export function SmartCameraCapture({
     autoCapturedRef.current = false;
     readyCountRef.current = 0;
     setFrameStatus('searching');
+    setLivenessPhase('idle');
+    setLivenessProgress(0);
+    previousFrameRef.current = null;
+    motionScoresRef.current = [];
     try {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(t => t.stop());
@@ -218,6 +355,14 @@ export function SmartCameraCapture({
     if (analysisIntervalRef.current) {
       clearInterval(analysisIntervalRef.current);
       analysisIntervalRef.current = null;
+    }
+    if (livenessIntervalRef.current) {
+      clearInterval(livenessIntervalRef.current);
+      livenessIntervalRef.current = null;
+    }
+    if (livenessTimeoutRef.current) {
+      clearTimeout(livenessTimeoutRef.current);
+      livenessTimeoutRef.current = null;
     }
     setCameraActive(false);
   }, []);
@@ -275,12 +420,14 @@ export function SmartCameraCapture({
   }, [folder, bucket, onChange, stopCamera]);
 
   const takePhoto = useCallback(() => {
-    autoCapturedRef.current = true; // Prevent auto-capture racing
+    autoCapturedRef.current = true;
     takePhotoInternal();
   }, [takePhotoInternal]);
 
   const retake = useCallback(() => {
     setCapturedImage(null);
+    setLivenessPhase('idle');
+    setLivenessProgress(0);
     onChange('');
     startCamera();
   }, [onChange, startCamera]);
@@ -290,6 +437,7 @@ export function SmartCameraCapture({
     setCapturedImage(null);
     setCameraFailed(false);
     setError(null);
+    setLivenessPhase('idle');
     onChange('');
   }, [stopCamera, onChange]);
 
@@ -301,15 +449,26 @@ export function SmartCameraCapture({
     ? 'border-emerald-400'
     : frameStatus === 'adjusting' ? 'border-amber-400' : 'border-white';
 
+  // Liveness overlay colors
+  const livenessColor = livenessPhase === 'passed' ? 'border-emerald-400' :
+    livenessPhase === 'failed' ? 'border-destructive' : 'border-blue-400';
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <p className="text-sm font-medium leading-none">{label}</p>
-        {smartCapture && captureMode !== 'free' && (
-          <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-            <Scan className="h-3 w-3" /> Auto-capture
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {isLivenessEnabled && (
+            <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+              <Eye className="h-3 w-3" /> Anti-fraude
+            </span>
+          )}
+          {smartCapture && captureMode !== 'free' && (
+            <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+              <Scan className="h-3 w-3" /> Auto-capture
+            </span>
+          )}
+        </div>
       </div>
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
 
@@ -324,9 +483,94 @@ export function SmartCameraCapture({
               muted
               className="w-full h-[320px] sm:h-[360px] object-cover rounded-xl bg-black"
             />
-            {/* Smart status indicator */}
-            {smartCapture && captureMode !== 'free' && (
-              <div className={`absolute top-3 left-0 right-0 flex justify-center z-30`}>
+
+            {/* ── Liveness Challenge Overlay ── */}
+            {isLivenessEnabled && livenessPhase === 'challenge' && currentChallenge && (
+              <div className="absolute inset-0 z-40 pointer-events-none">
+                {/* Top instruction bar */}
+                <div className="absolute top-3 left-0 right-0 flex justify-center">
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="px-4 py-2 rounded-full bg-blue-600/90 backdrop-blur text-white flex items-center gap-2 shadow-lg"
+                  >
+                    <currentChallenge.icon className="h-4 w-4" />
+                    <span className="text-xs font-semibold">{currentChallenge.instruction}</span>
+                  </motion.div>
+                </div>
+                {/* Progress ring around face oval */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-black/30 rounded-xl" />
+                  <div className="relative z-10" style={{ width: 'min(55%, 220px)', aspectRatio: '3 / 4' }}>
+                    <svg viewBox="0 0 100 133" className="w-full h-full">
+                      {/* Background oval */}
+                      <ellipse cx="50" cy="66.5" rx="48" ry="64" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
+                      {/* Progress oval */}
+                      <ellipse
+                        cx="50" cy="66.5" rx="48" ry="64"
+                        fill="none"
+                        stroke={livenessProgress >= 100 ? '#34d399' : '#3b82f6'}
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeDasharray={`${(2 * Math.PI * 56) * (livenessProgress / 100)} ${2 * Math.PI * 56}`}
+                        transform="rotate(-90 50 66.5)"
+                        className="transition-all duration-200"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                {/* Bottom progress text */}
+                <div className="absolute bottom-14 left-0 right-0 flex justify-center">
+                  <div className="px-3 py-1.5 rounded-full bg-black/60 backdrop-blur text-white/80 text-[11px] font-medium">
+                    {Math.round(livenessProgress)}% — Continuez le mouvement…
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Liveness passed overlay */}
+            {isLivenessEnabled && livenessPhase === 'passed' && (
+              <div className="absolute inset-0 z-40 flex items-center justify-center pointer-events-none">
+                <motion.div
+                  initial={{ scale: 0.5, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="flex flex-col items-center gap-2"
+                >
+                  <div className="h-16 w-16 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg">
+                    <CheckCircle className="h-8 w-8 text-white" />
+                  </div>
+                  <p className="text-white font-bold text-sm bg-black/50 px-3 py-1 rounded-full">Vérification réussie !</p>
+                </motion.div>
+              </div>
+            )}
+
+            {/* Liveness failed overlay */}
+            {isLivenessEnabled && livenessPhase === 'failed' && (
+              <div className="absolute inset-0 z-40 flex items-center justify-center">
+                <div className="flex flex-col items-center gap-3 bg-black/70 backdrop-blur rounded-2xl p-6">
+                  <div className="h-14 w-14 rounded-full bg-destructive/20 flex items-center justify-center">
+                    <AlertTriangle className="h-7 w-7 text-destructive" />
+                  </div>
+                  <p className="text-white font-semibold text-sm">Mouvement insuffisant</p>
+                  <p className="text-white/60 text-xs text-center max-w-[200px]">
+                    Nous n'avons pas détecté suffisamment de mouvement. Veuillez suivre les instructions.
+                  </p>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="secondary"
+                    onClick={retryLiveness}
+                    className="pointer-events-auto"
+                  >
+                    <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> Réessayer
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Smart status indicator (when not in liveness mode) */}
+            {smartCapture && captureMode !== 'free' && livenessPhase === 'idle' && (
+              <div className="absolute top-3 left-0 right-0 flex justify-center z-30">
                 <div className={`px-3 py-1.5 rounded-full bg-black/70 backdrop-blur flex items-center gap-2 ${statusColor}`}>
                   {frameStatus === 'searching' && <Scan className="h-3.5 w-3.5 animate-pulse" />}
                   {frameStatus === 'adjusting' && <AlertTriangle className="h-3.5 w-3.5" />}
@@ -335,7 +579,8 @@ export function SmartCameraCapture({
                 </div>
               </div>
             )}
-            {/* Frame overlay */}
+
+            {/* Frame overlay — document */}
             {captureMode === 'document' && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="absolute inset-0 bg-black/50 rounded-xl" />
@@ -357,7 +602,9 @@ export function SmartCameraCapture({
                 </div>
               </div>
             )}
-            {captureMode === 'selfie' && (
+
+            {/* Frame overlay — selfie (only when not in liveness challenge/passed/failed) */}
+            {captureMode === 'selfie' && livenessPhase === 'idle' && (
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <div className="absolute inset-0 bg-black/50 rounded-xl" />
                 <div
@@ -373,6 +620,8 @@ export function SmartCameraCapture({
                 </p>
               </div>
             )}
+
+            {/* Camera controls */}
             <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-3 z-20">
               <Button
                 type="button"
@@ -388,6 +637,7 @@ export function SmartCameraCapture({
                 size="icon"
                 className="h-14 w-14 rounded-full bg-primary shadow-lg hover:bg-primary/90"
                 onClick={takePhoto}
+                disabled={isLivenessEnabled && livenessPhase === 'challenge'}
               >
                 <Camera className="h-6 w-6 text-primary-foreground" />
               </Button>
@@ -407,11 +657,15 @@ export function SmartCameraCapture({
         {/* Captured image preview */}
         {capturedImage && !cameraActive && (
           <div className="relative">
-            <img
-              src={capturedImage}
-              alt="Photo capturée"
-              className="w-full h-[280px] object-cover rounded-xl"
-            />
+            <img src={capturedImage} alt="Photo capturée" className="w-full h-[280px] object-cover rounded-xl" />
+            {/* Liveness badge */}
+            {isLivenessEnabled && livenessPhase === 'passed' && (
+              <div className="absolute top-3 right-3">
+                <span className="px-2 py-1 rounded-full bg-emerald-500/90 text-white text-[10px] font-bold flex items-center gap-1">
+                  <CheckCircle className="h-3 w-3" /> Vivacité vérifiée
+                </span>
+              </div>
+            )}
             {uploading && (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-xl">
                 <Loader2 className="h-8 w-8 animate-spin text-white" />
@@ -489,9 +743,11 @@ export function SmartCameraCapture({
             <div className="text-center">
               <p className="text-sm font-medium">Appuyez pour prendre une photo</p>
               <p className="text-[10px] text-muted-foreground">
-                {smartCapture && captureMode !== 'free'
-                  ? 'La capture se fera automatiquement quand le cadrage sera bon'
-                  : 'La caméra de votre appareil sera activée'}
+                {isLivenessEnabled
+                  ? 'Un test anti-fraude sera effectué avant la capture'
+                  : smartCapture && captureMode !== 'free'
+                    ? 'La capture se fera automatiquement quand le cadrage sera bon'
+                    : 'La caméra de votre appareil sera activée'}
               </p>
             </div>
           </div>
