@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { InlineEditableText } from '@/components/org/InlineEditableText';
 import { OrgBadges } from '@/components/org/OrgBadges';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
+import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { FormattedText } from '@/lib/formatText';
 import { ImageCropDialog } from '@/components/ui/ImageCropDialog';
 import { useUpdateOrg } from '@/hooks/useOrganizations';
