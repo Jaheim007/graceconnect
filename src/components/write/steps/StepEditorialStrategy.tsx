@@ -312,6 +312,7 @@ export function StepEditorialStrategy({ state, update, onNext, onBack }: Props) 
           {hasGeneratedBook ? t('common.next') : t('write.strategy_continue')} <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
+      <InsufficientCreditsDialog open={showCreditDialog} onOpenChange={setShowCreditDialog} message={creditErrorMessage} />
     </div>
   );
 }
