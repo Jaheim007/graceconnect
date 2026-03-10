@@ -59,6 +59,8 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
           product_type: state.style === 'ebook' ? 'ebook' : 'pdf',
           description: state.topic || state.subtitle || '',
           tier: 'standard',
+          author_name: state.authorName || '',
+          book_style: state.style || '',
         },
         headers: { Authorization: `Bearer ${session.access_token}` },
       });

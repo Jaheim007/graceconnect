@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
     const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
     if (!GEMINI_API_KEY) return jsonResp({ error: 'AI not configured' }, 500);
 
-    const { product_id, title, product_type, description, tier } = await req.json();
+    const { product_id, title, product_type, description, tier, author_name, book_style } = await req.json();
     if (!product_id || !title) return jsonResp({ error: 'Missing product_id or title' }, 400);
 
     const admin = adminClient(auth.supabaseUrl, auth.serviceKey);
@@ -21,18 +21,40 @@ Deno.serve(async (req) => {
     const result = await consumeCreditsWithRefund({
       admin, userId: auth.userId, actionKey: 'generate_cover', tier: normalizeTier(tier),
       action: async () => {
-        const typeHints: Record<string, string> = {
-          pdf: 'a professional PDF document cover',
-          ebook: 'an elegant e-book cover',
-          audio: 'a modern audio content cover with headphones/sound waves',
-          video: 'a cinematic video thumbnail',
-          course: 'a professional course/training cover',
-          link: 'a clean digital resource cover',
-        };
-        const typeHint = typeHints[product_type || ''] || 'a professional digital product cover';
-        const shortDesc = (description || '').slice(0, 200);
+        const shortDesc = (description || '').slice(0, 300);
+        const authorLine = author_name ? `\nAuthor name to display: "${author_name}" — place it elegantly at the bottom of the cover in a refined, smaller font.` : '';
 
-        const prompt = `Create ${typeHint} design for a digital product titled "${title}". ${shortDesc ? `The product is about: ${shortDesc}.` : ''} Style: modern, clean, professional, vibrant colors, high contrast text-free design suitable as a product cover image. Aspect ratio 2:3 portrait. Ultra high resolution.`;
+        const genreHints: Record<string, string> = {
+          ebook: 'non-fiction book, editorial and sophisticated',
+          guide: 'practical guide, structured and authoritative',
+          prayer: 'spiritual/devotional, serene with sacred imagery and warm light',
+          story: 'narrative fiction, cinematic and atmospheric with a compelling scene',
+          novel: 'literary novel, dramatic and immersive with a striking scene or character',
+          devotional: 'devotional/spiritual, peaceful with warm golden tones and soft light',
+          activity: 'activity/workbook, colorful and engaging with playful elements',
+          coloring: 'coloring book, bold line art with decorative border elements',
+          children: 'children\'s book, whimsical and enchanting with vivid cartoon illustration',
+        };
+        const genreHint = genreHints[book_style || ''] || genreHints[product_type || ''] || 'professional book';
+
+        const prompt = `You are an award-winning book cover designer. Create a stunning, publishable book cover for:
+
+TITLE: "${title}"
+GENRE: ${genreHint}
+${shortDesc ? `ABOUT: ${shortDesc}` : ''}
+${authorLine}
+
+DESIGN REQUIREMENTS:
+- This must look like a REAL published book cover from a major publishing house (Gallimard, Hachette, Penguin)
+- Create a powerful, evocative visual scene or artistic composition that captures the ESSENCE of the book's theme — not just decorative patterns
+- The title "${title}" must be prominently displayed with impactful, professional typography — bold, striking, and perfectly legible
+- Use cinematic lighting, rich color palette, and dramatic composition
+- The overall design should evoke emotion and intrigue — make people WANT to pick up this book
+- Portrait format (2:3 ratio), high resolution, print-ready quality
+- NO generic AI aesthetic — no bland gradients, no floating abstract shapes
+- Think bestseller cover design: atmospheric, bold, memorable
+
+CRITICAL: The typography must be flawless — clean, well-kerned, professionally placed. The title should dominate the upper portion. Any subtitle or author name should be elegantly balanced.`;
 
         const { base64, mimeType } = await aiGenerateImageBase64({ geminiKey: GEMINI_API_KEY, prompt, timeoutMs: 90_000 });
 
