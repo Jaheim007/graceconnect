@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Loader2, CheckCircle, XCircle, Clock, Shield, Camera, User,
-  CreditCard, FileText, ArrowRight, ArrowLeft, Upload, Smartphone
+  CreditCard, FileText, ArrowRight, ArrowLeft, Upload, Smartphone, Building
 } from 'lucide-react';
 
 // ── Types ──
@@ -19,7 +19,7 @@ type VerificationMode = 'org' | 'partner';
 
 interface Props {
   mode: VerificationMode;
-  entityId: string; // orgId or partnerId
+  entityId: string;
   status: string; // 'none' | 'pending' | 'approved' | 'rejected' | 'level1' | 'level2'
   rejectionReason?: string | null;
   orgCategory?: string;
@@ -31,14 +31,75 @@ const DOC_TYPES = [
   { value: 'drivers_license', label: 'Permis de conduire', hasBack: true, icon: '🚗' },
 ];
 
-const STEPS = [
-  { id: 'doc_type', label: 'Type de document', icon: FileText },
-  { id: 'document', label: 'Document d\'identité', icon: CreditCard },
-  { id: 'selfie', label: 'Selfie', icon: User },
-  { id: 'selfie_doc', label: 'Selfie + Document', icon: Camera },
-  { id: 'payout', label: 'Méthode de paiement', icon: Smartphone },
-  { id: 'review', label: 'Vérification', icon: CheckCircle },
-];
+// ── Organization document types by category ──
+const ORG_DOC_TYPES_BY_CATEGORY: Record<string, { value: string; label: string }[]> = {
+  church: [
+    { value: 'church_certificate', label: "Récépissé / Attestation d'existence" },
+    { value: 'church_registration', label: "Certificat d'enregistrement religieux" },
+    { value: 'church_statutes', label: 'Statuts de la communauté' },
+  ],
+  ministry: [
+    { value: 'ministry_registration', label: "Certificat d'enregistrement" },
+    { value: 'ministry_statutes', label: 'Statuts du ministère' },
+    { value: 'ministry_authorization', label: 'Autorisation ministérielle' },
+  ],
+  ngo: [
+    { value: 'ngo_registration', label: "Récépissé de déclaration / Certificat d'enregistrement" },
+    { value: 'ngo_statutes', label: "Statuts de l'association / ONG" },
+    { value: 'ngo_authorization', label: 'Agrément / Autorisation officielle' },
+  ],
+  leader: [
+    { value: 'proof_of_address', label: 'Justificatif de domicile (< 3 mois)' },
+    { value: 'business_registration', label: 'Registre du commerce (si applicable)' },
+  ],
+  community: [
+    { value: 'community_registration', label: "Récépissé de l'association" },
+    { value: 'community_statutes', label: 'Statuts de la communauté' },
+    { value: 'community_minutes', label: 'PV de la dernière assemblée' },
+  ],
+  other: [
+    { value: 'org_registration', label: "Certificat d'enregistrement" },
+    { value: 'org_statutes', label: 'Statuts' },
+    { value: 'org_authorization', label: 'Autorisation officielle' },
+  ],
+};
+
+const CATEGORY_LABELS: Record<string, string> = {
+  church: 'Église / Communauté religieuse',
+  ministry: 'Ministère',
+  ngo: 'ONG / Association',
+  leader: 'Leader / Créateur individuel',
+  community: 'Communauté',
+  other: 'Organisation',
+};
+
+const CATEGORY_ORG_DOC_HINTS: Record<string, string> = {
+  church: "Documents officiels de votre église (récépissé, attestation, statuts).",
+  ministry: "Documents officiels de votre ministère (certificat, statuts, autorisation).",
+  ngo: "Documents officiels de votre ONG/association (récépissé, statuts, agrément).",
+  leader: "Justificatif de domicile ou registre du commerce si applicable.",
+  community: "Documents officiels de votre communauté (récépissé, statuts, PV).",
+  other: "Documents officiels de votre organisation (certificat, statuts, autorisation).",
+};
+
+// ── Build steps dynamically based on mode ──
+function getSteps(mode: VerificationMode) {
+  const steps = [
+    { id: 'doc_type', label: 'Type de document', icon: FileText },
+    { id: 'document', label: 'Document d\'identité', icon: CreditCard },
+    { id: 'selfie', label: 'Selfie', icon: User },
+    { id: 'selfie_doc', label: 'Selfie + Document', icon: Camera },
+  ];
+
+  // For organizations: add org documents step (KYB)
+  if (mode === 'org') {
+    steps.push({ id: 'org_docs', label: 'Documents organisation', icon: Building });
+    steps.push({ id: 'payout', label: 'Méthode de paiement', icon: Smartphone });
+  }
+
+  steps.push({ id: 'review', label: 'Vérification', icon: CheckCircle });
+  return steps;
+}
 
 export default function IdentityVerificationWizard({ mode, entityId, status, rejectionReason, orgCategory }: Props) {
   const [step, setStep] = useState(0);
@@ -47,6 +108,12 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
   const [docBackUrl, setDocBackUrl] = useState('');
   const [selfieUrl, setSelfieUrl] = useState('');
   const [selfieWithDocUrl, setSelfieWithDocUrl] = useState('');
+  
+  // Org document state (KYB)
+  const [orgDocType, setOrgDocType] = useState('');
+  const [orgDocUrl, setOrgDocUrl] = useState('');
+  
+  // Payout state
   const [payoutMethod, setPayoutMethod] = useState<'mobile_money' | 'bank'>('mobile_money');
   const [bankName, setBankName] = useState('');
   const [accountName, setAccountName] = useState('');
@@ -57,15 +124,18 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
 
   const selectedDoc = DOC_TYPES.find(d => d.value === docType)!;
   const folder = mode === 'org' ? `kyc/${entityId}` : `partner-kyc/${entityId}`;
-
-  // ── Skip payout step for partners (they have their own payout config) ──
-  const activeSteps = mode === 'partner'
-    ? STEPS.filter(s => s.id !== 'payout')
-    : STEPS;
-
+  const activeSteps = getSteps(mode);
   const currentStep = activeSteps[step];
   const totalSteps = activeSteps.length;
   const progress = ((step + 1) / totalSteps) * 100;
+
+  // Org doc types for the category
+  const orgDocTypes = ORG_DOC_TYPES_BY_CATEGORY[orgCategory || 'other'] || ORG_DOC_TYPES_BY_CATEGORY.other;
+
+  // Set default org doc type
+  if (mode === 'org' && !orgDocType && orgDocTypes.length > 0) {
+    setOrgDocType(orgDocTypes[0].value);
+  }
 
   const canProceed = useCallback(() => {
     switch (currentStep.id) {
@@ -73,13 +143,14 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
       case 'document': return !!docFrontUrl && (!selectedDoc.hasBack || !!docBackUrl);
       case 'selfie': return !!selfieUrl;
       case 'selfie_doc': return !!selfieWithDocUrl;
+      case 'org_docs': return !!orgDocUrl;
       case 'payout':
         if (payoutMethod === 'mobile_money') return !!accountNumber && !!accountName && !!payoutProvider;
         return !!bankName && !!accountNumber && !!accountName;
       case 'review': return true;
       default: return false;
     }
-  }, [currentStep?.id, docType, docFrontUrl, docBackUrl, selfieUrl, selfieWithDocUrl, payoutMethod, accountNumber, accountName, payoutProvider, bankName, selectedDoc]);
+  }, [currentStep?.id, docType, docFrontUrl, docBackUrl, selfieUrl, selfieWithDocUrl, orgDocUrl, payoutMethod, accountNumber, accountName, payoutProvider, bankName, selectedDoc]);
 
   const handleSubmit = async () => {
     setSubmitting(true);
@@ -93,6 +164,8 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
           _id_document_back_url: docBackUrl || null,
           _selfie_url: selfieUrl,
           _selfie_with_doc_url: selfieWithDocUrl,
+          _org_document_url: orgDocUrl || null,
+          _org_document_type: orgDocType || null,
           _bank_account_name: accountName || null,
           _bank_account_number: accountNumber || null,
           _bank_name: payoutMethod === 'bank' ? bankName : payoutProvider,
@@ -137,11 +210,9 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
               </div>
             </motion.div>
             <div>
-              <p className="text-lg font-bold">Identité vérifiée</p>
+              <p className="text-lg font-bold">Compte vérifié ✅</p>
               <p className="text-sm text-muted-foreground">
-                {status === 'level2'
-                  ? 'Vérification complète approuvée. Tous les plafonds sont levés.'
-                  : 'Votre vérification d\'identité a été approuvée.'}
+                Votre vérification a été approuvée. Vous pouvez effectuer des retraits.
               </p>
             </div>
           </div>
@@ -219,11 +290,21 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center">
             <Shield className="h-6 w-6 text-primary mr-2" />
-            <h2 className="text-lg font-bold">Vérification d'identité</h2>
+            <h2 className="text-lg font-bold">
+              {mode === 'org' ? 'Vérification de compte' : "Vérification d'identité"}
+            </h2>
           </div>
           <p className="text-xs text-muted-foreground">
-            Vos documents sont chiffrés et stockés de manière sécurisée. Conformément à notre politique de confidentialité, ils seront conservés pendant 5 ans.
+            {mode === 'org'
+              ? "Identité du responsable + documents de l'organisation. Requis pour activer les retraits."
+              : "Vos documents sont chiffrés et stockés de manière sécurisée."}
           </p>
+          {mode === 'org' && orgCategory && (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
+              <Building className="h-3 w-3" />
+              {CATEGORY_LABELS[orgCategory] || orgCategory}
+            </div>
+          )}
         </div>
 
         {/* ── Rejection banner ── */}
@@ -256,7 +337,6 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
               transition={{ duration: 0.3 }}
             />
           </div>
-          {/* Step dots */}
           <div className="flex justify-between px-1">
             {activeSteps.map((s, i) => {
               const Icon = s.icon;
@@ -292,8 +372,14 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
             {currentStep.id === 'doc_type' && (
               <div className="space-y-4">
                 <div className="text-center py-4">
-                  <h3 className="text-xl font-bold">Quel type de document souhaitez-vous utiliser ?</h3>
-                  <p className="text-sm text-muted-foreground mt-1">Choisissez un document d'identité valide</p>
+                  <h3 className="text-xl font-bold">
+                    {mode === 'org' ? "Pièce d'identité du responsable" : "Quel type de document ?"}
+                  </h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {mode === 'org'
+                      ? "Choisissez le type de document d'identité du responsable de l'organisation"
+                      : "Choisissez un document d'identité valide"}
+                  </p>
                 </div>
                 <div className="space-y-3">
                   {DOC_TYPES.map(doc => (
@@ -333,8 +419,6 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     Prenez une photo claire dans un environnement bien éclairé
                   </p>
                 </div>
-
-                {/* Tips */}
                 <div className="space-y-2 bg-muted/40 p-3 rounded-xl">
                   <div className="flex items-start gap-2">
                     <span className="text-sm">☀️</span>
@@ -351,8 +435,6 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     </div>
                   </div>
                 </div>
-
-                {/* Front */}
                 <div>
                   <Label className="text-sm font-semibold">
                     {selectedDoc.hasBack ? 'Recto (face avant) *' : 'Photo du document *'}
@@ -366,8 +448,6 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     hint="Prenez une photo claire du document entier"
                   />
                 </div>
-
-                {/* Back (if applicable) */}
                 {selectedDoc.hasBack && (
                   <div>
                     <Label className="text-sm font-semibold">Verso (face arrière) *</Label>
@@ -396,7 +476,6 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     Assurez-vous que votre visage est clairement visible
                   </p>
                 </div>
-
                 <div className="space-y-2 bg-muted/40 p-3 rounded-xl">
                   <div className="flex items-start gap-2">
                     <span className="text-sm">👤</span>
@@ -407,7 +486,6 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     <p className="text-xs text-muted-foreground">Bonne luminosité, fond neutre si possible</p>
                   </div>
                 </div>
-
                 <CameraCapture
                   value={selfieUrl}
                   onChange={setSelfieUrl}
@@ -431,7 +509,6 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     Tenez votre {selectedDoc.label.toLowerCase()} à côté de votre visage
                   </p>
                 </div>
-
                 <div className="space-y-2 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-xl border border-amber-200 dark:border-amber-800">
                   <p className="text-xs font-medium text-amber-800 dark:text-amber-200">📸 Comment faire :</p>
                   <ul className="text-[11px] text-amber-700 dark:text-amber-300 space-y-1">
@@ -440,7 +517,6 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     <li>• Le texte du document doit être lisible</li>
                   </ul>
                 </div>
-
                 <CameraCapture
                   value={selfieWithDocUrl}
                   onChange={setSelfieWithDocUrl}
@@ -449,6 +525,53 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                   label="Selfie avec document"
                   hint="Prenez un selfie en tenant votre pièce d'identité visible à côté de votre visage"
                 />
+              </div>
+            )}
+
+            {/* STEP: Organization documents (KYB — org mode only) */}
+            {currentStep.id === 'org_docs' && (
+              <div className="space-y-4">
+                <div className="text-center py-2">
+                  <div className="mx-auto mb-3 h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Building className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-bold">Documents de l'organisation</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {CATEGORY_ORG_DOC_HINTS[orgCategory || 'other'] || CATEGORY_ORG_DOC_HINTS.other}
+                  </p>
+                </div>
+
+                <div>
+                  <Label className="text-sm font-semibold">Type de document *</Label>
+                  <Select value={orgDocType} onValueChange={setOrgDocType}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {orgDocTypes.map(d => (
+                        <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label className="text-sm font-semibold">Document officiel *</Label>
+                  <FileUploader
+                    value={orgDocUrl}
+                    onChange={setOrgDocUrl}
+                    folder={`kyc/${entityId}/org-docs`}
+                    bucket="org-uploads"
+                    accept="image/*,.pdf"
+                    label="Document de l'organisation"
+                    hint="Récépissé, certificat, statuts ou autorisation officielle (PDF ou image)"
+                    hideUrlMode
+                  />
+                </div>
+
+                <div className="p-3 rounded-xl bg-muted/40 border border-border">
+                  <p className="text-[10px] text-muted-foreground">
+                    💡 Ces documents prouvent l'existence légale de votre organisation et sont nécessaires pour activer les retraits.
+                  </p>
+                </div>
               </div>
             )}
 
@@ -596,6 +719,28 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     imageUrl={selfieWithDocUrl}
                     onEdit={() => setStep(activeSteps.findIndex(s => s.id === 'selfie_doc'))}
                   />
+                  {/* Org document (org mode) */}
+                  {mode === 'org' && orgDocUrl && (
+                    <div className="p-3 rounded-xl bg-muted/50 border border-border">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-xs font-medium text-muted-foreground">Document organisation</p>
+                          <p className="text-sm font-medium">
+                            {orgDocTypes.find(d => d.value === orgDocType)?.label || orgDocType}
+                          </p>
+                          <p className="text-xs text-green-600">✓ Document ajouté</p>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="text-xs"
+                          onClick={() => setStep(activeSteps.findIndex(s => s.id === 'org_docs'))}
+                        >
+                          Modifier
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                   {/* Payout info (org only) */}
                   {mode === 'org' && (
                     <div className="p-3 rounded-xl bg-muted/50 border border-border">
