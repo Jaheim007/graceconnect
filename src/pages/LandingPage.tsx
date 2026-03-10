@@ -82,5 +82,6 @@ export default function LandingPage() {
         <LandingFooterCompact />
       </Suspense>
     </div>
+    </>
   );
 }
