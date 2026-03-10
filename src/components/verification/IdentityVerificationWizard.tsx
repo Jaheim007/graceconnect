@@ -306,15 +306,19 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
           <div className="flex items-center justify-center">
             <Shield className="h-6 w-6 text-primary mr-2" />
             <h2 className="text-lg font-bold">
-              {mode === 'org' ? 'Vérification de compte' : "Vérification d'identité"}
+              {verificationType === 'organization' ? 'Vérification organisation' : 
+               verificationType === 'individual' ? 'Vérification créateur' : 
+               'Vérification de compte'}
             </h2>
           </div>
           <p className="text-xs text-muted-foreground">
-            {mode === 'org'
-              ? "Identité du responsable + documents de l'organisation. Requis pour activer les retraits."
-              : "Vos documents sont chiffrés et stockés de manière sécurisée."}
+            {!verificationType 
+              ? "Choisissez votre type de vérification pour commencer."
+              : verificationType === 'organization'
+                ? "Identité du responsable + documents officiels de l'organisation."
+                : "Vos documents personnels. Stockés de manière sécurisée et chiffrée."}
           </p>
-          {mode === 'org' && orgCategory && (
+          {verificationType === 'organization' && orgCategory && (
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium">
               <Building className="h-3 w-3" />
               {CATEGORY_LABELS[orgCategory] || orgCategory}
