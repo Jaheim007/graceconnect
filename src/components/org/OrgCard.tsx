@@ -6,6 +6,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { MapPin } from 'lucide-react';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
+import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
