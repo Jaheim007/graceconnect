@@ -208,8 +208,16 @@ export async function onContentPublished(
   const notifTitle = `${icons[contentType]} Nouveau ${labels[contentType]}`;
   const notifBody = `${orgName} a publié : "${contentTitle}"`;
 
-  // In-app notification to all members
-  notifyOrgMembers(orgId, notifTitle, notifBody, 'org', publisherId, `/feed`);
+  // In-app notification to all members — deep link to the relevant content page
+  const contentRoutes: Record<string, string> = {
+    event: `/admin/events`,
+    announcement: `/admin/announcements`,
+    media: `/admin/media`,
+    product: `/admin/products`,
+    campaign: `/admin/campaigns`,
+    program: `/admin/programs`,
+  };
+  notifyOrgMembers(orgId, notifTitle, notifBody, 'org', publisherId, contentRoutes[contentType] || `/feed`);
 
   // Email to org admins with the right template
   emailOrgAdmins(templates[contentType], orgId, {
