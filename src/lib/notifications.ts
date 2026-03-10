@@ -153,7 +153,7 @@ export async function onRoleChanged(
     `Votre rôle dans ${orgName} est maintenant : ${newRole}.`,
     'role_changed',
     { org_name: orgName, new_role: newRole, old_role: oldRole || '' },
-    'org', orgId, `/feed`,
+    'org', orgId, `/admin/members`,
   );
 }
 
