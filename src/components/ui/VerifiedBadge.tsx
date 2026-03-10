@@ -43,7 +43,7 @@ export function VerifiedBadge({
         animate && 'sv-badge-shimmer',
         className,
       )}
-      style={{ width: s, height: s, borderRadius: '50%' }}
+      style={{ width: s, height: s }}
     >
       <svg
         viewBox="0 0 24 24"

@@ -263,7 +263,7 @@ export function OrgPublicHeader({
                   <InlineEditableText value={org.name} onSave={(v) => saveOrgField('name', v)} canEdit={isAdmin} tag="h1" className="text-2xl sm:text-3xl font-bold truncate" />
                   {org.is_verified && <VerifiedBadge size="lg" label="Organisation vérifiée" />}
                 </div>
-                <OrgBadges isVerified={org.is_verified} kycStatus={orgAny.kyc_status} isSuspended={orgAny.is_suspended} size="sm" className="mt-1" />
+                <OrgBadges kycStatus={orgAny.kyc_status} isSuspended={orgAny.is_suspended} size="sm" className="mt-1" />
                 <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                   <Badge variant="secondary" className="text-xs">{getOrgCategoryLabel(org.category)}</Badge>
                   <span className="flex items-center gap-1">
