@@ -13,6 +13,7 @@ import { useState, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { ProgramCertificate } from '@/components/programs/ProgramCertificate';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 
 const CONTENT_ICONS: Record<string, typeof FileText> = {
   text: FileText,
