@@ -1222,7 +1222,9 @@ REMINDER: ${pages}-page book. Each chapter ≈ ${chapterWordTarget} words. REAL 
       }
     } catch (error) {
       if (isAbortError(error)) {
-        return new Response(JSON.stringify({ error: 'Generation timeout. Please retry.' }), {
+        // Refund on timeout
+        if (creditDebited > 0) { try { await refundCreditsAsBonus({ admin, userId: auth.userId, amount: creditDebited, source: creditActionKey, expiresInDays: 30 }); } catch (_) {} }
+        return new Response(JSON.stringify({ error: 'Generation timeout. Please retry.', credits_refunded: creditDebited > 0 }), {
           status: 504, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }
