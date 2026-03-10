@@ -151,8 +151,10 @@ export function StepGenerating({ state, update, onNext, onBack }: Props) {
     } catch (err: any) {
       console.error('Book generation error:', err);
       if (aborted.current) return;
-      setPhase('error');
-      setErrorMsg(err?.message || 'Generation failed');
+      if (!handleAiError(err)) {
+        setPhase('error');
+        setErrorMsg(err?.message || 'Generation failed');
+      }
     }
   };
 
