@@ -83,22 +83,34 @@ const CATEGORY_ORG_DOC_HINTS: Record<string, string> = {
   other: "Documents officiels de votre organisation (certificat, statuts, autorisation).",
 };
 
-// ── Build steps dynamically based on mode ──
-function getSteps(mode: VerificationMode) {
-  const steps = [
-    { id: 'doc_type', label: 'Type de document', icon: FileText },
-    { id: 'document', label: 'Document d\'identité', icon: CreditCard },
-    { id: 'selfie', label: 'Selfie', icon: User },
-    { id: 'selfie_doc', label: 'Selfie + Document', icon: Camera },
+// ── Build steps dynamically based on mode and verification type ──
+function getSteps(mode: VerificationMode, verificationType: VerificationType | null) {
+  const steps: { id: string; label: string; icon: typeof FileText }[] = [
+    { id: 'choose_type', label: 'Type de vérification', icon: Shield },
   ];
 
-  // For organizations: add org documents step (KYB)
-  if (mode === 'org') {
-    steps.push({ id: 'org_docs', label: 'Documents organisation', icon: Building });
-    steps.push({ id: 'payout', label: 'Méthode de paiement', icon: Smartphone });
+  // Only add remaining steps once type is chosen
+  if (verificationType) {
+    steps.push(
+      { id: 'doc_type', label: 'Type de document', icon: FileText },
+      { id: 'document', label: 'Document d\'identité', icon: CreditCard },
+      { id: 'selfie', label: 'Selfie', icon: User },
+      { id: 'selfie_doc', label: 'Selfie + Document', icon: Camera },
+    );
+
+    // For organizations: add org documents step (KYB)
+    if (verificationType === 'organization' && mode === 'org') {
+      steps.push({ id: 'org_docs', label: 'Documents organisation', icon: Building });
+    }
+
+    // Payout for org mode
+    if (mode === 'org') {
+      steps.push({ id: 'payout', label: 'Méthode de paiement', icon: Smartphone });
+    }
+
+    steps.push({ id: 'review', label: 'Vérification', icon: CheckCircle });
   }
 
-  steps.push({ id: 'review', label: 'Vérification', icon: CheckCircle });
   return steps;
 }
 
