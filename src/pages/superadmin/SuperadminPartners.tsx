@@ -121,7 +121,7 @@ export default function SuperadminPartners() {
             <Building2 className="h-3.5 w-3.5" /> Organisations référées
           </TabsTrigger>
           <TabsTrigger value="kyc" className="rounded-lg text-xs gap-1.5">
-            <Shield className="h-3.5 w-3.5" /> KYC
+            <Shield className="h-3.5 w-3.5" /> Vérification
           </TabsTrigger>
           <TabsTrigger value="payouts" className="rounded-lg text-xs gap-1.5">
             <Wallet className="h-3.5 w-3.5" /> Versements
@@ -275,12 +275,12 @@ export default function SuperadminPartners() {
         <TabsContent value="kyc">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Vérifications KYC</CardTitle>
+              <CardTitle className="text-base">Vérifications d'identité</CardTitle>
             </CardHeader>
             <CardContent>
               {(() => {
                 const kycPartners = partners.filter(p => (p as any).kyc_status && (p as any).kyc_status !== 'none');
-                if (kycPartners.length === 0) return <p className="text-sm text-muted-foreground py-8 text-center">Aucune soumission KYC.</p>;
+                if (kycPartners.length === 0) return <p className="text-sm text-muted-foreground py-8 text-center">Aucune soumission de vérification.</p>;
                 return (
                   <div className="space-y-2">
                     {kycPartners.map(p => {

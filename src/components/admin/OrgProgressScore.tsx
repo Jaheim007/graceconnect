@@ -85,7 +85,7 @@ export function useOrgScore(orgId: string | undefined) {
     { label: 'Premier produit publié', weight: 12, done: products.some(p => p.is_published) },
     { label: 'Module dons activé', weight: 8, done: campaigns.length > 0 || offerings.length > 0 },
     { label: 'Au moins 3 membres', weight: 8, done: members.length >= 3 },
-    { label: 'KYC vérifié', weight: 12, done: org?.kyc_status === 'level1' || org?.kyc_status === 'level2' },
+    { label: 'Identité vérifiée', weight: 12, done: org?.kyc_status === 'level1' || org?.kyc_status === 'level2' },
     { label: 'Première vente', weight: 15, done: salesCount > 0 },
     { label: 'Ambassadeurs actifs (3+)', weight: 10, done: affiliateCount >= 3 },
     { label: 'WhatsApp ou site web', weight: 7, done: !!(org?.whatsapp || org?.website) },

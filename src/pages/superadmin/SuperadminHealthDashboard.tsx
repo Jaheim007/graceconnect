@@ -77,7 +77,7 @@ export default function SuperadminHealthDashboard() {
         .eq('status', 'pending')
         .lt('submitted_at', sevenDaysAgo.toISOString());
       results.push({
-        name: 'KYC en retard',
+        name: 'Vérifications en retard',
         icon: <Shield className="h-4 w-4" />,
         status: (staleKyc || 0) === 0 ? 'healthy' : (staleKyc || 0) < 5 ? 'warning' : 'critical',
         detail: `${staleKyc || 0} soumission(s) > 7 jours`,

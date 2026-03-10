@@ -44,7 +44,7 @@ export function SuperadminDashboard() {
   const cards = [
     { label: 'Total Organisations', value: stats?.orgs ?? '—', icon: Users, color: 'text-blue-500' },
     { label: 'GMV Total (XOF)', value: stats?.gmv ? stats.gmv.toLocaleString('fr-FR') : '—', icon: DollarSign, color: 'text-primary' },
-    { label: 'KYC en attente', value: stats?.pendingKyc ?? '—', icon: Activity, color: 'text-amber-500' },
+    { label: 'Vérifications en attente', value: stats?.pendingKyc ?? '—', icon: Activity, color: 'text-amber-500' },
     { label: 'Payouts en attente', value: stats?.pendingPayouts ?? '—', icon: TrendingUp, color: 'text-emerald-500' },
   ];
 
@@ -110,7 +110,7 @@ export function SuperadminOrgs() {
               </div>
               <Badge variant="outline" className="text-[10px] capitalize">{o.plan_type}</Badge>
               <Badge className={`text-[10px] border-0 ${o.kyc_status === 'level1' ? 'bg-green-500/15 text-green-600' : o.kyc_status === 'level2' ? 'bg-emerald-500/15 text-emerald-600' : 'bg-yellow-500/15 text-yellow-600'}`}>
-                {o.kyc_status === 'none' ? 'Non vérifié' : o.kyc_status === 'level1' ? 'KYC Niveau 1' : o.kyc_status === 'level2' ? 'KYC Niveau 2' : o.kyc_status || 'Non vérifié'}
+                {o.kyc_status === 'none' ? 'Non vérifié' : o.kyc_status === 'level1' ? 'Vérifié Niv.1' : o.kyc_status === 'level2' ? 'Vérifié Niv.2' : o.kyc_status || 'Non vérifié'}
               </Badge>
               {o.is_suspended ? (
                 <Button size="sm" variant="outline" className="h-6 text-[10px]" onClick={() => suspend(o.id, false)}>Unsuspend</Button>
@@ -135,13 +135,13 @@ export function SuperadminKYC() {
   const approve = async (id: string, orgId: string) => {
     await db.from('kyc_submissions').update({ status: 'approved', reviewed_at: new Date().toISOString() }).eq('id', id);
     await db.from('organizations').update({ kyc_status: 'level1', monetization_enabled: true }).eq('id', orgId);
-    toast({ title: 'KYC approved ✅' }); refetch();
+    toast({ title: 'Vérification approuvée ✅' }); refetch();
   };
   const reject = async (id: string) => {
     const reason = prompt('Rejection reason:');
     if (!reason) return;
     await db.from('kyc_submissions').update({ status: 'rejected', rejection_reason: reason, reviewed_at: new Date().toISOString() }).eq('id', id);
-    toast({ title: 'KYC rejected' }); refetch();
+    toast({ title: 'Vérification rejetée' }); refetch();
   };
   return (
     <div className="space-y-4">

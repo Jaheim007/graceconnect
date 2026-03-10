@@ -87,7 +87,7 @@ export function CommandPalette() {
       list.push(
         { label: 'Superadmin', to: '/superadmin', icon: Shield, group: 'Superadmin' },
         { label: 'Organizations (SA)', to: '/superadmin/orgs', icon: Building2, group: 'Superadmin' },
-        { label: 'KYC (SA)', to: '/superadmin/kyc', icon: FileCheck, group: 'Superadmin' },
+        { label: 'Vérification ID (SA)', to: '/superadmin/kyc', icon: FileCheck, group: 'Superadmin' },
         { label: 'Transactions (SA)', to: '/superadmin/transactions', icon: BarChart3, group: 'Superadmin' },
       );
     }

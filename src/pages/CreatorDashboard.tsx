@@ -91,7 +91,7 @@ export default function CreatorDashboard() {
   } else {
     if (productCount === 0) nextActions.push({ label: 'Crée ton premier produit', desc: 'eBook, PDF, vidéo, cours…', icon: Plus, action: () => navigate('/admin/products/new'), color: 'text-primary' });
     if (ambassadorCount === 0) nextActions.push({ label: 'Active ton programme ambassadeur', desc: 'Laisse d\'autres vendre pour toi', icon: Users, action: () => navigate('/admin/affiliation'), color: 'text-amber-500' });
-    if (kycStatus === 'none') nextActions.push({ label: 'Vérifie ton identité pour retirer', desc: 'KYC requis pour les retraits', icon: Shield, action: () => navigate('/admin/kyc'), color: 'text-destructive' });
+    if (kycStatus === 'none') nextActions.push({ label: 'Vérifie ton identité pour retirer', desc: 'Vérification requise pour les retraits', icon: Shield, action: () => navigate('/admin/kyc'), color: 'text-destructive' });
   }
 
   const monthGoal = 100000;
@@ -153,14 +153,14 @@ export default function CreatorDashboard() {
           </div>
         </motion.div>
 
-        {/* ═══ KYC BANNER — EN HAUT (urgent) ═══ */}
+        {/* ═══ VÉRIFICATION BANNER — EN HAUT (urgent) ═══ */}
         {kycStatus === 'none' && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-3 p-3 rounded-xl bg-destructive/5 border border-destructive/20"
           >
             <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium">Paiements acceptés immédiatement. KYC requis pour retirer vos fonds.</p>
+              <p className="text-xs font-medium">Paiements acceptés immédiatement. Vérification d'identité requise pour retirer vos fonds.</p>
             </div>
             <Button size="sm" variant="destructive" onClick={() => navigate('/admin/kyc')} className="h-7 text-xs shrink-0">Vérifier</Button>
           </motion.div>
@@ -203,7 +203,7 @@ export default function CreatorDashboard() {
             { label: 'Produits', value: productCount, icon: ShoppingBag, color: 'text-primary' },
             { label: 'Ventes', value: salesData?.count || 0, icon: TrendingUp, color: 'text-emerald-500' },
             { label: 'Ambassadeurs', value: ambassadorCount, icon: Users, color: 'text-amber-500' },
-            { label: 'KYC', value: (kycStatus === 'level1' || kycStatus === 'level2') ? '✓' : '⏳', icon: Shield, color: (kycStatus === 'level1' || kycStatus === 'level2') ? 'text-emerald-500' : 'text-amber-500' },
+            { label: 'Vérification', value: (kycStatus === 'level1' || kycStatus === 'level2') ? '✓' : '⏳', icon: Shield, color: (kycStatus === 'level1' || kycStatus === 'level2') ? 'text-emerald-500' : 'text-amber-500' },
           ].map((stat) => (
             <div key={stat.label} className="bg-card border border-border rounded-xl p-4 text-center">
               <stat.icon className={cn('h-5 w-5 mx-auto mb-2', stat.color)} />

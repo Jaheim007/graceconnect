@@ -10,7 +10,7 @@ export default function GuideBoutiqueDigitalePage() {
       { heading: '2. Les alternatives et leurs limites', content: 'Shopify : 29$/mois minimum, pas de Mobile Money. WordPress : complexe, hébergement payant. Gumroad : pas adapté à l\'Afrique. Siteviral : gratuit, Mobile Money natif, pensé pour l\'Afrique.' },
       { heading: '3. Créer votre boutique en 10 minutes', content: 'Étape 1 : Inscrivez-vous gratuitement sur Siteviral.\nÉtape 2 : Créez votre organisation (nom, logo, description).\nÉtape 3 : Ajoutez vos produits (upload fichier + prix).\nÉtape 4 : Partagez votre lien.' },
       { heading: '4. Personnaliser votre boutique', content: 'Ajoutez votre logo et bannière. Rédigez une bio professionnelle. Organisez vos produits par catégorie. Activez les sections : produits, dons, événements, médias.' },
-      { heading: '5. Recevoir des paiements', content: 'Complétez votre KYC (identité + numéro Mobile Money). Vos clients payent par Orange Money, MTN, Wave ou carte. L\'argent est versé automatiquement.' },
+      { heading: '5. Recevoir des paiements', content: 'Complétez votre vérification d\'identité (pièce d\'identité + numéro Mobile Money). Vos clients payent par Orange Money, MTN, Wave ou carte. L\'argent est versé automatiquement.' },
       { heading: '6. Développer votre boutique', content: 'Activez le programme ambassadeur. Créez des codes promo. Lancez des ventes flash. Utilisez les analytics pour comprendre ce qui fonctionne.' },
     ]}
     cta={{ label: 'Créer ma boutique gratuite', path: '/auth?mode=signup' }}

@@ -59,11 +59,11 @@ function getNextActions(steps: { label: string; done: boolean }[], org: any): Sm
     });
   }
 
-  const kycStep = steps.find(s => s.label === 'KYC vérifié');
+  const kycStep = steps.find(s => s.label === 'Identité vérifiée');
   if (kycStep && !kycStep.done && (org?.kyc_status === 'none' || org?.kyc_status === 'rejected')) {
     actions.push({
       id: 'kyc',
-      label: 'Vérifiez votre identité (KYC)',
+      label: 'Vérifiez votre identité',
       description: 'Obligatoire pour recevoir vos paiements. 5 minutes suffisent.',
       icon: Shield,
       route: '/admin/kyc',

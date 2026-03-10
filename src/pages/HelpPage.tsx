@@ -23,7 +23,7 @@ const categories = [
     items: [
       { q: 'Quels moyens de paiement sont acceptés ?', a: 'Mobile Money (Orange, MTN, Wave, Moov), cartes bancaires (Visa, Mastercard) et paiements internationaux.' },
       { q: 'Quand est-ce que je reçois mon argent ?', a: 'Les revenus sont versés après un hold de sécurité de 72h pour les vendeurs et 15 jours pour les commissions ambassadeur.' },
-      { q: 'Comment configurer mon paiement ?', a: 'Complétez votre KYC (vérification d\'identité) dans les paramètres de votre organisation. Ajoutez votre numéro Mobile Money ou compte bancaire.' },
+      { q: 'Comment configurer mon paiement ?', a: 'Complétez votre vérification d\'identité dans les paramètres de votre organisation. Ajoutez votre numéro Mobile Money ou compte bancaire.' },
       { q: 'Quels sont les frais ?', a: '10% de commission Siteviral sur les ventes. Les frais de la passerelle de paiement (Paystack/Stripe) sont inclus.' },
     ],
   },

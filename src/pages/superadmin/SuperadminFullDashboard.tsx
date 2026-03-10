@@ -210,7 +210,7 @@ export default function SuperadminFullDashboard() {
     { label: 'Users', value: stats?.totalUsers || 0, sub: `+${stats?.newUsers7d || 0}/7j`, icon: Users },
     { label: 'Produits', value: stats?.totalProducts || 0, sub: `${stats?.publishedProducts || 0} pub.`, icon: ShoppingBag },
     { label: 'Campagnes', value: stats?.totalCampaigns || 0, sub: `${stats?.activeCampaigns || 0} act.`, icon: Heart },
-    { label: 'KYC', value: stats?.pendingKYC || 0, sub: `${stats?.approvedKYC || 0} OK`, icon: Shield },
+    { label: 'Vérifications', value: stats?.pendingKYC || 0, sub: `${stats?.approvedKYC || 0} OK`, icon: Shield },
     { label: 'Signalements', value: stats?.pendingReports || 0, sub: 'En attente', icon: AlertTriangle },
   ];
 

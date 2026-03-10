@@ -185,7 +185,7 @@ export default function SuperadminRiskAML() {
                 <div key={o.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{o.name}</p>
-                    <p className="text-xs text-muted-foreground">{o.slug} · KYC: {o.kyc_status || 'none'}</p>
+                    <p className="text-xs text-muted-foreground">{o.slug} · Vérification: {o.kyc_status || 'none'}</p>
                   </div>
                   {o.payouts_frozen ? (
                     <Badge className="text-[10px] bg-blue-500/15 text-blue-600 border-0">Frozen</Badge>

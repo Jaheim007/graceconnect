@@ -39,11 +39,11 @@ const faqs_fr = [
     ],
   },
   {
-    category: 'KYC & Vérification',
+    category: 'Vérification d\'identité',
     items: [
-      { q: "Qu'est-ce que le KYC ?", a: "Le KYC (Know Your Customer) est une vérification d'identité obligatoire pour recevoir des paiements. C'est une obligation légale pour prévenir le blanchiment d'argent et protéger tous les utilisateurs. En tant qu'organisation américaine (Delaware C-Corp), nous respectons les réglementations internationales. La vérification est principalement assurée par nos partenaires Paystack et Stripe." },
-      { q: 'Combien de temps prend la vérification KYC ?', a: 'La vérification est traitée sous 48 heures ouvrées. Pour les volumes élevés, une vérification renforcée peut être requise avec des documents supplémentaires.' },
-      { q: 'Pourquoi mes fonds sont-ils gelés ?', a: 'Les fonds peuvent être gelés en cas de suspicion de fraude, activité suspecte, dispute en cours ou non-conformité KYC. Vous serez notifié du motif et pourrez fournir des justificatifs. Ces mesures protègent l\'ensemble de l\'écosystème — vendeurs, acheteurs et ambassadeurs.' },
+      { q: "Pourquoi vérifier mon identité ?", a: "La vérification d'identité est obligatoire pour recevoir des paiements. C'est une obligation légale pour prévenir le blanchiment d'argent et protéger tous les utilisateurs. En tant qu'organisation américaine (Delaware C-Corp), nous respectons les réglementations internationales. La vérification est assurée en interne ou par nos partenaires Paystack et Stripe." },
+      { q: 'Combien de temps prend la vérification ?', a: 'La vérification est traitée sous 72 heures ouvrées. Pour les volumes élevés, une vérification renforcée peut être requise avec des documents supplémentaires.' },
+      { q: 'Pourquoi mes fonds sont-ils gelés ?', a: 'Les fonds peuvent être gelés en cas de suspicion de fraude, activité suspecte, dispute en cours ou non-conformité de la vérification d\'identité. Vous serez notifié du motif et pourrez fournir des justificatifs. Ces mesures protègent l\'ensemble de l\'écosystème — vendeurs, acheteurs et ambassadeurs.' },
     ],
   },
   {
@@ -86,11 +86,11 @@ const faqs_en = [
     ],
   },
   {
-    category: 'KYC & Verification',
+    category: 'Identity Verification',
     items: [
-      { q: 'What is KYC?', a: "KYC (Know Your Customer) is a mandatory identity verification to receive payments. It's a legal obligation to prevent money laundering and protect all users. As a US corporation (Delaware C-Corp), we comply with international regulations. Verification is primarily handled by our partners Paystack and Stripe." },
-      { q: 'How long does KYC verification take?', a: 'Verification is processed within 48 business hours. For high volumes, enhanced verification may be required with additional documents.' },
-      { q: 'Why are my funds frozen?', a: "Funds may be frozen due to suspected fraud, suspicious activity, ongoing disputes, or KYC non-compliance. You will be notified of the reason and can provide supporting documents. These measures protect the entire ecosystem — sellers, buyers, and ambassadors." },
+      { q: 'Why do I need identity verification?', a: "Identity verification is mandatory to receive payments. It's a legal obligation to prevent money laundering and protect all users. As a US corporation (Delaware C-Corp), we comply with international regulations. Verification is handled internally or by our partners Paystack and Stripe." },
+      { q: 'How long does verification take?', a: 'Verification is processed within 72 business hours. For high volumes, enhanced verification may be required with additional documents.' },
+      { q: 'Why are my funds frozen?', a: "Funds may be frozen due to suspected fraud, suspicious activity, ongoing disputes, or identity verification non-compliance. You will be notified of the reason and can provide supporting documents. These measures protect the entire ecosystem — sellers, buyers, and ambassadors." },
     ],
   },
   {

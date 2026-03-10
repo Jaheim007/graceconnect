@@ -11,7 +11,7 @@ interface TrustBadgesProps {
 
 /**
  * Seller Trust Badges — displays credibility indicators
- * - Verified Seller (KYC done)
+ * - Verified Seller (identity verified)
  * - Top Seller (>= 50 sales)
  * - Established Seller (> 90 days)
  */

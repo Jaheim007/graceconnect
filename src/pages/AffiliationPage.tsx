@@ -145,7 +145,7 @@ export default function AffiliationPage() {
 
   const handleRequestPayout = async (orgId: string, orgKycStatus: string) => {
     if (orgKycStatus === 'none' || orgKycStatus === 'pending') {
-      toast({ title: 'KYC requis', description: 'Complétez la vérification avant de demander un retrait.' });
+      toast({ title: 'Vérification requise', description: 'Complétez la vérification d\'identité avant de demander un retrait.' });
       navigate('/admin/kyc');
       return;
     }

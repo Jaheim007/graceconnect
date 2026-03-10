@@ -138,7 +138,7 @@ Deno.serve(async (req) => {
     supportResults.pending_reports = pendingReports || 0;
     supportResults.pending_payouts = pendingPayouts || 0;
 
-    // SLA alert: KYC pending > 24h
+    // SLA alert: verifications pending > 24h
     const { data: oldKyc } = await db.from("kyc_submissions")
       .select("id, organization_id")
       .eq("status", "pending")
@@ -149,15 +149,15 @@ Deno.serve(async (req) => {
       for (const saId of SUPERADMIN_IDS) {
         await db.from("user_notifications").insert({
           user_id: saId,
-          title: "🚨 KYC en retard : " + oldKyc.length + " dossier(s) > 24h",
-          body: `${oldKyc.length} soumission(s) KYC attendent depuis plus de 24h. SLA en danger.`,
+          title: "🚨 Vérifications en retard : " + oldKyc.length + " dossier(s) > 24h",
+          body: `${oldKyc.length} vérification(s) d'identité attendent depuis plus de 24h. SLA en danger.`,
           notification_type: "ops_sla_breach",
           action_url: "/superadmin/kyc",
         });
       }
       totalAlerts++;
       supportResults.kyc_sla_breaches = oldKyc.length;
-      allActions.push(`support: SLA alert - ${oldKyc.length} KYC pending > 24h`);
+      allActions.push(`support: SLA alert - ${oldKyc.length} verifications pending > 24h`);
     }
 
     // Alert on pending reports
@@ -430,7 +430,7 @@ Deno.serve(async (req) => {
         `  • Inactifs relancés : ${growthResults.inactive_users_reactivated || 0}`,
         ``,
         `🛟 Support:`,
-        `  • KYC en attente : ${supportResults.pending_kyc}`,
+        `  • Vérifications en attente : ${supportResults.pending_kyc}`,
         `  • Signalements : ${supportResults.pending_reports}`,
         `  • Payouts en attente : ${supportResults.pending_payouts}`,
         ``,

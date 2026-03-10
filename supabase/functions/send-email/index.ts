@@ -160,13 +160,13 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
     case 'first_sale_milestone':
       return { subject: `🎉 Première vente ! – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">🎉 Première Vente !</h1><p>Félicitations ! <strong>${d.org_name}</strong> a réalisé sa première vente : <strong>${d.product_name}</strong> pour <strong>${d.amount} ${d.currency}</strong>.</p><p>Continuez comme ça ! 🚀</p>`) };
 
-    // ═══ KYC ═══
+    // ═══ VÉRIFICATION D'IDENTITÉ ═══
     case 'kyc_submitted':
-      return { subject: `KYC soumis – ${d.org_name}`, html: wrap(`<h1 style="color:${info}">📄 KYC Soumis</h1><p>Vos documents KYC pour <strong>${d.org_name}</strong> ont été soumis avec succès.</p><p>Nous les examinerons sous 2 à 3 jours ouvrés.</p>`) };
+      return { subject: `Vérification soumise – ${d.org_name}`, html: wrap(`<h1 style="color:${info}">📄 Vérification Soumise</h1><p>Vos documents de vérification d'identité pour <strong>${d.org_name}</strong> ont été soumis avec succès.</p><p>Nous les examinerons sous 2 à 3 jours ouvrés.</p>`) };
     case 'kyc_approved':
-      return { subject: `KYC approuvé – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">✅ KYC Approuvé</h1><p>Votre vérification KYC pour <strong>${d.org_name}</strong> a été approuvée.</p><p>Vous pouvez maintenant activer les fonctions de monétisation.</p>`) };
+      return { subject: `Identité vérifiée – ${d.org_name}`, html: wrap(`<h1 style="color:${green}">✅ Identité Vérifiée</h1><p>Votre vérification d'identité pour <strong>${d.org_name}</strong> a été approuvée.</p><p>Vous pouvez maintenant activer les fonctions de monétisation.</p>`) };
     case 'kyc_rejected':
-      return { subject: `KYC – Action requise – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ KYC Non Approuvé</h1><p>Votre soumission KYC pour <strong>${d.org_name}</strong> n'a pas été approuvée.</p><p>Raison : ${d.reason || 'Veuillez contacter le support.'}</p>`) };
+      return { subject: `Vérification – Action requise – ${d.org_name}`, html: wrap(`<h1 style="color:${red}">❌ Vérification Non Approuvée</h1><p>Votre vérification d'identité pour <strong>${d.org_name}</strong> n'a pas été approuvée.</p><p>Raison : ${d.reason || 'Veuillez contacter le support.'}</p>`) };
 
     // ═══ ORG LIFECYCLE ═══
     case 'org_created':
@@ -184,7 +184,7 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
 
     // ═══ ORG CREATOR ONBOARDING SEQUENCE ═══
     case 'org_welcome_j0':
-      return { subject: `🚀 Votre plateforme est prête – ${d.name}`, html: wrap(`<h1 style="color:${blue}">🚀 Bienvenue, créateur !</h1><p>Votre plateforme <strong>${d.name}</strong> vient d'être créée sur Siteviral.</p><p>Voici vos 3 premières étapes :</p><ol style="color:#ccc"><li><strong>Ajoutez votre logo</strong> – les visuels inspirent confiance</li><li><strong>Cliquez sur « Démarrage Express »</strong> pour créer un produit + campagne en 1 clic</li><li><strong>Partagez votre lien</strong> : <code>siteviral.com/org/${d.slug}</code></li></ol>${cta('https://siteviral.com/admin', 'Accéder à mon tableau de bord')}<p style="font-size:12px;color:#999">Vous pouvez publier et recevoir des paiements immédiatement. La vérification KYC n'est requise que pour les retraits.</p>`) };
+      return { subject: `🚀 Votre plateforme est prête – ${d.name}`, html: wrap(`<h1 style="color:${blue}">🚀 Bienvenue, créateur !</h1><p>Votre plateforme <strong>${d.name}</strong> vient d'être créée sur Siteviral.</p><p>Voici vos 3 premières étapes :</p><ol style="color:#ccc"><li><strong>Ajoutez votre logo</strong> – les visuels inspirent confiance</li><li><strong>Cliquez sur « Démarrage Express »</strong> pour créer un produit + campagne en 1 clic</li><li><strong>Partagez votre lien</strong> : <code>siteviral.com/org/${d.slug}</code></li></ol>${cta('https://siteviral.com/admin', 'Accéder à mon tableau de bord')}<p style="font-size:12px;color:#999">Vous pouvez publier et recevoir des paiements immédiatement. La vérification d'identité n'est requise que pour les retraits.</p>`) };
     case 'org_onboarding_j1':
       return { subject: `📌 Avez-vous publié votre premier contenu ? – ${d.org_name}`, html: wrap(`<h1 style="color:${blue}">📌 Jour 1 — Premiers pas</h1><p>Bonjour,</p><p>Votre plateforme <strong>${d.org_name}</strong> a été créée hier. Avez-vous ajouté votre premier contenu ?</p><p style="background:#222;padding:12px;border-radius:8px;color:#ffdd57;font-size:13px">💡 ${d.tip}</p><p>Voici ce que vous pouvez faire aujourd'hui :</p><ul style="color:#ccc"><li>Publier un média (vidéo, audio, article)</li><li>Créer un produit ou un ebook</li><li>Lancer votre première campagne de dons</li></ul>${cta('https://siteviral.com/admin', 'Ouvrir mon dashboard')}`) };
     case 'org_onboarding_j3':

@@ -23,7 +23,7 @@ export function OrgBadges({ isVerified, kycStatus, isSuspended, className, size 
       )}
       {kycStatus && kycStatus !== 'none' && (
         <Badge variant="outline" className={cn('gap-1 border-0 bg-emerald-500/10 text-emerald-600', textSize)}>
-          <ShieldCheck className={iconSize} /> KYC {kycStatus === 'level2' ? 'Level 2' : 'Approved'}
+          <ShieldCheck className={iconSize} /> {kycStatus === 'level2' ? 'Vérifié Niv.2' : 'Vérifié'}
         </Badge>
       )}
       {isSuspended && (
