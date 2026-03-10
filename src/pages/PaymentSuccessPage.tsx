@@ -17,7 +17,7 @@ import { db } from '@/lib/db';
 import { useAuth } from '@/contexts/AuthContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { fetchWatermarkedFile, isPdfLikeFile, openFileInline, triggerBrowserDownload } from '@/lib/secureDownload';
-import { verifyStripePayment, verifyMonerooPayment } from '@/lib/api';
+import { verifyStripePayment } from '@/lib/api';
 
 interface TransactionDetails {
   type: 'product' | 'donation';
@@ -52,7 +52,6 @@ export default function PaymentSuccessPage() {
   const rawReference = searchParams.get('reference') || searchParams.get('trxref') || '';
   const gateway = searchParams.get('gateway') || 'paystack';
   const sessionId = searchParams.get('session_id') || '';
-  const paymentId = searchParams.get('paymentId') || ''; // Moneroo returns this
   const urlType = searchParams.get('type') as 'donation' | 'product' | null;
   const urlOrgId = searchParams.get('organization_id') || '';
   const urlCampaignId = searchParams.get('campaign_id') || '';
@@ -203,8 +202,8 @@ export default function PaymentSuccessPage() {
   }, [reference, user?.id]);
 
   useEffect(() => {
-    // Allow proceeding with session_id alone for Stripe, or paymentId for Moneroo
-    if (!reference && !sessionId && !paymentId) {
+    // Allow proceeding with session_id alone for Stripe
+    if (!reference && !sessionId) {
       setError('Aucune référence de transaction trouvée.');
       setLoading(false);
       return;
@@ -262,26 +261,6 @@ export default function PaymentSuccessPage() {
               }
             } catch (verifyErr) {
               console.error('[PaymentSuccess] stripe-verify error:', verifyErr);
-            }
-          } else if (gateway === 'moneroo' || paymentId) {
-            // ── MONEROO VERIFY ──
-            try {
-              const result = await verifyMonerooPayment(paymentId || undefined, referenceRef.current || undefined);
-              if (result?.reference && !referenceRef.current) {
-                referenceRef.current = result.reference;
-              }
-              if (result?.ok) {
-                await wait(1500);
-                const found2 = await lookupTransaction(referenceRef.current);
-                if (found2) {
-                  await queryClient.invalidateQueries({ queryKey: ['my-purchases'] });
-                  setTx(found2);
-                  setLoading(false);
-                  return;
-                }
-              }
-            } catch (verifyErr) {
-              console.error('[PaymentSuccess] moneroo-verify error:', verifyErr);
             }
           } else if (referenceRef.current.startsWith('SV-')) {
             try {

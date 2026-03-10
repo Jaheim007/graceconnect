@@ -2,8 +2,8 @@ import { useCallback } from 'react';
 import { usePaystack } from './usePaystack';
 import { callFn } from '@/lib/api';
 
-export type PaymentMethod = 'mobile_money' | 'card' | 'apple_pay' | 'moneroo';
-export type PaymentGateway = 'paystack' | 'stripe' | 'moneroo';
+export type PaymentMethod = 'mobile_money' | 'card' | 'apple_pay';
+export type PaymentGateway = 'paystack' | 'stripe';
 
 interface PaymentParams {
   method: PaymentMethod;
@@ -29,7 +29,7 @@ interface PaymentParams {
 /**
  * Unified payment gateway hook.
  * Routing policy:
- * - Mobile Money => Paystack
+ * - Mobile Money / Apple Pay => Paystack
  * - Card => Stripe
  */
 export function usePaymentGateway() {
@@ -44,10 +44,9 @@ export function usePaymentGateway() {
       onSuccess, onClose,
     } = params;
 
-    const usePaystack = method === 'mobile_money' || method === 'apple_pay';
-    const useMoneroo = method === 'moneroo';
+    const usePaystackGateway = method === 'mobile_money' || method === 'apple_pay';
 
-    if (usePaystack && !hasPaystackKey) {
+    if (usePaystackGateway && !hasPaystackKey) {
       throw new Error(method === 'apple_pay'
         ? 'Apple Pay est temporairement indisponible. Choisissez Carte bancaire ou réessayez dans quelques instants.'
         : 'Mobile Money est temporairement indisponible. Choisissez Carte bancaire ou réessayez dans quelques instants.');
@@ -55,41 +54,12 @@ export function usePaymentGateway() {
 
     // Defensive: validate currency is Paystack-compatible
     const PAYSTACK_SUPPORTED = new Set(['NGN', 'GHS', 'ZAR', 'KES', 'XOF', 'EGP', 'RWF', 'XAF']);
-    if (usePaystack && currency && !PAYSTACK_SUPPORTED.has(currency.toUpperCase())) {
+    if (usePaystackGateway && currency && !PAYSTACK_SUPPORTED.has(currency.toUpperCase())) {
       throw new Error(`La devise ${currency} n'est pas supportée par ${method === 'apple_pay' ? 'Apple Pay' : 'Mobile Money'}. Veuillez choisir Carte bancaire.`);
     }
 
-    // ── MONEROO (all methods via Moneroo checkout) ──
-    if (useMoneroo) {
-      const currentUrl = window.location.origin;
-      const result = await callFn('moneroo-checkout', {
-        type,
-        organization_id,
-        campaign_id,
-        product_id,
-        amount,
-        currency,
-        buyer_name,
-        buyer_email: email,
-        affiliate_code,
-        promo_code,
-        return_url: `${currentUrl}/payment/success?gateway=moneroo`,
-      }, true);
-
-      if (result?.checkout_url) {
-        window.location.href = result.checkout_url;
-      } else {
-        throw new Error(result?.error || 'Failed to create Moneroo checkout session');
-      }
-      return;
-    }
-
-    if (usePaystack) {
-      // ── PAYSTACK (Mobile Money only) ──
-      // NOTE: subaccount is intentionally omitted for MoMo payments.
-      // Paystack subaccounts are currency-specific (e.g. NGN-only) and will
-      // reject transactions in other currencies ("Currency not supported by merchant").
-      // The platform collects centrally and handles payouts separately.
+    if (usePaystackGateway) {
+      // ── PAYSTACK (Mobile Money / Apple Pay) ──
       await openPaystack({
         email,
         amount,
@@ -143,4 +113,3 @@ export function usePaymentGateway() {
     hasPaystackKey,
   };
 }
-
