@@ -453,7 +453,14 @@ export function SmartCameraCapture({
     setUploading(true);
     setError(null);
     try {
-      const blob = await (await fetch(dataUrl)).blob();
+      // Convert data URL to blob without fetch (more reliable)
+      const byteString = atob(dataUrl.split(',')[1]);
+      const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+      const blob = new Blob([ab], { type: mimeString });
+
       const fileName = `${folder}/${Date.now()}-capture.jpg`;
       const { error: uploadError } = await supabase.storage
         .from(bucket)
