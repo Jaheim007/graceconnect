@@ -8,6 +8,7 @@ import { Share2, CheckCircle, Circle, Copy, MessageCircle, Rocket, Award, Target
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SEOHead } from '@/components/seo/SEOHead';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { useToast } from '@/hooks/use-toast';
 import { formatCurrency } from '@/lib/currency';
 import { cn } from '@/lib/utils';
@@ -27,7 +28,7 @@ export default function QuickStartPage() {
     queryFn: async () => {
       const { data } = await db
         .from('digital_products')
-        .select('id, title, cover_image_url, price, currency, sales_count, slug, organization_id, organizations(name, slug, logo_url, affiliation_commission_percent, affiliation_enabled)')
+        .select('id, title, cover_image_url, price, currency, sales_count, slug, organization_id, organizations(name, slug, logo_url, affiliation_commission_percent, affiliation_enabled, is_verified)')
         .eq('is_published', true)
         .gt('price', 0)
         .order('sales_count', { ascending: false })
@@ -107,6 +108,7 @@ export default function QuickStartPage() {
     orgId: p.organization_id,
     orgName: p.organizations?.name,
     orgSlug: p.organizations?.slug,
+    isOrgVerified: p.organizations?.is_verified ?? false,
     commissionRate: p.organizations?.affiliation_commission_percent || 10,
   }));
 
@@ -215,7 +217,7 @@ export default function QuickStartPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold truncate">{item.title}</p>
-                      <p className="text-xs text-muted-foreground">{item.orgName}</p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">{item.orgName} {item.isOrgVerified && <VerifiedBadge size="xs" showTooltip={false} />}</p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-xs text-muted-foreground">{formatCurrency(item.price, item.currency)}</span>
                         <span className="text-[10px] bg-accent/10 text-accent px-1.5 py-0.5 rounded font-bold">{item.commissionRate}%</span>

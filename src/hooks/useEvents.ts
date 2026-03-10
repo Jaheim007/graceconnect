@@ -32,7 +32,7 @@ export function useFeedEvents(orgIds: string[]) {
       const now = new Date().toISOString();
       const { data } = await db
         .from('events')
-        .select('*, organizations(name, slug)')
+        .select('*, organizations(name, slug, is_verified)')
         .in('organization_id', orgIds)
         .eq('is_published', true)
         .gte('event_date', now)
@@ -42,6 +42,7 @@ export function useFeedEvents(orgIds: string[]) {
         ...e,
         organization_name: e.organizations?.name,
         organization_slug: e.organizations?.slug,
+        is_org_verified: e.organizations?.is_verified ?? false,
       })) as Event[];
     },
     enabled: orgIds.length > 0,

@@ -7,6 +7,7 @@ import { ShoppingBag, X, GitCompareArrows, Star, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 
 interface CompareProduct {
   id: string;
@@ -165,7 +166,7 @@ function CompareTable({ items, onRemove, onClear }: { items: CompareProduct[]; o
               )}
             </div>
             <p className="text-xs font-semibold line-clamp-2 leading-tight">{p.title}</p>
-            <p className="text-[10px] text-muted-foreground">{p.organization_name}</p>
+            <p className="text-[10px] text-muted-foreground flex items-center gap-0.5">{p.organization_name} {(p as any).is_org_verified && <VerifiedBadge size="xs" showTooltip={false} />}</p>
             <Button
               size="sm"
               variant="outline"

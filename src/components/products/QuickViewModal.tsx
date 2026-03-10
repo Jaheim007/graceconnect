@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { FormattedText, stripHtml } from '@/lib/formatText';
 import { ContentSizeBadge } from '@/components/products/ContentSizeBadge';
+import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 
 interface QuickViewModalProps {
   product: any;
@@ -103,7 +104,7 @@ export function QuickViewModal({ product, orgSlug, open, onClose, isPurchased }:
                   {product.organizations.name?.[0]}
                 </div>
               )}
-              <span className="font-medium">{product.organizations.name}</span>
+              <span className="font-medium flex items-center gap-1">{product.organizations.name} {product.organizations.is_verified && <VerifiedBadge size="xs" showTooltip={false} />}</span>
             </div>
           )}
 
