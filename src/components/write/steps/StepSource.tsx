@@ -97,6 +97,11 @@ export function StepSource({
   };
 
   const handleTranscribeAndNext = async () => {
+    // If topic already has content from a previous transcription, show preview
+    if (shouldShowPreviewOnContinue) {
+      setShowTranscriptionPreview(true);
+      return;
+    }
     if (!needsTranscription) {
       onNext();
       return;
