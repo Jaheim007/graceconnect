@@ -128,9 +128,14 @@ async function notifyOrgAffiliates(
   }
 }
 
-// ── Email to org members (via edge function) ──
+// ── Email to org admins/owners (via edge function) ──
 function emailOrgAdmins(template: EmailTemplate, orgId: string, data: Record<string, string | number>) {
   sendEmailNotification(template, '', data, orgId).catch(() => {});
+}
+
+// ── Email only to org owner (via edge function with owner_only flag) ──
+function emailOrgOwnerOnly(template: EmailTemplate, orgId: string, data: Record<string, string | number>) {
+  sendEmailNotification(template, '', { ...data, __owner_only: 1 }, orgId).catch(() => {});
 }
 
 // ═══════════════════════════════════════════════════════════
