@@ -51,7 +51,14 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
   const generateIllustration = async (chapterId: string, chapterTitle: string, chapterContent: string) => {
     setGenerating(chapterId);
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        throw new Error('Session expirée. Reconnecte-toi puis réessaie.');
+      }
+
       const { data, error } = await supabase.functions.invoke('generate-illustration', {
+        headers: { Authorization: `Bearer ${accessToken}` },
         body: {
           bookTitle: state.title || '',
           chapterTitle,
@@ -62,7 +69,16 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        const status = (error as any)?.context?.status;
+        let details: any = null;
+        try {
+          if ((error as any)?.context) details = await (error as any).context.json();
+        } catch {
+          details = null;
+        }
+        throw new Error(details?.error || details?.message || (status === 401 ? 'Non autorisé. Reconnecte-toi.' : error.message));
+      }
       if (data?.error) throw new Error(data.error);
       if (!data?.imageUrl) throw new Error('No image returned');
 
