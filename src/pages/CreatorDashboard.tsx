@@ -153,14 +153,14 @@ export default function CreatorDashboard() {
           </div>
         </motion.div>
 
-        {/* ═══ KYC BANNER — EN HAUT (urgent) ═══ */}
+        {/* ═══ VÉRIFICATION BANNER — EN HAUT (urgent) ═══ */}
         {kycStatus === 'none' && (
           <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
             className="flex items-center gap-3 p-3 rounded-xl bg-destructive/5 border border-destructive/20"
           >
             <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium">Paiements acceptés immédiatement. KYC requis pour retirer vos fonds.</p>
+              <p className="text-xs font-medium">Paiements acceptés immédiatement. Vérification d'identité requise pour retirer vos fonds.</p>
             </div>
             <Button size="sm" variant="destructive" onClick={() => navigate('/admin/kyc')} className="h-7 text-xs shrink-0">Vérifier</Button>
           </motion.div>
