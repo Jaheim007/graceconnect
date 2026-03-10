@@ -61,9 +61,12 @@ export function StepSource({
     }
   })();
 
+  // Sources that involve transcription (not plain "idea")
+  const isTranscriptionSource = state.source !== 'idea';
+
   // Determine if we need to run transcription before proceeding
   const needsTranscription = (() => {
-    // Already transcribed (topic has content) → no need
+    // Already transcribed (topic has content) → no need to re-transcribe
     if (state.topic.trim().length >= 3) return false;
     switch (state.source) {
       case 'youtube': return (state.sourceUrl || '').trim().length > 10;
@@ -73,6 +76,10 @@ export function StepSource({
       default: return false;
     }
   })();
+
+  // If topic already has transcription content and source is transcription-based,
+  // show the preview when user clicks continue (no need to re-transcribe)
+  const shouldShowPreviewOnContinue = isTranscriptionSource && state.topic.trim().length >= 3 && !showTranscriptionPreview;
 
   const uploadAndTranscribe = async (file: File, sourceType: string) => {
     const path = `transcribe/${Date.now()}-${file.name}`;
@@ -90,6 +97,11 @@ export function StepSource({
   };
 
   const handleTranscribeAndNext = async () => {
+    // If topic already has content from a previous transcription, show preview
+    if (shouldShowPreviewOnContinue) {
+      setShowTranscriptionPreview(true);
+      return;
+    }
     if (!needsTranscription) {
       onNext();
       return;
@@ -225,7 +237,7 @@ export function StepSource({
         size="lg"
         className="w-full h-14 text-base gap-2"
         disabled={!canContinue || transcribing}
-        onClick={needsTranscription ? handleTranscribeAndNext : onNext}
+        onClick={needsTranscription || shouldShowPreviewOnContinue ? handleTranscribeAndNext : onNext}
       >
         {transcribing ? (
           <>
