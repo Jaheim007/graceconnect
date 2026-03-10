@@ -550,6 +550,7 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                     bucket="kyc-documents"
                     label={selectedDoc.hasBack ? 'Face avant du document' : selectedDoc.label}
                     hint="Prenez une photo claire du document entier"
+                    captureMode="document"
                   />
                 </div>
                 {selectedDoc.hasBack && (
