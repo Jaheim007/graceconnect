@@ -125,6 +125,14 @@ export default function ManualPayoutsDashboard() {
         }).eq('id', selectedPayout.source_request_id);
       }
 
+      // Send notifications
+      if (selectedPayout.organization_id) {
+        const { onPayoutApproved } = await import('@/lib/notifications');
+        // Get org name
+        const { data: org } = await db.from('organizations').select('name').eq('id', selectedPayout.organization_id).maybeSingle();
+        onPayoutApproved(selectedPayout.organization_id, org?.name || '', selectedPayout.amount, selectedPayout.currency || 'XOF');
+      }
+
       toast.success('Payout marqué comme effectué ✅');
       setSelectedPayout(null);
       setProofUrl('');
