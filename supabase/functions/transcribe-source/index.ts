@@ -604,3 +604,124 @@ async function fetchYouTubeCaptions(videoId: string): Promise<string> {
   
   return `## ${videoTitle}\n\n${paragraphs.join('\n\n')}`;
 }
+
+async function fetchYouTubeCaptionsViaInvidious(videoId: string): Promise<string> {
+  const instances = [
+    'https://inv.nadeko.net',
+    'https://invidious.privacyredirect.com',
+    'https://invidious.fdn.fr',
+  ];
+
+  let lastError = 'No available Invidious instance';
+
+  for (const base of instances) {
+    try {
+      const tracksRes = await fetch(`${base}/api/v1/captions/${videoId}`);
+      if (!tracksRes.ok) {
+        lastError = `${base} tracks returned ${tracksRes.status}`;
+        continue;
+      }
+
+      const tracksData = await tracksRes.json();
+      const tracks = tracksData?.captions || [];
+      if (!Array.isArray(tracks) || tracks.length === 0) {
+        lastError = `${base} no caption tracks`;
+        continue;
+      }
+
+      // Prefer French or English, then fallback to first available track
+      const selected =
+        tracks.find((t: any) => String(t.languageCode || '').toLowerCase().startsWith('fr')) ||
+        tracks.find((t: any) => String(t.languageCode || '').toLowerCase().startsWith('en')) ||
+        tracks[0];
+
+      const label = selected?.label;
+      if (!label) {
+        lastError = `${base} track missing label`;
+        continue;
+      }
+
+      const subtitleUrl = `${base}/api/v1/captions/${videoId}?label=${encodeURIComponent(label)}`;
+      const subtitleRes = await fetch(subtitleUrl);
+      if (!subtitleRes.ok) {
+        lastError = `${base} subtitles returned ${subtitleRes.status}`;
+        continue;
+      }
+
+      const raw = await subtitleRes.text();
+      const parsed = parseSubtitlePayload(raw);
+
+      if (!parsed || parsed.length < 20) {
+        lastError = `${base} empty subtitle payload`;
+        continue;
+      }
+
+      return parsed;
+    } catch (err) {
+      lastError = `${base} ${(err as Error)?.message || String(err)}`;
+    }
+  }
+
+  throw new Error(lastError);
+}
+
+function parseSubtitlePayload(payload: string): string {
+  // 1) JSON shape: [{text,start,dur,...}] or {events:[...]}
+  try {
+    const parsed = JSON.parse(payload);
+
+    if (Array.isArray(parsed)) {
+      const lines = parsed
+        .map((row: any) => decodeEntities(String(row?.text || '')))
+        .map((t: string) => t.trim())
+        .filter(Boolean);
+      if (lines.length) return lines.join(' ');
+    }
+
+    if (Array.isArray(parsed?.events)) {
+      const lines: string[] = [];
+      for (const ev of parsed.events) {
+        if (Array.isArray(ev?.segs)) {
+          const line = ev.segs.map((s: any) => decodeEntities(String(s?.utf8 || ''))).join('').trim();
+          if (line) lines.push(line);
+        }
+      }
+      if (lines.length) return lines.join(' ');
+    }
+  } catch {
+    // ignore JSON parse errors and try XML/VTT parsing
+  }
+
+  // 2) XML timedtext
+  const xmlMatches = payload.matchAll(/<text[^>]*>([\s\S]*?)<\/text>/gi);
+  const xmlLines: string[] = [];
+  for (const match of xmlMatches) {
+    const text = decodeEntities(match[1]).replace(/<[^>]+>/g, '').trim();
+    if (text) xmlLines.push(text);
+  }
+  if (xmlLines.length) return xmlLines.join(' ');
+
+  // 3) VTT/SRT fallback (strip indexes/timestamps/headers)
+  const vttLines = payload
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith('WEBVTT') && !line.startsWith('NOTE'))
+    .filter((line) => !/^\d+$/.test(line))
+    .filter((line) => !line.includes('-->'))
+    .map((line) => decodeEntities(line).replace(/<[^>]+>/g, '').trim())
+    .filter(Boolean);
+
+  return vttLines.join(' ');
+}
+
+function decodeEntities(text: string): string {
+  return text
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&#x27;/gi, "'")
+    .replace(/&#x2F;/gi, '/')
+    .replace(/&nbsp;/g, ' ');
+}
