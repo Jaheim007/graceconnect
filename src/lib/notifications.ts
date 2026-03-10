@@ -693,7 +693,7 @@ export async function onNewDonation(
 }
 
 export async function onCampaignGoalReached(orgId: string, orgName: string, campaignName: string, goalAmount: number, currentAmount: number, currency: string) {
-  emailOrgAdmins('campaign_goal_reached', orgId, {
+  emailOrgOwnerOnly('campaign_goal_reached', orgId, {
     org_name: orgName, campaign_name: campaignName,
     goal_amount: goalAmount, current_amount: currentAmount, currency,
   });
