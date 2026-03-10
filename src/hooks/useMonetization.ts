@@ -28,7 +28,7 @@ export function useFeedCampaigns(orgIds: string[]) {
       if (!orgIds.length) return [];
       const { data } = await db
         .from('donation_campaigns')
-        .select('*, organizations(name, slug)')
+        .select('*, organizations(name, slug, is_verified)')
         .in('organization_id', orgIds)
         .eq('is_published', true)
         .eq('is_active', true)
@@ -39,6 +39,7 @@ export function useFeedCampaigns(orgIds: string[]) {
         ...c,
         organization_name: c.organizations?.name,
         organization_slug: c.organizations?.slug,
+        is_org_verified: c.organizations?.is_verified ?? false,
       })) as DonationCampaign[];
     },
     enabled: orgIds.length > 0,
