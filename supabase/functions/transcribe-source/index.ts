@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
 
     // Debit credits for transcription
     try {
-      await consumeCreditsOrThrow({ admin: db, userId, actionKey: 'transcribe_source', tier: 'standard' });
+      await consumeCreditsOrThrow({ admin: db, userId, actionKey: 'transcribe_media', tier: 'standard' });
     } catch (e: any) {
       if (e?.status === 402) {
         return new Response(JSON.stringify({ error: e.message }), {

@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
     if (!product_id || !title) return jsonResp({ error: 'Missing product_id or title' }, 400);
 
     const admin = adminClient(auth.supabaseUrl, auth.serviceKey);
-    await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: 'ai_generate_cover', tier: normalizeTier(tier) });
+    await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: 'generate_cover', tier: normalizeTier(tier) });
 
     const typeHints: Record<string, string> = {
       pdf: 'a professional PDF document cover',

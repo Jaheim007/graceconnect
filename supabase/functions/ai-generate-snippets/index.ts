@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
     // Debit credits only if user-initiated (not auto-triggered)
     if (userId) {
       try {
-        await consumeCreditsOrThrow({ admin, userId, actionKey: 'ai_generate_snippets', tier: 'standard' });
+        await consumeCreditsOrThrow({ admin, userId, actionKey: 'generate_snippets', tier: 'standard' });
       } catch (e: any) {
         if (e?.status === 402) return jsonResp({ error: e.message }, 402);
         throw e;

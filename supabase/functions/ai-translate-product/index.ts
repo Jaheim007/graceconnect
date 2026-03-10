@@ -26,7 +26,7 @@ Deno.serve(async (req) => {
     if (prodErr || !product) return jsonResp({ error: 'Product not found' }, 404);
 
     // Debit credits
-    await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: 'ai_translate_product', tier: normalizeTier(tier) });
+    await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: 'translate_product', tier: normalizeTier(tier) });
 
     const targetLang = target_language === 'fr' ? 'French' : target_language === 'en' ? 'English' : target_language === 'es' ? 'Spanish' : target_language;
 
