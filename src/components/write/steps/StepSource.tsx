@@ -130,7 +130,9 @@ export function StepSource({
     } catch (err: any) {
       console.error('Transcription error:', err);
       setTranscribing(false);
-      toast({ title: `❌ ${t('write.transcribe_error')}`, description: err?.message, variant: 'destructive' });
+      if (!handleAiError(err)) {
+        toast({ title: `❌ ${t('write.transcribe_error')}`, description: err?.message, variant: 'destructive' });
+      }
     }
   };
 
