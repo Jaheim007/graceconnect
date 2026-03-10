@@ -1,8 +1,13 @@
-import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowLeft, ArrowRight, Sparkles, Loader2, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useI18n } from '@/i18n/I18nContext';
 import { ImageUploader } from '@/components/ui/ImageUploader';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { useCreditGuard } from '@/hooks/useCreditGuard';
+import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 import type { WriteState } from '../WriteWizard';
 
 const COVER_GRADIENTS = [
@@ -25,6 +30,9 @@ interface Props {
 
 export function StepCover({ state, update, onNext, onBack }: Props) {
   const { t } = useI18n();
+  const { toast } = useToast();
+  const [generating, setGenerating] = useState(false);
+  const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
 
   const handleCoverUrlChange = (url: string) => {
     update({
@@ -34,6 +42,52 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
     });
   };
 
+  const handleAiGenerate = async () => {
+    if (!state.title) {
+      toast({ title: 'Veuillez d\'abord saisir un titre', variant: 'destructive' });
+      return;
+    }
+    setGenerating(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error('Non authentifié');
+
+      const { data, error } = await supabase.functions.invoke('ai-generate-cover', {
+        body: {
+          product_id: state.productId || crypto.randomUUID(),
+          title: state.title,
+          product_type: state.style === 'ebook' ? 'ebook' : 'pdf',
+          description: state.topic || state.subtitle || '',
+          tier: 'standard',
+        },
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+
+      if (error) {
+        const parsed = typeof error === 'object' ? error : { message: String(error) };
+        if (handleAiError(parsed)) return;
+        throw new Error((parsed as any)?.message || 'Erreur de génération');
+      }
+
+      if (data?.error) {
+        if (handleAiError({ message: data.error, status: data.error.includes('insuffisant') ? 402 : undefined })) return;
+        throw new Error(data.error);
+      }
+
+      if (data?.cover_url) {
+        update({ coverUrl: data.cover_url, coverFile: null, coverTemplate: -1 });
+        refreshCredits();
+        toast({ title: '✨ Couverture générée avec succès !' });
+      }
+    } catch (err: any) {
+      if (!handleAiError(err)) {
+        toast({ title: err?.message || 'Erreur lors de la génération', variant: 'destructive' });
+      }
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   return (
     <div className="space-y-8 pt-8">
       <div className="text-center space-y-2">
@@ -41,7 +95,30 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
         <p className="text-muted-foreground text-sm">{t('write.cover_sub')}</p>
       </div>
 
-      {/* Upload / Canva first — this is the real cover */}
+      {/* AI Generate button */}
+      <div className="flex justify-center">
+        <Button
+          variant="outline"
+          size="lg"
+          onClick={handleAiGenerate}
+          disabled={generating || !state.title}
+          className="gap-2 border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary"
+        >
+          {generating ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Génération en cours…
+            </>
+          ) : (
+            <>
+              <Wand2 className="h-4 w-4" />
+              ✨ Générer la couverture avec l'IA
+            </>
+          )}
+        </Button>
+      </div>
+
+      {/* Upload / Canva */}
       <div>
         <p className="text-xs text-muted-foreground mb-2">{t('write.cover_upload_label')}</p>
         <ImageUploader
@@ -83,8 +160,6 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
         </div>
       )}
 
-
-
       <div className="flex gap-3">
         <Button variant="outline" size="lg" onClick={onBack} className="gap-2">
           <ArrowLeft className="h-4 w-4" /> {t('write.back')}
@@ -93,7 +168,12 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
           {t('write.continue')} <ArrowRight className="h-4 w-4" />
         </Button>
       </div>
+
+      <InsufficientCreditsDialog
+        open={showCreditDialog}
+        onOpenChange={setShowCreditDialog}
+        message={creditErrorMessage}
+      />
     </div>
   );
 }
-
