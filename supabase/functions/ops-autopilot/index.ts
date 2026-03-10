@@ -430,7 +430,7 @@ Deno.serve(async (req) => {
         `  • Inactifs relancés : ${growthResults.inactive_users_reactivated || 0}`,
         ``,
         `🛟 Support:`,
-        `  • KYC en attente : ${supportResults.pending_kyc}`,
+        `  • Vérifications en attente : ${supportResults.pending_kyc}`,
         `  • Signalements : ${supportResults.pending_reports}`,
         `  • Payouts en attente : ${supportResults.pending_payouts}`,
         ``,

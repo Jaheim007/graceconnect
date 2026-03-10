@@ -384,7 +384,7 @@ Deno.serve(async (req) => {
     results['member_milestones'] = milestoneCount;
 
     // ═══════════════════════════════════════════
-    // 11. KYC REMINDER (orgs with sales but no KYC)
+    // 11. IDENTITY VERIFICATION REMINDER (orgs with sales but no verification)
     // ═══════════════════════════════════════════
     let kycReminderCount = 0;
     const { data: orgsNoKyc } = await db.from('organizations')
