@@ -523,22 +523,18 @@ function normalizeGeneratedChapters(parsed: any): { id: string; title: string; c
 }
 
 async function repairJsonWithAi(apiKey: string, rawContent: string, chapterCount: number): Promise<any | null> {
-  const repairRes = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+  const repairRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'google/gemini-2.5-flash',
-      max_tokens: 7000,
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: `You repair malformed JSON only. Return ONLY valid JSON with this shape: {"chapters":[{"id":"ch-1","title":"...","content":"<p>...</p>"}]}. Keep HTML in content. Do not summarize.` },
-        { role: 'user', content: `Repair this malformed payload into valid JSON. Keep as much original content as possible. Expected chapter count around ${chapterCount}.\n\n${rawContent.slice(0, 80000)}` },
-      ],
+      system_instruction: { parts: [{ text: 'You repair malformed JSON only. Return ONLY valid JSON with this shape: {"chapters":[{"id":"ch-1","title":"...","content":"<p>...</p>"}]}. Keep HTML in content. Do not summarize.' }] },
+      contents: [{ role: 'user', parts: [{ text: `Repair this malformed payload into valid JSON. Expected ${chapterCount} chapters.\n\n${rawContent.slice(0, 80000)}` }] }],
+      generationConfig: { maxOutputTokens: 7000, responseMimeType: 'application/json' },
     }),
   });
   if (!repairRes.ok) return null;
   const repairData = await repairRes.json().catch(() => null);
-  const repairedRaw = repairData?.choices?.[0]?.message?.content || '';
+  const repairedRaw = repairData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
   return tryParsePayload(repairedRaw);
 }
 
