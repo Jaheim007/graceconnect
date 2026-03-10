@@ -69,6 +69,27 @@ async function notifyOrgMembers(
   }
 }
 
+// ── Notify only owners & admins of an org (in-app only) ──
+async function notifyOrgOwnersAdmins(
+  orgId: string,
+  title: string,
+  body: string,
+  type: string = 'org',
+  actionUrl?: string,
+) {
+  try {
+    const { data: members } = await db.from('organization_members')
+      .select('user_id, role')
+      .eq('organization_id', orgId)
+      .in('role', ['owner', 'admin']);
+    for (const m of members || []) {
+      notify(m.user_id, title, body, type, orgId, actionUrl);
+    }
+  } catch (e) {
+    console.error('notifyOrgOwnersAdmins failed:', e);
+  }
+}
+
 // ── Notify all affiliates of an org (in-app + email) ──
 async function notifyOrgAffiliates(
   orgId: string,
@@ -373,7 +394,7 @@ export async function onKycStatusChanged(
     approved: `Le KYC de ${orgName} a été approuvé ! Vous pouvez activer la monétisation.`,
     rejected: `Le KYC de ${orgName} nécessite une attention. ${reason || 'Veuillez contacter le support.'}`,
   };
-  notifyOrgMembers(orgId, `${icons[status]} KYC ${status === 'submitted' ? 'soumis' : status === 'approved' ? 'approuvé' : 'rejeté'}`, msgs[status], 'org', undefined, `/admin/kyc`);
+  notifyOrgOwnersAdmins(orgId, `${icons[status]} KYC ${status === 'submitted' ? 'soumis' : status === 'approved' ? 'approuvé' : 'rejeté'}`, msgs[status], 'org', `/admin/kyc`);
 }
 
 // ── Support tickets ──
