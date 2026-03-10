@@ -875,18 +875,26 @@ function getTitleGuidance(lang: string, style: string, profile: EditorialProfile
   return 'Clear, precise, result-oriented titles.';
 }
 
+import { requireAuth, corsHeaders as sharedCors, jsonResp as jResp, adminClient } from '../_shared/auth.ts';
+import { consumeCreditsOrThrow, normalizeTier } from '../_shared/credits.ts';
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
   try {
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    if (!GEMINI_API_KEY) {
       return new Response(JSON.stringify({ error: 'AI not configured' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const { title, subtitle, authorName, topic, style, pageCount, chapterCount: requestedChapterCount, keywords, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle, styleReference, editorialStrategy, religiousTradition, prayerFormat } = await req.json();
+    // Auth + credit debit
+    const auth = await requireAuth(req);
+    if (auth instanceof Response) return auth;
+    const admin = adminClient(auth.supabaseUrl, auth.serviceKey);
+
+    const { title, subtitle, authorName, topic, style, pageCount, chapterCount: requestedChapterCount, keywords, language, tone, languageLevel, targetAudience, singleChapter, chapterTitle, styleReference, editorialStrategy, religiousTradition, prayerFormat, tier } = await req.json();
 
     if (!title && !topic) {
       return new Response(JSON.stringify({ error: 'title or topic required' }), {
