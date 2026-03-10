@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import ManualPayoutsDashboard from '@/components/superadmin/ManualPayoutsDashboard';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Badge } from '@/components/ui/badge';
