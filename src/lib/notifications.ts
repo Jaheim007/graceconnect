@@ -1134,7 +1134,7 @@ export async function onPromoCodeUsed(
   discount: string,
   buyerName: string,
 ) {
-  notifyOrgMembers(orgId, '🎟️ Code promo utilisé', `${buyerName} a utilisé le code "${promoCode}" (${discount}).`, 'transaction');
+  notifyOrgOwnerOnly(orgId, '🎟️ Code promo utilisé', `${buyerName} a utilisé le code "${promoCode}" (${discount}).`, 'transaction');
   emailOrgAdmins('promo_code_used', orgId, { org_name: orgName, promo_code: promoCode, discount, buyer_name: buyerName });
 }
 
