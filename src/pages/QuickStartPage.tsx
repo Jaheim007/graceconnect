@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { getEffectivePrice } from '@/lib/effectivePrice';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useAuth } from '@/contexts/AuthContext';
