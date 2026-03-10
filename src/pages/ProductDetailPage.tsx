@@ -782,7 +782,7 @@ export default function ProductDetailPage() {
               {/* Marketing Kit for ambassadors */}
               <MarketingKit
                 productTitle={product.title}
-                productPrice={((product as any).sale_price && (!((product as any).sale_ends_at) || new Date((product as any).sale_ends_at) > new Date())) ? (product as any).sale_price : product.price || undefined}
+                productPrice={getEffectivePrice(product as any)}
                 productCurrency={product.currency || 'XOF'}
                 commissionPercent={(product as any).commission_percent || 10}
                 shareUrl={buildShareUrl()}

@@ -76,6 +76,8 @@ export function MarketingKit({
     return () => { cancelled = true; };
   }, [shareUrl, productTitle, orgName]);
 
+  // productPrice is already the effective price (sale_price or regular price)
+  // passed by the caller using getEffectivePrice()
   const estimatedGain = productPrice && commissionPercent
     ? Math.round((productPrice * commissionPercent) / 100)
     : null;
