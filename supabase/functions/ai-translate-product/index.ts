@@ -49,8 +49,8 @@ Deno.serve(async (req) => {
       ...(faqItems.length > 0 ? { faq_items: faqItems.map(f => ({ question: f.question, answer: f.answer })) } : {}),
     });
 
-    const raw = await geminiGenerateText({
-      apiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash',
+    const raw = await aiGenerateText({
+      geminiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash',
       system: `You are a professional translator. Translate to ${targetLang}. Maintain HTML formatting and marketing tone. Return ONLY a JSON object with the same keys.`,
       prompt: payload,
       jsonMode: true,

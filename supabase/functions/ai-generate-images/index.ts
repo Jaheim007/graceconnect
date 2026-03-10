@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
       }
 
       try {
-        const { base64, mimeType } = await geminiGenerateImageBase64({ apiKey: GEMINI_API_KEY, prompt: imagePrompt, timeoutMs: 60_000 });
+        const { base64, mimeType } = await aiGenerateImageBase64({ geminiKey: GEMINI_API_KEY, prompt: imagePrompt, timeoutMs: 60_000 });
         const ext = mimeType.includes('jpeg') ? 'jpg' : 'png';
         const storagePath = `${org_id}/${project_id}/images/page-${i}-${Date.now()}.${ext}`;
 

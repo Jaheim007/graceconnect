@@ -53,8 +53,8 @@ Deno.serve(async (req) => {
 
     const prompt = `Tu es un expert en marketing viral. Génère des extraits partageables pour ce produit numérique.\n\nProduit: "${product.title}"\nDescription: ${product.description || 'Non fournie'}\nType: ${product.product_type || 'ebook'}\nCréateur: ${org?.name || 'Créateur'}\n\nGénère exactement 10 éléments viraux au format JSON array. Chaque élément: {"type":"quote"|"hook"|"benefit"|"social_post", "text":"...", "platform":"whatsapp"|"facebook"|"twitter"|"instagram"|"universal"}`;
 
-    const raw = await geminiGenerateText({
-      apiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash-lite',
+    const raw = await aiGenerateText({
+      geminiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash-lite',
       system: 'Tu génères du contenu marketing viral en français. Réponds uniquement en JSON array.',
       prompt,
     });
