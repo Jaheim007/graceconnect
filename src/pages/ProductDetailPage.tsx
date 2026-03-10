@@ -443,7 +443,7 @@ export default function ProductDetailPage() {
               </div>
             )}
             <span className="text-sm font-bold truncate max-w-[180px]">{org.name}</span>
-            {org.is_verified && <VerifiedBadge size="sm" className="ml-1" />}
+            {isOrgVerifiedOrKyc(org.is_verified, (org as any).kyc_status) && <VerifiedBadge size="sm" label={getVerifiedLabel((org as any).category)} className="ml-1" />}
           </Link>
         ) : (
           <Link to={user ? '/feed' : '/'}>
