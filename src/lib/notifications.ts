@@ -676,7 +676,7 @@ export async function onPurchaseConfirmed(
     `Votre achat de "${productName}" sur ${orgName} a été confirmé. Montant: ${amount} ${currency}`,
     'purchase_confirmation',
     { product_name: productName, org_name: orgName, amount, currency, reference, access_link: 'https://siteviral.com/resources' },
-    'transaction',
+    'transaction', undefined, `/resources`,
   );
 }
 
