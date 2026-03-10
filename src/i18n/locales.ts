@@ -643,7 +643,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'sidebar.manage': 'Manage',
     'sidebar.more': 'More',
     'sidebar.organizations': 'Platforms',
-    'sidebar.kyc': 'KYC',
+    'sidebar.kyc': 'Verification',
     'sidebar.transactions': 'Transactions',
     'sidebar.reports': 'Reports',
     'sidebar.risk_aml': 'Risk & AML',
