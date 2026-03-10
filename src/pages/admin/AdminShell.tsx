@@ -33,8 +33,10 @@ export default function AdminShell() {
   }
 
   return (
-    <div className="p-3 sm:p-4 lg:p-6">
-      <Outlet />
+    <div className="min-h-full flex flex-col p-3 sm:p-4 lg:p-6">
+      <div className="flex-1">
+        <Outlet />
+      </div>
       <OnboardingTour />
     </div>
   );
