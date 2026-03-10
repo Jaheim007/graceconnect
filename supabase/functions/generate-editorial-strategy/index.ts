@@ -59,14 +59,23 @@ Deno.serve(async (req) => {
         const prompts = langPrompts[lang];
         const params = { topic: topic || title, title, style, audience, tone };
 
-        const raw = await aiGenerateText({
-          geminiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash',
-          system: prompts.system, prompt: prompts.user(params),
-          maxOutputTokens: 2048, jsonMode: true,
-        });
-
-        const strategy = extractJson(raw);
-        if (!strategy) throw new Error('Failed to parse AI response');
+        // Retry up to 2 times if JSON parsing fails
+        let strategy: any = null;
+        let lastRaw = '';
+        for (let attempt = 0; attempt < 2; attempt++) {
+          lastRaw = await aiGenerateText({
+            geminiKey: GEMINI_API_KEY, model: 'gemini-2.0-flash',
+            system: prompts.system, prompt: prompts.user(params),
+            maxOutputTokens: 2048, jsonMode: true,
+          });
+          strategy = extractJson(lastRaw);
+          if (strategy) break;
+          console.warn(`[editorial-strategy] Attempt ${attempt + 1} parse failed. Raw (200 chars):`, lastRaw?.slice(0, 200));
+        }
+        if (!strategy) {
+          console.error('[editorial-strategy] Final raw:', lastRaw?.slice(0, 500));
+          throw new Error('AI response could not be parsed as JSON');
+        }
         return strategy;
       },
     });
