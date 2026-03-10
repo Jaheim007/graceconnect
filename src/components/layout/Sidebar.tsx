@@ -342,7 +342,7 @@ export function Sidebar() {
             ) : (
               <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{t('sidebar.managing')}</p>
-                <p className="text-xs font-semibold text-primary truncate flex items-center gap-1">{currentOrg.name} {currentOrg.is_verified && <VerifiedBadge size="xs" showTooltip={false} />}</p>
+                <p className="text-xs font-semibold text-primary truncate flex items-center gap-1">{currentOrg.name} {isOrgVerifiedOrKyc(currentOrg.is_verified, (currentOrg as any).kyc_status) && <VerifiedBadge size="xs" showTooltip={false} />}</p>
               </div>
             );
           })()}

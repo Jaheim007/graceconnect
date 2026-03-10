@@ -14,9 +14,9 @@ export function TrendingBanner() {
     queryKey: ['trending-orgs'],
     queryFn: async () => {
       const { data } = await db.from('organizations')
-        .select('id, name, slug, logo_url, category')
+        .select('id, name, slug, logo_url, category, kyc_status, is_verified')
         .eq('is_active', true)
-        .eq('is_verified', true)
+        .or('is_verified.eq.true,kyc_status.eq.level1,kyc_status.eq.level2')
         .order('created_at', { ascending: false })
         .limit(6);
       return data || [];
