@@ -170,6 +170,7 @@ verify_jwt = false
 
 [functions.transcribe-source]
 verify_jwt = false
+wall_clock_limit = 300
 
 [functions.motivational-notifications]
 verify_jwt = false
