@@ -652,8 +652,10 @@ async function fetchYouTubeCaptions(videoId: string): Promise<string> {
 async function fetchYouTubeCaptionsViaInvidious(videoId: string): Promise<string> {
   const instances = [
     'https://inv.nadeko.net',
+    'https://iv.ggtyler.dev',
+    'https://invidious.nerdvpn.de',
+    'https://yt.artemislena.eu',
     'https://invidious.privacyredirect.com',
-    'https://invidious.fdn.fr',
   ];
 
   let lastError = 'No available Invidious instance';
