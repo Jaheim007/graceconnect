@@ -289,9 +289,14 @@ Rules:
     console.log('[transcribe-source] Final text length:', transcribedText?.length || 0);
 
     if (!transcribedText || transcribedText.trim().length < 10) {
+      // Refund credits — transcription produced no usable content
+      if (creditDebited > 0) {
+        try { await refundCreditsAsBonus({ admin: db, userId, amount: creditDebited, source: 'transcribe_media', expiresInDays: 30 }); } catch (re) { console.error('[transcribe-source] Refund failed:', re); }
+      }
       return new Response(JSON.stringify({ 
         ok: false, 
-        error: 'Could not extract meaningful text from the provided source. Please try with a different source or check the quality of the input.' 
+        error: 'Could not extract meaningful text from the provided source. Please try with a different source or check the quality of the input.',
+        credits_refunded: creditDebited > 0,
       }), {
         status: 422, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
