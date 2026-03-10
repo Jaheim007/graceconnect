@@ -921,27 +921,27 @@ export default function IdentityVerificationWizard({ mode, entityId, status, rej
                   {/* Document */}
                   <ReviewItem
                     label={`${selectedDoc.label} (recto)`}
-                    imageUrl={docFrontUrl}
+                    imageUrl={previews.docFront || docFrontUrl}
                     onEdit={() => setStep(activeSteps.findIndex(s => s.id === 'document'))}
                   />
                   {selectedDoc.hasBack && docBackUrl && (
                     <ReviewItem
                       label={`${selectedDoc.label} (verso)`}
-                      imageUrl={docBackUrl}
+                      imageUrl={previews.docBack || docBackUrl}
                       onEdit={() => setStep(activeSteps.findIndex(s => s.id === 'document'))}
                     />
                   )}
                   {/* Selfie */}
                   <ReviewItem
                     label="Selfie"
-                    imageUrl={selfieUrl}
+                    imageUrl={previews.selfie || selfieUrl}
                     isRound
                     onEdit={() => setStep(activeSteps.findIndex(s => s.id === 'selfie'))}
                   />
                   {/* Selfie with doc */}
                   <ReviewItem
                     label="Selfie + Document"
-                    imageUrl={selfieWithDocUrl}
+                    imageUrl={previews.selfieDoc || selfieWithDocUrl}
                     onEdit={() => setStep(activeSteps.findIndex(s => s.id === 'selfie_doc'))}
                   />
                   {/* Org document (org mode) */}
