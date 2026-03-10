@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import {
   Coins, Zap, Gift, ShoppingBag, Clock, TrendingUp, TrendingDown,
-  ArrowRight, Sparkles, Star, History, BookOpen, Image, Mic, FileText,
+  ArrowRight, Sparkles, History, BookOpen, Image,
   HelpCircle, CheckCircle, Loader2, Shield, Infinity, RefreshCw
 } from 'lucide-react';
 import { useCreditsBalance, useActionPricing, useCreditPacks, useCreditHistory, useGrantDailyCredits } from '@/hooks/useCredits';
