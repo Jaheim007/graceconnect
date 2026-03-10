@@ -18,6 +18,7 @@ const links = [
   { to: '/superadmin/users', label: 'Users', icon: UserCircle },
   { to: '/superadmin/activity', label: 'Activity', icon: Activity },
   { to: '/superadmin/kyc', label: 'Vérification ID', icon: FileCheck },
+  { to: '/superadmin/ai-history', label: 'Historique IA', icon: Brain },
   { to: '/superadmin/transactions', label: 'Transactions', icon: BarChart3 },
   { to: '/superadmin/reports', label: 'Reports', icon: Megaphone },
   { to: '/superadmin/moderation', label: 'Modération', icon: ShieldCheck },
