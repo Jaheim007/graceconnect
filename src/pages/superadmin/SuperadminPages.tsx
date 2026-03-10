@@ -169,6 +169,10 @@ export function SuperadminKYC() {
   const approve = async (id: string, orgId: string) => {
     const { error } = await db.rpc('review_org_kyc', { _org_id: orgId, _action: 'approve' });
     if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
+    // Get org name for notification
+    const sub = submissions.find((s: any) => s.id === id);
+    const orgName = sub?.organizations?.name || 'Organisation';
+    import('@/lib/notifications').then(m => m.onKycStatusChanged(orgId, orgName, 'approved'));
     toast({ title: 'Vérification approuvée ✅' }); refetch();
   };
 
@@ -177,6 +181,9 @@ export function SuperadminKYC() {
     if (!reason) return;
     const { error } = await db.rpc('review_org_kyc', { _org_id: orgId, _action: 'reject', _reason: reason });
     if (error) { toast({ title: 'Erreur', description: error.message, variant: 'destructive' }); return; }
+    const sub = submissions.find((s: any) => s.id === id);
+    const orgName = sub?.organizations?.name || 'Organisation';
+    import('@/lib/notifications').then(m => m.onKycStatusChanged(orgId, orgName, 'rejected', reason));
     toast({ title: 'Vérification refusée' }); refetch();
   };
 
