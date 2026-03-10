@@ -12,6 +12,7 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
+import { CreditBalance } from '@/components/credits/CreditBalance';
 
 export function TopBar() {
   const { theme, toggleTheme } = useTheme();
