@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,13 +10,15 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useToast } from '@/hooks/use-toast';
-import { HelpCircle, Plus, ArrowLeft, Send, Clock, MessageCircle } from 'lucide-react';
+import { HelpCircle, Plus, ArrowLeft, Send, Clock, MessageCircle, ImagePlus, X, CheckCircle2, Copy, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
 import { PageTour } from '@/components/onboarding/PageTour';
+import { sendEmailNotification } from '@/lib/api';
 
 const FAQS_EN = [
   {
@@ -77,7 +80,7 @@ const FAQS_FR = [
   {
     category: 'Compte & Sécurité',
     items: [
-      { q: 'Mes données sont-elles en sécurité ?', a: "Oui. Nous utilisons le chiffrement SSL, Supabase Row Level Security, et nous sommes conformes au RGPD. Les paiements sont sécurisés via Paystack, certifié PCI-DSS." },
+      { q: 'Mes données sont-elles en sécurité ?', a: "Oui. Nous utilisons le chiffrement SSL, Supabase Row Level Security, et nous sommes conformes au RGPD. Les données sont protégées." },
       { q: 'Comment supprimer mon compte ?', a: "Vous pouvez supprimer votre compte depuis les paramètres de votre profil. Les données seront supprimées sous 30 jours." },
     ],
   },
@@ -98,7 +101,7 @@ const TOUR_STEPS = [
 ];
 
 export default function SupportPage() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { toast } = useToast();
   const { t, locale } = useI18n();
   const qc = useQueryClient();
@@ -106,8 +109,13 @@ export default function SupportPage() {
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [category, setCategory] = useState('technical');
+  const [screenshot, setScreenshot] = useState<File | null>(null);
+  const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
+  const [confirmDialog, setConfirmDialog] = useState<{ ticketNumber: string; subject: string } | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const FAQS = locale === 'fr' ? FAQS_FR : FAQS_EN;
+  const isFr = locale === 'fr';
 
   const CATEGORIES = [
     { value: 'billing', label: t('page.help_tcat_billing') },
@@ -131,28 +139,104 @@ export default function SupportPage() {
     enabled: !!user,
   });
 
+  const handleScreenshot = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: isFr ? 'Image trop lourde (max 5MB)' : 'Image too large (max 5MB)', variant: 'destructive' });
+      return;
+    }
+    setScreenshot(file);
+    setScreenshotPreview(URL.createObjectURL(file));
+  };
+
+  const removeScreenshot = () => {
+    setScreenshot(null);
+    if (screenshotPreview) URL.revokeObjectURL(screenshotPreview);
+    setScreenshotPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   const createTicket = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error('Not authenticated');
-      const { error } = await db.from('support_tickets').insert({
+
+      let screenshotUrl: string | null = null;
+
+      // Upload screenshot if provided
+      if (screenshot) {
+        const ext = screenshot.name.split('.').pop() || 'png';
+        const path = `${user.id}/${Date.now()}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from('ticket-screenshots')
+          .upload(path, screenshot, { contentType: screenshot.type });
+        if (uploadError) throw uploadError;
+        
+        const { data: urlData } = supabase.storage
+          .from('ticket-screenshots')
+          .getPublicUrl(path);
+        screenshotUrl = urlData?.publicUrl || null;
+      }
+
+      const { data, error } = await db.from('support_tickets').insert({
         user_id: user.id,
         subject: subject.trim(),
         message: message.trim(),
         category,
         status: 'open',
         priority: 'normal',
-      });
+        screenshot_url: screenshotUrl,
+      } as any).select('id, ticket_number').single();
       if (error) throw error;
+
+      const ticketNumber = (data as any)?.ticket_number || 'TK-XXXX';
+      const userEmail = user.email || '';
+      const userName = profile?.display_name || userEmail;
+
+      // Send confirmation email to user
+      sendEmailNotification(
+        'ticket_created',
+        userEmail,
+        {
+          ticket_number: ticketNumber,
+          subject: subject.trim(),
+          category,
+          message: message.trim().substring(0, 500),
+          user_name: userName,
+        }
+      ).catch(() => {});
+
+      // Send notification email to superadmin
+      sendEmailNotification(
+        'ticket_created_admin',
+        'jaheimkouaho@gmail.com',
+        {
+          ticket_number: ticketNumber,
+          subject: subject.trim(),
+          category,
+          message: message.trim().substring(0, 500),
+          user_name: userName,
+          user_email: userEmail,
+        }
+      ).catch(() => {});
+
+      return { ticketNumber, subject: subject.trim() };
     },
-    onSuccess: () => {
-      toast({ title: t('page.help_submitted') });
-      setView('tickets');
+    onSuccess: (result) => {
+      setConfirmDialog({ ticketNumber: result.ticketNumber, subject: result.subject });
       setSubject('');
       setMessage('');
+      setCategory('technical');
+      removeScreenshot();
       qc.invalidateQueries({ queryKey: ['my-support-tickets'] });
     },
     onError: () => toast({ title: t('page.help_error'), variant: 'destructive' }),
   });
+
+  const copyTicketId = (id: string) => {
+    navigator.clipboard.writeText(id);
+    toast({ title: isFr ? 'ID copié !' : 'ID copied!' });
+  };
 
   return (
     <div className="container max-w-2xl py-6 space-y-6">
@@ -234,7 +318,12 @@ export default function SupportPage() {
               {tickets.map((t2: any) => (
                 <div key={t2.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:border-primary/20 transition-all">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{t2.subject}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm font-medium truncate">{t2.subject}</p>
+                      {t2.ticket_number && (
+                        <Badge variant="outline" className="text-[10px] shrink-0 font-mono">{t2.ticket_number}</Badge>
+                      )}
+                    </div>
                     <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
                       <Clock className="h-3 w-3" />
                       {new Date(t2.created_at).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
@@ -255,11 +344,12 @@ export default function SupportPage() {
       {view === 'new-ticket' && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
           <button onClick={() => setView('tickets')} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="h-3.5 w-3.5" /> {t('page.help_back')}
+            <ArrowLeft className="h-3.5 w-3.5" /> {isFr ? 'Retour' : 'Back'}
           </button>
 
           <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
             <h2 className="font-semibold text-sm">{t('page.help_describe')}</h2>
+
             <div className="space-y-1.5">
               <Label className="text-xs">{t('page.help_category')}</Label>
               <Select value={category} onValueChange={setCategory}>
@@ -269,21 +359,116 @@ export default function SupportPage() {
                 </SelectContent>
               </Select>
             </div>
+
             <div className="space-y-1.5">
               <Label className="text-xs">{t('page.help_subject')}</Label>
               <Input value={subject} onChange={e => setSubject(e.target.value)} placeholder={t('page.help_subject_placeholder')} maxLength={200} />
             </div>
+
             <div className="space-y-1.5">
               <Label className="text-xs">{t('page.help_message')}</Label>
               <Textarea value={message} onChange={e => setMessage(e.target.value)} placeholder={t('page.help_message_placeholder')} rows={5} maxLength={2000} />
             </div>
+
+            {/* Screenshot upload */}
+            <div className="space-y-1.5">
+              <Label className="text-xs">{isFr ? 'Capture d\'écran (optionnel)' : 'Screenshot (optional)'}</Label>
+              {screenshotPreview ? (
+                <div className="relative inline-block">
+                  <img src={screenshotPreview} alt="Screenshot" className="max-h-40 rounded-xl border border-border object-cover" />
+                  <button
+                    onClick={removeScreenshot}
+                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-border hover:border-primary/40 bg-muted/30 text-sm text-muted-foreground hover:text-foreground transition-all w-full justify-center"
+                >
+                  <ImagePlus className="h-4 w-4" />
+                  {isFr ? 'Ajouter une capture d\'écran' : 'Add a screenshot'}
+                </button>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleScreenshot}
+                className="hidden"
+              />
+            </div>
+
             <Button onClick={() => createTicket.mutate()} disabled={!subject.trim() || !message.trim() || createTicket.isPending}
               className="w-full gap-1.5">
-              <Send className="h-4 w-4" /> {t('page.help_submit')}
+              {createTicket.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              {t('page.help_submit')}
             </Button>
           </div>
         </motion.div>
       )}
+
+      {/* Professional confirmation dialog */}
+      <Dialog open={!!confirmDialog} onOpenChange={() => { setConfirmDialog(null); setView('tickets'); }}>
+        <DialogContent className="max-w-sm text-center p-6 gap-0">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+            className="space-y-4"
+          >
+            <div className="mx-auto w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center">
+              <CheckCircle2 className="h-8 w-8 text-emerald-500" />
+            </div>
+
+            <div className="space-y-1">
+              <h2 className="text-lg font-bold text-foreground">
+                {isFr ? 'Ticket ouvert !' : 'Ticket opened!'}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {isFr
+                  ? 'Votre demande a été reçue. Notre équipe vous répondra rapidement.'
+                  : 'Your request has been received. Our team will respond shortly.'}
+              </p>
+            </div>
+
+            {/* Ticket receipt card */}
+            <div className="bg-muted/40 rounded-xl p-4 space-y-3 text-left">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                  {isFr ? 'ID du ticket' : 'Ticket ID'}
+                </span>
+                <button
+                  onClick={() => confirmDialog && copyTicketId(confirmDialog.ticketNumber)}
+                  className="flex items-center gap-1 text-xs text-primary hover:underline"
+                >
+                  <Copy className="h-3 w-3" /> {isFr ? 'Copier' : 'Copy'}
+                </button>
+              </div>
+              <p className="text-xl font-bold font-mono text-foreground tracking-wider">
+                {confirmDialog?.ticketNumber}
+              </p>
+              <div className="border-t border-border pt-2">
+                <p className="text-xs text-muted-foreground truncate">
+                  <span className="font-medium text-foreground">{isFr ? 'Sujet :' : 'Subject:'}</span> {confirmDialog?.subject}
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              📧 {isFr
+                ? 'Un email de confirmation avec les détails vous a été envoyé.'
+                : 'A confirmation email with the details has been sent to you.'}
+            </p>
+
+            <Button onClick={() => { setConfirmDialog(null); setView('tickets'); }} className="w-full">
+              {isFr ? 'Voir mes tickets' : 'View my tickets'}
+            </Button>
+          </motion.div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
