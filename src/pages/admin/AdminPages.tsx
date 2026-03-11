@@ -130,6 +130,11 @@ export function AdminEvents() {
   const { toast } = useToast();
   const { data: items = [], isLoading } = useOrgEvents(currentOrg?.id, false);
   const del = useDeleteEvent();
+  const update = useUpdateEvent();
+  const togglePublish = async (ev: any) => {
+    await update.mutateAsync({ id: ev.id, updates: { is_published: !ev.is_published } });
+    toast({ title: ev.is_published ? 'Événement dépublié' : 'Événement publié' });
+  };
   return (
     <AdminPageShell title="Événements" newRoute="/admin/events/new" newLabel="Nouvel événement" backRoute="/admin">
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
@@ -165,6 +170,9 @@ export function AdminEvents() {
                   {ev.is_published ? 'Publié' : 'Brouillon'}
                 </Badge>
                 <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" title={ev.is_published ? 'Dépublier' : 'Publier'} onClick={() => togglePublish(ev)}>
+                    {ev.is_published ? <Eye className="h-3.5 w-3.5 text-primary" /> : <EyeOff className="h-3.5 w-3.5" />}
+                  </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate(`/admin/events/${ev.id}/edit`)}>
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
