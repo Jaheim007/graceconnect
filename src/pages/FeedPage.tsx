@@ -201,8 +201,15 @@ export default function FeedPage() {
                     <SectionHeader icon={<CalendarDays className="h-4 w-4 text-accent" />} title={t('feed.upcoming_events')} />
                     <motion.div variants={staggerContainer} initial="hidden" animate="visible" className="flex gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
                       {filteredEvents.map((ev) => (
-                        <motion.div key={ev.id} variants={staggerItem} className="shrink-0 w-64 bg-card rounded-2xl border border-border overflow-hidden shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300 cursor-pointer" onClick={() => navigate(`/event/${ev.id}`)}>
-                          {ev.image_url ? <div className="h-36 overflow-hidden"><img src={ev.image_url} alt={ev.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" /></div> : <div className="h-24 bg-primary/10 flex items-center justify-center"><CalendarDays className="h-8 w-8 text-primary/70" /></div>}
+                        <motion.div key={ev.id} variants={staggerItem} className="shrink-0 w-72 bg-card rounded-2xl border border-border overflow-hidden shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300 cursor-pointer" onClick={() => navigate(`/event/${ev.id}`)}>
+                          <div className="relative">
+                            {ev.image_url ? <div className="h-40 overflow-hidden"><img src={ev.image_url} alt={ev.title} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" /></div> : <div className="h-28 bg-primary/10 flex items-center justify-center"><CalendarDays className="h-8 w-8 text-primary/70" /></div>}
+                            {ev.event_date && new Date(ev.event_date) > new Date() && (
+                              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3">
+                                <EventCountdown endDate={ev.event_date} compact />
+                              </div>
+                            )}
+                          </div>
                           <div className="p-4 space-y-1.5">
                             <p className="font-bold text-sm line-clamp-2">{ev.title}</p>
                             <p className="text-xs font-semibold text-primary">{ev.event_date ? new Date(ev.event_date).toLocaleDateString(dateLocale, { weekday: 'short', month: 'short', day: 'numeric' }) : t('feed.date_tbc')}</p>
