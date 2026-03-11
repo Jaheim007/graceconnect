@@ -57,7 +57,7 @@ export function LandingAIStudioSection() {
         </div>
 
         <div className="text-center">
-          <Button variant="outline" className="gap-2" onClick={() => navigate('/auth?mode=signup')}>
+          <Button variant="outline" className="gap-2" onClick={() => navigate('/auth?mode=signup&returnTo=/ecrire')}>
             Essayer l'AI Studio <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
