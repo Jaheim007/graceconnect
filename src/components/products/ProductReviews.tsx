@@ -300,6 +300,7 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
                 placeholder="Titre de votre avis (ex: Excellent produit !)"
                 className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
                 maxLength={120}
+                required
               />
 
               {/* Comment */}
@@ -310,6 +311,7 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
                 placeholder="Décrivez votre expérience en détail… Qu'avez-vous aimé ? Qu'est-ce qui pourrait être amélioré ?"
                 className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
                 maxLength={2000}
+                required
               />
 
               <div className="flex items-center justify-between">
