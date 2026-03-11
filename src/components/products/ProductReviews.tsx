@@ -165,6 +165,7 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
   const { data: reviews = [], isLoading } = useProductReviews(productId);
   const { data: myReview } = useMyReview(productId);
   const submitReview = useSubmitReview();
+  const deleteReview = useDeleteReview();
 
   const [showForm, setShowForm] = useState(false);
   const [rating, setRating] = useState(0);
