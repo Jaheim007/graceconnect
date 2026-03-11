@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useAuth } from '@/contexts/AuthContext';
-import { ArrowLeft, CalendarDays, MapPin, ExternalLink, Copy, CheckCircle, MessageCircle, Clock } from 'lucide-react';
+import { ArrowLeft, CalendarDays, MapPin, ExternalLink, Copy, CheckCircle, MessageCircle, Clock, Play } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
