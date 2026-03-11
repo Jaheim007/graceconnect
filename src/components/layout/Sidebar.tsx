@@ -6,7 +6,7 @@ import {
   Megaphone, CalendarDays, ShoppingBag, Heart, Users, BarChart3, FileCheck, Link2, LogOut,
   UserPlus, ChevronDown, Wallet, LayoutDashboard, Building2,
   Share2, Package, Handshake, PenLine, Receipt, TrendingUp, MoreHorizontal,
-  Camera, CreditCard, Clock, GraduationCap, Tag
+  Camera, CreditCard, Clock, GraduationCap, MailCheck, Tag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
