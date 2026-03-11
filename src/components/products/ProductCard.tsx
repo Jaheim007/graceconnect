@@ -168,6 +168,16 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
         )}
         {/* Wishlist heart */}
         <WishlistButton productId={product.id} />
+        {/* Report button */}
+        {user && (
+          <button
+            onClick={(e) => { e.stopPropagation(); setReportOpen(true); }}
+            className="absolute top-2.5 right-2.5 h-7 w-7 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 shadow-sm z-10"
+            title="Signaler"
+          >
+            <Flag className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+          </button>
+        )}
         {/* Quick view button */}
         <button
           onClick={(e) => { e.stopPropagation(); setQuickView(true); }}
