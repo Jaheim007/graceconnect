@@ -181,12 +181,8 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
     }
   }, [myReview, showForm]);
 
-  const canWriteReview = !!user && isPurchased && !myReview;
+  const canWriteReview = !!user && !myReview;
   const hasReviews = reviews.length > 0;
-
-  if (!hasReviews && !canWriteReview && !myReview && !showForm) {
-    return null;
-  }
 
   const handleSubmit = async () => {
     if (rating === 0) {
