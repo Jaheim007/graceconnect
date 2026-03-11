@@ -225,6 +225,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         isSuperadmin,
         signInWithGoogle,
         signInWithFacebook,
+        signInWithLinkedin,
         signInWithMagicLink,
         verifyOtp,
         signOut,
