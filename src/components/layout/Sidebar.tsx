@@ -8,7 +8,6 @@ import {
   Share2, Package, Handshake, PenLine, Receipt, TrendingUp, MoreHorizontal,
   Camera, CreditCard, Clock, GraduationCap, MailCheck, Tag
 } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,11 +15,10 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
-import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { useMyPartner } from '@/hooks/usePartner';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
+import { OrgSwitcher } from '@/components/org/OrgSwitcher';
 
 interface NavItem {
   to: string;
