@@ -1,4 +1,4 @@
-import { Bell, CheckCheck, ArrowLeft, BellRing, Trash2 } from 'lucide-react';
+import { Bell, CheckCheck, ArrowLeft, BellRing } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNotifications } from '@/hooks/useNotifications';
 import { Button } from '@/components/ui/button';
@@ -10,111 +10,11 @@ import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
-import { PageTour } from '@/components/onboarding/PageTour';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMemo, useState } from 'react';
-import { AlertTriangle, Monitor, Smartphone } from 'lucide-react';
-
-function DeniedInstructions() {
-  const ua = navigator.userAgent;
-  const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-  const isAndroid = /Android/i.test(ua);
-  const isChrome = /CriOS|Chrome/i.test(ua) && !/Edg/i.test(ua);
-  const isSafari = /Safari/i.test(ua) && !/Chrome/i.test(ua);
-  const isFirefox = /Firefox/i.test(ua);
-
-  let steps: string[] = [];
-  let deviceLabel = '';
-
-  if (isIOS && isSafari) {
-    deviceLabel = '📱 iPhone / iPad (Safari)';
-    steps = [
-      'Ouvrez l\'app Réglages de votre iPhone',
-      'Faites défiler vers le bas et appuyez sur Safari',
-      'Appuyez sur Notifications',
-      'Trouvez ce site et activez « Autoriser »',
-      'Revenez ici et appuyez sur « Activer »',
-    ];
-  } else if (isIOS) {
-    deviceLabel = '📱 iPhone / iPad';
-    steps = [
-      'Ouvrez l\'app Réglages de votre iPhone',
-      'Appuyez sur Notifications',
-      'Trouvez votre navigateur dans la liste',
-      'Activez « Autoriser les notifications »',
-      'Revenez ici et appuyez sur « Activer »',
-    ];
-  } else if (isAndroid && isChrome) {
-    deviceLabel = '📱 Android (Chrome)';
-    steps = [
-      'Appuyez sur le cadenas 🔒 à gauche de l\'adresse du site',
-      'Appuyez sur « Autorisations »',
-      'À côté de Notifications, choisissez « Autoriser »',
-      'Rechargez la page et appuyez sur « Activer »',
-    ];
-  } else if (isChrome) {
-    deviceLabel = '💻 Chrome (ordinateur)';
-    steps = [
-      'Cliquez sur le cadenas 🔒 à gauche de l\'adresse',
-      'Cliquez sur « Paramètres du site »',
-      'À côté de Notifications, choisissez « Autoriser »',
-      'Rechargez la page et cliquez sur « Activer »',
-    ];
-  } else if (isFirefox) {
-    deviceLabel = '🦊 Firefox';
-    steps = [
-      'Cliquez sur l\'icône 🔒 à gauche de l\'adresse',
-      'Cliquez sur « Permissions »',
-      'Cochez « Autoriser les notifications »',
-      'Rechargez la page',
-    ];
-  } else if (isSafari) {
-    deviceLabel = '🧭 Safari (Mac)';
-    steps = [
-      'Allez dans Safari → Réglages',
-      'Cliquez sur l\'onglet « Sites web »',
-      'Sélectionnez « Notifications » à gauche',
-      'Trouvez ce site et choisissez « Autoriser »',
-      'Rechargez la page',
-    ];
-  } else {
-    deviceLabel = '🌐 Votre navigateur';
-    steps = [
-      'Cliquez sur l\'icône cadenas 🔒 à gauche de l\'adresse',
-      'Cherchez « Notifications » dans les permissions',
-      'Choisissez « Autoriser »',
-      'Rechargez la page et cliquez sur « Activer »',
-    ];
-  }
-
-  return (
-    <div className="bg-card border border-border rounded-xl p-3 space-y-2">
-      <div className="flex items-center gap-2">
-        <AlertTriangle className="h-4 w-4 text-destructive shrink-0" />
-        <p className="text-xs font-semibold text-destructive">Notifications bloquées par votre navigateur</p>
-      </div>
-      <p className="text-[11px] font-medium text-muted-foreground flex items-center gap-1.5">
-        {(isIOS || isAndroid) ? <Smartphone className="h-3 w-3" /> : <Monitor className="h-3 w-3" />}
-        {deviceLabel}
-      </p>
-      <ol className="space-y-1.5 pl-1">
-        {steps.map((step, i) => (
-          <li key={i} className="text-xs text-foreground flex items-start gap-2">
-            <span className="shrink-0 h-5 w-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center mt-0.5">
-              {i + 1}
-            </span>
-            <span>{step}</span>
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-
-const TOUR_STEPS = [
-  { titleKey: 'tour.notifications_1_title', descKey: 'tour.notifications_1_desc', icon: <Bell className="h-4 w-4" /> },
-];
+import { NotificationItem } from '@/components/notifications/NotificationItem';
+import { DeniedInstructions } from '@/components/notifications/DeniedInstructions';
 
 function groupByDate(notifs: any[], locale: string) {
   const groups: Record<string, any[]> = {};
@@ -171,20 +71,29 @@ export default function NotificationsPage() {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead title="Notifications — Siteviral" noindex />
-      <div className="sticky top-0 z-10 glass border-b border-border/40 px-4 h-12 flex items-center gap-3">
+
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-xl border-b border-border/40 px-4 h-14 flex items-center gap-3">
         <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
-        <span className="font-semibold text-sm flex-1">{t('page.notifications')}</span>
+        <div className="flex-1">
+          <h1 className="font-semibold text-base">{t('page.notifications')}</h1>
+          {unreadCount > 0 && (
+            <p className="text-xs text-primary font-medium">
+              {unreadCount} {locale === 'fr' ? 'non lue' : 'unread'}{unreadCount > 1 ? 's' : ''}
+            </p>
+          )}
+        </div>
         {unreadCount > 0 && (
-          <Button variant="ghost" size="sm" onClick={markAllRead} className="gap-1.5 text-xs h-7 text-muted-foreground hover:text-foreground">
+          <Button variant="ghost" size="sm" onClick={markAllRead} className="gap-1.5 text-xs h-8 text-muted-foreground hover:text-foreground">
             <CheckCheck className="h-3.5 w-3.5" /> {t('page.notifications_mark_all')}
           </Button>
         )}
       </div>
 
-      <div className="container max-w-2xl py-5 space-y-4">
-        {/* Push notification toggle — show even when denied, with instructions */}
+      <div className="container max-w-xl py-4 space-y-4">
+        {/* Push notification banner */}
         {pushSupported && !pushSubscribed && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -193,100 +102,48 @@ export default function NotificationsPage() {
               'rounded-2xl p-4 flex flex-col gap-3 border',
               typeof Notification !== 'undefined' && Notification.permission === 'denied'
                 ? 'bg-destructive/8 border-destructive/20'
-                : 'bg-primary/8 border-primary/20'
+                : 'bg-primary/5 border-primary/15'
             )}
           >
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
                 <BellRing className="h-5 w-5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold">Notifications push</p>
                 <p className="text-xs text-muted-foreground">Recevez des alertes même quand l'app est fermée</p>
               </div>
-              <Button size="sm" className="bg-primary text-primary-foreground shrink-0" onClick={subscribePush} disabled={pushLoading}>
+              <Button size="sm" className="bg-primary text-primary-foreground shrink-0 rounded-full" onClick={subscribePush} disabled={pushLoading}>
                 {pushLoading ? '...' : 'Activer'}
               </Button>
             </div>
-            {/* Show step-by-step instructions when permission is denied */}
             {typeof Notification !== 'undefined' && Notification.permission === 'denied' && (
               <DeniedInstructions />
             )}
           </motion.div>
         )}
 
-        <p className="text-xs sm:text-sm text-muted-foreground">{t('page.notifications_desc')}</p>
-
-        <PageTour pageId="notifications" steps={TOUR_STEPS} />
-
-        {unreadCount > 0 && (
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-            <p className="text-xs text-muted-foreground">
-              {t('page.notifications_unread').replace('{count}', String(unreadCount))}
-            </p>
-          </div>
-        )}
-
+        {/* Notification list */}
         {isLoading ? <SkeletonRow count={5} /> : visibleNotifs.length === 0 ? (
           <EmptyState variant="generic" title={t('page.notifications_empty')} description={t('page.notifications_empty_desc')} />
         ) : (
-          <div className="space-y-5">
+          <div className="space-y-6">
             {grouped.map(([dateLabel, items]) => (
-              <div key={dateLabel} className="space-y-2">
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-1">{dateLabel}</p>
-                <AnimatePresence mode="popLayout">
-                  {items.map((n) => (
-                    <motion.div
-                      key={n.id}
-                      layout
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 60, transition: { duration: 0.2 } }}
-                      className={cn(
-                        'group flex items-start gap-3 p-3.5 rounded-xl border transition-all',
-                        n.is_read ? 'border-border bg-card' : 'border-primary/20 bg-primary/5'
-                      )}
-                    >
-                      <div
-                        onClick={() => {
-                          if (!n.is_read) markRead(n.id);
-                          if (n.action_url) navigate(n.action_url);
-                        }}
-                        className={cn(
-                          'h-9 w-9 rounded-xl flex items-center justify-center shrink-0 cursor-pointer transition-transform hover:scale-105',
-                          n.is_read ? 'bg-muted' : 'bg-primary'
-                        )}
-                      >
-                        <Bell className={cn('h-4 w-4', n.is_read ? 'text-muted-foreground' : 'text-primary-foreground')} />
-                      </div>
-                      <div
-                        className="flex-1 min-w-0 cursor-pointer"
-                        onClick={() => {
-                          if (!n.is_read) markRead(n.id);
-                          if (n.action_url) navigate(n.action_url);
-                        }}
-                      >
-                        <p className={cn('text-sm font-medium leading-snug', !n.is_read && 'text-foreground')}>{n.title}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{n.body}</p>
-                        <p className="text-[10px] text-muted-foreground mt-1.5">
-                          {new Date(n.created_at).toLocaleTimeString(locale === 'fr' ? 'fr-FR' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-1 shrink-0">
-                        {!n.is_read && <div className="h-2 w-2 rounded-full bg-primary" />}
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-                          onClick={() => dismissNotif(n.id)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
+              <div key={dateLabel}>
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-3 mb-2">{dateLabel}</p>
+                <div className="space-y-0.5">
+                  <AnimatePresence mode="popLayout">
+                    {items.map((n) => (
+                      <NotificationItem
+                        key={n.id}
+                        notification={n}
+                        locale={locale}
+                        onMarkRead={markRead}
+                        onDismiss={dismissNotif}
+                      />
+                    ))}
+                  </AnimatePresence>
+                </div>
               </div>
             ))}
           </div>
