@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
+import { useOrg } from '@/contexts/OrgContext';
 import { AdaptiveLayout } from '@/components/layout/AdaptiveLayout';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Button } from '@/components/ui/button';
@@ -35,7 +36,15 @@ const PLATFORM_PERKS = [
 export default function VendreLandingPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { currentOrg, isLoading: orgLoading } = useOrg();
   const [step, setStep] = useState(0); // 0=landing, 1=simulator
+
+  // Redirect to admin if user already has an organization
+  useEffect(() => {
+    if (!orgLoading && currentOrg && user) {
+      navigate('/admin/products', { replace: true });
+    }
+  }, [currentOrg, orgLoading, user, navigate]);
 
   const handleStart = () => {
     if (user) {
@@ -44,6 +53,20 @@ export default function VendreLandingPage() {
       navigate('/auth?intent=creator&redirect=/create-org');
     }
   };
+
+  // Show loading state while checking org
+  if (orgLoading) {
+    return (
+      <AdaptiveLayout>
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="animate-pulse text-muted-foreground">Chargement...</div>
+        </div>
+      </AdaptiveLayout>
+    );
+  }
+
+  // If user has org, this will redirect (shown briefly during redirect)
+  if (currentOrg) return null;
 
   return (
     <AdaptiveLayout>
