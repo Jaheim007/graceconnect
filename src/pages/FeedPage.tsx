@@ -19,6 +19,7 @@ import { ProductPurchaseModal } from '@/components/products/ProductPurchaseModal
 import { SkeletonList } from '@/components/ui/SkeletonCard';
 import { FeedPhotoSlider } from '@/components/photos/FeedPhotoSlider';
 import { EmptyState } from '@/components/ui/EmptyState';
+import { EventCountdown } from '@/components/events/EventCountdown';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFeedMedia } from '@/hooks/useMedia';
