@@ -1,6 +1,7 @@
 import { Star } from 'lucide-react';
 import { useProductReviews } from '@/hooks/useProductReviews';
 import { cn } from '@/lib/utils';
+import { AnimatedStarRating } from './AnimatedStarRating';
 
 interface Props {
   productId: string;
@@ -19,21 +20,11 @@ export function ReviewSummaryBadge({ productId, className }: Props) {
     <div className={cn('p-4 rounded-xl border border-border bg-card/50 space-y-3', className)}>
       <div className="flex items-center gap-3">
         <div className="text-center">
-          <p className="text-2xl font-bold">{avg.toFixed(1)}</p>
-          <div className="flex gap-0.5 mt-0.5">
-            {[1, 2, 3, 4, 5].map(i => (
-              <Star
-                key={i}
-                className={cn(
-                  'h-3 w-3',
-                  avg >= i ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground/20'
-                )}
-              />
-            ))}
-          </div>
+          <p className="text-2xl font-bold text-foreground">{avg.toFixed(1)}</p>
+          <AnimatedStarRating rating={Math.round(avg)} size="sm" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium">{reviews.length} avis</p>
+          <p className="text-sm font-medium text-foreground">{reviews.length} avis</p>
           {verifiedCount > 0 && (
             <p className="text-[10px] text-muted-foreground">
               {verifiedCount} achat{verifiedCount > 1 ? 's' : ''} vérifié{verifiedCount > 1 ? 's' : ''}
@@ -51,7 +42,7 @@ export function ReviewSummaryBadge({ productId, className }: Props) {
             <div key={star} className="flex items-center gap-1.5 text-[10px]">
               <span className="w-2 text-muted-foreground">{star}</span>
               <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                <div className="h-full bg-yellow-400 rounded-full" style={{ width: `${pct}%` }} />
+                <div className="h-full bg-[hsl(var(--accent))] rounded-full" style={{ width: `${pct}%` }} />
               </div>
             </div>
           );
