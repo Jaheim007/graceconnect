@@ -9,12 +9,13 @@ import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { Download, Search, CalendarIcon, DollarSign, TrendingUp, Users, BarChart3 } from 'lucide-react';
+import { Download, Search, CalendarIcon, DollarSign, TrendingUp, Users, BarChart3, ShoppingCart, Heart, CreditCard, Zap, ArrowUpRight, ArrowDownRight, Filter } from 'lucide-react';
 import { format, startOfDay, startOfWeek, startOfMonth, subDays, subMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { downloadCSV } from '@/lib/csvExport';
 import { formatCurrency } from '@/lib/currency';
+import { motion } from 'framer-motion';
 
 type PeriodKey = 'all' | 'today' | '7d' | '30d' | '90d' | 'this_month' | 'this_week' | 'custom';
 
@@ -53,7 +54,6 @@ export default function AdminSales() {
     return 'paystack';
   };
 
-  // Fetch purchases for this org
   const { data: purchases = [], isLoading: loadingP } = useQuery({
     queryKey: ['admin-sales-purchases', orgId],
     queryFn: async () => {
@@ -101,7 +101,6 @@ export default function AdminSales() {
     enabled: !!orgId,
   });
 
-  // Fetch donations for this org
   const { data: donations = [], isLoading: loadingD } = useQuery({
     queryKey: ['admin-sales-donations', orgId],
     queryFn: async () => {
@@ -180,15 +179,6 @@ export default function AdminSales() {
   const totalAffComm = completedTx.reduce((s, t) => s + (t.affiliate_commission || 0), 0);
   const totalFees = completedTx.reduce((s, t) => s + (t.platform_fee || 0), 0);
 
-  const statusBadge = (status: string) => {
-    const map: Record<string, string> = {
-      completed: 'bg-green-500/15 text-green-400',
-      pending: 'bg-yellow-500/15 text-yellow-400',
-      failed: 'bg-red-500/15 text-red-400',
-    };
-    return map[status] || 'bg-muted text-muted-foreground';
-  };
-
   const handleExport = () => {
     downloadCSV(allTx.map(t => ({
       type: t.type === 'purchase' ? 'Achat' : 'Don',
@@ -209,179 +199,340 @@ export default function AdminSales() {
     })), `ventes-${currentOrg?.slug || 'org'}`);
   };
 
+  const statCards = [
+    {
+      label: "Chiffre d'affaires",
+      value: fmt(totalGMV),
+      icon: DollarSign,
+      gradient: 'from-primary/20 via-primary/5 to-transparent',
+      iconBg: 'bg-primary/20',
+      iconColor: 'text-primary',
+      border: 'border-primary/20',
+    },
+    {
+      label: 'Reçu (net)',
+      value: fmt(totalOrgReceived),
+      icon: TrendingUp,
+      gradient: 'from-emerald-500/20 via-emerald-500/5 to-transparent',
+      iconBg: 'bg-emerald-500/20',
+      iconColor: 'text-emerald-500',
+      border: 'border-emerald-500/20',
+    },
+    {
+      label: 'Comm. Affiliés',
+      value: fmt(totalAffComm),
+      icon: Users,
+      gradient: 'from-amber-500/20 via-amber-500/5 to-transparent',
+      iconBg: 'bg-amber-500/20',
+      iconColor: 'text-amber-500',
+      border: 'border-amber-500/20',
+    },
+    {
+      label: 'Transactions',
+      value: allTx.length.toString(),
+      icon: BarChart3,
+      gradient: 'from-violet-500/20 via-violet-500/5 to-transparent',
+      iconBg: 'bg-violet-500/20',
+      iconColor: 'text-violet-500',
+      border: 'border-violet-500/20',
+    },
+  ];
+
+  const typeFilters = [
+    { key: 'all' as const, label: 'Tout', icon: Zap },
+    { key: 'purchase' as const, label: 'Achats', icon: ShoppingCart },
+    { key: 'donation' as const, label: 'Dons', icon: Heart },
+  ];
+
+  const statusFilters = [
+    { key: 'all' as const, label: 'Tous', color: '' },
+    { key: 'completed' as const, label: 'Succès', color: 'text-emerald-500' },
+    { key: 'pending' as const, label: 'En attente', color: 'text-amber-500' },
+    { key: 'failed' as const, label: 'Échec', color: 'text-red-500' },
+  ];
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-xl font-bold">Mes Ventes</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Historique complet des transactions de votre boutique</p>
+          <h1 className="text-2xl font-extrabold tracking-tight">Mes Ventes</h1>
+          <p className="text-sm text-muted-foreground mt-1">Historique complet des transactions de votre boutique</p>
         </div>
-        <Button size="sm" variant="outline" onClick={handleExport} className="gap-2">
+        <Button onClick={handleExport} className="gap-2 shadow-lg shadow-primary/20">
           <Download className="h-4 w-4" /> Export CSV
         </Button>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {[
-          { label: 'Chiffre d\'affaires', value: fmt(totalGMV), icon: DollarSign },
-          { label: 'Reçu (net)', value: fmt(totalOrgReceived), icon: TrendingUp },
-          { label: 'Comm. Affiliés', value: fmt(totalAffComm), icon: Users },
-          { label: 'Transactions', value: allTx.length.toString(), icon: BarChart3 },
-        ].map(c => (
-          <div key={c.label} className="p-4 rounded-xl border border-border bg-card">
-            <div className="flex items-center gap-2 mb-1">
-              <c.icon className="h-4 w-4 text-primary" />
-              <span className="text-xs text-muted-foreground">{c.label}</span>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {statCards.map((card, i) => (
+          <motion.div
+            key={card.label}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.08 }}
+            className={cn(
+              'relative overflow-hidden rounded-2xl border p-5 bg-card',
+              card.border
+            )}
+          >
+            {/* Background gradient */}
+            <div className={cn('absolute inset-0 bg-gradient-to-br opacity-60', card.gradient)} />
+            <div className="relative">
+              <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center mb-3', card.iconBg)}>
+                <card.icon className={cn('h-5 w-5', card.iconColor)} />
+              </div>
+              <p className="text-2xl font-extrabold tracking-tight">{card.value}</p>
+              <p className="text-xs text-muted-foreground mt-1 font-medium">{card.label}</p>
             </div>
-            <p className="text-lg font-bold">{c.value}</p>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Filters Bar */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="rounded-2xl border border-border bg-card p-4 space-y-4"
+      >
+        {/* Search + Type + Status */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative flex-1 min-w-[220px] max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher acheteur, produit, référence..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="pl-9 h-10 rounded-xl bg-muted/50 border-0 focus-visible:ring-primary/30"
+            />
           </div>
-        ))}
-      </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Rechercher acheteur, produit, référence..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-9" />
+          <div className="flex items-center gap-1 bg-muted/50 rounded-xl p-1">
+            {typeFilters.map(f => (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key)}
+                className={cn(
+                  'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all',
+                  filter === f.key
+                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/25'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                <f.icon className="h-3.5 w-3.5" />
+                {f.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-1 bg-muted/50 rounded-xl p-1">
+            {statusFilters.map(s => (
+              <button
+                key={s.key}
+                onClick={() => setStatusFilter(s.key)}
+                className={cn(
+                  'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all',
+                  statusFilter === s.key
+                    ? 'bg-foreground text-background shadow-md'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
         </div>
-        <div className="flex gap-1">
-          {(['all', 'purchase', 'donation'] as const).map(f => (
-            <Button key={f} size="sm" variant={filter === f ? 'default' : 'outline'} onClick={() => setFilter(f)} className="text-xs h-8">
-              {f === 'all' ? 'Tout' : f === 'purchase' ? '🛒 Achats' : '❤️ Dons'}
-            </Button>
+
+        {/* Period Filter */}
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium mr-1">
+            <CalendarIcon className="h-3.5 w-3.5" />
+            Période
+          </div>
+          {([
+            { key: 'all', label: 'Tout' },
+            { key: 'today', label: "Aujourd'hui" },
+            { key: 'this_week', label: 'Semaine' },
+            { key: 'this_month', label: 'Mois' },
+            { key: '7d', label: '7j' },
+            { key: '30d', label: '30j' },
+            { key: '90d', label: '90j' },
+            { key: 'custom', label: 'Personnalisé' },
+          ] as { key: PeriodKey; label: string }[]).map(p => (
+            <button
+              key={p.key}
+              onClick={() => setPeriodFilter(p.key)}
+              className={cn(
+                'px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
+                periodFilter === p.key
+                  ? 'bg-primary/10 text-primary ring-1 ring-primary/30'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+              )}
+            >
+              {p.label}
+            </button>
           ))}
         </div>
-        <div className="flex gap-1">
-          {(['all', 'completed', 'pending', 'failed'] as const).map(s => (
-            <Button key={s} size="sm" variant={statusFilter === s ? 'default' : 'outline'} onClick={() => setStatusFilter(s)} className="text-xs h-8">
-              {s === 'all' ? 'Tous' : s === 'completed' ? '✅ Succès' : s === 'pending' ? '⏳ En attente' : '❌ Échec'}
-            </Button>
-          ))}
-        </div>
-      </div>
 
-      {/* Period Filter */}
-      <div className="flex flex-wrap items-center gap-2">
-        <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-        <span className="text-xs text-muted-foreground font-medium">Période :</span>
-        {([
-          { key: 'all', label: 'Tout' },
-          { key: 'today', label: "Aujourd'hui" },
-          { key: 'this_week', label: 'Cette semaine' },
-          { key: 'this_month', label: 'Ce mois' },
-          { key: '7d', label: '7 jours' },
-          { key: '30d', label: '30 jours' },
-          { key: '90d', label: '90 jours' },
-          { key: 'custom', label: '📅 Personnalisé' },
-        ] as { key: PeriodKey; label: string }[]).map(p => (
-          <Button key={p.key} size="sm" variant={periodFilter === p.key ? 'default' : 'outline'} onClick={() => setPeriodFilter(p.key)} className="text-xs h-7">
-            {p.label}
-          </Button>
-        ))}
-      </div>
-
-      {periodFilter === 'custom' && (
-        <div className="flex flex-wrap items-center gap-3 p-3 rounded-xl border border-border bg-muted/30">
-          <span className="text-xs text-muted-foreground">Du :</span>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className={cn("h-8 text-xs gap-2 min-w-[140px] justify-start", !customDateFrom && "text-muted-foreground")}>
-                <CalendarIcon className="h-3.5 w-3.5" />
-                {customDateFrom ? format(customDateFrom, 'dd MMM yyyy', { locale: fr }) : 'Date début'}
+        {periodFilter === 'custom' && (
+          <div className="flex flex-wrap items-center gap-3 p-3 rounded-xl bg-muted/30">
+            <span className="text-xs text-muted-foreground font-medium">Du :</span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className={cn("h-9 text-xs gap-2 min-w-[140px] justify-start rounded-lg", !customDateFrom && "text-muted-foreground")}>
+                  <CalendarIcon className="h-3.5 w-3.5" />
+                  {customDateFrom ? format(customDateFrom, 'dd MMM yyyy', { locale: fr }) : 'Date début'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar mode="single" selected={customDateFrom} onSelect={setCustomDateFrom} initialFocus className="p-3 pointer-events-auto" />
+              </PopoverContent>
+            </Popover>
+            <span className="text-xs text-muted-foreground font-medium">Au :</span>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className={cn("h-9 text-xs gap-2 min-w-[140px] justify-start rounded-lg", !customDateTo && "text-muted-foreground")}>
+                  <CalendarIcon className="h-3.5 w-3.5" />
+                  {customDateTo ? format(customDateTo, 'dd MMM yyyy', { locale: fr }) : 'Date fin'}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar mode="single" selected={customDateTo} onSelect={setCustomDateTo} initialFocus className="p-3 pointer-events-auto" />
+              </PopoverContent>
+            </Popover>
+            {(customDateFrom || customDateTo) && (
+              <Button size="sm" variant="ghost" className="h-8 text-xs" onClick={() => { setCustomDateFrom(undefined); setCustomDateTo(undefined); }}>
+                Réinitialiser
               </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar mode="single" selected={customDateFrom} onSelect={setCustomDateFrom} initialFocus className="p-3 pointer-events-auto" />
-            </PopoverContent>
-          </Popover>
-          <span className="text-xs text-muted-foreground">Au :</span>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className={cn("h-8 text-xs gap-2 min-w-[140px] justify-start", !customDateTo && "text-muted-foreground")}>
-                <CalendarIcon className="h-3.5 w-3.5" />
-                {customDateTo ? format(customDateTo, 'dd MMM yyyy', { locale: fr }) : 'Date fin'}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar mode="single" selected={customDateTo} onSelect={setCustomDateTo} initialFocus className="p-3 pointer-events-auto" />
-            </PopoverContent>
-          </Popover>
-          {(customDateFrom || customDateTo) && (
-            <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => { setCustomDateFrom(undefined); setCustomDateTo(undefined); }}>
-              Réinitialiser
-            </Button>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
+      </motion.div>
 
-      {/* Table */}
-      {isLoading ? <SkeletonRow count={8} /> : allTx.length === 0 ? (
-        <div className="p-12 text-center text-muted-foreground">Aucune transaction trouvée</div>
-      ) : (
-        <div className="rounded-xl border border-border overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-muted/30">
-                <TableHead className="text-xs">Type</TableHead>
-                <TableHead className="text-xs">Produit / Campagne</TableHead>
-                <TableHead className="text-xs">Acheteur / Donateur</TableHead>
-                <TableHead className="text-xs">Passerelle</TableHead>
-                <TableHead className="text-xs text-right">Montant</TableHead>
-                <TableHead className="text-xs text-right">Reçu (net)</TableHead>
-                <TableHead className="text-xs text-right">Frais</TableHead>
-                <TableHead className="text-xs">Affilié</TableHead>
-                <TableHead className="text-xs">Statut</TableHead>
-                <TableHead className="text-xs">Date</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {allTx.map(tx => (
-                <TableRow key={tx.id}>
-                  <TableCell>
-                    <Badge variant="outline" className={`text-[10px] ${tx.type === 'purchase' ? 'border-primary/40 text-primary' : 'border-pink-400/40 text-pink-400'}`}>
-                      {tx.type === 'purchase' ? '🛒 Achat' : '❤️ Don'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-sm font-medium truncate max-w-[180px]">{tx.label}</p>
-                    <p className="text-[10px] text-muted-foreground font-mono">{tx.paystack_reference?.slice(0, 20)}</p>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-sm font-medium truncate max-w-[140px]">{tx.buyer_display}</p>
-                    {tx.buyer_email && <p className="text-[10px] text-muted-foreground truncate max-w-[140px]">✉️ {tx.buyer_email}</p>}
-                    {tx.buyer_phone && <p className="text-[10px] text-muted-foreground">📞 {tx.buyer_phone}</p>}
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={`text-[10px] ${tx.gateway === 'stripe' ? 'border-violet-400/40 text-violet-400' : tx.gateway === 'paystack' ? 'border-cyan-400/40 text-cyan-400' : 'border-muted-foreground/40 text-muted-foreground'}`}>
-                      {tx.gateway === 'stripe' ? '💳 Stripe' : tx.gateway === 'paystack' ? '📱 Paystack' : '🆓 Gratuit'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right font-semibold text-sm">{(tx.amount || 0).toLocaleString('fr-FR')} {tx.currency}</TableCell>
-                  <TableCell className="text-right text-sm text-emerald-500 font-medium">{(tx.organization_amount || 0).toLocaleString('fr-FR')}</TableCell>
-                  <TableCell className="text-right text-xs text-muted-foreground">{(tx.platform_fee || 0).toLocaleString('fr-FR')}</TableCell>
-                  <TableCell>
-                    {tx.affiliate_name ? (
-                      <div>
-                        <p className="text-xs font-medium">{tx.affiliate_name}</p>
-                        <p className="text-[10px] text-muted-foreground">{(tx.affiliate_commission || 0).toLocaleString('fr-FR')} {tx.currency}</p>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell><Badge className={`text-[10px] border-0 ${statusBadge(tx.status)}`}>{tx.status}</Badge></TableCell>
-                  <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
-                    {new Date(tx.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: '2-digit' })}
-                    <br />
-                    <span className="text-[10px]">{new Date(tx.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
-                  </TableCell>
+      {/* Transaction History */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+      >
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-bold flex items-center gap-2">
+            <BarChart3 className="h-4 w-4 text-primary" />
+            Historique des transactions
+          </h2>
+          <span className="text-xs text-muted-foreground font-medium">
+            {allTx.length} résultat{allTx.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+
+        {isLoading ? <SkeletonRow count={8} /> : allTx.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border bg-card p-16 text-center">
+            <div className="h-14 w-14 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
+              <ShoppingCart className="h-7 w-7 text-muted-foreground" />
+            </div>
+            <p className="font-bold text-lg">Aucune transaction</p>
+            <p className="text-sm text-muted-foreground mt-1">Les ventes et dons apparaîtront ici</p>
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-border overflow-hidden bg-card">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/40 hover:bg-muted/40">
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Type</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Produit / Campagne</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Acheteur / Donateur</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Passerelle</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground text-right">Montant</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground text-right">Reçu (net)</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground text-right">Frais</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Affilié</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Statut</TableHead>
+                  <TableHead className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Date</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+              </TableHeader>
+              <TableBody>
+                {allTx.map((tx, idx) => (
+                  <TableRow key={tx.id} className="group hover:bg-muted/20 transition-colors">
+                    <TableCell>
+                      <div className={cn(
+                        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold',
+                        tx.type === 'purchase'
+                          ? 'bg-primary/10 text-primary'
+                          : 'bg-pink-500/10 text-pink-500'
+                      )}>
+                        {tx.type === 'purchase' ? <ShoppingCart className="h-3 w-3" /> : <Heart className="h-3 w-3" />}
+                        {tx.type === 'purchase' ? 'Achat' : 'Don'}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-sm font-semibold truncate max-w-[180px]">{tx.label}</p>
+                      <p className="text-[10px] text-muted-foreground font-mono mt-0.5">{tx.paystack_reference?.slice(0, 20)}</p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-sm font-medium truncate max-w-[140px]">{tx.buyer_display}</p>
+                      {tx.buyer_email && <p className="text-[10px] text-muted-foreground truncate max-w-[140px] mt-0.5">{tx.buyer_email}</p>}
+                    </TableCell>
+                    <TableCell>
+                      <div className={cn(
+                        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold',
+                        tx.gateway === 'stripe' ? 'bg-violet-500/10 text-violet-500' :
+                        tx.gateway === 'paystack' ? 'bg-cyan-500/10 text-cyan-500' :
+                        'bg-muted text-muted-foreground'
+                      )}>
+                        <CreditCard className="h-3 w-3" />
+                        {tx.gateway === 'stripe' ? 'Stripe' : tx.gateway === 'paystack' ? 'Paystack' : 'Gratuit'}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <span className="text-sm font-bold">{(tx.amount || 0).toLocaleString('fr-FR')}</span>
+                      <span className="text-[10px] text-muted-foreground ml-1">{tx.currency}</span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <span className="text-sm font-bold text-emerald-500 flex items-center justify-end gap-1">
+                        <ArrowUpRight className="h-3 w-3" />
+                        {(tx.organization_amount || 0).toLocaleString('fr-FR')}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right text-xs text-muted-foreground">{(tx.platform_fee || 0).toLocaleString('fr-FR')}</TableCell>
+                    <TableCell>
+                      {tx.affiliate_name ? (
+                        <div>
+                          <p className="text-xs font-semibold">{tx.affiliate_name}</p>
+                          <p className="text-[10px] text-amber-500 font-medium">{(tx.affiliate_commission || 0).toLocaleString('fr-FR')} {tx.currency}</p>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground/50">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <span className={cn(
+                        'inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold',
+                        tx.status === 'completed' ? 'bg-emerald-500/15 text-emerald-500' :
+                        tx.status === 'pending' ? 'bg-amber-500/15 text-amber-500' :
+                        'bg-red-500/15 text-red-500'
+                      )}>
+                        <span className={cn(
+                          'h-1.5 w-1.5 rounded-full',
+                          tx.status === 'completed' ? 'bg-emerald-500' :
+                          tx.status === 'pending' ? 'bg-amber-500' :
+                          'bg-red-500'
+                        )} />
+                        {tx.status === 'completed' ? 'Succès' : tx.status === 'pending' ? 'En attente' : 'Échec'}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-xs text-muted-foreground whitespace-nowrap">
+                      <p className="font-medium">{new Date(tx.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: '2-digit' })}</p>
+                      <p className="text-[10px] mt-0.5">{new Date(tx.created_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+      </motion.div>
     </div>
   );
 }
