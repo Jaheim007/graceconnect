@@ -13,7 +13,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useToast } from '@/hooks/use-toast';
-import { HelpCircle, Plus, ArrowLeft, Send, Clock, MessageCircle, ImagePlus, X, CheckCircle2, Copy, Loader2 } from 'lucide-react';
+import { HelpCircle, Plus, ArrowLeft, Send, Clock, MessageCircle, ImagePlus, X, CheckCircle2, Loader2, XCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { useI18n } from '@/i18n/I18nContext';
@@ -88,12 +88,10 @@ const FAQS_FR = [
 
 const STATUS_COLORS: Record<string, string> = {
   open: 'bg-amber-500/15 text-amber-600',
-  in_progress: 'bg-blue-500/15 text-blue-600',
-  resolved: 'bg-emerald-500/15 text-emerald-600',
   closed: 'bg-muted text-muted-foreground',
 };
 
-type View = 'faq' | 'tickets' | 'new-ticket';
+type View = 'faq' | 'tickets' | 'new-ticket' | 'ticket-detail';
 
 const TOUR_STEPS = [
   { titleKey: 'tour.help_1_title', descKey: 'tour.help_1_desc', icon: <HelpCircle className="h-4 w-4" /> },
@@ -109,9 +107,11 @@ export default function SupportPage() {
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [category, setCategory] = useState('technical');
-  const [screenshot, setScreenshot] = useState<File | null>(null);
-  const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
+  const [screenshots, setScreenshots] = useState<File[]>([]);
+  const [screenshotPreviews, setScreenshotPreviews] = useState<string[]>([]);
   const [confirmDialog, setConfirmDialog] = useState<{ ticketNumber: string; subject: string } | null>(null);
+  const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [additionalMessage, setAdditionalMessage] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const FAQS = locale === 'fr' ? FAQS_FR : FAQS_EN;
@@ -139,44 +139,85 @@ export default function SupportPage() {
     enabled: !!user,
   });
 
-  const handleScreenshot = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: isFr ? 'Image trop lourde (max 5MB)' : 'Image too large (max 5MB)', variant: 'destructive' });
-      return;
+  const handleScreenshots = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const validFiles: File[] = [];
+    const previews: string[] = [];
+    
+    for (const file of files) {
+      if (screenshots.length + validFiles.length >= 5) {
+        toast({ title: isFr ? 'Maximum 5 images' : 'Maximum 5 images', variant: 'destructive' });
+        break;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast({ title: isFr ? 'Image trop lourde (max 5MB)' : 'Image too large (max 5MB)', variant: 'destructive' });
+        continue;
+      }
+      validFiles.push(file);
+      previews.push(URL.createObjectURL(file));
     }
-    setScreenshot(file);
-    setScreenshotPreview(URL.createObjectURL(file));
-  };
-
-  const removeScreenshot = () => {
-    setScreenshot(null);
-    if (screenshotPreview) URL.revokeObjectURL(screenshotPreview);
-    setScreenshotPreview(null);
+    
+    setScreenshots(prev => [...prev, ...validFiles]);
+    setScreenshotPreviews(prev => [...prev, ...previews]);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
+
+  const removeScreenshot = (index: number) => {
+    URL.revokeObjectURL(screenshotPreviews[index]);
+    setScreenshots(prev => prev.filter((_, i) => i !== index));
+    setScreenshotPreviews(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const clearScreenshots = () => {
+    screenshotPreviews.forEach(url => URL.revokeObjectURL(url));
+    setScreenshots([]);
+    setScreenshotPreviews([]);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const closeTicketMutation = useMutation({
+    mutationFn: async (ticketId: string) => {
+      if (!user) throw new Error('Not authenticated');
+      const { error } = await db.from('support_tickets').update({
+        status: 'closed',
+        closed_at: new Date().toISOString(),
+        closed_by: user.id,
+        updated_at: new Date().toISOString(),
+      } as any).eq('id', ticketId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({ title: isFr ? 'Ticket fermé' : 'Ticket closed' });
+      setSelectedTicket(null);
+      setView('tickets');
+      qc.invalidateQueries({ queryKey: ['my-support-tickets'] });
+    },
+    onError: () => toast({ title: t('page.help_error'), variant: 'destructive' }),
+  });
 
   const createTicket = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error('Not authenticated');
 
-      let screenshotUrl: string | null = null;
+      const screenshotUrls: string[] = [];
 
-      // Upload screenshot if provided
-      if (screenshot) {
-        const ext = screenshot.name.split('.').pop() || 'png';
-        const path = `${user.id}/${Date.now()}.${ext}`;
+      // Upload all screenshots
+      for (const file of screenshots) {
+        const ext = file.name.split('.').pop() || 'png';
+        const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
         const { error: uploadError } = await supabase.storage
           .from('ticket-screenshots')
-          .upload(path, screenshot, { contentType: screenshot.type });
+          .upload(path, file, { contentType: file.type });
         if (uploadError) throw uploadError;
-        
+
         const { data: urlData } = supabase.storage
           .from('ticket-screenshots')
           .getPublicUrl(path);
-        screenshotUrl = urlData?.publicUrl || null;
+        if (urlData?.publicUrl) screenshotUrls.push(urlData.publicUrl);
       }
+
+      const userEmail = user.email || '';
+      const userName = profile?.display_name || userEmail;
 
       const { data, error } = await db.from('support_tickets').insert({
         user_id: user.id,
@@ -185,13 +226,14 @@ export default function SupportPage() {
         category,
         status: 'open',
         priority: 'normal',
-        screenshot_url: screenshotUrl,
+        screenshot_url: screenshotUrls[0] || null,
+        screenshot_urls: screenshotUrls,
+        user_email: userEmail,
+        user_name: userName,
       } as any).select('id, ticket_number').single();
       if (error) throw error;
 
       const ticketNumber = (data as any)?.ticket_number || 'TK-XXXX';
-      const userEmail = user.email || '';
-      const userName = profile?.display_name || userEmail;
 
       // Send confirmation email to user
       sendEmailNotification(
@@ -206,7 +248,7 @@ export default function SupportPage() {
         }
       ).catch(() => {});
 
-      // Send notification email to superadmin
+      // Send notification email to superadmin with full user details
       sendEmailNotification(
         'ticket_created_admin',
         'jaheimkouaho@gmail.com',
@@ -227,15 +269,15 @@ export default function SupportPage() {
       setSubject('');
       setMessage('');
       setCategory('technical');
-      removeScreenshot();
+      clearScreenshots();
       qc.invalidateQueries({ queryKey: ['my-support-tickets'] });
     },
     onError: () => toast({ title: t('page.help_error'), variant: 'destructive' }),
   });
 
-  const copyTicketId = (id: string) => {
-    navigator.clipboard.writeText(id);
-    toast({ title: isFr ? 'ID copié !' : 'ID copied!' });
+  const openTicketDetail = (ticket: any) => {
+    setSelectedTicket(ticket);
+    setView('ticket-detail');
   };
 
   return (
@@ -259,7 +301,7 @@ export default function SupportPage() {
         <Button size="sm" variant={view === 'faq' ? 'default' : 'outline'} onClick={() => setView('faq')} className="gap-1.5">
           <HelpCircle className="h-3.5 w-3.5" /> {t('page.help_faq')}
         </Button>
-        <Button size="sm" variant={view === 'tickets' || view === 'new-ticket' ? 'default' : 'outline'} onClick={() => setView('tickets')} className="gap-1.5">
+        <Button size="sm" variant={view !== 'faq' ? 'default' : 'outline'} onClick={() => setView('tickets')} className="gap-1.5">
           <MessageCircle className="h-3.5 w-3.5" /> {t('page.help_my_requests')}
           {tickets.length > 0 && <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-[10px]">{tickets.length}</Badge>}
         </Button>
@@ -316,7 +358,8 @@ export default function SupportPage() {
           ) : (
             <div className="space-y-2">
               {tickets.map((t2: any) => (
-                <div key={t2.id} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:border-primary/20 transition-all">
+                <div key={t2.id} onClick={() => openTicketDetail(t2)}
+                  className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:border-primary/20 transition-all cursor-pointer">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="text-sm font-medium truncate">{t2.subject}</p>
@@ -331,12 +374,102 @@ export default function SupportPage() {
                     </p>
                   </div>
                   <Badge className={`text-[10px] border-0 capitalize ${STATUS_COLORS[t2.status] || STATUS_COLORS.open}`}>
-                    {t2.status?.replace('_', ' ')}
+                    {t2.status === 'closed' ? (isFr ? 'Fermé' : 'Closed') : (isFr ? 'Ouvert' : 'Open')}
                   </Badge>
                 </div>
               ))}
             </div>
           )}
+        </motion.div>
+      )}
+
+      {/* Ticket detail view */}
+      {view === 'ticket-detail' && selectedTicket && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+          <button onClick={() => { setSelectedTicket(null); setView('tickets'); }}
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <ArrowLeft className="h-3.5 w-3.5" /> {isFr ? 'Retour' : 'Back'}
+          </button>
+
+          <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-base font-bold">{selectedTicket.subject}</h2>
+                <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                  {selectedTicket.ticket_number && (
+                    <Badge variant="outline" className="text-[10px] font-mono">{selectedTicket.ticket_number}</Badge>
+                  )}
+                  <Badge className={`text-[10px] border-0 capitalize ${STATUS_COLORS[selectedTicket.status] || STATUS_COLORS.open}`}>
+                    {selectedTicket.status === 'closed' ? (isFr ? 'Fermé' : 'Closed') : (isFr ? 'Ouvert' : 'Open')}
+                  </Badge>
+                  <Badge variant="outline" className="text-[10px] capitalize">
+                    {CATEGORIES.find(c => c.value === selectedTicket.category)?.label || selectedTicket.category}
+                  </Badge>
+                </div>
+              </div>
+              <p className="text-[10px] text-muted-foreground shrink-0">
+                {new Date(selectedTicket.created_at).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+              </p>
+            </div>
+
+            {/* Message */}
+            <div className="bg-muted/40 rounded-xl p-4">
+              <p className="text-sm whitespace-pre-wrap">{selectedTicket.message}</p>
+            </div>
+
+            {/* Screenshots */}
+            {(() => {
+              const urls = (selectedTicket as any).screenshot_urls?.length
+                ? (selectedTicket as any).screenshot_urls
+                : selectedTicket.screenshot_url
+                  ? [selectedTicket.screenshot_url]
+                  : [];
+              return urls.length > 0 && (
+                <div className="space-y-2">
+                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                    📎 {isFr ? 'Captures d\'écran' : 'Screenshots'} ({urls.length})
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {urls.map((url: string, i: number) => (
+                      <a key={i} href={url} target="_blank" rel="noopener noreferrer">
+                        <img src={url} alt={`Screenshot ${i + 1}`} className="max-h-40 rounded-xl border border-border object-cover hover:opacity-80 transition-opacity" />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* Admin response if any */}
+            {selectedTicket.admin_response && (
+              <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
+                <p className="text-[10px] font-semibold text-primary uppercase tracking-wider mb-2">
+                  {isFr ? '💬 Réponse de l\'équipe' : '💬 Team response'}
+                </p>
+                <p className="text-sm whitespace-pre-wrap">{selectedTicket.admin_response}</p>
+              </div>
+            )}
+
+            {/* Close ticket button (only if open) */}
+            {selectedTicket.status === 'open' && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5"
+                disabled={closeTicketMutation.isPending}
+                onClick={() => closeTicketMutation.mutate(selectedTicket.id)}
+              >
+                {closeTicketMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+                {isFr ? 'Fermer le ticket' : 'Close ticket'}
+              </Button>
+            )}
+
+            {selectedTicket.status === 'closed' && (
+              <p className="text-xs text-muted-foreground italic">
+                {isFr ? 'Ce ticket a été fermé.' : 'This ticket has been closed.'}
+              </p>
+            )}
+          </div>
         </motion.div>
       )}
 
@@ -370,20 +503,25 @@ export default function SupportPage() {
               <Textarea value={message} onChange={e => setMessage(e.target.value)} placeholder={t('page.help_message_placeholder')} rows={5} maxLength={2000} />
             </div>
 
-            {/* Screenshot upload */}
+            {/* Screenshot upload - multiple */}
             <div className="space-y-1.5">
-              <Label className="text-xs">{isFr ? 'Capture d\'écran (optionnel)' : 'Screenshot (optional)'}</Label>
-              {screenshotPreview ? (
-                <div className="relative inline-block">
-                  <img src={screenshotPreview} alt="Screenshot" className="max-h-40 rounded-xl border border-border object-cover" />
-                  <button
-                    onClick={removeScreenshot}
-                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow-md hover:scale-110 transition-transform"
-                  >
-                    <X className="h-3.5 w-3.5" />
-                  </button>
+              <Label className="text-xs">{isFr ? 'Captures d\'écran (max 5)' : 'Screenshots (max 5)'}</Label>
+              {screenshotPreviews.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {screenshotPreviews.map((preview, i) => (
+                    <div key={i} className="relative inline-block">
+                      <img src={preview} alt={`Screenshot ${i + 1}`} className="max-h-28 rounded-xl border border-border object-cover" />
+                      <button
+                        onClick={() => removeScreenshot(i)}
+                        className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow-md hover:scale-110 transition-transform"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ) : (
+              )}
+              {screenshots.length < 5 && (
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   className="flex items-center gap-2 px-4 py-3 rounded-xl border-2 border-dashed border-border hover:border-primary/40 bg-muted/30 text-sm text-muted-foreground hover:text-foreground transition-all w-full justify-center"
@@ -396,7 +534,8 @@ export default function SupportPage() {
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
-                onChange={handleScreenshot}
+                multiple
+                onChange={handleScreenshots}
                 className="hidden"
               />
             </div>
@@ -410,7 +549,7 @@ export default function SupportPage() {
         </motion.div>
       )}
 
-      {/* Professional confirmation dialog */}
+      {/* Confirmation dialog */}
       <Dialog open={!!confirmDialog} onOpenChange={() => { setConfirmDialog(null); setView('tickets'); }}>
         <DialogContent className="max-w-sm text-center p-6 gap-0">
           <motion.div
@@ -425,7 +564,7 @@ export default function SupportPage() {
 
             <div className="space-y-1">
               <h2 className="text-lg font-bold text-foreground">
-                {isFr ? 'Ticket ouvert !' : 'Ticket opened!'}
+                {isFr ? 'Ticket de support créé !' : 'Support ticket created!'}
               </h2>
               <p className="text-sm text-muted-foreground">
                 {isFr
@@ -434,33 +573,19 @@ export default function SupportPage() {
               </p>
             </div>
 
-            {/* Ticket receipt card */}
-            <div className="bg-muted/40 rounded-xl p-4 space-y-3 text-left">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                  {isFr ? 'ID du ticket' : 'Ticket ID'}
-                </span>
-                <button
-                  onClick={() => confirmDialog && copyTicketId(confirmDialog.ticketNumber)}
-                  className="flex items-center gap-1 text-xs text-primary hover:underline"
-                >
-                  <Copy className="h-3 w-3" /> {isFr ? 'Copier' : 'Copy'}
-                </button>
-              </div>
+            <div className="bg-muted/40 rounded-xl p-4 space-y-2 text-left">
               <p className="text-xl font-bold font-mono text-foreground tracking-wider">
                 {confirmDialog?.ticketNumber}
               </p>
-              <div className="border-t border-border pt-2">
-                <p className="text-xs text-muted-foreground truncate">
-                  <span className="font-medium text-foreground">{isFr ? 'Sujet :' : 'Subject:'}</span> {confirmDialog?.subject}
-                </p>
-              </div>
+              <p className="text-xs text-muted-foreground truncate">
+                <span className="font-medium text-foreground">{isFr ? 'Sujet :' : 'Subject:'}</span> {confirmDialog?.subject}
+              </p>
             </div>
 
             <p className="text-xs text-muted-foreground">
               📧 {isFr
-                ? 'Un email de confirmation avec les détails vous a été envoyé.'
-                : 'A confirmation email with the details has been sent to you.'}
+                ? 'Un email de confirmation vous a été envoyé.'
+                : 'A confirmation email has been sent to you.'}
             </p>
 
             <Button onClick={() => { setConfirmDialog(null); setView('tickets'); }} className="w-full">
