@@ -1,18 +1,18 @@
 import { useNavigate } from 'react-router-dom';
 import { SiteLogo } from '@/components/ui/SiteLogo';
-import { Bell, Sun, Moon, LogOut, User, Settings, Shield, Plus, ChevronDown, Building2, Search } from 'lucide-react';
+import { Bell, Sun, Moon, LogOut, User, Settings, Shield, Plus, Search } from 'lucide-react';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuLabel,
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
 import { useI18n } from '@/i18n/I18nContext';
-import { cn } from '@/lib/utils';
 import { CreditBalance } from '@/components/credits/CreditBalance';
+import { OrgSwitcher } from '@/components/org/OrgSwitcher';
 
 export function TopBar() {
   const { theme, toggleTheme } = useTheme();
