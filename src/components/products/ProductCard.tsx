@@ -353,6 +353,15 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
         onClose={() => setQuickView(false)}
         isPurchased={isPurchased}
       />
+
+      <ReportContentDialog
+        open={reportOpen}
+        onOpenChange={setReportOpen}
+        contentId={product.id}
+        contentType="product"
+        contentTitle={product.title}
+        organizationId={organizationId}
+      />
     </div>
   );
 }
