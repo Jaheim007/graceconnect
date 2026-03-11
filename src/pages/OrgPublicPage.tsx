@@ -399,7 +399,7 @@ export default function OrgPublicPage() {
                   {events.length === 0 ? (
                     <EmptyState variant="generic" title={t('org_public.no_events')} description={t('org_public.no_events_desc')} />
                   ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-4 pb-8">
                       {events.map((ev) => {
                         const evDate = ev.event_date ? new Date(ev.event_date) : null;
                         const isFuture = evDate && evDate > new Date();

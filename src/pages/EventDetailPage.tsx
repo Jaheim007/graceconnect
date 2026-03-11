@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useAuth } from '@/contexts/AuthContext';
-import { ArrowLeft, CalendarDays, MapPin, ExternalLink, Copy, CheckCircle, MessageCircle, Clock } from 'lucide-react';
+import { ArrowLeft, CalendarDays, MapPin, ExternalLink, Copy, CheckCircle, MessageCircle, Clock, Play } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
@@ -30,7 +30,7 @@ export default function EventDetailPage() {
     queryFn: async () => {
       const { data } = await db
         .from('events')
-        .select('*, organizations(name, slug, logo_url, description)')
+        .select('*, organizations(name, slug, logo_url, description, is_verified)')
         .eq('id', eventId)
         .eq('is_published', true)
         .maybeSingle();
@@ -158,6 +158,31 @@ export default function EventDetailPage() {
           {!isPast && eventDate && (
             <EventCountdown endDate={event.event_date} />
           )}
+
+          {/* YouTube Video */}
+          {(event as any).video_url && (() => {
+            const url = (event as any).video_url as string;
+            let videoId = '';
+            if (url.includes('youtu.be/')) {
+              videoId = url.split('youtu.be/')[1]?.split(/[?&#]/)[0] || '';
+            } else if (url.includes('youtube.com')) {
+              const match = url.match(/[?&]v=([^&#]+)/);
+              videoId = match?.[1] || '';
+            }
+            if (!videoId) return null;
+            return (
+              <div className="rounded-2xl overflow-hidden border border-border shadow-card aspect-video">
+                <iframe
+                  src={`https://www.youtube.com/embed/${videoId}`}
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  loading="lazy"
+                  title="Vidéo de l'événement"
+                />
+              </div>
+            );
+          })()}
 
           {event.description && (
             <div className="space-y-3">
