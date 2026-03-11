@@ -238,7 +238,7 @@ const LazyAdminSettings = lazy(() => import("@/pages/admin/AdminPages").then(m =
 
 const LazySuperadminOrgs = lazy(() => import("@/pages/superadmin/SuperadminPages").then(m => ({ default: m.SuperadminOrgs })));
 const LazySuperadminKYC = lazy(() => import("@/pages/superadmin/SuperadminPages").then(m => ({ default: m.SuperadminKYC })));
-const LazySuperadminTransactions = lazy(() => import("@/pages/superadmin/SuperadminPages").then(m => ({ default: m.SuperadminTransactions })));
+const LazySuperadminTransactions = lazy(() => import("@/pages/superadmin/SuperadminTransactions"));
 const LazySuperadminReports = lazy(() => import("@/pages/superadmin/SuperadminPages").then(m => ({ default: m.SuperadminReports })));
 const LazySuperadminMetrics = lazy(() => import("@/pages/superadmin/SuperadminPages").then(m => ({ default: m.SuperadminMetrics })));
 const SuperadminModeration = lazy(() => import("@/pages/superadmin/SuperadminModeration"));
