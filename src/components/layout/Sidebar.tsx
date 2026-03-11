@@ -179,7 +179,6 @@ export function Sidebar() {
         ...(hasProducts ? [{ to: '/admin/promo-codes', icon: Tag, label: t('sidebar.promo_codes') }] : []),
         { to: '/admin/subscriptions', icon: CreditCard, label: t('sidebar.subscriptions') },
         ...(hasProducts ? [{ to: '/admin/crm', icon: MailCheck, label: t('sidebar.crm') }] : []),
-        { to: '/admin/notifications', icon: Bell, label: t('sidebar.notifications') },
         { to: '/admin/waitlists', icon: Clock, label: t('sidebar.waitlists') },
         { to: '/admin/programs', icon: GraduationCap, label: t('sidebar.programs') },
         { to: '/admin/offerings', icon: Heart, label: t('sidebar.offerings') },
