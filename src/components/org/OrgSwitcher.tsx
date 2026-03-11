@@ -155,7 +155,6 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
         <div className="flex items-center gap-2.5">
           <OrgAvatar org={currentOrg} size="sm" />
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">{t('sidebar.managing')}</p>
             <div className="flex items-center gap-1.5">
               <p className="text-xs font-bold text-primary truncate">{currentOrg.name}</p>
               {isOrgVerifiedOrKyc(currentOrg.is_verified, (currentOrg as any).kyc_status) && (
