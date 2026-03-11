@@ -44,11 +44,13 @@ export function useMyReview(productId: string | undefined) {
       if (!productId || !user) return null;
       const { data } = await db
         .from('product_reviews')
-        .select('*')
+        .select('*, profiles(display_name, avatar_url)')
         .eq('product_id', productId)
         .eq('user_id', user.id)
         .maybeSingle();
-      return data as ProductReview | null;
+
+      if (!data) return null;
+      return { ...(data as any), profile: (data as any).profiles } as ProductReview;
     },
     enabled: !!productId && !!user,
   });
