@@ -6,7 +6,7 @@ import { useShortLink } from '@/hooks/useShortLink';
 import { formatPrice } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen, Eye, GitCompareArrows } from 'lucide-react';
+import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen, Eye, GitCompareArrows, Flag } from 'lucide-react';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { FlashSaleBadge } from './FlashSaleBadge';
