@@ -23,9 +23,19 @@ import { NpsSurvey } from '@/components/feedback/NpsSurvey';
 const HIDE_NAV_ROUTES = ['/auth', '/reels'];
 
 const pageVariants = {
-  initial: { opacity: 0, y: 8 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.2, ease: 'easeOut' as const } },
-  exit: { opacity: 0, y: -4, transition: { duration: 0.12 } },
+  initial: { opacity: 0, scale: 0.96, filter: 'blur(6px)' },
+  animate: {
+    opacity: 1,
+    scale: 1,
+    filter: 'blur(0px)',
+    transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.97,
+    filter: 'blur(4px)',
+    transition: { duration: 0.15, ease: 'easeIn' as const },
+  },
 };
 
 /**
