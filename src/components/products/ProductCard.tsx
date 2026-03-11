@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { DigitalProduct } from '@/types/database';
+import { ReportContentDialog } from '@/components/reports/ReportContentDialog';
 import { stripHtml } from '@/lib/formatText';
 import { useShortLink } from '@/hooks/useShortLink';
 import { formatPrice } from '@/lib/currency';
