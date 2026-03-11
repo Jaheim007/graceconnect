@@ -247,8 +247,7 @@ export default function SuperadminUsers() {
 
       {/* User list */}
       {isLoading ? <SkeletonRow count={8} /> : (
-        <ScrollArea className="h-[calc(100vh-420px)]">
-          <div className="space-y-2">
+        <div className="space-y-2">
             {filtered.map((u: any, idx: number) => {
               const totalValue = getUserTotalSpent(u);
               const isHighValue = totalValue > 10000;
@@ -261,7 +260,7 @@ export default function SuperadminUsers() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: Math.min(idx * 0.02, 0.3) }}
                   className={cn(
-                    'group flex items-start gap-3 p-3.5 rounded-xl border transition-all duration-200',
+                    'group flex items-center gap-3 p-3 rounded-xl border transition-all duration-200',
                     'bg-card hover:bg-muted/30 hover:shadow-sm',
                     isHighValue && 'border-amber-500/20 bg-amber-500/[0.02]',
                     !isHighValue && 'border-border'
