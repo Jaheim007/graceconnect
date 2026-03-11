@@ -4900,8 +4900,10 @@ export type Database = {
           resolved_at: string | null
           responded_at: string | null
           responded_by: string | null
+          screenshot_url: string | null
           status: string
           subject: string
+          ticket_number: string | null
           updated_at: string
           user_id: string
         }
@@ -4916,8 +4918,10 @@ export type Database = {
           resolved_at?: string | null
           responded_at?: string | null
           responded_by?: string | null
+          screenshot_url?: string | null
           status?: string
           subject: string
+          ticket_number?: string | null
           updated_at?: string
           user_id: string
         }
@@ -4932,8 +4936,10 @@ export type Database = {
           resolved_at?: string | null
           responded_at?: string | null
           responded_by?: string | null
+          screenshot_url?: string | null
           status?: string
           subject?: string
+          ticket_number?: string | null
           updated_at?: string
           user_id?: string
         }

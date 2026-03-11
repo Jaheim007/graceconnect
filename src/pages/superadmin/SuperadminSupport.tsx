@@ -123,6 +123,9 @@ export default function SuperadminSupport() {
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-bold">{selectedTicket.subject}</h2>
               <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                {selectedTicket.ticket_number && (
+                  <Badge variant="outline" className="text-[10px] font-mono">{selectedTicket.ticket_number}</Badge>
+                )}
                 <Badge className={cn('text-[10px] border-0 capitalize', STATUS_COLORS[selectedTicket.status])}>{selectedTicket.status?.replace('_', ' ')}</Badge>
                 <Badge className={cn('text-[10px] border-0 capitalize', PRIORITY_COLORS[selectedTicket.priority])}>{selectedTicket.priority}</Badge>
                 <Badge variant="outline" className="text-[10px] capitalize">{selectedTicket.category}</Badge>
@@ -142,6 +145,15 @@ export default function SuperadminSupport() {
           <div className="bg-muted/40 rounded-xl p-4">
             <p className="text-sm whitespace-pre-wrap">{selectedTicket.message}</p>
           </div>
+
+          {selectedTicket.screenshot_url && (
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">📎 Capture d'écran</p>
+              <a href={selectedTicket.screenshot_url} target="_blank" rel="noopener noreferrer">
+                <img src={selectedTicket.screenshot_url} alt="Screenshot" className="max-h-60 rounded-xl border border-border object-cover hover:opacity-80 transition-opacity" />
+              </a>
+            </div>
+          )}
 
           {selectedTicket.admin_response && (
             <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
@@ -230,6 +242,7 @@ export default function SuperadminSupport() {
                   )} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold truncate">{t.subject}</p>
+                    {t.ticket_number && <Badge variant="outline" className="text-[9px] font-mono shrink-0">{t.ticket_number}</Badge>}
                     <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2">
                       <span className="flex items-center gap-1"><User className="h-3 w-3" /> {profile?.display_name || 'Utilisateur'}</span>
                       <span>·</span>

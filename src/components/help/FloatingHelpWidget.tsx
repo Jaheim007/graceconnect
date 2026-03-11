@@ -90,7 +90,7 @@ export function FloatingHelpWidget() {
   if (!user) return null;
 
   return (
-    <div className="fixed bottom-20 left-4 z-[55] md:bottom-6 md:left-6">
+    <div className="fixed bottom-20 right-4 z-[55] md:bottom-6 md:right-6">
       <AnimatePresence>
         {open && (
           <motion.div

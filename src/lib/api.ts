@@ -212,7 +212,8 @@ export type EmailTemplate =
   | 'fraud_alert' | 'new_org_alert'
   // Misc
   | 'flash_sale_alert' | 'promo_code_used' | 'org_verified'
-  | 'waitlist_spot_available' | 'referral_reward';
+  | 'waitlist_spot_available' | 'referral_reward'
+  | 'ticket_created' | 'ticket_created_admin';
 
 export async function sendEmailNotification(
   template: EmailTemplate,
