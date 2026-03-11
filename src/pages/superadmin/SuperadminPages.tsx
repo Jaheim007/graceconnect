@@ -864,24 +864,199 @@ export function SuperadminTransactions() {
 }
 
 export function SuperadminReports() {
-  const { data = [], isLoading } = useQuery({
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const { toast } = useToast();
+
+  const { data = [], isLoading, refetch } = useQuery({
     queryKey: ['sa-reports'],
-    queryFn: async () => { const { data } = await db.from('content_reports').select('*').order('created_at', { ascending: false }); return data || []; },
+    queryFn: async () => {
+      const { data } = await db
+        .from('content_reports')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (!data) return [];
+
+      // Enrich with reporter profiles + content info
+      const reporterIds = [...new Set(data.map((r: any) => r.reporter_user_id))];
+      const contentProductIds = data.filter((r: any) => r.content_type === 'product').map((r: any) => r.content_id);
+
+      const [profilesRes, productsRes] = await Promise.all([
+        reporterIds.length > 0
+          ? db.from('profiles').select('id, display_name, avatar_url, email').in('id', reporterIds)
+          : Promise.resolve({ data: [] }),
+        contentProductIds.length > 0
+          ? db.from('digital_products').select('id, title, cover_image_url, organization_id, organizations(name)').in('id', contentProductIds)
+          : Promise.resolve({ data: [] }),
+      ]);
+
+      const profilesMap = Object.fromEntries((profilesRes.data || []).map((p: any) => [p.id, p]));
+      const productsMap = Object.fromEntries((productsRes.data || []).map((p: any) => [p.id, p]));
+
+      return data.map((r: any) => ({
+        ...r,
+        reporter: profilesMap[r.reporter_user_id] || null,
+        product: r.content_type === 'product' ? productsMap[r.content_id] || null : null,
+      }));
+    },
   });
+
+  const updateStatus = async (id: string, newStatus: string) => {
+    const { error } = await db.from('content_reports').update({ status: newStatus as any }).eq('id', id);
+    if (error) {
+      toast({ title: 'Erreur', variant: 'destructive' });
+    } else {
+      toast({ title: `Statut mis à jour : ${newStatus}` });
+      refetch();
+    }
+  };
+
+  const filteredData = data.filter((r: any) => {
+    if (statusFilter !== 'all' && r.status !== statusFilter) return false;
+    if (typeFilter !== 'all' && r.content_type !== typeFilter) return false;
+    return true;
+  });
+
+  const statusCounts = {
+    all: data.length,
+    pending: data.filter((r: any) => r.status === 'pending').length,
+    reviewed: data.filter((r: any) => r.status === 'reviewed').length,
+    resolved: data.filter((r: any) => r.status === 'resolved').length,
+    dismissed: data.filter((r: any) => r.status === 'dismissed').length,
+  };
+
+  const contentTypes = [...new Set(data.map((r: any) => r.content_type))];
+
+  const statusColors: Record<string, string> = {
+    pending: 'bg-yellow-500/15 text-yellow-600 border-yellow-500/30',
+    reviewed: 'bg-blue-500/15 text-blue-600 border-blue-500/30',
+    resolved: 'bg-green-500/15 text-green-600 border-green-500/30',
+    dismissed: 'bg-muted text-muted-foreground border-border',
+  };
+
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-bold">Content Reports</h1>
-      {isLoading ? <SkeletonRow count={3} /> : data.length === 0 ? (
-        <div className="p-8 text-center text-muted-foreground text-sm">No reports 🎉</div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-xl font-bold flex items-center gap-2">
+            <Shield className="h-5 w-5 text-destructive" />
+            Signalements
+          </h1>
+          <p className="text-sm text-muted-foreground mt-0.5">{data.length} signalement{data.length !== 1 ? 's' : ''} au total</p>
+        </div>
+      </div>
+
+      {/* Status filter tabs */}
+      <div className="flex gap-2 flex-wrap">
+        {(['all', 'pending', 'reviewed', 'resolved', 'dismissed'] as const).map((s) => (
+          <button
+            key={s}
+            onClick={() => setStatusFilter(s)}
+            className={cn(
+              'px-3 py-1.5 rounded-full text-xs font-medium border transition-all',
+              statusFilter === s
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-card border-border hover:bg-muted'
+            )}
+          >
+            {s === 'all' ? 'Tous' : s.charAt(0).toUpperCase() + s.slice(1)} ({statusCounts[s]})
+          </button>
+        ))}
+        {contentTypes.length > 1 && (
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            className="px-3 py-1.5 rounded-full text-xs font-medium border border-border bg-card ml-auto"
+          >
+            <option value="all">Tous les types</option>
+            {contentTypes.map((t: string) => (
+              <option key={t} value={t}>{t}</option>
+            ))}
+          </select>
+        )}
+      </div>
+
+      {isLoading ? <SkeletonRow count={4} /> : filteredData.length === 0 ? (
+        <div className="p-12 text-center text-muted-foreground text-sm border border-dashed rounded-2xl">
+          {data.length === 0 ? '🎉 Aucun signalement' : 'Aucun signalement pour ce filtre'}
+        </div>
       ) : (
-        <div className="space-y-2">
-          {data.map((r: any) => (
-            <div key={r.id} className="p-3 rounded-xl border border-border bg-card">
-              <div className="flex items-center justify-between mb-1">
-                <Badge variant="outline" className="text-[10px] capitalize">{r.content_type}</Badge>
-                <Badge className={`text-[10px] border-0 ${r.status === 'pending' ? 'bg-yellow-500/15 text-yellow-600' : 'bg-green-500/15 text-green-600'}`}>{r.status}</Badge>
+        <div className="space-y-3">
+          {filteredData.map((r: any) => (
+            <div key={r.id} className="p-4 rounded-xl border border-border bg-card space-y-3 hover:border-primary/20 transition-colors">
+              {/* Header */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  {r.reporter?.avatar_url ? (
+                    <img src={r.reporter.avatar_url} alt="" className="h-9 w-9 rounded-full object-cover shrink-0" />
+                  ) : (
+                    <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center shrink-0">
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold truncate">{r.reporter?.display_name || 'Utilisateur'}</p>
+                    <p className="text-[11px] text-muted-foreground truncate">{r.reporter?.email || r.reporter_user_id?.slice(0, 8)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Badge variant="outline" className="text-[10px] capitalize">{r.content_type}</Badge>
+                  <Badge className={cn('text-[10px] border', statusColors[r.status] || statusColors.pending)}>
+                    {r.status}
+                  </Badge>
+                </div>
               </div>
-              <p className="text-xs">{r.reason}</p>
+
+              {/* Content info */}
+              {r.product && (
+                <div className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/50 border border-border/50">
+                  {r.product.cover_image_url ? (
+                    <img src={r.product.cover_image_url} alt="" className="h-12 w-10 rounded object-cover shrink-0" />
+                  ) : (
+                    <div className="h-12 w-10 rounded bg-muted flex items-center justify-center shrink-0">
+                      <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold truncate">{r.product.title}</p>
+                    <p className="text-[10px] text-muted-foreground">{r.product.organizations?.name || '—'}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Reason */}
+              <div className="p-3 rounded-lg bg-destructive/5 border border-destructive/10">
+                <p className="text-xs font-medium text-destructive mb-0.5">Motif :</p>
+                <p className="text-sm">{r.reason}</p>
+              </div>
+
+              {/* Footer */}
+              <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                <span>{r.created_at ? new Date(r.created_at).toLocaleString('fr-FR') : '—'}</span>
+                {r.status === 'pending' && (
+                  <div className="flex gap-1.5">
+                    <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => updateStatus(r.id, 'reviewed')}>
+                      Examiner
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 text-[11px] text-green-600 border-green-500/30 hover:bg-green-500/10" onClick={() => updateStatus(r.id, 'resolved')}>
+                      Résolu
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-7 text-[11px] text-muted-foreground" onClick={() => updateStatus(r.id, 'dismissed')}>
+                      Rejeter
+                    </Button>
+                  </div>
+                )}
+                {r.status === 'reviewed' && (
+                  <div className="flex gap-1.5">
+                    <Button size="sm" variant="outline" className="h-7 text-[11px] text-green-600 border-green-500/30 hover:bg-green-500/10" onClick={() => updateStatus(r.id, 'resolved')}>
+                      Résolu
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-7 text-[11px] text-muted-foreground" onClick={() => updateStatus(r.id, 'dismissed')}>
+                      Rejeter
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>

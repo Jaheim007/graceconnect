@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { DigitalProduct } from '@/types/database';
+import { ReportContentDialog } from '@/components/reports/ReportContentDialog';
 import { stripHtml } from '@/lib/formatText';
 import { useShortLink } from '@/hooks/useShortLink';
 import { formatPrice } from '@/lib/currency';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen, Eye, GitCompareArrows } from 'lucide-react';
+import { ShoppingBag, Download, ExternalLink, CheckCircle, BookOpen, Eye, GitCompareArrows, Flag } from 'lucide-react';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { FlashSaleBadge } from './FlashSaleBadge';
@@ -47,6 +48,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
   const { toast } = useToast();
   const { user } = useAuth();
   const [quickView, setQuickView] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const compare = useCompare();
 
   // Show commission/share to all logged-in users (unified experience)
@@ -166,6 +168,16 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
         )}
         {/* Wishlist heart */}
         <WishlistButton productId={product.id} />
+        {/* Report button */}
+        {user && (
+          <button
+            onClick={(e) => { e.stopPropagation(); setReportOpen(true); }}
+            className="absolute top-2.5 right-2.5 h-7 w-7 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 shadow-sm z-10"
+            title="Signaler"
+          >
+            <Flag className="h-3 w-3 text-muted-foreground hover:text-destructive" />
+          </button>
+        )}
         {/* Quick view button */}
         <button
           onClick={(e) => { e.stopPropagation(); setQuickView(true); }}
@@ -350,6 +362,15 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
         open={quickView}
         onClose={() => setQuickView(false)}
         isPurchased={isPurchased}
+      />
+
+      <ReportContentDialog
+        open={reportOpen}
+        onOpenChange={setReportOpen}
+        contentId={product.id}
+        contentType="product"
+        contentTitle={product.title}
+        organizationId={organizationId}
       />
     </div>
   );
