@@ -232,10 +232,10 @@ export function ProductForm() {
         }).eq('id', studioState.studioProjectId);
       }
       if (!isEdit && resultData && payload.is_published) {
-        onContentPublished(currentOrg.id, currentOrg.name, 'product', payload.title, resultData.id, { price: String(payload.price || 0), currency: payload.currency }, user.id);
+        onContentPublished(currentOrg.id, currentOrg.name, 'product', payload.title, resultData.id, { price: String(payload.price || 0), currency: payload.currency, slug: resultData.slug || '' }, user.id);
       }
       if (isEdit && item) {
-        if (!item.is_published && payload.is_published) onContentPublished(currentOrg.id, currentOrg.name, 'product', payload.title, id!, { price: String(payload.price || 0), currency: payload.currency }, user.id);
+        if (!item.is_published && payload.is_published) onContentPublished(currentOrg.id, currentOrg.name, 'product', payload.title, id!, { price: String(payload.price || 0), currency: payload.currency, slug: (item as any).slug || '' }, user.id);
         if (item.is_published && !payload.is_published) onContentUnpublished(currentOrg.id, currentOrg.name, 'product', payload.title);
         if (item.price !== payload.price && payload.is_published) onProductPriceChanged(currentOrg.id, currentOrg.name, payload.title, item.price || 0, payload.price, payload.currency);
       }
