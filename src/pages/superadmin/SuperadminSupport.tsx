@@ -110,33 +110,45 @@ export default function SuperadminSupport() {
         </button>
 
         <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex-1 min-w-0">
-              <h2 className="text-lg font-bold">{selectedTicket.subject}</h2>
-              <div className="flex flex-wrap items-center gap-2 mt-1.5">
-                {selectedTicket.ticket_number && (
-                  <Badge variant="outline" className="text-[10px] font-mono">{selectedTicket.ticket_number}</Badge>
-                )}
-                <Badge className={cn('text-[10px] border-0 capitalize', STATUS_COLORS[selectedTicket.status] || STATUS_COLORS.open)}>
-                  {selectedTicket.status === 'closed' ? 'Fermé' : 'Ouvert'}
-                </Badge>
-                <Badge variant="outline" className="text-[10px] capitalize">{selectedTicket.category}</Badge>
-              </div>
-            </div>
-            <div className="text-right shrink-0">
-              <div className="flex items-center gap-1.5 text-xs font-medium">
-                <User className="h-3.5 w-3.5" />
-                {userName}
-              </div>
-              {userEmail && (
-                <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
-                  <Mail className="h-3 w-3" />
-                  <a href={`mailto:${userEmail}`} className="hover:underline">{userEmail}</a>
+          <div className="space-y-3">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <h2 className="text-lg font-bold">{selectedTicket.subject}</h2>
+                <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                  {selectedTicket.ticket_number && (
+                    <Badge variant="outline" className="text-[10px] font-mono">{selectedTicket.ticket_number}</Badge>
+                  )}
+                  <Badge className={cn('text-[10px] border-0 capitalize', STATUS_COLORS[selectedTicket.status] || STATUS_COLORS.open)}>
+                    {selectedTicket.status === 'closed' ? 'Fermé' : 'Ouvert'}
+                  </Badge>
+                  <Badge variant="outline" className="text-[10px] capitalize">{selectedTicket.category}</Badge>
                 </div>
-              )}
-              <p className="text-[10px] text-muted-foreground mt-0.5">
+              </div>
+              <p className="text-[10px] text-muted-foreground shrink-0">
                 {format(new Date(selectedTicket.created_at), 'dd MMM yyyy HH:mm', { locale: fr })}
               </p>
+            </div>
+
+            {/* User details card */}
+            <div className="bg-muted/30 border border-border rounded-xl p-3 flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <User className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold">{userName}</p>
+                {userEmail && (
+                  <a href={`mailto:${userEmail}`} className="text-xs text-primary hover:underline flex items-center gap-1">
+                    <Mail className="h-3 w-3" /> {userEmail}
+                  </a>
+                )}
+              </div>
+              {userEmail && (
+                <Button size="sm" variant="outline" className="gap-1.5 shrink-0" asChild>
+                  <a href={`mailto:${userEmail}?subject=Re: ${selectedTicket.subject} (${selectedTicket.ticket_number || ''})`}>
+                    <Mail className="h-3.5 w-3.5" /> Envoyer un email
+                  </a>
+                </Button>
+              )}
             </div>
           </div>
 
