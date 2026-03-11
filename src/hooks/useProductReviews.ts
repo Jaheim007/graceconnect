@@ -8,7 +8,9 @@ export interface ProductReview {
   user_id: string;
   organization_id: string;
   rating: number;
+  title: string | null;
   comment: string | null;
+  helpful_count: number;
   is_verified_purchase: boolean;
   is_published: boolean;
   created_at: string;
@@ -58,13 +60,12 @@ export function useSubmitReview() {
 
   return useMutation({
     mutationFn: async ({
-      productId, organizationId, rating, comment, isVerifiedPurchase,
+      productId, organizationId, rating, title, comment, isVerifiedPurchase,
     }: {
-      productId: string; organizationId: string; rating: number; comment: string; isVerifiedPurchase: boolean;
+      productId: string; organizationId: string; rating: number; title: string; comment: string; isVerifiedPurchase: boolean;
     }) => {
       if (!user) throw new Error('Not authenticated');
 
-      // Check if review already exists
       const { data: existing } = await db
         .from('product_reviews')
         .select('id')
@@ -75,7 +76,12 @@ export function useSubmitReview() {
       if (existing) {
         const { error } = await db
           .from('product_reviews')
-          .update({ rating, comment: comment || null, updated_at: new Date().toISOString() })
+          .update({
+            rating,
+            title: title || null,
+            comment: comment || null,
+            updated_at: new Date().toISOString(),
+          } as any)
           .eq('id', existing.id);
         if (error) throw error;
       } else {
@@ -86,9 +92,10 @@ export function useSubmitReview() {
             user_id: user.id,
             organization_id: organizationId,
             rating,
+            title: title || null,
             comment: comment || null,
             is_verified_purchase: isVerifiedPurchase,
-          });
+          } as any);
         if (error) throw error;
       }
 
@@ -115,6 +122,32 @@ export function useSubmitReview() {
   });
 }
 
+export function useHelpfulReview() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ reviewId, productId }: { reviewId: string; productId: string }) => {
+      // Simple increment — could be improved with a user-specific tracking table
+      const { error } = await db.rpc('increment_review_helpful' as any, { review_id: reviewId });
+      if (error) {
+        // Fallback: direct update if RPC doesn't exist
+        const { data } = await db
+          .from('product_reviews')
+          .select('helpful_count' as any)
+          .eq('id', reviewId)
+          .single();
+        const current = (data as any)?.helpful_count || 0;
+        await db
+          .from('product_reviews')
+          .update({ helpful_count: current + 1 } as any)
+          .eq('id', reviewId);
+      }
+    },
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({ queryKey: ['product-reviews', vars.productId] });
+    },
+  });
+}
+
 export function useDeleteReview() {
   const qc = useQueryClient();
   return useMutation({
@@ -122,7 +155,6 @@ export function useDeleteReview() {
       const { error } = await db.from('product_reviews').delete().eq('id', reviewId);
       if (error) throw error;
 
-      // Recalculate average
       const { data: reviews } = await db
         .from('product_reviews')
         .select('rating')
