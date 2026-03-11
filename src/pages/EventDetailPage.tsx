@@ -159,6 +159,31 @@ export default function EventDetailPage() {
             <EventCountdown endDate={event.event_date} />
           )}
 
+          {/* YouTube Video */}
+          {(event as any).video_url && (() => {
+            const url = (event as any).video_url as string;
+            let videoId = '';
+            if (url.includes('youtu.be/')) {
+              videoId = url.split('youtu.be/')[1]?.split(/[?&#]/)[0] || '';
+            } else if (url.includes('youtube.com')) {
+              const match = url.match(/[?&]v=([^&#]+)/);
+              videoId = match?.[1] || '';
+            }
+            if (!videoId) return null;
+            return (
+              <div className="rounded-2xl overflow-hidden border border-border shadow-card aspect-video">
+                <iframe
+                  src={`https://www.youtube.com/embed/${videoId}`}
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  loading="lazy"
+                  title="Vidéo de l'événement"
+                />
+              </div>
+            );
+          })()}
+
           {event.description && (
             <div className="space-y-3">
               <h2 className="text-base font-semibold">À propos de cet événement</h2>
