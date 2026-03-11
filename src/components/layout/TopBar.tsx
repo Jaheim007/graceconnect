@@ -22,6 +22,12 @@ export function TopBar() {
   const navigate = useNavigate();
   const { t } = useI18n();
 
+  const googleAvatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
+  const avatarUrl = profile?.avatar_url || googleAvatar;
+  const initials = profile?.display_name
+    ? profile.display_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
+    : user?.email?.[0]?.toUpperCase() || 'U';
+
   return (
     <header className="h-14 shrink-0 z-40 glass border-b border-border flex items-center px-3 sm:px-4 gap-2">
       <div className="flex lg:hidden items-center mr-0.5">
