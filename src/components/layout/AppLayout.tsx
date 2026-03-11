@@ -28,13 +28,13 @@ const pageVariants = {
     opacity: 1,
     scale: 1,
     filter: 'blur(0px)',
-    transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] },
   },
   exit: {
     opacity: 0,
     scale: 0.97,
     filter: 'blur(4px)',
-    transition: { duration: 0.15, ease: 'easeIn' },
+    transition: { duration: 0.15, ease: 'easeIn' as const },
   },
 };
 
