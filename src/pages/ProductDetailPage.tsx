@@ -86,6 +86,7 @@ export default function ProductDetailPage() {
   const [purchaseProduct, setPurchaseProduct] = useState<DigitalProduct | null>(null);
   const [copied, setCopied] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
 
   // Track recently viewed
   useEffect(() => {
