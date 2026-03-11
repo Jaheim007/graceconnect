@@ -273,6 +273,7 @@ export async function onContentPublished(
   notifyOrgMembers(orgId, notifTitle, notifBody, notifTypes[contentType] || 'org', publisherId, contentRoutes[contentType] || `/feed`);
 
   // Email to org admins with the right template
+  const publicContentUrl = `https://siteviral.com${contentRoutes[contentType] || '/feed'}`;
   emailOrgAdmins(templates[contentType], orgId, {
     org_name: orgName,
     [`${contentType}_title`]: contentTitle,
@@ -281,7 +282,10 @@ export async function onContentPublished(
     media_title: contentTitle,
     product_name: contentTitle,
     program_name: contentTitle,
-    org_link: `https://siteviral.com/org/${orgId}`,
+    product_link: publicContentUrl,
+    program_link: publicContentUrl,
+    campaign_link: publicContentUrl,
+    org_link: publicContentUrl,
     ...extraData,
   });
 
