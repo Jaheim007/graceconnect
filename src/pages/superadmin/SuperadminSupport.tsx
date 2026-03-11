@@ -122,9 +122,10 @@ export default function SuperadminSupport() {
           <div className="flex items-start justify-between gap-3">
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-bold">{selectedTicket.subject}</h2>
-              {selectedTicket.ticket_number && (
-                <Badge variant="outline" className="text-xs font-mono mt-1">{selectedTicket.ticket_number}</Badge>
-              )}
+              <div className="flex flex-wrap items-center gap-2 mt-1.5">
+                {selectedTicket.ticket_number && (
+                  <Badge variant="outline" className="text-[10px] font-mono">{selectedTicket.ticket_number}</Badge>
+                )}
                 <Badge className={cn('text-[10px] border-0 capitalize', STATUS_COLORS[selectedTicket.status])}>{selectedTicket.status?.replace('_', ' ')}</Badge>
                 <Badge className={cn('text-[10px] border-0 capitalize', PRIORITY_COLORS[selectedTicket.priority])}>{selectedTicket.priority}</Badge>
                 <Badge variant="outline" className="text-[10px] capitalize">{selectedTicket.category}</Badge>
