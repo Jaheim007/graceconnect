@@ -17,39 +17,10 @@ import { OrgSwitcher } from '@/components/org/OrgSwitcher';
 export function TopBar() {
   const { theme, toggleTheme } = useTheme();
   const { user, profile, isSuperadmin, signOut } = useAuth();
-  const { currentOrg, userOrgs, setCurrentOrg, getRoleFor } = useOrg();
+  const { currentOrg, userOrgs } = useOrg();
   const { data: unread = 0 } = useUnreadCount(user?.id);
   const navigate = useNavigate();
   const { t } = useI18n();
-
-  const googleAvatar = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
-  const avatarUrl = profile?.avatar_url || googleAvatar;
-  const initials = profile?.display_name
-    ? profile.display_name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
-    : user?.email?.[0]?.toUpperCase() || 'U';
-
-  // Separate managed orgs (owner/admin) from member-only orgs
-  const managedOrgs = userOrgs.filter((o) => {
-    const role = getRoleFor(o.id);
-    return role === 'owner' || role === 'admin';
-  });
-  const memberOrgs = userOrgs.filter((o) => {
-    const role = getRoleFor(o.id);
-    return role !== 'owner' && role !== 'admin';
-  });
-
-  const handleOrgSelect = (org: typeof currentOrg) => {
-    if (!org) return;
-    const role = getRoleFor(org.id);
-    const isManager = role === 'owner' || role === 'admin';
-    if (isManager) {
-      setCurrentOrg(org);
-      navigate('/admin');
-    } else {
-      // Navigate to public page for member-only orgs
-      navigate(`/org/${org.slug}`);
-    }
-  };
 
   return (
     <header className="h-14 shrink-0 z-40 glass border-b border-border flex items-center px-3 sm:px-4 gap-2">
