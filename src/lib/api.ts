@@ -183,7 +183,7 @@ export type EmailTemplate =
   // Directory
   | 'directory_approved' | 'directory_rejected'
   // Support
-  | 'ticket_created' | 'ticket_replied' | 'ticket_resolved'
+  | 'ticket_created' | 'ticket_created_admin' | 'ticket_replied' | 'ticket_resolved'
   // Refunds
   | 'refund_initiated' | 'refund_completed'
   // Content & Social
