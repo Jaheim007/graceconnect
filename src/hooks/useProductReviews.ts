@@ -18,6 +18,32 @@ export interface ProductReview {
   profile?: { display_name: string | null; avatar_url: string | null };
 }
 
+type PublicProfile = {
+  id: string;
+  display_name: string | null;
+  avatar_url: string | null;
+};
+
+async function fetchPublicProfileMap(userIds: string[]) {
+  const uniqueIds = Array.from(new Set(userIds.filter(Boolean)));
+  if (uniqueIds.length === 0) {
+    return new Map<string, { display_name: string | null; avatar_url: string | null }>();
+  }
+
+  const { data, error } = await db.rpc('get_public_profiles' as any, { _user_ids: uniqueIds as any });
+  if (error) {
+    console.warn('[useProductReviews] Failed to load public profiles:', error.message);
+    return new Map<string, { display_name: string | null; avatar_url: string | null }>();
+  }
+
+  return new Map(
+    ((data || []) as PublicProfile[]).map((profile) => [
+      profile.id,
+      { display_name: profile.display_name, avatar_url: profile.avatar_url },
+    ])
+  );
+}
+
 export function useProductReviews(productId: string | undefined) {
   return useQuery({
     queryKey: ['product-reviews', productId],
@@ -25,12 +51,20 @@ export function useProductReviews(productId: string | undefined) {
       if (!productId) return [];
       const { data, error } = await db
         .from('product_reviews')
-        .select('*, profiles(display_name, avatar_url)')
+        .select('*')
         .eq('product_id', productId)
         .eq('is_published', true)
         .order('created_at', { ascending: false });
+
       if (error) throw error;
-      return (data || []).map((r: any) => ({ ...r, profile: r.profiles })) as ProductReview[];
+
+      const reviews = (data || []) as ProductReview[];
+      const profilesMap = await fetchPublicProfileMap(reviews.map((review) => review.user_id));
+
+      return reviews.map((review) => ({
+        ...review,
+        profile: profilesMap.get(review.user_id),
+      }));
     },
     enabled: !!productId,
   });
@@ -42,15 +76,22 @@ export function useMyReview(productId: string | undefined) {
     queryKey: ['my-review', productId, user?.id],
     queryFn: async () => {
       if (!productId || !user) return null;
-      const { data } = await db
+      const { data, error } = await db
         .from('product_reviews')
-        .select('*, profiles(display_name, avatar_url)')
+        .select('*')
         .eq('product_id', productId)
         .eq('user_id', user.id)
         .maybeSingle();
 
+      if (error) throw error;
       if (!data) return null;
-      return { ...(data as any), profile: (data as any).profiles } as ProductReview;
+
+      const profilesMap = await fetchPublicProfileMap([data.user_id]);
+
+      return {
+        ...(data as ProductReview),
+        profile: profilesMap.get(data.user_id),
+      } as ProductReview;
     },
     enabled: !!productId && !!user,
   });
