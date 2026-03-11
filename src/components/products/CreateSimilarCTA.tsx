@@ -29,11 +29,10 @@ export function CreateSimilarCTA({ productType, productTitle }: CreateSimilarCTA
 
   const handleClick = () => {
     if (!user) {
-      navigate('/auth?mode=signup&returnTo=/admin/ai-studio');
+      navigate('/auth?mode=signup&returnTo=/ecrire');
       return;
     }
-    // Navigate to AI Studio — user needs an org to create
-    navigate('/admin/ai-studio');
+    navigate('/ecrire');
   };
 
   return (
