@@ -410,7 +410,7 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
         <div className="py-8 text-center">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mx-auto" />
         </div>
-      ) : !hasReviews ? (
+      ) : !hasReviews && !myReview ? (
         <p className="text-sm text-muted-foreground py-6 text-center">
           Aucun avis pour le moment.{isPurchased ? ' Soyez le premier !' : ''}
         </p>
