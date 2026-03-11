@@ -12,9 +12,10 @@ import {
   ArrowLeft, ShoppingBag, Share2, Copy, CheckCircle,
   FileText, BookOpen, Music, Link2, ExternalLink, MessageCircle,
   Shield, HelpCircle, MessageSquareQuote, PackagePlus, Star,
-  Pencil, Eye, EyeOff
+  Pencil, Eye, EyeOff, Flag
 } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
+import { ReportContentDialog } from '@/components/reports/ReportContentDialog';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -85,6 +86,7 @@ export default function ProductDetailPage() {
   const [purchaseProduct, setPurchaseProduct] = useState<DigitalProduct | null>(null);
   const [copied, setCopied] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
 
   // Track recently viewed
   useEffect(() => {
@@ -753,7 +755,27 @@ export default function ProductDetailPage() {
                   />
                 </div>
                 <WishlistButton productId={product.id} variant="full" />
+                {user && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    title="Signaler ce produit"
+                    onClick={() => setReportOpen(true)}
+                  >
+                    <Flag className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
+
+              <ReportContentDialog
+                open={reportOpen}
+                onOpenChange={setReportOpen}
+                contentId={product.id}
+                contentType="product"
+                contentTitle={product.title}
+                organizationId={product.organization_id}
+              />
             </div>
 
             {/* Trust indicators in sidebar */}
