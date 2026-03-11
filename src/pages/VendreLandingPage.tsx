@@ -36,15 +36,21 @@ const PLATFORM_PERKS = [
 export default function VendreLandingPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { currentOrg, isLoading: orgLoading } = useOrg();
-  const [step, setStep] = useState(0); // 0=landing, 1=simulator
+  const { currentOrg } = useOrg();
+  const [step, setStep] = useState(0);
+  const [isChecking, setIsChecking] = useState(true);
 
   // Redirect to admin if user already has an organization
   useEffect(() => {
-    if (!orgLoading && currentOrg && user) {
-      navigate('/admin/products', { replace: true });
-    }
-  }, [currentOrg, orgLoading, user, navigate]);
+    // Small delay to allow org context to load
+    const timer = setTimeout(() => {
+      if (currentOrg && user) {
+        navigate('/admin/products', { replace: true });
+      }
+      setIsChecking(false);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [currentOrg, user, navigate]);
 
   const handleStart = () => {
     if (user) {
@@ -54,8 +60,8 @@ export default function VendreLandingPage() {
     }
   };
 
-  // Show loading state while checking org
-  if (orgLoading) {
+  // Show loading state while checking
+  if (isChecking) {
     return (
       <AdaptiveLayout>
         <div className="min-h-screen bg-background flex items-center justify-center">
@@ -64,9 +70,6 @@ export default function VendreLandingPage() {
       </AdaptiveLayout>
     );
   }
-
-  // If user has org, this will redirect (shown briefly during redirect)
-  if (currentOrg) return null;
 
   return (
     <AdaptiveLayout>
