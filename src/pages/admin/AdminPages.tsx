@@ -5,8 +5,8 @@ import { AdminPageShell } from './AdminPageShell';
 import IdentityVerificationWizard from '@/components/verification/IdentityVerificationWizard';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { useOrgAnnouncements, useDeleteAnnouncement } from '@/hooks/useAnnouncements';
-import { useOrgEvents, useDeleteEvent } from '@/hooks/useEvents';
+import { useOrgAnnouncements, useDeleteAnnouncement, useUpdateAnnouncement } from '@/hooks/useAnnouncements';
+import { useOrgEvents, useDeleteEvent, useUpdateEvent } from '@/hooks/useEvents';
 import { useOrgCampaigns, useOrgProducts } from '@/hooks/useMonetization';
 import { useOrgMembers } from '@/hooks/useOrgRole';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle, Users, Plus, PenLine, Upload, ChevronDown, Eye, Megaphone, CalendarDays } from 'lucide-react';
+import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle, Users, Plus, PenLine, Upload, ChevronDown, Eye, EyeOff, Megaphone, CalendarDays } from 'lucide-react';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -68,6 +68,11 @@ export function AdminAnnouncements() {
   const { toast } = useToast();
   const { data: items = [], isLoading } = useOrgAnnouncements(currentOrg?.id, false);
   const del = useDeleteAnnouncement();
+  const update = useUpdateAnnouncement();
+  const togglePublish = async (a: any) => {
+    await update.mutateAsync({ id: a.id, updates: { is_published: !a.is_published, published_at: !a.is_published ? new Date().toISOString() : a.published_at } });
+    toast({ title: a.is_published ? 'Annonce dépubliée' : 'Annonce publiée' });
+  };
   return (
     <AdminPageShell title="Annonces" newRoute="/admin/announcements/new" newLabel="Nouvelle annonce" backRoute="/admin">
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
@@ -100,6 +105,9 @@ export function AdminAnnouncements() {
                   {a.is_published ? 'Publié' : 'Brouillon'}
                 </Badge>
                 <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" title={a.is_published ? 'Dépublier' : 'Publier'} onClick={() => togglePublish(a)}>
+                    {a.is_published ? <Eye className="h-3.5 w-3.5 text-primary" /> : <EyeOff className="h-3.5 w-3.5" />}
+                  </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate(`/admin/announcements/${a.id}/edit`)}>
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
@@ -122,6 +130,11 @@ export function AdminEvents() {
   const { toast } = useToast();
   const { data: items = [], isLoading } = useOrgEvents(currentOrg?.id, false);
   const del = useDeleteEvent();
+  const update = useUpdateEvent();
+  const togglePublish = async (ev: any) => {
+    await update.mutateAsync({ id: ev.id, updates: { is_published: !ev.is_published } });
+    toast({ title: ev.is_published ? 'Événement dépublié' : 'Événement publié' });
+  };
   return (
     <AdminPageShell title="Événements" newRoute="/admin/events/new" newLabel="Nouvel événement" backRoute="/admin">
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
@@ -157,6 +170,9 @@ export function AdminEvents() {
                   {ev.is_published ? 'Publié' : 'Brouillon'}
                 </Badge>
                 <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" title={ev.is_published ? 'Dépublier' : 'Publier'} onClick={() => togglePublish(ev)}>
+                    {ev.is_published ? <Eye className="h-3.5 w-3.5 text-primary" /> : <EyeOff className="h-3.5 w-3.5" />}
+                  </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate(`/admin/events/${ev.id}/edit`)}>
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
