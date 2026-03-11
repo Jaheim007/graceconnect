@@ -70,9 +70,8 @@ export function ReportContentDialog({
       if (error) throw error;
 
       // Fire edge function for email notification (fire-and-forget)
-      db.functions.invoke('on-notification-created', {
+      db.functions.invoke('notify-report', {
         body: {
-          type: 'content_report',
           content_id: contentId,
           content_type: contentType,
           content_title: contentTitle || '',
