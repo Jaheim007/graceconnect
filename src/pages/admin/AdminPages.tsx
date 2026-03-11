@@ -68,6 +68,11 @@ export function AdminAnnouncements() {
   const { toast } = useToast();
   const { data: items = [], isLoading } = useOrgAnnouncements(currentOrg?.id, false);
   const del = useDeleteAnnouncement();
+  const update = useUpdateAnnouncement();
+  const togglePublish = async (a: any) => {
+    await update.mutateAsync({ id: a.id, updates: { is_published: !a.is_published, published_at: !a.is_published ? new Date().toISOString() : a.published_at } });
+    toast({ title: a.is_published ? 'Annonce dépubliée' : 'Annonce publiée' });
+  };
   return (
     <AdminPageShell title="Annonces" newRoute="/admin/announcements/new" newLabel="Nouvelle annonce" backRoute="/admin">
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
@@ -100,6 +105,9 @@ export function AdminAnnouncements() {
                   {a.is_published ? 'Publié' : 'Brouillon'}
                 </Badge>
                 <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" title={a.is_published ? 'Dépublier' : 'Publier'} onClick={() => togglePublish(a)}>
+                    {a.is_published ? <Eye className="h-3.5 w-3.5 text-primary" /> : <EyeOff className="h-3.5 w-3.5" />}
+                  </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate(`/admin/announcements/${a.id}/edit`)}>
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
