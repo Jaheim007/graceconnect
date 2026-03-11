@@ -183,7 +183,7 @@ export type EmailTemplate =
   // Directory
   | 'directory_approved' | 'directory_rejected'
   // Support
-  | 'ticket_created' | 'ticket_replied' | 'ticket_resolved'
+  | 'ticket_created' | 'ticket_created_admin' | 'ticket_replied' | 'ticket_resolved'
   // Refunds
   | 'refund_initiated' | 'refund_completed'
   // Content & Social
@@ -212,8 +212,7 @@ export type EmailTemplate =
   | 'fraud_alert' | 'new_org_alert'
   // Misc
   | 'flash_sale_alert' | 'promo_code_used' | 'org_verified'
-  | 'waitlist_spot_available' | 'referral_reward'
-  | 'ticket_created' | 'ticket_created_admin';
+  | 'waitlist_spot_available' | 'referral_reward';
 
 export async function sendEmailNotification(
   template: EmailTemplate,

@@ -4892,6 +4892,8 @@ export type Database = {
         Row: {
           admin_response: string | null
           category: string
+          closed_at: string | null
+          closed_by: string | null
           created_at: string
           id: string
           message: string
@@ -4901,15 +4903,20 @@ export type Database = {
           responded_at: string | null
           responded_by: string | null
           screenshot_url: string | null
+          screenshot_urls: string[] | null
           status: string
           subject: string
           ticket_number: string | null
           updated_at: string
+          user_email: string | null
           user_id: string
+          user_name: string | null
         }
         Insert: {
           admin_response?: string | null
           category?: string
+          closed_at?: string | null
+          closed_by?: string | null
           created_at?: string
           id?: string
           message: string
@@ -4919,15 +4926,20 @@ export type Database = {
           responded_at?: string | null
           responded_by?: string | null
           screenshot_url?: string | null
+          screenshot_urls?: string[] | null
           status?: string
           subject: string
           ticket_number?: string | null
           updated_at?: string
+          user_email?: string | null
           user_id: string
+          user_name?: string | null
         }
         Update: {
           admin_response?: string | null
           category?: string
+          closed_at?: string | null
+          closed_by?: string | null
           created_at?: string
           id?: string
           message?: string
@@ -4937,11 +4949,14 @@ export type Database = {
           responded_at?: string | null
           responded_by?: string | null
           screenshot_url?: string | null
+          screenshot_urls?: string[] | null
           status?: string
           subject?: string
           ticket_number?: string | null
           updated_at?: string
+          user_email?: string | null
           user_id?: string
+          user_name?: string | null
         }
         Relationships: []
       }
