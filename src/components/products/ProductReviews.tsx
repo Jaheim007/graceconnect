@@ -345,21 +345,56 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
           animate={{ opacity: 1, y: 0 }}
           className="p-5 rounded-xl border-2 border-primary/20 bg-primary/5 space-y-3"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <AnimatedStarRating rating={myReview.rating} size="sm" />
-              <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                Votre avis
-              </span>
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3 min-w-0">
+              {myReview.profile?.avatar_url ? (
+                <img
+                  src={myReview.profile.avatar_url}
+                  loading="lazy"
+                  className="h-9 w-9 rounded-full object-cover ring-2 ring-border"
+                  alt={`Avatar de ${myReview.profile?.display_name || 'Utilisateur'}`}
+                />
+              ) : (
+                <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary ring-2 ring-border">
+                  {(myReview.profile?.display_name || user?.email || 'U')[0].toUpperCase()}
+                </div>
+              )}
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-semibold text-foreground truncate">
+                    {myReview.profile?.display_name || user?.email?.split('@')[0] || 'Utilisateur'}
+                  </span>
+                  <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                    Votre avis
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <AnimatedStarRating rating={myReview.rating} size="sm" />
+                  <span className="text-[11px] text-muted-foreground">
+                    {format(new Date(myReview.created_at), 'dd MMM yyyy', { locale: fr })}
+                  </span>
+                </div>
+              </div>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs h-7 gap-1"
-              onClick={() => setShowForm(true)}
-            >
-              <Pencil className="h-3 w-3" /> Modifier
-            </Button>
+            <div className="flex items-center gap-1 shrink-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs h-7 gap-1"
+                onClick={() => setShowForm(true)}
+              >
+                <Pencil className="h-3 w-3" /> Modifier
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs h-7"
+                onClick={handleDeleteReview}
+                disabled={deleteReview.isPending}
+              >
+                {deleteReview.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Supprimer'}
+              </Button>
+            </div>
           </div>
           {myReview.title && (
             <h4 className="text-sm font-bold text-foreground">{myReview.title}</h4>
