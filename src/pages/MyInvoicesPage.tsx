@@ -51,7 +51,8 @@ export default function MyInvoicesPage() {
   const isLoading = loadingPurchases || loadingDonations;
 
   const handleDownloadInvoice = (item: any, type: 'purchase' | 'donation') => {
-    const orgName = (item as any).organizations?.name || 'Organisation';
+    const org = (item as any).organizations || {};
+    const orgName = org.name || 'Organisation';
     const productTitle = type === 'purchase'
       ? (item as any).digital_products?.title || 'Produit'
       : (item as any).donation_campaigns?.title || 'Don';
@@ -65,6 +66,11 @@ export default function MyInvoicesPage() {
       amount: item.amount,
       currency: item.currency || 'XOF',
       orgName,
+      orgLogo: org.logo_url || undefined,
+      orgEmail: org.email || undefined,
+      orgPhone: org.phone || undefined,
+      orgAddress: org.address || undefined,
+      orgWebsite: org.website || undefined,
       reference: item.paystack_reference || item.id,
     });
   };

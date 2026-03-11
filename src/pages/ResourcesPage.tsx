@@ -201,7 +201,7 @@ export default function ResourcesPage() {
                               <Download className="h-3 w-3" /> {downloading === purchase.id ? '…' : t('page.purchases_download')}
                             </Button>
                             <Button size="sm" variant="ghost" className="gap-1 h-7 text-[10px]" onClick={() => {
-                              const org = orgMap.get(purchase.product.organization_id);
+                              const org = orgMap.get(purchase.product.organization_id) as any;
                               downloadInvoice({
                                 invoiceNumber: (purchase as any).invoice_number || `SV-${purchase.id.slice(0, 8).toUpperCase()}`,
                                 date: purchase.completed_at || purchase.created_at,
@@ -211,6 +211,11 @@ export default function ResourcesPage() {
                                 amount: purchase.amount,
                                 currency: purchase.currency || 'XOF',
                                 orgName: org?.name || '',
+                                orgLogo: org?.logo_url || undefined,
+                                orgEmail: org?.email || undefined,
+                                orgPhone: org?.phone || undefined,
+                                orgAddress: org?.address || undefined,
+                                orgWebsite: org?.website || undefined,
                                 reference: (purchase as any).paystack_reference || purchase.id,
                               });
                             }}>
