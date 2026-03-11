@@ -23,7 +23,7 @@ export default function AuthPage() {
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { signInWithGoogle, signInWithFacebook, signInWithMagicLink, verifyOtp, user } = useAuth();
+  const { signInWithGoogle, signInWithFacebook, signInWithLinkedin, signInWithMagicLink, verifyOtp, user } = useAuth();
   const { userOrgs } = useOrg();
   const { t } = useI18n();
 
@@ -59,6 +59,7 @@ export default function AuthPage() {
 
   const [googleLoading, setGoogleLoading] = useState(false);
   const [facebookLoading, setFacebookLoading] = useState(false);
+  const [linkedinLoading, setLinkedinLoading] = useState(false);
 
   const handleGoogle = async () => {
     setError('');
@@ -79,6 +80,16 @@ export default function AuthPage() {
     }
     const { error: err } = await signInWithFacebook(returnTo || undefined);
     if (err) { setError(err.message); setFacebookLoading(false); }
+  };
+
+  const handleLinkedin = async () => {
+    setError('');
+    setLinkedinLoading(true);
+    if (returnTo) {
+      try { sessionStorage.setItem('sv_auth_returnTo', returnTo); } catch {}
+    }
+    const { error: err } = await signInWithLinkedin(returnTo || undefined);
+    if (err) { setError(err.message); setLinkedinLoading(false); }
   };
 
   const handleSendOtp = async (e: React.FormEvent) => {
@@ -224,6 +235,14 @@ export default function AuthPage() {
                       </svg>
                     )}
                     {facebookLoading ? t('auth.redirecting') : t('auth.continue_facebook')}
+                  </Button>
+                  <Button variant="outline" className="w-full h-12 gap-2.5 text-sm font-medium" onClick={handleLinkedin} disabled={linkedinLoading}>
+                    {linkedinLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : (
+                      <svg className="h-5 w-5" viewBox="0 0 24 24">
+                        <path fill="#0A66C2" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                      </svg>
+                    )}
+                    {linkedinLoading ? t('auth.redirecting') : t('auth.continue_linkedin')}
                   </Button>
                   <div className="flex items-center gap-3">
                     <div className="h-px flex-1 bg-border" /><span className="text-xs text-muted-foreground">{t('auth.or')}</span><div className="h-px flex-1 bg-border" />
