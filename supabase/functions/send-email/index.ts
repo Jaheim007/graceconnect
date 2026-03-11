@@ -383,8 +383,17 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
       return { subject: `🎁 Récompense de parrainage`, html: wrap(`<h1 style="color:${green}">🎁 Récompense !</h1><p><strong>${d.referred_name || 'Quelqu\'un'}</strong> s'est inscrit grâce à vous !</p><p>${d.reward_description || 'Votre récompense a été créditée.'}</p>`) };
 
     // ═══ NOTIFICATION REMINDER ═══
-    case 'notification_reminder':
-      return { subject: `${d.title || '🔔 Notification'}`, html: wrap(`<h1 style="color:${blue}">${d.title || '🔔 Notification'}</h1><p>${d.body || 'Vous avez une nouvelle notification sur Siteviral.'}</p>${d.action_url ? cta(String(d.action_url), 'Voir la notification →') : cta('https://siteviral.com/notifications', 'Voir mes notifications →')}<p style="font-size:12px;color:#999">Vous recevez cet email car vous avez activé les notifications email. <a href="https://siteviral.com/notification-preferences" style="color:${blue}">Gérer mes préférences</a></p>`) };
+    case 'notification_reminder': {
+      // Smart CTA text based on notification type
+      const ctaLabels: Record<string, string> = {
+        new_product: 'Voir le produit →', new_program: 'Voir le programme →',
+        new_event: 'Voir l\'événement →', new_campaign: 'Voir la campagne →',
+        new_announcement: 'Lire l\'annonce →', new_media: 'Voir le contenu →',
+        purchase: 'Voir mes achats →', sale_celebration: 'Voir mes ventes →',
+      };
+      const ctaText = ctaLabels[String(d.notification_type)] || 'Voir la notification →';
+      return { subject: `${d.title || '🔔 Notification'}`, html: wrap(`<h1 style="color:${blue}">${d.title || '🔔 Notification'}</h1><p>${d.body || 'Vous avez une nouvelle notification sur Siteviral.'}</p>${d.action_url ? cta(String(d.action_url), ctaText) : cta('https://siteviral.com/notifications', 'Voir mes notifications →')}<p style="font-size:12px;color:#999">Vous recevez cet email car vous avez activé les notifications email. <a href="https://siteviral.com/notification-preferences" style="color:${blue}">Gérer mes préférences</a></p>`) };
+    }
 
     default:
       throw new Error(`Unknown template: ${template}`);

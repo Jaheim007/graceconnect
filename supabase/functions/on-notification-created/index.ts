@@ -265,7 +265,12 @@ Deno.serve(async (req) => {
     const results: Record<string, any> = { notification_id: notification.id };
 
     // ─── 1. SEND EMAIL ───
-    if (userEmail && emailEnabled) {
+    // Skip email for content-published notifications — they already have dedicated email templates
+    // sent by emailOrgAdmins in onContentPublished. Sending here would cause duplicate emails.
+    const SKIP_EMAIL_TYPES = ['new_product', 'new_event', 'new_announcement', 'new_media', 'new_campaign', 'new_program'];
+    const skipEmail = SKIP_EMAIL_TYPES.includes(notifType);
+
+    if (userEmail && emailEnabled && !skipEmail) {
       try {
         const emailFnUrl = `${SUPABASE_URL}/functions/v1/send-email`;
         const fullUrl = actionUrl.startsWith('http') ? actionUrl : `https://siteviral.com${actionUrl}`;

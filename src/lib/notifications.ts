@@ -254,18 +254,26 @@ export async function onContentPublished(
   const notifTitle = `${icons[contentType]} Nouveau ${labels[contentType]}`;
   const notifBody = `${orgName} a publié : "${contentTitle}"`;
 
-  // In-app notification to all members — deep link to the relevant content page
-  const contentRoutes: Record<string, string> = {
-    event: `/admin/events`,
-    announcement: `/admin/announcements`,
-    media: `/admin/media`,
-    product: `/admin/products`,
-    campaign: `/admin/campaigns`,
-    program: `/admin/programs`,
+  // Notification types matching the content — used to prevent duplicate emails
+  const notifTypes: Record<string, string> = {
+    event: 'new_event', announcement: 'new_announcement', media: 'new_media',
+    product: 'new_product', campaign: 'new_campaign', program: 'new_program',
   };
-  notifyOrgMembers(orgId, notifTitle, notifBody, 'org', publisherId, contentRoutes[contentType] || `/feed`);
+
+  // In-app notification to all members — deep link to the PUBLIC content page
+  const slug = extraData?.slug || '';
+  const contentRoutes: Record<string, string> = {
+    event: `/events`,
+    announcement: `/feed`,
+    media: `/feed`,
+    product: slug ? `/produit/${slug}` : `/product/${contentId}`,
+    campaign: `/campaign/${contentId}`,
+    program: `/program/${contentId}`,
+  };
+  notifyOrgMembers(orgId, notifTitle, notifBody, notifTypes[contentType] || 'org', publisherId, contentRoutes[contentType] || `/feed`);
 
   // Email to org admins with the right template
+  const publicContentUrl = `https://siteviral.com${contentRoutes[contentType] || '/feed'}`;
   emailOrgAdmins(templates[contentType], orgId, {
     org_name: orgName,
     [`${contentType}_title`]: contentTitle,
@@ -274,7 +282,10 @@ export async function onContentPublished(
     media_title: contentTitle,
     product_name: contentTitle,
     program_name: contentTitle,
-    org_link: `https://siteviral.com/org/${orgId}`,
+    product_link: publicContentUrl,
+    program_link: publicContentUrl,
+    campaign_link: publicContentUrl,
+    org_link: publicContentUrl,
     ...extraData,
   });
 
