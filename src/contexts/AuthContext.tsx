@@ -170,6 +170,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error: error as Error | null };
   };
 
+  const signInWithLinkedin = async (returnTo?: string) => {
+    const isCustomDomain = !window.location.hostname.includes('lovable.app') && !window.location.hostname.includes('lovableproject.com');
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'linkedin_oidc',
+      options: {
+        redirectTo: 'https://siteviral.com/auth/callback',
+        skipBrowserRedirect: isCustomDomain,
+      },
+    });
+
+    if (!error && isCustomDomain && data?.url) {
+      window.location.href = data.url;
+    }
+
+    return { error: error as Error | null };
+  };
+
   const signInWithMagicLink = async (email: string, returnTo?: string) => {
     const { error } = await supabase.auth.signInWithOtp({
       email,
