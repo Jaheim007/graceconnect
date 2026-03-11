@@ -241,6 +241,7 @@ export default function SuperadminSupport() {
                   )} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold truncate">{t.subject}</p>
+                    {t.ticket_number && <Badge variant="outline" className="text-[9px] font-mono shrink-0">{t.ticket_number}</Badge>}
                     <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2">
                       <span className="flex items-center gap-1"><User className="h-3 w-3" /> {profile?.display_name || 'Utilisateur'}</span>
                       <span>·</span>
