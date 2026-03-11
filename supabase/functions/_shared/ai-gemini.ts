@@ -80,7 +80,7 @@ export async function geminiGenerateImageBase64(opts: {
 
   try {
     // Use Gemini 2.0 Flash with image output modality
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${opts.apiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp-image-generation:generateContent?key=${opts.apiKey}`;
 
     const res = await fetch(url, {
       method: 'POST',
