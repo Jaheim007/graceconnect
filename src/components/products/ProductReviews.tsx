@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { MessageSquare, CheckCircle, Loader2, Pencil, Star, ThumbsUp, Quote } from 'lucide-react';
+import { MessageSquare, CheckCircle, Loader2, Pencil, Star, ThumbsUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useProductReviews, useMyReview, useSubmitReview, useHelpfulReview } from '@/hooks/useProductReviews';
