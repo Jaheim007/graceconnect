@@ -267,7 +267,7 @@ export default function SuperadminUsers() {
                   )}
                 >
                   {/* Avatar */}
-                  <Avatar className="h-10 w-10 shrink-0 mt-0.5">
+                  <Avatar className="h-9 w-9 shrink-0">
                     {u.avatar_url && <AvatarImage src={u.avatar_url} alt={u.display_name} />}
                     <AvatarFallback className={cn(
                       'text-sm font-bold',
