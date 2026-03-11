@@ -12,7 +12,7 @@ import {
   ArrowLeft, ShoppingBag, Share2, Copy, CheckCircle,
   FileText, BookOpen, Music, Link2, ExternalLink, MessageCircle,
   Shield, HelpCircle, MessageSquareQuote, PackagePlus, Star,
-  Pencil, Eye, EyeOff
+  Pencil, Eye, EyeOff, Flag
 } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
