@@ -33,7 +33,6 @@ Deno.serve(async (req) => {
     if (!chapterTitle) return jsonResp({ error: 'chapterTitle required' }, 400);
 
     const admin = adminClient(auth.supabaseUrl, auth.serviceKey);
-    await consumeCreditsOrThrow({ admin, userId: auth.userId, actionKey: 'generate_illustration', tier: normalizeTier(tier) });
 
     const stylePrompt = artStylePrompts[artStyle] || artStylePrompts['children_book'];
     const audiencePrompt = audiencePrompts[audience] || audiencePrompts['general'];
@@ -43,22 +42,32 @@ Deno.serve(async (req) => {
       ? `Create a coloring book page. BLACK AND WHITE LINE ART ONLY.\nBook: "${bookTitle || 'Untitled'}"\nPage theme: "${chapterTitle}"\nContext: ${chapterSummary || chapterTitle}\nCRITICAL: ONLY black outlines on pure white, NO shading/fills/colors, bold clean lines, large enclosed areas for coloring. ${audiencePrompt}. NO text in image.`
       : `Create a beautiful illustration for a book chapter.\nBook: "${bookTitle || 'Untitled'}"\nChapter: "${chapterTitle}"\nContext: ${chapterSummary || chapterTitle}\nStyle: ${stylePrompt}\nAudience: ${audiencePrompt}\nSingle captivating illustration, no text, professional book illustration.`;
 
-    const { base64, mimeType } = await aiGenerateImageBase64({ geminiKey: GEMINI_API_KEY, prompt, timeoutMs: 60_000 });
+    const imageUrl = await consumeCreditsWithRefund({
+      admin,
+      userId: auth.userId,
+      actionKey: 'generate_illustration',
+      tier: normalizeTier(tier),
+      action: async () => {
+        const { base64, mimeType } = await aiGenerateImageBase64({ geminiKey: GEMINI_API_KEY, prompt, timeoutMs: 60_000 });
 
-    // Upload to storage
-    const sb = createClient(auth.supabaseUrl, auth.serviceKey);
-    const imageBytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
-    const ext = mimeType.includes('jpeg') ? 'jpg' : 'png';
-    const fileName = `illustrations/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
+        // Upload to storage
+        const sb = createClient(auth.supabaseUrl, auth.serviceKey);
+        const imageBytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+        const ext = mimeType.includes('jpeg') ? 'jpg' : 'png';
+        const fileName = `illustrations/${Date.now()}-${crypto.randomUUID().slice(0, 8)}.${ext}`;
 
-    const { error: uploadError } = await sb.storage.from('org-uploads').upload(fileName, imageBytes, { contentType: mimeType, upsert: false });
-    if (uploadError) {
-      // Fallback: return base64 data URL
-      return jsonResp({ imageUrl: `data:${mimeType};base64,${base64}` });
-    }
+        const { error: uploadError } = await sb.storage.from('org-uploads').upload(fileName, imageBytes, { contentType: mimeType, upsert: false });
+        if (uploadError) {
+          // Keep successful generation even if storage upload fails
+          return `data:${mimeType};base64,${base64}`;
+        }
 
-    const { data: publicUrlData } = sb.storage.from('org-uploads').getPublicUrl(fileName);
-    return jsonResp({ imageUrl: publicUrlData.publicUrl });
+        const { data: publicUrlData } = sb.storage.from('org-uploads').getPublicUrl(fileName);
+        return publicUrlData.publicUrl;
+      },
+    });
+
+    return jsonResp({ imageUrl });
   } catch (e: any) {
     if (e?.status === 402) return jsonResp({ error: e.message }, 402);
     if (e?.status === 429) return jsonResp({ error: 'Rate limit. Please retry.' }, 429);
