@@ -8,7 +8,6 @@ import {
   Share2, Package, Handshake, PenLine, Receipt, TrendingUp, MoreHorizontal,
   Camera, CreditCard, Clock, GraduationCap, MailCheck, Tag
 } from 'lucide-react';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,11 +15,10 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useUnreadCount } from '@/hooks/useNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
-import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { useMyPartner } from '@/hooks/usePartner';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
+import { OrgSwitcher } from '@/components/org/OrgSwitcher';
 
 interface NavItem {
   to: string;
@@ -309,44 +307,8 @@ export function Sidebar() {
         <SiteLogo size={collapsed ? 'sm' : 'md'} animate />
       </div>
 
-      {hasOrgs && currentOrg && !collapsed && (
-        <div className="mx-3 mt-3">
-          {(() => {
-            const managedOrgs = userOrgs.filter((o) => {
-              const role = getRoleFor(o.id);
-              return role === 'owner' || role === 'admin';
-            });
-            return managedOrgs.length > 1 ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="w-full p-2 rounded-lg bg-primary/10 border border-primary/20 hover:bg-primary/15 transition-colors text-left group">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{t('sidebar.managing')}</p>
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs font-semibold text-primary truncate flex items-center gap-1">{currentOrg.name} {isOrgVerifiedOrKyc(currentOrg.is_verified, (currentOrg as any).kyc_status) && <VerifiedBadge size="xs" showTooltip={false} />}</p>
-                      <ChevronDown className="h-3 w-3 text-primary shrink-0 group-hover:translate-y-0.5 transition-transform" />
-                    </div>
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-52">
-                  {managedOrgs.map((o) => (
-                    <DropdownMenuItem
-                      key={o.id}
-                      onClick={() => setCurrentOrg(o)}
-                      className={cn('text-xs', o.id === currentOrg.id && 'text-primary font-semibold')}
-                    >
-                      <span className="flex items-center gap-1">{o.name} {isOrgVerifiedOrKyc(o.is_verified, (o as any).kyc_status) && <VerifiedBadge size="xs" showTooltip={false} />}</span>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <div className="p-2 rounded-lg bg-primary/10 border border-primary/20">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">{t('sidebar.managing')}</p>
-                <p className="text-xs font-semibold text-primary truncate flex items-center gap-1">{currentOrg.name} {isOrgVerifiedOrKyc(currentOrg.is_verified, (currentOrg as any).kyc_status) && <VerifiedBadge size="xs" showTooltip={false} />}</p>
-              </div>
-            );
-          })()}
-        </div>
+      {hasOrgs && currentOrg && (
+        <OrgSwitcher variant="sidebar" collapsed={collapsed} />
       )}
 
       <nav className="flex-1 overflow-y-auto py-1 px-2 space-y-0.5 scrollbar-hide">
