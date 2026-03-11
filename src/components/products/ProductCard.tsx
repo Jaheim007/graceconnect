@@ -48,6 +48,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
   const { toast } = useToast();
   const { user } = useAuth();
   const [quickView, setQuickView] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
   const compare = useCompare();
 
   // Show commission/share to all logged-in users (unified experience)
