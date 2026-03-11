@@ -12,6 +12,7 @@ interface AuthContextType {
   isSuperadmin: boolean;
   signInWithGoogle: (returnTo?: string) => Promise<{ error: Error | null }>;
   signInWithFacebook: (returnTo?: string) => Promise<{ error: Error | null }>;
+  signInWithLinkedin: (returnTo?: string) => Promise<{ error: Error | null }>;
   signInWithMagicLink: (email: string, returnTo?: string) => Promise<{ error: Error | null }>;
   verifyOtp: (email: string, token: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
