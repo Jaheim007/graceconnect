@@ -82,6 +82,16 @@ export default function AuthPage() {
     if (err) { setError(err.message); setFacebookLoading(false); }
   };
 
+  const handleLinkedin = async () => {
+    setError('');
+    setLinkedinLoading(true);
+    if (returnTo) {
+      try { sessionStorage.setItem('sv_auth_returnTo', returnTo); } catch {}
+    }
+    const { error: err } = await signInWithLinkedin(returnTo || undefined);
+    if (err) { setError(err.message); setLinkedinLoading(false); }
+  };
+
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
