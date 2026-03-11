@@ -244,9 +244,6 @@ export default function AuthPage() {
                     )}
                     {linkedinLoading ? t('auth.redirecting') : t('auth.continue_linkedin')}
                   </Button>
-                  <div className="flex items-center gap-3">
-                    <div className="h-px flex-1 bg-border" /><span className="text-xs text-muted-foreground">{t('auth.or')}</span><div className="h-px flex-1 bg-border" />
-                  </div>
                   <Button variant="outline" className="w-full h-12 gap-2.5 text-sm font-medium" onClick={() => setMethod('magic-link')}>
                     <Mail className="h-5 w-5" /> {t('auth.continue_magic')}
                   </Button>
