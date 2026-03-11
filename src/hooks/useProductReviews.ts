@@ -44,11 +44,13 @@ export function useMyReview(productId: string | undefined) {
       if (!productId || !user) return null;
       const { data } = await db
         .from('product_reviews')
-        .select('*')
+        .select('*, profiles(display_name, avatar_url)')
         .eq('product_id', productId)
         .eq('user_id', user.id)
         .maybeSingle();
-      return data as ProductReview | null;
+
+      if (!data) return null;
+      return { ...(data as any), profile: (data as any).profiles } as ProductReview;
     },
     enabled: !!productId && !!user,
   });
@@ -66,6 +68,13 @@ export function useSubmitReview() {
     }) => {
       if (!user) throw new Error('Not authenticated');
 
+      const normalizedTitle = title.trim();
+      const normalizedComment = comment.trim();
+
+      if (!normalizedTitle || !normalizedComment) {
+        throw new Error('Le titre et la description sont obligatoires.');
+      }
+
       const { data: existing } = await db
         .from('product_reviews')
         .select('id')
@@ -78,8 +87,9 @@ export function useSubmitReview() {
           .from('product_reviews')
           .update({
             rating,
-            title: title || null,
-            comment: comment || null,
+            title: normalizedTitle,
+            comment: normalizedComment,
+            is_published: true,
             updated_at: new Date().toISOString(),
           } as any)
           .eq('id', existing.id);
@@ -92,9 +102,10 @@ export function useSubmitReview() {
             user_id: user.id,
             organization_id: organizationId,
             rating,
-            title: title || null,
-            comment: comment || null,
+            title: normalizedTitle,
+            comment: normalizedComment,
             is_verified_purchase: isVerifiedPurchase,
+            is_published: true,
           } as any);
         if (error) throw error;
       }

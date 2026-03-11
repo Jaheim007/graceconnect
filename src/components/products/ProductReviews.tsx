@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { MessageSquare, CheckCircle, Loader2, Pencil, Star, ThumbsUp, Quote } from 'lucide-react';
+import { MessageSquare, CheckCircle, Loader2, Pencil, Star, ThumbsUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { useProductReviews, useMyReview, useSubmitReview, useHelpfulReview } from '@/hooks/useProductReviews';
+import { useProductReviews, useMyReview, useSubmitReview, useHelpfulReview, useDeleteReview } from '@/hooks/useProductReviews';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -80,6 +80,7 @@ function RatingOverview({ reviews }: { reviews: { rating: number }[] }) {
 function ReviewCard({ review, productId }: { review: any; productId: string }) {
   const helpfulMutation = useHelpfulReview();
   const [hasVoted, setHasVoted] = useState(false);
+  const reviewerName = review.profile?.display_name || 'Utilisateur';
 
   return (
     <motion.div
@@ -94,11 +95,11 @@ function ReviewCard({ review, productId }: { review: any; productId: string }) {
             src={review.profile.avatar_url}
             loading="lazy"
             className="h-9 w-9 rounded-full object-cover ring-2 ring-border"
-            alt=""
+            alt={`Avatar de ${reviewerName}`}
           />
         ) : (
           <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary ring-2 ring-border">
-            {(review.profile?.display_name || 'U')[0].toUpperCase()}
+            {reviewerName[0].toUpperCase()}
           </div>
         )}
         <div className="flex-1 min-w-0">
@@ -164,6 +165,7 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
   const { data: reviews = [], isLoading } = useProductReviews(productId);
   const { data: myReview } = useMyReview(productId);
   const submitReview = useSubmitReview();
+  const deleteReview = useDeleteReview();
 
   const [showForm, setShowForm] = useState(false);
   const [rating, setRating] = useState(0);
@@ -195,12 +197,34 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
       toast({ title: 'Ajoutez un titre à votre avis', variant: 'destructive' });
       return;
     }
+    if (!comment.trim()) {
+      toast({ title: 'Ajoutez une description à votre avis', variant: 'destructive' });
+      return;
+    }
     try {
       await submitReview.mutateAsync({
         productId, organizationId, rating, title: title.trim(), comment: comment.trim(),
         isVerifiedPurchase: isPurchased,
       });
       toast({ title: '✅ Avis publié !' });
+      setShowForm(false);
+      setRating(0);
+      setTitle('');
+      setComment('');
+    } catch (e: any) {
+      toast({ title: 'Erreur', description: e.message, variant: 'destructive' });
+    }
+  };
+
+  const handleDeleteReview = async () => {
+    if (!myReview) return;
+
+    const confirmed = window.confirm('Supprimer définitivement votre avis ? Cette action est irréversible.');
+    if (!confirmed) return;
+
+    try {
+      await deleteReview.mutateAsync({ reviewId: myReview.id, productId });
+      toast({ title: 'Avis supprimé' });
       setShowForm(false);
       setRating(0);
       setTitle('');
@@ -276,6 +300,7 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
                 placeholder="Titre de votre avis (ex: Excellent produit !)"
                 className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
                 maxLength={120}
+                required
               />
 
               {/* Comment */}
@@ -286,6 +311,7 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
                 placeholder="Décrivez votre expérience en détail… Qu'avez-vous aimé ? Qu'est-ce qui pourrait être amélioré ?"
                 className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
                 maxLength={2000}
+                required
               />
 
               <div className="flex items-center justify-between">
@@ -319,21 +345,56 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
           animate={{ opacity: 1, y: 0 }}
           className="p-5 rounded-xl border-2 border-primary/20 bg-primary/5 space-y-3"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <AnimatedStarRating rating={myReview.rating} size="sm" />
-              <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                Votre avis
-              </span>
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3 min-w-0">
+              {myReview.profile?.avatar_url ? (
+                <img
+                  src={myReview.profile.avatar_url}
+                  loading="lazy"
+                  className="h-9 w-9 rounded-full object-cover ring-2 ring-border"
+                  alt={`Avatar de ${myReview.profile?.display_name || 'Utilisateur'}`}
+                />
+              ) : (
+                <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary ring-2 ring-border">
+                  {(myReview.profile?.display_name || user?.email || 'U')[0].toUpperCase()}
+                </div>
+              )}
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm font-semibold text-foreground truncate">
+                    {myReview.profile?.display_name || user?.email?.split('@')[0] || 'Utilisateur'}
+                  </span>
+                  <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                    Votre avis
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <AnimatedStarRating rating={myReview.rating} size="sm" />
+                  <span className="text-[11px] text-muted-foreground">
+                    {format(new Date(myReview.created_at), 'dd MMM yyyy', { locale: fr })}
+                  </span>
+                </div>
+              </div>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-xs h-7 gap-1"
-              onClick={() => setShowForm(true)}
-            >
-              <Pencil className="h-3 w-3" /> Modifier
-            </Button>
+            <div className="flex items-center gap-1 shrink-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs h-7 gap-1"
+                onClick={() => setShowForm(true)}
+              >
+                <Pencil className="h-3 w-3" /> Modifier
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs h-7"
+                onClick={handleDeleteReview}
+                disabled={deleteReview.isPending}
+              >
+                {deleteReview.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Supprimer'}
+              </Button>
+            </div>
           </div>
           {myReview.title && (
             <h4 className="text-sm font-bold text-foreground">{myReview.title}</h4>
@@ -349,7 +410,7 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
         <div className="py-8 text-center">
           <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mx-auto" />
         </div>
-      ) : !hasReviews ? (
+      ) : !hasReviews && !myReview ? (
         <p className="text-sm text-muted-foreground py-6 text-center">
           Aucun avis pour le moment.{isPurchased ? ' Soyez le premier !' : ''}
         </p>
