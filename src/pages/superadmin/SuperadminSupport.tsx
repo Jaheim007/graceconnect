@@ -145,6 +145,15 @@ export default function SuperadminSupport() {
             <p className="text-sm whitespace-pre-wrap">{selectedTicket.message}</p>
           </div>
 
+          {selectedTicket.screenshot_url && (
+            <div className="space-y-1.5">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">📎 Capture d'écran</p>
+              <a href={selectedTicket.screenshot_url} target="_blank" rel="noopener noreferrer">
+                <img src={selectedTicket.screenshot_url} alt="Screenshot" className="max-h-60 rounded-xl border border-border object-cover hover:opacity-80 transition-opacity" />
+              </a>
+            </div>
+          )}
+
           {selectedTicket.admin_response && (
             <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
               <p className="text-[10px] font-semibold text-primary uppercase tracking-wider mb-2 flex items-center gap-1">
