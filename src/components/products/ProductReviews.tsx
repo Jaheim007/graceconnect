@@ -197,12 +197,34 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
       toast({ title: 'Ajoutez un titre à votre avis', variant: 'destructive' });
       return;
     }
+    if (!comment.trim()) {
+      toast({ title: 'Ajoutez une description à votre avis', variant: 'destructive' });
+      return;
+    }
     try {
       await submitReview.mutateAsync({
         productId, organizationId, rating, title: title.trim(), comment: comment.trim(),
         isVerifiedPurchase: isPurchased,
       });
       toast({ title: '✅ Avis publié !' });
+      setShowForm(false);
+      setRating(0);
+      setTitle('');
+      setComment('');
+    } catch (e: any) {
+      toast({ title: 'Erreur', description: e.message, variant: 'destructive' });
+    }
+  };
+
+  const handleDeleteReview = async () => {
+    if (!myReview) return;
+
+    const confirmed = window.confirm('Supprimer définitivement votre avis ? Cette action est irréversible.');
+    if (!confirmed) return;
+
+    try {
+      await deleteReview.mutateAsync({ reviewId: myReview.id, productId });
+      toast({ title: 'Avis supprimé' });
       setShowForm(false);
       setRating(0);
       setTitle('');
