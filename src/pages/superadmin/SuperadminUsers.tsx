@@ -385,7 +385,6 @@ export default function SuperadminUsers() {
               </div>
             )}
           </div>
-        </ScrollArea>
       )}
     </div>
   );
