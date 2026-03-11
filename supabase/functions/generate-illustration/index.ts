@@ -1,5 +1,5 @@
 import { requireAuth, corsHeaders, jsonResp, adminClient } from '../_shared/auth.ts';
-import { consumeCreditsOrThrow, normalizeTier } from '../_shared/credits.ts';
+import { consumeCreditsWithRefund, normalizeTier } from '../_shared/credits.ts';
 import { aiGenerateImageBase64 } from '../_shared/ai-fallback.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
