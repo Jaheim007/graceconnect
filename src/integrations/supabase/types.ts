@@ -4078,36 +4078,42 @@ export type Database = {
         Row: {
           comment: string | null
           created_at: string
+          helpful_count: number
           id: string
           is_published: boolean
           is_verified_purchase: boolean
           organization_id: string
           product_id: string
           rating: number
+          title: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           comment?: string | null
           created_at?: string
+          helpful_count?: number
           id?: string
           is_published?: boolean
           is_verified_purchase?: boolean
           organization_id: string
           product_id: string
           rating: number
+          title?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           comment?: string | null
           created_at?: string
+          helpful_count?: number
           id?: string
           is_published?: boolean
           is_verified_purchase?: boolean
           organization_id?: string
           product_id?: string
           rating?: number
+          title?: string | null
           updated_at?: string
           user_id?: string
         }
