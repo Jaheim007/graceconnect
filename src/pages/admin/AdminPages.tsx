@@ -1069,6 +1069,15 @@ export function AdminSettings() {
         toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
       }
     } else {
+      // Sync all products to the new org currency
+      if (orgCurrency !== currentOrg.currency) {
+        await supabase
+          .from('digital_products')
+          .update({ currency: orgCurrency } as any)
+          .eq('organization_id', currentOrg.id);
+        qc.invalidateQueries({ queryKey: ['admin-products'] });
+        qc.invalidateQueries({ queryKey: ['discover'] });
+      }
       toast({ title: '✅ Profil sauvegardé' });
       refetchOrgs();
       qc.invalidateQueries({ queryKey: ['org-by-slug'] });
