@@ -10,6 +10,13 @@ function extractEmbedUrl(url: string): string | null {
   try {
     // If it's already an embed URL
     if (url.includes('/embed')) return url;
+
+    // Handle Google Maps share short links (maps.app.goo.gl/...)
+    // These can't be embedded directly, so we use the URL itself as a search query
+    if (url.includes('maps.app.goo.gl') || url.includes('goo.gl/maps')) {
+      // Use the original URL as query — Google Maps embed will resolve it
+      return `https://maps.google.com/maps?q=${encodeURIComponent(url)}&output=embed&z=15`;
+    }
     
     // For place URLs like /maps/place/Name/@lat,lng
     const placeMatch = url.match(/\/place\/([^/@]+)/);

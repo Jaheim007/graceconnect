@@ -30,7 +30,7 @@ export default function EventDetailPage() {
     queryFn: async () => {
       const { data } = await db
         .from('events')
-        .select('*, organizations(name, slug, logo_url, description)')
+        .select('*, organizations(name, slug, logo_url, description, is_verified)')
         .eq('id', eventId)
         .eq('is_published', true)
         .maybeSingle();
