@@ -56,52 +56,7 @@ export function TopBar() {
 
       {/* Org switcher (mobile) */}
       {user && currentOrg && userOrgs.length > 1 && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="sm" className="h-7 text-[11px] font-semibold gap-1 max-w-[100px] lg:hidden border border-border px-2 shrink-0">
-              <Building2 className="h-3 w-3 shrink-0 text-primary" />
-              <span className="truncate">{currentOrg.name}</span>
-              <ChevronDown className="h-2.5 w-2.5 shrink-0 text-muted-foreground" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-56">
-            {managedOrgs.length > 0 && (
-              <>
-                <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                  {t('sidebar.managing') || 'Mes organisations'}
-                </DropdownMenuLabel>
-                {managedOrgs.map((o) => (
-                  <DropdownMenuItem
-                    key={o.id}
-                    onClick={() => handleOrgSelect(o)}
-                    className={cn('text-xs gap-2', o.id === currentOrg.id && 'text-primary font-semibold')}
-                  >
-                    <Building2 className="h-3 w-3 shrink-0" />
-                    {o.name}
-                  </DropdownMenuItem>
-                ))}
-              </>
-            )}
-            {memberOrgs.length > 0 && (
-              <>
-                {managedOrgs.length > 0 && <DropdownMenuSeparator />}
-                <DropdownMenuLabel className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                  Membre de
-                </DropdownMenuLabel>
-                {memberOrgs.map((o) => (
-                  <DropdownMenuItem
-                    key={o.id}
-                    onClick={() => handleOrgSelect(o)}
-                    className="text-xs gap-2 text-muted-foreground"
-                  >
-                    <User className="h-3 w-3 shrink-0" />
-                    {o.name}
-                  </DropdownMenuItem>
-                ))}
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <OrgSwitcher variant="topbar" />
       )}
 
       {/* Credits — always visible with enough room */}
