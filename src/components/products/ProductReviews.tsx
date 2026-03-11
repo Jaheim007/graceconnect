@@ -80,6 +80,7 @@ function RatingOverview({ reviews }: { reviews: { rating: number }[] }) {
 function ReviewCard({ review, productId }: { review: any; productId: string }) {
   const helpfulMutation = useHelpfulReview();
   const [hasVoted, setHasVoted] = useState(false);
+  const reviewerName = review.profile?.display_name || 'Utilisateur';
 
   return (
     <motion.div
@@ -94,11 +95,11 @@ function ReviewCard({ review, productId }: { review: any; productId: string }) {
             src={review.profile.avatar_url}
             loading="lazy"
             className="h-9 w-9 rounded-full object-cover ring-2 ring-border"
-            alt=""
+            alt={`Avatar de ${reviewerName}`}
           />
         ) : (
           <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary ring-2 ring-border">
-            {(review.profile?.display_name || 'U')[0].toUpperCase()}
+            {reviewerName[0].toUpperCase()}
           </div>
         )}
         <div className="flex-1 min-w-0">
