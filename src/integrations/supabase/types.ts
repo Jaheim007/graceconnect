@@ -5720,6 +5720,14 @@ export type Database = {
       }
       get_partner_rate: { Args: { _partner_id: string }; Returns: number }
       get_platform_totals: { Args: never; Returns: Json }
+      get_public_profiles: {
+        Args: { _user_ids: string[] }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          id: string
+        }[]
+      }
       get_top_orgs_by_revenue: { Args: { _limit?: number }; Returns: Json }
       get_transaction_stats: {
         Args: { _from?: string; _to?: string }
