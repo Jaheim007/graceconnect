@@ -59,6 +59,7 @@ export default function AuthPage() {
 
   const [googleLoading, setGoogleLoading] = useState(false);
   const [facebookLoading, setFacebookLoading] = useState(false);
+  const [linkedinLoading, setLinkedinLoading] = useState(false);
 
   const handleGoogle = async () => {
     setError('');
