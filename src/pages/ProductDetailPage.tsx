@@ -15,6 +15,7 @@ import {
   Pencil, Eye, EyeOff, Flag
 } from 'lucide-react';
 import { useState, useMemo, useEffect } from 'react';
+import { ReportContentDialog } from '@/components/reports/ReportContentDialog';
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
