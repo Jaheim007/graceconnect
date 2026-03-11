@@ -467,6 +467,7 @@ export function SuperadminKYC() {
 export function SuperadminReports() {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const { data = [], isLoading, refetch } = useQuery({
@@ -478,7 +479,6 @@ export function SuperadminReports() {
         .order('created_at', { ascending: false });
       if (!data) return [];
 
-      // Enrich with reporter profiles + content info
       const reporterIds = [...new Set(data.map((r: any) => r.reporter_user_id))];
       const contentProductIds = data.filter((r: any) => r.content_type === 'product').map((r: any) => r.content_id);
 
@@ -487,7 +487,7 @@ export function SuperadminReports() {
           ? db.from('profiles').select('id, display_name, avatar_url, email').in('id', reporterIds)
           : Promise.resolve({ data: [] }),
         contentProductIds.length > 0
-          ? db.from('digital_products').select('id, title, cover_image_url, organization_id, organizations(name)').in('id', contentProductIds)
+          ? db.from('digital_products').select('id, title, cover_image_url, price, currency, organization_id, slug, organizations(name)').in('id', contentProductIds)
           : Promise.resolve({ data: [] }),
       ]);
 
@@ -512,6 +512,16 @@ export function SuperadminReports() {
     }
   };
 
+  const deleteReport = async (id: string) => {
+    const { error } = await db.from('content_reports').delete().eq('id', id);
+    if (error) {
+      toast({ title: 'Erreur lors de la suppression', variant: 'destructive' });
+    } else {
+      toast({ title: 'Signalement supprimé' });
+      refetch();
+    }
+  };
+
   const filteredData = data.filter((r: any) => {
     if (statusFilter !== 'all' && r.status !== statusFilter) return false;
     if (typeFilter !== 'all' && r.content_type !== typeFilter) return false;
@@ -529,10 +539,17 @@ export function SuperadminReports() {
   const contentTypes = [...new Set(data.map((r: any) => r.content_type))];
 
   const statusColors: Record<string, string> = {
-    pending: 'bg-yellow-500/15 text-yellow-600 border-yellow-500/30',
+    pending: 'bg-amber-500/15 text-amber-600 border-amber-500/30',
     reviewed: 'bg-blue-500/15 text-blue-600 border-blue-500/30',
-    resolved: 'bg-green-500/15 text-green-600 border-green-500/30',
+    resolved: 'bg-emerald-500/15 text-emerald-600 border-emerald-500/30',
     dismissed: 'bg-muted text-muted-foreground border-border',
+  };
+
+  const statusIcons: Record<string, string> = {
+    pending: '⏳',
+    reviewed: '🔍',
+    resolved: '✅',
+    dismissed: '✕',
   };
 
   return (
@@ -583,83 +600,131 @@ export function SuperadminReports() {
         </div>
       ) : (
         <div className="space-y-3">
-          {filteredData.map((r: any) => (
-            <div key={r.id} className="p-4 rounded-xl border border-border bg-card space-y-3 hover:border-primary/20 transition-colors">
-              {/* Header */}
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  {r.reporter?.avatar_url ? (
-                    <img src={r.reporter.avatar_url} alt="" className="h-9 w-9 rounded-full object-cover shrink-0" />
-                  ) : (
-                    <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center shrink-0">
-                      <Users className="h-4 w-4 text-muted-foreground" />
+          {filteredData.map((r: any) => {
+            const isExpanded = expandedId === r.id;
+            return (
+              <div
+                key={r.id}
+                className={cn(
+                  'rounded-xl border bg-card transition-all',
+                  r.status === 'pending' ? 'border-amber-500/30' : 'border-border',
+                  isExpanded && 'ring-1 ring-primary/20'
+                )}
+              >
+                {/* Main row — clickable to expand */}
+                <button
+                  onClick={() => setExpandedId(isExpanded ? null : r.id)}
+                  className="w-full text-left p-4 flex items-start justify-between gap-3"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    {r.reporter?.avatar_url ? (
+                      <img src={r.reporter.avatar_url} alt="" className="h-9 w-9 rounded-full object-cover shrink-0" />
+                    ) : (
+                      <div className="h-9 w-9 rounded-full bg-muted flex items-center justify-center shrink-0">
+                        <Users className="h-4 w-4 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold truncate">{r.reporter?.display_name || 'Utilisateur'}</p>
+                      <p className="text-[11px] text-muted-foreground truncate">{r.reporter?.email || r.reporter_user_id?.slice(0, 8)}</p>
                     </div>
-                  )}
-                  <div className="min-w-0">
-                    <p className="text-sm font-semibold truncate">{r.reporter?.display_name || 'Utilisateur'}</p>
-                    <p className="text-[11px] text-muted-foreground truncate">{r.reporter?.email || r.reporter_user_id?.slice(0, 8)}</p>
                   </div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <Badge variant="outline" className="text-[10px] capitalize">{r.content_type}</Badge>
-                  <Badge className={cn('text-[10px] border', statusColors[r.status] || statusColors.pending)}>
-                    {r.status}
-                  </Badge>
-                </div>
-              </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Badge variant="outline" className="text-[10px] capitalize">{r.content_type}</Badge>
+                    <Badge className={cn('text-[10px] border', statusColors[r.status] || statusColors.pending)}>
+                      {statusIcons[r.status] || ''} {r.status}
+                    </Badge>
+                  </div>
+                </button>
 
-              {/* Content info */}
-              {r.product && (
-                <div className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/50 border border-border/50">
-                  {r.product.cover_image_url ? (
-                    <img src={r.product.cover_image_url} alt="" className="h-12 w-10 rounded object-cover shrink-0" />
-                  ) : (
-                    <div className="h-12 w-10 rounded bg-muted flex items-center justify-center shrink-0">
-                      <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+                {/* Expanded details */}
+                {isExpanded && (
+                  <div className="px-4 pb-4 space-y-3 border-t border-border/50 pt-3">
+                    {/* Reported content */}
+                    {r.product && (
+                      <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50">
+                        {r.product.cover_image_url ? (
+                          <img src={r.product.cover_image_url} alt="" className="h-14 w-11 rounded object-cover shrink-0" />
+                        ) : (
+                          <div className="h-14 w-11 rounded bg-muted flex items-center justify-center shrink-0">
+                            <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-semibold truncate">{r.product.title}</p>
+                          <p className="text-[11px] text-muted-foreground">{r.product.organizations?.name || '—'}</p>
+                          {r.product.price != null && (
+                            <p className="text-xs font-medium mt-0.5">{r.product.price?.toLocaleString('fr-FR')} {r.product.currency || 'XOF'}</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Reason */}
+                    <div className="p-3 rounded-lg bg-destructive/5 border border-destructive/10">
+                      <p className="text-xs font-medium text-destructive mb-1">Motif du signalement</p>
+                      <p className="text-sm">{r.reason}</p>
                     </div>
-                  )}
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold truncate">{r.product.title}</p>
-                    <p className="text-[10px] text-muted-foreground">{r.product.organizations?.name || '—'}</p>
-                  </div>
-                </div>
-              )}
 
-              {/* Reason */}
-              <div className="p-3 rounded-lg bg-destructive/5 border border-destructive/10">
-                <p className="text-xs font-medium text-destructive mb-0.5">Motif :</p>
-                <p className="text-sm">{r.reason}</p>
-              </div>
+                    {/* Metadata grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                      <div className="p-2.5 rounded-lg bg-muted/30 border border-border/40">
+                        <p className="text-muted-foreground mb-0.5">ID Signalement</p>
+                        <p className="font-mono text-[11px] truncate">{r.id?.slice(0, 12)}...</p>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-muted/30 border border-border/40">
+                        <p className="text-muted-foreground mb-0.5">ID Contenu</p>
+                        <p className="font-mono text-[11px] truncate">{r.content_id?.slice(0, 12)}...</p>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-muted/30 border border-border/40">
+                        <p className="text-muted-foreground mb-0.5">ID Rapporteur</p>
+                        <p className="font-mono text-[11px] truncate">{r.reporter_user_id?.slice(0, 12)}...</p>
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-muted/30 border border-border/40">
+                        <p className="text-muted-foreground mb-0.5">Date</p>
+                        <p className="font-medium">{r.created_at ? new Date(r.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}</p>
+                      </div>
+                    </div>
 
-              {/* Footer */}
-              <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                <span>{r.created_at ? new Date(r.created_at).toLocaleString('fr-FR') : '—'}</span>
-                {r.status === 'pending' && (
-                  <div className="flex gap-1.5">
-                    <Button size="sm" variant="outline" className="h-7 text-[11px]" onClick={() => updateStatus(r.id, 'reviewed')}>
-                      Examiner
-                    </Button>
-                    <Button size="sm" variant="outline" className="h-7 text-[11px] text-green-600 border-green-500/30 hover:bg-green-500/10" onClick={() => updateStatus(r.id, 'resolved')}>
-                      Résolu
-                    </Button>
-                    <Button size="sm" variant="ghost" className="h-7 text-[11px] text-muted-foreground" onClick={() => updateStatus(r.id, 'dismissed')}>
-                      Rejeter
-                    </Button>
+                    {/* Action buttons */}
+                    <div className="flex items-center justify-between pt-1">
+                      <div className="flex gap-2">
+                        {(r.status === 'pending' || r.status === 'reviewed') && (
+                          <>
+                            {r.status === 'pending' && (
+                              <Button size="sm" variant="outline" className="h-8 text-xs gap-1.5" onClick={() => updateStatus(r.id, 'reviewed')}>
+                                🔍 Examiner
+                              </Button>
+                            )}
+                            <Button size="sm" variant="outline" className="h-8 text-xs gap-1.5 text-emerald-600 border-emerald-500/30 hover:bg-emerald-500/10" onClick={() => updateStatus(r.id, 'resolved')}>
+                              ✅ Résolu
+                            </Button>
+                            <Button size="sm" variant="ghost" className="h-8 text-xs text-muted-foreground" onClick={() => updateStatus(r.id, 'dismissed')}>
+                              Rejeter
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                      {r.status === 'dismissed' && (
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="h-8 text-xs gap-1.5"
+                          onClick={() => {
+                            if (window.confirm('Supprimer définitivement ce signalement ?')) {
+                              deleteReport(r.id);
+                            }
+                          }}
+                        >
+                          🗑 Supprimer
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 )}
-                {r.status === 'reviewed' && (
-                  <div className="flex gap-1.5">
-                    <Button size="sm" variant="outline" className="h-7 text-[11px] text-green-600 border-green-500/30 hover:bg-green-500/10" onClick={() => updateStatus(r.id, 'resolved')}>
-                      Résolu
-                    </Button>
-                    <Button size="sm" variant="ghost" className="h-7 text-[11px] text-muted-foreground" onClick={() => updateStatus(r.id, 'dismissed')}>
-                      Rejeter
-                    </Button>
-                  </div>
-                )}
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

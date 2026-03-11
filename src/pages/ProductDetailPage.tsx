@@ -755,7 +755,27 @@ export default function ProductDetailPage() {
                   />
                 </div>
                 <WishlistButton productId={product.id} variant="full" />
+                {user && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    title="Signaler ce produit"
+                    onClick={() => setReportOpen(true)}
+                  >
+                    <Flag className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
+
+              <ReportContentDialog
+                open={reportOpen}
+                onOpenChange={setReportOpen}
+                contentId={product.id}
+                contentType="product"
+                contentTitle={product.title}
+                organizationId={product.organization_id}
+              />
             </div>
 
             {/* Trust indicators in sidebar */}
