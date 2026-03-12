@@ -49,8 +49,6 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
     }
     setGenerating(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.access_token) throw new Error('Non authentifié');
 
       const { data, error } = await supabase.functions.invoke('ai-generate-cover', {
         body: {
