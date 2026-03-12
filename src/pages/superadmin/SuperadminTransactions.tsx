@@ -617,7 +617,7 @@ export function SuperadminTransactions() {
                   </TableCell>
                   <TableCell className="py-3 text-right">
                     <span className="text-sm font-semibold tabular-nums">
-                      {(tx.amount || 0).toLocaleString('fr-FR')}
+                      {(tx.amount || 0).toLocaleString()}
                     </span>
                     <span className="text-[10px] text-muted-foreground ml-1">{tx.currency}</span>
                   </TableCell>
