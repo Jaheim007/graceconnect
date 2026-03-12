@@ -39,6 +39,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useUpsertOrgPageSettings, useOrgPageSettings } from '@/hooks/useOrgPageSettings';
 import { BulkActionsToolbar, useBulkSelect } from '@/components/admin/BulkActions';
 import { ImageCropDialog } from '@/components/ui/ImageCropDialog';
+import { useI18n } from '@/i18n/I18nContext';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
@@ -66,20 +68,22 @@ export function AdminAnnouncements() {
   const { currentOrg } = useOrg();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const { data: items = [], isLoading } = useOrgAnnouncements(currentOrg?.id, false);
   const del = useDeleteAnnouncement();
   const update = useUpdateAnnouncement();
   const togglePublish = async (a: any) => {
     await update.mutateAsync({ id: a.id, updates: { is_published: !a.is_published, published_at: !a.is_published ? new Date().toISOString() : a.published_at } });
-    toast({ title: a.is_published ? 'Annonce dépubliée' : 'Annonce publiée' });
+    toast({ title: a.is_published ? (isFr ? 'Annonce dépubliée' : 'Announcement unpublished') : (isFr ? 'Annonce publiée' : 'Announcement published') });
   };
   return (
-    <AdminPageShell title="Annonces" newRoute="/admin/announcements/new" newLabel="Nouvelle annonce" backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Annonces' : 'Announcements'} newRoute="/admin/announcements/new" newLabel={isFr ? 'Nouvelle annonce' : 'New announcement'} backRoute="/admin">
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
-        <EmptyState variant="generic" title="Aucune annonce" action={{ label: 'Créer une annonce', onClick: () => navigate('/admin/announcements/new') }} />
+        <EmptyState variant="generic" title={isFr ? 'Aucune annonce' : 'No announcements'} action={{ label: isFr ? 'Créer une annonce' : 'Create announcement', onClick: () => navigate('/admin/announcements/new') }} />
       ) : (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-          <h2 className="font-semibold text-sm">{items.length} annonce{items.length > 1 ? 's' : ''}</h2>
+          <h2 className="font-semibold text-sm">{items.length} {isFr ? 'annonce' : 'announcement'}{items.length > 1 ? 's' : ''}</h2>
           <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
             {items.map(a => (
               <motion.div key={a.id} variants={fadeUp} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all group">
@@ -102,16 +106,16 @@ export function AdminAnnouncements() {
                   variant="outline"
                   className={cn('text-[10px] shrink-0 border-0', a.is_published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}
                 >
-                  {a.is_published ? 'Publié' : 'Brouillon'}
+                  {a.is_published ? (isFr ? 'Publié' : 'Published') : (isFr ? 'Brouillon' : 'Draft')}
                 </Badge>
                 <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" title={a.is_published ? 'Dépublier' : 'Publier'} onClick={() => togglePublish(a)}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" title={a.is_published ? (isFr ? 'Dépublier' : 'Unpublish') : (isFr ? 'Publier' : 'Publish')} onClick={() => togglePublish(a)}>
                     {a.is_published ? <Eye className="h-3.5 w-3.5 text-primary" /> : <EyeOff className="h-3.5 w-3.5" />}
                   </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate(`/admin/announcements/${a.id}/edit`)}>
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" onClick={async () => { await del.mutateAsync({ id: a.id, orgId: currentOrg!.id }); toast({ title: 'Supprimé' }); }}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" onClick={async () => { await del.mutateAsync({ id: a.id, orgId: currentOrg!.id }); toast({ title: isFr ? 'Supprimé' : 'Deleted' }); }}>
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>

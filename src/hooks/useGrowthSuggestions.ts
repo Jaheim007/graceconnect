@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useOrg } from '@/contexts/OrgContext';
 import { db } from '@/lib/db';
+import { useI18n } from '@/i18n/I18nContext';
 
 export interface GrowthSuggestion {
   id: string;
@@ -11,22 +12,19 @@ export interface GrowthSuggestion {
   priority: number;
 }
 
-/**
- * Contextual growth suggestions based on real org activity gaps.
- * Checks what the org is missing and returns prioritized recommendations.
- */
 export function useGrowthSuggestions() {
   const { currentOrg } = useOrg();
   const orgId = currentOrg?.id;
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   return useQuery({
-    queryKey: ['growth-suggestions', orgId],
+    queryKey: ['growth-suggestions', orgId, locale],
     queryFn: async (): Promise<GrowthSuggestion[]> => {
       if (!orgId) return [];
 
       const suggestions: GrowthSuggestion[] = [];
 
-      // Parallel checks
       const [
         { count: productCount },
         { count: publishedCount },
@@ -52,111 +50,86 @@ export function useGrowthSuggestions() {
       const s = salesCount || 0;
       const med = mediaCount || 0;
 
-      // No products at all
       if (p === 0) {
         suggestions.push({
-          id: 'create-product',
-          emoji: '📦',
-          title: 'Créez votre premier produit',
-          desc: 'Un ebook, une formation ou un template. L\'IA peut vous aider à le créer en 5 minutes.',
-          actionUrl: '/admin/products',
-          priority: 100,
+          id: 'create-product', emoji: '📦',
+          title: isFr ? 'Créez votre premier produit' : 'Create your first product',
+          desc: isFr ? 'Un ebook, une formation ou un template. L\'IA peut vous aider à le créer en 5 minutes.' : 'An ebook, course or template. AI can help you create it in 5 minutes.',
+          actionUrl: '/admin/products', priority: 100,
         });
       }
 
-      // Products exist but none published
       if (p > 0 && pub === 0) {
         suggestions.push({
-          id: 'publish-product',
-          emoji: '🚀',
-          title: 'Publiez votre produit',
-          desc: `Vous avez ${p} produit(s) en brouillon. Publiez-en un pour commencer à vendre.`,
-          actionUrl: '/admin/products',
-          priority: 95,
+          id: 'publish-product', emoji: '🚀',
+          title: isFr ? 'Publiez votre produit' : 'Publish your product',
+          desc: isFr ? `Vous avez ${p} produit(s) en brouillon. Publiez-en un pour commencer à vendre.` : `You have ${p} draft product(s). Publish one to start selling.`,
+          actionUrl: '/admin/products', priority: 95,
         });
       }
 
-      // No cover image or description
       if (org && (!org.logo_url || !org.description)) {
         suggestions.push({
-          id: 'complete-profile',
-          emoji: '🎨',
-          title: 'Complétez votre page',
-          desc: !org.logo_url ? 'Ajoutez un logo pour inspirer confiance.' : 'Ajoutez une description pour présenter votre organisation.',
-          actionUrl: '/admin/settings',
-          priority: 85,
+          id: 'complete-profile', emoji: '🎨',
+          title: isFr ? 'Complétez votre page' : 'Complete your page',
+          desc: !org.logo_url
+            ? (isFr ? 'Ajoutez un logo pour inspirer confiance.' : 'Add a logo to build trust.')
+            : (isFr ? 'Ajoutez une description pour présenter votre organisation.' : 'Add a description to present your organization.'),
+          actionUrl: '/admin/settings', priority: 85,
         });
       }
 
-      // No KYC
       if (org && (!org.kyc_status || org.kyc_status === 'none') && s > 0) {
         suggestions.push({
-          id: 'start-kyc',
-          emoji: '🔒',
-          title: 'Vérifiez votre identité (KYC)',
-          desc: 'Complétez le KYC pour débloquer les retraits et rassurer vos clients.',
-          actionUrl: '/admin/kyc',
-          priority: 90,
+          id: 'start-kyc', emoji: '🔒',
+          title: isFr ? 'Vérifiez votre identité (KYC)' : 'Verify your identity (KYC)',
+          desc: isFr ? 'Complétez le KYC pour débloquer les retraits et rassurer vos clients.' : 'Complete KYC to unlock withdrawals and reassure your clients.',
+          actionUrl: '/admin/kyc', priority: 90,
         });
       }
 
-      // Affiliation not enabled
       if (!org?.affiliation_enabled && pub > 0) {
         suggestions.push({
-          id: 'enable-affiliation',
-          emoji: '🤝',
-          title: 'Activez le programme ambassadeur',
-          desc: 'Laissez vos fans vendre pour vous et gagnez ensemble. Commission personnalisable.',
-          actionUrl: '/admin/settings',
-          priority: 80,
+          id: 'enable-affiliation', emoji: '🤝',
+          title: isFr ? 'Activez le programme ambassadeur' : 'Enable the ambassador program',
+          desc: isFr ? 'Laissez vos fans vendre pour vous et gagnez ensemble. Commission personnalisable.' : 'Let your fans sell for you and earn together. Customizable commission.',
+          actionUrl: '/admin/settings', priority: 80,
         });
       }
 
-      // No campaign
       if (c === 0 && pub > 0) {
         suggestions.push({
-          id: 'create-campaign',
-          emoji: '🎯',
-          title: 'Lancez une campagne de dons',
-          desc: 'Collectez des fonds pour un projet spécifique. Intégré à votre page publique.',
-          actionUrl: '/admin/campaigns',
-          priority: 60,
+          id: 'create-campaign', emoji: '🎯',
+          title: isFr ? 'Lancez une campagne de dons' : 'Launch a donation campaign',
+          desc: isFr ? 'Collectez des fonds pour un projet spécifique. Intégré à votre page publique.' : 'Raise funds for a specific project. Integrated into your public page.',
+          actionUrl: '/admin/campaigns', priority: 60,
         });
       }
 
-      // Has sales but few members
       if (s > 0 && m < 10) {
         suggestions.push({
-          id: 'grow-audience',
-          emoji: '📢',
-          title: 'Développez votre communauté',
-          desc: 'Partagez votre page sur les réseaux sociaux pour attirer plus de membres.',
-          actionUrl: '/admin/settings',
-          priority: 70,
+          id: 'grow-audience', emoji: '📢',
+          title: isFr ? 'Développez votre communauté' : 'Grow your community',
+          desc: isFr ? 'Partagez votre page sur les réseaux sociaux pour attirer plus de membres.' : 'Share your page on social media to attract more members.',
+          actionUrl: '/admin/settings', priority: 70,
         });
       }
 
-      // No media content
       if (med === 0 && pub > 0) {
         suggestions.push({
-          id: 'add-media',
-          emoji: '🎬',
-          title: 'Ajoutez du contenu média',
-          desc: 'Vidéos, audios ou articles enrichissent votre page et fidélisent votre audience.',
-          actionUrl: '/admin/media',
-          priority: 50,
+          id: 'add-media', emoji: '🎬',
+          title: isFr ? 'Ajoutez du contenu média' : 'Add media content',
+          desc: isFr ? 'Vidéos, audios ou articles enrichissent votre page et fidélisent votre audience.' : 'Videos, audio or articles enrich your page and build loyalty.',
+          actionUrl: '/admin/media', priority: 50,
         });
       }
 
-      // Published products but no sales
       if (pub > 0 && s === 0) {
         suggestions.push({
-          id: 'first-sale',
-          emoji: '💡',
-          title: 'Décrochez votre première vente',
-          desc: 'Partagez vos produits sur WhatsApp, créez un code promo ou activez les ambassadeurs.',
-          actionUrl: '/admin/products',
-          priority: 75,
+          id: 'first-sale', emoji: '💡',
+          title: isFr ? 'Décrochez votre première vente' : 'Get your first sale',
+          desc: isFr ? 'Partagez vos produits sur WhatsApp, créez un code promo ou activez les ambassadeurs.' : 'Share your products on WhatsApp, create a promo code or activate ambassadors.',
+          actionUrl: '/admin/products', priority: 75,
         });
       }
 
