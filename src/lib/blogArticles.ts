@@ -914,7 +914,7 @@ export const blogArticles: BlogArticle[] = [
     publishedAt: '2026-03-16',
     content: `
 <h2>Profil</h2>
-<p>Kouamé est coach en développement personnel à Abidjan. Il donnait des séminaires en présentiel à 100-200 personnes. Ses revenus dépendaient entièrement de sa présence physique.</p>
+<p>Kouamé est coach en développement personnel à Dakar. Il donnait des séminaires en présentiel à 100-200 personnes. Ses revenus dépendaient entièrement de sa présence physique.</p>
 
 <h2>Le problème</h2>
 <p>Quand il ne donne pas de séminaire, il ne gagne rien. Ses contenus WhatsApp étaient partagés gratuitement. Il n'avait aucun revenu passif.</p>
