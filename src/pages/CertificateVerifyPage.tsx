@@ -70,8 +70,8 @@ export default function CertificateVerifyPage() {
               <div className="h-14 w-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-3">
                 <CheckCircle className="h-8 w-8" />
               </div>
-              <h1 className="text-lg font-bold">Certificat Authentique ✓</h1>
-              <p className="text-xs text-white/80 mt-1">Ce certificat est vérifié et valide</p>
+              <h1 className="text-lg font-bold">{isFr ? 'Certificat Authentique ✓' : 'Authentic Certificate ✓'}</h1>
+              <p className="text-xs text-white/80 mt-1">{isFr ? 'Ce certificat est vérifié et valide' : 'This certificate is verified and valid'}</p>
             </div>
 
             {/* Details */}
