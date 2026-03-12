@@ -1417,14 +1417,14 @@ export function AdminSettings() {
         {/* ── AFFILIATION ── */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
           <div>
-            <h2 className="font-semibold text-sm">Programme d'affiliation</h2>
+            <h2 className="font-semibold text-sm">{isFr ? 'Programme d\'affiliation' : 'Affiliate program'}</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Permettez aux membres de gagner des commissions en partageant des liens de parrainage.
+              {isFr ? 'Permettez aux membres de gagner des commissions en partageant des liens de parrainage.' : 'Allow members to earn commissions by sharing referral links.'}
             </p>
           </div>
 
           <div className="flex items-center justify-between">
-            <Label htmlFor="affiliation-toggle" className="text-xs font-medium">Activer l'affiliation</Label>
+            <Label htmlFor="affiliation-toggle" className="text-xs font-medium">{isFr ? 'Activer l\'affiliation' : 'Enable affiliation'}</Label>
             <Switch id="affiliation-toggle" checked={affiliationEnabled} onCheckedChange={setAffiliationEnabled} />
           </div>
 
