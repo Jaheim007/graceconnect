@@ -106,7 +106,7 @@ export default function FeedPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Mon fil — Siteviral" description="Retrouvez les dernières publications, produits et événements de vos communautés." noindex />
+      <SEOHead title={isFr ? "Mon fil — Siteviral" : "My Feed — Siteviral"} description={isFr ? "Retrouvez les dernières publications, produits et événements de vos communautés." : "Find the latest posts, products and events from your communities."} noindex />
       <div className="container max-w-5xl px-4 py-5 sm:py-6 space-y-5 sm:space-y-6">
 
         {/* Smart contextual suggestions */}
