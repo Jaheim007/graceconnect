@@ -163,7 +163,7 @@ export default function SuperadminPartners() {
                             </div>
                             <div className="flex items-center gap-2 mt-1">
                               <code className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-mono">{p.invite_code || '—'}</code>
-                              <span className="text-[10px] text-muted-foreground">{new Date(p.created_at).toLocaleDateString('fr-FR')}</span>
+                              <span className="text-[10px] text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</span>
                             </div>
                           </div>
                         </div>
