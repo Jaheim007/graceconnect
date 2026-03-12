@@ -24,6 +24,8 @@ export default function EventDetailPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const dateLoc = locale === 'fr' ? 'fr-FR' : 'en-US';
   const [copied, setCopied] = useState(false);
 
   const { data: event, isLoading } = useQuery({
