@@ -132,20 +132,22 @@ export function AdminEvents() {
   const { currentOrg } = useOrg();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const { data: items = [], isLoading } = useOrgEvents(currentOrg?.id, false);
   const del = useDeleteEvent();
   const update = useUpdateEvent();
   const togglePublish = async (ev: any) => {
     await update.mutateAsync({ id: ev.id, updates: { is_published: !ev.is_published } });
-    toast({ title: ev.is_published ? 'Événement dépublié' : 'Événement publié' });
+    toast({ title: ev.is_published ? (isFr ? 'Événement dépublié' : 'Event unpublished') : (isFr ? 'Événement publié' : 'Event published') });
   };
   return (
-    <AdminPageShell title="Événements" newRoute="/admin/events/new" newLabel="Nouvel événement" backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Événements' : 'Events'} newRoute="/admin/events/new" newLabel={isFr ? 'Nouvel événement' : 'New event'} backRoute="/admin">
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
-        <EmptyState variant="generic" title="Aucun événement" action={{ label: 'Créer un événement', onClick: () => navigate('/admin/events/new') }} />
+        <EmptyState variant="generic" title={isFr ? 'Aucun événement' : 'No events'} action={{ label: isFr ? 'Créer un événement' : 'Create event', onClick: () => navigate('/admin/events/new') }} />
       ) : (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-          <h2 className="font-semibold text-sm">{items.length} événement{items.length > 1 ? 's' : ''}</h2>
+          <h2 className="font-semibold text-sm">{items.length} {isFr ? 'événement' : 'event'}{items.length > 1 ? 's' : ''}</h2>
           <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
             {items.map(ev => (
               <motion.div key={ev.id} variants={fadeUp} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all group">
@@ -163,7 +165,7 @@ export function AdminEvents() {
                 <div className="flex-1 min-w-0">
                   <p className="text-base font-medium truncate">{ev.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {ev.event_date ? new Date(ev.event_date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric', year: 'numeric' }) : 'À définir'}
+                    {ev.event_date ? new Date(ev.event_date).toLocaleDateString(isFr ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (isFr ? 'À définir' : 'TBD')}
                     {ev.location ? ` · ${ev.location}` : ''}
                   </p>
                 </div>
@@ -171,16 +173,16 @@ export function AdminEvents() {
                   variant="outline"
                   className={cn('text-[10px] shrink-0 border-0', ev.is_published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}
                 >
-                  {ev.is_published ? 'Publié' : 'Brouillon'}
+                  {ev.is_published ? (isFr ? 'Publié' : 'Published') : (isFr ? 'Brouillon' : 'Draft')}
                 </Badge>
                 <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" title={ev.is_published ? 'Dépublier' : 'Publier'} onClick={() => togglePublish(ev)}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" title={ev.is_published ? (isFr ? 'Dépublier' : 'Unpublish') : (isFr ? 'Publier' : 'Publish')} onClick={() => togglePublish(ev)}>
                     {ev.is_published ? <Eye className="h-3.5 w-3.5 text-primary" /> : <EyeOff className="h-3.5 w-3.5" />}
                   </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate(`/admin/events/${ev.id}/edit`)}>
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" onClick={async () => { await del.mutateAsync({ id: ev.id, orgId: currentOrg!.id }); toast({ title: 'Supprimé' }); }}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" onClick={async () => { await del.mutateAsync({ id: ev.id, orgId: currentOrg!.id }); toast({ title: isFr ? 'Supprimé' : 'Deleted' }); }}>
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
@@ -199,85 +201,87 @@ export function AdminCampaigns() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const qc = useQueryClient();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const { fmt } = useDisplayCurrency();
 
   const handleToggleActive = async (c: any) => {
     await db.from('donation_campaigns').update({ is_active: !c.is_active }).eq('id', c.id);
     qc.invalidateQueries({ queryKey: ['org-campaigns'] });
-    toast({ title: c.is_active ? 'Campagne désactivée' : 'Campagne activée ✅' });
+    toast({ title: c.is_active ? (isFr ? 'Campagne désactivée' : 'Campaign deactivated') : (isFr ? 'Campagne activée ✅' : 'Campaign activated ✅') });
   };
 
   const handleDelete = async (c: any) => {
-    // Check if campaign has donations
     const { count } = await db.from('donations').select('id', { count: 'exact', head: true }).eq('campaign_id', c.id);
     if (count && count > 0) {
-      toast({ title: 'Suppression impossible', description: `Cette campagne a reçu ${count} don(s). Vous pouvez la désactiver à la place.`, variant: 'destructive' });
+      toast({ title: isFr ? 'Suppression impossible' : 'Cannot delete', description: isFr ? `Cette campagne a reçu ${count} don(s). Vous pouvez la désactiver à la place.` : `This campaign has ${count} donation(s). You can deactivate it instead.`, variant: 'destructive' });
       return;
     }
     await db.from('donation_campaigns').delete().eq('id', c.id);
     qc.invalidateQueries({ queryKey: ['org-campaigns'] });
-    toast({ title: 'Campagne supprimée' });
+    toast({ title: isFr ? 'Campagne supprimée' : 'Campaign deleted' });
   };
 
   return (
-    <AdminPageShell title="Campagnes de dons" newRoute="/admin/campaigns/new" newLabel="Nouvelle campagne" backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Campagnes de dons' : 'Donation campaigns'} newRoute="/admin/campaigns/new" newLabel={isFr ? 'Nouvelle campagne' : 'New campaign'} backRoute="/admin">
       {currentOrg?.kyc_status === 'none' && (
         <div className="p-3 rounded-xl bg-primary/8 border border-primary/20 text-xs text-foreground mb-3 flex items-center gap-2">
           <span>💡</span>
-          <span className="text-muted-foreground">Soumettez le KYC avant de demander un retrait. Les dons sont déjà acceptés.</span>
+          <span className="text-muted-foreground">{isFr ? 'Soumettez le KYC avant de demander un retrait. Les dons sont déjà acceptés.' : 'Submit KYC before requesting a payout. Donations are already accepted.'}</span>
           <Button size="sm" variant="ghost" className="h-6 text-xs ml-auto text-primary" onClick={() => navigate('/admin/kyc')}>
-            Soumettre KYC →
+            {isFr ? 'Soumettre KYC →' : 'Submit KYC →'}
           </Button>
         </div>
       )}
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
-        <EmptyState variant="campaigns" action={{ label: 'Nouvelle campagne', onClick: () => navigate('/admin/campaigns/new') }} />
+        <EmptyState variant="campaigns" action={{ label: isFr ? 'Nouvelle campagne' : 'New campaign', onClick: () => navigate('/admin/campaigns/new') }} />
       ) : (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-          <h2 className="font-semibold text-sm">{items.length} campagne{items.length > 1 ? 's' : ''}</h2>
+          <h2 className="font-semibold text-sm">{items.length} {isFr ? 'campagne' : 'campaign'}{items.length > 1 ? 's' : ''}</h2>
           <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
             {items.map(c => (
               <motion.div key={c.id} variants={fadeUp} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all group">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <p className="text-sm font-medium truncate">{c.title}</p>
-                    {(c as any).is_express_demo && <Badge variant="outline" className="text-[9px] border-dashed">Démo</Badge>}
+                    {(c as any).is_express_demo && <Badge variant="outline" className="text-[9px] border-dashed">{isFr ? 'Démo' : 'Demo'}</Badge>}
                   </div>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <div className="h-1.5 flex-1 max-w-24 rounded-full bg-muted overflow-hidden">
                       <div className="h-full bg-primary rounded-full" style={{ width: c.goal_amount ? `${Math.min(100, (c.current_amount / c.goal_amount) * 100)}%` : '0%' }} />
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {c.current_amount.toLocaleString('fr-FR')} / {c.goal_amount?.toLocaleString('fr-FR') || '∞'} {c.currency}
+                      {fmt(c.current_amount, c.currency)} / {c.goal_amount ? fmt(c.goal_amount, c.currency) : '∞'}
                     </p>
                   </div>
                 </div>
                 <Badge variant="outline" className={cn('text-[10px] border-0 shrink-0', c.is_active ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}>
-                  {c.is_active ? 'Active' : 'Inactive'}
+                  {c.is_active ? (isFr ? 'Active' : 'Active') : (isFr ? 'Inactive' : 'Inactive')}
                 </Badge>
                 <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate(`/admin/campaigns/${c.id}/edit`)} title="Modifier">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate(`/admin/campaigns/${c.id}/edit`)} title={isFr ? 'Modifier' : 'Edit'}>
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => handleToggleActive(c)} title={c.is_active ? 'Désactiver' : 'Activer'}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => handleToggleActive(c)} title={c.is_active ? (isFr ? 'Désactiver' : 'Deactivate') : (isFr ? 'Activer' : 'Activate')}>
                     {c.is_active ? <AlertTriangle className="h-3.5 w-3.5 text-amber-500" /> : <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />}
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" title="Supprimer">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" title={isFr ? 'Supprimer' : 'Delete'}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Supprimer cette campagne ?</AlertDialogTitle>
+                        <AlertDialogTitle>{isFr ? 'Supprimer cette campagne ?' : 'Delete this campaign?'}</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Si la campagne a déjà reçu des dons, elle ne pourra pas être supprimée mais seulement désactivée.
+                          {isFr ? 'Si la campagne a déjà reçu des dons, elle ne pourra pas être supprimée mais seulement désactivée.' : 'If the campaign has already received donations, it cannot be deleted but only deactivated.'}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                        <AlertDialogCancel>{isFr ? 'Annuler' : 'Cancel'}</AlertDialogCancel>
                         <AlertDialogAction onClick={() => handleDelete(c)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                          Supprimer
+                          {isFr ? 'Supprimer' : 'Delete'}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -299,68 +303,70 @@ export function AdminProducts() {
   const { toast } = useToast();
   const qc = useQueryClient();
   const bulk = useBulkSelect(items as any[]);
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const { fmtPrice } = useDisplayCurrency();
 
   const handleBulkPublish = async (ids: string[]) => {
     await db.from('digital_products').update({ is_published: true }).in('id', ids);
     qc.invalidateQueries({ queryKey: ['org-products'] });
     bulk.clear();
-    toast({ title: `${ids.length} produit(s) publié(s) ✅` });
+    toast({ title: isFr ? `${ids.length} produit(s) publié(s) ✅` : `${ids.length} product(s) published ✅` });
   };
   const handleBulkUnpublish = async (ids: string[]) => {
     await db.from('digital_products').update({ is_published: false }).in('id', ids);
     qc.invalidateQueries({ queryKey: ['org-products'] });
     bulk.clear();
-    toast({ title: `${ids.length} produit(s) dépublié(s)` });
+    toast({ title: isFr ? `${ids.length} produit(s) dépublié(s)` : `${ids.length} product(s) unpublished` });
   };
   const handleBulkDelete = async (ids: string[]) => {
     await db.from('digital_products').delete().in('id', ids);
     qc.invalidateQueries({ queryKey: ['org-products'] });
     bulk.clear();
-    toast({ title: `${ids.length} produit(s) supprimé(s)` });
+    toast({ title: isFr ? `${ids.length} produit(s) supprimé(s)` : `${ids.length} product(s) deleted` });
   };
 
   const handleTogglePublish = async (p: any) => {
     await db.from('digital_products').update({ is_published: !p.is_published }).eq('id', p.id);
     qc.invalidateQueries({ queryKey: ['org-products'] });
-    toast({ title: p.is_published ? 'Produit dépublié' : 'Produit publié ✅' });
+    toast({ title: p.is_published ? (isFr ? 'Produit dépublié' : 'Product unpublished') : (isFr ? 'Produit publié ✅' : 'Product published ✅') });
   };
 
   const handleDeleteSingle = async (p: any) => {
-    // Check if product has purchases
     const { count } = await db.from('product_purchases').select('id', { count: 'exact', head: true }).eq('product_id', p.id);
     if (count && count > 0) {
-      toast({ title: 'Suppression impossible', description: `Ce produit a ${count} achat(s). Vous pouvez le dépublier à la place.`, variant: 'destructive' });
+      toast({ title: isFr ? 'Suppression impossible' : 'Cannot delete', description: isFr ? `Ce produit a ${count} achat(s). Vous pouvez le dépublier à la place.` : `This product has ${count} purchase(s). You can unpublish it instead.`, variant: 'destructive' });
       return;
     }
     await db.from('digital_products').delete().eq('id', p.id);
     qc.invalidateQueries({ queryKey: ['org-products'] });
-    toast({ title: 'Produit supprimé' });
+    toast({ title: isFr ? 'Produit supprimé' : 'Product deleted' });
   };
 
   return (
     <AdminPageShell
-      title="Boutique digitale"
+      title={isFr ? 'Boutique digitale' : 'Digital shop'}
       backRoute="/admin"
       actions={
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button size="sm" className="gap-1.5 text-xs h-9">
-              <Plus className="h-3.5 w-3.5" /> Nouveau <ChevronDown className="h-3 w-3 ml-0.5" />
+              <Plus className="h-3.5 w-3.5" /> {isFr ? 'Nouveau' : 'New'} <ChevronDown className="h-3 w-3 ml-0.5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuItem onClick={() => navigate('/ecrire')} className="gap-2 py-2.5">
               <PenLine className="h-4 w-4 text-primary" />
               <div>
-                <p className="text-xs font-semibold">Écrire avec l'IA</p>
-                <p className="text-[10px] text-muted-foreground">Crée un livre en 5 min</p>
+                <p className="text-xs font-semibold">{isFr ? 'Écrire avec l\'IA' : 'Write with AI'}</p>
+                <p className="text-[10px] text-muted-foreground">{isFr ? 'Crée un livre en 5 min' : 'Create a book in 5 min'}</p>
               </div>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/admin/products/new')} className="gap-2 py-2.5">
               <Upload className="h-4 w-4 text-accent" />
               <div>
-                <p className="text-xs font-semibold">Importer / Créer</p>
-                <p className="text-[10px] text-muted-foreground">PDF, vidéo, formation…</p>
+                <p className="text-xs font-semibold">{isFr ? 'Importer / Créer' : 'Import / Create'}</p>
+                <p className="text-[10px] text-muted-foreground">{isFr ? 'PDF, vidéo, formation…' : 'PDF, video, course…'}</p>
               </div>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -368,13 +374,13 @@ export function AdminProducts() {
       }
     >
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
-        <EmptyState variant="purchases" title="Aucun produit" action={{ label: 'Nouveau produit', onClick: () => navigate('/admin/products/new') }} />
+        <EmptyState variant="purchases" title={isFr ? 'Aucun produit' : 'No products'} action={{ label: isFr ? 'Nouveau produit' : 'New product', onClick: () => navigate('/admin/products/new') }} />
       ) : (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-sm">{items.length} produit{items.length > 1 ? 's' : ''}</h2>
+            <h2 className="font-semibold text-sm">{items.length} {isFr ? 'produit' : 'product'}{items.length > 1 ? 's' : ''}</h2>
             <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={bulk.toggleAll}>
-              {bulk.allSelected ? 'Désélectionner' : 'Tout sélectionner'}
+              {bulk.allSelected ? (isFr ? 'Désélectionner' : 'Deselect') : (isFr ? 'Tout sélectionner' : 'Select all')}
             </Button>
           </div>
           <BulkActionsToolbar
@@ -382,9 +388,9 @@ export function AdminProducts() {
             totalCount={items.length}
             onClear={bulk.clear}
             actions={[
-              { label: 'Publier', icon: CheckCircle, onClick: handleBulkPublish },
-              { label: 'Dépublier', icon: Pencil, onClick: handleBulkUnpublish },
-              { label: 'Supprimer', icon: Trash2, variant: 'destructive', onClick: handleBulkDelete },
+              { label: isFr ? 'Publier' : 'Publish', icon: CheckCircle, onClick: handleBulkPublish },
+              { label: isFr ? 'Dépublier' : 'Unpublish', icon: Pencil, onClick: handleBulkUnpublish },
+              { label: isFr ? 'Supprimer' : 'Delete', icon: Trash2, variant: 'destructive', onClick: handleBulkDelete },
             ]}
           />
           <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2.5">
@@ -404,46 +410,46 @@ export function AdminProducts() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <p className="text-base font-medium truncate">{p.title}</p>
-                    {(p as any).is_express_demo && <Badge variant="outline" className="text-[9px] border-dashed">Démo</Badge>}
+                    {(p as any).is_express_demo && <Badge variant="outline" className="text-[9px] border-dashed">{isFr ? 'Démo' : 'Demo'}</Badge>}
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {p.is_free ? 'Gratuit' : `${p.price?.toLocaleString('fr-FR')} ${p.currency}`} · {p.sales_count || 0} vente{(p.sales_count || 0) > 1 ? 's' : ''}
+                    {fmtPrice(p.price || 0, p.is_free, p.currency)} · {p.sales_count || 0} {isFr ? 'vente' : 'sale'}{(p.sales_count || 0) > 1 ? 's' : ''}
                   </p>
                 </div>
                 <Badge variant="outline" className={cn('text-xs border-0 shrink-0', p.is_published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}>
-                  {p.is_published ? 'Publié' : 'Brouillon'}
+                  {p.is_published ? (isFr ? 'Publié' : 'Published') : (isFr ? 'Brouillon' : 'Draft')}
                 </Badge>
                 <div className="flex items-center gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title="Voir le produit"
+                  <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title={isFr ? 'Voir le produit' : 'View product'}
                     onClick={(e) => { e.stopPropagation(); navigate(`/org/${currentOrg?.slug}/product/${p.id}`); }}>
                     <Eye className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title="Modifier"
+                  <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title={isFr ? 'Modifier' : 'Edit'}
                     onClick={(e) => { e.stopPropagation(); navigate(`/admin/products/${p.id}/edit`); }}>
                     <Pencil className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title={p.is_published ? 'Dépublier' : 'Publier'}
+                  <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title={p.is_published ? (isFr ? 'Dépublier' : 'Unpublish') : (isFr ? 'Publier' : 'Publish')}
                     onClick={(e) => { e.stopPropagation(); handleTogglePublish(p); }}>
                     {p.is_published ? <AlertTriangle className="h-4 w-4 text-amber-500" /> : <CheckCircle className="h-4 w-4 text-emerald-500" />}
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive shrink-0" title="Supprimer"
+                      <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive shrink-0" title={isFr ? 'Supprimer' : 'Delete'}
                         onClick={(e) => e.stopPropagation()}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Supprimer ce produit ?</AlertDialogTitle>
+                        <AlertDialogTitle>{isFr ? 'Supprimer ce produit ?' : 'Delete this product?'}</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Si le produit a déjà été acheté, il ne pourra pas être supprimé mais seulement dépublié.
+                          {isFr ? 'Si le produit a déjà été acheté, il ne pourra pas être supprimé mais seulement dépublié.' : 'If the product has already been purchased, it cannot be deleted but only unpublished.'}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                        <AlertDialogCancel>{isFr ? 'Annuler' : 'Cancel'}</AlertDialogCancel>
                         <AlertDialogAction onClick={() => handleDeleteSingle(p)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                          Supprimer
+                          {isFr ? 'Supprimer' : 'Delete'}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -463,29 +469,30 @@ export function AdminMembers() {
   const { data: members = [], isLoading } = useOrgMembers(currentOrg?.id);
   const { toast } = useToast();
   const [copiedInvite, setCopiedInvite] = useState(false);
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const inviteUrl = currentOrg ? `https://siteviral.com/org/${currentOrg.slug}` : '';
 
   const handleCopyInvite = async () => {
     await navigator.clipboard.writeText(inviteUrl);
     setCopiedInvite(true);
-    toast({ title: 'Lien d\'invitation copié !' });
+    toast({ title: isFr ? 'Lien d\'invitation copié !' : 'Invite link copied!' });
     setTimeout(() => setCopiedInvite(false), 2000);
   };
 
   return (
-    <AdminPageShell title="Membres" backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Membres' : 'Members'} backRoute="/admin">
       <div className="space-y-4">
-        {/* How members join explanation */}
         <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
           <div className="flex items-start gap-3">
             <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
               <UserPlus className="h-4 w-4 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm">Comment rejoindre</p>
+              <p className="font-semibold text-sm">{isFr ? 'Comment rejoindre' : 'How to join'}</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Partagez le lien de votre page publique. Les visiteurs qui cliquent « Rejoindre » apparaîtront ici.
+                {isFr ? 'Partagez le lien de votre page publique. Les visiteurs qui cliquent « Rejoindre » apparaîtront ici.' : 'Share your public page link. Visitors who click "Join" will appear here.'}
               </p>
             </div>
           </div>
@@ -497,12 +504,11 @@ export function AdminMembers() {
           </div>
         </div>
 
-        {/* Members list */}
         {isLoading ? <SkeletonRow /> : members.length === 0 ? (
-          <EmptyState variant="members" title="Aucun membre" description="Partagez votre lien d'invitation ci-dessus pour agrandir votre communauté." />
+          <EmptyState variant="members" title={isFr ? 'Aucun membre' : 'No members'} description={isFr ? 'Partagez votre lien d\'invitation ci-dessus pour agrandir votre communauté.' : 'Share your invite link above to grow your community.'} />
         ) : (
           <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-            <h2 className="font-semibold text-sm">{members.length} membre{members.length > 1 ? 's' : ''}</h2>
+            <h2 className="font-semibold text-sm">{members.length} {isFr ? 'membre' : 'member'}{members.length > 1 ? 's' : ''}</h2>
             <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
               {(members as any[]).map((m) => (
                 <motion.div key={m.id} variants={fadeUp} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all">
@@ -512,9 +518,9 @@ export function AdminMembers() {
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{m.profiles?.display_name || 'Utilisateur'}</p>
+                    <p className="text-sm font-medium truncate">{m.profiles?.display_name || (isFr ? 'Utilisateur' : 'User')}</p>
                     <p className="text-xs text-muted-foreground">
-                      Rejoint {new Date(m.joined_at).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })}
+                      {isFr ? 'Rejoint' : 'Joined'} {new Date(m.joined_at).toLocaleDateString(isFr ? 'fr-FR' : 'en-US', { month: 'short', year: 'numeric' })}
                     </p>
                   </div>
                   <Badge variant="secondary" className="text-[10px] capitalize">{m.role}</Badge>
@@ -531,10 +537,12 @@ export function AdminMembers() {
 function AffiliateCopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const handleCopy = async () => {
     await navigator.clipboard.writeText(text);
     setCopied(true);
-    toast({ title: 'Lien copié !' });
+    toast({ title: isFr ? 'Lien copié !' : 'Link copied!' });
     setTimeout(() => setCopied(false), 2000);
   };
   return (
@@ -547,25 +555,26 @@ function AffiliateCopyButton({ text }: { text: string }) {
 export function AdminAffiliation() {
   const { currentOrg } = useOrg();
   const navigate = useNavigate();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const { fmt } = useDisplayCurrency();
 
-  // Fetch existing affiliate links for this org
   const { data: existingLinks = [], isLoading } = useOrgAffiliateLinks(currentOrg?.id);
-
   const baseUrl = window.location.origin;
 
   if (!currentOrg?.affiliation_enabled) {
     return (
-      <AdminPageShell title="Mes affiliés" backRoute="/admin">
+      <AdminPageShell title={isFr ? 'Mes affiliés' : 'My affiliates'} backRoute="/admin">
         <div className="p-8 rounded-2xl border border-border bg-card text-center space-y-3">
           <div className="h-12 w-12 rounded-2xl bg-muted flex items-center justify-center mx-auto">
             <Link2 className="h-6 w-6 text-muted-foreground" />
           </div>
-          <p className="font-semibold">Affiliation non activée</p>
+          <p className="font-semibold">{isFr ? 'Affiliation non activée' : 'Affiliation not enabled'}</p>
           <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-            Allez dans les Paramètres pour activer le programme d'affiliation et définir un taux de commission.
+            {isFr ? 'Allez dans les Paramètres pour activer le programme d\'affiliation et définir un taux de commission.' : 'Go to Settings to enable the affiliate program and set a commission rate.'}
           </p>
           <Button size="sm" className="bg-primary text-primary-foreground" onClick={() => navigate('/admin/settings')}>
-            Activer dans les Paramètres →
+            {isFr ? 'Activer dans les Paramètres →' : 'Enable in Settings →'}
           </Button>
         </div>
       </AdminPageShell>
@@ -578,62 +587,58 @@ export function AdminAffiliation() {
   const totalEarned = activeLinks.reduce((s, l) => s + (l.total_earned || 0), 0);
 
   return (
-    <AdminPageShell title="Mes affiliés" backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Mes affiliés' : 'My affiliates'} backRoute="/admin">
       <div className="space-y-4">
-        {/* How it works */}
         <div className="bg-primary/8 border border-primary/20 rounded-2xl p-4 space-y-2">
-          <p className="font-semibold text-sm">💡 Comment fonctionne l'affiliation</p>
+          <p className="font-semibold text-sm">{isFr ? '💡 Comment fonctionne l\'affiliation' : '💡 How affiliation works'}</p>
           <ol className="space-y-1.5 text-xs text-muted-foreground list-none">
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">1.</span>Les visiteurs découvrent votre page publique et cliquent sur « Devenir affilié ».</li>
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">2.</span>Ils sont automatiquement inscrits — aucune action de votre part n'est nécessaire.</li>
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">3.</span>Ils partagent leur lien. Quand quelqu'un donne ou achète via ce lien, ils gagnent <strong>{currentOrg.affiliation_commission_percent}%</strong>.</li>
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">4.</span>Après 15 jours, les commissions deviennent retirables (KYC requis).</li>
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">1.</span>{isFr ? 'Les visiteurs découvrent votre page publique et cliquent sur « Devenir affilié ».' : 'Visitors discover your public page and click "Become affiliate".'}</li>
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">2.</span>{isFr ? 'Ils sont automatiquement inscrits — aucune action de votre part n\'est nécessaire.' : 'They are automatically enrolled — no action required from you.'}</li>
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">3.</span>{isFr ? <>Ils partagent leur lien. Quand quelqu'un donne ou achète via ce lien, ils gagnent <strong>{currentOrg.affiliation_commission_percent}%</strong>.</> : <>They share their link. When someone donates or buys via this link, they earn <strong>{currentOrg.affiliation_commission_percent}%</strong>.</>}</li>
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">4.</span>{isFr ? 'Après 15 jours, les commissions deviennent retirables (KYC requis).' : 'After 15 days, commissions become withdrawable (KYC required).'}</li>
           </ol>
         </div>
 
-        {/* Stats bar */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="bg-card border border-border rounded-2xl p-4 text-center">
             <p className="text-2xl font-bold text-primary">{currentOrg.affiliation_commission_percent}%</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Taux de commission</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{isFr ? 'Taux de commission' : 'Commission rate'}</p>
           </div>
           <div className="bg-card border border-border rounded-2xl p-4 text-center">
             <p className="text-2xl font-bold">{activeLinks.length}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Affiliés actifs</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{isFr ? 'Affiliés actifs' : 'Active affiliates'}</p>
           </div>
           <div className="bg-card border border-border rounded-2xl p-4 text-center">
-            <p className="text-2xl font-bold">{totalClicks.toLocaleString('fr-FR')}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Clics totaux</p>
+            <p className="text-2xl font-bold">{totalClicks.toLocaleString(isFr ? 'fr-FR' : 'en-US')}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{isFr ? 'Clics totaux' : 'Total clicks'}</p>
           </div>
           <div className="bg-card border border-border rounded-2xl p-4 text-center">
-            <p className="text-2xl font-bold">{totalConversions.toLocaleString('fr-FR')}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Conversions</p>
+            <p className="text-2xl font-bold">{totalConversions.toLocaleString(isFr ? 'fr-FR' : 'en-US')}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{isFr ? 'Conversions' : 'Conversions'}</p>
           </div>
         </div>
 
-        {/* Total commissions paid */}
         <div className="bg-card border border-border rounded-2xl p-4 flex items-center justify-between">
           <div>
-            <p className="text-xs text-muted-foreground">Total commissions versées</p>
-            <p className="text-2xl font-bold text-primary">{totalEarned.toLocaleString('fr-FR')} {currentOrg.currency}</p>
+            <p className="text-xs text-muted-foreground">{isFr ? 'Total commissions versées' : 'Total commissions paid'}</p>
+            <p className="text-2xl font-bold text-primary">{fmt(totalEarned, currentOrg.currency)}</p>
           </div>
           <Button size="sm" variant="outline" className="text-xs" onClick={() => navigate('/admin/settings')}>
-            Modifier le taux
+            {isFr ? 'Modifier le taux' : 'Change rate'}
           </Button>
         </div>
 
-        {/* Active affiliates list */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-          <h2 className="font-semibold text-sm">Affiliés actifs ({activeLinks.length})</h2>
+          <h2 className="font-semibold text-sm">{isFr ? 'Affiliés actifs' : 'Active affiliates'} ({activeLinks.length})</h2>
 
           {isLoading ? (
             <SkeletonRow count={3} />
           ) : activeLinks.length === 0 ? (
             <div className="py-6 text-center space-y-2">
               <Users className="h-8 w-8 text-muted-foreground/40 mx-auto" />
-              <p className="text-sm font-medium text-muted-foreground">Aucun affilié pour le moment</p>
+              <p className="text-sm font-medium text-muted-foreground">{isFr ? 'Aucun affilié pour le moment' : 'No affiliates yet'}</p>
               <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                Partagez le lien de votre page publique. Les visiteurs pourront rejoindre votre programme d'affiliation en un clic.
+                {isFr ? 'Partagez le lien de votre page publique. Les visiteurs pourront rejoindre votre programme d\'affiliation en un clic.' : 'Share your public page link. Visitors can join your affiliate program in one click.'}
               </p>
             </div>
           ) : (
@@ -649,7 +654,7 @@ export function AdminAffiliation() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium leading-tight truncate font-mono">{link.code}</p>
-                        <Badge variant="secondary" className="text-[10px] bg-primary/15 text-primary mt-0.5">Affilié</Badge>
+                        <Badge variant="secondary" className="text-[10px] bg-primary/15 text-primary mt-0.5">{isFr ? 'Affilié' : 'Affiliate'}</Badge>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-2.5 py-1.5">
@@ -657,10 +662,10 @@ export function AdminAffiliation() {
                       <AffiliateCopyButton text={shareUrl} />
                     </div>
                     <div className="flex items-center gap-4 text-[10px] text-muted-foreground px-0.5">
-                      <span>👆 {link.clicks || 0} clics</span>
-                      <span>✅ {link.conversions || 0} conversions</span>
+                      <span>👆 {link.clicks || 0} {isFr ? 'clics' : 'clicks'}</span>
+                      <span>✅ {link.conversions || 0} {isFr ? 'conversions' : 'conversions'}</span>
                       <span className="text-primary font-semibold ml-auto">
-                        {(link.total_earned || 0).toLocaleString('fr-FR')} {currentOrg.currency} gagnés
+                        {fmt(link.total_earned || 0, currentOrg.currency)} {isFr ? 'gagnés' : 'earned'}
                       </span>
                     </div>
                   </motion.div>
@@ -675,14 +680,16 @@ export function AdminAffiliation() {
 }
 
 export function AdminAnalytics() {
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   return (
-    <AdminPageShell title="Analytiques" backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Analytiques' : 'Analytics'} backRoute="/admin">
       <div className="grid grid-cols-2 gap-3">
-        {['Vues totales', 'Total des dons', 'Revenus totaux', 'Membres actifs'].map((label) => (
+        {(isFr ? ['Vues totales', 'Total des dons', 'Revenus totaux', 'Membres actifs'] : ['Total views', 'Total donations', 'Total revenue', 'Active members']).map((label) => (
           <motion.div key={label} variants={fadeUp} initial="hidden" animate="visible" className="bg-card border border-border rounded-2xl p-5 shadow-card">
             <p className="text-2xl font-bold text-muted-foreground">—</p>
             <p className="text-xs font-medium mt-0.5">{label}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Bientôt disponible</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{isFr ? 'Bientôt disponible' : 'Coming soon'}</p>
           </motion.div>
         ))}
       </div>
@@ -692,15 +699,15 @@ export function AdminAnalytics() {
 
 export function AdminKYC() {
   const { currentOrg } = useOrg();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   return (
-    <AdminPageShell title="Vérification de compte" backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Vérification de compte' : 'Account verification'} backRoute="/admin">
       <div className="space-y-4">
-        {/* Info banner */}
         <div className="p-4 rounded-2xl border border-primary/20 bg-primary/8">
-          <p className="font-semibold text-sm mb-1">💡 La vérification est requise uniquement pour les retraits</p>
+          <p className="font-semibold text-sm mb-1">{isFr ? '💡 La vérification est requise uniquement pour les retraits' : '💡 Verification is only required for withdrawals'}</p>
           <p className="text-xs text-muted-foreground">
-            Vous pouvez accepter les dons, vendre des produits et gérer le programme d'affiliation sans vérification.
-            Elle est nécessaire uniquement pour retirer vos revenus.
+            {isFr ? 'Vous pouvez accepter les dons, vendre des produits et gérer le programme d\'affiliation sans vérification. Elle est nécessaire uniquement pour retirer vos revenus.' : 'You can accept donations, sell products and manage the affiliate program without verification. It is only required to withdraw your earnings.'}
           </p>
         </div>
 
@@ -723,6 +730,8 @@ function PixelSettings({ orgId }: { orgId?: string }) {
   const [gt, setGt] = useState('');
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const { data: settings } = useQuery({
     queryKey: ['pixel-settings', orgId],
@@ -753,14 +762,14 @@ function PixelSettings({ orgId }: { orgId?: string }) {
       await db.from('org_page_settings').insert({ organization_id: orgId, ...updates });
     }
     setSaving(false);
-    toast({ title: '✅ Pixels sauvegardés' });
+    toast({ title: isFr ? '✅ Pixels sauvegardés' : '✅ Pixels saved' });
   };
 
   return (
     <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
       <div>
-        <h2 className="font-semibold text-sm">Pixels de tracking</h2>
-        <p className="text-xs text-muted-foreground mt-0.5">Ajoutez vos pixels pour le suivi publicitaire sur votre page publique.</p>
+        <h2 className="font-semibold text-sm">{isFr ? 'Pixels de tracking' : 'Tracking pixels'}</h2>
+        <p className="text-xs text-muted-foreground mt-0.5">{isFr ? 'Ajoutez vos pixels pour le suivi publicitaire sur votre page publique.' : 'Add your pixels for ad tracking on your public page.'}</p>
       </div>
       <div className="grid gap-3">
         <div className="space-y-1.5">
@@ -777,7 +786,7 @@ function PixelSettings({ orgId }: { orgId?: string }) {
         </div>
       </div>
       <Button size="sm" className="bg-primary text-primary-foreground" onClick={handleSave} disabled={saving}>
-        {saving ? 'Sauvegarde…' : 'Sauvegarder les pixels'}
+        {saving ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder les pixels' : 'Save pixels')}
       </Button>
     </div>
   );
@@ -788,6 +797,8 @@ function WebhookSettings({ orgId }: { orgId?: string }) {
   const [webhookEvents, setWebhookEvents] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const { data: org } = useQuery({
     queryKey: ['org-webhook', orgId],
@@ -817,21 +828,21 @@ function WebhookSettings({ orgId }: { orgId?: string }) {
     setSaving(true);
     await db.from('organizations').update({ webhook_url: webhookUrl.trim() || null, webhook_events: webhookEvents }).eq('id', orgId);
     setSaving(false);
-    toast({ title: '✅ Webhooks sauvegardés' });
+    toast({ title: isFr ? '✅ Webhooks sauvegardés' : '✅ Webhooks saved' });
   };
 
   return (
     <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
       <div>
         <h2 className="font-semibold text-sm">Webhooks (Zapier / Make)</h2>
-        <p className="text-xs text-muted-foreground mt-0.5">Envoyez automatiquement les événements vers un outil externe.</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{isFr ? 'Envoyez automatiquement les événements vers un outil externe.' : 'Automatically send events to an external tool.'}</p>
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs font-medium">URL du webhook</Label>
+        <Label className="text-xs font-medium">{isFr ? 'URL du webhook' : 'Webhook URL'}</Label>
         <Input value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)} placeholder="https://hooks.zapier.com/..." className="h-8 text-xs font-mono" />
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs font-medium">Événements à envoyer</Label>
+        <Label className="text-xs font-medium">{isFr ? 'Événements à envoyer' : 'Events to send'}</Label>
         <div className="flex flex-wrap gap-2">
           {allEvents.map(ev => (
             <Badge
@@ -844,10 +855,10 @@ function WebhookSettings({ orgId }: { orgId?: string }) {
             </Badge>
           ))}
         </div>
-        <p className="text-[10px] text-muted-foreground">Si aucun n'est sélectionné, tous les événements seront envoyés.</p>
+        <p className="text-[10px] text-muted-foreground">{isFr ? 'Si aucun n\'est sélectionné, tous les événements seront envoyés.' : 'If none are selected, all events will be sent.'}</p>
       </div>
       <Button size="sm" className="bg-primary text-primary-foreground" onClick={handleSave} disabled={saving}>
-        {saving ? 'Sauvegarde…' : 'Sauvegarder les webhooks'}
+        {saving ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder les webhooks' : 'Save webhooks')}
       </Button>
     </div>
   );
@@ -857,6 +868,8 @@ function PopupSettings({ orgId }: { orgId?: string }) {
   const { data: pageSettings } = useOrgPageSettings(orgId);
   const upsert = useUpsertOrgPageSettings();
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const popupConfig = (pageSettings?.popup_config as any) || { enabled: false };
   const [enabled, setEnabled] = useState(popupConfig.enabled || false);
@@ -889,52 +902,52 @@ function PopupSettings({ orgId }: { orgId?: string }) {
       },
     });
     setSaving(false);
-    toast({ title: '✅ Popup sauvegardé' });
+    toast({ title: isFr ? '✅ Popup sauvegardé' : '✅ Popup saved' });
   };
 
   return (
     <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
       <div>
-        <h2 className="font-semibold text-sm">Popup intelligent</h2>
-        <p className="text-xs text-muted-foreground mt-0.5">Affichez un popup sur votre page publique pour capter les visiteurs.</p>
+        <h2 className="font-semibold text-sm">{isFr ? 'Popup intelligent' : 'Smart popup'}</h2>
+        <p className="text-xs text-muted-foreground mt-0.5">{isFr ? 'Affichez un popup sur votre page publique pour capter les visiteurs.' : 'Display a popup on your public page to capture visitors.'}</p>
       </div>
       <div className="flex items-center justify-between">
-        <Label className="text-xs font-medium">Activer le popup</Label>
+        <Label className="text-xs font-medium">{isFr ? 'Activer le popup' : 'Enable popup'}</Label>
         <Switch checked={enabled} onCheckedChange={setEnabled} />
       </div>
       {enabled && (
         <div className="grid gap-3">
           <div className="space-y-1.5">
-            <Label className="text-xs">Titre</Label>
-            <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Ne partez pas si vite !" className="h-8 text-xs" />
+            <Label className="text-xs">{isFr ? 'Titre' : 'Title'}</Label>
+            <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={isFr ? 'Ne partez pas si vite !' : "Don't leave so fast!"} className="h-8 text-xs" />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Message</Label>
-            <Textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="Rejoignez-nous..." rows={2} className="text-xs" />
+            <Label className="text-xs">{isFr ? 'Message' : 'Message'}</Label>
+            <Textarea value={message} onChange={e => setMessage(e.target.value)} placeholder={isFr ? 'Rejoignez-nous...' : 'Join us...'} rows={2} className="text-xs" />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Texte du bouton</Label>
-            <Input value={ctaText} onChange={e => setCtaText(e.target.value)} placeholder="S'inscrire" className="h-8 text-xs" />
+            <Label className="text-xs">{isFr ? 'Texte du bouton' : 'Button text'}</Label>
+            <Input value={ctaText} onChange={e => setCtaText(e.target.value)} placeholder={isFr ? "S'inscrire" : 'Sign up'} className="h-8 text-xs" />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Déclencheur</Label>
+            <Label className="text-xs">{isFr ? 'Déclencheur' : 'Trigger'}</Label>
             <Select value={trigger} onValueChange={setTrigger}>
               <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="exit_intent">Intention de sortie</SelectItem>
-                <SelectItem value="scroll_50">Scroll 50%</SelectItem>
-                <SelectItem value="timer_10s">Après 10 secondes</SelectItem>
+                <SelectItem value="exit_intent">{isFr ? 'Intention de sortie' : 'Exit intent'}</SelectItem>
+                <SelectItem value="scroll_50">{isFr ? 'Scroll 50%' : 'Scroll 50%'}</SelectItem>
+                <SelectItem value="timer_10s">{isFr ? 'Après 10 secondes' : 'After 10 seconds'}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="flex items-center justify-between">
-            <Label className="text-xs">Collecter les emails</Label>
+            <Label className="text-xs">{isFr ? 'Collecter les emails' : 'Collect emails'}</Label>
             <Switch checked={collectEmail} onCheckedChange={setCollectEmail} />
           </div>
         </div>
       )}
       <Button size="sm" className="bg-primary text-primary-foreground" onClick={handleSave} disabled={saving}>
-        {saving ? 'Sauvegarde…' : 'Sauvegarder le popup'}
+        {saving ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder le popup' : 'Save popup')}
       </Button>
     </div>
   );
@@ -946,6 +959,8 @@ export function AdminSettings() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const orgAny = currentOrg as any;
 
@@ -969,8 +984,8 @@ export function AdminSettings() {
   const handleSlugChange = (v: string) => {
     const clean = slugify(v);
     setOrgSlug(clean);
-    if (clean.length < 3) setSlugError('Minimum 3 caractères');
-    else if (!/^[a-z0-9-]+$/.test(clean)) setSlugError('Lettres minuscules, chiffres et tirets uniquement');
+    if (clean.length < 3) setSlugError(isFr ? 'Minimum 3 caractères' : 'Minimum 3 characters');
+    else if (!/^[a-z0-9-]+$/.test(clean)) setSlugError(isFr ? 'Lettres minuscules, chiffres et tirets uniquement' : 'Lowercase letters, numbers and hyphens only');
     else setSlugError('');
   };
 
@@ -1030,9 +1045,9 @@ export function AdminSettings() {
       .eq('id', currentOrg.id);
     setSavingOfferings(false);
     if (error) {
-      toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
+      toast({ title: isFr ? 'Erreur' : 'Error', description: error.message, variant: 'destructive' });
     } else {
-      toast({ title: '✅ Module Dons sauvegardé' });
+      toast({ title: isFr ? '✅ Module Dons sauvegardé' : '✅ Donations module saved' });
       refetchOrgs();
     }
   };
@@ -1045,11 +1060,11 @@ export function AdminSettings() {
       return;
     }
     if (slugError) {
-      toast({ title: 'Slug invalide', description: slugError, variant: 'destructive' });
+      toast({ title: isFr ? 'Slug invalide' : 'Invalid slug', description: slugError, variant: 'destructive' });
       return;
     }
     if (orgSlug.length < 3) {
-      toast({ title: 'Slug trop court', description: 'Minimum 3 caractères.', variant: 'destructive' });
+      toast({ title: isFr ? 'Slug trop court' : 'Slug too short', description: isFr ? 'Minimum 3 caractères.' : 'Minimum 3 characters.', variant: 'destructive' });
       return;
     }
     setSavingProfile(true);
@@ -1063,7 +1078,7 @@ export function AdminSettings() {
         .maybeSingle();
       if (existing) {
         setSavingProfile(false);
-        toast({ title: 'Slug déjà utilisé', description: 'Choisissez un autre identifiant URL.', variant: 'destructive' });
+        toast({ title: isFr ? 'Slug déjà utilisé' : 'Slug already taken', description: isFr ? 'Choisissez un autre identifiant URL.' : 'Choose a different URL identifier.', variant: 'destructive' });
         return;
       }
     }
@@ -1098,7 +1113,7 @@ export function AdminSettings() {
         qc.invalidateQueries({ queryKey: ['admin-products'] });
         qc.invalidateQueries({ queryKey: ['discover'] });
       }
-      toast({ title: '✅ Profil sauvegardé' });
+      toast({ title: '✅ ' + (isFr ? 'Profil sauvegardé' : 'Profile saved') });
       refetchOrgs();
       qc.invalidateQueries({ queryKey: ['org-by-slug'] });
       qc.invalidateQueries({ queryKey: ['org-by-id'] });
@@ -1173,9 +1188,9 @@ export function AdminSettings() {
       .eq('id', currentOrg.id);
     setSavingLeader(false);
     if (error) {
-      toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
+      toast({ title: isFr ? 'Erreur' : 'Error', description: error.message, variant: 'destructive' });
     } else {
-      toast({ title: '✅ Biographie du leader sauvegardée' });
+      toast({ title: isFr ? '✅ Biographie du leader sauvegardée' : '✅ Leader biography saved' });
       refetchOrgs();
       qc.invalidateQueries({ queryKey: ['org-by-slug'] });
       qc.invalidateQueries({ queryKey: ['org-by-id'] });
@@ -1183,16 +1198,16 @@ export function AdminSettings() {
   };
 
   return (
-    <AdminPageShell title="Paramètres" backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Paramètres' : 'Settings'} backRoute="/admin">
       <div className="space-y-4">
 
         {/* ── PROFILE ── */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-          <h2 className="font-semibold text-sm">Profil de l'organisation</h2>
+          <h2 className="font-semibold text-sm">{isFr ? 'Profil de l\'organisation' : 'Organization profile'}</h2>
 
           {/* Banner upload */}
           <div className="space-y-2">
-            <Label className="text-xs font-medium">Image de bannière</Label>
+            <Label className="text-xs font-medium">{isFr ? 'Image de bannière' : 'Banner image'}</Label>
             <div
               className="relative h-32 rounded-xl overflow-hidden border-2 border-dashed border-border bg-muted/40 cursor-pointer group"
               onClick={() => document.getElementById('banner-upload')?.click()}
@@ -1201,11 +1216,11 @@ export function AdminSettings() {
                 ? <img src={bannerUrl} alt="Banner" className="w-full h-full object-cover" />
                 : <div className="w-full h-full flex flex-col items-center justify-center gap-1">
                     <span className="text-2xl">🖼️</span>
-                    <span className="text-xs text-muted-foreground">Cliquez pour télécharger la bannière (16:9 recommandé)</span>
+                    <span className="text-xs text-muted-foreground">{isFr ? 'Cliquez pour télécharger la bannière (16:9 recommandé)' : 'Click to upload banner (16:9 recommended)'}</span>
                   </div>
               }
               <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span className="text-white text-xs font-medium">Changer la bannière</span>
+                <span className="text-white text-xs font-medium">{isFr ? 'Changer la bannière' : 'Change banner'}</span>
               </div>
               <input id="banner-upload" type="file" accept="image/*" className="hidden"
                 onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadImage(f, 'banner'); }} />
@@ -1214,7 +1229,7 @@ export function AdminSettings() {
 
           {/* Logo upload */}
           <div className="space-y-2">
-            <Label className="text-xs font-medium">Logo / Photo de profil</Label>
+            <Label className="text-xs font-medium">{isFr ? 'Logo / Photo de profil' : 'Logo / Profile photo'}</Label>
             <div className="flex items-center gap-4">
               <div
                 className="h-16 w-16 rounded-2xl overflow-hidden border-2 border-dashed border-border bg-muted/40 cursor-pointer flex items-center justify-center group shrink-0"
@@ -1227,14 +1242,14 @@ export function AdminSettings() {
                 <input id="logo-upload" type="file" accept="image/*" className="hidden"
                   onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadImage(f, 'logo'); }} />
               </div>
-              <p className="text-xs text-muted-foreground">Image carrée recommandée. Apparaîtra comme avatar de votre organisation sur la plateforme.</p>
+              <p className="text-xs text-muted-foreground">{isFr ? 'Image carrée recommandée. Apparaîtra comme avatar de votre organisation sur la plateforme.' : 'Square image recommended. Will appear as your organization avatar on the platform.'}</p>
             </div>
           </div>
 
           {/* Text fields */}
           <div className="grid gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="org-name" className="text-xs font-medium">Nom de l'organisation</Label>
+              <Label htmlFor="org-name" className="text-xs font-medium">{isFr ? 'Nom de l\'organisation' : 'Organization name'}</Label>
               <Input id="org-name" value={orgName} onChange={e => setOrgName(e.target.value)} className="h-8 text-xs" />
             </div>
             <div className="space-y-1.5">
@@ -1244,17 +1259,17 @@ export function AdminSettings() {
                 rows={3}
                 value={description}
                 onChange={e => setDescription(e.target.value)}
-                placeholder="Décrivez votre organisation aux visiteurs…"
+                placeholder={isFr ? 'Décrivez votre organisation aux visiteurs…' : 'Describe your organization to visitors…'}
                 className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="org-website" className="text-xs font-medium">Site web</Label>
+                <Label htmlFor="org-website" className="text-xs font-medium">{isFr ? 'Site web' : 'Website'}</Label>
                 <Input id="org-website" value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://yourchurch.com" className="h-8 text-xs" />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="org-whatsapp" className="text-xs font-medium">Numéro WhatsApp</Label>
+                <Label htmlFor="org-whatsapp" className="text-xs font-medium">{isFr ? 'Numéro WhatsApp' : 'WhatsApp number'}</Label>
                 <Input id="org-whatsapp" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="+225 07 00 00 00 00" className="h-8 text-xs" />
               </div>
             </div>
@@ -1262,7 +1277,7 @@ export function AdminSettings() {
 
           {/* Editable slug */}
           <div className="space-y-2 border-t border-border/60 pt-3">
-            <Label htmlFor="org-slug" className="text-xs font-medium">Lien public personnalisé</Label>
+            <Label htmlFor="org-slug" className="text-xs font-medium">{isFr ? 'Lien public personnalisé' : 'Custom public link'}</Label>
             <div className="flex items-center gap-0 bg-muted/50 rounded-lg overflow-hidden border border-border">
               <span className="text-[11px] text-muted-foreground px-3 py-2 shrink-0 bg-muted/80 border-r border-border">
                 siteviral.com/org/
@@ -1277,7 +1292,7 @@ export function AdminSettings() {
             </div>
             {slugError && <p className="text-xs text-destructive">{slugError}</p>}
             <p className="text-[11px] text-muted-foreground">
-              C'est le lien à partager pour que les membres rejoignent votre communauté.
+              {isFr ? 'C\'est le lien à partager pour que les membres rejoignent votre communauté.' : 'This is the link to share for members to join your community.'}
             </p>
           </div>
 
@@ -1285,11 +1300,11 @@ export function AdminSettings() {
           <div className="grid gap-3 border-t border-border/60 pt-3">
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="org-currency" className="text-xs font-medium">Devise</Label>
+                <Label htmlFor="org-currency" className="text-xs font-medium">{isFr ? 'Devise' : 'Currency'}</Label>
                 <CurrencySelector value={orgCurrency} onChange={(c) => setOrgCurrency(c)} className="h-8 text-xs" />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="org-country" className="text-xs font-medium">Pays</Label>
+                <Label htmlFor="org-country" className="text-xs font-medium">{isFr ? 'Pays' : 'Country'}</Label>
                 <Input id="org-country" value={orgCountry} onChange={e => setOrgCountry(e.target.value)} placeholder="Ex: CI, SN, FR…" className="h-8 text-xs" />
               </div>
             </div>
@@ -1305,16 +1320,16 @@ export function AdminSettings() {
             onClick={handleSaveProfile}
             disabled={savingProfile}
           >
-            {savingProfile ? 'Sauvegarde…' : 'Sauvegarder le profil'}
+            {savingProfile ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder le profil' : 'Save profile')}
           </Button>
         </div>
 
         {/* ── LEADER BIOGRAPHY ── */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
           <div>
-            <h2 className="font-semibold text-sm">Biographie du Leader</h2>
+            <h2 className="font-semibold text-sm">{isFr ? 'Biographie du Leader' : 'Leader biography'}</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Présentez le leader de votre organisation aux visiteurs de votre page publique.
+              {isFr ? 'Présentez le leader de votre organisation aux visiteurs de votre page publique.' : 'Present your organization\'s leader to your public page visitors.'}
             </p>
           </div>
 
@@ -1331,28 +1346,28 @@ export function AdminSettings() {
               <input id="leader-upload" type="file" accept="image/*" className="hidden"
                 onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadLeaderImage(f); }} />
             </div>
-            <p className="text-xs text-muted-foreground">Photo du leader (carrée recommandée)</p>
+            <p className="text-xs text-muted-foreground">{isFr ? 'Photo du leader (carrée recommandée)' : 'Leader photo (square recommended)'}</p>
           </div>
 
           <div className="grid gap-3">
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="leader-name" className="text-xs font-medium">Nom du leader</Label>
+                <Label htmlFor="leader-name" className="text-xs font-medium">{isFr ? 'Nom du leader' : 'Leader name'}</Label>
                 <Input id="leader-name" value={leaderName} onChange={e => setLeaderName(e.target.value)} placeholder="Ex: Pasteur Jean Dupont" className="h-8 text-xs" />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="leader-title" className="text-xs font-medium">Titre / Fonction</Label>
+                <Label htmlFor="leader-title" className="text-xs font-medium">{isFr ? 'Titre / Fonction' : 'Title / Role'}</Label>
                 <Input id="leader-title" value={leaderTitle} onChange={e => setLeaderTitle(e.target.value)} placeholder="Ex: Pasteur Principal, Fondateur…" className="h-8 text-xs" />
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="leader-bio" className="text-xs font-medium">Biographie</Label>
+              <Label htmlFor="leader-bio" className="text-xs font-medium">{isFr ? 'Biographie' : 'Biography'}</Label>
               <textarea
                 id="leader-bio"
                 rows={4}
                 value={leaderBio}
                 onChange={e => setLeaderBio(e.target.value)}
-                placeholder="Présentez le parcours, la vision et la mission du leader…"
+                placeholder={isFr ? 'Présentez le parcours, la vision et la mission du leader…' : 'Present the leader\'s background, vision and mission…'}
                 className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
@@ -1364,7 +1379,7 @@ export function AdminSettings() {
             onClick={handleSaveLeader}
             disabled={savingLeader}
           >
-            {savingLeader ? 'Sauvegarde…' : 'Sauvegarder la biographie'}
+            {savingLeader ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder la biographie' : 'Save biography')}
           </Button>
         </div>
 
@@ -1380,13 +1395,13 @@ export function AdminSettings() {
         {/* ── MODULE DONS ── */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
           <div>
-            <h2 className="font-semibold text-sm">Module Dons</h2>
+            <h2 className="font-semibold text-sm">{isFr ? 'Module Dons' : 'Donations module'}</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Activez cette fonctionnalité pour permettre à vos membres de faire des dons (dîmes, offrandes, contributions libres, etc.). Chaque type de don est personnalisable.
+              {isFr ? 'Activez cette fonctionnalité pour permettre à vos membres de faire des dons (dîmes, offrandes, contributions libres, etc.). Chaque type de don est personnalisable.' : 'Enable this feature to allow your members to make donations (tithes, offerings, free contributions, etc.). Each donation type is customizable.'}
             </p>
           </div>
           <div className="flex items-center justify-between">
-            <Label htmlFor="offerings-toggle" className="text-xs font-medium">Activer le module Dons</Label>
+            <Label htmlFor="offerings-toggle" className="text-xs font-medium">{isFr ? 'Activer le module Dons' : 'Enable donations module'}</Label>
             <Switch id="offerings-toggle" checked={offeringsEnabled} onCheckedChange={setOfferingsEnabled} />
           </div>
           <Button
@@ -1395,27 +1410,27 @@ export function AdminSettings() {
             onClick={handleSaveOfferings}
             disabled={savingOfferings}
           >
-            {savingOfferings ? 'Sauvegarde…' : 'Sauvegarder'}
+            {savingOfferings ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder' : 'Save')}
           </Button>
         </div>
 
         {/* ── AFFILIATION ── */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
           <div>
-            <h2 className="font-semibold text-sm">Programme d'affiliation</h2>
+            <h2 className="font-semibold text-sm">{isFr ? 'Programme d\'affiliation' : 'Affiliate program'}</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Permettez aux membres de gagner des commissions en partageant des liens de parrainage.
+              {isFr ? 'Permettez aux membres de gagner des commissions en partageant des liens de parrainage.' : 'Allow members to earn commissions by sharing referral links.'}
             </p>
           </div>
 
           <div className="flex items-center justify-between">
-            <Label htmlFor="affiliation-toggle" className="text-xs font-medium">Activer l'affiliation</Label>
+            <Label htmlFor="affiliation-toggle" className="text-xs font-medium">{isFr ? 'Activer l\'affiliation' : 'Enable affiliation'}</Label>
             <Switch id="affiliation-toggle" checked={affiliationEnabled} onCheckedChange={setAffiliationEnabled} />
           </div>
 
           {affiliationEnabled && (
             <div className="space-y-2">
-              <Label htmlFor="commission-pct" className="text-xs font-medium">Taux de commission (%)</Label>
+              <Label htmlFor="commission-pct" className="text-xs font-medium">{isFr ? 'Taux de commission (%)' : 'Commission rate (%)'}</Label>
               <div className="flex items-center gap-2">
                 <Input
                   id="commission-pct"
@@ -1426,7 +1441,7 @@ export function AdminSettings() {
                   onChange={e => setCommissionPercent(e.target.value)}
                   className="h-8 text-xs w-24"
                 />
-                <span className="text-xs text-muted-foreground">% par vente/don via lien affilié</span>
+                <span className="text-xs text-muted-foreground">{isFr ? '% par vente/don via lien affilié' : '% per sale/donation via affiliate link'}</span>
               </div>
             </div>
           )}
@@ -1437,7 +1452,7 @@ export function AdminSettings() {
             onClick={handleSaveAffiliation}
             disabled={savingAffiliation}
           >
-            {savingAffiliation ? 'Sauvegarde…' : 'Sauvegarder l\'affiliation'}
+            {savingAffiliation ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder l\'affiliation' : 'Save affiliation')}
           </Button>
         </div>
 
@@ -1446,26 +1461,26 @@ export function AdminSettings() {
           <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-5 space-y-3">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-destructive" />
-              <h2 className="font-semibold text-sm text-destructive">Zone dangereuse</h2>
+              <h2 className="font-semibold text-sm text-destructive">{isFr ? 'Zone dangereuse' : 'Danger zone'}</h2>
             </div>
             <p className="text-xs text-muted-foreground">
-              La suppression est irréversible. Toutes les données (médias, événements, dons, produits, membres) seront définitivement perdues.
+              {isFr ? 'La suppression est irréversible. Toutes les données (médias, événements, dons, produits, membres) seront définitivement perdues.' : 'Deletion is irreversible. All data (media, events, donations, products, members) will be permanently lost.'}
             </p>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" size="sm" className="text-xs gap-1.5">
-                  <Trash2 className="h-3.5 w-3.5" /> Supprimer cette organisation
+                  <Trash2 className="h-3.5 w-3.5" /> {isFr ? 'Supprimer cette organisation' : 'Delete this organization'}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Supprimer « {currentOrg?.name} » ?</AlertDialogTitle>
+                  <AlertDialogTitle>{isFr ? `Supprimer « ${currentOrg?.name} » ?` : `Delete "${currentOrg?.name}"?`}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Cette action est irréversible. Tous les médias, événements, dons, produits, membres et données associées seront définitivement supprimés.
+                    {isFr ? 'Cette action est irréversible. Tous les médias, événements, dons, produits, membres et données associées seront définitivement supprimés.' : 'This action is irreversible. All media, events, donations, products, members and associated data will be permanently deleted.'}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                  <AlertDialogCancel>{isFr ? 'Annuler' : 'Cancel'}</AlertDialogCancel>
                   <AlertDialogAction
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     onClick={async () => {
@@ -1474,15 +1489,15 @@ export function AdminSettings() {
                         if (error) throw error;
                         const result = data as any;
                         const notified = result?.members_notified || 0;
-                        toast({ title: '✅ Organisation supprimée', description: notified > 0 ? `${notified} membre(s) notifié(s).` : undefined });
+                        toast({ title: isFr ? '✅ Organisation supprimée' : '✅ Organization deleted', description: notified > 0 ? (isFr ? `${notified} membre(s) notifié(s).` : `${notified} member(s) notified.`) : undefined });
                         qc.invalidateQueries({ queryKey: ['user-memberships'] });
                         navigate('/dashboard');
                       } catch (e: any) {
-                        toast({ title: 'Erreur', description: e.message, variant: 'destructive' });
+                        toast({ title: isFr ? 'Erreur' : 'Error', description: e.message, variant: 'destructive' });
                       }
                     }}
                   >
-                    Supprimer définitivement
+                    {isFr ? 'Supprimer définitivement' : 'Delete permanently'}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -1490,7 +1505,7 @@ export function AdminSettings() {
           </div>
         )}
 
-        <p className="text-xs text-muted-foreground text-center">Contactez le support pour modifier le plan, le pays ou la devise.</p>
+        <p className="text-xs text-muted-foreground text-center">{isFr ? 'Contactez le support pour modifier le plan, le pays ou la devise.' : 'Contact support to change the plan, country, or currency.'}</p>
       </div>
       {/* Crop Dialog */}
       {settingsCropSrc && (

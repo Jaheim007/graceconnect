@@ -69,7 +69,8 @@ const fadeUp = {
 export default function AdminDashboard() {
   const { currentOrg } = useOrg();
   const navigate = useNavigate();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const isFr = locale === 'fr';
   const [showQuickStart, setShowQuickStart] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   useBehavioralNotifications();
@@ -129,7 +130,7 @@ export default function AdminDashboard() {
 
   const chartData = useMemo(() =>
     dailyMetrics.map((d: any) => ({
-      date: new Date(d.metric_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }),
+      date: new Date(d.metric_date).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US', { day: '2-digit', month: 'short' }),
       revenue: d.revenue || 0,
       transactions: d.transactions_count || 0,
       members: d.new_members || 0,
@@ -251,7 +252,7 @@ export default function AdminDashboard() {
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-sm">{t('admin.complete_verification')}</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {t('admin.accept_payments')} — Les fonds sont retenus jusqu'à la vérification d'identité.
+                {t('admin.accept_payments')} — {isFr ? 'Les fonds sont retenus jusqu\'à la vérification d\'identité.' : 'Funds are held until identity verification.'}
               </p>
             </div>
           </div>
@@ -375,7 +376,7 @@ export default function AdminDashboard() {
       {/* Revenue chart */}
       {chartData.length > 1 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-2xl p-5">
-          <h2 className="font-semibold text-sm mb-4">{t('admin.total_sales')} — 30 derniers jours</h2>
+          <h2 className="font-semibold text-sm mb-4">{t('admin.total_sales')} — {isFr ? '30 derniers jours' : 'Last 30 days'}</h2>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
@@ -407,9 +408,9 @@ export default function AdminDashboard() {
           className="w-full flex items-center justify-between p-4 bg-card hover:bg-muted/50 transition-colors text-left"
         >
           <div>
-            <h2 className="font-semibold text-sm">Outils de croissance avancés</h2>
+            <h2 className="font-semibold text-sm">{isFr ? 'Outils de croissance avancés' : 'Advanced growth tools'}</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Objectifs, simulations, idées, analytics et CRM
+              {isFr ? 'Objectifs, simulations, idées, analytics et CRM' : 'Goals, simulations, ideas, analytics and CRM'}
             </p>
           </div>
           <ChevronDown className={cn('h-5 w-5 text-muted-foreground transition-transform', showAdvanced && 'rotate-180')} />

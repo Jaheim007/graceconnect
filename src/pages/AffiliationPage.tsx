@@ -40,7 +40,8 @@ export default function AffiliationPage() {
   const { userOrgs } = useOrg();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const isFr = locale === 'fr';
   const qc = useQueryClient();
   const [activeTab, setActiveTab] = useState<AffiliationTab>('mes-liens');
   const [requestingAffiliate, setRequestingAffiliate] = useState<string | null>(null);
@@ -135,27 +136,27 @@ export default function AffiliationPage() {
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
-      toast({ title: 'Vous êtes ambassadeur !', description: 'Votre lien est prêt à être partagé.' });
+      toast({ title: isFr ? 'Vous êtes ambassadeur !' : 'You are now an ambassador!', description: isFr ? 'Votre lien est prêt à être partagé.' : 'Your link is ready to share.' });
       qc.invalidateQueries({ queryKey: ['user-affiliate-links'] });
       qc.invalidateQueries({ queryKey: ['user-memberships'] });
       qc.invalidateQueries({ queryKey: ['all-affiliate-orgs'] });
     },
-    onError: (err: Error) => { toast({ title: 'Erreur', description: err.message, variant: 'destructive' }); },
+    onError: (err: Error) => { toast({ title: isFr ? 'Erreur' : 'Error', description: err.message, variant: 'destructive' }); },
   });
 
   const handleRequestPayout = async (orgId: string, orgKycStatus: string) => {
     if (orgKycStatus === 'none' || orgKycStatus === 'pending') {
-      toast({ title: 'Vérification requise', description: 'Complétez la vérification d\'identité avant de demander un retrait.' });
+      toast({ title: isFr ? 'Vérification requise' : 'Verification required', description: isFr ? 'Complétez la vérification d\'identité avant de demander un retrait.' : 'Complete identity verification before requesting a withdrawal.' });
       navigate('/admin/kyc');
       return;
     }
     setRequestingPayout(orgId);
     try {
       const result = await requestAffiliatePayout(orgId);
-      toast({ title: 'Retrait demandé', description: `Montant : ${result.amount?.toLocaleString() || '0'} XOF` });
+      toast({ title: isFr ? 'Retrait demandé' : 'Withdrawal requested', description: `${isFr ? 'Montant' : 'Amount'} : ${fmt(result.amount || 0)}` });
       qc.invalidateQueries({ queryKey: ['user-affiliate-sales'] });
     } catch (err: unknown) {
-      toast({ title: 'Échec', description: err instanceof Error ? err.message : '', variant: 'destructive' });
+      toast({ title: isFr ? 'Échec' : 'Failed', description: err instanceof Error ? err.message : '', variant: 'destructive' });
     } finally { setRequestingPayout(null); }
   };
 
@@ -169,9 +170,9 @@ export default function AffiliationPage() {
   }
 
   const tabs: { key: AffiliationTab; label: string; icon: typeof Link2 }[] = [
-    { key: 'mes-liens', label: 'Mes liens', icon: Link2 },
-    { key: 'decouvrir', label: 'Découvrir', icon: Search },
-    { key: 'resultats', label: 'Résultats', icon: TrendingUp },
+    { key: 'mes-liens', label: isFr ? 'Mes liens' : 'My links', icon: Link2 },
+    { key: 'decouvrir', label: isFr ? 'Découvrir' : 'Discover', icon: Search },
+    { key: 'resultats', label: isFr ? 'Résultats' : 'Results', icon: TrendingUp },
   ];
 
   return (
@@ -181,10 +182,10 @@ export default function AffiliationPage() {
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight flex items-center gap-2">
-            <Link2 className="h-6 w-6 text-primary" /> Gagner — Programme Ambassadeur
+            <Link2 className="h-6 w-6 text-primary" /> {isFr ? 'Gagner — Programme Ambassadeur' : 'Earn — Ambassador Program'}
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Partagez des produits et gagnez des commissions sur chaque vente.
+            {isFr ? 'Partagez des produits et gagnez des commissions sur chaque vente.' : 'Share products and earn commissions on every sale.'}
           </p>
         </motion.div>
 
@@ -199,10 +200,10 @@ export default function AffiliationPage() {
           className="grid grid-cols-2 sm:grid-cols-4 gap-3"
         >
           {[
-            { label: 'Liens actifs', value: filteredAffiliateLinks.length, colorClass: '' },
-            { label: 'Clics totaux', value: totalClicks, colorClass: '' },
-            { label: 'Conversions', value: totalConversions, colorClass: 'text-primary' },
-            { label: 'Gains totaux', value: fmt(totalEarned), colorClass: 'text-green-600 dark:text-green-400' },
+            { label: isFr ? 'Liens actifs' : 'Active links', value: filteredAffiliateLinks.length, colorClass: '' },
+            { label: isFr ? 'Clics totaux' : 'Total clicks', value: totalClicks, colorClass: '' },
+            { label: isFr ? 'Conversions' : 'Conversions', value: totalConversions, colorClass: 'text-primary' },
+            { label: isFr ? 'Gains totaux' : 'Total earnings', value: fmt(totalEarned), colorClass: 'text-green-600 dark:text-green-400' },
           ].map(s => (
             <div key={s.label} className="rounded-xl bg-card border border-border p-3 text-center shadow-card">
               <p className={cn('text-lg font-bold', s.colorClass)}>{s.value}</p>
@@ -237,8 +238,8 @@ export default function AffiliationPage() {
               <div className="flex items-center gap-3 bg-green-500/10 border border-green-500/20 rounded-xl p-3">
                 <Wallet className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0" />
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-green-700 dark:text-green-300">{fmt(payableCommission)} disponible(s) pour retrait</p>
-                  {pendingCommission > 0 && <p className="text-[10px] text-muted-foreground">{fmt(pendingCommission)} en attente de validation</p>}
+                  <p className="text-sm font-semibold text-green-700 dark:text-green-300">{fmt(payableCommission)} {isFr ? 'disponible(s) pour retrait' : 'available for withdrawal'}</p>
+                  {pendingCommission > 0 && <p className="text-[10px] text-muted-foreground">{fmt(pendingCommission)} {isFr ? 'en attente de validation' : 'pending validation'}</p>}
                 </div>
               </div>
             )}
@@ -246,10 +247,10 @@ export default function AffiliationPage() {
             {aLoading ? <SkeletonRow count={3} /> : filteredAffiliateLinks.length === 0 ? (
               <div className="text-center py-12 space-y-3">
                 <Link2 className="h-10 w-10 text-muted-foreground/40 mx-auto" />
-                <p className="text-sm font-medium text-muted-foreground">Aucun lien ambassadeur</p>
-                <p className="text-xs text-muted-foreground max-w-xs mx-auto">Découvrez les plateformes avec un programme ambassadeur et commencez à gagner des commissions.</p>
+                <p className="text-sm font-medium text-muted-foreground">{isFr ? 'Aucun lien ambassadeur' : 'No ambassador links'}</p>
+                <p className="text-xs text-muted-foreground max-w-xs mx-auto">{isFr ? 'Découvrez les plateformes avec un programme ambassadeur et commencez à gagner des commissions.' : 'Discover platforms with an ambassador program and start earning commissions.'}</p>
                 <Button size="sm" onClick={() => setActiveTab('decouvrir')} className="mt-2 gap-1.5">
-                  <Search className="h-3.5 w-3.5" /> Découvrir des programmes
+                  <Search className="h-3.5 w-3.5" /> {isFr ? 'Découvrir des programmes' : 'Discover programs'}
                 </Button>
               </div>
             ) : (
@@ -273,7 +274,7 @@ export default function AffiliationPage() {
                           <p className="text-[10px] text-muted-foreground font-mono">{l.code}</p>
                         </div>
                         <Badge variant="outline" className={cn('text-[10px] border-0', l.is_active ? 'bg-green-500/10 text-green-600' : 'bg-muted text-muted-foreground')}>
-                          {l.is_active ? 'Actif' : 'Inactif'}
+                          {l.is_active ? (isFr ? 'Actif' : 'Active') : (isFr ? 'Inactif' : 'Inactive')}
                         </Badge>
                         {l.organizations?.affiliation_commission_percent && (
                           <Badge className="bg-primary/10 text-primary border-0 text-[10px]">{l.organizations.affiliation_commission_percent}%</Badge>
@@ -282,15 +283,15 @@ export default function AffiliationPage() {
                       <div className="grid grid-cols-3 gap-2 text-center">
                         <div className="rounded-lg bg-muted/50 p-2">
                           <p className="text-sm font-bold">{l.clicks || 0}</p>
-                          <p className="text-[10px] text-muted-foreground">Clics</p>
+                          <p className="text-[10px] text-muted-foreground">{isFr ? 'Clics' : 'Clicks'}</p>
                         </div>
                         <div className="rounded-lg bg-muted/50 p-2">
                           <p className="text-sm font-bold">{l.conversions || 0}</p>
-                          <p className="text-[10px] text-muted-foreground">Conversions</p>
+                          <p className="text-[10px] text-muted-foreground">{isFr ? 'Conversions' : 'Conversions'}</p>
                         </div>
                         <div className="rounded-lg bg-primary/10 p-2">
                           <p className="text-sm font-bold text-primary">{fmt(l.total_earned || 0)}</p>
-                          <p className="text-[10px] text-muted-foreground">Gagné</p>
+                          <p className="text-[10px] text-muted-foreground">{isFr ? 'Gagné' : 'Earned'}</p>
                         </div>
                       </div>
                       <AffiliateShareTools shareUrl={shareUrl} orgName={l.organizations?.name || ''} affiliateCode={l.code} />
@@ -304,8 +305,8 @@ export default function AffiliationPage() {
             {/* Payout requests */}
             {Object.keys(payableByOrg).length > 0 && (
               <div className="bg-card border border-border rounded-2xl p-4 space-y-3 shadow-card">
-                <h2 className="font-semibold text-sm flex items-center gap-2"><DollarSign className="h-4 w-4 text-primary" /> Demander un retrait</h2>
-                <p className="text-xs text-muted-foreground">La vérification KYC est requise avant tout retrait. <a href="/ambassador-terms" className="text-primary hover:underline">Voir les conditions</a></p>
+                <h2 className="font-semibold text-sm flex items-center gap-2"><DollarSign className="h-4 w-4 text-primary" /> {isFr ? 'Demander un retrait' : 'Request withdrawal'}</h2>
+                <p className="text-xs text-muted-foreground">{isFr ? 'La vérification KYC est requise avant tout retrait.' : 'KYC verification is required before any withdrawal.'} <a href="/ambassador-terms" className="text-primary hover:underline">{isFr ? 'Voir les conditions' : 'View terms'}</a></p>
                 <div className="space-y-2">
                   {Object.values(payableByOrg).map(({ orgId, amount, currency }) => {
                     const org = userOrgs.find(o => o.id === orgId) || allAffiliateOrgs.find(o => o.id === orgId);
@@ -315,11 +316,11 @@ export default function AffiliationPage() {
                       <div key={orgId} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/30">
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium">{org?.name || orgId}</p>
-                          <p className="text-xs text-primary font-semibold">{fmt(amount, currency)} disponible</p>
+                          <p className="text-xs text-primary font-semibold">{fmt(amount, currency)} {isFr ? 'disponible' : 'available'}</p>
                         </div>
-                        {!kycApproved && <div className="flex items-center gap-1 text-[10px] text-primary"><AlertTriangle className="h-3 w-3" /><span>KYC requis</span></div>}
+                        {!kycApproved && <div className="flex items-center gap-1 text-[10px] text-primary"><AlertTriangle className="h-3 w-3" /><span>{isFr ? 'KYC requis' : 'KYC required'}</span></div>}
                         <Button size="sm" className="h-7 text-xs" disabled={requestingPayout === orgId} onClick={() => handleRequestPayout(orgId, kycStatus)}>
-                          {requestingPayout === orgId ? 'Envoi...' : kycApproved ? 'Retirer' : 'Soumettre KYC'}
+                          {requestingPayout === orgId ? (isFr ? 'Envoi...' : 'Sending...') : kycApproved ? (isFr ? 'Retirer' : 'Withdraw') : (isFr ? 'Soumettre KYC' : 'Submit KYC')}
                         </Button>
                       </div>
                     );
@@ -336,7 +337,7 @@ export default function AffiliationPage() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Rechercher une organisation..."
+               placeholder={isFr ? 'Rechercher une organisation...' : 'Search an organization...'}
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 className="pl-9 h-10 rounded-xl"
@@ -347,8 +348,8 @@ export default function AffiliationPage() {
             {filteredSubscribed.length > 0 && (
               <div className="space-y-3">
                 <div>
-                  <h2 className="font-semibold text-sm flex items-center gap-2"><Sparkle className="h-4 w-4 text-primary" /> Vos abonnements avec programme ambassadeur</h2>
-                  <p className="text-[11px] text-muted-foreground">Plateformes auxquelles vous êtes abonné et qui proposent un programme ambassadeur.</p>
+                  <h2 className="font-semibold text-sm flex items-center gap-2"><Sparkle className="h-4 w-4 text-primary" /> {isFr ? 'Vos abonnements avec programme ambassadeur' : 'Your subscriptions with ambassador program'}</h2>
+                  <p className="text-[11px] text-muted-foreground">{isFr ? 'Plateformes auxquelles vous êtes abonné et qui proposent un programme ambassadeur.' : 'Platforms you are subscribed to that offer an ambassador program.'}</p>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {filteredSubscribed.map((org: any) => (
@@ -371,13 +372,13 @@ export default function AffiliationPage() {
             {/* Other orgs */}
             <div className="space-y-3">
               <div>
-                <h2 className="font-semibold text-sm flex items-center gap-2"><Building2 className="h-4 w-4 text-muted-foreground" /> Tous les programmes ambassadeur</h2>
-                <p className="text-[11px] text-muted-foreground">Classés par taux de commission décroissant. Rejoignez n'importe quel programme pour commencer à gagner.</p>
+                <h2 className="font-semibold text-sm flex items-center gap-2"><Building2 className="h-4 w-4 text-muted-foreground" /> {isFr ? 'Tous les programmes ambassadeur' : 'All ambassador programs'}</h2>
+                <p className="text-[11px] text-muted-foreground">{isFr ? 'Classés par taux de commission décroissant. Rejoignez n\'importe quel programme pour commencer à gagner.' : 'Sorted by commission rate. Join any program to start earning.'}</p>
               </div>
               {discoverLoading ? <SkeletonRow count={4} /> : filteredOthers.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-sm text-muted-foreground">
-                    {search ? 'Aucune plateforme trouvée.' : 'Aucun autre programme ambassadeur disponible.'}
+                    {search ? (isFr ? 'Aucune plateforme trouvée.' : 'No platform found.') : (isFr ? 'Aucun autre programme ambassadeur disponible.' : 'No other ambassador program available.')}
                   </p>
                 </div>
               ) : (
@@ -411,37 +412,37 @@ export default function AffiliationPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-card border border-border p-4 shadow-card">
                 <p className="text-2xl font-bold text-primary">{fmt(payableCommission)}</p>
-                <p className="text-xs text-muted-foreground">Disponible pour retrait</p>
+                <p className="text-xs text-muted-foreground">{isFr ? 'Disponible pour retrait' : 'Available for withdrawal'}</p>
               </div>
               <div className="rounded-xl bg-card border border-border p-4 shadow-card">
                 <p className="text-2xl font-bold">{fmt(pendingCommission)}</p>
-                <p className="text-xs text-muted-foreground">En attente (15 jours)</p>
+                <p className="text-xs text-muted-foreground">{isFr ? 'En attente (15 jours)' : 'Pending (15 days)'}</p>
               </div>
             </div>
 
             {/* Sales history */}
             <div className="bg-card border border-border rounded-2xl p-4 space-y-3 shadow-card">
-              <h2 className="font-semibold text-sm flex items-center gap-2"><TrendingUp className="h-4 w-4 text-primary" /> Historique des commissions</h2>
-              <p className="text-xs text-muted-foreground">Les commissions sont payables après un délai de sécurité de 15 jours.</p>
+              <h2 className="font-semibold text-sm flex items-center gap-2"><TrendingUp className="h-4 w-4 text-primary" /> {isFr ? 'Historique des commissions' : 'Commission history'}</h2>
+              <p className="text-xs text-muted-foreground">{isFr ? 'Les commissions sont payables après un délai de sécurité de 15 jours.' : 'Commissions are payable after a 15-day security period.'}</p>
               {affiliateSales.length === 0 ? (
                 <div className="text-center py-8">
                   <TrendingUp className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">Aucune commission pour le moment.</p>
-                  <p className="text-xs text-muted-foreground">Partagez vos liens pour commencer à gagner !</p>
+                  <p className="text-sm text-muted-foreground">{isFr ? 'Aucune commission pour le moment.' : 'No commissions yet.'}</p>
+                  <p className="text-xs text-muted-foreground">{isFr ? 'Partagez vos liens pour commencer à gagner !' : 'Share your links to start earning!'}</p>
                 </div>
               ) : (
                 <div className="space-y-1">
                   {affiliateSales.map((s: any) => (
                     <div key={s.id} className="flex items-center gap-3 py-2.5 border-b border-border/50 last:border-0">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium capitalize">Vente {s.transaction_type}</p>
+                        <p className="text-sm font-medium capitalize">{isFr ? 'Vente' : 'Sale'} {s.transaction_type}</p>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(s.created_at).toLocaleDateString('fr-FR')} · {s.commission_percent}% · Brut {fmt(s.gross_amount, s.currency || 'XOF')}
+                          {new Date(s.created_at).toLocaleDateString(isFr ? 'fr-FR' : 'en-US')} · {s.commission_percent}% · {isFr ? 'Brut' : 'Gross'} {fmt(s.gross_amount, s.currency || 'XOF')}
                         </p>
                       </div>
                       <span className="font-semibold text-sm text-primary">+{fmt(s.commission_amount, s.currency || 'XOF')}</span>
                       <Badge variant="outline" className={cn('text-[10px] border-0 capitalize', saleStatusColor[s.status] || '')}>
-                        {s.status === 'payable' ? 'Disponible' : s.status === 'pending' ? 'En attente' : s.status === 'paid' ? 'Payé' : s.status}
+                        {s.status === 'payable' ? (isFr ? 'Disponible' : 'Available') : s.status === 'pending' ? (isFr ? 'En attente' : 'Pending') : s.status === 'paid' ? (isFr ? 'Payé' : 'Paid') : s.status}
                       </Badge>
                     </div>
                   ))}
@@ -464,6 +465,8 @@ function OrgAffiliateCard({ org, isSubscribed, onBecome, loading, onView }: {
   loading: boolean;
   onView: () => void;
 }) {
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
       className={cn(
@@ -493,15 +496,15 @@ function OrgAffiliateCard({ org, isSubscribed, onBecome, loading, onView }: {
       <div className="flex items-center gap-2">
         <Button size="sm" className="flex-1 h-8 text-xs gap-1.5" onClick={onBecome} disabled={loading}>
           <Link2 className="h-3.5 w-3.5" />
-          {loading ? 'En cours...' : 'Devenir ambassadeur'}
+          {loading ? '...' : (isFr ? 'Devenir ambassadeur' : 'Become ambassador')}
         </Button>
         <Button size="sm" variant="outline" className="h-8 text-xs gap-1" onClick={onView}>
-          <ExternalLink className="h-3 w-3" /> Voir
+          <ExternalLink className="h-3 w-3" /> {isFr ? 'Voir' : 'View'}
         </Button>
       </div>
       {isSubscribed && (
         <Badge variant="outline" className="text-[10px] border-primary/30 text-primary bg-primary/5">
-          <Sparkle className="h-2.5 w-2.5 mr-1" /> Abonné
+          <Sparkle className="h-2.5 w-2.5 mr-1" /> {isFr ? 'Abonné' : 'Subscribed'}
         </Badge>
       )}
     </motion.div>
