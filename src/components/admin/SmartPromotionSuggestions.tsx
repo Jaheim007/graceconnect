@@ -5,17 +5,17 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Zap, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { formatCurrency } from '@/lib/currency';
 import { useI18n } from '@/i18n/I18nContext';
 
 export function SmartPromotionSuggestions() {
   const { currentOrg } = useOrg();
   const navigate = useNavigate();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const isFr = locale === 'fr';
   const orgId = currentOrg?.id;
 
   const { data: suggestions = [] } = useQuery({
-    queryKey: ['smart-promo-suggestions', orgId],
+    queryKey: ['smart-promo-suggestions', orgId, locale],
     queryFn: async () => {
       if (!orgId) return [];
       const { data: products } = await db
@@ -27,17 +27,9 @@ export function SmartPromotionSuggestions() {
       if (!products || products.length === 0) return [];
 
       const result: Array<{
-        id: string;
-        title: string;
-        price: number;
-        currency: string;
-        sales: number;
-        issueKey: string;
-        issueText: string;
-        actionKey: string;
-        actionText: string;
-        actionUrl: string;
-        emoji: string;
+        id: string; title: string; price: number; currency: string; sales: number;
+        issueKey: string; issueText: string; actionKey: string; actionText: string;
+        actionUrl: string; emoji: string;
       }> = [];
 
       for (const p of products) {
@@ -49,27 +41,33 @@ export function SmartPromotionSuggestions() {
           result.push({
             id: p.id, title: p.title, price: p.price || 0, currency: p.currency || 'XOF', sales: 0,
             issueKey: 'promo.no_cover',
-            issueText: 'Pas de couverture — les produits avec image se vendent 3x mieux.',
+            issueText: isFr
+              ? 'Pas de couverture — les produits avec image se vendent 3x mieux.'
+              : 'No cover image — products with images sell 3x better.',
             actionKey: 'promo.add_cover',
-            actionText: 'Ajouter une couverture',
+            actionText: isFr ? 'Ajouter une couverture' : 'Add a cover',
             actionUrl: `/admin/products/${p.id}`, emoji: '🖼️',
           });
         } else if (sales === 0 && !hasDescription) {
           result.push({
             id: p.id, title: p.title, price: p.price || 0, currency: p.currency || 'XOF', sales: 0,
             issueKey: 'promo.short_desc',
-            issueText: 'Description trop courte — ajoutez des bénéfices pour convaincre.',
+            issueText: isFr
+              ? 'Description trop courte — ajoutez des bénéfices pour convaincre.'
+              : 'Description too short — add benefits to convince buyers.',
             actionKey: 'promo.improve_desc',
-            actionText: 'Améliorer la description',
+            actionText: isFr ? 'Améliorer la description' : 'Improve description',
             actionUrl: `/admin/products/${p.id}`, emoji: '✍️',
           });
         } else if (sales === 0 && hasCover && hasDescription) {
           result.push({
             id: p.id, title: p.title, price: p.price || 0, currency: p.currency || 'XOF', sales: 0,
             issueKey: 'promo.zero_sales',
-            issueText: 'Produit complet mais 0 vente — un code promo peut booster le lancement.',
+            issueText: isFr
+              ? 'Produit complet mais 0 vente — un code promo peut booster le lancement.'
+              : 'Complete product but 0 sales — a promo code can boost your launch.',
             actionKey: 'promo.create_code',
-            actionText: 'Créer un code promo',
+            actionText: isFr ? 'Créer un code promo' : 'Create promo code',
             actionUrl: '/admin/promo-codes', emoji: '🏷️',
           });
         }
