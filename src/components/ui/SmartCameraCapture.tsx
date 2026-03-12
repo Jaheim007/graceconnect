@@ -431,7 +431,7 @@ export function SmartCameraCapture({
         onChange(brandUrl(data.publicUrl));
       }
     } catch (err: any) {
-      setError(err.message || 'Échec du téléchargement');
+      setError(err.message || (lang === 'fr' ? 'Échec du téléchargement' : 'Upload failed'));
     } finally {
       setUploading(false);
     }
