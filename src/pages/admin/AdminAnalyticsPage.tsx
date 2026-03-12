@@ -76,7 +76,7 @@ function MemberRetentionWidget({ orgId }: { orgId?: string }) {
         </BarChart>
       </ResponsiveContainer>
       <p className="text-[10px] text-muted-foreground mt-2">
-        Nombre de nouveaux membres par semaine sur les 8 dernières semaines
+        {document.documentElement.lang === 'fr' ? 'Nombre de nouveaux membres par semaine sur les 8 dernières semaines' : 'New members per week over the last 8 weeks'}
       </p>
     </div>
   );
