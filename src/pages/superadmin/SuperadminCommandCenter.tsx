@@ -256,7 +256,7 @@ export default function SuperadminCommandCenter() {
           {/* Recent runs */}
           {autopilotRuns && autopilotRuns.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Dernières exécutions</p>
+              <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{isFr ? 'Dernières exécutions' : 'Recent runs'}</p>
               {autopilotRuns.slice(0, 5).map((run: any) => (
                 <div key={run.id} className="flex items-center gap-2 text-xs py-1.5 px-2 rounded-lg bg-background/60 border border-border/30">
                   {getRunStatusIcon(run.status)}
