@@ -13,6 +13,7 @@ import { useUnreadCount } from '@/hooks/useNotifications';
 import { useI18n } from '@/i18n/I18nContext';
 import { CreditBalance } from '@/components/credits/CreditBalance';
 import { OrgSwitcher } from '@/components/org/OrgSwitcher';
+import { GlobalPreferencesSelector } from '@/components/global/GlobalPreferencesSelector';
 
 export function TopBar() {
   const { theme, toggleTheme } = useTheme();
