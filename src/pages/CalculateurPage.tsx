@@ -49,8 +49,8 @@ export default function CalculateurPage() {
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Calculateur de Revenus — Estimez vos gains sur Siteviral"
-        description="Simulez vos revenus potentiels en tant que vendeur ou ambassadeur sur Siteviral. Gratuit, transparent, instantané."
+        title={isFr ? "Calculateur de Revenus — Estimez vos gains sur Siteviral" : "Revenue Calculator — Estimate your earnings on Siteviral"}
+        description={isFr ? "Simulez vos revenus potentiels en tant que vendeur ou ambassadeur sur Siteviral." : "Simulate your potential earnings as a seller or ambassador on Siteviral."}
         canonicalUrl="https://siteviral.com/calculateur"
       />
       <LandingNav />
