@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 import { RotatingWords } from './RotatingWords';
 import { GradientText } from './GradientText';
+import { useI18n } from '@/i18n/I18nContext';
 
 const stagger = {
   hidden: {},
@@ -20,6 +21,8 @@ const fadeUp = {
 export function LandingHeroManifesto() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   return (
     <section className="relative pt-14 overflow-hidden">
@@ -50,65 +53,76 @@ export function LandingHeroManifesto() {
           <motion.div variants={fadeUp}
             className="inline-flex items-center gap-1.5 bg-accent/10 text-accent border border-accent/20 rounded-full px-3.5 py-1.5 text-xs font-semibold"
           >
-            <Sparkles className="h-3.5 w-3.5 animate-[pulse_2s_ease-in-out_infinite]" /> Tout le monde peut devenir auteur
+            <Sparkles className="h-3.5 w-3.5 animate-[pulse_2s_ease-in-out_infinite]" />
+            {isFr ? 'Tout le monde peut devenir auteur' : 'Anyone can become an author'}
           </motion.div>
 
           {/* Main headline with rotating words */}
           <motion.h1 variants={fadeUp} className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.1] tracking-tight">
-            <GradientText>Écris.</GradientText>{' '}
-            <span className="text-accent">Vends.</span>{' '}
+            <GradientText>{isFr ? 'Écris.' : 'Write.'}</GradientText>{' '}
+            <span className="text-accent">{isFr ? 'Vends.' : 'Sell.'}</span>{' '}
             <RotatingWords
-              words={['Gagne.', 'Grandis.', 'Impacte.', 'Brille.']}
+              words={isFr ? ['Gagne.', 'Grandis.', 'Impacte.', 'Brille.'] : ['Earn.', 'Grow.', 'Impact.', 'Shine.']}
               interval={2200}
               className="text-foreground"
             />
           </motion.h1>
 
           <motion.p variants={fadeUp} className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            En <strong className="text-foreground">5 minutes</strong>. 
-            Sans banque. 
-            Dans le <strong className="text-foreground">monde entier</strong>.
+            {isFr ? (
+              <>En <strong className="text-foreground">5 minutes</strong>. Sans banque. Dans le <strong className="text-foreground">monde entier</strong>.</>
+            ) : (
+              <>In <strong className="text-foreground">5 minutes</strong>. No bank needed. <strong className="text-foreground">Worldwide</strong>.</>
+            )}
           </motion.p>
 
-          {/* 2 CTAs with hover animation */}
+          {/* Country flags strip */}
+          <motion.div variants={fadeUp} className="flex items-center justify-center gap-1.5 text-lg">
+            {['🇬🇭', '🇰🇪', '🇨🇮', '🇳🇬', '🇿🇦', '🇺🇸', '🇬🇧', '🇫🇷'].map(flag => (
+              <span key={flag} className="grayscale-[30%] hover:grayscale-0 transition-all cursor-default">{flag}</span>
+            ))}
+            <span className="text-xs text-muted-foreground ml-1">+ 150 {isFr ? 'pays' : 'countries'}</span>
+          </motion.div>
+
+          {/* 2 CTAs */}
           <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             <Button
               size="lg"
               className="px-8 gap-2.5 h-14 text-base w-full sm:w-auto group cta-glow relative overflow-hidden"
-              onClick={() => { trackEvent('cta_click', { cta: 'ecrire_mon_livre', source: 'landing_hero' }, user?.id); navigate(user ? '/ecrire' : '/auth?mode=signup&intent=writer'); }}
+              onClick={() => { trackEvent('cta_click', { cta: 'write_book', source: 'landing_hero' }, user?.id); navigate(user ? '/ecrire' : '/auth?mode=signup&intent=writer'); }}
             >
               <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
               <PenLine className="h-5 w-5" />
-              ✏️ Écrire mon livre
+              ✏️ {isFr ? 'Écrire mon livre' : 'Write my book'}
               <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Button
               size="lg"
               variant="outline"
               className="h-14 px-8 gap-2.5 text-base w-full sm:w-auto border-accent/30 text-accent hover:bg-accent/5"
-              onClick={() => { trackEvent('cta_click', { cta: 'gagner_en_partageant', source: 'landing_hero' }, user?.id); navigate(user ? '/gagner' : '/auth?mode=signup&intent=ambassador'); }}
+              onClick={() => { trackEvent('cta_click', { cta: 'earn_sharing', source: 'landing_hero' }, user?.id); navigate(user ? '/gagner' : '/auth?mode=signup&intent=ambassador'); }}
             >
               <Share2 className="h-5 w-5" />
-              💰 Gagner en partageant
+              💰 {isFr ? 'Gagner en partageant' : 'Earn by sharing'}
             </Button>
           </motion.div>
 
-          {/* Discrete discover */}
+          {/* Discover */}
           <motion.div variants={fadeUp}>
             <button
               onClick={() => navigate('/discover')}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
             >
-              Ou simplement explorer les ressources →
+              {isFr ? 'Ou simplement explorer les ressources →' : 'Or simply explore resources →'}
             </button>
           </motion.div>
 
-          {/* Value props strip — staggered entry */}
+          {/* Value props */}
           <motion.div variants={fadeUp} className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 pt-6 text-center">
             {[
-              { value: '5 min', label: 'pour écrire ton livre', color: 'text-primary' },
-              { value: '0 FCFA', label: "d'abonnement", color: 'text-accent' },
-              { value: '5-50%', label: 'de commission ambassadeur', color: 'text-emerald-500' },
+              { value: '5 min', label: isFr ? 'pour écrire ton livre' : 'to write your book', color: 'text-primary' },
+              { value: isFr ? '0 frais' : '$0 fees', label: isFr ? "d'abonnement" : 'subscription', color: 'text-accent' },
+              { value: '5-50%', label: isFr ? 'de commission ambassadeur' : 'ambassador commission', color: 'text-emerald-500' },
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
@@ -123,7 +137,7 @@ export function LandingHeroManifesto() {
           </motion.div>
 
           <motion.p variants={fadeUp} className="text-[11px] text-muted-foreground/60">
-            ✓ Mobile Money & Carte · ✓ Tes contenus sont protégés · ✓ Tes lecteurs vendent pour toi
+            ✓ Mobile Money & {isFr ? 'Carte' : 'Card'} · ✓ {isFr ? 'Contenus protégés' : 'Content protected'} · ✓ {isFr ? 'Tes lecteurs vendent pour toi' : 'Your readers sell for you'}
           </motion.p>
         </motion.div>
       </div>
