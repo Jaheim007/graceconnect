@@ -11,18 +11,8 @@ import { db } from '@/lib/db';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
+import { useI18n } from '@/i18n/I18nContext';
 
-/**
- * Extract YouTube video ID from various URL formats:
- * - youtube.com/watch?v=ID
- * - youtu.be/ID
- * - youtube.com/embed/ID
- * - youtube.com/shorts/ID
- * - youtube.com/live/ID
- * - m.youtube.com/watch?v=ID
- * - youtube.com/watch?v=ID&si=... (share links)
- * - plain 11-char ID
- */
 function extractYouTubeId(url: string): string | null {
   const patterns = [
     /(?:youtube\.com\/watch\?.*v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/|youtube\.com\/live\/|m\.youtube\.com\/watch\?.*v=)([a-zA-Z0-9_-]{11})/,
@@ -33,14 +23,7 @@ function extractYouTubeId(url: string): string | null {
 }
 
 interface VideoPreview {
-  title: string;
-  author: string;
-  thumbnail: string;
-  videoId: string;
-  platform: string;
-  url: string;
-  description?: string;
-  selected?: boolean;
+  title: string; author: string; thumbnail: string; videoId: string; platform: string; url: string; description?: string; selected?: boolean;
 }
 
 export function VideoImportButton() {
@@ -56,6 +39,8 @@ export function VideoImportButton() {
   const { user } = useAuth();
   const { toast } = useToast();
   const qc = useQueryClient();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const fetchSinglePreview = async () => {
     setError(''); setPreview(null);
@@ -65,33 +50,31 @@ export function VideoImportButton() {
       setLoading(true);
       try {
         const res = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
-        if (!res.ok) throw new Error('Vidéo introuvable ou privée');
+        if (!res.ok) throw new Error(isFr ? 'Vidéo introuvable ou privée' : 'Video not found or private');
         const data = await res.json();
         setPreview({ title: data.title, author: data.author_name, thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`, videoId, platform: 'youtube', url: `https://www.youtube.com/watch?v=${videoId}` });
       } catch (err: any) { setError(err.message); } finally { setLoading(false); }
       return;
     }
-    if (trimmed.includes('facebook.com') || trimmed.includes('fb.watch')) { setPreview({ title: 'Vidéo Facebook', author: 'Facebook', thumbnail: '', videoId: trimmed, platform: 'facebook', url: trimmed }); return; }
-    if (trimmed.includes('tiktok.com')) { setPreview({ title: 'Vidéo TikTok', author: 'TikTok', thumbnail: '', videoId: trimmed, platform: 'tiktok', url: trimmed }); return; }
-    if (trimmed.startsWith('http')) { setPreview({ title: 'Vidéo externe', author: new URL(trimmed).hostname, thumbnail: '', videoId: trimmed, platform: 'other', url: trimmed }); return; }
-    setError('URL non reconnue. Collez un lien YouTube (watch, share, shorts), Facebook ou TikTok.');
+    if (trimmed.includes('facebook.com') || trimmed.includes('fb.watch')) { setPreview({ title: isFr ? 'Vidéo Facebook' : 'Facebook Video', author: 'Facebook', thumbnail: '', videoId: trimmed, platform: 'facebook', url: trimmed }); return; }
+    if (trimmed.includes('tiktok.com')) { setPreview({ title: isFr ? 'Vidéo TikTok' : 'TikTok Video', author: 'TikTok', thumbnail: '', videoId: trimmed, platform: 'tiktok', url: trimmed }); return; }
+    if (trimmed.startsWith('http')) { setPreview({ title: isFr ? 'Vidéo externe' : 'External video', author: new URL(trimmed).hostname, thumbnail: '', videoId: trimmed, platform: 'other', url: trimmed }); return; }
+    setError(isFr ? 'URL non reconnue. Collez un lien YouTube, Facebook ou TikTok.' : 'Unrecognized URL. Paste a YouTube, Facebook or TikTok link.');
   };
 
   const fetchChannelVideos = async () => {
     setError(''); setChannelVideos([]); setLoading(true);
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('youtube-channel-import', {
-        body: { channelUrl: channelUrl.trim() },
-      });
+      const { data, error: fnError } = await supabase.functions.invoke('youtube-channel-import', { body: { channelUrl: channelUrl.trim() } });
       if (fnError) throw fnError;
       if (data?.error) throw new Error(data.error);
       if (data?.videos?.length) {
         setChannelVideos(data.videos.map((v: any) => ({ ...v, platform: 'youtube', selected: true, description: v.description || '' })));
-        toast({ title: `📡 ${data.videos.length} vidéos trouvées`, description: `Chaîne: ${data.channelName}` });
+        toast({ title: `📡 ${data.videos.length} ${isFr ? 'vidéos trouvées' : 'videos found'}`, description: `${isFr ? 'Chaîne' : 'Channel'}: ${data.channelName}` });
       } else {
-        setError('Aucune vidéo trouvée pour cette chaîne.');
+        setError(isFr ? 'Aucune vidéo trouvée pour cette chaîne.' : 'No videos found for this channel.');
       }
-    } catch (err: any) { setError(err.message || 'Erreur lors de la récupération.'); }
+    } catch (err: any) { setError(err.message || (isFr ? 'Erreur lors de la récupération.' : 'Error fetching videos.')); }
     finally { setLoading(false); }
   };
 
@@ -100,7 +83,7 @@ export function VideoImportButton() {
     try {
       const { error: insertError } = await db.from('media_content').insert({
         organization_id: currentOrg.id, created_by: user.id, title: video.title,
-        description: video.description || `Importé depuis ${video.platform} · Par ${video.author}`,
+        description: video.description || `${isFr ? 'Importé depuis' : 'Imported from'} ${video.platform} · ${isFr ? 'Par' : 'By'} ${video.author}`,
         media_type: 'video', media_url: video.url, thumbnail_url: video.thumbnail || null,
         is_published: true, speaker: video.author,
       });
@@ -112,8 +95,8 @@ export function VideoImportButton() {
   const importSingle = async (video: VideoPreview) => {
     setLoading(true);
     const ok = await importVideo(video);
-    if (ok) { qc.invalidateQueries({ queryKey: ['org-media'] }); toast({ title: '✅ Vidéo importée !', description: `"${video.title}"` }); setOpen(false); setUrl(''); setPreview(null); }
-    else toast({ title: 'Erreur', variant: 'destructive' });
+    if (ok) { qc.invalidateQueries({ queryKey: ['org-media'] }); toast({ title: isFr ? '✅ Vidéo importée !' : '✅ Video imported!', description: `"${video.title}"` }); setOpen(false); setUrl(''); setPreview(null); }
+    else toast({ title: isFr ? 'Erreur' : 'Error', variant: 'destructive' });
     setLoading(false);
   };
 
@@ -123,56 +106,48 @@ export function VideoImportButton() {
     if (!selected.length) return;
     setImportingAll(true);
     let count = 0;
-    for (const v of selected) {
-      const ok = await importVideo(v);
-      if (ok) count++;
-    }
+    for (const v of selected) { const ok = await importVideo(v); if (ok) count++; }
     qc.invalidateQueries({ queryKey: ['org-media'] });
-    toast({ title: `✅ ${count} vidéo(s) importée(s) !` });
-    setImportingAll(false);
-    setOpen(false);
-    setChannelVideos([]);
+    toast({ title: `✅ ${count} ${isFr ? 'vidéo(s) importée(s) !' : 'video(s) imported!'}` });
+    setImportingAll(false); setOpen(false); setChannelVideos([]);
   };
 
-  const toggleVideo = (idx: number) => {
-    setChannelVideos(prev => prev.map((v, i) => i === idx ? { ...v, selected: !v.selected } : v));
-  };
-
+  const toggleVideo = (idx: number) => { setChannelVideos(prev => prev.map((v, i) => i === idx ? { ...v, selected: !v.selected } : v)); };
   const selectedCount = channelVideos.filter(v => v.selected).length;
 
   return (
     <>
       <Button variant="outline" size="sm" onClick={() => setOpen(true)} className="gap-2 text-xs h-8 sm:h-9 shrink-0">
-        <Video className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Importer
+        <Video className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> {isFr ? 'Importer' : 'Import'}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2"><Video className="h-5 w-5 text-primary" /> Importer des vidéos</DialogTitle>
-            <DialogDescription>YouTube, Facebook, TikTok ou tout autre lien vidéo.</DialogDescription>
+            <DialogTitle className="flex items-center gap-2"><Video className="h-5 w-5 text-primary" /> {isFr ? 'Importer des vidéos' : 'Import videos'}</DialogTitle>
+            <DialogDescription>YouTube, Facebook, TikTok {isFr ? 'ou tout autre lien vidéo.' : 'or any other video link.'}</DialogDescription>
           </DialogHeader>
 
           <Tabs defaultValue="single" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="single" className="text-xs">Vidéo unique</TabsTrigger>
-              <TabsTrigger value="channel" className="text-xs">Chaîne YouTube</TabsTrigger>
+              <TabsTrigger value="single" className="text-xs">{isFr ? 'Vidéo unique' : 'Single video'}</TabsTrigger>
+              <TabsTrigger value="channel" className="text-xs">{isFr ? 'Chaîne YouTube' : 'YouTube channel'}</TabsTrigger>
             </TabsList>
 
             <TabsContent value="single" className="space-y-4 mt-4">
               <div className="space-y-2">
-                <Label>URL de la vidéo</Label>
+                <Label>{isFr ? 'URL de la vidéo' : 'Video URL'}</Label>
                 <div className="flex gap-2">
-                  <Input value={url} onChange={(e) => { setUrl(e.target.value); setPreview(null); setError(''); }} placeholder="Collez le lien ici..." className="flex-1" />
-                  <Button onClick={fetchSinglePreview} disabled={loading || !url.trim()} size="sm">{loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Aperçu'}</Button>
+                  <Input value={url} onChange={(e) => { setUrl(e.target.value); setPreview(null); setError(''); }} placeholder={isFr ? 'Collez le lien ici...' : 'Paste link here...'} className="flex-1" />
+                  <Button onClick={fetchSinglePreview} disabled={loading || !url.trim()} size="sm">{loading ? <Loader2 className="h-4 w-4 animate-spin" /> : (isFr ? 'Aperçu' : 'Preview')}</Button>
                 </div>
                 <p className="text-[10px] text-muted-foreground">
-                  💡 Sur YouTube, cliquez sur <strong>Partager</strong> et collez le lien (ex: youtu.be/xxx). Les liens watch, shorts et live marchent aussi.
+                  💡 {isFr ? 'Sur YouTube, cliquez sur Partager et collez le lien. Les liens watch, shorts et live marchent aussi.' : 'On YouTube, click Share and paste the link. Watch, shorts, and live links work too.'}
                 </p>
                 <div className="flex gap-1.5 flex-wrap">
                   <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex items-center gap-1"><Youtube className="h-2.5 w-2.5 text-red-500" /> YouTube</span>
                   <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex items-center gap-1"><Globe className="h-2.5 w-2.5 text-blue-500" /> Facebook</span>
-                  <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex items-center gap-1"><Globe className="h-2.5 w-2.5" /> TikTok / Autre</span>
+                  <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full flex items-center gap-1"><Globe className="h-2.5 w-2.5" /> TikTok</span>
                 </div>
               </div>
               {error && <p className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" /> {error}</p>}
@@ -181,20 +156,20 @@ export function VideoImportButton() {
                   {preview.thumbnail && <img src={preview.thumbnail} alt={preview.title} className="w-full h-40 object-cover" />}
                   <div className="p-3 space-y-1">
                     <p className="font-semibold text-sm line-clamp-2">{preview.title}</p>
-                    <p className="text-xs text-muted-foreground">Par {preview.author}</p>
-                    <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400"><CheckCircle className="h-3 w-3" /> Prêt à importer</div>
+                    <p className="text-xs text-muted-foreground">{isFr ? 'Par' : 'By'} {preview.author}</p>
+                    <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400"><CheckCircle className="h-3 w-3" /> {isFr ? 'Prêt à importer' : 'Ready to import'}</div>
                   </div>
                 </div>
               )}
-              {preview && <Button onClick={() => importSingle(preview)} disabled={loading} className="w-full gap-2">{loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Video className="h-4 w-4" />} Ajouter à ma médiathèque</Button>}
+              {preview && <Button onClick={() => importSingle(preview)} disabled={loading} className="w-full gap-2">{loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Video className="h-4 w-4" />} {isFr ? 'Ajouter à ma médiathèque' : 'Add to my media library'}</Button>}
             </TabsContent>
 
             <TabsContent value="channel" className="space-y-4 mt-4">
               <div className="space-y-2">
-                <Label>URL de la chaîne YouTube</Label>
+                <Label>{isFr ? 'URL de la chaîne YouTube' : 'YouTube channel URL'}</Label>
                 <div className="flex gap-2">
-                  <Input value={channelUrl} onChange={(e) => { setChannelUrl(e.target.value); setError(''); }} placeholder="https://youtube.com/@NomDeLaChaine" className="flex-1" />
-                  <Button onClick={fetchChannelVideos} disabled={loading || !channelUrl.trim()} size="sm">{loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Chercher'}</Button>
+                  <Input value={channelUrl} onChange={(e) => { setChannelUrl(e.target.value); setError(''); }} placeholder="https://youtube.com/@ChannelName" className="flex-1" />
+                  <Button onClick={fetchChannelVideos} disabled={loading || !channelUrl.trim()} size="sm">{loading ? <Loader2 className="h-4 w-4 animate-spin" /> : (isFr ? 'Chercher' : 'Search')}</Button>
                 </div>
               </div>
               {error && <p className="text-xs text-destructive flex items-center gap-1"><AlertCircle className="h-3 w-3" /> {error}</p>}
@@ -202,9 +177,9 @@ export function VideoImportButton() {
               {channelVideos.length > 0 && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-medium">{channelVideos.length} vidéos trouvées · {selectedCount} sélectionnées</p>
+                    <p className="text-xs font-medium">{channelVideos.length} {isFr ? 'vidéos trouvées' : 'videos found'} · {selectedCount} {isFr ? 'sélectionnées' : 'selected'}</p>
                     <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => setChannelVideos(prev => prev.map(v => ({ ...v, selected: !prev.every(p => p.selected) })))}>
-                      {channelVideos.every(v => v.selected) ? 'Tout désélectionner' : 'Tout sélectionner'}
+                      {channelVideos.every(v => v.selected) ? (isFr ? 'Tout désélectionner' : 'Deselect all') : (isFr ? 'Tout sélectionner' : 'Select all')}
                     </Button>
                   </div>
                   <div className="max-h-60 overflow-y-auto space-y-1.5 border border-border rounded-xl p-2">
@@ -218,17 +193,17 @@ export function VideoImportButton() {
                   </div>
                   <Button onClick={importAllSelected} disabled={importingAll || selectedCount === 0} className="w-full gap-2">
                     {importingAll ? <Loader2 className="h-4 w-4 animate-spin" /> : <Video className="h-4 w-4" />}
-                    {importingAll ? `Import en cours (${selectedCount})…` : `Importer ${selectedCount} vidéo(s)`}
+                    {importingAll ? `${isFr ? 'Import en cours' : 'Importing'} (${selectedCount})…` : `${isFr ? 'Importer' : 'Import'} ${selectedCount} ${isFr ? 'vidéo(s)' : 'video(s)'}`}
                   </Button>
                 </div>
               )}
 
               {!channelVideos.length && !error && !loading && (
-                <p className="text-[10px] text-muted-foreground text-center">💡 Collez l'URL d'une chaîne YouTube pour importer toutes ses vidéos d'un coup.</p>
+                <p className="text-[10px] text-muted-foreground text-center">💡 {isFr ? 'Collez l\'URL d\'une chaîne YouTube pour importer toutes ses vidéos d\'un coup.' : 'Paste a YouTube channel URL to import all its videos at once.'}</p>
               )}
             </TabsContent>
           </Tabs>
-          <p className="text-[10px] text-muted-foreground text-center">Les vidéos restent hébergées sur leur plateforme. Seules les métadonnées sont importées.</p>
+          <p className="text-[10px] text-muted-foreground text-center">{isFr ? 'Les vidéos restent hébergées sur leur plateforme. Seules les métadonnées sont importées.' : 'Videos remain hosted on their platform. Only metadata is imported.'}</p>
         </DialogContent>
       </Dialog>
     </>

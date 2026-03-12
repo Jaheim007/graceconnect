@@ -17,7 +17,7 @@ interface SmartAction {
   urgency: 'high' | 'medium' | 'low';
 }
 
-function getNextActions(steps: { label: string; done: boolean }[], org: any, isFr: boolean): SmartAction[] {
+function getNextActions(steps: { key: string; done: boolean }[], org: any, isFr: boolean): SmartAction[] {
   const actions: SmartAction[] = [];
 
   if (!org?.logo_url && !org?.banner_url) {
@@ -38,7 +38,7 @@ function getNextActions(steps: { label: string; done: boolean }[], org: any, isF
     });
   }
 
-  const step = steps.find(s => s.label === 'Premier produit publié');
+  const step = steps.find(s => s.key === 'first-product');
   if (step && !step.done) {
     actions.push({
       id: 'first-product',
@@ -48,7 +48,7 @@ function getNextActions(steps: { label: string; done: boolean }[], org: any, isF
     });
   }
 
-  const kycStep = steps.find(s => s.label === 'Identité vérifiée');
+  const kycStep = steps.find(s => s.key === 'kyc');
   if (kycStep && !kycStep.done && (org?.kyc_status === 'none' || org?.kyc_status === 'rejected')) {
     actions.push({
       id: 'kyc',
@@ -58,7 +58,7 @@ function getNextActions(steps: { label: string; done: boolean }[], org: any, isF
     });
   }
 
-  const affStep = steps.find(s => s.label === 'Ambassadeurs actifs (3+)');
+  const affStep = steps.find(s => s.key === 'ambassadors');
   if (affStep && !affStep.done) {
     actions.push({
       id: 'ambassadors',
