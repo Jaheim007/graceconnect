@@ -313,9 +313,9 @@ export default function PartnerPortalPage() {
         <TabsContent value="orgs">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Organisations référées</CardTitle>
+              <CardTitle className="text-base">{isFr ? 'Organisations référées' : 'Referred organizations'}</CardTitle>
               <CardDescription>
-                Les organisations que vous avez invitées via votre lien partenaire. Le statut passe automatiquement à « Active » au premier paiement reçu.
+                {isFr ? 'Les organisations que vous avez invitées via votre lien partenaire. Le statut passe automatiquement à « Active » au premier paiement reçu.' : 'Organizations you invited via your partner link. Status changes to "Active" on first payment received.'}
               </CardDescription>
             </CardHeader>
             <CardContent>
