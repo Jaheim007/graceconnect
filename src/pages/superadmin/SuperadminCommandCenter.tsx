@@ -116,7 +116,7 @@ export default function SuperadminCommandCenter() {
   };
 
   const quickActions: QuickAction[] = [
-    { label: 'Vérification ID', icon: FileCheck, path: '/superadmin/kyc', color: 'text-amber-500', badge: stats?.pendingKyc ? `${stats.pendingKyc}` : undefined },
+    { label: isFr ? 'Vérification ID' : 'ID Verification', icon: FileCheck, path: '/superadmin/kyc', color: 'text-amber-500', badge: stats?.pendingKyc ? `${stats.pendingKyc}` : undefined },
     { label: 'Reports', icon: Megaphone, path: '/superadmin/reports', color: 'text-rose-500', badge: stats?.pendingReports ? `${stats.pendingReports}` : undefined },
     { label: 'Payouts', icon: Wallet, path: '/superadmin/settlements', color: 'text-emerald-500', badge: stats?.pendingPayouts ? `${stats.pendingPayouts}` : undefined },
     { label: 'Risk & AML', icon: ShieldAlert, path: '/superadmin/risk', color: 'text-red-500' },
