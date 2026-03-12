@@ -132,20 +132,22 @@ export function AdminEvents() {
   const { currentOrg } = useOrg();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const { data: items = [], isLoading } = useOrgEvents(currentOrg?.id, false);
   const del = useDeleteEvent();
   const update = useUpdateEvent();
   const togglePublish = async (ev: any) => {
     await update.mutateAsync({ id: ev.id, updates: { is_published: !ev.is_published } });
-    toast({ title: ev.is_published ? 'Événement dépublié' : 'Événement publié' });
+    toast({ title: ev.is_published ? (isFr ? 'Événement dépublié' : 'Event unpublished') : (isFr ? 'Événement publié' : 'Event published') });
   };
   return (
-    <AdminPageShell title="Événements" newRoute="/admin/events/new" newLabel="Nouvel événement" backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Événements' : 'Events'} newRoute="/admin/events/new" newLabel={isFr ? 'Nouvel événement' : 'New event'} backRoute="/admin">
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
-        <EmptyState variant="generic" title="Aucun événement" action={{ label: 'Créer un événement', onClick: () => navigate('/admin/events/new') }} />
+        <EmptyState variant="generic" title={isFr ? 'Aucun événement' : 'No events'} action={{ label: isFr ? 'Créer un événement' : 'Create event', onClick: () => navigate('/admin/events/new') }} />
       ) : (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-          <h2 className="font-semibold text-sm">{items.length} événement{items.length > 1 ? 's' : ''}</h2>
+          <h2 className="font-semibold text-sm">{items.length} {isFr ? 'événement' : 'event'}{items.length > 1 ? 's' : ''}</h2>
           <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
             {items.map(ev => (
               <motion.div key={ev.id} variants={fadeUp} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all group">
@@ -163,7 +165,7 @@ export function AdminEvents() {
                 <div className="flex-1 min-w-0">
                   <p className="text-base font-medium truncate">{ev.title}</p>
                   <p className="text-xs text-muted-foreground">
-                    {ev.event_date ? new Date(ev.event_date).toLocaleDateString('fr-FR', { month: 'short', day: 'numeric', year: 'numeric' }) : 'À définir'}
+                    {ev.event_date ? new Date(ev.event_date).toLocaleDateString(isFr ? 'fr-FR' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : (isFr ? 'À définir' : 'TBD')}
                     {ev.location ? ` · ${ev.location}` : ''}
                   </p>
                 </div>
@@ -171,16 +173,16 @@ export function AdminEvents() {
                   variant="outline"
                   className={cn('text-[10px] shrink-0 border-0', ev.is_published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}
                 >
-                  {ev.is_published ? 'Publié' : 'Brouillon'}
+                  {ev.is_published ? (isFr ? 'Publié' : 'Published') : (isFr ? 'Brouillon' : 'Draft')}
                 </Badge>
                 <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" title={ev.is_published ? 'Dépublier' : 'Publier'} onClick={() => togglePublish(ev)}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" title={ev.is_published ? (isFr ? 'Dépublier' : 'Unpublish') : (isFr ? 'Publier' : 'Publish')} onClick={() => togglePublish(ev)}>
                     {ev.is_published ? <Eye className="h-3.5 w-3.5 text-primary" /> : <EyeOff className="h-3.5 w-3.5" />}
                   </Button>
                   <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate(`/admin/events/${ev.id}/edit`)}>
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" onClick={async () => { await del.mutateAsync({ id: ev.id, orgId: currentOrg!.id }); toast({ title: 'Supprimé' }); }}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" onClick={async () => { await del.mutateAsync({ id: ev.id, orgId: currentOrg!.id }); toast({ title: isFr ? 'Supprimé' : 'Deleted' }); }}>
                     <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                 </div>
