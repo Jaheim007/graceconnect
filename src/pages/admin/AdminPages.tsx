@@ -1367,7 +1367,7 @@ export function AdminSettings() {
                 rows={4}
                 value={leaderBio}
                 onChange={e => setLeaderBio(e.target.value)}
-                placeholder="Présentez le parcours, la vision et la mission du leader…"
+                placeholder={isFr ? 'Présentez le parcours, la vision et la mission du leader…' : 'Present the leader\'s background, vision and mission…'}
                 className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-ring"
               />
             </div>
