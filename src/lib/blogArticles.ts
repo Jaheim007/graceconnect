@@ -107,7 +107,7 @@ export const blogArticles: BlogArticle[] = [
 <li><strong>Modèle</strong> : zéro abonnement, 10% de commission uniquement sur les ventes</li>
 <li><strong>Paiement</strong> : Mobile Money natif (Orange, MTN, Wave) + carte bancaire</li>
 <li><strong>Mobile Money</strong> : ✅ C'est le mode de paiement principal</li>
-<li><strong>Marché cible</strong> : Afrique francophone et diaspora</li>
+<li><strong>Marché cible</strong> : Afrique et diaspora</li>
 <li><strong>Complexité</strong> : zéro — prêt en 2 minutes, pas de thème à configurer</li>
 </ul>
 
