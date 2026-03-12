@@ -1300,7 +1300,7 @@ export function AdminSettings() {
           <div className="grid gap-3 border-t border-border/60 pt-3">
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="org-currency" className="text-xs font-medium">Devise</Label>
+                <Label htmlFor="org-currency" className="text-xs font-medium">{isFr ? 'Devise' : 'Currency'}</Label>
                 <CurrencySelector value={orgCurrency} onChange={(c) => setOrgCurrency(c)} className="h-8 text-xs" />
               </div>
               <div className="space-y-1.5">
