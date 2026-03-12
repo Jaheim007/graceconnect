@@ -103,8 +103,8 @@ export function useBehavioralNotifications() {
       const noPreviewProducts = orgState.products.filter((p: any) => p.is_published && (!p.preview_images || p.preview_images.length === 0));
       if (noPreviewProducts.length > 0) {
         createNotif.mutate({
-          title: '🖼️ Ajoutez des images de preview',
-          body: `${noPreviewProducts.length} produit(s) sans images de preview. Les produits avec images se vendent 30% mieux.`,
+          title: isFr ? '🖼️ Ajoutez des images de preview' : '🖼️ Add preview images',
+          body: isFr ? `${noPreviewProducts.length} produit(s) sans images de preview. Les produits avec images se vendent 30% mieux.` : `${noPreviewProducts.length} product(s) without preview images. Products with images sell 30% better.`,
           type: 'product_optimization',
         });
       }
