@@ -1242,7 +1242,7 @@ export function AdminSettings() {
                 <input id="logo-upload" type="file" accept="image/*" className="hidden"
                   onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadImage(f, 'logo'); }} />
               </div>
-              <p className="text-xs text-muted-foreground">Image carrée recommandée. Apparaîtra comme avatar de votre organisation sur la plateforme.</p>
+              <p className="text-xs text-muted-foreground">{isFr ? 'Image carrée recommandée. Apparaîtra comme avatar de votre organisation sur la plateforme.' : 'Square image recommended. Will appear as your organization avatar on the platform.'}</p>
             </div>
           </div>
 
