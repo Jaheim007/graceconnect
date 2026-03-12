@@ -796,7 +796,7 @@ export const blogArticles: BlogArticle[] = [
 <h3>🌍 Marché cible</h3>
 <ul>
 <li><strong>Gumroad</strong> : Principalement USA/Europe. Interface en anglais.</li>
-<li><strong>Siteviral</strong> : Conçu pour l'Afrique francophone. Interface en français. ✅</li>
+<li><strong>Siteviral</strong> : Conçu pour l'Afrique. Interface en français et anglais. ✅</li>
 </ul>
 
 <h3>📢 Marketing</h3>
