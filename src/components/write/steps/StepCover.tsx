@@ -60,17 +60,11 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
         body: {
           product_id: state.productId || crypto.randomUUID(),
           title: state.title,
-          subtitle: state.subtitle || '',
           product_type: state.style === 'ebook' ? 'ebook' : 'pdf',
           description: state.topic || state.subtitle || '',
           tier: 'standard',
           author_name: state.authorName || '',
           book_style: state.style || '',
-          tone: state.tone || 'professional',
-          target_audience: state.targetAudience || 'general',
-          religious_tradition: state.religiousTradition || '',
-          prayer_format: state.prayerFormat || '',
-          language: state.language || 'fr',
         },
       });
 
