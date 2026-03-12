@@ -489,17 +489,24 @@ export function ProductForm() {
         <div className="space-y-2">
           {(() => {
             const pt = watch('product_type');
-            const coverHints: Record<string, { hint: string; aspect: 'square' | 'video' | 'banner' | 'free' | 'book' }> = {
+            const coverHints: Record<string, { hint: string; aspect: 'square' | 'video' | 'banner' | 'free' | 'book' }> = isFr ? {
               pdf: { hint: 'Couverture livre: 1000×1600px (2:3 portrait)', aspect: 'book' },
               ebook: { hint: 'Couverture eBook: 1000×1600px (2:3 portrait)', aspect: 'book' },
               audio: { hint: 'Pochette: 3000×3000px (1:1 carré)', aspect: 'square' },
               video: { hint: 'Couverture vidéo: 1280×720px (16:9)', aspect: 'video' },
               course: { hint: 'Couverture cours: 1280×720px (16:9)', aspect: 'video' },
               other: { hint: '1280×720px (16:9) ou 1000×1600px (2:3)', aspect: 'free' },
+            } : {
+              pdf: { hint: 'Book cover: 1000×1600px (2:3 portrait)', aspect: 'book' },
+              ebook: { hint: 'eBook cover: 1000×1600px (2:3 portrait)', aspect: 'book' },
+              audio: { hint: 'Artwork: 3000×3000px (1:1 square)', aspect: 'square' },
+              video: { hint: 'Video cover: 1280×720px (16:9)', aspect: 'video' },
+              course: { hint: 'Course cover: 1280×720px (16:9)', aspect: 'video' },
+              other: { hint: '1280×720px (16:9) or 1000×1600px (2:3)', aspect: 'free' },
             };
             const cfg = coverHints[pt] || coverHints.other;
             return (
-              <ImageUploader value={watch('cover_image_url') || ''} onChange={(url) => setValue('cover_image_url', url)} folder="products" label="Image de couverture" hint={cfg.hint} aspectRatio={cfg.aspect} />
+              <ImageUploader value={watch('cover_image_url') || ''} onChange={(url) => setValue('cover_image_url', url)} folder="products" label={isFr ? 'Image de couverture' : 'Cover image'} hint={cfg.hint} aspectRatio={cfg.aspect} />
             );
           })()}
         </div>
