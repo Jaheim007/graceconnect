@@ -239,7 +239,7 @@ export default function PartnerPortalPage() {
                   </p>
                 </>
               ) : (
-                <p className="text-sm text-muted-foreground">Code d'invitation en cours de génération...</p>
+                <p className="text-sm text-muted-foreground">{isFr ? 'Code d\'invitation en cours de génération...' : 'Invite code being generated...'}</p>
               )}
             </CardContent>
           </Card>
