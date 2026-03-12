@@ -180,7 +180,7 @@ export function SocialShareKit({ url, title, description, context, price, earnin
           onClick={() => copyText(ogUrl)}
         >
           {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
-          {copied ? 'Copié !' : 'Copier le lien'}
+          {copied ? (isFr ? 'Copié !' : 'Copied!') : (isFr ? 'Copier le lien' : 'Copy link')}
         </Button>
         <Button
           variant="outline"
