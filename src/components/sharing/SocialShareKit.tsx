@@ -155,7 +155,7 @@ export function SocialShareKit({ url, title, description, context, price, earnin
 
   return (
     <div className="space-y-4">
-      <p className="text-sm font-bold text-center">📤 Partage maintenant !</p>
+      <p className="text-sm font-bold text-center">📤 {isFr ? 'Partage maintenant !' : 'Share now!'}</p>
 
       {/* Platform buttons */}
       <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
