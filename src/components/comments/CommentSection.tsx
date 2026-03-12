@@ -69,9 +69,9 @@ export function CommentSection({ contentType, contentId, className }: CommentSec
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs">
-                  <span className="font-semibold">{c.profiles?.display_name || 'Utilisateur'}</span>
+                  <span className="font-semibold">{c.profiles?.display_name || (locale === 'fr' ? 'Utilisateur' : 'User')}</span>
                   <span className="text-muted-foreground ml-1.5 text-[10px]">
-                    {new Date(c.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                    {new Date(c.created_at).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'short' })}
                   </span>
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">{c.body}</p>
