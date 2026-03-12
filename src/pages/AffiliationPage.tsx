@@ -247,10 +247,10 @@ export default function AffiliationPage() {
             {aLoading ? <SkeletonRow count={3} /> : filteredAffiliateLinks.length === 0 ? (
               <div className="text-center py-12 space-y-3">
                 <Link2 className="h-10 w-10 text-muted-foreground/40 mx-auto" />
-                <p className="text-sm font-medium text-muted-foreground">Aucun lien ambassadeur</p>
-                <p className="text-xs text-muted-foreground max-w-xs mx-auto">Découvrez les plateformes avec un programme ambassadeur et commencez à gagner des commissions.</p>
+                <p className="text-sm font-medium text-muted-foreground">{isFr ? 'Aucun lien ambassadeur' : 'No ambassador links'}</p>
+                <p className="text-xs text-muted-foreground max-w-xs mx-auto">{isFr ? 'Découvrez les plateformes avec un programme ambassadeur et commencez à gagner des commissions.' : 'Discover platforms with an ambassador program and start earning commissions.'}</p>
                 <Button size="sm" onClick={() => setActiveTab('decouvrir')} className="mt-2 gap-1.5">
-                  <Search className="h-3.5 w-3.5" /> Découvrir des programmes
+                  <Search className="h-3.5 w-3.5" /> {isFr ? 'Découvrir des programmes' : 'Discover programs'}
                 </Button>
               </div>
             ) : (
