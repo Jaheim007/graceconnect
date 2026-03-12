@@ -1320,7 +1320,7 @@ export function AdminSettings() {
             onClick={handleSaveProfile}
             disabled={savingProfile}
           >
-            {savingProfile ? 'Sauvegarde…' : 'Sauvegarder le profil'}
+            {savingProfile ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder le profil' : 'Save profile')}
           </Button>
         </div>
 
