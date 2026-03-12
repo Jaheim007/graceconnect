@@ -136,12 +136,12 @@ export default function AffiliationPage() {
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
-      toast({ title: 'Vous êtes ambassadeur !', description: 'Votre lien est prêt à être partagé.' });
+      toast({ title: isFr ? 'Vous êtes ambassadeur !' : 'You are now an ambassador!', description: isFr ? 'Votre lien est prêt à être partagé.' : 'Your link is ready to share.' });
       qc.invalidateQueries({ queryKey: ['user-affiliate-links'] });
       qc.invalidateQueries({ queryKey: ['user-memberships'] });
       qc.invalidateQueries({ queryKey: ['all-affiliate-orgs'] });
     },
-    onError: (err: Error) => { toast({ title: 'Erreur', description: err.message, variant: 'destructive' }); },
+    onError: (err: Error) => { toast({ title: isFr ? 'Erreur' : 'Error', description: err.message, variant: 'destructive' }); },
   });
 
   const handleRequestPayout = async (orgId: string, orgKycStatus: string) => {
