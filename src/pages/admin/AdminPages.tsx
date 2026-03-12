@@ -1379,7 +1379,7 @@ export function AdminSettings() {
             onClick={handleSaveLeader}
             disabled={savingLeader}
           >
-            {savingLeader ? 'Sauvegarde…' : 'Sauvegarder la biographie'}
+            {savingLeader ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder la biographie' : 'Save biography')}
           </Button>
         </div>
 
