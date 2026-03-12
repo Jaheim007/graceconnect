@@ -104,10 +104,12 @@ export default function SuperadminCommandCenter() {
         body: { mode },
       });
       if (error) throw error;
-      toast.success(`Autopilot ${mode} exécuté : ${data?.actions || 0} actions, ${data?.notifications || 0} notifications`);
+      toast.success(isFr
+        ? `Autopilot ${mode} exécuté : ${data?.actions || 0} actions, ${data?.notifications || 0} notifications`
+        : `Autopilot ${mode} ran: ${data?.actions || 0} actions, ${data?.notifications || 0} notifications`);
       refetchRuns();
     } catch (e: any) {
-      toast.error('Erreur : ' + (e.message || 'Échec'));
+      toast.error((isFr ? 'Erreur : ' : 'Error: ') + (e.message || (isFr ? 'Échec' : 'Failed')));
     } finally {
       setTriggeringMode(null);
     }
