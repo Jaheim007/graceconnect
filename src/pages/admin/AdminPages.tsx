@@ -1265,7 +1265,7 @@ export function AdminSettings() {
             </div>
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="org-website" className="text-xs font-medium">Site web</Label>
+                <Label htmlFor="org-website" className="text-xs font-medium">{isFr ? 'Site web' : 'Website'}</Label>
                 <Input id="org-website" value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://yourchurch.com" className="h-8 text-xs" />
               </div>
               <div className="space-y-1.5">
