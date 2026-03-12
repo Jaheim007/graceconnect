@@ -726,27 +726,29 @@ export function SmartCameraCapture({
               <AlertTriangle className="h-7 w-7 text-destructive" />
             </div>
             <div className="text-center space-y-1">
-              <p className="text-sm font-medium">Caméra indisponible</p>
+              <p className="text-sm font-medium">{lang === 'fr' ? 'Caméra indisponible' : 'Camera unavailable'}</p>
               <p className="text-xs text-muted-foreground max-w-xs">
-                {error || "Impossible d'accéder à la caméra sur cet appareil."}
+                {error || (lang === 'fr' ? "Impossible d'accéder à la caméra sur cet appareil." : "Cannot access camera on this device.")}
               </p>
             </div>
             <div className="flex flex-col gap-2 w-full max-w-xs">
               <Button type="button" variant="outline" size="sm" onClick={() => startCamera()} className="w-full">
-                <Camera className="h-4 w-4 mr-2" /> Réessayer
+                <Camera className="h-4 w-4 mr-2" /> {lang === 'fr' ? 'Réessayer' : 'Retry'}
               </Button>
               <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-center">
                 <div className="flex items-center justify-center gap-2 mb-1.5">
                   <Smartphone className="h-4 w-4 text-primary" />
-                  <p className="text-xs font-medium text-primary">Utilisez votre téléphone</p>
+                  <p className="text-xs font-medium text-primary">{lang === 'fr' ? 'Utilisez votre téléphone' : 'Use your phone'}</p>
                 </div>
                 <p className="text-[10px] text-muted-foreground leading-relaxed">
-                  Ouvrez ce lien sur votre téléphone mobile pour effectuer la vérification.
+                  {lang === 'fr'
+                    ? 'Ouvrez ce lien sur votre téléphone mobile pour effectuer la vérification.'
+                    : 'Open this link on your mobile phone to complete the verification.'}
                 </p>
               </div>
             </div>
             <Button type="button" variant="ghost" size="sm" onClick={clear} className="text-xs text-muted-foreground">
-              Annuler
+              {lang === 'fr' ? 'Annuler' : 'Cancel'}
             </Button>
           </div>
         )}
