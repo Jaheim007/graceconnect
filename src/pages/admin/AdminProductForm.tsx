@@ -543,12 +543,12 @@ export function ProductForm() {
                   if (pdfData?.error) throw new Error(pdfData.error);
                   if (pdfData?.download_url) {
                     setValue('file_url', pdfData.download_url, { shouldDirty: true });
-                    toast({ title: '✅ PDF régénéré avec succès !' });
+                  toast({ title: isFr ? '✅ PDF régénéré avec succès !' : '✅ PDF regenerated successfully!' });
                   } else {
-                    throw new Error('Aucune URL retournée');
+                    throw new Error(isFr ? 'Aucune URL retournée' : 'No URL returned');
                   }
                 } catch (err: any) {
-                  toast({ title: '❌ Erreur de régénération', description: err.message, variant: 'destructive' });
+                  toast({ title: isFr ? '❌ Erreur de régénération' : '❌ Regeneration error', description: err.message, variant: 'destructive' });
                 } finally {
                   setRegeneratingPdf(false);
                 }
