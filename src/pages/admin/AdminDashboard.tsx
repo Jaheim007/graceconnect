@@ -408,9 +408,9 @@ export default function AdminDashboard() {
           className="w-full flex items-center justify-between p-4 bg-card hover:bg-muted/50 transition-colors text-left"
         >
           <div>
-            <h2 className="font-semibold text-sm">Outils de croissance avancés</h2>
+            <h2 className="font-semibold text-sm">{isFr ? 'Outils de croissance avancés' : 'Advanced growth tools'}</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Objectifs, simulations, idées, analytics et CRM
+              {isFr ? 'Objectifs, simulations, idées, analytics et CRM' : 'Goals, simulations, ideas, analytics and CRM'}
             </p>
           </div>
           <ChevronDown className={cn('h-5 w-5 text-muted-foreground transition-transform', showAdvanced && 'rotate-180')} />
