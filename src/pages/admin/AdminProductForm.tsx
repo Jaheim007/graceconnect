@@ -687,7 +687,7 @@ export function ProductForm() {
         {/* Bundle Items */}
         {isEdit && watch('is_bundle') && (
           <div className="space-y-2 border border-primary/20 rounded-xl p-4">
-            <Label className="flex items-center gap-1 text-sm font-semibold"><PackagePlus className="h-3.5 w-3.5 text-primary" /> Produits inclus dans le bundle</Label>
+            <Label className="flex items-center gap-1 text-sm font-semibold"><PackagePlus className="h-3.5 w-3.5 text-primary" /> {isFr ? 'Produits inclus dans le bundle' : 'Products included in bundle'}</Label>
             {bundleItems.map((bi: any) => (
               <div key={bi.id} className="flex items-center gap-2 bg-muted/50 rounded-lg p-2">
                 <span className="text-xs font-medium flex-1">{bi.included_product?.title || bi.included_product_id}</span>
@@ -695,8 +695,8 @@ export function ProductForm() {
               </div>
             ))}
             <div className="flex gap-2">
-              <Select value={selectedBundleProduct} onValueChange={setSelectedBundleProduct}><SelectTrigger className="h-8 text-xs flex-1"><SelectValue placeholder="Sélectionner un produit" /></SelectTrigger><SelectContent>{allProducts.filter((p: any) => p.id !== id && !bundleItems.some((bi: any) => bi.included_product_id === p.id)).map((p: any) => (<SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>))}</SelectContent></Select>
-              <Button type="button" variant="outline" size="sm" className="h-8 gap-1" onClick={() => { if (selectedBundleProduct) { addBundleItem.mutate({ bundleProductId: id!, includedProductId: selectedBundleProduct }); setSelectedBundleProduct(''); } }}><Plus className="h-3 w-3" /> Ajouter</Button>
+              <Select value={selectedBundleProduct} onValueChange={setSelectedBundleProduct}><SelectTrigger className="h-8 text-xs flex-1"><SelectValue placeholder={isFr ? 'Sélectionner un produit' : 'Select a product'} /></SelectTrigger><SelectContent>{allProducts.filter((p: any) => p.id !== id && !bundleItems.some((bi: any) => bi.included_product_id === p.id)).map((p: any) => (<SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>))}</SelectContent></Select>
+              <Button type="button" variant="outline" size="sm" className="h-8 gap-1" onClick={() => { if (selectedBundleProduct) { addBundleItem.mutate({ bundleProductId: id!, includedProductId: selectedBundleProduct }); setSelectedBundleProduct(''); } }}><Plus className="h-3 w-3" /> {isFr ? 'Ajouter' : 'Add'}</Button>
             </div>
           </div>
         )}
