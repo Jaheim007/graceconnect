@@ -69,7 +69,8 @@ const fadeUp = {
 export default function AdminDashboard() {
   const { currentOrg } = useOrg();
   const navigate = useNavigate();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const isFr = locale === 'fr';
   const [showQuickStart, setShowQuickStart] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
   useBehavioralNotifications();
