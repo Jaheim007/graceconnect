@@ -84,7 +84,7 @@ export default function CertificateVerifyPage() {
 
               {/* Program */}
               <div className="text-center">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">Formation</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">{isFr ? 'Formation' : 'Program'}</p>
                 <p className="text-base font-semibold text-primary mt-1">« {programTitle} »</p>
               </div>
 
