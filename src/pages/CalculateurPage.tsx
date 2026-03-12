@@ -58,13 +58,13 @@ export default function CalculateurPage() {
       <section className="pt-14">
         <div className="container max-w-4xl px-4 pt-24 pb-12 sm:pt-32 text-center space-y-5">
           <Badge variant="secondary" className="text-xs px-4 py-1.5 rounded-full border border-border gap-1.5">
-            <Calculator className="h-3.5 w-3.5" /> Calculateur de revenus
+            <Calculator className="h-3.5 w-3.5" /> {isFr ? 'Calculateur de revenus' : 'Revenue Calculator'}
           </Badge>
           <h1 className="text-3xl sm:text-5xl font-extrabold leading-tight">
-            Combien pouvez-vous <span className="text-primary">gagner</span> ?
+            {isFr ? <>Combien pouvez-vous <span className="text-primary">gagner</span> ?</> : <>How much can you <span className="text-primary">earn</span>?</>}
           </h1>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Estimez vos revenus potentiels en quelques secondes. Ajustez les curseurs selon votre situation.
+            {isFr ? 'Estimez vos revenus potentiels en quelques secondes. Ajustez les curseurs selon votre situation.' : 'Estimate your potential earnings in seconds. Adjust the sliders to match your situation.'}
           </p>
         </div>
       </section>
