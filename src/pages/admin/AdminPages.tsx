@@ -303,68 +303,70 @@ export function AdminProducts() {
   const { toast } = useToast();
   const qc = useQueryClient();
   const bulk = useBulkSelect(items as any[]);
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const { fmtPrice } = useDisplayCurrency();
 
   const handleBulkPublish = async (ids: string[]) => {
     await db.from('digital_products').update({ is_published: true }).in('id', ids);
     qc.invalidateQueries({ queryKey: ['org-products'] });
     bulk.clear();
-    toast({ title: `${ids.length} produit(s) publié(s) ✅` });
+    toast({ title: isFr ? `${ids.length} produit(s) publié(s) ✅` : `${ids.length} product(s) published ✅` });
   };
   const handleBulkUnpublish = async (ids: string[]) => {
     await db.from('digital_products').update({ is_published: false }).in('id', ids);
     qc.invalidateQueries({ queryKey: ['org-products'] });
     bulk.clear();
-    toast({ title: `${ids.length} produit(s) dépublié(s)` });
+    toast({ title: isFr ? `${ids.length} produit(s) dépublié(s)` : `${ids.length} product(s) unpublished` });
   };
   const handleBulkDelete = async (ids: string[]) => {
     await db.from('digital_products').delete().in('id', ids);
     qc.invalidateQueries({ queryKey: ['org-products'] });
     bulk.clear();
-    toast({ title: `${ids.length} produit(s) supprimé(s)` });
+    toast({ title: isFr ? `${ids.length} produit(s) supprimé(s)` : `${ids.length} product(s) deleted` });
   };
 
   const handleTogglePublish = async (p: any) => {
     await db.from('digital_products').update({ is_published: !p.is_published }).eq('id', p.id);
     qc.invalidateQueries({ queryKey: ['org-products'] });
-    toast({ title: p.is_published ? 'Produit dépublié' : 'Produit publié ✅' });
+    toast({ title: p.is_published ? (isFr ? 'Produit dépublié' : 'Product unpublished') : (isFr ? 'Produit publié ✅' : 'Product published ✅') });
   };
 
   const handleDeleteSingle = async (p: any) => {
-    // Check if product has purchases
     const { count } = await db.from('product_purchases').select('id', { count: 'exact', head: true }).eq('product_id', p.id);
     if (count && count > 0) {
-      toast({ title: 'Suppression impossible', description: `Ce produit a ${count} achat(s). Vous pouvez le dépublier à la place.`, variant: 'destructive' });
+      toast({ title: isFr ? 'Suppression impossible' : 'Cannot delete', description: isFr ? `Ce produit a ${count} achat(s). Vous pouvez le dépublier à la place.` : `This product has ${count} purchase(s). You can unpublish it instead.`, variant: 'destructive' });
       return;
     }
     await db.from('digital_products').delete().eq('id', p.id);
     qc.invalidateQueries({ queryKey: ['org-products'] });
-    toast({ title: 'Produit supprimé' });
+    toast({ title: isFr ? 'Produit supprimé' : 'Product deleted' });
   };
 
   return (
     <AdminPageShell
-      title="Boutique digitale"
+      title={isFr ? 'Boutique digitale' : 'Digital shop'}
       backRoute="/admin"
       actions={
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button size="sm" className="gap-1.5 text-xs h-9">
-              <Plus className="h-3.5 w-3.5" /> Nouveau <ChevronDown className="h-3 w-3 ml-0.5" />
+              <Plus className="h-3.5 w-3.5" /> {isFr ? 'Nouveau' : 'New'} <ChevronDown className="h-3 w-3 ml-0.5" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuItem onClick={() => navigate('/ecrire')} className="gap-2 py-2.5">
               <PenLine className="h-4 w-4 text-primary" />
               <div>
-                <p className="text-xs font-semibold">Écrire avec l'IA</p>
-                <p className="text-[10px] text-muted-foreground">Crée un livre en 5 min</p>
+                <p className="text-xs font-semibold">{isFr ? 'Écrire avec l\'IA' : 'Write with AI'}</p>
+                <p className="text-[10px] text-muted-foreground">{isFr ? 'Crée un livre en 5 min' : 'Create a book in 5 min'}</p>
               </div>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigate('/admin/products/new')} className="gap-2 py-2.5">
               <Upload className="h-4 w-4 text-accent" />
               <div>
-                <p className="text-xs font-semibold">Importer / Créer</p>
-                <p className="text-[10px] text-muted-foreground">PDF, vidéo, formation…</p>
+                <p className="text-xs font-semibold">{isFr ? 'Importer / Créer' : 'Import / Create'}</p>
+                <p className="text-[10px] text-muted-foreground">{isFr ? 'PDF, vidéo, formation…' : 'PDF, video, course…'}</p>
               </div>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -372,13 +374,13 @@ export function AdminProducts() {
       }
     >
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
-        <EmptyState variant="purchases" title="Aucun produit" action={{ label: 'Nouveau produit', onClick: () => navigate('/admin/products/new') }} />
+        <EmptyState variant="purchases" title={isFr ? 'Aucun produit' : 'No products'} action={{ label: isFr ? 'Nouveau produit' : 'New product', onClick: () => navigate('/admin/products/new') }} />
       ) : (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-sm">{items.length} produit{items.length > 1 ? 's' : ''}</h2>
+            <h2 className="font-semibold text-sm">{items.length} {isFr ? 'produit' : 'product'}{items.length > 1 ? 's' : ''}</h2>
             <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={bulk.toggleAll}>
-              {bulk.allSelected ? 'Désélectionner' : 'Tout sélectionner'}
+              {bulk.allSelected ? (isFr ? 'Désélectionner' : 'Deselect') : (isFr ? 'Tout sélectionner' : 'Select all')}
             </Button>
           </div>
           <BulkActionsToolbar
@@ -386,9 +388,9 @@ export function AdminProducts() {
             totalCount={items.length}
             onClear={bulk.clear}
             actions={[
-              { label: 'Publier', icon: CheckCircle, onClick: handleBulkPublish },
-              { label: 'Dépublier', icon: Pencil, onClick: handleBulkUnpublish },
-              { label: 'Supprimer', icon: Trash2, variant: 'destructive', onClick: handleBulkDelete },
+              { label: isFr ? 'Publier' : 'Publish', icon: CheckCircle, onClick: handleBulkPublish },
+              { label: isFr ? 'Dépublier' : 'Unpublish', icon: Pencil, onClick: handleBulkUnpublish },
+              { label: isFr ? 'Supprimer' : 'Delete', icon: Trash2, variant: 'destructive', onClick: handleBulkDelete },
             ]}
           />
           <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2.5">
@@ -408,46 +410,46 @@ export function AdminProducts() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <p className="text-base font-medium truncate">{p.title}</p>
-                    {(p as any).is_express_demo && <Badge variant="outline" className="text-[9px] border-dashed">Démo</Badge>}
+                    {(p as any).is_express_demo && <Badge variant="outline" className="text-[9px] border-dashed">{isFr ? 'Démo' : 'Demo'}</Badge>}
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {p.is_free ? 'Gratuit' : `${p.price?.toLocaleString('fr-FR')} ${p.currency}`} · {p.sales_count || 0} vente{(p.sales_count || 0) > 1 ? 's' : ''}
+                    {fmtPrice(p.price || 0, p.is_free, p.currency)} · {p.sales_count || 0} {isFr ? 'vente' : 'sale'}{(p.sales_count || 0) > 1 ? 's' : ''}
                   </p>
                 </div>
                 <Badge variant="outline" className={cn('text-xs border-0 shrink-0', p.is_published ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}>
-                  {p.is_published ? 'Publié' : 'Brouillon'}
+                  {p.is_published ? (isFr ? 'Publié' : 'Published') : (isFr ? 'Brouillon' : 'Draft')}
                 </Badge>
                 <div className="flex items-center gap-1.5 opacity-60 group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title="Voir le produit"
+                  <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title={isFr ? 'Voir le produit' : 'View product'}
                     onClick={(e) => { e.stopPropagation(); navigate(`/org/${currentOrg?.slug}/product/${p.id}`); }}>
                     <Eye className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title="Modifier"
+                  <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title={isFr ? 'Modifier' : 'Edit'}
                     onClick={(e) => { e.stopPropagation(); navigate(`/admin/products/${p.id}/edit`); }}>
                     <Pencil className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title={p.is_published ? 'Dépublier' : 'Publier'}
+                  <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" title={p.is_published ? (isFr ? 'Dépublier' : 'Unpublish') : (isFr ? 'Publier' : 'Publish')}
                     onClick={(e) => { e.stopPropagation(); handleTogglePublish(p); }}>
                     {p.is_published ? <AlertTriangle className="h-4 w-4 text-amber-500" /> : <CheckCircle className="h-4 w-4 text-emerald-500" />}
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive shrink-0" title="Supprimer"
+                      <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive shrink-0" title={isFr ? 'Supprimer' : 'Delete'}
                         onClick={(e) => e.stopPropagation()}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Supprimer ce produit ?</AlertDialogTitle>
+                        <AlertDialogTitle>{isFr ? 'Supprimer ce produit ?' : 'Delete this product?'}</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Si le produit a déjà été acheté, il ne pourra pas être supprimé mais seulement dépublié.
+                          {isFr ? 'Si le produit a déjà été acheté, il ne pourra pas être supprimé mais seulement dépublié.' : 'If the product has already been purchased, it cannot be deleted but only unpublished.'}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                        <AlertDialogCancel>{isFr ? 'Annuler' : 'Cancel'}</AlertDialogCancel>
                         <AlertDialogAction onClick={() => handleDeleteSingle(p)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                          Supprimer
+                          {isFr ? 'Supprimer' : 'Delete'}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
