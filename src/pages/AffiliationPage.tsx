@@ -283,15 +283,15 @@ export default function AffiliationPage() {
                       <div className="grid grid-cols-3 gap-2 text-center">
                         <div className="rounded-lg bg-muted/50 p-2">
                           <p className="text-sm font-bold">{l.clicks || 0}</p>
-                          <p className="text-[10px] text-muted-foreground">Clics</p>
+                          <p className="text-[10px] text-muted-foreground">{isFr ? 'Clics' : 'Clicks'}</p>
                         </div>
                         <div className="rounded-lg bg-muted/50 p-2">
                           <p className="text-sm font-bold">{l.conversions || 0}</p>
-                          <p className="text-[10px] text-muted-foreground">Conversions</p>
+                          <p className="text-[10px] text-muted-foreground">{isFr ? 'Conversions' : 'Conversions'}</p>
                         </div>
                         <div className="rounded-lg bg-primary/10 p-2">
                           <p className="text-sm font-bold text-primary">{fmt(l.total_earned || 0)}</p>
-                          <p className="text-[10px] text-muted-foreground">Gagné</p>
+                          <p className="text-[10px] text-muted-foreground">{isFr ? 'Gagné' : 'Earned'}</p>
                         </div>
                       </div>
                       <AffiliateShareTools shareUrl={shareUrl} orgName={l.organizations?.name || ''} affiliateCode={l.code} />
