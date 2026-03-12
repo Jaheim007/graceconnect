@@ -54,9 +54,10 @@ export function AIWritingAssistant({ open, onClose, onInsert, context = 'descrip
       content = content.replace(/\*(.*?)\*/g, '<em>$1</em>');
       // Remove leading/trailing --- separators
       content = content.replace(/^\s*---\s*/g, '').replace(/\s*---\s*$/g, '');
-      setResult(content || 'Aucun résultat généré.');
+      setResult(content || (document.documentElement.lang === 'fr' ? 'Aucun résultat généré.' : 'No result generated.'));
     } catch (err: any) {
-      toast({ title: 'Erreur IA', description: err.message || 'Impossible de générer le contenu.', variant: 'destructive' });
+      const isFr = document.documentElement.lang === 'fr';
+      toast({ title: isFr ? 'Erreur IA' : 'AI Error', description: err.message || (isFr ? 'Impossible de générer le contenu.' : 'Unable to generate content.'), variant: 'destructive' });
     } finally {
       setLoading(false);
     }

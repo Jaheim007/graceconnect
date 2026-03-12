@@ -113,9 +113,9 @@ export default function AdminLayout() {
   if (!currentOrg) {
     return (
       <EmptyState
-        title="Aucune organisation sélectionnée"
-        description="Créez ou sélectionnez une organisation pour accéder au panneau d'administration."
-        action={{ label: 'Créer une organisation', onClick: () => navigate('/create-org') }}
+        title={document.documentElement.lang === 'fr' ? "Aucune organisation sélectionnée" : "No organization selected"}
+        description={document.documentElement.lang === 'fr' ? "Créez ou sélectionnez une organisation pour accéder au panneau d'administration." : "Create or select an organization to access the admin panel."}
+        action={{ label: document.documentElement.lang === 'fr' ? 'Créer une organisation' : 'Create organization', onClick: () => navigate('/create-org') }}
         className="min-h-screen"
       />
     );

@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
+import { useI18n } from '@/i18n/I18nContext';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -21,12 +22,13 @@ interface CampaignCardProps {
 export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const [shareUrl, setShareUrl] = useState('');
 
   const targetPath = `/campaign/${campaign.id}`;
 
   useEffect(() => {
-    // Set sync fallback immediately
     const fallback = buildSocialShareUrl({
       targetUrl: `${window.location.origin}${targetPath}`,
       title: campaign.title,
@@ -35,7 +37,6 @@ export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
     });
     setShareUrl(fallback);
 
-    // Upgrade to short link
     getOrCreateShortLink({
       targetPath,
       title: campaign.title,
@@ -43,12 +44,12 @@ export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
       image: campaign.image_url || undefined,
     })
       .then((url) => setShareUrl(url))
-      .catch(() => { /* keep fallback */ });
+      .catch(() => {});
   }, [campaign.id, campaign.title, campaign.description, campaign.image_url, targetPath]);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(shareUrl);
-    toast({ title: 'Lien copié !' });
+    toast({ title: isFr ? 'Lien copié !' : 'Link copied!' });
   };
 
   const handleShareWhatsApp = () => {
@@ -77,7 +78,7 @@ export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
           )}
           {(campaign as any).organization_name && (
             <p className="text-xs text-muted-foreground mt-1">
-              Publié par{' '}
+              {isFr ? 'Publié par' : 'By'}{' '}
               <span
                 className="font-semibold text-primary hover:underline cursor-pointer"
                 onClick={(e) => { e.stopPropagation(); navigate(`/org/${(campaign as any).organization_slug}`); }}
@@ -90,16 +91,13 @@ export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
           {campaign.current_amount > 0 && (
             <p className="text-[10px] text-muted-foreground flex items-center gap-1 mt-1">
               <Heart className="h-3 w-3 text-rose-400 fill-rose-400" />
-              {donorCount}+ {donorCount > 1 ? 'donateurs' : 'donateur'}
+              {donorCount}+ {isFr ? (donorCount > 1 ? 'donateurs' : 'donateur') : (donorCount > 1 ? 'donors' : 'donor')}
             </p>
           )}
           {progress !== null && (
             <div className="space-y-2">
               <div className="h-2 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-primary rounded-full transition-all duration-1000 ease-out"
-                  style={{ width: `${progress}%` }}
-                />
+                <div className="h-full bg-primary rounded-full transition-all duration-1000 ease-out" style={{ width: `${progress}%` }} />
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="font-bold text-primary">{fmt(campaign.current_amount)}</span>
@@ -121,19 +119,15 @@ export function CampaignCard({ campaign, index = 0 }: CampaignCardProps) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start" className="w-44">
             <DropdownMenuItem onClick={handleCopyLink} className="gap-2 text-xs">
-              <Copy className="h-3.5 w-3.5" /> Copier le lien
+              <Copy className="h-3.5 w-3.5" /> {isFr ? 'Copier le lien' : 'Copy link'}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleShareWhatsApp} className="gap-2 text-xs">
               <MessageCircle className="h-3.5 w-3.5 text-green-500" /> WhatsApp
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <Button
-          size="default"
-          onClick={() => navigate(targetPath)}
-          className="flex-1 gap-2 font-semibold"
-        >
-          <Heart className="h-4 w-4" /> Contribuer
+        <Button size="default" onClick={() => navigate(targetPath)} className="flex-1 gap-2 font-semibold">
+          <Heart className="h-4 w-4" /> {isFr ? 'Contribuer' : 'Contribute'}
         </Button>
       </div>
     </div>
