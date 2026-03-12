@@ -59,6 +59,7 @@ export function GlobalPreferencesSelector() {
   };
 
   const currentCurrencyInfo = SUPPORTED_CURRENCIES.find(c => c.code === currency);
+  const currentCurrencyFlag = CURRENCY_FLAGS[currency] || '🌍';
 
   return (
     <DropdownMenu>
