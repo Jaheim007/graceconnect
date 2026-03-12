@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface SearchResult {
   id: string;
