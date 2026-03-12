@@ -750,7 +750,7 @@ export async function onDonationConfirmed(
     '🙏 Don confirmé',
     `Merci pour votre don de ${amount} ${currency} à ${orgName} pour "${campaignName}".`,
     'donation_receipt',
-    { org_name: orgName, amount, currency, reference, date: new Date().toLocaleDateString('fr-FR') },
+    { org_name: orgName, amount, currency, reference, date: new Date().toISOString().slice(0, 10) },
     'transaction',
   );
 }
