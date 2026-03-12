@@ -316,11 +316,11 @@ export default function AffiliationPage() {
                       <div key={orgId} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/30">
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium">{org?.name || orgId}</p>
-                          <p className="text-xs text-primary font-semibold">{fmt(amount, currency)} disponible</p>
+                          <p className="text-xs text-primary font-semibold">{fmt(amount, currency)} {isFr ? 'disponible' : 'available'}</p>
                         </div>
-                        {!kycApproved && <div className="flex items-center gap-1 text-[10px] text-primary"><AlertTriangle className="h-3 w-3" /><span>KYC requis</span></div>}
+                        {!kycApproved && <div className="flex items-center gap-1 text-[10px] text-primary"><AlertTriangle className="h-3 w-3" /><span>{isFr ? 'KYC requis' : 'KYC required'}</span></div>}
                         <Button size="sm" className="h-7 text-xs" disabled={requestingPayout === orgId} onClick={() => handleRequestPayout(orgId, kycStatus)}>
-                          {requestingPayout === orgId ? 'Envoi...' : kycApproved ? 'Retirer' : 'Soumettre KYC'}
+                          {requestingPayout === orgId ? (isFr ? 'Envoi...' : 'Sending...') : kycApproved ? (isFr ? 'Retirer' : 'Withdraw') : (isFr ? 'Soumettre KYC' : 'Submit KYC')}
                         </Button>
                       </div>
                     );
