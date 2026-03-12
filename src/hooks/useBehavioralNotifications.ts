@@ -169,10 +169,12 @@ export function useBehavioralNotifications() {
           const hasLowActivity = myLinks.every((l: any) => (l.clicks || 0) < 3);
           if (hasLowActivity) {
             const futureDate = new Date(Date.now() + 48 * 3600000);
-            const dateStr = futureDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+            const dateStr = futureDate.toLocaleDateString(isFr ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long' });
             createNotif.mutate({
-              title: '⏳ Votre avantage ambassadeur est en pause',
-              body: `Vos liens n'ont reçu aucun clic récemment. Partagez avant le ${dateStr} pour réactiver votre visibilité et ne pas manquer de commissions.`,
+              title: isFr ? '⏳ Votre avantage ambassadeur est en pause' : '⏳ Your ambassador benefit is paused',
+              body: isFr
+                ? `Vos liens n'ont reçu aucun clic récemment. Partagez avant le ${dateStr} pour réactiver votre visibilité et ne pas manquer de commissions.`
+                : `Your links haven't received any clicks recently. Share before ${dateStr} to reactivate your visibility and not miss commissions.`,
               type: 'ambassador_last_chance',
             });
           }
