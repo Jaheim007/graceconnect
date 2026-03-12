@@ -153,7 +153,7 @@ export default function SuperadminCommandCenter() {
         </div>
         <div>
           <h1 className="text-xl font-bold">Command Center</h1>
-          <p className="text-xs text-muted-foreground">{format(new Date(), "EEEE d MMMM yyyy", { locale: fr })}</p>
+          <p className="text-xs text-muted-foreground">{format(new Date(), "EEEE d MMMM yyyy", { locale: dateFnsLocale })}</p>
         </div>
       </div>
 
