@@ -267,7 +267,7 @@ export default function SuperadminCommandCenter() {
                     {run.alerts_generated} alertes · {run.notifications_sent} notifs · {(run.actions_taken as any[])?.length || 0} actions
                   </span>
                   <span className="text-[10px] text-muted-foreground shrink-0">
-                    {formatDistanceToNow(new Date(run.created_at), { addSuffix: true, locale: fr })}
+                    {formatDistanceToNow(new Date(run.created_at), { addSuffix: true, locale: dateFnsLocale })}
                   </span>
                 </div>
               ))}
