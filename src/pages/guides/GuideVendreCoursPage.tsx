@@ -1,9 +1,9 @@
 import { SEOGuidePage } from '@/components/landing/SEOGuidePage';
 export default function GuideVendreCoursPage() {
   return <SEOGuidePage
-    seo={{ title: 'Vendre des cours en ligne en Afrique francophone — Guide', description: 'Comment vendre vos cours, formations et annales en ligne en Afrique. Paiement Mobile Money, zéro abonnement.', url: 'https://siteviral.com/guide/vendre-cours-en-ligne' }}
+    seo={{ title: 'Vendre des cours en ligne en Afrique — Guide', description: 'Comment vendre vos cours, formations et annales en ligne en Afrique. Paiement Mobile Money, zéro abonnement.', url: 'https://siteviral.com/guide/vendre-cours-en-ligne' }}
     badge="🎓 Guide SEO"
-    title="Vendre des cours en ligne en Afrique francophone"
+    title="Vendre des cours en ligne en Afrique"
     intro="Vous êtes formateur, professeur ou coach ? Vos cours, exercices et annales peuvent toucher des milliers d'étudiants au-delà de votre ville. Voici comment les vendre en ligne."
     sections={[
       { heading: '1. Le marché de l\'éducation digitale en Afrique', content: 'Des millions d\'étudiants cherchent du contenu éducatif de qualité en français. Udemy et Coursera sont en dollars et ne supportent pas le Mobile Money. Le marché est grand ouvert.' },
