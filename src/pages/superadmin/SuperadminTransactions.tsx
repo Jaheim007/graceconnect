@@ -391,7 +391,7 @@ export function SuperadminTransactions() {
         />
         <StatCard
           label="Transactions"
-          value={((txStats as any)?.total_count ?? allTx.length).toLocaleString('fr-FR')}
+          value={((txStats as any)?.total_count ?? allTx.length).toLocaleString()}
           icon={BarChart3}
           accent="bg-amber-500"
         />
