@@ -1060,11 +1060,11 @@ export function AdminSettings() {
       return;
     }
     if (slugError) {
-      toast({ title: 'Slug invalide', description: slugError, variant: 'destructive' });
+      toast({ title: isFr ? 'Slug invalide' : 'Invalid slug', description: slugError, variant: 'destructive' });
       return;
     }
     if (orgSlug.length < 3) {
-      toast({ title: 'Slug trop court', description: 'Minimum 3 caractères.', variant: 'destructive' });
+      toast({ title: isFr ? 'Slug trop court' : 'Slug too short', description: isFr ? 'Minimum 3 caractères.' : 'Minimum 3 characters.', variant: 'destructive' });
       return;
     }
     setSavingProfile(true);
