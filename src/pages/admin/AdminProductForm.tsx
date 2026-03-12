@@ -349,7 +349,7 @@ export function ProductForm() {
           </div>
           <div className="flex gap-2 flex-wrap">
             <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => window.open(productUrl, '_blank')}>
-              <Eye className="h-4 w-4" /> Prévisualiser
+              <Eye className="h-4 w-4" /> {isFr ? 'Prévisualiser' : 'Preview'}
             </Button>
             <PrintableQRCode
               productTitle={watch('title') || ''}
