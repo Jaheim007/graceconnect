@@ -459,9 +459,9 @@ export function ProductForm() {
               </div>
               {watch('is_pwyw') && (
                 <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground">L'acheteur choisit le montant qu'il souhaite payer, au-dessus du prix minimum.</p>
+                  <p className="text-xs text-muted-foreground">{isFr ? "L'acheteur choisit le montant qu'il souhaite payer, au-dessus du prix minimum." : 'The buyer chooses the amount they want to pay, above the minimum price.'}</p>
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Prix minimum ({pwywCurrency})</Label>
+                    <Label className="text-xs">{isFr ? `Prix minimum (${pwywCurrency})` : `Minimum price (${pwywCurrency})`}</Label>
                     <Input
                       type="number"
                       min={pwywFloor}
@@ -474,7 +474,9 @@ export function ProductForm() {
                       className="h-8 text-xs"
                     />
                     <p className="text-[10px] text-muted-foreground">
-                      Minimum : {pwywFloor.toLocaleString('fr-FR')} {pwywCurrency}. Le prix du produit ci-dessus sera utilisé comme prix suggéré.
+                      {isFr
+                        ? `Minimum : ${pwywFloor.toLocaleString('fr-FR')} ${pwywCurrency}. Le prix du produit ci-dessus sera utilisé comme prix suggéré.`
+                        : `Minimum: ${pwywFloor.toLocaleString('en-US')} ${pwywCurrency}. The product price above will be used as suggested price.`}
                     </p>
                   </div>
                 </div>
