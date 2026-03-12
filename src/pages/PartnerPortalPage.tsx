@@ -471,15 +471,17 @@ export default function PartnerPortalPage() {
               {!partner.paystack_recipient_code ? (
                 <div className="text-sm text-muted-foreground flex items-center gap-2 bg-amber-500/5 border border-amber-500/20 rounded-lg p-3">
                   <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
-                  Configurez d'abord votre méthode de paiement ci-dessus.
+                  {isFr ? 'Configurez d\'abord votre méthode de paiement ci-dessus.' : 'First configure your payment method above.'}
                 </div>
               ) : stats.payable < partner.min_payout_threshold ? (
-                <p className="text-sm text-muted-foreground">Le seuil minimum de {formatCurrency(partner.min_payout_threshold, currency)} n'est pas encore atteint.</p>
+                <p className="text-sm text-muted-foreground">
+                  {isFr ? `Le seuil minimum de ${formatCurrency(partner.min_payout_threshold, currency)} n'est pas encore atteint.` : `Minimum threshold of ${formatCurrency(partner.min_payout_threshold, currency)} not yet reached.`}
+                </p>
               ) : (
                 <Button onClick={() => requestPayout.mutate(partner.id)} disabled={requestPayout.isPending} className="gap-2">
                   {requestPayout.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
                   <Wallet className="h-4 w-4" />
-                  Demander {formatCurrency(stats.payable, currency)}
+                  {isFr ? 'Demander' : 'Request'} {formatCurrency(stats.payable, currency)}
                 </Button>
               )}
             </CardContent>
