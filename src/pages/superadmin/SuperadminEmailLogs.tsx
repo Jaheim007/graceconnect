@@ -92,7 +92,7 @@ export default function SuperadminEmailLogs() {
       <div className="flex flex-wrap gap-2">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Rechercher par destinataire, template, sujet..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+          <Input placeholder="Search by recipient, template, subject..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
         </div>
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
           <SelectTrigger className="w-[160px]">
