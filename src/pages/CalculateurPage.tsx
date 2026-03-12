@@ -129,10 +129,10 @@ export default function CalculateurPage() {
 
           <div className="mt-8 text-center space-y-4">
             <p className="text-xs text-muted-foreground">
-              * Estimation indicative. Les résultats réels dépendent de votre activité, réseau et produits.
+              * {isFr ? 'Estimation indicative. Les résultats réels dépendent de votre activité, réseau et produits.' : 'Indicative estimate. Actual results depend on your activity, network and products.'}
             </p>
             <Button size="lg" className="px-8 gap-2 h-13 text-base group cta-glow" onClick={() => navigate('/auth?mode=signup')}>
-              Commencer gratuitement <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              {isFr ? 'Commencer gratuitement' : 'Start for free'} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
         </div>
