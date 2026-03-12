@@ -69,7 +69,7 @@ export default function SuperadminEmailLogs() {
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <Mail className="h-5 w-5 text-primary" />
-        <h1 className="text-xl font-bold">📧 Journaux d'emails</h1>
+        <h1 className="text-xl font-bold">📧 Email Logs</h1>
       </div>
 
       {/* Stats */}
@@ -80,11 +80,11 @@ export default function SuperadminEmailLogs() {
         </div>
         <div className="bg-card border border-border rounded-2xl p-4">
           <p className="text-2xl font-bold text-emerald-500">{totalSent}</p>
-          <p className="text-xs text-muted-foreground">Envoyés</p>
+          <p className="text-xs text-muted-foreground">Sent</p>
         </div>
         <div className="bg-card border border-border rounded-2xl p-4">
           <p className="text-2xl font-bold text-destructive">{totalFailed}</p>
-          <p className="text-xs text-muted-foreground">Échoués</p>
+          <p className="text-xs text-muted-foreground">Failed</p>
         </div>
       </div>
 
@@ -92,15 +92,15 @@ export default function SuperadminEmailLogs() {
       <div className="flex flex-wrap gap-2">
         <div className="relative flex-1 min-w-[200px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Rechercher par destinataire, template, sujet..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
+          <Input placeholder="Search by recipient, template, subject..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
         </div>
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
           <SelectTrigger className="w-[160px]">
             <Filter className="h-3.5 w-3.5 mr-1.5" />
-            <SelectValue placeholder="Catégorie" />
+            <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Toutes les catégories</SelectItem>
+            <SelectItem value="all">All categories</SelectItem>
             {Object.keys(TEMPLATE_CATEGORIES).map(c => (
               <SelectItem key={c} value={c}>{c}</SelectItem>
             ))}
@@ -108,19 +108,19 @@ export default function SuperadminEmailLogs() {
         </Select>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
           <SelectTrigger className="w-[120px]">
-             <SelectValue placeholder="Statut" />
+             <SelectValue placeholder="Status" />
            </SelectTrigger>
            <SelectContent>
-             <SelectItem value="all">Tous les statuts</SelectItem>
-             <SelectItem value="sent">Envoyé</SelectItem>
-             <SelectItem value="failed">Échoué</SelectItem>
+             <SelectItem value="all">All statuses</SelectItem>
+             <SelectItem value="sent">Sent</SelectItem>
+             <SelectItem value="failed">Failed</SelectItem>
            </SelectContent>
         </Select>
       </div>
 
       {/* Logs list */}
       {isLoading ? <SkeletonRow count={8} /> : filtered.length === 0 ? (
-        <div className="p-8 text-center text-muted-foreground text-sm">Aucun email trouvé</div>
+        <div className="p-8 text-center text-muted-foreground text-sm">No emails found</div>
       ) : (
         <div className="space-y-2">
           {filtered.map((l: any) => (
@@ -132,7 +132,7 @@ export default function SuperadminEmailLogs() {
                 </div>
                 <p className="text-xs text-muted-foreground truncate">{l.subject || l.template}</p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">
-                  {new Date(l.created_at).toLocaleString('fr-FR')} · <code className="text-[10px]">{l.template}</code>
+                  {new Date(l.created_at).toLocaleString()} · <code className="text-[10px]">{l.template}</code>
                   {l.resend_message_id && <> · <code className="text-[10px]">{l.resend_message_id}</code></>}
                 </p>
               </div>

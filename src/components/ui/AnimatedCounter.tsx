@@ -47,7 +47,6 @@ export function AnimatedCounter({
       const tick = (now: number) => {
         const elapsed = now - start;
         const progress = Math.min(elapsed / duration, 1);
-        // ease out cubic
         const eased = 1 - Math.pow(1 - progress, 3);
         setDisplayed(Math.round(eased * value));
         if (progress < 1) requestAnimationFrame(tick);
@@ -56,7 +55,7 @@ export function AnimatedCounter({
     }
   }, [value, duration]);
 
-  const formatted = formatter ? formatter(displayed) : displayed.toLocaleString('fr-FR');
+  const formatted = formatter ? formatter(displayed) : displayed.toLocaleString();
 
   return (
     <span ref={ref} className={cn('tabular-nums', className)}>

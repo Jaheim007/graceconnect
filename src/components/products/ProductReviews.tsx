@@ -6,9 +6,10 @@ import { useProductReviews, useMyReview, useSubmitReview, useHelpfulReview, useD
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr, enUS } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { AnimatedStarRating } from './AnimatedStarRating';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface Props {
   productId: string;
@@ -18,6 +19,8 @@ interface Props {
 
 /* ─── Rating Overview Card ─── */
 function RatingOverview({ reviews }: { reviews: { rating: number }[] }) {
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   if (reviews.length === 0) return null;
 
   const avg = reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
@@ -34,7 +37,7 @@ function RatingOverview({ reviews }: { reviews: { rating: number }[] }) {
       className="rounded-2xl border border-border bg-card p-6 space-y-5"
     >
       <h3 className="text-sm font-semibold text-center text-muted-foreground tracking-wide uppercase">
-        Aperçu des notes
+        {isFr ? 'Aperçu des notes' : 'Rating overview'}
       </h3>
 
       <div className="text-center space-y-1.5">
@@ -46,7 +49,7 @@ function RatingOverview({ reviews }: { reviews: { rating: number }[] }) {
           <AnimatedStarRating rating={Math.round(avg)} size="md" />
         </div>
         <p className="text-xs text-muted-foreground">
-          {reviews.length.toLocaleString('fr-FR')} avis
+          {reviews.length.toLocaleString()} {isFr ? 'avis' : 'reviews'}
         </p>
       </div>
 
@@ -66,7 +69,7 @@ function RatingOverview({ reviews }: { reviews: { rating: number }[] }) {
                 />
               </div>
               <span className="w-10 text-right text-muted-foreground font-medium tabular-nums">
-                {count.toLocaleString('fr-FR')}
+                {count.toLocaleString()}
               </span>
             </div>
           );
@@ -80,7 +83,10 @@ function RatingOverview({ reviews }: { reviews: { rating: number }[] }) {
 function ReviewCard({ review, productId }: { review: any; productId: string }) {
   const helpfulMutation = useHelpfulReview();
   const [hasVoted, setHasVoted] = useState(false);
-  const reviewerName = review.profile?.display_name || 'Utilisateur';
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const dateFnsLocale = isFr ? fr : enUS;
+  const reviewerName = review.profile?.display_name || (isFr ? 'Utilisateur' : 'User');
 
   return (
     <motion.div
@@ -88,14 +94,13 @@ function ReviewCard({ review, productId }: { review: any; productId: string }) {
       animate={{ opacity: 1, y: 0 }}
       className="p-5 rounded-xl border border-border bg-card space-y-3"
     >
-      {/* Header row */}
       <div className="flex items-start gap-3">
         {review.profile?.avatar_url ? (
           <img
             src={review.profile.avatar_url}
             loading="lazy"
             className="h-9 w-9 rounded-full object-cover ring-2 ring-border"
-            alt={`Avatar de ${reviewerName}`}
+            alt={reviewerName}
           />
         ) : (
           <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary ring-2 ring-border">
@@ -105,34 +110,31 @@ function ReviewCard({ review, productId }: { review: any; productId: string }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-sm font-semibold text-foreground truncate">
-              {review.profile?.display_name || 'Utilisateur'}
+              {review.profile?.display_name || (isFr ? 'Utilisateur' : 'User')}
             </span>
             {review.is_verified_purchase && (
               <span className="inline-flex items-center gap-0.5 text-[10px] font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 px-1.5 py-0.5 rounded-full">
-                <CheckCircle className="h-2.5 w-2.5" /> Achat vérifié
+                <CheckCircle className="h-2.5 w-2.5" /> {isFr ? 'Achat vérifié' : 'Verified purchase'}
               </span>
             )}
           </div>
           <div className="flex items-center gap-2 mt-0.5">
             <AnimatedStarRating rating={review.rating} size="sm" />
             <span className="text-[11px] text-muted-foreground">
-              {format(new Date(review.created_at), 'dd MMM yyyy', { locale: fr })}
+              {format(new Date(review.created_at), 'dd MMM yyyy', { locale: dateFnsLocale })}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Title */}
       {review.title && (
         <h4 className="text-sm font-bold text-foreground leading-snug">{review.title}</h4>
       )}
 
-      {/* Comment */}
       {review.comment && (
         <p className="text-sm text-muted-foreground leading-relaxed">{review.comment}</p>
       )}
 
-      {/* Helpful button */}
       <div className="flex items-center pt-1">
         <button
           disabled={hasVoted || helpfulMutation.isPending}
@@ -148,7 +150,7 @@ function ReviewCard({ review, productId }: { review: any; productId: string }) {
           )}
         >
           <ThumbsUp className="h-3 w-3" />
-          Utile
+          {isFr ? 'Utile' : 'Helpful'}
           {(review.helpful_count > 0 || hasVoted) && (
             <span className="font-medium">({(review.helpful_count || 0) + (hasVoted ? 1 : 0)})</span>
           )}
@@ -162,6 +164,9 @@ function ReviewCard({ review, productId }: { review: any; productId: string }) {
 export function ProductReviews({ productId, organizationId, isPurchased }: Props) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const dateFnsLocale = isFr ? fr : enUS;
   const { data: reviews = [], isLoading } = useProductReviews(productId);
   const { data: myReview } = useMyReview(productId);
   const submitReview = useSubmitReview();
@@ -172,7 +177,6 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
   const [title, setTitle] = useState('');
   const [comment, setComment] = useState('');
 
-  // Sync form when editing existing review
   useEffect(() => {
     if (myReview && showForm) {
       setRating(myReview.rating);
@@ -186,15 +190,15 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
 
   const handleSubmit = async () => {
     if (rating === 0) {
-      toast({ title: 'Sélectionnez une note', variant: 'destructive' });
+      toast({ title: isFr ? 'Sélectionnez une note' : 'Select a rating', variant: 'destructive' });
       return;
     }
     if (!title.trim()) {
-      toast({ title: 'Ajoutez un titre à votre avis', variant: 'destructive' });
+      toast({ title: isFr ? 'Ajoutez un titre à votre avis' : 'Add a title to your review', variant: 'destructive' });
       return;
     }
     if (!comment.trim()) {
-      toast({ title: 'Ajoutez une description à votre avis', variant: 'destructive' });
+      toast({ title: isFr ? 'Ajoutez une description à votre avis' : 'Add a description to your review', variant: 'destructive' });
       return;
     }
     try {
@@ -202,31 +206,29 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
         productId, organizationId, rating, title: title.trim(), comment: comment.trim(),
         isVerifiedPurchase: isPurchased,
       });
-      toast({ title: '✅ Avis publié !' });
+      toast({ title: isFr ? '✅ Avis publié !' : '✅ Review published!' });
       setShowForm(false);
       setRating(0);
       setTitle('');
       setComment('');
     } catch (e: any) {
-      toast({ title: 'Erreur', description: e.message, variant: 'destructive' });
+      toast({ title: isFr ? 'Erreur' : 'Error', description: e.message, variant: 'destructive' });
     }
   };
 
   const handleDeleteReview = async () => {
     if (!myReview) return;
-
-    const confirmed = window.confirm('Supprimer définitivement votre avis ? Cette action est irréversible.');
+    const confirmed = window.confirm(isFr ? 'Supprimer définitivement votre avis ? Cette action est irréversible.' : 'Permanently delete your review? This action is irreversible.');
     if (!confirmed) return;
-
     try {
       await deleteReview.mutateAsync({ reviewId: myReview.id, productId });
-      toast({ title: 'Avis supprimé' });
+      toast({ title: isFr ? 'Avis supprimé' : 'Review deleted' });
       setShowForm(false);
       setRating(0);
       setTitle('');
       setComment('');
     } catch (e: any) {
-      toast({ title: 'Erreur', description: e.message, variant: 'destructive' });
+      toast({ title: isFr ? 'Erreur' : 'Error', description: e.message, variant: 'destructive' });
     }
   };
 
@@ -234,19 +236,16 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
 
   return (
     <div className="space-y-6">
-      {/* Section header */}
       <div className="flex items-center gap-2">
         <MessageSquare className="h-5 w-5 text-primary" />
-        <h2 className="text-lg font-bold text-foreground">Avis & Notes</h2>
+        <h2 className="text-lg font-bold text-foreground">{isFr ? 'Avis & Notes' : 'Reviews & Ratings'}</h2>
         {hasReviews && (
           <span className="text-sm text-muted-foreground">({reviews.length})</span>
         )}
       </div>
 
-      {/* Rating overview card */}
       {reviews.length >= 1 && <RatingOverview reviews={reviews} />}
 
-      {/* Write review CTA */}
       {canWriteReview && !showForm && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <Button
@@ -255,12 +254,11 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
             onClick={() => setShowForm(true)}
           >
             <Pencil className="h-4 w-4" />
-            Écrire un avis
+            {isFr ? 'Écrire un avis' : 'Write a review'}
           </Button>
         </motion.div>
       )}
 
-      {/* Review form */}
       <AnimatePresence>
         {showForm && (
           <motion.div
@@ -271,40 +269,33 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
             className="overflow-hidden"
           >
             <div className="p-5 rounded-2xl border border-border bg-card space-y-4">
-              <p className="text-sm font-semibold text-foreground">Votre avis compte !</p>
+              <p className="text-sm font-semibold text-foreground">{isFr ? 'Votre avis compte !' : 'Your review matters!'}</p>
 
-              {/* Rating */}
               <div className="flex items-center gap-3">
-                <span className="text-sm text-muted-foreground">Note :</span>
+                <span className="text-sm text-muted-foreground">{isFr ? 'Note :' : 'Rating:'}</span>
                 <AnimatedStarRating rating={rating} onRate={setRating} interactive size="lg" />
                 {rating > 0 && (
-                  <motion.span
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="text-lg font-bold text-foreground"
-                  >
+                  <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} className="text-lg font-bold text-foreground">
                     {rating}.0
                   </motion.span>
                 )}
               </div>
 
-              {/* Title */}
               <input
                 type="text"
                 value={title}
                 onChange={e => setTitle(e.target.value)}
-                placeholder="Titre de votre avis (ex: Excellent produit !)"
+                placeholder={isFr ? 'Titre de votre avis (ex: Excellent produit !)' : 'Review title (e.g. Excellent product!)'}
                 className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
                 maxLength={120}
                 required
               />
 
-              {/* Comment */}
               <textarea
                 rows={4}
                 value={comment}
                 onChange={e => setComment(e.target.value)}
-                placeholder="Décrivez votre expérience en détail… Qu'avez-vous aimé ? Qu'est-ce qui pourrait être amélioré ?"
+                placeholder={isFr ? "Décrivez votre expérience en détail… Qu'avez-vous aimé ? Qu'est-ce qui pourrait être amélioré ?" : 'Describe your experience in detail… What did you like? What could be improved?'}
                 className="w-full rounded-xl border border-input bg-background px-4 py-3 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
                 maxLength={2000}
                 required
@@ -312,20 +303,15 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
 
               <div className="flex items-center justify-between">
                 <span className="text-[11px] text-muted-foreground">
-                  {comment.length}/2000 caractères
+                  {comment.length}/2000 {isFr ? 'caractères' : 'characters'}
                 </span>
                 <div className="flex gap-2">
                   <Button size="sm" variant="ghost" onClick={() => setShowForm(false)}>
-                    Annuler
+                    {isFr ? 'Annuler' : 'Cancel'}
                   </Button>
-                  <Button
-                    size="sm"
-                    onClick={handleSubmit}
-                    disabled={submitReview.isPending}
-                    className="gap-1.5"
-                  >
+                  <Button size="sm" onClick={handleSubmit} disabled={submitReview.isPending} className="gap-1.5">
                     {submitReview.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                    Publier mon avis
+                    {isFr ? 'Publier mon avis' : 'Publish review'}
                   </Button>
                 </div>
               </div>
@@ -334,22 +320,12 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
         )}
       </AnimatePresence>
 
-      {/* Current user's review */}
       {myReview && !showForm && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-5 rounded-xl border-2 border-primary/20 bg-primary/5 space-y-3"
-        >
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="p-5 rounded-xl border-2 border-primary/20 bg-primary/5 space-y-3">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3 min-w-0">
               {myReview.profile?.avatar_url ? (
-                <img
-                  src={myReview.profile.avatar_url}
-                  loading="lazy"
-                  className="h-9 w-9 rounded-full object-cover ring-2 ring-border"
-                  alt={`Avatar de ${myReview.profile?.display_name || 'Utilisateur'}`}
-                />
+                <img src={myReview.profile.avatar_url} loading="lazy" className="h-9 w-9 rounded-full object-cover ring-2 ring-border" alt={myReview.profile?.display_name || ''} />
               ) : (
                 <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary ring-2 ring-border">
                   {(myReview.profile?.display_name || user?.email || 'U')[0].toUpperCase()}
@@ -358,67 +334,46 @@ export function ProductReviews({ productId, organizationId, isPurchased }: Props
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm font-semibold text-foreground truncate">
-                    {myReview.profile?.display_name || user?.email?.split('@')[0] || 'Utilisateur'}
+                    {myReview.profile?.display_name || user?.email?.split('@')[0] || (isFr ? 'Utilisateur' : 'User')}
                   </span>
                   <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                    Votre avis
+                    {isFr ? 'Votre avis' : 'Your review'}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 mt-0.5">
                   <AnimatedStarRating rating={myReview.rating} size="sm" />
                   <span className="text-[11px] text-muted-foreground">
-                    {format(new Date(myReview.created_at), 'dd MMM yyyy', { locale: fr })}
+                    {format(new Date(myReview.created_at), 'dd MMM yyyy', { locale: dateFnsLocale })}
                   </span>
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-1 shrink-0">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs h-7 gap-1"
-                onClick={() => setShowForm(true)}
-              >
-                <Pencil className="h-3 w-3" /> Modifier
+              <Button variant="ghost" size="sm" className="text-xs h-7 gap-1" onClick={() => setShowForm(true)}>
+                <Pencil className="h-3 w-3" /> {isFr ? 'Modifier' : 'Edit'}
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs h-7"
-                onClick={handleDeleteReview}
-                disabled={deleteReview.isPending}
-              >
-                {deleteReview.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Supprimer'}
+              <Button variant="ghost" size="sm" className="text-xs h-7" onClick={handleDeleteReview} disabled={deleteReview.isPending}>
+                {deleteReview.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : (isFr ? 'Supprimer' : 'Delete')}
               </Button>
             </div>
           </div>
-          {myReview.title && (
-            <h4 className="text-sm font-bold text-foreground">{myReview.title}</h4>
-          )}
-          {myReview.comment && (
-            <p className="text-sm text-foreground leading-relaxed">{myReview.comment}</p>
-          )}
+          {myReview.title && <h4 className="text-sm font-bold text-foreground">{myReview.title}</h4>}
+          {myReview.comment && <p className="text-sm text-foreground leading-relaxed">{myReview.comment}</p>}
         </motion.div>
       )}
 
-      {/* Reviews list */}
       {isLoading ? (
-        <div className="py-8 text-center">
-          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground mx-auto" />
-        </div>
+        <div className="py-8 text-center"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground mx-auto" /></div>
       ) : !hasReviews && !myReview ? (
         <p className="text-sm text-muted-foreground py-6 text-center">
-          Aucun avis pour le moment.{isPurchased ? ' Soyez le premier !' : ''}
+          {isFr
+            ? `Aucun avis pour le moment.${isPurchased ? ' Soyez le premier !' : ''}`
+            : `No reviews yet.${isPurchased ? ' Be the first!' : ''}`}
         </p>
       ) : (
         <div className="space-y-3">
           {otherReviews.map((review, i) => (
-            <motion.div
-              key={review.id}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-            >
+            <motion.div key={review.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
               <ReviewCard review={review} productId={productId} />
             </motion.div>
           ))}

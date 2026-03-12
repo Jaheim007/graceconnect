@@ -100,7 +100,7 @@ export default function SuperadminDirectory() {
                       <p className="text-xs text-muted-foreground">/{org?.slug} · {getOrgCategoryLabel(org?.category)}</p>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {new Date(app.submitted_at).toLocaleDateString('fr-FR')}
+                      {new Date(app.submitted_at).toLocaleDateString()}
                     </p>
                   </div>
 
@@ -173,7 +173,7 @@ export default function SuperadminDirectory() {
                     {app.status === 'approved' ? 'Approved' : 'Rejected'}
                   </Badge>
                   <p className="text-[10px] text-muted-foreground">
-                    {app.reviewed_at ? new Date(app.reviewed_at).toLocaleDateString('fr-FR') : '—'}
+                    {app.reviewed_at ? new Date(app.reviewed_at).toLocaleDateString() : '—'}
                   </p>
                 </div>
               );

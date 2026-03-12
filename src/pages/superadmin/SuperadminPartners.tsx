@@ -163,7 +163,7 @@ export default function SuperadminPartners() {
                             </div>
                             <div className="flex items-center gap-2 mt-1">
                               <code className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-mono">{p.invite_code || '—'}</code>
-                              <span className="text-[10px] text-muted-foreground">{new Date(p.created_at).toLocaleDateString('fr-FR')}</span>
+                              <span className="text-[10px] text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</span>
                             </div>
                           </div>
                         </div>
@@ -261,7 +261,7 @@ export default function SuperadminPartners() {
                         <Badge variant={ref.status === 'active' ? 'default' : ref.status === 'rejected' ? 'destructive' : 'secondary'} className="text-[10px]">
                           {ref.status === 'active' ? '✓ Active' : ref.status === 'rejected' ? 'Rejetée' : '⏳ En attente'}
                         </Badge>
-                        <span className="text-[10px] text-muted-foreground whitespace-nowrap">{new Date(ref.attributed_at).toLocaleDateString('fr-FR')}</span>
+                        <span className="text-[10px] text-muted-foreground whitespace-nowrap">{new Date(ref.attributed_at).toLocaleDateString()}</span>
                       </div>
                     </div>
                   ))}
@@ -341,7 +341,7 @@ export default function SuperadminPartners() {
                         </div>
                         <div>
                           <p className="text-sm font-medium">{(pr as any).partner?.full_name || '—'}</p>
-                          <p className="text-xs text-muted-foreground">{(pr as any).partner?.email} • {new Date(pr.requested_at).toLocaleDateString('fr-FR')}</p>
+                          <p className="text-xs text-muted-foreground">{(pr as any).partner?.email} • {new Date(pr.requested_at).toLocaleDateString()}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
@@ -420,7 +420,7 @@ export default function SuperadminPartners() {
                     </div>
                   )}
                   <div className="text-xs text-muted-foreground border-t pt-3 space-y-1">
-                    <p>Candidature le {new Date(p.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                    <p>Candidature le {new Date(p.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                     <p>Code: <code className="bg-muted px-1 rounded">{p.invite_code || '—'}</code></p>
                   </div>
                 </div>
