@@ -217,7 +217,7 @@ export default function FeedPage() {
                             <p className="text-xs font-semibold text-primary">{ev.event_date ? new Date(ev.event_date).toLocaleDateString(dateLocale, { weekday: 'short', month: 'short', day: 'numeric' }) : t('feed.date_tbc')}</p>
                             {ev.location && <p className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" />{ev.location}</p>}
                             {(ev as any).organization_name && (
-                              <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">Publié par <span className="font-semibold text-primary hover:underline cursor-pointer" onClick={(e) => { e.stopPropagation(); navigate(`/org/${(ev as any).organization_slug}`); }}>{(ev as any).organization_name}</span>{(ev as any).is_org_verified && <VerifiedBadge size="xs" showTooltip={false} />}</p>
+                              <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">{isFr ? 'Publié par' : 'By'} <span className="font-semibold text-primary hover:underline cursor-pointer" onClick={(e) => { e.stopPropagation(); navigate(`/org/${(ev as any).organization_slug}`); }}>{(ev as any).organization_name}</span>{(ev as any).is_org_verified && <VerifiedBadge size="xs" showTooltip={false} />}</p>
                             )}
                           </div>
                         </motion.div>
