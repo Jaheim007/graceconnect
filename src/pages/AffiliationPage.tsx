@@ -200,10 +200,10 @@ export default function AffiliationPage() {
           className="grid grid-cols-2 sm:grid-cols-4 gap-3"
         >
           {[
-            { label: 'Liens actifs', value: filteredAffiliateLinks.length, colorClass: '' },
-            { label: 'Clics totaux', value: totalClicks, colorClass: '' },
-            { label: 'Conversions', value: totalConversions, colorClass: 'text-primary' },
-            { label: 'Gains totaux', value: fmt(totalEarned), colorClass: 'text-green-600 dark:text-green-400' },
+            { label: isFr ? 'Liens actifs' : 'Active links', value: filteredAffiliateLinks.length, colorClass: '' },
+            { label: isFr ? 'Clics totaux' : 'Total clicks', value: totalClicks, colorClass: '' },
+            { label: isFr ? 'Conversions' : 'Conversions', value: totalConversions, colorClass: 'text-primary' },
+            { label: isFr ? 'Gains totaux' : 'Total earnings', value: fmt(totalEarned), colorClass: 'text-green-600 dark:text-green-400' },
           ].map(s => (
             <div key={s.label} className="rounded-xl bg-card border border-border p-3 text-center shadow-card">
               <p className={cn('text-lg font-bold', s.colorClass)}>{s.value}</p>
