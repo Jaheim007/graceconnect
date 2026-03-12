@@ -26,6 +26,9 @@ export default function SuperadminUsers() {
   const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
+  const { fmt } = useDisplayCurrency();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['sa-users-v2'],
