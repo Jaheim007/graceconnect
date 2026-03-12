@@ -180,7 +180,7 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
           {!product.is_free && potentialEarning > 0 && (
             <div className="absolute top-3 left-3">
               <Badge variant="secondary" className="text-xs font-bold shadow-lg px-3 py-1.5 rounded-full bg-background/90 backdrop-blur-sm">
-                Tu gagnes {formatCurrency(potentialEarning, product.currency || DEFAULT_CURRENCY)}
+                {isFr ? 'Tu gagnes' : 'You earn'} {fmt(potentialEarning, product.currency)}
               </Badge>
             </div>
           )}
