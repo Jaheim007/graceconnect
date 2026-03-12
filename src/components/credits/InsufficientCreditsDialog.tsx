@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCreditsBalance } from '@/hooks/useCredits';
 import { useI18n } from '@/i18n/I18nContext';
 import { formatDistanceToNow } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr, enUS } from 'date-fns/locale';
 
 interface InsufficientCreditsDialogProps {
   open: boolean;
