@@ -464,7 +464,9 @@ function OrgAffiliateCard({ org, isSubscribed, onBecome, loading, onView }: {
   onBecome: () => void;
   loading: boolean;
   onView: () => void;
-}) {
+) {
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
       className={cn(
