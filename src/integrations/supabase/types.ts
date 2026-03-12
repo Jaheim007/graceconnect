@@ -1530,6 +1530,7 @@ export type Database = {
           ai_generated: boolean
           ai_project_id: string | null
           average_rating: number | null
+          content_language: string | null
           cover_image_url: string | null
           created_at: string | null
           created_by: string | null
@@ -1581,6 +1582,7 @@ export type Database = {
           ai_generated?: boolean
           ai_project_id?: string | null
           average_rating?: number | null
+          content_language?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -1632,6 +1634,7 @@ export type Database = {
           ai_generated?: boolean
           ai_project_id?: string | null
           average_rating?: number | null
+          content_language?: string | null
           cover_image_url?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -4153,6 +4156,8 @@ export type Database = {
           payout_provider: string | null
           paystack_recipient_code: string | null
           phone: string | null
+          preferred_currency: string | null
+          preferred_language: string | null
           recipient_locked: boolean | null
           referral_code: string | null
           updated_at: string | null
@@ -4175,6 +4180,8 @@ export type Database = {
           payout_provider?: string | null
           paystack_recipient_code?: string | null
           phone?: string | null
+          preferred_currency?: string | null
+          preferred_language?: string | null
           recipient_locked?: boolean | null
           referral_code?: string | null
           updated_at?: string | null
@@ -4197,6 +4204,8 @@ export type Database = {
           payout_provider?: string | null
           paystack_recipient_code?: string | null
           phone?: string | null
+          preferred_currency?: string | null
+          preferred_language?: string | null
           recipient_locked?: boolean | null
           referral_code?: string | null
           updated_at?: string | null
