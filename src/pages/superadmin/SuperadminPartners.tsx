@@ -261,7 +261,7 @@ export default function SuperadminPartners() {
                         <Badge variant={ref.status === 'active' ? 'default' : ref.status === 'rejected' ? 'destructive' : 'secondary'} className="text-[10px]">
                           {ref.status === 'active' ? '✓ Active' : ref.status === 'rejected' ? 'Rejetée' : '⏳ En attente'}
                         </Badge>
-                        <span className="text-[10px] text-muted-foreground whitespace-nowrap">{new Date(ref.attributed_at).toLocaleDateString('fr-FR')}</span>
+                        <span className="text-[10px] text-muted-foreground whitespace-nowrap">{new Date(ref.attributed_at).toLocaleDateString()}</span>
                       </div>
                     </div>
                   ))}
