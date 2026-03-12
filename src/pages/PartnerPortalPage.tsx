@@ -433,7 +433,7 @@ export default function PartnerPortalPage() {
                   </div>
                   <div>
                     <p className="text-lg font-bold">{formatCurrency(stats.paid, currency)}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Versé</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{isFr ? 'Versé' : 'Paid'}</p>
                   </div>
                 </div>
               )}
