@@ -959,6 +959,8 @@ export function AdminSettings() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const orgAny = currentOrg as any;
 
