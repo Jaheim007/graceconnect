@@ -4,15 +4,15 @@ import { TrendingUp, MousePointerClick, ShoppingCart, Zap } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/db';
 import { useQuery } from '@tanstack/react-query';
-import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
+import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
 
-/**
- * Live earnings counter that shows real-time clicks, conversions and earnings
- * with animated counters for the "first win" dopamine hit.
- */
 export function LiveEarningsCounter() {
   const { user } = useAuth();
+  const { fmt } = useDisplayCurrency();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const { data: stats } = useQuery({
     queryKey: ['ambassador-live-stats', user?.id],
@@ -30,7 +30,7 @@ export function LiveEarningsCounter() {
       };
     },
     enabled: !!user,
-    refetchInterval: 30_000, // Poll every 30s for "live" feel
+    refetchInterval: 30_000,
     staleTime: 15_000,
   });
 
@@ -45,27 +45,29 @@ export function LiveEarningsCounter() {
     >
       <div className="flex items-center gap-2 mb-3">
         <Zap className="h-4 w-4 text-accent" />
-        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Tes stats en direct</span>
+        <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+          {isFr ? 'Tes stats en direct' : 'Your live stats'}
+        </span>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
         <StatBox
           icon={<MousePointerClick className="h-4 w-4" />}
-          label="Clics"
+          label={isFr ? 'Clics' : 'Clicks'}
           value={stats.clicks}
           color="text-blue-500"
         />
         <StatBox
           icon={<ShoppingCart className="h-4 w-4" />}
-          label="Ventes"
+          label={isFr ? 'Ventes' : 'Sales'}
           value={stats.conversions}
           color="text-emerald-500"
         />
         <StatBox
           icon={<TrendingUp className="h-4 w-4" />}
-          label="Gagné"
+          label={isFr ? 'Gagné' : 'Earned'}
           value={stats.earned}
-          isCurrency
+          formatValue={(v) => fmt(v, 'XOF')}
           color="text-accent"
         />
       </div>
@@ -73,11 +75,11 @@ export function LiveEarningsCounter() {
   );
 }
 
-function StatBox({ icon, label, value, isCurrency, color }: {
+function StatBox({ icon, label, value, formatValue, color }: {
   icon: React.ReactNode;
   label: string;
   value: number;
-  isCurrency?: boolean;
+  formatValue?: (v: number) => string;
   color: string;
 }) {
   return (
@@ -85,13 +87,13 @@ function StatBox({ icon, label, value, isCurrency, color }: {
       <div className={cn('mx-auto w-8 h-8 rounded-xl bg-muted/50 flex items-center justify-center', color)}>
         {icon}
       </div>
-      <AnimatedNumber value={value} isCurrency={isCurrency} />
+      <AnimatedNumber value={value} formatValue={formatValue} />
       <p className="text-[10px] text-muted-foreground">{label}</p>
     </div>
   );
 }
 
-function AnimatedNumber({ value, isCurrency }: { value: number; isCurrency?: boolean }) {
+function AnimatedNumber({ value, formatValue }: { value: number; formatValue?: (v: number) => string }) {
   const [display, setDisplay] = useState(value);
 
   useEffect(() => {
@@ -115,11 +117,8 @@ function AnimatedNumber({ value, isCurrency }: { value: number; isCurrency?: boo
   }, [value]);
 
   return (
-    <motion.p
-      key={display}
-      className="text-lg font-extrabold tabular-nums"
-    >
-      {isCurrency ? formatCurrency(display, DEFAULT_CURRENCY) : display.toLocaleString()}
+    <motion.p key={display} className="text-lg font-extrabold tabular-nums">
+      {formatValue ? formatValue(display) : display.toLocaleString()}
     </motion.p>
   );
 }

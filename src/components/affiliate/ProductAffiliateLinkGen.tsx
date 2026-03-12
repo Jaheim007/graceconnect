@@ -127,7 +127,7 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium truncate">{p.title}</p>
                     <p className="text-[10px] text-muted-foreground">
-                      {p.price === 0 ? 'Gratuit' : `${p.price?.toLocaleString('fr-FR')} ${p.currency || 'XOF'}`}
+                      {p.price === 0 ? 'Free' : `${p.price?.toLocaleString()} ${p.currency || 'XOF'}`}
                     </p>
                   </div>
                   {hasLink ? (

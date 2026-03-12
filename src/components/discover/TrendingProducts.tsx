@@ -5,13 +5,14 @@ import { useNavigate } from 'react-router-dom';
 import { TrendingUp, Flame, BookOpen, Star, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 import { useI18n } from '@/i18n/I18nContext';
 
 export function TrendingProducts({ limit = 6 }: { limit?: number }) {
   const navigate = useNavigate();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
+  const { fmtPrice } = useDisplayCurrency();
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['trending-products', limit],
@@ -66,12 +67,8 @@ export function TrendingProducts({ limit = 6 }: { limit?: number }) {
             >
               <div className="aspect-[3/2] bg-muted/30 relative overflow-hidden">
                 {product.cover_image_url ? (
-                  <img
-                    src={product.cover_image_url}
-                    alt={product.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                  />
+                  <img src={product.cover_image_url} alt={product.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <BookOpen className="h-8 w-8 text-muted-foreground/20" />
@@ -97,7 +94,7 @@ export function TrendingProducts({ limit = 6 }: { limit?: number }) {
                 </div>
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-bold text-primary">
-                    {product.is_free ? (isFr ? 'Gratuit' : 'Free') : formatCurrency(product.price || 0, product.currency || DEFAULT_CURRENCY)}
+                    {fmtPrice(product.price || 0, product.is_free, product.currency)}
                   </p>
                   {product.average_rating > 0 && (
                     <div className="flex items-center gap-0.5 text-[10px] text-amber-500">

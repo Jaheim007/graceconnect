@@ -2,8 +2,9 @@ import { motion } from 'framer-motion';
 import { Trophy, TrendingUp, Medal } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useAffiliateLeaderboard, useMyAffiliateRank } from '@/hooks/useAffiliateMarketplace';
-import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/i18n/I18nContext';
 
 const RANK_STYLES = [
   { emoji: '🥇', ring: 'ring-2 ring-yellow-400/50 bg-yellow-400/10' },
@@ -15,12 +16,15 @@ export function AmbassadorLeaderboard() {
   const { data: leaders, isLoading } = useAffiliateLeaderboard(10);
   const { data: myRank } = useMyAffiliateRank();
   const { user } = useAuth();
+  const { fmt } = useDisplayCurrency();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Trophy className="h-5 w-5 text-yellow-500" />
-        <h2 className="text-lg font-extrabold">Top Ambassadeurs</h2>
+        <h2 className="text-lg font-extrabold">{isFr ? 'Top Ambassadeurs' : 'Top Ambassadors'}</h2>
       </div>
 
       {/* My rank card */}
@@ -30,13 +34,15 @@ export function AmbassadorLeaderboard() {
           animate={{ opacity: 1, y: 0 }}
           className="rounded-2xl border border-accent/20 bg-gradient-to-r from-accent/5 to-primary/5 p-4"
         >
-          <p className="text-xs text-muted-foreground mb-1">Ton classement</p>
+          <p className="text-xs text-muted-foreground mb-1">{isFr ? 'Ton classement' : 'Your rank'}</p>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <span className="text-2xl font-black text-accent">#{myRank.rank}</span>
               <div>
-                <p className="text-sm font-bold">{formatCurrency(myRank.totalEarned, DEFAULT_CURRENCY)}</p>
-                <p className="text-[10px] text-muted-foreground">{myRank.totalConversions} ventes · {myRank.totalClicks} clics</p>
+                <p className="text-sm font-bold">{fmt(myRank.totalEarned, 'XOF')}</p>
+                <p className="text-[10px] text-muted-foreground">
+                  {myRank.totalConversions} {isFr ? 'ventes' : 'sales'} · {myRank.totalClicks} {isFr ? 'clics' : 'clicks'}
+                </p>
               </div>
             </div>
             <TrendingUp className="h-5 w-5 text-accent" />
@@ -53,7 +59,7 @@ export function AmbassadorLeaderboard() {
         </div>
       ) : !leaders?.length ? (
         <p className="text-sm text-muted-foreground text-center py-8">
-          Sois le premier au classement ! 🚀
+          {isFr ? 'Sois le premier au classement ! 🚀' : 'Be the first on the leaderboard! 🚀'}
         </p>
       ) : (
         <div className="space-y-2">
@@ -83,9 +89,9 @@ export function AmbassadorLeaderboard() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <p className="text-sm font-bold truncate">
-                      {leader.code?.split('-')[0] || 'Ambassadeur'}
+                      {leader.code?.split('-')[0] || (isFr ? 'Ambassadeur' : 'Ambassador')}
                     </p>
-                    {isMe && <Badge variant="secondary" className="text-[9px] px-1.5">Toi</Badge>}
+                    {isMe && <Badge variant="secondary" className="text-[9px] px-1.5">{isFr ? 'Toi' : 'You'}</Badge>}
                   </div>
                   {org?.name && (
                     <p className="text-[10px] text-muted-foreground truncate">via {org.name}</p>
@@ -94,10 +100,10 @@ export function AmbassadorLeaderboard() {
 
                 <div className="text-right shrink-0">
                   <p className="text-sm font-bold text-accent">
-                    {formatCurrency(leader.total_earned || 0, DEFAULT_CURRENCY)}
+                    {fmt(leader.total_earned || 0, 'XOF')}
                   </p>
                   <p className="text-[10px] text-muted-foreground">
-                    {leader.conversions || 0} vente{(leader.conversions || 0) > 1 ? 's' : ''}
+                    {leader.conversions || 0} {isFr ? 'vente' : 'sale'}{(leader.conversions || 0) > 1 ? 's' : ''}
                   </p>
                 </div>
               </motion.div>
