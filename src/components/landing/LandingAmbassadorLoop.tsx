@@ -69,9 +69,15 @@ export function LandingAmbassadorLoop() {
             <span className="text-lg">📊</span>
             <span className="text-muted-foreground">{isFr ? 'Exemple' : 'Example'}:</span>
             <span className="font-bold">
-              {isFr
-                ? <>Livre à $10 × 20% = <span className="text-emerald-500">$2</span> par vente pour ton ambassadeur</>
-                : <>Book at $10 × 20% = <span className="text-emerald-500">$2</span> per sale for your ambassador</>}
+              {(() => {
+                const sampleBookPrice = toDisplayAmount(10, 'USD');
+                const sampleEarning = Math.round(sampleBookPrice * 0.2);
+                return isFr ? (
+                  <>Livre à {fmt(sampleBookPrice)} × 20% = <span className="text-emerald-500">{fmt(sampleEarning)}</span> par vente pour ton ambassadeur</>
+                ) : (
+                  <>Book at {fmt(sampleBookPrice)} × 20% = <span className="text-emerald-500">{fmt(sampleEarning)}</span> per sale for your ambassador</>
+                );
+              })()}
             </span>
           </div>
         </motion.div>
