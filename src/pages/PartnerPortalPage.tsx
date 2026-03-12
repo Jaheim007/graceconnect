@@ -161,10 +161,10 @@ export default function PartnerPortalPage() {
 
       {/* ── KPI Cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <KPICard icon={Building2} label="Organisations" value={`${stats.activeOrgs} / ${stats.totalOrgs}`} sub="actives / total" />
-        <KPICard icon={Clock} label="En attente" value={formatCurrency(stats.held, currency)} sub="retenue 15 jours" />
-        <KPICard icon={CircleDollarSign} label="Disponible" value={formatCurrency(stats.payable, currency)} sub="prêt à retirer" accent />
-        <KPICard icon={Wallet} label="Total versé" value={formatCurrency(stats.paid, currency)} sub="historique" />
+        <KPICard icon={Building2} label={isFr ? 'Organisations' : 'Organizations'} value={`${stats.activeOrgs} / ${stats.totalOrgs}`} sub={isFr ? 'actives / total' : 'active / total'} />
+        <KPICard icon={Clock} label={isFr ? 'En attente' : 'Pending'} value={formatCurrency(stats.held, currency)} sub={isFr ? 'retenue 15 jours' : '15-day hold'} />
+        <KPICard icon={CircleDollarSign} label={isFr ? 'Disponible' : 'Available'} value={formatCurrency(stats.payable, currency)} sub={isFr ? 'prêt à retirer' : 'ready to withdraw'} accent />
+        <KPICard icon={Wallet} label={isFr ? 'Total versé' : 'Total paid'} value={formatCurrency(stats.paid, currency)} sub={isFr ? 'historique' : 'history'} />
       </div>
 
       {(referralsQuery.isError || commissionsQuery.isError) && (
