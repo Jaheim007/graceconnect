@@ -654,7 +654,7 @@ export function ProductForm() {
 
         {/* FAQ Section */}
         <div className="space-y-2 border border-border rounded-xl p-4">
-          <Label className="flex items-center gap-1 text-sm font-semibold"><HelpCircle className="h-3.5 w-3.5" /> FAQ du produit</Label>
+          <Label className="flex items-center gap-1 text-sm font-semibold"><HelpCircle className="h-3.5 w-3.5" /> {isFr ? 'FAQ du produit' : 'Product FAQ'}</Label>
           {faqItems.map((faq, i) => (
             <div key={i} className="flex items-start gap-2 bg-muted/50 rounded-lg p-2">
               <div className="flex-1 min-w-0"><p className="text-xs font-semibold">{faq.q}</p><p className="text-xs text-muted-foreground">{faq.a}</p></div>
@@ -662,9 +662,9 @@ export function ProductForm() {
             </div>
           ))}
           <div className="grid gap-2">
-            <Input placeholder="Question" value={newFaq.q} onChange={e => setNewFaq(f => ({ ...f, q: e.target.value }))} className="h-8 text-xs" />
-            <Input placeholder="Réponse" value={newFaq.a} onChange={e => setNewFaq(f => ({ ...f, a: e.target.value }))} className="h-8 text-xs" />
-            <Button type="button" variant="outline" size="sm" className="w-fit gap-1" onClick={() => { if (newFaq.q && newFaq.a) { setFaqItems(prev => [...prev, { ...newFaq }]); setNewFaq({ q: '', a: '' }); } }}><Plus className="h-3 w-3" /> Ajouter</Button>
+            <Input placeholder={isFr ? 'Question' : 'Question'} value={newFaq.q} onChange={e => setNewFaq(f => ({ ...f, q: e.target.value }))} className="h-8 text-xs" />
+            <Input placeholder={isFr ? 'Réponse' : 'Answer'} value={newFaq.a} onChange={e => setNewFaq(f => ({ ...f, a: e.target.value }))} className="h-8 text-xs" />
+            <Button type="button" variant="outline" size="sm" className="w-fit gap-1" onClick={() => { if (newFaq.q && newFaq.a) { setFaqItems(prev => [...prev, { ...newFaq }]); setNewFaq({ q: '', a: '' }); } }}><Plus className="h-3 w-3" /> {isFr ? 'Ajouter' : 'Add'}</Button>
           </div>
         </div>
 
