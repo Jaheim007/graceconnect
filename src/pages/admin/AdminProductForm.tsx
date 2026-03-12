@@ -36,6 +36,7 @@ import { ContextTip } from '@/components/admin/ContextualTooltips';
 import { PrintableQRCode } from '@/components/sharing/PrintableQRCode';
 import { ContentVersionHistory } from '@/components/admin/ContentVersionHistory';
 import { ContextualFeedback } from '@/components/feedback/ContextualFeedback';
+import { useI18n } from '@/i18n/I18nContext';
 
 
 
