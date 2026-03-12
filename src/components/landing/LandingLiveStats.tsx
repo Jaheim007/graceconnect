@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { motion } from 'framer-motion';
-import { TrendingUp, Users, ShoppingBag, Wallet } from 'lucide-react';
-import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
+import { TrendingUp, Users, ShoppingBag } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nContext';
 
-/**
- * Live platform stats — fetches real data for social proof on landing.
- */
 export function LandingLiveStats() {
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+
   const { data } = useQuery({
     queryKey: ['landing-live-stats'],
     queryFn: async () => {
@@ -20,11 +20,7 @@ export function LandingLiveStats() {
         db.from('organizations').select('id', { count: 'exact', head: true }).eq('is_active', true),
         db.from('profiles').select('id', { count: 'exact', head: true }),
       ]);
-      return {
-        products: totalProducts || 0,
-        orgs: totalOrgs || 0,
-        users: totalUsers || 0,
-      };
+      return { products: totalProducts || 0, orgs: totalOrgs || 0, users: totalUsers || 0 };
     },
     staleTime: 300_000,
   });
@@ -32,9 +28,9 @@ export function LandingLiveStats() {
   if (!data || (data.products === 0 && data.users === 0)) return null;
 
   const stats = [
-    { icon: ShoppingBag, label: 'Produits publiés', value: `${data.products}+`, color: 'text-primary' },
-    { icon: Users, label: 'Utilisateurs', value: `${data.users}+`, color: 'text-accent' },
-    { icon: TrendingUp, label: 'Organisations', value: `${data.orgs}+`, color: 'text-primary' },
+    { icon: ShoppingBag, label: isFr ? 'Produits publiés' : 'Published products', value: `${data.products}+`, color: 'text-primary' },
+    { icon: Users, label: isFr ? 'Utilisateurs' : 'Users', value: `${data.users}+`, color: 'text-accent' },
+    { icon: TrendingUp, label: 'Organizations', value: `${data.orgs}+`, color: 'text-primary' },
   ];
 
   return (

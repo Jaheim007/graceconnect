@@ -1,16 +1,27 @@
 import { motion } from 'framer-motion';
 import { Star } from 'lucide-react';
-
-const testimonials = [
-  { name: 'Ibrahim T.', role: 'Ambassadeur', text: 'Je n\'ai aucun contenu à moi. Je partage les ressources des autres et je gagne des commissions chaque semaine.', flag: '🇸🇳' },
-  { name: 'Marie-Claire B.', role: 'Créatrice', text: 'J\'ai centralisé tous mes documents sur une seule plateforme. Mes clients achètent et téléchargent en un clic.', flag: '🇨🇲' },
-  { name: 'David K.', role: 'Directeur ONG', text: 'Nos campagnes de collecte ont levé 3x plus qu\'avant. Les donateurs paient par Mobile Money en un clic.', flag: '🇬🇭' },
-  { name: 'Fatou N.', role: 'Coach & Formatrice', text: 'Grâce au LMS intégré, j\'ai créé une formation complète avec certificats. Mes élèves adorent suivre leur progression.', flag: '🇨🇮' },
-  { name: 'Jean-Paul M.', role: 'Auteur', text: 'L\'AI Studio m\'a permis de créer un livre de coloriage en une journée. La prévisualisation PDF rassure mes acheteurs.', flag: '🇨🇩' },
-  { name: 'Grace A.', role: 'Acheteuse', text: 'J\'adore la wishlist ! Je sauvegarde les ressources et je reçois une alerte dès qu\'il y a une promo.', flag: '🇳🇬' },
-];
+import { useI18n } from '@/i18n/I18nContext';
 
 export function LandingSocialProof() {
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+
+  const testimonials = isFr ? [
+    { name: 'Kofi A.', role: 'Pasteur & Auteur', text: "J'ai transformé mes prédications en un livre vendu à travers tout le Ghana. Mobile Money, c'est instantané.", flag: '🇬🇭' },
+    { name: 'Fatou N.', role: 'Coach & Formatrice', text: "Grâce au LMS intégré, j'ai créé une formation complète avec certificats. Mes élèves adorent.", flag: '🇨🇮' },
+    { name: 'James M.', role: 'Ambassadeur', text: "Je partage les livres sur WhatsApp et je gagne des commissions chaque semaine via M-Pesa.", flag: '🇰🇪' },
+    { name: 'Grace O.', role: 'Auteure', text: "Mon ebook touche la diaspora aux USA et au UK. Les paiements par carte sont instantanés.", flag: '🇳🇬' },
+    { name: 'David T.', role: 'Directeur ONG', text: "Nos campagnes de collecte ont levé 3x plus qu'avant. Donateurs en Afrique du Sud et au-delà.", flag: '🇿🇦' },
+    { name: 'Sarah L.', role: 'Missionnaire', text: "Depuis la France, je vends mes livres dans toute l'Afrique francophone. SiteViral gère tout.", flag: '🇫🇷' },
+  ] : [
+    { name: 'Kofi A.', role: 'Pastor & Author', text: "I turned my sermons into a book sold across Ghana. Mobile Money payments are instant.", flag: '🇬🇭' },
+    { name: 'Fatou N.', role: 'Coach & Trainer', text: "With the built-in LMS, I created a full course with certificates. My students love it.", flag: '🇨🇮' },
+    { name: 'James M.', role: 'Ambassador', text: "I share books on WhatsApp and earn commissions every week via M-Pesa.", flag: '🇰🇪' },
+    { name: 'Grace O.', role: 'Author', text: "My ebook reaches the diaspora in the US and UK. Card payments are instant.", flag: '🇳🇬' },
+    { name: 'David T.', role: 'NGO Director', text: "Our fundraising campaigns raised 3x more than before. Donors from South Africa and beyond.", flag: '🇿🇦' },
+    { name: 'Sarah L.', role: 'Content Creator', text: "From London, I sell my books across Francophone Africa. SiteViral handles everything.", flag: '🇬🇧' },
+  ];
+
   return (
     <section className="py-16 px-4">
       <div className="container max-w-4xl">
@@ -22,8 +33,15 @@ export function LandingSocialProof() {
           className="text-center mb-10"
         >
           <h2 className="text-2xl sm:text-3xl font-extrabold">
-            Ils gagnent déjà avec <span className="text-primary">Siteviral</span>
+            {isFr ? (
+              <>Ils gagnent déjà avec <span className="text-primary">SiteViral</span></>
+            ) : (
+              <>They're already earning with <span className="text-primary">SiteViral</span></>
+            )}
           </h2>
+          <p className="text-xs text-muted-foreground mt-2">
+            🇬🇭 🇰🇪 🇨🇮 🇳🇬 🇿🇦 🇺🇸 🇬🇧 🇫🇷
+          </p>
         </motion.div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">

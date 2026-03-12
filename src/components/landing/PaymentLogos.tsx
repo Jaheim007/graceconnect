@@ -7,10 +7,10 @@ export function PaymentLogos() {
   const isFr = locale === 'fr';
 
   const methods = [
-    { name: 'Mobile Money', desc: 'Orange, MTN, Wave, Moov', icon: Smartphone, color: 'text-orange-500 bg-orange-500/10' },
-    { name: 'Visa / Mastercard', desc: isFr ? 'Paiement par carte sécurisé' : 'Secure card payments', icon: CreditCard, color: 'text-blue-500 bg-blue-500/10' },
-    { name: 'Paystack', desc: isFr ? 'Certifié PCI-DSS Niveau 1' : 'PCI-DSS Level 1 certified', icon: Shield, color: 'text-green-500 bg-green-500/10' },
-    { name: 'Stripe', desc: isFr ? 'Paiements internationaux' : 'International payments', icon: Shield, color: 'text-violet-500 bg-violet-500/10' },
+    { name: 'Mobile Money', desc: 'MTN, M-Pesa, Orange, Wave', icon: Smartphone, color: 'text-orange-500 bg-orange-500/10', flags: '🇬🇭🇰🇪🇨🇮' },
+    { name: 'Visa / Mastercard', desc: isFr ? 'Paiement par carte sécurisé' : 'Secure card payments', icon: CreditCard, color: 'text-blue-500 bg-blue-500/10', flags: '🌍' },
+    { name: 'Paystack', desc: isFr ? 'Ghana, Kenya, Côte d\'Ivoire' : 'Ghana, Kenya, Ivory Coast', icon: Shield, color: 'text-green-500 bg-green-500/10', flags: '🇬🇭🇰🇪🇨🇮🇳🇬🇿🇦' },
+    { name: 'Stripe', desc: isFr ? 'USA, UK, France, 46+ pays' : 'USA, UK, France, 46+ countries', icon: Shield, color: 'text-violet-500 bg-violet-500/10', flags: '🇺🇸🇬🇧🇫🇷' },
   ];
 
   return (
@@ -40,6 +40,7 @@ export function PaymentLogos() {
               <div className="min-w-0">
                 <p className="text-xs font-bold">{m.name}</p>
                 <p className="text-[10px] text-muted-foreground">{m.desc}</p>
+                <p className="text-[9px]">{m.flags}</p>
               </div>
             </motion.div>
           ))}

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Shield, Lock, Eye, Fingerprint } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nContext';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
@@ -7,6 +8,21 @@ const fadeUp = {
 };
 
 export function LandingTrustShield() {
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+
+  const features = isFr ? [
+    { icon: Lock, label: 'Watermark intelligent', desc: "Email de l'acheteur en diagonale sur chaque document" },
+    { icon: Eye, label: 'Prévisualisation sécurisée', desc: 'Aperçu flou 20% — pas de téléchargement avant achat' },
+    { icon: Fingerprint, label: 'Hash forensique', desc: 'Chaque copie est unique et traçable' },
+    { icon: Shield, label: 'Anti-piratage actif', desc: 'Logs de téléchargement + signalement intégré' },
+  ] : [
+    { icon: Lock, label: 'Smart watermark', desc: "Buyer's email stamped diagonally on every document" },
+    { icon: Eye, label: 'Secure preview', desc: '20% blur preview — no download before purchase' },
+    { icon: Fingerprint, label: 'Forensic hash', desc: 'Every copy is unique and traceable' },
+    { icon: Shield, label: 'Active anti-piracy', desc: 'Download logs + built-in reporting' },
+  ];
+
   return (
     <section className="py-16 px-4">
       <div className="container max-w-3xl">
@@ -15,20 +31,21 @@ export function LandingTrustShield() {
             <Shield className="h-7 w-7 text-primary" />
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold">
-            Tes contenus sont <span className="text-primary">protégés</span>
+            {isFr ? (
+              <>Tes contenus sont <span className="text-primary">protégés</span></>
+            ) : (
+              <>Your content is <span className="text-primary">protected</span></>
+            )}
           </h2>
           <p className="text-sm text-muted-foreground mt-2 max-w-md mx-auto">
-            8 couches de sécurité. Watermark. Traçabilité. Chaque copie est unique et identifiable.
+            {isFr
+              ? '8 couches de sécurité. Watermark. Traçabilité. Chaque copie est unique et identifiable.'
+              : '8 security layers. Watermark. Traceability. Every copy is unique and identifiable.'}
           </p>
         </motion.div>
 
         <div className="grid sm:grid-cols-2 gap-3 max-w-lg mx-auto">
-          {[
-            { icon: Lock, label: 'Watermark intelligent', desc: 'Email de l\'acheteur en diagonale sur chaque document' },
-            { icon: Eye, label: 'Prévisualisation sécurisée', desc: 'Aperçu flou 20% — pas de téléchargement avant achat' },
-            { icon: Fingerprint, label: 'Hash forensique', desc: 'Chaque copie est unique et traçable' },
-            { icon: Shield, label: 'Anti-piratage actif', desc: 'Logs de téléchargement + signalement intégré' },
-          ].map((feature, i) => (
+          {features.map((feature, i) => (
             <motion.div
               key={feature.label}
               initial="hidden"
