@@ -75,7 +75,9 @@ export function SmartPricingHelper() {
   if (freeRate > 60) {
     insights.push({
       type: 'tip',
-      message: `${freeRate}% de vos produits sont gratuits. Convertissez vos meilleurs gratuits en produits payants (même à petit prix) pour générer des revenus.`,
+      message: isFr
+        ? `${freeRate}% de vos produits sont gratuits. Convertissez vos meilleurs gratuits en produits payants (même à petit prix) pour générer des revenus.`
+        : `${freeRate}% of your products are free. Convert your best free items to paid products (even at a low price) to generate revenue.`,
       icon: DollarSign,
     });
   }
