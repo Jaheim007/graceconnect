@@ -1216,7 +1216,7 @@ export function AdminSettings() {
                 ? <img src={bannerUrl} alt="Banner" className="w-full h-full object-cover" />
                 : <div className="w-full h-full flex flex-col items-center justify-center gap-1">
                     <span className="text-2xl">🖼️</span>
-                    <span className="text-xs text-muted-foreground">Cliquez pour télécharger la bannière (16:9 recommandé)</span>
+                    <span className="text-xs text-muted-foreground">{isFr ? 'Cliquez pour télécharger la bannière (16:9 recommandé)' : 'Click to upload banner (16:9 recommended)'}</span>
                   </div>
               }
               <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
