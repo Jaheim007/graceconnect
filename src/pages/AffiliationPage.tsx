@@ -305,8 +305,8 @@ export default function AffiliationPage() {
             {/* Payout requests */}
             {Object.keys(payableByOrg).length > 0 && (
               <div className="bg-card border border-border rounded-2xl p-4 space-y-3 shadow-card">
-                <h2 className="font-semibold text-sm flex items-center gap-2"><DollarSign className="h-4 w-4 text-primary" /> Demander un retrait</h2>
-                <p className="text-xs text-muted-foreground">La vérification KYC est requise avant tout retrait. <a href="/ambassador-terms" className="text-primary hover:underline">Voir les conditions</a></p>
+                <h2 className="font-semibold text-sm flex items-center gap-2"><DollarSign className="h-4 w-4 text-primary" /> {isFr ? 'Demander un retrait' : 'Request withdrawal'}</h2>
+                <p className="text-xs text-muted-foreground">{isFr ? 'La vérification KYC est requise avant tout retrait.' : 'KYC verification is required before any withdrawal.'} <a href="/ambassador-terms" className="text-primary hover:underline">{isFr ? 'Voir les conditions' : 'View terms'}</a></p>
                 <div className="space-y-2">
                   {Object.values(payableByOrg).map(({ orgId, amount, currency }) => {
                     const org = userOrgs.find(o => o.id === orgId) || allAffiliateOrgs.find(o => o.id === orgId);
