@@ -275,7 +275,7 @@ export default function ManualPayoutsDashboard() {
                         {payout.status === 'pending' ? '⏳ En attente' : '🔄 En cours'}
                       </Badge>
                       <p className="text-[10px] text-muted-foreground">
-                        {new Date(payout.created_at).toLocaleDateString('fr-FR')}
+                        {new Date(payout.created_at).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
