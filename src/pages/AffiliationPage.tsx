@@ -274,7 +274,7 @@ export default function AffiliationPage() {
                           <p className="text-[10px] text-muted-foreground font-mono">{l.code}</p>
                         </div>
                         <Badge variant="outline" className={cn('text-[10px] border-0', l.is_active ? 'bg-green-500/10 text-green-600' : 'bg-muted text-muted-foreground')}>
-                          {l.is_active ? 'Actif' : 'Inactif'}
+                          {l.is_active ? (isFr ? 'Actif' : 'Active') : (isFr ? 'Inactif' : 'Inactive')}
                         </Badge>
                         {l.organizations?.affiliation_commission_percent && (
                           <Badge className="bg-primary/10 text-primary border-0 text-[10px]">{l.organizations.affiliation_commission_percent}%</Badge>
