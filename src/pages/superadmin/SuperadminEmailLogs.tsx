@@ -69,7 +69,7 @@ export default function SuperadminEmailLogs() {
     <div className="space-y-6">
       <div className="flex items-center gap-2">
         <Mail className="h-5 w-5 text-primary" />
-        <h1 className="text-xl font-bold">📧 Journaux d'emails</h1>
+        <h1 className="text-xl font-bold">📧 Email Logs</h1>
       </div>
 
       {/* Stats */}
