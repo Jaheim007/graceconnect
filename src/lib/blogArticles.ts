@@ -26,7 +26,7 @@ export const blogArticles: BlogArticle[] = [
     publishedAt: '2026-02-27',
     content: `
 <h2>Le problème que Siteviral résout</h2>
-<p>En Afrique francophone, des millions de leaders, créateurs et organisations produisent du contenu de valeur — prédications, cours, e-books, guides, musique — mais n'ont <strong>aucun moyen simple de le monétiser</strong>.</p>
+<p>En Afrique, des millions de leaders, créateurs et organisations produisent du contenu de valeur — prédications, cours, e-books, guides, musique — mais n'ont <strong>aucun moyen simple de le monétiser</strong>.</p>
 <p>Les plateformes internationales comme Shopify, Teachable ou Patreon ne supportent pas le <strong>Mobile Money</strong>, coûtent cher en abonnement, et ne sont pas adaptées au contexte local.</p>
 <p>Résultat : du contenu envoyé gratuitement sur WhatsApp, des dons collectés en espèces sans traçabilité, et des opportunités perdues chaque jour.</p>
 
