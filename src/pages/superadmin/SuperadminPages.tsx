@@ -769,8 +769,8 @@ export function SuperadminMetrics() {
   const takeRate = totalGMV > 0 ? ((totalFees / totalGMV) * 100).toFixed(1) : '0';
 
   const summaryCards = [
-    { label: 'GMV 30j (XOF)', value: totalGMV.toLocaleString('fr-FR') },
-    { label: 'Platform Fees 30j', value: totalFees.toLocaleString('fr-FR') },
+    { label: 'GMV 30j (XOF)', value: totalGMV.toLocaleString() },
+    { label: 'Platform Fees 30j', value: totalFees.toLocaleString() },
     { label: 'Take Rate', value: `${takeRate}%` },
     { label: 'Transactions 30j', value: totalTx.toLocaleString() },
     { label: 'Orgs actives', value: activeOrgs },

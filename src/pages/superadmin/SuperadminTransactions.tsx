@@ -630,7 +630,7 @@ export function SuperadminTransactions() {
                     {tx.affiliate_name ? (
                       <div>
                         <p className="text-xs font-medium truncate max-w-[100px]">{tx.affiliate_name}</p>
-                        <p className="text-[10px] text-muted-foreground">{(tx.affiliate_commission || 0).toLocaleString('fr-FR')} XOF</p>
+                        <p className="text-[10px] text-muted-foreground">{(tx.affiliate_commission || 0).toLocaleString()} XOF</p>
                       </div>
                     ) : (
                       <span className="text-xs text-muted-foreground">—</span>
