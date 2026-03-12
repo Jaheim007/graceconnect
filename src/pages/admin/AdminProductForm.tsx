@@ -68,6 +68,8 @@ export function ProductForm() {
   const location = useLocation();
   const { toast } = useToast();
   const qc = useQueryClient();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const isEdit = !!id;
   
   // Support pre-fill from AI Studio
