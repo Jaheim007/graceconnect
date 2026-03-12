@@ -189,7 +189,7 @@ export default function FeedPage() {
                             <h3 className="font-bold text-sm mt-1 line-clamp-2">{a.title}</h3>
                             <p className="text-xs text-muted-foreground mt-1.5 line-clamp-3">{stripHtml(a.body)}</p>
                             {(a as any).organization_name && (
-                              <p className="text-[11px] text-muted-foreground mt-2 flex items-center gap-1">Publié par <span className="font-semibold text-primary hover:underline cursor-pointer" onClick={(e) => { e.stopPropagation(); navigate(`/org/${(a as any).organization_slug}`); }}>{(a as any).organization_name}</span>{(a as any).is_org_verified && <VerifiedBadge size="xs" showTooltip={false} />}</p>
+                              <p className="text-[11px] text-muted-foreground mt-2 flex items-center gap-1">{isFr ? 'Publié par' : 'By'} <span className="font-semibold text-primary hover:underline cursor-pointer" onClick={(e) => { e.stopPropagation(); navigate(`/org/${(a as any).organization_slug}`); }}>{(a as any).organization_name}</span>{(a as any).is_org_verified && <VerifiedBadge size="xs" showTooltip={false} />}</p>
                             )}
                           </div>
                         </motion.div>
