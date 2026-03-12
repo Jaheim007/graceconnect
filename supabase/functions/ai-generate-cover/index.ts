@@ -56,7 +56,9 @@ DESIGN REQUIREMENTS:
 
 CRITICAL: The typography must be flawless — clean, well-kerned, professionally placed. The title should dominate the upper portion. Any subtitle or author name should be elegantly balanced.`;
 
-        const { base64, mimeType } = await aiGenerateImageBase64({ geminiKey: GEMINI_API_KEY, prompt, timeoutMs: 90_000 });
+        console.log('[ai-generate-cover] Starting image generation for:', title?.slice(0, 50));
+        const { base64, mimeType } = await aiGenerateImageBase64({ geminiKey: GEMINI_API_KEY, prompt, timeoutMs: 120_000 });
+        console.log('[ai-generate-cover] Image generated successfully, mimeType:', mimeType, 'base64 length:', base64?.length);
 
         const imageBytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
         const ext = mimeType.includes('jpeg') ? 'jpg' : 'png';
