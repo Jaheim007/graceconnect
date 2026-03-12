@@ -185,21 +185,21 @@ export default function PartnerPortalPage() {
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="w-full sm:w-auto bg-muted/40 p-1 rounded-xl h-auto flex-wrap">
           <TabsTrigger value="overview" className="rounded-lg text-xs gap-1.5 data-[state=active]:shadow-sm">
-            <Zap className="h-3.5 w-3.5" /> Vue d'ensemble
+            <Zap className="h-3.5 w-3.5" /> {isFr ? 'Vue d\'ensemble' : 'Overview'}
           </TabsTrigger>
           <TabsTrigger value="orgs" className="rounded-lg text-xs gap-1.5 data-[state=active]:shadow-sm">
-            <Building2 className="h-3.5 w-3.5" /> Organisations
+            <Building2 className="h-3.5 w-3.5" /> {isFr ? 'Organisations' : 'Organizations'}
             {referrals.length > 0 && <span className="ml-1 text-[10px] bg-muted rounded-full px-1.5">{referrals.length}</span>}
           </TabsTrigger>
           <TabsTrigger value="gains" className="rounded-lg text-xs gap-1.5 data-[state=active]:shadow-sm">
-            <CircleDollarSign className="h-3.5 w-3.5" /> Commissions
+            <CircleDollarSign className="h-3.5 w-3.5" /> {isFr ? 'Commissions' : 'Commissions'}
             {commissions.length > 0 && <span className="ml-1 text-[10px] bg-muted rounded-full px-1.5">{commissions.length}</span>}
           </TabsTrigger>
           <TabsTrigger value="kyc" className="rounded-lg text-xs gap-1.5 data-[state=active]:shadow-sm">
             <Shield className="h-3.5 w-3.5" /> KYC
           </TabsTrigger>
           <TabsTrigger value="payout" className="rounded-lg text-xs gap-1.5 data-[state=active]:shadow-sm">
-            <CreditCard className="h-3.5 w-3.5" /> Retrait
+            <CreditCard className="h-3.5 w-3.5" /> {isFr ? 'Retrait' : 'Payout'}
           </TabsTrigger>
         </TabsList>
 
