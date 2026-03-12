@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { getOrCreateShortLink } from '@/lib/shareMeta';
+import { useI18n } from '@/i18n/I18nContext';
 
 export type ShareContext =
   | 'post-purchase'
@@ -29,27 +30,38 @@ interface WhatsAppShareProps {
   className?: string;
 }
 
-const MESSAGES: Record<ShareContext, (opts: Omit<WhatsAppShareProps, 'context' | 'variant' | 'className'>) => string> = {
+const MESSAGES_FR: Record<ShareContext, (opts: Omit<WhatsAppShareProps, 'context' | 'variant' | 'className'>) => string> = {
   'post-purchase': ({ productTitle, orgName, url }) =>
     `📚 Je viens de découvrir « ${productTitle || 'un produit incroyable'} »${orgName ? ` sur ${orgName}` : ''} ! Je te le recommande fortement 👉\n${url}`,
-
   'post-publish': ({ productTitle, url }) =>
     `🎉 Mon livre « ${productTitle} » est enfin publié ! 📖✨\nÇa m'a pris seulement 5 minutes avec l'IA.\nDécouvre-le ici 👉\n${url}`,
-
   'ambassador-share': ({ productTitle, commissionPercent, url }) =>
     `📖 ${productTitle}${commissionPercent ? ` — gagne ${commissionPercent}% de commission en le partageant !` : ''}\nDécouvre-le 👉\n${url}`,
-
   'earnings-brag': ({ earnings, currency }) =>
-    `💰 J'ai gagné ${(earnings || 0).toLocaleString('fr-FR')} ${currency || 'FCFA'} en partageant des livres sur SiteViral !\n\nToi aussi tu peux gagner en partageant simplement 👉\nhttps://siteviral.com/gagner`,
-
+    `💰 J'ai gagné ${(earnings || 0).toLocaleString()} ${currency || 'FCFA'} en partageant des livres sur SiteViral !\n\nToi aussi tu peux gagner en partageant simplement 👉\nhttps://siteviral.com/gagner`,
   'invite-friend': ({ url }) =>
     `👋 Rejoins SiteViral ! C'est la plateforme où tu peux :\n✏️ Écrire un livre en 5 min avec l'IA\n💰 Gagner des commissions en partageant\n📚 Découvrir des ressources incroyables\n\nInscris-toi 👉\n${url}`,
-
   'course-complete': ({ courseName, url }) =>
     `🎓 Je viens de terminer la formation « ${courseName} » ! 🏆\nJe te la recommande 👉\n${url}`,
-
   'milestone': ({ milestoneName, url }) =>
     `🏆 ${milestoneName || 'Réussite débloquée'} sur SiteViral ! 🎉\nRejoins la communauté 👉\n${url || 'https://siteviral.com'}`,
+};
+
+const MESSAGES_EN: Record<ShareContext, (opts: Omit<WhatsAppShareProps, 'context' | 'variant' | 'className'>) => string> = {
+  'post-purchase': ({ productTitle, orgName, url }) =>
+    `📚 I just discovered "${productTitle || 'an amazing product'}"${orgName ? ` on ${orgName}` : ''}! Highly recommend it 👉\n${url}`,
+  'post-publish': ({ productTitle, url }) =>
+    `🎉 My book "${productTitle}" is finally published! 📖✨\nIt only took 5 minutes with AI.\nCheck it out 👉\n${url}`,
+  'ambassador-share': ({ productTitle, commissionPercent, url }) =>
+    `📖 ${productTitle}${commissionPercent ? ` — earn ${commissionPercent}% commission by sharing!` : ''}\nCheck it out 👉\n${url}`,
+  'earnings-brag': ({ earnings, currency }) =>
+    `💰 I earned ${(earnings || 0).toLocaleString()} ${currency || 'FCFA'} by sharing books on SiteViral!\n\nYou can earn too by simply sharing 👉\nhttps://siteviral.com/gagner`,
+  'invite-friend': ({ url }) =>
+    `👋 Join SiteViral! The platform where you can:\n✏️ Write a book in 5 min with AI\n💰 Earn commissions by sharing\n📚 Discover incredible resources\n\nSign up 👉\n${url}`,
+  'course-complete': ({ courseName, url }) =>
+    `🎓 I just completed the "${courseName}" course! 🏆\nI recommend it 👉\n${url}`,
+  'milestone': ({ milestoneName, url }) =>
+    `🏆 ${milestoneName || 'Achievement unlocked'} on SiteViral! 🎉\nJoin the community 👉\n${url || 'https://siteviral.com'}`,
 };
 
 const PLATFORMS = [
@@ -94,20 +106,18 @@ const PLATFORMS = [
   },
 ];
 
-/**
- * WhatsAppShareEngine — optimized multi-platform share with contextual pre-written messages
- * WhatsApp is primary CTA; other platforms secondary
- */
 export function WhatsAppShareEngine(props: WhatsAppShareProps) {
   const { context, variant = 'card', className, url, ...rest } = props;
   const [copied, setCopied] = useState(false);
   const [showAll, setShowAll] = useState(false);
   const [resolvedUrl, setResolvedUrl] = useState(url);
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const MESSAGES = isFr ? MESSAGES_FR : MESSAGES_EN;
 
-  // Resolve to short link for rich OG previews
   useEffect(() => {
     const path = url.replace('https://siteviral.com', '').replace(/^https?:\/\/[^/]+/, '');
-    if (!path || path === url) return; // skip if it's already a full external URL without a path
+    if (!path || path === url) return;
     let cancelled = false;
     getOrCreateShortLink({
       targetPath: path,
@@ -123,10 +133,10 @@ export function WhatsAppShareEngine(props: WhatsAppShareProps) {
     try {
       await navigator.clipboard.writeText(resolvedUrl);
       setCopied(true);
-      toast.success('Lien copié !');
+      toast.success(isFr ? 'Lien copié !' : 'Link copied!');
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error('Impossible de copier');
+      toast.error(isFr ? 'Impossible de copier' : 'Unable to copy');
     }
   };
 
@@ -137,7 +147,7 @@ export function WhatsAppShareEngine(props: WhatsAppShareProps) {
   if (variant === 'button') {
     return (
       <Button onClick={shareWhatsApp} className={cn('gap-2 bg-emerald-600 hover:bg-emerald-700 text-white', className)}>
-        💬 Partager sur WhatsApp
+        💬 {isFr ? 'Partager sur WhatsApp' : 'Share on WhatsApp'}
       </Button>
     );
   }
@@ -150,28 +160,24 @@ export function WhatsAppShareEngine(props: WhatsAppShareProps) {
         </Button>
         <Button size="sm" variant="outline" onClick={copyLink} className="gap-1.5 text-xs h-8">
           {copied ? <Check className="h-3 w-3 text-emerald-500" /> : <Copy className="h-3 w-3" />}
-          {copied ? 'Copié' : 'Lien'}
+          {copied ? (isFr ? 'Copié' : 'Copied') : (isFr ? 'Lien' : 'Link')}
         </Button>
       </div>
     );
   }
 
-  // Card variant (default)
   return (
     <div className={cn('bg-card border border-border rounded-2xl p-5 space-y-4', className)}>
-      <p className="text-sm font-bold text-center">📤 Partage maintenant !</p>
+      <p className="text-sm font-bold text-center">{isFr ? '📤 Partage maintenant !' : '📤 Share now!'}</p>
 
-      {/* Pre-written message preview */}
       <div className="bg-muted/50 rounded-xl p-3 border border-border">
         <p className="text-xs text-muted-foreground italic whitespace-pre-line line-clamp-4">« {message} »</p>
       </div>
 
-      {/* Primary CTA: WhatsApp */}
       <Button onClick={shareWhatsApp} className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white h-11 text-sm font-bold">
-        💬 Partager sur WhatsApp
+        💬 {isFr ? 'Partager sur WhatsApp' : 'Share on WhatsApp'}
       </Button>
 
-      {/* Secondary platforms */}
       <div className="grid grid-cols-4 gap-2">
         {PLATFORMS.slice(1).map(p => (
           <a
@@ -187,10 +193,9 @@ export function WhatsAppShareEngine(props: WhatsAppShareProps) {
         ))}
       </div>
 
-      {/* Copy link */}
       <Button variant="outline" size="sm" className="w-full gap-2 text-xs" onClick={copyLink}>
         {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
-        {copied ? 'Lien copié !' : 'Copier le lien'}
+        {copied ? (isFr ? 'Lien copié !' : 'Link copied!') : (isFr ? 'Copier le lien' : 'Copy link')}
       </Button>
     </div>
   );

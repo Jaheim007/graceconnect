@@ -19,6 +19,8 @@ export interface PDFExportOptions {
   currencyColumns?: string[];
   /** Orientation: portrait or landscape */
   orientation?: 'portrait' | 'landscape';
+  /** Locale for formatting */
+  locale?: string;
 }
 
 export function downloadPDF(
@@ -28,21 +30,21 @@ export function downloadPDF(
 ) {
   if (!data.length) return;
 
-  // Backwards compat: if options is a string, treat as title
   const opts: PDFExportOptions = typeof options === 'string' ? { title: options } : (options || {});
   const title = opts.title || filename;
   const headers = Object.keys(data[0]);
   const rows = data.map((row) => headers.map((h) => String(row[h] ?? '')));
   const currencySet = new Set(opts.currencyColumns || []);
+  const loc = opts.locale || 'fr-FR';
+  const isFr = loc.startsWith('fr');
 
   const formatCell = (header: string, value: string) => {
     if (currencySet.has(header) && !isNaN(Number(value))) {
-      return Number(value).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      return Number(value).toLocaleString(loc, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
     }
     return value;
   };
 
-  // Summary cards HTML
   const summaryHtml = opts.summaryCards?.length
     ? `<div class="summary-grid">${opts.summaryCards.map(c =>
         `<div class="summary-card" style="border-left: 3px solid ${c.color || '#3b82f6'};">
@@ -52,12 +54,11 @@ export function downloadPDF(
       ).join('')}</div>`
     : '';
 
-  // Simple bar chart HTML
   const chartHtml = opts.chartData?.length
     ? (() => {
         const max = Math.max(...opts.chartData.map(d => d.value), 1);
         return `<div class="chart-section">
-          <h3>Évolution</h3>
+          <h3>${isFr ? 'Évolution' : 'Trend'}</h3>
           <div class="chart-bars">
             ${opts.chartData.map(d =>
               `<div class="bar-col">
@@ -69,6 +70,10 @@ export function downloadPDF(
         </div>`;
       })()
     : '';
+
+  const exportedLabel = isFr ? 'Exporté le' : 'Exported on';
+  const rowsLabel = isFr ? 'lignes' : 'rows';
+  const dateStr = new Date().toLocaleDateString(loc, { day: 'numeric', month: 'long', year: 'numeric' });
 
   const html = `
     <!DOCTYPE html>
@@ -116,8 +121,8 @@ export function downloadPDF(
       </div>
 
       <div class="meta-bar">
-        <span>Exporté le ${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
-        <span>${data.length} lignes</span>
+        <span>${exportedLabel} ${dateStr}</span>
+        <span>${data.length} ${rowsLabel}</span>
       </div>
 
       ${summaryHtml}
@@ -129,7 +134,7 @@ export function downloadPDF(
       </table>
 
       <div class="footer">
-        ${opts.footer || `<strong>Siteviral</strong> — Rapport généré automatiquement. Confidentiel.`}
+        ${opts.footer || `<strong>Siteviral</strong> — ${isFr ? 'Rapport généré automatiquement. Confidentiel.' : 'Auto-generated report. Confidential.'}`}
       </div>
     </body>
     </html>
@@ -151,30 +156,42 @@ export function downloadDashboardPDF(opts: {
   orgName: string;
   logoUrl?: string;
   currency?: string;
+  locale?: string;
   stats: { label: string; value: string | number; color?: string }[];
   revenueData?: { label: string; value: number }[];
   topProducts?: { title: string; sales: number; revenue: number }[];
   transactions?: Record<string, unknown>[];
 }) {
+  const loc = opts.locale || 'fr';
+  const isFr = loc.startsWith('fr');
   const txData = opts.transactions || [];
   const topRows = (opts.topProducts || []).map(p => ({
-    Produit: p.title,
-    Ventes: p.sales,
-    Revenus: p.revenue,
+    [isFr ? 'Produit' : 'Product']: p.title,
+    [isFr ? 'Ventes' : 'Sales']: p.sales,
+    [isFr ? 'Revenus' : 'Revenue']: p.revenue,
   }));
 
-  // If we have transactions, export them with summary
   const exportData = txData.length > 0 ? txData as Record<string, unknown>[] : topRows;
+  const noDataLabel = isFr ? 'Aucune donnée disponible' : 'No data available';
+  const reportLabel = isFr ? 'Rapport' : 'Report';
+  const perfLabel = isFr ? 'Rapport de performance généré le' : 'Performance report generated on';
+  const dateStr = new Date().toLocaleDateString(isFr ? 'fr-FR' : 'en-US');
+  const footerText = isFr
+    ? `<strong>${opts.orgName}</strong> via Siteviral — Rapport confidentiel. Ne pas diffuser sans autorisation.`
+    : `<strong>${opts.orgName}</strong> via Siteviral — Confidential report. Do not share without authorization.`;
 
-  downloadPDF(exportData.length > 0 ? exportData : [{ Info: 'Aucune donnée disponible' }], `rapport-${opts.orgName}`, {
-    title: `Rapport — ${opts.orgName}`,
-    subtitle: `Rapport de performance généré le ${new Date().toLocaleDateString('fr-FR')}`,
+  downloadPDF(exportData.length > 0 ? exportData : [{ Info: noDataLabel }], `${isFr ? 'rapport' : 'report'}-${opts.orgName}`, {
+    title: `${reportLabel} — ${opts.orgName}`,
+    subtitle: `${perfLabel} ${dateStr}`,
     orgName: opts.orgName,
     logo: opts.logoUrl,
     summaryCards: opts.stats,
     chartData: opts.revenueData,
-    currencyColumns: ['montant', 'reçu_org', 'commission_affilié', 'frais_plateforme', 'Revenus'],
+    currencyColumns: isFr
+      ? ['montant', 'reçu_org', 'commission_affilié', 'frais_plateforme', 'Revenus']
+      : ['amount', 'org_received', 'affiliate_commission', 'platform_fee', 'Revenue'],
     orientation: 'landscape',
-    footer: `<strong>${opts.orgName}</strong> via Siteviral — Rapport confidentiel. Ne pas diffuser sans autorisation.`,
+    locale: isFr ? 'fr-FR' : 'en-US',
+    footer: footerText,
   });
 }

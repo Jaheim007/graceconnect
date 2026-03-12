@@ -5,23 +5,18 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { SkeletonRow } from '@/components/ui/SkeletonCard';
 import { Activity, Heart, ShoppingBag, Users, Shield, UserPlus, FileText } from 'lucide-react';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr, enUS } from 'date-fns/locale';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-
-const fmt = (n: number) => new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF', maximumFractionDigits: 0 }).format(n);
-
-interface ActivityItem {
-  id: string;
-  type: 'donation' | 'purchase' | 'signup' | 'kyc' | 'member' | 'report';
-  title: string;
-  subtitle: string;
-  amount?: number;
-  status?: string;
-  timestamp: string;
-}
+import { useI18n } from '@/i18n/I18nContext';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 
 export default function SuperadminActivityFeed() {
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const dateFnsLocale = isFr ? fr : enUS;
+  const { fmt } = useDisplayCurrency();
+
   const { data: activities = [], isLoading } = useQuery({
     queryKey: ['sa-activity-feed'],
     queryFn: async () => {
@@ -37,42 +32,58 @@ export default function SuperadminActivityFeed() {
       const items: ActivityItem[] = [];
 
       (donations.data || []).forEach((d: any) => items.push({
-        id: `don-${d.id}`, type: 'donation', title: `Don de ${d.donor_name || 'Anonyme'}`,
-        subtitle: `${fmt(d.amount)} ${d.currency || 'XOF'}`, amount: d.amount, status: d.status,
+        id: `don-${d.id}`, type: 'donation',
+        title: isFr ? `Don de ${d.donor_name || 'Anonyme'}` : `Donation from ${d.donor_name || 'Anonymous'}`,
+        subtitle: `${fmt(d.amount, d.currency || 'XOF')}`, amount: d.amount, status: d.status,
         timestamp: d.created_at,
       }));
 
       (purchases.data || []).forEach((p: any) => items.push({
-        id: `pur-${p.id}`, type: 'purchase', title: `Achat de ${p.buyer_name || 'Acheteur'}`,
-        subtitle: `${fmt(p.amount)} ${p.currency || 'XOF'}`, amount: p.amount, status: p.status,
+        id: `pur-${p.id}`, type: 'purchase',
+        title: isFr ? `Achat de ${p.buyer_name || 'Acheteur'}` : `Purchase by ${p.buyer_name || 'Buyer'}`,
+        subtitle: `${fmt(p.amount, p.currency || 'XOF')}`, amount: p.amount, status: p.status,
         timestamp: p.created_at,
       }));
 
       (profiles.data || []).forEach((p: any) => items.push({
-        id: `sig-${p.id}`, type: 'signup', title: `Nouvel utilisateur`,
-        subtitle: p.display_name || 'Sans nom', timestamp: p.created_at,
+        id: `sig-${p.id}`, type: 'signup',
+        title: isFr ? 'Nouvel utilisateur' : 'New user',
+        subtitle: p.display_name || (isFr ? 'Sans nom' : 'No name'), timestamp: p.created_at,
       }));
 
       (kyc.data || []).forEach((k: any) => items.push({
-        id: `kyc-${k.id}`, type: 'kyc', title: 'Vérification d\'identité',
-        subtitle: `Statut: ${k.status}`, status: k.status, timestamp: k.submitted_at,
+        id: `kyc-${k.id}`, type: 'kyc',
+        title: isFr ? "Vérification d'identité" : 'ID Verification',
+        subtitle: `${isFr ? 'Statut' : 'Status'}: ${k.status}`, status: k.status, timestamp: k.submitted_at,
       }));
 
       (members.data || []).forEach((m: any) => items.push({
-        id: `mem-${m.id}`, type: 'member', title: `Nouveau membre`,
+        id: `mem-${m.id}`, type: 'member',
+        title: isFr ? 'Nouveau membre' : 'New member',
         subtitle: `${m.organizations?.name || '?'} (${m.role})`, timestamp: m.joined_at,
       }));
 
       (reports.data || []).forEach((r: any) => items.push({
-        id: `rep-${r.id}`, type: 'report', title: 'Signalement',
+        id: `rep-${r.id}`, type: 'report',
+        title: isFr ? 'Signalement' : 'Report',
         subtitle: `${r.content_type}: ${r.reason?.slice(0, 50)}`, status: r.status,
         timestamp: r.created_at,
       }));
 
       return items.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
     },
-    refetchInterval: 30000, // refresh every 30s
+    refetchInterval: 30000,
   });
+
+  interface ActivityItem {
+    id: string;
+    type: 'donation' | 'purchase' | 'signup' | 'kyc' | 'member' | 'report';
+    title: string;
+    subtitle: string;
+    amount?: number;
+    status?: string;
+    timestamp: string;
+  }
 
   const typeConfig: Record<string, { icon: any; color: string; bg: string }> = {
     donation: { icon: Heart, color: 'text-rose-500', bg: 'bg-rose-500/10' },
@@ -87,16 +98,14 @@ export default function SuperadminActivityFeed() {
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Activity className="h-5 w-5 text-primary" />
-        <h1 className="text-xl font-bold">Flux d'activité</h1>
-        <Badge variant="secondary" className="text-[10px] ml-auto">Rafraîchissement auto 30s</Badge>
+        <h1 className="text-xl font-bold">{isFr ? "Flux d'activité" : 'Activity Feed'}</h1>
+        <Badge variant="secondary" className="text-[10px] ml-auto">{isFr ? 'Rafraîchissement auto 30s' : 'Auto-refresh 30s'}</Badge>
       </div>
 
       {isLoading ? <SkeletonRow count={10} /> : (
         <ScrollArea className="h-[calc(100vh-200px)]">
           <div className="relative">
-            {/* Timeline line */}
             <div className="absolute left-5 top-0 bottom-0 w-px bg-border" />
-
             <div className="space-y-1">
               {activities.map((item, i) => {
                 const config = typeConfig[item.type];
@@ -119,7 +128,7 @@ export default function SuperadminActivityFeed() {
                       )}>{item.status}</Badge>
                     )}
                     <span className="text-[10px] text-muted-foreground shrink-0 whitespace-nowrap">
-                      {item.timestamp ? format(new Date(item.timestamp), 'dd MMM HH:mm', { locale: fr }) : ''}
+                      {item.timestamp ? format(new Date(item.timestamp), 'dd MMM HH:mm', { locale: dateFnsLocale }) : ''}
                     </span>
                   </motion.div>
                 );

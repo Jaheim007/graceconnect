@@ -1,6 +1,7 @@
 import { Bookmark } from 'lucide-react';
 import { useIsBookmarked, useToggleBookmark, type BookmarkContentType } from '@/hooks/useBookmarks';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
 
 interface BookmarkButtonProps {
@@ -14,6 +15,8 @@ export function BookmarkButton({ contentType, contentId, className, size = 'sm' 
   const { user } = useAuth();
   const { data: isBookmarked } = useIsBookmarked(contentType, contentId);
   const toggle = useToggleBookmark();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   if (!user) return null;
 
@@ -28,7 +31,7 @@ export function BookmarkButton({ contentType, contentId, className, size = 'sm' 
         isBookmarked ? 'bg-primary/10 text-primary' : 'bg-muted/60 text-muted-foreground hover:text-foreground',
         className
       )}
-      aria-label={isBookmarked ? 'Retirer des favoris' : 'Ajouter aux favoris'}
+      aria-label={isBookmarked ? (isFr ? 'Retirer des favoris' : 'Remove from bookmarks') : (isFr ? 'Ajouter aux favoris' : 'Add to bookmarks')}
       aria-pressed={isBookmarked}
     >
       <Bookmark className={cn(iconS, isBookmarked && 'fill-current')} />

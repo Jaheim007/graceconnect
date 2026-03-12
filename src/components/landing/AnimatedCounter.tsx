@@ -34,7 +34,7 @@ export function AnimatedCounter({ target, value, prefix = '', suffix = '', label
     return () => clearInterval(timer);
   }, [isInView, finalValue, duration]);
 
-  const formatted = count >= 1000 ? `${(count / 1000).toFixed(count >= 10000 ? 0 : 1)}k` : count.toLocaleString('fr-FR');
+  const formatted = count >= 1000 ? `${(count / 1000).toFixed(count >= 10000 ? 0 : 1)}k` : count.toLocaleString();
 
   // Inline mode (no label) — used in hero
   if (!label) {
