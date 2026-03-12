@@ -113,8 +113,8 @@ export function useBehavioralNotifications() {
       const shortDescProducts = orgState.products.filter((p: any) => p.is_published && (p.description?.length || 0) < 50);
       if (shortDescProducts.length > 0) {
         createNotif.mutate({
-          title: '✍️ Enrichissez vos descriptions',
-          body: `${shortDescProducts.length} produit(s) avec une description courte. Détaillez les bénéfices pour convaincre.`,
+          title: isFr ? '✍️ Enrichissez vos descriptions' : '✍️ Enrich your descriptions',
+          body: isFr ? `${shortDescProducts.length} produit(s) avec une description courte. Détaillez les bénéfices pour convaincre.` : `${shortDescProducts.length} product(s) with short descriptions. Detail the benefits to convince buyers.`,
           type: 'description_optimization',
         });
       }
