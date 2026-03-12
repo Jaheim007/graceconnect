@@ -682,7 +682,7 @@ export function SmartCameraCapture({
             {isLivenessEnabled && livenessPhase === 'passed' && (
               <div className="absolute top-3 right-3">
                 <span className="px-2 py-1 rounded-full bg-emerald-500/90 text-white text-[10px] font-bold flex items-center gap-1">
-                  <CheckCircle className="h-3 w-3" /> Vivacité vérifiée
+                  <CheckCircle className="h-3 w-3" /> {lang === 'fr' ? 'Vivacité vérifiée' : 'Liveness verified'}
                 </span>
               </div>
             )}
