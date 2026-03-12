@@ -8,13 +8,14 @@ import { Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
 import { callFn } from '@/lib/api';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
+import { useI18n } from '@/i18n/I18nContext';
 
 const COUNTRIES = [
   { code: 'CI', label: 'Côte d\'Ivoire', currency: 'XOF' },
   { code: 'GH', label: 'Ghana', currency: 'GHS' },
   { code: 'NG', label: 'Nigeria', currency: 'NGN' },
   { code: 'KE', label: 'Kenya', currency: 'KES' },
-  { code: 'ZA', label: 'Afrique du Sud', currency: 'ZAR' },
+  { code: 'ZA', label: 'South Africa', currency: 'ZAR' },
 ];
 
 const MOMO_PROVIDERS: Record<string, { code: string; label: string }[]> = {
@@ -39,6 +40,8 @@ interface Props {
 
 export default function PartnerPayoutConfig({ hasRecipient, currentMethod, currentCountry }: Props) {
   const qc = useQueryClient();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const [country, setCountry] = useState(currentCountry || 'CI');
   const [method, setMethod] = useState<'mobile_money' | 'bank'>(currentMethod === 'bank' ? 'bank' : 'mobile_money');
   const [provider, setProvider] = useState('');
@@ -52,15 +55,15 @@ export default function PartnerPayoutConfig({ hasRecipient, currentMethod, curre
 
   const handleSubmit = async () => {
     if (!accountNumber || !accountName) {
-      toast.error('Veuillez remplir tous les champs');
+      toast.error(isFr ? 'Veuillez remplir tous les champs' : 'Please fill in all fields');
       return;
     }
     if (method === 'mobile_money' && !provider) {
-      toast.error('Veuillez sélectionner un fournisseur');
+      toast.error(isFr ? 'Veuillez sélectionner un fournisseur' : 'Please select a provider');
       return;
     }
     if (method === 'bank' && !bankCode) {
-      toast.error('Veuillez entrer le code banque');
+      toast.error(isFr ? 'Veuillez entrer le code banque' : 'Please enter the bank code');
       return;
     }
 
@@ -74,10 +77,10 @@ export default function PartnerPayoutConfig({ hasRecipient, currentMethod, curre
         account_number: accountNumber,
         account_name: accountName,
       }, true);
-      toast.success('Méthode de paiement configurée !');
+      toast.success(isFr ? 'Méthode de paiement configurée !' : 'Payment method configured!');
       qc.invalidateQueries({ queryKey: ['my-partner'] });
     } catch (err: any) {
-      toast.error(err.message || 'Erreur lors de la configuration');
+      toast.error(err.message || (isFr ? 'Erreur lors de la configuration' : 'Configuration error'));
     } finally {
       setLoading(false);
     }
@@ -89,10 +92,12 @@ export default function PartnerPayoutConfig({ hasRecipient, currentMethod, curre
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5 text-green-600" />
-            Méthode de paiement configurée
+            {isFr ? 'Méthode de paiement configurée' : 'Payment method configured'}
           </CardTitle>
           <CardDescription>
-            Votre méthode de paiement ({currentMethod === 'bank' ? 'Virement bancaire' : 'Mobile Money'} — {currentCountry}) est active.
+            {isFr
+              ? `Votre méthode de paiement (${currentMethod === 'bank' ? 'Virement bancaire' : 'Mobile Money'} — ${currentCountry}) est active.`
+              : `Your payment method (${currentMethod === 'bank' ? 'Bank transfer' : 'Mobile Money'} — ${currentCountry}) is active.`}
           </CardDescription>
         </CardHeader>
       </Card>
@@ -104,14 +109,14 @@ export default function PartnerPayoutConfig({ hasRecipient, currentMethod, curre
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <AlertTriangle className="h-5 w-5 text-amber-500" />
-          Configurer votre méthode de paiement
+          {isFr ? 'Configurer votre méthode de paiement' : 'Configure your payment method'}
         </CardTitle>
-        <CardDescription>Pour recevoir vos versements, configurez votre compte bancaire ou Mobile Money.</CardDescription>
+        <CardDescription>{isFr ? 'Pour recevoir vos versements, configurez votre compte bancaire ou Mobile Money.' : 'To receive your payouts, set up your bank account or Mobile Money.'}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label>Pays</Label>
+            <Label>{isFr ? 'Pays' : 'Country'}</Label>
             <Select value={country} onValueChange={v => { setCountry(v); setProvider(''); setMethod(MOMO_PROVIDERS[v]?.length ? 'mobile_money' : 'bank'); }}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
@@ -121,12 +126,12 @@ export default function PartnerPayoutConfig({ hasRecipient, currentMethod, curre
           </div>
 
           <div className="space-y-1.5">
-            <Label>Méthode</Label>
+            <Label>{isFr ? 'Méthode' : 'Method'}</Label>
             <Select value={method} onValueChange={v => setMethod(v as 'mobile_money' | 'bank')}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 {hasMomo && <SelectItem value="mobile_money">Mobile Money</SelectItem>}
-                <SelectItem value="bank">Virement bancaire</SelectItem>
+                <SelectItem value="bank">{isFr ? 'Virement bancaire' : 'Bank transfer'}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -134,9 +139,9 @@ export default function PartnerPayoutConfig({ hasRecipient, currentMethod, curre
 
         {method === 'mobile_money' && hasMomo && (
           <div className="space-y-1.5">
-            <Label>Fournisseur</Label>
+            <Label>{isFr ? 'Fournisseur' : 'Provider'}</Label>
             <Select value={provider} onValueChange={setProvider}>
-              <SelectTrigger><SelectValue placeholder="Choisir un fournisseur" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={isFr ? 'Choisir un fournisseur' : 'Choose a provider'} /></SelectTrigger>
               <SelectContent>
                 {momoProviders.map(p => <SelectItem key={p.code} value={p.code}>{p.label}</SelectItem>)}
               </SelectContent>
@@ -146,25 +151,25 @@ export default function PartnerPayoutConfig({ hasRecipient, currentMethod, curre
 
         {method === 'bank' && (
           <div className="space-y-1.5">
-            <Label>Code banque</Label>
+            <Label>{isFr ? 'Code banque' : 'Bank code'}</Label>
             <Input value={bankCode} onChange={e => setBankCode(e.target.value)} placeholder="Ex: 058, 033" />
           </div>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <Label>Numéro de compte / téléphone</Label>
-            <Input value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder={method === 'mobile_money' ? '07XXXXXXXX' : 'Numéro de compte'} />
+            <Label>{isFr ? 'Numéro de compte / téléphone' : 'Account number / phone'}</Label>
+            <Input value={accountNumber} onChange={e => setAccountNumber(e.target.value)} placeholder={method === 'mobile_money' ? '07XXXXXXXX' : (isFr ? 'Numéro de compte' : 'Account number')} />
           </div>
           <div className="space-y-1.5">
-            <Label>Nom du titulaire</Label>
-            <Input value={accountName} onChange={e => setAccountName(e.target.value)} placeholder="Nom complet" />
+            <Label>{isFr ? 'Nom du titulaire' : 'Account holder name'}</Label>
+            <Input value={accountName} onChange={e => setAccountName(e.target.value)} placeholder={isFr ? 'Nom complet' : 'Full name'} />
           </div>
         </div>
 
         <Button onClick={handleSubmit} disabled={loading} className="w-full sm:w-auto">
           {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-          Enregistrer la méthode de paiement
+          {isFr ? 'Enregistrer la méthode de paiement' : 'Save payment method'}
         </Button>
       </CardContent>
     </Card>

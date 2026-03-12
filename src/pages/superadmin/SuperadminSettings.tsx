@@ -9,16 +9,13 @@ import { useToast } from '@/hooks/use-toast';
 import { useState, useEffect } from 'react';
 import { Settings, Save, Shield, Percent, Globe, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useI18n } from '@/i18n/I18nContext';
 
-/**
- * Platform-wide settings managed via organizations table defaults.
- * Since there's no dedicated platform_settings table, this panel lets
- * the superadmin view/edit the default rates applied to new orgs
- * and bulk-update existing orgs.
- */
 export default function SuperadminSettings() {
   const { toast } = useToast();
   const qc = useQueryClient();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const { data: orgs = [] } = useQuery({
     queryKey: ['sa-orgs-settings'],
@@ -34,7 +31,6 @@ export default function SuperadminSettings() {
 
   useEffect(() => {
     if (orgs.length > 0) {
-      // Use the most common values as "defaults"
       const fees = orgs.map((o: any) => o.platform_fee_percent || 10);
       const comms = orgs.map((o: any) => o.affiliation_commission_percent || 10);
       setDefaultFee(Math.round(fees.reduce((a: number, b: number) => a + b, 0) / fees.length));
@@ -48,21 +44,19 @@ export default function SuperadminSettings() {
 
   const bulkUpdateMutation = useMutation({
     mutationFn: async () => {
-      // Update all orgs with new defaults
       const { error } = await db.from('organizations').update({
         platform_fee_percent: defaultFee,
         affiliation_commission_percent: defaultCommission,
-      }).gte('created_at', '2000-01-01'); // match all
+      }).gte('created_at', '2000-01-01');
       if (error) throw error;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['sa-orgs-settings'] });
-      toast({ title: 'Paramètres appliqués à toutes les organisations ✅' });
+      toast({ title: isFr ? 'Paramètres appliqués à toutes les organisations ✅' : 'Settings applied to all organizations ✅' });
     },
-    onError: () => toast({ title: 'Erreur lors de la mise à jour', variant: 'destructive' }),
+    onError: () => toast({ title: isFr ? 'Erreur lors de la mise à jour' : 'Update error', variant: 'destructive' }),
   });
 
-  // Stats
   const monetizationEnabled = orgs.filter((o: any) => o.monetization_enabled).length;
   const affiliationEnabled = orgs.filter((o: any) => o.affiliation_enabled).length;
 
@@ -70,44 +64,44 @@ export default function SuperadminSettings() {
     <div className="space-y-6 max-w-2xl">
       <div className="flex items-center gap-2">
         <Settings className="h-5 w-5 text-primary" />
-        <h1 className="text-xl font-bold">Paramètres Plateforme</h1>
+        <h1 className="text-xl font-bold">{isFr ? 'Paramètres Plateforme' : 'Platform Settings'}</h1>
       </div>
 
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
         className="bg-card border border-border rounded-2xl p-5 space-y-5">
         <h2 className="font-semibold text-sm flex items-center gap-2">
-          <Percent className="h-4 w-4 text-primary" /> Taux & Commissions
+          <Percent className="h-4 w-4 text-primary" /> {isFr ? 'Taux & Commissions' : 'Rates & Commissions'}
         </h2>
 
         <div className="grid sm:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label className="text-xs">Commission plateforme (%)</Label>
+            <Label className="text-xs">{isFr ? 'Commission plateforme (%)' : 'Platform fee (%)'}</Label>
             <Input type="number" min={0} max={50} value={defaultFee}
               onChange={e => setDefaultFee(Number(e.target.value))} />
-            <p className="text-[10px] text-muted-foreground">Frais prélevés sur chaque transaction</p>
+            <p className="text-[10px] text-muted-foreground">{isFr ? 'Frais prélevés sur chaque transaction' : 'Fee charged on each transaction'}</p>
           </div>
           <div className="space-y-2">
-            <Label className="text-xs">Commission affiliation (%)</Label>
+            <Label className="text-xs">{isFr ? 'Commission affiliation (%)' : 'Affiliate commission (%)'}</Label>
             <Input type="number" min={0} max={50} value={defaultCommission}
               onChange={e => setDefaultCommission(Number(e.target.value))} />
-            <p className="text-[10px] text-muted-foreground">Commission versée aux affiliés</p>
+            <p className="text-[10px] text-muted-foreground">{isFr ? 'Commission versée aux affiliés' : 'Commission paid to affiliates'}</p>
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label className="text-xs">Devise par défaut</Label>
+          <Label className="text-xs">{isFr ? 'Devise par défaut' : 'Default currency'}</Label>
           <Input value={defaultCurrency} onChange={e => setDefaultCurrency(e.target.value)} maxLength={5} className="w-32" />
         </div>
 
         <div className="flex items-center justify-between pt-2 border-t border-border">
           <div>
-            <p className="text-xs font-medium">Appliquer à toutes les organisations</p>
-            <p className="text-[10px] text-muted-foreground">Met à jour les taux de {orgs.length} organisations</p>
+            <p className="text-xs font-medium">{isFr ? 'Appliquer à toutes les organisations' : 'Apply to all organizations'}</p>
+            <p className="text-[10px] text-muted-foreground">{isFr ? `Met à jour les taux de ${orgs.length} organisations` : `Updates rates for ${orgs.length} organizations`}</p>
           </div>
           <Button size="sm" className="gap-1.5" onClick={() => bulkUpdateMutation.mutate()}
             disabled={bulkUpdateMutation.isPending}>
             <Save className="h-3.5 w-3.5" />
-            {bulkUpdateMutation.isPending ? 'Application...' : 'Appliquer'}
+            {bulkUpdateMutation.isPending ? (isFr ? 'Application...' : 'Applying...') : (isFr ? 'Appliquer' : 'Apply')}
           </Button>
         </div>
       </motion.div>
@@ -115,24 +109,24 @@ export default function SuperadminSettings() {
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
         className="bg-card border border-border rounded-2xl p-5 space-y-4">
         <h2 className="font-semibold text-sm flex items-center gap-2">
-          <Globe className="h-4 w-4 text-primary" /> État de la plateforme
+          <Globe className="h-4 w-4 text-primary" /> {isFr ? 'État de la plateforme' : 'Platform Status'}
         </h2>
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3 rounded-xl bg-muted/30">
             <p className="text-lg font-bold">{orgs.length}</p>
-            <p className="text-[10px] text-muted-foreground">Organisations total</p>
+            <p className="text-[10px] text-muted-foreground">{isFr ? 'Organisations total' : 'Total organizations'}</p>
           </div>
           <div className="p-3 rounded-xl bg-muted/30">
             <p className="text-lg font-bold">{monetizationEnabled}</p>
-            <p className="text-[10px] text-muted-foreground">Monétisation activée</p>
+            <p className="text-[10px] text-muted-foreground">{isFr ? 'Monétisation activée' : 'Monetization enabled'}</p>
           </div>
           <div className="p-3 rounded-xl bg-muted/30">
             <p className="text-lg font-bold">{affiliationEnabled}</p>
-            <p className="text-[10px] text-muted-foreground">Affiliation activée</p>
+            <p className="text-[10px] text-muted-foreground">{isFr ? 'Affiliation activée' : 'Affiliation enabled'}</p>
           </div>
           <div className="p-3 rounded-xl bg-muted/30">
             <p className="text-lg font-bold">{defaultFee}%</p>
-            <p className="text-[10px] text-muted-foreground">Taux moyen plateforme</p>
+            <p className="text-[10px] text-muted-foreground">{isFr ? 'Taux moyen plateforme' : 'Avg. platform rate'}</p>
           </div>
         </div>
       </motion.div>
@@ -140,11 +134,12 @@ export default function SuperadminSettings() {
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
         className="bg-destructive/5 border border-destructive/20 rounded-2xl p-5 space-y-3">
         <h2 className="font-semibold text-sm flex items-center gap-2 text-destructive">
-          <AlertTriangle className="h-4 w-4" /> Zone dangereuse
+          <AlertTriangle className="h-4 w-4" /> {isFr ? 'Zone dangereuse' : 'Danger zone'}
         </h2>
         <p className="text-xs text-muted-foreground">
-          Les modifications ici affectent immédiatement toutes les organisations de la plateforme.
-          Procédez avec prudence.
+          {isFr
+            ? 'Les modifications ici affectent immédiatement toutes les organisations de la plateforme. Procédez avec prudence.'
+            : 'Changes here immediately affect all organizations on the platform. Proceed with caution.'}
         </p>
       </motion.div>
     </div>

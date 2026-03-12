@@ -5,16 +5,20 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Link } from 'react-router-dom';
 import { Cpu, Clock, CheckCircle, XCircle, Loader2, AlertTriangle, ExternalLink } from 'lucide-react';
-
-const STATUS_META: Record<string, { label: string; icon: typeof Clock; color: string }> = {
-  queued: { label: 'En attente', icon: Clock, color: 'text-muted-foreground' },
-  running: { label: 'En cours', icon: Loader2, color: 'text-blue-500' },
-  completed: { label: 'Terminé', icon: CheckCircle, color: 'text-emerald-500' },
-  failed: { label: 'Échoué', icon: XCircle, color: 'text-destructive' },
-  cancelled: { label: 'Annulé', icon: AlertTriangle, color: 'text-muted-foreground' },
-};
+import { useI18n } from '@/i18n/I18nContext';
 
 export default function GlobalAiJobsMonitor() {
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+
+  const STATUS_META: Record<string, { label: string; icon: typeof Clock; color: string }> = {
+    queued: { label: isFr ? 'En attente' : 'Queued', icon: Clock, color: 'text-muted-foreground' },
+    running: { label: isFr ? 'En cours' : 'Running', icon: Loader2, color: 'text-blue-500' },
+    completed: { label: isFr ? 'Terminé' : 'Completed', icon: CheckCircle, color: 'text-emerald-500' },
+    failed: { label: isFr ? 'Échoué' : 'Failed', icon: XCircle, color: 'text-destructive' },
+    cancelled: { label: isFr ? 'Annulé' : 'Cancelled', icon: AlertTriangle, color: 'text-muted-foreground' },
+  };
+
   const { data: jobs, isLoading } = useQuery({
     queryKey: ['global-ai-jobs'],
     queryFn: async () => {
@@ -32,11 +36,11 @@ export default function GlobalAiJobsMonitor() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2"><Cpu className="h-6 w-6 text-primary" /> Monitor Jobs IA</h1>
-        <p className="text-sm text-muted-foreground">{active} actif(s) — {jobs?.length || 0} total</p>
+        <h1 className="text-2xl font-bold flex items-center gap-2"><Cpu className="h-6 w-6 text-primary" /> {isFr ? 'Monitor Jobs IA' : 'AI Jobs Monitor'}</h1>
+        <p className="text-sm text-muted-foreground">{active} {isFr ? 'actif(s)' : 'active'} — {jobs?.length || 0} total</p>
       </div>
       {!jobs?.length ? (
-        <Card><CardContent className="py-12 text-center text-muted-foreground">Aucun job</CardContent></Card>
+        <Card><CardContent className="py-12 text-center text-muted-foreground">{isFr ? 'Aucun job' : 'No jobs'}</CardContent></Card>
       ) : (
         <div className="space-y-2">
           {jobs.map((job: any) => {
@@ -48,7 +52,7 @@ export default function GlobalAiJobsMonitor() {
                   <Icon className={`h-4 w-4 ${s.color} ${job.status === 'running' ? 'animate-spin' : ''}`} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{job.job_type} — {job.ai_content_projects?.title}</p>
-                    <p className="text-[10px] text-muted-foreground">Org: {job.organization_id?.slice(0, 8)}… | {new Date(job.created_at).toLocaleString('fr')}</p>
+                    <p className="text-[10px] text-muted-foreground">Org: {job.organization_id?.slice(0, 8)}… | {new Date(job.created_at).toLocaleString(isFr ? 'fr' : 'en')}</p>
                   </div>
                   <Badge variant={job.status === 'failed' ? 'destructive' : 'secondary'} className="text-[10px]">{s.label}</Badge>
                 </div>

@@ -26,6 +26,7 @@ import { useAbandonedCart } from '@/hooks/useAbandonedCart';
 import { getAutoPromoCode, clearAutoPromoCode } from '@/hooks/usePromoCapture';
 import { onNewSale } from '@/lib/notifications';
 import { fetchWatermarkedFile, triggerBrowserDownload } from '@/lib/secureDownload';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface ProductPurchaseModalProps {
   product: DigitalProduct | null;
@@ -64,13 +65,13 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const { user, profile } = useAuth();
   const queryClient = useQueryClient();
   const { openPayment, hasPaystackKey } = usePaymentGateway();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
-  // Auto-select payment method based on availability (region + Paystack key)
   const defaultMethod: PaymentMethod =
     isMoMoAvailable(product?.currency || 'XOF') && hasPaystackKey ? 'mobile_money' : 'card';
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(defaultMethod);
 
-  // Reset payment method when product/currency changes to avoid stale MoMo selection on non-MoMo currencies
   useEffect(() => {
     setPaymentMethod(defaultMethod);
   }, [product?.id, product?.currency]);
@@ -79,7 +80,6 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const { pathname } = useLocation();
   const { trackCartOpen, markConverted } = useAbandonedCart();
 
-  // Fetch org subaccount + fee config for split payments
   const { data: orgPayment } = useQuery({
     queryKey: ['org-payment-config', organizationId],
     queryFn: async () => {
@@ -104,20 +104,17 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   });
   const [promoOpen, setPromoOpen] = useState(false);
   const [orderBumpChecked, setOrderBumpChecked] = useState(false);
-  // Auto-apply promo from URL (?promo=CODE)
   useEffect(() => {
     const autoCode = getAutoPromoCode();
     if (autoCode && !promo.applied && !promo.code && open) {
       setPromo(p => ({ ...p, code: autoCode }));
       setPromoOpen(true);
-      // Auto-validate after a tick
       setTimeout(() => {
         clearAutoPromoCode();
       }, 100);
     }
   }, [open]);
 
-  // Order bump product query
   const bumpProductId = (product as any)?.order_bump_product_id;
   const bumpDiscount = (product as any)?.order_bump_discount_percent || 0;
   const { data: bumpProduct } = useQuery({
@@ -130,7 +127,6 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
     enabled: !!bumpProductId,
   });
 
-  // Upsell products query
   const upsellIds: string[] = (product as any)?.upsell_product_ids || [];
   const { data: upsellProducts = [] } = useQuery({
     queryKey: ['upsell-products', product?.id],
@@ -146,7 +142,6 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
   const fmt = (n: number) => formatPrice(n, product.is_free, product.currency);
 
-  // Flash sale support
   const salePrice = (product as any).sale_price;
   const saleEndsAt = (product as any).sale_ends_at;
   const isFlashSale = salePrice != null && saleEndsAt && new Date(saleEndsAt) > new Date();
@@ -157,7 +152,6 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
   const minPrice = Math.max(rawMinPrice, pwywFloors[productCurrency] || 500);
   const suggestedPrice = product.price ?? 0;
 
-  // For PWYW, use the custom amount; otherwise use standard pricing
   const pwywValue = isPwyw && pwywAmount ? parseFloat(pwywAmount) : 0;
   const effectiveBasePrice = isPwyw
     ? (pwywValue > 0 ? pwywValue : suggestedPrice)
@@ -185,23 +179,23 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
         .eq('is_active', true)
         .maybeSingle();
       if (error || !data) {
-        setPromo(p => ({ ...p, validating: false, error: 'Code invalide ou expiré.' }));
+        setPromo(p => ({ ...p, validating: false, error: isFr ? 'Code invalide ou expiré.' : 'Invalid or expired code.' }));
         return;
       }
       if (data.max_uses && data.current_uses >= data.max_uses) {
-        setPromo(p => ({ ...p, validating: false, error: 'Ce code a atteint sa limite d\'utilisation.' }));
+        setPromo(p => ({ ...p, validating: false, error: isFr ? 'Ce code a atteint sa limite d\'utilisation.' : 'This code has reached its usage limit.' }));
         return;
       }
       if (data.expires_at && new Date(data.expires_at) < new Date()) {
-        setPromo(p => ({ ...p, validating: false, error: 'Ce code a expiré.' }));
+        setPromo(p => ({ ...p, validating: false, error: isFr ? 'Ce code a expiré.' : 'This code has expired.' }));
         return;
       }
       if (data.product_id && data.product_id !== product.id) {
-        setPromo(p => ({ ...p, validating: false, error: 'Ce code n\'est pas valide pour ce produit.' }));
+        setPromo(p => ({ ...p, validating: false, error: isFr ? 'Ce code n\'est pas valide pour ce produit.' : 'This code is not valid for this product.' }));
         return;
       }
       const discType = (data.discount_type || 'percent') as 'fixed' | 'percent';
-      const label = discType === 'fixed' ? `-${data.discount_amount} fixe` : `-${data.discount_percent}%`;
+      const label = discType === 'fixed' ? `-${data.discount_amount} ${isFr ? 'fixe' : 'fixed'}` : `-${data.discount_percent}%`;
       setPromo(p => ({
         ...p, validating: false, applied: true,
         discountPercent: data.discount_percent || 0,
@@ -210,9 +204,9 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
         error: '',
         promoCodeId: data.id,
       }));
-      toast({ title: `🎉 ${label} appliqué !` });
+      toast({ title: `🎉 ${label} ${isFr ? 'appliqué' : 'applied'} !` });
     } catch {
-      setPromo(p => ({ ...p, validating: false, error: 'Erreur de vérification.' }));
+      setPromo(p => ({ ...p, validating: false, error: isFr ? 'Erreur de vérification.' : 'Verification error.' }));
     }
   };
 
@@ -220,21 +214,20 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
   const validateBuyerInfo = (): boolean => {
     const errors: Partial<BuyerInfo> = {};
-    if (!buyerInfo.name.trim()) errors.name = 'Nom requis';
-    if (!buyerInfo.email.trim()) errors.email = 'Email requis';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(buyerInfo.email.trim())) errors.email = 'Email invalide';
-    if (!buyerInfo.phone.trim()) errors.phone = 'Téléphone requis';
-    else if (buyerInfo.phone.trim().length < 8) errors.phone = 'Numéro trop court';
+    if (!buyerInfo.name.trim()) errors.name = isFr ? 'Nom requis' : 'Name required';
+    if (!buyerInfo.email.trim()) errors.email = isFr ? 'Email requis' : 'Email required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(buyerInfo.email.trim())) errors.email = isFr ? 'Email invalide' : 'Invalid email';
+    if (!buyerInfo.phone.trim()) errors.phone = isFr ? 'Téléphone requis' : 'Phone required';
+    else if (buyerInfo.phone.trim().length < 8) errors.phone = isFr ? 'Numéro trop court' : 'Number too short';
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const handleConfirmToBuyerInfo = () => {
-    // PWYW validation
     if (isPwyw && !product.is_free) {
       const amt = pwywValue > 0 ? pwywValue : suggestedPrice;
       if (amt < minPrice) {
-        toast({ title: 'Montant trop bas', description: `Le minimum est ${fmt(minPrice)}`, variant: 'destructive' });
+        toast({ title: isFr ? 'Montant trop bas' : 'Amount too low', description: `${isFr ? 'Le minimum est' : 'Minimum is'} ${fmt(minPrice)}`, variant: 'destructive' });
         return;
       }
     }
@@ -245,7 +238,6 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
       navigate(`/auth?returnTo=${encodeURIComponent(returnPath)}`);
       return;
     }
-    // Track abandoned cart when user proceeds to buyer info
     if (product) trackCartOpen(product.id, organizationId);
     setBuyerInfo(prev => ({
       name: prev.name || profile?.display_name || '',
@@ -263,12 +255,10 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
     if (product.is_free || finalPrice === 0) {
       try {
-        // Use edge function to securely claim free product (server verifies it's truly free)
         const { data: claimData, error: claimErr } = await db.functions.invoke('claim-free-product', {
           body: { product_id: product.id, organization_id: organizationId },
         });
         if (claimErr) throw claimErr;
-        // Invalidate purchases cache so My Purchases shows the new item
         await queryClient.invalidateQueries({ queryKey: ['my-purchases'] });
       } catch (e) {
         console.warn('[ProductPurchaseModal] Free claim error:', e);
@@ -314,7 +304,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
         },
         onClose: () => {},
         onSuccess: async (reference, gateway) => {
-          if (gateway === 'stripe') return; // Stripe redirects
+          if (gateway === 'stripe') return;
           setStep('processing');
           try {
             const verifyResult = await verifyPayment({
@@ -329,7 +319,6 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
             });
             clearAffiliateCode();
             if (product) markConverted(product.id);
-            // Invalidate purchases cache so /resources shows the new item immediately
             await queryClient.invalidateQueries({ queryKey: ['my-purchases'] });
             setResult(verifyResult);
             setStep('success');
@@ -337,7 +326,6 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
             onNewSale(organizationId, '', product.title, buyerInfo.name.trim(), verifyResult.breakdown.amount, product.currency || 'XOF');
           } catch (err: unknown) {
             console.error('[ProductPurchaseModal] verify error:', err);
-            // Payment succeeded on Paystack but verify failed — redirect to success page for retry
             const params = new URLSearchParams({
               reference,
               gateway: 'paystack',
@@ -350,9 +338,9 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
         },
       });
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Impossible d\'ouvrir le paiement.';
+      const message = err instanceof Error ? err.message : (isFr ? 'Impossible d\'ouvrir le paiement.' : 'Unable to open payment.');
       console.error('[ProductPurchaseModal] openPayment error:', err);
-      toast({ title: 'Erreur de paiement', description: message, variant: 'destructive' });
+      toast({ title: isFr ? 'Erreur de paiement' : 'Payment error', description: message, variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
@@ -372,7 +360,9 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ShoppingBag className="h-4 w-4 text-primary" />
-            {product.is_free ? 'Télécharger gratuitement' : 'Acheter ce produit'}
+            {product.is_free
+              ? (isFr ? 'Télécharger gratuitement' : 'Download for free')
+              : (isFr ? 'Acheter ce produit' : 'Buy this product')}
           </DialogTitle>
           <DialogDescription className="line-clamp-4 break-words text-sm leading-relaxed">{product.description?.replace(/<[^>]*>/g, '') || ''}</DialogDescription>
         </DialogHeader>
@@ -403,13 +393,13 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
               {/* Pay What You Want */}
               {isPwyw && !product.is_free && (
                 <div className="bg-accent/20 border border-accent/40 rounded-xl p-4 space-y-3">
-                  <p className="text-sm font-semibold flex items-center gap-2">💰 Payez ce que vous voulez</p>
+                  <p className="text-sm font-semibold flex items-center gap-2">💰 {isFr ? 'Payez ce que vous voulez' : 'Pay what you want'}</p>
                   <p className="text-xs text-muted-foreground">
-                    Prix suggéré : <strong>{fmt(suggestedPrice)}</strong>
+                    {isFr ? 'Prix suggéré' : 'Suggested price'} : <strong>{fmt(suggestedPrice)}</strong>
                     {minPrice > 0 && <> · Minimum : <strong>{fmt(minPrice)}</strong></>}
                   </p>
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Votre prix ({product.currency || 'XOF'})</Label>
+                    <Label className="text-xs">{isFr ? 'Votre prix' : 'Your price'} ({product.currency || 'XOF'})</Label>
                     <Input
                       type="number"
                       value={pwywAmount}
@@ -419,7 +409,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                       className="h-9 text-sm font-semibold"
                     />
                     {pwywValue > 0 && pwywValue < minPrice && (
-                      <p className="text-xs text-destructive">Le montant minimum est {fmt(minPrice)}</p>
+                      <p className="text-xs text-destructive">{isFr ? 'Le montant minimum est' : 'Minimum amount is'} {fmt(minPrice)}</p>
                     )}
                   </div>
                   <div className="flex gap-2">
@@ -432,14 +422,14 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                 </div>
               )}
 
-              {/* Promo code - collapsible, hidden by default */}
+              {/* Promo code */}
               {!product.is_free && !product.external_link && (
                 <div className="space-y-2">
                   {promo.applied ? (
                     <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2">
                       <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-green-600 dark:text-green-400">Code {promo.code} appliqué — {promo.discountType === 'fixed' ? `-${promo.discountFixedAmount}` : `-${promo.discountPercent}%`}</p>
+                        <p className="text-xs font-semibold text-green-600 dark:text-green-400">{isFr ? 'Code' : 'Code'} {promo.code} {isFr ? 'appliqué' : 'applied'} — {promo.discountType === 'fixed' ? `-${promo.discountFixedAmount}` : `-${promo.discountPercent}%`}</p>
                       </div>
                       <button onClick={clearPromo}><X className="h-3.5 w-3.5 text-muted-foreground" /></button>
                     </div>
@@ -449,20 +439,20 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                       onClick={() => setPromoOpen(true)}
                       className="text-xs text-muted-foreground underline hover:text-foreground flex items-center gap-1"
                     >
-                      <Tag className="h-3 w-3" /> J'ai un code promo
+                      <Tag className="h-3 w-3" /> {isFr ? 'J\'ai un code promo' : 'I have a promo code'}
                     </button>
                   ) : (
                     <div className="space-y-1.5">
-                      <Label className="text-xs flex items-center gap-1"><Tag className="h-3 w-3" /> Code promo</Label>
+                      <Label className="text-xs flex items-center gap-1"><Tag className="h-3 w-3" /> {isFr ? 'Code promo' : 'Promo code'}</Label>
                       <div className="flex gap-2">
                         <Input
                           value={promo.code}
                           onChange={e => setPromo(p => ({ ...p, code: e.target.value.toUpperCase(), error: '' }))}
-                          placeholder="EX: BIENVENUE20"
+                          placeholder="EX: WELCOME20"
                           className="h-8 text-xs font-mono uppercase flex-1"
                         />
                         <Button size="sm" variant="outline" className="h-8 text-xs" onClick={validatePromoCode} disabled={promo.validating || !promo.code.trim()}>
-                          {promo.validating ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Appliquer'}
+                          {promo.validating ? <Loader2 className="h-3 w-3 animate-spin" /> : (isFr ? 'Appliquer' : 'Apply')}
                         </Button>
                       </div>
                       {promo.error && <p className="text-xs text-destructive">{promo.error}</p>}
@@ -471,9 +461,9 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
 
                   {promo.applied && (
                     <div className="rounded-lg bg-muted/50 p-3 text-sm space-y-1">
-                      <div className="flex justify-between"><span>Prix</span><span>{fmt(product.price)}</span></div>
+                      <div className="flex justify-between"><span>{isFr ? 'Prix' : 'Price'}</span><span>{fmt(product.price)}</span></div>
                         <div className="flex justify-between text-green-600 dark:text-green-400">
-                          <span>Réduction ({promo.discountType === 'fixed' ? `${promo.discountFixedAmount} fixe` : `-${promo.discountPercent}%`})</span>
+                          <span>{isFr ? 'Réduction' : 'Discount'} ({promo.discountType === 'fixed' ? `${promo.discountFixedAmount} ${isFr ? 'fixe' : 'fixed'}` : `-${promo.discountPercent}%`})</span>
                           <span>-{fmt(discountAmount)}</span>
                       </div>
                       <div className="flex justify-between font-semibold border-t border-border pt-1 mt-1">
@@ -491,9 +481,9 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                     className="mt-0.5 rounded border-primary text-primary focus:ring-primary" />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 text-xs font-semibold text-primary">
-                      <Gift className="h-3.5 w-3.5" /> Offre spéciale !
+                      <Gift className="h-3.5 w-3.5" /> {isFr ? 'Offre spéciale !' : 'Special offer!'}
                     </div>
-                    <p className="text-xs mt-0.5">Ajoutez <strong>{bumpProduct.title}</strong> pour seulement <strong>{fmt(bumpPrice)}</strong>
+                    <p className="text-xs mt-0.5">{isFr ? 'Ajoutez' : 'Add'} <strong>{bumpProduct.title}</strong> {isFr ? 'pour seulement' : 'for only'} <strong>{fmt(bumpPrice)}</strong>
                       {bumpDiscount > 0 && <span className="text-muted-foreground line-through ml-1">{fmt(bumpProduct.price)}</span>}
                     </p>
                   </div>
@@ -504,27 +494,27 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Lock className="h-3 w-3" />
                   {product.external_link
-                    ? 'You will be redirected to an external link'
+                    ? (isFr ? 'Vous serez redirigé vers un lien externe' : 'You will be redirected to an external link')
                     : product.is_free
-                      ? 'Immediate access after download'
-                      : `Paiement sécurisé par ${paymentMethod === 'card' ? 'Stripe' : 'Paystack'}`}
+                      ? (isFr ? 'Accès immédiat après téléchargement' : 'Immediate access after download')
+                      : (isFr ? `Paiement sécurisé par ${paymentMethod === 'card' ? 'Stripe' : 'Paystack'}` : `Secure payment via ${paymentMethod === 'card' ? 'Stripe' : 'Paystack'}`)}
                 </div>
                 {!product.external_link && !product.is_free && (
                   <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">
-                    <a href="/refund-policy" target="_blank" className="underline hover:text-foreground">Refund Policy</a>
-                    <a href="/payout-policy" target="_blank" className="underline hover:text-foreground">Payout Policy</a>
-                    <a href="/acceptable-use" target="_blank" className="underline hover:text-foreground">Acceptable Use</a>
+                    <a href="/refund-policy" target="_blank" className="underline hover:text-foreground">{isFr ? 'Politique de remboursement' : 'Refund Policy'}</a>
+                    <a href="/payout-policy" target="_blank" className="underline hover:text-foreground">{isFr ? 'Politique de versement' : 'Payout Policy'}</a>
+                    <a href="/acceptable-use" target="_blank" className="underline hover:text-foreground">{isFr ? 'Utilisation acceptable' : 'Acceptable Use'}</a>
                   </div>
                 )}
               </div>
             </div>
 
             <div className="flex gap-2">
-              <Button variant="outline" onClick={handleClose} className="flex-1">Annuler</Button>
+              <Button variant="outline" onClick={handleClose} className="flex-1">{isFr ? 'Annuler' : 'Cancel'}</Button>
               {product.external_link ? (
                 <a href={product.external_link} target="_blank" rel="noreferrer" className="flex-1">
                   <Button className="w-full bg-primary text-primary-foreground gap-1.5">
-                    <ExternalLink className="h-4 w-4" /> Accéder au contenu
+                    <ExternalLink className="h-4 w-4" /> {isFr ? 'Accéder au contenu' : 'Access content'}
                   </Button>
                 </a>
               ) : (
@@ -532,7 +522,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                   onClick={handleConfirmToBuyerInfo}
                   className="flex-1 bg-primary text-primary-foreground"
                 >
-                  {product.is_free || finalPrice === 0 ? 'Accéder gratuitement' : `Payer ${fmt(finalPrice)}`}
+                  {product.is_free || finalPrice === 0 ? (isFr ? 'Accéder gratuitement' : 'Access for free') : `${isFr ? 'Payer' : 'Pay'} ${fmt(finalPrice)}`}
                 </Button>
               )}
             </div>
@@ -544,34 +534,34 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
           <>
             <div className="space-y-4 py-2">
               <p className="text-sm text-muted-foreground">
-                Remplissez vos informations avant de procéder au paiement.
+                {isFr ? 'Remplissez vos informations avant de procéder au paiement.' : 'Fill in your details before proceeding to payment.'}
               </p>
 
               <div className="space-y-3">
                 <div className="space-y-1.5">
                   <Label htmlFor="buyer-name" className="text-sm flex items-center gap-1.5">
-                    <User className="h-3.5 w-3.5" /> Nom complet
+                    <User className="h-3.5 w-3.5" /> {isFr ? 'Nom complet' : 'Full name'}
                   </Label>
-                  <Input id="buyer-name" placeholder="Votre nom complet" value={buyerInfo.name} onChange={(e) => setBuyerInfo(prev => ({ ...prev, name: e.target.value }))} maxLength={100} />
+                  <Input id="buyer-name" placeholder={isFr ? 'Votre nom complet' : 'Your full name'} value={buyerInfo.name} onChange={(e) => setBuyerInfo(prev => ({ ...prev, name: e.target.value }))} maxLength={100} />
                   {formErrors.name && <p className="text-xs text-destructive">{formErrors.name}</p>}
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="buyer-email" className="text-sm flex items-center gap-1.5">
                     <Mail className="h-3.5 w-3.5" /> Email
                   </Label>
-                  <Input id="buyer-email" type="email" placeholder="votre@email.com" value={buyerInfo.email} onChange={(e) => setBuyerInfo(prev => ({ ...prev, email: e.target.value }))} maxLength={255} />
+                  <Input id="buyer-email" type="email" placeholder="your@email.com" value={buyerInfo.email} onChange={(e) => setBuyerInfo(prev => ({ ...prev, email: e.target.value }))} maxLength={255} />
                   {formErrors.email && <p className="text-xs text-destructive">{formErrors.email}</p>}
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="buyer-phone" className="text-sm flex items-center gap-1.5">
-                    <Phone className="h-3.5 w-3.5" /> Téléphone
+                    <Phone className="h-3.5 w-3.5" /> {isFr ? 'Téléphone' : 'Phone'}
                   </Label>
                   <Input id="buyer-phone" type="tel" placeholder="+225 07 00 00 00 00" value={buyerInfo.phone} onChange={(e) => setBuyerInfo(prev => ({ ...prev, phone: e.target.value }))} maxLength={20} />
                   {formErrors.phone && <p className="text-xs text-destructive">{formErrors.phone}</p>}
                 </div>
               </div>
 
-              {/* Payment method selector (only for paid products) */}
+              {/* Payment method selector */}
               {!product.is_free && finalPrice > 0 && (
                 <>
                   <PaymentMethodSelector
@@ -582,7 +572,7 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                   />
                   {!hasPaystackKey && isMoMoAvailable(product.currency || 'XOF') && (
                     <p className="text-[10px] text-muted-foreground">
-                      Mobile Money est temporairement indisponible. Utilisez Carte bancaire pour continuer.
+                      {isFr ? 'Mobile Money est temporairement indisponible. Utilisez Carte bancaire pour continuer.' : 'Mobile Money is temporarily unavailable. Use card payment to continue.'}
                     </p>
                   )}
                 </>
@@ -591,27 +581,27 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
               <div className="rounded-lg bg-muted/50 p-3 text-sm">
                 {promo.applied && (
                   <div className="flex justify-between text-green-600 dark:text-green-400 text-xs mb-1">
-                    <span>🎟️ {promo.code} ({promo.discountType === 'fixed' ? `${promo.discountFixedAmount} fixe` : `-${promo.discountPercent}%`})</span>
+                    <span>🎟️ {promo.code} ({promo.discountType === 'fixed' ? `${promo.discountFixedAmount} ${isFr ? 'fixe' : 'fixed'}` : `-${promo.discountPercent}%`})</span>
                     <span>-{fmt(discountAmount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between font-semibold">
-                  <span>Total à payer</span>
-                  <span className="text-primary">{product.is_free || finalPrice === 0 ? 'Gratuit' : fmt(finalPrice)}</span>
+                  <span>{isFr ? 'Total à payer' : 'Total to pay'}</span>
+                  <span className="text-primary">{product.is_free || finalPrice === 0 ? (isFr ? 'Gratuit' : 'Free') : fmt(finalPrice)}</span>
                 </div>
                 {!product.is_free && finalPrice > 0 && (
                   <p className="text-[10px] text-muted-foreground mt-1.5">
-                    🔒 Paiement sécurisé par {paymentMethod === 'card' ? 'Stripe' : 'Paystack'}
+                    🔒 {isFr ? 'Paiement sécurisé par' : 'Secure payment via'} {paymentMethod === 'card' ? 'Stripe' : 'Paystack'}
                   </p>
                 )}
               </div>
             </div>
 
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setStep('confirm')} className="flex-1">Retour</Button>
+              <Button variant="outline" onClick={() => setStep('confirm')} className="flex-1">{isFr ? 'Retour' : 'Back'}</Button>
               <Button onClick={handlePurchase} disabled={isSubmitting} className="flex-1 bg-primary text-primary-foreground">
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : null}
-                {product.is_free || finalPrice === 0 ? 'Confirmer' : `Payer ${fmt(finalPrice)}`}
+                {product.is_free || finalPrice === 0 ? (isFr ? 'Confirmer' : 'Confirm') : `${isFr ? 'Payer' : 'Pay'} ${fmt(finalPrice)}`}
               </Button>
             </div>
           </>
@@ -621,8 +611,8 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
         {step === 'processing' && (
           <div className="py-10 flex flex-col items-center gap-4 text-center">
             <Loader2 className="h-12 w-12 text-primary animate-spin" />
-            <p className="font-medium">Vérification du paiement…</p>
-            <p className="text-sm text-muted-foreground">Ne fermez pas cette fenêtre.</p>
+            <p className="font-medium">{isFr ? 'Vérification du paiement…' : 'Verifying payment…'}</p>
+            <p className="text-sm text-muted-foreground">{isFr ? 'Ne fermez pas cette fenêtre.' : 'Do not close this window.'}</p>
           </div>
         )}
 
@@ -631,11 +621,11 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
           <div className="py-6 flex flex-col items-center gap-4 text-center">
             <CheckCircle className="h-14 w-14 text-green-500" />
             <div>
-              <p className="font-semibold text-lg">Achat confirmé !</p>
+              <p className="font-semibold text-lg">{isFr ? 'Achat confirmé !' : 'Purchase confirmed!'}</p>
               {result && (
                 <p className="text-sm text-muted-foreground mt-1">
-                  {fmt(result.breakdown.amount)} payé.
-                  {result.breakdown.promo_applied && ` (réduction de ${fmt(result.breakdown.discount_amount || 0)})`}
+                  {fmt(result.breakdown.amount)} {isFr ? 'payé' : 'paid'}.
+                  {result.breakdown.promo_applied && ` (${isFr ? 'réduction de' : 'discount of'} ${fmt(result.breakdown.discount_amount || 0)})`}
                 </p>
               )}
             </div>
@@ -655,20 +645,20 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
                     } catch (error) {
                       console.error('[ProductPurchaseModal] secure download error:', error);
                       toast({
-                        title: 'Erreur de téléchargement',
-                        description: "Impossible de récupérer la version protégée.",
+                        title: isFr ? 'Erreur de téléchargement' : 'Download error',
+                        description: isFr ? "Impossible de récupérer la version protégée." : "Unable to retrieve the protected version.",
                         variant: 'destructive',
                       });
                     }
                   }}
                 >
-                  <Download className="h-4 w-4" /> Télécharger le fichier
+                  <Download className="h-4 w-4" /> {isFr ? 'Télécharger le fichier' : 'Download file'}
                 </Button>
               )}
               {product.external_link && (
                 <a href={product.external_link} target="_blank" rel="noreferrer" className="w-full">
                   <Button variant="outline" className="w-full gap-2">
-                    <ExternalLink className="h-4 w-4" /> Accéder au contenu
+                    <ExternalLink className="h-4 w-4" /> {isFr ? 'Accéder au contenu' : 'Access content'}
                   </Button>
                 </a>
               )}
@@ -677,28 +667,28 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
             {/* Upsell recommendations */}
             {upsellProducts.length > 0 && (
               <div className="w-full space-y-2 pt-2 border-t border-border">
-                <p className="text-xs font-semibold text-muted-foreground">💡 Vous pourriez aussi aimer</p>
+                <p className="text-xs font-semibold text-muted-foreground">💡 {isFr ? 'Vous pourriez aussi aimer' : 'You might also like'}</p>
                 {upsellProducts.map((up: any) => (
                   <div key={up.id} className="flex items-center gap-3 p-2 rounded-lg border border-border bg-muted/30">
                     {up.cover_image_url && <img src={up.cover_image_url} className="h-10 w-10 rounded-lg object-cover shrink-0" alt="" />}
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium truncate">{up.title}</p>
-                      <p className="text-[10px] text-muted-foreground">{up.is_free ? 'Gratuit' : `${up.price?.toLocaleString('fr-FR')} ${up.currency}`}</p>
+                      <p className="text-[10px] text-muted-foreground">{up.is_free ? (isFr ? 'Gratuit' : 'Free') : `${up.price?.toLocaleString(isFr ? 'fr-FR' : 'en-US')} ${up.currency}`}</p>
                     </div>
                     <Button size="sm" variant="outline" className="h-7 text-[10px] shrink-0"
                       onClick={() => { handleClose(); }}>
-                      Voir
+                      {isFr ? 'Voir' : 'View'}
                     </Button>
                   </div>
                 ))}
               </div>
             )}
 
-            <p className="text-xs text-muted-foreground">Un reçu a été envoyé à votre email.</p>
+            <p className="text-xs text-muted-foreground">{isFr ? 'Un reçu a été envoyé à votre email.' : 'A receipt has been sent to your email.'}</p>
             <Button onClick={() => { handleClose(); navigate('/resources'); }} className="w-full bg-primary text-primary-foreground gap-1.5">
-              Accéder à mes ressources
+              {isFr ? 'Accéder à mes ressources' : 'Go to my resources'}
             </Button>
-            <Button variant="ghost" onClick={handleClose} className="text-muted-foreground">Fermer</Button>
+            <Button variant="ghost" onClick={handleClose} className="text-muted-foreground">{isFr ? 'Fermer' : 'Close'}</Button>
           </div>
         )}
 
@@ -707,12 +697,12 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
           <div className="py-6 flex flex-col items-center gap-4 text-center">
             <AlertCircle className="h-14 w-14 text-destructive" />
             <div>
-              <p className="font-semibold">Une erreur est survenue</p>
+              <p className="font-semibold">{isFr ? 'Une erreur est survenue' : 'An error occurred'}</p>
               <p className="text-sm text-muted-foreground mt-1">{errorMsg}</p>
             </div>
             <div className="flex gap-2 w-full">
-              <Button variant="outline" onClick={handleClose} className="flex-1">Fermer</Button>
-              <Button onClick={() => setStep('buyer-info')} className="flex-1">Réessayer</Button>
+              <Button variant="outline" onClick={handleClose} className="flex-1">{isFr ? 'Fermer' : 'Close'}</Button>
+              <Button onClick={() => setStep('buyer-info')} className="flex-1">{isFr ? 'Réessayer' : 'Try again'}</Button>
             </div>
           </div>
         )}

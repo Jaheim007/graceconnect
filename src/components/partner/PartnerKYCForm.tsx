@@ -8,6 +8,7 @@ import { FileUploader } from '@/components/ui/FileUploader';
 import { db } from '@/lib/db';
 import { toast } from 'sonner';
 import { Loader2, Shield, CheckCircle, XCircle, Clock, Upload } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface Props {
   partnerId: string;
@@ -15,20 +16,22 @@ interface Props {
   rejectionReason?: string | null;
 }
 
-const DOC_TYPES = [
-  { value: 'national_id', label: 'Carte Nationale d\'Identité' },
-  { value: 'passport', label: 'Passeport' },
-  { value: 'drivers_license', label: 'Permis de conduire' },
-];
-
 export default function PartnerKYCForm({ partnerId, kycStatus, rejectionReason }: Props) {
   const [docType, setDocType] = useState('national_id');
   const [docUrl, setDocUrl] = useState('');
   const [selfieUrl, setSelfieUrl] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+
+  const DOC_TYPES = [
+    { value: 'national_id', label: isFr ? 'Carte Nationale d\'Identité' : 'National ID Card' },
+    { value: 'passport', label: isFr ? 'Passeport' : 'Passport' },
+    { value: 'drivers_license', label: isFr ? 'Permis de conduire' : 'Driver\'s License' },
+  ];
 
   const handleSubmit = async () => {
-    if (!docUrl) { toast.error('Veuillez uploader votre pièce d\'identité'); return; }
+    if (!docUrl) { toast.error(isFr ? 'Veuillez uploader votre pièce d\'identité' : 'Please upload your ID document'); return; }
     setSubmitting(true);
     try {
       const { data, error } = await db.rpc('submit_partner_kyc', {
@@ -38,7 +41,7 @@ export default function PartnerKYCForm({ partnerId, kycStatus, rejectionReason }
         _selfie_url: selfieUrl || null,
       });
       if (error) throw error;
-      toast.success('Documents KYC soumis avec succès');
+      toast.success(isFr ? 'Documents KYC soumis avec succès' : 'KYC documents submitted successfully');
       window.location.reload();
     } catch (err: any) {
       toast.error(err.message);
@@ -54,8 +57,8 @@ export default function PartnerKYCForm({ partnerId, kycStatus, rejectionReason }
           <div className="flex items-center gap-3">
             <CheckCircle className="h-6 w-6 text-primary" />
             <div>
-              <p className="font-bold">Identité vérifiée</p>
-              <p className="text-xs text-muted-foreground">Votre vérification KYC a été approuvée.</p>
+              <p className="font-bold">{isFr ? 'Identité vérifiée' : 'Identity verified'}</p>
+              <p className="text-xs text-muted-foreground">{isFr ? 'Votre vérification KYC a été approuvée.' : 'Your KYC verification has been approved.'}</p>
             </div>
           </div>
         </CardContent>
@@ -70,8 +73,8 @@ export default function PartnerKYCForm({ partnerId, kycStatus, rejectionReason }
           <div className="flex items-center gap-3">
             <Clock className="h-6 w-6 text-muted-foreground" />
             <div>
-              <p className="font-bold">Vérification en cours</p>
-              <p className="text-xs text-muted-foreground">Vos documents sont en cours d'examen. Délai : 2–3 jours ouvrés.</p>
+              <p className="font-bold">{isFr ? 'Vérification en cours' : 'Verification in progress'}</p>
+              <p className="text-xs text-muted-foreground">{isFr ? 'Vos documents sont en cours d\'examen. Délai : 2–3 jours ouvrés.' : 'Your documents are being reviewed. Timeline: 2–3 business days.'}</p>
             </div>
           </div>
         </CardContent>
@@ -84,10 +87,10 @@ export default function PartnerKYCForm({ partnerId, kycStatus, rejectionReason }
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Shield className="h-5 w-5 text-primary" />
-          Vérification d'identité (KYC)
+          {isFr ? 'Vérification d\'identité (KYC)' : 'Identity Verification (KYC)'}
         </CardTitle>
         <CardDescription>
-          Requis avant votre premier paiement. Vos documents sont chiffrés et stockés de manière sécurisée.
+          {isFr ? 'Requis avant votre premier paiement. Vos documents sont chiffrés et stockés de manière sécurisée.' : 'Required before your first payout. Your documents are encrypted and securely stored.'}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -95,15 +98,15 @@ export default function PartnerKYCForm({ partnerId, kycStatus, rejectionReason }
           <div className="flex items-start gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/30">
             <XCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-medium text-destructive">Vérification refusée</p>
+              <p className="text-sm font-medium text-destructive">{isFr ? 'Vérification refusée' : 'Verification rejected'}</p>
               <p className="text-xs text-muted-foreground">{rejectionReason}</p>
-              <p className="text-xs text-muted-foreground mt-1">Vous pouvez soumettre de nouveaux documents.</p>
+              <p className="text-xs text-muted-foreground mt-1">{isFr ? 'Vous pouvez soumettre de nouveaux documents.' : 'You can submit new documents.'}</p>
             </div>
           </div>
         )}
 
         <div>
-          <Label>Type de document</Label>
+          <Label>{isFr ? 'Type de document' : 'Document type'}</Label>
           <Select value={docType} onValueChange={setDocType}>
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -113,20 +116,20 @@ export default function PartnerKYCForm({ partnerId, kycStatus, rejectionReason }
         </div>
 
         <div>
-          <Label>Pièce d'identité (recto/verso) *</Label>
+          <Label>{isFr ? 'Pièce d\'identité (recto/verso)' : 'ID document (front/back)'} *</Label>
           <FileUploader
             value={docUrl}
             onChange={setDocUrl}
             folder={`partner-kyc/${partnerId}`}
             bucket="org-uploads"
             accept="image/*,.pdf"
-            label="Document d'identité"
-            hint="Carte d'identité, passeport ou permis de conduire (PDF ou image)"
+            label={isFr ? 'Document d\'identité' : 'ID document'}
+            hint={isFr ? 'Carte d\'identité, passeport ou permis de conduire (PDF ou image)' : 'National ID, passport or driver\'s license (PDF or image)'}
           />
         </div>
 
         <div>
-          <Label>Photo selfie (optionnel)</Label>
+          <Label>{isFr ? 'Photo selfie (optionnel)' : 'Selfie photo (optional)'}</Label>
           <FileUploader
             value={selfieUrl}
             onChange={setSelfieUrl}
@@ -134,13 +137,13 @@ export default function PartnerKYCForm({ partnerId, kycStatus, rejectionReason }
             bucket="org-uploads"
             accept="image/*"
             label="Selfie"
-            hint="Photo récente tenant votre pièce d'identité"
+            hint={isFr ? 'Photo récente tenant votre pièce d\'identité' : 'Recent photo holding your ID document'}
           />
         </div>
 
         <Button onClick={handleSubmit} disabled={submitting || !docUrl} className="w-full">
           {submitting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Upload className="h-4 w-4 mr-2" />}
-          Soumettre les documents
+          {isFr ? 'Soumettre les documents' : 'Submit documents'}
         </Button>
       </CardContent>
     </Card>
