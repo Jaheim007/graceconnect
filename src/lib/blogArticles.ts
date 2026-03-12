@@ -2743,7 +2743,7 @@ export const blogArticles: BlogArticle[] = [
 </ul>
 
 <h2>Verdict</h2>
-<p>Si vous vendez des cours à un public américain ou européen bancarisé, Teachable est excellent. Si votre audience est en Afrique francophone, <strong>Siteviral élimine toutes les frictions</strong> qui empêchent vos étudiants de payer.</p>
+<p>Si vous vendez des cours à un public américain ou européen bancarisé, Teachable est excellent. Si votre audience est en Afrique, <strong>Siteviral élimine toutes les frictions</strong> qui empêchent vos étudiants de payer.</p>
 `,
   },
   {
