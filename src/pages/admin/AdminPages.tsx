@@ -1078,7 +1078,7 @@ export function AdminSettings() {
         .maybeSingle();
       if (existing) {
         setSavingProfile(false);
-        toast({ title: 'Slug déjà utilisé', description: 'Choisissez un autre identifiant URL.', variant: 'destructive' });
+        toast({ title: isFr ? 'Slug déjà utilisé' : 'Slug already taken', description: isFr ? 'Choisissez un autre identifiant URL.' : 'Choose a different URL identifier.', variant: 'destructive' });
         return;
       }
     }
