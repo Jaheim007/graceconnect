@@ -1978,7 +1978,7 @@ export const blogArticles: BlogArticle[] = [
   {
     slug: 'fiscalite-vente-en-ligne-afrique',
     title: 'Fiscalité de la vente en ligne en Afrique : Ce que vous devez savoir',
-    description: 'Guide simplifié sur les obligations fiscales des vendeurs de produits numériques en Afrique francophone.',
+    description: 'Guide simplifié sur les obligations fiscales des vendeurs de produits numériques en Afrique.',
     personas: ['Tous'],
     category: 'Confiance',
     readTime: '6 min',
