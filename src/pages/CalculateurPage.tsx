@@ -8,6 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { ArrowRight, Calculator, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useI18n } from '@/i18n/I18nContext';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
@@ -16,6 +17,9 @@ const fadeUp = {
 
 export default function CalculateurPage() {
   const navigate = useNavigate();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const numLoc = isFr ? 'fr-FR' : 'en-US';
   const [mode, setMode] = useState<'vendeur' | 'ambassadeur'>('vendeur');
 
   // Vendeur state
@@ -40,13 +44,13 @@ export default function CalculateurPage() {
   const ambassadeurCommission = Math.round(ambassadeurBrut * (commissionPct / 100));
   const ambassadeurAnnuel = ambassadeurCommission * 12;
 
-  const formatFCFA = (n: number) => n.toLocaleString('fr-FR') + ' FCFA';
+  const formatFCFA = (n: number) => n.toLocaleString(numLoc) + ' FCFA';
 
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Calculateur de Revenus — Estimez vos gains sur Siteviral"
-        description="Simulez vos revenus potentiels en tant que vendeur ou ambassadeur sur Siteviral. Gratuit, transparent, instantané."
+        title={isFr ? "Calculateur de Revenus — Estimez vos gains sur Siteviral" : "Revenue Calculator — Estimate your earnings on Siteviral"}
+        description={isFr ? "Simulez vos revenus potentiels en tant que vendeur ou ambassadeur sur Siteviral." : "Simulate your potential earnings as a seller or ambassador on Siteviral."}
         canonicalUrl="https://siteviral.com/calculateur"
       />
       <LandingNav />
@@ -54,13 +58,13 @@ export default function CalculateurPage() {
       <section className="pt-14">
         <div className="container max-w-4xl px-4 pt-24 pb-12 sm:pt-32 text-center space-y-5">
           <Badge variant="secondary" className="text-xs px-4 py-1.5 rounded-full border border-border gap-1.5">
-            <Calculator className="h-3.5 w-3.5" /> Calculateur de revenus
+            <Calculator className="h-3.5 w-3.5" /> {isFr ? 'Calculateur de revenus' : 'Revenue Calculator'}
           </Badge>
           <h1 className="text-3xl sm:text-5xl font-extrabold leading-tight">
-            Combien pouvez-vous <span className="text-primary">gagner</span> ?
+            {isFr ? <>Combien pouvez-vous <span className="text-primary">gagner</span> ?</> : <>How much can you <span className="text-primary">earn</span>?</>}
           </h1>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Estimez vos revenus potentiels en quelques secondes. Ajustez les curseurs selon votre situation.
+            {isFr ? 'Estimez vos revenus potentiels en quelques secondes. Ajustez les curseurs selon votre situation.' : 'Estimate your potential earnings in seconds. Adjust the sliders to match your situation.'}
           </p>
         </div>
       </section>
@@ -75,7 +79,7 @@ export default function CalculateurPage() {
                 mode === 'vendeur' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              🏪 Vendeur / Organisation
+              🏪 {isFr ? 'Vendeur / Organisation' : 'Seller / Organization'}
             </button>
             <button
               onClick={() => setMode('ambassadeur')}
@@ -83,7 +87,7 @@ export default function CalculateurPage() {
                 mode === 'ambassadeur' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              🚀 Ambassadeur
+              🚀 {isFr ? 'Ambassadeur' : 'Ambassador'}
             </button>
           </div>
         </div>
@@ -95,29 +99,29 @@ export default function CalculateurPage() {
           <motion.div initial="hidden" animate="visible" variants={fadeUp} className="p-6 sm:p-8 rounded-3xl border border-border bg-card space-y-8">
             {mode === 'vendeur' ? (
               <>
-                <SliderField label="Prix moyen d'un produit" value={produitPrix} onChange={setProduitPrix} min={500} max={100000} step={500} format={formatFCFA} />
-                <SliderField label="Ventes par jour (par produit)" value={ventesJour} onChange={setVentesJour} min={1} max={50} step={1} format={(v) => `${v} ventes/jour`} />
-                <SliderField label="Nombre de produits" value={nbProduits} onChange={setNbProduits} min={1} max={20} step={1} format={(v) => `${v} produit${v > 1 ? 's' : ''}`} />
+                <SliderField label={isFr ? "Prix moyen d'un produit" : "Average product price"} value={produitPrix} onChange={setProduitPrix} min={500} max={100000} step={500} format={formatFCFA} />
+                <SliderField label={isFr ? "Ventes par jour (par produit)" : "Sales per day (per product)"} value={ventesJour} onChange={setVentesJour} min={1} max={50} step={1} format={(v) => isFr ? `${v} ventes/jour` : `${v} sales/day`} />
+                <SliderField label={isFr ? "Nombre de produits" : "Number of products"} value={nbProduits} onChange={setNbProduits} min={1} max={20} step={1} format={(v) => `${v} ${isFr ? `produit${v > 1 ? 's' : ''}` : `product${v > 1 ? 's' : ''}`}`} />
 
                 <div className="border-t border-border pt-6 space-y-4">
-                  <ResultRow label="Revenu brut / mois" value={formatFCFA(vendeurBrut)} />
-                  <ResultRow label="Commission Siteviral (10%)" value={`- ${formatFCFA(Math.round(vendeurBrut * 0.1))}`} muted />
-                  <ResultRow label="Votre revenu net / mois" value={formatFCFA(vendeurNet)} highlight />
-                  <ResultRow label="Projection annuelle" value={formatFCFA(vendeurAnnuel)} />
+                  <ResultRow label={isFr ? "Revenu brut / mois" : "Gross revenue / month"} value={formatFCFA(vendeurBrut)} />
+                  <ResultRow label={isFr ? "Commission Siteviral (10%)" : "Siteviral commission (10%)"} value={`- ${formatFCFA(Math.round(vendeurBrut * 0.1))}`} muted />
+                  <ResultRow label={isFr ? "Votre revenu net / mois" : "Your net revenue / month"} value={formatFCFA(vendeurNet)} highlight />
+                  <ResultRow label={isFr ? "Projection annuelle" : "Annual projection"} value={formatFCFA(vendeurAnnuel)} />
                 </div>
               </>
             ) : (
               <>
-                <SliderField label="Partages par jour" value={partagesJour} onChange={setPartagesJour} min={1} max={50} step={1} format={(v) => `${v} partages/jour`} />
-                <SliderField label="Taux de conversion" value={tauxConversion} onChange={setTauxConversion} min={1} max={30} step={1} format={(v) => `${v}%`} />
-                <SliderField label="Prix moyen des produits" value={prixMoyen} onChange={setPrixMoyen} min={500} max={100000} step={500} format={formatFCFA} />
-                <SliderField label="Votre commission" value={commissionPct} onChange={setCommissionPct} min={5} max={50} step={1} format={(v) => `${v}%`} />
+                <SliderField label={isFr ? "Partages par jour" : "Shares per day"} value={partagesJour} onChange={setPartagesJour} min={1} max={50} step={1} format={(v) => isFr ? `${v} partages/jour` : `${v} shares/day`} />
+                <SliderField label={isFr ? "Taux de conversion" : "Conversion rate"} value={tauxConversion} onChange={setTauxConversion} min={1} max={30} step={1} format={(v) => `${v}%`} />
+                <SliderField label={isFr ? "Prix moyen des produits" : "Average product price"} value={prixMoyen} onChange={setPrixMoyen} min={500} max={100000} step={500} format={formatFCFA} />
+                <SliderField label={isFr ? "Votre commission" : "Your commission"} value={commissionPct} onChange={setCommissionPct} min={5} max={50} step={1} format={(v) => `${v}%`} />
 
                 <div className="border-t border-border pt-6 space-y-4">
-                  <ResultRow label="Ventes générées / mois" value={`${ventesAmbassadeur} ventes`} />
-                  <ResultRow label="Volume de ventes" value={formatFCFA(ambassadeurBrut)} muted />
-                  <ResultRow label="Vos commissions / mois" value={formatFCFA(ambassadeurCommission)} highlight />
-                  <ResultRow label="Projection annuelle" value={formatFCFA(ambassadeurAnnuel)} />
+                  <ResultRow label={isFr ? "Ventes générées / mois" : "Sales generated / month"} value={`${ventesAmbassadeur} ${isFr ? 'ventes' : 'sales'}`} />
+                  <ResultRow label={isFr ? "Volume de ventes" : "Sales volume"} value={formatFCFA(ambassadeurBrut)} muted />
+                  <ResultRow label={isFr ? "Vos commissions / mois" : "Your commissions / month"} value={formatFCFA(ambassadeurCommission)} highlight />
+                  <ResultRow label={isFr ? "Projection annuelle" : "Annual projection"} value={formatFCFA(ambassadeurAnnuel)} />
                 </div>
               </>
             )}
@@ -125,10 +129,10 @@ export default function CalculateurPage() {
 
           <div className="mt-8 text-center space-y-4">
             <p className="text-xs text-muted-foreground">
-              * Estimation indicative. Les résultats réels dépendent de votre activité, réseau et produits.
+              * {isFr ? 'Estimation indicative. Les résultats réels dépendent de votre activité, réseau et produits.' : 'Indicative estimate. Actual results depend on your activity, network and products.'}
             </p>
             <Button size="lg" className="px-8 gap-2 h-13 text-base group cta-glow" onClick={() => navigate('/auth?mode=signup')}>
-              Commencer gratuitement <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              {isFr ? 'Commencer gratuitement' : 'Start for free'} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
         </div>

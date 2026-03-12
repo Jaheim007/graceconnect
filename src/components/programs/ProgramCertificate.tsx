@@ -8,8 +8,9 @@ import { Award, Download, Share2, Loader2, CheckCircle, ExternalLink } from 'luc
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr, enUS } from 'date-fns/locale';
 import { buildShareUrlForPath } from '@/lib/shareMeta';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface Props {
   programId: string;
@@ -197,6 +198,9 @@ export function ProgramCertificate({
 }: Props) {
   const { user, profile } = useAuth();
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const dateLoc = isFr ? fr : enUS;
   const qc = useQueryClient();
   const [showCert, setShowCert] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -242,10 +246,10 @@ export function ProgramCertificate({
     },
   });
 
-  const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Apprenant';
+  const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || (isFr ? 'Apprenant' : 'Learner');
   const certDate = certificate?.issued_at
-    ? format(new Date(certificate.issued_at), 'dd MMMM yyyy', { locale: fr })
-    : format(new Date(), 'dd MMMM yyyy', { locale: fr });
+    ? format(new Date(certificate.issued_at), 'dd MMMM yyyy', { locale: dateLoc })
+    : format(new Date(), 'dd MMMM yyyy', { locale: dateLoc });
   const certNumber = certificate?.certificate_number || 'SV-XXXXXXXX';
 
   // Draw certificate when modal opens

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 import { buildShareUrlForPath } from '@/lib/shareMeta';
+import { useI18n } from '@/i18n/I18nContext';
 import {
   Dialog,
   DialogContent,
@@ -24,11 +25,18 @@ interface SocialShareKitProps {
   productId?: string;
 }
 
-const MESSAGES: Record<ShareContext, (t: string, p?: number, e?: number) => string> = {
+const MESSAGES_FR: Record<ShareContext, (t: string, p?: number, e?: number) => string> = {
   'post-publication': (t) => `🎉 Je viens d'écrire mon livre « ${t} » ! Découvre-le 👉`,
   'post-purchase': (t) => `📚 Je viens de lire « ${t} » — je te le recommande ! 👉`,
   'ambassador': (t, p) => `📖 ${t}${p ? ` — seulement ${p.toLocaleString('fr-FR')} FCFA` : ''} ! 👉`,
   'earnings': (_, __, e) => `💰 J'ai gagné ${(e || 0).toLocaleString('fr-FR')} FCFA en partageant des livres sur SiteViral ! 👉`,
+};
+
+const MESSAGES_EN: Record<ShareContext, (t: string, p?: number, e?: number) => string> = {
+  'post-publication': (t) => `🎉 I just wrote my book "${t}"! Check it out 👉`,
+  'post-purchase': (t) => `📚 I just read "${t}" — I recommend it! 👉`,
+  'ambassador': (t, p) => `📖 ${t}${p ? ` — only ${p.toLocaleString('en-US')} FCFA` : ''}! 👉`,
+  'earnings': (_, __, e) => `💰 I earned ${(e || 0).toLocaleString('en-US')} FCFA by sharing books on SiteViral! 👉`,
 };
 
 interface Platform {
@@ -89,6 +97,9 @@ const PLATFORMS: Platform[] = [
 export function SocialShareKit({ url, title, description, context, price, earnings, commissionRate, productId }: SocialShareKitProps) {
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const MESSAGES = isFr ? MESSAGES_FR : MESSAGES_EN;
   const message = MESSAGES[context](title, price, earnings);
 
   // Ensure all share URLs route through the edge function for proper OG previews
@@ -117,11 +128,11 @@ export function SocialShareKit({ url, title, description, context, price, earnin
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
-      toast.success(platformName ? `Texte copié ! Colle-le dans ${platformName}.` : 'Lien copié !');
+      toast.success(platformName ? (isFr ? `Texte copié ! Colle-le dans ${platformName}.` : `Text copied! Paste it in ${platformName}.`) : (isFr ? 'Lien copié !' : 'Link copied!'));
       track(platformName || 'copy_link');
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error('Impossible de copier');
+      toast.error(isFr ? 'Impossible de copier' : 'Unable to copy');
     }
   };
 
@@ -135,8 +146,8 @@ export function SocialShareKit({ url, title, description, context, price, earnin
   };
 
   const emailSubject = context === 'post-publication'
-    ? `Mon nouveau livre : ${title}`
-    : `Découvre : ${title}`;
+    ? (isFr ? `Mon nouveau livre : ${title}` : `My new book: ${title}`)
+    : (isFr ? `Découvre : ${title}` : `Check out: ${title}`);
 
   const emailUrl = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(`${message}\n\n${ogUrl}`)}`;
 
@@ -144,7 +155,7 @@ export function SocialShareKit({ url, title, description, context, price, earnin
 
   return (
     <div className="space-y-4">
-      <p className="text-sm font-bold text-center">📤 Partage maintenant !</p>
+      <p className="text-sm font-bold text-center">📤 {isFr ? 'Partage maintenant !' : 'Share now!'}</p>
 
       {/* Platform buttons */}
       <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
@@ -169,7 +180,7 @@ export function SocialShareKit({ url, title, description, context, price, earnin
           onClick={() => copyText(ogUrl)}
         >
           {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Copy className="h-3.5 w-3.5" />}
-          {copied ? 'Copié !' : 'Copier le lien'}
+          {copied ? (isFr ? 'Copié !' : 'Copied!') : (isFr ? 'Copier le lien' : 'Copy link')}
         </Button>
         <Button
           variant="outline"
@@ -206,7 +217,7 @@ export function SocialShareKit({ url, title, description, context, price, earnin
           <div className="flex flex-col items-center gap-4 py-4">
             <img src={qrUrl} alt="QR Code" className="rounded-xl border border-border" width={250} height={250} />
             <p className="text-xs text-muted-foreground text-center">
-              Scanne ce code pour accéder directement au produit.
+              {isFr ? 'Scanne ce code pour accéder directement au produit.' : 'Scan this code to access the product directly.'}
             </p>
           </div>
         </DialogContent>

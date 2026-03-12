@@ -4,11 +4,15 @@ import { db } from '@/lib/db';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Award, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr, enUS } from 'date-fns/locale';
 import { motion } from 'framer-motion';
+import { useI18n } from '@/i18n/I18nContext';
 
 export default function CertificateVerifyPage() {
   const { certNumber } = useParams();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const dateLoc = isFr ? fr : enUS;
 
   const { data: certData, isLoading } = useQuery({
     queryKey: ['verify-certificate', certNumber],
@@ -33,17 +37,17 @@ export default function CertificateVerifyPage() {
   });
 
   const isValid = !!certData;
-  const recipientName = certData?.profile?.display_name || 'Apprenant';
+  const recipientName = certData?.profile?.display_name || (isFr ? 'Apprenant' : 'Learner');
   const programTitle = (certData?.programs as any)?.title || '';
   const orgName = (certData?.programs as any)?.organizations?.name || '';
   const orgLogo = (certData?.programs as any)?.organizations?.logo_url;
-  const issuedAt = certData?.issued_at ? format(new Date(certData.issued_at), 'dd MMMM yyyy', { locale: fr }) : '';
+  const issuedAt = certData?.issued_at ? format(new Date(certData.issued_at), 'dd MMMM yyyy', { locale: dateLoc }) : '';
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50/50 via-background to-background dark:from-amber-950/10 flex items-center justify-center p-4">
       <SEOHead
-        title={isValid ? `Certificat vérifié — ${recipientName}` : 'Vérification de certificat'}
-        description={isValid ? `${recipientName} a complété la formation "${programTitle}" sur Siteviral.` : 'Vérifiez un certificat Siteviral.'}
+        title={isValid ? (isFr ? `Certificat vérifié — ${recipientName}` : `Certificate verified — ${recipientName}`) : (isFr ? 'Vérification de certificat' : 'Certificate verification')}
+        description={isValid ? (isFr ? `${recipientName} a complété la formation "${programTitle}" sur Siteviral.` : `${recipientName} completed the "${programTitle}" program on Siteviral.`) : (isFr ? 'Vérifiez un certificat Siteviral.' : 'Verify a Siteviral certificate.')}
       />
 
       <motion.div
@@ -54,7 +58,7 @@ export default function CertificateVerifyPage() {
         {isLoading ? (
           <div className="text-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-            <p className="text-sm text-muted-foreground mt-3">Vérification en cours…</p>
+            <p className="text-sm text-muted-foreground mt-3">{isFr ? 'Vérification en cours…' : 'Verifying…'}</p>
           </div>
         ) : isValid ? (
           <div className="bg-card rounded-2xl border border-amber-300/40 shadow-xl overflow-hidden">
@@ -63,21 +67,21 @@ export default function CertificateVerifyPage() {
               <div className="h-14 w-14 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-3">
                 <CheckCircle className="h-8 w-8" />
               </div>
-              <h1 className="text-lg font-bold">Certificat Authentique ✓</h1>
-              <p className="text-xs text-white/80 mt-1">Ce certificat est vérifié et valide</p>
+              <h1 className="text-lg font-bold">{isFr ? 'Certificat Authentique ✓' : 'Authentic Certificate ✓'}</h1>
+              <p className="text-xs text-white/80 mt-1">{isFr ? 'Ce certificat est vérifié et valide' : 'This certificate is verified and valid'}</p>
             </div>
 
             {/* Details */}
             <div className="p-6 space-y-5">
               {/* Recipient */}
               <div className="text-center">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">Décerné à</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">{isFr ? 'Décerné à' : 'Awarded to'}</p>
                 <p className="text-xl font-bold mt-1">{recipientName}</p>
               </div>
 
               {/* Program */}
               <div className="text-center">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">Formation</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">{isFr ? 'Formation' : 'Program'}</p>
                 <p className="text-base font-semibold text-primary mt-1">« {programTitle} »</p>
               </div>
 
@@ -103,7 +107,7 @@ export default function CertificateVerifyPage() {
               </div>
 
               <p className="text-center text-[10px] text-muted-foreground">
-                Vérifié par Siteviral — siteviral.com
+                {isFr ? 'Vérifié par Siteviral — siteviral.com' : 'Verified by Siteviral — siteviral.com'}
               </p>
             </div>
           </div>
@@ -112,12 +116,14 @@ export default function CertificateVerifyPage() {
             <div className="h-14 w-14 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
               <XCircle className="h-8 w-8 text-destructive" />
             </div>
-            <h1 className="text-lg font-bold mb-2">Certificat introuvable</h1>
+            <h1 className="text-lg font-bold mb-2">{isFr ? 'Certificat introuvable' : 'Certificate not found'}</h1>
             <p className="text-sm text-muted-foreground">
-              Le numéro de certificat <span className="font-mono font-semibold">{certNumber}</span> n'existe pas dans notre système.
+              {isFr
+                ? <>Le numéro de certificat <span className="font-mono font-semibold">{certNumber}</span> n'existe pas dans notre système.</>
+                : <>The certificate number <span className="font-mono font-semibold">{certNumber}</span> does not exist in our system.</>}
             </p>
             <p className="text-xs text-muted-foreground mt-3">
-              Vérifiez que le numéro est correct et réessayez.
+              {isFr ? 'Vérifiez que le numéro est correct et réessayez.' : 'Please check the number and try again.'}
             </p>
           </div>
         )}

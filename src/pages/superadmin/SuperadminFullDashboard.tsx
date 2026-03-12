@@ -24,7 +24,7 @@ import { formatCurrency } from '@/lib/currency';
 import { PlatformHealthScore } from '@/components/superadmin/PlatformHealthScore';
 
 const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
-const fmtNum = (n: number) => new Intl.NumberFormat('fr-FR').format(n);
+const fmtNum = (n: number) => new Intl.NumberFormat().format(n);
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
@@ -128,7 +128,7 @@ export default function SuperadminFullDashboard() {
 
       // Format cohort data
       const cohortData = ((cohorts.data || []) as any[]).map((c: any) => ({
-        week: c.week ? format(new Date(c.week), 'dd/MM', { locale: fr }) : '',
+        week: c.week ? format(new Date(c.week), 'dd/MM') : '',
         users: c.users || 0,
       }));
 
@@ -237,7 +237,7 @@ export default function SuperadminFullDashboard() {
         </div>
         <Badge variant="outline" className="text-[11px] gap-1.5 px-3 py-1.5 self-start sm:self-auto border-border/60">
           <Clock className="h-3.5 w-3.5" />
-          {format(new Date(), 'dd MMM yyyy · HH:mm', { locale: fr })}
+          {format(new Date(), 'dd MMM yyyy · HH:mm')}
         </Badge>
       </motion.div>
 
@@ -460,7 +460,7 @@ export default function SuperadminFullDashboard() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold truncate">{u.display_name || 'Sans nom'}</p>
-                  <p className="text-[10px] text-muted-foreground">{u.created_at ? format(new Date(u.created_at), 'dd MMM yyyy', { locale: fr }) : ''}</p>
+                  <p className="text-[10px] text-muted-foreground">{u.created_at ? format(new Date(u.created_at), 'dd MMM yyyy') : ''}</p>
                 </div>
               </div>
             ))}
@@ -478,7 +478,7 @@ export default function SuperadminFullDashboard() {
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold truncate">{e.title}</p>
                   <p className="text-[10px] text-muted-foreground">
-                    {e.event_date ? format(new Date(e.event_date), 'dd MMM yyyy HH:mm', { locale: fr }) : 'Date TBD'}
+                    {e.event_date ? format(new Date(e.event_date), 'dd MMM yyyy HH:mm') : 'Date TBD'}
                   </p>
                 </div>
               </div>
