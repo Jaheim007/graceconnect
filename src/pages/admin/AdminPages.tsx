@@ -1229,7 +1229,7 @@ export function AdminSettings() {
 
           {/* Logo upload */}
           <div className="space-y-2">
-            <Label className="text-xs font-medium">Logo / Photo de profil</Label>
+            <Label className="text-xs font-medium">{isFr ? 'Logo / Photo de profil' : 'Logo / Profile photo'}</Label>
             <div className="flex items-center gap-4">
               <div
                 className="h-16 w-16 rounded-2xl overflow-hidden border-2 border-dashed border-border bg-muted/40 cursor-pointer flex items-center justify-center group shrink-0"
