@@ -1113,7 +1113,7 @@ export function AdminSettings() {
         qc.invalidateQueries({ queryKey: ['admin-products'] });
         qc.invalidateQueries({ queryKey: ['discover'] });
       }
-      toast({ title: '✅ Profil sauvegardé' });
+      toast({ title: '✅ ' + (isFr ? 'Profil sauvegardé' : 'Profile saved') });
       refetchOrgs();
       qc.invalidateQueries({ queryKey: ['org-by-slug'] });
       qc.invalidateQueries({ queryKey: ['org-by-id'] });
