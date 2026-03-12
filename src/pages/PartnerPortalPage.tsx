@@ -247,9 +247,9 @@ export default function PartnerPortalPage() {
           {/* How it works */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2">
+                <CardTitle className="text-sm flex items-center gap-2">
                 <Gift className="h-4 w-4 text-primary" />
-                Comment ça fonctionne
+                {isFr ? 'Comment ça fonctionne' : 'How it works'}
               </CardTitle>
             </CardHeader>
             <CardContent>
