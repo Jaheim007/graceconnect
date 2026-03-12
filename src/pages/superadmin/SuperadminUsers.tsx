@@ -354,22 +354,22 @@ export default function SuperadminUsers() {
                         {u.purchases.count > 0 && (
                           <span className="text-[10px] text-muted-foreground flex items-center gap-1 bg-muted/50 rounded-md px-2 py-0.5">
                             <ShoppingBag className="h-3 w-3 text-primary" />
-                            <span className="font-medium text-foreground">{u.purchases.count}</span> achats
-                            <span className="text-foreground font-medium">({formatCurrency(u.purchases.total)})</span>
+                            <span className="font-medium text-foreground">{u.purchases.count}</span> {isFr ? 'achats' : 'purchases'}
+                            <span className="text-foreground font-medium">({fmt(u.purchases.total, 'XOF')})</span>
                           </span>
                         )}
                         {u.donations.count > 0 && (
                           <span className="text-[10px] text-muted-foreground flex items-center gap-1 bg-muted/50 rounded-md px-2 py-0.5">
                             <Heart className="h-3 w-3 text-rose-500" />
-                            <span className="font-medium text-foreground">{u.donations.count}</span> dons
-                            <span className="text-foreground font-medium">({formatCurrency(u.donations.total)})</span>
+                            <span className="font-medium text-foreground">{u.donations.count}</span> {isFr ? 'dons' : 'donations'}
+                            <span className="text-foreground font-medium">({fmt(u.donations.total, 'XOF')})</span>
                           </span>
                         )}
                         {u.affiliate.links > 0 && (
                           <span className="text-[10px] text-muted-foreground flex items-center gap-1 bg-muted/50 rounded-md px-2 py-0.5">
                             <Link2 className="h-3 w-3 text-violet-500" />
-                            <span className="font-medium text-foreground">{u.affiliate.links}</span> liens
-                            <span className="text-foreground font-medium">({formatCurrency(u.affiliate.earned)})</span>
+                            <span className="font-medium text-foreground">{u.affiliate.links}</span> {isFr ? 'liens' : 'links'}
+                            <span className="text-foreground font-medium">({fmt(u.affiliate.earned, 'XOF')})</span>
                           </span>
                         )}
                       </div>
