@@ -61,7 +61,7 @@ export default function CertificateVerifyPage() {
         {isLoading ? (
           <div className="text-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-            <p className="text-sm text-muted-foreground mt-3">Vérification en cours…</p>
+            <p className="text-sm text-muted-foreground mt-3">{isFr ? 'Vérification en cours…' : 'Verifying…'}</p>
           </div>
         ) : isValid ? (
           <div className="bg-card rounded-2xl border border-amber-300/40 shadow-xl overflow-hidden">
