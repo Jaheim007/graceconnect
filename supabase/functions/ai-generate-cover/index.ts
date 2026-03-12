@@ -56,7 +56,9 @@ DESIGN REQUIREMENTS:
 
 CRITICAL: The typography must be flawless — clean, well-kerned, professionally placed. The title should dominate the upper portion. Any subtitle or author name should be elegantly balanced.`;
 
-        const { base64, mimeType } = await aiGenerateImageBase64({ geminiKey: GEMINI_API_KEY, prompt, timeoutMs: 90_000 });
+        console.log('[ai-generate-cover] Starting image generation for:', title?.slice(0, 50));
+        const { base64, mimeType } = await aiGenerateImageBase64({ geminiKey: GEMINI_API_KEY, prompt, timeoutMs: 120_000 });
+        console.log('[ai-generate-cover] Image generated successfully, mimeType:', mimeType, 'base64 length:', base64?.length);
 
         const imageBytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
         const ext = mimeType.includes('jpeg') ? 'jpg' : 'png';
@@ -75,7 +77,8 @@ CRITICAL: The typography must be flawless — clean, well-kerned, professionally
     return jsonResp({ ok: true, cover_url: result });
   } catch (e: any) {
     if (e?.status === 402) return jsonResp({ error: e.message }, 402);
-    console.error('ai-generate-cover error:', e);
-    return jsonResp({ ok: false, error: e instanceof Error ? e.message : 'Internal error' }, 400);
+    if (e?.status === 429) return jsonResp({ error: 'Rate limit exceeded. Please retry in a moment.' }, 429);
+    console.error('ai-generate-cover error:', e?.message, 'status:', e?.status, 'detail:', e?.detail?.slice?.(0, 500));
+    return jsonResp({ ok: false, error: e instanceof Error ? e.message : 'Internal error' }, 500);
   }
 });

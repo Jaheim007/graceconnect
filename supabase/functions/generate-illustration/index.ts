@@ -48,7 +48,9 @@ Deno.serve(async (req) => {
       actionKey: 'generate_illustration',
       tier: normalizeTier(tier),
       action: async () => {
-        const { base64, mimeType } = await aiGenerateImageBase64({ geminiKey: GEMINI_API_KEY, prompt, timeoutMs: 60_000 });
+        console.log('[generate-illustration] Starting generation for:', chapterTitle?.slice(0, 50));
+        const { base64, mimeType } = await aiGenerateImageBase64({ geminiKey: GEMINI_API_KEY, prompt, timeoutMs: 120_000 });
+        console.log('[generate-illustration] Image generated, mimeType:', mimeType);
 
         // Upload to storage
         const sb = createClient(auth.supabaseUrl, auth.serviceKey);
