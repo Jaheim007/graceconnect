@@ -311,7 +311,7 @@ export default function ManualPayoutsDashboard() {
                         {payout.status === 'completed' ? '✅ Effectué' : '❌ Échoué'}
                       </Badge>
                       <p className="text-[10px] text-muted-foreground">
-                        {payout.processed_at && new Date(payout.processed_at).toLocaleDateString('fr-FR')}
+                        {payout.processed_at && new Date(payout.processed_at).toLocaleDateString()}
                       </p>
                       {payout.proof_url && (
                         <a

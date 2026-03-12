@@ -246,10 +246,10 @@ export function ProgramCertificate({
     },
   });
 
-  const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Apprenant';
+  const displayName = profile?.display_name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || (isFr ? 'Apprenant' : 'Learner');
   const certDate = certificate?.issued_at
-    ? format(new Date(certificate.issued_at), 'dd MMMM yyyy', { locale: fr })
-    : format(new Date(), 'dd MMMM yyyy', { locale: fr });
+    ? format(new Date(certificate.issued_at), 'dd MMMM yyyy', { locale: dateLoc })
+    : format(new Date(), 'dd MMMM yyyy', { locale: dateLoc });
   const certNumber = certificate?.certificate_number || 'SV-XXXXXXXX';
 
   // Draw certificate when modal opens
