@@ -252,7 +252,7 @@ export const blogArticles: BlogArticle[] = [
 <li><strong>Pas que des dons</strong> : vendez aussi des ressources, badges, cotisations sur la même plateforme</li>
 </ul>
 
-<h2>Cas pratique : une ONG en Côte d'Ivoire</h2>
+<h2>Cas pratique : une ONG au Sénégal</h2>
 <p>Une ONG lance une campagne pour construire une école :</p>
 <ul>
 <li><strong>Sur GoFundMe</strong> : la campagne est en dollars, les donateurs locaux ne peuvent pas payer, la diaspora doit chercher la page, les fonds restent bloqués sur un compte étranger.</li>
