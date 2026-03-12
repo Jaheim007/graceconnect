@@ -11,6 +11,7 @@ import { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { InternalLinksSection } from './InternalLinksSection';
 import { PlatformStatsBar } from './PlatformStatsBar';
+import { useI18n } from '@/i18n/I18nContext';
 
 export interface PersonaLandingProps {
   seo: { title: string; description: string; url: string };
