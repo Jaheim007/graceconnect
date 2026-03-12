@@ -136,12 +136,12 @@ export default function QuickPublishPage() {
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="text-center space-y-4 max-w-sm">
           <Rocket className="h-12 w-12 text-primary mx-auto" />
-          <h1 className="text-xl font-bold">Créez d'abord votre organisation</h1>
+          <h1 className="text-xl font-bold">{isFr ? 'Créez d\'abord votre organisation' : 'Create your organization first'}</h1>
           <p className="text-sm text-muted-foreground">
-            Pour publier un produit, vous avez besoin d'une organisation.
+            {isFr ? 'Pour publier un produit, vous avez besoin d\'une organisation.' : 'You need an organization to publish a product.'}
           </p>
           <Button onClick={() => navigate('/create-org')} className="gap-1.5">
-            Créer mon organisation <ArrowRight className="h-4 w-4" />
+            {isFr ? 'Créer mon organisation' : 'Create my organization'} <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -149,9 +149,9 @@ export default function QuickPublishPage() {
   }
 
   const steps: { key: Step; label: string; icon: typeof FileText }[] = [
-    { key: 'info', label: 'Infos', icon: FileText },
-    { key: 'file', label: 'Fichier', icon: Upload },
-    { key: 'publish', label: 'Publier', icon: Rocket },
+    { key: 'info', label: isFr ? 'Infos' : 'Info', icon: FileText },
+    { key: 'file', label: isFr ? 'Fichier' : 'File', icon: Upload },
+    { key: 'publish', label: isFr ? 'Publier' : 'Publish', icon: Rocket },
   ];
 
   const currentIndex = steps.findIndex(s => s.key === step);
@@ -160,14 +160,13 @@ export default function QuickPublishPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container max-w-lg px-4 py-8 space-y-6">
-        {/* Header */}
         <div className="text-center">
           <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
             <Sparkles className="h-6 w-6 text-primary" />
           </div>
-          <h1 className="text-xl font-extrabold">Publier en 3 étapes</h1>
+          <h1 className="text-xl font-extrabold">{isFr ? 'Publier en 3 étapes' : 'Publish in 3 steps'}</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Votre produit sera en ligne en moins de 2 minutes.
+            {isFr ? 'Votre produit sera en ligne en moins de 2 minutes.' : 'Your product will be live in under 2 minutes.'}
           </p>
         </div>
 
