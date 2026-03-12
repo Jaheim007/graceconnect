@@ -64,7 +64,7 @@ function MemberRetentionWidget({ orgId }: { orgId?: string }) {
     <div className="bg-card border border-border rounded-2xl p-5">
       <h2 className="font-semibold text-sm mb-4 flex items-center gap-2">
         <Users className="h-4 w-4 text-primary" />
-        Cohortes d'inscription (hebdomadaire)
+        {document.documentElement.lang === 'fr' ? "Cohortes d'inscription (hebdomadaire)" : 'Registration cohorts (weekly)'}
       </h2>
       <ResponsiveContainer width="100%" height={200}>
         <BarChart data={cohorts}>
