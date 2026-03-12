@@ -130,8 +130,8 @@ export function SmartPricingHelper() {
           <DollarSign className="h-4 w-4 text-emerald-500" />
         </div>
         <div>
-          <h3 className="font-semibold text-sm">Analyse de prix</h3>
-          <p className="text-[10px] text-muted-foreground">{paidProducts.length} produit(s) payant(s) · {freeProducts.length} gratuit(s)</p>
+          <h3 className="font-semibold text-sm">{isFr ? 'Analyse de prix' : 'Price analysis'}</h3>
+          <p className="text-[10px] text-muted-foreground">{paidProducts.length} {isFr ? 'produit(s) payant(s)' : 'paid product(s)'} · {freeProducts.length} {isFr ? 'gratuit(s)' : 'free'}</p>
         </div>
       </div>
 
