@@ -34,6 +34,9 @@ export default function QuickPublishPage() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const qc = useQueryClient();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const { fmt } = useDisplayCurrency();
   const [step, setStep] = useState<Step>('info');
   const [form, setForm] = useState<ProductForm>({
     title: '', description: '', price: '0',
