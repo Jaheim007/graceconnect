@@ -255,9 +255,9 @@ export default function PartnerPortalPage() {
             <CardContent>
               <div className="grid sm:grid-cols-3 gap-4">
                 {[
-                  { step: '1', title: 'Invitez', desc: 'Partagez votre lien avec des créateurs ou organisations.' },
-                  { step: '2', title: 'Ils vendent', desc: "L'organisation vend ses produits/reçoit des dons sur SiteViral." },
-                  { step: '3', title: 'Vous gagnez', desc: `${effectiveRate}% des frais de plateforme, automatiquement.` },
+                  { step: '1', title: isFr ? 'Invitez' : 'Invite', desc: isFr ? 'Partagez votre lien avec des créateurs ou organisations.' : 'Share your link with creators or organizations.' },
+                  { step: '2', title: isFr ? 'Ils vendent' : 'They sell', desc: isFr ? "L'organisation vend ses produits/reçoit des dons sur SiteViral." : "The organization sells products/receives donations on SiteViral." },
+                  { step: '3', title: isFr ? 'Vous gagnez' : 'You earn', desc: `${effectiveRate}% ${isFr ? 'des frais de plateforme, automatiquement.' : 'of platform fees, automatically.'}` },
                 ].map(s => (
                   <div key={s.step} className="flex gap-3 items-start">
                     <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">{s.step}</div>
