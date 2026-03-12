@@ -390,10 +390,10 @@ export default function ProductDetailPage() {
                     .update({ is_published: true })
                     .eq('id', product.id);
                   if (!error) {
-                    toast({ title: '✅ Produit publié !', description: 'Votre produit est maintenant visible par tous.' });
+                    toast({ title: locale === 'fr' ? '✅ Produit publié !' : '✅ Product published!', description: locale === 'fr' ? 'Votre produit est maintenant visible par tous.' : 'Your product is now visible to everyone.' });
                     window.location.reload();
                   } else {
-                    toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
+                    toast({ title: locale === 'fr' ? 'Erreur' : 'Error', description: error.message, variant: 'destructive' });
                   }
                 }}
               >
