@@ -128,11 +128,11 @@ export function SocialShareKit({ url, title, description, context, price, earnin
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
-      toast.success(platformName ? `Texte copié ! Colle-le dans ${platformName}.` : 'Lien copié !');
+      toast.success(platformName ? (isFr ? `Texte copié ! Colle-le dans ${platformName}.` : `Text copied! Paste it in ${platformName}.`) : (isFr ? 'Lien copié !' : 'Link copied!'));
       track(platformName || 'copy_link');
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      toast.error('Impossible de copier');
+      toast.error(isFr ? 'Impossible de copier' : 'Unable to copy');
     }
   };
 
