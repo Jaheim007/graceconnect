@@ -224,7 +224,7 @@ export default function CampaignDetailPage() {
               {endDate && (
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Calendar className="h-3.5 w-3.5" />
-                  {isExpired ? 'Campagne terminée' : `Jusqu'au ${endDate.toLocaleDateString('fr-FR')}`}
+                  {isExpired ? (isFr ? 'Campagne terminée' : 'Campaign ended') : (isFr ? `Jusqu'au ${endDate.toLocaleDateString(dateLoc)}` : `Until ${endDate.toLocaleDateString(dateLoc)}`)}
                 </div>
               )}
             </div>
