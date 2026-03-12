@@ -339,7 +339,7 @@ export default function PartnerPortalPage() {
                         )}
                         <div>
                           <p className="text-sm font-medium">{r.organization?.name || '—'}</p>
-                          <p className="text-[11px] text-muted-foreground">{new Date(r.attributed_at).toLocaleDateString('fr-FR')}</p>
+                          <p className="text-[11px] text-muted-foreground">{new Date(r.attributed_at).toLocaleDateString(dateLoc)}</p>
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-1">
