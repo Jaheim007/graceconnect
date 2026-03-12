@@ -429,7 +429,7 @@ export default function PartnerPortalPage() {
                   </div>
                   <div>
                     <p className="text-lg font-bold text-primary">{formatCurrency(stats.payable, currency)}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Disponible</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{isFr ? 'Disponible' : 'Available'}</p>
                   </div>
                   <div>
                     <p className="text-lg font-bold">{formatCurrency(stats.paid, currency)}</p>
