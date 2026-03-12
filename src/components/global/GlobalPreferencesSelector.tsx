@@ -66,9 +66,9 @@ export function GlobalPreferencesSelector() {
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-1 h-8 px-2 rounded-lg hover:bg-muted/60 transition-colors text-xs text-muted-foreground hover:text-foreground">
           <Globe className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">{locale.toUpperCase()}</span>
+          <span className="hidden sm:inline">{locale === 'en' ? '🇬🇧' : '🇫🇷'} {locale.toUpperCase()}</span>
           <span className="text-[10px] opacity-60">|</span>
-          <span className="hidden sm:inline">{currentCurrencyInfo?.symbol || currency}</span>
+          <span className="hidden sm:inline">{currentCurrencyFlag} {currentCurrencyInfo?.symbol || currency}</span>
           <ChevronDown className="h-3 w-3 opacity-50" />
         </button>
       </DropdownMenuTrigger>
