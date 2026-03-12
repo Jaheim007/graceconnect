@@ -266,10 +266,10 @@ export function SuperadminKYC() {
                       )}
                     </p>
                     <p className="text-[10px] text-muted-foreground">
-                      {org?.slug ? `/${org.slug}` : ''} · Soumis le {new Date(s.submitted_at).toLocaleDateString('fr-FR')}
-                      {s.document_expires_at && (
-                        <span> · Expire le {new Date(s.document_expires_at).toLocaleDateString('fr-FR')}</span>
-                      )}
+                       {org?.slug ? `/${org.slug}` : ''} · Soumis le {new Date(s.submitted_at).toLocaleDateString()}
+                       {s.document_expires_at && (
+                         <span> · Expire le {new Date(s.document_expires_at).toLocaleDateString()}</span>
+                       )}
                     </p>
                   </div>
                   <Badge variant={s.status === 'pending' ? 'default' : s.status === 'approved' ? 'secondary' : 'destructive'}>
