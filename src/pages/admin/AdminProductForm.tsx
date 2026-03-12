@@ -555,9 +555,9 @@ export function ProductForm() {
               }}
             >
               {regeneratingPdf ? (
-                <><Loader2 className="h-4 w-4 animate-spin" /> Régénération en cours…</>
+                <><Loader2 className="h-4 w-4 animate-spin" /> {isFr ? 'Régénération en cours…' : 'Regenerating…'}</>
               ) : (
-                <><RefreshCw className="h-4 w-4" /> Joindre / Régénérer le PDF</>
+                <><RefreshCw className="h-4 w-4" /> {isFr ? 'Joindre / Régénérer le PDF' : 'Attach / Regenerate PDF'}</>
               )}
             </Button>
           </div>
