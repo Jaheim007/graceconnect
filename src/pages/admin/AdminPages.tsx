@@ -680,14 +680,16 @@ export function AdminAffiliation() {
 }
 
 export function AdminAnalytics() {
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   return (
-    <AdminPageShell title="Analytiques" backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Analytiques' : 'Analytics'} backRoute="/admin">
       <div className="grid grid-cols-2 gap-3">
-        {['Vues totales', 'Total des dons', 'Revenus totaux', 'Membres actifs'].map((label) => (
+        {(isFr ? ['Vues totales', 'Total des dons', 'Revenus totaux', 'Membres actifs'] : ['Total views', 'Total donations', 'Total revenue', 'Active members']).map((label) => (
           <motion.div key={label} variants={fadeUp} initial="hidden" animate="visible" className="bg-card border border-border rounded-2xl p-5 shadow-card">
             <p className="text-2xl font-bold text-muted-foreground">—</p>
             <p className="text-xs font-medium mt-0.5">{label}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Bientôt disponible</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{isFr ? 'Bientôt disponible' : 'Coming soon'}</p>
           </motion.div>
         ))}
       </div>
