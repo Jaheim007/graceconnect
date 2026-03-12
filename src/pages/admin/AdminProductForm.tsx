@@ -36,6 +36,7 @@ import { ContextTip } from '@/components/admin/ContextualTooltips';
 import { PrintableQRCode } from '@/components/sharing/PrintableQRCode';
 import { ContentVersionHistory } from '@/components/admin/ContentVersionHistory';
 import { ContextualFeedback } from '@/components/feedback/ContextualFeedback';
+import { useI18n } from '@/i18n/I18nContext';
 
 
 
@@ -67,6 +68,8 @@ export function ProductForm() {
   const location = useLocation();
   const { toast } = useToast();
   const qc = useQueryClient();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const isEdit = !!id;
   
   // Support pre-fill from AI Studio
@@ -263,16 +266,16 @@ export function ProductForm() {
 
   const productUrl = isEdit && currentOrg?.slug && id ? getPublicUrl(`/org/${currentOrg.slug}/product/${id}`) : null;
   const getProductShortLink = async (path: string) => {
-    try { return await getOrCreateShortLink({ targetPath: path, title: watch('title') || 'Produit Siteviral' }); }
-    catch { return buildSocialShareUrl({ targetUrl: `${window.location.origin}${path}`, title: watch('title') || 'Produit Siteviral' }); }
+    try { return await getOrCreateShortLink({ targetPath: path, title: watch('title') || 'Product' }); }
+    catch { return buildSocialShareUrl({ targetUrl: `${window.location.origin}${path}`, title: watch('title') || 'Product' }); }
   };
-  const copyLink = async () => { if (productUrl) { const url = await getProductShortLink(`/org/${currentOrg?.slug}/product/${id}`); navigator.clipboard.writeText(url); toast({ title: 'Lien copié ✅' }); } };
-  const shareLink = async () => { if (productUrl) { const url = await getProductShortLink(`/org/${currentOrg?.slug}/product/${id}`); if (navigator.share) navigator.share({ title: watch('title'), url }); else { navigator.clipboard.writeText(url); toast({ title: 'Lien copié ✅' }); } } };
+  const copyLink = async () => { if (productUrl) { const url = await getProductShortLink(`/org/${currentOrg?.slug}/product/${id}`); navigator.clipboard.writeText(url); toast({ title: isFr ? 'Lien copié ✅' : 'Link copied ✅' }); } };
+  const shareLink = async () => { if (productUrl) { const url = await getProductShortLink(`/org/${currentOrg?.slug}/product/${id}`); if (navigator.share) navigator.share({ title: watch('title'), url }); else { navigator.clipboard.writeText(url); toast({ title: isFr ? 'Lien copié ✅' : 'Link copied ✅' }); } } };
 
   // Loading state for edit mode
   if (isEdit && isLoadingItem) {
     return (
-      <AdminPageShell title="Chargement…" backRoute="/admin/products">
+      <AdminPageShell title={isFr ? 'Chargement…' : 'Loading…'} backRoute="/admin/products">
         <div className="flex items-center justify-center min-h-[40dvh]">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
@@ -283,11 +286,11 @@ export function ProductForm() {
   // Product not found or error
   if (isEdit && !isLoadingItem && (!item || isItemError)) {
     return (
-      <AdminPageShell title="Produit introuvable" backRoute="/admin/products">
+      <AdminPageShell title={isFr ? 'Produit introuvable' : 'Product not found'} backRoute="/admin/products">
         <div className="flex flex-col items-center justify-center min-h-[40dvh] gap-4 text-center">
           <AlertTriangle className="h-10 w-10 text-destructive" />
-          <p className="text-muted-foreground">Ce produit n'existe pas ou vous n'avez pas les droits pour y accéder.</p>
-          <Button onClick={() => navigate('/admin/products')}>Retour à la boutique</Button>
+          <p className="text-muted-foreground">{isFr ? "Ce produit n'existe pas ou vous n'avez pas les droits pour y accéder." : "This product doesn't exist or you don't have access."}</p>
+          <Button onClick={() => navigate('/admin/products')}>{isFr ? 'Retour à la boutique' : 'Back to store'}</Button>
         </div>
       </AdminPageShell>
     );
@@ -297,23 +300,23 @@ export function ProductForm() {
   if (createdProduct) {
     const newProductUrl = getPublicUrl(`/org/${currentOrg?.slug}/product/${createdProduct.id}`);
     const newProductPath = `/org/${currentOrg?.slug}/product/${createdProduct.id}`;
-    const copyNewLink = async () => { const url = await getProductShortLink(newProductPath); navigator.clipboard.writeText(url); toast({ title: 'Lien copié ✅' }); };
-    const shareNewLink = async () => { const url = await getProductShortLink(newProductPath); if (navigator.share) navigator.share({ title: watch('title'), url }); else { navigator.clipboard.writeText(url); toast({ title: 'Lien copié ✅' }); } };
+    const copyNewLink = async () => { const url = await getProductShortLink(newProductPath); navigator.clipboard.writeText(url); toast({ title: isFr ? 'Lien copié ✅' : 'Link copied ✅' }); };
+    const shareNewLink = async () => { const url = await getProductShortLink(newProductPath); if (navigator.share) navigator.share({ title: watch('title'), url }); else { navigator.clipboard.writeText(url); toast({ title: isFr ? 'Lien copié ✅' : 'Link copied ✅' }); } };
     return (
-      <AdminPageShell title="Produit créé !" backRoute="/admin/products">
+      <AdminPageShell title={isFr ? 'Produit créé !' : 'Product created!'} backRoute="/admin/products">
         <div className="max-w-md mx-auto text-center space-y-6 py-8">
           <div className="h-16 w-16 rounded-full bg-green-500/15 flex items-center justify-center mx-auto"><CheckCircle className="h-8 w-8 text-green-600 dark:text-green-400" /></div>
-          <div><h2 className="text-xl font-bold">Produit créé avec succès !</h2><p className="text-sm text-muted-foreground mt-1">Votre produit est prêt. Partagez-le avec votre audience.</p></div>
+          <div><h2 className="text-xl font-bold">{isFr ? 'Produit créé avec succès !' : 'Product created successfully!'}</h2><p className="text-sm text-muted-foreground mt-1">{isFr ? 'Votre produit est prêt. Partagez-le avec votre audience.' : 'Your product is ready. Share it with your audience.'}</p></div>
           <div className="bg-muted/50 border border-border rounded-xl p-3 text-left">
-            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Lien du produit</p>
+            <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">{isFr ? 'Lien du produit' : 'Product link'}</p>
             <div className="flex items-center gap-2"><p className="text-xs font-mono text-foreground truncate flex-1">{newProductUrl}</p><Button size="sm" variant="ghost" className="h-7 w-7 p-0 shrink-0" onClick={copyNewLink}><Copy className="h-3.5 w-3.5" /></Button></div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <Button variant="outline" className="gap-2" onClick={() => window.open(newProductUrl, '_blank')}><Eye className="h-4 w-4" /> Voir le produit</Button>
-            <Button variant="outline" className="gap-2" onClick={shareNewLink}><Share2 className="h-4 w-4" /> Partager</Button>
-            <Button className="gap-2 bg-primary text-primary-foreground" onClick={() => { setCreatedProduct(null); reset({ product_type: 'pdf', price: 0, is_free: false, is_published: true }); }}><Plus className="h-4 w-4" /> Nouveau produit</Button>
+            <Button variant="outline" className="gap-2" onClick={() => window.open(newProductUrl, '_blank')}><Eye className="h-4 w-4" /> {isFr ? 'Voir le produit' : 'View product'}</Button>
+            <Button variant="outline" className="gap-2" onClick={shareNewLink}><Share2 className="h-4 w-4" /> {isFr ? 'Partager' : 'Share'}</Button>
+            <Button className="gap-2 bg-primary text-primary-foreground" onClick={() => { setCreatedProduct(null); reset({ product_type: 'pdf', price: 0, is_free: false, is_published: true }); }}><Plus className="h-4 w-4" /> {isFr ? 'Nouveau produit' : 'New product'}</Button>
           </div>
-          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={() => navigate('/admin/products')}>← Retour à la boutique</Button>
+          <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={() => navigate('/admin/products')}>{isFr ? '← Retour à la boutique' : '← Back to store'}</Button>
         </div>
       </AdminPageShell>
     );
@@ -330,13 +333,13 @@ export function ProductForm() {
   };
 
   return (
-    <AdminPageShell title={isEdit ? 'Modifier le produit' : 'Nouveau produit'} backRoute="/admin/products">
+    <AdminPageShell title={isEdit ? (isFr ? 'Modifier le produit' : 'Edit product') : (isFr ? 'Nouveau produit' : 'New product')} backRoute="/admin/products">
       {!isEdit && (<ContentTemplateSelector type="product" open={showTemplates} onClose={() => setShowTemplates(false)} onSelect={(tpl) => applyProductTemplate(tpl as ProductTemplate)} />)}
-      {!isEdit && !showTemplates && (<div className="mb-4"><Button variant="outline" size="sm" onClick={() => setShowTemplates(true)} className="gap-1.5 text-xs"><Sparkles className="h-3.5 w-3.5" /> Utiliser un modèle</Button></div>)}
+      {!isEdit && !showTemplates && (<div className="mb-4"><Button variant="outline" size="sm" onClick={() => setShowTemplates(true)} className="gap-1.5 text-xs"><Sparkles className="h-3.5 w-3.5" /> {isFr ? 'Utiliser un modèle' : 'Use a template'}</Button></div>)}
       {productUrl && (
         <div className="mb-4 p-3 rounded-xl bg-muted/50 border border-border space-y-2">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-muted-foreground font-medium shrink-0">Lien produit :</span>
+            <span className="text-xs text-muted-foreground font-medium shrink-0">{isFr ? 'Lien produit :' : 'Product link:'}</span>
             <a href={productUrl} target="_blank" rel="noreferrer" className="text-xs text-primary underline truncate max-w-[260px]">{productUrl}</a>
             <div className="flex gap-1 ml-auto shrink-0">
               <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={copyLink}><Copy className="h-3.5 w-3.5" /></Button>
@@ -346,7 +349,7 @@ export function ProductForm() {
           </div>
           <div className="flex gap-2 flex-wrap">
             <Button type="button" variant="outline" size="sm" className="gap-2" onClick={() => window.open(productUrl, '_blank')}>
-              <Eye className="h-4 w-4" /> Prévisualiser
+              <Eye className="h-4 w-4" /> {isFr ? 'Prévisualiser' : 'Preview'}
             </Button>
             <PrintableQRCode
               productTitle={watch('title') || ''}
@@ -361,16 +364,16 @@ export function ProductForm() {
       )}
 
       {/* AI Assistants */}
-      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html, { shouldDirty: true, shouldTouch: true })} context="description de produit numérique" />
+      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html, { shouldDirty: true, shouldTouch: true })} context={isFr ? 'description de produit numérique' : 'digital product description'} />
       
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
           <div className="flex items-center gap-1.5">
-            <Label>Titre du produit *</Label>
+            <Label>{isFr ? 'Titre du produit *' : 'Product title *'}</Label>
             <ContextTip tipKey="product_title" />
           </div>
-          <Input {...register('title')} placeholder="Ex: Guide d'étude biblique Vol. 1" />
+          <Input {...register('title')} placeholder={isFr ? 'Ex: Guide d\'étude biblique Vol. 1' : 'E.g. Bible Study Guide Vol. 1'} />
           {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
         </div>
         <div className="space-y-1.5">
@@ -381,7 +384,7 @@ export function ProductForm() {
           <RichTextEditor
             value={watch('description') || ''}
             onChange={(html) => setValue('description', html)}
-            placeholder="Décrivez votre produit en détail..."
+            placeholder={isFr ? 'Décrivez votre produit en détail...' : 'Describe your product in detail...'}
             onAIAssist={() => setShowAI(true)}
           />
           <AIDescriptionButton
@@ -410,7 +413,7 @@ export function ProductForm() {
           </div>
           <div className="space-y-1.5">
             <div className="flex items-center gap-1.5">
-              <Label>Prix ({currentOrg?.currency || 'XOF'})</Label>
+              <Label>{isFr ? `Prix (${currentOrg?.currency || 'XOF'})` : `Price (${currentOrg?.currency || 'XOF'})`}</Label>
               <ContextTip tipKey="product_price" />
             </div>
             <Input type="number" {...register('price')} disabled={isFree} placeholder="Ex: 5000" />
@@ -421,18 +424,18 @@ export function ProductForm() {
         {/* Flash Sale */}
         {!isFree && (
           <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4 space-y-3">
-            <p className="text-sm font-semibold flex items-center gap-2">🔥 Vente Flash</p>
+            <p className="text-sm font-semibold flex items-center gap-2">🔥 {isFr ? 'Vente Flash' : 'Flash Sale'}</p>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-xs">Prix promo ({currentOrg?.currency || 'XOF'})</Label>
-                <Input type="number" value={salePrice} onChange={e => setSalePrice(e.target.value)} placeholder="Ex: 2500" className="h-8 text-xs" />
+                <Label className="text-xs">{isFr ? `Prix promo (${currentOrg?.currency || 'XOF'})` : `Sale price (${currentOrg?.currency || 'XOF'})`}</Label>
+                <Input type="number" value={salePrice} onChange={e => setSalePrice(e.target.value)} placeholder={isFr ? 'Ex: 2500' : 'E.g. 2500'} className="h-8 text-xs" />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">Fin de la promo</Label>
+                <Label className="text-xs">{isFr ? 'Fin de la promo' : 'Sale ends'}</Label>
                 <Input type="datetime-local" value={saleEndsAt} onChange={e => setSaleEndsAt(e.target.value)} className="h-8 text-xs" />
               </div>
             </div>
-            <p className="text-[10px] text-muted-foreground">Laissez vide pour désactiver.</p>
+            <p className="text-[10px] text-muted-foreground">{isFr ? 'Laissez vide pour désactiver.' : 'Leave empty to disable.'}</p>
           </div>
         )}
 
@@ -456,9 +459,9 @@ export function ProductForm() {
               </div>
               {watch('is_pwyw') && (
                 <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground">L'acheteur choisit le montant qu'il souhaite payer, au-dessus du prix minimum.</p>
+                  <p className="text-xs text-muted-foreground">{isFr ? "L'acheteur choisit le montant qu'il souhaite payer, au-dessus du prix minimum." : 'The buyer chooses the amount they want to pay, above the minimum price.'}</p>
                   <div className="space-y-1.5">
-                    <Label className="text-xs">Prix minimum ({pwywCurrency})</Label>
+                    <Label className="text-xs">{isFr ? `Prix minimum (${pwywCurrency})` : `Minimum price (${pwywCurrency})`}</Label>
                     <Input
                       type="number"
                       min={pwywFloor}
@@ -471,7 +474,9 @@ export function ProductForm() {
                       className="h-8 text-xs"
                     />
                     <p className="text-[10px] text-muted-foreground">
-                      Minimum : {pwywFloor.toLocaleString('fr-FR')} {pwywCurrency}. Le prix du produit ci-dessus sera utilisé comme prix suggéré.
+                      {isFr
+                        ? `Minimum : ${pwywFloor.toLocaleString('fr-FR')} ${pwywCurrency}. Le prix du produit ci-dessus sera utilisé comme prix suggéré.`
+                        : `Minimum: ${pwywFloor.toLocaleString('en-US')} ${pwywCurrency}. The product price above will be used as suggested price.`}
                     </p>
                   </div>
                 </div>
@@ -484,31 +489,38 @@ export function ProductForm() {
         <div className="space-y-2">
           {(() => {
             const pt = watch('product_type');
-            const coverHints: Record<string, { hint: string; aspect: 'square' | 'video' | 'banner' | 'free' | 'book' }> = {
+            const coverHints: Record<string, { hint: string; aspect: 'square' | 'video' | 'banner' | 'free' | 'book' }> = isFr ? {
               pdf: { hint: 'Couverture livre: 1000×1600px (2:3 portrait)', aspect: 'book' },
               ebook: { hint: 'Couverture eBook: 1000×1600px (2:3 portrait)', aspect: 'book' },
               audio: { hint: 'Pochette: 3000×3000px (1:1 carré)', aspect: 'square' },
               video: { hint: 'Couverture vidéo: 1280×720px (16:9)', aspect: 'video' },
               course: { hint: 'Couverture cours: 1280×720px (16:9)', aspect: 'video' },
               other: { hint: '1280×720px (16:9) ou 1000×1600px (2:3)', aspect: 'free' },
+            } : {
+              pdf: { hint: 'Book cover: 1000×1600px (2:3 portrait)', aspect: 'book' },
+              ebook: { hint: 'eBook cover: 1000×1600px (2:3 portrait)', aspect: 'book' },
+              audio: { hint: 'Artwork: 3000×3000px (1:1 square)', aspect: 'square' },
+              video: { hint: 'Video cover: 1280×720px (16:9)', aspect: 'video' },
+              course: { hint: 'Course cover: 1280×720px (16:9)', aspect: 'video' },
+              other: { hint: '1280×720px (16:9) or 1000×1600px (2:3)', aspect: 'free' },
             };
             const cfg = coverHints[pt] || coverHints.other;
             return (
-              <ImageUploader value={watch('cover_image_url') || ''} onChange={(url) => setValue('cover_image_url', url)} folder="products" label="Image de couverture" hint={cfg.hint} aspectRatio={cfg.aspect} />
+              <ImageUploader value={watch('cover_image_url') || ''} onChange={(url) => setValue('cover_image_url', url)} folder="products" label={isFr ? 'Image de couverture' : 'Cover image'} hint={cfg.hint} aspectRatio={cfg.aspect} />
             );
           })()}
         </div>
 
-        <FileUploader value={watch('file_url') || ''} onChange={(url) => setValue('file_url', url)} folder="products" label="Fichier du produit" hint="PDF, Word, Audio, Vidéo (max 50 Mo)" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.epub,.zip,.mp3,.mp4,.wav,.aac,.m4a,.ogg,.webm,.mov,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.ms-powerpoint,application/vnd.ms-excel,application/epub+zip,application/zip,audio/*,video/*" bucket="private-products" />
+        <FileUploader value={watch('file_url') || ''} onChange={(url) => setValue('file_url', url)} folder="products" label={isFr ? 'Fichier du produit' : 'Product file'} hint={isFr ? 'PDF, Word, Audio, Vidéo (max 50 Mo)' : 'PDF, Word, Audio, Video (max 50 MB)'} accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.epub,.zip,.mp3,.mp4,.wav,.aac,.m4a,.ogg,.webm,.mov,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/msword,application/vnd.ms-powerpoint,application/vnd.ms-excel,application/epub+zip,application/zip,audio/*,video/*" bucket="private-products" />
 
         {/* Regenerate PDF for AI products */}
         {isEdit && item?.ai_generated && item?.ai_project_id && currentOrg?.id && (
           <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-2">
             <p className="text-sm font-semibold flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary" /> Produit généré par IA
+              <Sparkles className="h-4 w-4 text-primary" /> {isFr ? 'Produit généré par IA' : 'AI-generated product'}
             </p>
             <p className="text-xs text-muted-foreground">
-              Si vous avez modifié la couverture ou le contenu, vous pouvez régénérer le PDF.
+              {isFr ? 'Si vous avez modifié la couverture ou le contenu, vous pouvez régénérer le PDF.' : 'If you modified the cover or content, you can regenerate the PDF.'}
             </p>
             <Button
               type="button"
@@ -531,21 +543,21 @@ export function ProductForm() {
                   if (pdfData?.error) throw new Error(pdfData.error);
                   if (pdfData?.download_url) {
                     setValue('file_url', pdfData.download_url, { shouldDirty: true });
-                    toast({ title: '✅ PDF régénéré avec succès !' });
+                  toast({ title: isFr ? '✅ PDF régénéré avec succès !' : '✅ PDF regenerated successfully!' });
                   } else {
-                    throw new Error('Aucune URL retournée');
+                    throw new Error(isFr ? 'Aucune URL retournée' : 'No URL returned');
                   }
                 } catch (err: any) {
-                  toast({ title: '❌ Erreur de régénération', description: err.message, variant: 'destructive' });
+                  toast({ title: isFr ? '❌ Erreur de régénération' : '❌ Regeneration error', description: err.message, variant: 'destructive' });
                 } finally {
                   setRegeneratingPdf(false);
                 }
               }}
             >
               {regeneratingPdf ? (
-                <><Loader2 className="h-4 w-4 animate-spin" /> Régénération en cours…</>
+                <><Loader2 className="h-4 w-4 animate-spin" /> {isFr ? 'Régénération en cours…' : 'Regenerating…'}</>
               ) : (
-                <><RefreshCw className="h-4 w-4" /> Joindre / Régénérer le PDF</>
+                <><RefreshCw className="h-4 w-4" /> {isFr ? 'Joindre / Régénérer le PDF' : 'Attach / Regenerate PDF'}</>
               )}
             </Button>
           </div>
@@ -553,26 +565,26 @@ export function ProductForm() {
 
 
         <div className="space-y-1.5">
-          <Label>Lien externe (optionnel)</Label>
+          <Label>{isFr ? 'Lien externe (optionnel)' : 'External link (optional)'}</Label>
           <Input {...register('external_link')} placeholder="https://..." />
           {errors.external_link && <p className="text-xs text-destructive">{errors.external_link.message}</p>}
         </div>
         <div className="flex flex-wrap items-center gap-6">
-          <div className="flex items-center gap-2"><Switch checked={watch('is_free')} onCheckedChange={v => { const isAi = !!(studioState || item?.ai_generated); if (v && isAi) { toast({ title: 'Non autorisé', description: 'Les produits générés par IA ne peuvent pas être gratuits.', variant: 'destructive' }); return; } setValue('is_free', v); }} /><Label className="text-sm cursor-pointer">Gratuit</Label>{(studioState || item?.ai_generated) && <span className="text-[10px] text-amber-500 ml-1">🤖 IA</span>}</div>
-          <div className="flex items-center gap-2"><Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} /><Label className="text-sm cursor-pointer">Publié</Label></div>
+          <div className="flex items-center gap-2"><Switch checked={watch('is_free')} onCheckedChange={v => { const isAi = !!(studioState || item?.ai_generated); if (v && isAi) { toast({ title: isFr ? 'Non autorisé' : 'Not allowed', description: isFr ? 'Les produits générés par IA ne peuvent pas être gratuits.' : 'AI-generated products cannot be free.', variant: 'destructive' }); return; } setValue('is_free', v); }} /><Label className="text-sm cursor-pointer">{isFr ? 'Gratuit' : 'Free'}</Label>{(studioState || item?.ai_generated) && <span className="text-[10px] text-amber-500 ml-1">🤖 AI</span>}</div>
+          <div className="flex items-center gap-2"><Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} /><Label className="text-sm cursor-pointer">{isFr ? 'Publié' : 'Published'}</Label></div>
           <div className="flex items-center gap-2"><Switch checked={watch('is_bundle')} onCheckedChange={v => setValue('is_bundle', v)} /><Label className="text-sm cursor-pointer flex items-center gap-1"><PackagePlus className="h-3.5 w-3.5" /> Bundle</Label></div>
         </div>
 
         {/* Guarantee */}
         <div className="space-y-1.5">
-          <Label className="flex items-center gap-1"><Shield className="h-3.5 w-3.5" /> Garantie (optionnel)</Label>
-          <Textarea {...register('guarantee_text')} rows={2} placeholder="Ex: Satisfait ou remboursé sous 30 jours" />
+          <Label className="flex items-center gap-1"><Shield className="h-3.5 w-3.5" /> {isFr ? 'Garantie (optionnel)' : 'Guarantee (optional)'}</Label>
+          <Textarea {...register('guarantee_text')} rows={2} placeholder={isFr ? 'Ex: Satisfait ou remboursé sous 30 jours' : 'E.g. 30-day money-back guarantee'} />
         </div>
 
         {/* Tracking Pixels */}
         <div className="space-y-3 border border-border rounded-xl p-4">
-          <p className="text-sm font-semibold flex items-center gap-2">📊 Pixels de tracking (optionnel)</p>
-          <p className="text-[10px] text-muted-foreground">Ajoutez vos pixels pour suivre les conversions et faire du retargeting sur ce produit spécifique.</p>
+          <p className="text-sm font-semibold flex items-center gap-2">📊 {isFr ? 'Pixels de tracking (optionnel)' : 'Tracking pixels (optional)'}</p>
+          <p className="text-[10px] text-muted-foreground">{isFr ? 'Ajoutez vos pixels pour suivre les conversions et faire du retargeting sur ce produit spécifique.' : 'Add your pixels to track conversions and retarget for this specific product.'}</p>
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="space-y-1">
               <Label className="text-xs font-medium">Facebook Pixel ID</Label>
@@ -596,28 +608,28 @@ export function ProductForm() {
             
             {/* Order Bump */}
             <div className="space-y-2">
-              <Label className="text-xs font-medium">Order Bump (ajout au panier)</Label>
-              <p className="text-[10px] text-muted-foreground">Proposer un produit complémentaire à prix réduit lors du checkout.</p>
+              <Label className="text-xs font-medium">{isFr ? 'Order Bump (ajout au panier)' : 'Order Bump (add to cart)'}</Label>
+              <p className="text-[10px] text-muted-foreground">{isFr ? 'Proposer un produit complémentaire à prix réduit lors du checkout.' : 'Offer a complementary product at a discount during checkout.'}</p>
               <div className="grid grid-cols-2 gap-2">
                 <Select value={orderBumpProductId || '_none'} onValueChange={(v) => setOrderBumpProductId(v === '_none' ? '' : v)}>
-                  <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Aucun" /></SelectTrigger>
+                  <SelectTrigger className="h-8 text-xs"><SelectValue placeholder={isFr ? 'Aucun' : 'None'} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="_none">Aucun</SelectItem>
+                    <SelectItem value="_none">{isFr ? 'Aucun' : 'None'}</SelectItem>
                     {allProducts.filter((p: any) => p.id !== id && !p.is_free).map((p: any) => (
                       <SelectItem key={p.id} value={p.id}>{p.title} — {p.price?.toLocaleString()} {currentOrg?.currency || 'XOF'}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <div className="space-y-1">
-                  <Input type="number" value={orderBumpDiscount} onChange={e => setOrderBumpDiscount(e.target.value)} placeholder="Réduction %" className="h-8 text-xs" min={0} max={90} />
+                  <Input type="number" value={orderBumpDiscount} onChange={e => setOrderBumpDiscount(e.target.value)} placeholder={isFr ? 'Réduction %' : 'Discount %'} className="h-8 text-xs" min={0} max={90} />
                 </div>
               </div>
             </div>
 
             {/* Upsells */}
             <div className="space-y-2">
-              <Label className="text-xs font-medium">Upsells (après achat)</Label>
-              <p className="text-[10px] text-muted-foreground">Proposer ces produits après un achat réussi.</p>
+              <Label className="text-xs font-medium">{isFr ? 'Upsells (après achat)' : 'Upsells (after purchase)'}</Label>
+              <p className="text-[10px] text-muted-foreground">{isFr ? 'Proposer ces produits après un achat réussi.' : 'Suggest these products after a successful purchase.'}</p>
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {upsellProductIds.map(uid => {
                   const p = allProducts.find((p: any) => p.id === uid);
@@ -642,7 +654,7 @@ export function ProductForm() {
 
         {/* FAQ Section */}
         <div className="space-y-2 border border-border rounded-xl p-4">
-          <Label className="flex items-center gap-1 text-sm font-semibold"><HelpCircle className="h-3.5 w-3.5" /> FAQ du produit</Label>
+          <Label className="flex items-center gap-1 text-sm font-semibold"><HelpCircle className="h-3.5 w-3.5" /> {isFr ? 'FAQ du produit' : 'Product FAQ'}</Label>
           {faqItems.map((faq, i) => (
             <div key={i} className="flex items-start gap-2 bg-muted/50 rounded-lg p-2">
               <div className="flex-1 min-w-0"><p className="text-xs font-semibold">{faq.q}</p><p className="text-xs text-muted-foreground">{faq.a}</p></div>
@@ -650,15 +662,15 @@ export function ProductForm() {
             </div>
           ))}
           <div className="grid gap-2">
-            <Input placeholder="Question" value={newFaq.q} onChange={e => setNewFaq(f => ({ ...f, q: e.target.value }))} className="h-8 text-xs" />
-            <Input placeholder="Réponse" value={newFaq.a} onChange={e => setNewFaq(f => ({ ...f, a: e.target.value }))} className="h-8 text-xs" />
-            <Button type="button" variant="outline" size="sm" className="w-fit gap-1" onClick={() => { if (newFaq.q && newFaq.a) { setFaqItems(prev => [...prev, { ...newFaq }]); setNewFaq({ q: '', a: '' }); } }}><Plus className="h-3 w-3" /> Ajouter</Button>
+            <Input placeholder={isFr ? 'Question' : 'Question'} value={newFaq.q} onChange={e => setNewFaq(f => ({ ...f, q: e.target.value }))} className="h-8 text-xs" />
+            <Input placeholder={isFr ? 'Réponse' : 'Answer'} value={newFaq.a} onChange={e => setNewFaq(f => ({ ...f, a: e.target.value }))} className="h-8 text-xs" />
+            <Button type="button" variant="outline" size="sm" className="w-fit gap-1" onClick={() => { if (newFaq.q && newFaq.a) { setFaqItems(prev => [...prev, { ...newFaq }]); setNewFaq({ q: '', a: '' }); } }}><Plus className="h-3 w-3" /> {isFr ? 'Ajouter' : 'Add'}</Button>
           </div>
         </div>
 
         {/* Testimonials */}
         <div className="space-y-2 border border-border rounded-xl p-4">
-          <Label className="flex items-center gap-1 text-sm font-semibold"><MessageSquareQuote className="h-3.5 w-3.5" /> Témoignages</Label>
+          <Label className="flex items-center gap-1 text-sm font-semibold"><MessageSquareQuote className="h-3.5 w-3.5" /> {isFr ? 'Témoignages' : 'Testimonials'}</Label>
           {testimonials.map((t, i) => (
             <div key={i} className="flex items-start gap-2 bg-muted/50 rounded-lg p-2">
               <div className="flex-1 min-w-0"><p className="text-xs font-semibold">{t.name}</p><p className="text-xs text-muted-foreground italic">"{t.text}"</p></div>
@@ -666,16 +678,16 @@ export function ProductForm() {
             </div>
           ))}
           <div className="grid gap-2">
-            <Input placeholder="Nom du client" value={newTestimonial.name} onChange={e => setNewTestimonial(t => ({ ...t, name: e.target.value }))} className="h-8 text-xs" />
-            <Input placeholder="Témoignage" value={newTestimonial.text} onChange={e => setNewTestimonial(t => ({ ...t, text: e.target.value }))} className="h-8 text-xs" />
-            <Button type="button" variant="outline" size="sm" className="w-fit gap-1" onClick={() => { if (newTestimonial.name && newTestimonial.text) { setTestimonials(prev => [...prev, { ...newTestimonial }]); setNewTestimonial({ name: '', text: '' }); } }}><Plus className="h-3 w-3" /> Ajouter</Button>
+            <Input placeholder={isFr ? 'Nom du client' : 'Customer name'} value={newTestimonial.name} onChange={e => setNewTestimonial(t => ({ ...t, name: e.target.value }))} className="h-8 text-xs" />
+            <Input placeholder={isFr ? 'Témoignage' : 'Testimonial'} value={newTestimonial.text} onChange={e => setNewTestimonial(t => ({ ...t, text: e.target.value }))} className="h-8 text-xs" />
+            <Button type="button" variant="outline" size="sm" className="w-fit gap-1" onClick={() => { if (newTestimonial.name && newTestimonial.text) { setTestimonials(prev => [...prev, { ...newTestimonial }]); setNewTestimonial({ name: '', text: '' }); } }}><Plus className="h-3 w-3" /> {isFr ? 'Ajouter' : 'Add'}</Button>
           </div>
         </div>
 
         {/* Bundle Items */}
         {isEdit && watch('is_bundle') && (
           <div className="space-y-2 border border-primary/20 rounded-xl p-4">
-            <Label className="flex items-center gap-1 text-sm font-semibold"><PackagePlus className="h-3.5 w-3.5 text-primary" /> Produits inclus dans le bundle</Label>
+            <Label className="flex items-center gap-1 text-sm font-semibold"><PackagePlus className="h-3.5 w-3.5 text-primary" /> {isFr ? 'Produits inclus dans le bundle' : 'Products included in bundle'}</Label>
             {bundleItems.map((bi: any) => (
               <div key={bi.id} className="flex items-center gap-2 bg-muted/50 rounded-lg p-2">
                 <span className="text-xs font-medium flex-1">{bi.included_product?.title || bi.included_product_id}</span>
@@ -683,8 +695,8 @@ export function ProductForm() {
               </div>
             ))}
             <div className="flex gap-2">
-              <Select value={selectedBundleProduct} onValueChange={setSelectedBundleProduct}><SelectTrigger className="h-8 text-xs flex-1"><SelectValue placeholder="Sélectionner un produit" /></SelectTrigger><SelectContent>{allProducts.filter((p: any) => p.id !== id && !bundleItems.some((bi: any) => bi.included_product_id === p.id)).map((p: any) => (<SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>))}</SelectContent></Select>
-              <Button type="button" variant="outline" size="sm" className="h-8 gap-1" onClick={() => { if (selectedBundleProduct) { addBundleItem.mutate({ bundleProductId: id!, includedProductId: selectedBundleProduct }); setSelectedBundleProduct(''); } }}><Plus className="h-3 w-3" /> Ajouter</Button>
+              <Select value={selectedBundleProduct} onValueChange={setSelectedBundleProduct}><SelectTrigger className="h-8 text-xs flex-1"><SelectValue placeholder={isFr ? 'Sélectionner un produit' : 'Select a product'} /></SelectTrigger><SelectContent>{allProducts.filter((p: any) => p.id !== id && !bundleItems.some((bi: any) => bi.included_product_id === p.id)).map((p: any) => (<SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>))}</SelectContent></Select>
+              <Button type="button" variant="outline" size="sm" className="h-8 gap-1" onClick={() => { if (selectedBundleProduct) { addBundleItem.mutate({ bundleProductId: id!, includedProductId: selectedBundleProduct }); setSelectedBundleProduct(''); } }}><Plus className="h-3 w-3" /> {isFr ? 'Ajouter' : 'Add'}</Button>
             </div>
           </div>
         )}
@@ -692,7 +704,7 @@ export function ProductForm() {
         {/* Recommendations */}
         {isEdit && (
           <div className="space-y-2 border border-border rounded-xl p-4">
-            <Label className="flex items-center gap-1 text-sm font-semibold"><ArrowUpRight className="h-3.5 w-3.5" /> Produits recommandés</Label>
+            <Label className="flex items-center gap-1 text-sm font-semibold"><ArrowUpRight className="h-3.5 w-3.5" /> {isFr ? 'Produits recommandés' : 'Recommended products'}</Label>
             {recommendations.map((rec: any) => (
               <div key={rec.id} className="flex items-center gap-2 bg-muted/50 rounded-lg p-2">
                 <Badge variant="outline" className="text-[10px] capitalize">{rec.recommendation_type}</Badge>
@@ -702,15 +714,15 @@ export function ProductForm() {
             ))}
             <div className="flex gap-2 flex-wrap">
               <Select value={recommendationType} onValueChange={setRecommendationType}><SelectTrigger className="h-8 text-xs w-28"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="upsell">Upsell</SelectItem><SelectItem value="cross_sell">Cross-sell</SelectItem><SelectItem value="related">Related</SelectItem></SelectContent></Select>
-              <Select value={selectedRecommendation} onValueChange={setSelectedRecommendation}><SelectTrigger className="h-8 text-xs flex-1"><SelectValue placeholder="Sélectionner un produit" /></SelectTrigger><SelectContent>{allProducts.filter((p: any) => p.id !== id && !recommendations.some((r: any) => r.recommended_product_id === p.id)).map((p: any) => (<SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>))}</SelectContent></Select>
-              <Button type="button" variant="outline" size="sm" className="h-8 gap-1" onClick={() => { if (selectedRecommendation) { addRecommendation.mutate({ productId: id!, recommendedProductId: selectedRecommendation, type: recommendationType }); setSelectedRecommendation(''); } }}><Plus className="h-3 w-3" /> Ajouter</Button>
+              <Select value={selectedRecommendation} onValueChange={setSelectedRecommendation}><SelectTrigger className="h-8 text-xs flex-1"><SelectValue placeholder={isFr ? 'Sélectionner un produit' : 'Select a product'} /></SelectTrigger><SelectContent>{allProducts.filter((p: any) => p.id !== id && !recommendations.some((r: any) => r.recommended_product_id === p.id)).map((p: any) => (<SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>))}</SelectContent></Select>
+              <Button type="button" variant="outline" size="sm" className="h-8 gap-1" onClick={() => { if (selectedRecommendation) { addRecommendation.mutate({ productId: id!, recommendedProductId: selectedRecommendation, type: recommendationType }); setSelectedRecommendation(''); } }}><Plus className="h-3 w-3" /> {isFr ? 'Ajouter' : 'Add'}</Button>
             </div>
           </div>
         )}
 
         <div className="flex gap-3 pt-2">
-          <Button type="button" variant="outline" onClick={() => navigate('/admin/products')}>Annuler</Button>
-          <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>{loading ? 'Enregistrement...' : isEdit ? 'Mettre à jour' : 'Créer'}</Button>
+          <Button type="button" variant="outline" onClick={() => navigate('/admin/products')}>{isFr ? 'Annuler' : 'Cancel'}</Button>
+          <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>{loading ? (isFr ? 'Enregistrement...' : 'Saving...') : isEdit ? (isFr ? 'Mettre à jour' : 'Update') : (isFr ? 'Créer' : 'Create')}</Button>
         </div>
 
         {isEdit && productUrl && (

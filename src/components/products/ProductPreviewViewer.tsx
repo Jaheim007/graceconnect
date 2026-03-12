@@ -34,6 +34,11 @@ function computePreviewLimit(total: number, previewPageCount?: number | null): n
   return Math.max(1, Math.min(5, Math.ceil(total * 0.2)));
 }
 
+// Get isFr from document lang
+function getIsFr() {
+  return document.documentElement.lang === 'fr';
+}
+
 export function ProductPreviewViewer({
   productId,
   fileUrl,
@@ -42,100 +47,47 @@ export function ProductPreviewViewer({
   previewPageCount,
   coverImageUrl,
   title,
-  isPurchased,
-  autoOpen,
+  isPurchased = false,
+  autoOpen = false,
   onRequestClose,
 }: ProductPreviewViewerProps) {
   const [open, setOpen] = useState(false);
   const [pages, setPages] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(pageCount || 0);
+  const [totalPages, setTotalPages] = useState(0);
 
-  const isPdf =
-    (productType || '').toLowerCase() === 'pdf' ||
-    (productType || '').toLowerCase() === 'ebook' ||
-    /\.pdf($|\?)/i.test(fileUrl || '');
-
+  const isPdf = productType === 'pdf' || productType === 'ebook' || fileUrl?.endsWith('.pdf');
   const hasFile = !!fileUrl;
 
-  const getSignedUrl = useCallback(async (): Promise<string | null> => {
-    if (!fileUrl) return null;
-
-    if (!fileUrl.includes('private-products')) {
-      return fileUrl;
-    }
-
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      const bearerToken = session?.access_token || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-
-      const { data, error } = await supabase.functions.invoke('generate-signed-url', {
-        headers: { Authorization: `Bearer ${bearerToken}` },
-        body: { product_id: productId, preview: true },
-      });
-
-      if (!error && data?.url) {
-        return data.url;
-      }
-
-      if (error) {
-        console.error('Preview signed URL invoke failed:', error);
-      }
-
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-signed-url`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${bearerToken}`,
-        },
-        body: JSON.stringify({ product_id: productId, preview: true }),
-      });
-
-      if (response.ok) {
-        const fallbackData = await response.json();
-        return fallbackData?.url || null;
-      }
-    } catch (e) {
-      console.error('Preview signed URL failed:', e);
-    }
-
-    return null;
-  }, [fileUrl, productId]);
+  const getSignedUrl = useCallback(async (url: string): Promise<string> => {
+    if (!url.includes('private-products/')) return url;
+    const path = url.split('private-products/').pop();
+    if (!path) return url;
+    const { data } = await supabase.storage.from('private-products').createSignedUrl(path, 300);
+    return data?.signedUrl || url;
+  }, []);
 
   const loadPdfPreview = useCallback(async () => {
     if (!isPdf || !fileUrl || loading) return;
-
     setLoading(true);
     setError(null);
+    const isFr = getIsFr();
 
     try {
-      const url = await getSignedUrl();
-      if (!url) {
-        setError("Impossible d'accéder au fichier");
-        return;
-      }
+      const url = await getSignedUrl(fileUrl);
+      const pdf = await pdfjsLib.getDocument({ url, disableAutoFetch: true }).promise;
+      setTotalPages(pdf.numPages);
 
-      const loadingTask = pdfjsLib.getDocument({
-        url,
-        cMapUrl: `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/cmaps/`,
-        cMapPacked: true,
-      });
+      const limit = isPurchased
+        ? pdf.numPages
+        : computePreviewLimit(pdf.numPages, previewPageCount);
 
-      const pdf = await loadingTask.promise;
-      const numPages = pdf.numPages;
-      setTotalPages(numPages);
-
-      const limit = isPurchased ? numPages : computePreviewLimit(numPages, previewPageCount);
-      const pagesToRender = Math.min(limit, numPages);
       const renderedPages: string[] = [];
-      setPages([]);
-
-      for (let i = 1; i <= pagesToRender; i++) {
+      for (let i = 1; i <= Math.min(limit, pdf.numPages); i++) {
         const page = await pdf.getPage(i);
-        const viewport = page.getViewport({ scale: 1.2 });
-
+        const viewport = page.getViewport({ scale: 1.5 });
         const canvas = document.createElement('canvas');
         canvas.width = viewport.width;
         canvas.height = viewport.height;
@@ -148,7 +100,8 @@ export function ProductPreviewViewer({
       }
     } catch (e: any) {
       console.error('PDF preview error:', e);
-      setError("Erreur lors du chargement de l'aperçu");
+      const isFr = getIsFr();
+      setError(isFr ? "Erreur lors du chargement de l'aperçu" : 'Error loading preview');
     } finally {
       setLoading(false);
     }
@@ -175,13 +128,17 @@ export function ProductPreviewViewer({
     }
   }, [autoOpen, open, handleOpenPreview]);
 
+  const isFr = getIsFr();
+
   if (!hasFile) {
     if (!isPdf) return null;
 
     return (
       <div className="rounded-xl border border-dashed border-border bg-muted/30 p-3">
         <p className="text-xs text-muted-foreground">
-          Aperçu indisponible : aucun fichier PDF n’a été ajouté pour ce produit.
+          {isFr
+            ? "Aperçu indisponible : aucun fichier PDF n'a été ajouté pour ce produit."
+            : 'Preview unavailable: no PDF file has been added for this product.'}
         </p>
       </div>
     );
@@ -213,7 +170,7 @@ export function ProductPreviewViewer({
               onClick={handleOpenPreview}
             >
               <Eye className="h-3.5 w-3.5" />
-              👁️ Aperçu gratuit
+              👁️ {isFr ? 'Aperçu gratuit' : 'Free preview'}
               {previewLimit ? ` (${previewLimit} page${previewLimit > 1 ? 's' : ''})` : ''}
             </Button>
           )}
@@ -257,8 +214,12 @@ export function ProductPreviewViewer({
                 <p className="text-sm font-semibold truncate">{title}</p>
                 <p className="text-[10px] text-muted-foreground">
                   {isPurchased
-                    ? `${totalPages || '?'} pages — Version complète`
-                    : `Aperçu : ${pages.length} sur ${totalPages || '?'} pages`}
+                    ? (isFr
+                        ? `${totalPages || '?'} pages — Version complète`
+                        : `${totalPages || '?'} pages — Full version`)
+                    : (isFr
+                        ? `Aperçu : ${pages.length} sur ${totalPages || '?'} pages`
+                        : `Preview: ${pages.length} of ${totalPages || '?'} pages`)}
                 </p>
               </div>
             </div>
@@ -295,7 +256,7 @@ export function ProductPreviewViewer({
                 onClick={() => handleDialogOpenChange(false)}
               >
                 <X className="h-4 w-4" />
-                <span className="sr-only">Fermer</span>
+                <span className="sr-only">{isFr ? 'Fermer' : 'Close'}</span>
               </Button>
             </div>
           </div>
@@ -305,7 +266,9 @@ export function ProductPreviewViewer({
               {loading && (
                 <div className="flex flex-col items-center justify-center py-20 gap-3">
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  <p className="text-sm text-muted-foreground">Chargement de l'aperçu…</p>
+                  <p className="text-sm text-muted-foreground">
+                    {isFr ? "Chargement de l'aperçu…" : 'Loading preview…'}
+                  </p>
                 </div>
               )}
 
@@ -314,7 +277,7 @@ export function ProductPreviewViewer({
                   <AlertTriangle className="h-8 w-8 text-destructive" />
                   <p className="text-sm text-destructive">{error}</p>
                   <Button size="sm" variant="outline" onClick={() => { setError(null); loadPdfPreview(); }}>
-                    Réessayer
+                    {isFr ? 'Réessayer' : 'Retry'}
                   </Button>
                 </div>
               )}
@@ -332,10 +295,12 @@ export function ProductPreviewViewer({
                         <div className="text-center space-y-2 bg-background/90 backdrop-blur-md rounded-2xl border border-border px-6 py-4 shadow-xl">
                           <Lock className="h-5 w-5 mx-auto text-muted-foreground" />
                           <p className="text-sm font-semibold">
-                            {totalPages - pages.length} page{totalPages - pages.length > 1 ? 's' : ''} restante{totalPages - pages.length > 1 ? 's' : ''}
+                            {totalPages - pages.length} page{totalPages - pages.length > 1 ? 's' : ''} {isFr
+                              ? `restante${totalPages - pages.length > 1 ? 's' : ''}`
+                              : 'remaining'}
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            Achetez pour accéder au contenu complet
+                            {isFr ? 'Achetez pour accéder au contenu complet' : 'Purchase to access the full content'}
                           </p>
                         </div>
                       </div>

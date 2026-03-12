@@ -9,6 +9,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface CoachTip {
   id: string;
@@ -21,13 +22,11 @@ interface CoachTip {
   impact: string;
 }
 
-/**
- * CreatorCoachBanner — AI-like coaching that analyzes the org's data
- * and surfaces ONE high-impact, actionable recommendation.
- */
 export function CreatorCoachBanner() {
   const { currentOrg } = useOrg();
   const navigate = useNavigate();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const { data: insights } = useQuery({
     queryKey: ['creator-coach', currentOrg?.id],
@@ -51,7 +50,6 @@ export function CreatorCoachBanner() {
       const memberCount = membersRes.count || 0;
       const salesCount = salesRes.count || 0;
 
-      // Analyze products for actionable insights
       const productsWithoutCover = products.filter(p => !p.cover_image_url);
       const productsWithoutDesc = products.filter(p => !p.description || p.description.length < 50);
       const productsNoSales = products.filter(p => (p.sales_count || 0) === 0);
@@ -77,41 +75,42 @@ export function CreatorCoachBanner() {
 
   if (!insights) return null;
 
-  // Generate prioritized coaching tips
   const tips: CoachTip[] = [];
 
   if (insights.productCount === 0) {
     tips.push({
       id: 'first-product',
-      title: 'Publiez votre premier produit',
-      description: 'Les organisations qui publient dans les premières 24h ont 5x plus de succès.',
-      action: 'Créer un produit',
+      title: isFr ? 'Publiez votre premier produit' : 'Publish your first product',
+      description: isFr ? 'Les organisations qui publient dans les premières 24h ont 5x plus de succès.' : 'Organizations that publish within 24h are 5x more successful.',
+      action: isFr ? 'Créer un produit' : 'Create a product',
       route: '/admin/products/new',
       icon: FileText,
       color: 'text-emerald-500',
-      impact: '+500% chances de succès',
+      impact: isFr ? '+500% chances de succès' : '+500% success rate',
     });
   }
 
   if (insights.productsWithoutCover > 0) {
+    const n = insights.productsWithoutCover;
     tips.push({
       id: 'add-covers',
-      title: `${insights.productsWithoutCover} produit${insights.productsWithoutCover > 1 ? 's' : ''} sans image de couverture`,
-      description: 'Les produits avec une couverture professionnelle reçoivent 3x plus de clics.',
-      action: 'Ajouter des couvertures',
+      title: isFr ? `${n} produit${n > 1 ? 's' : ''} sans image de couverture` : `${n} product${n > 1 ? 's' : ''} without cover image`,
+      description: isFr ? 'Les produits avec une couverture professionnelle reçoivent 3x plus de clics.' : 'Products with a professional cover get 3x more clicks.',
+      action: isFr ? 'Ajouter des couvertures' : 'Add covers',
       route: '/admin/products',
       icon: Image,
       color: 'text-violet-500',
-      impact: '+200% clics',
+      impact: '+200% clicks',
     });
   }
 
   if (insights.productsWithoutDesc > 0) {
+    const n = insights.productsWithoutDesc;
     tips.push({
       id: 'add-descriptions',
-      title: `${insights.productsWithoutDesc} produit${insights.productsWithoutDesc > 1 ? 's' : ''} avec description trop courte`,
-      description: 'Une description détaillée augmente la conversion de 40%.',
-      action: 'Enrichir les descriptions',
+      title: isFr ? `${n} produit${n > 1 ? 's' : ''} avec description trop courte` : `${n} product${n > 1 ? 's' : ''} with short description`,
+      description: isFr ? 'Une description détaillée augmente la conversion de 40%.' : 'A detailed description increases conversion by 40%.',
+      action: isFr ? 'Enrichir les descriptions' : 'Improve descriptions',
       route: '/admin/products',
       icon: FileText,
       color: 'text-blue-500',
@@ -120,41 +119,42 @@ export function CreatorCoachBanner() {
   }
 
   if (insights.productsNoSales > 0 && insights.productCount > 0) {
+    const n = insights.productsNoSales;
     tips.push({
       id: 'promote-products',
-      title: `${insights.productsNoSales} produit${insights.productsNoSales > 1 ? 's' : ''} sans aucune vente`,
-      description: 'Partagez-les sur WhatsApp et activez vos ambassadeurs pour booster les ventes.',
-      action: 'Partager maintenant',
+      title: isFr ? `${n} produit${n > 1 ? 's' : ''} sans aucune vente` : `${n} product${n > 1 ? 's' : ''} with no sales`,
+      description: isFr ? 'Partagez-les sur WhatsApp et activez vos ambassadeurs pour booster les ventes.' : 'Share them on WhatsApp and activate your ambassadors to boost sales.',
+      action: isFr ? 'Partager maintenant' : 'Share now',
       route: '/admin/products',
       icon: Share2,
       color: 'text-rose-500',
-      impact: 'Premières ventes',
+      impact: isFr ? 'Premières ventes' : 'First sales',
     });
   }
 
   if (!insights.affiliationEnabled && insights.productCount > 0) {
     tips.push({
       id: 'enable-affiliation',
-      title: 'Activez le programme ambassadeur',
-      description: 'Chaque ambassadeur peut vendre pour vous et toucher des commissions automatiquement.',
-      action: 'Activer',
+      title: isFr ? 'Activez le programme ambassadeur' : 'Enable the ambassador program',
+      description: isFr ? 'Chaque ambassadeur peut vendre pour vous et toucher des commissions automatiquement.' : 'Each ambassador can sell for you and earn commissions automatically.',
+      action: isFr ? 'Activer' : 'Enable',
       route: '/admin/settings',
       icon: TrendingUp,
       color: 'text-amber-500',
-      impact: 'x8 ambassadeurs',
+      impact: isFr ? 'x8 ambassadeurs' : 'x8 ambassadors',
     });
   }
 
   if (!insights.hasLogo) {
     tips.push({
       id: 'add-logo',
-      title: 'Ajoutez votre logo',
-      description: 'Un logo inspire confiance. Les organisations avec logo reçoivent 3x plus de visites.',
-      action: 'Ajouter un logo',
+      title: isFr ? 'Ajoutez votre logo' : 'Add your logo',
+      description: isFr ? 'Un logo inspire confiance. Les organisations avec logo reçoivent 3x plus de visites.' : 'A logo builds trust. Organizations with a logo get 3x more visits.',
+      action: isFr ? 'Ajouter un logo' : 'Add a logo',
       route: '/admin/settings',
       icon: Image,
       color: 'text-teal-500',
-      impact: '+200% visites',
+      impact: isFr ? '+200% visites' : '+200% visits',
     });
   }
 
@@ -169,7 +169,6 @@ export function CreatorCoachBanner() {
       animate={{ opacity: 1, y: 0 }}
       className="relative overflow-hidden rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-5"
     >
-      {/* Background decoration */}
       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
       
       <div className="relative flex items-start gap-4">
@@ -185,7 +184,7 @@ export function CreatorCoachBanner() {
           <div className="flex items-center gap-2 mb-1">
             <Sparkles className="h-3.5 w-3.5 text-primary" />
             <span className="text-[10px] font-semibold uppercase tracking-widest text-primary">
-              Coach IA
+              {isFr ? 'Coach IA' : 'AI Coach'}
             </span>
             {tip.impact && (
               <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-primary/10 text-primary">
@@ -209,10 +208,11 @@ export function CreatorCoachBanner() {
         </div>
       </div>
 
-      {/* Secondary tips count */}
       {tips.length > 1 && (
         <p className="text-[10px] text-muted-foreground mt-3 text-right">
-          +{tips.length - 1} autre{tips.length > 2 ? 's' : ''} recommandation{tips.length > 2 ? 's' : ''}
+          +{tips.length - 1} {isFr
+            ? `autre${tips.length > 2 ? 's' : ''} recommandation${tips.length > 2 ? 's' : ''}`
+            : `more recommendation${tips.length > 2 ? 's' : ''}`}
         </p>
       )}
     </motion.div>

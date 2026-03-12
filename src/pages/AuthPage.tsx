@@ -117,7 +117,7 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen relative flex">
-      <SEOHead title="Connexion — Siteviral" description="Connectez-vous à Siteviral pour gérer votre plateforme, vos ressources et vos commissions." noindex />
+      <SEOHead title={document.documentElement.lang === 'fr' ? 'Connexion — Siteviral' : 'Sign in — Siteviral'} description={document.documentElement.lang === 'fr' ? 'Connectez-vous à Siteviral pour gérer votre plateforme, vos ressources et vos commissions.' : 'Sign in to Siteviral to manage your platform, resources, and commissions.'} noindex />
       <div className="absolute inset-0 z-0">
         <img src={authBg} alt="" className="w-full h-full object-cover" />
         <div className="absolute inset-0 bg-background/85 backdrop-blur-sm" />
