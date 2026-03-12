@@ -424,18 +424,18 @@ export function ProductForm() {
         {/* Flash Sale */}
         {!isFree && (
           <div className="bg-destructive/5 border border-destructive/20 rounded-xl p-4 space-y-3">
-            <p className="text-sm font-semibold flex items-center gap-2">🔥 Vente Flash</p>
+            <p className="text-sm font-semibold flex items-center gap-2">🔥 {isFr ? 'Vente Flash' : 'Flash Sale'}</p>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label className="text-xs">Prix promo ({currentOrg?.currency || 'XOF'})</Label>
-                <Input type="number" value={salePrice} onChange={e => setSalePrice(e.target.value)} placeholder="Ex: 2500" className="h-8 text-xs" />
+                <Label className="text-xs">{isFr ? `Prix promo (${currentOrg?.currency || 'XOF'})` : `Sale price (${currentOrg?.currency || 'XOF'})`}</Label>
+                <Input type="number" value={salePrice} onChange={e => setSalePrice(e.target.value)} placeholder={isFr ? 'Ex: 2500' : 'E.g. 2500'} className="h-8 text-xs" />
               </div>
               <div className="space-y-1.5">
-                <Label className="text-xs">Fin de la promo</Label>
+                <Label className="text-xs">{isFr ? 'Fin de la promo' : 'Sale ends'}</Label>
                 <Input type="datetime-local" value={saleEndsAt} onChange={e => setSaleEndsAt(e.target.value)} className="h-8 text-xs" />
               </div>
             </div>
-            <p className="text-[10px] text-muted-foreground">Laissez vide pour désactiver.</p>
+            <p className="text-[10px] text-muted-foreground">{isFr ? 'Laissez vide pour désactiver.' : 'Leave empty to disable.'}</p>
           </div>
         )}
 
