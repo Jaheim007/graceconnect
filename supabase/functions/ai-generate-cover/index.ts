@@ -131,32 +131,43 @@ Deno.serve(async (req) => {
         const audienceNote = audienceModifiers[target_audience || ''] || audienceModifiers['general'];
         const langNote = (language || 'fr') === 'en' ? 'All text on the cover MUST be in English.' : 'Tout le texte sur la couverture DOIT être en français.';
 
-        const prompt = `You are the world's #1 book cover designer. Your covers are legendary — no two ever look alike. Design a STUNNING, GENRE-PERFECT cover:
+        const prompt = `You are the world's #1 book cover designer. Design a STUNNING, GENRE-PERFECT book cover.
 
-BOOK DETAILS:
+BOOK INFO:
 - Title: "${title}"${subtitle ? `\n- Subtitle: "${subtitle}"` : ''}
 ${shortDesc ? `- About: ${shortDesc}` : ''}
 ${authorLine ? `- ${authorLine}` : ''}
 
-VISUAL DNA (follow precisely — this defines THIS book's unique identity):
-- Art direction: ${profile.style}
-- Color palette: ${profile.palette}
-- Typography style: ${profile.typo}
-- Layout composition: ${profile.layout}
+ART DIRECTION:
+- Visual style: ${profile.style}
+- Colors: ${profile.palette}
+- Layout: ${profile.layout}
 
 TONE: ${toneNote}
 AUDIENCE: ${audienceNote}
 
-ABSOLUTE RULES:
-1. Follow the VISUAL DNA above exactly — it defines THIS book's unique identity
-2. The title "${title}" must be PERFECTLY LEGIBLE with the specified typography style
-3. ${author_name ? `"${author_name}" MUST appear clearly on the cover in a complementary smaller font` : 'No author name needed'}
-4. Portrait format (2:3 ratio), print-ready, high resolution
-5. NEVER default to dark oil paintings or brown/gold tones — USE THE PALETTE SPECIFIED
-6. Typography: correct spelling, clean kerning, perfect readability — FLAWLESS
-7. This must make someone STOP scrolling and WANT to buy this book immediately
-8. ${langNote}
-9. Make it look like a TOP 10 bestseller — professional publishing house quality`;
+═══ TYPOGRAPHY — THE MOST CRITICAL ELEMENT ═══
+Style directive: ${profile.typo}
+
+MANDATORY TYPOGRAPHY RULES:
+- The title text must be EXACTLY: "${title}" — spell every letter correctly, no extra words
+- Use a PROPORTIONAL, ELEGANT font size — the title should be prominent but NOT oversized or crammed
+- The title should occupy roughly 20-30% of the cover area, NOT dominate the entire cover
+- Use PROPER CASE as written in the title — do NOT force all-uppercase unless the typography style specifies it
+- Letter spacing must be balanced and professional — not too tight, not too loose
+- Line breaks should fall at NATURAL word boundaries — never break a word across lines
+- The font must be CLEAN and SHARP — no distortion, no warping, no artistic deformation of letters
+- If the title is long, use a SMALLER font size rather than stretching it across the entire cover
+${author_name ? `- "${author_name}" must appear in a SMALLER, ELEGANT complementary font — typically at the bottom` : ''}
+- ${langNote}
+
+COMPOSITION:
+- The ILLUSTRATION/IMAGE should be the hero — taking 60-70% of the cover
+- Typography should complement the art, not overwhelm it
+- Leave breathing room between text and edges (margins)
+- Portrait format (2:3 ratio), print-ready quality
+- NEVER default to dark oil paintings or brown/gold tones — follow the color palette above
+- This must look like a TOP 10 bestseller from a major publishing house`;
 
         console.log('[ai-generate-cover] Generating:', title?.slice(0, 50), '| style:', book_style, '| tone:', tone, '| audience:', target_audience, '| religion:', religious_tradition, '| prayer:', prayer_format);
         const { base64, mimeType } = await aiGenerateImageBase64({ geminiKey: GEMINI_API_KEY, prompt, timeoutMs: 120_000 });
