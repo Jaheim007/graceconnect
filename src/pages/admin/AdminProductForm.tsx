@@ -370,10 +370,10 @@ export function ProductForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
           <div className="flex items-center gap-1.5">
-            <Label>Titre du produit *</Label>
+            <Label>{isFr ? 'Titre du produit *' : 'Product title *'}</Label>
             <ContextTip tipKey="product_title" />
           </div>
-          <Input {...register('title')} placeholder="Ex: Guide d'étude biblique Vol. 1" />
+          <Input {...register('title')} placeholder={isFr ? 'Ex: Guide d\'étude biblique Vol. 1' : 'E.g. Bible Study Guide Vol. 1'} />
           {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
         </div>
         <div className="space-y-1.5">
