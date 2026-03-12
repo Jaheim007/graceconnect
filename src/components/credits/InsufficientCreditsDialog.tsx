@@ -87,7 +87,7 @@ export function InsufficientCreditsDialog({ open, onOpenChange, message }: Insuf
             onClick={() => goTo('/credits')}
           >
             <ShoppingCart className="h-4 w-4" />
-            Acheter des crédits
+            {isFr ? 'Acheter des crédits' : 'Buy credits'}
           </Button>
 
           {/* Earn credits section */}
@@ -95,7 +95,7 @@ export function InsufficientCreditsDialog({ open, onOpenChange, message }: Insuf
             <div className="flex items-center gap-2">
               <Gift className="h-4 w-4 text-primary" />
               <p className="text-xs font-semibold text-foreground">
-                Gagne des crédits gratuitement
+                {isFr ? 'Gagne des crédits gratuitement' : 'Earn free credits'}
               </p>
             </div>
 
