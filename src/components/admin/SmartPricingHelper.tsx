@@ -26,6 +26,8 @@ const CATEGORY_BENCHMARKS: Record<string, { avgPrice: number; topPrice: number; 
 export function SmartPricingHelper() {
   const { currentOrg } = useOrg();
   const { data: products = [] } = useOrgProducts(currentOrg?.id, false);
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const category = currentOrg?.category || 'other';
   const benchmark = CATEGORY_BENCHMARKS[category] || { avgPrice: 5000, topPrice: 25000, freeRate: 25 };
