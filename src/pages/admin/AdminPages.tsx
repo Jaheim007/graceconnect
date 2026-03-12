@@ -1441,7 +1441,7 @@ export function AdminSettings() {
                   onChange={e => setCommissionPercent(e.target.value)}
                   className="h-8 text-xs w-24"
                 />
-                <span className="text-xs text-muted-foreground">% par vente/don via lien affilié</span>
+                <span className="text-xs text-muted-foreground">{isFr ? '% par vente/don via lien affilié' : '% per sale/donation via affiliate link'}</span>
               </div>
             </div>
           )}
