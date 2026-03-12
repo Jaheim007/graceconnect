@@ -1220,7 +1220,7 @@ export function AdminSettings() {
                   </div>
               }
               <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <span className="text-white text-xs font-medium">Changer la bannière</span>
+                <span className="text-white text-xs font-medium">{isFr ? 'Changer la bannière' : 'Change banner'}</span>
               </div>
               <input id="banner-upload" type="file" accept="image/*" className="hidden"
                 onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadImage(f, 'banner'); }} />
