@@ -322,7 +322,7 @@ export function SuperadminTransactions() {
     },
   });
 
-  const fmt = (n: number) => n.toLocaleString('fr-FR') + ' XOF';
+  const fmt = (n: number) => n.toLocaleString() + ' XOF';
 
   const handleExport = () => {
     downloadCSV(allTx.map(t => ({
