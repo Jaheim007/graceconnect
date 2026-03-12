@@ -129,7 +129,7 @@ export default function AdminDashboard() {
 
   const chartData = useMemo(() =>
     dailyMetrics.map((d: any) => ({
-      date: new Date(d.metric_date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }),
+      date: new Date(d.metric_date).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US', { day: '2-digit', month: 'short' }),
       revenue: d.revenue || 0,
       transactions: d.transactions_count || 0,
       members: d.new_members || 0,
