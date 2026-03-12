@@ -15,6 +15,7 @@ interface CommentSectionProps {
 
 export function CommentSection({ contentType, contentId, className }: CommentSectionProps) {
   const { user } = useAuth();
+  const { locale } = useI18n();
   const { data: comments = [], isLoading } = useComments(contentType, contentId);
   const addComment = useAddComment();
   const deleteComment = useDeleteComment();
