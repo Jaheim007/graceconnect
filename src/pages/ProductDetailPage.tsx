@@ -82,7 +82,7 @@ export default function ProductDetailPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [purchaseProduct, setPurchaseProduct] = useState<DigitalProduct | null>(null);
   const [copied, setCopied] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
