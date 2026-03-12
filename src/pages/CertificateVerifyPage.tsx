@@ -10,6 +10,9 @@ import { useI18n } from '@/i18n/I18nContext';
 
 export default function CertificateVerifyPage() {
   const { certNumber } = useParams();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const dateLoc = isFr ? fr : enUS;
 
   const { data: certData, isLoading } = useQuery({
     queryKey: ['verify-certificate', certNumber],
