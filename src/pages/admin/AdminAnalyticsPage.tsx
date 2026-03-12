@@ -83,9 +83,9 @@ function MemberRetentionWidget({ orgId }: { orgId?: string }) {
 }
 
 const PERIODS = [
-  { key: '7d', label: '7j', days: 7 },
-  { key: '30d', label: '30j', days: 30 },
-  { key: '90d', label: '90j', days: 90 },
+  { key: '7d', label: '7d', days: 7 },
+  { key: '30d', label: '30d', days: 30 },
+  { key: '90d', label: '90d', days: 90 },
 ] as const;
 
 const PIE_COLORS = ['hsl(var(--primary))', 'hsl(var(--accent))', 'hsl(142 76% 36%)', 'hsl(45 93% 47%)', 'hsl(262 83% 58%)'];

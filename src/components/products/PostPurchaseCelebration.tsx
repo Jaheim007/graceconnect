@@ -11,6 +11,8 @@ import { SocialShareKit } from '@/components/sharing/SocialShareKit';
 import { PostPurchaseRecommendations } from './PostPurchaseRecommendations';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useI18n } from '@/i18n/I18nContext';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 
 interface PostPurchaseCelebrationProps {
   open: boolean;
@@ -81,6 +83,9 @@ export function PostPurchaseCelebration({
   onDownload,
 }: PostPurchaseCelebrationProps) {
   const { user } = useAuth();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const { fmt } = useDisplayCurrency();
   const [showConfetti, setShowConfetti] = useState(false);
   const [showAmbassadorModal, setShowAmbassadorModal] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
@@ -103,7 +108,6 @@ export function PostPurchaseCelebration({
     if (!user) return;
     setEnrolling(true);
     try {
-      // Check if already enrolled
       const { data: existing } = await supabase
         .from('affiliate_links')
         .select('id, code')
@@ -112,12 +116,11 @@ export function PostPurchaseCelebration({
         .maybeSingle();
 
       if (existing) {
-        toast.success('Tu es déjà ambassadeur pour ce produit !');
+        toast.success(isFr ? 'Tu es déjà ambassadeur pour ce produit !' : 'You are already an ambassador for this product!');
         setShowAmbassadorModal(true);
         return;
       }
 
-      // Create affiliate link
       const code = `${orgSlug}-${productId.slice(0, 6)}-${user.id.slice(0, 4)}`.toLowerCase();
       const { error } = await supabase.from('affiliate_links').insert({
         user_id: user.id,
@@ -128,11 +131,11 @@ export function PostPurchaseCelebration({
       });
 
       if (error) throw error;
-      toast.success('🎉 Tu es maintenant ambassadeur !');
+      toast.success(isFr ? '🎉 Tu es maintenant ambassadeur !' : '🎉 You are now an ambassador!');
       setShowAmbassadorModal(true);
     } catch (err) {
       console.error('Enrollment error:', err);
-      toast.error("Erreur lors de l'inscription ambassadeur");
+      toast.error(isFr ? "Erreur lors de l'inscription ambassadeur" : 'Error during ambassador enrollment');
     } finally {
       setEnrolling(false);
     }
@@ -147,7 +150,6 @@ export function PostPurchaseCelebration({
           transition={{ type: 'spring', stiffness: 300, damping: 25 }}
           className="relative bg-card rounded-3xl border border-border shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
         >
-          {/* Confetti */}
           {showConfetti && (
             <div className="absolute inset-0 overflow-hidden pointer-events-none z-50">
               {Array.from({ length: 40 }).map((_, i) => (
@@ -159,7 +161,6 @@ export function PostPurchaseCelebration({
           <AnimatePresence mode="wait">
             {!showAmbassadorModal ? (
               <motion.div key="main" exit={{ opacity: 0, x: -30 }}>
-                {/* Header gradient */}
                 <div className="relative bg-gradient-to-br from-emerald-500/20 via-primary/10 to-amber-500/10 px-6 pt-8 pb-6 text-center">
                   <motion.div
                     initial={{ scale: 0 }}
@@ -173,14 +174,17 @@ export function PostPurchaseCelebration({
                     </div>
                   </motion.div>
                   <h2 className="text-2xl font-extrabold">
-                    {isFreePurchase ? 'Bravo ! 🎉' : 'Félicitations ! 🎉'}
+                    {isFreePurchase
+                      ? (isFr ? 'Bravo ! 🎉' : 'Well done! 🎉')
+                      : (isFr ? 'Félicitations ! 🎉' : 'Congratulations! 🎉')}
                   </h2>
                   <p className="text-sm text-muted-foreground mt-1">
-                    {isFreePurchase ? 'Ta ressource gratuite est prête' : 'Ton achat est confirmé'}
+                    {isFreePurchase
+                      ? (isFr ? 'Ta ressource gratuite est prête' : 'Your free resource is ready')
+                      : (isFr ? 'Ton achat est confirmé' : 'Your purchase is confirmed')}
                   </p>
                 </div>
 
-                {/* Product card */}
                 <div className="px-6 -mt-2">
                   <div className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/30">
                     {coverImageUrl ? (
@@ -198,39 +202,35 @@ export function PostPurchaseCelebration({
                   </div>
                 </div>
 
-                {/* Actions */}
                 <div className="px-6 py-5 space-y-4">
                   <div className="flex gap-2">
                     {onDownload && (
                       <Button onClick={onDownload} className="flex-1 gap-1.5 h-11 font-semibold">
-                        <Download className="h-4 w-4" /> Télécharger
+                        <Download className="h-4 w-4" /> {isFr ? 'Télécharger' : 'Download'}
                       </Button>
                     )}
                     {onGoToResources && (
                       <Button variant={onDownload ? 'outline' : 'default'} onClick={onGoToResources} className="flex-1 gap-1.5 h-11">
-                        <ArrowRight className="h-4 w-4" /> Mes achats
+                        <ArrowRight className="h-4 w-4" /> {isFr ? 'Mes achats' : 'My purchases'}
                       </Button>
                     )}
                   </div>
 
-                  {/* ★ LEAVE A REVIEW CTA ★ */}
                   <Button
                     variant="outline"
                     size="sm"
                     className="w-full gap-1.5 text-xs"
                     onClick={() => {
                       onClose();
-                      // Navigate to product page review section
                       const reviewUrl = productSlug
                         ? `/org/${orgSlug}/p/${productSlug}#reviews`
                         : `/org/${orgSlug}/product/${productId}#reviews`;
                       window.location.href = reviewUrl;
                     }}
                   >
-                    <Star className="h-3.5 w-3.5" /> Laisser un avis sur ce produit
+                    <Star className="h-3.5 w-3.5" /> {isFr ? 'Laisser un avis sur ce produit' : 'Leave a review'}
                   </Button>
 
-                  {/* ★ HIGH-CONVERSION AMBASSADOR CTA ★ */}
                   {!isFreePurchase && price > 0 && (
                     <motion.div
                       initial={{ opacity: 0, y: 10 }}
@@ -240,26 +240,29 @@ export function PostPurchaseCelebration({
                     >
                       <div className="text-center space-y-1">
                         <p className="text-sm font-extrabold">
-                          Tu as aimé <span className="text-primary">« {productTitle} »</span> ?
+                          {isFr
+                            ? <>Tu as aimé <span className="text-primary">« {productTitle} »</span> ?</>
+                            : <>Loved <span className="text-primary">"{productTitle}"</span>?</>}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          Partage et gagne <span className="text-emerald-500 font-bold">{commissionRate}%</span> sur chaque vente.
+                          {isFr
+                            ? <>Partage et gagne <span className="text-emerald-500 font-bold">{commissionRate}%</span> sur chaque vente.</>
+                            : <>Share & earn <span className="text-emerald-500 font-bold">{commissionRate}%</span> on every sale.</>}
                         </p>
                       </div>
 
-                      {/* Concrete earnings */}
                       <div className="grid grid-cols-2 gap-2 text-center">
                         <div className="rounded-xl bg-card border border-border p-3">
                           <p className="text-lg font-extrabold text-emerald-500">
-                            {commissionAmount.toLocaleString('fr-FR')} <span className="text-xs">FCFA</span>
+                            {fmt(commissionAmount, 'XOF')}
                           </p>
-                          <p className="text-[10px] text-muted-foreground">par vente</p>
+                          <p className="text-[10px] text-muted-foreground">{isFr ? 'par vente' : 'per sale'}</p>
                         </div>
                         <div className="rounded-xl bg-card border border-border p-3">
                           <p className="text-lg font-extrabold text-primary">
-                            {(commissionAmount * 10).toLocaleString('fr-FR')} <span className="text-xs">FCFA</span>
+                            {fmt(commissionAmount * 10, 'XOF')}
                           </p>
-                          <p className="text-[10px] text-muted-foreground">10 amis achètent</p>
+                          <p className="text-[10px] text-muted-foreground">{isFr ? '10 amis achètent' : '10 friends buy'}</p>
                         </div>
                       </div>
 
@@ -270,19 +273,20 @@ export function PostPurchaseCelebration({
                         disabled={enrolling}
                       >
                         <TrendingUp className="h-4 w-4" />
-                        {enrolling ? 'Inscription…' : 'Oui, je veux gagner !'}
+                        {enrolling
+                          ? (isFr ? 'Inscription…' : 'Enrolling…')
+                          : (isFr ? 'Oui, je veux gagner !' : 'Yes, I want to earn!')}
                       </Button>
 
                       <button
                         onClick={onClose}
                         className="w-full text-[10px] text-muted-foreground/60 hover:text-muted-foreground transition-colors"
                       >
-                        Non merci
+                        {isFr ? 'Non merci' : 'No thanks'}
                       </button>
                     </motion.div>
                   )}
 
-                  {/* Simple share for free products */}
                   {(isFreePurchase || price === 0) && (
                     <SocialShareKit
                       url={productUrl}
@@ -301,12 +305,11 @@ export function PostPurchaseCelebration({
 
                 <div className="px-6 pb-5">
                   <Button variant="ghost" size="sm" className="w-full text-muted-foreground" onClick={onClose}>
-                    Continuer
+                    {isFr ? 'Continuer' : 'Continue'}
                   </Button>
                 </div>
               </motion.div>
             ) : (
-              /* AMBASSADOR SUCCESS SCREEN */
               <motion.div
                 key="ambassador"
                 initial={{ opacity: 0, x: 30 }}
@@ -317,9 +320,11 @@ export function PostPurchaseCelebration({
                   <Users className="h-8 w-8 text-emerald-500" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-extrabold">🎉 Tu es ambassadeur !</h2>
+                  <h2 className="text-xl font-extrabold">{isFr ? '🎉 Tu es ambassadeur !' : '🎉 You are an ambassador!'}</h2>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Partage maintenant pour gagner <strong className="text-emerald-500">{commissionAmount.toLocaleString('fr-FR')} FCFA</strong> par vente.
+                    {isFr
+                      ? <>Partage maintenant pour gagner <strong className="text-emerald-500">{fmt(commissionAmount, 'XOF')}</strong> par vente.</>
+                      : <>Share now to earn <strong className="text-emerald-500">{fmt(commissionAmount, 'XOF')}</strong> per sale.</>}
                   </p>
                 </div>
 
@@ -332,7 +337,7 @@ export function PostPurchaseCelebration({
                 />
 
                 <Button variant="ghost" size="sm" className="w-full text-muted-foreground" onClick={onClose}>
-                  Fermer
+                  {isFr ? 'Fermer' : 'Close'}
                 </Button>
               </motion.div>
             )}

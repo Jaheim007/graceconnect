@@ -3,29 +3,37 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface CreateSimilarCTAProps {
   productType?: string;
   productTitle: string;
 }
 
-/**
- * "Create similar content" CTA — transforms consumers into creators.
- * Links to AI Studio with pre-filled context.
- */
 export function CreateSimilarCTA({ productType, productTitle }: CreateSimilarCTAProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
-  const typeLabel: Record<string, string> = {
+  const typeLabelFr: Record<string, string> = {
     pdf: 'un ebook similaire',
     ebook: 'un ebook similaire',
     audio: 'un contenu audio',
     video: 'une formation vidéo',
     course: 'un cours similaire',
   };
+  const typeLabelEn: Record<string, string> = {
+    pdf: 'a similar ebook',
+    ebook: 'a similar ebook',
+    audio: 'audio content',
+    video: 'a video course',
+    course: 'a similar course',
+  };
 
-  const label = typeLabel[productType || ''] || 'un contenu similaire';
+  const label = isFr
+    ? (typeLabelFr[productType || ''] || 'un contenu similaire')
+    : (typeLabelEn[productType || ''] || 'similar content');
 
   const handleClick = () => {
     if (!user) {
@@ -43,10 +51,12 @@ export function CreateSimilarCTA({ productType, productTitle }: CreateSimilarCTA
     >
       <div className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-primary" />
-        <p className="text-sm font-bold">Inspiré ?</p>
+        <p className="text-sm font-bold">{isFr ? 'Inspiré ?' : 'Inspired?'}</p>
       </div>
       <p className="text-xs text-muted-foreground">
-        Créez {label} avec notre Studio IA et vendez-le sur Siteviral.
+        {isFr
+          ? `Créez ${label} avec notre Studio IA et vendez-le sur Siteviral.`
+          : `Create ${label} with our AI Studio and sell it on Siteviral.`}
       </p>
       <Button
         variant="outline"
@@ -55,7 +65,7 @@ export function CreateSimilarCTA({ productType, productTitle }: CreateSimilarCTA
         onClick={handleClick}
       >
         <Sparkles className="h-3.5 w-3.5" />
-        Créer {label}
+        {isFr ? `Créer ${label}` : `Create ${label}`}
       </Button>
     </motion.div>
   );

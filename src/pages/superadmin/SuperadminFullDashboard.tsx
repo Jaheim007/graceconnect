@@ -562,7 +562,7 @@ export default function SuperadminFullDashboard() {
                 <Bar dataKey="users" name={document.documentElement.lang === 'fr' ? 'Inscrits' : 'Registered'} fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
-          ) : <p className="text-xs text-muted-foreground text-center py-6">Aucune donnée</p>}
+          ) : <p className="text-xs text-muted-foreground text-center py-6">{document.documentElement.lang === 'fr' ? 'Aucune donnée' : 'No data'}</p>}
         </Panel>
       </div>
     </motion.div>
