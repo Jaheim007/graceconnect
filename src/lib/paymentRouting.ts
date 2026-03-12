@@ -44,8 +44,8 @@ export function resolveGateway(currency?: string): PaymentGateway {
   return 'stripe';
 }
 
-/** Currencies that support Mobile Money via Paystack */
-const MOMO_CURRENCIES = new Set(['XOF', 'GHS', 'KES', 'XAF']);
+/** Currencies that support Mobile Money via Paystack (verified against Paystack API 2026-03-12) */
+const MOMO_CURRENCIES = new Set(['XOF', 'GHS', 'KES']);
 
 /**
  * Check if Mobile Money is available for a given transaction currency.
