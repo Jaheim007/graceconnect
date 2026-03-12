@@ -8,8 +8,9 @@ import { Award, Download, Share2, Loader2, CheckCircle, ExternalLink } from 'luc
 import { useToast } from '@/hooks/use-toast';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr, enUS } from 'date-fns/locale';
 import { buildShareUrlForPath } from '@/lib/shareMeta';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface Props {
   programId: string;

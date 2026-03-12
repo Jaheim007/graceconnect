@@ -42,9 +42,6 @@ export default function CertificateVerifyPage() {
   const orgName = (certData?.programs as any)?.organizations?.name || '';
   const orgLogo = (certData?.programs as any)?.organizations?.logo_url;
   const issuedAt = certData?.issued_at ? format(new Date(certData.issued_at), 'dd MMMM yyyy', { locale: dateLoc }) : '';
-  const orgName = (certData?.programs as any)?.organizations?.name || '';
-  const orgLogo = (certData?.programs as any)?.organizations?.logo_url;
-  const issuedAt = certData?.issued_at ? format(new Date(certData.issued_at), 'dd MMMM yyyy', { locale: fr }) : '';
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50/50 via-background to-background dark:from-amber-950/10 flex items-center justify-center p-4">
