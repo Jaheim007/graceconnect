@@ -1346,7 +1346,7 @@ export function AdminSettings() {
               <input id="leader-upload" type="file" accept="image/*" className="hidden"
                 onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadLeaderImage(f); }} />
             </div>
-            <p className="text-xs text-muted-foreground">Photo du leader (carrée recommandée)</p>
+            <p className="text-xs text-muted-foreground">{isFr ? 'Photo du leader (carrée recommandée)' : 'Leader photo (square recommended)'}</p>
           </div>
 
           <div className="grid gap-3">
