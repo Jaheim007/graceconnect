@@ -158,8 +158,15 @@ MANDATORY TYPOGRAPHY RULES:
 - Line breaks should fall at NATURAL word boundaries — never break a word across lines
 - The font must be CLEAN and SHARP — no distortion, no warping, no artistic deformation of letters
 - If the title is long, use a SMALLER font size rather than stretching it across the entire cover
-${author_name ? `- "${author_name}" must appear in a SMALLER, ELEGANT complementary font — typically at the bottom` : ''}
 - ${langNote}
+
+═══ AUTHOR NAME — ABSOLUTELY MANDATORY ═══
+${author_name ? `- YOU MUST display the author name "${author_name}" on the cover. This is NON-NEGOTIABLE.
+- Place it at the BOTTOM of the cover in a smaller, elegant complementary font
+- Format: "${author_name}" — exactly as written, no modifications
+- The author name should be clearly readable but secondary to the title
+- Use a contrasting color that is legible against the background
+- DO NOT skip the author name. DO NOT forget it. It MUST appear on the final cover.` : '- No author name provided, skip author line.'}
 
 COMPOSITION:
 - The ILLUSTRATION/IMAGE should be the hero — taking 60-70% of the cover
