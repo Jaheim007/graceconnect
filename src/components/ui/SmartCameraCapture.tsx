@@ -557,7 +557,7 @@ export function SmartCameraCapture({
                   <div className="h-16 w-16 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg">
                     <CheckCircle className="h-8 w-8 text-white" />
                   </div>
-                  <p className="text-white font-bold text-sm bg-black/50 px-3 py-1 rounded-full">Vérification réussie !</p>
+                  <p className="text-white font-bold text-sm bg-black/50 px-3 py-1 rounded-full">{lang === 'fr' ? 'Vérification réussie !' : 'Verification passed!'}</p>
                 </motion.div>
               </div>
             )}
