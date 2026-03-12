@@ -1249,7 +1249,7 @@ export function AdminSettings() {
           {/* Text fields */}
           <div className="grid gap-3">
             <div className="space-y-1.5">
-              <Label htmlFor="org-name" className="text-xs font-medium">Nom de l'organisation</Label>
+              <Label htmlFor="org-name" className="text-xs font-medium">{isFr ? 'Nom de l\'organisation' : 'Organization name'}</Label>
               <Input id="org-name" value={orgName} onChange={e => setOrgName(e.target.value)} className="h-8 text-xs" />
             </div>
             <div className="space-y-1.5">
