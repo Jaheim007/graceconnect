@@ -569,9 +569,11 @@ export function SmartCameraCapture({
                   <div className="h-14 w-14 rounded-full bg-destructive/20 flex items-center justify-center">
                     <AlertTriangle className="h-7 w-7 text-destructive" />
                   </div>
-                  <p className="text-white font-semibold text-sm">Mouvement insuffisant</p>
+                   <p className="text-white font-semibold text-sm">{lang === 'fr' ? 'Mouvement insuffisant' : 'Insufficient movement'}</p>
                   <p className="text-white/60 text-xs text-center max-w-[200px]">
-                    Nous n'avons pas détecté suffisamment de mouvement. Veuillez suivre les instructions.
+                    {lang === 'fr'
+                      ? 'Nous n\'avons pas détecté suffisamment de mouvement. Veuillez suivre les instructions.'
+                      : 'We did not detect enough movement. Please follow the instructions.'}
                   </p>
                   <Button
                     type="button"
@@ -580,7 +582,7 @@ export function SmartCameraCapture({
                     onClick={retryLiveness}
                     className="pointer-events-auto"
                   >
-                    <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> Réessayer
+                    <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> {lang === 'fr' ? 'Réessayer' : 'Retry'}
                   </Button>
                 </div>
               </div>
