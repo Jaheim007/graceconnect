@@ -37,6 +37,7 @@ export default function AiJobsQueue() {
   const { currentOrg } = useOrg();
   const orgId = currentOrg?.id;
   const { toast } = useToast();
+  const { locale } = useI18n();
   const queryClient = useQueryClient();
 
   const { data: jobs, isLoading } = useQuery({
