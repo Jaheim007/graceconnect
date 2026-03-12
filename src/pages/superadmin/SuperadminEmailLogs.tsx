@@ -132,7 +132,7 @@ export default function SuperadminEmailLogs() {
                 </div>
                 <p className="text-xs text-muted-foreground truncate">{l.subject || l.template}</p>
                 <p className="text-[10px] text-muted-foreground mt-0.5">
-                  {new Date(l.created_at).toLocaleString('fr-FR')} · <code className="text-[10px]">{l.template}</code>
+                  {new Date(l.created_at).toLocaleString()} · <code className="text-[10px]">{l.template}</code>
                   {l.resend_message_id && <> · <code className="text-[10px]">{l.resend_message_id}</code></>}
                 </p>
               </div>

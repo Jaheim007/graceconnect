@@ -420,7 +420,7 @@ export default function SuperadminPartners() {
                     </div>
                   )}
                   <div className="text-xs text-muted-foreground border-t pt-3 space-y-1">
-                    <p>Candidature le {new Date(p.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                    <p>Candidature le {new Date(p.created_at).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}</p>
                     <p>Code: <code className="bg-muted px-1 rounded">{p.invite_code || '—'}</code></p>
                   </div>
                 </div>

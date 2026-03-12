@@ -4,6 +4,7 @@ import { Offering } from '@/hooks/useOfferings';
 import { Button } from '@/components/ui/button';
 import { HandHeart } from 'lucide-react';
 import { useLocalCurrency } from '@/hooks/useLocalCurrency';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface OfferingCardProps {
   offering: Offering;
@@ -13,12 +14,14 @@ interface OfferingCardProps {
 export function OfferingCard({ offering, onSelect }: OfferingCardProps) {
   const navigate = useNavigate();
   const { formatLocal, needsConversion } = useLocalCurrency();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const presets = offering.preset_amounts || [1000, 2500, 5000, 10000];
   const currency = offering.currency || 'XOF';
   const showLocal = needsConversion(currency);
 
   const fmt = (n: number) =>
-    new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(n);
+    new Intl.NumberFormat(isFr ? 'fr-FR' : 'en-US', { maximumFractionDigits: 0 }).format(n);
 
   return (
     <div
@@ -38,7 +41,7 @@ export function OfferingCard({ offering, onSelect }: OfferingCardProps) {
           <div>
             <h3 className="font-semibold text-sm">{offering.title}</h3>
             {offering.is_recurring_allowed && (
-              <span className="text-[10px] text-muted-foreground">Ponctuel ou récurrent</span>
+              <span className="text-[10px] text-muted-foreground">{isFr ? 'Ponctuel ou récurrent' : 'One-time or recurring'}</span>
             )}
           </div>
         </div>
@@ -62,7 +65,7 @@ export function OfferingCard({ offering, onSelect }: OfferingCardProps) {
           size="sm"
         >
           <HandHeart className="h-3.5 w-3.5 mr-1.5" />
-          Faire un don
+          {isFr ? 'Faire un don' : 'Donate'}
         </Button>
       </div>
     </div>

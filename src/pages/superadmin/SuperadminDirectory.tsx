@@ -173,7 +173,7 @@ export default function SuperadminDirectory() {
                     {app.status === 'approved' ? 'Approved' : 'Rejected'}
                   </Badge>
                   <p className="text-[10px] text-muted-foreground">
-                    {app.reviewed_at ? new Date(app.reviewed_at).toLocaleDateString('fr-FR') : '—'}
+                    {app.reviewed_at ? new Date(app.reviewed_at).toLocaleDateString() : '—'}
                   </p>
                 </div>
               );
