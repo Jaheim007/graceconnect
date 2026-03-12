@@ -8,6 +8,7 @@ import { db } from '@/lib/db';
 import { toast } from 'sonner';
 import { formatCurrency } from '@/lib/currency';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface PostPurchaseCelebrationProps {
   productTitle: string;
@@ -38,6 +39,8 @@ export function PostPurchaseCelebration({
 }: PostPurchaseCelebrationProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const [enrolling, setEnrolling] = useState(false);
   const [enrolled, setEnrolled] = useState(false);
   const [affiliateCode, setAffiliateCode] = useState<string | null>(null);
@@ -47,23 +50,23 @@ export function PostPurchaseCelebration({
     ? `${window.location.origin}/org/${orgSlug}${affiliateCode ? `?ref=${affiliateCode}` : ''}`
     : window.location.origin;
 
+  const fmt = (n: number) => formatCurrency(n, currency);
+
   const enrollAsAmbassador = async () => {
     if (!user || enrolling || !orgSlug) return;
     setEnrolling(true);
     try {
-      // Get org id from slug first
       const { data: orgData } = await db.from('organizations').select('id').eq('slug', orgSlug).single();
       if (!orgData) throw new Error('Org not found');
       const { error } = await db.rpc('self_enroll_affiliate', {
         _org_id: orgData.id,
       });
       if (error) throw error;
-      // Get the affiliate link code
       const { data: linkData } = await db.from('affiliate_links').select('code').eq('user_id', user.id).eq('organization_id', orgData.id).maybeSingle();
       if (linkData?.code) {
         setAffiliateCode(linkData.code);
         setEnrolled(true);
-        toast.success('🎉 Tu es maintenant ambassadeur !');
+        toast.success(isFr ? '🎉 Tu es maintenant ambassadeur !' : '🎉 You are now an ambassador!');
       }
     } catch (err: any) {
       const { data: existing } = await db.from('affiliate_links')
@@ -75,7 +78,7 @@ export function PostPurchaseCelebration({
         setAffiliateCode(existing.code);
         setEnrolled(true);
       } else {
-        toast.error('Erreur lors de l\'inscription');
+        toast.error(isFr ? "Erreur lors de l'inscription" : 'Error during enrollment');
       }
     } finally {
       setEnrolling(false);
@@ -118,9 +121,11 @@ export function PostPurchaseCelebration({
             </div>
           )}
 
-          <h2 className="text-xl font-black">Bravo, c'est à toi !</h2>
+          <h2 className="text-xl font-black">{isFr ? "Bravo, c'est à toi !" : "Congrats, it's yours!"}</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            « {productTitle} » est dans ta bibliothèque 📚
+            {isFr
+              ? `« ${productTitle} » est dans ta bibliothèque 📚`
+              : `"${productTitle}" is in your library 📚`}
           </p>
         </div>
 
@@ -133,38 +138,41 @@ export function PostPurchaseCelebration({
               exit={{ opacity: 0, y: -10 }}
               className="p-6 space-y-5"
             >
-              {/* Value proposition */}
               <div className="text-center">
                 <h3 className="text-lg font-extrabold">
-                  💰 Gagne en partageant
+                  {isFr ? '💰 Gagne en partageant' : '💰 Earn by sharing'}
                 </h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Tu as aimé <strong>{productTitle}</strong> ?<br />
-                  Partage et gagne <span className="font-bold text-emerald-500">{commissionPercent}%</span> sur chaque vente.
+                  {isFr ? (
+                    <>Tu as aimé <strong>{productTitle}</strong> ?<br />Partage et gagne <span className="font-bold text-emerald-500">{commissionPercent}%</span> sur chaque vente.</>
+                  ) : (
+                    <>Loved <strong>{productTitle}</strong>?<br />Share and earn <span className="font-bold text-emerald-500">{commissionPercent}%</span> on every sale.</>
+                  )}
                 </p>
               </div>
 
-              {/* Concrete earnings */}
               <div className="rounded-2xl bg-emerald-500/5 border border-emerald-500/20 p-5">
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Par vente</p>
-                    <p className="text-2xl font-black text-emerald-500">{formatCurrency(potentialEarning, currency)}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{isFr ? 'Par vente' : 'Per sale'}</p>
+                    <p className="text-2xl font-black text-emerald-500">{fmt(potentialEarning)}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">10 amis achètent</p>
-                    <p className="text-2xl font-black">{formatCurrency(potentialEarning * 10, currency)}</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{isFr ? '10 amis achètent' : '10 friends buy'}</p>
+                    <p className="text-2xl font-black">{fmt(potentialEarning * 10)}</p>
                   </div>
                 </div>
                 <div className="border-t border-emerald-500/20 mt-4 pt-3 text-center">
                   <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
                     <Users className="h-3.5 w-3.5" />
-                    Simulation : 10 amis achètent = <strong className="text-foreground">{formatCurrency(potentialEarning * 10, currency)}</strong> pour toi
+                    {isFr
+                      ? <>Simulation : 10 amis achètent = <strong className="text-foreground">{fmt(potentialEarning * 10)}</strong> pour toi</>
+                      : <>Simulation: 10 friends buy = <strong className="text-foreground">{fmt(potentialEarning * 10)}</strong> for you</>
+                    }
                   </p>
                 </div>
               </div>
 
-              {/* Primary CTA */}
               <Button
                 onClick={enrollAsAmbassador}
                 disabled={enrolling || !orgSlug}
@@ -172,21 +180,20 @@ export function PostPurchaseCelebration({
                 className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white h-13 text-base font-bold rounded-xl"
               >
                 {enrolling ? (
-                  <span className="animate-pulse">Inscription…</span>
+                  <span className="animate-pulse">{isFr ? 'Inscription…' : 'Enrolling…'}</span>
                 ) : (
                   <>
                     <Rocket className="h-5 w-5" />
-                    Oui, je veux gagner !
+                    {isFr ? 'Oui, je veux gagner !' : 'Yes, I want to earn!'}
                   </>
                 )}
               </Button>
 
-              {/* Secondary dismiss */}
               <button
                 onClick={onDismiss}
                 className="w-full text-xs text-muted-foreground hover:text-foreground transition-colors py-2"
               >
-                Non merci, peut-être plus tard
+                {isFr ? 'Non merci, peut-être plus tard' : 'No thanks, maybe later'}
               </button>
             </motion.div>
           ) : (
@@ -196,7 +203,6 @@ export function PostPurchaseCelebration({
               animate={{ opacity: 1, y: 0 }}
               className="p-6 space-y-5"
             >
-              {/* Success state */}
               <div className="text-center">
                 <motion.div
                   initial={{ scale: 0 }}
@@ -206,13 +212,12 @@ export function PostPurchaseCelebration({
                 >
                   <Check className="h-6 w-6 text-white" />
                 </motion.div>
-                <h3 className="text-lg font-extrabold">Tu es ambassadeur ! 🎉</h3>
+                <h3 className="text-lg font-extrabold">{isFr ? 'Tu es ambassadeur ! 🎉' : "You're an ambassador! 🎉"}</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Partage maintenant pour commencer à gagner
+                  {isFr ? 'Partage maintenant pour commencer à gagner' : 'Share now to start earning'}
                 </p>
               </div>
 
-              {/* SocialShareKit integration */}
               <SocialShareKit
                 url={shareUrl}
                 title={productTitle}
@@ -229,7 +234,7 @@ export function PostPurchaseCelebration({
                   navigate('/gagner');
                 }}
               >
-                Voir mes gains <ArrowRight className="h-4 w-4" />
+                {isFr ? 'Voir mes gains' : 'View my earnings'} <ArrowRight className="h-4 w-4" />
               </Button>
             </motion.div>
           )}
@@ -237,7 +242,9 @@ export function PostPurchaseCelebration({
 
         <div className="px-6 pb-4">
           <p className="text-[10px] text-muted-foreground text-center">
-            Aucun investissement. Tu gagnes uniquement quand quelqu'un achète via ton lien.
+            {isFr
+              ? "Aucun investissement. Tu gagnes uniquement quand quelqu'un achète via ton lien."
+              : 'No investment. You only earn when someone buys through your link.'}
           </p>
         </div>
       </motion.div>

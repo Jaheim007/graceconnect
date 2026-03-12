@@ -1,23 +1,30 @@
 import { motion } from 'framer-motion';
 import { TrendingUp, Users, BookOpen, ShoppingBag } from 'lucide-react';
-import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface QuickStatsBarProps {
   totalEarned?: number;
   totalSales?: number;
   totalClicks?: number;
   productsCount?: number;
+  /** Currency of the earnings data (org currency) */
+  currency?: string;
 }
 
 /**
  * Horizontal stats bar for dashboards — compact, visual, motivational
  */
-export function QuickStatsBar({ totalEarned = 0, totalSales = 0, totalClicks = 0, productsCount = 0 }: QuickStatsBarProps) {
+export function QuickStatsBar({ totalEarned = 0, totalSales = 0, totalClicks = 0, productsCount = 0, currency }: QuickStatsBarProps) {
+  const { fmt } = useDisplayCurrency();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+
   const stats = [
-    { icon: TrendingUp, value: formatCurrency(totalEarned, DEFAULT_CURRENCY), label: 'Gains', color: 'text-accent' },
-    { icon: ShoppingBag, value: String(totalSales), label: 'Ventes', color: 'text-primary' },
-    { icon: Users, value: String(totalClicks), label: 'Clics', color: 'text-blue-500' },
-    { icon: BookOpen, value: String(productsCount), label: 'Produits', color: 'text-amber-500' },
+    { icon: TrendingUp, value: fmt(totalEarned, currency), label: isFr ? 'Gains' : 'Earnings', color: 'text-accent' },
+    { icon: ShoppingBag, value: String(totalSales), label: isFr ? 'Ventes' : 'Sales', color: 'text-primary' },
+    { icon: Users, value: String(totalClicks), label: isFr ? 'Clics' : 'Clicks', color: 'text-blue-500' },
+    { icon: BookOpen, value: String(productsCount), label: isFr ? 'Produits' : 'Products', color: 'text-amber-500' },
   ];
 
   return (
