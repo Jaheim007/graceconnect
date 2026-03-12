@@ -83,8 +83,8 @@ export function useBehavioralNotifications() {
       // 1. No logo → identity notification
       if (!orgState.hasLogo && !orgState.hasBanner) {
         createNotif.mutate({
-          title: '🎨 Ajoutez votre identité visuelle',
-          body: 'Les organisations avec un logo reçoivent 3x plus de visites. Ajoutez le vôtre dans les paramètres.',
+          title: isFr ? '🎨 Ajoutez votre identité visuelle' : '🎨 Add your branding',
+          body: isFr ? 'Les organisations avec un logo reçoivent 3x plus de visites. Ajoutez le vôtre dans les paramètres.' : 'Organizations with a logo get 3x more visits. Add yours in settings.',
           type: 'activation_branding',
         });
       }
