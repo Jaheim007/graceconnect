@@ -1781,7 +1781,7 @@ export const blogArticles: BlogArticle[] = [
 <li><strong>Mobile Money native</strong>: MTN, Orange Money, Wave, Airtel — the payment methods Africans actually use</li>
 <li><strong>Zero subscription</strong>: Only 7% commission per sale. No sale = no fee.</li>
 <li><strong>Ambassador program</strong>: Buyers become promoters and earn commissions on referrals</li>
-<li><strong>French-first</strong>: Built for francophone Africa, with full French interface</li>
+<li><strong>Bilingual</strong>: Built for all of Africa, with full French and English interface</li>
 <li><strong>International payments</strong>: Stripe integration for diaspora and international buyers</li>
 </ul>
 
