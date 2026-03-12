@@ -617,7 +617,7 @@ export function SmartCameraCapture({
                   <div className={`absolute -bottom-px -left-px w-5 h-5 border-b-[3px] border-l-[3px] ${borderColor} rounded-bl-lg transition-colors duration-300`} />
                   <div className={`absolute -bottom-px -right-px w-5 h-5 border-b-[3px] border-r-[3px] ${borderColor} rounded-br-lg transition-colors duration-300`} />
                   <p className={`absolute -bottom-7 left-0 right-0 text-center text-[11px] font-medium ${statusColor} transition-colors duration-300`}>
-                    {smartCapture ? messages[frameStatus] : 'Cadrez votre document ici'}
+                    {smartCapture ? messages[frameStatus] : (lang === 'fr' ? 'Cadrez votre document ici' : 'Frame your document here')}
                   </p>
                 </div>
               </div>
