@@ -464,7 +464,7 @@ function OrgAffiliateCard({ org, isSubscribed, onBecome, loading, onView }: {
   onBecome: () => void;
   loading: boolean;
   onView: () => void;
-) {
+}) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   return (
