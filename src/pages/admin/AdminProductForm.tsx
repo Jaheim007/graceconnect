@@ -608,13 +608,13 @@ export function ProductForm() {
             
             {/* Order Bump */}
             <div className="space-y-2">
-              <Label className="text-xs font-medium">Order Bump (ajout au panier)</Label>
-              <p className="text-[10px] text-muted-foreground">Proposer un produit complémentaire à prix réduit lors du checkout.</p>
+              <Label className="text-xs font-medium">{isFr ? 'Order Bump (ajout au panier)' : 'Order Bump (add to cart)'}</Label>
+              <p className="text-[10px] text-muted-foreground">{isFr ? 'Proposer un produit complémentaire à prix réduit lors du checkout.' : 'Offer a complementary product at a discount during checkout.'}</p>
               <div className="grid grid-cols-2 gap-2">
-                <Select value={orderBumpProductId || '_none'} onValueChange={(v) => setOrderBumpProductId(v === '_none' ? '' : v)}>
-                  <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Aucun" /></SelectTrigger>
+                <Select value={orderBumpProductId || '_none'} onValueChange={(v) => setOrderBumpProductId(v === '_none' ? '')}>
+                  <SelectTrigger className="h-8 text-xs"><SelectValue placeholder={isFr ? 'Aucun' : 'None'} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="_none">Aucun</SelectItem>
+                    <SelectItem value="_none">{isFr ? 'Aucun' : 'None'}</SelectItem>
                     {allProducts.filter((p: any) => p.id !== id && !p.is_free).map((p: any) => (
                       <SelectItem key={p.id} value={p.id}>{p.title} — {p.price?.toLocaleString()} {currentOrg?.currency || 'XOF'}</SelectItem>
                     ))}
