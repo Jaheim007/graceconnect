@@ -532,10 +532,10 @@ function KPICard({ icon: Icon, label, value, sub, accent }: { icon: typeof Users
 
 function CommissionStatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: typeof CheckCircle }> = {
-    held: { label: 'Retenue', variant: 'secondary', icon: Clock },
-    payable: { label: 'Disponible', variant: 'default', icon: TrendingUp },
-    paid: { label: 'Versé', variant: 'outline', icon: CheckCircle },
-    reversed: { label: 'Annulé', variant: 'destructive', icon: XCircle },
+    held: { label: 'Held', variant: 'secondary', icon: Clock },
+    payable: { label: 'Available', variant: 'default', icon: TrendingUp },
+    paid: { label: 'Paid', variant: 'outline', icon: CheckCircle },
+    reversed: { label: 'Reversed', variant: 'destructive', icon: XCircle },
   };
   const s = map[status] || map.held;
   const Icon = s.icon;
