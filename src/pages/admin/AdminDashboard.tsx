@@ -376,7 +376,7 @@ export default function AdminDashboard() {
       {/* Revenue chart */}
       {chartData.length > 1 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-2xl p-5">
-          <h2 className="font-semibold text-sm mb-4">{t('admin.total_sales')} — 30 derniers jours</h2>
+          <h2 className="font-semibold text-sm mb-4">{t('admin.total_sales')} — {isFr ? '30 derniers jours' : 'Last 30 days'}</h2>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={chartData}>
