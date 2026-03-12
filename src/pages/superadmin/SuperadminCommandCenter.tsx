@@ -128,7 +128,7 @@ export default function SuperadminCommandCenter() {
     { label: 'Push Notifs', icon: Bell, path: '/superadmin/push', color: 'text-orange-500' },
     { label: 'Partners', icon: Handshake, path: '/superadmin/partners', color: 'text-teal-500' },
     { label: 'Exports', icon: Download, path: '/superadmin/exports', color: 'text-cyan-500' },
-    { label: 'Settings', icon: Settings, path: '/superadmin/settings', color: 'text-muted-foreground' },
+    { label: isFr ? 'Paramètres' : 'Settings', icon: Settings, path: '/superadmin/settings', color: 'text-muted-foreground' },
   ];
 
   const alerts = [
