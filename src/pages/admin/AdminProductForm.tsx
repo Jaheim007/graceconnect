@@ -384,7 +384,7 @@ export function ProductForm() {
           <RichTextEditor
             value={watch('description') || ''}
             onChange={(html) => setValue('description', html)}
-            placeholder="Décrivez votre produit en détail..."
+            placeholder={isFr ? 'Décrivez votre produit en détail...' : 'Describe your product in detail...'}
             onAIAssist={() => setShowAI(true)}
           />
           <AIDescriptionButton
