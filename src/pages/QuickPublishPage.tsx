@@ -260,7 +260,7 @@ export default function QuickPublishPage() {
                 {/* Cover image */}
                 <div>
                   <label className="text-sm font-medium mb-1.5 block">
-                    <ImageIcon className="h-3.5 w-3.5 inline mr-1" /> Image de couverture
+                    <ImageIcon className="h-3.5 w-3.5 inline mr-1" /> {isFr ? 'Image de couverture' : 'Cover image'}
                   </label>
                   <label className="flex flex-col items-center justify-center border-2 border-dashed border-border rounded-xl p-6 cursor-pointer hover:bg-muted/30 transition-colors">
                     {coverPreview ? (
@@ -268,7 +268,7 @@ export default function QuickPublishPage() {
                     ) : (
                       <>
                         <ImageIcon className="h-8 w-8 text-muted-foreground mb-2" />
-                        <span className="text-xs text-muted-foreground">Cliquez pour uploader</span>
+                        <span className="text-xs text-muted-foreground">{isFr ? 'Cliquez pour uploader' : 'Click to upload'}</span>
                       </>
                     )}
                     <input type="file" accept="image/*" onChange={handleCoverChange} className="hidden" />
