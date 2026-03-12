@@ -322,8 +322,8 @@ export default function PartnerPortalPage() {
               {referrals.length === 0 ? (
                 <div className="text-center py-8 space-y-2">
                   <Building2 className="h-8 w-8 mx-auto text-muted-foreground/40" />
-                  <p className="text-sm text-muted-foreground">Aucune organisation référée pour le moment.</p>
-                  <p className="text-xs text-muted-foreground">Partagez votre lien d'invitation pour commencer.</p>
+                  <p className="text-sm text-muted-foreground">{isFr ? 'Aucune organisation référée pour le moment.' : 'No referred organizations yet.'}</p>
+                  <p className="text-xs text-muted-foreground">{isFr ? 'Partagez votre lien d\'invitation pour commencer.' : 'Share your invite link to get started.'}</p>
                 </div>
               ) : (
                 <div className="space-y-2">
