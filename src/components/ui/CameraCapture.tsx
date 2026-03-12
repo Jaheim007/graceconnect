@@ -72,12 +72,13 @@ export function CameraCapture({
     } catch (err: any) {
       console.error('Camera error:', err);
       setCameraFailed(true);
+      const lang = document.documentElement.lang;
       if (err.name === 'NotAllowedError') {
-        setError("Accès à la caméra refusé. Veuillez autoriser l'accès dans les paramètres de votre navigateur.");
+        setError(lang === 'fr' ? "Accès à la caméra refusé. Veuillez autoriser l'accès dans les paramètres de votre navigateur." : "Camera access denied. Please allow access in your browser settings.");
       } else if (err.name === 'NotFoundError') {
-        setError("Aucune caméra détectée sur cet appareil.");
+        setError(lang === 'fr' ? "Aucune caméra détectée sur cet appareil." : "No camera detected on this device.");
       } else {
-        setError("Impossible d'accéder à la caméra. Essayez sur votre téléphone mobile.");
+        setError(lang === 'fr' ? "Impossible d'accéder à la caméra. Essayez sur votre téléphone mobile." : "Cannot access camera. Try on your mobile phone.");
       }
     }
   }, [facingMode]);
