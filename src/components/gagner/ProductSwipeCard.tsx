@@ -10,10 +10,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { db } from '@/lib/db';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 import { getOrCreateShortLink } from '@/lib/shareMeta';
 import { getPublicOrigin } from '@/lib/publicUrl';
+import { useI18n } from '@/i18n/I18nContext';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 
 interface ProductSwipeCardProps {
   product: any;
@@ -27,9 +28,19 @@ const SHARE_MESSAGES_FR = [
   (title: string, url: string) => `🎯 "${title}" — un must-have. Clique ici 👉 ${url}`,
 ];
 
+const SHARE_MESSAGES_EN = [
+  (title: string, url: string) => `📖 I found "${title}" — it's really worth it! 👉 ${url}`,
+  (title: string, url: string) => `🔥 This product is trending: "${title}". Check it out 👉 ${url}`,
+  (title: string, url: string) => `💡 I recommend "${title}", you'll love it! ${url}`,
+  (title: string, url: string) => `🎯 "${title}" — a must-have. Click here 👉 ${url}`,
+];
+
 export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const { fmt, fmtPrice } = useDisplayCurrency();
   const qc = useQueryClient();
   const [enrolling, setEnrolling] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -169,7 +180,7 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
           {!product.is_free && potentialEarning > 0 && (
             <div className="absolute top-3 left-3">
               <Badge variant="secondary" className="text-xs font-bold shadow-lg px-3 py-1.5 rounded-full bg-background/90 backdrop-blur-sm">
-                Tu gagnes {formatCurrency(potentialEarning, product.currency || DEFAULT_CURRENCY)}
+                {isFr ? 'Tu gagnes' : 'You earn'} {fmt(potentialEarning, product.currency)}
               </Badge>
             </div>
           )}
@@ -195,11 +206,11 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
             <h3 className="font-extrabold text-base leading-tight line-clamp-2">{product.title}</h3>
             <div className="flex items-center gap-2 mt-1.5">
               <span className="text-sm font-bold">
-                {product.is_free ? 'Gratuit' : formatCurrency(product.price || 0, product.currency || DEFAULT_CURRENCY)}
+                {fmtPrice(product.price || 0, product.is_free, product.currency, isFr ? 'Gratuit' : 'Free')}
               </span>
               {product.sale_price && product.sale_price < product.price && (
                 <span className="text-xs text-muted-foreground line-through">
-                  {formatCurrency(product.price, product.currency || DEFAULT_CURRENCY)}
+                  {fmt(product.price, product.currency)}
                 </span>
               )}
             </div>

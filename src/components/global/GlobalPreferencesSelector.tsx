@@ -1,7 +1,7 @@
 import { Globe, ChevronDown } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import { LOCALE_LABELS, SUPPORTED_LOCALES, Locale } from '@/i18n/locales';
-import { SUPPORTED_CURRENCIES, CurrencyCode } from '@/lib/currency';
+import { SUPPORTED_CURRENCIES } from '@/lib/currency';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -10,6 +10,20 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { detectCurrencyFromTimezone } from '@/lib/countryDetect';
 import { useState, useEffect } from 'react';
+
+const CURRENCY_FLAGS: Record<string, string> = {
+  XOF: '🇨🇮',
+  XAF: '🇨🇲',
+  USD: '🇺🇸',
+  EUR: '🇪🇺',
+  NGN: '🇳🇬',
+  GHS: '🇬🇭',
+  KES: '🇰🇪',
+  ZAR: '🇿🇦',
+  GBP: '🇬🇧',
+  MAD: '🇲🇦',
+  TND: '🇹🇳',
+};
 
 /** Compact language + currency selector for navbar */
 export function GlobalPreferencesSelector() {
@@ -45,15 +59,16 @@ export function GlobalPreferencesSelector() {
   };
 
   const currentCurrencyInfo = SUPPORTED_CURRENCIES.find(c => c.code === currency);
+  const currentCurrencyFlag = CURRENCY_FLAGS[currency] || '🌍';
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-1 h-8 px-2 rounded-lg hover:bg-muted/60 transition-colors text-xs text-muted-foreground hover:text-foreground">
           <Globe className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">{locale.toUpperCase()}</span>
+          <span className="hidden sm:inline">{locale === 'en' ? '🇬🇧' : '🇫🇷'} {locale.toUpperCase()}</span>
           <span className="text-[10px] opacity-60">|</span>
-          <span className="hidden sm:inline">{currentCurrencyInfo?.symbol || currency}</span>
+          <span className="hidden sm:inline">{currentCurrencyFlag} {currentCurrencyInfo?.symbol || currency}</span>
           <ChevronDown className="h-3 w-3 opacity-50" />
         </button>
       </DropdownMenuTrigger>
@@ -84,7 +99,7 @@ export function GlobalPreferencesSelector() {
               onClick={() => handleCurrencyChange(c.code)}
               className={`text-xs gap-2 ${currency === c.code ? 'font-bold text-primary' : ''}`}
             >
-              <span className="w-8 font-mono text-[10px]">{c.symbol}</span>
+              <span className="w-8 text-xs">{CURRENCY_FLAGS[c.code] || '🌍'}</span>
               <span>{c.code}</span>
               {currency === c.code && <span className="ml-auto text-primary">✓</span>}
             </DropdownMenuItem>
