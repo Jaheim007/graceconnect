@@ -37,8 +37,11 @@ export default function CertificateVerifyPage() {
   });
 
   const isValid = !!certData;
-  const recipientName = certData?.profile?.display_name || 'Apprenant';
+  const recipientName = certData?.profile?.display_name || (isFr ? 'Apprenant' : 'Learner');
   const programTitle = (certData?.programs as any)?.title || '';
+  const orgName = (certData?.programs as any)?.organizations?.name || '';
+  const orgLogo = (certData?.programs as any)?.organizations?.logo_url;
+  const issuedAt = certData?.issued_at ? format(new Date(certData.issued_at), 'dd MMMM yyyy', { locale: dateLoc }) : '';
   const orgName = (certData?.programs as any)?.organizations?.name || '';
   const orgLogo = (certData?.programs as any)?.organizations?.logo_url;
   const issuedAt = certData?.issued_at ? format(new Date(certData.issued_at), 'dd MMMM yyyy', { locale: fr }) : '';
