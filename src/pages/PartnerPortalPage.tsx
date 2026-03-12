@@ -489,7 +489,7 @@ export default function PartnerPortalPage() {
 
           {payouts.length > 0 && (
             <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm">Historique des retraits</CardTitle></CardHeader>
+              <CardHeader className="pb-2"><CardTitle className="text-sm">{isFr ? 'Historique des retraits' : 'Payout history'}</CardTitle></CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   {payouts.map(p => (
