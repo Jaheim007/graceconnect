@@ -217,7 +217,7 @@ export function SocialShareKit({ url, title, description, context, price, earnin
           <div className="flex flex-col items-center gap-4 py-4">
             <img src={qrUrl} alt="QR Code" className="rounded-xl border border-border" width={250} height={250} />
             <p className="text-xs text-muted-foreground text-center">
-              Scanne ce code pour accéder directement au produit.
+              {isFr ? 'Scanne ce code pour accéder directement au produit.' : 'Scan this code to access the product directly.'}
             </p>
           </div>
         </DialogContent>
