@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface SearchResult {
   id: string;
@@ -51,6 +53,8 @@ export function GlobalSearch() {
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const debouncedQuery = useDebounce(query, 300);
+  const { locale } = useI18n();
+  const { fmt } = useDisplayCurrency();
 
   const { data: results = [], isLoading } = useQuery<SearchResult[]>({
     queryKey: ['global-search', debouncedQuery],
@@ -216,7 +220,7 @@ export function GlobalSearch() {
                         </Badge>
                         {r.type === 'product' && r.price !== undefined && (
                           <span className="text-[10px] font-semibold text-primary">
-                            {r.price === 0 ? 'Gratuit' : `${r.price?.toLocaleString('fr-FR')} ${r.currency || ''}`}
+                            {r.price === 0 ? (locale === 'fr' ? 'Gratuit' : 'Free') : fmt(r.price, r.currency)}
                           </span>
                         )}
                       </div>

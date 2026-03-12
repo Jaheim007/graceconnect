@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 
 import { useI18n } from '@/i18n/I18nContext';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 import type { WriteState } from '../WriteWizard';
 
 interface Props {
@@ -12,11 +13,30 @@ interface Props {
   onBack: () => void;
 }
 
+/** Price ranges per currency for the write wizard */
+const CURRENCY_RANGES: Record<string, { min: number; max: number; step: number }> = {
+  XOF: { min: 500, max: 25000, step: 500 },
+  XAF: { min: 500, max: 25000, step: 500 },
+  NGN: { min: 500, max: 25000, step: 500 },
+  USD: { min: 1, max: 50, step: 1 },
+  EUR: { min: 1, max: 50, step: 1 },
+  GBP: { min: 1, max: 40, step: 1 },
+  GHS: { min: 5, max: 250, step: 5 },
+  KES: { min: 100, max: 5000, step: 100 },
+  ZAR: { min: 10, max: 500, step: 10 },
+  MAD: { min: 10, max: 250, step: 10 },
+  TND: { min: 3, max: 80, step: 1 },
+};
+
 export function StepPricing({ state, update, onNext, onBack }: Props) {
   const { t } = useI18n();
-  const platformFee = Math.round(state.price * 0.10);
-  const ambassadorFee = Math.round(state.price * state.commissionRate / 100);
-  const creatorEarns = state.price - platformFee - ambassadorFee;
+  const { currency, fmt } = useDisplayCurrency();
+  const range = CURRENCY_RANGES[currency] || CURRENCY_RANGES.USD;
+
+  const effectivePrice = Math.max(range.min, Math.min(state.price, range.max));
+  const platformFee = Math.round(effectivePrice * 0.10);
+  const ambassadorFee = Math.round(effectivePrice * state.commissionRate / 100);
+  const creatorEarns = effectivePrice - platformFee - ambassadorFee;
 
   return (
     <div className="space-y-8 pt-8">
@@ -36,18 +56,18 @@ export function StepPricing({ state, update, onNext, onBack }: Props) {
       {/* Price slider */}
           <div className="space-y-3">
             <label className="text-sm font-medium">
-              {t('write.price_label')} : <span className="text-primary font-bold">{state.price.toLocaleString('fr-FR')} FCFA</span>
+              {t('write.price_label')} : <span className="text-primary font-bold">{fmt(effectivePrice)}</span>
             </label>
             <Slider
-              value={[state.price]}
+              value={[effectivePrice]}
               onValueChange={([v]) => update({ price: v })}
-              min={500}
-              max={25000}
-              step={500}
+              min={range.min}
+              max={range.max}
+              step={range.step}
             />
             <div className="flex justify-between text-[10px] text-muted-foreground">
-              <span>500 FCFA</span>
-              <span>25 000 FCFA</span>
+              <span>{fmt(range.min)}</span>
+              <span>{fmt(range.max)}</span>
             </div>
           </div>
 
@@ -72,20 +92,20 @@ export function StepPricing({ state, update, onNext, onBack }: Props) {
             <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-3">{t('write.per_sale')}</p>
             <div className="grid grid-cols-3 gap-3 text-center">
               <div>
-                <p className="text-xl font-extrabold text-primary">{creatorEarns.toLocaleString('fr-FR')}</p>
-                <p className="text-[10px] text-muted-foreground">{t('write.you_keep')} (FCFA)</p>
+                <p className="text-xl font-extrabold text-primary">{fmt(creatorEarns)}</p>
+                <p className="text-[10px] text-muted-foreground">{t('write.you_keep')}</p>
               </div>
               <div>
-                <p className="text-xl font-extrabold text-emerald-500">{ambassadorFee.toLocaleString('fr-FR')}</p>
+                <p className="text-xl font-extrabold text-emerald-500">{fmt(ambassadorFee)}</p>
                 <p className="text-[10px] text-muted-foreground">{t('write.ambassador')}</p>
               </div>
               <div>
-                <p className="text-xl font-extrabold text-muted-foreground">{platformFee.toLocaleString('fr-FR')}</p>
+                <p className="text-xl font-extrabold text-muted-foreground">{fmt(platformFee)}</p>
                 <p className="text-[10px] text-muted-foreground">{t('write.platform_fee')}</p>
               </div>
             </div>
             <p className="text-xs text-muted-foreground text-center mt-3">
-              {t('write.simulation')} <strong className="text-foreground">{(creatorEarns * 50).toLocaleString('fr-FR')} FCFA</strong> {t('write.simulation_suffix')}
+              {t('write.simulation')} <strong className="text-foreground">{fmt(creatorEarns * 50)}</strong> {t('write.simulation_suffix')}
             </p>
           </div>
         

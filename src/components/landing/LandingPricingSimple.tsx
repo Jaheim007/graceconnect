@@ -5,22 +5,45 @@ import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { useI18n } from '@/i18n/I18nContext';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
+import { convertCurrency } from '@/lib/currencyConvert';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.35 } },
 };
 
+/** Price anchors per currency for the simulator slider */
+const CURRENCY_RANGES: Record<string, { min: number; max: number; step: number; default: number }> = {
+  USD: { min: 1, max: 50, step: 1, default: 10 },
+  EUR: { min: 1, max: 50, step: 1, default: 10 },
+  GBP: { min: 1, max: 40, step: 1, default: 8 },
+  XOF: { min: 500, max: 50000, step: 500, default: 5000 },
+  XAF: { min: 500, max: 50000, step: 500, default: 5000 },
+  NGN: { min: 500, max: 50000, step: 500, default: 5000 },
+  GHS: { min: 5, max: 500, step: 5, default: 50 },
+  KES: { min: 100, max: 10000, step: 100, default: 1000 },
+  ZAR: { min: 10, max: 1000, step: 10, default: 100 },
+  MAD: { min: 10, max: 500, step: 10, default: 50 },
+  TND: { min: 3, max: 150, step: 3, default: 15 },
+};
+
 export function LandingPricingSimple() {
   const navigate = useNavigate();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
-  const [price, setPrice] = useState(10);
+  const { currency, fmt } = useDisplayCurrency();
+
+  const range = CURRENCY_RANGES[currency] || CURRENCY_RANGES.USD;
+  const [price, setPrice] = useState(range.default);
   const [commission, setCommission] = useState(20);
 
-  const platformFee = +(price * 0.10).toFixed(2);
-  const ambassadorFee = +(price * commission / 100).toFixed(2);
-  const creatorEarns = +(price - platformFee - ambassadorFee).toFixed(2);
+  // Reset price when currency changes to stay within valid range
+  const effectivePrice = Math.max(range.min, Math.min(price, range.max));
+
+  const platformFee = Math.round(effectivePrice * 0.10);
+  const ambassadorFee = Math.round(effectivePrice * commission / 100);
+  const creatorEarns = effectivePrice - platformFee - ambassadorFee;
 
   const features = isFr ? [
     'IA pour écrire ton livre',
@@ -75,9 +98,9 @@ export function LandingPricingSimple() {
 
                 <div>
                   <label className="text-sm font-medium mb-2 block">
-                    {isFr ? 'Prix de ton livre' : 'Your book price'}: <span className="text-primary font-bold">${price}</span>
+                    {isFr ? 'Prix de ton livre' : 'Your book price'}: <span className="text-primary font-bold">{fmt(effectivePrice)}</span>
                   </label>
-                  <Slider value={[price]} onValueChange={([v]) => setPrice(v)} min={1} max={50} step={1} className="w-full" />
+                  <Slider value={[effectivePrice]} onValueChange={([v]) => setPrice(v)} min={range.min} max={range.max} step={range.step} className="w-full" />
                 </div>
 
                 <div>
@@ -90,21 +113,21 @@ export function LandingPricingSimple() {
                 {/* Results */}
                 <div className="grid grid-cols-3 gap-3 bg-muted/50 rounded-xl p-4">
                   <div className="text-center">
-                    <p className="text-lg sm:text-xl font-extrabold text-primary">${creatorEarns}</p>
+                    <p className="text-lg sm:text-xl font-extrabold text-primary">{fmt(creatorEarns)}</p>
                     <p className="text-[10px] text-muted-foreground">{isFr ? 'Tu gardes' : 'You keep'}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-lg sm:text-xl font-extrabold text-emerald-500">${ambassadorFee}</p>
+                    <p className="text-lg sm:text-xl font-extrabold text-emerald-500">{fmt(ambassadorFee)}</p>
                     <p className="text-[10px] text-muted-foreground">{isFr ? 'Ambassadeur gagne' : 'Ambassador earns'}</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-lg sm:text-xl font-extrabold text-muted-foreground">${platformFee}</p>
+                    <p className="text-lg sm:text-xl font-extrabold text-muted-foreground">{fmt(platformFee)}</p>
                     <p className="text-[10px] text-muted-foreground">SiteViral (10%)</p>
                   </div>
                 </div>
 
                 <p className="text-xs text-muted-foreground text-center">
-                  💡 10 {isFr ? 'ambassadeurs' : 'ambassadors'} × 5 {isFr ? 'ventes chacun' : 'sales each'} = <strong className="text-foreground">${(creatorEarns * 50).toFixed(0)}</strong> {isFr ? 'pour toi' : 'for you'}
+                  💡 10 {isFr ? 'ambassadeurs' : 'ambassadors'} × 5 {isFr ? 'ventes chacun' : 'sales each'} = <strong className="text-foreground">{fmt(creatorEarns * 50)}</strong> {isFr ? 'pour toi' : 'for you'}
                 </p>
               </div>
 

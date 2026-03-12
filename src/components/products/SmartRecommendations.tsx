@@ -5,40 +5,33 @@ import { useNavigate } from 'react-router-dom';
 import { ShoppingBag, ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface SmartRecommendationsProps {
-  /** Current product to exclude */
   excludeProductId?: string;
-  /** Org ID for same-org recs */
   organizationId?: string;
-  /** Product type for similar recs */
   productType?: string;
-  /** Max items */
   limit?: number;
-  /** Title override */
   title?: string;
 }
 
-/**
- * Smart product recommendations — shows relevant products based on:
- * 1. Same org (if provided)
- * 2. Same product type
- * 3. Fallback to top sellers
- */
 export function SmartRecommendations({
   excludeProductId,
   organizationId,
   productType,
   limit = 4,
-  title = 'Tu pourrais aussi aimer',
+  title,
 }: SmartRecommendationsProps) {
   const navigate = useNavigate();
+  const { fmtPrice } = useDisplayCurrency();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const defaultTitle = title || (isFr ? 'Tu pourrais aussi aimer' : 'You might also like');
 
   const { data: recommendations = [], isLoading } = useQuery({
     queryKey: ['smart-recs', excludeProductId, organizationId, productType, limit],
     queryFn: async () => {
-      // Strategy 1: Same org products
       if (organizationId) {
         const { data: orgProducts } = await db.from('digital_products')
           .select('id, title, cover_image_url, price, currency, is_free, slug, sales_count, product_type, organizations!inner(slug, name)')
@@ -47,11 +40,9 @@ export function SmartRecommendations({
           .neq('id', excludeProductId || '')
           .order('sales_count', { ascending: false })
           .limit(limit);
-
         if (orgProducts?.length) return orgProducts;
       }
 
-      // Strategy 2: Same product type
       if (productType) {
         const { data: typeProducts } = await db.from('digital_products')
           .select('id, title, cover_image_url, price, currency, is_free, slug, sales_count, product_type, organizations!inner(slug, name)')
@@ -60,11 +51,9 @@ export function SmartRecommendations({
           .neq('id', excludeProductId || '')
           .order('sales_count', { ascending: false })
           .limit(limit);
-
         if (typeProducts?.length) return typeProducts;
       }
 
-      // Strategy 3: Global top sellers
       const { data: topProducts } = await db.from('digital_products')
         .select('id, title, cover_image_url, price, currency, is_free, slug, sales_count, product_type, organizations!inner(slug, name)')
         .eq('is_published', true)
@@ -94,7 +83,7 @@ export function SmartRecommendations({
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-accent" />
-        <h3 className="text-sm font-extrabold">{title}</h3>
+        <h3 className="text-sm font-extrabold">{defaultTitle}</h3>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -122,7 +111,7 @@ export function SmartRecommendations({
                 )}
                 {product.sales_count > 5 && (
                   <Badge className="absolute top-1.5 right-1.5 text-[9px] bg-accent text-accent-foreground">
-                    🔥 Populaire
+                    🔥 {isFr ? 'Populaire' : 'Popular'}
                   </Badge>
                 )}
               </div>
@@ -131,7 +120,7 @@ export function SmartRecommendations({
                 <div className="flex items-center justify-between mt-1.5">
                   <p className="text-[10px] text-muted-foreground truncate">{org?.name}</p>
                   <p className="text-xs font-bold text-primary shrink-0">
-                    {product.is_free ? 'Gratuit' : formatCurrency(product.price || 0, product.currency || DEFAULT_CURRENCY)}
+                    {fmtPrice(product.price || 0, product.is_free, product.currency, isFr ? 'Gratuit' : 'Free')}
                   </p>
                 </div>
               </div>

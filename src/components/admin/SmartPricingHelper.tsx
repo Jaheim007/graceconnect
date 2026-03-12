@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { DollarSign, TrendingUp, AlertTriangle, Lightbulb, ArrowUp, ArrowDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/currency';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface PricingInsight {
   type: 'tip' | 'warning' | 'opportunity';
@@ -25,6 +26,8 @@ const CATEGORY_BENCHMARKS: Record<string, { avgPrice: number; topPrice: number; 
 export function SmartPricingHelper() {
   const { currentOrg } = useOrg();
   const { data: products = [] } = useOrgProducts(currentOrg?.id, false);
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const category = currentOrg?.category || 'other';
   const benchmark = CATEGORY_BENCHMARKS[category] || { avgPrice: 5000, topPrice: 25000, freeRate: 25 };
@@ -50,7 +53,9 @@ export function SmartPricingHelper() {
   if (avgPrice > 0 && avgPrice < benchmark.avgPrice * 0.5) {
     insights.push({
       type: 'opportunity',
-      message: `Votre prix moyen (${formatCurrency(avgPrice, currency)}) est inférieur à la moyenne de votre catégorie (${formatCurrency(benchmark.avgPrice, currency)}). Testez un prix plus élevé !`,
+      message: isFr
+        ? `Votre prix moyen (${formatCurrency(avgPrice, currency)}) est inférieur à la moyenne de votre catégorie (${formatCurrency(benchmark.avgPrice, currency)}). Testez un prix plus élevé !`
+        : `Your average price (${formatCurrency(avgPrice, currency)}) is below your category average (${formatCurrency(benchmark.avgPrice, currency)}). Try a higher price!`,
       icon: ArrowUp,
     });
   }
@@ -59,7 +64,9 @@ export function SmartPricingHelper() {
   if (avgPrice > benchmark.topPrice) {
     insights.push({
       type: 'warning',
-      message: `Votre prix moyen (${formatCurrency(avgPrice, currency)}) dépasse le top marché (${formatCurrency(benchmark.topPrice, currency)}). Vérifiez que la valeur perçue justifie ce prix.`,
+      message: isFr
+        ? `Votre prix moyen (${formatCurrency(avgPrice, currency)}) dépasse le top marché (${formatCurrency(benchmark.topPrice, currency)}). Vérifiez que la valeur perçue justifie ce prix.`
+        : `Your average price (${formatCurrency(avgPrice, currency)}) exceeds the market top (${formatCurrency(benchmark.topPrice, currency)}). Verify the perceived value justifies this price.`,
       icon: ArrowDown,
     });
   }
@@ -68,7 +75,9 @@ export function SmartPricingHelper() {
   if (freeRate > 60) {
     insights.push({
       type: 'tip',
-      message: `${freeRate}% de vos produits sont gratuits. Convertissez vos meilleurs gratuits en produits payants (même à petit prix) pour générer des revenus.`,
+      message: isFr
+        ? `${freeRate}% de vos produits sont gratuits. Convertissez vos meilleurs gratuits en produits payants (même à petit prix) pour générer des revenus.`
+        : `${freeRate}% of your products are free. Convert your best free items to paid products (even at a low price) to generate revenue.`,
       icon: DollarSign,
     });
   }
@@ -77,7 +86,9 @@ export function SmartPricingHelper() {
   if (freeProducts.length === 0 && paidProducts.length > 0) {
     insights.push({
       type: 'tip',
-      message: 'Aucun produit gratuit ! Ajoutez un « lead magnet » gratuit pour attirer de nouveaux contacts et les convertir en acheteurs.',
+      message: isFr
+        ? 'Aucun produit gratuit ! Ajoutez un « lead magnet » gratuit pour attirer de nouveaux contacts et les convertir en acheteurs.'
+        : 'No free product! Add a free "lead magnet" to attract new contacts and convert them into buyers.',
       icon: Lightbulb,
     });
   }
@@ -89,7 +100,9 @@ export function SmartPricingHelper() {
     if (uniquePrices.size === 1) {
       insights.push({
         type: 'tip',
-        message: 'Tous vos produits ont le même prix. Diversifiez avec un produit d\'entrée (petit prix) et un premium (prix élevé).',
+        message: isFr
+          ? "Tous vos produits ont le même prix. Diversifiez avec un produit d'entrée (petit prix) et un premium (prix élevé)."
+          : 'All your products have the same price. Diversify with an entry product (low price) and a premium one (high price).',
         icon: TrendingUp,
       });
     }
@@ -99,7 +112,9 @@ export function SmartPricingHelper() {
   if (insights.length === 0) {
     insights.push({
       type: 'tip',
-      message: `Votre pricing est aligné avec votre catégorie. Prix moyen : ${formatCurrency(avgPrice, currency)} (benchmark : ${formatCurrency(benchmark.avgPrice, currency)}).`,
+      message: isFr
+        ? `Votre pricing est aligné avec votre catégorie. Prix moyen : ${formatCurrency(avgPrice, currency)} (benchmark : ${formatCurrency(benchmark.avgPrice, currency)}).`
+        : `Your pricing is aligned with your category. Average price: ${formatCurrency(avgPrice, currency)} (benchmark: ${formatCurrency(benchmark.avgPrice, currency)}).`,
       icon: TrendingUp,
     });
   }
@@ -115,8 +130,8 @@ export function SmartPricingHelper() {
           <DollarSign className="h-4 w-4 text-emerald-500" />
         </div>
         <div>
-          <h3 className="font-semibold text-sm">Analyse de prix</h3>
-          <p className="text-[10px] text-muted-foreground">{paidProducts.length} produit(s) payant(s) · {freeProducts.length} gratuit(s)</p>
+          <h3 className="font-semibold text-sm">{isFr ? 'Analyse de prix' : 'Price analysis'}</h3>
+          <p className="text-[10px] text-muted-foreground">{paidProducts.length} {isFr ? 'produit(s) payant(s)' : 'paid product(s)'} · {freeProducts.length} {isFr ? 'gratuit(s)' : 'free'}</p>
         </div>
       </div>
 

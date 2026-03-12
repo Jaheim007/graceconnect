@@ -2,12 +2,16 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { motion } from 'framer-motion';
 import { Users, TrendingUp, ShoppingBag } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nContext';
 
 /**
  * Social proof banner for the /gagner page.
  * Shows platform-wide stats with strategic bluffing for cold-start.
  */
 export function SocialProofBanner() {
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+
   const { data } = useQuery({
     queryKey: ['ambassador-social-proof'],
     queryFn: async () => {
@@ -22,16 +26,15 @@ export function SocialProofBanner() {
 
   if (!data) return null;
 
-  // Strategic bluffing: ensure minimum impressive numbers
   const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
   const displayAmbassadors = Math.max(data.ambassadors, 120 + (dayOfYear % 40));
   const displayProducts = Math.max(data.products, 45 + (dayOfYear % 15));
   const conversionRate = 12 + (dayOfYear % 6);
 
   const stats = [
-    { icon: Users, label: 'Ambassadeurs sur la plateforme', value: `${displayAmbassadors}+`, color: 'text-blue-500' },
-    { icon: ShoppingBag, label: 'Produits à promouvoir', value: `${displayProducts}+`, color: 'text-emerald-500' },
-    { icon: TrendingUp, label: 'Taux de conversion moyen', value: `~${conversionRate}%`, color: 'text-accent' },
+    { icon: Users, label: isFr ? 'Ambassadeurs sur la plateforme' : 'Ambassadors on platform', value: `${displayAmbassadors}+`, color: 'text-blue-500' },
+    { icon: ShoppingBag, label: isFr ? 'Produits à promouvoir' : 'Products to promote', value: `${displayProducts}+`, color: 'text-emerald-500' },
+    { icon: TrendingUp, label: isFr ? 'Taux de conversion moyen' : 'Average conversion rate', value: `~${conversionRate}%`, color: 'text-accent' },
   ];
 
   return (
