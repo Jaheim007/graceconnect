@@ -1430,7 +1430,7 @@ export function AdminSettings() {
 
           {affiliationEnabled && (
             <div className="space-y-2">
-              <Label htmlFor="commission-pct" className="text-xs font-medium">Taux de commission (%)</Label>
+              <Label htmlFor="commission-pct" className="text-xs font-medium">{isFr ? 'Taux de commission (%)' : 'Commission rate (%)'}</Label>
               <div className="flex items-center gap-2">
                 <Input
                   id="commission-pct"
