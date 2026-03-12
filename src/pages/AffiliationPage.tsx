@@ -238,8 +238,8 @@ export default function AffiliationPage() {
               <div className="flex items-center gap-3 bg-green-500/10 border border-green-500/20 rounded-xl p-3">
                 <Wallet className="h-5 w-5 text-green-600 dark:text-green-400 shrink-0" />
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-green-700 dark:text-green-300">{fmt(payableCommission)} disponible(s) pour retrait</p>
-                  {pendingCommission > 0 && <p className="text-[10px] text-muted-foreground">{fmt(pendingCommission)} en attente de validation</p>}
+                  <p className="text-sm font-semibold text-green-700 dark:text-green-300">{fmt(payableCommission)} {isFr ? 'disponible(s) pour retrait' : 'available for withdrawal'}</p>
+                  {pendingCommission > 0 && <p className="text-[10px] text-muted-foreground">{fmt(pendingCommission)} {isFr ? 'en attente de validation' : 'pending validation'}</p>}
                 </div>
               </div>
             )}
