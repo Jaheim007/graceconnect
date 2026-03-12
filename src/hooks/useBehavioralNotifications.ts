@@ -131,8 +131,8 @@ export function useBehavioralNotifications() {
       // 6. KYC needed but has sales
       if (orgState.salesCount > 0 && (orgState.kycStatus === 'none' || orgState.kycStatus === 'rejected')) {
         createNotif.mutate({
-          title: '⚠️ Vérification requise pour recevoir vos paiements',
-          body: 'Vous avez des ventes ! Complétez votre vérification KYC pour pouvoir retirer vos fonds.',
+          title: isFr ? '⚠️ Vérification requise pour recevoir vos paiements' : '⚠️ Verification required to receive payments',
+          body: isFr ? 'Vous avez des ventes ! Complétez votre vérification KYC pour pouvoir retirer vos fonds.' : 'You have sales! Complete your KYC verification to withdraw your funds.',
           type: 'kyc_urgency',
         });
       }
