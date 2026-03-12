@@ -28,6 +28,7 @@ export default function AmbassadorDashboard() {
   const { toast } = useToast();
   const { userOrgs } = useOrg();
   const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const [requestingPayout, setRequestingPayout] = useState<string | null>(null);
 
   const primaryCurrency = userOrgs[0]?.currency || DEFAULT_CURRENCY;
@@ -53,23 +54,19 @@ export default function AmbassadorDashboard() {
     enabled: !!user,
   });
 
-  // Top commission products for sharing — fallback chain
   const { data: topProducts = [] } = useQuery({
     queryKey: ['top-commission-products'],
     queryFn: async () => {
-      // Try ordering by org commission (joined)
       const { data } = await db.from('digital_products')
         .select('id, title, price, sale_price, sale_ends_at, cover_image_url, slug, currency, organization_id, organizations(name, slug, commission_percent)')
         .eq('is_published', true)
         .order('sales_count', { ascending: false })
         .limit(6);
       if (data && data.length > 0) {
-        // Sort by commission_percent desc client-side, take top 3
         return [...data]
           .sort((a: any, b: any) => (b.organizations?.commission_percent || 0) - (a.organizations?.commission_percent || 0))
           .slice(0, 3);
       }
-      // Fallback: newest products
       const { data: fallback } = await db.from('digital_products')
         .select('id, title, price, sale_price, sale_ends_at, cover_image_url, slug, currency, organization_id, organizations(name, slug, commission_percent)')
         .eq('is_published', true)
@@ -87,11 +84,10 @@ export default function AmbassadorDashboard() {
   const hasClick = totalClicks > 0;
   const hasConversion = affiliateSales.length > 0;
 
-  // Checklist state
   const missionItems = [
-    { done: hasShared, label: 'Choisir un produit à partager', icon: Store },
-    { done: hasShared, label: 'Partager sur WhatsApp', icon: Share2 },
-    { done: hasClick, label: 'Obtenir 1 clic', icon: Target },
+    { done: hasShared, label: isFr ? 'Choisir un produit à partager' : 'Choose a product to share', icon: Store },
+    { done: hasShared, label: isFr ? 'Partager sur WhatsApp' : 'Share on WhatsApp', icon: Share2 },
+    { done: hasClick, label: isFr ? 'Obtenir 1 clic' : 'Get 1 click', icon: Target },
   ];
   const completedMissions = missionItems.filter(m => m.done).length;
 
@@ -99,20 +95,22 @@ export default function AmbassadorDashboard() {
     setRequestingPayout(orgId);
     try {
       const result = await requestAffiliatePayout(orgId);
-      toast({ title: 'Demande envoyée', description: `${result.amount?.toLocaleString()} disponible.` });
+      toast({ title: isFr ? 'Demande envoyée' : 'Request sent', description: `${result.amount?.toLocaleString()} ${isFr ? 'disponible' : 'available'}.` });
     } catch (err: unknown) {
-      toast({ title: 'Erreur', description: err instanceof Error ? err.message : '', variant: 'destructive' });
+      toast({ title: isFr ? 'Erreur' : 'Error', description: err instanceof Error ? err.message : '', variant: 'destructive' });
     } finally { setRequestingPayout(null); }
   };
 
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir';
-  const displayName = profile?.display_name?.split(' ')[0] || 'Ambassadeur';
+  const greeting = isFr
+    ? (hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir')
+    : (hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening');
+  const displayName = profile?.display_name?.split(' ')[0] || (isFr ? 'Ambassadeur' : 'Ambassador');
 
   return (
     <div className="min-h-screen bg-background">
       <div className="container max-w-2xl px-4 py-5 sm:py-6 space-y-5">
-        <SEOHead title="Espace Ambassadeur — Siteviral" noindex />
+        <SEOHead title={isFr ? 'Espace Ambassadeur — Siteviral' : 'Ambassador Dashboard — Siteviral'} noindex />
 
         {/* ═══ HEADER ═══ */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3">
@@ -121,7 +119,7 @@ export default function AmbassadorDashboard() {
           </div>
           <div>
             <h1 className="text-lg font-bold">{greeting}, {displayName}</h1>
-            <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">Espace Ambassadeur</p>
+            <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">{isFr ? 'Espace Ambassadeur' : 'Ambassador Dashboard'}</p>
           </div>
         </motion.div>
 
@@ -130,16 +128,16 @@ export default function AmbassadorDashboard() {
           className="bg-card border border-emerald-500/20 rounded-2xl p-5"
         >
           <h2 className="font-bold text-sm flex items-center gap-2 mb-4">
-            <Wallet className="h-4 w-4 text-emerald-500" /> Mes gains
+            <Wallet className="h-4 w-4 text-emerald-500" /> {isFr ? 'Mes gains' : 'My earnings'}
           </h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
               <p className="text-2xl font-extrabold text-emerald-500">{fmt(totalEarned)}</p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Total gagné</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{isFr ? 'Total gagné' : 'Total earned'}</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-extrabold text-foreground">{fmt(payableCommission)}</p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">À retirer</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{isFr ? 'À retirer' : 'Available'}</p>
             </div>
           </div>
           {payableCommission > 0 && (
@@ -147,7 +145,7 @@ export default function AmbassadorDashboard() {
               const firstOrg = affiliateSales.find((s: any) => s.status === 'payable');
               if (firstOrg) handleRequestPayout((firstOrg as any).organization_id);
             }} disabled={!!requestingPayout}>
-              {requestingPayout ? 'En cours…' : 'Retirer mes gains'}
+              {requestingPayout ? (isFr ? 'En cours…' : 'Processing…') : (isFr ? 'Retirer mes gains' : 'Withdraw earnings')}
             </Button>
           )}
         </motion.div>
@@ -160,9 +158,9 @@ export default function AmbassadorDashboard() {
           className="bg-card border border-border rounded-2xl p-5"
         >
           <h2 className="font-bold text-sm flex items-center gap-2 mb-1">
-            <Target className="h-4 w-4 text-amber-500" /> 🎯 Ta mission aujourd'hui
+            <Target className="h-4 w-4 text-amber-500" /> 🎯 {isFr ? "Ta mission aujourd'hui" : "Today's mission"}
           </h2>
-          <p className="text-xs text-muted-foreground mb-4">Complète ces étapes pour débloquer tes premiers gains.</p>
+          <p className="text-xs text-muted-foreground mb-4">{isFr ? 'Complète ces étapes pour débloquer tes premiers gains.' : 'Complete these steps to unlock your first earnings.'}</p>
 
           <div className="space-y-3">
             {missionItems.map((item, i) => (
@@ -184,14 +182,14 @@ export default function AmbassadorDashboard() {
 
           {completedMissions >= 2 && (
             <div className="mt-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
-              <p className="text-sm font-bold">🔥 Premier partage effectué !</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Ta 1ère vente peut tomber aujourd'hui.</p>
+              <p className="text-sm font-bold">{isFr ? '🔥 Premier partage effectué !' : '🔥 First share done!'}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{isFr ? 'Ta 1ère vente peut tomber aujourd\'hui.' : 'Your first sale could come today.'}</p>
             </div>
           )}
 
           {!hasShared && (
             <Button className="w-full mt-4 gap-2" onClick={() => navigate('/marketplace')}>
-              <Rocket className="h-4 w-4" /> Choisir un produit à partager
+              <Rocket className="h-4 w-4" /> {isFr ? 'Choisir un produit à partager' : 'Choose a product to share'}
             </Button>
           )}
         </motion.div>
@@ -205,16 +203,16 @@ export default function AmbassadorDashboard() {
               <Trophy className="h-4 w-4 text-amber-500" /> Top commissions
             </h2>
             <button onClick={() => navigate('/marketplace')} className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
-              Tout voir <ArrowRight className="h-3 w-3" />
+              {isFr ? 'Tout voir' : 'View all'} <ArrowRight className="h-3 w-3" />
             </button>
           </div>
 
           <div className="space-y-3">
             {topProducts.length === 0 ? (
               <div className="text-center py-6">
-                <p className="text-sm text-muted-foreground mb-3">Aucun produit disponible pour le moment.</p>
+                <p className="text-sm text-muted-foreground mb-3">{isFr ? 'Aucun produit disponible pour le moment.' : 'No products available yet.'}</p>
                 <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate('/marketplace')}>
-                  <Store className="h-3.5 w-3.5" /> Explorer la marketplace
+                  <Store className="h-3.5 w-3.5" /> {isFr ? 'Explorer la marketplace' : 'Explore marketplace'}
                 </Button>
               </div>
             ) : topProducts.map((product: any) => {
@@ -237,7 +235,7 @@ export default function AmbassadorDashboard() {
                     <div className="flex items-center gap-2 mt-0.5">
                       <span className="text-xs font-bold text-emerald-500">{commission}% commission</span>
                       {estimatedGain > 0 && (
-                        <span className="text-[10px] text-muted-foreground">≈ {fmt(estimatedGain, product.currency)} / vente</span>
+                        <span className="text-[10px] text-muted-foreground">≈ {fmt(estimatedGain, product.currency)} / {isFr ? 'vente' : 'sale'}</span>
                       )}
                     </div>
                   </div>
@@ -260,10 +258,12 @@ export default function AmbassadorDashboard() {
             className="bg-card border border-border rounded-2xl p-5"
           >
             <h2 className="font-bold text-sm flex items-center gap-2 mb-4">
-              <Trophy className="h-4 w-4 text-amber-500" /> 🎉 Partager mes gains
+              <Trophy className="h-4 w-4 text-amber-500" /> 🎉 {isFr ? 'Partager mes gains' : 'Share my earnings'}
             </h2>
             <p className="text-xs text-muted-foreground mb-4">
-              Partage ta carte de gains sur les réseaux sociaux et inspire d'autres personnes à rejoindre le mouvement !
+              {isFr
+                ? "Partage ta carte de gains sur les réseaux sociaux et inspire d'autres personnes à rejoindre le mouvement !"
+                : 'Share your earnings card on social media and inspire others to join the movement!'}
             </p>
             <EarningsCard
               totalEarned={totalEarned}
@@ -282,19 +282,19 @@ export default function AmbassadorDashboard() {
           >
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-bold text-sm flex items-center gap-2">
-                <Link2 className="h-4 w-4 text-primary" /> Mes liens actifs
+                <Link2 className="h-4 w-4 text-primary" /> {isFr ? 'Mes liens actifs' : 'My active links'}
               </h2>
-              <button onClick={() => navigate('/affiliation')} className="text-xs text-primary font-medium hover:underline">Tout voir</button>
+              <button onClick={() => navigate('/affiliation')} className="text-xs text-primary font-medium hover:underline">{isFr ? 'Tout voir' : 'View all'}</button>
             </div>
             <div className="space-y-2">
               {affiliateLinks.slice(0, 3).map((link) => (
                 <div key={link.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate flex items-center gap-1">
-                      {link.organizations?.name || 'Organisation'}
+                      {link.organizations?.name || (isFr ? 'Organisation' : 'Organization')}
                       {((link.organizations as any)?.is_verified || (link.organizations as any)?.kyc_status === 'level1' || (link.organizations as any)?.kyc_status === 'level2') && <VerifiedBadge size="xs" />}
                     </p>
-                    <p className="text-[10px] text-muted-foreground">{link.clicks || 0} clics · {link.conversions || 0} ventes</p>
+                    <p className="text-[10px] text-muted-foreground">{link.clicks || 0} {isFr ? 'clics' : 'clicks'} · {link.conversions || 0} {isFr ? 'ventes' : 'sales'}</p>
                   </div>
                   <AffiliateShareTools
                     shareUrl={`${window.location.origin}/org/${link.organizations?.slug}?ref=${link.code}`}

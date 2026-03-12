@@ -21,6 +21,7 @@ import { verifyPayment, VerifyPaymentResult, callFn } from '@/lib/api';
 import { useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { onNewDonation } from '@/lib/notifications';
+import { useI18n } from '@/i18n/I18nContext';
 
 const PRESET_AMOUNTS = [500, 1000, 2500, 5000, 10000];
 
@@ -46,15 +47,15 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
   const { toast } = useToast();
   const { user, profile } = useAuth();
   const { openPayment, hasPaystackKey } = usePaymentGateway();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
-  // Auto-select payment method based on availability (region + Paystack key)
   const defaultMethod: PaymentMethod =
     isMoMoAvailable(campaign?.currency || 'XOF') && hasPaystackKey ? 'mobile_money' : 'card';
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(defaultMethod);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  // Fetch org subaccount + fee config for split payments
   const { data: orgPayment } = useQuery({
     queryKey: ['org-payment-config', organizationId],
     queryFn: async () => {
@@ -70,14 +71,16 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
   if (!campaign) return null;
 
   const campaignCurrency = campaign.currency || 'XOF';
+  const fmtLoc = isFr ? 'fr-FR' : 'en-US';
   const fmt = (n: number) => {
     try {
-      return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: campaignCurrency, maximumFractionDigits: 0 }).format(n);
+      return new Intl.NumberFormat(fmtLoc, { style: 'currency', currency: campaignCurrency, maximumFractionDigits: 0 }).format(n);
     } catch {
-      return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(n) + ` ${campaignCurrency}`;
+      return new Intl.NumberFormat(fmtLoc, { maximumFractionDigits: 0 }).format(n) + ` ${campaignCurrency}`;
     }
   };
 
+  const anonLabel = isFr ? 'Anonyme' : 'Anonymous';
   const resolvedEmail = email || user?.email || '';
   const resolvedName = name || profile?.display_name || '';
   const effectiveAmount = Number(amount);
@@ -85,11 +88,11 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
   const handleDonate = async () => {
     if (isSubmitting) return;
     if (!amount || Number(amount) < 100) {
-      toast({ title: 'Montant invalide', description: `Le don minimum est de 100 ${campaignCurrency}.`, variant: 'destructive' });
+      toast({ title: isFr ? 'Montant invalide' : 'Invalid amount', description: isFr ? `Le don minimum est de 100 ${campaignCurrency}.` : `Minimum donation is 100 ${campaignCurrency}.`, variant: 'destructive' });
       return;
     }
     if (!resolvedEmail) {
-      toast({ title: 'Email requis', description: 'Veuillez saisir votre email pour recevoir le reçu.', variant: 'destructive' });
+      toast({ title: isFr ? 'Email requis' : 'Email required', description: isFr ? 'Veuillez saisir votre email pour recevoir le reçu.' : 'Please enter your email to receive the receipt.', variant: 'destructive' });
       return;
     }
     setIsSubmitting(true);
@@ -105,7 +108,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
         type: 'donation',
         organization_id: organizationId,
         campaign_id: campaign.id,
-        buyer_name: isAnonymous ? 'Anonyme' : resolvedName,
+        buyer_name: isAnonymous ? anonLabel : resolvedName,
         affiliate_code: affiliateCode,
         subaccount: orgPayment?.paystack_subaccount_code || undefined,
         platformFeeAmount: orgPayment?.paystack_subaccount_code
@@ -118,18 +121,14 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
           type: 'donation',
           campaign_id: campaign.id,
           organization_id: organizationId,
-          donor_name: isAnonymous ? 'Anonyme' : resolvedName,
+          donor_name: isAnonymous ? anonLabel : resolvedName,
           donor_email: resolvedEmail,
           user_id: user?.id || null,
           affiliate_code: affiliateCode || null,
         },
-        onClose: () => {
-          // User closed the popup without paying — stay on form
-        },
+        onClose: () => {},
         onSuccess: async (reference, gateway) => {
-          // For Stripe, the redirect handles success — this won't be called
           if (gateway === 'stripe') return;
-          
           setStep('processing');
           try {
             const verifyResult = await verifyPayment({
@@ -138,21 +137,20 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
               organization_id: organizationId,
               campaign_id: campaign.id,
               affiliate_code: affiliateCode,
-              donor_name: isAnonymous ? 'Anonyme' : (resolvedName || undefined),
+              donor_name: isAnonymous ? anonLabel : (resolvedName || undefined),
               donor_email: resolvedEmail || undefined,
             });
             clearAffiliateCode();
             setResult(verifyResult);
             setStep('success');
             onSuccess?.(verifyResult);
-            onNewDonation(organizationId, '', campaign.title, isAnonymous ? 'Anonyme' : resolvedName, verifyResult.breakdown.amount, campaign.currency || 'XOF');
+            onNewDonation(organizationId, '', campaign.title, isAnonymous ? anonLabel : resolvedName, verifyResult.breakdown.amount, campaign.currency || 'XOF');
             queryClient.invalidateQueries({ queryKey: ['feed-campaigns'] });
             queryClient.invalidateQueries({ queryKey: ['org-campaigns'] });
             queryClient.invalidateQueries({ queryKey: ['user-donations'] });
           } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Une erreur est survenue.';
+            const message = err instanceof Error ? err.message : (isFr ? 'Une erreur est survenue.' : 'An error occurred.');
             console.error('[DonateModal] verify error:', message);
-            // Payment succeeded on Paystack but verify failed — redirect to success page with params for retry
             const params = new URLSearchParams({
               reference,
               gateway: 'paystack',
@@ -165,9 +163,9 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
         },
       });
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Impossible d\'ouvrir le paiement.';
+      const message = err instanceof Error ? err.message : (isFr ? "Impossible d'ouvrir le paiement." : 'Unable to open payment.');
       console.error('[DonateModal] openPayment error:', err);
-      toast({ title: 'Erreur de paiement', description: message, variant: 'destructive' });
+      toast({ title: isFr ? 'Erreur de paiement' : 'Payment error', description: message, variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
@@ -190,12 +188,12 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Heart className="h-4 w-4 text-primary" />
-            Contribuer à {campaign.title}
+            {isFr ? `Contribuer à ${campaign.title}` : `Contribute to ${campaign.title}`}
           </DialogTitle>
           {step === 'form' && (
            <DialogDescription>
-190:              Votre contribution soutient cette campagne. Devise : {campaignCurrency}.
-191:            </DialogDescription>
+              {isFr ? `Votre contribution soutient cette campagne. Devise : ${campaignCurrency}.` : `Your contribution supports this campaign. Currency: ${campaignCurrency}.`}
+            </DialogDescription>
           )}
         </DialogHeader>
 
@@ -204,7 +202,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
           <>
             <div className="space-y-4 py-2">
               <div>
-                <Label className="text-xs mb-2 block">Choisir un montant</Label>
+                <Label className="text-xs mb-2 block">{isFr ? 'Choisir un montant' : 'Choose an amount'}</Label>
                 <div className="grid grid-cols-5 gap-1.5">
                   {PRESET_AMOUNTS.map((p) => (
                     <button
@@ -223,12 +221,12 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
               </div>
 
               <div>
-                <Label htmlFor="amount" className="text-xs">Ou montant personnalisé ({campaignCurrency})</Label>
+                <Label htmlFor="amount" className="text-xs">{isFr ? `Ou montant personnalisé (${campaignCurrency})` : `Or custom amount (${campaignCurrency})`}</Label>
                 <Input
                   id="amount"
                   type="number"
                   min={100}
-                  placeholder="ex. 3000"
+                  placeholder={isFr ? 'ex. 3000' : 'e.g. 3000'}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   className="mt-1.5"
@@ -238,17 +236,16 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
               {!user && (
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label htmlFor="dname" className="text-xs">Nom (optionnel)</Label>
-                    <Input id="dname" value={name} onChange={(e) => setName(e.target.value)} placeholder="Anonyme" className="mt-1.5" />
+                    <Label htmlFor="dname" className="text-xs">{isFr ? 'Nom (optionnel)' : 'Name (optional)'}</Label>
+                    <Input id="dname" value={name} onChange={(e) => setName(e.target.value)} placeholder={anonLabel} className="mt-1.5" />
                   </div>
                   <div>
                     <Label htmlFor="demail" className="text-xs">Email *</Label>
-                    <Input id="demail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="votre@email.com" className="mt-1.5" required />
+                    <Input id="demail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder={isFr ? 'votre@email.com' : 'your@email.com'} className="mt-1.5" required />
                   </div>
                 </div>
               )}
 
-              {/* Anonymous donation */}
               <div className="flex items-center gap-2">
                 <Checkbox
                   id="anonymous"
@@ -257,11 +254,10 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
                 />
                 <Label htmlFor="anonymous" className="text-xs flex items-center gap-1.5 cursor-pointer">
                   <EyeOff className="h-3 w-3 text-muted-foreground" />
-                  Don anonyme (votre nom ne sera pas visible)
+                  {isFr ? 'Don anonyme (votre nom ne sera pas visible)' : 'Anonymous donation (your name will not be visible)'}
                 </Label>
               </div>
 
-              {/* Payment method selector */}
               <PaymentMethodSelector
                 value={paymentMethod}
                 onChange={setPaymentMethod}
@@ -270,17 +266,17 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
               />
               {!hasPaystackKey && isMoMoAvailable(campaign.currency || 'XOF') && (
                 <p className="text-[10px] text-muted-foreground">
-                  Mobile Money est temporairement indisponible. Utilisez Carte bancaire pour finaliser le paiement.
+                  {isFr ? 'Mobile Money est temporairement indisponible. Utilisez Carte bancaire pour finaliser le paiement.' : 'Mobile Money is temporarily unavailable. Use Card to complete payment.'}
                 </p>
               )}
 
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Lock className="h-3 w-3" />
-                  Paiement sécurisé par {paymentMethod === 'card' ? 'Stripe' : 'Paystack'}
+                  {isFr ? `Paiement sécurisé par ${paymentMethod === 'card' ? 'Stripe' : 'Paystack'}` : `Secure payment via ${paymentMethod === 'card' ? 'Stripe' : 'Paystack'}`}
                 </div>
                 <p className="text-[10px] text-muted-foreground">
-                  Les méthodes de paiement dépendent de la disponibilité par pays.
+                  {isFr ? 'Les méthodes de paiement dépendent de la disponibilité par pays.' : 'Payment methods depend on country availability.'}
                 </p>
                 <div className="flex flex-wrap gap-2 text-[10px] text-muted-foreground">
                   <a href="/refund-policy" target="_blank" className="underline hover:text-foreground">Refund Policy</a>
@@ -291,14 +287,14 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
             </div>
 
             <div className="flex gap-2">
-              <Button variant="outline" onClick={handleClose} className="flex-1">Annuler</Button>
+              <Button variant="outline" onClick={handleClose} className="flex-1">{isFr ? 'Annuler' : 'Cancel'}</Button>
               <Button
                 onClick={handleDonate}
                 disabled={!amount || Number(amount) < 100 || isSubmitting}
                 className="flex-1 bg-primary text-primary-foreground"
               >
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : null}
-                Donner {amount ? fmt(effectiveAmount) : ''}
+                {isFr ? 'Donner' : 'Donate'} {amount ? fmt(effectiveAmount) : ''}
                 {amount && effectiveAmount > 0 && (
                   <LocalPriceHint amount={effectiveAmount} currency={campaignCurrency} className="ml-1" />
                 )}
@@ -311,8 +307,8 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
         {step === 'processing' && (
           <div className="py-10 flex flex-col items-center gap-4 text-center">
             <Loader2 className="h-12 w-12 text-primary animate-spin" />
-            <p className="font-medium">Vérification du paiement…</p>
-            <p className="text-sm text-muted-foreground">Ne fermez pas cette fenêtre.</p>
+            <p className="font-medium">{isFr ? 'Vérification du paiement…' : 'Verifying payment…'}</p>
+            <p className="text-sm text-muted-foreground">{isFr ? 'Ne fermez pas cette fenêtre.' : 'Do not close this window.'}</p>
           </div>
         )}
 
@@ -321,24 +317,26 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
           <div className="py-6 flex flex-col items-center gap-4 text-center">
             <CheckCircle className="h-14 w-14 text-green-500" />
             <div>
-              <p className="font-semibold text-lg">🙏 Merci pour votre don !</p>
+              <p className="font-semibold text-lg">{isFr ? '🙏 Merci pour votre don !' : '🙏 Thank you for your donation!'}</p>
               <p className="text-sm text-muted-foreground mt-1">
-                {fmt(result.breakdown.amount)} reçu — la plateforme reçoit {fmt(result.breakdown.organization_amount)}.
+                {isFr
+                  ? `${fmt(result.breakdown.amount)} reçu — la plateforme reçoit ${fmt(result.breakdown.organization_amount)}.`
+                  : `${fmt(result.breakdown.amount)} received — the platform receives ${fmt(result.breakdown.organization_amount)}.`}
               </p>
               {result.breakdown.affiliate_attributed && (
-                <p className="text-xs text-primary mt-1">✓ Commission affilié attribuée</p>
+                <p className="text-xs text-primary mt-1">{isFr ? '✓ Commission affilié attribuée' : '✓ Affiliate commission attributed'}</p>
               )}
             </div>
-            <p className="text-xs text-muted-foreground">Un reçu a été envoyé à votre email.</p>
+            <p className="text-xs text-muted-foreground">{isFr ? 'Un reçu a été envoyé à votre email.' : 'A receipt has been sent to your email.'}</p>
             {user && (
               <Button
                 onClick={() => { handleClose(); navigate('/dashboard'); }}
                 className="w-full bg-primary text-primary-foreground"
               >
-                Accéder à mon tableau de bord
+                {isFr ? 'Accéder à mon tableau de bord' : 'Go to my dashboard'}
               </Button>
             )}
-            <Button variant="ghost" onClick={handleClose} className="text-muted-foreground">Fermer</Button>
+            <Button variant="ghost" onClick={handleClose} className="text-muted-foreground">{isFr ? 'Fermer' : 'Close'}</Button>
           </div>
         )}
 
@@ -347,12 +345,12 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
           <div className="py-6 flex flex-col items-center gap-4 text-center">
             <AlertCircle className="h-14 w-14 text-destructive" />
             <div>
-              <p className="font-semibold">Une erreur est survenue</p>
+              <p className="font-semibold">{isFr ? 'Une erreur est survenue' : 'An error occurred'}</p>
               <p className="text-sm text-muted-foreground mt-1">{errorMsg}</p>
             </div>
             <div className="flex gap-2 w-full">
-              <Button variant="outline" onClick={handleClose} className="flex-1">Fermer</Button>
-              <Button onClick={() => setStep('form')} className="flex-1">Réessayer</Button>
+              <Button variant="outline" onClick={handleClose} className="flex-1">{isFr ? 'Fermer' : 'Close'}</Button>
+              <Button onClick={() => setStep('form')} className="flex-1">{isFr ? 'Réessayer' : 'Try again'}</Button>
             </div>
           </div>
         )}

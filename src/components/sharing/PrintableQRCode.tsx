@@ -100,7 +100,7 @@ export function PrintableQRCode({ productTitle, productUrl, coverImageUrl, orgNa
             {orgName && <p className="text-xs text-gray-500 mb-4">{orgName}</p>}
             {price && price > 0 && (
               <p className="text-sm font-semibold text-emerald-600 mb-3">
-                {new Intl.NumberFormat('fr-FR').format(price)} {currency || 'FCFA'}
+                {new Intl.NumberFormat(isFr ? 'fr-FR' : 'en-US').format(price)} {currency || 'FCFA'}
               </p>
             )}
             <img
