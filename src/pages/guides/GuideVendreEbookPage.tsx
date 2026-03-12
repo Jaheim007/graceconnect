@@ -4,7 +4,7 @@ export default function GuideVendreEbookPage() {
     seo={{ title: 'Comment vendre un ebook en ligne en Afrique — Guide complet', description: 'Guide étape par étape pour vendre votre ebook en Afrique avec Mobile Money. Zéro investissement, zéro compétence technique.', url: 'https://siteviral.com/guide/vendre-ebook-afrique' }}
     badge="📚 Guide SEO"
     title="Comment vendre un ebook en ligne en Afrique"
-    intro="Vous avez écrit un ebook et vous voulez le vendre en Afrique francophone ? Ce guide vous montre comment créer votre boutique, fixer votre prix et recevoir des paiements par Mobile Money — gratuitement."
+    intro="Vous avez écrit un ebook et vous voulez le vendre en Afrique ? Ce guide vous montre comment créer votre boutique, fixer votre prix et recevoir des paiements par Mobile Money — gratuitement."
     sections={[
       { heading: '1. Pourquoi l\'Afrique est le meilleur marché pour les ebooks', content: 'Le contenu en français adapté au contexte africain est rare. La demande est forte dans l\'éducation, le développement personnel, la religion et les affaires. Et avec le Mobile Money, le paiement n\'a jamais été aussi simple.' },
       { heading: '2. Les formats qui marchent', content: 'PDF reste le roi — compatible partout, facile à lire sur mobile. Vous pouvez aussi proposer des versions ePub. Les ebooks de 30 à 100 pages se vendent le mieux, surtout s\'ils résolvent un problème concret.' },

@@ -26,7 +26,7 @@ export const blogArticles: BlogArticle[] = [
     publishedAt: '2026-02-27',
     content: `
 <h2>Le problème que Siteviral résout</h2>
-<p>En Afrique francophone, des millions de leaders, créateurs et organisations produisent du contenu de valeur — prédications, cours, e-books, guides, musique — mais n'ont <strong>aucun moyen simple de le monétiser</strong>.</p>
+<p>En Afrique, des millions de leaders, créateurs et organisations produisent du contenu de valeur — prédications, cours, e-books, guides, musique — mais n'ont <strong>aucun moyen simple de le monétiser</strong>.</p>
 <p>Les plateformes internationales comme Shopify, Teachable ou Patreon ne supportent pas le <strong>Mobile Money</strong>, coûtent cher en abonnement, et ne sont pas adaptées au contexte local.</p>
 <p>Résultat : du contenu envoyé gratuitement sur WhatsApp, des dons collectés en espèces sans traçabilité, et des opportunités perdues chaque jour.</p>
 
@@ -107,7 +107,7 @@ export const blogArticles: BlogArticle[] = [
 <li><strong>Modèle</strong> : zéro abonnement, 10% de commission uniquement sur les ventes</li>
 <li><strong>Paiement</strong> : Mobile Money natif (Orange, MTN, Wave) + carte bancaire</li>
 <li><strong>Mobile Money</strong> : ✅ C'est le mode de paiement principal</li>
-<li><strong>Marché cible</strong> : Afrique francophone et diaspora</li>
+<li><strong>Marché cible</strong> : Afrique et diaspora</li>
 <li><strong>Complexité</strong> : zéro — prêt en 2 minutes, pas de thème à configurer</li>
 </ul>
 
@@ -167,10 +167,10 @@ export const blogArticles: BlogArticle[] = [
 </ul>
 
 <h2>Le cas concret</h2>
-<p>Un pasteur en Côte d'Ivoire veut vendre ses prédications audio à 2 000 FCFA l'unité :</p>
+<p>Un pasteur au Ghana veut vendre ses prédications audio à 2 000 FCFA l'unité :</p>
 <ul>
 <li><strong>Sur Patreon</strong> : ses fidèles doivent s'abonner en dollars avec une carte Visa. 90% ne peuvent pas.</li>
-<li><strong>Sur Siteviral</strong> : ses fidèles achètent en 1 clic par Orange Money. L'ambassadeur qui partage le lien touche 15%. Tout le monde y gagne.</li>
+<li><strong>Sur Siteviral</strong> : ses fidèles achètent en 1 clic par Mobile Money. L'ambassadeur qui partage le lien touche 15%. Tout le monde y gagne.</li>
 </ul>
 
 <h2>Conclusion</h2>
@@ -252,7 +252,7 @@ export const blogArticles: BlogArticle[] = [
 <li><strong>Pas que des dons</strong> : vendez aussi des ressources, badges, cotisations sur la même plateforme</li>
 </ul>
 
-<h2>Cas pratique : une ONG en Côte d'Ivoire</h2>
+<h2>Cas pratique : une ONG au Sénégal</h2>
 <p>Une ONG lance une campagne pour construire une école :</p>
 <ul>
 <li><strong>Sur GoFundMe</strong> : la campagne est en dollars, les donateurs locaux ne peuvent pas payer, la diaspora doit chercher la page, les fonds restent bloqués sur un compte étranger.</li>
@@ -455,10 +455,11 @@ export const blogArticles: BlogArticle[] = [
 <h2>Qu'est-ce que le Mobile Money ?</h2>
 <p>Le Mobile Money permet d'envoyer et recevoir de l'argent, payer des factures et faire des achats <strong>directement depuis son téléphone portable</strong>, sans compte bancaire. Les principaux opérateurs :</p>
 <ul>
-<li><strong>Orange Money</strong> : Côte d'Ivoire, Sénégal, Mali, Cameroun, Burkina Faso…</li>
-<li><strong>MTN Mobile Money</strong> : Ghana, Cameroun, Bénin, Congo…</li>
-<li><strong>Wave</strong> : Sénégal, Côte d'Ivoire, Mali…</li>
-<li><strong>Moov Money</strong> : Côte d'Ivoire, Bénin, Togo…</li>
+<li><strong>Orange Money</strong> : Sénégal, Mali, Burkina Faso, Guinea…</li>
+<li><strong>MTN Mobile Money</strong> : Ghana, Nigeria, Cameroon, Benin…</li>
+<li><strong>M-Pesa</strong> : Kenya, Tanzania, DRC…</li>
+<li><strong>Wave</strong> : Senegal, Mali, Burkina Faso…</li>
+<li><strong>Moov Money</strong> : Benin, Togo, Niger…</li>
 </ul>
 
 <h2>Pourquoi c'est révolutionnaire pour la vente en ligne</h2>
@@ -795,7 +796,7 @@ export const blogArticles: BlogArticle[] = [
 <h3>🌍 Marché cible</h3>
 <ul>
 <li><strong>Gumroad</strong> : Principalement USA/Europe. Interface en anglais.</li>
-<li><strong>Siteviral</strong> : Conçu pour l'Afrique francophone. Interface en français. ✅</li>
+<li><strong>Siteviral</strong> : Conçu pour l'Afrique. Interface en français et anglais. ✅</li>
 </ul>
 
 <h3>📢 Marketing</h3>
@@ -913,7 +914,7 @@ export const blogArticles: BlogArticle[] = [
     publishedAt: '2026-03-16',
     content: `
 <h2>Profil</h2>
-<p>Kouamé est coach en développement personnel à Abidjan. Il donnait des séminaires en présentiel à 100-200 personnes. Ses revenus dépendaient entièrement de sa présence physique.</p>
+<p>Kouamé est coach en développement personnel à Dakar. Il donnait des séminaires en présentiel à 100-200 personnes. Ses revenus dépendaient entièrement de sa présence physique.</p>
 
 <h2>Le problème</h2>
 <p>Quand il ne donne pas de séminaire, il ne gagne rien. Ses contenus WhatsApp étaient partagés gratuitement. Il n'avait aucun revenu passif.</p>
@@ -1233,7 +1234,7 @@ export const blogArticles: BlogArticle[] = [
     publishedAt: '2026-03-25',
     content: `
 <h2>Pourquoi le SEO est important</h2>
-<p>Si quelqu'un cherche "ebook développement personnel Côte d'Ivoire" sur Google, votre page Siteviral devrait apparaître. C'est du <strong>trafic gratuit et qualifié</strong> — des gens qui cherchent exactement ce que vous vendez.</p>
+<p>Si quelqu'un cherche "ebook développement personnel Afrique" sur Google, votre page Siteviral devrait apparaître. C'est du <strong>trafic gratuit et qualifié</strong> — des gens qui cherchent exactement ce que vous vendez.</p>
 
 <h2>Les bases du SEO pour votre page</h2>
 
@@ -1764,7 +1765,7 @@ export const blogArticles: BlogArticle[] = [
     publishedAt: '2026-04-10',
     content: `
 <h2>The Problem</h2>
-<p>In francophone Africa, millions of creators, churches, NGOs, and entrepreneurs produce valuable digital content — but have <strong>no simple way to monetize it</strong>. Western platforms like Shopify, Gumroad, and Patreon don't support Mobile Money, charge expensive subscriptions in USD, and aren't adapted to the local context.</p>
+<p>In Africa, millions of creators, churches, NGOs, and entrepreneurs produce valuable digital content — but have <strong>no simple way to monetize it</strong>. Western platforms like Shopify, Gumroad, and Patreon don't support Mobile Money, charge expensive subscriptions in USD, and aren't adapted to the local context.</p>
 
 <h2>The Solution: Siteviral</h2>
 <p>Siteviral is an <strong>all-in-one platform</strong> that enables anyone to:</p>
@@ -1780,7 +1781,7 @@ export const blogArticles: BlogArticle[] = [
 <li><strong>Mobile Money native</strong>: MTN, Orange Money, Wave, Airtel — the payment methods Africans actually use</li>
 <li><strong>Zero subscription</strong>: Only 7% commission per sale. No sale = no fee.</li>
 <li><strong>Ambassador program</strong>: Buyers become promoters and earn commissions on referrals</li>
-<li><strong>French-first</strong>: Built for francophone Africa, with full French interface</li>
+<li><strong>Bilingual</strong>: Built for all of Africa, with full French and English interface</li>
 <li><strong>International payments</strong>: Stripe integration for diaspora and international buyers</li>
 </ul>
 
@@ -1977,7 +1978,7 @@ export const blogArticles: BlogArticle[] = [
   {
     slug: 'fiscalite-vente-en-ligne-afrique',
     title: 'Fiscalité de la vente en ligne en Afrique : Ce que vous devez savoir',
-    description: 'Guide simplifié sur les obligations fiscales des vendeurs de produits numériques en Afrique francophone.',
+    description: 'Guide simplifié sur les obligations fiscales des vendeurs de produits numériques en Afrique.',
     personas: ['Tous'],
     category: 'Confiance',
     readTime: '6 min',
@@ -2714,7 +2715,7 @@ export const blogArticles: BlogArticle[] = [
   {
     slug: 'siteviral-vs-teachable',
     title: 'Siteviral vs Teachable : quelle plateforme pour vendre vos cours ?',
-    description: 'Teachable est excellent pour les formations en anglais. Mais pour l\'Afrique francophone, Siteviral a des avantages décisifs.',
+    description: 'Teachable est excellent pour les formations en anglais. Mais pour l\'Afrique, Siteviral a des avantages décisifs.',
     personas: ['Formateurs', 'Coachs'],
     category: 'Comparaison',
     readTime: '4 min',
@@ -2737,12 +2738,12 @@ export const blogArticles: BlogArticle[] = [
 <li><strong>0 FCFA d'abonnement</strong> : commission uniquement sur les ventes</li>
 <li><strong>Mobile Money natif</strong> : vos étudiants paient comme ils veulent</li>
 <li><strong>Retrait Mobile Money</strong> : l'argent arrive sur votre compte en jours</li>
-<li><strong>Interface en français</strong> : pensée pour l'Afrique francophone</li>
+<li><strong>Bilingual interface</strong> : built for Africa, in French and English</li>
 <li><strong>Ambassadeurs intégrés</strong> : vos étudiants deviennent vos promoteurs</li>
 </ul>
 
 <h2>Verdict</h2>
-<p>Si vous vendez des cours à un public américain ou européen bancarisé, Teachable est excellent. Si votre audience est en Afrique francophone, <strong>Siteviral élimine toutes les frictions</strong> qui empêchent vos étudiants de payer.</p>
+<p>Si vous vendez des cours à un public américain ou européen bancarisé, Teachable est excellent. Si votre audience est en Afrique, <strong>Siteviral élimine toutes les frictions</strong> qui empêchent vos étudiants de payer.</p>
 `,
   },
   {
@@ -2916,7 +2917,7 @@ export const blogArticles: BlogArticle[] = [
 <li><strong>Retrait local</strong> : argent sur votre Mobile Money ou compte bancaire</li>
 <li><strong>10% de commission</strong> : pas de frais cachés supplémentaires</li>
 <li><strong>Dons + ventes</strong> : deux sources de revenus sur une plateforme</li>
-<li><strong>Français natif</strong> : pensé pour l'Afrique francophone</li>
+<li><strong>Bilingue</strong> : pensé pour toute l'Afrique, en français et anglais</li>
 <li><strong>Ambassadeurs intégrés</strong> : viralité gratuite et native</li>
 </ul>
 
