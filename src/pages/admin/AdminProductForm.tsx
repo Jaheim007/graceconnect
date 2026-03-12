@@ -275,7 +275,7 @@ export function ProductForm() {
   // Loading state for edit mode
   if (isEdit && isLoadingItem) {
     return (
-      <AdminPageShell title="Chargement…" backRoute="/admin/products">
+      <AdminPageShell title={isFr ? 'Chargement…' : 'Loading…'} backRoute="/admin/products">
         <div className="flex items-center justify-center min-h-[40dvh]">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
         </div>
@@ -286,11 +286,11 @@ export function ProductForm() {
   // Product not found or error
   if (isEdit && !isLoadingItem && (!item || isItemError)) {
     return (
-      <AdminPageShell title="Produit introuvable" backRoute="/admin/products">
+      <AdminPageShell title={isFr ? 'Produit introuvable' : 'Product not found'} backRoute="/admin/products">
         <div className="flex flex-col items-center justify-center min-h-[40dvh] gap-4 text-center">
           <AlertTriangle className="h-10 w-10 text-destructive" />
-          <p className="text-muted-foreground">Ce produit n'existe pas ou vous n'avez pas les droits pour y accéder.</p>
-          <Button onClick={() => navigate('/admin/products')}>Retour à la boutique</Button>
+          <p className="text-muted-foreground">{isFr ? "Ce produit n'existe pas ou vous n'avez pas les droits pour y accéder." : "This product doesn't exist or you don't have access."}</p>
+          <Button onClick={() => navigate('/admin/products')}>{isFr ? 'Retour à la boutique' : 'Back to store'}</Button>
         </div>
       </AdminPageShell>
     );
