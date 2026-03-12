@@ -13,9 +13,10 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { db } from '@/lib/db';
 import { cn } from '@/lib/utils';
-import { formatCurrency } from '@/lib/currency';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
+import { useI18n } from '@/i18n/I18nContext';
 import { format, subDays, formatDistanceToNow } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr, enUS } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -35,6 +36,10 @@ interface QuickAction {
 
 export default function SuperadminCommandCenter() {
   const navigate = useNavigate();
+  const { fmt } = useDisplayCurrency();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const dateFnsLocale = isFr ? fr : enUS;
   const weekAgo = subDays(new Date(), 7).toISOString();
   const [triggeringMode, setTriggeringMode] = useState<string | null>(null);
 
@@ -99,21 +104,23 @@ export default function SuperadminCommandCenter() {
         body: { mode },
       });
       if (error) throw error;
-      toast.success(`Autopilot ${mode} exécuté : ${data?.actions || 0} actions, ${data?.notifications || 0} notifications`);
+      toast.success(isFr
+        ? `Autopilot ${mode} exécuté : ${data?.actions || 0} actions, ${data?.notifications || 0} notifications`
+        : `Autopilot ${mode} ran: ${data?.actions || 0} actions, ${data?.notifications || 0} notifications`);
       refetchRuns();
     } catch (e: any) {
-      toast.error('Erreur : ' + (e.message || 'Échec'));
+      toast.error((isFr ? 'Erreur : ' : 'Error: ') + (e.message || (isFr ? 'Échec' : 'Failed')));
     } finally {
       setTriggeringMode(null);
     }
   };
 
   const quickActions: QuickAction[] = [
-    { label: 'Vérification ID', icon: FileCheck, path: '/superadmin/kyc', color: 'text-amber-500', badge: stats?.pendingKyc ? `${stats.pendingKyc}` : undefined },
+    { label: isFr ? 'Vérification ID' : 'ID Verification', icon: FileCheck, path: '/superadmin/kyc', color: 'text-amber-500', badge: stats?.pendingKyc ? `${stats.pendingKyc}` : undefined },
     { label: 'Reports', icon: Megaphone, path: '/superadmin/reports', color: 'text-rose-500', badge: stats?.pendingReports ? `${stats.pendingReports}` : undefined },
     { label: 'Payouts', icon: Wallet, path: '/superadmin/settlements', color: 'text-emerald-500', badge: stats?.pendingPayouts ? `${stats.pendingPayouts}` : undefined },
     { label: 'Risk & AML', icon: ShieldAlert, path: '/superadmin/risk', color: 'text-red-500' },
-    { label: 'Modération', icon: Shield, path: '/superadmin/moderation', color: 'text-violet-500' },
+    { label: isFr ? 'Modération' : 'Moderation', icon: Shield, path: '/superadmin/moderation', color: 'text-violet-500' },
     { label: 'Users', icon: Users, path: '/superadmin/users', color: 'text-blue-500' },
     { label: 'Organizations', icon: BarChart3, path: '/superadmin/orgs', color: 'text-indigo-500' },
     { label: 'Activity', icon: Activity, path: '/superadmin/activity', color: 'text-sky-500' },
@@ -121,14 +128,14 @@ export default function SuperadminCommandCenter() {
     { label: 'Push Notifs', icon: Bell, path: '/superadmin/push', color: 'text-orange-500' },
     { label: 'Partners', icon: Handshake, path: '/superadmin/partners', color: 'text-teal-500' },
     { label: 'Exports', icon: Download, path: '/superadmin/exports', color: 'text-cyan-500' },
-    { label: 'Settings', icon: Settings, path: '/superadmin/settings', color: 'text-muted-foreground' },
+    { label: isFr ? 'Paramètres' : 'Settings', icon: Settings, path: '/superadmin/settings', color: 'text-muted-foreground' },
   ];
 
   const alerts = [
-    stats?.pendingKyc && stats.pendingKyc > 0 && { level: 'warning' as const, text: `${stats.pendingKyc} KYC en attente de review`, path: '/superadmin/kyc' },
-    stats?.pendingReports && stats.pendingReports > 0 && { level: 'danger' as const, text: `${stats.pendingReports} signalement(s) non traité(s)`, path: '/superadmin/reports' },
-    stats?.pendingPayouts && stats.pendingPayouts > 0 && { level: 'info' as const, text: `${stats.pendingPayouts} demande(s) de paiement en attente`, path: '/superadmin/settlements' },
-    stats?.suspendedOrgs && stats.suspendedOrgs > 0 && { level: 'danger' as const, text: `${stats.suspendedOrgs} organisation(s) suspendue(s)`, path: '/superadmin/orgs' },
+    stats?.pendingKyc && stats.pendingKyc > 0 && { level: 'warning' as const, text: isFr ? `${stats.pendingKyc} KYC en attente de review` : `${stats.pendingKyc} KYC pending review`, path: '/superadmin/kyc' },
+    stats?.pendingReports && stats.pendingReports > 0 && { level: 'danger' as const, text: isFr ? `${stats.pendingReports} signalement(s) non traité(s)` : `${stats.pendingReports} unresolved report(s)`, path: '/superadmin/reports' },
+    stats?.pendingPayouts && stats.pendingPayouts > 0 && { level: 'info' as const, text: isFr ? `${stats.pendingPayouts} demande(s) de paiement en attente` : `${stats.pendingPayouts} pending payout request(s)`, path: '/superadmin/settlements' },
+    stats?.suspendedOrgs && stats.suspendedOrgs > 0 && { level: 'danger' as const, text: isFr ? `${stats.suspendedOrgs} organisation(s) suspendue(s)` : `${stats.suspendedOrgs} suspended organization(s)`, path: '/superadmin/orgs' },
   ].filter(Boolean) as { level: string; text: string; path: string }[];
 
   const getRunStatusIcon = (status: string) => {
@@ -146,7 +153,7 @@ export default function SuperadminCommandCenter() {
         </div>
         <div>
           <h1 className="text-xl font-bold">Command Center</h1>
-          <p className="text-xs text-muted-foreground">{format(new Date(), "EEEE d MMMM yyyy", { locale: fr })}</p>
+          <p className="text-xs text-muted-foreground">{format(new Date(), "EEEE d MMMM yyyy", { locale: dateFnsLocale })}</p>
         </div>
       </div>
 
@@ -176,10 +183,10 @@ export default function SuperadminCommandCenter() {
       {/* KPI Summary */}
       <motion.div initial="hidden" animate="visible" variants={stagger} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: 'GMV 7j', value: formatCurrency(stats?.weekGMV || 0, 'XOF'), icon: DollarSign, color: 'text-emerald-500' },
-          { label: 'Nouvelles orgs', value: stats?.newOrgsWeek || 0, icon: TrendingUp, color: 'text-blue-500' },
-          { label: 'Nouveaux users', value: stats?.newUsersWeek || 0, icon: Users, color: 'text-violet-500' },
-          { label: 'Actions urgentes', value: alerts.length, icon: Zap, color: alerts.length > 0 ? 'text-amber-500' : 'text-emerald-500' },
+          { label: isFr ? 'GMV 7j' : 'GMV 7d', value: fmt(stats?.weekGMV || 0, 'XOF'), icon: DollarSign, color: 'text-emerald-500' },
+          { label: isFr ? 'Nouvelles orgs' : 'New orgs', value: stats?.newOrgsWeek || 0, icon: TrendingUp, color: 'text-blue-500' },
+          { label: isFr ? 'Nouveaux users' : 'New users', value: stats?.newUsersWeek || 0, icon: Users, color: 'text-violet-500' },
+          { label: isFr ? 'Actions urgentes' : 'Urgent actions', value: alerts.length, icon: Zap, color: alerts.length > 0 ? 'text-amber-500' : 'text-emerald-500' },
         ].map((kpi, i) => (
           <motion.div key={i} variants={fadeUp}>
             <Card className="border-border/60">
@@ -202,7 +209,7 @@ export default function SuperadminCommandCenter() {
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Bot className="h-4 w-4 text-primary" />
               Ops Autopilot
-              <Badge variant="secondary" className="text-[9px] px-1.5">6 départements</Badge>
+              <Badge variant="secondary" className="text-[9px] px-1.5">{isFr ? '6 départements' : '6 departments'}</Badge>
             </CardTitle>
             <div className="flex gap-1.5">
               <Button
@@ -249,7 +256,7 @@ export default function SuperadminCommandCenter() {
           {/* Recent runs */}
           {autopilotRuns && autopilotRuns.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">Dernières exécutions</p>
+              <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">{isFr ? 'Dernières exécutions' : 'Recent runs'}</p>
               {autopilotRuns.slice(0, 5).map((run: any) => (
                 <div key={run.id} className="flex items-center gap-2 text-xs py-1.5 px-2 rounded-lg bg-background/60 border border-border/30">
                   {getRunStatusIcon(run.status)}
@@ -260,7 +267,7 @@ export default function SuperadminCommandCenter() {
                     {run.alerts_generated} alertes · {run.notifications_sent} notifs · {(run.actions_taken as any[])?.length || 0} actions
                   </span>
                   <span className="text-[10px] text-muted-foreground shrink-0">
-                    {formatDistanceToNow(new Date(run.created_at), { addSuffix: true, locale: fr })}
+                    {formatDistanceToNow(new Date(run.created_at), { addSuffix: true, locale: dateFnsLocale })}
                   </span>
                 </div>
               ))}
@@ -269,7 +276,9 @@ export default function SuperadminCommandCenter() {
 
           {(!autopilotRuns || autopilotRuns.length === 0) && (
             <p className="text-xs text-muted-foreground text-center py-3">
-              Aucune exécution encore. Cliquez sur "Daily" ou "Weekly" pour lancer l'autopilot.
+              {isFr
+                ? 'Aucune exécution encore. Cliquez sur "Daily" ou "Weekly" pour lancer l\'autopilot.'
+                : 'No runs yet. Click "Daily" or "Weekly" to launch the autopilot.'}
             </p>
           )}
         </CardContent>
@@ -278,7 +287,7 @@ export default function SuperadminCommandCenter() {
       {/* Quick Actions Grid */}
       <div>
         <h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
-          <Zap className="h-4 w-4 text-primary" /> Actions rapides
+          <Zap className="h-4 w-4 text-primary" /> {isFr ? 'Actions rapides' : 'Quick actions'}
         </h2>
         <motion.div initial="hidden" animate="visible" variants={stagger} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
           {quickActions.map((action) => (

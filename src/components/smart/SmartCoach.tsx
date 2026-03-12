@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Sparkles, ArrowRight, TrendingUp, Share2, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface CoachTip {
   id: string;
@@ -15,23 +16,20 @@ interface CoachTip {
   icon: React.ReactNode;
 }
 
-/**
- * SmartCoach — AI-style personalized coaching widget.
- * Analyses creator data and generates actionable tips.
- */
 export function SmartCoach() {
   const { user } = useAuth();
   const { userOrgs, canManage } = useOrg();
   const navigate = useNavigate();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const manageableOrg = userOrgs.find(o => canManage(o.id));
 
   const { data: tip } = useQuery({
-    queryKey: ['smart-coach', user?.id, manageableOrg?.id],
+    queryKey: ['smart-coach', user?.id, manageableOrg?.id, locale],
     queryFn: async (): Promise<CoachTip | null> => {
       if (!user || !manageableOrg) return null;
       const orgId = manageableOrg.id;
 
-      // Fetch recent stats
       const sevenDaysAgo = new Date(Date.now() - 7 * 86400000).toISOString();
       const [recentSales, products, affiliateLinks] = await Promise.all([
         db.from('product_purchases').select('id', { count: 'exact', head: true })
@@ -46,47 +44,50 @@ export function SmartCoach() {
       const topProducts = products.data || [];
       const totalClicks = (affiliateLinks.data || []).reduce((s: number, l: any) => s + (l.clicks || 0), 0);
 
-      // Generate the most relevant tip
-      // Priority 1: Product without cover that has clicks
       const noCoverProduct = topProducts.find((p: any) => !p.cover_image_url && (p.sales_count || 0) > 0);
       if (noCoverProduct) {
         return {
           id: 'cover-tip',
-          message: `"${noCoverProduct.title}" se vend déjà mais n'a pas de couverture. Ajoutez-en une pour +40% de ventes.`,
-          actionLabel: 'Ajouter couverture',
+          message: isFr
+            ? `"${noCoverProduct.title}" se vend déjà mais n'a pas de couverture. Ajoutez-en une pour +40% de ventes.`
+            : `"${noCoverProduct.title}" is already selling but has no cover. Add one for +40% more sales.`,
+          actionLabel: isFr ? 'Ajouter couverture' : 'Add cover',
           actionPath: `/admin/products/${noCoverProduct.id}/edit`,
           icon: <ImageIcon className="h-4 w-4" />,
         };
       }
 
-      // Priority 2: Has clicks but low conversion
       if (totalClicks > 20 && recentSalesCount < 2) {
         return {
           id: 'conversion-tip',
-          message: `${totalClicks} clics cette semaine mais seulement ${recentSalesCount} vente(s). Essayez d'ajouter des témoignages ou de baisser le prix temporairement.`,
-          actionLabel: 'Gérer les produits',
+          message: isFr
+            ? `${totalClicks} clics cette semaine mais seulement ${recentSalesCount} vente(s). Essayez d'ajouter des témoignages ou de baisser le prix temporairement.`
+            : `${totalClicks} clicks this week but only ${recentSalesCount} sale(s). Try adding testimonials or temporarily lowering the price.`,
+          actionLabel: isFr ? 'Gérer les produits' : 'Manage products',
           actionPath: '/admin/products',
           icon: <TrendingUp className="h-4 w-4" />,
         };
       }
 
-      // Priority 3: Has sales but no ambassador program
       if (recentSalesCount >= 3 && !manageableOrg.affiliation_enabled) {
         return {
           id: 'affiliation-tip',
-          message: `${recentSalesCount} ventes cette semaine — bravo ! Activez les ambassadeurs pour que d'autres vendent pour vous.`,
-          actionLabel: 'Activer',
+          message: isFr
+            ? `${recentSalesCount} ventes cette semaine — bravo ! Activez les ambassadeurs pour que d'autres vendent pour vous.`
+            : `${recentSalesCount} sales this week — great! Enable ambassadors so others can sell for you.`,
+          actionLabel: isFr ? 'Activer' : 'Enable',
           actionPath: '/admin/settings',
           icon: <Share2 className="h-4 w-4" />,
         };
       }
 
-      // Priority 4: No recent sales
       if (topProducts.length > 0 && recentSalesCount === 0) {
         return {
           id: 'share-tip',
-          message: `Aucune vente cette semaine. Partagez "${topProducts[0].title}" sur WhatsApp pour relancer les ventes.`,
-          actionLabel: 'Partager',
+          message: isFr
+            ? `Aucune vente cette semaine. Partagez "${topProducts[0].title}" sur WhatsApp pour relancer les ventes.`
+            : `No sales this week. Share "${topProducts[0].title}" on WhatsApp to boost sales.`,
+          actionLabel: isFr ? 'Partager' : 'Share',
           actionPath: '/admin/products',
           icon: <Share2 className="h-4 w-4" />,
         };
@@ -111,7 +112,7 @@ export function SmartCoach() {
           <Sparkles className="h-4 w-4 text-primary" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-bold text-primary mb-1">💡 Conseil du coach</p>
+          <p className="text-xs font-bold text-primary mb-1">{isFr ? '💡 Conseil du coach' : '💡 Coach tip'}</p>
           <p className="text-sm text-foreground leading-relaxed">{tip.message}</p>
           <Button
             size="sm"

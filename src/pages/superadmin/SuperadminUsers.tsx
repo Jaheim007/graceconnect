@@ -14,10 +14,11 @@ import {
   Mail, Phone, Globe, Calendar, Building2, Shield,
 } from 'lucide-react';
 import { format, subDays, isAfter } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr, enUS } from 'date-fns/locale';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { formatCurrency } from '@/lib/currency';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
+import { useI18n } from '@/i18n/I18nContext';
 
 type FilterTab = 'all' | 'active' | 'creators' | 'affiliates' | 'new';
 
@@ -25,6 +26,9 @@ export default function SuperadminUsers() {
   const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
+  const { fmt } = useDisplayCurrency();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['sa-users-v2'],
@@ -142,18 +146,18 @@ export default function SuperadminUsers() {
   };
 
   const statCards = [
-    { label: 'Total utilisateurs', value: stats.total, icon: Users, gradient: 'from-primary/20 to-primary/5', iconColor: 'text-primary' },
-    { label: 'Nouveaux (7j)', value: stats.newThisWeek, icon: UserPlus, gradient: 'from-emerald-500/20 to-emerald-500/5', iconColor: 'text-emerald-500' },
-    { label: 'Créateurs', value: stats.creators, icon: Crown, gradient: 'from-amber-500/20 to-amber-500/5', iconColor: 'text-amber-500' },
-    { label: 'Ambassadeurs', value: stats.affiliates, icon: TrendingUp, gradient: 'from-violet-500/20 to-violet-500/5', iconColor: 'text-violet-500' },
+    { label: isFr ? 'Total utilisateurs' : 'Total users', value: stats.total, icon: Users, gradient: 'from-primary/20 to-primary/5', iconColor: 'text-primary' },
+    { label: isFr ? 'Nouveaux (7j)' : 'New (7d)', value: stats.newThisWeek, icon: UserPlus, gradient: 'from-emerald-500/20 to-emerald-500/5', iconColor: 'text-emerald-500' },
+    { label: isFr ? 'Créateurs' : 'Creators', value: stats.creators, icon: Crown, gradient: 'from-amber-500/20 to-amber-500/5', iconColor: 'text-amber-500' },
+    { label: isFr ? 'Ambassadeurs' : 'Ambassadors', value: stats.affiliates, icon: TrendingUp, gradient: 'from-violet-500/20 to-violet-500/5', iconColor: 'text-violet-500' },
   ];
 
   const tabs: { key: FilterTab; label: string; count: number }[] = [
-    { key: 'all', label: 'Tous', count: users.length },
-    { key: 'new', label: 'Nouveaux', count: stats.newThisWeek },
-    { key: 'creators', label: 'Créateurs', count: stats.creators },
-    { key: 'affiliates', label: 'Ambassadeurs', count: stats.affiliates },
-    { key: 'active', label: 'Acheteurs', count: users.filter((u: any) => u.purchases.count > 0 || u.donations.count > 0).length },
+    { key: 'all', label: isFr ? 'Tous' : 'All', count: users.length },
+    { key: 'new', label: isFr ? 'Nouveaux' : 'New', count: stats.newThisWeek },
+    { key: 'creators', label: isFr ? 'Créateurs' : 'Creators', count: stats.creators },
+    { key: 'affiliates', label: isFr ? 'Ambassadeurs' : 'Ambassadors', count: stats.affiliates },
+    { key: 'active', label: isFr ? 'Acheteurs' : 'Buyers', count: users.filter((u: any) => u.purchases.count > 0 || u.donations.count > 0).length },
   ];
 
   const getUserTotalSpent = (u: any) => u.purchases.total + u.donations.total + u.affiliate.earned;
@@ -167,12 +171,14 @@ export default function SuperadminUsers() {
             <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
               <Users className="h-4 w-4 text-primary-foreground" />
             </div>
-            Gestion des utilisateurs
+            {isFr ? 'Gestion des utilisateurs' : 'User management'}
           </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">{stats.newThisMonth} nouveaux ce mois · {stats.total} au total</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {stats.newThisMonth} {isFr ? 'nouveaux ce mois' : 'new this month'} · {stats.total} {isFr ? 'au total' : 'total'}
+          </p>
         </div>
         <Button variant="outline" size="sm" className="text-xs gap-1.5" onClick={exportCSV}>
-          <Download className="h-3.5 w-3.5" /> Export CSV
+          <Download className="h-3.5 w-3.5" /> {isFr ? 'Export CSV' : 'Export CSV'}
         </Button>
       </div>
 
@@ -348,22 +354,22 @@ export default function SuperadminUsers() {
                         {u.purchases.count > 0 && (
                           <span className="text-[10px] text-muted-foreground flex items-center gap-1 bg-muted/50 rounded-md px-2 py-0.5">
                             <ShoppingBag className="h-3 w-3 text-primary" />
-                            <span className="font-medium text-foreground">{u.purchases.count}</span> achats
-                            <span className="text-foreground font-medium">({formatCurrency(u.purchases.total)})</span>
+                            <span className="font-medium text-foreground">{u.purchases.count}</span> {isFr ? 'achats' : 'purchases'}
+                            <span className="text-foreground font-medium">({fmt(u.purchases.total, 'XOF')})</span>
                           </span>
                         )}
                         {u.donations.count > 0 && (
                           <span className="text-[10px] text-muted-foreground flex items-center gap-1 bg-muted/50 rounded-md px-2 py-0.5">
                             <Heart className="h-3 w-3 text-rose-500" />
-                            <span className="font-medium text-foreground">{u.donations.count}</span> dons
-                            <span className="text-foreground font-medium">({formatCurrency(u.donations.total)})</span>
+                            <span className="font-medium text-foreground">{u.donations.count}</span> {isFr ? 'dons' : 'donations'}
+                            <span className="text-foreground font-medium">({fmt(u.donations.total, 'XOF')})</span>
                           </span>
                         )}
                         {u.affiliate.links > 0 && (
                           <span className="text-[10px] text-muted-foreground flex items-center gap-1 bg-muted/50 rounded-md px-2 py-0.5">
                             <Link2 className="h-3 w-3 text-violet-500" />
-                            <span className="font-medium text-foreground">{u.affiliate.links}</span> liens
-                            <span className="text-foreground font-medium">({formatCurrency(u.affiliate.earned)})</span>
+                            <span className="font-medium text-foreground">{u.affiliate.links}</span> {isFr ? 'liens' : 'links'}
+                            <span className="text-foreground font-medium">({fmt(u.affiliate.earned, 'XOF')})</span>
                           </span>
                         )}
                       </div>

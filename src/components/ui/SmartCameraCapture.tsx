@@ -26,26 +26,36 @@ interface SmartCameraCaptureProps {
   livenessCheck?: boolean;
 }
 
-const FRAME_MESSAGES: Record<FrameStatus, string> = {
-  searching: 'Recherche du document…',
-  adjusting: 'Ajustez la position du document',
-  ready: '✓ Parfait ! Capture en cours…',
-  captured: 'Photo capturée !',
+function getLocale() {
+  return localStorage.getItem('sv_locale') || navigator.language?.slice(0, 2) || 'fr';
+}
+
+const FRAME_MESSAGES: Record<string, Record<FrameStatus, string>> = {
+  fr: { searching: 'Recherche du document…', adjusting: 'Ajustez la position du document', ready: '✓ Parfait ! Capture en cours…', captured: 'Photo capturée !' },
+  en: { searching: 'Searching for document…', adjusting: 'Adjust the document position', ready: '✓ Perfect! Capturing…', captured: 'Photo captured!' },
 };
 
-const SELFIE_MESSAGES: Record<FrameStatus, string> = {
-  searching: 'Recherche du visage…',
-  adjusting: 'Centrez votre visage dans l\'ovale',
-  ready: '✓ Parfait ! Capture en cours…',
-  captured: 'Photo capturée !',
+const SELFIE_MESSAGES: Record<string, Record<FrameStatus, string>> = {
+  fr: { searching: 'Recherche du visage…', adjusting: 'Centrez votre visage dans l\'ovale', ready: '✓ Parfait ! Capture en cours…', captured: 'Photo capturée !' },
+  en: { searching: 'Searching for face…', adjusting: 'Center your face in the oval', ready: '✓ Perfect! Capturing…', captured: 'Photo captured!' },
 };
 
-const LIVENESS_CHALLENGES: { type: LivenessChallenge; label: string; icon: typeof Eye; instruction: string }[] = [
-  { type: 'turn_left', label: 'Tournez la tête à gauche', icon: RotateCw, instruction: '← Tournez lentement la tête vers la gauche' },
-  { type: 'turn_right', label: 'Tournez la tête à droite', icon: RotateCw, instruction: 'Tournez lentement la tête vers la droite →' },
-  { type: 'smile', label: 'Souriez', icon: Smile, instruction: '😊 Faites un grand sourire !' },
-  { type: 'blink', label: 'Clignez des yeux', icon: Eye, instruction: '👁️ Clignez lentement des yeux' },
-];
+const LIVENESS_CHALLENGES_I18N: Record<string, { type: LivenessChallenge; label: string; icon: typeof Eye; instruction: string }[]> = {
+  fr: [
+    { type: 'turn_left', label: 'Tournez la tête à gauche', icon: RotateCw, instruction: '← Tournez lentement la tête vers la gauche' },
+    { type: 'turn_right', label: 'Tournez la tête à droite', icon: RotateCw, instruction: 'Tournez lentement la tête vers la droite →' },
+    { type: 'smile', label: 'Souriez', icon: Smile, instruction: '😊 Faites un grand sourire !' },
+    { type: 'blink', label: 'Clignez des yeux', icon: Eye, instruction: '👁️ Clignez lentement des yeux' },
+  ],
+  en: [
+    { type: 'turn_left', label: 'Turn your head left', icon: RotateCw, instruction: '← Slowly turn your head to the left' },
+    { type: 'turn_right', label: 'Turn your head right', icon: RotateCw, instruction: 'Slowly turn your head to the right →' },
+    { type: 'smile', label: 'Smile', icon: Smile, instruction: '😊 Give a big smile!' },
+    { type: 'blink', label: 'Blink', icon: Eye, instruction: '👁️ Slowly blink your eyes' },
+  ],
+};
+
+const LIVENESS_CHALLENGES = LIVENESS_CHALLENGES_I18N[getLocale()] || LIVENESS_CHALLENGES_I18N.fr;
 
 function pickRandomChallenge(): typeof LIVENESS_CHALLENGES[0] {
   return LIVENESS_CHALLENGES[Math.floor(Math.random() * LIVENESS_CHALLENGES.length)];
@@ -92,7 +102,8 @@ export function SmartCameraCapture({
   const [livenessProgress, setLivenessProgress] = useState(0);
 
   const isLivenessEnabled = livenessCheck && captureMode === 'selfie';
-  const messages = captureMode === 'selfie' ? SELFIE_MESSAGES : FRAME_MESSAGES;
+  const lang = getLocale() === 'en' ? 'en' : 'fr';
+  const messages = captureMode === 'selfie' ? (SELFIE_MESSAGES[lang] || SELFIE_MESSAGES.fr) : (FRAME_MESSAGES[lang] || FRAME_MESSAGES.fr);
 
   // Attach pending stream when video element mounts
   useEffect(() => {
@@ -338,9 +349,9 @@ export function SmartCameraCapture({
       if (err.name === 'NotAllowedError') {
         setError("Accès à la caméra refusé. Veuillez autoriser l'accès dans les paramètres de votre navigateur.");
       } else if (err.name === 'NotFoundError') {
-        setError("Aucune caméra détectée sur cet appareil.");
+        setError(lang === 'fr' ? "Aucune caméra détectée sur cet appareil." : "No camera detected on this device.");
       } else {
-        setError("Impossible d'accéder à la caméra. Essayez sur votre téléphone mobile.");
+        setError(lang === 'fr' ? "Impossible d'accéder à la caméra. Essayez sur votre téléphone mobile." : "Cannot access camera. Try on your mobile phone.");
       }
     }
   }, [facingMode]);
@@ -380,7 +391,7 @@ export function SmartCameraCapture({
     const vw = video.videoWidth || video.clientWidth;
     const vh = video.videoHeight || video.clientHeight;
     if (vw === 0 || vh === 0) {
-      setError("La caméra n'est pas encore prête. Réessayez.");
+      setError(lang === 'fr' ? "La caméra n'est pas encore prête. Réessayez." : "Camera not ready yet. Try again.");
       return;
     }
 
@@ -420,7 +431,7 @@ export function SmartCameraCapture({
         onChange(brandUrl(data.publicUrl));
       }
     } catch (err: any) {
-      setError(err.message || 'Échec du téléchargement');
+      setError(err.message || (lang === 'fr' ? 'Échec du téléchargement' : 'Upload failed'));
     } finally {
       setUploading(false);
     }
@@ -467,7 +478,7 @@ export function SmartCameraCapture({
         <div className="flex items-center gap-2">
           {isLivenessEnabled && (
             <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-              <Eye className="h-3 w-3" /> Anti-fraude
+              <Eye className="h-3 w-3" /> {lang === 'fr' ? 'Anti-fraude' : 'Anti-fraud'}
             </span>
           )}
           {smartCapture && captureMode === 'selfie' && (
@@ -529,7 +540,7 @@ export function SmartCameraCapture({
                 {/* Bottom progress text */}
                 <div className="absolute bottom-14 left-0 right-0 flex justify-center">
                   <div className="px-3 py-1.5 rounded-full bg-black/60 backdrop-blur text-white/80 text-[11px] font-medium">
-                    {Math.round(livenessProgress)}% — Continuez le mouvement…
+                    {Math.round(livenessProgress)}% — {lang === 'fr' ? 'Continuez le mouvement…' : 'Keep moving…'}
                   </div>
                 </div>
               </div>
@@ -546,7 +557,7 @@ export function SmartCameraCapture({
                   <div className="h-16 w-16 rounded-full bg-emerald-500 flex items-center justify-center shadow-lg">
                     <CheckCircle className="h-8 w-8 text-white" />
                   </div>
-                  <p className="text-white font-bold text-sm bg-black/50 px-3 py-1 rounded-full">Vérification réussie !</p>
+                  <p className="text-white font-bold text-sm bg-black/50 px-3 py-1 rounded-full">{lang === 'fr' ? 'Vérification réussie !' : 'Verification passed!'}</p>
                 </motion.div>
               </div>
             )}
@@ -558,9 +569,11 @@ export function SmartCameraCapture({
                   <div className="h-14 w-14 rounded-full bg-destructive/20 flex items-center justify-center">
                     <AlertTriangle className="h-7 w-7 text-destructive" />
                   </div>
-                  <p className="text-white font-semibold text-sm">Mouvement insuffisant</p>
+                   <p className="text-white font-semibold text-sm">{lang === 'fr' ? 'Mouvement insuffisant' : 'Insufficient movement'}</p>
                   <p className="text-white/60 text-xs text-center max-w-[200px]">
-                    Nous n'avons pas détecté suffisamment de mouvement. Veuillez suivre les instructions.
+                    {lang === 'fr'
+                      ? 'Nous n\'avons pas détecté suffisamment de mouvement. Veuillez suivre les instructions.'
+                      : 'We did not detect enough movement. Please follow the instructions.'}
                   </p>
                   <Button
                     type="button"
@@ -569,7 +582,7 @@ export function SmartCameraCapture({
                     onClick={retryLiveness}
                     className="pointer-events-auto"
                   >
-                    <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> Réessayer
+                    <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> {lang === 'fr' ? 'Réessayer' : 'Retry'}
                   </Button>
                 </div>
               </div>
@@ -604,7 +617,7 @@ export function SmartCameraCapture({
                   <div className={`absolute -bottom-px -left-px w-5 h-5 border-b-[3px] border-l-[3px] ${borderColor} rounded-bl-lg transition-colors duration-300`} />
                   <div className={`absolute -bottom-px -right-px w-5 h-5 border-b-[3px] border-r-[3px] ${borderColor} rounded-br-lg transition-colors duration-300`} />
                   <p className={`absolute -bottom-7 left-0 right-0 text-center text-[11px] font-medium ${statusColor} transition-colors duration-300`}>
-                    {smartCapture ? messages[frameStatus] : 'Cadrez votre document ici'}
+                    {smartCapture ? messages[frameStatus] : (lang === 'fr' ? 'Cadrez votre document ici' : 'Frame your document here')}
                   </p>
                 </div>
               </div>
@@ -623,7 +636,7 @@ export function SmartCameraCapture({
                   }}
                 />
                 <p className={`absolute bottom-16 left-0 right-0 text-center text-[11px] font-medium z-10 ${statusColor} transition-colors duration-300`}>
-                  {smartCapture ? messages[frameStatus] : 'Cadrez votre visage ici'}
+                  {smartCapture ? messages[frameStatus] : (lang === 'fr' ? 'Cadrez votre visage ici' : 'Frame your face here')}
                 </p>
               </div>
             )}
@@ -669,7 +682,7 @@ export function SmartCameraCapture({
             {isLivenessEnabled && livenessPhase === 'passed' && (
               <div className="absolute top-3 right-3">
                 <span className="px-2 py-1 rounded-full bg-emerald-500/90 text-white text-[10px] font-bold flex items-center gap-1">
-                  <CheckCircle className="h-3 w-3" /> Vivacité vérifiée
+                  <CheckCircle className="h-3 w-3" /> {lang === 'fr' ? 'Vivacité vérifiée' : 'Liveness verified'}
                 </span>
               </div>
             )}
@@ -681,10 +694,10 @@ export function SmartCameraCapture({
             {!uploading && (
               <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-3">
                 <Button type="button" size="sm" variant="secondary" className="bg-background/80 backdrop-blur" onClick={retake}>
-                  <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> Reprendre
+                  <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> {lang === 'fr' ? 'Reprendre' : 'Retake'}
                 </Button>
                 <Button type="button" size="sm" variant="destructive" className="bg-destructive/80 backdrop-blur" onClick={clear}>
-                  <X className="h-3.5 w-3.5 mr-1.5" /> Supprimer
+                  <X className="h-3.5 w-3.5 mr-1.5" /> {lang === 'fr' ? 'Supprimer' : 'Delete'}
                 </Button>
               </div>
             )}
@@ -694,13 +707,13 @@ export function SmartCameraCapture({
         {/* Value from server */}
         {!capturedImage && !cameraActive && value && !cameraFailed && (
           <div className="relative">
-            <img src={value} alt="Photo uploadée" className="w-full h-[280px] object-cover rounded-xl" />
+            <img src={value} alt={lang === 'fr' ? 'Photo uploadée' : 'Uploaded photo'} className="w-full h-[280px] object-cover rounded-xl" />
             <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-3">
               <Button type="button" size="sm" variant="secondary" className="bg-background/80 backdrop-blur" onClick={retake}>
-                <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> Reprendre
+                <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> {lang === 'fr' ? 'Reprendre' : 'Retake'}
               </Button>
               <Button type="button" size="sm" variant="destructive" className="bg-destructive/80 backdrop-blur" onClick={clear}>
-                <X className="h-3.5 w-3.5 mr-1.5" /> Supprimer
+                <X className="h-3.5 w-3.5 mr-1.5" /> {lang === 'fr' ? 'Supprimer' : 'Delete'}
               </Button>
             </div>
           </div>
@@ -713,27 +726,29 @@ export function SmartCameraCapture({
               <AlertTriangle className="h-7 w-7 text-destructive" />
             </div>
             <div className="text-center space-y-1">
-              <p className="text-sm font-medium">Caméra indisponible</p>
+              <p className="text-sm font-medium">{lang === 'fr' ? 'Caméra indisponible' : 'Camera unavailable'}</p>
               <p className="text-xs text-muted-foreground max-w-xs">
-                {error || "Impossible d'accéder à la caméra sur cet appareil."}
+                {error || (lang === 'fr' ? "Impossible d'accéder à la caméra sur cet appareil." : "Cannot access camera on this device.")}
               </p>
             </div>
             <div className="flex flex-col gap-2 w-full max-w-xs">
               <Button type="button" variant="outline" size="sm" onClick={() => startCamera()} className="w-full">
-                <Camera className="h-4 w-4 mr-2" /> Réessayer
+                <Camera className="h-4 w-4 mr-2" /> {lang === 'fr' ? 'Réessayer' : 'Retry'}
               </Button>
               <div className="p-3 rounded-lg bg-primary/5 border border-primary/20 text-center">
                 <div className="flex items-center justify-center gap-2 mb-1.5">
                   <Smartphone className="h-4 w-4 text-primary" />
-                  <p className="text-xs font-medium text-primary">Utilisez votre téléphone</p>
+                  <p className="text-xs font-medium text-primary">{lang === 'fr' ? 'Utilisez votre téléphone' : 'Use your phone'}</p>
                 </div>
                 <p className="text-[10px] text-muted-foreground leading-relaxed">
-                  Ouvrez ce lien sur votre téléphone mobile pour effectuer la vérification.
+                  {lang === 'fr'
+                    ? 'Ouvrez ce lien sur votre téléphone mobile pour effectuer la vérification.'
+                    : 'Open this link on your mobile phone to complete the verification.'}
                 </p>
               </div>
             </div>
             <Button type="button" variant="ghost" size="sm" onClick={clear} className="text-xs text-muted-foreground">
-              Annuler
+              {lang === 'fr' ? 'Annuler' : 'Cancel'}
             </Button>
           </div>
         )}
