@@ -26,26 +26,36 @@ interface SmartCameraCaptureProps {
   livenessCheck?: boolean;
 }
 
-const FRAME_MESSAGES: Record<FrameStatus, string> = {
-  searching: 'Recherche du document…',
-  adjusting: 'Ajustez la position du document',
-  ready: '✓ Parfait ! Capture en cours…',
-  captured: 'Photo capturée !',
+function getLocale() {
+  return localStorage.getItem('sv_locale') || navigator.language?.slice(0, 2) || 'fr';
+}
+
+const FRAME_MESSAGES: Record<string, Record<FrameStatus, string>> = {
+  fr: { searching: 'Recherche du document…', adjusting: 'Ajustez la position du document', ready: '✓ Parfait ! Capture en cours…', captured: 'Photo capturée !' },
+  en: { searching: 'Searching for document…', adjusting: 'Adjust the document position', ready: '✓ Perfect! Capturing…', captured: 'Photo captured!' },
 };
 
-const SELFIE_MESSAGES: Record<FrameStatus, string> = {
-  searching: 'Recherche du visage…',
-  adjusting: 'Centrez votre visage dans l\'ovale',
-  ready: '✓ Parfait ! Capture en cours…',
-  captured: 'Photo capturée !',
+const SELFIE_MESSAGES: Record<string, Record<FrameStatus, string>> = {
+  fr: { searching: 'Recherche du visage…', adjusting: 'Centrez votre visage dans l\'ovale', ready: '✓ Parfait ! Capture en cours…', captured: 'Photo capturée !' },
+  en: { searching: 'Searching for face…', adjusting: 'Center your face in the oval', ready: '✓ Perfect! Capturing…', captured: 'Photo captured!' },
 };
 
-const LIVENESS_CHALLENGES: { type: LivenessChallenge; label: string; icon: typeof Eye; instruction: string }[] = [
-  { type: 'turn_left', label: 'Tournez la tête à gauche', icon: RotateCw, instruction: '← Tournez lentement la tête vers la gauche' },
-  { type: 'turn_right', label: 'Tournez la tête à droite', icon: RotateCw, instruction: 'Tournez lentement la tête vers la droite →' },
-  { type: 'smile', label: 'Souriez', icon: Smile, instruction: '😊 Faites un grand sourire !' },
-  { type: 'blink', label: 'Clignez des yeux', icon: Eye, instruction: '👁️ Clignez lentement des yeux' },
-];
+const LIVENESS_CHALLENGES_I18N: Record<string, { type: LivenessChallenge; label: string; icon: typeof Eye; instruction: string }[]> = {
+  fr: [
+    { type: 'turn_left', label: 'Tournez la tête à gauche', icon: RotateCw, instruction: '← Tournez lentement la tête vers la gauche' },
+    { type: 'turn_right', label: 'Tournez la tête à droite', icon: RotateCw, instruction: 'Tournez lentement la tête vers la droite →' },
+    { type: 'smile', label: 'Souriez', icon: Smile, instruction: '😊 Faites un grand sourire !' },
+    { type: 'blink', label: 'Clignez des yeux', icon: Eye, instruction: '👁️ Clignez lentement des yeux' },
+  ],
+  en: [
+    { type: 'turn_left', label: 'Turn your head left', icon: RotateCw, instruction: '← Slowly turn your head to the left' },
+    { type: 'turn_right', label: 'Turn your head right', icon: RotateCw, instruction: 'Slowly turn your head to the right →' },
+    { type: 'smile', label: 'Smile', icon: Smile, instruction: '😊 Give a big smile!' },
+    { type: 'blink', label: 'Blink', icon: Eye, instruction: '👁️ Slowly blink your eyes' },
+  ],
+};
+
+const LIVENESS_CHALLENGES = LIVENESS_CHALLENGES_I18N[getLocale()] || LIVENESS_CHALLENGES_I18N.fr;
 
 function pickRandomChallenge(): typeof LIVENESS_CHALLENGES[0] {
   return LIVENESS_CHALLENGES[Math.floor(Math.random() * LIVENESS_CHALLENGES.length)];
