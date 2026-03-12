@@ -98,7 +98,9 @@ export default function FeedPage() {
     exit: { opacity: 0, y: -10, transition: { duration: 0.15 } },
   };
 
-  const dateLocale = document.documentElement.lang === 'fr' ? 'fr-FR' : 'en-US';
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const dateLocale = isFr ? 'fr-FR' : 'en-US';
 
   const needsProfileCompletion = user && profile && !profile.display_name;
 
