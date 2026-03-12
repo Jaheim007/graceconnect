@@ -132,10 +132,10 @@ export default function SuperadminCommandCenter() {
   ];
 
   const alerts = [
-    stats?.pendingKyc && stats.pendingKyc > 0 && { level: 'warning' as const, text: `${stats.pendingKyc} KYC en attente de review`, path: '/superadmin/kyc' },
-    stats?.pendingReports && stats.pendingReports > 0 && { level: 'danger' as const, text: `${stats.pendingReports} signalement(s) non traité(s)`, path: '/superadmin/reports' },
-    stats?.pendingPayouts && stats.pendingPayouts > 0 && { level: 'info' as const, text: `${stats.pendingPayouts} demande(s) de paiement en attente`, path: '/superadmin/settlements' },
-    stats?.suspendedOrgs && stats.suspendedOrgs > 0 && { level: 'danger' as const, text: `${stats.suspendedOrgs} organisation(s) suspendue(s)`, path: '/superadmin/orgs' },
+    stats?.pendingKyc && stats.pendingKyc > 0 && { level: 'warning' as const, text: isFr ? `${stats.pendingKyc} KYC en attente de review` : `${stats.pendingKyc} KYC pending review`, path: '/superadmin/kyc' },
+    stats?.pendingReports && stats.pendingReports > 0 && { level: 'danger' as const, text: isFr ? `${stats.pendingReports} signalement(s) non traité(s)` : `${stats.pendingReports} unresolved report(s)`, path: '/superadmin/reports' },
+    stats?.pendingPayouts && stats.pendingPayouts > 0 && { level: 'info' as const, text: isFr ? `${stats.pendingPayouts} demande(s) de paiement en attente` : `${stats.pendingPayouts} pending payout request(s)`, path: '/superadmin/settlements' },
+    stats?.suspendedOrgs && stats.suspendedOrgs > 0 && { level: 'danger' as const, text: isFr ? `${stats.suspendedOrgs} organisation(s) suspendue(s)` : `${stats.suspendedOrgs} suspended organization(s)`, path: '/superadmin/orgs' },
   ].filter(Boolean) as { level: string; text: string; path: string }[];
 
   const getRunStatusIcon = (status: string) => {
