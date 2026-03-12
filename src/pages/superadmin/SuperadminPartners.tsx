@@ -341,7 +341,7 @@ export default function SuperadminPartners() {
                         </div>
                         <div>
                           <p className="text-sm font-medium">{(pr as any).partner?.full_name || '—'}</p>
-                          <p className="text-xs text-muted-foreground">{(pr as any).partner?.email} • {new Date(pr.requested_at).toLocaleDateString('fr-FR')}</p>
+                          <p className="text-xs text-muted-foreground">{(pr as any).partner?.email} • {new Date(pr.requested_at).toLocaleDateString()}</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
