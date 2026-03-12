@@ -27,6 +27,9 @@ export default function CampaignDetailPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const dateLoc = isFr ? 'fr-FR' : 'en-US';
   const [donateOpen, setDonateOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
