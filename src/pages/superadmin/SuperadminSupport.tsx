@@ -125,7 +125,7 @@ export default function SuperadminSupport() {
                 </div>
               </div>
               <p className="text-[10px] text-muted-foreground shrink-0">
-                {format(new Date(selectedTicket.created_at), 'dd MMM yyyy HH:mm', { locale: fr })}
+                {format(new Date(selectedTicket.created_at), 'dd MMM yyyy HH:mm')}
               </p>
             </div>
 
