@@ -28,9 +28,19 @@ const SHARE_MESSAGES_FR = [
   (title: string, url: string) => `🎯 "${title}" — un must-have. Clique ici 👉 ${url}`,
 ];
 
+const SHARE_MESSAGES_EN = [
+  (title: string, url: string) => `📖 I found "${title}" — it's really worth it! 👉 ${url}`,
+  (title: string, url: string) => `🔥 This product is trending: "${title}". Check it out 👉 ${url}`,
+  (title: string, url: string) => `💡 I recommend "${title}", you'll love it! ${url}`,
+  (title: string, url: string) => `🎯 "${title}" — a must-have. Click here 👉 ${url}`,
+];
+
 export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const { fmt, fmtPrice } = useDisplayCurrency();
   const qc = useQueryClient();
   const [enrolling, setEnrolling] = useState(false);
   const [copied, setCopied] = useState(false);
