@@ -2738,7 +2738,7 @@ export const blogArticles: BlogArticle[] = [
 <li><strong>0 FCFA d'abonnement</strong> : commission uniquement sur les ventes</li>
 <li><strong>Mobile Money natif</strong> : vos étudiants paient comme ils veulent</li>
 <li><strong>Retrait Mobile Money</strong> : l'argent arrive sur votre compte en jours</li>
-<li><strong>Interface en français</strong> : pensée pour l'Afrique francophone</li>
+<li><strong>Bilingual interface</strong> : built for Africa, in French and English</li>
 <li><strong>Ambassadeurs intégrés</strong> : vos étudiants deviennent vos promoteurs</li>
 </ul>
 
