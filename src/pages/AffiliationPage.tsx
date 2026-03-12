@@ -378,7 +378,7 @@ export default function AffiliationPage() {
               {discoverLoading ? <SkeletonRow count={4} /> : filteredOthers.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-sm text-muted-foreground">
-                    {search ? 'Aucune plateforme trouvée.' : 'Aucun autre programme ambassadeur disponible.'}
+                    {search ? (isFr ? 'Aucune plateforme trouvée.' : 'No platform found.') : (isFr ? 'Aucun autre programme ambassadeur disponible.' : 'No other ambassador program available.')}
                   </p>
                 </div>
               ) : (
