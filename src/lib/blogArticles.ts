@@ -1765,7 +1765,7 @@ export const blogArticles: BlogArticle[] = [
     publishedAt: '2026-04-10',
     content: `
 <h2>The Problem</h2>
-<p>In francophone Africa, millions of creators, churches, NGOs, and entrepreneurs produce valuable digital content — but have <strong>no simple way to monetize it</strong>. Western platforms like Shopify, Gumroad, and Patreon don't support Mobile Money, charge expensive subscriptions in USD, and aren't adapted to the local context.</p>
+<p>In Africa, millions of creators, churches, NGOs, and entrepreneurs produce valuable digital content — but have <strong>no simple way to monetize it</strong>. Western platforms like Shopify, Gumroad, and Patreon don't support Mobile Money, charge expensive subscriptions in USD, and aren't adapted to the local context.</p>
 
 <h2>The Solution: Siteviral</h2>
 <p>Siteviral is an <strong>all-in-one platform</strong> that enables anyone to:</p>
