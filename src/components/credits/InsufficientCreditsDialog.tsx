@@ -32,18 +32,21 @@ const EARN_ACTIONS_EN = [
 export function InsufficientCreditsDialog({ open, onOpenChange, message }: InsufficientCreditsDialogProps) {
   const navigate = useNavigate();
   const { data: summary } = useCreditsBalance();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const isFr = locale === 'fr';
+  const dateLoc = isFr ? fr : enUS;
+  const EARN_ACTIONS = isFr ? EARN_ACTIONS_FR : EARN_ACTIONS_EN;
 
   const nextDailyRenewal = (() => {
     if (summary?.daily_expires_at) {
       const expires = new Date(summary.daily_expires_at);
       if (expires.getTime() > Date.now()) {
-        return formatDistanceToNow(expires, { locale: fr, addSuffix: true });
+        return formatDistanceToNow(expires, { locale: dateLoc, addSuffix: true });
       }
     }
     const tomorrow = new Date();
     tomorrow.setHours(24, 0, 0, 0);
-    return formatDistanceToNow(tomorrow, { locale: fr, addSuffix: true });
+    return formatDistanceToNow(tomorrow, { locale: dateLoc, addSuffix: true });
   })();
 
   const goTo = (route: string) => {
