@@ -49,8 +49,14 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
     }
     setGenerating(true);
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        throw new Error('Session expirée. Reconnecte-toi puis réessaie.');
+      }
 
       const { data, error } = await supabase.functions.invoke('ai-generate-cover', {
+        headers: { Authorization: `Bearer ${accessToken}` },
         body: {
           product_id: state.productId || crypto.randomUUID(),
           title: state.title,
@@ -63,29 +69,37 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
       });
 
       if (error) {
-        // supabase.functions.invoke wraps non-2xx as error — try to extract the real message
-        let errorMsg = '';
-        if (typeof error === 'object' && error !== null) {
-          // The error context may contain the response body
-          const ctx = (error as any)?.context;
-          if (ctx && typeof ctx.json === 'function') {
-            try {
-              const body = await ctx.json();
-              errorMsg = body?.error || '';
-            } catch { /* ignore */ }
+        let errorMsg = (error as any)?.message || 'Erreur de génération';
+        let errorStatus: number | undefined = (error as any)?.context?.status;
+
+        const ctx = (error as any)?.context;
+        if (ctx && typeof ctx.json === 'function') {
+          try {
+            const body = await ctx.json();
+            errorMsg = body?.error || errorMsg;
+          } catch {
+            // ignore parse error
           }
-          if (!errorMsg) errorMsg = (error as any)?.message || String(error);
-        } else {
-          errorMsg = String(error);
         }
-        
-        if (handleAiError({ message: errorMsg, status: errorMsg.includes('insuffisant') || errorMsg.includes('credits') ? 402 : undefined })) return;
-        throw new Error(errorMsg || 'Erreur de génération');
+
+        if (errorStatus === 401 || /unauthorized/i.test(errorMsg)) {
+          errorMsg = 'Session expirée. Reconnecte-toi puis réessaie.';
+        }
+
+        if (handleAiError({ message: errorMsg, status: errorStatus })) return;
+        const parsedErr = new Error(errorMsg);
+        (parsedErr as any).status = errorStatus;
+        throw parsedErr;
       }
 
       if (data?.error) {
-        if (handleAiError({ message: data.error, status: data.error.includes('insuffisant') ? 402 : undefined })) return;
+        const status = data.error.includes('insuffisant') || data.error.includes('credits') ? 402 : undefined;
+        if (handleAiError({ message: data.error, status })) return;
         throw new Error(data.error);
+      }
+
+      if (!data?.cover_url) {
+        throw new Error('Aucune couverture générée. Réessaie.');
       }
 
       if (data?.cover_url) {
