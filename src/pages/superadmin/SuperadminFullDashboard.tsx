@@ -24,7 +24,7 @@ import { formatCurrency } from '@/lib/currency';
 import { PlatformHealthScore } from '@/components/superadmin/PlatformHealthScore';
 
 const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
-const fmtNum = (n: number) => new Intl.NumberFormat('fr-FR').format(n);
+const fmtNum = (n: number) => new Intl.NumberFormat().format(n);
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
