@@ -40,7 +40,8 @@ export default function AffiliationPage() {
   const { userOrgs } = useOrg();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const isFr = locale === 'fr';
   const qc = useQueryClient();
   const [activeTab, setActiveTab] = useState<AffiliationTab>('mes-liens');
   const [requestingAffiliate, setRequestingAffiliate] = useState<string | null>(null);
