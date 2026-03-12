@@ -86,7 +86,9 @@ export function SmartPricingHelper() {
   if (freeProducts.length === 0 && paidProducts.length > 0) {
     insights.push({
       type: 'tip',
-      message: 'Aucun produit gratuit ! Ajoutez un « lead magnet » gratuit pour attirer de nouveaux contacts et les convertir en acheteurs.',
+      message: isFr
+        ? 'Aucun produit gratuit ! Ajoutez un « lead magnet » gratuit pour attirer de nouveaux contacts et les convertir en acheteurs.'
+        : 'No free product! Add a free "lead magnet" to attract new contacts and convert them into buyers.',
       icon: Lightbulb,
     });
   }
