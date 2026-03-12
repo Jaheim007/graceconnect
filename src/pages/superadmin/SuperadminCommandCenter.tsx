@@ -287,7 +287,7 @@ export default function SuperadminCommandCenter() {
       {/* Quick Actions Grid */}
       <div>
         <h2 className="text-sm font-semibold mb-3 flex items-center gap-2">
-          <Zap className="h-4 w-4 text-primary" /> Actions rapides
+          <Zap className="h-4 w-4 text-primary" /> {isFr ? 'Actions rapides' : 'Quick actions'}
         </h2>
         <motion.div initial="hidden" animate="visible" variants={stagger} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
           {quickActions.map((action) => (
