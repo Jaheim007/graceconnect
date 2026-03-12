@@ -92,9 +92,9 @@ export default function PressePage() {
               <div className="prose prose-sm max-w-none text-muted-foreground space-y-4">
                 <p>
                   <strong className="text-foreground">Siteviral</strong> est la première plateforme de monétisation de contenu numérique 
-                  conçue pour l'Afrique francophone. Elle permet aux créateurs, organisations religieuses, ONG, 
+                  conçue pour l'Afrique. Elle permet aux créateurs, organisations religieuses, ONG, 
                   formateurs et entrepreneurs de vendre des produits numériques, collecter des dons et développer 
-                  leur communauté — avec paiement Mobile Money natif.
+                  leur communauté — avec paiement Mobile Money natif, en français et en anglais.
                 </p>
                 <p>
                   Fondée sur le constat que les plateformes occidentales (Shopify, Gumroad, Patreon) ne sont pas 
