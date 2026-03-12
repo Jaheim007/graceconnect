@@ -2,9 +2,10 @@ import { useCreditsBalance, useGrantDailyCredits } from '@/hooks/useCredits';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
+import { useI18n } from '@/i18n/I18nContext';
 
-function formatCredits(n: number): string {
-  if (n >= 1000) return Math.floor(n).toLocaleString('fr-FR');
+function formatCredits(n: number, numLoc: string): string {
+  if (n >= 1000) return Math.floor(n).toLocaleString(numLoc);
   if (n >= 100) return Math.floor(n).toString();
   if (Number.isInteger(n)) return n.toString();
   return n.toFixed(1);
@@ -44,6 +45,9 @@ function CoinIcon({ className }: { className?: string }) {
 
 export function CreditBalance() {
   const { user } = useAuth();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const numLoc = isFr ? 'fr-FR' : 'en-US';
   const { data: summary, isLoading } = useCreditsBalance();
   const grantDaily = useGrantDailyCredits();
   const navigate = useNavigate();
@@ -71,11 +75,11 @@ export function CreditBalance() {
     <button
       onClick={() => navigate('/credits')}
       className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border border-primary/20 bg-primary/5 hover:bg-primary/10 hover:border-primary/40 transition-all shrink-0 whitespace-nowrap"
-      title={`${summary.balance.toFixed(1)} crédits`}
+      title={`${summary.balance.toFixed(1)} ${isFr ? 'crédits' : 'credits'}`}
     >
       <CoinIcon className="h-4 w-4 text-primary shrink-0" />
       <span className="text-xs font-bold tabular-nums text-primary leading-none">
-        {formatCredits(summary.balance)}
+        {formatCredits(summary.balance, numLoc)}
       </span>
     </button>
   );

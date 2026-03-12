@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
+import { useI18n } from '@/i18n/I18nContext';
 
 /**
  * Behavioral in-app notification triggers.
@@ -12,6 +13,8 @@ import { db } from '@/lib/db';
 export function useBehavioralNotifications() {
   const { user } = useAuth();
   const { currentOrg, canManage } = useOrg();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const fired = useRef(false);
   const qc = useQueryClient();
 
@@ -80,8 +83,8 @@ export function useBehavioralNotifications() {
       // 1. No logo → identity notification
       if (!orgState.hasLogo && !orgState.hasBanner) {
         createNotif.mutate({
-          title: '🎨 Ajoutez votre identité visuelle',
-          body: 'Les organisations avec un logo reçoivent 3x plus de visites. Ajoutez le vôtre dans les paramètres.',
+          title: isFr ? '🎨 Ajoutez votre identité visuelle' : '🎨 Add your branding',
+          body: isFr ? 'Les organisations avec un logo reçoivent 3x plus de visites. Ajoutez le vôtre dans les paramètres.' : 'Organizations with a logo get 3x more visits. Add yours in settings.',
           type: 'activation_branding',
         });
       }
@@ -90,8 +93,8 @@ export function useBehavioralNotifications() {
       const zeroSaleProducts = orgState.products.filter((p: any) => p.is_published && (p.sales_count || 0) === 0);
       if (zeroSaleProducts.length > 0 && orgState.salesCount === 0) {
         createNotif.mutate({
-          title: '📦 Vos produits attendent leur première vente',
-          body: `${zeroSaleProducts.length} produit(s) publié(s) mais 0 vente. Partagez-les sur WhatsApp ou activez les ambassadeurs !`,
+          title: isFr ? '📦 Vos produits attendent leur première vente' : '📦 Your products are waiting for their first sale',
+          body: isFr ? `${zeroSaleProducts.length} produit(s) publié(s) mais 0 vente. Partagez-les sur WhatsApp ou activez les ambassadeurs !` : `${zeroSaleProducts.length} published product(s) but 0 sales. Share them on WhatsApp or activate ambassadors!`,
           type: 'conversion_help',
         });
       }
@@ -100,8 +103,8 @@ export function useBehavioralNotifications() {
       const noPreviewProducts = orgState.products.filter((p: any) => p.is_published && (!p.preview_images || p.preview_images.length === 0));
       if (noPreviewProducts.length > 0) {
         createNotif.mutate({
-          title: '🖼️ Ajoutez des images de preview',
-          body: `${noPreviewProducts.length} produit(s) sans images de preview. Les produits avec images se vendent 30% mieux.`,
+          title: isFr ? '🖼️ Ajoutez des images de preview' : '🖼️ Add preview images',
+          body: isFr ? `${noPreviewProducts.length} produit(s) sans images de preview. Les produits avec images se vendent 30% mieux.` : `${noPreviewProducts.length} product(s) without preview images. Products with images sell 30% better.`,
           type: 'product_optimization',
         });
       }
@@ -110,8 +113,8 @@ export function useBehavioralNotifications() {
       const shortDescProducts = orgState.products.filter((p: any) => p.is_published && (p.description?.length || 0) < 50);
       if (shortDescProducts.length > 0) {
         createNotif.mutate({
-          title: '✍️ Enrichissez vos descriptions',
-          body: `${shortDescProducts.length} produit(s) avec une description courte. Détaillez les bénéfices pour convaincre.`,
+          title: isFr ? '✍️ Enrichissez vos descriptions' : '✍️ Enrich your descriptions',
+          body: isFr ? `${shortDescProducts.length} produit(s) avec une description courte. Détaillez les bénéfices pour convaincre.` : `${shortDescProducts.length} product(s) with short descriptions. Detail the benefits to convince buyers.`,
           type: 'description_optimization',
         });
       }
@@ -119,8 +122,8 @@ export function useBehavioralNotifications() {
       // 5. No affiliates but has products → ambassador nudge
       if (orgState.affiliateCount === 0 && orgState.publishedProducts > 0 && orgState.affiliationEnabled) {
         createNotif.mutate({
-          title: '🤝 Vos ambassadeurs vous attendent',
-          body: 'Vous avez des produits mais aucun ambassadeur actif. Partagez votre lien pour recruter des vendeurs.',
+          title: isFr ? '🤝 Vos ambassadeurs vous attendent' : '🤝 Your ambassadors are waiting',
+          body: isFr ? 'Vous avez des produits mais aucun ambassadeur actif. Partagez votre lien pour recruter des vendeurs.' : 'You have products but no active ambassadors. Share your link to recruit sellers.',
           type: 'ambassador_nudge',
         });
       }
@@ -128,8 +131,8 @@ export function useBehavioralNotifications() {
       // 6. KYC needed but has sales
       if (orgState.salesCount > 0 && (orgState.kycStatus === 'none' || orgState.kycStatus === 'rejected')) {
         createNotif.mutate({
-          title: '⚠️ Vérification requise pour recevoir vos paiements',
-          body: 'Vous avez des ventes ! Complétez votre vérification KYC pour pouvoir retirer vos fonds.',
+          title: isFr ? '⚠️ Vérification requise pour recevoir vos paiements' : '⚠️ Verification required to receive payments',
+          body: isFr ? 'Vous avez des ventes ! Complétez votre vérification KYC pour pouvoir retirer vos fonds.' : 'You have sales! Complete your KYC verification to withdraw your funds.',
           type: 'kyc_urgency',
         });
       }
@@ -137,8 +140,8 @@ export function useBehavioralNotifications() {
       // 7. 10+ sales milestone
       if (orgState.salesCount >= 10) {
         createNotif.mutate({
-          title: '🎉 Félicitations — 10 ventes atteintes !',
-          body: 'Votre organisation a franchi le cap des 10 ventes. Vous êtes sur la bonne voie !',
+          title: isFr ? '🎉 Félicitations — 10 ventes atteintes !' : '🎉 Congratulations — 10 sales reached!',
+          body: isFr ? 'Votre organisation a franchi le cap des 10 ventes. Vous êtes sur la bonne voie !' : 'Your organization has crossed 10 sales. You\'re on the right track!',
           type: 'milestone_10_sales',
         });
       }
@@ -146,8 +149,8 @@ export function useBehavioralNotifications() {
       // 8. 0 media content → content nudge
       if (orgState.mediaCount === 0 && orgState.productCount > 0) {
         createNotif.mutate({
-          title: '📹 Publiez du contenu pour attirer du trafic',
-          body: 'Les organisations qui publient des vidéos/audios reçoivent 5x plus de visites que les pages produits seules.',
+          title: isFr ? '📹 Publiez du contenu pour attirer du trafic' : '📹 Publish content to attract traffic',
+          body: isFr ? 'Les organisations qui publient des vidéos/audios reçoivent 5x plus de visites que les pages produits seules.' : 'Organizations that publish videos/audio get 5x more visits than product pages alone.',
           type: 'content_nudge',
         });
       }
@@ -166,10 +169,12 @@ export function useBehavioralNotifications() {
           const hasLowActivity = myLinks.every((l: any) => (l.clicks || 0) < 3);
           if (hasLowActivity) {
             const futureDate = new Date(Date.now() + 48 * 3600000);
-            const dateStr = futureDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+            const dateStr = futureDate.toLocaleDateString(isFr ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'long' });
             createNotif.mutate({
-              title: '⏳ Votre avantage ambassadeur est en pause',
-              body: `Vos liens n'ont reçu aucun clic récemment. Partagez avant le ${dateStr} pour réactiver votre visibilité et ne pas manquer de commissions.`,
+              title: isFr ? '⏳ Votre avantage ambassadeur est en pause' : '⏳ Your ambassador benefit is paused',
+              body: isFr
+                ? `Vos liens n'ont reçu aucun clic récemment. Partagez avant le ${dateStr} pour réactiver votre visibilité et ne pas manquer de commissions.`
+                : `Your links haven't received any clicks recently. Share before ${dateStr} to reactivate your visibility and not miss commissions.`,
               type: 'ambassador_last_chance',
             });
           }

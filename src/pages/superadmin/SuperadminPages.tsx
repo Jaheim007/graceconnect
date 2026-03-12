@@ -43,7 +43,7 @@ export function SuperadminDashboard() {
 
   const cards = [
     { label: 'Total Organisations', value: stats?.orgs ?? '—', icon: Users, color: 'text-blue-500' },
-    { label: 'GMV Total (XOF)', value: stats?.gmv ? stats.gmv.toLocaleString('fr-FR') : '—', icon: DollarSign, color: 'text-primary' },
+    { label: 'GMV Total (XOF)', value: stats?.gmv ? stats.gmv.toLocaleString() : '—', icon: DollarSign, color: 'text-primary' },
     { label: 'Vérifications en attente', value: stats?.pendingKyc ?? '—', icon: Activity, color: 'text-amber-500' },
     { label: 'Payouts en attente', value: stats?.pendingPayouts ?? '—', icon: TrendingUp, color: 'text-emerald-500' },
   ];
@@ -400,7 +400,7 @@ export function SuperadminKYC() {
                     )}
 
                     <p className="text-[8px] text-muted-foreground text-right">
-                      Analysé le {new Date(s.ai_analyzed_at).toLocaleString('fr-FR')}
+                      Analysé le {new Date(s.ai_analyzed_at).toLocaleString()}
                     </p>
                   </div>
                 )}
@@ -654,7 +654,7 @@ export function SuperadminReports() {
                           <p className="text-sm font-semibold truncate">{r.product.title}</p>
                           <p className="text-[11px] text-muted-foreground">{r.product.organizations?.name || '—'}</p>
                           {r.product.price != null && (
-                            <p className="text-xs font-medium mt-0.5">{r.product.price?.toLocaleString('fr-FR')} {r.product.currency || 'XOF'}</p>
+                            <p className="text-xs font-medium mt-0.5">{r.product.price?.toLocaleString()} {r.product.currency || 'XOF'}</p>
                           )}
                         </div>
                       </div>
@@ -769,8 +769,8 @@ export function SuperadminMetrics() {
   const takeRate = totalGMV > 0 ? ((totalFees / totalGMV) * 100).toFixed(1) : '0';
 
   const summaryCards = [
-    { label: 'GMV 30j (XOF)', value: totalGMV.toLocaleString('fr-FR') },
-    { label: 'Platform Fees 30j', value: totalFees.toLocaleString('fr-FR') },
+    { label: 'GMV 30j (XOF)', value: totalGMV.toLocaleString() },
+    { label: 'Platform Fees 30j', value: totalFees.toLocaleString() },
     { label: 'Take Rate', value: `${takeRate}%` },
     { label: 'Transactions 30j', value: totalTx.toLocaleString() },
     { label: 'Orgs actives', value: activeOrgs },

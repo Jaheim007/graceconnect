@@ -90,7 +90,7 @@ export default function SuperadminAIHistory() {
                   <div>
                     <p className="text-sm font-semibold">{org?.name || 'Organisation inconnue'}</p>
                     <p className="text-[10px] text-muted-foreground">
-                      Analysé le {new Date(a.ai_analyzed_at).toLocaleString('fr-FR')}
+                      Analysé le {new Date(a.ai_analyzed_at).toLocaleString()}
                       {' · '}Statut : {a.status}
                     </p>
                   </div>

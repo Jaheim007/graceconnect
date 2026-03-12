@@ -322,7 +322,7 @@ export function SuperadminTransactions() {
     },
   });
 
-  const fmt = (n: number) => n.toLocaleString('fr-FR') + ' XOF';
+  const fmt = (n: number) => n.toLocaleString() + ' XOF';
 
   const handleExport = () => {
     downloadCSV(allTx.map(t => ({
@@ -391,7 +391,7 @@ export function SuperadminTransactions() {
         />
         <StatCard
           label="Transactions"
-          value={((txStats as any)?.total_count ?? allTx.length).toLocaleString('fr-FR')}
+          value={((txStats as any)?.total_count ?? allTx.length).toLocaleString()}
           icon={BarChart3}
           accent="bg-amber-500"
         />
@@ -617,20 +617,20 @@ export function SuperadminTransactions() {
                   </TableCell>
                   <TableCell className="py-3 text-right">
                     <span className="text-sm font-semibold tabular-nums">
-                      {(tx.amount || 0).toLocaleString('fr-FR')}
+                      {(tx.amount || 0).toLocaleString()}
                     </span>
                     <span className="text-[10px] text-muted-foreground ml-1">{tx.currency}</span>
                   </TableCell>
                   <TableCell className="py-3 text-right">
                     <span className="text-xs text-muted-foreground tabular-nums">
-                      {(tx.platform_fee || 0).toLocaleString('fr-FR')}
+                      {(tx.platform_fee || 0).toLocaleString()}
                     </span>
                   </TableCell>
                   <TableCell className="py-3">
                     {tx.affiliate_name ? (
                       <div>
                         <p className="text-xs font-medium truncate max-w-[100px]">{tx.affiliate_name}</p>
-                        <p className="text-[10px] text-muted-foreground">{(tx.affiliate_commission || 0).toLocaleString('fr-FR')} XOF</p>
+                        <p className="text-[10px] text-muted-foreground">{(tx.affiliate_commission || 0).toLocaleString()} XOF</p>
                       </div>
                     ) : (
                       <span className="text-xs text-muted-foreground">—</span>
