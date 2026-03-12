@@ -80,7 +80,7 @@ export default function SuperadminEmailLogs() {
         </div>
         <div className="bg-card border border-border rounded-2xl p-4">
           <p className="text-2xl font-bold text-emerald-500">{totalSent}</p>
-          <p className="text-xs text-muted-foreground">Envoyés</p>
+          <p className="text-xs text-muted-foreground">Sent</p>
         </div>
         <div className="bg-card border border-border rounded-2xl p-4">
           <p className="text-2xl font-bold text-destructive">{totalFailed}</p>
