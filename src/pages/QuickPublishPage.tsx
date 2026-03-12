@@ -122,12 +122,12 @@ export default function QuickPublishPage() {
     onSuccess: (data) => {
       setUploading(false);
       qc.invalidateQueries({ queryKey: ['org-products'] });
-      toast({ title: '🚀 Produit publié !', description: 'Votre produit est en ligne.' });
+      toast({ title: isFr ? '🚀 Produit publié !' : '🚀 Product published!', description: isFr ? 'Votre produit est en ligne.' : 'Your product is live.' });
       navigate(`/org/${(managedOrg as any)?.slug}/p/${data.slug || data.id}`);
     },
     onError: (err: Error) => {
       setUploading(false);
-      toast({ title: 'Erreur', description: err.message, variant: 'destructive' });
+      toast({ title: isFr ? 'Erreur' : 'Error', description: err.message, variant: 'destructive' });
     },
   });
 
