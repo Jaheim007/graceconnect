@@ -24,11 +24,17 @@ const LEVEL_COLORS: Record<number, string> = {
   4: 'text-cyan-400 bg-cyan-400/10 border-cyan-400/20',
   5: 'text-violet-400 bg-violet-400/10 border-violet-400/20',
 };
-const STATUS_MAP: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+const STATUS_MAP_FR: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
   pending: { label: 'En attente', variant: 'secondary' },
   approved: { label: 'Actif', variant: 'default' },
   rejected: { label: 'Rejeté', variant: 'destructive' },
   suspended: { label: 'Suspendu', variant: 'destructive' },
+};
+const STATUS_MAP_EN: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+  pending: { label: 'Pending', variant: 'secondary' },
+  approved: { label: 'Active', variant: 'default' },
+  rejected: { label: 'Rejected', variant: 'destructive' },
+  suspended: { label: 'Suspended', variant: 'destructive' },
 };
 
 export default function PartnerPortalPage() {
