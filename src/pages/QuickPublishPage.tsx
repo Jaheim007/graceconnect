@@ -14,6 +14,8 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/i18n/I18nContext';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 
 type Step = 'info' | 'file' | 'publish';
 
