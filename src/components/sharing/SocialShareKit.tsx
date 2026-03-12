@@ -146,8 +146,8 @@ export function SocialShareKit({ url, title, description, context, price, earnin
   };
 
   const emailSubject = context === 'post-publication'
-    ? `Mon nouveau livre : ${title}`
-    : `Découvre : ${title}`;
+    ? (isFr ? `Mon nouveau livre : ${title}` : `My new book: ${title}`)
+    : (isFr ? `Découvre : ${title}` : `Check out: ${title}`);
 
   const emailUrl = `mailto:?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(`${message}\n\n${ogUrl}`)}`;
 
