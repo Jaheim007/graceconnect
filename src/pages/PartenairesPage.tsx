@@ -42,7 +42,7 @@ const partners = [
   {
     icon: BookOpen, category: 'Maisons d\'édition',
     title: 'Vendez vos livres en Afrique',
-    desc: 'Distribution digitale avec paiement Mobile Money. Amazon ne couvre pas l\'Afrique francophone — nous oui.',
+    desc: 'Distribution digitale avec paiement Mobile Money. Amazon ne couvre pas l\'Afrique — nous oui.',
     cta: 'Nous contacter',
     path: '/contact',
   },

@@ -35,8 +35,8 @@ export default function PourJuristesPage() {
       testimonial={{
         name: 'Me F. N.',
         role: 'Avocat d\'affaires',
-        text: 'Mon pack "Créer sa SARL en Côte d\'Ivoire" se vend tout seul. 50 ventes par mois sans effort supplémentaire. Un complément de revenu précieux.',
-        flag: '🇨🇮',
+        text: 'Mon pack juridique se vend tout seul. 50 ventes par mois sans effort supplémentaire. Un complément de revenu précieux.',
+        flag: '🇸🇳',
       }}
       stats={[
         { value: '0 FCFA', label: 'd\'abonnement' },

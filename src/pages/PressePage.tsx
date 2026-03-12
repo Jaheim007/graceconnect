@@ -92,14 +92,14 @@ export default function PressePage() {
               <div className="prose prose-sm max-w-none text-muted-foreground space-y-4">
                 <p>
                   <strong className="text-foreground">Siteviral</strong> est la première plateforme de monétisation de contenu numérique 
-                  conçue pour l'Afrique francophone. Elle permet aux créateurs, organisations religieuses, ONG, 
+                  conçue pour l'Afrique. Elle permet aux créateurs, organisations religieuses, ONG, 
                   formateurs et entrepreneurs de vendre des produits numériques, collecter des dons et développer 
-                  leur communauté — avec paiement Mobile Money natif.
+                  leur communauté — avec paiement Mobile Money natif, en français et en anglais.
                 </p>
                 <p>
                   Fondée sur le constat que les plateformes occidentales (Shopify, Gumroad, Patreon) ne sont pas 
-                  adaptées au marché africain — pas de Mobile Money, abonnements en dollars, interfaces en anglais — 
-                  Siteviral propose une alternative locale, accessible et performante.
+                  adaptées au marché africain — pas de Mobile Money, abonnements en dollars — 
+                  Siteviral propose une alternative globale, accessible et performante, disponible en français et en anglais.
                 </p>
                 <p>
                   Le modèle économique est simple : <strong className="text-foreground">zéro abonnement, 7% de commission par vente</strong>. 

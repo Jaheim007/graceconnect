@@ -58,8 +58,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const upsertProfile = async (userId: string, displayName?: string) => {
     try {
       // Use upsert with ignoreDuplicates so it never throws on existing row
+      const detectedCountry = (() => {
+        try {
+          const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          const tzMap: Record<string, string> = {
+            'Africa/Abidjan': 'CI', 'Africa/Accra': 'GH', 'Africa/Nairobi': 'KE',
+            'Africa/Lagos': 'NG', 'Africa/Dakar': 'SN', 'Africa/Bamako': 'ML',
+            'Africa/Ouagadougou': 'BF', 'Africa/Lome': 'TG', 'Africa/Douala': 'CM',
+            'Europe/Paris': 'FR', 'America/New_York': 'US',
+          };
+          return tzMap[tz] || null;
+        } catch { return null; }
+      })();
       await supabase.from('profiles').upsert(
-        { id: userId, display_name: displayName || null, country: 'CI' },
+        { id: userId, display_name: displayName || null, ...(detectedCountry ? { country: detectedCountry } : {}) },
         { onConflict: 'id', ignoreDuplicates: true }
       );
       await fetchProfile(userId);

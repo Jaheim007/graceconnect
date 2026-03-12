@@ -36,7 +36,7 @@ export default function PourBloggeursPage() {
         name: 'Aminata K.',
         role: 'Blogueuse lifestyle',
         text: 'Mon premier ebook s\'est vendu à 150 exemplaires en une semaine grâce à ma communauté WhatsApp. Siteviral a rendu tout ça possible.',
-        flag: '🇨🇮',
+        flag: '🇬🇭',
       }}
       stats={[
         { value: '0 FCFA', label: 'd\'abonnement' },

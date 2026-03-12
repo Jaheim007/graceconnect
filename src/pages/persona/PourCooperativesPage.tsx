@@ -36,7 +36,7 @@ export default function PourCooperativesPage() {
         name: 'Président B. K.',
         role: 'Coopérative agricole',
         text: 'Nos membres paient maintenant leurs cotisations par Orange Money. Nous vendons aussi nos guides de culture. Tout est tracé, plus de conflits.',
-        flag: '🇨🇮',
+        flag: '🇰🇪',
       }}
       stats={[
         { value: '0 FCFA', label: 'd\'abonnement' },

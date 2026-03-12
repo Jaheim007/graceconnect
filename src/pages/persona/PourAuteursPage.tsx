@@ -34,9 +34,9 @@ export default function PourAuteursPage() {
       ]}
       testimonial={{
         name: 'Aminata K.',
-        role: 'Auteure de romans & guides pratiques, Abidjan',
-        text: 'J\'ai vendu 340 ebooks en 2 mois sans éditeur. Mes lecteurs paient en Orange Money et reçoivent le livre instantanément. C\'est magique.',
-        flag: '🇨🇮',
+        role: 'Auteure de romans & guides pratiques, Accra',
+        text: 'J\'ai vendu 340 ebooks en 2 mois sans éditeur. Mes lecteurs paient en Mobile Money et reçoivent le livre instantanément. C\'est magique.',
+        flag: '🇬🇭',
       }}
       stats={[
         { value: '93%', label: 'Revenu conservé' },
