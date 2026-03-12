@@ -154,7 +154,7 @@ export default function PartnerPortalPage() {
             {(isFr ? LEVEL_LABELS : LEVEL_LABELS_EN)[partner.level] || `L${partner.level}`} — {effectiveRate}%
           </Badge>
           <Badge variant="outline" className="text-xs px-2.5 py-1 border-primary/30 text-primary">
-            Partenaire Officiel
+            {isFr ? 'Partenaire Officiel' : 'Official Partner'}
           </Badge>
         </div>
       </div>
