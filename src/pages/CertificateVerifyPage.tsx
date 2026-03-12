@@ -4,8 +4,9 @@ import { db } from '@/lib/db';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Award, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr, enUS } from 'date-fns/locale';
 import { motion } from 'framer-motion';
+import { useI18n } from '@/i18n/I18nContext';
 
 export default function CertificateVerifyPage() {
   const { certNumber } = useParams();
