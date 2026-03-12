@@ -10,10 +10,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { db } from '@/lib/db';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
 import { cn } from '@/lib/utils';
 import { getOrCreateShortLink } from '@/lib/shareMeta';
 import { getPublicOrigin } from '@/lib/publicUrl';
+import { useI18n } from '@/i18n/I18nContext';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 
 interface ProductSwipeCardProps {
   product: any;
