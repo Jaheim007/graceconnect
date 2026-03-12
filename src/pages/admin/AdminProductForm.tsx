@@ -583,8 +583,8 @@ export function ProductForm() {
 
         {/* Tracking Pixels */}
         <div className="space-y-3 border border-border rounded-xl p-4">
-          <p className="text-sm font-semibold flex items-center gap-2">📊 Pixels de tracking (optionnel)</p>
-          <p className="text-[10px] text-muted-foreground">Ajoutez vos pixels pour suivre les conversions et faire du retargeting sur ce produit spécifique.</p>
+          <p className="text-sm font-semibold flex items-center gap-2">📊 {isFr ? 'Pixels de tracking (optionnel)' : 'Tracking pixels (optional)'}</p>
+          <p className="text-[10px] text-muted-foreground">{isFr ? 'Ajoutez vos pixels pour suivre les conversions et faire du retargeting sur ce produit spécifique.' : 'Add your pixels to track conversions and retarget for this specific product.'}</p>
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="space-y-1">
               <Label className="text-xs font-medium">Facebook Pixel ID</Label>
