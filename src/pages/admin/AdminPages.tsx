@@ -730,6 +730,8 @@ function PixelSettings({ orgId }: { orgId?: string }) {
   const [gt, setGt] = useState('');
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const { data: settings } = useQuery({
     queryKey: ['pixel-settings', orgId],
@@ -760,14 +762,14 @@ function PixelSettings({ orgId }: { orgId?: string }) {
       await db.from('org_page_settings').insert({ organization_id: orgId, ...updates });
     }
     setSaving(false);
-    toast({ title: '✅ Pixels sauvegardés' });
+    toast({ title: isFr ? '✅ Pixels sauvegardés' : '✅ Pixels saved' });
   };
 
   return (
     <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
       <div>
-        <h2 className="font-semibold text-sm">Pixels de tracking</h2>
-        <p className="text-xs text-muted-foreground mt-0.5">Ajoutez vos pixels pour le suivi publicitaire sur votre page publique.</p>
+        <h2 className="font-semibold text-sm">{isFr ? 'Pixels de tracking' : 'Tracking pixels'}</h2>
+        <p className="text-xs text-muted-foreground mt-0.5">{isFr ? 'Ajoutez vos pixels pour le suivi publicitaire sur votre page publique.' : 'Add your pixels for ad tracking on your public page.'}</p>
       </div>
       <div className="grid gap-3">
         <div className="space-y-1.5">
@@ -784,7 +786,7 @@ function PixelSettings({ orgId }: { orgId?: string }) {
         </div>
       </div>
       <Button size="sm" className="bg-primary text-primary-foreground" onClick={handleSave} disabled={saving}>
-        {saving ? 'Sauvegarde…' : 'Sauvegarder les pixels'}
+        {saving ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder les pixels' : 'Save pixels')}
       </Button>
     </div>
   );
