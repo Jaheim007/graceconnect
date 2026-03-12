@@ -44,8 +44,8 @@ export function resolveGateway(currency?: string): PaymentGateway {
   return 'stripe';
 }
 
-/** Currencies that support Mobile Money via Paystack */
-const MOMO_CURRENCIES = new Set(['XOF', 'GHS', 'KES', 'XAF']);
+/** Currencies that support Mobile Money via Paystack (verified against Paystack API 2026-03-12) */
+const MOMO_CURRENCIES = new Set(['XOF', 'GHS', 'KES']);
 
 /**
  * Check if Mobile Money is available for a given transaction currency.
@@ -62,11 +62,12 @@ export function isMoMoAvailable(currency?: string): boolean {
   }
 
   // No currency specified — infer from user's country (legacy fallback)
+  // Only countries with VERIFIED MoMo support on Paystack (2026-03-12)
   const moMoCountries = new Set([
     'CI', 'SN', 'ML', 'BF', 'TG', 'BJ', 'NE', 'GN', 'GW', // XOF
     'GH', // GHS
     'KE', // KES
-    'CM', 'GA', 'CG', 'CF', 'TD', 'GQ', // XAF
+    // XAF countries (CM, GA, CG, CF, TD, GQ) REMOVED — Paystack returns no MoMo providers
   ]);
   const country = detectCountryFromTimezone();
   return !!country && moMoCountries.has(country);
