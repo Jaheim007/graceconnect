@@ -636,7 +636,7 @@ export function SmartCameraCapture({
                   }}
                 />
                 <p className={`absolute bottom-16 left-0 right-0 text-center text-[11px] font-medium z-10 ${statusColor} transition-colors duration-300`}>
-                  {smartCapture ? messages[frameStatus] : 'Cadrez votre visage ici'}
+                  {smartCapture ? messages[frameStatus] : (lang === 'fr' ? 'Cadrez votre visage ici' : 'Frame your face here')}
                 </p>
               </div>
             )}
