@@ -537,10 +537,12 @@ export function AdminMembers() {
 function AffiliateCopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const handleCopy = async () => {
     await navigator.clipboard.writeText(text);
     setCopied(true);
-    toast({ title: 'Lien copié !' });
+    toast({ title: isFr ? 'Lien copié !' : 'Link copied!' });
     setTimeout(() => setCopied(false), 2000);
   };
   return (
@@ -553,25 +555,26 @@ function AffiliateCopyButton({ text }: { text: string }) {
 export function AdminAffiliation() {
   const { currentOrg } = useOrg();
   const navigate = useNavigate();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const { fmt } = useDisplayCurrency();
 
-  // Fetch existing affiliate links for this org
   const { data: existingLinks = [], isLoading } = useOrgAffiliateLinks(currentOrg?.id);
-
   const baseUrl = window.location.origin;
 
   if (!currentOrg?.affiliation_enabled) {
     return (
-      <AdminPageShell title="Mes affiliés" backRoute="/admin">
+      <AdminPageShell title={isFr ? 'Mes affiliés' : 'My affiliates'} backRoute="/admin">
         <div className="p-8 rounded-2xl border border-border bg-card text-center space-y-3">
           <div className="h-12 w-12 rounded-2xl bg-muted flex items-center justify-center mx-auto">
             <Link2 className="h-6 w-6 text-muted-foreground" />
           </div>
-          <p className="font-semibold">Affiliation non activée</p>
+          <p className="font-semibold">{isFr ? 'Affiliation non activée' : 'Affiliation not enabled'}</p>
           <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-            Allez dans les Paramètres pour activer le programme d'affiliation et définir un taux de commission.
+            {isFr ? 'Allez dans les Paramètres pour activer le programme d\'affiliation et définir un taux de commission.' : 'Go to Settings to enable the affiliate program and set a commission rate.'}
           </p>
           <Button size="sm" className="bg-primary text-primary-foreground" onClick={() => navigate('/admin/settings')}>
-            Activer dans les Paramètres →
+            {isFr ? 'Activer dans les Paramètres →' : 'Enable in Settings →'}
           </Button>
         </div>
       </AdminPageShell>
@@ -584,62 +587,58 @@ export function AdminAffiliation() {
   const totalEarned = activeLinks.reduce((s, l) => s + (l.total_earned || 0), 0);
 
   return (
-    <AdminPageShell title="Mes affiliés" backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Mes affiliés' : 'My affiliates'} backRoute="/admin">
       <div className="space-y-4">
-        {/* How it works */}
         <div className="bg-primary/8 border border-primary/20 rounded-2xl p-4 space-y-2">
-          <p className="font-semibold text-sm">💡 Comment fonctionne l'affiliation</p>
+          <p className="font-semibold text-sm">{isFr ? '💡 Comment fonctionne l\'affiliation' : '💡 How affiliation works'}</p>
           <ol className="space-y-1.5 text-xs text-muted-foreground list-none">
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">1.</span>Les visiteurs découvrent votre page publique et cliquent sur « Devenir affilié ».</li>
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">2.</span>Ils sont automatiquement inscrits — aucune action de votre part n'est nécessaire.</li>
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">3.</span>Ils partagent leur lien. Quand quelqu'un donne ou achète via ce lien, ils gagnent <strong>{currentOrg.affiliation_commission_percent}%</strong>.</li>
-            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">4.</span>Après 15 jours, les commissions deviennent retirables (KYC requis).</li>
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">1.</span>{isFr ? 'Les visiteurs découvrent votre page publique et cliquent sur « Devenir affilié ».' : 'Visitors discover your public page and click "Become affiliate".'}</li>
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">2.</span>{isFr ? 'Ils sont automatiquement inscrits — aucune action de votre part n\'est nécessaire.' : 'They are automatically enrolled — no action required from you.'}</li>
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">3.</span>{isFr ? <>Ils partagent leur lien. Quand quelqu'un donne ou achète via ce lien, ils gagnent <strong>{currentOrg.affiliation_commission_percent}%</strong>.</> : <>They share their link. When someone donates or buys via this link, they earn <strong>{currentOrg.affiliation_commission_percent}%</strong>.</>}</li>
+            <li className="flex gap-2"><span className="text-primary font-bold shrink-0">4.</span>{isFr ? 'Après 15 jours, les commissions deviennent retirables (KYC requis).' : 'After 15 days, commissions become withdrawable (KYC required).'}</li>
           </ol>
         </div>
 
-        {/* Stats bar */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="bg-card border border-border rounded-2xl p-4 text-center">
             <p className="text-2xl font-bold text-primary">{currentOrg.affiliation_commission_percent}%</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Taux de commission</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{isFr ? 'Taux de commission' : 'Commission rate'}</p>
           </div>
           <div className="bg-card border border-border rounded-2xl p-4 text-center">
             <p className="text-2xl font-bold">{activeLinks.length}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Affiliés actifs</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{isFr ? 'Affiliés actifs' : 'Active affiliates'}</p>
           </div>
           <div className="bg-card border border-border rounded-2xl p-4 text-center">
-            <p className="text-2xl font-bold">{totalClicks.toLocaleString('fr-FR')}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Clics totaux</p>
+            <p className="text-2xl font-bold">{totalClicks.toLocaleString(isFr ? 'fr-FR' : 'en-US')}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{isFr ? 'Clics totaux' : 'Total clicks'}</p>
           </div>
           <div className="bg-card border border-border rounded-2xl p-4 text-center">
-            <p className="text-2xl font-bold">{totalConversions.toLocaleString('fr-FR')}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">Conversions</p>
+            <p className="text-2xl font-bold">{totalConversions.toLocaleString(isFr ? 'fr-FR' : 'en-US')}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{isFr ? 'Conversions' : 'Conversions'}</p>
           </div>
         </div>
 
-        {/* Total commissions paid */}
         <div className="bg-card border border-border rounded-2xl p-4 flex items-center justify-between">
           <div>
-            <p className="text-xs text-muted-foreground">Total commissions versées</p>
-            <p className="text-2xl font-bold text-primary">{totalEarned.toLocaleString('fr-FR')} {currentOrg.currency}</p>
+            <p className="text-xs text-muted-foreground">{isFr ? 'Total commissions versées' : 'Total commissions paid'}</p>
+            <p className="text-2xl font-bold text-primary">{fmt(totalEarned, currentOrg.currency)}</p>
           </div>
           <Button size="sm" variant="outline" className="text-xs" onClick={() => navigate('/admin/settings')}>
-            Modifier le taux
+            {isFr ? 'Modifier le taux' : 'Change rate'}
           </Button>
         </div>
 
-        {/* Active affiliates list */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-          <h2 className="font-semibold text-sm">Affiliés actifs ({activeLinks.length})</h2>
+          <h2 className="font-semibold text-sm">{isFr ? 'Affiliés actifs' : 'Active affiliates'} ({activeLinks.length})</h2>
 
           {isLoading ? (
             <SkeletonRow count={3} />
           ) : activeLinks.length === 0 ? (
             <div className="py-6 text-center space-y-2">
               <Users className="h-8 w-8 text-muted-foreground/40 mx-auto" />
-              <p className="text-sm font-medium text-muted-foreground">Aucun affilié pour le moment</p>
+              <p className="text-sm font-medium text-muted-foreground">{isFr ? 'Aucun affilié pour le moment' : 'No affiliates yet'}</p>
               <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                Partagez le lien de votre page publique. Les visiteurs pourront rejoindre votre programme d'affiliation en un clic.
+                {isFr ? 'Partagez le lien de votre page publique. Les visiteurs pourront rejoindre votre programme d\'affiliation en un clic.' : 'Share your public page link. Visitors can join your affiliate program in one click.'}
               </p>
             </div>
           ) : (
@@ -655,7 +654,7 @@ export function AdminAffiliation() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium leading-tight truncate font-mono">{link.code}</p>
-                        <Badge variant="secondary" className="text-[10px] bg-primary/15 text-primary mt-0.5">Affilié</Badge>
+                        <Badge variant="secondary" className="text-[10px] bg-primary/15 text-primary mt-0.5">{isFr ? 'Affilié' : 'Affiliate'}</Badge>
                       </div>
                     </div>
                     <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-2.5 py-1.5">
@@ -663,10 +662,10 @@ export function AdminAffiliation() {
                       <AffiliateCopyButton text={shareUrl} />
                     </div>
                     <div className="flex items-center gap-4 text-[10px] text-muted-foreground px-0.5">
-                      <span>👆 {link.clicks || 0} clics</span>
-                      <span>✅ {link.conversions || 0} conversions</span>
+                      <span>👆 {link.clicks || 0} {isFr ? 'clics' : 'clicks'}</span>
+                      <span>✅ {link.conversions || 0} {isFr ? 'conversions' : 'conversions'}</span>
                       <span className="text-primary font-semibold ml-auto">
-                        {(link.total_earned || 0).toLocaleString('fr-FR')} {currentOrg.currency} gagnés
+                        {fmt(link.total_earned || 0, currentOrg.currency)} {isFr ? 'gagnés' : 'earned'}
                       </span>
                     </div>
                   </motion.div>
