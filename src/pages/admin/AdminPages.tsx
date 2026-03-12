@@ -1207,7 +1207,7 @@ export function AdminSettings() {
 
           {/* Banner upload */}
           <div className="space-y-2">
-            <Label className="text-xs font-medium">Image de bannière</Label>
+            <Label className="text-xs font-medium">{isFr ? 'Image de bannière' : 'Banner image'}</Label>
             <div
               className="relative h-32 rounded-xl overflow-hidden border-2 border-dashed border-border bg-muted/40 cursor-pointer group"
               onClick={() => document.getElementById('banner-upload')?.click()}
