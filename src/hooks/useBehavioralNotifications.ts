@@ -140,8 +140,8 @@ export function useBehavioralNotifications() {
       // 7. 10+ sales milestone
       if (orgState.salesCount >= 10) {
         createNotif.mutate({
-          title: '🎉 Félicitations — 10 ventes atteintes !',
-          body: 'Votre organisation a franchi le cap des 10 ventes. Vous êtes sur la bonne voie !',
+          title: isFr ? '🎉 Félicitations — 10 ventes atteintes !' : '🎉 Congratulations — 10 sales reached!',
+          body: isFr ? 'Votre organisation a franchi le cap des 10 ventes. Vous êtes sur la bonne voie !' : 'Your organization has crossed 10 sales. You\'re on the right track!',
           type: 'milestone_10_sales',
         });
       }
