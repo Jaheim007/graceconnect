@@ -7,7 +7,7 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { LandingFooter } from '@/components/landing/LandingFooter';
 import { useState } from 'react';
-import { useI18n } from '@/hooks/useI18n';
+import { useI18n } from '@/i18n/I18nContext';
 
 const fadeUp = { hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0, transition: { duration: 0.35 } } };
 

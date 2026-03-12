@@ -21,7 +21,7 @@ import { format } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
-import { useI18n } from '@/hooks/useI18n';
+import { useI18n } from '@/i18n/I18nContext';
 
 function formatCredits(n: number): string {
   if (Number.isInteger(n)) return n.toString();

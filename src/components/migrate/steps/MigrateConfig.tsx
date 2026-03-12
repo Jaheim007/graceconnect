@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
-import { useI18n } from '@/hooks/useI18n';
+import { useI18n } from '@/i18n/I18nContext';
 import type { MigrateState } from '../MigrateWizard';
 
 interface Props {

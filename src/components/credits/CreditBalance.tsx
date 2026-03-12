@@ -2,7 +2,7 @@ import { useCreditsBalance, useGrantDailyCredits } from '@/hooks/useCredits';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { useI18n } from '@/hooks/useI18n';
+import { useI18n } from '@/i18n/I18nContext';
 
 function formatCredits(n: number, numLoc: string): string {
   if (n >= 1000) return Math.floor(n).toLocaleString(numLoc);
