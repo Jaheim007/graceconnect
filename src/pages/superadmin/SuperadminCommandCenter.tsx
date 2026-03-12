@@ -36,6 +36,10 @@ interface QuickAction {
 
 export default function SuperadminCommandCenter() {
   const navigate = useNavigate();
+  const { fmt } = useDisplayCurrency();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const dateFnsLocale = isFr ? fr : enUS;
   const weekAgo = subDays(new Date(), 7).toISOString();
   const [triggeringMode, setTriggeringMode] = useState<string | null>(null);
 
