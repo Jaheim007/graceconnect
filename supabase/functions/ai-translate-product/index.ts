@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
     const { data: product, error: prodErr } = await admin.from('digital_products').select('title, description, guarantee_text, faq_json').eq('id', product_id).eq('organization_id', org_id).single();
     if (prodErr || !product) return jsonResp({ error: 'Product not found' }, 404);
 
-    // Debit credits with auto-refund on failure
+    // Debit credits with auto-refund on failure (2-pass = slightly higher cost)
     const result = await consumeCreditsWithRefund({
       admin, userId: auth.userId, actionKey: 'translate_product', tier: normalizeTier(tier),
       action: async () => {
@@ -50,28 +50,71 @@ Deno.serve(async (req) => {
           ...(faqItems.length > 0 ? { faq_items: faqItems.map(f => ({ question: f.question, answer: f.answer })) } : {}),
         });
 
-        const raw = await aiGenerateText({
+        // === PASS 1: Initial translation ===
+        const pass1Raw = await aiGenerateText({
           geminiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash',
-          system: `You are a professional translator. Translate to ${targetLang}. Maintain HTML formatting and marketing tone. Return ONLY a JSON object with the same keys.`,
+          system: `You are a professional translator specializing in digital product marketing. Translate the following content to ${targetLang}. Maintain all HTML formatting, marketing tone, and persuasive copywriting style. Return ONLY a JSON object with the same keys.`,
           prompt: payload,
           jsonMode: true,
         });
 
-        const translated = extractJson(raw);
-        if (!translated) throw new Error('Failed to parse translation');
+        const pass1 = extractJson(pass1Raw);
+        if (!pass1) throw new Error('Failed to parse initial translation');
+
+        // === PASS 2: Quality review & refinement ===
+        const reviewPayload = JSON.stringify({
+          original: JSON.parse(payload),
+          translation: pass1,
+          target_language: targetLang,
+        });
+
+        const pass2Raw = await aiGenerateText({
+          geminiKey: GEMINI_API_KEY, model: 'gemini-2.5-flash',
+          system: `You are a bilingual editor reviewing a translation to ${targetLang}. Check for:
+1. Accuracy — does it faithfully convey the original meaning?
+2. Naturalness — does it read like native ${targetLang} content (not translated)?
+3. Marketing tone — is the persuasive copywriting preserved?
+4. Grammar & spelling — any errors?
+5. Cultural adaptation — are idioms/expressions adapted properly?
+
+Return a JSON object with these keys:
+- "refined": the improved translation (same structure as the translation input — only change what needs improving)
+- "quality_score": a number 1-10
+- "issues_found": array of strings describing issues fixed (empty if none)`,
+          prompt: reviewPayload,
+          jsonMode: true,
+        });
+
+        const pass2 = extractJson(pass2Raw);
+        const refined = pass2?.refined || pass1;
+        const qualityScore = pass2?.quality_score || null;
+        const issuesFound = pass2?.issues_found || [];
 
         // Audit
         await admin.from('audit_logs').insert({
           user_id: auth.userId, action: 'product.translated', resource_type: 'digital_product',
           resource_id: product_id, organization_id: org_id,
-          metadata: { target_language, fields_translated: Object.keys(translated) },
+          metadata: {
+            target_language,
+            fields_translated: Object.keys(refined),
+            quality_score: qualityScore,
+            issues_found: issuesFound,
+            two_pass: true,
+          },
         });
 
-        return { translated, target_language };
+        return { translated: refined, target_language, quality_score: qualityScore, issues_found: issuesFound };
       },
     });
 
-    return jsonResp({ ok: true, translated: result.translated, source_language: 'auto', target_language: result.target_language });
+    return jsonResp({
+      ok: true,
+      translated: result.translated,
+      source_language: 'auto',
+      target_language: result.target_language,
+      quality_score: result.quality_score,
+      issues_found: result.issues_found,
+    });
   } catch (e: any) {
     if (e?.status === 402) return jsonResp({ error: e.message }, 402);
     console.error('ai-translate-product error:', e);

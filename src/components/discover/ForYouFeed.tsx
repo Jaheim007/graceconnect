@@ -8,6 +8,7 @@ import { useCallback, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/i18n/I18nContext';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 10 },
@@ -37,15 +38,10 @@ const PAGE_SIZE = 12;
 
 function interleave(products: FeedItem[], media: FeedItem[], programs: FeedItem[]): FeedItem[] {
   const result: FeedItem[] = [];
-  const queues = [products, media, programs].filter(q => q.length > 0);
-  // Pattern: 3 products, 1 media, 1 program, repeat
   let pi = 0, mi = 0, pri = 0;
   while (pi < products.length || mi < media.length || pri < programs.length) {
-    // 3 products
     for (let i = 0; i < 3 && pi < products.length; i++) result.push(products[pi++]);
-    // 1 media
     if (mi < media.length) result.push(media[mi++]);
-    // 1 program
     if (pri < programs.length) result.push(programs[pri++]);
   }
   return result;
@@ -53,13 +49,14 @@ function interleave(products: FeedItem[], media: FeedItem[], programs: FeedItem[
 
 export function ForYouFeed() {
   const { user } = useAuth();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const feedQuery = useInfiniteQuery({
     queryKey: ['for-you-feed', user?.id],
     queryFn: async ({ pageParam = 0 }) => {
       const offset = pageParam * PAGE_SIZE;
 
-      // Fetch products, media, programs in parallel
       const [productsRes, mediaRes, programsRes] = await Promise.all([
         db.from('digital_products')
           .select('*, organizations(name, slug, logo_url, currency, is_verified)')
@@ -144,7 +141,7 @@ export function ForYouFeed() {
     <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-primary" />
-        <h2 className="text-base font-bold">Pour vous</h2>
+        <h2 className="text-base font-bold">{isFr ? 'Pour vous' : 'For you'}</h2>
       </div>
 
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -153,9 +150,9 @@ export function ForYouFeed() {
             {item.type === 'product' ? (
               <ProductCard product={item.raw} hideCommission hideShare />
             ) : item.type === 'media' ? (
-              <MediaFeedCard item={item} />
+              <MediaFeedCard item={item} isFr={isFr} />
             ) : (
-              <ProgramFeedCard item={item} />
+              <ProgramFeedCard item={item} isFr={isFr} />
             )}
           </motion.div>
         ))}
@@ -171,7 +168,7 @@ export function ForYouFeed() {
   );
 }
 
-function MediaFeedCard({ item }: { item: FeedItem }) {
+function MediaFeedCard({ item, isFr }: { item: FeedItem; isFr: boolean }) {
   return (
     <Link
       to={`/watch/${item.id}`}
@@ -187,7 +184,7 @@ function MediaFeedCard({ item }: { item: FeedItem }) {
         )}
         <Badge className="absolute top-2 left-2 text-[10px] bg-background/80 backdrop-blur-sm text-foreground">
           <Video className="h-2.5 w-2.5 mr-1" />
-          {item.media_type || 'vidéo'}
+          {item.media_type || (isFr ? 'vidéo' : 'video')}
         </Badge>
       </div>
       <div className="p-3 space-y-1">
@@ -196,14 +193,14 @@ function MediaFeedCard({ item }: { item: FeedItem }) {
           <p className="text-[10px] text-muted-foreground">{item.org_name}</p>
         )}
         {item.view_count != null && item.view_count > 0 && (
-          <p className="text-[10px] text-muted-foreground">{item.view_count.toLocaleString()} vues</p>
+          <p className="text-[10px] text-muted-foreground">{item.view_count.toLocaleString()} {isFr ? 'vues' : 'views'}</p>
         )}
       </div>
     </Link>
   );
 }
 
-function ProgramFeedCard({ item }: { item: FeedItem }) {
+function ProgramFeedCard({ item, isFr }: { item: FeedItem; isFr: boolean }) {
   return (
     <Link
       to={`/program/${item.id}`}
@@ -219,7 +216,7 @@ function ProgramFeedCard({ item }: { item: FeedItem }) {
         )}
         <Badge className="absolute top-2 left-2 text-[10px] bg-primary/90 text-primary-foreground">
           <BookOpen className="h-2.5 w-2.5 mr-1" />
-          Formation
+          {isFr ? 'Formation' : 'Course'}
         </Badge>
       </div>
       <div className="p-3 space-y-1">
@@ -227,7 +224,7 @@ function ProgramFeedCard({ item }: { item: FeedItem }) {
         {item.org_name && (
           <p className="text-[10px] text-muted-foreground">{item.org_name}</p>
         )}
-        <p className="text-[10px] text-primary font-medium">Gratuit • S'inscrire</p>
+        <p className="text-[10px] text-primary font-medium">{isFr ? 'Gratuit • S\'inscrire' : 'Free • Enroll'}</p>
       </div>
     </Link>
   );
