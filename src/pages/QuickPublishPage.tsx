@@ -278,7 +278,7 @@ export default function QuickPublishPage() {
                 {/* Product file */}
                 <div>
                   <label className="text-sm font-medium mb-1.5 block">
-                    <Upload className="h-3.5 w-3.5 inline mr-1" /> Fichier du produit
+                    <Upload className="h-3.5 w-3.5 inline mr-1" /> {isFr ? 'Fichier du produit' : 'Product file'}
                   </label>
                   <label className="flex flex-col items-center justify-center border-2 border-dashed border-border rounded-xl p-6 cursor-pointer hover:bg-muted/30 transition-colors">
                     {form.productFile ? (
@@ -292,7 +292,7 @@ export default function QuickPublishPage() {
                     ) : (
                       <>
                         <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                        <span className="text-xs text-muted-foreground">PDF, Audio, Vidéo…</span>
+                        <span className="text-xs text-muted-foreground">{isFr ? 'PDF, Audio, Vidéo…' : 'PDF, Audio, Video…'}</span>
                       </>
                     )}
                     <input
