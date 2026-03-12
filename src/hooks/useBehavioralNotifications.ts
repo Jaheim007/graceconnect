@@ -13,6 +13,8 @@ import { useI18n } from '@/i18n/I18nContext';
 export function useBehavioralNotifications() {
   const { user } = useAuth();
   const { currentOrg, canManage } = useOrg();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const fired = useRef(false);
   const qc = useQueryClient();
 
