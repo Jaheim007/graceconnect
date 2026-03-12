@@ -478,7 +478,7 @@ export function SmartCameraCapture({
         <div className="flex items-center gap-2">
           {isLivenessEnabled && (
             <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-              <Eye className="h-3 w-3" /> Anti-fraude
+              <Eye className="h-3 w-3" /> {lang === 'fr' ? 'Anti-fraude' : 'Anti-fraud'}
             </span>
           )}
           {smartCapture && captureMode === 'selfie' && (
