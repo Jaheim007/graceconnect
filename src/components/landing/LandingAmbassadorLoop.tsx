@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Share2, Users, Banknote, ArrowRight } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
