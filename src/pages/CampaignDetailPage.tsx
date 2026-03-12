@@ -233,7 +233,7 @@ export default function CampaignDetailPage() {
               <div className="space-y-3">
                 <h2 className="text-lg font-bold flex items-center gap-2">
                   <Heart className="h-4.5 w-4.5 text-primary" />
-                  À propos de cette campagne
+                  {isFr ? 'À propos de cette campagne' : 'About this campaign'}
                 </h2>
                 <div className="p-5 rounded-2xl border border-border bg-card shadow-sm">
                   <FormattedText
