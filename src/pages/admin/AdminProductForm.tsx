@@ -670,7 +670,7 @@ export function ProductForm() {
 
         {/* Testimonials */}
         <div className="space-y-2 border border-border rounded-xl p-4">
-          <Label className="flex items-center gap-1 text-sm font-semibold"><MessageSquareQuote className="h-3.5 w-3.5" /> Témoignages</Label>
+          <Label className="flex items-center gap-1 text-sm font-semibold"><MessageSquareQuote className="h-3.5 w-3.5" /> {isFr ? 'Témoignages' : 'Testimonials'}</Label>
           {testimonials.map((t, i) => (
             <div key={i} className="flex items-start gap-2 bg-muted/50 rounded-lg p-2">
               <div className="flex-1 min-w-0"><p className="text-xs font-semibold">{t.name}</p><p className="text-xs text-muted-foreground italic">"{t.text}"</p></div>
@@ -678,9 +678,9 @@ export function ProductForm() {
             </div>
           ))}
           <div className="grid gap-2">
-            <Input placeholder="Nom du client" value={newTestimonial.name} onChange={e => setNewTestimonial(t => ({ ...t, name: e.target.value }))} className="h-8 text-xs" />
-            <Input placeholder="Témoignage" value={newTestimonial.text} onChange={e => setNewTestimonial(t => ({ ...t, text: e.target.value }))} className="h-8 text-xs" />
-            <Button type="button" variant="outline" size="sm" className="w-fit gap-1" onClick={() => { if (newTestimonial.name && newTestimonial.text) { setTestimonials(prev => [...prev, { ...newTestimonial }]); setNewTestimonial({ name: '', text: '' }); } }}><Plus className="h-3 w-3" /> Ajouter</Button>
+            <Input placeholder={isFr ? 'Nom du client' : 'Customer name'} value={newTestimonial.name} onChange={e => setNewTestimonial(t => ({ ...t, name: e.target.value }))} className="h-8 text-xs" />
+            <Input placeholder={isFr ? 'Témoignage' : 'Testimonial'} value={newTestimonial.text} onChange={e => setNewTestimonial(t => ({ ...t, text: e.target.value }))} className="h-8 text-xs" />
+            <Button type="button" variant="outline" size="sm" className="w-fit gap-1" onClick={() => { if (newTestimonial.name && newTestimonial.text) { setTestimonials(prev => [...prev, { ...newTestimonial }]); setNewTestimonial({ name: '', text: '' }); } }}><Plus className="h-3 w-3" /> {isFr ? 'Ajouter' : 'Add'}</Button>
           </div>
         </div>
 
