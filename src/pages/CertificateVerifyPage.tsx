@@ -78,7 +78,7 @@ export default function CertificateVerifyPage() {
             <div className="p-6 space-y-5">
               {/* Recipient */}
               <div className="text-center">
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">Décerné à</p>
+                <p className="text-xs text-muted-foreground uppercase tracking-wider">{isFr ? 'Décerné à' : 'Awarded to'}</p>
                 <p className="text-xl font-bold mt-1">{recipientName}</p>
               </div>
 
