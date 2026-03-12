@@ -460,7 +460,7 @@ export default function SuperadminFullDashboard() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold truncate">{u.display_name || 'Sans nom'}</p>
-                  <p className="text-[10px] text-muted-foreground">{u.created_at ? format(new Date(u.created_at), 'dd MMM yyyy', { locale: fr }) : ''}</p>
+                  <p className="text-[10px] text-muted-foreground">{u.created_at ? format(new Date(u.created_at), 'dd MMM yyyy') : ''}</p>
                 </div>
               </div>
             ))}
