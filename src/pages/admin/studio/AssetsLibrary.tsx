@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { FolderOpen, Download, Search, Image, FileText, Music } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nContext';
 
 const ASSET_ICONS: Record<string, typeof Image> = {
   image: Image, cover: Image, preview: Image,
@@ -17,6 +18,8 @@ export default function AssetsLibrary() {
   const { currentOrg } = useOrg();
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const { data: assets, isLoading } = useQuery({
     queryKey: ['studio-all-assets', currentOrg?.id],
@@ -41,18 +44,18 @@ export default function AssetsLibrary() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold flex items-center gap-2">
-        <FolderOpen className="h-6 w-6 text-primary" /> Bibliothèque d'assets
+        <FolderOpen className="h-6 w-6 text-primary" /> {isFr ? 'Bibliothèque d\'assets' : 'Assets Library'}
       </h1>
 
       <div className="flex items-center gap-3">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Rechercher..." className="pl-9" />
+          <Input value={search} onChange={e => setSearch(e.target.value)} placeholder={isFr ? 'Rechercher...' : 'Search...'} className="pl-9" />
         </div>
         <div className="flex gap-1">
           {['all', 'image', 'pdf', 'audio'].map(t => (
             <Button key={t} variant={filterType === t ? 'default' : 'outline'} size="sm" onClick={() => setFilterType(t)} className="text-xs">
-              {t === 'all' ? 'Tous' : t.toUpperCase()}
+              {t === 'all' ? (isFr ? 'Tous' : 'All') : t.toUpperCase()}
             </Button>
           ))}
         </div>
@@ -66,7 +69,7 @@ export default function AssetsLibrary() {
         <Card>
           <CardContent className="py-16 text-center">
             <FolderOpen className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
-            <p className="text-muted-foreground font-medium">Aucun asset trouvé</p>
+            <p className="text-muted-foreground font-medium">{isFr ? 'Aucun asset trouvé' : 'No assets found'}</p>
           </CardContent>
         </Card>
       ) : (

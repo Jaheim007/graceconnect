@@ -13,16 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { Layout, Plus, Edit3, Trash2, Loader2, Sparkles } from 'lucide-react';
-
-const PROJECT_TYPES = [
-  { value: 'ebook', label: 'Ebook' },
-  { value: 'kids_book', label: 'Livre Enfant' },
-  { value: 'coloring_book', label: 'Coloriage' },
-  { value: 'course_pack', label: 'Cours' },
-  { value: 'sermon_pack', label: 'Prédication' },
-  { value: 'bible_pack', label: 'Pack Bible' },
-  { value: 'marketing_pack', label: 'Marketing' },
-];
+import { useI18n } from '@/i18n/I18nContext';
 
 export default function OrgTemplates() {
   const { currentOrg } = useOrg();
@@ -31,6 +22,18 @@ export default function OrgTemplates() {
   const queryClient = useQueryClient();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+
+  const PROJECT_TYPES = [
+    { value: 'ebook', label: 'Ebook' },
+    { value: 'kids_book', label: isFr ? 'Livre Enfant' : 'Kids Book' },
+    { value: 'coloring_book', label: isFr ? 'Coloriage' : 'Coloring Book' },
+    { value: 'course_pack', label: isFr ? 'Cours' : 'Course' },
+    { value: 'sermon_pack', label: isFr ? 'Prédication' : 'Sermon' },
+    { value: 'bible_pack', label: isFr ? 'Pack Bible' : 'Bible Pack' },
+    { value: 'marketing_pack', label: 'Marketing' },
+  ];
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -86,13 +89,13 @@ export default function OrgTemplates() {
       }
     },
     onSuccess: () => {
-      toast({ title: editingId ? 'Template modifié ✓' : 'Template créé ✓' });
+      toast({ title: editingId ? (isFr ? 'Template modifié ✓' : 'Template updated ✓') : (isFr ? 'Template créé ✓' : 'Template created ✓') });
       queryClient.invalidateQueries({ queryKey: ['org-templates', currentOrg?.id] });
       setDialogOpen(false);
       resetForm();
     },
     onError: (err: any) => {
-      toast({ title: 'Erreur', description: err.message, variant: 'destructive' });
+      toast({ title: isFr ? 'Erreur' : 'Error', description: err.message, variant: 'destructive' });
     },
   });
 
@@ -102,7 +105,7 @@ export default function OrgTemplates() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast({ title: 'Template supprimé' });
+      toast({ title: isFr ? 'Template supprimé' : 'Template deleted' });
       queryClient.invalidateQueries({ queryKey: ['org-templates', currentOrg?.id] });
     },
   });
@@ -115,19 +118,19 @@ export default function OrgTemplates() {
         </h1>
         <Dialog open={dialogOpen} onOpenChange={(o) => { setDialogOpen(o); if (!o) resetForm(); }}>
           <DialogTrigger asChild>
-            <Button size="sm"><Plus className="h-4 w-4 mr-1" /> Nouveau template</Button>
+            <Button size="sm"><Plus className="h-4 w-4 mr-1" /> {isFr ? 'Nouveau template' : 'New template'}</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingId ? 'Modifier le template' : 'Nouveau template'}</DialogTitle>
+              <DialogTitle>{editingId ? (isFr ? 'Modifier le template' : 'Edit template') : (isFr ? 'Nouveau template' : 'New template')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 pt-2">
               <div>
-                <Label>Nom *</Label>
-                <Input value={name} onChange={e => setName(e.target.value)} placeholder="Ex: Ebook Leadership" />
+                <Label>{isFr ? 'Nom' : 'Name'} *</Label>
+                <Input value={name} onChange={e => setName(e.target.value)} placeholder={isFr ? 'Ex: Ebook Leadership' : 'e.g. Leadership Ebook'} />
               </div>
               <div>
-                <Label>Type de projet</Label>
+                <Label>{isFr ? 'Type de projet' : 'Project type'}</Label>
                 <Select value={projectType} onValueChange={setProjectType}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -137,15 +140,15 @@ export default function OrgTemplates() {
               </div>
               <div>
                 <Label>Description</Label>
-                <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Ce template est idéal pour..." rows={2} />
+                <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={isFr ? 'Ce template est idéal pour...' : 'This template is ideal for...'} rows={2} />
               </div>
               <div>
-                <Label>Prompt template (instructions IA)</Label>
-                <Textarea value={promptTemplate} onChange={e => setPromptTemplate(e.target.value)} placeholder="Instructions spécifiques pour l'IA..." rows={4} />
+                <Label>{isFr ? 'Prompt template (instructions IA)' : 'Prompt template (AI instructions)'}</Label>
+                <Textarea value={promptTemplate} onChange={e => setPromptTemplate(e.target.value)} placeholder={isFr ? 'Instructions spécifiques pour l\'IA...' : 'Specific AI instructions...'} rows={4} />
               </div>
               <Button onClick={() => saveMutation.mutate()} disabled={!name.trim() || saveMutation.isPending} className="w-full">
                 {saveMutation.isPending && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
-                {editingId ? 'Modifier' : 'Créer'}
+                {editingId ? (isFr ? 'Modifier' : 'Update') : (isFr ? 'Créer' : 'Create')}
               </Button>
             </div>
           </DialogContent>
@@ -160,9 +163,9 @@ export default function OrgTemplates() {
         <Card>
           <CardContent className="py-16 text-center">
             <Sparkles className="h-12 w-12 mx-auto text-muted-foreground/30 mb-4" />
-            <p className="text-muted-foreground font-medium">Aucun template</p>
+            <p className="text-muted-foreground font-medium">{isFr ? 'Aucun template' : 'No templates'}</p>
             <p className="text-sm text-muted-foreground mt-1">
-              Créez des templates réutilisables pour accélérer vos créations
+              {isFr ? 'Créez des templates réutilisables pour accélérer vos créations' : 'Create reusable templates to speed up your creations'}
             </p>
           </CardContent>
         </Card>
