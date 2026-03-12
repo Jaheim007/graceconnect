@@ -206,7 +206,7 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
             <h3 className="font-extrabold text-base leading-tight line-clamp-2">{product.title}</h3>
             <div className="flex items-center gap-2 mt-1.5">
               <span className="text-sm font-bold">
-                {product.is_free ? 'Gratuit' : formatCurrency(product.price || 0, product.currency || DEFAULT_CURRENCY)}
+                {fmtPrice(product.price || 0, product.is_free, product.currency, isFr ? 'Gratuit' : 'Free')}
               </span>
               {product.sale_price && product.sale_price < product.price && (
                 <span className="text-xs text-muted-foreground line-through">
