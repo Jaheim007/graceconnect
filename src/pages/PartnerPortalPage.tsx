@@ -276,11 +276,11 @@ export default function PartnerPortalPage() {
             <Card>
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm">Dernières commissions</CardTitle>
+                  <CardTitle className="text-sm">{isFr ? 'Dernières commissions' : 'Recent commissions'}</CardTitle>
                   <Button variant="ghost" size="sm" className="text-xs text-primary h-7" onClick={() => {
                     document.querySelector<HTMLButtonElement>('[data-value="gains"]')?.click();
                   }}>
-                    Tout voir <ArrowUpRight className="h-3 w-3 ml-1" />
+                    {isFr ? 'Tout voir' : 'View all'} <ArrowUpRight className="h-3 w-3 ml-1" />
                   </Button>
                 </div>
               </CardHeader>
