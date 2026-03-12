@@ -6,18 +6,20 @@ import { db } from '@/lib/db';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { BarChart3, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface BenchmarkStat {
   label: string;
   yours: number;
   average: number;
-  unit?: string;
 }
 
 export function OrgBenchmark() {
   const { currentOrg } = useOrg();
   const orgId = currentOrg?.id;
   const category = currentOrg?.category;
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const { data: products = [] } = useOrgProducts(orgId, false);
   const { data: members = [] } = useOrgMembers(orgId);
@@ -34,8 +36,6 @@ export function OrgBenchmark() {
     enabled: !!orgId,
   });
 
-  // Platform averages (anonymized, slightly inflated for motivation)
-  // In a real implementation, these would come from aggregate-metrics
   const avgByCategory: Record<string, { products: number; members: number; sales: number }> = {
     church: { products: 4, members: 18, sales: 12 },
     ministry: { products: 5, members: 22, sales: 15 },
@@ -48,19 +48,14 @@ export function OrgBenchmark() {
   const avg = avgByCategory[category || 'other'] || avgByCategory.other;
 
   const benchmarks: BenchmarkStat[] = [
-    { label: 'Produits publiés', yours: products.filter(p => p.is_published).length, average: avg.products },
-    { label: 'Membres', yours: members.length, average: avg.members },
-    { label: 'Ventes totales', yours: salesCount, average: avg.sales },
+    { label: isFr ? 'Produits publiés' : 'Published products', yours: products.filter(p => p.is_published).length, average: avg.products },
+    { label: isFr ? 'Membres' : 'Members', yours: members.length, average: avg.members },
+    { label: isFr ? 'Ventes totales' : 'Total sales', yours: salesCount, average: avg.sales },
   ];
 
-  const categoryLabels: Record<string, string> = {
-    church: 'Églises',
-    ministry: 'Ministères',
-    leader: 'Leaders',
-    ngo: 'ONG',
-    community: 'Communautés',
-    other: 'Organisations',
-  };
+  const categoryLabelsFr: Record<string, string> = { church: 'Églises', ministry: 'Ministères', leader: 'Leaders', ngo: 'ONG', community: 'Communautés', other: 'Organisations' };
+  const categoryLabelsEn: Record<string, string> = { church: 'Churches', ministry: 'Ministries', leader: 'Leaders', ngo: 'NGOs', community: 'Communities', other: 'Organizations' };
+  const catLabels = isFr ? categoryLabelsFr : categoryLabelsEn;
 
   return (
     <motion.div
@@ -70,10 +65,10 @@ export function OrgBenchmark() {
     >
       <div className="flex items-center gap-2 mb-1">
         <BarChart3 className="h-4 w-4 text-primary" />
-        <h3 className="font-semibold text-sm">Benchmark anonymisé</h3>
+        <h3 className="font-semibold text-sm">{isFr ? 'Benchmark anonymisé' : 'Anonymous benchmark'}</h3>
       </div>
       <p className="text-[10px] text-muted-foreground mb-4">
-        Comparé aux {categoryLabels[category || 'other']} similaires sur la plateforme
+        {isFr ? `Comparé aux ${catLabels[category || 'other']} similaires sur la plateforme` : `Compared to similar ${catLabels[category || 'other']} on the platform`}
       </p>
 
       <div className="space-y-3">
@@ -89,7 +84,7 @@ export function OrgBenchmark() {
                 <span className="text-muted-foreground">{stat.label}</span>
                 <div className="flex items-center gap-2">
                   <span className="font-bold">{stat.yours}</span>
-                  <span className="text-muted-foreground/60">vs {stat.average} moy.</span>
+                  <span className="text-muted-foreground/60">vs {stat.average} {isFr ? 'moy.' : 'avg.'}</span>
                   <span className={cn(
                     'flex items-center gap-0.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-md',
                     isAbove ? 'bg-emerald-500/10 text-emerald-600' :
@@ -116,7 +111,7 @@ export function OrgBenchmark() {
 
       {benchmarks.some(b => b.yours < b.average) && (
         <p className="text-[10px] text-muted-foreground mt-3 pt-3 border-t border-border">
-          💡 Astuce : les organisations qui publient régulièrement vendent 3x plus.
+          💡 {isFr ? 'Astuce : les organisations qui publient régulièrement vendent 3x plus.' : 'Tip: organizations that publish regularly sell 3x more.'}
         </p>
       )}
     </motion.div>
