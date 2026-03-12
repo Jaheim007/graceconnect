@@ -13,8 +13,10 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import PartnerPayoutConfig from '@/components/partner/PartnerPayoutConfig';
 import IdentityVerificationWizard from '@/components/verification/IdentityVerificationWizard';
 import { motion } from 'framer-motion';
+import { useI18n } from '@/i18n/I18nContext';
 
 const LEVEL_LABELS: Record<number, string> = { 1: 'Bronze', 2: 'Argent', 3: 'Or', 4: 'Platine', 5: 'Diamant' };
+const LEVEL_LABELS_EN: Record<number, string> = { 1: 'Bronze', 2: 'Silver', 3: 'Gold', 4: 'Platinum', 5: 'Diamond' };
 const LEVEL_COLORS: Record<number, string> = {
   1: 'text-amber-600 bg-amber-500/10 border-amber-500/20',
   2: 'text-slate-400 bg-slate-400/10 border-slate-400/20',
