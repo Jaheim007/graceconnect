@@ -112,7 +112,9 @@ export function SmartPricingHelper() {
   if (insights.length === 0) {
     insights.push({
       type: 'tip',
-      message: `Votre pricing est aligné avec votre catégorie. Prix moyen : ${formatCurrency(avgPrice, currency)} (benchmark : ${formatCurrency(benchmark.avgPrice, currency)}).`,
+      message: isFr
+        ? `Votre pricing est aligné avec votre catégorie. Prix moyen : ${formatCurrency(avgPrice, currency)} (benchmark : ${formatCurrency(benchmark.avgPrice, currency)}).`
+        : `Your pricing is aligned with your category. Average price: ${formatCurrency(avgPrice, currency)} (benchmark: ${formatCurrency(benchmark.avgPrice, currency)}).`,
       icon: TrendingUp,
     });
   }
