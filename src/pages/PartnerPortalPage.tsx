@@ -496,10 +496,10 @@ export default function PartnerPortalPage() {
                     <div key={p.id} className="flex items-center justify-between py-2.5 border-b border-border/30 last:border-0">
                       <div>
                         <p className="text-sm font-medium">{formatCurrency(p.amount, p.currency)}</p>
-                        <p className="text-[11px] text-muted-foreground">{new Date(p.requested_at).toLocaleDateString('fr-FR')}</p>
+                          <p className="text-[11px] text-muted-foreground">{new Date(p.requested_at).toLocaleDateString(dateLoc)}</p>
                       </div>
                       <Badge variant={p.status === 'paid' ? 'default' : p.status === 'failed' || p.status === 'rejected' ? 'destructive' : 'secondary'} className="text-[10px]">
-                        {p.status === 'paid' ? '✓ Versé' : p.status === 'failed' ? '✗ Échoué' : p.status === 'rejected' ? '✗ Rejeté' : '⏳ ' + p.status}
+                        {p.status === 'paid' ? (isFr ? '✓ Versé' : '✓ Paid') : p.status === 'failed' ? (isFr ? '✗ Échoué' : '✗ Failed') : p.status === 'rejected' ? (isFr ? '✗ Rejeté' : '✗ Rejected') : '⏳ ' + p.status}
                       </Badge>
                     </div>
                   ))}
