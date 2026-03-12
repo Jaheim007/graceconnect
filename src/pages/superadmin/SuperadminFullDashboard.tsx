@@ -128,7 +128,7 @@ export default function SuperadminFullDashboard() {
 
       // Format cohort data
       const cohortData = ((cohorts.data || []) as any[]).map((c: any) => ({
-        week: c.week ? format(new Date(c.week), 'dd/MM', { locale: fr }) : '',
+        week: c.week ? format(new Date(c.week), 'dd/MM') : '',
         users: c.users || 0,
       }));
 
