@@ -171,7 +171,7 @@ export default function SuperadminPush() {
                         <span className="text-[10px] text-destructive font-medium">{log.error}</span>
                       )}
                       <span className="text-[10px] text-muted-foreground ml-auto">
-                        {format(log.sentAt, 'HH:mm:ss', { locale: fr })}
+                        {format(log.sentAt, 'HH:mm:ss')}
                       </span>
                     </div>
                   </div>

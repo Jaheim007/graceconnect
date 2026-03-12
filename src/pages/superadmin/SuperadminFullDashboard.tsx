@@ -478,7 +478,7 @@ export default function SuperadminFullDashboard() {
                 <div className="flex-1 min-w-0">
                   <p className="text-xs font-semibold truncate">{e.title}</p>
                   <p className="text-[10px] text-muted-foreground">
-                    {e.event_date ? format(new Date(e.event_date), 'dd MMM yyyy HH:mm', { locale: fr }) : 'Date TBD'}
+                    {e.event_date ? format(new Date(e.event_date), 'dd MMM yyyy HH:mm') : 'Date TBD'}
                   </p>
                 </div>
               </div>

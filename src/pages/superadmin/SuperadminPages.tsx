@@ -682,7 +682,7 @@ export function SuperadminReports() {
                       </div>
                       <div className="p-2.5 rounded-lg bg-muted/30 border border-border/40">
                         <p className="text-muted-foreground mb-0.5">Date</p>
-                        <p className="font-medium">{r.created_at ? new Date(r.created_at).toLocaleString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}</p>
+                        <p className="font-medium">{r.created_at ? new Date(r.created_at).toLocaleString(undefined, { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}</p>
                       </div>
                     </div>
 

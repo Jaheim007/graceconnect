@@ -118,7 +118,7 @@ export default function SuperadminInvestorSnapshot() {
             Investor Snapshot
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Vue consolidée pour investisseurs · {format(new Date(), 'dd MMM yyyy', { locale: fr })}
+            Vue consolidée pour investisseurs · {format(new Date(), 'dd MMM yyyy')}
           </p>
         </div>
         <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={exportSnapshot}>
