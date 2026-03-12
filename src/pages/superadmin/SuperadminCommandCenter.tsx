@@ -183,10 +183,10 @@ export default function SuperadminCommandCenter() {
       {/* KPI Summary */}
       <motion.div initial="hidden" animate="visible" variants={stagger} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: 'GMV 7j', value: formatCurrency(stats?.weekGMV || 0, 'XOF'), icon: DollarSign, color: 'text-emerald-500' },
-          { label: 'Nouvelles orgs', value: stats?.newOrgsWeek || 0, icon: TrendingUp, color: 'text-blue-500' },
-          { label: 'Nouveaux users', value: stats?.newUsersWeek || 0, icon: Users, color: 'text-violet-500' },
-          { label: 'Actions urgentes', value: alerts.length, icon: Zap, color: alerts.length > 0 ? 'text-amber-500' : 'text-emerald-500' },
+          { label: isFr ? 'GMV 7j' : 'GMV 7d', value: fmt(stats?.weekGMV || 0, 'XOF'), icon: DollarSign, color: 'text-emerald-500' },
+          { label: isFr ? 'Nouvelles orgs' : 'New orgs', value: stats?.newOrgsWeek || 0, icon: TrendingUp, color: 'text-blue-500' },
+          { label: isFr ? 'Nouveaux users' : 'New users', value: stats?.newUsersWeek || 0, icon: Users, color: 'text-violet-500' },
+          { label: isFr ? 'Actions urgentes' : 'Urgent actions', value: alerts.length, icon: Zap, color: alerts.length > 0 ? 'text-amber-500' : 'text-emerald-500' },
         ].map((kpi, i) => (
           <motion.div key={i} variants={fadeUp}>
             <Card className="border-border/60">
