@@ -56,7 +56,7 @@ export function ContentTemplateSelector({ type, open, onClose, onSelect }: Props
                   <p className="text-xs text-muted-foreground leading-relaxed">{tpl.description}</p>
                   {'fields' in tpl && 'price' in tpl.fields && (
                     <p className="text-[10px] text-primary font-medium mt-1">
-                      {(tpl as ProductTemplate).fields.is_free ? '🎁 Gratuit' : `💰 ${(tpl as ProductTemplate).fields.price.toLocaleString()} ${(tpl as ProductTemplate).fields.currency || 'XOF'}`}
+                      {(tpl as ProductTemplate).fields.is_free ? '🎁 Gratuit' : `💰 ${(tpl as ProductTemplate).fields.price.toLocaleString()}`}
                     </p>
                   )}
                 </div>
