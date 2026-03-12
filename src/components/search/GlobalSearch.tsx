@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Search, X, Building2, ShoppingBag, CalendarDays, Play, Filter } from 'lucide-react';
+import { Search, X, Building2, ShoppingBag, CalendarDays, Play } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -21,6 +21,8 @@ interface SearchResult {
   currency?: string;
 }
 
+type FilterType = 'all' | 'org' | 'product' | 'event' | 'media';
+
 const ICONS = {
   org: Building2,
   product: ShoppingBag,
@@ -28,23 +30,21 @@ const ICONS = {
   media: Play,
 };
 
-const LABELS: Record<string, string> = {
-  all: 'Tout',
-  org: 'Plateformes',
-  product: 'Produits',
-  event: 'Événements',
-  media: 'Médias',
-};
+const getLabels = (isFr: boolean): Record<FilterType, string> => ({
+  all: isFr ? 'Tout' : 'All',
+  org: isFr ? 'Plateformes' : 'Platforms',
+  product: isFr ? 'Produits' : 'Products',
+  event: isFr ? 'Événements' : 'Events',
+  media: isFr ? 'Médias' : 'Media',
+});
 
-const TAB_COLORS: Record<string, string> = {
+const TAB_COLORS: Record<FilterType, string> = {
   all: 'bg-primary/10 text-primary',
   org: 'bg-blue-500/10 text-blue-500',
   product: 'bg-amber-500/10 text-amber-500',
   event: 'bg-green-500/10 text-green-500',
   media: 'bg-violet-500/10 text-violet-500',
 };
-
-type FilterType = 'all' | 'org' | 'product' | 'event' | 'media';
 
 export function GlobalSearch() {
   const [open, setOpen] = useState(false);
@@ -55,6 +55,10 @@ export function GlobalSearch() {
   const debouncedQuery = useDebounce(query, 300);
   const { locale } = useI18n();
   const { fmt } = useDisplayCurrency();
+
+  const isFr = locale === 'fr';
+  const labels = getLabels(isFr);
+  const dateLocale = isFr ? 'fr-FR' : 'en-US';
 
   const { data: results = [], isLoading } = useQuery<SearchResult[]>({
     queryKey: ['global-search', debouncedQuery],
@@ -83,7 +87,10 @@ export function GlobalSearch() {
         url: `/org/${p.organizations?.slug}?tab=store`, image: p.cover_image_url,
       }));
       (events.data || []).forEach((e: any) => all.push({
-        id: e.id, type: 'event', title: e.title, subtitle: e.location || (e.event_date ? new Date(e.event_date).toLocaleDateString('fr-FR') : undefined),
+        id: e.id,
+        type: 'event',
+        title: e.title,
+        subtitle: e.location || (e.event_date ? new Date(e.event_date).toLocaleDateString(dateLocale) : undefined),
         url: `/org/${e.organizations?.slug}?tab=events`,
       }));
       (media.data || []).forEach((m: any) => all.push({
@@ -99,7 +106,7 @@ export function GlobalSearch() {
 
   const filtered = filter === 'all' ? results : results.filter(r => r.type === filter);
 
-  const counts: Record<string, number> = { all: results.length, org: 0, product: 0, event: 0, media: 0 };
+  const counts: Record<FilterType, number> = { all: results.length, org: 0, product: 0, event: 0, media: 0 };
   results.forEach(r => { counts[r.type] = (counts[r.type] || 0) + 1; });
 
   useEffect(() => {
@@ -129,7 +136,7 @@ export function GlobalSearch() {
         className="flex items-center gap-2 h-8 px-3 rounded-lg border border-border/60 bg-card/60 hover:bg-card text-xs text-muted-foreground transition-colors"
       >
         <Search className="h-3.5 w-3.5" />
-        <span className="hidden sm:inline">Rechercher...</span>
+        <span className="hidden sm:inline">{isFr ? 'Rechercher...' : 'Search...'}</span>
         <kbd className="hidden sm:inline-flex h-5 items-center rounded border border-border bg-muted px-1.5 text-[10px] font-mono">⌘K</kbd>
       </button>
     );
@@ -148,7 +155,7 @@ export function GlobalSearch() {
               ref={inputRef}
               value={query}
               onChange={(e) => { setQuery(e.target.value); setFilter('all'); }}
-              placeholder="Rechercher plateformes, produits, événements..."
+              placeholder={isFr ? 'Rechercher plateformes, produits, événements...' : 'Search platforms, products, events...'}
               className="border-0 h-12 text-sm focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent"
             />
             <button onClick={() => setOpen(false)} className="shrink-0 p-1 rounded hover:bg-muted">
@@ -159,17 +166,17 @@ export function GlobalSearch() {
           {/* Category tabs */}
           {results.length > 0 && (
             <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-border/50 overflow-x-auto scrollbar-hide">
-              {(['all', 'org', 'product', 'event', 'media'] as FilterType[]).map(t => (
-                counts[t] > 0 && (
+              {(['all', 'org', 'product', 'event', 'media'] as FilterType[]).map(tab => (
+                counts[tab] > 0 && (
                   <button
-                    key={t}
-                    onClick={() => setFilter(t)}
+                    key={tab}
+                    onClick={() => setFilter(tab)}
                     className={cn(
                       'shrink-0 px-2.5 py-1 rounded-full text-[11px] font-medium transition-all',
-                      filter === t ? TAB_COLORS[t] : 'text-muted-foreground hover:bg-muted'
+                      filter === tab ? TAB_COLORS[tab] : 'text-muted-foreground hover:bg-muted'
                     )}
                   >
-                    {LABELS[t]} {counts[t] > 0 && <span className="ml-0.5 opacity-60">{counts[t]}</span>}
+                    {labels[tab]} {counts[tab] > 0 && <span className="ml-0.5 opacity-60">{counts[tab]}</span>}
                   </button>
                 )
               ))}
@@ -181,17 +188,18 @@ export function GlobalSearch() {
             {query.length < 2 ? (
               <div className="p-6 text-center space-y-2">
                 <Search className="h-8 w-8 text-muted-foreground/30 mx-auto" />
-                <p className="text-xs text-muted-foreground">Tapez au moins 2 caractères pour rechercher</p>
-                <p className="text-[10px] text-muted-foreground/60">Astuce : ⌘K pour ouvrir la recherche</p>
+                <p className="text-xs text-muted-foreground">{isFr ? 'Tapez au moins 2 caractères pour rechercher' : 'Type at least 2 characters to search'}</p>
+                <p className="text-[10px] text-muted-foreground/60">{isFr ? 'Astuce : ⌘K pour ouvrir la recherche' : 'Tip: ⌘K to open search'}</p>
               </div>
             ) : isLoading ? (
               <div className="p-6 text-center">
                 <div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto" />
-                <p className="text-xs text-muted-foreground mt-2">Recherche en cours...</p>
+                <p className="text-xs text-muted-foreground mt-2">{isFr ? 'Recherche en cours...' : 'Searching...'}</p>
               </div>
             ) : filtered.length === 0 ? (
               <div className="p-6 text-center text-xs text-muted-foreground">
-                Aucun résultat pour « {query} »{filter !== 'all' ? ` dans ${LABELS[filter]}` : ''}
+                {isFr ? `Aucun résultat pour « ${query} »` : `No result for “${query}”`}
+                {filter !== 'all' ? (isFr ? ` dans ${labels[filter]}` : ` in ${labels[filter]}`) : ''}
               </div>
             ) : (
               <div className="py-1.5">
@@ -216,11 +224,11 @@ export function GlobalSearch() {
                       </div>
                       <div className="flex flex-col items-end gap-0.5 shrink-0">
                         <Badge variant="outline" className={cn('text-[9px] border-0 capitalize', TAB_COLORS[r.type])}>
-                          {LABELS[r.type]?.replace(/s$/, '')}
+                          {labels[r.type].replace(/s$/, '')}
                         </Badge>
                         {r.type === 'product' && r.price !== undefined && (
                           <span className="text-[10px] font-semibold text-primary">
-                            {r.price === 0 ? (locale === 'fr' ? 'Gratuit' : 'Free') : fmt(r.price, r.currency)}
+                            {r.price === 0 ? (isFr ? 'Gratuit' : 'Free') : fmt(r.price, r.currency)}
                           </span>
                         )}
                       </div>
