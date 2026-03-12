@@ -98,13 +98,15 @@ export default function FeedPage() {
     exit: { opacity: 0, y: -10, transition: { duration: 0.15 } },
   };
 
-  const dateLocale = document.documentElement.lang === 'fr' ? 'fr-FR' : 'en-US';
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const dateLocale = isFr ? 'fr-FR' : 'en-US';
 
   const needsProfileCompletion = user && profile && !profile.display_name;
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Mon fil — Siteviral" description="Retrouvez les dernières publications, produits et événements de vos communautés." noindex />
+      <SEOHead title={isFr ? "Mon fil — Siteviral" : "My Feed — Siteviral"} description={isFr ? "Retrouvez les dernières publications, produits et événements de vos communautés." : "Find the latest posts, products and events from your communities."} noindex />
       <div className="container max-w-5xl px-4 py-5 sm:py-6 space-y-5 sm:space-y-6">
 
         {/* Smart contextual suggestions */}
@@ -187,7 +189,7 @@ export default function FeedPage() {
                             <h3 className="font-bold text-sm mt-1 line-clamp-2">{a.title}</h3>
                             <p className="text-xs text-muted-foreground mt-1.5 line-clamp-3">{stripHtml(a.body)}</p>
                             {(a as any).organization_name && (
-                              <p className="text-[11px] text-muted-foreground mt-2 flex items-center gap-1">Publié par <span className="font-semibold text-primary hover:underline cursor-pointer" onClick={(e) => { e.stopPropagation(); navigate(`/org/${(a as any).organization_slug}`); }}>{(a as any).organization_name}</span>{(a as any).is_org_verified && <VerifiedBadge size="xs" showTooltip={false} />}</p>
+                              <p className="text-[11px] text-muted-foreground mt-2 flex items-center gap-1">{isFr ? 'Publié par' : 'By'} <span className="font-semibold text-primary hover:underline cursor-pointer" onClick={(e) => { e.stopPropagation(); navigate(`/org/${(a as any).organization_slug}`); }}>{(a as any).organization_name}</span>{(a as any).is_org_verified && <VerifiedBadge size="xs" showTooltip={false} />}</p>
                             )}
                           </div>
                         </motion.div>
@@ -215,7 +217,7 @@ export default function FeedPage() {
                             <p className="text-xs font-semibold text-primary">{ev.event_date ? new Date(ev.event_date).toLocaleDateString(dateLocale, { weekday: 'short', month: 'short', day: 'numeric' }) : t('feed.date_tbc')}</p>
                             {ev.location && <p className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="h-3 w-3" />{ev.location}</p>}
                             {(ev as any).organization_name && (
-                              <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">Publié par <span className="font-semibold text-primary hover:underline cursor-pointer" onClick={(e) => { e.stopPropagation(); navigate(`/org/${(ev as any).organization_slug}`); }}>{(ev as any).organization_name}</span>{(ev as any).is_org_verified && <VerifiedBadge size="xs" showTooltip={false} />}</p>
+                              <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1">{isFr ? 'Publié par' : 'By'} <span className="font-semibold text-primary hover:underline cursor-pointer" onClick={(e) => { e.stopPropagation(); navigate(`/org/${(ev as any).organization_slug}`); }}>{(ev as any).organization_name}</span>{(ev as any).is_org_verified && <VerifiedBadge size="xs" showTooltip={false} />}</p>
                             )}
                           </div>
                         </motion.div>

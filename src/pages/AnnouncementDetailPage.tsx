@@ -15,12 +15,15 @@ import { Badge } from '@/components/ui/badge';
 import { CommentSection } from '@/components/comments/CommentSection';
 import { BookmarkButton } from '@/components/bookmarks/BookmarkButton';
 import { useShortLink } from '@/hooks/useShortLink';
+import { useI18n } from '@/i18n/I18nContext';
 
 export default function AnnouncementDetailPage() {
   const { announcementId } = useParams<{ announcementId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const [copied, setCopied] = useState(false);
 
   const { data: announcement, isLoading } = useQuery({
@@ -39,7 +42,7 @@ export default function AnnouncementDetailPage() {
 
   const { shareUrl: socialShareUrl } = useShortLink({
     targetPath: `/announcement/${announcementId}`,
-    title: announcement?.title || 'Annonce Siteviral',
+    title: announcement?.title || (isFr ? 'Annonce Siteviral' : 'Siteviral Announcement'),
     description: announcement?.body?.slice(0, 155) || '',
     image: announcement?.image_url || undefined,
   });
@@ -47,7 +50,7 @@ export default function AnnouncementDetailPage() {
   const handleCopyLink = async () => {
     await navigator.clipboard.writeText(socialShareUrl);
     setCopied(true);
-    toast({ title: 'Lien copié !' });
+    toast({ title: isFr ? 'Lien copié !' : 'Link copied!' });
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -70,24 +73,25 @@ export default function AnnouncementDetailPage() {
   if (!announcement) {
     return (
       <EmptyState
-        title="Annonce introuvable"
-        description="Cette annonce n'existe pas ou a été retirée."
-        action={{ label: 'Retour', onClick: () => navigate(-1) }}
+        title={isFr ? "Annonce introuvable" : "Announcement not found"}
+        description={isFr ? "Cette annonce n'existe pas ou a été retirée." : "This announcement doesn't exist or has been removed."}
+        action={{ label: isFr ? 'Retour' : 'Back', onClick: () => navigate(-1) }}
         className="min-h-screen"
       />
     );
   }
 
   const org = (announcement as any).organizations;
+  const dateLocale = isFr ? 'fr-FR' : 'en-US';
   const publishedDate = announcement.published_at
-    ? new Date(announcement.published_at).toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
+    ? new Date(announcement.published_at).toLocaleDateString(dateLocale, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
     : null;
 
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
         title={`${announcement.title} — Siteviral`}
-        description={announcement.body?.slice(0, 155) || `Annonce de ${org?.name || 'une plateforme'}`}
+        description={announcement.body?.slice(0, 155) || (isFr ? `Annonce de ${org?.name || 'une plateforme'}` : `Announcement from ${org?.name || 'a platform'}`)}
         ogImage={announcement.image_url || undefined}
       />
 
@@ -96,7 +100,7 @@ export default function AnnouncementDetailPage() {
           <SiteLogo size="sm" linked={false} animate />
         </Link>
         <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4" /> Retour
+          <ArrowLeft className="h-4 w-4" /> {isFr ? 'Retour' : 'Back'}
         </Button>
       </div>
 
@@ -112,7 +116,7 @@ export default function AnnouncementDetailPage() {
             <div className="flex items-center gap-2 flex-wrap">
               {announcement.is_pinned && (
                 <Badge variant="secondary" className="gap-1 text-xs">
-                  <Pin className="h-3 w-3" /> Épinglé
+                  <Pin className="h-3 w-3" /> {isFr ? 'Épinglé' : 'Pinned'}
                 </Badge>
               )}
               {publishedDate && (
@@ -133,7 +137,7 @@ export default function AnnouncementDetailPage() {
           <div className="flex items-center gap-2 pt-2 border-t border-border/40">
             <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={handleCopyLink}>
               {copied ? <CheckCircle className="h-3.5 w-3.5 text-primary" /> : <Copy className="h-3.5 w-3.5" />}
-              {copied ? 'Copié' : 'Copier le lien'}
+              {copied ? (isFr ? 'Copié' : 'Copied') : (isFr ? 'Copier le lien' : 'Copy link')}
             </Button>
             <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={handleShareWhatsApp}>
               <MessageCircle className="h-3.5 w-3.5 text-green-500" /> WhatsApp
@@ -144,7 +148,7 @@ export default function AnnouncementDetailPage() {
           {/* Organization info */}
           {org && (
             <div className="p-4 rounded-2xl border border-border bg-card shadow-card">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Publié par</p>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{isFr ? 'Publié par' : 'Published by'}</p>
               <div className="flex items-center gap-3">
                 {org.logo_url ? (
                   <img src={org.logo_url} alt={org.name} className="h-12 w-12 rounded-xl object-cover border border-border" />
@@ -158,7 +162,7 @@ export default function AnnouncementDetailPage() {
                   {org.description && <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{org.description}</p>}
                 </div>
                 <Button variant="outline" size="sm" className="gap-1.5 text-xs shrink-0" onClick={() => navigate(`/org/${org.slug}`)}>
-                  <ExternalLink className="h-3.5 w-3.5" /> Voir
+                  <ExternalLink className="h-3.5 w-3.5" /> {isFr ? 'Voir' : 'View'}
                 </Button>
               </div>
             </div>

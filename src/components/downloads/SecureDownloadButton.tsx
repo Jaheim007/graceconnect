@@ -3,6 +3,7 @@ import { Download, Eye, Loader2, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useI18n } from '@/i18n/I18nContext';
 import {
   fetchWatermarkedFile,
   isPdfLikeFile,
@@ -27,6 +28,8 @@ export function SecureDownloadButton({
 }: SecureDownloadButtonProps) {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const [downloading, setDownloading] = useState(false);
   const [previewing, setPreviewing] = useState(false);
   const isPdf = isPdfLikeFile(fileUrl);
@@ -51,12 +54,15 @@ export function SecureDownloadButton({
         triggerBrowserDownload(file);
       }
 
-      toast({ title: inline ? '📖 Document ouvert' : '✅ Téléchargement réussi' });
+      toast({ title: inline
+        ? (isFr ? '📖 Document ouvert' : '📖 Document opened')
+        : (isFr ? '✅ Téléchargement réussi' : '✅ Download successful')
+      });
     } catch (err: any) {
       console.error('[SecureDownload]', err);
       toast({
-        title: 'Erreur',
-        description: err?.message || 'Impossible de récupérer le fichier sécurisé.',
+        title: isFr ? 'Erreur' : 'Error',
+        description: err?.message || (isFr ? 'Impossible de récupérer le fichier sécurisé.' : 'Unable to retrieve the secure file.'),
         variant: 'destructive',
       });
     } finally {
@@ -74,7 +80,7 @@ export function SecureDownloadButton({
           className="gap-1.5"
         >
           {downloading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
-          Télécharger
+          {isFr ? 'Télécharger' : 'Download'}
         </Button>
       )}
       {isPdf && (variant === 'preview' || variant === 'both') && (
@@ -86,7 +92,7 @@ export function SecureDownloadButton({
           className="gap-1.5"
         >
           {previewing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Eye className="h-3.5 w-3.5" />}
-          Lire
+          {isFr ? 'Lire' : 'Read'}
         </Button>
       )}
       <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground" />
