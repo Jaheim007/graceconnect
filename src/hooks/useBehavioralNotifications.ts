@@ -93,8 +93,8 @@ export function useBehavioralNotifications() {
       const zeroSaleProducts = orgState.products.filter((p: any) => p.is_published && (p.sales_count || 0) === 0);
       if (zeroSaleProducts.length > 0 && orgState.salesCount === 0) {
         createNotif.mutate({
-          title: '📦 Vos produits attendent leur première vente',
-          body: `${zeroSaleProducts.length} produit(s) publié(s) mais 0 vente. Partagez-les sur WhatsApp ou activez les ambassadeurs !`,
+          title: isFr ? '📦 Vos produits attendent leur première vente' : '📦 Your products are waiting for their first sale',
+          body: isFr ? `${zeroSaleProducts.length} produit(s) publié(s) mais 0 vente. Partagez-les sur WhatsApp ou activez les ambassadeurs !` : `${zeroSaleProducts.length} published product(s) but 0 sales. Share them on WhatsApp or activate ambassadors!`,
           type: 'conversion_help',
         });
       }
