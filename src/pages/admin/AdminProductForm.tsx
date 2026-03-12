@@ -628,8 +628,8 @@ export function ProductForm() {
 
             {/* Upsells */}
             <div className="space-y-2">
-              <Label className="text-xs font-medium">Upsells (après achat)</Label>
-              <p className="text-[10px] text-muted-foreground">Proposer ces produits après un achat réussi.</p>
+              <Label className="text-xs font-medium">{isFr ? 'Upsells (après achat)' : 'Upsells (after purchase)'}</Label>
+              <p className="text-[10px] text-muted-foreground">{isFr ? 'Proposer ces produits après un achat réussi.' : 'Suggest these products after a successful purchase.'}</p>
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {upsellProductIds.map(uid => {
                   const p = allProducts.find((p: any) => p.id === uid);
