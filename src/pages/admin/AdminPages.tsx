@@ -1452,7 +1452,7 @@ export function AdminSettings() {
             onClick={handleSaveAffiliation}
             disabled={savingAffiliation}
           >
-            {savingAffiliation ? 'Sauvegarde…' : 'Sauvegarder l\'affiliation'}
+            {savingAffiliation ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder l\'affiliation' : 'Save affiliation')}
           </Button>
         </div>
 
