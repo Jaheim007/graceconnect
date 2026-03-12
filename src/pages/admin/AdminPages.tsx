@@ -1277,7 +1277,7 @@ export function AdminSettings() {
 
           {/* Editable slug */}
           <div className="space-y-2 border-t border-border/60 pt-3">
-            <Label htmlFor="org-slug" className="text-xs font-medium">Lien public personnalisé</Label>
+            <Label htmlFor="org-slug" className="text-xs font-medium">{isFr ? 'Lien public personnalisé' : 'Custom public link'}</Label>
             <div className="flex items-center gap-0 bg-muted/50 rounded-lg overflow-hidden border border-border">
               <span className="text-[11px] text-muted-foreground px-3 py-2 shrink-0 bg-muted/80 border-r border-border">
                 siteviral.com/org/
