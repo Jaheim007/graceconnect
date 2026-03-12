@@ -66,9 +66,24 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
       });
 
       if (error) {
-        const parsed = typeof error === 'object' ? error : { message: String(error) };
-        if (handleAiError(parsed)) return;
-        throw new Error((parsed as any)?.message || 'Erreur de génération');
+        // supabase.functions.invoke wraps non-2xx as error — try to extract the real message
+        let errorMsg = '';
+        if (typeof error === 'object' && error !== null) {
+          // The error context may contain the response body
+          const ctx = (error as any)?.context;
+          if (ctx && typeof ctx.json === 'function') {
+            try {
+              const body = await ctx.json();
+              errorMsg = body?.error || '';
+            } catch { /* ignore */ }
+          }
+          if (!errorMsg) errorMsg = (error as any)?.message || String(error);
+        } else {
+          errorMsg = String(error);
+        }
+        
+        if (handleAiError({ message: errorMsg, status: errorMsg.includes('insuffisant') || errorMsg.includes('credits') ? 402 : undefined })) return;
+        throw new Error(errorMsg || 'Erreur de génération');
       }
 
       if (data?.error) {
