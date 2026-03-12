@@ -205,20 +205,20 @@ export default function QuickPublishPage() {
             {step === 'info' && (
               <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
                 <div>
-                  <label className="text-sm font-medium mb-1.5 block">Titre du produit *</label>
+                  <label className="text-sm font-medium mb-1.5 block">{isFr ? 'Titre du produit' : 'Product title'} *</label>
                   <Input
                     value={form.title}
                     onChange={e => update('title', e.target.value)}
-                    placeholder="Ex: Guide complet du marketing digital"
+                    placeholder={isFr ? 'Ex: Guide complet du marketing digital' : 'e.g. Complete Digital Marketing Guide'}
                     className="h-11"
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium mb-1.5 block">Description (optionnel)</label>
+                  <label className="text-sm font-medium mb-1.5 block">{isFr ? 'Description (optionnel)' : 'Description (optional)'}</label>
                   <textarea
                     value={form.description}
                     onChange={e => update('description', e.target.value)}
-                    placeholder="Décrivez brièvement votre produit…"
+                    placeholder={isFr ? 'Décrivez brièvement votre produit…' : 'Briefly describe your product…'}
                     rows={3}
                     className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring"
                   />
@@ -226,16 +226,16 @@ export default function QuickPublishPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-sm font-medium mb-1.5 block">
-                      <DollarSign className="h-3.5 w-3.5 inline" /> Prix
+                      <DollarSign className="h-3.5 w-3.5 inline" /> {isFr ? 'Prix' : 'Price'}
                     </label>
                     <Input
                       type="number"
                       value={form.price}
                       onChange={e => update('price', e.target.value)}
-                      placeholder="0 = gratuit"
+                      placeholder={isFr ? '0 = gratuit' : '0 = free'}
                       min="0"
                     />
-                    <p className="text-[10px] text-muted-foreground mt-1">0 = gratuit</p>
+                    <p className="text-[10px] text-muted-foreground mt-1">{isFr ? '0 = gratuit' : '0 = free'}</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium mb-1.5 block">Type</label>
@@ -247,8 +247,8 @@ export default function QuickPublishPage() {
                       <option value="pdf">PDF</option>
                       <option value="ebook">E-book</option>
                       <option value="audio">Audio</option>
-                      <option value="video">Vidéo</option>
-                      <option value="link">Lien externe</option>
+                      <option value="video">{isFr ? 'Vidéo' : 'Video'}</option>
+                      <option value="link">{isFr ? 'Lien externe' : 'External link'}</option>
                     </select>
                   </div>
                 </div>
