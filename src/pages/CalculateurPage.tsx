@@ -79,7 +79,7 @@ export default function CalculateurPage() {
                 mode === 'vendeur' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              🏪 Vendeur / Organisation
+              🏪 {isFr ? 'Vendeur / Organisation' : 'Seller / Organization'}
             </button>
             <button
               onClick={() => setMode('ambassadeur')}
@@ -87,7 +87,7 @@ export default function CalculateurPage() {
                 mode === 'ambassadeur' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
               }`}
             >
-              🚀 Ambassadeur
+              🚀 {isFr ? 'Ambassadeur' : 'Ambassador'}
             </button>
           </div>
         </div>
