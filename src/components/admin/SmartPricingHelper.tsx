@@ -100,7 +100,9 @@ export function SmartPricingHelper() {
     if (uniquePrices.size === 1) {
       insights.push({
         type: 'tip',
-        message: 'Tous vos produits ont le même prix. Diversifiez avec un produit d\'entrée (petit prix) et un premium (prix élevé).',
+        message: isFr
+          ? "Tous vos produits ont le même prix. Diversifiez avec un produit d'entrée (petit prix) et un premium (prix élevé)."
+          : 'All your products have the same price. Diversify with an entry product (low price) and a premium one (high price).',
         icon: TrendingUp,
       });
     }
