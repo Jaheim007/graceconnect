@@ -146,18 +146,18 @@ export default function SuperadminUsers() {
   };
 
   const statCards = [
-    { label: 'Total utilisateurs', value: stats.total, icon: Users, gradient: 'from-primary/20 to-primary/5', iconColor: 'text-primary' },
-    { label: 'Nouveaux (7j)', value: stats.newThisWeek, icon: UserPlus, gradient: 'from-emerald-500/20 to-emerald-500/5', iconColor: 'text-emerald-500' },
-    { label: 'Créateurs', value: stats.creators, icon: Crown, gradient: 'from-amber-500/20 to-amber-500/5', iconColor: 'text-amber-500' },
-    { label: 'Ambassadeurs', value: stats.affiliates, icon: TrendingUp, gradient: 'from-violet-500/20 to-violet-500/5', iconColor: 'text-violet-500' },
+    { label: isFr ? 'Total utilisateurs' : 'Total users', value: stats.total, icon: Users, gradient: 'from-primary/20 to-primary/5', iconColor: 'text-primary' },
+    { label: isFr ? 'Nouveaux (7j)' : 'New (7d)', value: stats.newThisWeek, icon: UserPlus, gradient: 'from-emerald-500/20 to-emerald-500/5', iconColor: 'text-emerald-500' },
+    { label: isFr ? 'Créateurs' : 'Creators', value: stats.creators, icon: Crown, gradient: 'from-amber-500/20 to-amber-500/5', iconColor: 'text-amber-500' },
+    { label: isFr ? 'Ambassadeurs' : 'Ambassadors', value: stats.affiliates, icon: TrendingUp, gradient: 'from-violet-500/20 to-violet-500/5', iconColor: 'text-violet-500' },
   ];
 
   const tabs: { key: FilterTab; label: string; count: number }[] = [
-    { key: 'all', label: 'Tous', count: users.length },
-    { key: 'new', label: 'Nouveaux', count: stats.newThisWeek },
-    { key: 'creators', label: 'Créateurs', count: stats.creators },
-    { key: 'affiliates', label: 'Ambassadeurs', count: stats.affiliates },
-    { key: 'active', label: 'Acheteurs', count: users.filter((u: any) => u.purchases.count > 0 || u.donations.count > 0).length },
+    { key: 'all', label: isFr ? 'Tous' : 'All', count: users.length },
+    { key: 'new', label: isFr ? 'Nouveaux' : 'New', count: stats.newThisWeek },
+    { key: 'creators', label: isFr ? 'Créateurs' : 'Creators', count: stats.creators },
+    { key: 'affiliates', label: isFr ? 'Ambassadeurs' : 'Ambassadors', count: stats.affiliates },
+    { key: 'active', label: isFr ? 'Acheteurs' : 'Buyers', count: users.filter((u: any) => u.purchases.count > 0 || u.donations.count > 0).length },
   ];
 
   const getUserTotalSpent = (u: any) => u.purchases.total + u.donations.total + u.affiliate.earned;
