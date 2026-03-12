@@ -455,10 +455,11 @@ export const blogArticles: BlogArticle[] = [
 <h2>Qu'est-ce que le Mobile Money ?</h2>
 <p>Le Mobile Money permet d'envoyer et recevoir de l'argent, payer des factures et faire des achats <strong>directement depuis son téléphone portable</strong>, sans compte bancaire. Les principaux opérateurs :</p>
 <ul>
-<li><strong>Orange Money</strong> : Côte d'Ivoire, Sénégal, Mali, Cameroun, Burkina Faso…</li>
-<li><strong>MTN Mobile Money</strong> : Ghana, Cameroun, Bénin, Congo…</li>
-<li><strong>Wave</strong> : Sénégal, Côte d'Ivoire, Mali…</li>
-<li><strong>Moov Money</strong> : Côte d'Ivoire, Bénin, Togo…</li>
+<li><strong>Orange Money</strong> : Sénégal, Mali, Burkina Faso, Guinea…</li>
+<li><strong>MTN Mobile Money</strong> : Ghana, Nigeria, Cameroon, Benin…</li>
+<li><strong>M-Pesa</strong> : Kenya, Tanzania, DRC…</li>
+<li><strong>Wave</strong> : Senegal, Mali, Burkina Faso…</li>
+<li><strong>Moov Money</strong> : Benin, Togo, Niger…</li>
 </ul>
 
 <h2>Pourquoi c'est révolutionnaire pour la vente en ligne</h2>
