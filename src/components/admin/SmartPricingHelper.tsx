@@ -64,7 +64,9 @@ export function SmartPricingHelper() {
   if (avgPrice > benchmark.topPrice) {
     insights.push({
       type: 'warning',
-      message: `Votre prix moyen (${formatCurrency(avgPrice, currency)}) dépasse le top marché (${formatCurrency(benchmark.topPrice, currency)}). Vérifiez que la valeur perçue justifie ce prix.`,
+      message: isFr
+        ? `Votre prix moyen (${formatCurrency(avgPrice, currency)}) dépasse le top marché (${formatCurrency(benchmark.topPrice, currency)}). Vérifiez que la valeur perçue justifie ce prix.`
+        : `Your average price (${formatCurrency(avgPrice, currency)}) exceeds the market top (${formatCurrency(benchmark.topPrice, currency)}). Verify the perceived value justifies this price.`,
       icon: ArrowDown,
     });
   }
