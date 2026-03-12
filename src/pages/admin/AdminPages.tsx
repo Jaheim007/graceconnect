@@ -1045,9 +1045,9 @@ export function AdminSettings() {
       .eq('id', currentOrg.id);
     setSavingOfferings(false);
     if (error) {
-      toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
+      toast({ title: isFr ? 'Erreur' : 'Error', description: error.message, variant: 'destructive' });
     } else {
-      toast({ title: '✅ Module Dons sauvegardé' });
+      toast({ title: isFr ? '✅ Module Dons sauvegardé' : '✅ Donations module saved' });
       refetchOrgs();
     }
   };
