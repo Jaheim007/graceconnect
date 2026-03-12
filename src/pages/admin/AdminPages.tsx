@@ -1327,9 +1327,9 @@ export function AdminSettings() {
         {/* ── LEADER BIOGRAPHY ── */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
           <div>
-            <h2 className="font-semibold text-sm">Biographie du Leader</h2>
+            <h2 className="font-semibold text-sm">{isFr ? 'Biographie du Leader' : 'Leader biography'}</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Présentez le leader de votre organisation aux visiteurs de votre page publique.
+              {isFr ? 'Présentez le leader de votre organisation aux visiteurs de votre page publique.' : 'Present your organization\'s leader to your public page visitors.'}
             </p>
           </div>
 
