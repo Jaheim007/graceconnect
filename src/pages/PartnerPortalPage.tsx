@@ -210,10 +210,10 @@ export default function PartnerPortalPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Link2 className="h-4 w-4 text-primary" />
-                <CardTitle className="text-sm">Votre lien d'invitation</CardTitle>
+                <CardTitle className="text-sm">{isFr ? 'Votre lien d\'invitation' : 'Your invite link'}</CardTitle>
               </div>
               <CardDescription className="text-xs">
-                Partagez ce lien pour inviter des organisations. Vos commissions sont générées automatiquement.
+                {isFr ? 'Partagez ce lien pour inviter des organisations. Vos commissions sont générées automatiquement.' : 'Share this link to invite organizations. Commissions are generated automatically.'}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
