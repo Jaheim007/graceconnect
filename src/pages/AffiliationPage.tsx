@@ -422,13 +422,13 @@ export default function AffiliationPage() {
 
             {/* Sales history */}
             <div className="bg-card border border-border rounded-2xl p-4 space-y-3 shadow-card">
-              <h2 className="font-semibold text-sm flex items-center gap-2"><TrendingUp className="h-4 w-4 text-primary" /> Historique des commissions</h2>
-              <p className="text-xs text-muted-foreground">Les commissions sont payables après un délai de sécurité de 15 jours.</p>
+              <h2 className="font-semibold text-sm flex items-center gap-2"><TrendingUp className="h-4 w-4 text-primary" /> {isFr ? 'Historique des commissions' : 'Commission history'}</h2>
+              <p className="text-xs text-muted-foreground">{isFr ? 'Les commissions sont payables après un délai de sécurité de 15 jours.' : 'Commissions are payable after a 15-day security period.'}</p>
               {affiliateSales.length === 0 ? (
                 <div className="text-center py-8">
                   <TrendingUp className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">Aucune commission pour le moment.</p>
-                  <p className="text-xs text-muted-foreground">Partagez vos liens pour commencer à gagner !</p>
+                  <p className="text-sm text-muted-foreground">{isFr ? 'Aucune commission pour le moment.' : 'No commissions yet.'}</p>
+                  <p className="text-xs text-muted-foreground">{isFr ? 'Partagez vos liens pour commencer à gagner !' : 'Share your links to start earning!'}</p>
                 </div>
               ) : (
                 <div className="space-y-1">
