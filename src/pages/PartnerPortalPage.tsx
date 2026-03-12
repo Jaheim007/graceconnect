@@ -373,19 +373,19 @@ export default function PartnerPortalPage() {
                   <CircleDollarSign className="h-8 w-8 mx-auto text-muted-foreground/40" />
                   {commissionsQuery.isFetching ? (
                     <>
-                      <p className="text-sm text-muted-foreground">Synchronisation des commissions en cours...</p>
-                      <p className="text-xs text-muted-foreground">Patientez quelques secondes.</p>
+                      <p className="text-sm text-muted-foreground">{isFr ? 'Synchronisation des commissions en cours...' : 'Syncing commissions...'}</p>
+                      <p className="text-xs text-muted-foreground">{isFr ? 'Patientez quelques secondes.' : 'Please wait a few seconds.'}</p>
                     </>
                   ) : (
                     <>
-                      <p className="text-sm text-muted-foreground">Aucune commission visible pour le moment.</p>
-                      <p className="text-xs text-muted-foreground">Cliquez sur « Forcer sync » pour recharger immédiatement depuis le serveur.</p>
+                      <p className="text-sm text-muted-foreground">{isFr ? 'Aucune commission visible pour le moment.' : 'No commissions visible yet.'}</p>
+                      <p className="text-xs text-muted-foreground">{isFr ? 'Cliquez sur « Forcer sync » pour recharger immédiatement depuis le serveur.' : 'Click "Force sync" to reload immediately from server.'}</p>
                     </>
                   )}
                   <div className="pt-2">
                     <Button variant="outline" size="sm" onClick={handleForceSync} disabled={isSyncing} className="gap-2">
                       {isSyncing && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                      Forcer sync
+                      {isFr ? 'Forcer sync' : 'Force sync'}
                     </Button>
                   </div>
                 </div>
