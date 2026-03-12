@@ -2,24 +2,36 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { ProductCard } from '@/components/products/ProductCard';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Badge } from '@/components/ui/badge';
 import { Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
+import { useI18n } from '@/i18n/I18nContext';
 
-const CATEGORIES = [
-  { value: '', label: '✨ Tout', emoji: '✨' },
-  { value: 'pdf', label: '📄 PDF', emoji: '📄' },
-  { value: 'ebook', label: '📚 E-books', emoji: '📚' },
-  { value: 'audio', label: '🎵 Audio', emoji: '🎵' },
-  { value: 'video', label: '🎬 Vidéo', emoji: '🎬' },
-  { value: 'course', label: '🎓 Cours', emoji: '🎓' },
-  { value: 'link', label: '🔗 Liens', emoji: '🔗' },
-];
+const CATEGORY_META = [
+  { value: '', emoji: '✨' },
+  { value: 'pdf', emoji: '📄' },
+  { value: 'ebook', emoji: '📚' },
+  { value: 'audio', emoji: '🎵' },
+  { value: 'video', emoji: '🎬' },
+  { value: 'course', emoji: '🎓' },
+  { value: 'link', emoji: '🔗' },
+] as const;
 
 export function CategoryCarousels() {
   const [activeCategory, setActiveCategory] = useState('');
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+
+  const labels: Record<string, string> = {
+    '': isFr ? 'Tout' : 'All',
+    pdf: 'PDF',
+    ebook: 'E-books',
+    audio: isFr ? 'Audio' : 'Audio',
+    video: isFr ? 'Vidéo' : 'Video',
+    course: isFr ? 'Cours' : 'Courses',
+    link: isFr ? 'Liens' : 'Links',
+  };
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['category-carousel', activeCategory],
@@ -54,7 +66,7 @@ export function CategoryCarousels() {
       {/* Category pills */}
       <ScrollArea className="w-full">
         <div className="flex gap-2 pb-2 px-1">
-          {CATEGORIES.map((cat) => (
+          {CATEGORY_META.map((cat) => (
             <button
               key={cat.value}
               onClick={() => setActiveCategory(cat.value)}
@@ -65,7 +77,7 @@ export function CategoryCarousels() {
                   : 'bg-card border-border text-muted-foreground hover:bg-muted hover:text-foreground'
               )}
             >
-              {cat.label}
+              {cat.emoji} {labels[cat.value]}
             </button>
           ))}
         </div>
@@ -79,7 +91,7 @@ export function CategoryCarousels() {
         </div>
       ) : products.length === 0 ? (
         <p className="text-center text-sm text-muted-foreground py-6">
-          Aucun produit dans cette catégorie
+          {isFr ? 'Aucun produit dans cette catégorie' : 'No product in this category'}
         </p>
       ) : (
         <ScrollArea className="w-full">
