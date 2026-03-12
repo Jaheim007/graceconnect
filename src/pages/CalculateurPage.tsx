@@ -17,6 +17,9 @@ const fadeUp = {
 
 export default function CalculateurPage() {
   const navigate = useNavigate();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const numLoc = isFr ? 'fr-FR' : 'en-US';
   const [mode, setMode] = useState<'vendeur' | 'ambassadeur'>('vendeur');
 
   // Vendeur state
