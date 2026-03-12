@@ -133,10 +133,13 @@ Deno.serve(async (req) => {
 
         const prompt = `You are the world's #1 book cover designer. Design a STUNNING, GENRE-PERFECT book cover.
 
+THE COVER MUST CONTAIN EXACTLY THESE TEXT ELEMENTS:
+1. TITLE: "${title}"
+${subtitle ? `2. SUBTITLE: "${subtitle}"` : ''}
+${author_name ? `${subtitle ? '3' : '2'}. AUTHOR NAME: "${author_name}" — this MUST appear on the cover, typically at the bottom` : ''}
+
 BOOK INFO:
-- Title: "${title}"${subtitle ? `\n- Subtitle: "${subtitle}"` : ''}
 ${shortDesc ? `- About: ${shortDesc}` : ''}
-${authorLine ? `- ${authorLine}` : ''}
 
 ART DIRECTION:
 - Visual style: ${profile.style}
@@ -146,32 +149,28 @@ ART DIRECTION:
 TONE: ${toneNote}
 AUDIENCE: ${audienceNote}
 
-═══ TYPOGRAPHY — THE MOST CRITICAL ELEMENT ═══
-Style directive: ${profile.typo}
+═══ TYPOGRAPHY RULES ═══
+Font style: ${profile.typo}
 
-MANDATORY TYPOGRAPHY RULES:
-- The title text must be EXACTLY: "${title}" — spell every letter correctly, no extra words
-- Use a PROPORTIONAL, ELEGANT font size — the title should be prominent but NOT oversized or crammed
-- The title should occupy roughly 20-30% of the cover area, NOT dominate the entire cover
-- Use PROPER CASE as written in the title — do NOT force all-uppercase unless the typography style specifies it
-- Letter spacing must be balanced and professional — not too tight, not too loose
-- Line breaks should fall at NATURAL word boundaries — never break a word across lines
-- The font must be CLEAN and SHARP — no distortion, no warping, no artistic deformation of letters
-- If the title is long, use a SMALLER font size rather than stretching it across the entire cover
+CRITICAL TEXT SIZING & SPACING:
+- Title font: use a MEDIUM, elegant size — roughly 15-25% of the cover height, NEVER more
+- ${subtitle ? `Subtitle: 40-50% the size of the title font, placed BELOW the title with clear separation` : ''}
+- ${author_name ? `Author "${author_name}": placed at the BOTTOM of the cover, 30-40% the size of the title, elegant and readable` : ''}
+- GENEROUS MARGINS: at least 8% padding on all sides — text must NEVER touch or overlap edges
+- CLEAR VERTICAL SPACING between title, subtitle, and author — each text block must breathe
+- Text must NEVER overlap with the illustration — keep text zones and image zones separate
+- Line breaks at NATURAL word boundaries only — never split a word
+- Font must be CLEAN, SHARP, well-kerned — no distortion, no warping
+- Respect the ORIGINAL CASE of the title — do not force uppercase unless style dictates it
+- If the title is long, use a SMALLER font — never stretch or cram text
 - ${langNote}
 
-═══ AUTHOR NAME — ABSOLUTELY MANDATORY ═══
-${author_name ? `- YOU MUST display the author name "${author_name}" on the cover. This is NON-NEGOTIABLE.
-- Place it at the BOTTOM of the cover in a smaller, elegant complementary font
-- Format: "${author_name}" — exactly as written, no modifications
-- The author name should be clearly readable but secondary to the title
-- Use a contrasting color that is legible against the background
-- DO NOT skip the author name. DO NOT forget it. It MUST appear on the final cover.` : '- No author name provided, skip author line.'}
+${author_name ? `⚠️ FINAL CHECK: The author name "${author_name}" MUST be visible on the finished cover. If it's missing, the cover is REJECTED.` : ''}
 
 COMPOSITION:
-- The ILLUSTRATION/IMAGE should be the hero — taking 60-70% of the cover
-- Typography should complement the art, not overwhelm it
-- Leave breathing room between text and edges (margins)
+- The ILLUSTRATION should be the hero — 50-60% of cover space
+- Text and illustration must occupy SEPARATE areas — no overlapping
+- Clean visual hierarchy: Title (top area) → Illustration (center) → Author name (bottom)
 - Portrait format (2:3 ratio), print-ready quality
 - NEVER default to dark oil paintings or brown/gold tones — follow the color palette above
 - This must look like a TOP 10 bestseller from a major publishing house`;
