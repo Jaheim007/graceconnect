@@ -210,7 +210,7 @@ export function ProductSwipeCard({ product, index }: ProductSwipeCardProps) {
               </span>
               {product.sale_price && product.sale_price < product.price && (
                 <span className="text-xs text-muted-foreground line-through">
-                  {formatCurrency(product.price, product.currency || DEFAULT_CURRENCY)}
+                  {fmt(product.price, product.currency)}
                 </span>
               )}
             </div>
