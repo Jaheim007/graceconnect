@@ -344,10 +344,10 @@ export default function PartnerPortalPage() {
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         <Badge variant={r.status === 'active' ? 'default' : r.status === 'rejected' ? 'destructive' : 'secondary'} className="text-[10px]">
-                          {r.status === 'active' ? '✓ Active' : r.status === 'rejected' ? 'Rejetée' : '⏳ En attente'}
+                          {r.status === 'active' ? (isFr ? '✓ Active' : '✓ Active') : r.status === 'rejected' ? (isFr ? 'Rejetée' : 'Rejected') : (isFr ? '⏳ En attente' : '⏳ Pending')}
                         </Badge>
                         {r.status === 'pending' && (
-                          <span className="text-[10px] text-muted-foreground">1er paiement requis</span>
+                          <span className="text-[10px] text-muted-foreground">{isFr ? '1er paiement requis' : '1st payment required'}</span>
                         )}
                       </div>
                     </div>
