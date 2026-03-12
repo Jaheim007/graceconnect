@@ -540,7 +540,7 @@ export function SmartCameraCapture({
                 {/* Bottom progress text */}
                 <div className="absolute bottom-14 left-0 right-0 flex justify-center">
                   <div className="px-3 py-1.5 rounded-full bg-black/60 backdrop-blur text-white/80 text-[11px] font-medium">
-                    {Math.round(livenessProgress)}% — Continuez le mouvement…
+                    {Math.round(livenessProgress)}% — {lang === 'fr' ? 'Continuez le mouvement…' : 'Keep moving…'}
                   </div>
                 </div>
               </div>
