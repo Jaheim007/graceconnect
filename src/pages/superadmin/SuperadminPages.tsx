@@ -400,7 +400,7 @@ export function SuperadminKYC() {
                     )}
 
                     <p className="text-[8px] text-muted-foreground text-right">
-                      Analysé le {new Date(s.ai_analyzed_at).toLocaleString('fr-FR')}
+                      Analysé le {new Date(s.ai_analyzed_at).toLocaleString()}
                     </p>
                   </div>
                 )}
