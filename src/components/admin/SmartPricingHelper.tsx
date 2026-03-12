@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { DollarSign, TrendingUp, AlertTriangle, Lightbulb, ArrowUp, ArrowDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/currency';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface PricingInsight {
   type: 'tip' | 'warning' | 'opportunity';
