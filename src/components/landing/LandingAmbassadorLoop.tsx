@@ -10,6 +10,7 @@ const fadeUp = {
 
 export function LandingAmbassadorLoop() {
   const { locale } = useI18n();
+  const { fmt, toDisplayAmount } = useDisplayCurrency();
   const isFr = locale === 'fr';
 
   const steps = isFr ? [
