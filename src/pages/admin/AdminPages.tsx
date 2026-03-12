@@ -1352,7 +1352,7 @@ export function AdminSettings() {
           <div className="grid gap-3">
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="leader-name" className="text-xs font-medium">Nom du leader</Label>
+                <Label htmlFor="leader-name" className="text-xs font-medium">{isFr ? 'Nom du leader' : 'Leader name'}</Label>
                 <Input id="leader-name" value={leaderName} onChange={e => setLeaderName(e.target.value)} placeholder="Ex: Pasteur Jean Dupont" className="h-8 text-xs" />
               </div>
               <div className="space-y-1.5">
