@@ -39,6 +39,9 @@ const STATUS_MAP_EN: Record<string, { label: string; variant: 'default' | 'secon
 
 export default function PartnerPortalPage() {
   const { user } = useAuth();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const dateLoc = isFr ? 'fr-FR' : 'en-US';
   const {
     data: partner,
     isLoading,
@@ -60,26 +63,27 @@ export default function PartnerPortalPage() {
   if (!partner) {
     return (
       <div className="max-w-lg mx-auto py-16 text-center space-y-4">
-        <SEOHead title="Programme Partenaires" description="Programme Partenaires Officiel Siteviral" />
+        <SEOHead title={isFr ? 'Programme Partenaires' : 'Partner Program'} description={isFr ? 'Programme Partenaires Officiel Siteviral' : 'Siteviral Official Partner Program'} />
         <Handshake className="h-12 w-12 mx-auto text-muted-foreground" />
-        <h1 className="text-2xl font-bold">Programme Partenaires</h1>
-        <p className="text-muted-foreground">Vous n'êtes pas encore inscrit au Programme Partenaires.</p>
-        <Button variant="outline" onClick={() => window.location.href = '/devenir-partenaire'}>Postuler</Button>
+        <h1 className="text-2xl font-bold">{isFr ? 'Programme Partenaires' : 'Partner Program'}</h1>
+        <p className="text-muted-foreground">{isFr ? 'Vous n\'êtes pas encore inscrit au Programme Partenaires.' : 'You are not yet enrolled in the Partner Program.'}</p>
+        <Button variant="outline" onClick={() => window.location.href = '/devenir-partenaire'}>{isFr ? 'Postuler' : 'Apply'}</Button>
       </div>
     );
   }
 
   if (partner.status !== 'approved') {
-    const s = STATUS_MAP[partner.status] || STATUS_MAP.pending;
+    const statusMap = isFr ? STATUS_MAP_FR : STATUS_MAP_EN;
+    const s = statusMap[partner.status] || statusMap.pending;
     return (
       <div className="max-w-lg mx-auto py-16 text-center space-y-4">
-        <SEOHead title="Partenaire — En attente" />
+        <SEOHead title={isFr ? 'Partenaire — En attente' : 'Partner — Pending'} />
         <Handshake className="h-12 w-12 mx-auto text-muted-foreground" />
-        <h1 className="text-2xl font-bold">Programme Partenaires</h1>
+        <h1 className="text-2xl font-bold">{isFr ? 'Programme Partenaires' : 'Partner Program'}</h1>
         <Badge variant={s.variant} className="text-sm">{s.label}</Badge>
-        {partner.status === 'pending' && <p className="text-muted-foreground">Votre candidature est en cours d'examen.</p>}
-        {partner.status === 'suspended' && <p className="text-muted-foreground">Votre compte a été suspendu. {partner.suspension_reason && `Raison : ${partner.suspension_reason}`}</p>}
-        {partner.status === 'rejected' && <p className="text-muted-foreground">Votre candidature n'a pas été retenue.</p>}
+        {partner.status === 'pending' && <p className="text-muted-foreground">{isFr ? 'Votre candidature est en cours d\'examen.' : 'Your application is under review.'}</p>}
+        {partner.status === 'suspended' && <p className="text-muted-foreground">{isFr ? 'Votre compte a été suspendu.' : 'Your account has been suspended.'} {partner.suspension_reason && (isFr ? `Raison : ${partner.suspension_reason}` : `Reason: ${partner.suspension_reason}`)}</p>}
+        {partner.status === 'rejected' && <p className="text-muted-foreground">{isFr ? 'Votre candidature n\'a pas été retenue.' : 'Your application was not accepted.'}</p>}
       </div>
     );
   }
@@ -90,7 +94,7 @@ export default function PartnerPortalPage() {
 
   const copyText = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
-    toast.success(`${label} copié !`);
+    toast.success(isFr ? `${label} copié !` : `${label} copied!`);
   };
 
   const handleForceSync = async () => {
@@ -105,9 +109,9 @@ export default function PartnerPortalPage() {
 
       const hasError = results.some(result => !!result.error);
       if (hasError) {
-        toast.error('Synchronisation incomplète. Réessayez dans quelques secondes.');
+        toast.error(isFr ? 'Synchronisation incomplète. Réessayez dans quelques secondes.' : 'Incomplete sync. Try again in a few seconds.');
       } else {
-        toast.success('Synchronisation forcée terminée.');
+        toast.success(isFr ? 'Synchronisation forcée terminée.' : 'Forced sync complete.');
       }
     } finally {
       setIsForceSyncing(false);
