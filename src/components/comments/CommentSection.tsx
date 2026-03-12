@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface CommentSectionProps {
   contentType: CommentContentType;
@@ -14,6 +15,7 @@ interface CommentSectionProps {
 
 export function CommentSection({ contentType, contentId, className }: CommentSectionProps) {
   const { user } = useAuth();
+  const { locale } = useI18n();
   const { data: comments = [], isLoading } = useComments(contentType, contentId);
   const addComment = useAddComment();
   const deleteComment = useDeleteComment();
@@ -67,9 +69,9 @@ export function CommentSection({ contentType, contentId, className }: CommentSec
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-xs">
-                  <span className="font-semibold">{c.profiles?.display_name || 'Utilisateur'}</span>
+                  <span className="font-semibold">{c.profiles?.display_name || (locale === 'fr' ? 'Utilisateur' : 'User')}</span>
                   <span className="text-muted-foreground ml-1.5 text-[10px]">
-                    {new Date(c.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })}
+                    {new Date(c.created_at).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US', { day: 'numeric', month: 'short' })}
                   </span>
                 </p>
                 <p className="text-xs text-muted-foreground mt-0.5">{c.body}</p>

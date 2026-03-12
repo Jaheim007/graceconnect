@@ -82,7 +82,7 @@ export default function ProductDetailPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { toast } = useToast();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
   const [purchaseProduct, setPurchaseProduct] = useState<DigitalProduct | null>(null);
   const [copied, setCopied] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
@@ -390,14 +390,14 @@ export default function ProductDetailPage() {
                     .update({ is_published: true })
                     .eq('id', product.id);
                   if (!error) {
-                    toast({ title: '✅ Produit publié !', description: 'Votre produit est maintenant visible par tous.' });
+                    toast({ title: locale === 'fr' ? '✅ Produit publié !' : '✅ Product published!', description: locale === 'fr' ? 'Votre produit est maintenant visible par tous.' : 'Your product is now visible to everyone.' });
                     window.location.reload();
                   } else {
-                    toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
+                    toast({ title: locale === 'fr' ? 'Erreur' : 'Error', description: error.message, variant: 'destructive' });
                   }
                 }}
               >
-                <Eye className="h-3.5 w-3.5" /> Publier
+                <Eye className="h-3.5 w-3.5" /> {locale === 'fr' ? 'Publier' : 'Publish'}
               </Button>
             </div>
           </div>
@@ -414,7 +414,7 @@ export default function ProductDetailPage() {
               className="gap-1.5 text-xs"
               onClick={() => navigate(`/admin/products/${product.id}/edit`)}
             >
-              <Pencil className="h-3.5 w-3.5" /> Modifier ce produit
+              <Pencil className="h-3.5 w-3.5" /> {locale === 'fr' ? 'Modifier ce produit' : 'Edit product'}
             </Button>
           </div>
         </div>

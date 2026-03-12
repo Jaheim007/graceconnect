@@ -331,10 +331,10 @@ export function RichTextEditor({
 
         <div className="w-px h-5 bg-border mx-1" />
 
-        <ToolBtn onClick={() => editor.chain().focus().undo().run()} title="Annuler">
+        <ToolBtn onClick={() => editor.chain().focus().undo().run()} title="Undo">
           <Undo className="h-3.5 w-3.5" />
         </ToolBtn>
-        <ToolBtn onClick={() => editor.chain().focus().redo().run()} title="Refaire">
+        <ToolBtn onClick={() => editor.chain().focus().redo().run()} title="Redo">
           <Redo className="h-3.5 w-3.5" />
         </ToolBtn>
 

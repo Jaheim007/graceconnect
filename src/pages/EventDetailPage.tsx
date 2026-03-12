@@ -1,4 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useI18n } from '@/i18n/I18nContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,8 @@ export default function EventDetailPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const dateLoc = locale === 'fr' ? 'fr-FR' : 'en-US';
   const [copied, setCopied] = useState(false);
 
   const { data: event, isLoading } = useQuery({
@@ -135,14 +138,14 @@ export default function EventDetailPage() {
                 <div className="flex items-center gap-2 text-sm">
                   <CalendarDays className="h-4 w-4 text-primary shrink-0" />
                   <span className="font-semibold text-primary">
-                    {eventDate.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                    {eventDate.toLocaleDateString(dateLoc, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                   </span>
                 </div>
               )}
               {eventDate && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Clock className="h-4 w-4 shrink-0" />
-                  <span>{eventDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
+                  <span>{eventDate.toLocaleTimeString(dateLoc, { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
               )}
               {event.location && (

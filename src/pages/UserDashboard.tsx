@@ -238,7 +238,7 @@ export default function UserDashboard() {
                       {don.donation_campaigns?.title || don.organizations?.name || 'Don'}
                     </p>
                     <p className="text-[10px] text-muted-foreground">
-                      {new Date(don.completed_at || don.created_at).toLocaleDateString('fr-FR')}
+                      {new Date(don.completed_at || don.created_at).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US')}
                     </p>
                   </div>
                   <span className="text-xs font-bold text-rose-500">{fmt(don.amount, don.currency)}</span>

@@ -13,8 +13,10 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import PartnerPayoutConfig from '@/components/partner/PartnerPayoutConfig';
 import IdentityVerificationWizard from '@/components/verification/IdentityVerificationWizard';
 import { motion } from 'framer-motion';
+import { useI18n } from '@/i18n/I18nContext';
 
 const LEVEL_LABELS: Record<number, string> = { 1: 'Bronze', 2: 'Argent', 3: 'Or', 4: 'Platine', 5: 'Diamant' };
+const LEVEL_LABELS_EN: Record<number, string> = { 1: 'Bronze', 2: 'Silver', 3: 'Gold', 4: 'Platinum', 5: 'Diamond' };
 const LEVEL_COLORS: Record<number, string> = {
   1: 'text-amber-600 bg-amber-500/10 border-amber-500/20',
   2: 'text-slate-400 bg-slate-400/10 border-slate-400/20',
@@ -22,15 +24,24 @@ const LEVEL_COLORS: Record<number, string> = {
   4: 'text-cyan-400 bg-cyan-400/10 border-cyan-400/20',
   5: 'text-violet-400 bg-violet-400/10 border-violet-400/20',
 };
-const STATUS_MAP: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+const STATUS_MAP_FR: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
   pending: { label: 'En attente', variant: 'secondary' },
   approved: { label: 'Actif', variant: 'default' },
   rejected: { label: 'Rejeté', variant: 'destructive' },
   suspended: { label: 'Suspendu', variant: 'destructive' },
 };
+const STATUS_MAP_EN: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }> = {
+  pending: { label: 'Pending', variant: 'secondary' },
+  approved: { label: 'Active', variant: 'default' },
+  rejected: { label: 'Rejected', variant: 'destructive' },
+  suspended: { label: 'Suspended', variant: 'destructive' },
+};
 
 export default function PartnerPortalPage() {
   const { user } = useAuth();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const dateLoc = isFr ? 'fr-FR' : 'en-US';
   const {
     data: partner,
     isLoading,
@@ -52,26 +63,27 @@ export default function PartnerPortalPage() {
   if (!partner) {
     return (
       <div className="max-w-lg mx-auto py-16 text-center space-y-4">
-        <SEOHead title="Programme Partenaires" description="Programme Partenaires Officiel Siteviral" />
+        <SEOHead title={isFr ? 'Programme Partenaires' : 'Partner Program'} description={isFr ? 'Programme Partenaires Officiel Siteviral' : 'Siteviral Official Partner Program'} />
         <Handshake className="h-12 w-12 mx-auto text-muted-foreground" />
-        <h1 className="text-2xl font-bold">Programme Partenaires</h1>
-        <p className="text-muted-foreground">Vous n'êtes pas encore inscrit au Programme Partenaires.</p>
-        <Button variant="outline" onClick={() => window.location.href = '/devenir-partenaire'}>Postuler</Button>
+        <h1 className="text-2xl font-bold">{isFr ? 'Programme Partenaires' : 'Partner Program'}</h1>
+        <p className="text-muted-foreground">{isFr ? 'Vous n\'êtes pas encore inscrit au Programme Partenaires.' : 'You are not yet enrolled in the Partner Program.'}</p>
+        <Button variant="outline" onClick={() => window.location.href = '/devenir-partenaire'}>{isFr ? 'Postuler' : 'Apply'}</Button>
       </div>
     );
   }
 
   if (partner.status !== 'approved') {
-    const s = STATUS_MAP[partner.status] || STATUS_MAP.pending;
+    const statusMap = isFr ? STATUS_MAP_FR : STATUS_MAP_EN;
+    const s = statusMap[partner.status] || statusMap.pending;
     return (
       <div className="max-w-lg mx-auto py-16 text-center space-y-4">
-        <SEOHead title="Partenaire — En attente" />
+        <SEOHead title={isFr ? 'Partenaire — En attente' : 'Partner — Pending'} />
         <Handshake className="h-12 w-12 mx-auto text-muted-foreground" />
-        <h1 className="text-2xl font-bold">Programme Partenaires</h1>
+        <h1 className="text-2xl font-bold">{isFr ? 'Programme Partenaires' : 'Partner Program'}</h1>
         <Badge variant={s.variant} className="text-sm">{s.label}</Badge>
-        {partner.status === 'pending' && <p className="text-muted-foreground">Votre candidature est en cours d'examen.</p>}
-        {partner.status === 'suspended' && <p className="text-muted-foreground">Votre compte a été suspendu. {partner.suspension_reason && `Raison : ${partner.suspension_reason}`}</p>}
-        {partner.status === 'rejected' && <p className="text-muted-foreground">Votre candidature n'a pas été retenue.</p>}
+        {partner.status === 'pending' && <p className="text-muted-foreground">{isFr ? 'Votre candidature est en cours d\'examen.' : 'Your application is under review.'}</p>}
+        {partner.status === 'suspended' && <p className="text-muted-foreground">{isFr ? 'Votre compte a été suspendu.' : 'Your account has been suspended.'} {partner.suspension_reason && (isFr ? `Raison : ${partner.suspension_reason}` : `Reason: ${partner.suspension_reason}`)}</p>}
+        {partner.status === 'rejected' && <p className="text-muted-foreground">{isFr ? 'Votre candidature n\'a pas été retenue.' : 'Your application was not accepted.'}</p>}
       </div>
     );
   }
@@ -82,7 +94,7 @@ export default function PartnerPortalPage() {
 
   const copyText = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
-    toast.success(`${label} copié !`);
+    toast.success(isFr ? `${label} copié !` : `${label} copied!`);
   };
 
   const handleForceSync = async () => {
@@ -97,9 +109,9 @@ export default function PartnerPortalPage() {
 
       const hasError = results.some(result => !!result.error);
       if (hasError) {
-        toast.error('Synchronisation incomplète. Réessayez dans quelques secondes.');
+        toast.error(isFr ? 'Synchronisation incomplète. Réessayez dans quelques secondes.' : 'Incomplete sync. Try again in a few seconds.');
       } else {
-        toast.success('Synchronisation forcée terminée.');
+        toast.success(isFr ? 'Synchronisation forcée terminée.' : 'Forced sync complete.');
       }
     } finally {
       setIsForceSyncing(false);
@@ -118,7 +130,7 @@ export default function PartnerPortalPage() {
       transition={{ duration: 0.4 }}
       className="space-y-6 max-w-6xl mx-auto"
     >
-      <SEOHead title="Espace Partenaire" />
+      <SEOHead title={isFr ? 'Espace Partenaire' : 'Partner Portal'} />
 
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
@@ -128,7 +140,7 @@ export default function PartnerPortalPage() {
               <Handshake className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">Espace Partenaire</h1>
+              <h1 className="text-xl font-bold tracking-tight">{isFr ? 'Espace Partenaire' : 'Partner Portal'}</h1>
               <p className="text-xs text-muted-foreground">{partner.full_name}</p>
             </div>
           </div>
@@ -136,23 +148,23 @@ export default function PartnerPortalPage() {
         <div className="flex items-center gap-2 flex-wrap justify-start sm:justify-end">
           <Button variant="outline" size="sm" onClick={handleForceSync} disabled={isSyncing} className="gap-2">
             {isSyncing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Zap className="h-3.5 w-3.5" />}
-            Forcer sync
+            {isFr ? 'Forcer sync' : 'Force sync'}
           </Button>
           <Badge className={`${levelColor} border text-xs font-semibold px-3 py-1`}>
-            {LEVEL_LABELS[partner.level] || `L${partner.level}`} — {effectiveRate}%
+            {(isFr ? LEVEL_LABELS : LEVEL_LABELS_EN)[partner.level] || `L${partner.level}`} — {effectiveRate}%
           </Badge>
           <Badge variant="outline" className="text-xs px-2.5 py-1 border-primary/30 text-primary">
-            Partenaire Officiel
+            {isFr ? 'Partenaire Officiel' : 'Official Partner'}
           </Badge>
         </div>
       </div>
 
       {/* ── KPI Cards ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <KPICard icon={Building2} label="Organisations" value={`${stats.activeOrgs} / ${stats.totalOrgs}`} sub="actives / total" />
-        <KPICard icon={Clock} label="En attente" value={formatCurrency(stats.held, currency)} sub="retenue 15 jours" />
-        <KPICard icon={CircleDollarSign} label="Disponible" value={formatCurrency(stats.payable, currency)} sub="prêt à retirer" accent />
-        <KPICard icon={Wallet} label="Total versé" value={formatCurrency(stats.paid, currency)} sub="historique" />
+        <KPICard icon={Building2} label={isFr ? 'Organisations' : 'Organizations'} value={`${stats.activeOrgs} / ${stats.totalOrgs}`} sub={isFr ? 'actives / total' : 'active / total'} />
+        <KPICard icon={Clock} label={isFr ? 'En attente' : 'Pending'} value={formatCurrency(stats.held, currency)} sub={isFr ? 'retenue 15 jours' : '15-day hold'} />
+        <KPICard icon={CircleDollarSign} label={isFr ? 'Disponible' : 'Available'} value={formatCurrency(stats.payable, currency)} sub={isFr ? 'prêt à retirer' : 'ready to withdraw'} accent />
+        <KPICard icon={Wallet} label={isFr ? 'Total versé' : 'Total paid'} value={formatCurrency(stats.paid, currency)} sub={isFr ? 'historique' : 'history'} />
       </div>
 
       {(referralsQuery.isError || commissionsQuery.isError) && (
@@ -160,10 +172,10 @@ export default function PartnerPortalPage() {
           <CardContent className="py-3 px-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-sm">
               <AlertTriangle className="h-4 w-4 text-destructive" />
-              <span>Les données partenaires ne sont pas encore synchronisées. Cliquez pour forcer la mise à jour.</span>
+              <span>{isFr ? 'Les données partenaires ne sont pas encore synchronisées. Cliquez pour forcer la mise à jour.' : 'Partner data not yet synced. Click to force update.'}</span>
             </div>
             <Button variant="outline" size="sm" onClick={handleForceSync} disabled={isSyncing}>
-              Réessayer
+              {isFr ? 'Réessayer' : 'Retry'}
             </Button>
           </CardContent>
         </Card>
@@ -173,21 +185,21 @@ export default function PartnerPortalPage() {
       <Tabs defaultValue="overview" className="space-y-4">
         <TabsList className="w-full sm:w-auto bg-muted/40 p-1 rounded-xl h-auto flex-wrap">
           <TabsTrigger value="overview" className="rounded-lg text-xs gap-1.5 data-[state=active]:shadow-sm">
-            <Zap className="h-3.5 w-3.5" /> Vue d'ensemble
+            <Zap className="h-3.5 w-3.5" /> {isFr ? 'Vue d\'ensemble' : 'Overview'}
           </TabsTrigger>
           <TabsTrigger value="orgs" className="rounded-lg text-xs gap-1.5 data-[state=active]:shadow-sm">
-            <Building2 className="h-3.5 w-3.5" /> Organisations
+            <Building2 className="h-3.5 w-3.5" /> {isFr ? 'Organisations' : 'Organizations'}
             {referrals.length > 0 && <span className="ml-1 text-[10px] bg-muted rounded-full px-1.5">{referrals.length}</span>}
           </TabsTrigger>
           <TabsTrigger value="gains" className="rounded-lg text-xs gap-1.5 data-[state=active]:shadow-sm">
-            <CircleDollarSign className="h-3.5 w-3.5" /> Commissions
+            <CircleDollarSign className="h-3.5 w-3.5" /> {isFr ? 'Commissions' : 'Commissions'}
             {commissions.length > 0 && <span className="ml-1 text-[10px] bg-muted rounded-full px-1.5">{commissions.length}</span>}
           </TabsTrigger>
           <TabsTrigger value="kyc" className="rounded-lg text-xs gap-1.5 data-[state=active]:shadow-sm">
             <Shield className="h-3.5 w-3.5" /> KYC
           </TabsTrigger>
           <TabsTrigger value="payout" className="rounded-lg text-xs gap-1.5 data-[state=active]:shadow-sm">
-            <CreditCard className="h-3.5 w-3.5" /> Retrait
+            <CreditCard className="h-3.5 w-3.5" /> {isFr ? 'Retrait' : 'Payout'}
           </TabsTrigger>
         </TabsList>
 
@@ -198,10 +210,10 @@ export default function PartnerPortalPage() {
             <CardHeader className="pb-3">
               <div className="flex items-center gap-2">
                 <Link2 className="h-4 w-4 text-primary" />
-                <CardTitle className="text-sm">Votre lien d'invitation</CardTitle>
+                <CardTitle className="text-sm">{isFr ? 'Votre lien d\'invitation' : 'Your invite link'}</CardTitle>
               </div>
               <CardDescription className="text-xs">
-                Partagez ce lien pour inviter des organisations. Vos commissions sont générées automatiquement.
+                {isFr ? 'Partagez ce lien pour inviter des organisations. Vos commissions sont générées automatiquement.' : 'Share this link to invite organizations. Commissions are generated automatically.'}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -223,11 +235,11 @@ export default function PartnerPortalPage() {
                   )}
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
                     <Users className="h-3 w-3" />
-                    {partner.invite_uses_count} utilisation{partner.invite_uses_count !== 1 ? 's' : ''}
+                    {partner.invite_uses_count} {isFr ? `utilisation${partner.invite_uses_count !== 1 ? 's' : ''}` : `use${partner.invite_uses_count !== 1 ? 's' : ''}`}
                   </p>
                 </>
               ) : (
-                <p className="text-sm text-muted-foreground">Code d'invitation en cours de génération...</p>
+                <p className="text-sm text-muted-foreground">{isFr ? 'Code d\'invitation en cours de génération...' : 'Invite code being generated...'}</p>
               )}
             </CardContent>
           </Card>
@@ -235,17 +247,17 @@ export default function PartnerPortalPage() {
           {/* How it works */}
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2">
+                <CardTitle className="text-sm flex items-center gap-2">
                 <Gift className="h-4 w-4 text-primary" />
-                Comment ça fonctionne
+                {isFr ? 'Comment ça fonctionne' : 'How it works'}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid sm:grid-cols-3 gap-4">
                 {[
-                  { step: '1', title: 'Invitez', desc: 'Partagez votre lien avec des créateurs ou organisations.' },
-                  { step: '2', title: 'Ils vendent', desc: "L'organisation vend ses produits/reçoit des dons sur SiteViral." },
-                  { step: '3', title: 'Vous gagnez', desc: `${effectiveRate}% des frais de plateforme, automatiquement.` },
+                  { step: '1', title: isFr ? 'Invitez' : 'Invite', desc: isFr ? 'Partagez votre lien avec des créateurs ou organisations.' : 'Share your link with creators or organizations.' },
+                  { step: '2', title: isFr ? 'Ils vendent' : 'They sell', desc: isFr ? "L'organisation vend ses produits/reçoit des dons sur SiteViral." : "The organization sells products/receives donations on SiteViral." },
+                  { step: '3', title: isFr ? 'Vous gagnez' : 'You earn', desc: `${effectiveRate}% ${isFr ? 'des frais de plateforme, automatiquement.' : 'of platform fees, automatically.'}` },
                 ].map(s => (
                   <div key={s.step} className="flex gap-3 items-start">
                     <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary shrink-0">{s.step}</div>
@@ -264,11 +276,11 @@ export default function PartnerPortalPage() {
             <Card>
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm">Dernières commissions</CardTitle>
+                  <CardTitle className="text-sm">{isFr ? 'Dernières commissions' : 'Recent commissions'}</CardTitle>
                   <Button variant="ghost" size="sm" className="text-xs text-primary h-7" onClick={() => {
                     document.querySelector<HTMLButtonElement>('[data-value="gains"]')?.click();
                   }}>
-                    Tout voir <ArrowUpRight className="h-3 w-3 ml-1" />
+                    {isFr ? 'Tout voir' : 'View all'} <ArrowUpRight className="h-3 w-3 ml-1" />
                   </Button>
                 </div>
               </CardHeader>
@@ -282,7 +294,7 @@ export default function PartnerPortalPage() {
                         </div>
                         <div>
                           <p className="text-sm font-medium">{c.organization?.name || '—'}</p>
-                          <p className="text-[11px] text-muted-foreground">{new Date(c.created_at).toLocaleDateString('fr-FR')}</p>
+                          <p className="text-[11px] text-muted-foreground">{new Date(c.created_at).toLocaleDateString(dateLoc)}</p>
                         </div>
                       </div>
                       <div className="text-right">
@@ -301,17 +313,17 @@ export default function PartnerPortalPage() {
         <TabsContent value="orgs">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Organisations référées</CardTitle>
+              <CardTitle className="text-base">{isFr ? 'Organisations référées' : 'Referred organizations'}</CardTitle>
               <CardDescription>
-                Les organisations que vous avez invitées via votre lien partenaire. Le statut passe automatiquement à « Active » au premier paiement reçu.
+                {isFr ? 'Les organisations que vous avez invitées via votre lien partenaire. Le statut passe automatiquement à « Active » au premier paiement reçu.' : 'Organizations you invited via your partner link. Status changes to "Active" on first payment received.'}
               </CardDescription>
             </CardHeader>
             <CardContent>
               {referrals.length === 0 ? (
                 <div className="text-center py-8 space-y-2">
                   <Building2 className="h-8 w-8 mx-auto text-muted-foreground/40" />
-                  <p className="text-sm text-muted-foreground">Aucune organisation référée pour le moment.</p>
-                  <p className="text-xs text-muted-foreground">Partagez votre lien d'invitation pour commencer.</p>
+                  <p className="text-sm text-muted-foreground">{isFr ? 'Aucune organisation référée pour le moment.' : 'No referred organizations yet.'}</p>
+                  <p className="text-xs text-muted-foreground">{isFr ? 'Partagez votre lien d\'invitation pour commencer.' : 'Share your invite link to get started.'}</p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -327,15 +339,15 @@ export default function PartnerPortalPage() {
                         )}
                         <div>
                           <p className="text-sm font-medium">{r.organization?.name || '—'}</p>
-                          <p className="text-[11px] text-muted-foreground">{new Date(r.attributed_at).toLocaleDateString('fr-FR')}</p>
+                          <p className="text-[11px] text-muted-foreground">{new Date(r.attributed_at).toLocaleDateString(dateLoc)}</p>
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         <Badge variant={r.status === 'active' ? 'default' : r.status === 'rejected' ? 'destructive' : 'secondary'} className="text-[10px]">
-                          {r.status === 'active' ? '✓ Active' : r.status === 'rejected' ? 'Rejetée' : '⏳ En attente'}
+                          {r.status === 'active' ? (isFr ? '✓ Active' : '✓ Active') : r.status === 'rejected' ? (isFr ? 'Rejetée' : 'Rejected') : (isFr ? '⏳ En attente' : '⏳ Pending')}
                         </Badge>
                         {r.status === 'pending' && (
-                          <span className="text-[10px] text-muted-foreground">1er paiement requis</span>
+                          <span className="text-[10px] text-muted-foreground">{isFr ? '1er paiement requis' : '1st payment required'}</span>
                         )}
                       </div>
                     </div>
@@ -350,9 +362,9 @@ export default function PartnerPortalPage() {
         <TabsContent value="gains">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Historique des commissions</CardTitle>
+              <CardTitle className="text-base">{isFr ? 'Historique des commissions' : 'Commission history'}</CardTitle>
               <CardDescription>
-                Commissions générées automatiquement sur chaque transaction de vos organisations. Retenue de 15 jours puis disponible.
+                {isFr ? 'Commissions générées automatiquement sur chaque transaction de vos organisations. Retenue de 15 jours puis disponible.' : 'Commissions automatically generated on each transaction from your organizations. 15-day hold then available.'}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -361,19 +373,19 @@ export default function PartnerPortalPage() {
                   <CircleDollarSign className="h-8 w-8 mx-auto text-muted-foreground/40" />
                   {commissionsQuery.isFetching ? (
                     <>
-                      <p className="text-sm text-muted-foreground">Synchronisation des commissions en cours...</p>
-                      <p className="text-xs text-muted-foreground">Patientez quelques secondes.</p>
+                      <p className="text-sm text-muted-foreground">{isFr ? 'Synchronisation des commissions en cours...' : 'Syncing commissions...'}</p>
+                      <p className="text-xs text-muted-foreground">{isFr ? 'Patientez quelques secondes.' : 'Please wait a few seconds.'}</p>
                     </>
                   ) : (
                     <>
-                      <p className="text-sm text-muted-foreground">Aucune commission visible pour le moment.</p>
-                      <p className="text-xs text-muted-foreground">Cliquez sur « Forcer sync » pour recharger immédiatement depuis le serveur.</p>
+                      <p className="text-sm text-muted-foreground">{isFr ? 'Aucune commission visible pour le moment.' : 'No commissions visible yet.'}</p>
+                      <p className="text-xs text-muted-foreground">{isFr ? 'Cliquez sur « Forcer sync » pour recharger immédiatement depuis le serveur.' : 'Click "Force sync" to reload immediately from server.'}</p>
                     </>
                   )}
                   <div className="pt-2">
                     <Button variant="outline" size="sm" onClick={handleForceSync} disabled={isSyncing} className="gap-2">
                       {isSyncing && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                      Forcer sync
+                      {isFr ? 'Forcer sync' : 'Force sync'}
                     </Button>
                   </div>
                 </div>
@@ -382,18 +394,18 @@ export default function PartnerPortalPage() {
                   <Table>
                     <TableHeader>
                       <TableRow className="hover:bg-transparent">
-                        <TableHead className="text-xs">Date</TableHead>
-                        <TableHead className="text-xs">Organisation</TableHead>
-                        <TableHead className="text-xs text-right">Fee plateforme</TableHead>
-                        <TableHead className="text-xs text-center">Taux</TableHead>
-                        <TableHead className="text-xs text-right">Commission</TableHead>
-                        <TableHead className="text-xs text-center">Statut</TableHead>
+                        <TableHead className="text-xs">{isFr ? 'Date' : 'Date'}</TableHead>
+                        <TableHead className="text-xs">{isFr ? 'Organisation' : 'Organization'}</TableHead>
+                        <TableHead className="text-xs text-right">{isFr ? 'Fee plateforme' : 'Platform fee'}</TableHead>
+                        <TableHead className="text-xs text-center">{isFr ? 'Taux' : 'Rate'}</TableHead>
+                        <TableHead className="text-xs text-right">{isFr ? 'Commission' : 'Commission'}</TableHead>
+                        <TableHead className="text-xs text-center">{isFr ? 'Statut' : 'Status'}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {commissions.map(c => (
                         <TableRow key={c.id}>
-                          <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{new Date(c.created_at).toLocaleDateString('fr-FR')}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{new Date(c.created_at).toLocaleDateString(dateLoc)}</TableCell>
                           <TableCell className="text-sm font-medium">{c.organization?.name || '—'}</TableCell>
                           <TableCell className="text-xs text-right text-muted-foreground">{formatCurrency(c.platform_fee_amount, c.currency)}</TableCell>
                           <TableCell className="text-xs text-center">{c.commission_percent}%</TableCell>
@@ -413,15 +425,15 @@ export default function PartnerPortalPage() {
                 <div className="mt-4 pt-4 border-t border-border/50 grid grid-cols-3 gap-4 text-center">
                   <div>
                     <p className="text-lg font-bold">{formatCurrency(stats.held, currency)}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">En attente</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{isFr ? 'En attente' : 'Pending'}</p>
                   </div>
                   <div>
                     <p className="text-lg font-bold text-primary">{formatCurrency(stats.payable, currency)}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Disponible</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{isFr ? 'Disponible' : 'Available'}</p>
                   </div>
                   <div>
                     <p className="text-lg font-bold">{formatCurrency(stats.paid, currency)}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Versé</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{isFr ? 'Versé' : 'Paid'}</p>
                   </div>
                 </div>
               )}
@@ -449,25 +461,27 @@ export default function PartnerPortalPage() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Demander un retrait</CardTitle>
+              <CardTitle className="text-sm">{isFr ? 'Demander un retrait' : 'Request payout'}</CardTitle>
               <CardDescription className="text-xs">
-                Disponible : <span className="font-bold text-foreground">{formatCurrency(stats.payable, currency)}</span>
-                {' '}— Min. : {formatCurrency(partner.min_payout_threshold, currency)}
+                {isFr ? 'Disponible' : 'Available'}: <span className="font-bold text-foreground">{formatCurrency(stats.payable, currency)}</span>
+                {' '}— Min.: {formatCurrency(partner.min_payout_threshold, currency)}
               </CardDescription>
             </CardHeader>
             <CardContent>
               {!partner.paystack_recipient_code ? (
                 <div className="text-sm text-muted-foreground flex items-center gap-2 bg-amber-500/5 border border-amber-500/20 rounded-lg p-3">
                   <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
-                  Configurez d'abord votre méthode de paiement ci-dessus.
+                  {isFr ? 'Configurez d\'abord votre méthode de paiement ci-dessus.' : 'First configure your payment method above.'}
                 </div>
               ) : stats.payable < partner.min_payout_threshold ? (
-                <p className="text-sm text-muted-foreground">Le seuil minimum de {formatCurrency(partner.min_payout_threshold, currency)} n'est pas encore atteint.</p>
+                <p className="text-sm text-muted-foreground">
+                  {isFr ? `Le seuil minimum de ${formatCurrency(partner.min_payout_threshold, currency)} n'est pas encore atteint.` : `Minimum threshold of ${formatCurrency(partner.min_payout_threshold, currency)} not yet reached.`}
+                </p>
               ) : (
                 <Button onClick={() => requestPayout.mutate(partner.id)} disabled={requestPayout.isPending} className="gap-2">
                   {requestPayout.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
                   <Wallet className="h-4 w-4" />
-                  Demander {formatCurrency(stats.payable, currency)}
+                  {isFr ? 'Demander' : 'Request'} {formatCurrency(stats.payable, currency)}
                 </Button>
               )}
             </CardContent>
@@ -475,17 +489,17 @@ export default function PartnerPortalPage() {
 
           {payouts.length > 0 && (
             <Card>
-              <CardHeader className="pb-2"><CardTitle className="text-sm">Historique des retraits</CardTitle></CardHeader>
+              <CardHeader className="pb-2"><CardTitle className="text-sm">{isFr ? 'Historique des retraits' : 'Payout history'}</CardTitle></CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   {payouts.map(p => (
                     <div key={p.id} className="flex items-center justify-between py-2.5 border-b border-border/30 last:border-0">
                       <div>
                         <p className="text-sm font-medium">{formatCurrency(p.amount, p.currency)}</p>
-                        <p className="text-[11px] text-muted-foreground">{new Date(p.requested_at).toLocaleDateString('fr-FR')}</p>
+                          <p className="text-[11px] text-muted-foreground">{new Date(p.requested_at).toLocaleDateString(dateLoc)}</p>
                       </div>
                       <Badge variant={p.status === 'paid' ? 'default' : p.status === 'failed' || p.status === 'rejected' ? 'destructive' : 'secondary'} className="text-[10px]">
-                        {p.status === 'paid' ? '✓ Versé' : p.status === 'failed' ? '✗ Échoué' : p.status === 'rejected' ? '✗ Rejeté' : '⏳ ' + p.status}
+                        {p.status === 'paid' ? (isFr ? '✓ Versé' : '✓ Paid') : p.status === 'failed' ? (isFr ? '✗ Échoué' : '✗ Failed') : p.status === 'rejected' ? (isFr ? '✗ Rejeté' : '✗ Rejected') : '⏳ ' + p.status}
                       </Badge>
                     </div>
                   ))}
@@ -518,10 +532,10 @@ function KPICard({ icon: Icon, label, value, sub, accent }: { icon: typeof Users
 
 function CommissionStatusBadge({ status }: { status: string }) {
   const map: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: typeof CheckCircle }> = {
-    held: { label: 'Retenue', variant: 'secondary', icon: Clock },
-    payable: { label: 'Disponible', variant: 'default', icon: TrendingUp },
-    paid: { label: 'Versé', variant: 'outline', icon: CheckCircle },
-    reversed: { label: 'Annulé', variant: 'destructive', icon: XCircle },
+    held: { label: 'Held', variant: 'secondary', icon: Clock },
+    payable: { label: 'Available', variant: 'default', icon: TrendingUp },
+    paid: { label: 'Paid', variant: 'outline', icon: CheckCircle },
+    reversed: { label: 'Reversed', variant: 'destructive', icon: XCircle },
   };
   const s = map[status] || map.held;
   const Icon = s.icon;

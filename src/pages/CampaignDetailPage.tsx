@@ -1,4 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useI18n } from '@/i18n/I18nContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
@@ -26,6 +27,9 @@ export default function CampaignDetailPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const dateLoc = isFr ? 'fr-FR' : 'en-US';
   const [donateOpen, setDonateOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -220,7 +224,7 @@ export default function CampaignDetailPage() {
               {endDate && (
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Calendar className="h-3.5 w-3.5" />
-                  {isExpired ? 'Campagne terminée' : `Jusqu'au ${endDate.toLocaleDateString('fr-FR')}`}
+                  {isExpired ? (isFr ? 'Campagne terminée' : 'Campaign ended') : (isFr ? `Jusqu'au ${endDate.toLocaleDateString(dateLoc)}` : `Until ${endDate.toLocaleDateString(dateLoc)}`)}
                 </div>
               )}
             </div>
@@ -229,7 +233,7 @@ export default function CampaignDetailPage() {
               <div className="space-y-3">
                 <h2 className="text-lg font-bold flex items-center gap-2">
                   <Heart className="h-4.5 w-4.5 text-primary" />
-                  À propos de cette campagne
+                  {isFr ? 'À propos de cette campagne' : 'About this campaign'}
                 </h2>
                 <div className="p-5 rounded-2xl border border-border bg-card shadow-sm">
                   <FormattedText
@@ -242,18 +246,18 @@ export default function CampaignDetailPage() {
 
             {/* Share */}
             <div className="p-4 rounded-2xl border border-border bg-card shadow-card">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Partager cette campagne</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">{isFr ? 'Partager cette campagne' : 'Share this campaign'}</p>
               <ShareButtons
                 url={`/campaign/${campaignId}`}
                 title={campaign.title}
-                description={campaign.description || `Soutenez ${campaign.title}`}
+                description={campaign.description || (isFr ? `Soutenez ${campaign.title}` : `Support ${campaign.title}`)}
               />
             </div>
 
             {/* Organization info */}
             {org && (
               <div className="p-4 rounded-2xl border border-border bg-card shadow-card">
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Organisation</p>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">{isFr ? 'Organisation' : 'Organization'}</p>
                 <div className="flex items-center gap-3">
                   {org.logo_url ? (
                     <img src={org.logo_url} alt={org.name} className="h-12 w-12 rounded-xl object-cover border border-border" />
@@ -267,7 +271,7 @@ export default function CampaignDetailPage() {
                     {org.description && <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{org.description}</p>}
                   </div>
                   <Button variant="outline" size="sm" className="gap-1.5 text-xs shrink-0" onClick={() => navigate(`/org/${org.slug}`)}>
-                    <ExternalLink className="h-3.5 w-3.5" /> Voir
+                    <ExternalLink className="h-3.5 w-3.5" /> {isFr ? 'Voir' : 'View'}
                   </Button>
                 </div>
               </div>
@@ -282,7 +286,7 @@ export default function CampaignDetailPage() {
                 {endDate && (
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <Calendar className="h-3.5 w-3.5" />
-                    {isExpired ? 'Campagne terminée' : `Jusqu'au ${endDate.toLocaleDateString('fr-FR')}`}
+                    {isExpired ? (isFr ? 'Campagne terminée' : 'Campaign ended') : (isFr ? `Jusqu'au ${endDate.toLocaleDateString(dateLoc)}` : `Until ${endDate.toLocaleDateString(dateLoc)}`)}
                   </div>
                 )}
               </div>

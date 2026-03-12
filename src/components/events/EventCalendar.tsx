@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/i18n/I18nContext';
 import type { Event } from '@/types/database';
 
 interface EventCalendarProps {
@@ -10,6 +11,7 @@ interface EventCalendarProps {
 }
 
 export function EventCalendar({ events, onSelectEvent }: EventCalendarProps) {
+  const { locale } = useI18n();
   const [current, setCurrent] = useState(new Date());
 
   const year = current.getFullYear();
@@ -35,8 +37,9 @@ export function EventCalendar({ events, onSelectEvent }: EventCalendarProps) {
   const prev = () => setCurrent(new Date(year, month - 1, 1));
   const next = () => setCurrent(new Date(year, month + 1, 1));
 
-  const monthLabel = current.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-  const dayHeaders = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+  const dateLoc = locale === 'fr' ? 'fr-FR' : 'en-US';
+  const monthLabel = current.toLocaleDateString(dateLoc, { month: 'long', year: 'numeric' });
+  const dayHeaders = locale === 'fr' ? ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'] : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const today = new Date();
   const isToday = (d: number) => today.getFullYear() === year && today.getMonth() === month && today.getDate() === d;
 

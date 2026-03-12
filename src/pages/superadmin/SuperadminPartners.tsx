@@ -197,10 +197,10 @@ export default function SuperadminPartners() {
                             <Percent className="h-4 w-4" />
                           </Button>
                           <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => {
-                            if (confirm(`Supprimer définitivement ${p.full_name} ? Cette action est irréversible.`)) {
+                            if (confirm(`Permanently delete ${p.full_name}? This action is irreversible.`)) {
                               deletePartner.mutate(p.id);
                             }
-                          }} title="Supprimer">
+                          }} title="Delete">
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </div>

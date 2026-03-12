@@ -1,4 +1,5 @@
 import { useOrg } from '@/contexts/OrgContext';
+import { useI18n } from '@/i18n/I18nContext';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { db } from '@/lib/db';
@@ -36,6 +37,7 @@ export default function AiJobsQueue() {
   const { currentOrg } = useOrg();
   const orgId = currentOrg?.id;
   const { toast } = useToast();
+  const { locale } = useI18n();
   const queryClient = useQueryClient();
 
   const { data: jobs, isLoading } = useQuery({
@@ -139,7 +141,7 @@ export default function AiJobsQueue() {
                       {statusM.label}
                     </Badge>
                     <span className="text-xs text-muted-foreground shrink-0">
-                      {new Date(job.created_at).toLocaleTimeString('fr', { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(job.created_at).toLocaleTimeString(locale === 'fr' ? 'fr' : 'en', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                     {/* Actions */}
                     <div className="flex items-center gap-1 shrink-0">
@@ -147,7 +149,7 @@ export default function AiJobsQueue() {
                         <Button
                           variant="ghost" size="icon" className="h-7 w-7"
                           onClick={() => cancelJob.mutate(job.id)}
-                          title="Annuler"
+                          title={locale === 'fr' ? 'Annuler' : 'Cancel'}
                         >
                           <XCircle className="h-3.5 w-3.5 text-destructive" />
                         </Button>
@@ -156,7 +158,7 @@ export default function AiJobsQueue() {
                         <Button
                           variant="ghost" size="icon" className="h-7 w-7"
                           onClick={() => deleteJob.mutate(job.id)}
-                          title="Supprimer"
+                          title={locale === 'fr' ? 'Supprimer' : 'Delete'}
                         >
                           <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
                         </Button>

@@ -7,8 +7,9 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Search, MessageCircle, BookOpen, CreditCard, Shield, Users, Settings, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useI18n } from '@/i18n/I18nContext';
 
-const categories = [
+const categoriesFr = [
   {
     icon: BookOpen, title: 'Premiers pas',
     items: [
@@ -56,9 +57,61 @@ const categories = [
   },
 ];
 
+const categoriesEn = [
+  {
+    icon: BookOpen, title: 'Getting Started',
+    items: [
+      { q: 'How do I create my account?', a: 'Go to /auth, sign up with your email or Google. It\'s free and takes 30 seconds.' },
+      { q: 'How do I create my organization?', a: 'After signing up, go to "Create an organization". Give it a name, add a logo and description.' },
+      { q: 'How do I add my first product?', a: 'In your organization\'s admin dashboard, click "Products" then "New product". Upload your file and set a price.' },
+      { q: 'Is it really free?', a: 'Yes, zero subscription. Siteviral takes 10% only on completed sales. If you don\'t sell anything, you pay nothing.' },
+    ],
+  },
+  {
+    icon: CreditCard, title: 'Payments & Revenue',
+    items: [
+      { q: 'What payment methods are accepted?', a: 'Mobile Money (Orange, MTN, Wave, Moov), credit cards (Visa, Mastercard) and international payments.' },
+      { q: 'When do I receive my money?', a: 'Revenue is paid out after a 72h security hold for sellers and 15 days for ambassador commissions.' },
+      { q: 'How do I set up my payment?', a: 'Complete your identity verification in your organization settings. Add your Mobile Money number or bank account.' },
+      { q: 'What are the fees?', a: '10% Siteviral commission on sales. Payment gateway fees (Paystack/Stripe) are included.' },
+    ],
+  },
+  {
+    icon: Shield, title: 'Security & Protection',
+    items: [
+      { q: 'Is my content protected?', a: 'Yes, automatic watermarking with the buyer\'s name on PDFs. Secure file access.' },
+      { q: 'Is my data secure?', a: 'All data is encrypted in transit and at rest. Infrastructure hosted on secure servers. GDPR compliant.' },
+      { q: 'What if there\'s fraud?', a: 'Our anti-fraud system automatically detects suspicious activity. Contact support to report any issues.' },
+      { q: 'How do refunds work?', a: 'Refunds are handled on a case-by-case basis. See our refund policy for details.' },
+    ],
+  },
+  {
+    icon: Users, title: 'Ambassador Program',
+    items: [
+      { q: 'How do I become an ambassador?', a: 'Sign up, then go to "Ambassador" from the menu. Generate your share links and start earning.' },
+      { q: 'How much can I earn?', a: 'Commission varies by organization (typically 10-30% of sale price). Use our calculator to estimate your earnings.' },
+      { q: 'How do I receive my commissions?', a: 'Commissions are paid out after a 15-day hold. Set up your Mobile Money in your profile.' },
+      { q: 'Can I be an ambassador without creating content?', a: 'Yes, that\'s the point! You share others\' products and earn a commission on each sale.' },
+    ],
+  },
+  {
+    icon: Settings, title: 'Management & Administration',
+    items: [
+      { q: 'How do I manage my organization?', a: 'Access the admin dashboard from the side menu. You\'ll find all your tools: products, sales, analytics, etc.' },
+      { q: 'Can I have multiple admins?', a: 'Yes, invite members with the "admin" or "moderator" role from your organization settings.' },
+      { q: 'How do I customize my page?', a: 'In your organization settings, edit the logo, banner, description and colors.' },
+      { q: 'How do I view my statistics?', a: 'The admin dashboard shows views, sales, revenue and real-time analytics.' },
+    ],
+  },
+];
+
 export default function HelpPage() {
   const [search, setSearch] = useState('');
   const navigate = useNavigate();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+
+  const categories = isFr ? categoriesFr : categoriesEn;
 
   const filtered = categories.map((cat) => ({
     ...cat,
@@ -69,18 +122,22 @@ export default function HelpPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Centre d'aide — Siteviral" description="Trouvez des réponses à toutes vos questions sur Siteviral. Guides, tutoriels et FAQ." canonicalUrl="https://siteviral.com/help" />
+      <SEOHead
+        title={isFr ? "Centre d'aide — Siteviral" : "Help Center — Siteviral"}
+        description={isFr ? "Trouvez des réponses à toutes vos questions sur Siteviral. Guides, tutoriels et FAQ." : "Find answers to all your questions about Siteviral. Guides, tutorials and FAQ."}
+        canonicalUrl="https://siteviral.com/help"
+      />
       <LandingNav />
 
       <section className="pt-14">
         <div className="container max-w-3xl px-4 pt-24 pb-8 text-center space-y-6">
-          <Badge variant="secondary" className="text-xs px-4 py-1.5 rounded-full">❓ Centre d'aide</Badge>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Comment pouvons-nous vous aider ?</h1>
+          <Badge variant="secondary" className="text-xs px-4 py-1.5 rounded-full">{isFr ? '❓ Centre d\'aide' : '❓ Help Center'}</Badge>
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">{isFr ? 'Comment pouvons-nous vous aider ?' : 'How can we help you?'}</h1>
           <div className="relative max-w-md mx-auto">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Rechercher une question..."
+              placeholder={isFr ? 'Rechercher une question...' : 'Search a question...'}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-3 rounded-xl border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -111,15 +168,17 @@ export default function HelpPage() {
             );
           })}
           {filtered.length === 0 && (
-            <p className="text-center text-muted-foreground py-12">Aucun résultat pour « {search} ». Essayez un autre terme ou contactez le support.</p>
+            <p className="text-center text-muted-foreground py-12">
+              {isFr ? `Aucun résultat pour « ${search} ». Essayez un autre terme ou contactez le support.` : `No results for "${search}". Try another term or contact support.`}
+            </p>
           )}
         </div>
 
         <div className="container max-w-3xl mt-16 text-center space-y-4">
-          <h2 className="text-xl font-bold">Vous n'avez pas trouvé votre réponse ?</h2>
-          <p className="text-sm text-muted-foreground">Notre équipe est là pour vous aider.</p>
+          <h2 className="text-xl font-bold">{isFr ? 'Vous n\'avez pas trouvé votre réponse ?' : 'Didn\'t find your answer?'}</h2>
+          <p className="text-sm text-muted-foreground">{isFr ? 'Notre équipe est là pour vous aider.' : 'Our team is here to help.'}</p>
           <Button className="gap-2" onClick={() => navigate('/contact')}>
-            <MessageCircle className="h-4 w-4" /> Contacter le support
+            <MessageCircle className="h-4 w-4" /> {isFr ? 'Contacter le support' : 'Contact support'}
           </Button>
         </div>
       </section>
