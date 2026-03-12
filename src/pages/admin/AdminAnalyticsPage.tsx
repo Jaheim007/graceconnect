@@ -72,7 +72,7 @@ function MemberRetentionWidget({ orgId }: { orgId?: string }) {
           <XAxis dataKey="label" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
           <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} width={30} />
           <Tooltip labelStyle={{ fontSize: 11 }} />
-          <Bar dataKey="joined" name="Inscrits" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+          <Bar dataKey="joined" name={document.documentElement.lang === 'fr' ? 'Inscrits' : 'Registered'} fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
       <p className="text-[10px] text-muted-foreground mt-2">
