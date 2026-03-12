@@ -145,7 +145,7 @@ export default function EventDetailPage() {
               {eventDate && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Clock className="h-4 w-4 shrink-0" />
-                  <span>{eventDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
+                  <span>{eventDate.toLocaleTimeString(dateLoc, { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
               )}
               {event.location && (
