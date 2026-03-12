@@ -54,6 +54,8 @@ export interface Profile {
   bio?: string;
   phone?: string;
   country: string;
+  preferred_language?: string;
+  preferred_currency?: string;
   referral_code?: string;
   created_at: string;
   updated_at: string;

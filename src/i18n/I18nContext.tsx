@@ -11,7 +11,6 @@ export const I18nContext = createContext<I18nContextType | undefined>(undefined)
 
 /** Detect best locale from browser */
 function detectBrowserLocale(): Locale {
-  // Try navigator.languages first (ordered by preference), then navigator.language
   const candidates = [
     ...(navigator.languages || []),
     navigator.language,
@@ -25,21 +24,35 @@ function detectBrowserLocale(): Locale {
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(() => {
-    // Only respect saved locale if user explicitly chose it
+    // 1. Check if user manually chose a locale
     const wasManual = localStorage.getItem('sv_locale_manual') === '1';
     if (wasManual) {
       const saved = localStorage.getItem('sv_locale') as Locale | null;
       if (saved && SUPPORTED_LOCALES.includes(saved)) return saved;
     }
-    // Auto-detect from browser
+    // 2. Check profile preference (set by AuthContext after login)
+    const profileLang = localStorage.getItem('sv_profile_locale') as Locale | null;
+    if (profileLang && SUPPORTED_LOCALES.includes(profileLang)) return profileLang;
+    // 3. Auto-detect from browser
     return detectBrowserLocale();
   });
 
-  // Set document lang and direction on mount and locale change
   useEffect(() => {
     document.documentElement.lang = locale;
     document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
   }, [locale]);
+
+  // Listen for profile locale updates (fired by AuthContext after profile fetch)
+  useEffect(() => {
+    const handler = (e: CustomEvent<{ locale: Locale }>) => {
+      const wasManual = localStorage.getItem('sv_locale_manual') === '1';
+      if (!wasManual && SUPPORTED_LOCALES.includes(e.detail.locale)) {
+        setLocaleState(e.detail.locale);
+      }
+    };
+    window.addEventListener('sv:profile-locale' as any, handler as any);
+    return () => window.removeEventListener('sv:profile-locale' as any, handler as any);
+  }, []);
 
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);
