@@ -1461,26 +1461,26 @@ export function AdminSettings() {
           <div className="bg-destructive/5 border border-destructive/20 rounded-2xl p-5 space-y-3">
             <div className="flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-destructive" />
-              <h2 className="font-semibold text-sm text-destructive">Zone dangereuse</h2>
+              <h2 className="font-semibold text-sm text-destructive">{isFr ? 'Zone dangereuse' : 'Danger zone'}</h2>
             </div>
             <p className="text-xs text-muted-foreground">
-              La suppression est irréversible. Toutes les données (médias, événements, dons, produits, membres) seront définitivement perdues.
+              {isFr ? 'La suppression est irréversible. Toutes les données (médias, événements, dons, produits, membres) seront définitivement perdues.' : 'Deletion is irreversible. All data (media, events, donations, products, members) will be permanently lost.'}
             </p>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" size="sm" className="text-xs gap-1.5">
-                  <Trash2 className="h-3.5 w-3.5" /> Supprimer cette organisation
+                  <Trash2 className="h-3.5 w-3.5" /> {isFr ? 'Supprimer cette organisation' : 'Delete this organization'}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Supprimer « {currentOrg?.name} » ?</AlertDialogTitle>
+                  <AlertDialogTitle>{isFr ? `Supprimer « ${currentOrg?.name} » ?` : `Delete "${currentOrg?.name}"?`}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Cette action est irréversible. Tous les médias, événements, dons, produits, membres et données associées seront définitivement supprimés.
+                    {isFr ? 'Cette action est irréversible. Tous les médias, événements, dons, produits, membres et données associées seront définitivement supprimés.' : 'This action is irreversible. All media, events, donations, products, members and associated data will be permanently deleted.'}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                  <AlertDialogCancel>{isFr ? 'Annuler' : 'Cancel'}</AlertDialogCancel>
                   <AlertDialogAction
                     className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                     onClick={async () => {
@@ -1489,15 +1489,15 @@ export function AdminSettings() {
                         if (error) throw error;
                         const result = data as any;
                         const notified = result?.members_notified || 0;
-                        toast({ title: '✅ Organisation supprimée', description: notified > 0 ? `${notified} membre(s) notifié(s).` : undefined });
+                        toast({ title: isFr ? '✅ Organisation supprimée' : '✅ Organization deleted', description: notified > 0 ? (isFr ? `${notified} membre(s) notifié(s).` : `${notified} member(s) notified.`) : undefined });
                         qc.invalidateQueries({ queryKey: ['user-memberships'] });
                         navigate('/dashboard');
                       } catch (e: any) {
-                        toast({ title: 'Erreur', description: e.message, variant: 'destructive' });
+                        toast({ title: isFr ? 'Erreur' : 'Error', description: e.message, variant: 'destructive' });
                       }
                     }}
                   >
-                    Supprimer définitivement
+                    {isFr ? 'Supprimer définitivement' : 'Delete permanently'}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -1505,7 +1505,7 @@ export function AdminSettings() {
           </div>
         )}
 
-        <p className="text-xs text-muted-foreground text-center">Contactez le support pour modifier le plan, le pays ou la devise.</p>
+        <p className="text-xs text-muted-foreground text-center">{isFr ? 'Contactez le support pour modifier le plan, le pays ou la devise.' : 'Contact support to change the plan, country, or currency.'}</p>
       </div>
       {/* Crop Dialog */}
       {settingsCropSrc && (

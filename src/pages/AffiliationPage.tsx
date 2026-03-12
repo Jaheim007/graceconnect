@@ -170,9 +170,9 @@ export default function AffiliationPage() {
   }
 
   const tabs: { key: AffiliationTab; label: string; icon: typeof Link2 }[] = [
-    { key: 'mes-liens', label: 'Mes liens', icon: Link2 },
-    { key: 'decouvrir', label: 'Découvrir', icon: Search },
-    { key: 'resultats', label: 'Résultats', icon: TrendingUp },
+    { key: 'mes-liens', label: isFr ? 'Mes liens' : 'My links', icon: Link2 },
+    { key: 'decouvrir', label: isFr ? 'Découvrir' : 'Discover', icon: Search },
+    { key: 'resultats', label: isFr ? 'Résultats' : 'Results', icon: TrendingUp },
   ];
 
   return (
