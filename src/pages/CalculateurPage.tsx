@@ -8,6 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { ArrowRight, Calculator, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { useI18n } from '@/i18n/I18nContext';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
