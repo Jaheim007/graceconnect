@@ -707,13 +707,13 @@ export function SmartCameraCapture({
         {/* Value from server */}
         {!capturedImage && !cameraActive && value && !cameraFailed && (
           <div className="relative">
-            <img src={value} alt="Photo uploadée" className="w-full h-[280px] object-cover rounded-xl" />
+            <img src={value} alt={lang === 'fr' ? 'Photo uploadée' : 'Uploaded photo'} className="w-full h-[280px] object-cover rounded-xl" />
             <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-3">
               <Button type="button" size="sm" variant="secondary" className="bg-background/80 backdrop-blur" onClick={retake}>
-                <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> Reprendre
+                <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> {lang === 'fr' ? 'Reprendre' : 'Retake'}
               </Button>
               <Button type="button" size="sm" variant="destructive" className="bg-destructive/80 backdrop-blur" onClick={clear}>
-                <X className="h-3.5 w-3.5 mr-1.5" /> Supprimer
+                <X className="h-3.5 w-3.5 mr-1.5" /> {lang === 'fr' ? 'Supprimer' : 'Delete'}
               </Button>
             </div>
           </div>
