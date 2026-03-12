@@ -1269,7 +1269,7 @@ export function AdminSettings() {
                 <Input id="org-website" value={website} onChange={e => setWebsite(e.target.value)} placeholder="https://yourchurch.com" className="h-8 text-xs" />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="org-whatsapp" className="text-xs font-medium">Numéro WhatsApp</Label>
+                <Label htmlFor="org-whatsapp" className="text-xs font-medium">{isFr ? 'Numéro WhatsApp' : 'WhatsApp number'}</Label>
                 <Input id="org-whatsapp" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="+225 07 00 00 00 00" className="h-8 text-xs" />
               </div>
             </div>
