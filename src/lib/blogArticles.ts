@@ -2917,7 +2917,7 @@ export const blogArticles: BlogArticle[] = [
 <li><strong>Retrait local</strong> : argent sur votre Mobile Money ou compte bancaire</li>
 <li><strong>10% de commission</strong> : pas de frais cachés supplémentaires</li>
 <li><strong>Dons + ventes</strong> : deux sources de revenus sur une plateforme</li>
-<li><strong>Français natif</strong> : pensé pour l'Afrique francophone</li>
+<li><strong>Bilingue</strong> : pensé pour toute l'Afrique, en français et anglais</li>
 <li><strong>Ambassadeurs intégrés</strong> : viralité gratuite et native</li>
 </ul>
 
