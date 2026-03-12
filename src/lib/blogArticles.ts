@@ -2715,7 +2715,7 @@ export const blogArticles: BlogArticle[] = [
   {
     slug: 'siteviral-vs-teachable',
     title: 'Siteviral vs Teachable : quelle plateforme pour vendre vos cours ?',
-    description: 'Teachable est excellent pour les formations en anglais. Mais pour l\'Afrique francophone, Siteviral a des avantages décisifs.',
+    description: 'Teachable est excellent pour les formations en anglais. Mais pour l\'Afrique, Siteviral a des avantages décisifs.',
     personas: ['Formateurs', 'Coachs'],
     category: 'Comparaison',
     readTime: '4 min',
