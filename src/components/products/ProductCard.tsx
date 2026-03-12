@@ -22,15 +22,14 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useCompare } from './ProductCompareDrawer';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface ProductCardProps {
   product: DigitalProduct & { slug?: string };
   onPurchase?: () => void;
   index?: number;
   isPurchased?: boolean;
-  /** Hide commission badge (for public/buyer universe) */
   hideCommission?: boolean;
-  /** Hide share widget (for public/buyer universe) */
   hideShare?: boolean;
 }
 
@@ -47,11 +46,12 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const [quickView, setQuickView] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const compare = useCompare();
 
-  // Show commission/share to all logged-in users (unified experience)
   const hideCommission = hideCommissionProp ?? !user;
   const hideShare = hideShareProp ?? !user;
 
@@ -114,8 +114,8 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
 
     if (!finalSlug) {
       toast({
-        title: 'Produit indisponible',
-        description: 'Impossible d’ouvrir ce produit pour le moment.',
+        title: isFr ? 'Produit indisponible' : 'Product unavailable',
+        description: isFr ? 'Impossible d\'ouvrir ce produit pour le moment.' : 'Unable to open this product right now.',
         variant: 'destructive',
       });
       return;
@@ -136,7 +136,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
 
   const fmt = (n: number) => formatPrice(n, product.is_free, product.currency);
 
-  const typeLabels: Record<string, string> = { pdf: 'PDF', ebook: 'eBook', audio: 'Audio', video: 'Vidéo', course: 'Cours', link: 'Lien', default: 'Produit' };
+  const typeLabels: Record<string, string> = { pdf: 'PDF', ebook: 'eBook', audio: 'Audio', video: isFr ? 'Vidéo' : 'Video', course: isFr ? 'Cours' : 'Course', link: isFr ? 'Lien' : 'Link', default: isFr ? 'Produit' : 'Product' };
   const typeIcons: Record<string, React.ReactNode> = {
     pdf: <Download className="h-3.5 w-3.5" />,
     ebook: <BookOpen className="h-3.5 w-3.5" />,
@@ -147,6 +147,10 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
   };
 
   const aspectClass = coverAspectClass[product.product_type || 'other'] || 'aspect-video';
+
+  // Content language badge
+  const contentLang = (product as any).content_language;
+  const langFlag = contentLang === 'en' ? '🇬🇧' : contentLang === 'fr' ? '🇫🇷' : null;
 
   return (
     <div
@@ -166,27 +170,23 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
             <ShoppingBag className="h-14 w-14 text-muted-foreground/20" />
           </div>
         )}
-        {/* Wishlist heart */}
         <WishlistButton productId={product.id} />
-        {/* Report button */}
         {user && (
           <button
             onClick={(e) => { e.stopPropagation(); setReportOpen(true); }}
             className="absolute top-2.5 right-2.5 h-7 w-7 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/10 shadow-sm z-10"
-            title="Signaler"
+            title={isFr ? 'Signaler' : 'Report'}
           >
             <Flag className="h-3 w-3 text-muted-foreground hover:text-destructive" />
           </button>
         )}
-        {/* Quick view button */}
         <button
           onClick={(e) => { e.stopPropagation(); setQuickView(true); }}
           className="absolute bottom-2.5 right-2.5 h-8 w-8 rounded-full bg-background/80 backdrop-blur-sm border border-border/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background shadow-sm"
-          title="Aperçu rapide"
+          title={isFr ? 'Aperçu rapide' : 'Quick view'}
         >
           <Eye className="h-3.5 w-3.5 text-foreground" />
         </button>
-        {/* Compare button */}
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -216,7 +216,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
               ? 'bg-primary text-primary-foreground border-primary'
               : 'bg-background/80 border-border/50 hover:bg-background'
           )}
-          title="Comparer"
+          title={isFr ? 'Comparer' : 'Compare'}
         >
           <GitCompareArrows className="h-3.5 w-3.5" />
         </button>
@@ -224,33 +224,35 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
           <div className="flex flex-col gap-1">
             {isPurchased && (
               <Badge className="bg-emerald-600/90 text-white border-0 text-[10px] gap-1 font-semibold w-fit">
-                <CheckCircle className="h-3 w-3" /> Acheté
+                <CheckCircle className="h-3 w-3" /> {isFr ? 'Acheté' : 'Purchased'}
               </Badge>
             )}
-            {/* "Nouveau" badge for products < 7 days old */}
             {!isPurchased && product.created_at && (Date.now() - new Date(product.created_at).getTime()) < 7 * 86400000 && (
               <Badge className="bg-blue-500/90 text-white border-0 text-[10px] font-semibold w-fit">
-                ✨ Nouveau
+                ✨ {isFr ? 'Nouveau' : 'New'}
               </Badge>
             )}
-            {/* "Bestseller" badge for 10+ sales */}
             {!isPurchased && (product.sales_count || 0) >= 10 && (
               <Badge className="bg-amber-500/90 text-white border-0 text-[10px] font-semibold w-fit">
                 🔥 Bestseller
               </Badge>
             )}
-            {/* "Trending" badge — deterministic per product+day, ~20% of recent products */}
             {!isPurchased && (product.sales_count || 0) < 10 && product.created_at && (Date.now() - new Date(product.created_at).getTime()) < 14 * 86400000 && (() => {
               const dayHash = new Date().getDate() * 31 + new Date().getMonth() * 7;
               const idHash = product.id.charCodeAt(0) + product.id.charCodeAt(product.id.length - 1);
               return (dayHash + idHash) % 5 === 0;
             })() && (
               <Badge className="bg-orange-500/90 text-white border-0 text-[10px] font-semibold w-fit">
-                🔥 Tendance
+                🔥 {isFr ? 'Tendance' : 'Trending'}
               </Badge>
             )}
             {isFlashSale && (
               <FlashSaleBadge saleEndsAt={saleEndsAt} salePrice={salePrice} originalPrice={product.price} />
+            )}
+            {langFlag && (
+              <Badge className="bg-background/80 backdrop-blur-sm text-foreground border-0 text-[10px] font-medium w-fit">
+                {langFlag}
+              </Badge>
             )}
           </div>
         </div>
@@ -263,7 +265,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
           )}>
             <span>
               {isFlashSale && <span className="text-[10px] line-through text-muted-foreground mr-1">{fmt(product.price)}</span>}
-              {fmt(displayPrice)}
+              {product.is_free ? (isFr ? 'Gratuit' : 'Free') : fmt(displayPrice)}
             </span>
             {!product.is_free && displayPrice > 0 && (
               <LocalPriceHint amount={displayPrice} currency={product.currency || 'XOF'} />
@@ -281,7 +283,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
           <div className="flex items-center gap-2 mt-1.5">
             {(product as any).organization_name && (
               <p className="text-[11px] text-muted-foreground inline-flex items-center gap-1">
-                par{' '}
+                {isFr ? 'par' : 'by'}{' '}
                 <span
                   className="font-semibold text-primary hover:underline cursor-pointer"
                   onClick={(e) => { e.stopPropagation(); navigate(`/org/${resolvedSlug}`); }}
@@ -321,7 +323,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
                 }}
               >
                 <Eye className="h-3 w-3" />
-                Aperçu
+                {isFr ? 'Aperçu' : 'Preview'}
               </Button>
             )}
 
@@ -334,7 +336,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
                 className="h-7 text-[11px] px-2.5 gap-1 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10"
                 onClick={(e) => { e.stopPropagation(); navigate('/resources'); }}
               >
-                <BookOpen className="h-3 w-3" /> Mes Ressources
+                <BookOpen className="h-3 w-3" /> {isFr ? 'Mes Ressources' : 'My Resources'}
               </Button>
             ) : (
               <Button
@@ -349,7 +351,7 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
                 }}
                 className="h-7 text-[11px] px-3 font-semibold"
               >
-                {product.is_free ? 'Obtenir' : 'Acheter'}
+                {product.is_free ? (isFr ? 'Obtenir' : 'Get') : (isFr ? 'Acheter' : 'Buy')}
               </Button>
             )}
           </div>

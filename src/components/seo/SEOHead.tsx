@@ -22,8 +22,8 @@ interface SEOHeadProps {
 
 const SITE_NAME = 'Siteviral';
 const DEFAULT_OG_IMAGE = 'https://siteviral.com/og-image.png';
-const DEFAULT_DESCRIPTION = 'Votre centre digital tout-en-un. Gratuit. Vendez vos produits numériques, collectez des dons via Mobile Money et cartes, et gagnez en partageant.';
-const DEFAULT_KEYWORDS = 'plateforme digitale, vendre produits numériques, Mobile Money, affiliation Afrique, gagner argent en ligne, ebook, formation en ligne, ambassadeur digital, contenu numérique, boutique en ligne, collecte de dons, créateur de contenu, monétisation, Siteviral';
+const DEFAULT_DESCRIPTION = 'Your all-in-one digital platform. Sell digital products, collect donations via Mobile Money & cards, and earn by sharing.';
+const DEFAULT_KEYWORDS = 'digital platform, sell digital products, Mobile Money, affiliate Africa, earn money online, ebook, online course, digital ambassador, digital content, online store, donation collection, content creator, monetization, Siteviral';
 const TWITTER_SITE = '@siteviral';
 const SITE_URL = 'https://siteviral.com';
 
@@ -42,7 +42,6 @@ export function SEOHead({
   const { pathname } = useLocation();
 
   useEffect(() => {
-    // Title
     const fullTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
     document.title = fullTitle;
 
@@ -60,13 +59,9 @@ export function SEOHead({
     const image = ogImage || DEFAULT_OG_IMAGE;
     const url = canonicalUrl || `${SITE_URL}${pathname}`;
 
-    // Meta description
     setMeta('name', 'description', desc);
-
-    // Keywords — always set (use page-specific or default)
     setMeta('name', 'keywords', keywords || DEFAULT_KEYWORDS);
 
-    // Robots
     if (noindex) {
       setMeta('name', 'robots', 'noindex, nofollow');
     } else {
@@ -74,7 +69,6 @@ export function SEOHead({
       if (existingRobots) existingRobots.remove();
     }
 
-    // OG tags
     setMeta('property', 'og:title', fullTitle);
     setMeta('property', 'og:description', desc);
     setMeta('property', 'og:image', image);
@@ -83,7 +77,6 @@ export function SEOHead({
     setMeta('property', 'og:locale', locale);
     setMeta('property', 'og:url', url);
 
-    // Article-specific OG tags
     if (article && ogType === 'article') {
       if (article.publishedTime) setMeta('property', 'article:published_time', article.publishedTime);
       if (article.modifiedTime) setMeta('property', 'article:modified_time', article.modifiedTime);
@@ -94,14 +87,12 @@ export function SEOHead({
       });
     }
 
-    // Twitter card
     setMeta('name', 'twitter:card', 'summary_large_image');
     setMeta('name', 'twitter:site', TWITTER_SITE);
     setMeta('name', 'twitter:title', fullTitle);
     setMeta('name', 'twitter:description', desc);
     setMeta('name', 'twitter:image', image);
 
-    // Canonical — always set from url
     let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
     if (!link) {
       link = document.createElement('link');
@@ -110,13 +101,27 @@ export function SEOHead({
     }
     link.setAttribute('href', url);
 
-    // hreflang: removed — single-language site, no alternates needed
+    // hreflang alternates for bilingual SEO
+    const setHreflang = (hrefLang: string, href: string) => {
+      const selector = `link[rel="alternate"][hreflang="${hrefLang}"]`;
+      let el = document.querySelector(selector) as HTMLLinkElement | null;
+      if (!el) {
+        el = document.createElement('link');
+        el.setAttribute('rel', 'alternate');
+        el.setAttribute('hreflang', hrefLang);
+        document.head.appendChild(el);
+      }
+      el.setAttribute('href', href);
+    };
+    setHreflang('fr', `${SITE_URL}${pathname}?lang=fr`);
+    setHreflang('en', `${SITE_URL}${pathname}?lang=en`);
+    setHreflang('x-default', url);
 
-    // JSON-LD (supports multiple schemas)
+    // JSON-LD
     document.querySelectorAll('script[data-seo-jsonld]').forEach(s => s.remove());
     if (jsonLd) {
       const schemas = Array.isArray(jsonLd) ? jsonLd : [jsonLd];
-      schemas.forEach((schema, i) => {
+      schemas.forEach((schema) => {
         const script = document.createElement('script');
         script.type = 'application/ld+json';
         script.setAttribute('data-seo-jsonld', 'true');
@@ -127,6 +132,7 @@ export function SEOHead({
 
     return () => {
       document.querySelectorAll('script[data-seo-jsonld]').forEach(s => s.remove());
+      document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(s => s.remove());
     };
   }, [title, description, ogImage, ogType, canonicalUrl, jsonLd, article, noindex, locale, pathname, keywords]);
 

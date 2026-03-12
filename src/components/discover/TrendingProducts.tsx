@@ -6,19 +6,18 @@ import { TrendingUp, Flame, BookOpen, Star, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, DEFAULT_CURRENCY } from '@/lib/currency';
+import { useI18n } from '@/i18n/I18nContext';
 
-/**
- * Discovery feed section — trending products across the platform.
- * Designed for the feed page and dashboard.
- */
 export function TrendingProducts({ limit = 6 }: { limit?: number }) {
   const navigate = useNavigate();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['trending-products', limit],
     queryFn: async () => {
       const { data } = await db.from('digital_products')
-        .select('id, title, cover_image_url, price, currency, is_free, slug, sales_count, average_rating, review_count, product_type, organizations!inner(slug, name, logo_url)')
+        .select('id, title, cover_image_url, price, currency, is_free, slug, sales_count, average_rating, review_count, product_type, content_language, organizations!inner(slug, name, logo_url)')
         .eq('is_published', true)
         .gt('sales_count', 0)
         .order('sales_count', { ascending: false })
@@ -45,16 +44,17 @@ export function TrendingProducts({ limit = 6 }: { limit?: number }) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-base font-extrabold flex items-center gap-1.5">
-          <Flame className="h-4.5 w-4.5 text-orange-500" /> En tendance
+          <Flame className="h-4.5 w-4.5 text-orange-500" /> {isFr ? 'En tendance' : 'Trending'}
         </h2>
         <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => navigate('/discover')}>
-          Tout voir <ArrowRight className="h-3.5 w-3.5" />
+          {isFr ? 'Tout voir' : 'See all'} <ArrowRight className="h-3.5 w-3.5" />
         </Button>
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {products.map((product: any, i: number) => {
           const org = product.organizations;
+          const langFlag = product.content_language === 'en' ? '🇬🇧' : product.content_language === 'fr' ? '🇫🇷' : null;
           return (
             <motion.button
               key={product.id}
@@ -77,10 +77,14 @@ export function TrendingProducts({ limit = 6 }: { limit?: number }) {
                     <BookOpen className="h-8 w-8 text-muted-foreground/20" />
                   </div>
                 )}
-                {/* Sales badge */}
                 {product.sales_count >= 10 && (
                   <Badge className="absolute top-2 left-2 text-[9px] bg-orange-500 text-white border-0">
-                    🔥 {product.sales_count} ventes
+                    🔥 {product.sales_count} {isFr ? 'ventes' : 'sales'}
+                  </Badge>
+                )}
+                {langFlag && (
+                  <Badge className="absolute top-2 right-2 text-[9px] bg-background/80 backdrop-blur-sm text-foreground border-0">
+                    {langFlag}
                   </Badge>
                 )}
               </div>
@@ -93,7 +97,7 @@ export function TrendingProducts({ limit = 6 }: { limit?: number }) {
                 </div>
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-bold text-primary">
-                    {product.is_free ? 'Gratuit' : formatCurrency(product.price || 0, product.currency || DEFAULT_CURRENCY)}
+                    {product.is_free ? (isFr ? 'Gratuit' : 'Free') : formatCurrency(product.price || 0, product.currency || DEFAULT_CURRENCY)}
                   </p>
                   {product.average_rating > 0 && (
                     <div className="flex items-center gap-0.5 text-[10px] text-amber-500">

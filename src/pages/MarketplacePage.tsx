@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { Search, SlidersHorizontal, Star, TrendingUp, Sparkles, Store, ArrowRight, ShoppingBag, BookOpen, Headphones, Video, GraduationCap, FileText, Heart } from 'lucide-react';
+import { Search, SlidersHorizontal, Star, TrendingUp, Sparkles, Store, ArrowRight, ShoppingBag, BookOpen, Headphones, Video, GraduationCap, FileText, Heart, Globe } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { SkeletonList } from '@/components/ui/SkeletonCard';
 import { EmptyState } from '@/components/ui/EmptyState';
@@ -14,35 +14,28 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/i18n/I18nContext';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
   visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 260, damping: 24 } },
 };
 
-const categoryFilters = [
-  { key: '', label: 'Tout', icon: ShoppingBag },
-  { key: 'campaigns', label: 'Campagnes', icon: Heart },
-  { key: 'pdf', label: 'PDF', icon: FileText },
-  { key: 'ebook', label: 'eBook', icon: BookOpen },
-  { key: 'video', label: 'Vidéo', icon: Video },
-  { key: 'course', label: 'Cours', icon: GraduationCap },
-  { key: 'audio', label: 'Audio', icon: Headphones },
-];
-
 export default function MarketplacePage() {
   const [search, setSearch] = useState('');
   const [sortBy, setSortBy] = useState('popular');
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { locale, t } = useI18n();
+  const isFr = locale === 'fr';
 
-  // Handle ?tab=campaigns to pre-select campaigns filter
   const params = new URLSearchParams(window.location.search);
   const tabParam = params.get('tab');
   const [typeFilter, setTypeFilter] = useState(tabParam === 'campaigns' ? 'campaigns' : '');
+  const [langFilter, setLangFilter] = useState('');
 
   const isPublic = !user;
-  const isAmbassador = !!user; // unified: all users can see ambassador features
+  const isAmbassador = !!user;
 
   useEffect(() => {
     if (!isAmbassador && sortBy === 'commission') {
@@ -50,8 +43,24 @@ export default function MarketplacePage() {
     }
   }, [isAmbassador, sortBy]);
 
+  const categoryFilters = [
+    { key: '', label: isFr ? 'Tout' : 'All', icon: ShoppingBag },
+    { key: 'campaigns', label: isFr ? 'Campagnes' : 'Campaigns', icon: Heart },
+    { key: 'pdf', label: 'PDF', icon: FileText },
+    { key: 'ebook', label: 'eBook', icon: BookOpen },
+    { key: 'video', label: isFr ? 'Vidéo' : 'Video', icon: Video },
+    { key: 'course', label: isFr ? 'Cours' : 'Course', icon: GraduationCap },
+    { key: 'audio', label: 'Audio', icon: Headphones },
+  ];
+
+  const langFilters = [
+    { key: '', label: isFr ? 'Toutes langues' : 'All languages', flag: '🌍' },
+    { key: 'fr', label: 'Français', flag: '🇫🇷' },
+    { key: 'en', label: 'English', flag: '🇬🇧' },
+  ];
+
   const { data: products = [], isLoading } = useQuery({
-    queryKey: ['marketplace-products', search, sortBy, typeFilter],
+    queryKey: ['marketplace-products', search, sortBy, typeFilter, langFilter],
     queryFn: async () => {
       const orderCol = sortBy === 'commission' ? 'price' : sortBy === 'newest' ? 'created_at' : sortBy === 'bestseller' ? 'sales_count' : 'sales_count';
       let q = db
@@ -62,7 +71,8 @@ export default function MarketplacePage() {
         .order(orderCol, { ascending: false })
         .limit(60);
       if (search) q = q.ilike('title', `%${search}%`);
-      if (typeFilter) q = q.eq('product_type', typeFilter);
+      if (typeFilter && typeFilter !== 'campaigns') q = q.eq('product_type', typeFilter);
+      if (langFilter) q = q.eq('content_language', langFilter);
       const { data } = await q;
       return (data || []).map((p: any) => ({
         ...p,
@@ -103,54 +113,54 @@ export default function MarketplacePage() {
 
   const sortFilters = isAmbassador
     ? [
-        { key: 'commission', label: 'Meilleure commission', icon: TrendingUp },
-        { key: 'newest', label: 'Nouveautés', icon: Sparkles },
-        { key: 'bestseller', label: 'Top ventes', icon: Star },
+        { key: 'commission', label: isFr ? 'Meilleure commission' : 'Best commission', icon: TrendingUp },
+        { key: 'newest', label: isFr ? 'Nouveautés' : 'Newest', icon: Sparkles },
+        { key: 'bestseller', label: isFr ? 'Top ventes' : 'Best sellers', icon: Star },
       ]
     : [
-        { key: 'newest', label: 'Nouveautés', icon: Sparkles },
-        { key: 'bestseller', label: 'Top ventes', icon: Star },
+        { key: 'newest', label: isFr ? 'Nouveautés' : 'Newest', icon: Sparkles },
+        { key: 'bestseller', label: isFr ? 'Top ventes' : 'Best sellers', icon: Star },
       ];
 
-  const pageTitle = isAmbassador ? 'Marketplace' : 'Explorer';
+  const pageTitle = isAmbassador ? 'Marketplace' : (isFr ? 'Explorer' : 'Explore');
 
   return (
     <div className="min-h-[80dvh]">
       <SEOHead
-        title={`${pageTitle} — Produits numériques | Siteviral`}
-        description="Explorez les meilleurs produits numériques."
+        title={`${pageTitle} — ${isFr ? 'Produits numériques' : 'Digital products'} | Siteviral`}
+        description={isFr ? 'Explorez les meilleurs produits numériques.' : 'Explore the best digital products.'}
         canonicalUrl="https://siteviral.com/marketplace"
+        locale={isFr ? 'fr_FR' : 'en_US'}
       />
 
-      {/* Header area */}
       <div className="px-4 pt-5 pb-4 space-y-4">
-        {/* Title row */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-lg sm:text-xl font-extrabold tracking-tight">{pageTitle}</h1>
             {isAmbassador && (
-              <p className="text-xs text-muted-foreground mt-0.5">Trouve des produits à partager et gagne des commissions</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {isFr ? 'Trouve des produits à partager et gagne des commissions' : 'Find products to share and earn commissions'}
+              </p>
             )}
           </div>
           {isAmbassador && (
             <Badge className="bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-[10px] font-bold uppercase tracking-wider">
-              Ambassadeur
+              {isFr ? 'Ambassadeur' : 'Ambassador'}
             </Badge>
           )}
         </div>
 
-        {/* Search */}
         <div className="relative">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Rechercher un produit, un créateur..."
+            placeholder={isFr ? 'Rechercher un produit, un créateur...' : 'Search for a product, a creator...'}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10 h-11 rounded-xl bg-muted/50 border-transparent focus:border-primary/30 focus:bg-background transition-colors"
           />
         </div>
 
-        {/* Category chips — horizontal scroll */}
+        {/* Category chips */}
         <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
           {categoryFilters.map(({ key, label, icon: Icon }) => (
             <button
@@ -164,6 +174,26 @@ export default function MarketplacePage() {
               )}
             >
               <Icon className="h-3.5 w-3.5" />
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Language filter chips */}
+        <div className="flex gap-1.5 items-center">
+          <Globe className="h-3.5 w-3.5 text-muted-foreground mr-0.5" />
+          {langFilters.map(({ key, label, flag }) => (
+            <button
+              key={key}
+              onClick={() => setLangFilter(langFilter === key ? '' : key)}
+              className={cn(
+                'flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-all',
+                langFilter === key
+                  ? 'bg-foreground/10 text-foreground'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
+              )}
+            >
+              <span>{flag}</span>
               {label}
             </button>
           ))}
@@ -189,28 +219,25 @@ export default function MarketplacePage() {
           ))}
         </div>
 
-        {/* Login CTA for guests */}
         {isPublic && (
           <div className="flex items-center gap-3 p-3 rounded-xl bg-primary/5 border border-primary/15">
             <Store className="h-4.5 w-4.5 text-primary shrink-0" />
             <p className="text-xs text-muted-foreground flex-1">
-              Connectez-vous pour acheter ou accéder à vos ressources.
+              {isFr ? 'Connectez-vous pour acheter ou accéder à vos ressources.' : 'Sign in to buy or access your resources.'}
             </p>
             <Button size="sm" className="text-xs h-8 shrink-0 rounded-lg" onClick={() => navigate('/auth')}>
-              Se connecter
+              {isFr ? 'Se connecter' : 'Sign in'}
             </Button>
           </div>
         )}
       </div>
 
-      {/* Content */}
       <div className="px-4 pb-6 space-y-6">
-        {/* Campaigns section — shown when filter is 'campaigns' or 'Tout' with tab=campaigns */}
         {typeFilter === 'campaigns' && (
           campaigns.length > 0 ? (
             <div className="space-y-3">
               <h2 className="font-bold text-sm flex items-center gap-2">
-                <Heart className="h-4 w-4 text-destructive" /> Campagnes actives
+                <Heart className="h-4 w-4 text-destructive" /> {isFr ? 'Campagnes actives' : 'Active campaigns'}
               </h2>
               <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
                 {campaigns.map((c: any) => (
@@ -221,15 +248,14 @@ export default function MarketplacePage() {
               </div>
             </div>
           ) : (
-            <EmptyState variant="search" title="Aucune campagne active" />
+            <EmptyState variant="search" title={isFr ? 'Aucune campagne active' : 'No active campaigns'} />
           )
         )}
 
-        {/* Products — hidden when filter is 'campaigns' */}
         {typeFilter !== 'campaigns' && (
           <>
             {isLoading ? <SkeletonList count={8} /> : products.length === 0 ? (
-              <EmptyState variant="search" title="Aucun produit trouvé" />
+              <EmptyState variant="search" title={isFr ? 'Aucun produit trouvé' : 'No products found'} />
             ) : (
               <motion.div
                 initial="hidden"
@@ -249,10 +275,9 @@ export default function MarketplacePage() {
               </motion.div>
             )}
 
-            {/* Campaigns at bottom for product views */}
             {campaigns.length > 0 && (
               <div className="space-y-3 pt-4 border-t border-border">
-                <h2 className="font-bold text-sm text-muted-foreground">Campagnes de dons</h2>
+                <h2 className="font-bold text-sm text-muted-foreground">{isFr ? 'Campagnes de dons' : 'Donation campaigns'}</h2>
                 <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
                   {campaigns.map((c: any) => (
                     <motion.div key={c.id} variants={fadeUp} initial="hidden" animate="visible">
@@ -265,14 +290,13 @@ export default function MarketplacePage() {
           </>
         )}
 
-        {/* CTA for guests */}
         {isPublic && (
           <div className="pt-4 border-t border-border text-center space-y-2">
             <p className="text-xs text-muted-foreground">
-              Vous avez du contenu à vendre ? Créez votre espace en quelques minutes.
+              {isFr ? 'Vous avez du contenu à vendre ? Créez votre espace en quelques minutes.' : 'Have content to sell? Create your space in minutes.'}
             </p>
             <Button variant="outline" size="sm" className="gap-1.5 text-xs rounded-lg" onClick={() => navigate('/vendre')}>
-              En savoir plus <ArrowRight className="h-3.5 w-3.5" />
+              {isFr ? 'En savoir plus' : 'Learn more'} <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           </div>
         )}
