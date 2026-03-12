@@ -62,10 +62,10 @@ export function InsufficientCreditsDialog({ open, onOpenChange, message }: Insuf
             <AlertTriangle className="h-7 w-7 text-destructive" />
           </div>
           <DialogTitle className="text-xl">
-            {t('credits.insufficient_title') || 'Crédits insuffisants'}
+            {t('credits.insufficient_title') || (isFr ? 'Crédits insuffisants' : 'Insufficient credits')}
           </DialogTitle>
           <DialogDescription className="text-sm">
-            {message || (t('credits.insufficient_desc') || "Tu n'as plus assez de crédits pour cette action.")}
+            {message || (t('credits.insufficient_desc') || (isFr ? "Tu n'as plus assez de crédits pour cette action." : "You don't have enough credits for this action."))}
           </DialogDescription>
         </DialogHeader>
 
