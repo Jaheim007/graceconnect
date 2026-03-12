@@ -30,15 +30,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     try {
-      // Use maybeSingle() — never throws when row is missing
       const { data } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle();
-      if (data) setProfile(data as Profile);
+      if (data) {
+        setProfile(data as Profile);
+        // Broadcast profile locale to i18n system
+        if (data.preferred_language) {
+          localStorage.setItem('sv_profile_locale', data.preferred_language);
+          window.dispatchEvent(new CustomEvent('sv:profile-locale', { detail: { locale: data.preferred_language } }));
+        }
+        if (data.preferred_currency) {
+          localStorage.setItem('sv_display_currency', data.preferred_currency);
+        }
+      }
     } catch {
-      // Non-fatal — profile is optional for display
+      // Non-fatal
     }
   };
 
