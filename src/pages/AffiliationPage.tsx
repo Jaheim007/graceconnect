@@ -372,8 +372,8 @@ export default function AffiliationPage() {
             {/* Other orgs */}
             <div className="space-y-3">
               <div>
-                <h2 className="font-semibold text-sm flex items-center gap-2"><Building2 className="h-4 w-4 text-muted-foreground" /> Tous les programmes ambassadeur</h2>
-                <p className="text-[11px] text-muted-foreground">Classés par taux de commission décroissant. Rejoignez n'importe quel programme pour commencer à gagner.</p>
+                <h2 className="font-semibold text-sm flex items-center gap-2"><Building2 className="h-4 w-4 text-muted-foreground" /> {isFr ? 'Tous les programmes ambassadeur' : 'All ambassador programs'}</h2>
+                <p className="text-[11px] text-muted-foreground">{isFr ? 'Classés par taux de commission décroissant. Rejoignez n\'importe quel programme pour commencer à gagner.' : 'Sorted by commission rate. Join any program to start earning.'}</p>
               </div>
               {discoverLoading ? <SkeletonRow count={4} /> : filteredOthers.length === 0 ? (
                 <div className="text-center py-8">
