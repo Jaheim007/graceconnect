@@ -394,12 +394,12 @@ export default function PartnerPortalPage() {
                   <Table>
                     <TableHeader>
                       <TableRow className="hover:bg-transparent">
-                        <TableHead className="text-xs">Date</TableHead>
-                        <TableHead className="text-xs">Organisation</TableHead>
-                        <TableHead className="text-xs text-right">Fee plateforme</TableHead>
-                        <TableHead className="text-xs text-center">Taux</TableHead>
-                        <TableHead className="text-xs text-right">Commission</TableHead>
-                        <TableHead className="text-xs text-center">Statut</TableHead>
+                        <TableHead className="text-xs">{isFr ? 'Date' : 'Date'}</TableHead>
+                        <TableHead className="text-xs">{isFr ? 'Organisation' : 'Organization'}</TableHead>
+                        <TableHead className="text-xs text-right">{isFr ? 'Fee plateforme' : 'Platform fee'}</TableHead>
+                        <TableHead className="text-xs text-center">{isFr ? 'Taux' : 'Rate'}</TableHead>
+                        <TableHead className="text-xs text-right">{isFr ? 'Commission' : 'Commission'}</TableHead>
+                        <TableHead className="text-xs text-center">{isFr ? 'Statut' : 'Status'}</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
