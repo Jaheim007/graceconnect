@@ -120,7 +120,7 @@ export default function SuperadminEmailLogs() {
 
       {/* Logs list */}
       {isLoading ? <SkeletonRow count={8} /> : filtered.length === 0 ? (
-        <div className="p-8 text-center text-muted-foreground text-sm">Aucun email trouvé</div>
+        <div className="p-8 text-center text-muted-foreground text-sm">No emails found</div>
       ) : (
         <div className="space-y-2">
           {filtered.map((l: any) => (
