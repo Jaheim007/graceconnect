@@ -654,7 +654,7 @@ export function SuperadminReports() {
                           <p className="text-sm font-semibold truncate">{r.product.title}</p>
                           <p className="text-[11px] text-muted-foreground">{r.product.organizations?.name || '—'}</p>
                           {r.product.price != null && (
-                            <p className="text-xs font-medium mt-0.5">{r.product.price?.toLocaleString('fr-FR')} {r.product.currency || 'XOF'}</p>
+                            <p className="text-xs font-medium mt-0.5">{r.product.price?.toLocaleString()} {r.product.currency || 'XOF'}</p>
                           )}
                         </div>
                       </div>
