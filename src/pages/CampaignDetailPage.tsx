@@ -250,7 +250,7 @@ export default function CampaignDetailPage() {
               <ShareButtons
                 url={`/campaign/${campaignId}`}
                 title={campaign.title}
-                description={campaign.description || `Soutenez ${campaign.title}`}
+                description={campaign.description || (isFr ? `Soutenez ${campaign.title}` : `Support ${campaign.title}`)}
               />
             </div>
 
