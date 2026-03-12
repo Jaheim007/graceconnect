@@ -868,6 +868,8 @@ function PopupSettings({ orgId }: { orgId?: string }) {
   const { data: pageSettings } = useOrgPageSettings(orgId);
   const upsert = useUpsertOrgPageSettings();
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const popupConfig = (pageSettings?.popup_config as any) || { enabled: false };
   const [enabled, setEnabled] = useState(popupConfig.enabled || false);
@@ -900,52 +902,52 @@ function PopupSettings({ orgId }: { orgId?: string }) {
       },
     });
     setSaving(false);
-    toast({ title: '✅ Popup sauvegardé' });
+    toast({ title: isFr ? '✅ Popup sauvegardé' : '✅ Popup saved' });
   };
 
   return (
     <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
       <div>
-        <h2 className="font-semibold text-sm">Popup intelligent</h2>
-        <p className="text-xs text-muted-foreground mt-0.5">Affichez un popup sur votre page publique pour capter les visiteurs.</p>
+        <h2 className="font-semibold text-sm">{isFr ? 'Popup intelligent' : 'Smart popup'}</h2>
+        <p className="text-xs text-muted-foreground mt-0.5">{isFr ? 'Affichez un popup sur votre page publique pour capter les visiteurs.' : 'Display a popup on your public page to capture visitors.'}</p>
       </div>
       <div className="flex items-center justify-between">
-        <Label className="text-xs font-medium">Activer le popup</Label>
+        <Label className="text-xs font-medium">{isFr ? 'Activer le popup' : 'Enable popup'}</Label>
         <Switch checked={enabled} onCheckedChange={setEnabled} />
       </div>
       {enabled && (
         <div className="grid gap-3">
           <div className="space-y-1.5">
-            <Label className="text-xs">Titre</Label>
-            <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="Ne partez pas si vite !" className="h-8 text-xs" />
+            <Label className="text-xs">{isFr ? 'Titre' : 'Title'}</Label>
+            <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={isFr ? 'Ne partez pas si vite !' : "Don't leave so fast!"} className="h-8 text-xs" />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Message</Label>
-            <Textarea value={message} onChange={e => setMessage(e.target.value)} placeholder="Rejoignez-nous..." rows={2} className="text-xs" />
+            <Label className="text-xs">{isFr ? 'Message' : 'Message'}</Label>
+            <Textarea value={message} onChange={e => setMessage(e.target.value)} placeholder={isFr ? 'Rejoignez-nous...' : 'Join us...'} rows={2} className="text-xs" />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Texte du bouton</Label>
-            <Input value={ctaText} onChange={e => setCtaText(e.target.value)} placeholder="S'inscrire" className="h-8 text-xs" />
+            <Label className="text-xs">{isFr ? 'Texte du bouton' : 'Button text'}</Label>
+            <Input value={ctaText} onChange={e => setCtaText(e.target.value)} placeholder={isFr ? "S'inscrire" : 'Sign up'} className="h-8 text-xs" />
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs">Déclencheur</Label>
+            <Label className="text-xs">{isFr ? 'Déclencheur' : 'Trigger'}</Label>
             <Select value={trigger} onValueChange={setTrigger}>
               <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="exit_intent">Intention de sortie</SelectItem>
-                <SelectItem value="scroll_50">Scroll 50%</SelectItem>
-                <SelectItem value="timer_10s">Après 10 secondes</SelectItem>
+                <SelectItem value="exit_intent">{isFr ? 'Intention de sortie' : 'Exit intent'}</SelectItem>
+                <SelectItem value="scroll_50">{isFr ? 'Scroll 50%' : 'Scroll 50%'}</SelectItem>
+                <SelectItem value="timer_10s">{isFr ? 'Après 10 secondes' : 'After 10 seconds'}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div className="flex items-center justify-between">
-            <Label className="text-xs">Collecter les emails</Label>
+            <Label className="text-xs">{isFr ? 'Collecter les emails' : 'Collect emails'}</Label>
             <Switch checked={collectEmail} onCheckedChange={setCollectEmail} />
           </div>
         </div>
       )}
       <Button size="sm" className="bg-primary text-primary-foreground" onClick={handleSave} disabled={saving}>
-        {saving ? 'Sauvegarde…' : 'Sauvegarder le popup'}
+        {saving ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder le popup' : 'Save popup')}
       </Button>
     </div>
   );
