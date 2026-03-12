@@ -140,7 +140,7 @@ export default function PartnerPortalPage() {
               <Handshake className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-xl font-bold tracking-tight">Espace Partenaire</h1>
+              <h1 className="text-xl font-bold tracking-tight">{isFr ? 'Espace Partenaire' : 'Partner Portal'}</h1>
               <p className="text-xs text-muted-foreground">{partner.full_name}</p>
             </div>
           </div>
