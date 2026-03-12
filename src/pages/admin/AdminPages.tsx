@@ -201,85 +201,87 @@ export function AdminCampaigns() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const qc = useQueryClient();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const { fmt } = useDisplayCurrency();
 
   const handleToggleActive = async (c: any) => {
     await db.from('donation_campaigns').update({ is_active: !c.is_active }).eq('id', c.id);
     qc.invalidateQueries({ queryKey: ['org-campaigns'] });
-    toast({ title: c.is_active ? 'Campagne désactivée' : 'Campagne activée ✅' });
+    toast({ title: c.is_active ? (isFr ? 'Campagne désactivée' : 'Campaign deactivated') : (isFr ? 'Campagne activée ✅' : 'Campaign activated ✅') });
   };
 
   const handleDelete = async (c: any) => {
-    // Check if campaign has donations
     const { count } = await db.from('donations').select('id', { count: 'exact', head: true }).eq('campaign_id', c.id);
     if (count && count > 0) {
-      toast({ title: 'Suppression impossible', description: `Cette campagne a reçu ${count} don(s). Vous pouvez la désactiver à la place.`, variant: 'destructive' });
+      toast({ title: isFr ? 'Suppression impossible' : 'Cannot delete', description: isFr ? `Cette campagne a reçu ${count} don(s). Vous pouvez la désactiver à la place.` : `This campaign has ${count} donation(s). You can deactivate it instead.`, variant: 'destructive' });
       return;
     }
     await db.from('donation_campaigns').delete().eq('id', c.id);
     qc.invalidateQueries({ queryKey: ['org-campaigns'] });
-    toast({ title: 'Campagne supprimée' });
+    toast({ title: isFr ? 'Campagne supprimée' : 'Campaign deleted' });
   };
 
   return (
-    <AdminPageShell title="Campagnes de dons" newRoute="/admin/campaigns/new" newLabel="Nouvelle campagne" backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Campagnes de dons' : 'Donation campaigns'} newRoute="/admin/campaigns/new" newLabel={isFr ? 'Nouvelle campagne' : 'New campaign'} backRoute="/admin">
       {currentOrg?.kyc_status === 'none' && (
         <div className="p-3 rounded-xl bg-primary/8 border border-primary/20 text-xs text-foreground mb-3 flex items-center gap-2">
           <span>💡</span>
-          <span className="text-muted-foreground">Soumettez le KYC avant de demander un retrait. Les dons sont déjà acceptés.</span>
+          <span className="text-muted-foreground">{isFr ? 'Soumettez le KYC avant de demander un retrait. Les dons sont déjà acceptés.' : 'Submit KYC before requesting a payout. Donations are already accepted.'}</span>
           <Button size="sm" variant="ghost" className="h-6 text-xs ml-auto text-primary" onClick={() => navigate('/admin/kyc')}>
-            Soumettre KYC →
+            {isFr ? 'Soumettre KYC →' : 'Submit KYC →'}
           </Button>
         </div>
       )}
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
-        <EmptyState variant="campaigns" action={{ label: 'Nouvelle campagne', onClick: () => navigate('/admin/campaigns/new') }} />
+        <EmptyState variant="campaigns" action={{ label: isFr ? 'Nouvelle campagne' : 'New campaign', onClick: () => navigate('/admin/campaigns/new') }} />
       ) : (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-          <h2 className="font-semibold text-sm">{items.length} campagne{items.length > 1 ? 's' : ''}</h2>
+          <h2 className="font-semibold text-sm">{items.length} {isFr ? 'campagne' : 'campaign'}{items.length > 1 ? 's' : ''}</h2>
           <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
             {items.map(c => (
               <motion.div key={c.id} variants={fadeUp} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all group">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <p className="text-sm font-medium truncate">{c.title}</p>
-                    {(c as any).is_express_demo && <Badge variant="outline" className="text-[9px] border-dashed">Démo</Badge>}
+                    {(c as any).is_express_demo && <Badge variant="outline" className="text-[9px] border-dashed">{isFr ? 'Démo' : 'Demo'}</Badge>}
                   </div>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <div className="h-1.5 flex-1 max-w-24 rounded-full bg-muted overflow-hidden">
                       <div className="h-full bg-primary rounded-full" style={{ width: c.goal_amount ? `${Math.min(100, (c.current_amount / c.goal_amount) * 100)}%` : '0%' }} />
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {c.current_amount.toLocaleString('fr-FR')} / {c.goal_amount?.toLocaleString('fr-FR') || '∞'} {c.currency}
+                      {fmt(c.current_amount, c.currency)} / {c.goal_amount ? fmt(c.goal_amount, c.currency) : '∞'}
                     </p>
                   </div>
                 </div>
                 <Badge variant="outline" className={cn('text-[10px] border-0 shrink-0', c.is_active ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-muted-foreground')}>
-                  {c.is_active ? 'Active' : 'Inactive'}
+                  {c.is_active ? (isFr ? 'Active' : 'Active') : (isFr ? 'Inactive' : 'Inactive')}
                 </Badge>
                 <div className="flex items-center gap-1 opacity-60 group-hover:opacity-100 transition-opacity">
-                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate(`/admin/campaigns/${c.id}/edit`)} title="Modifier">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => navigate(`/admin/campaigns/${c.id}/edit`)} title={isFr ? 'Modifier' : 'Edit'}>
                     <Pencil className="h-3.5 w-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => handleToggleActive(c)} title={c.is_active ? 'Désactiver' : 'Activer'}>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => handleToggleActive(c)} title={c.is_active ? (isFr ? 'Désactiver' : 'Deactivate') : (isFr ? 'Activer' : 'Activate')}>
                     {c.is_active ? <AlertTriangle className="h-3.5 w-3.5 text-amber-500" /> : <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />}
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" title="Supprimer">
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive shrink-0" title={isFr ? 'Supprimer' : 'Delete'}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Supprimer cette campagne ?</AlertDialogTitle>
+                        <AlertDialogTitle>{isFr ? 'Supprimer cette campagne ?' : 'Delete this campaign?'}</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Si la campagne a déjà reçu des dons, elle ne pourra pas être supprimée mais seulement désactivée.
+                          {isFr ? 'Si la campagne a déjà reçu des dons, elle ne pourra pas être supprimée mais seulement désactivée.' : 'If the campaign has already received donations, it cannot be deleted but only deactivated.'}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                        <AlertDialogCancel>{isFr ? 'Annuler' : 'Cancel'}</AlertDialogCancel>
                         <AlertDialogAction onClick={() => handleDelete(c)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                          Supprimer
+                          {isFr ? 'Supprimer' : 'Delete'}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
