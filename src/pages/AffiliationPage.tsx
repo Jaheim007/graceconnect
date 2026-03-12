@@ -337,7 +337,7 @@ export default function AffiliationPage() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Rechercher une organisation..."
+               placeholder={isFr ? 'Rechercher une organisation...' : 'Search an organization...'}
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 className="pl-9 h-10 rounded-xl"
