@@ -130,7 +130,7 @@ export default function PartnerPortalPage() {
       transition={{ duration: 0.4 }}
       className="space-y-6 max-w-6xl mx-auto"
     >
-      <SEOHead title="Espace Partenaire" />
+      <SEOHead title={isFr ? 'Espace Partenaire' : 'Partner Portal'} />
 
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
