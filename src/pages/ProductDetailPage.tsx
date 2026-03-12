@@ -397,7 +397,7 @@ export default function ProductDetailPage() {
                   }
                 }}
               >
-                <Eye className="h-3.5 w-3.5" /> Publier
+                <Eye className="h-3.5 w-3.5" /> {locale === 'fr' ? 'Publier' : 'Publish'}
               </Button>
             </div>
           </div>
