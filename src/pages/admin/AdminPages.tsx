@@ -797,6 +797,8 @@ function WebhookSettings({ orgId }: { orgId?: string }) {
   const [webhookEvents, setWebhookEvents] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const { data: org } = useQuery({
     queryKey: ['org-webhook', orgId],
@@ -826,21 +828,21 @@ function WebhookSettings({ orgId }: { orgId?: string }) {
     setSaving(true);
     await db.from('organizations').update({ webhook_url: webhookUrl.trim() || null, webhook_events: webhookEvents }).eq('id', orgId);
     setSaving(false);
-    toast({ title: '✅ Webhooks sauvegardés' });
+    toast({ title: isFr ? '✅ Webhooks sauvegardés' : '✅ Webhooks saved' });
   };
 
   return (
     <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
       <div>
         <h2 className="font-semibold text-sm">Webhooks (Zapier / Make)</h2>
-        <p className="text-xs text-muted-foreground mt-0.5">Envoyez automatiquement les événements vers un outil externe.</p>
+        <p className="text-xs text-muted-foreground mt-0.5">{isFr ? 'Envoyez automatiquement les événements vers un outil externe.' : 'Automatically send events to an external tool.'}</p>
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs font-medium">URL du webhook</Label>
+        <Label className="text-xs font-medium">{isFr ? 'URL du webhook' : 'Webhook URL'}</Label>
         <Input value={webhookUrl} onChange={e => setWebhookUrl(e.target.value)} placeholder="https://hooks.zapier.com/..." className="h-8 text-xs font-mono" />
       </div>
       <div className="space-y-1.5">
-        <Label className="text-xs font-medium">Événements à envoyer</Label>
+        <Label className="text-xs font-medium">{isFr ? 'Événements à envoyer' : 'Events to send'}</Label>
         <div className="flex flex-wrap gap-2">
           {allEvents.map(ev => (
             <Badge
@@ -853,10 +855,10 @@ function WebhookSettings({ orgId }: { orgId?: string }) {
             </Badge>
           ))}
         </div>
-        <p className="text-[10px] text-muted-foreground">Si aucun n'est sélectionné, tous les événements seront envoyés.</p>
+        <p className="text-[10px] text-muted-foreground">{isFr ? 'Si aucun n\'est sélectionné, tous les événements seront envoyés.' : 'If none are selected, all events will be sent.'}</p>
       </div>
       <Button size="sm" className="bg-primary text-primary-foreground" onClick={handleSave} disabled={saving}>
-        {saving ? 'Sauvegarde…' : 'Sauvegarder les webhooks'}
+        {saving ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder les webhooks' : 'Save webhooks')}
       </Button>
     </div>
   );
