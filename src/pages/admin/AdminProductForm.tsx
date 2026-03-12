@@ -611,7 +611,7 @@ export function ProductForm() {
               <Label className="text-xs font-medium">{isFr ? 'Order Bump (ajout au panier)' : 'Order Bump (add to cart)'}</Label>
               <p className="text-[10px] text-muted-foreground">{isFr ? 'Proposer un produit complémentaire à prix réduit lors du checkout.' : 'Offer a complementary product at a discount during checkout.'}</p>
               <div className="grid grid-cols-2 gap-2">
-                <Select value={orderBumpProductId || '_none'} onValueChange={(v) => setOrderBumpProductId(v === '_none' ? '')}>
+                <Select value={orderBumpProductId || '_none'} onValueChange={(v) => setOrderBumpProductId(v === '_none' ? '' : v)}>
                   <SelectTrigger className="h-8 text-xs"><SelectValue placeholder={isFr ? 'Aucun' : 'None'} /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="_none">{isFr ? 'Aucun' : 'None'}</SelectItem>
