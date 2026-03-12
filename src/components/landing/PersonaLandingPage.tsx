@@ -41,6 +41,8 @@ const stagger = {
 export function PersonaLandingPage(props: PersonaLandingProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
@@ -98,9 +100,13 @@ export function PersonaLandingPage(props: PersonaLandingProps) {
         <div className="container max-w-5xl">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="text-center mb-14">
             <motion.div variants={fadeUp}>
-              <Badge variant="outline" className="mb-4 text-xs px-3 py-1 rounded-full">Le problème</Badge>
+              <Badge variant="outline" className="mb-4 text-xs px-3 py-1 rounded-full">{isFr ? 'Le problème' : 'The problem'}</Badge>
               <h2 className="text-2xl sm:text-4xl font-extrabold">
-                Vous vous <span className="text-destructive">reconnaissez</span> ?
+                {isFr ? (
+                  <>Vous vous <span className="text-destructive">reconnaissez</span> ?</>
+                ) : (
+                  <>Does this <span className="text-destructive">sound familiar</span>?</>
+                )}
               </h2>
             </motion.div>
           </motion.div>
@@ -121,9 +127,13 @@ export function PersonaLandingPage(props: PersonaLandingProps) {
         <div className="container max-w-5xl">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="text-center mb-14">
             <motion.div variants={fadeUp}>
-              <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">La solution</Badge>
+              <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">{isFr ? 'La solution' : 'The solution'}</Badge>
               <h2 className="text-2xl sm:text-4xl font-extrabold">
-                Siteviral fait tout ça <span className="text-primary">pour vous</span>
+                {isFr ? (
+                  <>Siteviral fait tout ça <span className="text-primary">pour vous</span></>
+                ) : (
+                  <>Siteviral does it all <span className="text-primary">for you</span></>
+                )}
               </h2>
             </motion.div>
           </motion.div>
@@ -148,9 +158,13 @@ export function PersonaLandingPage(props: PersonaLandingProps) {
         <div className="container max-w-4xl">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="text-center mb-14">
             <motion.div variants={fadeUp}>
-              <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">Comment ça marche</Badge>
+              <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">{isFr ? 'Comment ça marche' : 'How it works'}</Badge>
               <h2 className="text-2xl sm:text-4xl font-extrabold">
-                Prêt en <span className="text-accent">3 étapes</span>
+                {isFr ? (
+                  <>Prêt en <span className="text-accent">3 étapes</span></>
+                ) : (
+                  <>Ready in <span className="text-accent">3 steps</span></>
+                )}
               </h2>
             </motion.div>
           </motion.div>
@@ -191,7 +205,7 @@ export function PersonaLandingPage(props: PersonaLandingProps) {
         <div className="container max-w-3xl">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-12">
             <Badge variant="secondary" className="mb-4 text-xs px-3 py-1 rounded-full">FAQ</Badge>
-            <h2 className="text-2xl sm:text-3xl font-extrabold">Questions fréquentes</h2>
+            <h2 className="text-2xl sm:text-3xl font-extrabold">{isFr ? 'Questions fréquentes' : 'Frequently asked questions'}</h2>
           </motion.div>
           <Accordion type="single" collapsible className="space-y-3">
             {props.faq.map((f, i) => (
@@ -207,9 +221,11 @@ export function PersonaLandingPage(props: PersonaLandingProps) {
       {/* Final CTA */}
       <section className="py-20 px-4 bg-primary text-primary-foreground">
         <div className="container max-w-3xl text-center space-y-6">
-          <h2 className="text-2xl sm:text-4xl font-extrabold">Prêt à commencer ?</h2>
+          <h2 className="text-2xl sm:text-4xl font-extrabold">{isFr ? 'Prêt à commencer ?' : 'Ready to get started?'}</h2>
           <p className="text-primary-foreground/80 max-w-xl mx-auto">
-            Créez votre plateforme gratuitement en moins de 2 minutes. Pas d'abonnement, pas de carte requise.
+            {isFr
+              ? "Créez votre plateforme gratuitement en moins de 2 minutes. Pas d'abonnement, pas de carte requise."
+              : 'Create your platform for free in under 2 minutes. No subscription, no credit card required.'}
           </p>
           <Button size="lg" variant="secondary" className="px-10 h-13 text-base gap-2 group" onClick={() => navigate(props.cta.path)}>
             {props.cta.label} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
