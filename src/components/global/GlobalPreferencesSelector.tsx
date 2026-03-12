@@ -11,6 +11,20 @@ import {
 import { detectCurrencyFromTimezone } from '@/lib/countryDetect';
 import { useState, useEffect } from 'react';
 
+const CURRENCY_FLAGS: Record<string, string> = {
+  XOF: '🇨🇮',
+  XAF: '🇨🇲',
+  USD: '🇺🇸',
+  EUR: '🇪🇺',
+  NGN: '🇳🇬',
+  GHS: '🇬🇭',
+  KES: '🇰🇪',
+  ZAR: '🇿🇦',
+  GBP: '🇬🇧',
+  MAD: '🇲🇦',
+  TND: '🇹🇳',
+};
+
 /** Compact language + currency selector for navbar */
 export function GlobalPreferencesSelector() {
   const { locale, setLocale } = useI18n();
