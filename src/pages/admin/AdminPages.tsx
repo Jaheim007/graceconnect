@@ -1356,7 +1356,7 @@ export function AdminSettings() {
                 <Input id="leader-name" value={leaderName} onChange={e => setLeaderName(e.target.value)} placeholder="Ex: Pasteur Jean Dupont" className="h-8 text-xs" />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="leader-title" className="text-xs font-medium">Titre / Fonction</Label>
+                <Label htmlFor="leader-title" className="text-xs font-medium">{isFr ? 'Titre / Fonction' : 'Title / Role'}</Label>
                 <Input id="leader-title" value={leaderTitle} onChange={e => setLeaderTitle(e.target.value)} placeholder="Ex: Pasteur Principal, Fondateur…" className="h-8 text-xs" />
               </div>
             </div>
