@@ -271,7 +271,7 @@ export default function CampaignDetailPage() {
                     {org.description && <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{org.description}</p>}
                   </div>
                   <Button variant="outline" size="sm" className="gap-1.5 text-xs shrink-0" onClick={() => navigate(`/org/${org.slug}`)}>
-                    <ExternalLink className="h-3.5 w-3.5" /> Voir
+                    <ExternalLink className="h-3.5 w-3.5" /> {isFr ? 'Voir' : 'View'}
                   </Button>
                 </div>
               </div>
