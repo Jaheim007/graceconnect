@@ -99,29 +99,29 @@ export default function CalculateurPage() {
           <motion.div initial="hidden" animate="visible" variants={fadeUp} className="p-6 sm:p-8 rounded-3xl border border-border bg-card space-y-8">
             {mode === 'vendeur' ? (
               <>
-                <SliderField label="Prix moyen d'un produit" value={produitPrix} onChange={setProduitPrix} min={500} max={100000} step={500} format={formatFCFA} />
-                <SliderField label="Ventes par jour (par produit)" value={ventesJour} onChange={setVentesJour} min={1} max={50} step={1} format={(v) => `${v} ventes/jour`} />
-                <SliderField label="Nombre de produits" value={nbProduits} onChange={setNbProduits} min={1} max={20} step={1} format={(v) => `${v} produit${v > 1 ? 's' : ''}`} />
+                <SliderField label={isFr ? "Prix moyen d'un produit" : "Average product price"} value={produitPrix} onChange={setProduitPrix} min={500} max={100000} step={500} format={formatFCFA} />
+                <SliderField label={isFr ? "Ventes par jour (par produit)" : "Sales per day (per product)"} value={ventesJour} onChange={setVentesJour} min={1} max={50} step={1} format={(v) => isFr ? `${v} ventes/jour` : `${v} sales/day`} />
+                <SliderField label={isFr ? "Nombre de produits" : "Number of products"} value={nbProduits} onChange={setNbProduits} min={1} max={20} step={1} format={(v) => `${v} ${isFr ? `produit${v > 1 ? 's' : ''}` : `product${v > 1 ? 's' : ''}`}`} />
 
                 <div className="border-t border-border pt-6 space-y-4">
-                  <ResultRow label="Revenu brut / mois" value={formatFCFA(vendeurBrut)} />
-                  <ResultRow label="Commission Siteviral (10%)" value={`- ${formatFCFA(Math.round(vendeurBrut * 0.1))}`} muted />
-                  <ResultRow label="Votre revenu net / mois" value={formatFCFA(vendeurNet)} highlight />
-                  <ResultRow label="Projection annuelle" value={formatFCFA(vendeurAnnuel)} />
+                  <ResultRow label={isFr ? "Revenu brut / mois" : "Gross revenue / month"} value={formatFCFA(vendeurBrut)} />
+                  <ResultRow label={isFr ? "Commission Siteviral (10%)" : "Siteviral commission (10%)"} value={`- ${formatFCFA(Math.round(vendeurBrut * 0.1))}`} muted />
+                  <ResultRow label={isFr ? "Votre revenu net / mois" : "Your net revenue / month"} value={formatFCFA(vendeurNet)} highlight />
+                  <ResultRow label={isFr ? "Projection annuelle" : "Annual projection"} value={formatFCFA(vendeurAnnuel)} />
                 </div>
               </>
             ) : (
               <>
-                <SliderField label="Partages par jour" value={partagesJour} onChange={setPartagesJour} min={1} max={50} step={1} format={(v) => `${v} partages/jour`} />
-                <SliderField label="Taux de conversion" value={tauxConversion} onChange={setTauxConversion} min={1} max={30} step={1} format={(v) => `${v}%`} />
-                <SliderField label="Prix moyen des produits" value={prixMoyen} onChange={setPrixMoyen} min={500} max={100000} step={500} format={formatFCFA} />
-                <SliderField label="Votre commission" value={commissionPct} onChange={setCommissionPct} min={5} max={50} step={1} format={(v) => `${v}%`} />
+                <SliderField label={isFr ? "Partages par jour" : "Shares per day"} value={partagesJour} onChange={setPartagesJour} min={1} max={50} step={1} format={(v) => isFr ? `${v} partages/jour` : `${v} shares/day`} />
+                <SliderField label={isFr ? "Taux de conversion" : "Conversion rate"} value={tauxConversion} onChange={setTauxConversion} min={1} max={30} step={1} format={(v) => `${v}%`} />
+                <SliderField label={isFr ? "Prix moyen des produits" : "Average product price"} value={prixMoyen} onChange={setPrixMoyen} min={500} max={100000} step={500} format={formatFCFA} />
+                <SliderField label={isFr ? "Votre commission" : "Your commission"} value={commissionPct} onChange={setCommissionPct} min={5} max={50} step={1} format={(v) => `${v}%`} />
 
                 <div className="border-t border-border pt-6 space-y-4">
-                  <ResultRow label="Ventes générées / mois" value={`${ventesAmbassadeur} ventes`} />
-                  <ResultRow label="Volume de ventes" value={formatFCFA(ambassadeurBrut)} muted />
-                  <ResultRow label="Vos commissions / mois" value={formatFCFA(ambassadeurCommission)} highlight />
-                  <ResultRow label="Projection annuelle" value={formatFCFA(ambassadeurAnnuel)} />
+                  <ResultRow label={isFr ? "Ventes générées / mois" : "Sales generated / month"} value={`${ventesAmbassadeur} ${isFr ? 'ventes' : 'sales'}`} />
+                  <ResultRow label={isFr ? "Volume de ventes" : "Sales volume"} value={formatFCFA(ambassadeurBrut)} muted />
+                  <ResultRow label={isFr ? "Vos commissions / mois" : "Your commissions / month"} value={formatFCFA(ambassadeurCommission)} highlight />
+                  <ResultRow label={isFr ? "Projection annuelle" : "Annual projection"} value={formatFCFA(ambassadeurAnnuel)} />
                 </div>
               </>
             )}
