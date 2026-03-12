@@ -412,11 +412,11 @@ export default function AffiliationPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-card border border-border p-4 shadow-card">
                 <p className="text-2xl font-bold text-primary">{fmt(payableCommission)}</p>
-                <p className="text-xs text-muted-foreground">Disponible pour retrait</p>
+                <p className="text-xs text-muted-foreground">{isFr ? 'Disponible pour retrait' : 'Available for withdrawal'}</p>
               </div>
               <div className="rounded-xl bg-card border border-border p-4 shadow-card">
                 <p className="text-2xl font-bold">{fmt(pendingCommission)}</p>
-                <p className="text-xs text-muted-foreground">En attente (15 jours)</p>
+                <p className="text-xs text-muted-foreground">{isFr ? 'En attente (15 jours)' : 'Pending (15 days)'}</p>
               </div>
             </div>
 
