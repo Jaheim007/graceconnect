@@ -53,6 +53,8 @@ export function GlobalSearch() {
   const inputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const debouncedQuery = useDebounce(query, 300);
+  const { locale } = useI18n();
+  const { fmt } = useDisplayCurrency();
 
   const { data: results = [], isLoading } = useQuery<SearchResult[]>({
     queryKey: ['global-search', debouncedQuery],
