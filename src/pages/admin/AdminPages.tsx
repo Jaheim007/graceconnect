@@ -984,8 +984,8 @@ export function AdminSettings() {
   const handleSlugChange = (v: string) => {
     const clean = slugify(v);
     setOrgSlug(clean);
-    if (clean.length < 3) setSlugError('Minimum 3 caractères');
-    else if (!/^[a-z0-9-]+$/.test(clean)) setSlugError('Lettres minuscules, chiffres et tirets uniquement');
+    if (clean.length < 3) setSlugError(isFr ? 'Minimum 3 caractères' : 'Minimum 3 characters');
+    else if (!/^[a-z0-9-]+$/.test(clean)) setSlugError(isFr ? 'Lettres minuscules, chiffres et tirets uniquement' : 'Lowercase letters, numbers and hyphens only');
     else setSlugError('');
   };
 
