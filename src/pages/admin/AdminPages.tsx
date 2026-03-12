@@ -1198,12 +1198,12 @@ export function AdminSettings() {
   };
 
   return (
-    <AdminPageShell title="Paramètres" backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Paramètres' : 'Settings'} backRoute="/admin">
       <div className="space-y-4">
 
         {/* ── PROFILE ── */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-          <h2 className="font-semibold text-sm">Profil de l'organisation</h2>
+          <h2 className="font-semibold text-sm">{isFr ? 'Profil de l\'organisation' : 'Organization profile'}</h2>
 
           {/* Banner upload */}
           <div className="space-y-2">
