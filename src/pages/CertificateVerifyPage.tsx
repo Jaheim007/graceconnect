@@ -49,8 +49,8 @@ export default function CertificateVerifyPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50/50 via-background to-background dark:from-amber-950/10 flex items-center justify-center p-4">
       <SEOHead
-        title={isValid ? `Certificat vérifié — ${recipientName}` : 'Vérification de certificat'}
-        description={isValid ? `${recipientName} a complété la formation "${programTitle}" sur Siteviral.` : 'Vérifiez un certificat Siteviral.'}
+        title={isValid ? (isFr ? `Certificat vérifié — ${recipientName}` : `Certificate verified — ${recipientName}`) : (isFr ? 'Vérification de certificat' : 'Certificate verification')}
+        description={isValid ? (isFr ? `${recipientName} a complété la formation "${programTitle}" sur Siteviral.` : `${recipientName} completed the "${programTitle}" program on Siteviral.`) : (isFr ? 'Vérifiez un certificat Siteviral.' : 'Verify a Siteviral certificate.')}
       />
 
       <motion.div
