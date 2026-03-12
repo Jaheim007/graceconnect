@@ -413,7 +413,7 @@ export function ProductForm() {
           </div>
           <div className="space-y-1.5">
             <div className="flex items-center gap-1.5">
-              <Label>Prix ({currentOrg?.currency || 'XOF'})</Label>
+              <Label>{isFr ? `Prix (${currentOrg?.currency || 'XOF'})` : `Price (${currentOrg?.currency || 'XOF'})`}</Label>
               <ContextTip tipKey="product_price" />
             </div>
             <Input type="number" {...register('price')} disabled={isFree} placeholder="Ex: 5000" />
