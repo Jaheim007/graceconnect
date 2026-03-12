@@ -435,14 +435,14 @@ export default function AffiliationPage() {
                   {affiliateSales.map((s: any) => (
                     <div key={s.id} className="flex items-center gap-3 py-2.5 border-b border-border/50 last:border-0">
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium capitalize">Vente {s.transaction_type}</p>
+                        <p className="text-sm font-medium capitalize">{isFr ? 'Vente' : 'Sale'} {s.transaction_type}</p>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(s.created_at).toLocaleDateString('fr-FR')} · {s.commission_percent}% · Brut {fmt(s.gross_amount, s.currency || 'XOF')}
+                          {new Date(s.created_at).toLocaleDateString(isFr ? 'fr-FR' : 'en-US')} · {s.commission_percent}% · {isFr ? 'Brut' : 'Gross'} {fmt(s.gross_amount, s.currency || 'XOF')}
                         </p>
                       </div>
                       <span className="font-semibold text-sm text-primary">+{fmt(s.commission_amount, s.currency || 'XOF')}</span>
                       <Badge variant="outline" className={cn('text-[10px] border-0 capitalize', saleStatusColor[s.status] || '')}>
-                        {s.status === 'payable' ? 'Disponible' : s.status === 'pending' ? 'En attente' : s.status === 'paid' ? 'Payé' : s.status}
+                        {s.status === 'payable' ? (isFr ? 'Disponible' : 'Available') : s.status === 'pending' ? (isFr ? 'En attente' : 'Pending') : s.status === 'paid' ? (isFr ? 'Payé' : 'Paid') : s.status}
                       </Badge>
                     </div>
                   ))}
