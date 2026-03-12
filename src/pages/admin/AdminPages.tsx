@@ -1395,13 +1395,13 @@ export function AdminSettings() {
         {/* ── MODULE DONS ── */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
           <div>
-            <h2 className="font-semibold text-sm">Module Dons</h2>
+            <h2 className="font-semibold text-sm">{isFr ? 'Module Dons' : 'Donations module'}</h2>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Activez cette fonctionnalité pour permettre à vos membres de faire des dons (dîmes, offrandes, contributions libres, etc.). Chaque type de don est personnalisable.
+              {isFr ? 'Activez cette fonctionnalité pour permettre à vos membres de faire des dons (dîmes, offrandes, contributions libres, etc.). Chaque type de don est personnalisable.' : 'Enable this feature to allow your members to make donations (tithes, offerings, free contributions, etc.). Each donation type is customizable.'}
             </p>
           </div>
           <div className="flex items-center justify-between">
-            <Label htmlFor="offerings-toggle" className="text-xs font-medium">Activer le module Dons</Label>
+            <Label htmlFor="offerings-toggle" className="text-xs font-medium">{isFr ? 'Activer le module Dons' : 'Enable donations module'}</Label>
             <Switch id="offerings-toggle" checked={offeringsEnabled} onCheckedChange={setOfferingsEnabled} />
           </div>
           <Button
