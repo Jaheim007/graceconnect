@@ -138,7 +138,7 @@ export default function EventDetailPage() {
                 <div className="flex items-center gap-2 text-sm">
                   <CalendarDays className="h-4 w-4 text-primary shrink-0" />
                   <span className="font-semibold text-primary">
-                    {eventDate.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                    {eventDate.toLocaleDateString(dateLoc, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
                   </span>
                 </div>
               )}
