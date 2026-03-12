@@ -1,7 +1,7 @@
 import { Globe, ChevronDown } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import { LOCALE_LABELS, SUPPORTED_LOCALES, Locale } from '@/i18n/locales';
-import { SUPPORTED_CURRENCIES, CurrencyCode } from '@/lib/currency';
+import { SUPPORTED_CURRENCIES } from '@/lib/currency';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import {
