@@ -11,6 +11,7 @@ interface EventCalendarProps {
 }
 
 export function EventCalendar({ events, onSelectEvent }: EventCalendarProps) {
+  const { locale } = useI18n();
   const [current, setCurrent] = useState(new Date());
 
   const year = current.getFullYear();
