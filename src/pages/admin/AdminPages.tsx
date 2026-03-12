@@ -469,29 +469,30 @@ export function AdminMembers() {
   const { data: members = [], isLoading } = useOrgMembers(currentOrg?.id);
   const { toast } = useToast();
   const [copiedInvite, setCopiedInvite] = useState(false);
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const inviteUrl = currentOrg ? `https://siteviral.com/org/${currentOrg.slug}` : '';
 
   const handleCopyInvite = async () => {
     await navigator.clipboard.writeText(inviteUrl);
     setCopiedInvite(true);
-    toast({ title: 'Lien d\'invitation copié !' });
+    toast({ title: isFr ? 'Lien d\'invitation copié !' : 'Invite link copied!' });
     setTimeout(() => setCopiedInvite(false), 2000);
   };
 
   return (
-    <AdminPageShell title="Membres" backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Membres' : 'Members'} backRoute="/admin">
       <div className="space-y-4">
-        {/* How members join explanation */}
         <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
           <div className="flex items-start gap-3">
             <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
               <UserPlus className="h-4 w-4 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm">Comment rejoindre</p>
+              <p className="font-semibold text-sm">{isFr ? 'Comment rejoindre' : 'How to join'}</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Partagez le lien de votre page publique. Les visiteurs qui cliquent « Rejoindre » apparaîtront ici.
+                {isFr ? 'Partagez le lien de votre page publique. Les visiteurs qui cliquent « Rejoindre » apparaîtront ici.' : 'Share your public page link. Visitors who click "Join" will appear here.'}
               </p>
             </div>
           </div>
@@ -503,12 +504,11 @@ export function AdminMembers() {
           </div>
         </div>
 
-        {/* Members list */}
         {isLoading ? <SkeletonRow /> : members.length === 0 ? (
-          <EmptyState variant="members" title="Aucun membre" description="Partagez votre lien d'invitation ci-dessus pour agrandir votre communauté." />
+          <EmptyState variant="members" title={isFr ? 'Aucun membre' : 'No members'} description={isFr ? 'Partagez votre lien d\'invitation ci-dessus pour agrandir votre communauté.' : 'Share your invite link above to grow your community.'} />
         ) : (
           <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-            <h2 className="font-semibold text-sm">{members.length} membre{members.length > 1 ? 's' : ''}</h2>
+            <h2 className="font-semibold text-sm">{members.length} {isFr ? 'membre' : 'member'}{members.length > 1 ? 's' : ''}</h2>
             <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-2">
               {(members as any[]).map((m) => (
                 <motion.div key={m.id} variants={fadeUp} className="flex items-center gap-3 p-3 rounded-xl border border-border bg-background/50 hover:bg-background hover:border-primary/20 transition-all">
@@ -518,9 +518,9 @@ export function AdminMembers() {
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{m.profiles?.display_name || 'Utilisateur'}</p>
+                    <p className="text-sm font-medium truncate">{m.profiles?.display_name || (isFr ? 'Utilisateur' : 'User')}</p>
                     <p className="text-xs text-muted-foreground">
-                      Rejoint {new Date(m.joined_at).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })}
+                      {isFr ? 'Rejoint' : 'Joined'} {new Date(m.joined_at).toLocaleDateString(isFr ? 'fr-FR' : 'en-US', { month: 'short', year: 'numeric' })}
                     </p>
                   </div>
                   <Badge variant="secondary" className="text-[10px] capitalize">{m.role}</Badge>
