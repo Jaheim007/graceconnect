@@ -294,7 +294,7 @@ export default function PartnerPortalPage() {
                         </div>
                         <div>
                           <p className="text-sm font-medium">{c.organization?.name || '—'}</p>
-                          <p className="text-[11px] text-muted-foreground">{new Date(c.created_at).toLocaleDateString('fr-FR')}</p>
+                          <p className="text-[11px] text-muted-foreground">{new Date(c.created_at).toLocaleDateString(dateLoc)}</p>
                         </div>
                       </div>
                       <div className="text-right">
