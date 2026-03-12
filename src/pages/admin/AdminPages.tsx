@@ -1304,7 +1304,7 @@ export function AdminSettings() {
                 <CurrencySelector value={orgCurrency} onChange={(c) => setOrgCurrency(c)} className="h-8 text-xs" />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="org-country" className="text-xs font-medium">Pays</Label>
+                <Label htmlFor="org-country" className="text-xs font-medium">{isFr ? 'Pays' : 'Country'}</Label>
                 <Input id="org-country" value={orgCountry} onChange={e => setOrgCountry(e.target.value)} placeholder="Ex: CI, SN, FR…" className="h-8 text-xs" />
               </div>
             </div>
