@@ -517,10 +517,10 @@ export function ProductForm() {
         {isEdit && item?.ai_generated && item?.ai_project_id && currentOrg?.id && (
           <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-2">
             <p className="text-sm font-semibold flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-primary" /> Produit généré par IA
+              <Sparkles className="h-4 w-4 text-primary" /> {isFr ? 'Produit généré par IA' : 'AI-generated product'}
             </p>
             <p className="text-xs text-muted-foreground">
-              Si vous avez modifié la couverture ou le contenu, vous pouvez régénérer le PDF.
+              {isFr ? 'Si vous avez modifié la couverture ou le contenu, vous pouvez régénérer le PDF.' : 'If you modified the cover or content, you can regenerate the PDF.'}
             </p>
             <Button
               type="button"
