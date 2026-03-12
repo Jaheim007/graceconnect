@@ -62,7 +62,6 @@ export function StepCover({ state, update, onNext, onBack }: Props) {
           author_name: state.authorName || '',
           book_style: state.style || '',
         },
-        headers: { Authorization: `Bearer ${session.access_token}` },
       });
 
       if (error) {
