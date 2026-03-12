@@ -149,8 +149,8 @@ export function useBehavioralNotifications() {
       // 8. 0 media content → content nudge
       if (orgState.mediaCount === 0 && orgState.productCount > 0) {
         createNotif.mutate({
-          title: '📹 Publiez du contenu pour attirer du trafic',
-          body: 'Les organisations qui publient des vidéos/audios reçoivent 5x plus de visites que les pages produits seules.',
+          title: isFr ? '📹 Publiez du contenu pour attirer du trafic' : '📹 Publish content to attract traffic',
+          body: isFr ? 'Les organisations qui publient des vidéos/audios reçoivent 5x plus de visites que les pages produits seules.' : 'Organizations that publish videos/audio get 5x more visits than product pages alone.',
           type: 'content_nudge',
         });
       }
