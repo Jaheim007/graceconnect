@@ -99,7 +99,7 @@ export function GlobalPreferencesSelector() {
               onClick={() => handleCurrencyChange(c.code)}
               className={`text-xs gap-2 ${currency === c.code ? 'font-bold text-primary' : ''}`}
             >
-              <span className="w-8 font-mono text-[10px]">{c.symbol}</span>
+              <span className="w-8 text-xs">{CURRENCY_FLAGS[c.code] || '🌍'}</span>
               <span>{c.code}</span>
               {currency === c.code && <span className="ml-auto text-primary">✓</span>}
             </DropdownMenuItem>
