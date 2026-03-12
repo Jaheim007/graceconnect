@@ -119,12 +119,14 @@ export default function CertificateVerifyPage() {
             <div className="h-14 w-14 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-4">
               <XCircle className="h-8 w-8 text-destructive" />
             </div>
-            <h1 className="text-lg font-bold mb-2">Certificat introuvable</h1>
+            <h1 className="text-lg font-bold mb-2">{isFr ? 'Certificat introuvable' : 'Certificate not found'}</h1>
             <p className="text-sm text-muted-foreground">
-              Le numéro de certificat <span className="font-mono font-semibold">{certNumber}</span> n'existe pas dans notre système.
+              {isFr
+                ? <>Le numéro de certificat <span className="font-mono font-semibold">{certNumber}</span> n'existe pas dans notre système.</>
+                : <>The certificate number <span className="font-mono font-semibold">{certNumber}</span> does not exist in our system.</>}
             </p>
             <p className="text-xs text-muted-foreground mt-3">
-              Vérifiez que le numéro est correct et réessayez.
+              {isFr ? 'Vérifiez que le numéro est correct et réessayez.' : 'Please check the number and try again.'}
             </p>
           </div>
         )}
