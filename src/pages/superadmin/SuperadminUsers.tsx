@@ -171,12 +171,14 @@ export default function SuperadminUsers() {
             <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
               <Users className="h-4 w-4 text-primary-foreground" />
             </div>
-            Gestion des utilisateurs
+            {isFr ? 'Gestion des utilisateurs' : 'User management'}
           </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">{stats.newThisMonth} nouveaux ce mois · {stats.total} au total</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {stats.newThisMonth} {isFr ? 'nouveaux ce mois' : 'new this month'} · {stats.total} {isFr ? 'au total' : 'total'}
+          </p>
         </div>
         <Button variant="outline" size="sm" className="text-xs gap-1.5" onClick={exportCSV}>
-          <Download className="h-3.5 w-3.5" /> Export CSV
+          <Download className="h-3.5 w-3.5" /> {isFr ? 'Export CSV' : 'Export CSV'}
         </Button>
       </div>
 
