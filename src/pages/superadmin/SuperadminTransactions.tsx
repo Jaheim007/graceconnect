@@ -518,7 +518,7 @@ export function SuperadminTransactions() {
                       <PopoverTrigger asChild>
                         <Button variant="outline" size="sm" className={cn("h-9 text-xs gap-2 min-w-[140px] justify-start rounded-xl", !customDateFrom && "text-muted-foreground")}>
                           <CalendarIcon className="h-3.5 w-3.5" />
-                          {customDateFrom ? format(customDateFrom, 'dd MMM yyyy', { locale: fr }) : 'Date début'}
+                          {customDateFrom ? format(customDateFrom, 'dd MMM yyyy') : 'Date début'}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
