@@ -1188,9 +1188,9 @@ export function AdminSettings() {
       .eq('id', currentOrg.id);
     setSavingLeader(false);
     if (error) {
-      toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
+      toast({ title: isFr ? 'Erreur' : 'Error', description: error.message, variant: 'destructive' });
     } else {
-      toast({ title: '✅ Biographie du leader sauvegardée' });
+      toast({ title: isFr ? '✅ Biographie du leader sauvegardée' : '✅ Leader biography saved' });
       refetchOrgs();
       qc.invalidateQueries({ queryKey: ['org-by-slug'] });
       qc.invalidateQueries({ queryKey: ['org-by-id'] });
