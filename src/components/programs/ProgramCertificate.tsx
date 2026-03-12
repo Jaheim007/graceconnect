@@ -198,6 +198,9 @@ export function ProgramCertificate({
 }: Props) {
   const { user, profile } = useAuth();
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const dateLoc = isFr ? fr : enUS;
   const qc = useQueryClient();
   const [showCert, setShowCert] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
