@@ -8,7 +8,8 @@ import { useI18n } from '@/i18n/I18nContext';
 
 export function RevenueSimulator() {
   const { currentOrg } = useOrg();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const isFr = locale === 'fr';
   const [price, setPrice] = useState(5000);
   const [sales, setSales] = useState(50);
 
@@ -36,13 +37,13 @@ export function RevenueSimulator() {
         <div className="h-8 w-8 rounded-xl bg-primary/10 flex items-center justify-center">
           <Calculator className="h-4 w-4 text-primary" />
         </div>
-        <h2 className="font-semibold text-sm">{t('admin.revenue_simulator') || 'Simulateur de revenus'}</h2>
+        <h2 className="font-semibold text-sm">{t('admin.revenue_simulator') || (isFr ? 'Simulateur de revenus' : 'Revenue simulator')}</h2>
       </div>
 
       <div className="grid sm:grid-cols-2 gap-5 mb-5">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <label className="text-xs text-muted-foreground font-medium">Prix unitaire</label>
+            <label className="text-xs text-muted-foreground font-medium">{isFr ? 'Prix unitaire' : 'Unit price'}</label>
             <span className="text-sm font-bold text-foreground">{fmt(price)}</span>
           </div>
           <Slider
@@ -55,7 +56,7 @@ export function RevenueSimulator() {
         </div>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <label className="text-xs text-muted-foreground font-medium">Ventes / mois</label>
+            <label className="text-xs text-muted-foreground font-medium">{isFr ? 'Ventes / mois' : 'Sales / month'}</label>
             <span className="text-sm font-bold text-foreground">{sales}</span>
           </div>
           <Slider
@@ -69,10 +70,10 @@ export function RevenueSimulator() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-        <ResultCard label="Revenus bruts" value={fmt(result.gross)} icon={DollarSign} className="bg-muted/50" />
-        <ResultCard label={`Frais plateforme (${platformFee}%)`} value={`-${fmt(result.platformCut)}`} icon={DollarSign} className="bg-muted/50" />
-        <ResultCard label={`Ambassadeurs (${affiliateRate}%)`} value={`-${fmt(result.affiliateCut)}`} icon={Users} className="bg-muted/50" />
-        <ResultCard label="Vous recevez" value={fmt(result.net)} icon={TrendingUp} className="bg-primary/5 border-primary/20 border" highlight />
+        <ResultCard label={isFr ? 'Revenus bruts' : 'Gross revenue'} value={fmt(result.gross)} icon={DollarSign} className="bg-muted/50" />
+        <ResultCard label={`${isFr ? 'Frais plateforme' : 'Platform fee'} (${platformFee}%)`} value={`-${fmt(result.platformCut)}`} icon={DollarSign} className="bg-muted/50" />
+        <ResultCard label={`${isFr ? 'Ambassadeurs' : 'Ambassadors'} (${affiliateRate}%)`} value={`-${fmt(result.affiliateCut)}`} icon={Users} className="bg-muted/50" />
+        <ResultCard label={isFr ? 'Vous recevez' : 'You receive'} value={fmt(result.net)} icon={TrendingUp} className="bg-primary/5 border-primary/20 border" highlight />
       </div>
     </motion.div>
   );
