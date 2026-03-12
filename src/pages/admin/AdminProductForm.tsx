@@ -339,7 +339,7 @@ export function ProductForm() {
       {productUrl && (
         <div className="mb-4 p-3 rounded-xl bg-muted/50 border border-border space-y-2">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs text-muted-foreground font-medium shrink-0">Lien produit :</span>
+            <span className="text-xs text-muted-foreground font-medium shrink-0">{isFr ? 'Lien produit :' : 'Product link:'}</span>
             <a href={productUrl} target="_blank" rel="noreferrer" className="text-xs text-primary underline truncate max-w-[260px]">{productUrl}</a>
             <div className="flex gap-1 ml-auto shrink-0">
               <Button type="button" size="sm" variant="ghost" className="h-7 w-7 p-0" onClick={copyLink}><Copy className="h-3.5 w-3.5" /></Button>
