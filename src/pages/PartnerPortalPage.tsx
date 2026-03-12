@@ -461,10 +461,10 @@ export default function PartnerPortalPage() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Demander un retrait</CardTitle>
+              <CardTitle className="text-sm">{isFr ? 'Demander un retrait' : 'Request payout'}</CardTitle>
               <CardDescription className="text-xs">
-                Disponible : <span className="font-bold text-foreground">{formatCurrency(stats.payable, currency)}</span>
-                {' '}— Min. : {formatCurrency(partner.min_payout_threshold, currency)}
+                {isFr ? 'Disponible' : 'Available'}: <span className="font-bold text-foreground">{formatCurrency(stats.payable, currency)}</span>
+                {' '}— Min.: {formatCurrency(partner.min_payout_threshold, currency)}
               </CardDescription>
             </CardHeader>
             <CardContent>
