@@ -237,7 +237,7 @@ export default function SuperadminFullDashboard() {
         </div>
         <Badge variant="outline" className="text-[11px] gap-1.5 px-3 py-1.5 self-start sm:self-auto border-border/60">
           <Clock className="h-3.5 w-3.5" />
-          {format(new Date(), 'dd MMM yyyy · HH:mm', { locale: fr })}
+          {format(new Date(), 'dd MMM yyyy · HH:mm')}
         </Badge>
       </motion.div>
 
