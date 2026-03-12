@@ -1292,7 +1292,7 @@ export function AdminSettings() {
             </div>
             {slugError && <p className="text-xs text-destructive">{slugError}</p>}
             <p className="text-[11px] text-muted-foreground">
-              C'est le lien à partager pour que les membres rejoignent votre communauté.
+              {isFr ? 'C\'est le lien à partager pour que les membres rejoignent votre communauté.' : 'This is the link to share for members to join your community.'}
             </p>
           </div>
 
