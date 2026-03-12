@@ -623,7 +623,7 @@ export function SuperadminTransactions() {
                   </TableCell>
                   <TableCell className="py-3 text-right">
                     <span className="text-xs text-muted-foreground tabular-nums">
-                      {(tx.platform_fee || 0).toLocaleString('fr-FR')}
+                      {(tx.platform_fee || 0).toLocaleString()}
                     </span>
                   </TableCell>
                   <TableCell className="py-3">
