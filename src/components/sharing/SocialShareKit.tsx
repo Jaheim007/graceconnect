@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { trackEvent } from '@/hooks/useClientAnalytics';
 import { buildShareUrlForPath } from '@/lib/shareMeta';
+import { useI18n } from '@/i18n/I18nContext';
 import {
   Dialog,
   DialogContent,
@@ -24,11 +25,18 @@ interface SocialShareKitProps {
   productId?: string;
 }
 
-const MESSAGES: Record<ShareContext, (t: string, p?: number, e?: number) => string> = {
+const MESSAGES_FR: Record<ShareContext, (t: string, p?: number, e?: number) => string> = {
   'post-publication': (t) => `🎉 Je viens d'écrire mon livre « ${t} » ! Découvre-le 👉`,
   'post-purchase': (t) => `📚 Je viens de lire « ${t} » — je te le recommande ! 👉`,
   'ambassador': (t, p) => `📖 ${t}${p ? ` — seulement ${p.toLocaleString('fr-FR')} FCFA` : ''} ! 👉`,
   'earnings': (_, __, e) => `💰 J'ai gagné ${(e || 0).toLocaleString('fr-FR')} FCFA en partageant des livres sur SiteViral ! 👉`,
+};
+
+const MESSAGES_EN: Record<ShareContext, (t: string, p?: number, e?: number) => string> = {
+  'post-publication': (t) => `🎉 I just wrote my book "${t}"! Check it out 👉`,
+  'post-purchase': (t) => `📚 I just read "${t}" — I recommend it! 👉`,
+  'ambassador': (t, p) => `📖 ${t}${p ? ` — only ${p.toLocaleString('en-US')} FCFA` : ''}! 👉`,
+  'earnings': (_, __, e) => `💰 I earned ${(e || 0).toLocaleString('en-US')} FCFA by sharing books on SiteViral! 👉`,
 };
 
 interface Platform {
