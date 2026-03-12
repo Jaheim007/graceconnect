@@ -209,7 +209,7 @@ export default function SuperadminCommandCenter() {
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Bot className="h-4 w-4 text-primary" />
               Ops Autopilot
-              <Badge variant="secondary" className="text-[9px] px-1.5">6 départements</Badge>
+              <Badge variant="secondary" className="text-[9px] px-1.5">{isFr ? '6 départements' : '6 departments'}</Badge>
             </CardTitle>
             <div className="flex gap-1.5">
               <Button
