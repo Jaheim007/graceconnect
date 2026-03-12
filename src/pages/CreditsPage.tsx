@@ -18,19 +18,20 @@ import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { format } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr, enUS } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
+import { useI18n } from '@/hooks/useI18n';
 
 function formatCredits(n: number): string {
   if (Number.isInteger(n)) return n.toString();
   return n.toFixed(1);
 }
 
-function timeUntil(dateStr: string | null): string {
+function timeUntil(dateStr: string | null, isFr: boolean): string {
   if (!dateStr) return '';
   const diff = new Date(dateStr).getTime() - Date.now();
-  if (diff <= 0) return 'expiré';
+  if (diff <= 0) return isFr ? 'expiré' : 'expired';
   const hours = Math.floor(diff / 3600000);
   const mins = Math.floor((diff % 3600000) / 60000);
   if (hours > 0) return `${hours}h${mins > 0 ? mins + 'm' : ''}`;
@@ -40,6 +41,10 @@ function timeUntil(dateStr: string | null): string {
 
 export default function CreditsPage() {
   const { user } = useAuth();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const numLoc = isFr ? 'fr-FR' : 'en-US';
+  const dateLoc = isFr ? fr : enUS;
   const { data: summary, isLoading: loadingSummary } = useCreditsBalance();
   
   const { data: packs } = useCreditPacks();
@@ -66,13 +71,11 @@ export default function CreditsPage() {
     const stripeSessionId = params.get('stripe_session_id');
 
     if (creditPurchaseId && stripeSessionId) {
-      // Clean URL
       const url = new URL(window.location.href);
       url.searchParams.delete('credit_purchase_id');
       url.searchParams.delete('stripe_session_id');
       window.history.replaceState({}, '', url.toString());
 
-      // Verify the Stripe credit purchase
       (async () => {
         try {
           const { data: verifyData, error: verifyErr } = await supabase.functions.invoke('verify-credit-purchase', {
@@ -80,14 +83,14 @@ export default function CreditsPage() {
           });
 
           if (verifyErr || !verifyData?.ok) {
-            toast.error(verifyData?.error || 'Erreur de vérification Stripe. Contactez le support.');
+            toast.error(verifyData?.error || (isFr ? 'Erreur de vérification Stripe. Contactez le support.' : 'Stripe verification error. Contact support.'));
             return;
           }
 
-          toast.success(`🎉 ${verifyData.credits} crédits ajoutés à votre compte !`);
+          toast.success(isFr ? `🎉 ${verifyData.credits} crédits ajoutés à votre compte !` : `🎉 ${verifyData.credits} credits added to your account!`);
           qc.invalidateQueries({ queryKey: ['credits'] });
         } catch {
-          toast.error('Erreur lors de la vérification. Vos crédits seront ajoutés sous peu.');
+          toast.error(isFr ? 'Erreur lors de la vérification. Vos crédits seront ajoutés sous peu.' : 'Verification error. Your credits will be added shortly.');
         }
       })();
     }
@@ -95,24 +98,22 @@ export default function CreditsPage() {
 
   const handlePurchase = useCallback(async (packKey: string) => {
     if (!user?.email) {
-      toast.error('Veuillez vous connecter pour acheter des crédits.');
+      toast.error(isFr ? 'Veuillez vous connecter pour acheter des crédits.' : 'Please log in to purchase credits.');
       return;
     }
 
     setPurchasing(packKey);
     try {
-      // 1. Create pending purchase on backend
       const gateway = paymentMethod === 'mobile_money' || paymentMethod === 'apple_pay' ? 'paystack' : 'stripe';
       const { data, error } = await supabase.functions.invoke('purchase-credits', {
         body: { pack_key: packKey, payment_gateway: gateway },
       });
 
       if (error || !data?.ok) {
-        throw new Error(data?.error || error?.message || 'Erreur lors de la création de l\'achat');
+        throw new Error(data?.error || error?.message || (isFr ? 'Erreur lors de la création de l\'achat' : 'Error creating purchase'));
       }
 
       if (gateway === 'stripe') {
-        // 2a. Stripe: Create dedicated credit checkout session
         const currentUrl = window.location.origin + '/credits';
         const { data: stripeData, error: stripeErr } = await supabase.functions.invoke('stripe-credit-checkout', {
           body: {
@@ -123,15 +124,13 @@ export default function CreditsPage() {
         });
 
         if (stripeErr || !stripeData?.checkout_url) {
-          throw new Error(stripeData?.error || 'Erreur lors de la création du paiement Stripe');
+          throw new Error(stripeData?.error || (isFr ? 'Erreur lors de la création du paiement Stripe' : 'Error creating Stripe payment'));
         }
 
-        // Redirect to Stripe Checkout
         window.location.href = stripeData.checkout_url;
         return;
       }
 
-      // 2b. Paystack: Open inline payment popup
       await openPayment({
         method: paymentMethod,
         email: data.email,
@@ -141,38 +140,55 @@ export default function CreditsPage() {
         organization_id: 'platform',
         metadata: data.metadata,
         onSuccess: async (reference: string, gw) => {
-          // 3. Verify payment and grant credits
           try {
             const { data: verifyData, error: verifyErr } = await supabase.functions.invoke('verify-credit-purchase', {
               body: { reference, purchase_id: data.purchase_id, gateway: gw },
             });
 
             if (verifyErr || !verifyData?.ok) {
-              toast.error(verifyData?.error || 'Erreur de vérification. Contactez le support.');
+              toast.error(verifyData?.error || (isFr ? 'Erreur de vérification. Contactez le support.' : 'Verification error. Contact support.'));
               return;
             }
 
-            toast.success(`🎉 ${verifyData.credits} crédits ajoutés à votre compte !`);
+            toast.success(isFr ? `🎉 ${verifyData.credits} crédits ajoutés à votre compte !` : `🎉 ${verifyData.credits} credits added to your account!`);
             qc.invalidateQueries({ queryKey: ['credits'] });
           } catch (e) {
-            toast.error('Erreur lors de la vérification. Vos crédits seront ajoutés sous peu.');
+            toast.error(isFr ? 'Erreur lors de la vérification. Vos crédits seront ajoutés sous peu.' : 'Verification error. Your credits will be added shortly.');
           }
         },
         onClose: () => {
-          toast.info('Paiement annulé.');
+          toast.info(isFr ? 'Paiement annulé.' : 'Payment cancelled.');
         },
       });
     } catch (e: any) {
-      toast.error(e.message || 'Erreur inattendue.');
+      toast.error(e.message || (isFr ? 'Erreur inattendue.' : 'Unexpected error.'));
     } finally {
       setPurchasing(null);
     }
-  }, [user, openPayment, qc, paymentMethod, creditCurrency]);
+  }, [user, openPayment, qc, paymentMethod, creditCurrency, isFr]);
 
   if (!user) return null;
 
   const dailyPercent = summary ? Math.min((summary.daily_remaining / 38.5) * 100, 100) : 0;
 
+  const txTypeLabel = (type: string): string => {
+    const labels: Record<string, string> = isFr ? {
+      consumption: 'Consommation',
+      daily_grant: 'Crédits quotidiens',
+      bonus_grant: 'Crédits bonus',
+      purchase: 'Achat de crédits',
+      expiration: 'Expiration',
+      refund: 'Remboursement',
+    } : {
+      consumption: 'Consumption',
+      daily_grant: 'Daily credits',
+      bonus_grant: 'Bonus credits',
+      purchase: 'Credit purchase',
+      expiration: 'Expiration',
+      refund: 'Refund',
+    };
+    return labels[type] || type;
+  };
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 py-4 px-2 sm:px-4">
@@ -183,8 +199,8 @@ export default function CreditsPage() {
             <Coins className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Mes Crédits IA</h1>
-            <p className="text-sm text-muted-foreground">Utilisez l'IA pour créer du contenu exceptionnel</p>
+            <h1 className="text-2xl font-bold">{isFr ? 'Mes Crédits IA' : 'My AI Credits'}</h1>
+            <p className="text-sm text-muted-foreground">{isFr ? "Utilisez l'IA pour créer du contenu exceptionnel" : 'Use AI to create exceptional content'}</p>
           </div>
         </div>
       </div>
@@ -202,13 +218,13 @@ export default function CreditsPage() {
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Coins className="h-4 w-4 text-amber-500" />
-                <span className="text-xs font-medium text-muted-foreground">Solde total</span>
+                <span className="text-xs font-medium text-muted-foreground">{isFr ? 'Solde total' : 'Total balance'}</span>
               </div>
               <p className="text-3xl font-bold text-amber-600 dark:text-amber-400">
                 {formatCredits(summary.balance)}
               </p>
               <p className="text-[10px] text-muted-foreground mt-1">
-                {formatCredits(summary.lifetime_earned)} gagnés au total
+                {formatCredits(summary.lifetime_earned)} {isFr ? 'gagnés au total' : 'earned total'}
               </p>
             </CardContent>
           </Card>
@@ -217,14 +233,14 @@ export default function CreditsPage() {
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-2">
                 <Zap className="h-4 w-4 text-blue-500" />
-                <span className="text-xs font-medium text-muted-foreground">Quotidiens</span>
+                <span className="text-xs font-medium text-muted-foreground">{isFr ? 'Quotidiens' : 'Daily'}</span>
               </div>
               <p className="text-2xl font-bold">{formatCredits(summary.daily_remaining)}</p>
               <div className="mt-1.5 space-y-1">
                 <Progress value={dailyPercent} className="h-1.5" />
                 {summary.daily_expires_at && (
                   <p className="text-[10px] text-muted-foreground flex items-center gap-0.5">
-                    <Clock className="h-2.5 w-2.5" /> Expire dans {timeUntil(summary.daily_expires_at)}
+                    <Clock className="h-2.5 w-2.5" /> {isFr ? 'Expire dans' : 'Expires in'} {timeUntil(summary.daily_expires_at, isFr)}
                   </p>
                 )}
               </div>
@@ -238,7 +254,7 @@ export default function CreditsPage() {
                 <span className="text-xs font-medium text-muted-foreground">Bonus</span>
               </div>
               <p className="text-2xl font-bold">{formatCredits(summary.bonus_remaining)}</p>
-              <p className="text-[10px] text-muted-foreground mt-1">Cashback & récompenses</p>
+              <p className="text-[10px] text-muted-foreground mt-1">{isFr ? 'Cashback & récompenses' : 'Cashback & rewards'}</p>
             </CardContent>
           </Card>
 
@@ -246,11 +262,11 @@ export default function CreditsPage() {
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-2">
                 <ShoppingBag className="h-4 w-4 text-purple-500" />
-                <span className="text-xs font-medium text-muted-foreground">Achetés</span>
+                <span className="text-xs font-medium text-muted-foreground">{isFr ? 'Achetés' : 'Purchased'}</span>
               </div>
               <p className="text-2xl font-bold">{formatCredits(summary.purchased_remaining)}</p>
               <p className="text-[10px] text-muted-foreground mt-1 flex items-center gap-0.5">
-                <Infinity className="h-2.5 w-2.5" /> N'expire jamais
+                <Infinity className="h-2.5 w-2.5" /> {isFr ? "N'expire jamais" : 'Never expires'}
               </p>
             </CardContent>
           </Card>
@@ -263,13 +279,13 @@ export default function CreditsPage() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
             <div className="flex items-center gap-2 text-sm font-medium">
               <Sparkles className="h-4 w-4 text-primary shrink-0" />
-              Comment ça marche ?
+              {isFr ? 'Comment ça marche ?' : 'How it works?'}
             </div>
             <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
-              <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> 38,5 crédits gratuits/jour</span>
-              <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> Quotidiens consommés en premier</span>
-              <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> Crédits achetés sans expiration</span>
-              <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> 1,5% cashback sur vos ventes</span>
+              <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> {isFr ? '38,5 crédits gratuits/jour' : '38.5 free credits/day'}</span>
+              <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> {isFr ? 'Quotidiens consommés en premier' : 'Daily credits consumed first'}</span>
+              <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> {isFr ? 'Crédits achetés sans expiration' : 'Purchased credits never expire'}</span>
+              <span className="flex items-center gap-1"><CheckCircle className="h-3 w-3 text-green-500" /> {isFr ? '1,5% cashback sur vos ventes' : '1.5% cashback on your sales'}</span>
             </div>
           </div>
         </CardContent>
@@ -280,13 +296,13 @@ export default function CreditsPage() {
         <CardContent className="p-4">
           <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
             <Zap className="h-4 w-4 text-blue-500" />
-            Que pouvez-vous faire avec 38,5 crédits gratuits/jour ?
+            {isFr ? 'Que pouvez-vous faire avec 38,5 crédits gratuits/jour ?' : 'What can you do with 38.5 free credits/day?'}
           </h3>
           <div className="grid sm:grid-cols-2 gap-2 text-xs text-muted-foreground">
-            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> Générer un livre complet (8 chapitres)</div>
-            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> Créer 5 couvertures de produit</div>
-            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> Rédiger 21 descriptions de produit</div>
-            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> Transcrire 8 fichiers audio/vidéo</div>
+            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? 'Générer un livre complet (8 chapitres)' : 'Generate a full book (8 chapters)'}</div>
+            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? 'Créer 5 couvertures de produit' : 'Create 5 product covers'}</div>
+            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? 'Rédiger 21 descriptions de produit' : 'Write 21 product descriptions'}</div>
+            <div className="flex items-start gap-2"><CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" /> {isFr ? 'Transcrire 8 fichiers audio/vidéo' : 'Transcribe 8 audio/video files'}</div>
           </div>
         </CardContent>
       </Card>
@@ -294,18 +310,18 @@ export default function CreditsPage() {
       {/* Tabs */}
       <Tabs value={selectedTab} onValueChange={setSelectedTab}>
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="packs" className="gap-1.5"><ShoppingBag className="h-3.5 w-3.5" /> Acheter</TabsTrigger>
-          <TabsTrigger value="history" className="gap-1.5"><History className="h-3.5 w-3.5" /> Historique</TabsTrigger>
+          <TabsTrigger value="packs" className="gap-1.5"><ShoppingBag className="h-3.5 w-3.5" /> {isFr ? 'Acheter' : 'Buy'}</TabsTrigger>
+          <TabsTrigger value="history" className="gap-1.5"><History className="h-3.5 w-3.5" /> {isFr ? 'Historique' : 'History'}</TabsTrigger>
         </TabsList>
 
         {/* Packs Tab */}
         <TabsContent value="packs" className="mt-4 space-y-4">
           <p className="text-sm text-muted-foreground">
-            Besoin de plus de crédits ? Achetez un pack et créez sans limites. 
-            Les crédits achetés <strong>n'expirent jamais</strong>.
+            {isFr
+              ? <>Besoin de plus de crédits ? Achetez un pack et créez sans limites. Les crédits achetés <strong>n'expirent jamais</strong>.</>
+              : <>Need more credits? Buy a pack and create without limits. Purchased credits <strong>never expire</strong>.</>}
           </p>
 
-          {/* Payment method selector — same as all other payments */}
           <PaymentMethodSelector
             value={paymentMethod}
             onChange={setPaymentMethod}
@@ -328,14 +344,14 @@ export default function CreditsPage() {
                 >
                   {pack.is_popular && (
                     <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-3 py-1 rounded-bl-lg">
-                      ⭐ POPULAIRE
+                      ⭐ {isFr ? 'POPULAIRE' : 'POPULAR'}
                     </div>
                   )}
                   <CardContent className="p-5 space-y-3">
                     <div>
                       <h3 className="font-bold text-lg">{pack.name}</h3>
                       <p className="text-3xl font-black mt-1">
-                        {pack.price_xof.toLocaleString('fr-FR')}
+                        {pack.price_xof.toLocaleString(numLoc)}
                         <span className="text-sm font-normal text-muted-foreground ml-1">FCFA</span>
                       </p>
                     </div>
@@ -344,11 +360,11 @@ export default function CreditsPage() {
                       <div className="flex items-center gap-2">
                         <Coins className="h-4 w-4 text-amber-500" />
                         <span className="font-bold text-lg">{totalCredits}</span>
-                        <span className="text-sm text-muted-foreground">crédits</span>
+                        <span className="text-sm text-muted-foreground">{isFr ? 'crédits' : 'credits'}</span>
                       </div>
                       {bonusCredits > 0 && (
                         <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-600 border-green-500/20">
-                          🎁 +{bonusCredits} bonus inclus ({pack.bonus_percent}%)
+                          🎁 +{bonusCredits} {isFr ? 'bonus inclus' : 'bonus included'} ({pack.bonus_percent}%)
                         </Badge>
                       )}
                     </div>
@@ -356,10 +372,10 @@ export default function CreditsPage() {
                     <Separator />
 
                     <div className="space-y-1 text-xs text-muted-foreground">
-                      <p>≈ {Math.floor(totalCredits / 2.7)} chapitres de livre</p>
-                      <p>≈ {Math.floor(totalCredits / 7.6)} couvertures IA</p>
-                      <p>≈ {Math.floor(totalCredits / 5.8)} images / illustrations IA</p>
-                      <p className="flex items-center gap-1"><Infinity className="h-3 w-3" /> N'expire jamais</p>
+                      <p>≈ {Math.floor(totalCredits / 2.7)} {isFr ? 'chapitres de livre' : 'book chapters'}</p>
+                      <p>≈ {Math.floor(totalCredits / 7.6)} {isFr ? 'couvertures IA' : 'AI covers'}</p>
+                      <p>≈ {Math.floor(totalCredits / 5.8)} {isFr ? 'images / illustrations IA' : 'AI images / illustrations'}</p>
+                      <p className="flex items-center gap-1"><Infinity className="h-3 w-3" /> {isFr ? "N'expire jamais" : 'Never expires'}</p>
                     </div>
 
                     <Button
@@ -369,9 +385,9 @@ export default function CreditsPage() {
                       onClick={() => handlePurchase(pack.pack_key)}
                     >
                       {isPurchasing ? (
-                        <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Traitement...</>
+                        <><Loader2 className="h-3.5 w-3.5 animate-spin" /> {isFr ? 'Traitement...' : 'Processing...'}</>
                       ) : (
-                        <>Acheter maintenant <ArrowRight className="h-3.5 w-3.5" /></>
+                        <>{isFr ? 'Acheter maintenant' : 'Buy now'} <ArrowRight className="h-3.5 w-3.5" /></>
                       )}
                     </Button>
                   </CardContent>
@@ -382,10 +398,10 @@ export default function CreditsPage() {
 
           {/* Trust signals */}
           <div className="flex flex-wrap justify-center gap-4 text-xs text-muted-foreground py-2">
-            <span className="flex items-center gap-1"><Shield className="h-3.5 w-3.5" /> Paiement sécurisé</span>
-            <span className="flex items-center gap-1"><Coins className="h-3.5 w-3.5" /> Mobile Money & Carte</span>
-            <span className="flex items-center gap-1"><Infinity className="h-3.5 w-3.5" /> Sans expiration</span>
-            <span className="flex items-center gap-1"><RefreshCw className="h-3.5 w-3.5" /> Crédits instantanés</span>
+            <span className="flex items-center gap-1"><Shield className="h-3.5 w-3.5" /> {isFr ? 'Paiement sécurisé' : 'Secure payment'}</span>
+            <span className="flex items-center gap-1"><Coins className="h-3.5 w-3.5" /> Mobile Money & {isFr ? 'Carte' : 'Card'}</span>
+            <span className="flex items-center gap-1"><Infinity className="h-3.5 w-3.5" /> {isFr ? 'Sans expiration' : 'No expiration'}</span>
+            <span className="flex items-center gap-1"><RefreshCw className="h-3.5 w-3.5" /> {isFr ? 'Crédits instantanés' : 'Instant credits'}</span>
           </div>
         </TabsContent>
 
@@ -396,8 +412,8 @@ export default function CreditsPage() {
               {!history || history.length === 0 ? (
                 <div className="p-8 text-center text-muted-foreground">
                   <History className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm font-medium">Aucune transaction pour l'instant</p>
-                  <p className="text-xs mt-1">Vos consommations et achats de crédits apparaîtront ici.</p>
+                  <p className="text-sm font-medium">{isFr ? "Aucune transaction pour l'instant" : 'No transactions yet'}</p>
+                  <p className="text-xs mt-1">{isFr ? 'Vos consommations et achats de crédits apparaîtront ici.' : 'Your credit usage and purchases will appear here.'}</p>
                 </div>
               ) : (
                 <div className="divide-y divide-border">
@@ -420,7 +436,7 @@ export default function CreditsPage() {
                               {tx.action_label || tx.action_key || txTypeLabel(tx.tx_type)}
                             </p>
                             <p className="text-[11px] text-muted-foreground">
-                              {format(new Date(tx.created_at), 'dd MMM yyyy à HH:mm', { locale: fr })}
+                              {format(new Date(tx.created_at), isFr ? 'dd MMM yyyy à HH:mm' : 'MMM dd, yyyy HH:mm', { locale: dateLoc })}
                             </p>
                           </div>
                         </div>
@@ -431,7 +447,7 @@ export default function CreditsPage() {
                             {tx.amount > 0 ? '+' : ''}{formatCredits(tx.amount)}
                           </p>
                           <p className="text-[10px] text-muted-foreground">
-                            Solde: {formatCredits(tx.balance_after)}
+                            {isFr ? 'Solde' : 'Balance'}: {formatCredits(tx.balance_after)}
                           </p>
                         </div>
                       </div>
@@ -449,48 +465,49 @@ export default function CreditsPage() {
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2">
             <HelpCircle className="h-4 w-4 text-primary" />
-            Questions fréquentes
+            {isFr ? 'Questions fréquentes' : 'Frequently asked questions'}
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0">
           <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="q1">
-              <AccordionTrigger className="text-sm">C'est quoi les crédits IA ?</AccordionTrigger>
+              <AccordionTrigger className="text-sm">{isFr ? "C'est quoi les crédits IA ?" : 'What are AI credits?'}</AccordionTrigger>
               <AccordionContent className="text-sm text-muted-foreground">
-                Les crédits IA sont une monnaie interne qui vous permet d'utiliser nos fonctionnalités d'intelligence artificielle : 
-                génération de livres, création de couvertures, rédaction de descriptions, transcription audio/vidéo, et plus encore. 
-                Chaque action a un coût en crédits proportionnel à sa complexité.
+                {isFr
+                  ? "Les crédits IA sont une monnaie interne qui vous permet d'utiliser nos fonctionnalités d'intelligence artificielle : génération de livres, création de couvertures, rédaction de descriptions, transcription audio/vidéo, et plus encore. Chaque action a un coût en crédits proportionnel à sa complexité."
+                  : 'AI credits are an internal currency that lets you use our artificial intelligence features: book generation, cover creation, description writing, audio/video transcription, and more. Each action has a credit cost proportional to its complexity.'}
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q2">
-              <AccordionTrigger className="text-sm">Comment obtenir des crédits gratuits ?</AccordionTrigger>
+              <AccordionTrigger className="text-sm">{isFr ? 'Comment obtenir des crédits gratuits ?' : 'How to get free credits?'}</AccordionTrigger>
               <AccordionContent className="text-sm text-muted-foreground">
-                Vous recevez automatiquement <strong>38,5 crédits gratuits chaque jour</strong> à votre première connexion. 
-                Ces crédits quotidiens expirent après 24h et sont consommés en priorité. 
-                Vous gagnez aussi des crédits bonus via le cashback de 1,5% sur vos ventes de produits.
+                {isFr
+                  ? <>Vous recevez automatiquement <strong>38,5 crédits gratuits chaque jour</strong> à votre première connexion. Ces crédits quotidiens expirent après 24h et sont consommés en priorité. Vous gagnez aussi des crédits bonus via le cashback de 1,5% sur vos ventes de produits.</>
+                  : <>You automatically receive <strong>38.5 free credits every day</strong> on your first login. These daily credits expire after 24h and are consumed first. You also earn bonus credits via 1.5% cashback on your product sales.</>}
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q3">
-              <AccordionTrigger className="text-sm">Les crédits achetés expirent-ils ?</AccordionTrigger>
+              <AccordionTrigger className="text-sm">{isFr ? 'Les crédits achetés expirent-ils ?' : 'Do purchased credits expire?'}</AccordionTrigger>
               <AccordionContent className="text-sm text-muted-foreground">
-                <strong>Non, jamais.</strong> Les crédits achetés n'ont pas de date d'expiration. Seuls les crédits 
-                quotidiens (24h) et les crédits bonus (7 jours) ont une durée limitée. L'ordre de consommation est : 
-                quotidiens → bonus → achetés.
+                {isFr
+                  ? <><strong>Non, jamais.</strong> Les crédits achetés n'ont pas de date d'expiration. Seuls les crédits quotidiens (24h) et les crédits bonus (7 jours) ont une durée limitée. L'ordre de consommation est : quotidiens → bonus → achetés.</>
+                  : <><strong>No, never.</strong> Purchased credits have no expiration date. Only daily credits (24h) and bonus credits (7 days) have limited duration. Consumption order: daily → bonus → purchased.</>}
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q4">
-              <AccordionTrigger className="text-sm">Quelle est la différence Standard / Premium ?</AccordionTrigger>
+              <AccordionTrigger className="text-sm">{isFr ? 'Quelle est la différence Standard / Premium ?' : 'What\'s the difference between Standard / Premium?'}</AccordionTrigger>
               <AccordionContent className="text-sm text-muted-foreground">
-                Le mode <strong>Standard</strong> est rapide et économique, parfait pour la plupart des usages. 
-                Le mode <strong>Premium</strong> offre des résultats de meilleure qualité, idéal pour les contenus exigeants. 
-                Le mode Premium consomme environ 50-80% de crédits en plus.
+                {isFr
+                  ? <>Le mode <strong>Standard</strong> est rapide et économique, parfait pour la plupart des usages. Le mode <strong>Premium</strong> offre des résultats de meilleure qualité, idéal pour les contenus exigeants. Le mode Premium consomme environ 50-80% de crédits en plus.</>
+                  : <>The <strong>Standard</strong> mode is fast and economical, perfect for most uses. The <strong>Premium</strong> mode offers higher quality results, ideal for demanding content. Premium mode consumes about 50-80% more credits.</>}
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="q5">
-              <AccordionTrigger className="text-sm">Comment payer pour des crédits ?</AccordionTrigger>
+              <AccordionTrigger className="text-sm">{isFr ? 'Comment payer pour des crédits ?' : 'How to pay for credits?'}</AccordionTrigger>
               <AccordionContent className="text-sm text-muted-foreground">
-                Le paiement se fait via <strong>Mobile Money</strong> (Orange Money, MTN, Wave, etc.) ou <strong>carte bancaire</strong>. 
-                Les crédits sont ajoutés instantanément à votre solde après confirmation du paiement.
+                {isFr
+                  ? <>Le paiement se fait via <strong>Mobile Money</strong> (Orange Money, MTN, Wave, etc.) ou <strong>carte bancaire</strong>. Les crédits sont ajoutés instantanément à votre solde après confirmation du paiement.</>
+                  : <>Payment is made via <strong>Mobile Money</strong> (Orange Money, MTN, Wave, etc.) or <strong>bank card</strong>. Credits are instantly added to your balance after payment confirmation.</>}
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -506,28 +523,16 @@ export default function CreditsPage() {
                 <Coins className="h-5 w-5 text-amber-500" />
               </div>
               <div>
-                <p className="text-sm font-medium">Solde bas — {formatCredits(summary.balance)} crédits restants</p>
-                <p className="text-xs text-muted-foreground">Rechargez pour continuer à créer du contenu IA.</p>
+                <p className="text-sm font-medium">{isFr ? `Solde bas — ${formatCredits(summary.balance)} crédits restants` : `Low balance — ${formatCredits(summary.balance)} credits remaining`}</p>
+                <p className="text-xs text-muted-foreground">{isFr ? 'Rechargez pour continuer à créer du contenu IA.' : 'Top up to continue creating AI content.'}</p>
               </div>
             </div>
             <Button size="sm" onClick={() => setSelectedTab('packs')} className="gap-1.5 shrink-0">
-              Recharger <ArrowRight className="h-3.5 w-3.5" />
+              {isFr ? 'Recharger' : 'Top up'} <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           </CardContent>
         </Card>
       )}
     </div>
   );
-}
-
-function txTypeLabel(type: string): string {
-  const labels: Record<string, string> = {
-    consumption: 'Consommation',
-    daily_grant: 'Crédits quotidiens',
-    bonus_grant: 'Crédits bonus',
-    purchase: 'Achat de crédits',
-    expiration: 'Expiration',
-    refund: 'Remboursement',
-  };
-  return labels[type] || type;
 }

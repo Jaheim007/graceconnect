@@ -7,50 +7,68 @@ import { SEOHead } from '@/components/seo/SEOHead';
 import { LandingNav } from '@/components/landing/LandingNav';
 import { LandingFooter } from '@/components/landing/LandingFooter';
 import { useState } from 'react';
+import { useI18n } from '@/hooks/useI18n';
 
 const fadeUp = { hidden: { opacity: 0, y: 12 }, visible: { opacity: 1, y: 0, transition: { duration: 0.35 } } };
 
-const steps = [
-  { icon: Users, title: 'Inscrivez-vous gratuitement', desc: 'Créez votre compte en 30 secondes. Aucune compétence technique requise.' },
-  { icon: Share2, title: 'Choisissez & partagez', desc: 'Parcourez les ressources disponibles. Copiez votre lien unique et partagez-le sur WhatsApp, Facebook, etc.' },
-  { icon: DollarSign, title: 'Gagnez des commissions', desc: 'Chaque achat via votre lien vous rapporte de 5% à 50% de commission. Retrait automatique.' },
-];
-
-const testimonials = [
-  { name: 'Ibrahim T.', flag: '🇸🇳', text: 'Je n\'ai aucun contenu. Je partage simplement et je gagne chaque semaine. C\'est incroyable.', earning: '120 000 FCFA/mois' },
-  { name: 'Amara D.', flag: '🇨🇮', text: 'En 2 mois, j\'ai gagné plus qu\'un salaire mensuel juste en partageant des ressources numériques.', earning: '250 000 FCFA/mois' },
-  { name: 'Sophie N.', flag: '🇧🇯', text: 'Je partage des prédications audio sur WhatsApp. Les commissions tombent toutes seules.', earning: '85 000 FCFA/mois' },
-];
-
-const faqs = [
-  { q: 'Dois-je payer pour devenir ambassadeur ?', a: 'Non, c\'est 100% gratuit. Pas de frais d\'inscription, pas d\'abonnement.' },
-  { q: 'Comment suis-je payé ?', a: 'Vos commissions sont automatiquement calculées. Vous pouvez retirer via Mobile Money, virement bancaire ou carte selon votre pays, dès que votre solde atteint le minimum.' },
-  { q: 'Quel pourcentage de commission ?', a: 'C\'est chaque organisation qui fixe le taux de commission sur ses produits, entre 5% et 50%. Le taux est affiché clairement sur chaque produit.' },
-  { q: 'Est-ce que je gagne des commissions sur les dons et campagnes ?', a: 'Non. Les commissions ambassadeurs s\'appliquent exclusivement aux ventes de ressources numériques (ebooks, audio, vidéos, etc.). Aucune commission n\'est versée sur les dons, offrandes ou campagnes de collecte.' },
-  { q: 'Dois-je créer du contenu ?', a: 'Non ! Vous partagez le contenu des autres. Zéro création nécessaire. Sauf si vous souhaitez aussi créer votre propre plateforme.' },
-  { q: 'Combien puis-je gagner ?', a: 'Il n\'y a pas de limite. Certains ambassadeurs gagnent plus de 500 000 FCFA/mois en partageant activement.' },
-];
-
 export default function AmbassadorPage() {
   const navigate = useNavigate();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const numLoc = isFr ? 'fr-FR' : 'en-US';
   const [shares, setShares] = useState(5);
   const avgPrice = 3000;
   const convRate = 0.08;
   const commissionRate = 0.15;
   const estimatedMonthly = Math.round(shares * 30 * avgPrice * convRate * commissionRate);
 
+  const steps = [
+    { icon: Users, title: isFr ? 'Inscrivez-vous gratuitement' : 'Sign up for free', desc: isFr ? 'Créez votre compte en 30 secondes. Aucune compétence technique requise.' : 'Create your account in 30 seconds. No technical skills needed.' },
+    { icon: Share2, title: isFr ? 'Choisissez & partagez' : 'Choose & share', desc: isFr ? 'Parcourez les ressources disponibles. Copiez votre lien unique et partagez-le sur WhatsApp, Facebook, etc.' : 'Browse available resources. Copy your unique link and share it on WhatsApp, Facebook, etc.' },
+    { icon: DollarSign, title: isFr ? 'Gagnez des commissions' : 'Earn commissions', desc: isFr ? 'Chaque achat via votre lien vous rapporte de 5% à 50% de commission. Retrait automatique.' : 'Every purchase via your link earns you 5% to 50% commission. Automatic withdrawal.' },
+  ];
+
+  const testimonials = [
+    { name: 'Ibrahim T.', flag: '🇸🇳', text: isFr ? 'Je n\'ai aucun contenu. Je partage simplement et je gagne chaque semaine. C\'est incroyable.' : 'I have no content. I simply share and earn every week. It\'s incredible.', earning: isFr ? '120 000 FCFA/mois' : '120,000 FCFA/mo' },
+    { name: 'Amara D.', flag: '🇨🇮', text: isFr ? 'En 2 mois, j\'ai gagné plus qu\'un salaire mensuel juste en partageant des ressources numériques.' : 'In 2 months, I earned more than a monthly salary just by sharing digital resources.', earning: isFr ? '250 000 FCFA/mois' : '250,000 FCFA/mo' },
+    { name: 'Sophie N.', flag: '🇧🇯', text: isFr ? 'Je partage des prédications audio sur WhatsApp. Les commissions tombent toutes seules.' : 'I share audio sermons on WhatsApp. The commissions come in by themselves.', earning: isFr ? '85 000 FCFA/mois' : '85,000 FCFA/mo' },
+  ];
+
+  const faqs = isFr ? [
+    { q: 'Dois-je payer pour devenir ambassadeur ?', a: 'Non, c\'est 100% gratuit. Pas de frais d\'inscription, pas d\'abonnement.' },
+    { q: 'Comment suis-je payé ?', a: 'Vos commissions sont automatiquement calculées. Vous pouvez retirer via Mobile Money, virement bancaire ou carte selon votre pays, dès que votre solde atteint le minimum.' },
+    { q: 'Quel pourcentage de commission ?', a: 'C\'est chaque organisation qui fixe le taux de commission sur ses produits, entre 5% et 50%. Le taux est affiché clairement sur chaque produit.' },
+    { q: 'Est-ce que je gagne des commissions sur les dons et campagnes ?', a: 'Non. Les commissions ambassadeurs s\'appliquent exclusivement aux ventes de ressources numériques (ebooks, audio, vidéos, etc.). Aucune commission n\'est versée sur les dons, offrandes ou campagnes de collecte.' },
+    { q: 'Dois-je créer du contenu ?', a: 'Non ! Vous partagez le contenu des autres. Zéro création nécessaire. Sauf si vous souhaitez aussi créer votre propre plateforme.' },
+    { q: 'Combien puis-je gagner ?', a: 'Il n\'y a pas de limite. Certains ambassadeurs gagnent plus de 500 000 FCFA/mois en partageant activement.' },
+  ] : [
+    { q: 'Do I need to pay to become an ambassador?', a: 'No, it\'s 100% free. No registration fees, no subscription.' },
+    { q: 'How do I get paid?', a: 'Your commissions are automatically calculated. You can withdraw via Mobile Money, bank transfer or card depending on your country, once your balance reaches the minimum.' },
+    { q: 'What commission percentage?', a: 'Each organization sets its own commission rate on its products, between 5% and 50%. The rate is clearly displayed on each product.' },
+    { q: 'Do I earn commissions on donations and campaigns?', a: 'No. Ambassador commissions apply exclusively to sales of digital resources (ebooks, audio, videos, etc.). No commission is paid on donations, offerings or fundraising campaigns.' },
+    { q: 'Do I need to create content?', a: 'No! You share other people\'s content. Zero creation needed. Unless you also want to create your own platform.' },
+    { q: 'How much can I earn?', a: 'There is no limit. Some ambassadors earn over 500,000 FCFA/month by actively sharing.' },
+  ];
+
+  const advantages = [
+    { icon: Gift, title: isFr ? '100% gratuit' : '100% free', desc: isFr ? 'Pas d\'inscription payante, pas de frais cachés' : 'No paid registration, no hidden fees' },
+    { icon: Zap, title: isFr ? 'Aucun contenu à créer' : 'No content to create', desc: isFr ? 'Vous partagez le contenu des autres et gagnez' : 'You share other people\'s content and earn' },
+    { icon: TrendingUp, title: isFr ? 'Jusqu\'à 50% de commission' : 'Up to 50% commission', desc: isFr ? 'Les taux les plus élevés du marché' : 'The highest rates on the market' },
+    { icon: DollarSign, title: isFr ? 'Retrait flexible' : 'Flexible withdrawal', desc: isFr ? 'Mobile Money, virement bancaire ou carte — selon votre pays' : 'Mobile Money, bank transfer or card — depending on your country' },
+  ];
+
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
-        title="Devenir Ambassadeur — Gagnez de l'argent en partageant du contenu | Siteviral"
-        description="Zéro contenu à créer. Partagez des produits numériques (ebooks, audio, vidéos) et gagnez jusqu'à 50% de commission sur chaque vente. Inscription 100% gratuite."
+        title={isFr ? "Devenir Ambassadeur — Gagnez de l'argent en partageant du contenu | Siteviral" : "Become an Ambassador — Earn money by sharing content | Siteviral"}
+        description={isFr ? "Zéro contenu à créer. Partagez des produits numériques et gagnez jusqu'à 50% de commission sur chaque vente. Inscription 100% gratuite." : "Zero content to create. Share digital products and earn up to 50% commission on every sale. 100% free registration."}
         canonicalUrl="https://siteviral.com/ambassador"
-        keywords="devenir ambassadeur, gagner argent en partageant, programme ambassadeur produits numériques, commission Mobile Money, revenu passif Afrique, partager et gagner, ambassadeur digital"
+        keywords={isFr ? "devenir ambassadeur, gagner argent en partageant, programme ambassadeur produits numériques, commission Mobile Money, revenu passif Afrique" : "become ambassador, earn money sharing, digital products ambassador program, Mobile Money commission, passive income Africa"}
         jsonLd={{
           '@context': 'https://schema.org',
           '@type': 'WebPage',
-          name: 'Programme Ambassadeur Siteviral',
-          description: 'Gagnez de l\'argent en partageant du contenu numérique. Commission de 5% à 50%.',
+          name: isFr ? 'Programme Ambassadeur Siteviral' : 'Siteviral Ambassador Program',
+          description: isFr ? 'Gagnez de l\'argent en partageant du contenu numérique. Commission de 5% à 50%.' : 'Earn money by sharing digital content. 5% to 50% commission.',
           url: 'https://siteviral.com/ambassador',
         }}
       />
@@ -63,29 +81,30 @@ export default function AmbassadorPage() {
           <motion.div initial="hidden" animate="visible" variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.06 } } }} className="space-y-6">
             <motion.div variants={fadeUp}>
               <Badge variant="secondary" className="text-xs px-4 py-1.5 rounded-full gap-1.5 font-semibold">
-                🚀 Programme Ambassadeur
+                🚀 {isFr ? 'Programme Ambassadeur' : 'Ambassador Program'}
               </Badge>
             </motion.div>
             <motion.h1 variants={fadeUp} className="text-3xl sm:text-5xl font-extrabold leading-tight">
-              Zéro contenu à créer.{' '}
-              <span className="text-primary">Juste partager et gagner.</span>
+              {isFr ? <>Zéro contenu à créer.{' '}<span className="text-primary">Juste partager et gagner.</span></> : <>Zero content to create.{' '}<span className="text-primary">Just share and earn.</span></>}
             </motion.h1>
             <motion.p variants={fadeUp} className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-              Sur Siteviral, tout le monde gagne — même sans contenu. Partagez les ressources des organisations et leaders, et touchez de <strong className="text-foreground">5% à 50% de commission</strong> sur chaque vente de ressource.
+              {isFr
+                ? <>Sur Siteviral, tout le monde gagne — même sans contenu. Partagez les ressources des organisations et leaders, et touchez de <strong className="text-foreground">5% à 50% de commission</strong> sur chaque vente de ressource.</>
+                : <>On Siteviral, everyone earns — even without content. Share resources from organizations and leaders, and earn <strong className="text-foreground">5% to 50% commission</strong> on every resource sale.</>}
             </motion.p>
             <motion.p variants={fadeUp} className="text-xs text-muted-foreground/80 italic max-w-xl mx-auto">
-              ⚠️ Les commissions s'appliquent uniquement aux ventes de ressources numériques. Aucune commission sur les dons et campagnes.
+              {isFr ? '⚠️ Les commissions s\'appliquent uniquement aux ventes de ressources numériques. Aucune commission sur les dons et campagnes.' : '⚠️ Commissions apply only to digital resource sales. No commission on donations and campaigns.'}
             </motion.p>
             <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button size="lg" className="px-8 gap-2 h-13 text-base w-full sm:w-auto cta-glow" onClick={() => navigate('/auth?mode=signup')}>
-                Commencer gratuitement <ArrowRight className="h-4 w-4" />
+                {isFr ? 'Commencer gratuitement' : 'Start for free'} <ArrowRight className="h-4 w-4" />
               </Button>
               <Button size="lg" variant="outline" className="h-13 px-8 text-base w-full sm:w-auto" onClick={() => document.getElementById('how-ambassador')?.scrollIntoView({ behavior: 'smooth' })}>
-                Comment ça marche ?
+                {isFr ? 'Comment ça marche ?' : 'How it works?'}
               </Button>
             </motion.div>
             <motion.p variants={fadeUp} className="text-[11px] text-muted-foreground/60">
-              ✓ 100% gratuit · ✓ Pas de carte requise · ✓ Retrait flexible
+              {isFr ? '✓ 100% gratuit · ✓ Pas de carte requise · ✓ Retrait flexible' : '✓ 100% free · ✓ No card required · ✓ Flexible withdrawal'}
             </motion.p>
           </motion.div>
         </div>
@@ -95,7 +114,9 @@ export default function AmbassadorPage() {
       <section id="how-ambassador" className="py-20 px-4 bg-muted/30">
         <div className="container max-w-4xl">
           <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-extrabold">3 étapes. <span className="text-primary">C'est tout.</span></h2>
+            <h2 className="text-2xl sm:text-3xl font-extrabold">
+              {isFr ? <>3 étapes. <span className="text-primary">C'est tout.</span></> : <>3 steps. <span className="text-primary">That's it.</span></>}
+            </h2>
           </div>
           <div className="grid sm:grid-cols-3 gap-6">
             {steps.map((step, i) => (
@@ -119,14 +140,16 @@ export default function AmbassadorPage() {
       <section className="py-20 px-4">
         <div className="container max-w-xl">
           <div className="text-center mb-8">
-            <h2 className="text-2xl sm:text-3xl font-extrabold">Simulez <span className="text-primary">vos gains</span></h2>
-            <p className="text-sm text-muted-foreground mt-2">Déplacez le curseur pour voir combien vous pourriez gagner</p>
+            <h2 className="text-2xl sm:text-3xl font-extrabold">
+              {isFr ? <>Simulez <span className="text-primary">vos gains</span></> : <>Simulate <span className="text-primary">your earnings</span></>}
+            </h2>
+            <p className="text-sm text-muted-foreground mt-2">{isFr ? 'Déplacez le curseur pour voir combien vous pourriez gagner' : 'Move the slider to see how much you could earn'}</p>
           </div>
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
             className="bg-card rounded-2xl border border-border p-8 space-y-6">
             <div className="space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Partages par jour</span>
+                <span className="text-muted-foreground">{isFr ? 'Partages par jour' : 'Shares per day'}</span>
                 <span className="font-bold text-primary">{shares}</span>
               </div>
               <input
@@ -139,12 +162,14 @@ export default function AmbassadorPage() {
               </div>
             </div>
             <div className="text-center py-4 rounded-xl bg-primary/5 border border-primary/20">
-              <p className="text-sm text-muted-foreground">Estimation mensuelle</p>
+              <p className="text-sm text-muted-foreground">{isFr ? 'Estimation mensuelle' : 'Monthly estimate'}</p>
               <p className="text-3xl sm:text-4xl font-extrabold text-primary mt-1">
-                {estimatedMonthly.toLocaleString('fr-FR')} FCFA
+                {estimatedMonthly.toLocaleString(numLoc)} FCFA
               </p>
               <p className="text-[11px] text-muted-foreground mt-1">
-                Basé sur un prix moyen de {avgPrice.toLocaleString()} FCFA, {Math.round(convRate * 100)}% de conversion, {Math.round(commissionRate * 100)}% de commission
+                {isFr
+                  ? `Basé sur un prix moyen de ${avgPrice.toLocaleString(numLoc)} FCFA, ${Math.round(convRate * 100)}% de conversion, ${Math.round(commissionRate * 100)}% de commission`
+                  : `Based on avg price ${avgPrice.toLocaleString(numLoc)} FCFA, ${Math.round(convRate * 100)}% conversion, ${Math.round(commissionRate * 100)}% commission`}
               </p>
             </div>
           </motion.div>
@@ -155,7 +180,9 @@ export default function AmbassadorPage() {
       <section className="py-20 px-4 bg-muted/30">
         <div className="container max-w-4xl">
           <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-extrabold">Ils gagnent déjà <span className="text-primary">avec Siteviral</span></h2>
+            <h2 className="text-2xl sm:text-3xl font-extrabold">
+              {isFr ? <>Ils gagnent déjà <span className="text-primary">avec Siteviral</span></> : <>They already earn <span className="text-primary">with Siteviral</span></>}
+            </h2>
           </div>
           <div className="grid sm:grid-cols-3 gap-5">
             {testimonials.map((t, i) => (
@@ -179,15 +206,12 @@ export default function AmbassadorPage() {
       <section className="py-20 px-4">
         <div className="container max-w-4xl">
           <div className="text-center mb-10">
-            <h2 className="text-2xl sm:text-3xl font-extrabold">Pourquoi <span className="text-primary">devenir ambassadeur ?</span></h2>
+            <h2 className="text-2xl sm:text-3xl font-extrabold">
+              {isFr ? <>Pourquoi <span className="text-primary">devenir ambassadeur ?</span></> : <>Why <span className="text-primary">become an ambassador?</span></>}
+            </h2>
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
-            {[
-              { icon: Gift, title: '100% gratuit', desc: 'Pas d\'inscription payante, pas de frais cachés' },
-              { icon: Zap, title: 'Aucun contenu à créer', desc: 'Vous partagez le contenu des autres et gagnez' },
-              { icon: TrendingUp, title: 'Jusqu\'à 50% de commission', desc: 'Les taux les plus élevés du marché' },
-              { icon: DollarSign, title: 'Retrait flexible', desc: 'Mobile Money, virement bancaire ou carte — selon votre pays' },
-            ].map((item, i) => (
+            {advantages.map((item, i) => (
               <motion.div key={i} initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} transition={{ delay: i * 0.06 }}
                 className="flex items-start gap-4 p-4 rounded-xl border border-border bg-card">
                 <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
@@ -206,7 +230,9 @@ export default function AmbassadorPage() {
       {/* FAQ */}
       <section className="py-20 px-4 bg-muted/30">
         <div className="container max-w-2xl">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-center mb-10">Questions <span className="text-primary">fréquentes</span></h2>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-center mb-10">
+            {isFr ? <>Questions <span className="text-primary">fréquentes</span></> : <>Frequently <span className="text-primary">asked questions</span></>}
+          </h2>
           <div className="space-y-3">
             {faqs.map((faq, i) => (
               <details key={i} className="group bg-card rounded-xl border border-border p-4">
@@ -225,12 +251,18 @@ export default function AmbassadorPage() {
       <section className="py-20 px-4">
         <div className="container max-w-xl text-center">
           <div className="bg-card rounded-3xl border border-primary/20 p-8 sm:p-10 shadow-elevated space-y-5">
-            <h2 className="text-2xl sm:text-3xl font-extrabold">Prêt à gagner de l'argent <span className="text-primary">sans créer de contenu ?</span></h2>
-            <p className="text-muted-foreground text-sm">Rejoignez des centaines d'ambassadeurs qui gagnent déjà avec Siteviral.</p>
+            <h2 className="text-2xl sm:text-3xl font-extrabold">
+              {isFr ? <>Prêt à gagner de l'argent <span className="text-primary">sans créer de contenu ?</span></> : <>Ready to earn money <span className="text-primary">without creating content?</span></>}
+            </h2>
+            <p className="text-muted-foreground text-sm">
+              {isFr ? 'Rejoignez des centaines d\'ambassadeurs qui gagnent déjà avec Siteviral.' : 'Join hundreds of ambassadors already earning with Siteviral.'}
+            </p>
             <Button size="lg" className="px-10 h-13 gap-2 text-base cta-glow" onClick={() => navigate('/auth?mode=signup')}>
-              Devenir ambassadeur maintenant <ArrowRight className="h-4 w-4" />
+              {isFr ? 'Devenir ambassadeur maintenant' : 'Become an ambassador now'} <ArrowRight className="h-4 w-4" />
             </Button>
-            <p className="text-[11px] text-muted-foreground/60">Inscription en 30 secondes · 100% gratuit</p>
+            <p className="text-[11px] text-muted-foreground/60">
+              {isFr ? 'Inscription en 30 secondes · 100% gratuit' : 'Sign up in 30 seconds · 100% free'}
+            </p>
           </div>
         </div>
       </section>
