@@ -235,7 +235,7 @@ export default function PartnerPortalPage() {
                   )}
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
                     <Users className="h-3 w-3" />
-                    {partner.invite_uses_count} utilisation{partner.invite_uses_count !== 1 ? 's' : ''}
+                    {partner.invite_uses_count} {isFr ? `utilisation${partner.invite_uses_count !== 1 ? 's' : ''}` : `use${partner.invite_uses_count !== 1 ? 's' : ''}`}
                   </p>
                 </>
               ) : (
