@@ -97,7 +97,7 @@ export default function SuperadminEmailLogs() {
         <Select value={categoryFilter} onValueChange={setCategoryFilter}>
           <SelectTrigger className="w-[160px]">
             <Filter className="h-3.5 w-3.5 mr-1.5" />
-            <SelectValue placeholder="Catégorie" />
+            <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Toutes les catégories</SelectItem>
