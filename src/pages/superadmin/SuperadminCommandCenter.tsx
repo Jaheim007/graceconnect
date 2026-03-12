@@ -276,7 +276,9 @@ export default function SuperadminCommandCenter() {
 
           {(!autopilotRuns || autopilotRuns.length === 0) && (
             <p className="text-xs text-muted-foreground text-center py-3">
-              Aucune exécution encore. Cliquez sur "Daily" ou "Weekly" pour lancer l'autopilot.
+              {isFr
+                ? 'Aucune exécution encore. Cliquez sur "Daily" ou "Weekly" pour lancer l\'autopilot.'
+                : 'No runs yet. Click "Daily" or "Weekly" to launch the autopilot.'}
             </p>
           )}
         </CardContent>
