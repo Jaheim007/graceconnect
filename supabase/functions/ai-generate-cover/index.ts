@@ -77,7 +77,8 @@ CRITICAL: The typography must be flawless — clean, well-kerned, professionally
     return jsonResp({ ok: true, cover_url: result });
   } catch (e: any) {
     if (e?.status === 402) return jsonResp({ error: e.message }, 402);
-    console.error('ai-generate-cover error:', e);
-    return jsonResp({ ok: false, error: e instanceof Error ? e.message : 'Internal error' }, 400);
+    if (e?.status === 429) return jsonResp({ error: 'Rate limit exceeded. Please retry in a moment.' }, 429);
+    console.error('ai-generate-cover error:', e?.message, 'status:', e?.status, 'detail:', e?.detail?.slice?.(0, 500));
+    return jsonResp({ ok: false, error: e instanceof Error ? e.message : 'Internal error' }, 500);
   }
 });
