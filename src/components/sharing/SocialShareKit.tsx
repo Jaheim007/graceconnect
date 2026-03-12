@@ -97,6 +97,9 @@ const PLATFORMS: Platform[] = [
 export function SocialShareKit({ url, title, description, context, price, earnings, commissionRate, productId }: SocialShareKitProps) {
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const MESSAGES = isFr ? MESSAGES_FR : MESSAGES_EN;
   const message = MESSAGES[context](title, price, earnings);
 
   // Ensure all share URLs route through the edge function for proper OG previews
