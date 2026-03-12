@@ -66,8 +66,10 @@ export function TopBar() {
         <OrgSwitcher variant="topbar" />
       )}
 
-      {/* Credits — always visible with enough room */}
+      {/* Credits */}
       <CreditBalance />
+
+      <GlobalPreferencesSelector />
 
       <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={toggleTheme}>
         {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}

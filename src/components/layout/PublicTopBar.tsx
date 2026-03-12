@@ -5,6 +5,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useI18n } from '@/i18n/I18nContext';
+import { GlobalPreferencesSelector } from '@/components/global/GlobalPreferencesSelector';
 
 export function PublicTopBar() {
   const { theme, toggleTheme } = useTheme();
@@ -16,6 +17,8 @@ export function PublicTopBar() {
     <header className="h-14 sticky top-0 z-40 glass border-b border-border flex items-center px-4 gap-3">
       <SiteLogo size="sm" animate />
       <div className="flex-1" />
+
+      <GlobalPreferencesSelector />
 
       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme}>
         {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
