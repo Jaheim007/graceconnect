@@ -694,10 +694,10 @@ export function SmartCameraCapture({
             {!uploading && (
               <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-3">
                 <Button type="button" size="sm" variant="secondary" className="bg-background/80 backdrop-blur" onClick={retake}>
-                  <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> Reprendre
+                  <RotateCcw className="h-3.5 w-3.5 mr-1.5" /> {lang === 'fr' ? 'Reprendre' : 'Retake'}
                 </Button>
                 <Button type="button" size="sm" variant="destructive" className="bg-destructive/80 backdrop-blur" onClick={clear}>
-                  <X className="h-3.5 w-3.5 mr-1.5" /> Supprimer
+                  <X className="h-3.5 w-3.5 mr-1.5" /> {lang === 'fr' ? 'Supprimer' : 'Delete'}
                 </Button>
               </div>
             )}
