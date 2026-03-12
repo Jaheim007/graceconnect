@@ -362,9 +362,9 @@ export default function PartnerPortalPage() {
         <TabsContent value="gains">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Historique des commissions</CardTitle>
+              <CardTitle className="text-base">{isFr ? 'Historique des commissions' : 'Commission history'}</CardTitle>
               <CardDescription>
-                Commissions générées automatiquement sur chaque transaction de vos organisations. Retenue de 15 jours puis disponible.
+                {isFr ? 'Commissions générées automatiquement sur chaque transaction de vos organisations. Retenue de 15 jours puis disponible.' : 'Commissions automatically generated on each transaction from your organizations. 15-day hold then available.'}
               </CardDescription>
             </CardHeader>
             <CardContent>
