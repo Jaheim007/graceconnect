@@ -494,10 +494,10 @@ function OrgAffiliateCard({ org, isSubscribed, onBecome, loading, onView }: {
       <div className="flex items-center gap-2">
         <Button size="sm" className="flex-1 h-8 text-xs gap-1.5" onClick={onBecome} disabled={loading}>
           <Link2 className="h-3.5 w-3.5" />
-          {loading ? 'En cours...' : 'Devenir ambassadeur'}
+          {loading ? '...' : (isFr ? 'Devenir ambassadeur' : 'Become ambassador')}
         </Button>
         <Button size="sm" variant="outline" className="h-8 text-xs gap-1" onClick={onView}>
-          <ExternalLink className="h-3 w-3" /> Voir
+          <ExternalLink className="h-3 w-3" /> {isFr ? 'Voir' : 'View'}
         </Button>
       </div>
       {isSubscribed && (
