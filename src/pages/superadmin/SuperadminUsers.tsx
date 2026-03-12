@@ -14,10 +14,11 @@ import {
   Mail, Phone, Globe, Calendar, Building2, Shield,
 } from 'lucide-react';
 import { format, subDays, isAfter } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { fr, enUS } from 'date-fns/locale';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { formatCurrency } from '@/lib/currency';
+import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
+import { useI18n } from '@/i18n/I18nContext';
 
 type FilterTab = 'all' | 'active' | 'creators' | 'affiliates' | 'new';
 
