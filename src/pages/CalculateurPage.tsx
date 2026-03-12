@@ -44,7 +44,7 @@ export default function CalculateurPage() {
   const ambassadeurCommission = Math.round(ambassadeurBrut * (commissionPct / 100));
   const ambassadeurAnnuel = ambassadeurCommission * 12;
 
-  const formatFCFA = (n: number) => n.toLocaleString('fr-FR') + ' FCFA';
+  const formatFCFA = (n: number) => n.toLocaleString(numLoc) + ' FCFA';
 
   return (
     <div className="min-h-screen bg-background">
