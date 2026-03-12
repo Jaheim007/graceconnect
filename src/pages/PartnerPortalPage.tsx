@@ -425,7 +425,7 @@ export default function PartnerPortalPage() {
                 <div className="mt-4 pt-4 border-t border-border/50 grid grid-cols-3 gap-4 text-center">
                   <div>
                     <p className="text-lg font-bold">{formatCurrency(stats.held, currency)}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">En attente</p>
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{isFr ? 'En attente' : 'Pending'}</p>
                   </div>
                   <div>
                     <p className="text-lg font-bold text-primary">{formatCurrency(stats.payable, currency)}</p>
