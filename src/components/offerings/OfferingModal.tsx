@@ -18,6 +18,7 @@ import { getAffiliateCode, clearAffiliateCode } from '@/hooks/useAffiliateCaptur
 import { isMoMoAvailable } from '@/lib/paymentRouting';
 import { verifyPayment, VerifyPaymentResult } from '@/lib/api';
 import { db } from '@/lib/db';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface OfferingModalProps {
   offering: Offering | null;
@@ -29,26 +30,26 @@ interface OfferingModalProps {
 type Step = 'form' | 'processing' | 'success' | 'error';
 
 export function OfferingModal({ offering, organizationId, open, onClose }: OfferingModalProps) {
-  const [amount, setAmount] = useState<string>('');
+  const [step, setStep] = useState<Step>('form');
+  const [amount, setAmount] = useState('');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [isRecurring, setIsRecurring] = useState(false);
-  const [recurringInterval, setRecurringInterval] = useState<string>('monthly');
-  const [step, setStep] = useState<Step>('form');
+  const [recurringInterval, setRecurringInterval] = useState('monthly');
   const [result, setResult] = useState<VerifyPaymentResult | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const currency = offering?.currency || 'XOF';
-
-  const { toast } = useToast();
   const { user, profile } = useAuth();
-  const { openPayment, hasPaystackKey } = usePaymentGateway();
-
-  const defaultMethod: PaymentMethod = isMoMoAvailable(currency) && hasPaystackKey ? 'mobile_money' : 'card';
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(defaultMethod);
+  const { toast } = useToast();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const { openPayment, hasPaystackKey } = usePaymentGateway();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+
+  const currency = (offering as any)?.currency || 'XOF';
+  const defaultMethod: PaymentMethod =
+    isMoMoAvailable(currency) && hasPaystackKey ? 'mobile_money' : 'card';
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(defaultMethod);
 
   const { data: orgPayment } = useQuery({
     queryKey: ['org-payment-config', organizationId],
@@ -67,7 +68,7 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
   const presets = offering.preset_amounts || [1000, 2500, 5000, 10000];
 
   const fmt = (n: number) =>
-    new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(n) + ` ${currency}`;
+    new Intl.NumberFormat(isFr ? 'fr-FR' : 'en-US', { maximumFractionDigits: 0 }).format(n) + ` ${currency}`;
 
   const resolvedEmail = email || user?.email || '';
   const resolvedName = name || profile?.display_name || '';
@@ -76,11 +77,11 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
   const handleSubmit = async () => {
     if (isSubmitting) return;
     if (!amount || Number(amount) < 100) {
-      toast({ title: 'Montant invalide', description: 'Le montant minimum est de 100 ' + currency + '.', variant: 'destructive' });
+      toast({ title: isFr ? 'Montant invalide' : 'Invalid amount', description: (isFr ? 'Le montant minimum est de 100 ' : 'Minimum amount is 100 ') + currency + '.', variant: 'destructive' });
       return;
     }
     if (!resolvedEmail) {
-      toast({ title: 'Email requis', description: 'Veuillez saisir votre email.', variant: 'destructive' });
+      toast({ title: isFr ? 'Email requis' : 'Email required', description: isFr ? 'Veuillez saisir votre email.' : 'Please enter your email.', variant: 'destructive' });
       return;
     }
     setIsSubmitting(true);
@@ -93,9 +94,9 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
         email: resolvedEmail,
         amount: effectiveAmount,
         currency,
-        type: 'donation', // reuse donation flow for payment processing
+        type: 'donation',
         organization_id: organizationId,
-        buyer_name: resolvedName || 'Donateur',
+        buyer_name: resolvedName || (isFr ? 'Donateur' : 'Donor'),
         affiliate_code: affiliateCode,
         subaccount: orgPayment?.paystack_subaccount_code || undefined,
         platformFeeAmount: orgPayment?.paystack_subaccount_code
@@ -130,7 +131,6 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
               donor_email: resolvedEmail || undefined,
             });
 
-            // Also record in offering_transactions
             await db.from('offering_transactions').insert({
               offering_id: offering.id,
               organization_id: organizationId,
@@ -154,7 +154,6 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
             setStep('success');
           } catch (err: unknown) {
             console.error('[OfferingModal] verify error:', err);
-            // Payment succeeded but verify failed — redirect to success page for retry
             const params = new URLSearchParams({
               reference,
               gateway: 'paystack',
@@ -166,8 +165,8 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
         },
       });
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Impossible d\'ouvrir le paiement.';
-      toast({ title: 'Erreur de paiement', description: message, variant: 'destructive' });
+      const message = err instanceof Error ? err.message : (isFr ? 'Impossible d\'ouvrir le paiement.' : 'Unable to open payment.');
+      toast({ title: isFr ? 'Erreur de paiement' : 'Payment error', description: message, variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
@@ -200,9 +199,8 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
         {step === 'form' && (
           <>
             <div className="space-y-4 py-2">
-              {/* Preset amounts */}
               <div>
-                <Label className="text-xs mb-2 block">Choisir un montant</Label>
+                <Label className="text-xs mb-2 block">{isFr ? 'Choisir un montant' : 'Choose an amount'}</Label>
                 <div className="flex flex-wrap gap-1.5">
                   {presets.map((p) => (
                     <button
@@ -221,19 +219,18 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
               </div>
 
               <div>
-                <Label htmlFor="offering-amount" className="text-xs">Ou montant personnalisé ({currency})</Label>
+                <Label htmlFor="offering-amount" className="text-xs">{isFr ? 'Ou montant personnalisé' : 'Or custom amount'} ({currency})</Label>
                 <Input
                   id="offering-amount"
                   type="number"
                   min={100}
-                  placeholder="ex. 3000"
+                  placeholder={isFr ? 'ex. 3000' : 'e.g. 3000'}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   className="mt-1.5"
                 />
               </div>
 
-              {/* Recurring option */}
               {offering.is_recurring_allowed && (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
@@ -245,7 +242,7 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
                       className="rounded border-border"
                     />
                      <Label htmlFor="recurring" className="text-xs cursor-pointer">
-                      Rendre ce don récurrent
+                      {isFr ? 'Rendre ce don récurrent' : 'Make this a recurring donation'}
                     </Label>
                   </div>
                   {isRecurring && (
@@ -254,9 +251,9 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="weekly">Chaque semaine</SelectItem>
-                        <SelectItem value="monthly">Chaque mois</SelectItem>
-                        <SelectItem value="yearly">Chaque année</SelectItem>
+                        <SelectItem value="weekly">{isFr ? 'Chaque semaine' : 'Weekly'}</SelectItem>
+                        <SelectItem value="monthly">{isFr ? 'Chaque mois' : 'Monthly'}</SelectItem>
+                        <SelectItem value="yearly">{isFr ? 'Chaque année' : 'Yearly'}</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
@@ -266,12 +263,12 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
               {!user && (
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label htmlFor="oname" className="text-xs">Nom</Label>
-                    <Input id="oname" value={name} onChange={(e) => setName(e.target.value)} placeholder="Votre nom" className="mt-1.5" />
+                    <Label htmlFor="oname" className="text-xs">{isFr ? 'Nom' : 'Name'}</Label>
+                    <Input id="oname" value={name} onChange={(e) => setName(e.target.value)} placeholder={isFr ? 'Votre nom' : 'Your name'} className="mt-1.5" />
                   </div>
                   <div>
                     <Label htmlFor="oemail" className="text-xs">Email *</Label>
-                    <Input id="oemail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="votre@email.com" className="mt-1.5" required />
+                    <Input id="oemail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your@email.com" className="mt-1.5" required />
                   </div>
                 </div>
               )}
@@ -284,25 +281,25 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
               />
               {!hasPaystackKey && isMoMoAvailable(currency) && (
                 <p className="text-[10px] text-muted-foreground">
-                  Mobile Money est temporairement indisponible. Utilisez Carte bancaire pour finaliser le paiement.
+                  {isFr ? 'Mobile Money est temporairement indisponible. Utilisez Carte bancaire pour finaliser le paiement.' : 'Mobile Money is temporarily unavailable. Use card payment to continue.'}
                 </p>
               )}
 
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Lock className="h-3 w-3" />
-                Paiement sécurisé par {paymentMethod === 'card' ? 'Stripe' : 'Paystack'}
+                {isFr ? 'Paiement sécurisé par' : 'Secure payment via'} {paymentMethod === 'card' ? 'Stripe' : 'Paystack'}
               </div>
             </div>
 
             <div className="flex gap-2">
-              <Button variant="outline" onClick={handleClose} className="flex-1">Annuler</Button>
+              <Button variant="outline" onClick={handleClose} className="flex-1">{isFr ? 'Annuler' : 'Cancel'}</Button>
               <Button
                 onClick={handleSubmit}
                 disabled={!amount || Number(amount) < 100 || isSubmitting}
                 className="flex-1 bg-primary text-primary-foreground"
               >
                 {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : null}
-                Donner {amount ? fmt(effectiveAmount) : ''}
+                {isFr ? 'Donner' : 'Give'} {amount ? fmt(effectiveAmount) : ''}
               </Button>
             </div>
           </>
@@ -311,7 +308,7 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
         {step === 'processing' && (
           <div className="py-10 flex flex-col items-center gap-4 text-center">
             <Loader2 className="h-12 w-12 text-primary animate-spin" />
-            <p className="font-medium">Vérification du paiement…</p>
+            <p className="font-medium">{isFr ? 'Vérification du paiement…' : 'Verifying payment…'}</p>
           </div>
         )}
 
@@ -319,28 +316,28 @@ export function OfferingModal({ offering, organizationId, open, onClose }: Offer
           <div className="py-6 flex flex-col items-center gap-4 text-center">
             <CheckCircle className="h-14 w-14 text-green-500" />
             <div>
-              <p className="font-semibold text-lg">🙏 Merci pour votre don !</p>
+              <p className="font-semibold text-lg">🙏 {isFr ? 'Merci pour votre don !' : 'Thank you for your donation!'}</p>
               <p className="text-sm text-muted-foreground mt-1">
-                {fmt(result.breakdown.amount)} reçu avec succès.
+                {fmt(result.breakdown.amount)} {isFr ? 'reçu avec succès' : 'received successfully'}.
               </p>
             </div>
             {user && (
               <Button onClick={() => { handleClose(); navigate('/dashboard'); }} className="w-full bg-primary text-primary-foreground">
-                Mon tableau de bord
+                {isFr ? 'Mon tableau de bord' : 'My dashboard'}
               </Button>
             )}
-            <Button variant="ghost" onClick={handleClose} className="text-muted-foreground">Fermer</Button>
+            <Button variant="ghost" onClick={handleClose} className="text-muted-foreground">{isFr ? 'Fermer' : 'Close'}</Button>
           </div>
         )}
 
         {step === 'error' && (
           <div className="py-6 flex flex-col items-center gap-4 text-center">
             <AlertCircle className="h-14 w-14 text-destructive" />
-            <p className="font-semibold">Erreur</p>
+            <p className="font-semibold">{isFr ? 'Erreur' : 'Error'}</p>
             <p className="text-sm text-muted-foreground">{errorMsg}</p>
             <div className="flex gap-2 w-full">
-              <Button variant="outline" onClick={handleClose} className="flex-1">Fermer</Button>
-              <Button onClick={() => setStep('form')} className="flex-1">Réessayer</Button>
+              <Button variant="outline" onClick={handleClose} className="flex-1">{isFr ? 'Fermer' : 'Close'}</Button>
+              <Button onClick={() => setStep('form')} className="flex-1">{isFr ? 'Réessayer' : 'Try again'}</Button>
             </div>
           </div>
         )}
