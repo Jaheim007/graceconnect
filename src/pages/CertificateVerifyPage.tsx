@@ -110,7 +110,7 @@ export default function CertificateVerifyPage() {
               </div>
 
               <p className="text-center text-[10px] text-muted-foreground">
-                Vérifié par Siteviral — siteviral.com
+                {isFr ? 'Vérifié par Siteviral — siteviral.com' : 'Verified by Siteviral — siteviral.com'}
               </p>
             </div>
           </div>
