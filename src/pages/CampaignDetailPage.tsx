@@ -246,7 +246,7 @@ export default function CampaignDetailPage() {
 
             {/* Share */}
             <div className="p-4 rounded-2xl border border-border bg-card shadow-card">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Partager cette campagne</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">{isFr ? 'Partager cette campagne' : 'Share this campaign'}</p>
               <ShareButtons
                 url={`/campaign/${campaignId}`}
                 title={campaign.title}
