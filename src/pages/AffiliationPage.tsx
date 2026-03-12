@@ -146,17 +146,17 @@ export default function AffiliationPage() {
 
   const handleRequestPayout = async (orgId: string, orgKycStatus: string) => {
     if (orgKycStatus === 'none' || orgKycStatus === 'pending') {
-      toast({ title: 'Vérification requise', description: 'Complétez la vérification d\'identité avant de demander un retrait.' });
+      toast({ title: isFr ? 'Vérification requise' : 'Verification required', description: isFr ? 'Complétez la vérification d\'identité avant de demander un retrait.' : 'Complete identity verification before requesting a withdrawal.' });
       navigate('/admin/kyc');
       return;
     }
     setRequestingPayout(orgId);
     try {
       const result = await requestAffiliatePayout(orgId);
-      toast({ title: 'Retrait demandé', description: `Montant : ${result.amount?.toLocaleString() || '0'} XOF` });
+      toast({ title: isFr ? 'Retrait demandé' : 'Withdrawal requested', description: `${isFr ? 'Montant' : 'Amount'} : ${fmt(result.amount || 0)}` });
       qc.invalidateQueries({ queryKey: ['user-affiliate-sales'] });
     } catch (err: unknown) {
-      toast({ title: 'Échec', description: err instanceof Error ? err.message : '', variant: 'destructive' });
+      toast({ title: isFr ? 'Échec' : 'Failed', description: err instanceof Error ? err.message : '', variant: 'destructive' });
     } finally { setRequestingPayout(null); }
   };
 
