@@ -182,10 +182,10 @@ export default function AffiliationPage() {
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
           <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight flex items-center gap-2">
-            <Link2 className="h-6 w-6 text-primary" /> Gagner — Programme Ambassadeur
+            <Link2 className="h-6 w-6 text-primary" /> {isFr ? 'Gagner — Programme Ambassadeur' : 'Earn — Ambassador Program'}
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Partagez des produits et gagnez des commissions sur chaque vente.
+            {isFr ? 'Partagez des produits et gagnez des commissions sur chaque vente.' : 'Share products and earn commissions on every sale.'}
           </p>
         </motion.div>
 
