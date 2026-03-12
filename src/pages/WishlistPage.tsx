@@ -5,23 +5,28 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Heart } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useI18n } from '@/i18n/I18nContext';
 
 export default function WishlistPage() {
   const { data: wishlistItems = [], isLoading } = useWishlist();
   const { data: purchases = [] } = useMyPurchases();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   return (
     <div className="container max-w-4xl px-4 py-6 space-y-6">
-      <SEOHead title="Ma liste d'envies — Siteviral" noindex />
+      <SEOHead title={isFr ? "Ma liste d'envies — Siteviral" : "My Wishlist — Siteviral"} noindex />
 
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 rounded-xl bg-red-500/10 flex items-center justify-center">
           <Heart className="h-5 w-5 text-red-500 fill-red-500" />
         </div>
         <div>
-          <h1 className="text-xl font-bold">Ma liste d'envies</h1>
+          <h1 className="text-xl font-bold">{isFr ? "Ma liste d'envies" : 'My Wishlist'}</h1>
           <p className="text-sm text-muted-foreground">
-            {wishlistItems.length} produit{wishlistItems.length !== 1 ? 's' : ''} sauvegardé{wishlistItems.length !== 1 ? 's' : ''}
+            {wishlistItems.length} {isFr
+              ? `produit${wishlistItems.length !== 1 ? 's' : ''} sauvegardé${wishlistItems.length !== 1 ? 's' : ''}`
+              : `saved product${wishlistItems.length !== 1 ? 's' : ''}`}
           </p>
         </div>
       </div>
@@ -34,9 +39,9 @@ export default function WishlistPage() {
         </div>
       ) : wishlistItems.length === 0 ? (
         <EmptyState
-          title="Votre liste d'envies est vide"
-          description="Parcourez les produits et cliquez sur le ❤️ pour les sauvegarder ici."
-          action={{ label: 'Explorer', onClick: () => window.location.href = '/discover' }}
+          title={isFr ? "Votre liste d'envies est vide" : "Your wishlist is empty"}
+          description={isFr ? "Parcourez les produits et cliquez sur le ❤️ pour les sauvegarder ici." : "Browse products and click ❤️ to save them here."}
+          action={{ label: isFr ? 'Explorer' : 'Explore', onClick: () => window.location.href = '/discover' }}
         />
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
