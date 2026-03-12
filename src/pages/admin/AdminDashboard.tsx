@@ -252,7 +252,7 @@ export default function AdminDashboard() {
             <div className="flex-1 min-w-0">
               <p className="font-semibold text-sm">{t('admin.complete_verification')}</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {t('admin.accept_payments')} — Les fonds sont retenus jusqu'à la vérification d'identité.
+                {t('admin.accept_payments')} — {isFr ? 'Les fonds sont retenus jusqu\'à la vérification d\'identité.' : 'Funds are held until identity verification.'}
               </p>
             </div>
           </div>
