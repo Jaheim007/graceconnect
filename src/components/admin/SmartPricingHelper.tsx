@@ -53,7 +53,9 @@ export function SmartPricingHelper() {
   if (avgPrice > 0 && avgPrice < benchmark.avgPrice * 0.5) {
     insights.push({
       type: 'opportunity',
-      message: `Votre prix moyen (${formatCurrency(avgPrice, currency)}) est inférieur à la moyenne de votre catégorie (${formatCurrency(benchmark.avgPrice, currency)}). Testez un prix plus élevé !`,
+      message: isFr
+        ? `Votre prix moyen (${formatCurrency(avgPrice, currency)}) est inférieur à la moyenne de votre catégorie (${formatCurrency(benchmark.avgPrice, currency)}). Testez un prix plus élevé !`
+        : `Your average price (${formatCurrency(avgPrice, currency)}) is below your category average (${formatCurrency(benchmark.avgPrice, currency)}). Try a higher price!`,
       icon: ArrowUp,
     });
   }
