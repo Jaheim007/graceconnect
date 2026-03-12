@@ -1361,7 +1361,7 @@ export function AdminSettings() {
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="leader-bio" className="text-xs font-medium">Biographie</Label>
+              <Label htmlFor="leader-bio" className="text-xs font-medium">{isFr ? 'Biographie' : 'Biography'}</Label>
               <textarea
                 id="leader-bio"
                 rows={4}
