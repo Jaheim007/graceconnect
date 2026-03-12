@@ -120,7 +120,7 @@ export default function SuperadminCommandCenter() {
     { label: 'Reports', icon: Megaphone, path: '/superadmin/reports', color: 'text-rose-500', badge: stats?.pendingReports ? `${stats.pendingReports}` : undefined },
     { label: 'Payouts', icon: Wallet, path: '/superadmin/settlements', color: 'text-emerald-500', badge: stats?.pendingPayouts ? `${stats.pendingPayouts}` : undefined },
     { label: 'Risk & AML', icon: ShieldAlert, path: '/superadmin/risk', color: 'text-red-500' },
-    { label: 'Modération', icon: Shield, path: '/superadmin/moderation', color: 'text-violet-500' },
+    { label: isFr ? 'Modération' : 'Moderation', icon: Shield, path: '/superadmin/moderation', color: 'text-violet-500' },
     { label: 'Users', icon: Users, path: '/superadmin/users', color: 'text-blue-500' },
     { label: 'Organizations', icon: BarChart3, path: '/superadmin/orgs', color: 'text-indigo-500' },
     { label: 'Activity', icon: Activity, path: '/superadmin/activity', color: 'text-sky-500' },
