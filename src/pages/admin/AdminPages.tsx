@@ -1410,7 +1410,7 @@ export function AdminSettings() {
             onClick={handleSaveOfferings}
             disabled={savingOfferings}
           >
-            {savingOfferings ? 'Sauvegarde…' : 'Sauvegarder'}
+            {savingOfferings ? (isFr ? 'Sauvegarde…' : 'Saving…') : (isFr ? 'Sauvegarder' : 'Save')}
           </Button>
         </div>
 
