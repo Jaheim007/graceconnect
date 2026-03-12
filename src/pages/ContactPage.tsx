@@ -7,10 +7,12 @@ import { useI18n } from '@/i18n/I18nContext';
 import { SEOHead } from '@/components/seo/SEOHead';
 
 export default function ContactPage() {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const isFr = locale === 'fr';
+
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title={t('contact.title') + ' — Siteviral'} description="Contactez Siteviral pour toute question. Support, partenariats, données personnelles." />
+      <SEOHead title={t('contact.title') + ' — Siteviral'} description={isFr ? 'Contactez Siteviral pour toute question. Support, partenariats, données personnelles.' : 'Contact Siteviral for any questions. Support, partnerships, personal data.'} />
       <LegalBackground />
       <LegalHeader />
 
@@ -66,7 +68,6 @@ export default function ContactPage() {
           </div>
         </div>
 
-        {/* I11: Contact form with honeypot anti-spam */}
         <div className="mt-10 bg-card border border-border rounded-2xl p-6 space-y-4">
           <h3 className="font-bold text-foreground text-center">{t('contact.need_help')}</h3>
           <p className="text-sm text-muted-foreground text-center">{t('contact.help_desc')}</p>
@@ -75,7 +76,7 @@ export default function ContactPage() {
               e.preventDefault();
               const form = e.currentTarget;
               const hp = (form.elements.namedItem('website') as HTMLInputElement)?.value;
-              if (hp) return; // honeypot filled = bot
+              if (hp) return;
               const email = (form.elements.namedItem('contact_email') as HTMLInputElement)?.value;
               const msg = (form.elements.namedItem('contact_message') as HTMLTextAreaElement)?.value;
               if (!email || !msg) return;
@@ -83,11 +84,10 @@ export default function ContactPage() {
             }}
             className="space-y-3 max-w-md mx-auto"
           >
-            {/* Honeypot — invisible to real users */}
             <input type="text" name="website" autoComplete="off" tabIndex={-1} className="absolute opacity-0 h-0 w-0 pointer-events-none" aria-hidden="true" />
-            <input name="contact_email" type="email" required placeholder="Votre email" className="w-full h-10 px-3 rounded-lg border border-border bg-background text-sm" />
-            <textarea name="contact_message" required placeholder="Votre message" rows={4} maxLength={2000} className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm resize-none" />
-            <Button type="submit" className="w-full bg-primary text-primary-foreground">Envoyer</Button>
+            <input name="contact_email" type="email" required placeholder={isFr ? 'Votre email' : 'Your email'} className="w-full h-10 px-3 rounded-lg border border-border bg-background text-sm" />
+            <textarea name="contact_message" required placeholder={isFr ? 'Votre message' : 'Your message'} rows={4} maxLength={2000} className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm resize-none" />
+            <Button type="submit" className="w-full bg-primary text-primary-foreground">{isFr ? 'Envoyer' : 'Send'}</Button>
           </form>
           <div className="text-center">
             <Button asChild variant="ghost" size="sm" className="text-xs text-muted-foreground">
