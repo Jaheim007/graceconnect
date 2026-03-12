@@ -73,11 +73,11 @@ export function InsufficientCreditsDialog({ open, onOpenChange, message }: Insuf
           {/* Current balance */}
           {summary && (
             <div className="bg-muted/50 rounded-xl p-3 text-center">
-              <p className="text-xs text-muted-foreground mb-1">Solde actuel</p>
+              <p className="text-xs text-muted-foreground mb-1">{isFr ? 'Solde actuel' : 'Current balance'}</p>
               <p className="text-2xl font-bold text-foreground tabular-nums">
                 {summary.balance.toFixed(1)}
               </p>
-              <p className="text-[10px] text-muted-foreground">crédits</p>
+              <p className="text-[10px] text-muted-foreground">{isFr ? 'crédits' : 'credits'}</p>
             </div>
           )}
 
