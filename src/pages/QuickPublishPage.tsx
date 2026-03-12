@@ -313,21 +313,23 @@ export default function QuickPublishPage() {
               <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
                 <div className="text-center space-y-2">
                   <Rocket className="h-10 w-10 text-primary mx-auto" />
-                  <h2 className="font-bold">Prêt à publier ?</h2>
+                  <h2 className="font-bold">{isFr ? 'Prêt à publier ?' : 'Ready to publish?'}</h2>
                   <p className="text-sm text-muted-foreground">
-                    Vérifiez les infos avant de publier.
+                    {isFr ? 'Vérifiez les infos avant de publier.' : 'Review the info before publishing.'}
                   </p>
                 </div>
 
                 <div className="bg-muted/30 rounded-xl p-4 space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Titre</span>
+                    <span className="text-muted-foreground">{isFr ? 'Titre' : 'Title'}</span>
                     <span className="font-medium text-right max-w-[60%] truncate">{form.title}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Prix</span>
+                    <span className="text-muted-foreground">{isFr ? 'Prix' : 'Price'}</span>
                     <span className="font-medium">
-                      {parseFloat(form.price) === 0 ? 'Gratuit' : `${form.price} ${(managedOrg as any)?.currency || 'XOF'}`}
+                      {parseFloat(form.price) === 0
+                        ? (isFr ? 'Gratuit' : 'Free')
+                        : fmt(parseFloat(form.price), (managedOrg as any)?.currency || 'XOF')}
                     </span>
                   </div>
                   <div className="flex justify-between">
@@ -335,11 +337,11 @@ export default function QuickPublishPage() {
                     <span className="font-medium capitalize">{form.productType}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Couverture</span>
+                    <span className="text-muted-foreground">{isFr ? 'Couverture' : 'Cover'}</span>
                     <span className="font-medium">{form.coverFile ? '✅' : '—'}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Fichier</span>
+                    <span className="text-muted-foreground">{isFr ? 'Fichier' : 'File'}</span>
                     <span className="font-medium">{form.productFile ? '✅' : '—'}</span>
                   </div>
                 </div>
@@ -348,11 +350,10 @@ export default function QuickPublishPage() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Navigation */}
         <div className="flex gap-3">
           {currentIndex > 0 && (
             <Button variant="outline" className="gap-1.5" onClick={() => setStep(steps[currentIndex - 1].key)}>
-              <ArrowLeft className="h-4 w-4" /> Retour
+              <ArrowLeft className="h-4 w-4" /> {isFr ? 'Retour' : 'Back'}
             </Button>
           )}
           <div className="flex-1" />
@@ -362,7 +363,7 @@ export default function QuickPublishPage() {
               disabled={!canNext}
               onClick={() => setStep(steps[currentIndex + 1].key)}
             >
-              Suivant <ArrowRight className="h-4 w-4" />
+              {isFr ? 'Suivant' : 'Next'} <ArrowRight className="h-4 w-4" />
             </Button>
           ) : (
             <Button
@@ -375,7 +376,7 @@ export default function QuickPublishPage() {
               ) : (
                 <Rocket className="h-4 w-4" />
               )}
-              {publishMutation.isPending ? 'Publication…' : 'Publier maintenant'}
+              {publishMutation.isPending ? (isFr ? 'Publication…' : 'Publishing…') : (isFr ? 'Publier maintenant' : 'Publish now')}
             </Button>
           )}
         </div>
