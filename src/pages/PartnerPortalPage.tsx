@@ -405,7 +405,7 @@ export default function PartnerPortalPage() {
                     <TableBody>
                       {commissions.map(c => (
                         <TableRow key={c.id}>
-                          <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{new Date(c.created_at).toLocaleDateString('fr-FR')}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{new Date(c.created_at).toLocaleDateString(dateLoc)}</TableCell>
                           <TableCell className="text-sm font-medium">{c.organization?.name || '—'}</TableCell>
                           <TableCell className="text-xs text-right text-muted-foreground">{formatCurrency(c.platform_fee_amount, c.currency)}</TableCell>
                           <TableCell className="text-xs text-center">{c.commission_percent}%</TableCell>
