@@ -348,8 +348,8 @@ export default function AffiliationPage() {
             {filteredSubscribed.length > 0 && (
               <div className="space-y-3">
                 <div>
-                  <h2 className="font-semibold text-sm flex items-center gap-2"><Sparkle className="h-4 w-4 text-primary" /> Vos abonnements avec programme ambassadeur</h2>
-                  <p className="text-[11px] text-muted-foreground">Plateformes auxquelles vous êtes abonné et qui proposent un programme ambassadeur.</p>
+                  <h2 className="font-semibold text-sm flex items-center gap-2"><Sparkle className="h-4 w-4 text-primary" /> {isFr ? 'Vos abonnements avec programme ambassadeur' : 'Your subscriptions with ambassador program'}</h2>
+                  <p className="text-[11px] text-muted-foreground">{isFr ? 'Plateformes auxquelles vous êtes abonné et qui proposent un programme ambassadeur.' : 'Platforms you are subscribed to that offer an ambassador program.'}</p>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {filteredSubscribed.map((org: any) => (
