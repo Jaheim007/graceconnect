@@ -389,7 +389,7 @@ export default function BecomePartnerPage() {
                       </div>
                       <div>
                         <Label>Ville</Label>
-                        <Input value={form.city} onChange={e => set('city', e.target.value)} placeholder="Abidjan" />
+                        <Input value={form.city} onChange={e => set('city', e.target.value)} placeholder="Your city" />
                       </div>
                       <div>
                         <Label>Profession / Activité *</Label>

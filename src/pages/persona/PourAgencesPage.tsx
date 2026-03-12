@@ -33,10 +33,10 @@ export default function PourAgencesPage() {
         { step: '3', title: 'Générez des revenus', desc: 'Commission récurrente sur chaque transaction. Plus vous gérez de clients, plus vous gagnez.' },
       ]}
       testimonial={{
-        name: 'Agence Digitale KD',
-        role: 'Agence web, Abidjan',
+        name: 'Creative Studio KD',
+        role: 'Digital agency, Nairobi',
         text: 'On a migré 15 clients sur Siteviral en un mois. Plus de soucis d\'hébergement ni de paiement. Et les commissions partenaires couvrent nos frais fixes.',
-        flag: '🇨🇮',
+        flag: '🇰🇪',
       }}
       stats={[
         { value: '10 min', label: 'par boutique client' },

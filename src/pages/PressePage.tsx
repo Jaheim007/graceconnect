@@ -98,8 +98,8 @@ export default function PressePage() {
                 </p>
                 <p>
                   Fondée sur le constat que les plateformes occidentales (Shopify, Gumroad, Patreon) ne sont pas 
-                  adaptées au marché africain — pas de Mobile Money, abonnements en dollars, interfaces en anglais — 
-                  Siteviral propose une alternative locale, accessible et performante.
+                  adaptées au marché africain — pas de Mobile Money, abonnements en dollars — 
+                  Siteviral propose une alternative globale, accessible et performante, disponible en français et en anglais.
                 </p>
                 <p>
                   Le modèle économique est simple : <strong className="text-foreground">zéro abonnement, 7% de commission par vente</strong>. 

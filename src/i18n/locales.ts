@@ -3130,7 +3130,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'write.motivation_1': 'Ton livre sera prêt en 5 minutes avec l\'IA',
     'write.motivation_2': 'Chaque vente = revenu passif automatique',
     'write.motivation_3': 'Tes ambassadeurs vendent pour toi',
-    'write.motivation_4': 'Accessible dans tout le monde francophone',
+    'write.motivation_4': 'Accessible partout en Afrique et dans le monde',
     // ─── Dashboard / Checklist ───
     'dash.welcome': 'Bienvenue',
     'dash.what_today': 'Que veux-tu faire aujourd\'hui ?',
