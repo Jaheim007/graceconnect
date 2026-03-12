@@ -699,15 +699,15 @@ export function AdminAnalytics() {
 
 export function AdminKYC() {
   const { currentOrg } = useOrg();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   return (
-    <AdminPageShell title="Vérification de compte" backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Vérification de compte' : 'Account verification'} backRoute="/admin">
       <div className="space-y-4">
-        {/* Info banner */}
         <div className="p-4 rounded-2xl border border-primary/20 bg-primary/8">
-          <p className="font-semibold text-sm mb-1">💡 La vérification est requise uniquement pour les retraits</p>
+          <p className="font-semibold text-sm mb-1">{isFr ? '💡 La vérification est requise uniquement pour les retraits' : '💡 Verification is only required for withdrawals'}</p>
           <p className="text-xs text-muted-foreground">
-            Vous pouvez accepter les dons, vendre des produits et gérer le programme d'affiliation sans vérification.
-            Elle est nécessaire uniquement pour retirer vos revenus.
+            {isFr ? 'Vous pouvez accepter les dons, vendre des produits et gérer le programme d\'affiliation sans vérification. Elle est nécessaire uniquement pour retirer vos revenus.' : 'You can accept donations, sell products and manage the affiliate program without verification. It is only required to withdraw your earnings.'}
           </p>
         </div>
 
