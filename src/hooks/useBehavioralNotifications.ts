@@ -122,8 +122,8 @@ export function useBehavioralNotifications() {
       // 5. No affiliates but has products → ambassador nudge
       if (orgState.affiliateCount === 0 && orgState.publishedProducts > 0 && orgState.affiliationEnabled) {
         createNotif.mutate({
-          title: '🤝 Vos ambassadeurs vous attendent',
-          body: 'Vous avez des produits mais aucun ambassadeur actif. Partagez votre lien pour recruter des vendeurs.',
+          title: isFr ? '🤝 Vos ambassadeurs vous attendent' : '🤝 Your ambassadors are waiting',
+          body: isFr ? 'Vous avez des produits mais aucun ambassadeur actif. Partagez votre lien pour recruter des vendeurs.' : 'You have products but no active ambassadors. Share your link to recruit sellers.',
           type: 'ambassador_nudge',
         });
       }
