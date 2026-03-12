@@ -172,10 +172,10 @@ export default function PartnerPortalPage() {
           <CardContent className="py-3 px-4 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-sm">
               <AlertTriangle className="h-4 w-4 text-destructive" />
-              <span>Les données partenaires ne sont pas encore synchronisées. Cliquez pour forcer la mise à jour.</span>
+              <span>{isFr ? 'Les données partenaires ne sont pas encore synchronisées. Cliquez pour forcer la mise à jour.' : 'Partner data not yet synced. Click to force update.'}</span>
             </div>
             <Button variant="outline" size="sm" onClick={handleForceSync} disabled={isSyncing}>
-              Réessayer
+              {isFr ? 'Réessayer' : 'Retry'}
             </Button>
           </CardContent>
         </Card>
