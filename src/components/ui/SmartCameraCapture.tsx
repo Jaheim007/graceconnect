@@ -102,7 +102,8 @@ export function SmartCameraCapture({
   const [livenessProgress, setLivenessProgress] = useState(0);
 
   const isLivenessEnabled = livenessCheck && captureMode === 'selfie';
-  const messages = captureMode === 'selfie' ? SELFIE_MESSAGES : FRAME_MESSAGES;
+  const lang = getLocale() === 'en' ? 'en' : 'fr';
+  const messages = captureMode === 'selfie' ? (SELFIE_MESSAGES[lang] || SELFIE_MESSAGES.fr) : (FRAME_MESSAGES[lang] || FRAME_MESSAGES.fr);
 
   // Attach pending stream when video element mounts
   useEffect(() => {
