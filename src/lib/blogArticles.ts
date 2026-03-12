@@ -170,7 +170,7 @@ export const blogArticles: BlogArticle[] = [
 <p>Un pasteur au Ghana veut vendre ses prédications audio à 2 000 FCFA l'unité :</p>
 <ul>
 <li><strong>Sur Patreon</strong> : ses fidèles doivent s'abonner en dollars avec une carte Visa. 90% ne peuvent pas.</li>
-<li><strong>Sur Siteviral</strong> : ses fidèles achètent en 1 clic par Orange Money. L'ambassadeur qui partage le lien touche 15%. Tout le monde y gagne.</li>
+<li><strong>Sur Siteviral</strong> : ses fidèles achètent en 1 clic par Mobile Money. L'ambassadeur qui partage le lien touche 15%. Tout le monde y gagne.</li>
 </ul>
 
 <h2>Conclusion</h2>
