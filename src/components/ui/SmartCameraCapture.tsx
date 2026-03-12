@@ -391,7 +391,7 @@ export function SmartCameraCapture({
     const vw = video.videoWidth || video.clientWidth;
     const vh = video.videoHeight || video.clientHeight;
     if (vw === 0 || vh === 0) {
-      setError("La caméra n'est pas encore prête. Réessayez.");
+      setError(lang === 'fr' ? "La caméra n'est pas encore prête. Réessayez." : "Camera not ready yet. Try again.");
       return;
     }
 
