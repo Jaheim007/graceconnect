@@ -414,7 +414,7 @@ export default function ProductDetailPage() {
               className="gap-1.5 text-xs"
               onClick={() => navigate(`/admin/products/${product.id}/edit`)}
             >
-              <Pencil className="h-3.5 w-3.5" /> Modifier ce produit
+              <Pencil className="h-3.5 w-3.5" /> {locale === 'fr' ? 'Modifier ce produit' : 'Edit product'}
             </Button>
           </div>
         </div>

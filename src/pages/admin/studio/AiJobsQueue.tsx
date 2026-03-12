@@ -139,7 +139,7 @@ export default function AiJobsQueue() {
                       {statusM.label}
                     </Badge>
                     <span className="text-xs text-muted-foreground shrink-0">
-                      {new Date(job.created_at).toLocaleTimeString('fr', { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(job.created_at).toLocaleTimeString(locale === 'fr' ? 'fr' : 'en', { hour: '2-digit', minute: '2-digit' })}
                     </span>
                     {/* Actions */}
                     <div className="flex items-center gap-1 shrink-0">

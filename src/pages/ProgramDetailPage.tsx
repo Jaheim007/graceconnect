@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { ProgramCertificate } from '@/components/programs/ProgramCertificate';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
+import { useI18n } from '@/i18n/I18nContext';
 
 const CONTENT_ICONS: Record<string, typeof FileText> = {
   text: FileText,
@@ -26,6 +27,8 @@ export default function ProgramDetailPage() {
   const { programId } = useParams();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const { data: program, isLoading } = useProgram(programId);
   const { data: modules = [] } = useProgramModules(programId);
   const { data: enrollment } = useEnrollment(programId);
@@ -35,7 +38,7 @@ export default function ProgramDetailPage() {
 
   const [openModules, setOpenModules] = useState<Set<string>>(new Set());
 
-  const totalLessons = useMemo(() => modules.reduce((s: number, m: any) => s + (m.lessons?.length || 0), 0), [modules]);
+  const totalLessons = useMemo(() => modules.reduce((sum: number, m: any) => sum + (m.lessons?.length || 0), 0), [modules]);
   const completedLessons = useMemo(() => Object.values(progress).filter((p: any) => p.completed).length, [progress]);
   const progressPercent = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
@@ -45,9 +48,9 @@ export default function ProgramDetailPage() {
     if (!programId || !user) return;
     try {
       await enrollMutation.mutateAsync(programId);
-      toast({ title: '🎉 Vous êtes inscrit !' });
+      toast({ title: isFr ? '🎉 Vous êtes inscrit !' : '🎉 You are enrolled!' });
     } catch {
-      toast({ title: 'Erreur', variant: 'destructive' });
+      toast({ title: isFr ? 'Erreur' : 'Error', variant: 'destructive' });
     }
   };
 
@@ -69,14 +72,14 @@ export default function ProgramDetailPage() {
   }
 
   if (!program) {
-    return <div className="min-h-screen flex items-center justify-center"><p className="text-muted-foreground">Programme introuvable</p></div>;
+    return <div className="min-h-screen flex items-center justify-center"><p className="text-muted-foreground">{isFr ? 'Programme introuvable' : 'Program not found'}</p></div>;
   }
 
   const orgName = (program as any).organizations?.name || '';
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title={`${program.title} — ${orgName}`} description={program.description || `Programme de formation par ${orgName}`} />
+      <SEOHead title={`${program.title} — ${orgName}`} description={program.description || (isFr ? `Programme de formation par ${orgName}` : `Training program by ${orgName}`)} />
 
       {/* Hero */}
       <div className="relative bg-gradient-to-br from-primary/15 to-primary/5 border-b border-border">
@@ -98,25 +101,25 @@ export default function ProgramDetailPage() {
               {program.description && <p className="text-sm text-muted-foreground mb-4">{program.description}</p>}
               <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
                 <span className="flex items-center gap-1"><Layers className="h-3.5 w-3.5" /> {modules.length} modules</span>
-                <span className="flex items-center gap-1"><FileText className="h-3.5 w-3.5" /> {totalLessons} leçons</span>
+                <span className="flex items-center gap-1"><FileText className="h-3.5 w-3.5" /> {totalLessons} {isFr ? 'leçons' : 'lessons'}</span>
               </div>
 
               {!user ? (
-                <Button asChild><a href="/auth">Se connecter pour s'inscrire</a></Button>
+                <Button asChild><a href="/auth">{isFr ? 'Se connecter pour s\'inscrire' : 'Sign in to enroll'}</a></Button>
               ) : !isEnrolled ? (
                 <Button onClick={handleEnroll} disabled={enrollMutation.isPending} className="gap-1.5">
                   {enrollMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
-                  S'inscrire gratuitement
+                  {isFr ? 'S\'inscrire gratuitement' : 'Enroll for free'}
                 </Button>
               ) : (
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium text-primary">Inscrit</span>
-                    <span className="text-xs text-muted-foreground ml-2">{completedLessons}/{totalLessons} leçons complétées</span>
+                    <span className="text-sm font-medium text-primary">{isFr ? 'Inscrit' : 'Enrolled'}</span>
+                    <span className="text-xs text-muted-foreground ml-2">{completedLessons}/{totalLessons} {isFr ? 'leçons complétées' : 'lessons completed'}</span>
                   </div>
                   <Progress value={progressPercent} className="h-2" />
-                  <p className="text-[10px] text-muted-foreground">{progressPercent}% terminé</p>
+                  <p className="text-[10px] text-muted-foreground">{progressPercent}% {isFr ? 'terminé' : 'completed'}</p>
                 </div>
               )}
             </div>
@@ -163,7 +166,9 @@ export default function ProgramDetailPage() {
                   </div>
                   <div className="flex-1 text-left min-w-0">
                     <p className="text-sm font-semibold truncate">{mod.title}</p>
-                    <p className="text-[10px] text-muted-foreground">{moduleLessons.length} leçon{moduleLessons.length !== 1 ? 's' : ''} · {moduleCompleted} complétée{moduleCompleted !== 1 ? 's' : ''}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {moduleLessons.length} {isFr ? `leçon${moduleLessons.length !== 1 ? 's' : ''}` : `lesson${moduleLessons.length !== 1 ? 's' : ''}`} · {moduleCompleted} {isFr ? `complétée${moduleCompleted !== 1 ? 's' : ''}` : 'completed'}
+                    </p>
                   </div>
                 </CollapsibleTrigger>
 
@@ -195,7 +200,7 @@ export default function ProgramDetailPage() {
                           )}
                           {lesson.content_url && isEnrolled && (
                             <Button size="sm" variant="ghost" className="h-6 text-[10px] px-2" asChild>
-                              <a href={lesson.content_url} target="_blank" rel="noreferrer">Ouvrir</a>
+                              <a href={lesson.content_url} target="_blank" rel="noreferrer">{isFr ? 'Ouvrir' : 'Open'}</a>
                             </Button>
                           )}
                         </div>
