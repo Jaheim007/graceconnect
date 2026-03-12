@@ -621,7 +621,7 @@ export function ProductForm() {
                   </SelectContent>
                 </Select>
                 <div className="space-y-1">
-                  <Input type="number" value={orderBumpDiscount} onChange={e => setOrderBumpDiscount(e.target.value)} placeholder="Réduction %" className="h-8 text-xs" min={0} max={90} />
+                  <Input type="number" value={orderBumpDiscount} onChange={e => setOrderBumpDiscount(e.target.value)} placeholder={isFr ? 'Réduction %' : 'Discount %'} className="h-8 text-xs" min={0} max={90} />
                 </div>
               </div>
             </div>
