@@ -104,9 +104,14 @@ export default function ProfilePage() {
     { icon: Bell, label: t('nav.notifications'), sub: '', onClick: () => navigate('/notifications') },
   ];
 
-  const cycleLocale = () => {
-    const idx = SUPPORTED_LOCALES.indexOf(locale);
-    setLocale(SUPPORTED_LOCALES[(idx + 1) % SUPPORTED_LOCALES.length]);
+  const filteredLocales = SUPPORTED_LOCALES.filter((l): l is 'en' | 'fr' => l !== 'ar');
+  const cycleLocale = async () => {
+    const idx = filteredLocales.indexOf(locale as 'en' | 'fr');
+    const next = filteredLocales[(idx + 1) % filteredLocales.length];
+    setLocale(next);
+    if (user) {
+      await supabase.from('profiles').update({ preferred_language: next }).eq('id', user.id);
+    }
   };
 
   const preferenceItems = [
@@ -127,7 +132,7 @@ export default function ProfilePage() {
 
   const renderMenuItem = (item: typeof accountItems[number] & { isToggle?: boolean }, index: number) => (
     <motion.button key={item.label} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: index * 0.03 }}
-      onClick={item.onClick} className="flex items-center gap-3.5 w-full px-4 py-3.5 hover:bg-muted/50 transition-colors text-left">
+      onClick={item.isToggle ? undefined : item.onClick} className="flex items-center gap-3.5 w-full px-4 py-3.5 hover:bg-muted/50 transition-colors text-left">
       <div className="h-9 w-9 rounded-xl bg-muted flex items-center justify-center shrink-0"><item.icon className="h-4 w-4 text-muted-foreground" /></div>
       <div className="flex-1 min-w-0"><p className="text-sm font-medium text-foreground">{item.label}</p></div>
       {item.sub && !item.isToggle && <span className="text-xs text-muted-foreground mr-1">{item.sub}</span>}
