@@ -104,9 +104,9 @@ export default function ProfilePage() {
     { icon: Bell, label: t('nav.notifications'), sub: '', onClick: () => navigate('/notifications') },
   ];
 
-  const filteredLocales = SUPPORTED_LOCALES.filter(l => l !== 'ar');
+  const filteredLocales = SUPPORTED_LOCALES.filter((l): l is 'en' | 'fr' => l !== 'ar');
   const cycleLocale = async () => {
-    const idx = filteredLocales.indexOf(locale);
+    const idx = filteredLocales.indexOf(locale as 'en' | 'fr');
     const next = filteredLocales[(idx + 1) % filteredLocales.length];
     setLocale(next);
     if (user) {
