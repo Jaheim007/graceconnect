@@ -3,6 +3,106 @@ import { requireAuth, corsHeaders, jsonResp, adminClient } from '../_shared/auth
 import { consumeCreditsWithRefund, normalizeTier } from '../_shared/credits.ts';
 import { aiGenerateImageBase64 } from '../_shared/ai-fallback.ts';
 
+// ─── Seeded PRNG (Mulberry32) for deterministic-but-unique variation ───
+function mulberry32(seed: number) {
+  let s = seed | 0;
+  return function next(): number {
+    s = (s + 0x6d2b79f5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function hashStr(str: string): number {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = Math.imul(31, h) + str.charCodeAt(i) | 0;
+  }
+  return h;
+}
+
+function pick<T>(arr: T[], rng: () => number): T {
+  return arr[Math.floor(rng() * arr.length)];
+}
+
+// ─── Variation pools: each dimension has many options to rotate through ───
+
+const COMPOSITION_STYLES = [
+  'asymmetric layout with title on the left third, illustration bleeding off the right edge',
+  'centered symmetrical composition with decorative borders and framing elements',
+  'full-bleed background illustration with title overlaid in a contrasting banner',
+  'split-screen design: top half illustration, bottom half solid color with text',
+  'diagonal composition with elements arranged along a dynamic 30° angle',
+  'minimalist: 80% negative space, small powerful illustration element, large typography',
+  'layered collage style with overlapping translucent elements and textures',
+  'circular vignette illustration in center, text above and below',
+  'mosaic/grid of small thematic images forming the background',
+  'single dramatic close-up object or face filling most of the cover',
+  'vintage poster style with hand-drawn ornamental frames',
+  'floating elements scattered across the cover with depth-of-field blur',
+];
+
+const TYPOGRAPHY_TREATMENTS = [
+  'hand-lettered calligraphic title with flourishes and swashes',
+  'bold condensed all-caps sans-serif with tight letter-spacing',
+  'elegant thin serif with generous letter-spacing and small caps',
+  'mixed typography: display serif for first word, light sans-serif for rest',
+  'stencil/military style blocky letters with worn texture',
+  'art nouveau inspired decorative letterforms with organic curves',
+  'retro slab-serif with drop shadows and dimensional effects',
+  'modern geometric sans-serif with one word dramatically larger',
+  'handwritten script in a single sweeping line across the cover',
+  'typographic hierarchy with subtitle in contrasting weight and color',
+  'engraved/embossed style text with metallic or foil effect appearance',
+  'watercolor-washed text where letters blend into the background art',
+];
+
+const COLOR_MOODS = [
+  'warm golden hour palette: amber, honey, burnt sienna, warm cream',
+  'cool ocean depths: deep navy, teal, seafoam, silver',
+  'forest botanical: sage green, olive, moss, cream, bark brown',
+  'sunset fire: coral, magenta, burnt orange, deep purple',
+  'arctic minimal: ice blue, white, pale grey, touch of silver',
+  'vintage sepia: warm browns, faded cream, dusty rose, antique gold',
+  'jewel tones: emerald, sapphire, ruby, amethyst on dark background',
+  'pastel dream: blush pink, lavender, mint, pale yellow, sky blue',
+  'monochrome drama: pure black and white with one bold accent color (red/gold/blue)',
+  'earth and spice: terracotta, turmeric, cinnamon, deep teal',
+  'neon futuristic: electric cyan, hot pink, lime green on dark',
+  'dusty muted: mauve, slate blue, sage, muted coral, stone grey',
+];
+
+const TEXTURE_EFFECTS = [
+  'smooth matte finish with subtle paper grain texture',
+  'watercolor washes with visible brushstroke textures',
+  'oil painting impasto with thick paint texture visible',
+  'digital vector art with clean flat surfaces and sharp edges',
+  'pencil or charcoal sketch style with visible strokes',
+  'metallic foil accents on specific elements (title, ornaments)',
+  'linen or fabric texture background',
+  'marble or stone texture with veining patterns',
+  'bokeh light effects with soft glowing orbs',
+  'geometric pattern overlay (chevron, hexagon, arabesque)',
+  'woodcut or linocut printmaking style',
+  'soft pastel chalk on textured paper appearance',
+];
+
+const ILLUSTRATION_APPROACHES = [
+  'photorealistic rendering with cinematic lighting',
+  'stylized flat illustration with bold shapes and limited palette',
+  'dreamy soft-focus with ethereal light leaks',
+  'dramatic chiaroscuro with deep shadows and bright highlights',
+  'whimsical hand-drawn illustration with ink outlines',
+  'abstract geometric shapes suggesting the theme symbolically',
+  'detailed botanical/natural illustration style',
+  'impressionist painting style with visible brushwork',
+  'silhouette art with detailed cutout shapes against gradient',
+  'pop art inspired with halftone dots and bold outlines',
+  'surrealist composition with unexpected scale and juxtaposition',
+  'art deco geometric patterns with gold accents',
+];
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
@@ -22,90 +122,111 @@ Deno.serve(async (req) => {
       admin, userId: auth.userId, actionKey: 'generate_cover', tier: normalizeTier(tier),
       action: async () => {
         const shortDesc = (description || '').slice(0, 300);
-        const authorLine = author_name ? `\nAuthor name to display: "${author_name}" — place it elegantly at the bottom of the cover in a refined, smaller font.` : '';
 
-        // Each genre gets a COMPLETELY different visual identity
-        const genreProfiles: Record<string, { style: string; palette: string; typo: string; mood: string }> = {
+        // ─── Create a unique seed from product_id + timestamp + title ───
+        // This ensures EVERY generation is different, even for same book
+        const uniqueSeed = hashStr(`${product_id}-${Date.now()}-${title}-${Math.random()}`);
+        const rng = mulberry32(uniqueSeed);
+
+        // ─── Resolve style key (handle wizard key mismatches) ───
+        const styleMap: Record<string, string> = {
+          prayers: 'prayer', prayer: 'prayer',
+          ebook: 'ebook', guide: 'guide',
+          story: 'story', novel: 'novel',
+          devotional: 'devotional', activity: 'activity',
+          coloring: 'coloring', children: 'children',
+        };
+        const resolvedStyle = styleMap[book_style || ''] || styleMap[product_type || ''] || 'ebook';
+
+        // ─── Genre base profiles (thematic anchor only) ───
+        const genreAnchors: Record<string, { theme: string; subjects: string[] }> = {
           ebook: {
-            style: 'clean modern editorial design, minimalist with bold geometric accents, flat design or subtle 3D elements',
-            palette: 'vibrant and contemporary — electric blue, coral, mint green, or bold monochrome with one accent color',
-            typo: 'modern sans-serif (like Futura, Montserrat, or Bebas Neue), clean and sharp, mixed weights',
-            mood: 'professional, authoritative, sleek — like a TED talk cover'
+            theme: 'modern professional knowledge-sharing',
+            subjects: ['abstract concepts visualization', 'professional workspace scene', 'symbolic lightbulb/brain/rocket imagery', 'clean data visualization art', 'person reading/working in modern setting'],
           },
           guide: {
-            style: 'structured infographic-inspired layout with icons or diagrams, clean sections, professional photography or vector art',
-            palette: 'trustworthy blues and greens, or warm oranges with navy, high contrast',
-            typo: 'bold condensed sans-serif for title, light weight for subtitle, clear hierarchy',
-            mood: 'practical, organized, actionable — like a McKinsey report cover'
+            theme: 'structured practical how-to resource',
+            subjects: ['step-by-step pathway visualization', 'compass/map/roadmap imagery', 'hands-on workshop scene', 'organized toolkit arrangement', 'before/after transformation'],
           },
           prayer: {
-            style: 'ethereal watercolor or soft gradient backgrounds, sacred geometry, dove or light rays, gentle nature imagery',
-            palette: 'soft gold, ivory, celestial blue, lavender, warm white — luminous and peaceful',
-            typo: 'elegant serif (like Playfair Display or Cormorant), flowing script accents, graceful spacing',
-            mood: 'serene, sacred, contemplative — like a meditation retreat invitation'
+            theme: 'sacred spiritual devotion and connection with God',
+            subjects: ['hands clasped in prayer with divine light', 'peaceful sanctuary or temple interior', 'dove ascending with golden rays', 'open Bible with glowing text', 'serene landscape at dawn with cross silhouette', 'candle flame in peaceful darkness'],
           },
           story: {
-            style: 'cinematic scene illustration, dramatic perspective, rich detailed environment, movie poster composition',
-            palette: 'dramatic and genre-appropriate — thriller=dark teal/red, romance=warm sunset, adventure=golden/emerald',
-            typo: 'impactful display font, can be stylized to match genre — embossed, textured, or with effects',
-            mood: 'immersive, intriguing, page-turner energy — like a Netflix original poster'
+            theme: 'immersive narrative fiction',
+            subjects: ['dramatic scene from the story', 'mysterious doorway or path', 'character silhouette in dramatic setting', 'symbolic object central to plot', 'atmospheric landscape or cityscape'],
           },
           novel: {
-            style: 'artistic literary cover, can be abstract, symbolic, or photographic with artistic treatment, sophisticated composition',
-            palette: 'muted sophisticated tones — dusty rose, sage green, midnight blue, or bold contrasts for literary fiction',
-            typo: 'refined serif (Garamond, Baskerville style), elegant spacing, understated sophistication',
-            mood: 'literary, thoughtful, prize-winning — like a Gallimard or Penguin Classics edition'
+            theme: 'literary fiction with depth and sophistication',
+            subjects: ['symbolic abstract composition', 'solitary figure in contemplative setting', 'artistic still life arrangement', 'architectural detail with mood', 'nature metaphor (tree, ocean, sky)'],
           },
           devotional: {
-            style: 'warm golden light, nature scenes (sunrise, garden, flowing water), peaceful landscapes, soft focus photography style',
-            palette: 'warm golds, sunset oranges, soft earth tones, cream and amber, touches of deep burgundy',
-            typo: 'warm serif with gentle curves, possibly hand-lettered feel, inviting and personal',
-            mood: 'intimate, uplifting, daily companion — like a cherished journal cover'
+            theme: 'daily spiritual nourishment and personal growth',
+            subjects: ['sunrise over peaceful landscape', 'journal and coffee morning scene', 'garden with blooming flowers', 'peaceful water reflection', 'warm light through window'],
           },
           activity: {
-            style: 'playful and energetic, colorful geometric shapes, hand-drawn elements, stickers and badges aesthetic',
-            palette: 'bright primary colors, fun combinations — yellow/turquoise, coral/purple, lime/pink, rainbow accents',
-            typo: 'rounded playful fonts, hand-written style, bubble letters or chunky display type',
-            mood: 'fun, engaging, hands-on — like a creative workshop poster'
+            theme: 'fun interactive hands-on engagement',
+            subjects: ['colorful craft supplies arranged creatively', 'excited children doing activities', 'playful pattern of themed icons', 'game board or puzzle design', 'creative explosion of colors and shapes'],
           },
           coloring: {
-            style: 'intricate black line art on white or lightly tinted background, mandala-like decorative borders, sample colored section',
-            palette: 'mostly black and white line art with strategic pops of color showing the coloring potential',
-            typo: 'decorative hand-lettered title integrated into the artwork, ornamental style',
-            mood: 'artistic, meditative, inviting to color — like a premium adult coloring book'
+            theme: 'intricate artistic patterns to color',
+            subjects: ['detailed mandala design', 'botanical line art arrangement', 'animal portrait in ornate style', 'fantasy scene in line art', 'geometric pattern composition'],
           },
           children: {
-            style: 'whimsical cartoon illustration, cute characters with big eyes, magical scene, storybook aesthetic',
-            palette: 'bright cheerful colors — sunny yellow, sky blue, grass green, candy pink, rainbow elements',
-            typo: 'bouncy, rounded, playful childlike font, possibly tilted or with fun effects like shadows',
-            mood: 'magical, joyful, bedtime story — like a Pixar movie poster for kids'
+            theme: 'magical whimsical world for young readers',
+            subjects: ['cute animal characters in adventure', 'enchanted forest or magical kingdom', 'friendly dragon or unicorn', 'children exploring fantastical place', 'bedtime scene with stars and moon'],
           },
         };
 
-        const profile = genreProfiles[book_style || ''] || genreProfiles[product_type || ''] || genreProfiles['ebook'];
+        const anchor = genreAnchors[resolvedStyle] || genreAnchors['ebook'];
 
-        const prompt = `You are an award-winning book cover designer known for creating UNIQUE, genre-specific covers. Create a stunning cover for:
+        // ─── Pick UNIQUE variation for each dimension ───
+        const chosenComposition = pick(COMPOSITION_STYLES, rng);
+        const chosenTypography = pick(TYPOGRAPHY_TREATMENTS, rng);
+        const chosenColors = pick(COLOR_MOODS, rng);
+        const chosenTexture = pick(TEXTURE_EFFECTS, rng);
+        const chosenIllustration = pick(ILLUSTRATION_APPROACHES, rng);
+        const chosenSubject = pick(anchor.subjects, rng);
 
-TITLE: "${title}"
-${shortDesc ? `ABOUT: ${shortDesc}` : ''}
+        // ─── Author name handling ───
+        const authorLine = author_name
+          ? `\n\nAUTHOR NAME — MANDATORY: The author name "${author_name}" MUST appear on the cover. Place it clearly visible, typically at the bottom, in a refined complementary font. This is NON-NEGOTIABLE — the cover is incomplete without the author name.`
+          : '';
+
+        const prompt = `You are a world-class book cover designer. Each cover you create is a ONE-OF-A-KIND masterpiece that looks nothing like any other cover you've ever made.
+
+BOOK DETAILS:
+- Title: "${title}"
+${shortDesc ? `- About: ${shortDesc}` : ''}
+- Genre/Theme: ${anchor.theme}
+
+UNIQUE ARTISTIC DIRECTION FOR THIS SPECIFIC COVER:
+1. COMPOSITION: ${chosenComposition}
+2. TYPOGRAPHY: ${chosenTypography}
+3. COLOR PALETTE: ${chosenColors}
+4. TEXTURE/FINISH: ${chosenTexture}
+5. ILLUSTRATION STYLE: ${chosenIllustration}
+6. MAIN VISUAL SUBJECT: ${chosenSubject}
 ${authorLine}
 
-VISUAL STYLE: ${profile.style}
-COLOR PALETTE: ${profile.palette}
-TYPOGRAPHY: ${profile.typo}
-MOOD: ${profile.mood}
+STRICT RULES:
+- The title "${title}" must be perfectly legible, well-kerned, and beautifully integrated
+- Portrait format (2:3 ratio), print-ready quality
+- Follow the EXACT artistic direction above — do NOT deviate to a generic style
+- This cover must look COMPLETELY DIFFERENT from any standard AI-generated book cover
+- Make it look like it was designed by a top creative agency, not by AI
+- The overall feel should be unique, premium, and unforgettable
+- DO NOT default to dark moody oil paintings — follow the color palette specified above
+- Every text element must be in the SAME LANGUAGE as the title`;
 
-CRITICAL DESIGN RULES:
-1. The visual style MUST match the genre profile above — DO NOT default to dark oil paintings or brown tones
-2. Title "${title}" must be prominently displayed with the typography style specified above
-3. ${authorLine ? `The author name MUST appear clearly on the cover` : 'No author name needed'}
-4. Portrait format (2:3 ratio), print-ready quality
-5. Every cover must feel UNIQUE — different genre = completely different look, colors, fonts, and composition
-6. The title typography must be FLAWLESS — clean, well-kerned, perfectly legible
-7. DO NOT use the same dark/painterly/oil-painting style for every book — match the genre
-8. Make it look like it belongs on a bestseller shelf next to professionally designed books`;
+        console.log('[ai-generate-cover] Generating with unique variation:', {
+          title: title?.slice(0, 40),
+          style: resolvedStyle,
+          composition: chosenComposition.slice(0, 50),
+          colors: chosenColors.slice(0, 50),
+          typography: chosenTypography.slice(0, 50),
+        });
 
-        console.log('[ai-generate-cover] Starting image generation for:', title?.slice(0, 50));
         const { base64, mimeType } = await aiGenerateImageBase64({ geminiKey: GEMINI_API_KEY, prompt, timeoutMs: 120_000 });
         console.log('[ai-generate-cover] Image generated successfully, mimeType:', mimeType, 'base64 length:', base64?.length);
 
