@@ -104,9 +104,14 @@ export default function ProfilePage() {
     { icon: Bell, label: t('nav.notifications'), sub: '', onClick: () => navigate('/notifications') },
   ];
 
-  const cycleLocale = () => {
-    const idx = SUPPORTED_LOCALES.indexOf(locale);
-    setLocale(SUPPORTED_LOCALES[(idx + 1) % SUPPORTED_LOCALES.length]);
+  const filteredLocales = SUPPORTED_LOCALES.filter(l => l !== 'ar');
+  const cycleLocale = async () => {
+    const idx = filteredLocales.indexOf(locale);
+    const next = filteredLocales[(idx + 1) % filteredLocales.length];
+    setLocale(next);
+    if (user) {
+      await supabase.from('profiles').update({ preferred_language: next }).eq('id', user.id);
+    }
   };
 
   const preferenceItems = [
