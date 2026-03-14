@@ -66,7 +66,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const upsertProfile = async (userId: string, displayName?: string) => {
     try {
-      // Use upsert with ignoreDuplicates so it never throws on existing row
       const detectedCountry = (() => {
         try {
           const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -79,10 +78,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return tzMap[tz] || null;
         } catch { return null; }
       })();
-      await supabase.from('profiles').upsert(
-        { id: userId, display_name: displayName || null, ...(detectedCountry ? { country: detectedCountry } : {}) },
-        { onConflict: 'id', ignoreDuplicates: true }
+
+      // First: try insert (new user)
+      const insertPayload: Record<string, unknown> = {
+        id: userId,
+        display_name: displayName || null,
+        ...(detectedCountry ? { country: detectedCountry } : {}),
+      };
+      const { error: insertError } = await supabase.from('profiles').upsert(
+        insertPayload, { onConflict: 'id', ignoreDuplicates: true }
       );
+
+      // Second: if user already exists AND we have a name from OAuth, 
+      // patch display_name if it's currently null/empty
+      if (displayName && displayName.trim()) {
+        const { data: existing } = await supabase
+          .from('profiles')
+          .select('display_name')
+          .eq('id', userId)
+          .maybeSingle();
+        if (existing && (!existing.display_name || existing.display_name.trim() === '')) {
+          await supabase.from('profiles')
+            .update({ display_name: displayName.trim() })
+            .eq('id', userId);
+        }
+      }
+
       await fetchProfile(userId);
     } catch {
       // Non-fatal — user can still use the app
