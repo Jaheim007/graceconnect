@@ -86,7 +86,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         ...(detectedCountry ? { country: detectedCountry } : {}),
       };
       const { error: insertError } = await supabase.from('profiles').upsert(
-        insertPayload, { onConflict: 'id', ignoreDuplicates: true }
+        { id: userId, display_name: displayName || null, ...(detectedCountry ? { country: detectedCountry } : {}) } as any,
+        { onConflict: 'id', ignoreDuplicates: true }
       );
 
       // Second: if user already exists AND we have a name from OAuth, 
