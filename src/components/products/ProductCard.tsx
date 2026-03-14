@@ -343,6 +343,11 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation();
+                  if (!user) {
+                    const returnUrl = detailPath || window.location.pathname;
+                    navigate(`/auth?returnTo=${encodeURIComponent(returnUrl)}`);
+                    return;
+                  }
                   if (onPurchase) {
                     onPurchase();
                   } else {
