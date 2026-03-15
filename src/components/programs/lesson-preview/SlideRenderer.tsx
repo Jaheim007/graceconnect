@@ -157,8 +157,13 @@ export function SlideRenderer({
           {moduleTitle?.[0] || 'C'}
         </div>
       )}
-      <span className="text-xs text-white/60 flex-1 truncate">{lessonTitle}</span>
-      <span className="text-[10px] bg-white/15 rounded-full px-2.5 py-0.5 text-white/80 font-medium">
+      <div className="flex-1 min-w-0">
+        <span className="text-xs text-white/60 block truncate">{lessonTitle}</span>
+        {moduleTitle && (
+          <span className="text-[9px] text-white/40 block truncate">{moduleTitle}</span>
+        )}
+      </div>
+      <span className="text-[10px] bg-white/15 rounded-full px-2.5 py-0.5 text-white/80 font-medium shrink-0">
         {slideIndex + 1} / {totalSlides}
       </span>
     </div>
