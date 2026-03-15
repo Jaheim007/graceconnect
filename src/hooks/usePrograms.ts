@@ -161,8 +161,13 @@ export function useEnrollInProgram() {
       });
       if (error) throw error;
     },
-    onSuccess: (_, programId) => {
-      qc.invalidateQueries({ queryKey: ['enrollment', programId] });
+    onSuccess: async (_, programId) => {
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ['enrollment', programId] }),
+        qc.invalidateQueries({ queryKey: ['my-enrolled-programs'] }),
+        qc.invalidateQueries({ queryKey: ['my-enrollments'] }),
+        qc.invalidateQueries({ queryKey: ['user-program-progress'] }),
+      ]);
     },
   });
 }

@@ -36,7 +36,7 @@ const TOUR_STEPS = [
 interface EnrolledProgram {
   id: string;
   program_id: string;
-  enrolled_at: string;
+  created_at: string;
   program: {
     id: string;
     title: string;

@@ -31,7 +31,7 @@ export default function MyProgramsPage() {
         .from('program_enrollments')
         .select('*, programs(id, title, description, cover_image_url, is_published, organization_id, organizations(name, slug, logo_url))')
         .eq('user_id', user.id)
-        .order('enrolled_at', { ascending: false });
+        .order('created_at', { ascending: false });
       return data || [];
     },
     enabled: !!user?.id,
