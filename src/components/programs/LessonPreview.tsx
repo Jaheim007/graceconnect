@@ -191,8 +191,26 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
     [allSlides]
   );
 
-  const goNext = () => { if (currentIndex < total - 1) setCurrentIndex(i => i + 1); };
+  const canGoTo = (idx: number) => {
+    if (!isLearner) return true;
+    return idx <= maxReachedIndex + 1;
+  };
+
+  const goNext = () => {
+    if (currentIndex < total - 1) {
+      const nextIdx = currentIndex + 1;
+      setCurrentIndex(nextIdx);
+      setMaxReachedIndex(prev => Math.max(prev, nextIdx));
+    }
+  };
   const goPrev = () => { if (currentIndex > 0) setCurrentIndex(i => i - 1); };
+
+  const goToSlide = (idx: number) => {
+    if (canGoTo(idx)) {
+      setCurrentIndex(idx);
+      setMaxReachedIndex(prev => Math.max(prev, idx));
+    }
+  };
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -203,11 +221,14 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
     return () => window.removeEventListener('keydown', handler);
   }, [currentIndex, total]);
 
-  const deviceStyles: Record<DeviceMode, { w: string; maxW: string; h: string }> = {
-    mobile: { w: '375px', maxW: '375px', h: '700px' },
-    tablet: { w: '768px', maxW: '768px', h: '600px' },
-    desktop: { w: '100%', maxW: '960px', h: '560px' },
-  };
+  // For learners, slides fill the viewport; for creators, use device frames
+  const deviceStyles: Record<DeviceMode, { w: string; maxW: string; h: string }> = isLearner
+    ? { mobile: { w: '100%', maxW: '100%', h: '100%' }, tablet: { w: '100%', maxW: '100%', h: '100%' }, desktop: { w: '100%', maxW: '100%', h: '100%' } }
+    : {
+        mobile: { w: '375px', maxW: '375px', h: '700px' },
+        tablet: { w: '768px', maxW: '768px', h: '600px' },
+        desktop: { w: '100%', maxW: '960px', h: '560px' },
+      };
 
   const currentCustomization = slideCustomizations[currentIndex] || DEFAULT_CUSTOMIZATION;
 
