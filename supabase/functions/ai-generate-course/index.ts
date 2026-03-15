@@ -33,7 +33,7 @@ serve(async (req) => {
       idempotencyKey: `course-${userId}-${Date.now()}`,
       metadata: { title, module_count, generate_images },
       action: async () => {
-        const systemPrompt = `You are an expert micro-learning course designer. Generate a professional course with SHORT, DIGESTIBLE lesson content and EMBEDDED QUIZ QUESTIONS in JSON format.
+        const systemPrompt = `You are an expert micro-learning course designer specializing in mobile-first, gamified education experiences. Generate a professional course with SHORT, DIGESTIBLE lesson content, EMBEDDED QUIZ QUESTIONS, and a FINAL ASSESSMENT in JSON format.
 
 Return ONLY valid JSON with this exact structure:
 {
@@ -47,35 +47,68 @@ Return ONLY valid JSON with this exact structure:
           "content_type": "text",
           "duration_minutes": 10,
           "description": "Brief lesson description",
-          "content": "<h2>Section Title</h2><p>Short paragraph (2-3 sentences max).</p><p>Another short paragraph with a key insight.</p><h3>Key Concept</h3><p>Brief explanation.</p><ul><li>Point 1</li><li>Point 2</li></ul><!-- QUIZ:{\"question\":\"What is the main concept?\",\"options\":[\"Option A\",\"Option B\",\"Option C\"],\"correctIndex\":1,\"explanation\":\"Option B is correct because...\"} --><h3>Next Concept</h3><p>Brief content...</p><!-- QUIZ:{\"question\":\"Another question?\",\"options\":[\"Choice 1\",\"Choice 2\",\"Choice 3\",\"Choice 4\"],\"correctIndex\":0,\"explanation\":\"Explanation here.\"} -->"
+          "content": "<h2>Section Title</h2><p>Short paragraph (2-3 sentences max).</p><!-- QUIZ:{\"question\":\"...\",\"options\":[\"A\",\"B\",\"C\"],\"correctIndex\":1,\"explanation\":\"...\"} --><h3>Key Concept</h3><p>Brief explanation.</p><!-- QUIZ:{...} -->"
         }
       ]
     }
-  ]
+  ],
+  "final_assessment": {
+    "title": "${isFr ? 'Évaluation finale' : 'Final Assessment'}",
+    "description": "${isFr ? 'Testez vos connaissances sur l\\'ensemble du cours' : 'Test your knowledge of the entire course'}",
+    "questions": [
+      {
+        "question": "Comprehensive question about the course material?",
+        "options": ["Option A", "Option B", "Option C", "Option D"],
+        "correctIndex": 2,
+        "explanation": "Explanation of the correct answer."
+      }
+    ]
+  }
 }
 
 CRITICAL REQUIREMENTS FOR MICRO-LEARNING:
 - Create ${module_count} modules with 3-5 lessons each
 - KEEP EACH SECTION SHORT: max 2-3 short paragraphs per <h2> or <h3> section (50-100 words per section)
 - Each lesson should have 3-5 short sections separated by <h2> or <h3> headings
+
+GAMIFICATION & QUIZ RULES:
 - QUIZ QUESTIONS: Embed 2-3 quiz questions PER LESSON using HTML comments: <!-- QUIZ:{"question":"...","options":["A","B","C"],"correctIndex":0,"explanation":"..."} -->
 - Place quizzes AFTER the content they test (between sections)
 - Each quiz must have 3-4 options with exactly one correct answer (correctIndex is 0-based)
+- Make quizzes FUN and ENGAGING — use real-world scenarios, not boring textbook questions
+- Include encouraging language in explanations
+- Vary question types: true/false style, scenario-based, fill-in-the-blank style, "which of the following"
+
+FINAL ASSESSMENT:
+- Generate 8-12 comprehensive multiple-choice questions covering ALL modules
+- Questions should test understanding, not just memorization
+- Each question MUST have exactly 4 options
+- Mix difficulty levels: 40% easy, 40% medium, 20% hard
+- Include scenario-based questions that test application of knowledge
+
+CONTENT STYLE:
 - Content must use proper HTML: <h2>, <h3>, <p>, <ul>, <ol>, <li>, <blockquote>, <strong>, <em>
 - Write concise, impactful content — like a mobile learning app, NOT a textbook
 - Each section should teach ONE concept clearly
 - Use the language: ${isFr ? 'French' : 'English'}
 - Duration should be 5-15 minutes per lesson
 - DO NOT use markdown, only HTML tags
-- The quiz JSON must be valid JSON inside the HTML comment`;
+- The quiz JSON must be valid JSON inside the HTML comment
+- Make the tone conversational and motivating
+- Use emojis sparingly in headings for visual appeal (🎯, 💡, 🔑, ⚡, etc.)`;
 
-        const userPrompt = `Create a micro-learning course with SHORT digestible sections and EMBEDDED QUIZ questions for:
+        const userPrompt = `Create a micro-learning course with SHORT digestible sections, EMBEDDED QUIZ questions, and a FINAL ASSESSMENT for:
 Title: ${title}
 ${description ? `Description/Context: ${description}` : ''}
 ${target_audience ? `Target audience: ${target_audience}` : ''}
 Number of modules: ${module_count}
 
-IMPORTANT: Keep each section very short (2-3 sentences). Users read this on mobile slides — one section per screen. Include 2-3 quiz questions per lesson embedded as <!-- QUIZ:{...} --> HTML comments between sections. Make it feel interactive and engaging like a mobile learning app.`;
+IMPORTANT: 
+- Keep each section very short (2-3 sentences). Users read this on mobile slides — one section per screen.
+- Include 2-3 quiz questions per lesson embedded as <!-- QUIZ:{...} --> HTML comments between sections.
+- Include a final_assessment with 8-12 comprehensive questions covering the entire course.
+- Make it feel interactive, engaging, and gamified like Duolingo or EdApp.
+- Use encouraging, conversational tone throughout.`;
 
         const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
           method: 'POST',
