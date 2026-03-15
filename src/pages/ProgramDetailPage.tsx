@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import { useProgram, useProgramModules, useEnrollment, useLessonProgress, useEnrollInProgram, useToggleLessonComplete } from '@/hooks/usePrograms';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +28,7 @@ export default function ProgramDetailPage() {
   const { programId } = useParams();
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const { data: program, isLoading } = useProgram(programId);
@@ -115,11 +117,15 @@ export default function ProgramDetailPage() {
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium text-primary">{isFr ? 'Inscrit' : 'Enrolled'}</span>
+                    <span className="text-sm font-medium text-primary">{isFr ? 'Acquis' : 'Acquired'}</span>
                     <span className="text-xs text-muted-foreground ml-2">{completedLessons}/{totalLessons} {isFr ? 'leçons complétées' : 'lessons completed'}</span>
                   </div>
                   <Progress value={progressPercent} className="h-2" />
                   <p className="text-[10px] text-muted-foreground">{progressPercent}% {isFr ? 'terminé' : 'completed'}</p>
+                  <Button size="sm" className="gap-1.5 mt-1" onClick={() => navigate('/resources')}>
+                    <BookOpen className="h-3.5 w-3.5" />
+                    {isFr ? 'Accéder depuis Mes achats' : 'Access from My Purchases'}
+                  </Button>
                 </div>
               )}
             </div>
