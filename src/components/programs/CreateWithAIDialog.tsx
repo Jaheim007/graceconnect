@@ -13,6 +13,7 @@ import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
 import { Sparkles, Loader2, BookOpen, HelpCircle, Plus, ImageIcon } from 'lucide-react';
+import { CourseGenerationLoader } from './CourseGenerationLoader';
 
 const SUGGESTIONS_FR = [
   { icon: BookOpen, text: 'Créer un cours de 10 minutes pour former le personnel au service client' },
