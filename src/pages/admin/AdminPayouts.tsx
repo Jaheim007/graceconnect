@@ -368,7 +368,7 @@ export default function AdminPayouts() {
         {/* ═══ Withdrawal History ═══ */}
         {payouts.length > 0 && (
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold">Historique des retraits</p>
+            <p className="text-sm font-semibold">{isFr ? 'Historique des retraits' : 'Withdrawal history'}</p>
             <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={exportPayouts}>
               <Download className="h-3.5 w-3.5" /> {t('payouts.export')}
             </Button>
