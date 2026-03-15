@@ -339,7 +339,7 @@ export function LessonEditor({ lessonId, programId, onBack }: LessonEditorProps)
                       </div>
                       <div className="grid grid-cols-2 gap-1.5">
                         {(Array.isArray(q.options) ? q.options : []).map((opt: string, oi: number) => (
-                          <div key={oi} className={`text-xs p-2 rounded-lg flex items-center gap-1.5 ${oi === q.correct_index ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'bg-muted/50 text-muted-foreground'}`}>
+                          <div key={oi} className={`text-xs p-2 rounded-lg flex items-center gap-1.5 ${oi === q.correct_index ? 'bg-primary/10 text-primary' : 'bg-muted/50 text-muted-foreground'}`}>
                             {oi === q.correct_index ? <CheckCircle2 className="h-3 w-3 shrink-0" /> : <XCircle className="h-3 w-3 shrink-0 opacity-30" />}
                             {opt}
                           </div>
