@@ -212,11 +212,11 @@ export function SlideRenderer({
       {hasBgImage && <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} />}
       {hasBgImage && <div className="absolute inset-0 bg-black/50 z-[1]" />}
       <SlideDecoration theme={theme} />
-      <Header />
+      <div className="relative z-20"><Header /></div>
 
-      <div className={cn('flex-1 flex flex-col relative z-10', isMobile ? 'px-5 py-4' : 'px-8 py-6', captionPositionClasses[captionPos])}>
+      <div className={cn('absolute inset-0 flex flex-col z-10', isMobile ? 'px-5' : 'px-8', captionPositionClasses[captionPos])}>
         <div className={cn(
-          'rounded-xl max-w-2xl w-full',
+          'rounded-xl max-w-2xl w-full overflow-y-auto max-h-[70%]',
           captionStyle === 'transparent-light' || captionStyle === 'transparent-dark'
             ? cn(captionClasses[captionStyle], 'px-1 py-1')
             : cn(captionClasses[captionStyle], 'px-6 py-5 shadow-xl', theme.captionGlow)
