@@ -2,11 +2,13 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { ProductCard } from '@/components/products/ProductCard';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Loader2 } from 'lucide-react';
+import { BookOpen, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useI18n } from '@/i18n/I18nContext';
+import { Link } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
 
 const CATEGORY_META = [
   { value: '', emoji: '✨' },
