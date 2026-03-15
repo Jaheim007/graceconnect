@@ -136,23 +136,22 @@ Return ONLY valid JSON with this exact structure:
 }
 
 CRITICAL REQUIREMENTS FOR MICRO-LEARNING:
-- Create ${module_count} modules with 3-5 lessons each
-- KEEP EACH SECTION SHORT: max 2-3 short paragraphs per <h2> or <h3> section (50-100 words per section)
-- Each lesson should have 3-5 short sections separated by <h2> or <h3> headings
+- Create ${module_count} modules with EXACTLY 2-3 lessons each (keep output concise)
+- KEEP EACH SECTION SHORT: max 1 short paragraph per <h2> or <h3> section (35-70 words per section)
+- Each lesson should have EXACTLY 2-3 short sections separated by <h2> or <h3> headings
 - "course_title" should be a MARKETING-READY title (compelling, concise, professional) — NOT the raw prompt
 - "course_description" should be a marketing description explaining what the learner will gain
 - "image_prompt" for each lesson should be a vivid description in ENGLISH for AI image generation (even if course is in French)
 
 GAMIFICATION & QUIZ RULES:
-- QUIZ QUESTIONS: Embed 2-3 quiz questions PER LESSON using HTML comments: <!-- QUIZ:{"question":"...","options":["A","B","C"],"correctIndex":0,"explanation":"..."} -->
+- QUIZ QUESTIONS: Embed EXACTLY 1-2 quiz questions PER LESSON using HTML comments: <!-- QUIZ:{"question":"...","options":["A","B","C"],"correctIndex":0,"explanation":"..."} -->
 - Place quizzes AFTER the content they test (between sections)
 - Each quiz must have 3-4 options with exactly one correct answer (correctIndex is 0-based)
 - Make quizzes FUN and ENGAGING — use real-world scenarios, not boring textbook questions
 - Include encouraging language in explanations
-- Vary question types: true/false style, scenario-based, fill-in-the-blank style, "which of the following"
 
 FINAL ASSESSMENT:
-- Generate 8-12 comprehensive multiple-choice questions covering ALL modules
+- Generate 6-8 comprehensive multiple-choice questions covering ALL modules
 - Questions should test understanding, not just memorization
 - Each question MUST have exactly 4 options
 - Mix difficulty levels: 40% easy, 40% medium, 20% hard
