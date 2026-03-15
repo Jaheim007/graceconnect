@@ -92,10 +92,14 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
 
       refreshCredits();
 
+      // Use AI-generated marketing title/description if available
+      const courseTitle = data?.course_title || prompt.trim().slice(0, 100);
+      const courseDescription = data?.course_description || prompt.trim();
+
       const result = await createProgram.mutateAsync({
         organization_id: currentOrg.id,
-        title: prompt.trim().slice(0, 100),
-        description: prompt.trim(),
+        title: courseTitle,
+        description: courseDescription,
         created_by: user.id,
       });
 
