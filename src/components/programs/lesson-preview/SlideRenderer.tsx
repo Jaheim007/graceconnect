@@ -4,6 +4,9 @@ import { ContentSlide } from './parseContentSlides';
 import { getSlideTheme } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
 import { QuizSlide } from './QuizSlide';
+import { FlashcardSlide } from './FlashcardSlide';
+import { MatchingSlide } from './MatchingSlide';
+import { OrderingSlide } from './OrderingSlide';
 import { ChevronDown } from 'lucide-react';
 import type { SlideCustomization, CaptionStyle, CaptionPosition, ImagePosition } from './SlideCustomizationPanel';
 
