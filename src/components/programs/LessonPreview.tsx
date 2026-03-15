@@ -87,6 +87,7 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
 
     for (const mod of modules) {
       for (const lesson of (mod as any).lessons || []) {
+        const lessonImage = extractFirstImageUrl(lesson.content);
         slides.push({
           lessonId: lesson.id,
           lessonTitle: lesson.title,
@@ -95,6 +96,7 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
           slide: { type: 'title-card', bodyHtml: lesson.description || '' },
           lessonIndex: lessonIdx,
           slideInLesson: 0,
+          lessonImageUrl: lessonImage,
         });
 
         const contentSlides = parseContentIntoSlides(lesson.content || '');
@@ -107,6 +109,7 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
             slide: cs,
             lessonIndex: lessonIdx,
             slideInLesson: si + 1,
+            lessonImageUrl: lessonImage,
           });
         });
 
