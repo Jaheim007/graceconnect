@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { useI18n } from '@/i18n/I18nContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,7 +10,7 @@ import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
-import { Sparkles, ArrowRight, Loader2, FileText } from 'lucide-react';
+import { Sparkles, ArrowRight, Loader2, FileText, ImageIcon } from 'lucide-react';
 
 interface Props {
   open: boolean;
@@ -30,6 +31,7 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
 
   const [file, setFile] = useState<File | null>(null);
   const [tier, setTier] = useState<AITier>('standard');
+  const [generateImages, setGenerateImages] = useState(false);
   const [converting, setConverting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -65,24 +67,20 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
 
       const { data: urlData } = supabase.storage.from('media').getPublicUrl(path);
 
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) {
         throw new Error(isFr ? 'Session expirée. Reconnectez-vous puis réessayez.' : 'Session expired. Please log in again and retry.');
       }
 
       const { data, error } = await supabase.functions.invoke('ai-generate-course', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`,
-        },
+        headers: { Authorization: `Bearer ${session.access_token}` },
         body: {
           title: file.name.replace(/\.[^.]+$/, ''),
-          description: `Convert this ${ext.toUpperCase()} document into a structured course with modules and lessons. Document URL: ${urlData.publicUrl}`,
+          description: `Convert this ${ext.toUpperCase()} document into a structured course with modules, lessons, and FULL lesson content. Document URL: ${urlData.publicUrl}`,
           language: isFr ? 'fr' : 'en',
           tier,
           module_count: 5,
+          generate_images: generateImages,
         },
       });
 
@@ -116,6 +114,7 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
               module_id: modResult.id,
               title: lesson.title,
               content_type: lesson.content_type || 'text',
+              content: lesson.content || '',
               duration_minutes: lesson.duration_minutes,
               display_order: li,
               programId: result.id,
@@ -160,8 +159,8 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
               <p className="text-sm font-semibold">{isFr ? 'Conversion IA' : 'AI conversion'}</p>
               <p className="text-[11px] text-muted-foreground mt-1">
                 {isFr
-                  ? 'Convertit PDF, Word ou PowerPoint en cours structuré.'
-                  : 'Converts PDF, Word, or PowerPoint into a structured course.'}
+                  ? 'Convertit PDF, Word ou PowerPoint en cours structuré avec contenu.'
+                  : 'Converts PDF, Word, or PowerPoint into a structured course with content.'}
               </p>
             </div>
           </button>
@@ -188,7 +187,7 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
               onClick={() => setTier('standard')}
               disabled={converting}
             >
-              {isFr ? 'Standard' : 'Standard'}
+              Standard
               <span className="ml-1 text-xs opacity-90">({standardCost ?? 8} {isFr ? 'crédits' : 'credits'})</span>
             </Button>
             <Button
@@ -197,14 +196,32 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
               onClick={() => setTier('premium')}
               disabled={converting}
             >
-              {isFr ? 'Premium' : 'Premium'}
+              Premium
               <span className="ml-1 text-xs opacity-90">({premiumCost ?? 15} {isFr ? 'crédits' : 'credits'})</span>
             </Button>
           </div>
-          <p className="text-[11px] text-muted-foreground">
-            {isFr ? 'Coût estimé' : 'Estimated cost'}: <span className="font-medium text-foreground">{selectedCost ?? (tier === 'premium' ? 15 : 8)} {isFr ? 'crédits' : 'credits'}</span>
-          </p>
         </div>
+
+        {/* Image generation option */}
+        <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
+          <div className="flex items-center gap-2">
+            <ImageIcon className="h-4 w-4 text-primary" />
+            <div>
+              <p className="text-xs font-medium">{isFr ? 'Générer des images par leçon' : 'Generate images per lesson'}</p>
+              <p className="text-[10px] text-muted-foreground">
+                {isFr
+                  ? 'Images basées sur le style du document (crédits additionnels)'
+                  : 'Images based on document style (additional credits)'}
+              </p>
+            </div>
+          </div>
+          <Switch checked={generateImages} onCheckedChange={setGenerateImages} disabled={converting} />
+        </div>
+
+        <p className="text-[11px] text-muted-foreground">
+          {isFr ? 'Coût estimé' : 'Estimated cost'}: <span className="font-medium text-foreground">{selectedCost ?? (tier === 'premium' ? 15 : 8)} {isFr ? 'crédits' : 'credits'}</span>
+          {generateImages && <span className="text-primary"> + {isFr ? 'images' : 'images'}</span>}
+        </p>
 
         <input
           ref={fileRef}

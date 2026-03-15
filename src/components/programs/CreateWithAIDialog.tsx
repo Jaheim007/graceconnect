@@ -2,15 +2,17 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { useI18n } from '@/i18n/I18nContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
+import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
-import { Sparkles, Loader2, BookOpen, HelpCircle, Plus } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Sparkles, Loader2, BookOpen, HelpCircle, Plus, ImageIcon } from 'lucide-react';
 
 const SUGGESTIONS_FR = [
   { icon: BookOpen, text: 'Créer un cours de 10 minutes pour former le personnel au service client' },
@@ -30,6 +32,8 @@ const SUGGESTIONS_EN = [
   { icon: BookOpen, text: 'Introduction to financial literacy for small business owners' },
 ];
 
+type AITier = 'standard' | 'premium';
+
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -45,7 +49,12 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
   const { handleAiError, refreshCredits } = useCreditGuard();
 
   const [prompt, setPrompt] = useState('');
+  const [tier, setTier] = useState<AITier>('standard');
+  const [generateImages, setGenerateImages] = useState(false);
   const [generating, setGenerating] = useState(false);
+
+  const standardCost = useActionCost('ai_course_structure', 'standard');
+  const premiumCost = useActionCost('ai_course_structure', 'premium');
 
   const createProgram = useCreateProgram();
   const createModule = useCreateModule();
@@ -57,12 +66,19 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
     if (!prompt.trim() || !currentOrg || !user) return;
     setGenerating(true);
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) {
+        throw new Error(isFr ? 'Session expirée. Reconnectez-vous.' : 'Session expired. Please log in again.');
+      }
+
       const { data, error } = await supabase.functions.invoke('ai-generate-course', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
         body: {
           title: prompt.trim(),
           language: isFr ? 'fr' : 'en',
-          tier: 'standard',
+          tier,
           module_count: 5,
+          generate_images: generateImages,
         },
       });
 
@@ -75,7 +91,6 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
 
       refreshCredits();
 
-      // Create program and apply structure
       const result = await createProgram.mutateAsync({
         organization_id: currentOrg.id,
         title: prompt.trim().slice(0, 100),
@@ -98,6 +113,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
               module_id: modResult.id,
               title: lesson.title,
               content_type: lesson.content_type || 'text',
+              content: lesson.content || '',
               duration_minutes: lesson.duration_minutes,
               display_order: li,
               programId: result.id,
@@ -120,6 +136,8 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
     }
   };
 
+  const selectedCost = tier === 'premium' ? premiumCost : standardCost;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-xl">
@@ -130,8 +148,8 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
           </DialogTitle>
           <p className="text-sm text-muted-foreground">
             {isFr
-              ? 'Utilisez l\'IA pour générer du contenu de formation en quelques secondes.'
-              : 'Use AI to generate training content in seconds.'}
+              ? 'L\'IA génère la structure ET le contenu complet de chaque leçon.'
+              : 'AI generates the structure AND full content for each lesson.'}
           </p>
         </DialogHeader>
 
@@ -164,12 +182,56 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
               );
             })}
           </div>
+
+          {/* Tier selection */}
+          <div className="space-y-2">
+            <p className="text-xs text-muted-foreground">{isFr ? 'Type de génération IA' : 'AI generation type'}</p>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant={tier === 'standard' ? 'default' : 'outline'}
+                onClick={() => setTier('standard')}
+                disabled={generating}
+                className="text-xs"
+              >
+                Standard
+                <span className="ml-1 text-[10px] opacity-90">({standardCost ?? 8} {isFr ? 'crédits' : 'credits'})</span>
+              </Button>
+              <Button
+                type="button"
+                variant={tier === 'premium' ? 'default' : 'outline'}
+                onClick={() => setTier('premium')}
+                disabled={generating}
+                className="text-xs"
+              >
+                Premium
+                <span className="ml-1 text-[10px] opacity-90">({premiumCost ?? 15} {isFr ? 'crédits' : 'credits'})</span>
+              </Button>
+            </div>
+          </div>
+
+          {/* Image generation option */}
+          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
+            <div className="flex items-center gap-2">
+              <ImageIcon className="h-4 w-4 text-primary" />
+              <div>
+                <p className="text-xs font-medium">{isFr ? 'Générer des images par leçon' : 'Generate images per lesson'}</p>
+                <p className="text-[10px] text-muted-foreground">
+                  {isFr
+                    ? 'Les images seront basées sur le contenu de chaque leçon (crédits additionnels)'
+                    : 'Images based on each lesson content (additional credits)'}
+                </p>
+              </div>
+            </div>
+            <Switch checked={generateImages} onCheckedChange={setGenerateImages} disabled={generating} />
+          </div>
         </div>
 
         <div className="flex items-center justify-between pt-2">
-          <button type="button" className="text-xs text-primary hover:underline">
-            {isFr ? 'Comment ça marche ?' : 'How does this work?'}
-          </button>
+          <p className="text-[11px] text-muted-foreground">
+            {isFr ? 'Coût estimé' : 'Estimated cost'}: <span className="font-medium text-foreground">{selectedCost ?? (tier === 'premium' ? 15 : 8)} {isFr ? 'crédits' : 'credits'}</span>
+            {generateImages && <span className="text-primary"> + {isFr ? 'images' : 'images'}</span>}
+          </p>
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={() => onOpenChange(false)} disabled={generating}>
               {isFr ? 'Annuler' : 'Cancel'}

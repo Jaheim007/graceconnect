@@ -33,6 +33,7 @@ import { cn } from '@/lib/utils';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { LessonPreview } from '@/components/programs/LessonPreview';
 
 const CONTENT_TYPES = [
   { value: 'text', label: 'Text', labelFr: 'Texte', icon: FileText },
@@ -257,6 +258,7 @@ export function ProgramForm() {
           <div className="hidden sm:flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
             {[
               { key: 'edit', label: isFr ? 'Éditer' : 'Edit' },
+              { key: 'preview', label: isFr ? 'Aperçu' : 'Preview' },
               { key: 'settings', label: isFr ? 'Paramètres' : 'Set up' },
               { key: 'publish', label: isFr ? 'Publier' : 'Publish' },
             ].map(tab => (
@@ -427,6 +429,17 @@ export function ProgramForm() {
               </div>
             )}
           </div>
+        </div>
+      )}
+
+      {/* ─── PREVIEW TAB ─── */}
+      {activeTab === 'preview' && id && (
+        <div className="flex-1 min-h-0">
+          <LessonPreview
+            programId={id}
+            initialLessonId={selectedLessonId || undefined}
+            onClose={() => setActiveTab('edit')}
+          />
         </div>
       )}
 
