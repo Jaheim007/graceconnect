@@ -1,11 +1,15 @@
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { Star, Trophy, Flame, PartyPopper, Target, Share2 } from 'lucide-react';
-import { useState } from 'react';
+import { Star, Trophy, Flame, PartyPopper, Target, Share2, Award, Download } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import type { SlideTheme } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
 import { useI18n } from '@/i18n/I18nContext';
+import { useSaveCertificate, useSaveSlideProgress } from '@/hooks/useLearnerProgress';
+import { useAuth } from '@/contexts/AuthContext';
+import { useOrg } from '@/contexts/OrgContext';
+import { Button } from '@/components/ui/button';
 
 interface CourseCompletionSlideProps {
   theme: SlideTheme;
@@ -18,6 +22,7 @@ interface CourseCompletionSlideProps {
   orgLogoUrl?: string | null;
   deviceMode: 'mobile' | 'tablet' | 'desktop';
   gamificationEnabled?: boolean;
+  mode?: 'creator' | 'learner';
 }
 
 // Animated floating particles
@@ -63,11 +68,16 @@ export function CourseCompletionSlide({
   orgLogoUrl,
   deviceMode,
   gamificationEnabled = true,
+  mode = 'creator',
 }: CourseCompletionSlideProps) {
   const isMobile = deviceMode === 'mobile';
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const [showShare, setShowShare] = useState(false);
+  const { user } = useAuth();
+  const { currentOrg } = useOrg();
+  const saveCertificate = useSaveCertificate();
+  const [certificateSaved, setCertificateSaved] = useState(false);
   
   const hasAssessment = assessmentScore !== undefined && assessmentTotal !== undefined;
   const assessmentPct = hasAssessment ? Math.round((assessmentScore! / assessmentTotal!) * 100) : 0;
@@ -76,6 +86,21 @@ export function CourseCompletionSlide({
     : totalQuizzes > 0 
       ? Math.min(5, Math.round((starsEarned / totalQuizzes) * 5))
       : 5;
+
+  // Auto-save certificate for learners
+  useEffect(() => {
+    if (mode !== 'learner' || !user || !programId || !currentOrg || certificateSaved) return;
+    saveCertificate.mutate({
+      programId,
+      organizationId: currentOrg.id,
+      learnerName: (user as any).user_metadata?.display_name || user.email || 'Learner',
+      courseTitle,
+      starsEarned,
+      assessmentScore,
+      assessmentTotal,
+    });
+    setCertificateSaved(true);
+  }, [mode, user, programId, currentOrg]);
 
   const shareUrl = programId ? `/program/${programId}` : '/my-programs';
   const shareDescription = isFr
@@ -190,17 +215,30 @@ export function CourseCompletionSlide({
               )}
             </motion.div>
 
-            {/* Share CTA */}
-            <motion.button
+            {/* Certificate & Share CTAs */}
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.8 }}
-              onClick={() => setShowShare(true)}
-              className="flex items-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-sm rounded-full px-5 py-2.5 border border-white/20 transition-all hover:scale-105 active:scale-95"
+              className="flex items-center gap-3"
             >
-              <Share2 className="h-4 w-4" />
-              <span className="text-sm font-medium">{isFr ? 'Partager mon résultat' : 'Share my result'}</span>
-            </motion.button>
+              {mode === 'learner' && certificateSaved && (
+                <button
+                  onClick={() => setShowShare(true)}
+                  className="flex items-center gap-2 bg-yellow-500/20 hover:bg-yellow-500/30 backdrop-blur-sm rounded-full px-5 py-2.5 border border-yellow-400/30 transition-all hover:scale-105 active:scale-95"
+                >
+                  <Award className="h-4 w-4 text-yellow-400" />
+                  <span className="text-sm font-medium text-yellow-200">{isFr ? 'Certificat' : 'Certificate'}</span>
+                </button>
+              )}
+              <button
+                onClick={() => setShowShare(true)}
+                className="flex items-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-sm rounded-full px-5 py-2.5 border border-white/20 transition-all hover:scale-105 active:scale-95"
+              >
+                <Share2 className="h-4 w-4" />
+                <span className="text-sm font-medium">{isFr ? 'Partager' : 'Share'}</span>
+              </button>
+            </motion.div>
 
             <motion.p
               initial={{ opacity: 0 }}

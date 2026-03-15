@@ -184,6 +184,7 @@ const AdminWebhooks = lazy(() => import("@/pages/admin/AdminWebhooks"));
 const AdminOfferings = lazy(() => import("@/pages/admin/AdminOfferings"));
 const AdminPrograms = lazy(() => import("@/pages/admin/AdminPrograms"));
 const AdminProgramForm = lazy(() => import("@/pages/admin/AdminProgramForm").then(m => ({ default: m.ProgramForm })));
+const AdminLearnerProgress = lazy(() => import("@/pages/admin/AdminLearnerProgress"));
 const ProgramDetailPage = lazy(() => import("@/pages/ProgramDetailPage"));
 const AdminAnnouncementForm = lazy(() => import("@/pages/admin/AdminAnnouncementForm").then(m => ({ default: m.AnnouncementForm })));
 const AdminEventForm = lazy(() => import("@/pages/admin/AdminEventForm").then(m => ({ default: m.EventForm })));
@@ -463,6 +464,7 @@ const App = () => (
                   <Route path="programs" element={<AdminPrograms />} />
                   <Route path="programs/new" element={<AdminProgramForm />} />
                   <Route path="programs/:id/edit" element={<AdminProgramForm />} />
+                  <Route path="learner-progress" element={<AdminLearnerProgress />} />
                   {/* AI Studio */}
                   <Route path="studio" element={<StudioHome />} />
                   <Route path="studio/projects" element={<StudioProjectsList />} />

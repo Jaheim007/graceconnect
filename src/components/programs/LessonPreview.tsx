@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, type ReactNode } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback, type ReactNode } from 'react';
 import { useProgramModules, useProgram } from '@/hooks/usePrograms';
 import { useI18n } from '@/i18n/I18nContext';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import { SlideRenderer } from './lesson-preview/SlideRenderer';
 import { SlideCustomizationPanel, DEFAULT_CUSTOMIZATION, type SlideCustomization } from './lesson-preview/SlideCustomizationPanel';
 import { FinalAssessmentSlide } from './lesson-preview/FinalAssessmentSlide';
 import { CourseCompletionSlide } from './lesson-preview/CourseCompletionSlide';
+import { useSaveSlideProgress, useSaveLessonCompletion, useEnrollmentProgress } from '@/hooks/useLearnerProgress';
 import { getSlideTheme } from './lesson-preview/slideThemes';
 import { Switch } from '@/components/ui/switch';
 
@@ -74,7 +75,23 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
   // Track the highest slide index the learner has reached (for slide locking)
   const [maxReachedIndex, setMaxReachedIndex] = useState(0);
 
-  // Auto-detect device mode for learners based on actual viewport
+  // Progress saving hooks (only active for learners)
+  const saveProgress = useSaveSlideProgress(programId);
+  const saveLessonCompletion = useSaveLessonCompletion();
+  const { data: enrollmentProgress } = useEnrollmentProgress(isLearner ? programId : undefined);
+
+  // Restore progress from DB on mount
+  useEffect(() => {
+    if (isLearner && enrollmentProgress?.last_slide_index && enrollmentProgress.last_slide_index > 0) {
+      setMaxReachedIndex(enrollmentProgress.last_slide_index);
+      setCurrentIndex(enrollmentProgress.last_slide_index);
+      if (enrollmentProgress.total_stars) setStarsEarned(enrollmentProgress.total_stars);
+    }
+  }, [isLearner, enrollmentProgress?.last_slide_index]);
+
+  // Debounced progress save - refs only, effect is after allSlides
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const lastSavedRef = useRef<number>(-1);
   useEffect(() => {
     if (!isLearner) return;
     const updateDevice = () => {
@@ -191,6 +208,21 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
     [allSlides]
   );
 
+  // Save progress as learner navigates (debounced)
+  useEffect(() => {
+    if (!isLearner || currentIndex === lastSavedRef.current) return;
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => {
+      lastSavedRef.current = currentIndex;
+      saveProgress.mutate({
+        slideIndex: currentIndex,
+        totalSlides: total,
+        starsEarned,
+      });
+    }, 1500);
+    return () => { if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current); };
+  }, [isLearner, currentIndex, starsEarned, total]);
+
   const canGoTo = (idx: number) => {
     if (!isLearner) return true;
     return idx <= maxReachedIndex + 1;
@@ -303,6 +335,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
           orgLogoUrl={orgLogoUrl}
           deviceMode={deviceMode}
           gamificationEnabled={gamificationEnabled}
+          mode={mode}
         />
       );
     }

@@ -4,11 +4,30 @@
  * Also extracts quiz blocks embedded in content.
  */
 export interface ContentSlide {
-  type: 'title-card' | 'section' | 'quiz' | 'quiz-result' | 'final-assessment' | 'course-completion';
+  type: 'title-card' | 'section' | 'quiz' | 'quiz-result' | 'final-assessment' | 'course-completion' | 'flashcard' | 'matching' | 'ordering';
   heading?: string;
   bodyHtml: string;
   quiz?: QuizData;
   assessment?: AssessmentData;
+  flashcard?: FlashcardData;
+  matching?: MatchingData;
+  ordering?: OrderingData;
+}
+
+export interface FlashcardData {
+  front: string;
+  back: string;
+  hint?: string;
+}
+
+export interface MatchingData {
+  pairs: { left: string; right: string }[];
+}
+
+export interface OrderingData {
+  instruction?: string;
+  items: string[];
+  correctOrder: number[];
 }
 
 export interface QuizData {
@@ -93,9 +112,22 @@ function splitLongBody(bodyHtml: string): string[] {
  * Extract quiz JSON blocks from lesson content.
  * Format: <!-- QUIZ:{"question":"...","options":["A","B","C"],"correctIndex":1,"explanation":"..."} -->
  */
-function extractQuizzes(html: string): { cleanHtml: string; quizzes: QuizData[] } {
+function extractInteractives(html: string): {
+  cleanHtml: string;
+  quizzes: QuizData[];
+  flashcards: FlashcardData[];
+  matchings: MatchingData[];
+  orderings: OrderingData[];
+} {
   const quizzes: QuizData[] = [];
-  const cleanHtml = html.replace(/<!--\s*QUIZ:([\s\S]*?)-->/gi, (_, json) => {
+  const flashcards: FlashcardData[] = [];
+  const matchings: MatchingData[] = [];
+  const orderings: OrderingData[] = [];
+
+  let cleanHtml = html;
+
+  // Extract quizzes: <!-- QUIZ:{...} -->
+  cleanHtml = cleanHtml.replace(/<!--\s*QUIZ:([\s\S]*?)-->/gi, (_, json) => {
     try {
       const quiz = JSON.parse(json.trim());
       if (quiz.question && Array.isArray(quiz.options)) {
@@ -109,14 +141,48 @@ function extractQuizzes(html: string): { cleanHtml: string; quizzes: QuizData[] 
     } catch { /* skip invalid */ }
     return '';
   });
-  return { cleanHtml, quizzes };
+
+  // Extract flashcards: <!-- FLASHCARD:{"front":"...","back":"..."} -->
+  cleanHtml = cleanHtml.replace(/<!--\s*FLASHCARD:([\s\S]*?)-->/gi, (_, json) => {
+    try {
+      const fc = JSON.parse(json.trim());
+      if (fc.front && fc.back) {
+        flashcards.push({ front: fc.front, back: fc.back, hint: fc.hint });
+      }
+    } catch { /* skip */ }
+    return '';
+  });
+
+  // Extract matching: <!-- MATCHING:{"pairs":[{"left":"...","right":"..."}]} -->
+  cleanHtml = cleanHtml.replace(/<!--\s*MATCHING:([\s\S]*?)-->/gi, (_, json) => {
+    try {
+      const m = JSON.parse(json.trim());
+      if (Array.isArray(m.pairs) && m.pairs.length >= 2) {
+        matchings.push({ pairs: m.pairs });
+      }
+    } catch { /* skip */ }
+    return '';
+  });
+
+  // Extract ordering: <!-- ORDERING:{"items":["..."],"correctOrder":[0,1,2]} -->
+  cleanHtml = cleanHtml.replace(/<!--\s*ORDERING:([\s\S]*?)-->/gi, (_, json) => {
+    try {
+      const o = JSON.parse(json.trim());
+      if (Array.isArray(o.items) && Array.isArray(o.correctOrder)) {
+        orderings.push({ instruction: o.instruction, items: o.items, correctOrder: o.correctOrder });
+      }
+    } catch { /* skip */ }
+    return '';
+  });
+
+  return { cleanHtml, quizzes, flashcards, matchings, orderings };
 }
 
 export function parseContentIntoSlides(html: string): ContentSlide[] {
   if (!html?.trim()) return [];
 
-  // Extract quizzes first
-  const { cleanHtml, quizzes } = extractQuizzes(html);
+  // Extract all interactive elements
+  const { cleanHtml, quizzes, flashcards, matchings, orderings } = extractInteractives(html);
 
   // Split at <h2> or <h3> tags
   const parts = cleanHtml.split(/(?=<h[23][^>]*>)/i);
@@ -131,7 +197,6 @@ export function parseContentIntoSlides(html: string): ContentSlide[] {
       const heading = headingMatch[1].replace(/<[^>]+>/g, '').trim();
       const body = trimmed.replace(/^<h[23][^>]*>.*?<\/h[23]>/i, '').trim();
       
-      // Split long bodies into multiple slides
       const bodyChunks = splitLongBody(body);
       bodyChunks.forEach((chunk, i) => {
         slides.push({
@@ -148,46 +213,42 @@ export function parseContentIntoSlides(html: string): ContentSlide[] {
     }
   }
 
-  // Filter out slides that are image-only with no meaningful text
-  // Merge their content into the previous slide instead of dropping
+  // Filter out image-only slides
   const filtered: ContentSlide[] = [];
   for (const slide of slides) {
     if (isImageOnlyBlock(slide.bodyHtml) && !slide.heading) {
-      // Merge image into previous slide if possible
       if (filtered.length > 0) {
         filtered[filtered.length - 1].bodyHtml += slide.bodyHtml;
       }
-      // Otherwise just skip it
     } else {
       filtered.push(slide);
     }
   }
   const finalSlides = filtered.length > 0 ? filtered : slides;
 
-  // Insert quiz slides after content slides (distributed evenly)
-  if (quizzes.length > 0) {
+  // Collect all interactive slides to distribute
+  const interactives: ContentSlide[] = [];
+  for (const q of quizzes) interactives.push({ type: 'quiz', bodyHtml: '', quiz: q });
+  for (const fc of flashcards) interactives.push({ type: 'flashcard', bodyHtml: '', flashcard: fc });
+  for (const m of matchings) interactives.push({ type: 'matching', bodyHtml: '', matching: m });
+  for (const o of orderings) interactives.push({ type: 'ordering', bodyHtml: '', ordering: o });
+
+  // Insert interactive slides distributed evenly among content
+  if (interactives.length > 0) {
     const result: ContentSlide[] = [];
-    const interval = Math.max(1, Math.floor(finalSlides.length / (quizzes.length + 1)));
-    let quizIdx = 0;
+    const interval = Math.max(1, Math.floor(finalSlides.length / (interactives.length + 1)));
+    let intIdx = 0;
 
     for (let i = 0; i < finalSlides.length; i++) {
       result.push(finalSlides[i]);
-      if (quizIdx < quizzes.length && (i + 1) % interval === 0 && i > 0) {
-        result.push({
-          type: 'quiz',
-          bodyHtml: '',
-          quiz: quizzes[quizIdx],
-        });
-        quizIdx++;
+      if (intIdx < interactives.length && (i + 1) % interval === 0 && i > 0) {
+        result.push(interactives[intIdx]);
+        intIdx++;
       }
     }
-    while (quizIdx < quizzes.length) {
-      result.push({
-        type: 'quiz',
-        bodyHtml: '',
-        quiz: quizzes[quizIdx],
-      });
-      quizIdx++;
+    while (intIdx < interactives.length) {
+      result.push(interactives[intIdx]);
+      intIdx++;
     }
 
     return result;
