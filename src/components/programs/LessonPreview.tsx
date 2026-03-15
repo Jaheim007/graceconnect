@@ -14,6 +14,8 @@ import { SlideCustomizationPanel, DEFAULT_CUSTOMIZATION, type SlideCustomization
 import { FinalAssessmentSlide } from './lesson-preview/FinalAssessmentSlide';
 import { CourseCompletionSlide } from './lesson-preview/CourseCompletionSlide';
 import { useSaveSlideProgress, useSaveLessonCompletion, useEnrollmentProgress } from '@/hooks/useLearnerProgress';
+import { getSlideTheme } from './lesson-preview/slideThemes';
+import { Switch } from '@/components/ui/switch';
 
 interface LessonPreviewProps {
   programId: string;
