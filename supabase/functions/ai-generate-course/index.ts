@@ -187,60 +187,63 @@ IMPORTANT:
           ? 'google/gemini-2.5-pro'
           : 'google/gemini-2.5-flash';
 
-        const aiController = new AbortController();
-        const aiTimeout = setTimeout(() => aiController.abort(), 95_000);
+        const requestCourseCompletion = async (promptText: string, maxTokens: number) => {
+          const aiController = new AbortController();
+          const aiTimeout = setTimeout(() => aiController.abort(), 95_000);
 
-        let aiResponse: Response;
-        try {
-          aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${LOVABLE_API_KEY}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              model,
-              max_tokens: 7000,
-              messages: [
-                { role: 'system', content: systemPrompt },
-                { role: 'user', content: userPrompt },
-              ],
-            }),
-            signal: aiController.signal,
-          });
-        } catch (fetchErr: any) {
-          if (fetchErr?.name === 'AbortError') {
-            const err = new Error('AI generation timed out. Please retry.');
-            (err as any).status = 504;
-            throw err;
-          }
-          throw fetchErr;
-        } finally {
-          clearTimeout(aiTimeout);
-        }
+          try {
+            const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${LOVABLE_API_KEY}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model,
+                max_tokens: maxTokens,
+                messages: [
+                  { role: 'system', content: systemPrompt },
+                  { role: 'user', content: promptText },
+                ],
+              }),
+              signal: aiController.signal,
+            });
 
-        if (!aiResponse.ok) {
-          const errText = await aiResponse.text();
-          console.error('[ai-generate-course] AI error:', aiResponse.status, errText);
-          if (aiResponse.status === 429) {
-            const err = new Error('Rate limit exceeded, please try again later');
-            (err as any).status = 429;
-            throw err;
-          }
-          if (aiResponse.status === 402) {
-            const err = new Error('AI credits exhausted');
-            (err as any).status = 402;
-            throw err;
-          }
-          if (aiResponse.status >= 500) {
-            const err = new Error('AI provider temporarily unavailable. Please retry.');
-            (err as any).status = 502;
-            throw err;
-          }
-          throw new Error('AI generation failed');
-        }
+            if (!aiResponse.ok) {
+              const errText = await aiResponse.text();
+              console.error('[ai-generate-course] AI error:', aiResponse.status, errText);
+              if (aiResponse.status === 429) {
+                const err = new Error('Rate limit exceeded, please try again later');
+                (err as any).status = 429;
+                throw err;
+              }
+              if (aiResponse.status === 402) {
+                const err = new Error('AI credits exhausted');
+                (err as any).status = 402;
+                throw err;
+              }
+              if (aiResponse.status >= 500) {
+                const err = new Error('AI provider temporarily unavailable. Please retry.');
+                (err as any).status = 502;
+                throw err;
+              }
+              throw new Error('AI generation failed');
+            }
 
-        const aiData = await aiResponse.json();
+            return await aiResponse.json();
+          } catch (fetchErr: any) {
+            if (fetchErr?.name === 'AbortError') {
+              const err = new Error('AI generation timed out. Please retry.');
+              (err as any).status = 504;
+              throw err;
+            }
+            throw fetchErr;
+          } finally {
+            clearTimeout(aiTimeout);
+          }
+        };
+
+        const aiData = await requestCourseCompletion(userPrompt, 11_000);
         const content = aiData.choices?.[0]?.message?.content || '';
 
         // Parse JSON from response (handle markdown code blocks + repair)
