@@ -68,11 +68,16 @@ export function CourseCompletionSlide({
   orgLogoUrl,
   deviceMode,
   gamificationEnabled = true,
+  mode = 'creator',
 }: CourseCompletionSlideProps) {
   const isMobile = deviceMode === 'mobile';
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const [showShare, setShowShare] = useState(false);
+  const { user } = useAuth();
+  const { currentOrg } = useOrg();
+  const saveCertificate = useSaveCertificate();
+  const [certificateSaved, setCertificateSaved] = useState(false);
   
   const hasAssessment = assessmentScore !== undefined && assessmentTotal !== undefined;
   const assessmentPct = hasAssessment ? Math.round((assessmentScore! / assessmentTotal!) * 100) : 0;
