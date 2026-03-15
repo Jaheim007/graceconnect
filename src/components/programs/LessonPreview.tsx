@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, type ReactNode } from 'react';
 import { useProgramModules, useProgram } from '@/hooks/usePrograms';
 import { useI18n } from '@/i18n/I18nContext';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ interface LessonPreviewProps {
   programId: string;
   initialLessonId?: string;
   onClose?: () => void;
+  headerActions?: ReactNode;
 }
 
 type DeviceMode = 'mobile' | 'tablet' | 'desktop';

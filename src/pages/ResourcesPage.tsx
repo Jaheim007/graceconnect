@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Download, ExternalLink, ShoppingBag, FileText, Link2, Music, BookOpen, Eye,
-  Star, Package, Receipt, GraduationCap, Play, X,
+  Star, Package, Receipt, GraduationCap, Play,
 } from 'lucide-react';
 import { downloadInvoice } from '@/lib/invoice';
 import { format } from 'date-fns';
@@ -20,7 +20,7 @@ import { PageTour } from '@/components/onboarding/PageTour';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { LessonPreview } from '@/components/programs/LessonPreview';
+import { LessonPlayerOverlay } from '@/components/programs/LessonPlayerOverlay';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
