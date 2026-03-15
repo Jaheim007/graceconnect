@@ -5,12 +5,16 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
   ChevronLeft, ChevronRight,
-  Monitor, Tablet, Smartphone, X, List, Settings2, Star
+  Monitor, Tablet, Smartphone, X, List, Settings2, Star, Trophy, Sparkles
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { parseContentIntoSlides, ContentSlide } from './lesson-preview/parseContentSlides';
+import { parseContentIntoSlides, ContentSlide, type QuizData } from './lesson-preview/parseContentSlides';
 import { SlideRenderer } from './lesson-preview/SlideRenderer';
 import { SlideCustomizationPanel, DEFAULT_CUSTOMIZATION, type SlideCustomization } from './lesson-preview/SlideCustomizationPanel';
+import { FinalAssessmentSlide } from './lesson-preview/FinalAssessmentSlide';
+import { CourseCompletionSlide } from './lesson-preview/CourseCompletionSlide';
+import { getSlideTheme } from './lesson-preview/slideThemes';
+import { Switch } from '@/components/ui/switch';
 
 interface LessonPreviewProps {
   programId: string;
@@ -44,8 +48,29 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
   // Per-slide customizations keyed by slide index
   const [slideCustomizations, setSlideCustomizations] = useState<Record<number, SlideCustomization>>({});
   const [starsEarned, setStarsEarned] = useState(0);
+  const [gamificationEnabled, setGamificationEnabled] = useState(true);
+  
+  // Final assessment state
+  const [assessmentScore, setAssessmentScore] = useState<number | undefined>();
+  const [assessmentTotal, setAssessmentTotal] = useState<number | undefined>();
 
   const orgLogoUrl = (program as any)?.organizations?.logo_url;
+
+  // Collect all quiz questions across lessons for final assessment
+  const allQuizQuestions: QuizData[] = useMemo(() => {
+    const quizzes: QuizData[] = [];
+    for (const mod of modules) {
+      for (const lesson of (mod as any).lessons || []) {
+        const contentSlides = parseContentIntoSlides(lesson.content || '');
+        for (const cs of contentSlides) {
+          if (cs.type === 'quiz' && cs.quiz) {
+            quizzes.push(cs.quiz);
+          }
+        }
+      }
+    }
+    return quizzes;
+  }, [modules]);
 
   // Build flat slide array
   const allSlides: FlatSlide[] = useMemo(() => {
@@ -80,8 +105,33 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
         lessonIdx++;
       }
     }
+
+    // Add final assessment slide if there are quiz questions
+    if (allQuizQuestions.length >= 3) {
+      slides.push({
+        lessonId: '__final_assessment__',
+        lessonTitle: isFr ? 'Évaluation finale' : 'Final Assessment',
+        moduleTitle: isFr ? 'Évaluation' : 'Assessment',
+        moduleId: '__assessment__',
+        slide: { type: 'final-assessment', bodyHtml: '' },
+        lessonIndex: lessonIdx,
+        slideInLesson: 0,
+      });
+    }
+
+    // Add completion slide
+    slides.push({
+      lessonId: '__completion__',
+      lessonTitle: isFr ? 'Terminé' : 'Completed',
+      moduleTitle: isFr ? 'Fin du cours' : 'Course Complete',
+      moduleId: '__completion__',
+      slide: { type: 'course-completion', bodyHtml: '' },
+      lessonIndex: lessonIdx + 1,
+      slideInLesson: 0,
+    });
+
     return slides;
-  }, [modules]);
+  }, [modules, allQuizQuestions.length, isFr]);
 
   useEffect(() => {
     if (initialLessonId && allSlides.length > 0) {
@@ -92,6 +142,11 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
 
   const current = allSlides[currentIndex];
   const total = allSlides.length;
+
+  const totalQuizzes = useMemo(() => 
+    allSlides.filter(s => s.slide.type === 'quiz').length, 
+    [allSlides]
+  );
 
   const goNext = () => { if (currentIndex < total - 1) setCurrentIndex(i => i + 1); };
   const goPrev = () => { if (currentIndex > 0) setCurrentIndex(i => i - 1); };
@@ -138,6 +193,75 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
     })),
   }));
 
+  const renderSlideContent = () => {
+    if (!current) return null;
+    const theme = getSlideTheme(currentIndex);
+
+    // Final assessment
+    if (current.slide.type === 'final-assessment') {
+      // Select up to 10 questions for the final assessment
+      const assessmentQuestions = allQuizQuestions.length > 10
+        ? allQuizQuestions.sort(() => 0.5 - Math.random()).slice(0, 10)
+        : allQuizQuestions;
+
+      return (
+        <FinalAssessmentSlide
+          questions={assessmentQuestions}
+          theme={theme}
+          slideIndex={currentIndex}
+          totalSlides={total}
+          lessonTitle={current.lessonTitle}
+          orgLogoUrl={orgLogoUrl}
+          deviceMode={deviceMode}
+          gamificationEnabled={gamificationEnabled}
+          onComplete={(score, t) => {
+            setAssessmentScore(score);
+            setAssessmentTotal(t);
+            if (gamificationEnabled) {
+              setStarsEarned(s => s + score);
+            }
+          }}
+        />
+      );
+    }
+
+    // Course completion
+    if (current.slide.type === 'course-completion') {
+      return (
+        <CourseCompletionSlide
+          theme={theme}
+          starsEarned={starsEarned}
+          totalQuizzes={totalQuizzes}
+          assessmentScore={assessmentScore}
+          assessmentTotal={assessmentTotal}
+          courseTitle={program?.title || ''}
+          orgLogoUrl={orgLogoUrl}
+          deviceMode={deviceMode}
+          gamificationEnabled={gamificationEnabled}
+        />
+      );
+    }
+
+    // Regular slides
+    return (
+      <SlideRenderer
+        slide={current.slide}
+        slideIndex={currentIndex}
+        totalSlides={total}
+        lessonTitle={current.lessonTitle}
+        moduleTitle={current.moduleTitle}
+        orgLogoUrl={orgLogoUrl}
+        deviceMode={deviceMode}
+        customization={currentCustomization}
+        onStarEarned={() => {
+          if (gamificationEnabled) {
+            setStarsEarned(s => s + 1);
+          }
+        }}
+      />
+    );
+  };
+
   return (
     <div className="flex flex-col h-full bg-muted/30">
       {/* Top bar */}
@@ -150,34 +274,54 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
           <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
             {currentIndex + 1} / {total}
           </span>
-          {starsEarned > 0 && (
-            <span className="flex items-center gap-1 text-[10px] font-medium bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">
+          {gamificationEnabled && starsEarned > 0 && (
+            <motion.span 
+              className="flex items-center gap-1 text-[10px] font-medium bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              key={starsEarned}
+            >
               <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
               {starsEarned}
-            </span>
+            </motion.span>
           )}
         </div>
 
-        {/* Device toggle */}
-        <div className="flex items-center gap-0.5 bg-muted rounded-lg p-0.5">
-          {([
-            { key: 'mobile' as DeviceMode, Icon: Smartphone },
-            { key: 'tablet' as DeviceMode, Icon: Tablet },
-            { key: 'desktop' as DeviceMode, Icon: Monitor },
-          ]).map(({ key, Icon }) => (
-            <button
-              key={key}
-              onClick={() => setDeviceMode(key)}
-              className={cn(
-                'p-1.5 rounded-md transition-colors',
-                deviceMode === key
-                  ? 'bg-background shadow-sm text-foreground'
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              <Icon className="h-4 w-4" />
-            </button>
-          ))}
+        {/* Device toggle + gamification toggle */}
+        <div className="flex items-center gap-3">
+          {/* Gamification toggle */}
+          <div className="flex items-center gap-1.5">
+            <Sparkles className="h-3.5 w-3.5 text-yellow-500" />
+            <span className="text-[10px] text-muted-foreground hidden sm:inline">
+              {isFr ? 'Étoiles' : 'Stars'}
+            </span>
+            <Switch 
+              checked={gamificationEnabled} 
+              onCheckedChange={setGamificationEnabled}
+              className="scale-75"
+            />
+          </div>
+
+          <div className="flex items-center gap-0.5 bg-muted rounded-lg p-0.5">
+            {([
+              { key: 'mobile' as DeviceMode, Icon: Smartphone },
+              { key: 'tablet' as DeviceMode, Icon: Tablet },
+              { key: 'desktop' as DeviceMode, Icon: Monitor },
+            ]).map(({ key, Icon }) => (
+              <button
+                key={key}
+                onClick={() => setDeviceMode(key)}
+                className={cn(
+                  'p-1.5 rounded-md transition-colors',
+                  deviceMode === key
+                    ? 'bg-background shadow-sm text-foreground'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                <Icon className="h-4 w-4" />
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="flex items-center gap-1">
@@ -237,6 +381,32 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
                 })}
               </div>
             ))}
+
+            {/* Final assessment entry in sidebar */}
+            {allQuizQuestions.length >= 3 && (
+              <div className="py-2 border-t border-border">
+                <div className="px-3 py-1.5">
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                    {isFr ? 'Évaluation' : 'Assessment'}
+                  </span>
+                </div>
+                <button
+                  onClick={() => {
+                    const idx = allSlides.findIndex(s => s.slide.type === 'final-assessment');
+                    if (idx >= 0) setCurrentIndex(idx);
+                  }}
+                  className={cn(
+                    'w-full flex items-center gap-2 px-3 py-2 text-left transition-colors text-xs',
+                    current?.slide.type === 'final-assessment'
+                      ? 'bg-primary/10 text-primary border-l-2 border-primary'
+                      : 'hover:bg-muted/50 text-foreground'
+                  )}
+                >
+                  <Trophy className="h-3.5 w-3.5 shrink-0" />
+                  <span className="flex-1 truncate">{isFr ? 'Évaluation finale' : 'Final Assessment'}</span>
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -279,19 +449,7 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
                 transition={{ duration: 0.25, ease: 'easeInOut' }}
                 className="flex-1 min-h-0 flex flex-col"
               >
-                {current && (
-                  <SlideRenderer
-                    slide={current.slide}
-                    slideIndex={currentIndex}
-                    totalSlides={total}
-                    lessonTitle={current.lessonTitle}
-                    moduleTitle={current.moduleTitle}
-                    orgLogoUrl={orgLogoUrl}
-                    deviceMode={deviceMode}
-                    customization={currentCustomization}
-                    onStarEarned={() => setStarsEarned(s => s + 1)}
-                  />
-                )}
+                {renderSlideContent()}
               </motion.div>
             </AnimatePresence>
 
@@ -299,9 +457,11 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
             <div className="border-t border-border px-4 py-2.5 flex items-center justify-between shrink-0 bg-card">
               <div className="flex-1 mr-4">
                 <div className="h-1 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary rounded-full transition-all duration-300"
-                    style={{ width: `${((currentIndex + 1) / total) * 100}%` }}
+                  <motion.div
+                    className="h-full bg-primary rounded-full"
+                    initial={false}
+                    animate={{ width: `${((currentIndex + 1) / total) * 100}%` }}
+                    transition={{ duration: 0.3 }}
                   />
                 </div>
               </div>
@@ -322,7 +482,7 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
         </div>
 
         {/* Customization Panel */}
-        {showCustomizer && (
+        {showCustomizer && current?.slide.type !== 'final-assessment' && current?.slide.type !== 'course-completion' && (
           <SlideCustomizationPanel
             customization={currentCustomization}
             onChange={(c) => setSlideCustomizations(prev => ({ ...prev, [currentIndex]: c }))}
