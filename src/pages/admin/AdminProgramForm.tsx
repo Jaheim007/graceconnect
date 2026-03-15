@@ -65,6 +65,8 @@ export function ProgramForm() {
   const [newLessonForms, setNewLessonForms] = useState<Record<string, { title: string; content_type: string }>>({});
   const [openModules, setOpenModules] = useState<Set<string>>(new Set());
   const [editingLessonId, setEditingLessonId] = useState<string | null>(null);
+  const [showAIGenerator, setShowAIGenerator] = useState(false);
+  const [applyingAI, setApplyingAI] = useState(false);
 
   const createProgram = useCreateProgram();
   const updateProgram = useUpdateProgram();
