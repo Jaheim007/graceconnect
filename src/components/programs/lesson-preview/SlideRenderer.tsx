@@ -2,6 +2,7 @@ import { cn } from '@/lib/utils';
 import { ContentSlide } from './parseContentSlides';
 import { getSlideTheme } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
+import { QuizSlide } from './QuizSlide';
 import type { SlideCustomization, CaptionStyle, CaptionPosition, ImagePosition } from './SlideCustomizationPanel';
 
 interface SlideRendererProps {
@@ -13,6 +14,7 @@ interface SlideRendererProps {
   orgLogoUrl?: string | null;
   deviceMode: 'mobile' | 'tablet' | 'desktop';
   customization?: SlideCustomization;
+  onStarEarned?: () => void;
 }
 
 const captionClasses: Record<CaptionStyle, string> = {
@@ -45,10 +47,27 @@ export function SlideRenderer({
   orgLogoUrl,
   deviceMode,
   customization,
+  onStarEarned,
 }: SlideRendererProps) {
   const theme = getSlideTheme(slideIndex);
   const isMobile = deviceMode === 'mobile';
   const c = customization;
+
+  // Quiz slides have their own renderer
+  if (slide.type === 'quiz' && slide.quiz) {
+    return (
+      <QuizSlide
+        quiz={slide.quiz}
+        theme={theme}
+        slideIndex={slideIndex}
+        totalSlides={totalSlides}
+        lessonTitle={lessonTitle}
+        orgLogoUrl={orgLogoUrl}
+        deviceMode={deviceMode}
+        onStarEarned={onStarEarned}
+      />
+    );
+  }
 
   const bgStyle: React.CSSProperties = c?.bgColor ? { background: c.bgColor } : {};
   const hasBgImage = !!c?.bgImageUrl;
@@ -57,7 +76,6 @@ export function SlideRenderer({
   const captionPos = c?.captionPosition || 'bottom';
   const imgPos = c?.imagePosition || 'middle';
 
-  // Use theme gradient when no custom bg
   const gradientClass = !c?.bgColor ? `bg-gradient-to-br ${theme.gradient}` : '';
 
   const Header = () => (
@@ -76,7 +94,6 @@ export function SlideRenderer({
     </div>
   );
 
-  // Accent line using theme color
   const AccentLine = ({ className }: { className?: string }) => (
     <div
       className={cn('h-0.5 rounded-full opacity-50 mb-4', className)}
@@ -84,17 +101,27 @@ export function SlideRenderer({
     />
   );
 
+  const proseClasses = cn(
+    'prose max-w-none',
+    'prose-headings:font-bold prose-p:leading-relaxed',
+    'prose-strong:font-bold prose-em:italic',
+    'prose-li:leading-relaxed',
+    'prose-blockquote:border-l-2 prose-blockquote:opacity-75 prose-blockquote:rounded-lg prose-blockquote:px-4 prose-blockquote:py-3',
+    'prose-a:text-blue-300',
+    captionStyle === 'light' || captionStyle === 'transparent-dark'
+      ? 'prose-headings:text-slate-900 prose-p:text-slate-700 prose-li:text-slate-700 prose-strong:text-slate-900'
+      : 'prose-invert prose-headings:text-white prose-p:text-white/85 prose-li:text-white/85 prose-strong:text-white',
+    isMobile ? 'prose-sm' : 'prose-base'
+  );
+
   // ── Title Card ──
   if (slide.type === 'title-card') {
     return (
       <div className={cn('h-full flex flex-col text-white relative overflow-hidden', gradientClass)} style={bgStyle}>
-        {hasBgImage && (
-          <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} />
-        )}
+        {hasBgImage && <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} />}
         {hasBgImage && <div className="absolute inset-0 bg-black/50 z-[1]" />}
         <SlideDecoration theme={theme} />
         <Header />
-
         <div className={cn('flex-1 flex flex-col px-6 relative z-10', captionPositionClasses[captionPos])}>
           <div className={cn(
             'rounded-xl px-6 py-8 max-w-lg',
@@ -117,7 +144,7 @@ export function SlideRenderer({
 
   // ── Content Slides ──
 
-  // Layout: Image Cover
+  // Image Cover layout
   if (layout === 'image-cover' && hasBgImage) {
     return (
       <div className="h-full flex flex-col text-white relative overflow-hidden" style={bgStyle}>
@@ -128,17 +155,14 @@ export function SlideRenderer({
         <div className={cn('flex-1 flex flex-col relative z-10 px-6', captionPositionClasses[captionPos])}>
           <div className={cn('rounded-xl px-5 py-6 max-w-lg', captionClasses[captionStyle], theme.captionGlow)}>
             {slide.heading && <h2 className={cn('font-bold leading-snug mb-3', isMobile ? 'text-xl' : 'text-2xl')}>{slide.heading}</h2>}
-            {slide.bodyHtml && (
-              <div className="prose prose-sm max-w-none prose-headings:font-bold prose-p:leading-relaxed prose-li:leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: slide.bodyHtml }} />
-            )}
+            {slide.bodyHtml && <div className={proseClasses} dangerouslySetInnerHTML={{ __html: slide.bodyHtml }} />}
           </div>
         </div>
       </div>
     );
   }
 
-  // Layout: Split
+  // Split / Image Left / Image Right
   if ((layout === 'split' || layout === 'image-left' || layout === 'image-right') && hasBgImage) {
     const imgFirst = layout !== 'image-right';
     return (
@@ -149,13 +173,10 @@ export function SlideRenderer({
           <div className={cn('relative', isMobile ? 'h-1/3' : 'w-1/2')}>
             <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover', imagePositionClasses[imgPos])} />
           </div>
-          <div className={cn('flex flex-col p-5', isMobile ? 'flex-1 overflow-y-auto' : 'w-1/2 overflow-y-auto', captionPositionClasses[captionPos])}>
+          <div className={cn('flex flex-col p-5', isMobile ? 'flex-1' : 'w-1/2', captionPositionClasses[captionPos])}>
             <div className={cn('rounded-xl px-4 py-5', captionClasses[captionStyle])}>
               {slide.heading && <h2 className={cn('font-bold leading-snug mb-3', isMobile ? 'text-lg' : 'text-2xl')}>{slide.heading}</h2>}
-              {slide.bodyHtml && (
-                <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-li:leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: slide.bodyHtml }} />
-              )}
+              {slide.bodyHtml && <div className={proseClasses} dangerouslySetInnerHTML={{ __html: slide.bodyHtml }} />}
             </div>
           </div>
         </div>
@@ -163,7 +184,7 @@ export function SlideRenderer({
     );
   }
 
-  // Layout: Image Top
+  // Image Top
   if (layout === 'image-top' && hasBgImage) {
     return (
       <div className={cn('h-full flex flex-col text-white relative overflow-hidden', gradientClass)} style={bgStyle}>
@@ -172,30 +193,25 @@ export function SlideRenderer({
         <div className="relative h-2/5 shrink-0 z-10">
           <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover', imagePositionClasses[imgPos])} />
         </div>
-        <div className={cn('flex-1 flex flex-col relative z-10 overflow-y-auto px-5 py-4', captionPositionClasses[captionPos])}>
+        <div className={cn('flex-1 flex flex-col relative z-10 px-5 py-4', captionPositionClasses[captionPos])}>
           <div className={cn('rounded-xl px-5 py-5', captionClasses[captionStyle])}>
             {slide.heading && <h2 className={cn('font-bold leading-snug mb-3', isMobile ? 'text-xl' : 'text-2xl')}>{slide.heading}</h2>}
-            {slide.bodyHtml && (
-              <div className="prose prose-sm max-w-none prose-p:leading-relaxed prose-li:leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: slide.bodyHtml }} />
-            )}
+            {slide.bodyHtml && <div className={proseClasses} dangerouslySetInnerHTML={{ __html: slide.bodyHtml }} />}
           </div>
         </div>
       </div>
     );
   }
 
-  // Default: Text-only — with auto-rotating theme decorations & accent colors
+  // Default: Text-only
   return (
     <div className={cn('h-full flex flex-col text-white relative overflow-hidden', gradientClass)} style={bgStyle}>
-      {hasBgImage && (
-        <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} />
-      )}
+      {hasBgImage && <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} />}
       {hasBgImage && <div className="absolute inset-0 bg-black/50 z-[1]" />}
       <SlideDecoration theme={theme} />
       <Header />
 
-      <div className={cn('flex-1 flex flex-col overflow-y-auto relative z-10', isMobile ? 'px-5 py-4' : 'px-8 py-6', captionPositionClasses[captionPos])}>
+      <div className={cn('flex-1 flex flex-col relative z-10', isMobile ? 'px-5 py-4' : 'px-8 py-6', captionPositionClasses[captionPos])}>
         <div className={cn(
           'rounded-xl max-w-2xl w-full',
           captionStyle === 'transparent-light' || captionStyle === 'transparent-dark'
@@ -209,21 +225,7 @@ export function SlideRenderer({
             </div>
           )}
           {slide.bodyHtml && (
-            <div
-              className={cn(
-                'prose prose-sm max-w-none',
-                'prose-headings:font-bold prose-p:leading-relaxed',
-                'prose-strong:font-bold prose-em:italic',
-                'prose-li:leading-relaxed',
-                'prose-blockquote:border-l-2 prose-blockquote:opacity-75 prose-blockquote:rounded-lg prose-blockquote:px-4 prose-blockquote:py-3',
-                'prose-a:text-blue-300',
-                captionStyle === 'light' || captionStyle === 'transparent-dark'
-                  ? 'prose-headings:text-slate-900 prose-p:text-slate-700 prose-li:text-slate-700 prose-strong:text-slate-900'
-                  : 'prose-invert prose-headings:text-white prose-p:text-white/85 prose-li:text-white/85 prose-strong:text-white',
-                isMobile ? 'text-sm' : 'text-base'
-              )}
-              dangerouslySetInnerHTML={{ __html: slide.bodyHtml }}
-            />
+            <div className={proseClasses} dangerouslySetInnerHTML={{ __html: slide.bodyHtml }} />
           )}
         </div>
       </div>
