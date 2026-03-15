@@ -249,7 +249,7 @@ export default function AdminPayouts() {
                   <p className="text-xs text-muted-foreground font-medium">{t('payouts.available_balance')}</p>
                   <p className="text-3xl font-bold text-emerald-500 mt-1">{fmt(Math.max(0, fundSummary.availableBalance), currency)}</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5">
-                    Ventes (après 72h) + Commissions ambassadeur (après 15j) − Retraits
+                    {isFr ? 'Ventes (après 72h) + Commissions ambassadeur (après 15j) − Retraits' : 'Sales (after 72h) + Ambassador commissions (after 15d) − Withdrawals'}
                   </p>
                 </div>
                 <div className="flex flex-col items-end gap-2">
@@ -257,18 +257,22 @@ export default function AdminPayouts() {
                     <a href="/admin/verification" className="block">
                       <Button variant="destructive" size="default" className="gap-2">
                         <AlertTriangle className="h-4 w-4" />
-                        Vérifier mon identité pour retirer
+                        {isFr ? 'Vérifier mon identité pour retirer' : 'Verify identity to withdraw'}
                       </Button>
                     </a>
                   ) : fundSummary.availableBalance >= MIN_WITHDRAWAL && fundSummary.pendingPayouts === 0 ? (
                     <Button size="default" className="gap-2" onClick={() => setShowWithdrawDialog(true)}>
                       <Send className="h-4 w-4" />
-                      Demander un retrait
+                      {isFr ? 'Demander un retrait' : 'Request withdrawal'}
                     </Button>
                   ) : fundSummary.pendingPayouts > 0 ? (
                     <Badge variant="outline" className="text-xs border-blue-500/30 text-blue-600 gap-1">
-                      <Clock className="h-3 w-3" /> Retrait en cours
+                      <Clock className="h-3 w-3" /> {isFr ? 'Retrait en cours' : 'Withdrawal in progress'}
                     </Badge>
+                  ) : fundSummary.availableBalance > 0 && fundSummary.availableBalance < MIN_WITHDRAWAL ? (
+                    <p className="text-xs text-muted-foreground text-right">
+                      {isFr ? `Minimum ${MIN_WITHDRAWAL.toLocaleString('fr-FR')} ${currency} requis` : `Minimum ${MIN_WITHDRAWAL.toLocaleString('en')} ${currency} required`}
+                    </p>
                   ) : null}
                 </div>
               </div>
