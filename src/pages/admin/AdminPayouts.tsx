@@ -226,13 +226,15 @@ export default function AdminPayouts() {
             className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 p-5">
             <div className="flex items-center gap-2 mb-1">
               <Wallet className="h-5 w-5 text-primary" />
-              <p className="text-sm font-semibold">Balance totale</p>
+              <p className="text-sm font-semibold">{isFr ? 'Balance totale' : 'Total balance'}</p>
             </div>
             <p className="text-3xl font-bold text-primary">
-              {fmt(fundSummary.totalOrgReceived + fundSummary.totalAmbassadorEarned - fundSummary.ambassadorPaid, currency)}
+              {fmt(fundSummary.totalOrgReceived + fundSummary.totalAmbassadorEarned - fundSummary.completedPayouts, currency)}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Votre part ventes ({fmt(fundSummary.totalOrgReceived, currency)}) + Gains ambassadeur ({fmt(fundSummary.totalAmbassadorEarned, currency)}) − Déjà versé ({fmt(fundSummary.ambassadorPaid, currency)})
+              {isFr
+                ? `Votre part ventes (${fmt(fundSummary.totalOrgReceived, currency)}) + Gains ambassadeur (${fmt(fundSummary.totalAmbassadorEarned, currency)}) − Déjà retiré (${fmt(fundSummary.completedPayouts, currency)})`
+                : `Your sales share (${fmt(fundSummary.totalOrgReceived, currency)}) + Ambassador earnings (${fmt(fundSummary.totalAmbassadorEarned, currency)}) − Already withdrawn (${fmt(fundSummary.completedPayouts, currency)})`}
             </p>
           </motion.div>
         )}
