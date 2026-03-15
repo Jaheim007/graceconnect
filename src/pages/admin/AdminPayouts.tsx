@@ -295,7 +295,7 @@ export default function AdminPayouts() {
                 )}
                 {fundSummary.ambassadorPending > 0 && (
                   <div className="space-y-0.5">
-                    <p className="text-[10px] text-muted-foreground flex items-center gap-1"><TimerReset className="h-3 w-3 text-purple-500" /> Commissions en attente (15j)</p>
+                    <p className="text-[10px] text-muted-foreground flex items-center gap-1"><TimerReset className="h-3 w-3 text-purple-500" /> {isFr ? 'Commissions en attente (15j)' : 'Commissions pending (15d)'}</p>
                     <p className="text-sm font-semibold text-purple-600">{fmt(fundSummary.ambassadorPending, currency)}</p>
                   </div>
                 )}
