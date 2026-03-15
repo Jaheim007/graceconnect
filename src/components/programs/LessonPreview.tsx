@@ -265,6 +265,7 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
         orgLogoUrl={orgLogoUrl}
         deviceMode={deviceMode}
         customization={currentCustomization}
+        lessonImageUrl={current.lessonImageUrl}
         onStarEarned={() => {
           if (gamificationEnabled) {
             setStarsEarned(s => s + 1);
