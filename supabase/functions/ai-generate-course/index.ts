@@ -165,12 +165,39 @@ IMPORTANT:
         const aiData = await aiResponse.json();
         const content = aiData.choices?.[0]?.message?.content || '';
 
-        // Parse JSON from response (handle markdown code blocks)
+        // Parse JSON from response (handle markdown code blocks + repair)
         let jsonStr = content;
         const codeBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
         if (codeBlockMatch) jsonStr = codeBlockMatch[1];
+        jsonStr = jsonStr.trim();
 
-        const parsed = JSON.parse(jsonStr.trim());
+        // Attempt direct parse first
+        let parsed: any;
+        try {
+          parsed = JSON.parse(jsonStr);
+        } catch (_firstErr) {
+          // Repair common AI JSON issues
+          let repaired = jsonStr;
+          // Remove trailing commas before } or ]
+          repaired = repaired.replace(/,\s*([}\]])/g, '$1');
+          // Fix unescaped newlines inside strings
+          repaired = repaired.replace(/(?<=":[ ]*"[^"]*)\n/g, '\\n');
+          // Truncated JSON: try to close open braces/brackets
+          const opens = (repaired.match(/{/g) || []).length;
+          const closes = (repaired.match(/}/g) || []).length;
+          const openBrackets = (repaired.match(/\[/g) || []).length;
+          const closeBrackets = (repaired.match(/\]/g) || []).length;
+          for (let i = 0; i < openBrackets - closeBrackets; i++) repaired += ']';
+          for (let i = 0; i < opens - closes; i++) repaired += '}';
+          try {
+            parsed = JSON.parse(repaired);
+          } catch (secondErr) {
+            console.error('[ai-generate-course] JSON repair failed. First 500 chars:', jsonStr.slice(0, 500));
+            console.error('[ai-generate-course] Last 500 chars:', jsonStr.slice(-500));
+            throw new Error('AI returned malformed JSON that could not be repaired');
+          }
+        }
+
         if (!parsed.modules || !Array.isArray(parsed.modules)) {
           throw new Error('Invalid AI response structure');
         }
