@@ -4,11 +4,30 @@
  * Also extracts quiz blocks embedded in content.
  */
 export interface ContentSlide {
-  type: 'title-card' | 'section' | 'quiz' | 'quiz-result' | 'final-assessment' | 'course-completion';
+  type: 'title-card' | 'section' | 'quiz' | 'quiz-result' | 'final-assessment' | 'course-completion' | 'flashcard' | 'matching' | 'ordering';
   heading?: string;
   bodyHtml: string;
   quiz?: QuizData;
   assessment?: AssessmentData;
+  flashcard?: FlashcardData;
+  matching?: MatchingData;
+  ordering?: OrderingData;
+}
+
+export interface FlashcardData {
+  front: string;
+  back: string;
+  hint?: string;
+}
+
+export interface MatchingData {
+  pairs: { left: string; right: string }[];
+}
+
+export interface OrderingData {
+  instruction?: string;
+  items: string[];
+  correctOrder: number[];
 }
 
 export interface QuizData {
