@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { useNavigate, useParams } from 'react-router-dom';
 import { onContentPublished, onContentUnpublished } from '@/lib/notifications';
 import { useOrg } from '@/contexts/OrgContext';
@@ -22,7 +23,7 @@ import {
   Plus, Save, Loader2, BookOpen, Layers, FileText, Video, Music,
   Link2, Trash2, GripVertical, ChevronDown, ChevronRight, Clock,
   Settings, Eye, Sparkles, DollarSign, Award, ArrowLeft,
-  MoreVertical, Lock, PenLine
+  MoreVertical, Lock, PenLine, ImageIcon, Wand2
 } from 'lucide-react';
 import { ImageUploader } from '@/components/ui/ImageUploader';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -73,6 +74,9 @@ export function ProgramForm() {
   const [newLessonTitle, setNewLessonTitle] = useState('');
   const [showAIGenerator, setShowAIGenerator] = useState(false);
   const [applyingAI, setApplyingAI] = useState(false);
+  const [generatingTitle, setGeneratingTitle] = useState(false);
+  const [generatingDesc, setGeneratingDesc] = useState(false);
+  const [generatingCover, setGeneratingCover] = useState(false);
 
   const updateProgram = useUpdateProgram();
   const createModule = useCreateModule();
@@ -226,6 +230,50 @@ export function ProgramForm() {
   };
 
   const totalLessons = modules.reduce((s: number, m: any) => s + (m.lessons?.length || 0), 0);
+
+  const handleAIHelp = async (type: 'title' | 'description') => {
+    const setter = type === 'title' ? setGeneratingTitle : setGeneratingDesc;
+    setter(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error('Not authenticated');
+      const { data, error } = await supabase.functions.invoke('ai-course-help', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: { type, course_title: title, course_description: description?.replace(/<[^>]*>/g, ''), language: isFr ? 'fr' : 'en' },
+      });
+      if (error) throw error;
+      if (data?.result) {
+        if (type === 'title') setTitle(data.result);
+        else setDescription(data.result);
+        toast({ title: isFr ? '✨ Généré par l\'IA' : '✨ AI generated' });
+      }
+    } catch (e: any) {
+      toast({ title: isFr ? 'Erreur' : 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setter(false);
+    }
+  };
+
+  const handleGenerateCover = async () => {
+    setGeneratingCover(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error('Not authenticated');
+      const { data, error } = await supabase.functions.invoke('ai-generate-course-cover', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: { title, description: description?.replace(/<[^>]*>/g, '').slice(0, 300), tier: 'standard', org_id: currentOrg?.id },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        setCoverUrl(data.url);
+        toast({ title: isFr ? '✨ Couverture générée !' : '✨ Cover generated!' });
+      }
+    } catch (e: any) {
+      toast({ title: isFr ? 'Erreur' : 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setGeneratingCover(false);
+    }
+  };
 
   // If not in edit mode, redirect to new flow
   if (!isEdit) {
@@ -454,16 +502,48 @@ export function ProgramForm() {
               </h3>
               <div className="space-y-3">
                 <div>
-                  <Label className="text-xs">{isFr ? 'Titre *' : 'Title *'}</Label>
+                  <div className="flex items-center justify-between mb-1">
+                    <Label className="text-xs">{isFr ? 'Titre *' : 'Title *'}</Label>
+                    <Button
+                      type="button" variant="ghost" size="sm"
+                      className="h-6 gap-1 text-[10px] text-primary hover:text-primary"
+                      onClick={() => handleAIHelp('title')}
+                      disabled={generatingTitle}
+                    >
+                      {generatingTitle ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3 w-3" />}
+                      {isFr ? 'IA' : 'AI'}
+                    </Button>
+                  </div>
                   <Input value={title} onChange={e => setTitle(e.target.value)} className="h-9" />
                 </div>
                 <div>
-                  <Label className="text-xs">Description</Label>
+                  <div className="flex items-center justify-between mb-1">
+                    <Label className="text-xs">Description</Label>
+                    <Button
+                      type="button" variant="ghost" size="sm"
+                      className="h-6 gap-1 text-[10px] text-primary hover:text-primary"
+                      onClick={() => handleAIHelp('description')}
+                      disabled={generatingDesc}
+                    >
+                      {generatingDesc ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3 w-3" />}
+                      {isFr ? 'IA' : 'AI'}
+                    </Button>
+                  </div>
                   <RichTextEditor value={description} onChange={setDescription} placeholder={isFr ? "Décrivez le contenu..." : "Describe the content..."} />
                 </div>
                 <div>
                   <Label className="text-xs">{isFr ? 'Image de couverture' : 'Cover image'}</Label>
                   <ImageUploader value={coverUrl} onChange={setCoverUrl} folder={`programs/${currentOrg?.id}`} label="" aspectRatio="video" />
+                  <Button
+                    type="button" variant="outline" size="sm"
+                    className="mt-2 gap-1.5 text-xs w-full"
+                    onClick={handleGenerateCover}
+                    disabled={generatingCover || !title.trim()}
+                  >
+                    {generatingCover ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImageIcon className="h-3.5 w-3.5" />}
+                    {isFr ? 'Générer avec l\'IA' : 'Generate with AI'}
+                    <span className="text-[9px] text-muted-foreground ml-1">({isFr ? '~7.5 crédits' : '~7.5 credits'})</span>
+                  </Button>
                 </div>
               </div>
             </div>
