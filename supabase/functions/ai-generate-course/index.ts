@@ -4,8 +4,10 @@ import { consumeCreditsWithRefund, consumeCreditsOrThrow, refundCreditsAsBonus, 
 import { aiGenerateImageBase64 } from '../_shared/ai-fallback.ts';
 
 const ACTION_KEY = 'ai_course_structure';
-const IMAGE_GEN_CONCURRENCY = 4;
+const IMAGE_GEN_CONCURRENCY = 6;
 const IMAGE_BUCKET = 'media';
+const FUNCTION_HARD_DEADLINE_MS = 280_000;
+const IMAGE_MIN_REMAINING_MS = 35_000;
 
 function decodeBase64(base64: string): Uint8Array {
   const binary = atob(base64);
