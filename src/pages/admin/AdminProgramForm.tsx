@@ -211,6 +211,40 @@ export function ProgramForm() {
 
   const totalLessons = modules.reduce((s: number, m: any) => s + (m.lessons?.length || 0), 0);
 
+  // Apply AI-generated structure
+  const handleAIGenerated = async (structure: { modules: Array<{ title: string; description?: string; lessons: Array<{ title: string; content_type: string; duration_minutes: number }> }> }) => {
+    if (!id) return;
+    setApplyingAI(true);
+    try {
+      for (let mi = 0; mi < structure.modules.length; mi++) {
+        const mod = structure.modules[mi];
+        const modResult = await createModule.mutateAsync({
+          program_id: id,
+          title: mod.title,
+          description: mod.description,
+          display_order: modules.length + mi,
+        });
+        for (let li = 0; li < mod.lessons.length; li++) {
+          const lesson = mod.lessons[li];
+          await createLesson.mutateAsync({
+            module_id: modResult.id,
+            title: lesson.title,
+            content_type: lesson.content_type || 'text',
+            duration_minutes: lesson.duration_minutes,
+            display_order: li,
+            programId: id,
+          });
+        }
+      }
+      toast({ title: isFr ? '✅ Structure appliquée !' : '✅ Structure applied!' });
+      setShowAIGenerator(false);
+    } catch (e: any) {
+      toast({ title: isFr ? 'Erreur' : 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setApplyingAI(false);
+    }
+  };
+
   // Lesson editor view
   if (editingLessonId && id) {
     return (
