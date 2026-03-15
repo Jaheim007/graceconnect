@@ -33,7 +33,7 @@ serve(async (req) => {
       idempotencyKey: `course-${userId}-${Date.now()}`,
       metadata: { title, module_count, generate_images },
       action: async () => {
-        const systemPrompt = `You are an expert course designer and content writer. Generate a COMPLETE professional course with FULL lesson content in JSON format.
+        const systemPrompt = `You are an expert micro-learning course designer. Generate a professional course with SHORT, DIGESTIBLE lesson content and EMBEDDED QUIZ QUESTIONS in JSON format.
 
 Return ONLY valid JSON with this exact structure:
 {
@@ -45,26 +45,29 @@ Return ONLY valid JSON with this exact structure:
         {
           "title": "Lesson title",
           "content_type": "text",
-          "duration_minutes": 15,
+          "duration_minutes": 10,
           "description": "Brief lesson description",
-          "content": "<h2>Lesson Title</h2><p>Full lesson content here with multiple paragraphs...</p><h3>Sub-section</h3><p>More detailed content...</p><ul><li>Key point 1</li><li>Key point 2</li></ul><blockquote>Important takeaway or quote</blockquote><p>Conclusion paragraph...</p>"
+          "content": "<h2>Section Title</h2><p>Short paragraph (2-3 sentences max).</p><p>Another short paragraph with a key insight.</p><h3>Key Concept</h3><p>Brief explanation.</p><ul><li>Point 1</li><li>Point 2</li></ul><!-- QUIZ:{\"question\":\"What is the main concept?\",\"options\":[\"Option A\",\"Option B\",\"Option C\"],\"correctIndex\":1,\"explanation\":\"Option B is correct because...\"} --><h3>Next Concept</h3><p>Brief content...</p><!-- QUIZ:{\"question\":\"Another question?\",\"options\":[\"Choice 1\",\"Choice 2\",\"Choice 3\",\"Choice 4\"],\"correctIndex\":0,\"explanation\":\"Explanation here.\"} -->"
         }
       ]
     }
   ]
 }
 
-CRITICAL REQUIREMENTS:
+CRITICAL REQUIREMENTS FOR MICRO-LEARNING:
 - Create ${module_count} modules with 3-5 lessons each
-- Each lesson MUST have a "content" field with RICH HTML content (500-1500 words per lesson)
+- KEEP EACH SECTION SHORT: max 2-3 short paragraphs per <h2> or <h3> section (50-100 words per section)
+- Each lesson should have 3-5 short sections separated by <h2> or <h3> headings
+- QUIZ QUESTIONS: Embed 2-3 quiz questions PER LESSON using HTML comments: <!-- QUIZ:{"question":"...","options":["A","B","C"],"correctIndex":0,"explanation":"..."} -->
+- Place quizzes AFTER the content they test (between sections)
+- Each quiz must have 3-4 options with exactly one correct answer (correctIndex is 0-based)
 - Content must use proper HTML: <h2>, <h3>, <p>, <ul>, <ol>, <li>, <blockquote>, <strong>, <em>
-- Content should be educational, detailed, actionable, and professional
-- Each lesson should teach something concrete with examples
-- Include practical exercises, tips, or actionable steps where relevant
-- Lessons should progress from basic to advanced within each module
+- Write concise, impactful content — like a mobile learning app, NOT a textbook
+- Each section should teach ONE concept clearly
 - Use the language: ${isFr ? 'French' : 'English'}
-- Duration should be realistic (5-30 minutes per lesson)
-- DO NOT use markdown, only HTML tags`;
+- Duration should be 5-15 minutes per lesson
+- DO NOT use markdown, only HTML tags
+- The quiz JSON must be valid JSON inside the HTML comment`;
 
         const userPrompt = `Create a COMPLETE professional course with FULL detailed lesson content for:
 Title: ${title}
