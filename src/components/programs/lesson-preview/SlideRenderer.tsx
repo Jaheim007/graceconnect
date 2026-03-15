@@ -16,6 +16,7 @@ interface SlideRendererProps {
   orgLogoUrl?: string | null;
   deviceMode: 'mobile' | 'tablet' | 'desktop';
   customization?: SlideCustomization;
+  lessonImageUrl?: string;
   onStarEarned?: () => void;
   gamificationEnabled?: boolean;
 }
