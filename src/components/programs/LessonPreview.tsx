@@ -235,6 +235,7 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
           assessmentScore={assessmentScore}
           assessmentTotal={assessmentTotal}
           courseTitle={program?.title || ''}
+          programId={programId}
           orgLogoUrl={orgLogoUrl}
           deviceMode={deviceMode}
           gamificationEnabled={gamificationEnabled}
