@@ -21,6 +21,8 @@ interface LessonPreviewProps {
   initialLessonId?: string;
   onClose?: () => void;
   headerActions?: ReactNode;
+  /** 'creator' shows customization/device tools; 'learner' shows clean player */
+  mode?: 'creator' | 'learner';
 }
 
 type DeviceMode = 'mobile' | 'tablet' | 'desktop';
