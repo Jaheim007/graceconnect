@@ -108,6 +108,9 @@ export function SlideRenderer({
     'prose-li:leading-relaxed',
     'prose-blockquote:border-l-2 prose-blockquote:opacity-75 prose-blockquote:rounded-lg prose-blockquote:px-4 prose-blockquote:py-3',
     'prose-a:text-blue-300',
+    'prose-img:rounded-lg prose-img:max-h-[200px] prose-img:w-auto prose-img:mx-auto prose-img:object-contain',
+    'prose-video:rounded-lg prose-video:max-h-[200px] prose-video:w-full',
+    'prose-iframe:rounded-lg prose-iframe:max-h-[200px] prose-iframe:w-full',
     captionStyle === 'light' || captionStyle === 'transparent-dark'
       ? 'prose-headings:text-slate-900 prose-p:text-slate-700 prose-li:text-slate-700 prose-strong:text-slate-900'
       : 'prose-invert prose-headings:text-white prose-p:text-white/85 prose-li:text-white/85 prose-strong:text-white',
