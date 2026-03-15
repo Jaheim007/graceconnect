@@ -283,6 +283,7 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
                     orgLogoUrl={orgLogoUrl}
                     deviceMode={deviceMode}
                     customization={currentCustomization}
+                    onStarEarned={() => setStarsEarned(s => s + 1)}
                   />
                 )}
               </motion.div>
