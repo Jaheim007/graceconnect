@@ -36,6 +36,7 @@ export default function AdminPayouts() {
   const { currentOrg } = useOrg();
   const { user } = useAuth();
   const { t, locale } = useI18n();
+  const isFr = locale === 'fr';
   const queryClient = useQueryClient();
   const orgId = currentOrg?.id;
   const currency = currentOrg?.currency || 'XOF';
@@ -50,8 +51,8 @@ export default function AdminPayouts() {
     mutationFn: async () => {
       if (!user || !orgId || !fundSummary) throw new Error('Missing data');
       const available = Math.max(0, fundSummary.availableBalance);
-      if (available < MIN_WITHDRAWAL) throw new Error(`Solde insuffisant (minimum ${MIN_WITHDRAWAL} ${currency})`);
-      if (!kycApproved) throw new Error('KYC requis avant tout retrait');
+      if (available < MIN_WITHDRAWAL) throw new Error(isFr ? `Solde insuffisant (minimum ${MIN_WITHDRAWAL} ${currency})` : `Insufficient balance (minimum ${MIN_WITHDRAWAL} ${currency})`);
+      if (!kycApproved) throw new Error(isFr ? 'KYC requis avant tout retrait' : 'KYC required before withdrawal');
 
       const { error } = await db.from('payout_requests').insert({
         user_id: user.id,
@@ -63,11 +64,11 @@ export default function AdminPayouts() {
       });
       if (error) throw error;
 
-      // Fire notifications
+      // Fire notifications (org owner + superadmins)
       onPayoutRequested(orgId, currentOrg?.name || '', available, currency);
     },
     onSuccess: () => {
-      toast.success('Demande de retrait envoyée ! Traitement sous 3-8 jours ouvrés.');
+      toast.success(isFr ? 'Demande de retrait envoyée ! Traitement sous 3-8 jours ouvrés.' : 'Withdrawal request sent! Processing within 3-8 business days.');
       setShowWithdrawDialog(false);
       queryClient.invalidateQueries({ queryKey: ['admin-payouts', orgId] });
       queryClient.invalidateQueries({ queryKey: ['admin-fund-summary', orgId] });
@@ -178,10 +179,10 @@ export default function AdminPayouts() {
         {/* ═══ Revenue Breakdown – Sales ═══ */}
         {fundSummary && (
           <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Revenus des ventes</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{isFr ? 'Revenus des ventes' : 'Sales Revenue'}</p>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {[
-                { label: "Chiffre d'affaires", value: fmt(fundSummary.totalGMV, currency), icon: DollarSign, colorClass: 'from-muted/60 to-muted/30 border-border', sub: 'Total brut' },
+                { label: isFr ? "Chiffre d'affaires" : 'Gross Revenue', value: fmt(fundSummary.totalGMV, currency), icon: DollarSign, colorClass: 'from-muted/60 to-muted/30 border-border', sub: isFr ? 'Total brut' : 'Gross total' },
                 { label: t('payouts.org_share'), value: fmt(fundSummary.totalOrgReceived, currency), icon: Wallet, colorClass: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/20', sub: t('payouts.after_platform_fees') },
                 { label: t('payouts.platform_fees'), value: fmt(fundSummary.totalPlatformFees, currency), icon: Shield, colorClass: 'from-primary/15 to-primary/5 border-primary/20', sub: `${currentOrg?.platform_fee_percent ?? 10}% ${t('payouts.deducted')}` },
                 { label: t('payouts.affiliate_commissions'), value: fmt(fundSummary.totalAffiliateCommissionsPaid, currency), icon: ArrowUpRight, colorClass: 'from-amber-500/15 to-amber-500/5 border-amber-500/20', sub: t('payouts.paid_to_affiliates') },
@@ -200,13 +201,13 @@ export default function AdminPayouts() {
         {/* ═══ Revenue Breakdown – Ambassador Earnings ═══ */}
         {fundSummary && (
           <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Gains Ambassadeur (Earn by Sharing)</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{isFr ? 'Gains Ambassadeur (Earn by Sharing)' : 'Ambassador Earnings (Earn by Sharing)'}</p>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {[
-                { label: 'Total gagné', value: fmt(fundSummary.totalAmbassadorEarned, currency), icon: ArrowUpRight, colorClass: 'from-purple-500/15 to-purple-500/5 border-purple-500/20', sub: 'Commissions cumulées' },
-                { label: 'Disponible', value: fmt(fundSummary.ambassadorPayable, currency), icon: CheckCircle, colorClass: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/20', sub: 'Après 15 jours' },
-                { label: 'En attente (15j)', value: fmt(fundSummary.ambassadorPending, currency), icon: TimerReset, colorClass: 'from-amber-500/15 to-amber-500/5 border-amber-500/20', sub: 'Période de rétention' },
-                { label: 'Déjà versé', value: fmt(fundSummary.ambassadorPaid, currency), icon: CheckCircle, colorClass: 'from-muted/60 to-muted/30 border-border', sub: 'Retraits effectués' },
+                { label: isFr ? 'Total gagné' : 'Total earned', value: fmt(fundSummary.totalAmbassadorEarned, currency), icon: ArrowUpRight, colorClass: 'from-purple-500/15 to-purple-500/5 border-purple-500/20', sub: isFr ? 'Commissions cumulées' : 'Cumulative commissions' },
+                { label: isFr ? 'Disponible' : 'Available', value: fmt(fundSummary.ambassadorPayable, currency), icon: CheckCircle, colorClass: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/20', sub: isFr ? 'Après 15 jours' : 'After 15 days' },
+                { label: isFr ? 'En attente (15j)' : 'Pending (15d)', value: fmt(fundSummary.ambassadorPending, currency), icon: TimerReset, colorClass: 'from-amber-500/15 to-amber-500/5 border-amber-500/20', sub: isFr ? 'Période de rétention' : 'Holding period' },
+                { label: isFr ? 'Déjà versé' : 'Already paid', value: fmt(fundSummary.ambassadorPaid, currency), icon: CheckCircle, colorClass: 'from-muted/60 to-muted/30 border-border', sub: isFr ? 'Retraits effectués' : 'Completed withdrawals' },
               ].map(c => (
                 <motion.div key={c.label} variants={fadeUp} className={cn('rounded-2xl border p-4 bg-gradient-to-br', c.colorClass)}>
                   <c.icon className="h-4 w-4 text-muted-foreground mb-1" />
@@ -225,13 +226,15 @@ export default function AdminPayouts() {
             className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 to-primary/5 p-5">
             <div className="flex items-center gap-2 mb-1">
               <Wallet className="h-5 w-5 text-primary" />
-              <p className="text-sm font-semibold">Balance totale</p>
+              <p className="text-sm font-semibold">{isFr ? 'Balance totale' : 'Total balance'}</p>
             </div>
             <p className="text-3xl font-bold text-primary">
-              {fmt(fundSummary.totalOrgReceived + fundSummary.totalAmbassadorEarned - fundSummary.ambassadorPaid, currency)}
+              {fmt(fundSummary.totalOrgReceived + fundSummary.totalAmbassadorEarned - fundSummary.completedPayouts, currency)}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Votre part ventes ({fmt(fundSummary.totalOrgReceived, currency)}) + Gains ambassadeur ({fmt(fundSummary.totalAmbassadorEarned, currency)}) − Déjà versé ({fmt(fundSummary.ambassadorPaid, currency)})
+              {isFr
+                ? `Votre part ventes (${fmt(fundSummary.totalOrgReceived, currency)}) + Gains ambassadeur (${fmt(fundSummary.totalAmbassadorEarned, currency)}) − Déjà retiré (${fmt(fundSummary.completedPayouts, currency)})`
+                : `Your sales share (${fmt(fundSummary.totalOrgReceived, currency)}) + Ambassador earnings (${fmt(fundSummary.totalAmbassadorEarned, currency)}) − Already withdrawn (${fmt(fundSummary.completedPayouts, currency)})`}
             </p>
           </motion.div>
         )}
@@ -246,7 +249,7 @@ export default function AdminPayouts() {
                   <p className="text-xs text-muted-foreground font-medium">{t('payouts.available_balance')}</p>
                   <p className="text-3xl font-bold text-emerald-500 mt-1">{fmt(Math.max(0, fundSummary.availableBalance), currency)}</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5">
-                    Ventes (après 72h) + Commissions ambassadeur (après 15j) − Retraits
+                    {isFr ? 'Ventes (après 72h) + Commissions ambassadeur (après 15j) − Retraits' : 'Sales (after 72h) + Ambassador commissions (after 15d) − Withdrawals'}
                   </p>
                 </div>
                 <div className="flex flex-col items-end gap-2">
@@ -254,18 +257,22 @@ export default function AdminPayouts() {
                     <a href="/admin/verification" className="block">
                       <Button variant="destructive" size="default" className="gap-2">
                         <AlertTriangle className="h-4 w-4" />
-                        Vérifier mon identité pour retirer
+                        {isFr ? 'Vérifier mon identité pour retirer' : 'Verify identity to withdraw'}
                       </Button>
                     </a>
                   ) : fundSummary.availableBalance >= MIN_WITHDRAWAL && fundSummary.pendingPayouts === 0 ? (
                     <Button size="default" className="gap-2" onClick={() => setShowWithdrawDialog(true)}>
                       <Send className="h-4 w-4" />
-                      Demander un retrait
+                      {isFr ? 'Demander un retrait' : 'Request withdrawal'}
                     </Button>
                   ) : fundSummary.pendingPayouts > 0 ? (
                     <Badge variant="outline" className="text-xs border-blue-500/30 text-blue-600 gap-1">
-                      <Clock className="h-3 w-3" /> Retrait en cours
+                      <Clock className="h-3 w-3" /> {isFr ? 'Retrait en cours' : 'Withdrawal in progress'}
                     </Badge>
+                  ) : fundSummary.availableBalance > 0 && fundSummary.availableBalance < MIN_WITHDRAWAL ? (
+                    <p className="text-xs text-muted-foreground text-right">
+                      {isFr ? `Minimum ${MIN_WITHDRAWAL.toLocaleString('fr-FR')} ${currency} requis` : `Minimum ${MIN_WITHDRAWAL.toLocaleString('en')} ${currency} required`}
+                    </p>
                   ) : null}
                 </div>
               </div>
@@ -282,13 +289,13 @@ export default function AdminPayouts() {
                 </div>
                 {fundSummary.pendingClearanceOrg > 0 && (
                   <div className="space-y-0.5">
-                    <p className="text-[10px] text-muted-foreground flex items-center gap-1"><TimerReset className="h-3 w-3 text-amber-500" /> Ventes en attente (72h)</p>
+                    <p className="text-[10px] text-muted-foreground flex items-center gap-1"><TimerReset className="h-3 w-3 text-amber-500" /> {isFr ? 'Ventes en attente (72h)' : 'Sales pending (72h)'}</p>
                     <p className="text-sm font-semibold text-amber-600">{fmt(fundSummary.pendingClearanceOrg, currency)}</p>
                   </div>
                 )}
                 {fundSummary.ambassadorPending > 0 && (
                   <div className="space-y-0.5">
-                    <p className="text-[10px] text-muted-foreground flex items-center gap-1"><TimerReset className="h-3 w-3 text-purple-500" /> Commissions en attente (15j)</p>
+                    <p className="text-[10px] text-muted-foreground flex items-center gap-1"><TimerReset className="h-3 w-3 text-purple-500" /> {isFr ? 'Commissions en attente (15j)' : 'Commissions pending (15d)'}</p>
                     <p className="text-sm font-semibold text-purple-600">{fmt(fundSummary.ambassadorPending, currency)}</p>
                   </div>
                 )}
@@ -300,12 +307,12 @@ export default function AdminPayouts() {
               <div className="bg-destructive/5 border-t border-destructive/20 px-5 py-3 flex items-center gap-3">
                 <Lock className="h-4 w-4 text-destructive shrink-0" />
                 <div className="flex-1">
-                  <p className="text-xs font-semibold text-destructive">Vérification d'identité requise</p>
-                  <p className="text-[10px] text-muted-foreground">Vous devez vérifier votre identité avant de pouvoir demander un retrait.</p>
+                  <p className="text-xs font-semibold text-destructive">{isFr ? "Vérification d'identité requise" : 'Identity verification required'}</p>
+                  <p className="text-[10px] text-muted-foreground">{isFr ? "Vous devez vérifier votre identité avant de pouvoir demander un retrait." : 'You must verify your identity before requesting a withdrawal.'}</p>
                 </div>
                 <a href="/admin/verification">
                   <Button variant="outline" size="sm" className="text-xs gap-1 border-destructive/30 text-destructive hover:bg-destructive/10">
-                    <Shield className="h-3 w-3" /> Vérifier
+                    <Shield className="h-3 w-3" /> {isFr ? 'Vérifier' : 'Verify'}
                   </Button>
                 </a>
               </div>
@@ -314,7 +321,9 @@ export default function AdminPayouts() {
             {/* How it works mini-guide */}
             <div className="bg-muted/30 border-t border-border px-5 py-3">
               <p className="text-[10px] text-muted-foreground">
-                <strong>Comment ça marche :</strong> Ventes disponibles après 72h · Commissions ambassadeur après 15 jours · Demandez un retrait → L'équipe vérifie et traite sous 3-8 jours.
+                <strong>{isFr ? 'Comment ça marche :' : 'How it works:'}</strong> {isFr
+                  ? 'Ventes disponibles après 72h · Commissions ambassadeur après 15 jours · Demandez un retrait → L\'équipe vérifie et traite sous 3-8 jours.'
+                  : 'Sales available after 72h · Ambassador commissions after 15 days · Request a withdrawal → The team verifies and processes within 3-8 days.'}
               </p>
             </div>
           </div>
@@ -324,29 +333,33 @@ export default function AdminPayouts() {
         <Dialog open={showWithdrawDialog} onOpenChange={setShowWithdrawDialog}>
           <DialogContent className="max-w-sm">
             <DialogHeader>
-              <DialogTitle>Confirmer le retrait</DialogTitle>
+              <DialogTitle>{isFr ? 'Confirmer le retrait' : 'Confirm withdrawal'}</DialogTitle>
               <DialogDescription>
-                L'intégralité de votre solde disponible sera demandée en retrait. Le traitement prend 3 à 8 jours ouvrés.
+                {isFr
+                  ? "L'intégralité de votre solde disponible sera demandée en retrait. Le traitement prend 3 à 8 jours ouvrés."
+                  : 'Your entire available balance will be requested for withdrawal. Processing takes 3 to 8 business days.'}
               </DialogDescription>
             </DialogHeader>
             <div className="p-4 rounded-xl bg-muted/50 border border-border text-center">
-              <p className="text-xs text-muted-foreground">Montant du retrait</p>
+              <p className="text-xs text-muted-foreground">{isFr ? 'Montant du retrait' : 'Withdrawal amount'}</p>
               <p className="text-2xl font-bold text-primary mt-1">
                 {fmt(Math.max(0, fundSummary?.availableBalance || 0), currency)}
               </p>
             </div>
             <p className="text-xs text-muted-foreground text-center">
-              Le versement sera effectué sur les coordonnées indiquées dans votre vérification KYC.
+              {isFr
+                ? 'Le versement sera effectué sur les coordonnées indiquées dans votre vérification KYC.'
+                : 'Payment will be sent to the details provided in your KYC verification.'}
             </p>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowWithdrawDialog(false)}>Annuler</Button>
+              <Button variant="outline" onClick={() => setShowWithdrawDialog(false)}>{isFr ? 'Annuler' : 'Cancel'}</Button>
               <Button
                 onClick={() => withdrawMutation.mutate()}
                 disabled={withdrawMutation.isPending}
                 className="gap-1.5"
               >
                 {withdrawMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                Confirmer
+                {isFr ? 'Confirmer' : 'Confirm'}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -355,7 +368,7 @@ export default function AdminPayouts() {
         {/* ═══ Withdrawal History ═══ */}
         {payouts.length > 0 && (
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold">Historique des retraits</p>
+            <p className="text-sm font-semibold">{isFr ? 'Historique des retraits' : 'Withdrawal history'}</p>
             <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={exportPayouts}>
               <Download className="h-3.5 w-3.5" /> {t('payouts.export')}
             </Button>
@@ -393,7 +406,7 @@ export default function AdminPayouts() {
                       </p>
                     )}
                     {p.reject_reason && (
-                      <p className="text-[10px] text-destructive mt-0.5">Motif : {p.reject_reason}</p>
+                      <p className="text-[10px] text-destructive mt-0.5">{isFr ? 'Motif' : 'Reason'}: {p.reject_reason}</p>
                     )}
                   </div>
                 </motion.div>

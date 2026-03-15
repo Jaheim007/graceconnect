@@ -799,6 +799,26 @@ export async function onRefundCompleted(
 export async function onPayoutRequested(orgId: string, orgName: string, amount: number, currency: string) {
   emailOrgOwnerOnly('payout_requested', orgId, { org_name: orgName, amount, currency });
   notifyOrgOwnerOnly(orgId, '💸 Retrait demandé', `Un retrait de ${amount} ${currency} a été demandé pour ${orgName}.`, 'transaction');
+
+  // Notify superadmins
+  try {
+    const { data: superadmins } = await db.from('user_platform_roles')
+      .select('user_id')
+      .eq('role', 'superadmin');
+    if (superadmins?.length) {
+      const notifications = superadmins.map((sa: any) => ({
+        user_id: sa.user_id,
+        title: '💰 Demande de retrait',
+        body: `${orgName} demande un retrait de ${amount.toLocaleString('fr-FR')} ${currency}.`,
+        notification_type: 'payout' as const,
+      }));
+      await db.from('user_notifications').insert(notifications);
+      // Email superadmins
+      sendEmailNotification('payout_requested', '', { org_name: orgName, amount, currency }).catch(() => {});
+    }
+  } catch (err) {
+    console.warn('[notify] superadmin payout notification failed:', err);
+  }
 }
 
 export async function onPayoutApproved(orgId: string, orgName: string, amount: number, currency: string) {
