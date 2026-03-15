@@ -152,12 +152,10 @@ export default function ResourcesPage() {
   // Course player fullscreen overlay
   if (activeCourseId) {
     return (
-      <div className="fixed inset-0 z-50 bg-background flex flex-col">
-        <LessonPreview
-          programId={activeCourseId}
-          onClose={() => setActiveCourseId(null)}
-        />
-      </div>
+      <LessonPlayerOverlay
+        programId={activeCourseId}
+        onClose={() => setActiveCourseId(null)}
+      />
     );
   }
 

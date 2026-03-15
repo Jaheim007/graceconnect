@@ -350,6 +350,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
         </div>
 
         <div className="flex items-center gap-1">
+          {headerActions}
           <Button
             variant={showCustomizer ? 'default' : 'ghost'}
             size="icon"
