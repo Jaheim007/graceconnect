@@ -26,9 +26,21 @@ export interface AssessmentData {
 
 /** Max characters of plain text per slide before splitting */
 const MAX_CHARS_PER_SLIDE = 350;
+/** Minimum characters of plain text – slides below this get merged */
+const MIN_CHARS_PER_SLIDE = 40;
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+/** Check if HTML block is essentially just an image with no meaningful text */
+function isImageOnlyBlock(html: string): boolean {
+  // Strip all img/video/iframe tags, then check if remaining text is negligible
+  const withoutMedia = html
+    .replace(/<img[^>]*>/gi, '')
+    .replace(/<video[^>]*>[\s\S]*?<\/video>/gi, '')
+    .replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, '');
+  return stripHtml(withoutMedia).length < 10;
 }
 
 function splitLongBody(bodyHtml: string): string[] {
@@ -56,7 +68,25 @@ function splitLongBody(bodyHtml: string): string[] {
   }
   
   if (current.trim()) chunks.push(current.trim());
-  return chunks.length > 0 ? chunks : [bodyHtml];
+
+  // Post-process: merge chunks that are too small into adjacent chunks
+  const merged: string[] = [];
+  for (const chunk of chunks) {
+    const chunkText = stripHtml(chunk);
+    if (merged.length > 0 && chunkText.length < MIN_CHARS_PER_SLIDE) {
+      // Merge with previous chunk
+      merged[merged.length - 1] += chunk;
+    } else {
+      merged.push(chunk);
+    }
+  }
+  // If the last chunk ended up too small, merge it back
+  if (merged.length > 1 && stripHtml(merged[merged.length - 1]).length < MIN_CHARS_PER_SLIDE) {
+    const last = merged.pop()!;
+    merged[merged.length - 1] += last;
+  }
+
+  return merged.length > 0 ? merged : [bodyHtml];
 }
 
 /**
