@@ -292,6 +292,11 @@ IMPORTANT:
       },
     });
 
+    console.log('[ai-generate-course] Structure generated', {
+      modules: Array.isArray(result?.modules) ? result.modules.length : 0,
+      remaining_budget_ms: remainingBudgetMs(),
+    });
+
     // ─── Image generation (after structure, per lesson) ───
     let imagesGenerated = 0;
     if (generate_images && result?.modules) {
