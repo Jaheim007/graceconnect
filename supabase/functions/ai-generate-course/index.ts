@@ -20,6 +20,43 @@ function imageExtFromMime(mimeType: string): string {
   return 'png';
 }
 
+function tryParseCourseJson(rawContent: string): any | null {
+  if (!rawContent) return null;
+
+  const codeBlockMatch = rawContent.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  let candidate = codeBlockMatch ? codeBlockMatch[1] : rawContent;
+  candidate = candidate
+    .replace(/[\u0000-\u0019\u007F]/g, '')
+    .trim();
+
+  const start = candidate.indexOf('{');
+  const end = candidate.lastIndexOf('}');
+  if (start >= 0 && end > start) {
+    candidate = candidate.slice(start, end + 1);
+  }
+
+  try {
+    return JSON.parse(candidate);
+  } catch {
+    let repaired = candidate;
+    repaired = repaired.replace(/,\s*([}\]])/g, '$1');
+    repaired = repaired.replace(/\r?\n/g, '\\n');
+
+    const opens = (repaired.match(/{/g) || []).length;
+    const closes = (repaired.match(/}/g) || []).length;
+    const openBrackets = (repaired.match(/\[/g) || []).length;
+    const closeBrackets = (repaired.match(/\]/g) || []).length;
+    for (let i = 0; i < openBrackets - closeBrackets; i++) repaired += ']';
+    for (let i = 0; i < opens - closes; i++) repaired += '}';
+
+    try {
+      return JSON.parse(repaired);
+    } catch {
+      return null;
+    }
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
