@@ -120,6 +120,31 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
             });
           }
         }
+
+        // Save final assessment as a special lesson if provided
+        if (data?.final_assessment?.questions?.length > 0) {
+          const assessmentModule = await createModule.mutateAsync({
+            program_id: result.id,
+            title: data.final_assessment.title || (isFr ? 'Évaluation finale' : 'Final Assessment'),
+            description: data.final_assessment.description || '',
+            display_order: data.modules.length,
+          });
+
+          // Embed assessment questions as QUIZ comments in content
+          const quizComments = data.final_assessment.questions
+            .map((q: any) => `<!-- QUIZ:${JSON.stringify(q)} -->`)
+            .join('\n');
+
+          await createLesson.mutateAsync({
+            module_id: assessmentModule.id,
+            title: isFr ? 'Évaluation finale' : 'Final Assessment',
+            content_type: 'text',
+            content: `<h2>${isFr ? '🏆 Évaluation finale' : '🏆 Final Assessment'}</h2><p>${isFr ? 'Testez vos connaissances sur le cours complet.' : 'Test your knowledge of the entire course.'}</p>${quizComments}`,
+            duration_minutes: 15,
+            display_order: 0,
+            programId: result.id,
+          });
+        }
       }
 
       toast({ title: isFr ? '✅ Cours créé avec l\'IA !' : '✅ Course created with AI!' });

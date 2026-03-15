@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, CheckCircle2, XCircle } from 'lucide-react';
+import { Star, CheckCircle2, XCircle, Flame, Zap } from 'lucide-react';
 import type { QuizData } from './parseContentSlides';
 import type { SlideTheme } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
@@ -15,6 +15,53 @@ interface QuizSlideProps {
   orgLogoUrl?: string | null;
   deviceMode: 'mobile' | 'tablet' | 'desktop';
   onStarEarned?: () => void;
+  gamificationEnabled?: boolean;
+}
+
+// Particle burst for correct answers
+function ConfettiBurst() {
+  const particles = Array.from({ length: 20 }, (_, i) => ({
+    id: i,
+    x: (Math.random() - 0.5) * 300,
+    y: (Math.random() - 0.5) * 300 - 100,
+    rotation: Math.random() * 720,
+    scale: 0.5 + Math.random() * 0.8,
+    color: ['#FFD700', '#FF6B35', '#00D4AA', '#FF3366', '#7B61FF', '#00BFFF'][i % 6],
+    delay: Math.random() * 0.15,
+  }));
+
+  return (
+    <div className="absolute inset-0 pointer-events-none z-50 flex items-center justify-center overflow-hidden">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          initial={{ x: 0, y: 0, opacity: 1, scale: 0, rotate: 0 }}
+          animate={{ x: p.x, y: p.y, opacity: 0, scale: p.scale, rotate: p.rotation }}
+          transition={{ duration: 0.8, delay: p.delay, ease: 'easeOut' }}
+          style={{ backgroundColor: p.color }}
+          className="absolute w-3 h-3 rounded-sm"
+        />
+      ))}
+    </div>
+  );
+}
+
+// Fire emoji burst for wrong answers (encouraging)
+function FireBurst() {
+  return (
+    <motion.div
+      initial={{ scale: 0, opacity: 0 }}
+      animate={{ scale: 1.2, opacity: 1 }}
+      exit={{ scale: 0, opacity: 0 }}
+      transition={{ type: 'spring', damping: 10 }}
+      className="absolute top-12 left-1/2 -translate-x-1/2 z-30"
+    >
+      <div className="flex items-center gap-1.5 bg-amber-500/20 backdrop-blur-sm border border-amber-400/30 rounded-full px-4 py-2">
+        <Flame className="h-5 w-5 text-amber-400" />
+        <span className="text-xs font-bold text-amber-300">Presque ! Continue 💪</span>
+      </div>
+    </motion.div>
+  );
 }
 
 export function QuizSlide({
@@ -26,9 +73,11 @@ export function QuizSlide({
   orgLogoUrl,
   deviceMode,
   onStarEarned,
+  gamificationEnabled = true,
 }: QuizSlideProps) {
   const [selected, setSelected] = useState<number | null>(null);
   const [revealed, setRevealed] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
   const isMobile = deviceMode === 'mobile';
   const isCorrect = selected === quiz.correctIndex;
 
@@ -37,13 +86,27 @@ export function QuizSlide({
     setSelected(idx);
     setRevealed(true);
     if (idx === quiz.correctIndex) {
-      onStarEarned?.();
+      setShowConfetti(true);
+      if (gamificationEnabled) {
+        onStarEarned?.();
+      }
     }
   };
+
+  // Clear confetti after animation
+  useEffect(() => {
+    if (showConfetti) {
+      const t = setTimeout(() => setShowConfetti(false), 1200);
+      return () => clearTimeout(t);
+    }
+  }, [showConfetti]);
 
   return (
     <div className={cn('h-full flex flex-col text-white relative overflow-hidden bg-gradient-to-br', theme.gradient)}>
       <SlideDecoration theme={theme} />
+
+      {/* Confetti burst */}
+      {showConfetti && <ConfettiBurst />}
 
       {/* Header */}
       <div className="flex items-center gap-2.5 px-5 py-3 relative z-20">
@@ -60,17 +123,22 @@ export function QuizSlide({
 
       {/* Star reward indicator */}
       <AnimatePresence>
-        {revealed && isCorrect && (
+        {revealed && isCorrect && gamificationEnabled && (
           <motion.div
             initial={{ scale: 0, y: -20, opacity: 0 }}
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: 'spring', damping: 12 }}
-            className="absolute top-2 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center"
+            transition={{ type: 'spring', damping: 12, delay: 0.3 }}
+            className="absolute top-14 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center"
           >
-            <Star className="h-10 w-10 text-yellow-400 fill-yellow-400 drop-shadow-lg" />
-            <span className="text-[10px] text-white/80 mt-0.5 font-medium">1 étoile gagnée !</span>
+            <div className="flex items-center gap-2 bg-yellow-500/20 backdrop-blur-sm border border-yellow-400/30 rounded-full px-4 py-2">
+              <Star className="h-6 w-6 text-yellow-400 fill-yellow-400 drop-shadow-lg" />
+              <span className="text-sm text-yellow-300 font-bold">+1 ⭐</span>
+            </div>
           </motion.div>
+        )}
+        {revealed && !isCorrect && (
+          <FireBurst />
         )}
       </AnimatePresence>
 
@@ -81,21 +149,29 @@ export function QuizSlide({
       )}>
         {/* Question */}
         <div className={cn('flex flex-col justify-center', isMobile ? '' : 'w-2/5')}>
-          <div className="mb-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">
-              Testez votre compréhension
+          <motion.div 
+            className="mb-2 flex items-center gap-2"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <Zap className="h-4 w-4 text-yellow-400" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-white/50">
+              Quiz rapide
             </span>
-          </div>
-          <h2 className={cn('font-bold leading-snug', isMobile ? 'text-lg' : 'text-xl')}>
+          </motion.div>
+          <motion.h2 
+            className={cn('font-bold leading-snug', isMobile ? 'text-lg' : 'text-xl')}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
             {quiz.question}
-          </h2>
+          </motion.h2>
         </div>
 
         {/* Options */}
         <div className={cn('flex flex-col gap-2.5', isMobile ? '' : 'w-3/5')}>
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40 text-right">
-            Quelle est ta réponse ?
-          </span>
           {quiz.options.map((option, idx) => {
             const isThisCorrect = idx === quiz.correctIndex;
             const isSelected = idx === selected;
@@ -104,7 +180,10 @@ export function QuizSlide({
               <motion.button
                 key={idx}
                 onClick={() => handleSelect(idx)}
-                whileHover={!revealed ? { scale: 1.02 } : {}}
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2 + idx * 0.08 }}
+                whileHover={!revealed ? { scale: 1.02, x: 4 } : {}}
                 whileTap={!revealed ? { scale: 0.98 } : {}}
                 className={cn(
                   'relative text-left rounded-xl px-4 py-3 transition-all duration-200 text-sm font-medium border-2',
@@ -114,23 +193,24 @@ export function QuizSlide({
                       : isSelected
                         ? 'bg-red-500/20 border-red-400 text-white/70'
                         : 'bg-white/5 border-white/10 text-white/40'
-                    : 'bg-white/95 text-slate-800 border-white/80 hover:bg-white hover:border-white cursor-pointer shadow-lg'
+                    : 'bg-white/95 text-slate-800 border-white/80 hover:bg-white hover:border-white cursor-pointer shadow-lg hover:shadow-xl'
                 )}
                 disabled={revealed}
               >
                 <div className="flex items-center gap-3">
                   <div className={cn(
-                    'h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all',
+                    'h-6 w-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-all text-xs font-bold',
                     revealed
                       ? isThisCorrect
                         ? 'border-emerald-400 bg-emerald-400'
                         : isSelected
                           ? 'border-red-400 bg-red-400'
-                          : 'border-white/20 bg-transparent'
-                      : 'border-slate-300 bg-transparent'
+                          : 'border-white/20 bg-transparent text-white/30'
+                      : 'border-slate-300 bg-transparent text-slate-500'
                   )}>
-                    {revealed && isThisCorrect && <CheckCircle2 className="h-3.5 w-3.5 text-white" />}
-                    {revealed && isSelected && !isThisCorrect && <XCircle className="h-3.5 w-3.5 text-white" />}
+                    {revealed && isThisCorrect && <CheckCircle2 className="h-4 w-4 text-white" />}
+                    {revealed && isSelected && !isThisCorrect && <XCircle className="h-4 w-4 text-white" />}
+                    {!revealed && String.fromCharCode(65 + idx)}
                   </div>
                   <span className="flex-1">{option}</span>
                 </div>
@@ -154,25 +234,35 @@ export function QuizSlide({
             {isCorrect ? (
               <>
                 <CheckCircle2 className="h-4 w-4" />
-                C'est correct ! Bravo 🎉
+                Excellent ! C'est la bonne réponse ! 🎉🔥
               </>
             ) : (
               <>
                 <XCircle className="h-4 w-4" />
-                {quiz.explanation || 'Pas tout à fait… Continuez pour en apprendre plus.'}
+                {quiz.explanation || 'Pas tout à fait… Continuez pour en apprendre plus !'}
               </>
             )}
           </motion.div>
         ) : (
-          <span className="text-[10px] text-white/40 uppercase font-bold tracking-widest">
+          <motion.span
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+            className="text-[10px] text-white/40 uppercase font-bold tracking-widest"
+          >
             Sélectionnez la bonne réponse
-          </span>
+          </motion.span>
         )}
-        {revealed && isCorrect && (
-          <div className="flex items-center gap-1">
+        {revealed && isCorrect && gamificationEnabled && (
+          <motion.div 
+            className="flex items-center gap-1"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', delay: 0.4 }}
+          >
             <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
             <span className="text-xs text-yellow-400 font-medium">+1</span>
-          </div>
+          </motion.div>
         )}
       </div>
     </div>

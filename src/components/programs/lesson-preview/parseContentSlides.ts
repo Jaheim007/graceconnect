@@ -4,10 +4,11 @@
  * Also extracts quiz blocks embedded in content.
  */
 export interface ContentSlide {
-  type: 'title-card' | 'section' | 'quiz' | 'quiz-result';
+  type: 'title-card' | 'section' | 'quiz' | 'quiz-result' | 'final-assessment' | 'course-completion';
   heading?: string;
   bodyHtml: string;
   quiz?: QuizData;
+  assessment?: AssessmentData;
 }
 
 export interface QuizData {
@@ -15,6 +16,12 @@ export interface QuizData {
   options: string[];
   correctIndex: number;
   explanation?: string;
+}
+
+export interface AssessmentData {
+  title: string;
+  description: string;
+  questions: QuizData[];
 }
 
 /** Max characters of plain text per slide before splitting */
