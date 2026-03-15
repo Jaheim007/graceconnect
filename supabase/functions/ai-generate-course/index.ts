@@ -177,9 +177,10 @@ IMPORTANT:
 - Write ALL content in ${isFr ? 'FRENCH (Français)' : 'ENGLISH'} — the user's prompt is in ${isFr ? 'French' : 'English'}.
 - Generate a compelling "course_title" (marketing-ready, not the raw prompt) and a "course_description" (2-3 sentences explaining what they'll learn).
 - For each lesson, include an "image_prompt" in English describing a relevant illustration.
-- Keep each section very short (2-3 sentences). Users read this on mobile slides — one section per screen.
-- Include 2-3 quiz questions per lesson embedded as <!-- QUIZ:{...} --> HTML comments between sections.
-- Include a final_assessment with 8-12 comprehensive questions covering the entire course.
+- Keep each section very short (1 short paragraph). Users read this on mobile slides — one section per screen.
+- Keep response compact to avoid truncation: 2-3 lessons/module, 2-3 sections/lesson, 1-2 quiz comments/lesson.
+- Include a final_assessment with 6-8 comprehensive questions covering the entire course.
+- Return only valid JSON with no markdown fences.
 - Make it feel interactive, engaging, and gamified like Duolingo or EdApp.`;
 
         const model = creditTier === 'premium' && !generate_images
