@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, type ReactNode } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback, type ReactNode } from 'react';
 import { useProgramModules, useProgram } from '@/hooks/usePrograms';
 import { useI18n } from '@/i18n/I18nContext';
 import { Button } from '@/components/ui/button';
@@ -13,8 +13,7 @@ import { SlideRenderer } from './lesson-preview/SlideRenderer';
 import { SlideCustomizationPanel, DEFAULT_CUSTOMIZATION, type SlideCustomization } from './lesson-preview/SlideCustomizationPanel';
 import { FinalAssessmentSlide } from './lesson-preview/FinalAssessmentSlide';
 import { CourseCompletionSlide } from './lesson-preview/CourseCompletionSlide';
-import { getSlideTheme } from './lesson-preview/slideThemes';
-import { Switch } from '@/components/ui/switch';
+import { useSaveSlideProgress, useSaveLessonCompletion, useEnrollmentProgress } from '@/hooks/useLearnerProgress';
 
 interface LessonPreviewProps {
   programId: string;
