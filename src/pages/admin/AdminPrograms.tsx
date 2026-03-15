@@ -176,7 +176,7 @@ export default function AdminPrograms() {
                   <div className="flex items-start justify-between gap-2">
                     <p className="text-sm font-semibold leading-tight line-clamp-2">{prog.title}</p>
                     <Badge variant={prog.is_published ? 'default' : 'secondary'} className="text-[9px] shrink-0">
-                      {prog.is_published ? (isFr ? 'Publié' : 'Live') : (isFr ? 'Brouillon' : 'Draft')}
+                      {prog.is_published ? (isFr ? 'Publié' : 'Published') : (isFr ? 'Brouillon' : 'Draft')}
                     </Badge>
                   </div>
 

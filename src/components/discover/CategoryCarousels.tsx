@@ -33,9 +33,29 @@ export function CategoryCarousels() {
     link: isFr ? 'Liens' : 'Links',
   };
 
+  const isCourseCategory = activeCategory === 'course';
+
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['category-carousel', activeCategory],
     queryFn: async () => {
+      // For "course" category, query the programs table instead
+      if (isCourseCategory) {
+        const { data } = await db
+          .from('programs')
+          .select('*, organizations(name, slug, logo_url, currency, is_verified)')
+          .eq('is_published', true)
+          .order('created_at', { ascending: false })
+          .limit(12);
+        return (data || []).map((p: any) => ({
+          ...p,
+          _isProgram: true,
+          organization_name: p.organizations?.name,
+          organization_slug: p.organizations?.slug,
+          organization_logo: p.organizations?.logo_url,
+          is_org_verified: p.organizations?.is_verified,
+        }));
+      }
+
       let q = db
         .from('digital_products')
         .select('*, organizations(name, slug, logo_url, currency, is_verified)')
