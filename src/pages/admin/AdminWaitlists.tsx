@@ -1,169 +1,29 @@
-import { useState } from 'react';
 import { AdminPageShell } from './AdminPageShell';
-import { useOrg } from '@/contexts/OrgContext';
-import { useWaitlists, useWaitlistEntries, useCreateWaitlist } from '@/hooks/useWaitlists';
-import { EmptyState } from '@/components/ui/EmptyState';
-import { SkeletonRow } from '@/components/ui/SkeletonCard';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Users, Plus, ChevronRight, Mail, Calendar } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 12 },
-  visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 26 } },
-};
-
-function downloadCSV(data: any[], filename: string) {
-  if (!data.length) return;
-  const keys = Object.keys(data[0]);
-  const csv = [keys.join(','), ...data.map(r => keys.map(k => `"${(r[k] ?? '').toString().replace(/"/g, '""')}"`).join(','))].join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `${filename}.csv`;
-  a.click();
-}
+import { Clock as ClockIcon, Clock } from 'lucide-react';
 
 export default function AdminWaitlists() {
-  const { currentOrg } = useOrg();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
-  const { data: waitlists = [], isLoading } = useWaitlists(currentOrg?.id);
-  const createWaitlist = useCreateWaitlist();
-  const { toast } = useToast();
-  const [creating, setCreating] = useState(false);
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [launchDate, setLaunchDate] = useState('');
-  const [selectedWaitlistId, setSelectedWaitlistId] = useState<string | null>(null);
-
-  const handleCreate = async () => {
-    if (!title.trim()) return;
-    await createWaitlist.mutateAsync({ organization_id: currentOrg!.id, title: title.trim(), description: description.trim() || null, launch_date: launchDate || null });
-    toast({ title: isFr ? '✅ Waitlist créée' : '✅ Waitlist created' });
-    setCreating(false);
-    setTitle(''); setDescription(''); setLaunchDate('');
-  };
 
   return (
     <AdminPageShell title="Waitlists" backRoute="/admin">
-      <div className="space-y-4">
-        <div className="flex justify-end">
-          <Button size="sm" className="gap-1.5 text-xs bg-primary text-primary-foreground" onClick={() => setCreating(true)}>
-            <Plus className="h-3.5 w-3.5" /> {isFr ? 'Nouvelle waitlist' : 'New waitlist'}
-          </Button>
+      <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
+        <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+          <ClockIcon className="h-8 w-8 text-primary" />
         </div>
-
-        {isLoading ? <SkeletonRow /> : (waitlists as any[]).length === 0 ? (
-          <EmptyState variant="generic" title={isFr ? "Aucune waitlist" : "No waitlists"} description={isFr ? "Créez une waitlist pour collecter des emails avant le lancement d'un produit." : "Create a waitlist to collect emails before a product launch."} />
-        ) : (
-          <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.04 } } }} className="space-y-2">
-            {(waitlists as any[]).map(w => {
-              const count = w.waitlist_entries?.[0]?.count || 0;
-              return (
-                <motion.div key={w.id} variants={fadeUp}
-                  className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card hover:border-primary/20 transition-all cursor-pointer group"
-                  onClick={() => setSelectedWaitlistId(w.id)}
-                >
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <Users className="h-4 w-4 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{w.title}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {count} {isFr ? `inscrit${count > 1 ? 's' : ''}` : `member${count > 1 ? 's' : ''}`}
-                      {w.launch_date && ` · ${isFr ? 'Lancement' : 'Launch'} ${new Date(w.launch_date).toLocaleDateString(isFr ? 'fr-FR' : 'en-US')}`}
-                    </p>
-                  </div>
-                  <Badge variant={w.is_active ? 'default' : 'secondary'} className="text-[10px]">
-                    {w.is_active ? (isFr ? 'Active' : 'Active') : (isFr ? 'Fermée' : 'Closed')}
-                  </Badge>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        )}
+        <div className="space-y-2">
+          <div className="flex items-center justify-center gap-2">
+            <Clock className="h-4 w-4 text-muted-foreground" />
+            <h2 className="text-lg font-semibold">{isFr ? 'Interface bientôt disponible' : 'Interface coming soon'}</h2>
+          </div>
+          <p className="text-sm text-muted-foreground max-w-md">
+            {isFr
+              ? 'La gestion des waitlists sera disponible prochainement. Restez connecté !'
+              : 'Waitlist management tools are coming soon. Stay tuned!'}
+          </p>
+        </div>
       </div>
-
-      <Dialog open={creating} onOpenChange={setCreating}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader><DialogTitle>{isFr ? 'Nouvelle waitlist' : 'New waitlist'}</DialogTitle></DialogHeader>
-          <div className="space-y-3">
-            <div className="space-y-1.5">
-              <Label className="text-xs">{isFr ? 'Titre *' : 'Title *'}</Label>
-              <Input value={title} onChange={e => setTitle(e.target.value)} placeholder={isFr ? "Ex: Nouveau cours de marketing" : "E.g.: New marketing course"} />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs">Description</Label>
-              <Textarea value={description} onChange={e => setDescription(e.target.value)} placeholder={isFr ? "Décrivez ce qui arrive..." : "Describe what's coming..."} rows={3} />
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-xs flex items-center gap-1"><Calendar className="h-3 w-3" /> {isFr ? 'Date de lancement' : 'Launch date'}</Label>
-              <Input type="date" value={launchDate} onChange={e => setLaunchDate(e.target.value)} />
-            </div>
-            <Button className="w-full bg-primary text-primary-foreground" onClick={handleCreate} disabled={!title.trim() || createWaitlist.isPending}>
-              {createWaitlist.isPending ? (isFr ? 'Création...' : 'Creating...') : (isFr ? 'Créer la waitlist' : 'Create waitlist')}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {selectedWaitlistId && (
-        <WaitlistEntriesDialog waitlistId={selectedWaitlistId} onClose={() => setSelectedWaitlistId(null)} />
-      )}
     </AdminPageShell>
-  );
-}
-
-function WaitlistEntriesDialog({ waitlistId, onClose }: { waitlistId: string; onClose: () => void }) {
-  const { locale } = useI18n();
-  const isFr = locale === 'fr';
-  const { data: entries = [], isLoading } = useWaitlistEntries(waitlistId);
-
-  const handleExport = () => {
-    if (!(entries as any[]).length) return;
-    downloadCSV(
-      (entries as any[]).map(e => ({ email: e.email, name: e.name || '', date: e.created_at })),
-      `waitlist-${waitlistId.slice(0, 8)}`
-    );
-  };
-
-  return (
-    <Dialog open onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-lg max-h-[80dvh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Mail className="h-4 w-4 text-primary" /> {isFr ? 'Inscrits' : 'Members'} ({(entries as any[]).length})
-          </DialogTitle>
-        </DialogHeader>
-        {isLoading ? <SkeletonRow /> : (entries as any[]).length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-6">{isFr ? 'Aucun inscrit pour le moment.' : 'No members yet.'}</p>
-        ) : (
-          <div className="space-y-3">
-            <Button size="sm" variant="outline" className="text-xs" onClick={handleExport}>
-              {isFr ? 'Exporter CSV' : 'Export CSV'}
-            </Button>
-            <div className="space-y-1.5">
-              {(entries as any[]).map(e => (
-                <div key={e.id} className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 text-sm">
-                  <Mail className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                  <span className="flex-1 truncate">{e.email}</span>
-                  {e.name && <span className="text-xs text-muted-foreground">{e.name}</span>}
-                  <span className="text-[10px] text-muted-foreground">{new Date(e.created_at).toLocaleDateString(isFr ? 'fr-FR' : 'en-US')}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
   );
 }
