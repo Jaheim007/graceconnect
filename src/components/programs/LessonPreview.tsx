@@ -31,6 +31,15 @@ function extractFirstImageUrl(html: string | null): string | undefined {
   return m?.[1] || undefined;
 }
 
+/** Extract the first image found across all lessons in a module */
+function extractModuleImageUrl(lessons: any[]): string | undefined {
+  for (const lesson of lessons) {
+    const url = extractFirstImageUrl(lesson.content);
+    if (url) return url;
+  }
+  return undefined;
+}
+
 interface FlatSlide {
   lessonId: string;
   lessonTitle: string;
@@ -39,7 +48,7 @@ interface FlatSlide {
   slide: ContentSlide;
   lessonIndex: number;
   slideInLesson: number;
-  lessonImageUrl?: string;
+  moduleImageUrl?: string;
 }
 
 export function LessonPreview({ programId, initialLessonId, onClose }: LessonPreviewProps) {
