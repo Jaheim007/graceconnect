@@ -184,6 +184,7 @@ const AdminWebhooks = lazy(() => import("@/pages/admin/AdminWebhooks"));
 const AdminOfferings = lazy(() => import("@/pages/admin/AdminOfferings"));
 const AdminPrograms = lazy(() => import("@/pages/admin/AdminPrograms"));
 const AdminProgramForm = lazy(() => import("@/pages/admin/AdminProgramForm").then(m => ({ default: m.ProgramForm })));
+const AdminLearnerProgress = lazy(() => import("@/pages/admin/AdminLearnerProgress"));
 const ProgramDetailPage = lazy(() => import("@/pages/ProgramDetailPage"));
 const AdminAnnouncementForm = lazy(() => import("@/pages/admin/AdminAnnouncementForm").then(m => ({ default: m.AnnouncementForm })));
 const AdminEventForm = lazy(() => import("@/pages/admin/AdminEventForm").then(m => ({ default: m.EventForm })));
