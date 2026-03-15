@@ -36,7 +36,7 @@ const TOUR_STEPS = [
 interface EnrolledProgram {
   id: string;
   program_id: string;
-  enrolled_at: string;
+  created_at: string;
   program: {
     id: string;
     title: string;
@@ -66,9 +66,9 @@ export default function ResourcesPage() {
       if (!user) return [];
       const { data, error } = await db
         .from('program_enrollments')
-        .select('id, program_id, enrolled_at, programs(id, title, description, cover_image_url, organization_id, is_free, price)')
+        .select('id, program_id, created_at, programs(id, title, description, cover_image_url, organization_id, is_free, price)')
         .eq('user_id', user.id)
-        .order('enrolled_at', { ascending: false });
+        .order('created_at', { ascending: false });
       if (error) throw error;
       return (data || []).map((row: any) => ({
         ...row,
@@ -254,7 +254,7 @@ export default function ResourcesPage() {
                             {isFr ? 'Gratuit' : 'Free'}
                           </Badge>
                           <span className="text-[10px] text-muted-foreground">
-                            {format(new Date(enrollment.enrolled_at), 'dd MMM yyyy', { locale: dateFnsLocale })}
+                            {format(new Date(enrollment.created_at), 'dd MMM yyyy', { locale: dateFnsLocale })}
                           </span>
                         </div>
                       </div>
