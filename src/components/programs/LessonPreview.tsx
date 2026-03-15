@@ -429,22 +429,27 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
                 </div>
                 {group.lessons.map((lesson: any) => {
                   const isActive = current?.lessonId === lesson.id;
+                  const lessonSlideIdx = allSlides.findIndex(s => s.lessonId === lesson.id && s.slideInLesson === 0);
+                  const isLocked = isLearner && !canGoTo(lessonSlideIdx);
                   return (
                     <button
                       key={lesson.id}
+                      disabled={isLocked}
                       onClick={() => {
-                        const idx = allSlides.findIndex(s => s.lessonId === lesson.id && s.slideInLesson === 0);
-                        if (idx >= 0) setCurrentIndex(idx);
+                        if (lessonSlideIdx >= 0) goToSlide(lessonSlideIdx);
                       }}
                       className={cn(
                         'w-full flex items-center gap-2 px-3 py-2 text-left transition-colors text-xs',
                         isActive
                           ? 'bg-primary/10 text-primary border-l-2 border-primary'
-                          : 'hover:bg-muted/50 text-foreground'
+                          : isLocked
+                            ? 'text-muted-foreground/50 cursor-not-allowed'
+                            : 'hover:bg-muted/50 text-foreground'
                       )}
                     >
                       <span className="flex-1 truncate">{lesson.title}</span>
-                      {lesson.duration && (
+                      {isLocked && <span className="text-[9px]">🔒</span>}
+                      {!isLocked && lesson.duration && (
                         <span className="text-[9px] text-muted-foreground shrink-0">{lesson.duration}m</span>
                       )}
                     </button>
@@ -454,35 +459,44 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
             ))}
 
             {/* Final assessment entry in sidebar */}
-            {allQuizQuestions.length >= 3 && (
-              <div className="py-2 border-t border-border">
-                <div className="px-3 py-1.5">
-                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                    {isFr ? 'Évaluation' : 'Assessment'}
-                  </span>
+            {allQuizQuestions.length >= 3 && (() => {
+              const assessIdx = allSlides.findIndex(s => s.slide.type === 'final-assessment');
+              const isLocked = isLearner && !canGoTo(assessIdx);
+              return (
+                <div className="py-2 border-t border-border">
+                  <div className="px-3 py-1.5">
+                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                      {isFr ? 'Évaluation' : 'Assessment'}
+                    </span>
+                  </div>
+                  <button
+                    disabled={isLocked}
+                    onClick={() => {
+                      if (assessIdx >= 0) goToSlide(assessIdx);
+                    }}
+                    className={cn(
+                      'w-full flex items-center gap-2 px-3 py-2 text-left transition-colors text-xs',
+                      current?.slide.type === 'final-assessment'
+                        ? 'bg-primary/10 text-primary border-l-2 border-primary'
+                        : isLocked
+                          ? 'text-muted-foreground/50 cursor-not-allowed'
+                          : 'hover:bg-muted/50 text-foreground'
+                    )}
+                  >
+                    {isLocked ? <span className="text-[9px]">🔒</span> : <Trophy className="h-3.5 w-3.5 shrink-0" />}
+                    <span className="flex-1 truncate">{isFr ? 'Évaluation finale' : 'Final Assessment'}</span>
+                  </button>
                 </div>
-                <button
-                  onClick={() => {
-                    const idx = allSlides.findIndex(s => s.slide.type === 'final-assessment');
-                    if (idx >= 0) setCurrentIndex(idx);
-                  }}
-                  className={cn(
-                    'w-full flex items-center gap-2 px-3 py-2 text-left transition-colors text-xs',
-                    current?.slide.type === 'final-assessment'
-                      ? 'bg-primary/10 text-primary border-l-2 border-primary'
-                      : 'hover:bg-muted/50 text-foreground'
-                  )}
-                >
-                  <Trophy className="h-3.5 w-3.5 shrink-0" />
-                  <span className="flex-1 truncate">{isFr ? 'Évaluation finale' : 'Final Assessment'}</span>
-                </button>
-              </div>
-            )}
+              );
+            })()}
           </div>
         )}
 
         {/* Viewport */}
-        <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden">
+        <div className={cn(
+          'flex-1 flex items-center justify-center relative overflow-hidden',
+          isLearner ? 'p-0' : 'p-4'
+        )}>
           {currentIndex > 0 && (
             <button
               onClick={goPrev}
@@ -502,10 +516,10 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
 
           <div
             className={cn(
-              'rounded-2xl shadow-2xl border border-border overflow-hidden transition-all duration-300 flex flex-col',
-              deviceMode === 'mobile' && 'rounded-[2rem]'
+              'overflow-hidden transition-all duration-300 flex flex-col',
+              isLearner ? 'w-full h-full' : cn('rounded-2xl shadow-2xl border border-border', deviceMode === 'mobile' && 'rounded-[2rem]')
             )}
-            style={{
+            style={isLearner ? {} : {
               width: deviceStyles[deviceMode].w,
               maxWidth: deviceStyles[deviceMode].maxW,
               height: deviceStyles[deviceMode].h,
@@ -552,8 +566,8 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
           </div>
         </div>
 
-        {/* Customization Panel */}
-        {showCustomizer && current?.slide.type !== 'final-assessment' && current?.slide.type !== 'course-completion' && (
+        {/* Customization Panel - Creator only */}
+        {!isLearner && showCustomizer && current?.slide.type !== 'final-assessment' && current?.slide.type !== 'course-completion' && (
           <SlideCustomizationPanel
             customization={currentCustomization}
             onChange={(c) => setSlideCustomizations(prev => ({ ...prev, [currentIndex]: c }))}
