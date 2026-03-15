@@ -81,6 +81,7 @@ export function LessonPlayerOverlay({ programId, onClose }: LessonPlayerOverlayP
       <LessonPreview
         programId={programId}
         onClose={handleClose}
+        mode="learner"
         headerActions={
           <Button
             variant="ghost"

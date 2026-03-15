@@ -21,6 +21,8 @@ interface LessonPreviewProps {
   initialLessonId?: string;
   onClose?: () => void;
   headerActions?: ReactNode;
+  /** 'creator' shows customization/device tools; 'learner' shows clean player */
+  mode?: 'creator' | 'learner';
 }
 
 type DeviceMode = 'mobile' | 'tablet' | 'desktop';
@@ -52,21 +54,39 @@ interface FlatSlide {
   moduleImageUrl?: string;
 }
 
-export function LessonPreview({ programId, initialLessonId, onClose, headerActions }: LessonPreviewProps) {
+export function LessonPreview({ programId, initialLessonId, onClose, headerActions, mode = 'creator' }: LessonPreviewProps) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const { data: program } = useProgram(programId);
   const { data: modules = [] } = useProgramModules(programId);
+  const isLearner = mode === 'learner';
 
   const [deviceMode, setDeviceMode] = useState<DeviceMode>('desktop');
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showSidebar, setShowSidebar] = useState(true);
-  const [showCustomizer, setShowCustomizer] = useState(true);
+  const [showSidebar, setShowSidebar] = useState(!isLearner || window.innerWidth >= 1024);
+  const [showCustomizer, setShowCustomizer] = useState(!isLearner);
 
   // Per-slide customizations keyed by slide index
   const [slideCustomizations, setSlideCustomizations] = useState<Record<number, SlideCustomization>>({});
   const [starsEarned, setStarsEarned] = useState(0);
   const [gamificationEnabled, setGamificationEnabled] = useState(true);
+
+  // Track the highest slide index the learner has reached (for slide locking)
+  const [maxReachedIndex, setMaxReachedIndex] = useState(0);
+
+  // Auto-detect device mode for learners based on actual viewport
+  useEffect(() => {
+    if (!isLearner) return;
+    const updateDevice = () => {
+      const w = window.innerWidth;
+      if (w < 768) setDeviceMode('mobile');
+      else if (w < 1024) setDeviceMode('tablet');
+      else setDeviceMode('desktop');
+    };
+    updateDevice();
+    window.addEventListener('resize', updateDevice);
+    return () => window.removeEventListener('resize', updateDevice);
+  }, [isLearner]);
   
   // Final assessment state
   const [assessmentScore, setAssessmentScore] = useState<number | undefined>();
@@ -171,8 +191,26 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
     [allSlides]
   );
 
-  const goNext = () => { if (currentIndex < total - 1) setCurrentIndex(i => i + 1); };
+  const canGoTo = (idx: number) => {
+    if (!isLearner) return true;
+    return idx <= maxReachedIndex + 1;
+  };
+
+  const goNext = () => {
+    if (currentIndex < total - 1) {
+      const nextIdx = currentIndex + 1;
+      setCurrentIndex(nextIdx);
+      setMaxReachedIndex(prev => Math.max(prev, nextIdx));
+    }
+  };
   const goPrev = () => { if (currentIndex > 0) setCurrentIndex(i => i - 1); };
+
+  const goToSlide = (idx: number) => {
+    if (canGoTo(idx)) {
+      setCurrentIndex(idx);
+      setMaxReachedIndex(prev => Math.max(prev, idx));
+    }
+  };
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -183,11 +221,14 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
     return () => window.removeEventListener('keydown', handler);
   }, [currentIndex, total]);
 
-  const deviceStyles: Record<DeviceMode, { w: string; maxW: string; h: string }> = {
-    mobile: { w: '375px', maxW: '375px', h: '700px' },
-    tablet: { w: '768px', maxW: '768px', h: '600px' },
-    desktop: { w: '100%', maxW: '960px', h: '560px' },
-  };
+  // For learners, slides fill the viewport; for creators, use device frames
+  const deviceStyles: Record<DeviceMode, { w: string; maxW: string; h: string }> = isLearner
+    ? { mobile: { w: '100%', maxW: '100%', h: '100%' }, tablet: { w: '100%', maxW: '100%', h: '100%' }, desktop: { w: '100%', maxW: '100%', h: '100%' } }
+    : {
+        mobile: { w: '375px', maxW: '375px', h: '700px' },
+        tablet: { w: '768px', maxW: '768px', h: '600px' },
+        desktop: { w: '100%', maxW: '960px', h: '560px' },
+      };
 
   const currentCustomization = slideCustomizations[currentIndex] || DEFAULT_CUSTOMIZATION;
 
@@ -312,53 +353,57 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
           )}
         </div>
 
-        {/* Device toggle + gamification toggle */}
-        <div className="flex items-center gap-3">
-          {/* Gamification toggle */}
-          <div className="flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-yellow-500" />
-            <span className="text-[10px] text-muted-foreground hidden sm:inline">
-              {isFr ? 'Étoiles' : 'Stars'}
-            </span>
-            <Switch 
-              checked={gamificationEnabled} 
-              onCheckedChange={setGamificationEnabled}
-              className="scale-75"
-            />
-          </div>
+        {/* Creator-only: Device toggle + gamification toggle */}
+        {!isLearner && (
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5 text-yellow-500" />
+              <span className="text-[10px] text-muted-foreground hidden sm:inline">
+                {isFr ? 'Étoiles' : 'Stars'}
+              </span>
+              <Switch 
+                checked={gamificationEnabled} 
+                onCheckedChange={setGamificationEnabled}
+                className="scale-75"
+              />
+            </div>
 
-          <div className="flex items-center gap-0.5 bg-muted rounded-lg p-0.5">
-            {([
-              { key: 'mobile' as DeviceMode, Icon: Smartphone },
-              { key: 'tablet' as DeviceMode, Icon: Tablet },
-              { key: 'desktop' as DeviceMode, Icon: Monitor },
-            ]).map(({ key, Icon }) => (
-              <button
-                key={key}
-                onClick={() => setDeviceMode(key)}
-                className={cn(
-                  'p-1.5 rounded-md transition-colors',
-                  deviceMode === key
-                    ? 'bg-background shadow-sm text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                <Icon className="h-4 w-4" />
-              </button>
-            ))}
+            <div className="flex items-center gap-0.5 bg-muted rounded-lg p-0.5">
+              {([
+                { key: 'mobile' as DeviceMode, Icon: Smartphone },
+                { key: 'tablet' as DeviceMode, Icon: Tablet },
+                { key: 'desktop' as DeviceMode, Icon: Monitor },
+              ]).map(({ key, Icon }) => (
+                <button
+                  key={key}
+                  onClick={() => setDeviceMode(key)}
+                  className={cn(
+                    'p-1.5 rounded-md transition-colors',
+                    deviceMode === key
+                      ? 'bg-background shadow-sm text-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="flex items-center gap-1">
           {headerActions}
-          <Button
-            variant={showCustomizer ? 'default' : 'ghost'}
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => setShowCustomizer(!showCustomizer)}
-          >
-            <Settings2 className="h-4 w-4" />
-          </Button>
+          {/* Creator-only: Customizer toggle */}
+          {!isLearner && (
+            <Button
+              variant={showCustomizer ? 'default' : 'ghost'}
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setShowCustomizer(!showCustomizer)}
+            >
+              <Settings2 className="h-4 w-4" />
+            </Button>
+          )}
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowSidebar(!showSidebar)}>
             <List className="h-4 w-4" />
           </Button>
@@ -384,22 +429,27 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
                 </div>
                 {group.lessons.map((lesson: any) => {
                   const isActive = current?.lessonId === lesson.id;
+                  const lessonSlideIdx = allSlides.findIndex(s => s.lessonId === lesson.id && s.slideInLesson === 0);
+                  const isLocked = isLearner && !canGoTo(lessonSlideIdx);
                   return (
                     <button
                       key={lesson.id}
+                      disabled={isLocked}
                       onClick={() => {
-                        const idx = allSlides.findIndex(s => s.lessonId === lesson.id && s.slideInLesson === 0);
-                        if (idx >= 0) setCurrentIndex(idx);
+                        if (lessonSlideIdx >= 0) goToSlide(lessonSlideIdx);
                       }}
                       className={cn(
                         'w-full flex items-center gap-2 px-3 py-2 text-left transition-colors text-xs',
                         isActive
                           ? 'bg-primary/10 text-primary border-l-2 border-primary'
-                          : 'hover:bg-muted/50 text-foreground'
+                          : isLocked
+                            ? 'text-muted-foreground/50 cursor-not-allowed'
+                            : 'hover:bg-muted/50 text-foreground'
                       )}
                     >
                       <span className="flex-1 truncate">{lesson.title}</span>
-                      {lesson.duration && (
+                      {isLocked && <span className="text-[9px]">🔒</span>}
+                      {!isLocked && lesson.duration && (
                         <span className="text-[9px] text-muted-foreground shrink-0">{lesson.duration}m</span>
                       )}
                     </button>
@@ -409,35 +459,44 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
             ))}
 
             {/* Final assessment entry in sidebar */}
-            {allQuizQuestions.length >= 3 && (
-              <div className="py-2 border-t border-border">
-                <div className="px-3 py-1.5">
-                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                    {isFr ? 'Évaluation' : 'Assessment'}
-                  </span>
+            {allQuizQuestions.length >= 3 && (() => {
+              const assessIdx = allSlides.findIndex(s => s.slide.type === 'final-assessment');
+              const isLocked = isLearner && !canGoTo(assessIdx);
+              return (
+                <div className="py-2 border-t border-border">
+                  <div className="px-3 py-1.5">
+                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                      {isFr ? 'Évaluation' : 'Assessment'}
+                    </span>
+                  </div>
+                  <button
+                    disabled={isLocked}
+                    onClick={() => {
+                      if (assessIdx >= 0) goToSlide(assessIdx);
+                    }}
+                    className={cn(
+                      'w-full flex items-center gap-2 px-3 py-2 text-left transition-colors text-xs',
+                      current?.slide.type === 'final-assessment'
+                        ? 'bg-primary/10 text-primary border-l-2 border-primary'
+                        : isLocked
+                          ? 'text-muted-foreground/50 cursor-not-allowed'
+                          : 'hover:bg-muted/50 text-foreground'
+                    )}
+                  >
+                    {isLocked ? <span className="text-[9px]">🔒</span> : <Trophy className="h-3.5 w-3.5 shrink-0" />}
+                    <span className="flex-1 truncate">{isFr ? 'Évaluation finale' : 'Final Assessment'}</span>
+                  </button>
                 </div>
-                <button
-                  onClick={() => {
-                    const idx = allSlides.findIndex(s => s.slide.type === 'final-assessment');
-                    if (idx >= 0) setCurrentIndex(idx);
-                  }}
-                  className={cn(
-                    'w-full flex items-center gap-2 px-3 py-2 text-left transition-colors text-xs',
-                    current?.slide.type === 'final-assessment'
-                      ? 'bg-primary/10 text-primary border-l-2 border-primary'
-                      : 'hover:bg-muted/50 text-foreground'
-                  )}
-                >
-                  <Trophy className="h-3.5 w-3.5 shrink-0" />
-                  <span className="flex-1 truncate">{isFr ? 'Évaluation finale' : 'Final Assessment'}</span>
-                </button>
-              </div>
-            )}
+              );
+            })()}
           </div>
         )}
 
         {/* Viewport */}
-        <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden">
+        <div className={cn(
+          'flex-1 flex items-center justify-center relative overflow-hidden',
+          isLearner ? 'p-0' : 'p-4'
+        )}>
           {currentIndex > 0 && (
             <button
               onClick={goPrev}
@@ -457,10 +516,10 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
 
           <div
             className={cn(
-              'rounded-2xl shadow-2xl border border-border overflow-hidden transition-all duration-300 flex flex-col',
-              deviceMode === 'mobile' && 'rounded-[2rem]'
+              'overflow-hidden transition-all duration-300 flex flex-col',
+              isLearner ? 'w-full h-full' : cn('rounded-2xl shadow-2xl border border-border', deviceMode === 'mobile' && 'rounded-[2rem]')
             )}
-            style={{
+            style={isLearner ? {} : {
               width: deviceStyles[deviceMode].w,
               maxWidth: deviceStyles[deviceMode].maxW,
               height: deviceStyles[deviceMode].h,
@@ -507,8 +566,8 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
           </div>
         </div>
 
-        {/* Customization Panel */}
-        {showCustomizer && current?.slide.type !== 'final-assessment' && current?.slide.type !== 'course-completion' && (
+        {/* Customization Panel - Creator only */}
+        {!isLearner && showCustomizer && current?.slide.type !== 'final-assessment' && current?.slide.type !== 'course-completion' && (
           <SlideCustomizationPanel
             customization={currentCustomization}
             onChange={(c) => setSlideCustomizations(prev => ({ ...prev, [currentIndex]: c }))}
