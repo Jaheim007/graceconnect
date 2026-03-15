@@ -264,7 +264,7 @@ IMPORTANT:
         if (!parsed) {
           console.warn('[ai-generate-course] Primary output malformed, retrying with compact constraints');
           const retryPrompt = `${userPrompt}\n\nRETRY MODE (MANDATORY):\n- Return STRICT valid JSON only.\n- Keep response compact to avoid truncation.\n- EXACTLY 2 lessons per module.\n- EXACTLY 2 sections per lesson.\n- EXACTLY 1 quiz comment per lesson.\n- EXACTLY 6 final assessment questions.`;
-          const retryData = await requestCourseCompletion(retryPrompt, 7_000);
+          const retryData = await requestCourseCompletion(retryPrompt, 5_500, 40_000);
           const retryContent = retryData.choices?.[0]?.message?.content || '';
           parsed = tryParseCourseJson(retryContent);
 
