@@ -192,9 +192,17 @@ IMPORTANT:
           ? 'google/gemini-2.5-pro'
           : 'google/gemini-2.5-flash';
 
-        const requestCourseCompletion = async (promptText: string, maxTokens: number) => {
+        const requestCourseCompletion = async (promptText: string, maxTokens: number, preferredTimeoutMs: number) => {
+          const budgetMs = remainingBudgetMs();
+          const safeTimeoutMs = Math.min(preferredTimeoutMs, Math.max(15_000, budgetMs - 8_000));
+          if (safeTimeoutMs <= 15_000) {
+            const err = new Error('Server timeout budget reached. Please retry with a shorter prompt.');
+            (err as any).status = 504;
+            throw err;
+          }
+
           const aiController = new AbortController();
-          const aiTimeout = setTimeout(() => aiController.abort(), 95_000);
+          const aiTimeout = setTimeout(() => aiController.abort(), safeTimeoutMs);
 
           try {
             const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
