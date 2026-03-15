@@ -296,7 +296,7 @@ export function ProgramForm() {
               className="h-8 text-sm font-semibold border-none bg-transparent px-1 hover:bg-muted/50 focus:bg-muted/50 transition-colors max-w-[280px]"
             />
             <Badge variant={isPublished ? 'default' : 'secondary'} className="text-[9px] shrink-0">
-              {isPublished ? (isFr ? 'Publié' : 'Live') : (isFr ? 'Brouillon' : 'Draft')}
+              {isPublished ? (isFr ? 'Publié' : 'Published') : (isFr ? 'Brouillon' : 'Draft')}
             </Badge>
           </div>
         </div>
