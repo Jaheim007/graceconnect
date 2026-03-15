@@ -52,7 +52,7 @@ interface FlatSlide {
   moduleImageUrl?: string;
 }
 
-export function LessonPreview({ programId, initialLessonId, onClose }: LessonPreviewProps) {
+export function LessonPreview({ programId, initialLessonId, onClose, headerActions }: LessonPreviewProps) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const { data: program } = useProgram(programId);
