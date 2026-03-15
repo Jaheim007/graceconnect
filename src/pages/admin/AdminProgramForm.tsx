@@ -258,6 +258,7 @@ export function ProgramForm() {
           <div className="hidden sm:flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
             {[
               { key: 'edit', label: isFr ? 'Éditer' : 'Edit' },
+              { key: 'preview', label: isFr ? 'Aperçu' : 'Preview' },
               { key: 'settings', label: isFr ? 'Paramètres' : 'Set up' },
               { key: 'publish', label: isFr ? 'Publier' : 'Publish' },
             ].map(tab => (
