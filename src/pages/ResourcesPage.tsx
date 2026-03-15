@@ -254,7 +254,7 @@ export default function ResourcesPage() {
                             {isFr ? 'Gratuit' : 'Free'}
                           </Badge>
                           <span className="text-[10px] text-muted-foreground">
-                            {format(new Date(enrollment.enrolled_at), 'dd MMM yyyy', { locale: dateFnsLocale })}
+                            {format(new Date(enrollment.created_at), 'dd MMM yyyy', { locale: dateFnsLocale })}
                           </span>
                         </div>
                       </div>
