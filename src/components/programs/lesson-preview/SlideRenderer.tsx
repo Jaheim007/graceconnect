@@ -26,9 +26,9 @@ const captionClasses: Record<CaptionStyle, string> = {
 };
 
 const captionPositionClasses: Record<CaptionPosition, string> = {
-  top: 'justify-start',
-  middle: 'justify-center',
-  bottom: 'justify-end',
+  top: 'justify-start pt-4',
+  middle: 'justify-center items-center',
+  bottom: 'justify-end pb-4',
 };
 
 const imagePositionClasses: Record<ImagePosition, string> = {
