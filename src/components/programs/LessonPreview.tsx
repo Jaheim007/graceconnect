@@ -54,21 +54,39 @@ interface FlatSlide {
   moduleImageUrl?: string;
 }
 
-export function LessonPreview({ programId, initialLessonId, onClose, headerActions }: LessonPreviewProps) {
+export function LessonPreview({ programId, initialLessonId, onClose, headerActions, mode = 'creator' }: LessonPreviewProps) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const { data: program } = useProgram(programId);
   const { data: modules = [] } = useProgramModules(programId);
+  const isLearner = mode === 'learner';
 
   const [deviceMode, setDeviceMode] = useState<DeviceMode>('desktop');
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showSidebar, setShowSidebar] = useState(true);
-  const [showCustomizer, setShowCustomizer] = useState(true);
+  const [showSidebar, setShowSidebar] = useState(!isLearner || window.innerWidth >= 1024);
+  const [showCustomizer, setShowCustomizer] = useState(!isLearner);
 
   // Per-slide customizations keyed by slide index
   const [slideCustomizations, setSlideCustomizations] = useState<Record<number, SlideCustomization>>({});
   const [starsEarned, setStarsEarned] = useState(0);
   const [gamificationEnabled, setGamificationEnabled] = useState(true);
+
+  // Track the highest slide index the learner has reached (for slide locking)
+  const [maxReachedIndex, setMaxReachedIndex] = useState(0);
+
+  // Auto-detect device mode for learners based on actual viewport
+  useEffect(() => {
+    if (!isLearner) return;
+    const updateDevice = () => {
+      const w = window.innerWidth;
+      if (w < 768) setDeviceMode('mobile');
+      else if (w < 1024) setDeviceMode('tablet');
+      else setDeviceMode('desktop');
+    };
+    updateDevice();
+    window.addEventListener('resize', updateDevice);
+    return () => window.removeEventListener('resize', updateDevice);
+  }, [isLearner]);
   
   // Final assessment state
   const [assessmentScore, setAssessmentScore] = useState<number | undefined>();
