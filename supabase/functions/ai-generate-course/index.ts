@@ -301,6 +301,11 @@ IMPORTANT:
 
       const worker = async () => {
         while (!creditsExhausted) {
+          if (remainingBudgetMs() <= IMAGE_MIN_REMAINING_MS) {
+            console.warn('[ai-generate-course] Skipping remaining image jobs to avoid edge timeout');
+            return;
+          }
+
           const idx = nextJob++;
           if (idx >= imageJobs.length) return;
 
@@ -327,10 +332,16 @@ IMPORTANT:
           }
 
           try {
+            const budgetMs = remainingBudgetMs();
+            if (budgetMs <= IMAGE_MIN_REMAINING_MS) {
+              throw new Error('Not enough time remaining for image generation');
+            }
+
+            const imageTimeoutMs = Math.min(30_000, Math.max(12_000, budgetMs - 10_000));
             const { base64, mimeType } = await aiGenerateImageBase64({
               geminiKey: GEMINI_API_KEY || '',
               prompt: `Professional educational illustration: ${imagePrompt}. Clean, modern, flat design style. No text in the image.`,
-              timeoutMs: 45_000,
+              timeoutMs: imageTimeoutMs,
             });
 
             const ext = imageExtFromMime(mimeType);
@@ -348,7 +359,25 @@ IMPORTANT:
 
             lesson.content = `<div class="lesson-hero-image"><img src="${imageUrl}" alt="${lesson.title}" loading="lazy" style="width:100%;border-radius:12px;margin-bottom:16px;" /></div>${lesson.content}`;
             imagesGenerated++;
-          } catch (imgErr) {
+          } catch (imgErr: any) {
+            if (String(imgErr?.message || '').includes('Not enough time remaining')) {
+              console.warn('[ai-generate-course] Time budget reached during image generation, returning partial images');
+              if (imgDebited > 0) {
+                try {
+                  await refundCreditsAsBonus({
+                    admin,
+                    userId,
+                    amount: imgDebited,
+                    source: 'ai_course_image',
+                    expiresInDays: 30,
+                  });
+                } catch (_) {
+                  // no-op
+                }
+              }
+              return;
+            }
+
             console.error(`[ai-generate-course] Image gen error for "${lesson.title}":`, imgErr);
             if (imgDebited > 0) {
               try {
