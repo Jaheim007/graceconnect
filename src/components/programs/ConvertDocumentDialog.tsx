@@ -6,15 +6,19 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
+import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
-import { Sparkles, ArrowRight, Upload, Loader2, FileText } from 'lucide-react';
+import { Sparkles, ArrowRight, Loader2, FileText } from 'lucide-react';
 
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreated: (programId: string) => void;
 }
+
+type AITier = 'standard' | 'premium';
+const SUPPORTED_EXTENSIONS = ['pdf', 'doc', 'docx', 'ppt', 'pptx'];
 
 export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) {
   const { locale } = useI18n();
@@ -25,8 +29,12 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
   const { handleAiError, refreshCredits } = useCreditGuard();
 
   const [file, setFile] = useState<File | null>(null);
+  const [tier, setTier] = useState<AITier>('standard');
   const [converting, setConverting] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  const standardCost = useActionCost('ai_course_structure', 'standard');
+  const premiumCost = useActionCost('ai_course_structure', 'premium');
 
   const createProgram = useCreateProgram();
   const createModule = useCreateModule();
@@ -42,21 +50,38 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
     setConverting(true);
 
     try {
-      // Upload file to storage
-      const ext = file.name.split('.').pop();
-      const path = `doc-convert/${currentOrg.id}/${Date.now()}.${ext}`;
+      const ext = file.name.split('.').pop()?.toLowerCase();
+      if (!ext || !SUPPORTED_EXTENSIONS.includes(ext)) {
+        throw new Error(
+          isFr
+            ? 'Format non supporté. Utilisez PDF, Word (.doc/.docx) ou PowerPoint (.ppt/.pptx).'
+            : 'Unsupported format. Use PDF, Word (.doc/.docx), or PowerPoint (.ppt/.pptx).',
+        );
+      }
+
+      const path = `doc-convert/${currentOrg.id}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
       const { error: upErr } = await supabase.storage.from('media').upload(path, file);
       if (upErr) throw upErr;
 
       const { data: urlData } = supabase.storage.from('media').getPublicUrl(path);
 
-      // Use AI to convert document into course structure
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        throw new Error(isFr ? 'Session expirée. Reconnectez-vous puis réessayez.' : 'Session expired. Please log in again and retry.');
+      }
+
       const { data, error } = await supabase.functions.invoke('ai-generate-course', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: {
           title: file.name.replace(/\.[^.]+$/, ''),
-          description: `Convert this document into a structured course. Document URL: ${urlData.publicUrl}`,
+          description: `Convert this ${ext.toUpperCase()} document into a structured course with modules and lessons. Document URL: ${urlData.publicUrl}`,
           language: isFr ? 'fr' : 'en',
-          tier: 'standard',
+          tier,
           module_count: 5,
         },
       });
@@ -113,6 +138,8 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
     }
   };
 
+  const selectedCost = tier === 'premium' ? premiumCost : standardCost;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
@@ -121,7 +148,6 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
         </DialogHeader>
 
         <div className="grid grid-cols-2 gap-3 pt-4">
-          {/* AI conversion */}
           <button
             type="button"
             onClick={() => fileRef.current?.click()}
@@ -134,13 +160,12 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
               <p className="text-sm font-semibold">{isFr ? 'Conversion IA' : 'AI conversion'}</p>
               <p className="text-[11px] text-muted-foreground mt-1">
                 {isFr
-                  ? 'Transforme le contenu texte en cours structuré avec modules et leçons'
-                  : 'Transform text content into a structured course with modules and lessons'}
+                  ? 'Convertit PDF, Word ou PowerPoint en cours structuré.'
+                  : 'Converts PDF, Word, or PowerPoint into a structured course.'}
               </p>
             </div>
           </button>
 
-          {/* Direct conversion (coming soon) */}
           <div className="flex flex-col items-center gap-3 p-6 rounded-xl border border-border bg-muted/20 text-center opacity-60">
             <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center">
               <ArrowRight className="h-6 w-6 text-muted-foreground" />
@@ -154,11 +179,38 @@ export function ConvertDocumentDialog({ open, onOpenChange, onCreated }: Props) 
           </div>
         </div>
 
+        <div className="space-y-2 pt-2">
+          <p className="text-xs text-muted-foreground">{isFr ? 'Type de génération IA' : 'AI generation type'}</p>
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              type="button"
+              variant={tier === 'standard' ? 'default' : 'outline'}
+              onClick={() => setTier('standard')}
+              disabled={converting}
+            >
+              {isFr ? 'Standard' : 'Standard'}
+              <span className="ml-1 text-xs opacity-90">({standardCost ?? 8} {isFr ? 'crédits' : 'credits'})</span>
+            </Button>
+            <Button
+              type="button"
+              variant={tier === 'premium' ? 'default' : 'outline'}
+              onClick={() => setTier('premium')}
+              disabled={converting}
+            >
+              {isFr ? 'Premium' : 'Premium'}
+              <span className="ml-1 text-xs opacity-90">({premiumCost ?? 15} {isFr ? 'crédits' : 'credits'})</span>
+            </Button>
+          </div>
+          <p className="text-[11px] text-muted-foreground">
+            {isFr ? 'Coût estimé' : 'Estimated cost'}: <span className="font-medium text-foreground">{selectedCost ?? (tier === 'premium' ? 15 : 8)} {isFr ? 'crédits' : 'credits'}</span>
+          </p>
+        </div>
+
         <input
           ref={fileRef}
           type="file"
           className="hidden"
-          accept=".pdf,.doc,.docx,.ppt,.pptx,.txt"
+          accept=".pdf,.doc,.docx,.ppt,.pptx"
           onChange={handleFileSelect}
         />
 
