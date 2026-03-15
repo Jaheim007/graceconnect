@@ -1,5 +1,7 @@
 import { cn } from '@/lib/utils';
-import { ContentSlide, getSlideGradient } from './parseContentSlides';
+import { ContentSlide } from './parseContentSlides';
+import { getSlideTheme } from './slideThemes';
+import { SlideDecoration } from './SlideDecorations';
 import type { SlideCustomization, CaptionStyle, CaptionPosition, ImagePosition } from './SlideCustomizationPanel';
 
 interface SlideRendererProps {
@@ -44,23 +46,22 @@ export function SlideRenderer({
   deviceMode,
   customization,
 }: SlideRendererProps) {
-  const gradient = getSlideGradient(slideIndex);
+  const theme = getSlideTheme(slideIndex);
   const isMobile = deviceMode === 'mobile';
   const c = customization;
 
-  const bgStyle: React.CSSProperties = c?.bgColor
-    ? { background: c.bgColor }
-    : {};
-
+  const bgStyle: React.CSSProperties = c?.bgColor ? { background: c.bgColor } : {};
   const hasBgImage = !!c?.bgImageUrl;
   const layout = c?.layout || 'text-only';
   const captionStyle = c?.captionStyle || 'default';
   const captionPos = c?.captionPosition || 'bottom';
   const imgPos = c?.imagePosition || 'middle';
 
-  // Header bar (shared across all slide types)
+  // Use theme gradient when no custom bg
+  const gradientClass = !c?.bgColor ? `bg-gradient-to-br ${theme.gradient}` : '';
+
   const Header = () => (
-    <div className="flex items-center gap-2.5 px-5 py-3 relative z-20 border-b border-white/10">
+    <div className="flex items-center gap-2.5 px-5 py-3 relative z-20">
       {orgLogoUrl ? (
         <img src={orgLogoUrl} alt="" className="h-7 w-7 rounded-full object-cover ring-2 ring-white/20" />
       ) : (
@@ -75,31 +76,23 @@ export function SlideRenderer({
     </div>
   );
 
-  // Decorative swirl (like EdApp reference)
-  const Swirl = () => (
-    <svg className="absolute inset-0 w-full h-full pointer-events-none z-[1] opacity-20" viewBox="0 0 800 600" fill="none">
-      <path
-        d="M400 -50 C 500 100, 200 200, 450 350 S 300 500, 400 650"
-        stroke="currentColor"
-        strokeWidth="60"
-        className="text-primary/40"
-        strokeLinecap="round"
-      />
-    </svg>
+  // Accent line using theme color
+  const AccentLine = ({ className }: { className?: string }) => (
+    <div
+      className={cn('h-0.5 rounded-full opacity-50 mb-4', className)}
+      style={{ background: theme.accentColor, width: '3rem' }}
+    />
   );
 
   // ── Title Card ──
   if (slide.type === 'title-card') {
     return (
-      <div
-        className={cn('h-full flex flex-col text-white relative overflow-hidden', !c?.bgColor && `bg-gradient-to-br ${gradient}`)}
-        style={bgStyle}
-      >
+      <div className={cn('h-full flex flex-col text-white relative overflow-hidden', gradientClass)} style={bgStyle}>
         {hasBgImage && (
           <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} />
         )}
         {hasBgImage && <div className="absolute inset-0 bg-black/50 z-[1]" />}
-        <Swirl />
+        <SlideDecoration theme={theme} />
         <Header />
 
         <div className={cn('flex-1 flex flex-col px-6 relative z-10', captionPositionClasses[captionPos])}>
@@ -107,9 +100,9 @@ export function SlideRenderer({
             'rounded-xl px-6 py-8 max-w-lg',
             captionStyle === 'transparent-light' || captionStyle === 'transparent-dark'
               ? captionClasses[captionStyle]
-              : captionClasses[captionStyle] + ' shadow-2xl'
+              : cn(captionClasses[captionStyle], 'shadow-2xl', theme.captionGlow)
           )}>
-            <div className="w-12 h-0.5 bg-current opacity-30 mb-4" />
+            <AccentLine />
             <h1 className={cn('font-bold leading-tight mb-2', isMobile ? 'text-2xl' : 'text-3xl')}>
               {lessonTitle}
             </h1>
@@ -124,16 +117,16 @@ export function SlideRenderer({
 
   // ── Content Slides ──
 
-  // Layout: Image Cover (full bg image with text overlay)
+  // Layout: Image Cover
   if (layout === 'image-cover' && hasBgImage) {
     return (
       <div className="h-full flex flex-col text-white relative overflow-hidden" style={bgStyle}>
         <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} />
         <div className="absolute inset-0 bg-black/60 z-[1]" />
-        <Swirl />
+        <SlideDecoration theme={theme} />
         <Header />
         <div className={cn('flex-1 flex flex-col relative z-10 px-6', captionPositionClasses[captionPos])}>
-          <div className={cn('rounded-xl px-5 py-6 max-w-lg', captionClasses[captionStyle])}>
+          <div className={cn('rounded-xl px-5 py-6 max-w-lg', captionClasses[captionStyle], theme.captionGlow)}>
             {slide.heading && <h2 className={cn('font-bold leading-snug mb-3', isMobile ? 'text-xl' : 'text-2xl')}>{slide.heading}</h2>}
             {slide.bodyHtml && (
               <div className="prose prose-sm max-w-none prose-headings:font-bold prose-p:leading-relaxed prose-li:leading-relaxed"
@@ -145,19 +138,17 @@ export function SlideRenderer({
     );
   }
 
-  // Layout: Split (image left/right)
+  // Layout: Split
   if ((layout === 'split' || layout === 'image-left' || layout === 'image-right') && hasBgImage) {
     const imgFirst = layout !== 'image-right';
     return (
-      <div className={cn('h-full flex flex-col text-white relative overflow-hidden', !c?.bgColor && `bg-gradient-to-br ${gradient}`)} style={bgStyle}>
-        <Swirl />
+      <div className={cn('h-full flex flex-col text-white relative overflow-hidden', gradientClass)} style={bgStyle}>
+        <SlideDecoration theme={theme} />
         <Header />
         <div className={cn('flex-1 flex relative z-10 min-h-0', isMobile ? 'flex-col' : imgFirst ? 'flex-row' : 'flex-row-reverse')}>
-          {/* Image half */}
           <div className={cn('relative', isMobile ? 'h-1/3' : 'w-1/2')}>
             <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover', imagePositionClasses[imgPos])} />
           </div>
-          {/* Text half */}
           <div className={cn('flex flex-col p-5', isMobile ? 'flex-1 overflow-y-auto' : 'w-1/2 overflow-y-auto', captionPositionClasses[captionPos])}>
             <div className={cn('rounded-xl px-4 py-5', captionClasses[captionStyle])}>
               {slide.heading && <h2 className={cn('font-bold leading-snug mb-3', isMobile ? 'text-lg' : 'text-2xl')}>{slide.heading}</h2>}
@@ -175,8 +166,8 @@ export function SlideRenderer({
   // Layout: Image Top
   if (layout === 'image-top' && hasBgImage) {
     return (
-      <div className={cn('h-full flex flex-col text-white relative overflow-hidden', !c?.bgColor && `bg-gradient-to-br ${gradient}`)} style={bgStyle}>
-        <Swirl />
+      <div className={cn('h-full flex flex-col text-white relative overflow-hidden', gradientClass)} style={bgStyle}>
+        <SlideDecoration theme={theme} />
         <Header />
         <div className="relative h-2/5 shrink-0 z-10">
           <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover', imagePositionClasses[imgPos])} />
@@ -194,17 +185,14 @@ export function SlideRenderer({
     );
   }
 
-  // Default: Text-only (or fallback)
+  // Default: Text-only — with auto-rotating theme decorations & accent colors
   return (
-    <div
-      className={cn('h-full flex flex-col text-white relative overflow-hidden', !c?.bgColor && `bg-gradient-to-br ${gradient}`)}
-      style={bgStyle}
-    >
+    <div className={cn('h-full flex flex-col text-white relative overflow-hidden', gradientClass)} style={bgStyle}>
       {hasBgImage && (
         <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} />
       )}
       {hasBgImage && <div className="absolute inset-0 bg-black/50 z-[1]" />}
-      <Swirl />
+      <SlideDecoration theme={theme} />
       <Header />
 
       <div className={cn('flex-1 flex flex-col overflow-y-auto relative z-10', isMobile ? 'px-5 py-4' : 'px-8 py-6', captionPositionClasses[captionPos])}>
@@ -212,11 +200,11 @@ export function SlideRenderer({
           'rounded-xl max-w-2xl w-full',
           captionStyle === 'transparent-light' || captionStyle === 'transparent-dark'
             ? cn(captionClasses[captionStyle], 'px-1 py-1')
-            : cn(captionClasses[captionStyle], 'px-6 py-5 shadow-xl')
+            : cn(captionClasses[captionStyle], 'px-6 py-5 shadow-xl', theme.captionGlow)
         )}>
           {slide.heading && (
             <div className="mb-4">
-              <div className="w-10 h-0.5 bg-current opacity-30 mb-3" />
+              <AccentLine />
               <h2 className={cn('font-bold leading-snug', isMobile ? 'text-xl' : 'text-2xl')}>{slide.heading}</h2>
             </div>
           )}
