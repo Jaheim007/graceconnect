@@ -1,0 +1,2 @@
+INSERT INTO public.credit_lots (user_id, initial_amount, remaining, lot_type, source, is_expired, granted_at, expires_at)
+VALUES ('c073d267-b5ed-45e2-a5df-80dc6ab7d830', 150, 150, 'purchased', 'admin_grant_manual', false, now(), NULL);
