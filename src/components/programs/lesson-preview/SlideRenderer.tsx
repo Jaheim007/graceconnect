@@ -1,8 +1,10 @@
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { ContentSlide } from './parseContentSlides';
 import { getSlideTheme } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
 import { QuizSlide } from './QuizSlide';
+import { ChevronDown } from 'lucide-react';
 import type { SlideCustomization, CaptionStyle, CaptionPosition, ImagePosition } from './SlideCustomizationPanel';
 
 interface SlideRendererProps {
