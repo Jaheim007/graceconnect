@@ -251,17 +251,30 @@ IMPORTANT:
     let imagesGenerated = 0;
     if (generate_images && result?.modules) {
       const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
-      
+
+      const imageJobs: Array<{ lesson: any; imagePrompt: string }> = [];
       for (const mod of result.modules) {
         for (const lesson of (mod.lessons || [])) {
-          const imagePrompt = lesson.image_prompt;
-          if (!imagePrompt) continue;
+          if (lesson?.image_prompt) imageJobs.push({ lesson, imagePrompt: lesson.image_prompt });
+        }
+      }
+
+      let nextJob = 0;
+      let creditsExhausted = false;
+
+      const worker = async () => {
+        while (!creditsExhausted) {
+          const idx = nextJob++;
+          if (idx >= imageJobs.length) return;
+
+          const { lesson, imagePrompt } = imageJobs[idx];
 
           // Debit credits per image
           let imgDebited = 0;
           try {
             const debitResult = await consumeCreditsOrThrow({
-              admin, userId,
+              admin,
+              userId,
               actionKey: 'ai_course_image',
               tier: creditTier,
               metadata: { lesson_title: lesson.title },
@@ -269,8 +282,9 @@ IMPORTANT:
             if (!('skipped' in debitResult)) imgDebited = debitResult.debited;
           } catch (e: any) {
             if (e?.status === 402) {
+              creditsExhausted = true;
               console.warn(`[ai-generate-course] Credits exhausted for images at lesson "${lesson.title}"`);
-              break;
+              return;
             }
             throw e;
           }
@@ -279,28 +293,45 @@ IMPORTANT:
             const { base64, mimeType } = await aiGenerateImageBase64({
               geminiKey: GEMINI_API_KEY || '',
               prompt: `Professional educational illustration: ${imagePrompt}. Clean, modern, flat design style. No text in the image.`,
-              timeoutMs: 60_000,
+              timeoutMs: 45_000,
             });
 
-            // Convert to data URL for inline use (stored in lesson content)
-            const ext = mimeType.includes('jpeg') ? 'jpg' : 'png';
-            const dataUrl = `data:${mimeType};base64,${base64}`;
-            
-            // Prepend image to lesson content
-            lesson.content = `<div class="lesson-hero-image"><img src="${dataUrl}" alt="${lesson.title}" style="width:100%;border-radius:12px;margin-bottom:16px;" /></div>${lesson.content}`;
-            imagesGenerated++;
+            const ext = imageExtFromMime(mimeType);
+            const imagePath = `ai/courses/${userId}/${crypto.randomUUID()}.${ext}`;
+            const bytes = decodeBase64(base64);
 
-            // Rate limit protection
-            await new Promise(r => setTimeout(r, 2000));
+            const { error: uploadErr } = await admin.storage
+              .from(IMAGE_BUCKET)
+              .upload(imagePath, bytes, { contentType: mimeType, upsert: false });
+            if (uploadErr) throw uploadErr;
+
+            const { data: publicUrlData } = admin.storage.from(IMAGE_BUCKET).getPublicUrl(imagePath);
+            const imageUrl = publicUrlData?.publicUrl;
+            if (!imageUrl) throw new Error('Image upload succeeded but no public URL was returned');
+
+            lesson.content = `<div class="lesson-hero-image"><img src="${imageUrl}" alt="${lesson.title}" loading="lazy" style="width:100%;border-radius:12px;margin-bottom:16px;" /></div>${lesson.content}`;
+            imagesGenerated++;
           } catch (imgErr) {
             console.error(`[ai-generate-course] Image gen error for "${lesson.title}":`, imgErr);
             if (imgDebited > 0) {
-              try { await refundCreditsAsBonus({ admin, userId, amount: imgDebited, source: 'ai_course_image', expiresInDays: 30 }); } catch (_) {}
+              try {
+                await refundCreditsAsBonus({
+                  admin,
+                  userId,
+                  amount: imgDebited,
+                  source: 'ai_course_image',
+                  expiresInDays: 30,
+                });
+              } catch (_) {
+                // no-op
+              }
             }
-            continue;
           }
         }
-      }
+      };
+
+      const workerCount = Math.min(IMAGE_GEN_CONCURRENCY, imageJobs.length || 1);
+      await Promise.all(Array.from({ length: workerCount }, () => worker()));
     }
 
     return jsonResp({ ok: true, ...result, images_generated: imagesGenerated });
