@@ -220,3 +220,9 @@ verify_jwt = false
 
 [functions.ai-generate-course]
 verify_jwt = false
+
+[functions.ai-course-help]
+verify_jwt = false
+
+[functions.ai-generate-course-cover]
+verify_jwt = false
