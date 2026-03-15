@@ -179,10 +179,10 @@ export function LessonEditor({ lessonId, programId, onBack, embedded = false }: 
 
   const contentType = (lesson as any)?.content_type || 'text';
 
-  return (
-    <AdminPageShell title={isFr ? 'Éditeur de leçon' : 'Lesson editor'} backRoute="/admin/programs">
-      <div className="space-y-4 max-w-4xl">
-        {/* Header */}
+  const editorContent = (
+    <div className={cn("space-y-4", embedded ? "p-5" : "max-w-4xl")}>
+      {/* Header */}
+      {!embedded && (
         <div className="flex items-center justify-between">
           <Button variant="ghost" size="sm" onClick={onBack} className="gap-1.5 text-xs">
             <ArrowLeft className="h-3.5 w-3.5" /> {isFr ? 'Retour au programme' : 'Back to program'}
@@ -192,6 +192,7 @@ export function LessonEditor({ lessonId, programId, onBack, embedded = false }: 
             {isFr ? 'Enregistrer' : 'Save'}
           </Button>
         </div>
+      )}
 
         {/* Title & meta */}
         <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
