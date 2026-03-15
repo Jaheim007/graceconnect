@@ -146,20 +146,41 @@ IMPORTANT:
 - Include a final_assessment with 8-12 comprehensive questions covering the entire course.
 - Make it feel interactive, engaging, and gamified like Duolingo or EdApp.`;
 
-        const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: creditTier === 'premium' ? 'google/gemini-2.5-pro' : 'google/gemini-2.5-flash',
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: userPrompt },
-            ],
-          }),
-        });
+        const model = creditTier === 'premium' && !generate_images
+          ? 'google/gemini-2.5-pro'
+          : 'google/gemini-2.5-flash';
+
+        const aiController = new AbortController();
+        const aiTimeout = setTimeout(() => aiController.abort(), 95_000);
+
+        let aiResponse: Response;
+        try {
+          aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${LOVABLE_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model,
+              max_tokens: 7000,
+              messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userPrompt },
+              ],
+            }),
+            signal: aiController.signal,
+          });
+        } catch (fetchErr: any) {
+          if (fetchErr?.name === 'AbortError') {
+            const err = new Error('AI generation timed out. Please retry.');
+            (err as any).status = 504;
+            throw err;
+          }
+          throw fetchErr;
+        } finally {
+          clearTimeout(aiTimeout);
+        }
 
         if (!aiResponse.ok) {
           const errText = await aiResponse.text();
@@ -172,6 +193,11 @@ IMPORTANT:
           if (aiResponse.status === 402) {
             const err = new Error('AI credits exhausted');
             (err as any).status = 402;
+            throw err;
+          }
+          if (aiResponse.status >= 500) {
+            const err = new Error('AI provider temporarily unavailable. Please retry.');
+            (err as any).status = 502;
             throw err;
           }
           throw new Error('AI generation failed');
