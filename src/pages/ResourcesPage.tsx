@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Download, ExternalLink, ShoppingBag, FileText, Link2, Music, BookOpen, Eye,
-  Star, Package, Receipt,
+  Star, Package, Receipt, GraduationCap, Play, X,
 } from 'lucide-react';
 import { downloadInvoice } from '@/lib/invoice';
 import { format } from 'date-fns';
@@ -20,6 +20,7 @@ import { PageTour } from '@/components/onboarding/PageTour';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
+import { LessonPreview } from '@/components/programs/LessonPreview';
 
 const typeIcons: Record<string, React.ReactNode> = {
   pdf: <FileText className="h-4 w-4" />,
@@ -32,6 +33,21 @@ const TOUR_STEPS = [
   { titleKey: 'tour.purchases_1_title', descKey: 'tour.purchases_1_desc', icon: <ShoppingBag className="h-4 w-4" /> },
 ];
 
+interface EnrolledProgram {
+  id: string;
+  program_id: string;
+  enrolled_at: string;
+  program: {
+    id: string;
+    title: string;
+    description: string | null;
+    cover_image_url: string | null;
+    organization_id: string;
+    is_free: boolean | null;
+    price: number | null;
+  };
+}
+
 export default function ResourcesPage() {
   const { data: purchases, isLoading } = useMyPurchases();
   const { user } = useAuth();
@@ -39,10 +55,34 @@ export default function ResourcesPage() {
   const { t, locale } = useI18n();
   const navigate = useNavigate();
   const [downloading, setDownloading] = useState<string | null>(null);
+  const [activeCourseId, setActiveCourseId] = useState<string | null>(null);
   const dateFnsLocale = locale === 'fr' ? fr : enUS;
+  const isFr = locale === 'fr';
 
-  // Fetch org names for grouping
-  const orgIds = [...new Set(purchases?.map(p => p.product.organization_id) || [])];
+  // Fetch enrolled programs
+  const { data: enrolledPrograms = [], isLoading: loadingPrograms } = useQuery({
+    queryKey: ['my-enrolled-programs', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const { data, error } = await db
+        .from('program_enrollments')
+        .select('id, program_id, enrolled_at, programs(id, title, description, cover_image_url, organization_id, is_free, price)')
+        .eq('user_id', user.id)
+        .order('enrolled_at', { ascending: false });
+      if (error) throw error;
+      return (data || []).map((row: any) => ({
+        ...row,
+        program: row.programs,
+      })) as EnrolledProgram[];
+    },
+    enabled: !!user,
+  });
+
+  // Fetch org names for grouping (include program org IDs too)
+  const purchaseOrgIds = purchases?.map(p => p.product.organization_id) || [];
+  const programOrgIds = enrolledPrograms.map(e => e.program?.organization_id).filter(Boolean);
+  const orgIds = [...new Set([...purchaseOrgIds, ...programOrgIds])];
+  
   const { data: orgs } = useQuery({
     queryKey: ['purchase-orgs', orgIds.join(',')],
     queryFn: async () => {
@@ -56,12 +96,22 @@ export default function ResourcesPage() {
   const orgMap = new Map((orgs || []).map(o => [o.id, o]));
 
   // Group purchases by org
-  const grouped = new Map<string, typeof purchases>();
+  const grouped = new Map<string, { purchases: typeof purchases; programs: EnrolledProgram[] }>();
+  
   purchases?.forEach(p => {
     const orgId = p.product.organization_id;
-    if (!grouped.has(orgId)) grouped.set(orgId, []);
-    grouped.get(orgId)!.push(p);
+    if (!grouped.has(orgId)) grouped.set(orgId, { purchases: [], programs: [] });
+    grouped.get(orgId)!.purchases!.push(p);
   });
+
+  enrolledPrograms.forEach(e => {
+    if (!e.program) return;
+    const orgId = e.program.organization_id;
+    if (!grouped.has(orgId)) grouped.set(orgId, { purchases: [], programs: [] });
+    grouped.get(orgId)!.programs.push(e);
+  });
+
+  const totalItems = (purchases?.length || 0) + enrolledPrograms.length;
 
   const handleFileAction = async (purchase: (typeof purchases extends (infer T)[] | undefined ? T : never), mode: 'download' | 'inline') => {
     if (!purchase.product.file_url || !user) return;
@@ -99,7 +149,19 @@ export default function ResourcesPage() {
     }
   };
 
-  if (isLoading) {
+  // Course player fullscreen overlay
+  if (activeCourseId) {
+    return (
+      <div className="fixed inset-0 z-50 bg-background flex flex-col">
+        <LessonPreview
+          programId={activeCourseId}
+          onClose={() => setActiveCourseId(null)}
+        />
+      </div>
+    );
+  }
+
+  if (isLoading || loadingPrograms) {
     return (
       <div className="max-w-4xl mx-auto p-4 space-y-4">
         <h1 className="text-2xl font-bold">{t('page.purchases')}</h1>
@@ -120,32 +182,30 @@ export default function ResourcesPage() {
       </div>
 
       {/* Stats bar */}
-      {purchases && purchases.length > 0 && (
+      {totalItems > 0 && (
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-card border border-border rounded-xl p-3 text-center">
-            <p className="text-2xl font-bold text-primary">{purchases.length}</p>
-            <p className="text-[10px] text-muted-foreground">{locale === 'fr' ? 'Produits achetés' : 'Products bought'}</p>
+            <p className="text-2xl font-bold text-primary">{totalItems}</p>
+            <p className="text-[10px] text-muted-foreground">{isFr ? 'Produits acquis' : 'Products acquired'}</p>
           </div>
           <div className="bg-card border border-border rounded-xl p-3 text-center">
             <p className="text-2xl font-bold text-primary">{grouped.size}</p>
-            <p className="text-[10px] text-muted-foreground">{locale === 'fr' ? 'Plateformes' : 'Platforms'}</p>
+            <p className="text-[10px] text-muted-foreground">{isFr ? 'Plateformes' : 'Platforms'}</p>
           </div>
           <div className="bg-card border border-border rounded-xl p-3 text-center">
-            <p className="text-2xl font-bold text-primary">
-              {purchases.filter(p => p.product.file_url).length}
-            </p>
-            <p className="text-[10px] text-muted-foreground">{locale === 'fr' ? 'Fichiers disponibles' : 'Files available'}</p>
+            <p className="text-2xl font-bold text-primary">{enrolledPrograms.length}</p>
+            <p className="text-[10px] text-muted-foreground">{isFr ? 'Cours inscrits' : 'Courses enrolled'}</p>
           </div>
         </div>
       )}
 
       <PageTour pageId="purchases" steps={TOUR_STEPS} />
 
-      {!purchases?.length ? (
+      {totalItems === 0 ? (
         <EmptyState variant="purchases" title={t('page.purchases_empty')} description={t('page.purchases_empty_desc')} />
       ) : (
         <div className="space-y-6">
-          {[...grouped.entries()].map(([orgId, orgPurchases]) => {
+          {[...grouped.entries()].map(([orgId, { purchases: orgPurchases, programs: orgPrograms }]) => {
             const org = orgMap.get(orgId);
             return (
               <div key={orgId} className="space-y-3">
@@ -163,13 +223,56 @@ export default function ResourcesPage() {
                   )}
                   <div className="text-left">
                     <p className="text-sm font-semibold">{org?.name || 'Plateforme'}</p>
-                    <p className="text-[10px] text-muted-foreground">{orgPurchases!.length} {locale === 'fr' ? 'produit(s)' : 'product(s)'}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {(orgPurchases?.length || 0) + orgPrograms.length} {isFr ? 'produit(s)' : 'product(s)'}
+                    </p>
                   </div>
                 </button>
 
-                {/* Products */}
+                {/* Products & Courses */}
                 <div className="space-y-2 pl-2 border-l-2 border-primary/10">
-                  {orgPurchases!.map((purchase) => (
+                  {/* Enrolled Programs */}
+                  {orgPrograms.map((enrollment) => (
+                    <div key={enrollment.id} className="flex gap-3 p-3 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors">
+                      <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-muted">
+                        {enrollment.program.cover_image_url ? (
+                          <img src={enrollment.program.cover_image_url} alt={enrollment.program.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                            <GraduationCap className="h-6 w-6" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm truncate">{enrollment.program.title}</h3>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-[10px] capitalize gap-1">
+                            <GraduationCap className="h-2.5 w-2.5" />
+                            {isFr ? 'Cours' : 'Course'}
+                          </Badge>
+                          <Badge variant="secondary" className="text-[10px]">
+                            {isFr ? 'Gratuit' : 'Free'}
+                          </Badge>
+                          <span className="text-[10px] text-muted-foreground">
+                            {format(new Date(enrollment.enrolled_at), 'dd MMM yyyy', { locale: dateFnsLocale })}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="shrink-0 flex flex-col gap-1.5 justify-center">
+                        <Button
+                          size="sm"
+                          className="gap-1 h-7 text-[11px]"
+                          onClick={() => setActiveCourseId(enrollment.program_id)}
+                        >
+                          <Play className="h-3 w-3" />
+                          {isFr ? 'Suivre le cours' : 'Start course'}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Digital product purchases */}
+                  {orgPurchases?.map((purchase) => (
                     <div key={purchase.id} className="flex gap-3 p-3 rounded-xl border border-border bg-card hover:bg-accent/30 transition-colors">
                       <div className="shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-muted">
                         {purchase.product.cover_image_url ? (
