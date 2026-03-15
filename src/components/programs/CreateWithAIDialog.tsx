@@ -170,109 +170,111 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
   const selectedCost = tier === 'premium' ? premiumCost : standardCost;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" />
-            {isFr ? 'Créer avec l\'IA' : 'Create with AI'}
-          </DialogTitle>
-          <p className="text-sm text-muted-foreground">
-            {isFr
-              ? 'L\'IA génère la structure ET le contenu complet de chaque leçon.'
-              : 'AI generates the structure AND full content for each lesson.'}
-          </p>
-        </DialogHeader>
+    <Dialog open={open} onOpenChange={(v) => { if (!generating) onOpenChange(v); }}>
+      <DialogContent className="sm:max-w-xl" hideCloseButton={generating}>
+        {generating ? (
+          <CourseGenerationLoader />
+        ) : (
+          <>
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                {isFr ? 'Créer avec l\'IA' : 'Create with AI'}
+              </DialogTitle>
+              <p className="text-sm text-muted-foreground">
+                {isFr
+                  ? 'L\'IA génère la structure ET le contenu complet de chaque leçon.'
+                  : 'AI generates the structure AND full content for each lesson.'}
+              </p>
+            </DialogHeader>
 
-        <div className="space-y-4 pt-2">
-          <Textarea
-            value={prompt}
-            onChange={e => setPrompt(e.target.value)}
-            placeholder={isFr ? 'Décrivez ce que vous souhaitez créer...' : 'Describe what you\'d like to create...'}
-            rows={4}
-            className="resize-none"
-            disabled={generating}
-          />
+            <div className="space-y-4 pt-2">
+              <Textarea
+                value={prompt}
+                onChange={e => setPrompt(e.target.value)}
+                placeholder={isFr ? 'Décrivez ce que vous souhaitez créer...' : 'Describe what you\'d like to create...'}
+                rows={4}
+                className="resize-none"
+              />
 
-          {/* Suggestion chips */}
-          <div className="grid grid-cols-2 gap-2">
-            {suggestions.map((s, i) => {
-              const Icon = s.icon;
-              return (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setPrompt(s.text)}
-                  disabled={generating}
-                  className="flex items-start gap-2.5 p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/60 text-left transition-colors group"
-                >
-                  <Icon className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                  <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors leading-relaxed">{s.text}</span>
-                  <Plus className="h-3 w-3 text-muted-foreground/50 shrink-0 mt-0.5 ml-auto" />
-                </button>
-              );
-            })}
-          </div>
+              {/* Suggestion chips */}
+              <div className="grid grid-cols-2 gap-2">
+                {suggestions.map((s, i) => {
+                  const Icon = s.icon;
+                  return (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setPrompt(s.text)}
+                      className="flex items-start gap-2.5 p-3 rounded-lg border border-border bg-muted/30 hover:bg-muted/60 text-left transition-colors group"
+                    >
+                      <Icon className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                      <span className="text-xs text-muted-foreground group-hover:text-foreground transition-colors leading-relaxed">{s.text}</span>
+                      <Plus className="h-3 w-3 text-muted-foreground/50 shrink-0 mt-0.5 ml-auto" />
+                    </button>
+                  );
+                })}
+              </div>
 
-          {/* Tier selection */}
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">{isFr ? 'Type de génération IA' : 'AI generation type'}</p>
-            <div className="grid grid-cols-2 gap-2">
-              <Button
-                type="button"
-                variant={tier === 'standard' ? 'default' : 'outline'}
-                onClick={() => setTier('standard')}
-                disabled={generating}
-                className="text-xs"
-              >
-                Standard
-                <span className="ml-1 text-[10px] opacity-90">({standardCost ?? 8} {isFr ? 'crédits' : 'credits'})</span>
-              </Button>
-              <Button
-                type="button"
-                variant={tier === 'premium' ? 'default' : 'outline'}
-                onClick={() => setTier('premium')}
-                disabled={generating}
-                className="text-xs"
-              >
-                Premium
-                <span className="ml-1 text-[10px] opacity-90">({premiumCost ?? 15} {isFr ? 'crédits' : 'credits'})</span>
-              </Button>
-            </div>
-          </div>
+              {/* Tier selection */}
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground">{isFr ? 'Type de génération IA' : 'AI generation type'}</p>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    type="button"
+                    variant={tier === 'standard' ? 'default' : 'outline'}
+                    onClick={() => setTier('standard')}
+                    className="text-xs"
+                  >
+                    Standard
+                    <span className="ml-1 text-[10px] opacity-90">({standardCost ?? 8} {isFr ? 'crédits' : 'credits'})</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={tier === 'premium' ? 'default' : 'outline'}
+                    onClick={() => setTier('premium')}
+                    className="text-xs"
+                  >
+                    Premium
+                    <span className="ml-1 text-[10px] opacity-90">({premiumCost ?? 15} {isFr ? 'crédits' : 'credits'})</span>
+                  </Button>
+                </div>
+              </div>
 
-          {/* Image generation option */}
-          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
-            <div className="flex items-center gap-2">
-              <ImageIcon className="h-4 w-4 text-primary" />
-              <div>
-                <p className="text-xs font-medium">{isFr ? 'Générer des images par leçon' : 'Generate images per lesson'}</p>
-                <p className="text-[10px] text-muted-foreground">
-                  {isFr
-                    ? 'Les images seront basées sur le contenu de chaque leçon (crédits additionnels)'
-                    : 'Images based on each lesson content (additional credits)'}
-                </p>
+              {/* Image generation option */}
+              <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
+                <div className="flex items-center gap-2">
+                  <ImageIcon className="h-4 w-4 text-primary" />
+                  <div>
+                    <p className="text-xs font-medium">{isFr ? 'Générer des images par leçon' : 'Generate images per lesson'}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {isFr
+                        ? 'Les images seront basées sur le contenu de chaque leçon (crédits additionnels)'
+                        : 'Images based on each lesson content (additional credits)'}
+                    </p>
+                  </div>
+                </div>
+                <Switch checked={generateImages} onCheckedChange={setGenerateImages} />
               </div>
             </div>
-            <Switch checked={generateImages} onCheckedChange={setGenerateImages} disabled={generating} />
-          </div>
-        </div>
 
-        <div className="flex items-center justify-between pt-2">
-          <p className="text-[11px] text-muted-foreground">
-            {isFr ? 'Coût estimé' : 'Estimated cost'}: <span className="font-medium text-foreground">{selectedCost ?? (tier === 'premium' ? 15 : 8)} {isFr ? 'crédits' : 'credits'}</span>
-            {generateImages && <span className="text-primary"> + {isFr ? 'images' : 'images'}</span>}
-          </p>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)} disabled={generating}>
-              {isFr ? 'Annuler' : 'Cancel'}
-            </Button>
-            <Button onClick={handleCreate} disabled={!prompt.trim() || generating} className="gap-1.5">
-              {generating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-              {generating ? (isFr ? 'Création...' : 'Creating...') : (isFr ? 'Créer' : 'Create')}
-            </Button>
-          </div>
-        </div>
+            <div className="flex items-center justify-between pt-2">
+              <p className="text-[11px] text-muted-foreground">
+                {isFr ? 'Coût estimé' : 'Estimated cost'}: <span className="font-medium text-foreground">{selectedCost ?? (tier === 'premium' ? 15 : 8)} {isFr ? 'crédits' : 'credits'}</span>
+                {generateImages && <span className="text-primary"> + {isFr ? 'images' : 'images'}</span>}
+              </p>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" onClick={() => onOpenChange(false)}>
+                  {isFr ? 'Annuler' : 'Cancel'}
+                </Button>
+                <Button onClick={handleCreate} disabled={!prompt.trim()} className="gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  {isFr ? 'Créer' : 'Create'}
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );
