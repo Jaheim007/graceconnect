@@ -1,14 +1,15 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useProgramModules, useProgram } from '@/hooks/usePrograms';
 import { useI18n } from '@/i18n/I18nContext';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import {
-  ChevronLeft, ChevronRight, BookOpen, Clock, CheckCircle2,
-  Monitor, Tablet, Smartphone, X, Maximize2, List
+  ChevronLeft, ChevronRight,
+  Monitor, Tablet, Smartphone, X, List
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { parseContentIntoSlides, ContentSlide } from './lesson-preview/parseContentSlides';
+import { SlideRenderer } from './lesson-preview/SlideRenderer';
 
 interface LessonPreviewProps {
   programId: string;
@@ -18,6 +19,16 @@ interface LessonPreviewProps {
 
 type DeviceMode = 'mobile' | 'tablet' | 'desktop';
 
+interface FlatSlide {
+  lessonId: string;
+  lessonTitle: string;
+  moduleTitle: string;
+  moduleId: string;
+  slide: ContentSlide;
+  lessonIndex: number;
+  slideInLesson: number;
+}
+
 export function LessonPreview({ programId, initialLessonId, onClose }: LessonPreviewProps) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
@@ -25,47 +36,86 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
   const { data: modules = [] } = useProgramModules(programId);
 
   const [deviceMode, setDeviceMode] = useState<DeviceMode>('desktop');
-  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [showSidebar, setShowSidebar] = useState(true);
 
-  // Flatten all lessons for slide navigation
-  const allLessons = modules.flatMap((mod: any) =>
-    (mod.lessons || []).map((lesson: any) => ({
-      ...lesson,
-      moduleTitle: mod.title,
-      moduleId: mod.id,
-    }))
-  );
+  const orgLogoUrl = (program as any)?.organizations?.logo_url;
 
-  // Set initial slide based on initialLessonId
-  useEffect(() => {
-    if (initialLessonId && allLessons.length > 0) {
-      const idx = allLessons.findIndex((l: any) => l.id === initialLessonId);
-      if (idx >= 0) setCurrentSlideIndex(idx);
+  // Build flat slide array: each lesson is split into title-card + content sections
+  const allSlides: FlatSlide[] = useMemo(() => {
+    const slides: FlatSlide[] = [];
+    let lessonIdx = 0;
+
+    for (const mod of modules) {
+      for (const lesson of (mod as any).lessons || []) {
+        // Title card
+        slides.push({
+          lessonId: lesson.id,
+          lessonTitle: lesson.title,
+          moduleTitle: (mod as any).title,
+          moduleId: (mod as any).id,
+          slide: { type: 'title-card', bodyHtml: lesson.description || '' },
+          lessonIndex: lessonIdx,
+          slideInLesson: 0,
+        });
+
+        // Parse content into sub-slides
+        const contentSlides = parseContentIntoSlides(lesson.content || '');
+        contentSlides.forEach((cs, si) => {
+          slides.push({
+            lessonId: lesson.id,
+            lessonTitle: lesson.title,
+            moduleTitle: (mod as any).title,
+            moduleId: (mod as any).id,
+            slide: cs,
+            lessonIndex: lessonIdx,
+            slideInLesson: si + 1,
+          });
+        });
+
+        lessonIdx++;
+      }
     }
-  }, [initialLessonId, allLessons.length]);
+    return slides;
+  }, [modules]);
 
-  const currentLesson = allLessons[currentSlideIndex];
-  const totalSlides = allLessons.length;
+  // Jump to initial lesson
+  useEffect(() => {
+    if (initialLessonId && allSlides.length > 0) {
+      const idx = allSlides.findIndex(s => s.lessonId === initialLessonId && s.slideInLesson === 0);
+      if (idx >= 0) setCurrentIndex(idx);
+    }
+  }, [initialLessonId, allSlides.length]);
 
-  const goNext = () => {
-    if (currentSlideIndex < totalSlides - 1) setCurrentSlideIndex(i => i + 1);
+  const current = allSlides[currentIndex];
+  const total = allSlides.length;
+
+  const goNext = () => { if (currentIndex < total - 1) setCurrentIndex(i => i + 1); };
+  const goPrev = () => { if (currentIndex > 0) setCurrentIndex(i => i - 1); };
+
+  // Keyboard nav
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') goNext();
+      if (e.key === 'ArrowLeft') goPrev();
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [currentIndex, total]);
+
+  const deviceStyles: Record<DeviceMode, { w: string; maxW: string; h: string }> = {
+    mobile: { w: '375px', maxW: '375px', h: '700px' },
+    tablet: { w: '768px', maxW: '768px', h: '600px' },
+    desktop: { w: '100%', maxW: '960px', h: '560px' },
   };
-  const goPrev = () => {
-    if (currentSlideIndex > 0) setCurrentSlideIndex(i => i - 1);
-  };
 
-  const deviceDimensions: Record<DeviceMode, { w: string; maxW: string }> = {
-    mobile: { w: '375px', maxW: '375px' },
-    tablet: { w: '768px', maxW: '768px' },
-    desktop: { w: '100%', maxW: '1024px' },
-  };
-
-  if (allLessons.length === 0) {
+  if (allSlides.length === 0) {
     return (
       <div className="flex items-center justify-center h-full text-center p-8">
         <div className="space-y-3">
-          <BookOpen className="h-12 w-12 mx-auto text-muted-foreground/20" />
+          <div className="h-12 w-12 mx-auto rounded-full bg-muted flex items-center justify-center">
+            <Monitor className="h-6 w-6 text-muted-foreground/40" />
+          </div>
           <p className="text-sm text-muted-foreground">
             {isFr ? 'Aucune leçon à prévisualiser' : 'No lessons to preview'}
           </p>
@@ -74,19 +124,33 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
     );
   }
 
+  // Build sidebar lesson groups
+  const lessonGroups = modules.map((mod: any) => ({
+    moduleTitle: mod.title,
+    moduleId: mod.id,
+    lessons: (mod.lessons || []).map((l: any) => ({
+      id: l.id,
+      title: l.title,
+      duration: l.duration_minutes,
+    })),
+  }));
+
   return (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col h-full bg-muted/30">
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0">
         <div className="flex items-center gap-3 min-w-0">
+          {orgLogoUrl && (
+            <img src={orgLogoUrl} alt="" className="h-6 w-6 rounded-full object-cover" />
+          )}
           <span className="text-sm font-semibold truncate">{program?.title || ''}</span>
-          <Badge variant="outline" className="text-[9px] shrink-0">
-            {currentSlideIndex + 1} / {totalSlides}
-          </Badge>
+          <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+            {currentIndex + 1} / {total}
+          </span>
         </div>
 
         {/* Device toggle */}
-        <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
+        <div className="flex items-center gap-0.5 bg-muted rounded-lg p-0.5">
           {([
             { key: 'mobile' as DeviceMode, Icon: Smartphone },
             { key: 'tablet' as DeviceMode, Icon: Tablet },
@@ -119,37 +183,37 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
         </div>
       </div>
 
-      {/* Main preview area */}
+      {/* Main area */}
       <div className="flex flex-1 min-h-0">
-        {/* Sidebar lesson list */}
+        {/* Sidebar */}
         {showSidebar && (
-          <div className="w-60 border-r border-border bg-card overflow-y-auto shrink-0">
-            {modules.map((mod: any) => (
-              <div key={mod.id} className="py-2">
+          <div className="w-56 border-r border-border bg-card overflow-y-auto shrink-0">
+            {lessonGroups.map((group: any) => (
+              <div key={group.moduleId} className="py-2">
                 <div className="px-3 py-1.5">
-                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
-                    {mod.title}
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                    {group.moduleTitle}
                   </span>
                 </div>
-                {(mod.lessons || []).map((lesson: any) => {
-                  const globalIdx = allLessons.findIndex((l: any) => l.id === lesson.id);
+                {group.lessons.map((lesson: any) => {
+                  const isActive = current?.lessonId === lesson.id;
                   return (
                     <button
                       key={lesson.id}
-                      onClick={() => setCurrentSlideIndex(globalIdx)}
+                      onClick={() => {
+                        const idx = allSlides.findIndex(s => s.lessonId === lesson.id && s.slideInLesson === 0);
+                        if (idx >= 0) setCurrentIndex(idx);
+                      }}
                       className={cn(
-                        'w-full flex items-center gap-2 px-3 py-2 text-left transition-colors',
-                        globalIdx === currentSlideIndex
+                        'w-full flex items-center gap-2 px-3 py-2 text-left transition-colors text-xs',
+                        isActive
                           ? 'bg-primary/10 text-primary border-l-2 border-primary'
                           : 'hover:bg-muted/50 text-foreground'
                       )}
                     >
-                      <span className="text-[10px] text-muted-foreground font-mono w-4 shrink-0">
-                        {globalIdx + 1}
-                      </span>
-                      <span className="text-xs flex-1 truncate">{lesson.title}</span>
-                      {lesson.duration_minutes && (
-                        <span className="text-[9px] text-muted-foreground">{lesson.duration_minutes}m</span>
+                      <span className="flex-1 truncate">{lesson.title}</span>
+                      {lesson.duration && (
+                        <span className="text-[9px] text-muted-foreground shrink-0">{lesson.duration}m</span>
                       )}
                     </button>
                   );
@@ -159,21 +223,21 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
           </div>
         )}
 
-        {/* Slide viewport */}
-        <div className="flex-1 flex items-center justify-center p-4 bg-muted/20 relative overflow-hidden">
-          {/* Navigation arrows */}
-          {currentSlideIndex > 0 && (
+        {/* Viewport */}
+        <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden">
+          {/* Nav arrows */}
+          {currentIndex > 0 && (
             <button
               onClick={goPrev}
-              className="absolute left-4 z-10 h-10 w-10 rounded-full bg-background/80 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-background transition-colors"
+              className="absolute left-3 z-10 h-10 w-10 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-background transition-colors"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
           )}
-          {currentSlideIndex < totalSlides - 1 && (
+          {currentIndex < total - 1 && (
             <button
               onClick={goNext}
-              className="absolute right-4 z-10 h-10 w-10 rounded-full bg-background/80 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-background transition-colors"
+              className="absolute right-3 z-10 h-10 w-10 rounded-full bg-background/90 backdrop-blur border border-border shadow-lg flex items-center justify-center hover:bg-background transition-colors"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -182,114 +246,60 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
           {/* Device frame */}
           <div
             className={cn(
-              'bg-background rounded-2xl shadow-2xl border border-border overflow-hidden transition-all duration-300 flex flex-col',
+              'rounded-2xl shadow-2xl border border-border overflow-hidden transition-all duration-300 flex flex-col',
               deviceMode === 'mobile' && 'rounded-[2rem]'
             )}
             style={{
-              width: deviceDimensions[deviceMode].w,
-              maxWidth: deviceDimensions[deviceMode].maxW,
-              height: deviceMode === 'mobile' ? '680px' : deviceMode === 'tablet' ? '600px' : '560px',
+              width: deviceStyles[deviceMode].w,
+              maxWidth: deviceStyles[deviceMode].maxW,
+              height: deviceStyles[deviceMode].h,
             }}
           >
-            {/* Slide header */}
-            <div className="bg-primary px-4 py-3 flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-2 min-w-0">
-                <BookOpen className="h-4 w-4 text-primary-foreground/80 shrink-0" />
-                <span className="text-xs font-medium text-primary-foreground truncate">
-                  {currentLesson?.moduleTitle}
-                </span>
-              </div>
-              <Badge variant="secondary" className="text-[9px] shrink-0 bg-primary-foreground/20 text-primary-foreground border-none">
-                {currentSlideIndex + 1} / {totalSlides}
-              </Badge>
-            </div>
-
-            {/* Slide content */}
             <AnimatePresence mode="wait">
               <motion.div
-                key={currentSlideIndex}
-                initial={{ opacity: 0, x: 30 }}
+                key={currentIndex}
+                initial={{ opacity: 0, x: 40 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -30 }}
-                transition={{ duration: 0.2 }}
-                className="flex-1 overflow-y-auto"
+                exit={{ opacity: 0, x: -40 }}
+                transition={{ duration: 0.25, ease: 'easeInOut' }}
+                className="flex-1 min-h-0 flex flex-col"
               >
-                <div className={cn(
-                  'p-6',
-                  deviceMode === 'mobile' && 'p-4',
-                )}>
-                  {/* Lesson title */}
-                  <h1 className={cn(
-                    'font-bold text-foreground mb-1',
-                    deviceMode === 'mobile' ? 'text-lg' : 'text-xl'
-                  )}>
-                    {currentLesson?.title}
-                  </h1>
-
-                  {currentLesson?.duration_minutes && (
-                    <div className="flex items-center gap-1 text-muted-foreground mb-4">
-                      <Clock className="h-3 w-3" />
-                      <span className="text-[11px]">{currentLesson.duration_minutes} min</span>
-                    </div>
-                  )}
-
-                  {/* Lesson content */}
-                  {currentLesson?.content ? (
-                    <div
-                      className={cn(
-                        'prose prose-sm max-w-none',
-                        'prose-headings:text-foreground prose-p:text-foreground/90',
-                        'prose-strong:text-foreground prose-blockquote:border-primary',
-                        'prose-li:text-foreground/90',
-                        deviceMode === 'mobile' && 'text-sm',
-                      )}
-                      dangerouslySetInnerHTML={{ __html: currentLesson.content }}
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-12 text-center">
-                      <BookOpen className="h-10 w-10 text-muted-foreground/20 mb-3" />
-                      <p className="text-sm text-muted-foreground">
-                        {isFr ? 'Aucun contenu pour cette leçon' : 'No content for this lesson'}
-                      </p>
-                    </div>
-                  )}
-                </div>
+                {current && (
+                  <SlideRenderer
+                    slide={current.slide}
+                    slideIndex={currentIndex}
+                    totalSlides={total}
+                    lessonTitle={current.lessonTitle}
+                    moduleTitle={current.moduleTitle}
+                    orgLogoUrl={orgLogoUrl}
+                    deviceMode={deviceMode}
+                  />
+                )}
               </motion.div>
             </AnimatePresence>
 
-            {/* Bottom navigation */}
-            <div className="border-t border-border px-4 py-3 flex items-center justify-between shrink-0 bg-card">
-              {/* Progress dots */}
-              <div className="flex items-center gap-1 overflow-hidden max-w-[40%]">
-                {allLessons.slice(
-                  Math.max(0, currentSlideIndex - 2),
-                  Math.min(totalSlides, currentSlideIndex + 3)
-                ).map((_: any, i: number) => {
-                  const actualIdx = Math.max(0, currentSlideIndex - 2) + i;
-                  return (
-                    <div
-                      key={actualIdx}
-                      className={cn(
-                        'h-1.5 rounded-full transition-all',
-                        actualIdx === currentSlideIndex
-                          ? 'w-4 bg-primary'
-                          : 'w-1.5 bg-muted-foreground/20'
-                      )}
-                    />
-                  );
-                })}
+            {/* Bottom bar */}
+            <div className="border-t border-border px-4 py-2.5 flex items-center justify-between shrink-0 bg-card">
+              {/* Progress bar */}
+              <div className="flex-1 mr-4">
+                <div className="h-1 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary rounded-full transition-all duration-300"
+                    style={{ width: `${((currentIndex + 1) / total) * 100}%` }}
+                  />
+                </div>
               </div>
 
               <Button
                 size="sm"
                 onClick={goNext}
-                disabled={currentSlideIndex >= totalSlides - 1}
+                disabled={currentIndex >= total - 1}
                 className="gap-1.5 text-xs"
               >
-                {currentSlideIndex >= totalSlides - 1
+                {currentIndex >= total - 1
                   ? (isFr ? 'Terminé' : 'Finished')
                   : (isFr ? 'Continuer' : 'Continue')}
-                {currentSlideIndex < totalSlides - 1 && <ChevronRight className="h-3 w-3" />}
+                {currentIndex < total - 1 && <ChevronRight className="h-3 w-3" />}
               </Button>
             </div>
           </div>
