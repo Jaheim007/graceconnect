@@ -112,9 +112,22 @@ function splitLongBody(bodyHtml: string): string[] {
  * Extract quiz JSON blocks from lesson content.
  * Format: <!-- QUIZ:{"question":"...","options":["A","B","C"],"correctIndex":1,"explanation":"..."} -->
  */
-function extractQuizzes(html: string): { cleanHtml: string; quizzes: QuizData[] } {
+function extractInteractives(html: string): {
+  cleanHtml: string;
+  quizzes: QuizData[];
+  flashcards: FlashcardData[];
+  matchings: MatchingData[];
+  orderings: OrderingData[];
+} {
   const quizzes: QuizData[] = [];
-  const cleanHtml = html.replace(/<!--\s*QUIZ:([\s\S]*?)-->/gi, (_, json) => {
+  const flashcards: FlashcardData[] = [];
+  const matchings: MatchingData[] = [];
+  const orderings: OrderingData[] = [];
+
+  let cleanHtml = html;
+
+  // Extract quizzes: <!-- QUIZ:{...} -->
+  cleanHtml = cleanHtml.replace(/<!--\s*QUIZ:([\s\S]*?)-->/gi, (_, json) => {
     try {
       const quiz = JSON.parse(json.trim());
       if (quiz.question && Array.isArray(quiz.options)) {
@@ -128,7 +141,41 @@ function extractQuizzes(html: string): { cleanHtml: string; quizzes: QuizData[] 
     } catch { /* skip invalid */ }
     return '';
   });
-  return { cleanHtml, quizzes };
+
+  // Extract flashcards: <!-- FLASHCARD:{"front":"...","back":"..."} -->
+  cleanHtml = cleanHtml.replace(/<!--\s*FLASHCARD:([\s\S]*?)-->/gi, (_, json) => {
+    try {
+      const fc = JSON.parse(json.trim());
+      if (fc.front && fc.back) {
+        flashcards.push({ front: fc.front, back: fc.back, hint: fc.hint });
+      }
+    } catch { /* skip */ }
+    return '';
+  });
+
+  // Extract matching: <!-- MATCHING:{"pairs":[{"left":"...","right":"..."}]} -->
+  cleanHtml = cleanHtml.replace(/<!--\s*MATCHING:([\s\S]*?)-->/gi, (_, json) => {
+    try {
+      const m = JSON.parse(json.trim());
+      if (Array.isArray(m.pairs) && m.pairs.length >= 2) {
+        matchings.push({ pairs: m.pairs });
+      }
+    } catch { /* skip */ }
+    return '';
+  });
+
+  // Extract ordering: <!-- ORDERING:{"items":["..."],"correctOrder":[0,1,2]} -->
+  cleanHtml = cleanHtml.replace(/<!--\s*ORDERING:([\s\S]*?)-->/gi, (_, json) => {
+    try {
+      const o = JSON.parse(json.trim());
+      if (Array.isArray(o.items) && Array.isArray(o.correctOrder)) {
+        orderings.push({ instruction: o.instruction, items: o.items, correctOrder: o.correctOrder });
+      }
+    } catch { /* skip */ }
+    return '';
+  });
+
+  return { cleanHtml, quizzes, flashcards, matchings, orderings };
 }
 
 export function parseContentIntoSlides(html: string): ContentSlide[] {
