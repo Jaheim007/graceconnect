@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
   ChevronLeft, ChevronRight,
-  Monitor, Tablet, Smartphone, X, List, Settings2
+  Monitor, Tablet, Smartphone, X, List, Settings2, Star
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { parseContentIntoSlides, ContentSlide } from './lesson-preview/parseContentSlides';
