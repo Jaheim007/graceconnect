@@ -1,21 +1,40 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { db } from '@/lib/db';
 import { useProgram, useProgramModules, useEnrollment, useLessonProgress, useEnrollInProgram, useToggleLessonComplete } from '@/hooks/usePrograms';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { motion } from 'framer-motion';
-import { BookOpen, Layers, Clock, CheckCircle, Play, FileText, Video, Music, Link2, Loader2, Lock } from 'lucide-react';
+import {
+  BookOpen, Layers, CheckCircle, Play, FileText, Video, Music, Link2,
+  Loader2, Lock, ArrowLeft, Share2, ExternalLink, Pencil, Eye, EyeOff,
+  Shield, Star, Clock, GraduationCap, Users, Flag,
+} from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { ProgramCertificate } from '@/components/programs/ProgramCertificate';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
+import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
 import { useI18n } from '@/i18n/I18nContext';
+import { SiteLogo } from '@/components/ui/SiteLogo';
+import { formatPrice } from '@/lib/currency';
+import { LocalPriceHint } from '@/components/payments/LocalPriceHint';
+import { FormattedText } from '@/lib/formatText';
+import { ShareButtons } from '@/components/social/ShareButtons';
+import { ShareToEarnCTA } from '@/components/products/ShareToEarnCTA';
+import { BecomeAmbassadorCTA } from '@/components/products/BecomeAmbassadorCTA';
+import { SellerTrustBadges } from '@/components/products/SellerTrustBadges';
+import { Breadcrumb } from '@/components/layout/Breadcrumb';
+import { ReadingProgressBar } from '@/components/ui/ReadingProgressBar';
+import { ReportContentDialog } from '@/components/reports/ReportContentDialog';
+import { ProductImageGallery } from '@/components/products/ProductImageGallery';
 
 const CONTENT_ICONS: Record<string, typeof FileText> = {
   text: FileText,
@@ -39,18 +58,95 @@ export default function ProgramDetailPage() {
   const toggleLesson = useToggleLessonComplete();
 
   const [openModules, setOpenModules] = useState<Set<string>>(new Set());
+  const [reportOpen, setReportOpen] = useState(false);
 
   const totalLessons = useMemo(() => modules.reduce((sum: number, m: any) => sum + (m.lessons?.length || 0), 0), [modules]);
   const completedLessons = useMemo(() => Object.values(progress).filter((p: any) => p.completed).length, [progress]);
   const progressPercent = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
-
   const isEnrolled = !!enrollment;
 
+  const org = (program as any)?.organizations;
+  const orgSlug = org?.slug || '';
+
+  // Check if user can manage this org
+  const { data: canManage } = useQuery({
+    queryKey: ['can-manage-program', user?.id, program?.organization_id],
+    queryFn: async () => {
+      if (!user || !program?.organization_id) return false;
+      const { data } = await db
+        .from('organization_members')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('organization_id', program.organization_id)
+        .maybeSingle();
+      return data && ['owner', 'admin', 'editor'].includes(data.role);
+    },
+    enabled: !!user && !!program?.organization_id,
+  });
+
+  // Org page settings for theme
+  const { data: pageSettings } = useQuery({
+    queryKey: ['org-page-settings-program', program?.organization_id],
+    queryFn: async () => {
+      const { data } = await db
+        .from('org_page_settings')
+        .select('theme_primary_color, theme_accent_color')
+        .eq('organization_id', program!.organization_id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!program?.organization_id,
+  });
+
+  // Fetch other products from same org for recommendations
+  const { data: recommendations = [] } = useQuery({
+    queryKey: ['org-products-recommend', program?.organization_id, programId],
+    queryFn: async () => {
+      if (!program?.organization_id) return [];
+      const { data } = await db.from('digital_products')
+        .select('id, title, cover_image_url, price, currency, is_free, product_type, sales_count, slug')
+        .eq('organization_id', program.organization_id)
+        .eq('is_published', true)
+        .order('sales_count', { ascending: false })
+        .limit(6);
+      return data || [];
+    },
+    enabled: !!program?.organization_id,
+  });
+
+  // Fetch other programs from same org
+  const { data: otherPrograms = [] } = useQuery({
+    queryKey: ['org-programs-recommend', program?.organization_id, programId],
+    queryFn: async () => {
+      if (!program?.organization_id) return [];
+      const { data } = await db.from('programs')
+        .select('id, title, cover_image_url, price, currency, is_free, enrollment_count')
+        .eq('organization_id', program.organization_id)
+        .eq('is_published', true)
+        .neq('id', programId!)
+        .limit(4);
+      return data || [];
+    },
+    enabled: !!program?.organization_id,
+  });
+
+  const orgPrimary = pageSettings?.theme_primary_color;
+  const orgThemeStyle = useMemo(() => {
+    if (!orgPrimary) return {};
+    return { '--org-primary': orgPrimary, '--org-accent': pageSettings?.theme_accent_color || orgPrimary } as React.CSSProperties;
+  }, [pageSettings]);
+
+  const bannerBg = orgPrimary
+    ? { background: `linear-gradient(135deg, ${orgPrimary}18, ${orgPrimary}08, transparent)` }
+    : {};
+  const topBarStyle = orgPrimary ? { borderBottomColor: `${orgPrimary}30` } : {};
+
   const handleEnroll = async () => {
-    if (!programId || !user) return;
+    if (!programId) return;
+    if (!user) { navigate(`/auth?returnTo=/program/${programId}`); return; }
     try {
       await enrollMutation.mutateAsync(programId);
-      toast({ title: isFr ? '🎉 Vous êtes inscrit !' : '🎉 You are enrolled!' });
+      toast({ title: isFr ? '🎉 Cours ajouté à vos achats !' : '🎉 Course added to your purchases!' });
     } catch {
       toast({ title: isFr ? 'Erreur' : 'Error', variant: 'destructive' });
     }
@@ -69,155 +165,549 @@ export default function ProgramDetailPage() {
     });
   };
 
+  const buildShareUrl = () => `https://siteviral.com/program/${programId}`;
+
+  const isUnpublished = program && !program.is_published;
+
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
-  }
-
-  if (!program) {
-    return <div className="min-h-screen flex items-center justify-center"><p className="text-muted-foreground">{isFr ? 'Programme introuvable' : 'Program not found'}</p></div>;
-  }
-
-  const orgName = (program as any).organizations?.name || '';
-
-  return (
-    <div className="min-h-screen bg-background">
-      <SEOHead title={`${program.title} — ${orgName}`} description={program.description || (isFr ? `Programme de formation par ${orgName}` : `Training program by ${orgName}`)} />
-
-      {/* Hero */}
-      <div className="relative bg-gradient-to-br from-primary/15 to-primary/5 border-b border-border">
-        <div className="container max-w-4xl py-8 px-4">
-          <div className="flex flex-col sm:flex-row gap-6">
-            {program.cover_image_url ? (
-              <img src={program.cover_image_url} alt="" className="h-40 w-full sm:w-56 rounded-xl object-cover shrink-0" />
-            ) : (
-              <div className="h-40 w-full sm:w-56 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                <BookOpen className="h-12 w-12 text-primary/40" />
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-muted-foreground mb-1 flex items-center gap-1">
-                {orgName}
-                {((program as any).organizations?.is_verified || (program as any).organizations?.kyc_status === 'level1' || (program as any).organizations?.kyc_status === 'level2') && <VerifiedBadge size="xs" />}
-              </p>
-              <h1 className="text-2xl font-bold mb-2">{program.title}</h1>
-              {program.description && <p className="text-sm text-muted-foreground mb-4">{program.description}</p>}
-              <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
-                <span className="flex items-center gap-1"><Layers className="h-3.5 w-3.5" /> {modules.length} modules</span>
-                <span className="flex items-center gap-1"><FileText className="h-3.5 w-3.5" /> {totalLessons} {isFr ? 'leçons' : 'lessons'}</span>
-              </div>
-
-              {!user ? (
-                <Button asChild><a href="/auth">{isFr ? 'Se connecter pour s\'inscrire' : 'Sign in to enroll'}</a></Button>
-              ) : !isEnrolled ? (
-                <Button onClick={handleEnroll} disabled={enrollMutation.isPending} className="gap-1.5">
-                  {enrollMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
-                  {isFr ? 'S\'inscrire gratuitement' : 'Enroll for free'}
-                </Button>
-              ) : (
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium text-primary">{isFr ? 'Acquis' : 'Acquired'}</span>
-                    <span className="text-xs text-muted-foreground ml-2">{completedLessons}/{totalLessons} {isFr ? 'leçons complétées' : 'lessons completed'}</span>
-                  </div>
-                  <Progress value={progressPercent} className="h-2" />
-                  <p className="text-[10px] text-muted-foreground">{progressPercent}% {isFr ? 'terminé' : 'completed'}</p>
-                  <Button size="sm" className="gap-1.5 mt-1" onClick={() => navigate('/resources')}>
-                    <BookOpen className="h-3.5 w-3.5" />
-                    {isFr ? 'Accéder depuis Mes achats' : 'Access from My Purchases'}
-                  </Button>
-                </div>
-              )}
+    return (
+      <div className="min-h-screen bg-background">
+        <div className="container max-w-5xl py-8 px-4">
+          <div className="grid md:grid-cols-[1fr_340px] gap-8">
+            <div className="h-96 rounded-2xl skeleton-shimmer" />
+            <div className="space-y-4">
+              <div className="h-8 w-2/3 rounded-lg skeleton-shimmer" />
+              <div className="h-4 w-1/3 rounded skeleton-shimmer" />
+              <div className="h-12 rounded-xl skeleton-shimmer" />
             </div>
           </div>
         </div>
       </div>
+    );
+  }
 
-      {/* Certificate — only if creator enabled it */}
-      {isEnrolled && (program as any).certificate_enabled !== false && (
-        <div className="container max-w-4xl px-4 pt-4">
-          <ProgramCertificate
-            programId={programId!}
-            programTitle={program.title}
-            orgName={orgName}
-            orgLogo={(program as any).organizations?.logo_url}
-            progressPercent={progressPercent}
-            totalLessons={totalLessons}
-            completedLessons={completedLessons}
-          />
+  if (!program) {
+    return (
+      <EmptyState
+        title={isFr ? 'Cours introuvable' : 'Course not found'}
+        description={isFr ? 'Ce cours n\'existe pas ou a été supprimé.' : 'This course does not exist or has been deleted.'}
+        action={{ label: isFr ? 'Retour' : 'Back', onClick: () => navigate(-1) }}
+        className="min-h-screen"
+      />
+    );
+  }
+
+  if (isUnpublished && !canManage) {
+    return (
+      <EmptyState
+        title={isFr ? 'Cours non publié' : 'Course not published'}
+        description={isFr ? 'Ce cours n\'est pas encore publié.' : 'This course is not yet published.'}
+        action={{ label: isFr ? 'Retour' : 'Back', onClick: () => navigate(-1) }}
+        className="min-h-screen"
+      />
+    );
+  }
+
+  const orgName = org?.name || '';
+  const priceDisplay = formatPrice(program.price || 0, program.is_free, program.currency);
+
+  return (
+    <div className="min-h-screen bg-background" style={orgThemeStyle}>
+      <ReadingProgressBar />
+      <SEOHead
+        title={`${program.title} — ${orgName || 'Siteviral'}`}
+        description={program.description?.slice(0, 155) || `${isFr ? 'Cours par' : 'Course by'} ${orgName} — ${program.is_free ? (isFr ? 'Gratuit' : 'Free') : priceDisplay}`}
+        ogImage={program.cover_image_url || undefined}
+        canonicalUrl={`https://siteviral.com/program/${programId}`}
+      />
+
+      {/* Draft banner for admins */}
+      {isUnpublished && canManage && (
+        <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 py-3">
+          <div className="container max-w-5xl flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 text-sm">
+              <EyeOff className="h-4 w-4 text-amber-600 shrink-0" />
+              <span className="font-medium text-amber-800 dark:text-amber-300">
+                {isFr ? 'Brouillon — Ce cours n\'est pas visible.' : 'Draft — This course is not visible.'}
+              </span>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5 text-xs"
+              onClick={() => navigate(`/admin/programs/${program.id}`)}
+            >
+              <Pencil className="h-3.5 w-3.5" /> {isFr ? 'Modifier' : 'Edit'}
+            </Button>
+          </div>
         </div>
       )}
 
-      {/* Content */}
-      <div className="container max-w-4xl py-6 px-4 space-y-3">
-        {modules.map((mod: any, mi: number) => {
-          const moduleLessons = mod.lessons || [];
-          const moduleCompleted = moduleLessons.filter((l: any) => progress[l.id]?.completed).length;
-          const isModuleComplete = moduleLessons.length > 0 && moduleCompleted === moduleLessons.length;
+      {/* Admin edit button */}
+      {!isUnpublished && canManage && (
+        <div className="bg-muted/50 border-b border-border/50 px-4 py-2">
+          <div className="container max-w-5xl flex items-center justify-end gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5 text-xs"
+              onClick={() => navigate(`/admin/programs/${program.id}`)}
+            >
+              <Pencil className="h-3.5 w-3.5" /> {isFr ? 'Modifier ce cours' : 'Edit course'}
+            </Button>
+          </div>
+        </div>
+      )}
 
-          return (
-            <Collapsible key={mod.id} open={openModules.has(mod.id)} onOpenChange={() => toggleModule(mod.id)}>
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: mi * 0.05 }}
-                className="bg-card border border-border rounded-xl overflow-hidden"
+      {/* Breadcrumb */}
+      <div className="container max-w-5xl px-4 pt-4">
+        <Breadcrumb items={[
+          { label: orgName || 'Organisation', href: `/org/${orgSlug}` },
+          { label: program.title },
+        ]} />
+      </div>
+
+      {/* Top bar */}
+      <div
+        className="sticky top-14 z-20 border-b bg-background/80 backdrop-blur-sm px-4 h-12 flex items-center justify-between"
+        style={topBarStyle}
+      >
+        {org ? (
+          <Link to={`/org/${orgSlug}`} className="flex items-center gap-2.5">
+            {org.logo_url ? (
+              <img src={org.logo_url} alt={orgName} className="h-7 w-7 rounded-lg object-cover" />
+            ) : (
+              <div
+                className="h-7 w-7 rounded-lg flex items-center justify-center text-xs font-bold text-primary-foreground"
+                style={{ backgroundColor: orgPrimary || 'hsl(var(--primary))' }}
               >
-                <CollapsibleTrigger className="w-full flex items-center gap-3 p-4 hover:bg-muted/30 transition-colors">
-                  <div className={cn(
-                    'h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0',
-                    isModuleComplete ? 'bg-primary/15 text-primary' : 'bg-primary/10 text-primary'
-                  )}>
-                    {isModuleComplete ? <CheckCircle className="h-4 w-4" /> : `${mi + 1}`}
-                  </div>
-                  <div className="flex-1 text-left min-w-0">
-                    <p className="text-sm font-semibold truncate">{mod.title}</p>
-                    <p className="text-[10px] text-muted-foreground">
-                      {moduleLessons.length} {isFr ? `leçon${moduleLessons.length !== 1 ? 's' : ''}` : `lesson${moduleLessons.length !== 1 ? 's' : ''}`} · {moduleCompleted} {isFr ? `complétée${moduleCompleted !== 1 ? 's' : ''}` : 'completed'}
-                    </p>
-                  </div>
-                </CollapsibleTrigger>
+                {orgName?.[0]?.toUpperCase()}
+              </div>
+            )}
+            <span className="text-sm font-bold truncate max-w-[180px]">{orgName}</span>
+            {isOrgVerifiedOrKyc(org.is_verified, org.kyc_status) && <VerifiedBadge size="sm" label={getVerifiedLabel(org.category)} className="ml-1" />}
+          </Link>
+        ) : (
+          <Link to={user ? '/feed' : '/'}>
+            <SiteLogo size="sm" linked={false} animate />
+          </Link>
+        )}
+        <div className="flex items-center gap-2">
+          {canManage && (
+            <Button variant="secondary" size="sm" className="gap-1.5 text-xs" onClick={() => navigate(`/admin/programs/${program.id}`)}>
+              <Pencil className="h-3.5 w-3.5" /> {isFr ? 'Modifier' : 'Edit'}
+            </Button>
+          )}
+          <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => navigate(-1)}>
+            <ArrowLeft className="h-4 w-4" /> {isFr ? 'Retour' : 'Back'}
+          </Button>
+        </div>
+      </div>
 
-                <CollapsibleContent>
-                  <div className="border-t border-border divide-y divide-border/50">
-                    {moduleLessons.map((lesson: any, li: number) => {
-                      const LessonIcon = CONTENT_ICONS[lesson.content_type] || FileText;
-                      const isComplete = progress[lesson.id]?.completed;
+      {/* Org-branded banner */}
+      {org && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="relative border-b border-border/30 overflow-hidden"
+          style={bannerBg}
+        >
+          {!orgPrimary && (
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-accent/10" />
+          )}
+          {org.banner_url && (
+            <div className="absolute inset-0">
+              <img src={org.banner_url} alt="" className="w-full h-full object-cover opacity-15" />
+            </div>
+          )}
+          <div className="container max-w-5xl px-4 py-4 relative z-10">
+            <div className="flex items-center gap-4">
+              {org.logo_url ? (
+                <img src={org.logo_url} alt={orgName} className="h-12 w-12 rounded-xl object-cover border-2 border-background shadow-md" />
+              ) : (
+                <div
+                  className="h-12 w-12 rounded-xl flex items-center justify-center text-lg font-bold text-primary-foreground shadow-md border-2 border-background"
+                  style={{ backgroundColor: orgPrimary || 'hsl(var(--primary))' }}
+                >
+                  {orgName?.[0]?.toUpperCase()}
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">{isFr ? 'Proposé par' : 'Offered by'}</p>
+                <p className="font-bold text-sm flex items-center gap-1">
+                  {orgName}
+                  {isOrgVerifiedOrKyc(org.is_verified, org.kyc_status) && <VerifiedBadge size="sm" label={getVerifiedLabel(org.category)} />}
+                </p>
+                {org.description && <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{org.description}</p>}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="gap-1.5 text-xs shrink-0 bg-background/80 backdrop-blur-sm"
+                onClick={() => navigate(`/org/${orgSlug}`)}
+              >
+                <ExternalLink className="h-3.5 w-3.5" /> {isFr ? 'Voir la boutique' : 'View store'}
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
-                      return (
-                        <div key={lesson.id} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/20 transition-colors">
-                          {isEnrolled ? (
-                            <Checkbox
-                              checked={isComplete}
-                              onCheckedChange={(checked) => handleToggleLesson(lesson.id, !!checked)}
-                              className="shrink-0"
-                            />
-                          ) : (
-                            <Lock className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
-                          )}
-                          <LessonIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <p className={cn('text-sm', isComplete && 'line-through text-muted-foreground')}>{lesson.title}</p>
-                          </div>
-                          {lesson.duration_minutes && (
-                            <span className="text-[10px] text-muted-foreground flex items-center gap-0.5 shrink-0">
-                              <Clock className="h-2.5 w-2.5" /> {lesson.duration_minutes}min
-                            </span>
-                          )}
-                          {lesson.content_url && isEnrolled && (
-                            <Button size="sm" variant="ghost" className="h-6 text-[10px] px-2" asChild>
-                              <a href={lesson.content_url} target="_blank" rel="noreferrer">{isFr ? 'Ouvrir' : 'Open'}</a>
-                            </Button>
-                          )}
+      {/* Main content */}
+      <div className="container max-w-5xl px-4 py-6 pb-24 md:pb-6">
+        <div className="grid md:grid-cols-[1fr_340px] gap-6 md:gap-8">
+          {/* Left column */}
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+            {/* Cover / Preview images */}
+            <ProductImageGallery
+              coverImage={program.cover_image_url}
+              previewImages={(program as any).preview_images}
+              title={program.title}
+              aspectClass="aspect-video"
+            />
+
+            {/* Mobile title */}
+            <div className="md:hidden space-y-2">
+              <h1 className="text-2xl font-bold">{program.title}</h1>
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge variant="secondary" className="text-xs capitalize gap-1">
+                  <GraduationCap className="h-3 w-3" /> {isFr ? 'Cours' : 'Course'}
+                </Badge>
+                {(program.enrollment_count || 0) > 0 && (
+                  <span className="text-xs text-muted-foreground">{program.enrollment_count}+ {isFr ? 'inscrits' : 'enrolled'}</span>
+                )}
+              </div>
+            </div>
+
+            {/* Description */}
+            {program.description && (
+              <div className="space-y-4">
+                <h2 className="text-lg font-bold flex items-center gap-2">
+                  <FileText className="h-4.5 w-4.5 text-primary" />
+                  {isFr ? 'Description' : 'Description'}
+                </h2>
+                <div className="p-5 rounded-2xl border border-border bg-card shadow-sm">
+                  <FormattedText
+                    text={program.description}
+                    className="text-sm text-muted-foreground leading-relaxed break-words prose prose-sm max-w-none"
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Course curriculum */}
+            <div className="space-y-3">
+              <h2 className="text-lg font-bold flex items-center gap-2">
+                <Layers className="h-4.5 w-4.5 text-primary" />
+                {isFr ? 'Programme du cours' : 'Course curriculum'}
+              </h2>
+              <div className="flex items-center gap-4 text-xs text-muted-foreground mb-2">
+                <span className="flex items-center gap-1"><Layers className="h-3.5 w-3.5" /> {modules.length} {isFr ? 'modules' : 'modules'}</span>
+                <span className="flex items-center gap-1"><FileText className="h-3.5 w-3.5" /> {totalLessons} {isFr ? 'leçons' : 'lessons'}</span>
+                {isEnrolled && (
+                  <span className="flex items-center gap-1"><CheckCircle className="h-3.5 w-3.5 text-primary" /> {completedLessons}/{totalLessons} {isFr ? 'complétées' : 'completed'}</span>
+                )}
+              </div>
+
+              {isEnrolled && (
+                <div className="space-y-1 mb-3">
+                  <Progress value={progressPercent} className="h-2" />
+                  <p className="text-[10px] text-muted-foreground">{progressPercent}% {isFr ? 'terminé' : 'completed'}</p>
+                </div>
+              )}
+
+              {modules.map((mod: any, mi: number) => {
+                const moduleLessons = mod.lessons || [];
+                const moduleCompleted = moduleLessons.filter((l: any) => progress[l.id]?.completed).length;
+                const isModuleComplete = moduleLessons.length > 0 && moduleCompleted === moduleLessons.length;
+
+                return (
+                  <Collapsible key={mod.id} open={openModules.has(mod.id)} onOpenChange={() => toggleModule(mod.id)}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: mi * 0.05 }}
+                      className="bg-card border border-border rounded-xl overflow-hidden"
+                    >
+                      <CollapsibleTrigger className="w-full flex items-center gap-3 p-4 hover:bg-muted/30 transition-colors">
+                        <div className={cn(
+                          'h-8 w-8 rounded-lg flex items-center justify-center text-xs font-bold shrink-0',
+                          isModuleComplete ? 'bg-primary/15 text-primary' : 'bg-primary/10 text-primary'
+                        )}>
+                          {isModuleComplete ? <CheckCircle className="h-4 w-4" /> : `${mi + 1}`}
                         </div>
-                      );
-                    })}
+                        <div className="flex-1 text-left min-w-0">
+                          <p className="text-sm font-semibold truncate">{mod.title}</p>
+                          <p className="text-[10px] text-muted-foreground">
+                            {moduleLessons.length} {isFr ? `leçon${moduleLessons.length !== 1 ? 's' : ''}` : `lesson${moduleLessons.length !== 1 ? 's' : ''}`} · {moduleCompleted} {isFr ? 'complétée' : 'completed'}
+                          </p>
+                        </div>
+                      </CollapsibleTrigger>
+
+                      <CollapsibleContent>
+                        <div className="border-t border-border divide-y divide-border/50">
+                          {moduleLessons.map((lesson: any) => {
+                            const LessonIcon = CONTENT_ICONS[lesson.content_type] || FileText;
+                            const isComplete = progress[lesson.id]?.completed;
+
+                            return (
+                              <div key={lesson.id} className="flex items-center gap-3 px-4 py-3 hover:bg-muted/20 transition-colors">
+                                {isEnrolled ? (
+                                  <Checkbox
+                                    checked={isComplete}
+                                    onCheckedChange={(checked) => handleToggleLesson(lesson.id, !!checked)}
+                                    className="shrink-0"
+                                  />
+                                ) : (
+                                  <Lock className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" />
+                                )}
+                                <LessonIcon className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <p className={cn('text-sm', isComplete && 'line-through text-muted-foreground')}>{lesson.title}</p>
+                                </div>
+                                {lesson.duration_minutes && (
+                                  <span className="text-[10px] text-muted-foreground flex items-center gap-0.5 shrink-0">
+                                    <Clock className="h-2.5 w-2.5" /> {lesson.duration_minutes}min
+                                  </span>
+                                )}
+                                {lesson.content_url && isEnrolled && (
+                                  <Button size="sm" variant="ghost" className="h-6 text-[10px] px-2" asChild>
+                                    <a href={lesson.content_url} target="_blank" rel="noreferrer">{isFr ? 'Ouvrir' : 'Open'}</a>
+                                  </Button>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </CollapsibleContent>
+                    </motion.div>
+                  </Collapsible>
+                );
+              })}
+            </div>
+
+            {/* Certificate — only if creator enabled it */}
+            {isEnrolled && (program as any).certificate_enabled !== false && (
+              <ProgramCertificate
+                programId={programId!}
+                programTitle={program.title}
+                orgName={orgName}
+                orgLogo={org?.logo_url}
+                progressPercent={progressPercent}
+                totalLessons={totalLessons}
+                completedLessons={completedLessons}
+              />
+            )}
+
+            {/* Other programs by same org */}
+            {otherPrograms.length > 0 && (
+              <div className="space-y-3">
+                <h2 className="text-lg font-bold">{isFr ? 'Autres cours' : 'Other courses'}</h2>
+                <div className="grid grid-cols-2 gap-3">
+                  {otherPrograms.map((p: any) => (
+                    <Link key={p.id} to={`/program/${p.id}`} className="group">
+                      <div className="rounded-xl border border-border bg-card overflow-hidden hover:shadow-md transition-shadow">
+                        {p.cover_image_url ? (
+                          <img src={p.cover_image_url} alt={p.title} className="w-full aspect-video object-cover" />
+                        ) : (
+                          <div className="w-full aspect-video bg-muted flex items-center justify-center">
+                            <GraduationCap className="h-8 w-8 text-muted-foreground/30" />
+                          </div>
+                        )}
+                        <div className="p-3">
+                          <p className="text-sm font-semibold line-clamp-2 group-hover:text-primary transition-colors">{p.title}</p>
+                          <p className="text-xs text-primary font-bold mt-1">
+                            {formatPrice(p.price || 0, p.is_free, p.currency)}
+                          </p>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Recommended products from same org */}
+            {recommendations.length > 0 && (
+              <div className="space-y-3">
+                <h2 className="text-lg font-bold">{isFr ? 'Vous aimerez aussi' : 'You may also like'}</h2>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                  {recommendations.map((p: any) => (
+                    <Link key={p.id} to={`/org/${orgSlug}/p/${p.slug || p.id}`} className="group">
+                      <div className="rounded-xl border border-border bg-card overflow-hidden hover:shadow-md transition-shadow">
+                        {p.cover_image_url ? (
+                          <img src={p.cover_image_url} alt={p.title} className="w-full aspect-[2/3] object-cover" />
+                        ) : (
+                          <div className="w-full aspect-[2/3] bg-muted flex items-center justify-center">
+                            <FileText className="h-8 w-8 text-muted-foreground/30" />
+                          </div>
+                        )}
+                        <div className="p-3">
+                          <p className="text-sm font-semibold line-clamp-2 group-hover:text-primary transition-colors">{p.title}</p>
+                          <p className="text-xs text-primary font-bold mt-1">
+                            {formatPrice(p.price || 0, p.is_free, p.currency)}
+                          </p>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+          </motion.div>
+
+          {/* Right sidebar */}
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="md:sticky md:top-[6.5rem] md:self-start space-y-4 md:max-h-[calc(100vh-7rem)] md:overflow-y-auto scrollbar-hide">
+            <div className="p-5 rounded-2xl border border-border bg-card shadow-card space-y-4">
+              {/* Desktop title */}
+              <div className="hidden md:block space-y-2">
+                <h1 className="text-xl font-bold leading-snug">{program.title}</h1>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge variant="secondary" className="text-xs capitalize gap-1">
+                    <GraduationCap className="h-3 w-3" /> {isFr ? 'Cours' : 'Course'}
+                  </Badge>
+                  {(program.enrollment_count || 0) > 0 && (
+                    <span className="text-xs text-muted-foreground">{program.enrollment_count}+ {isFr ? 'inscrits' : 'enrolled'}</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Price */}
+              <div className="text-center py-2">
+                <span className={cn('text-3xl font-bold', program.is_free ? 'text-emerald-500' : 'text-primary')}>
+                  {priceDisplay}
+                </span>
+                {!program.is_free && (program.price ?? 0) > 0 && (
+                  <div className="mt-0.5">
+                    <LocalPriceHint amount={program.price ?? 0} currency={program.currency || 'XOF'} className="text-xs" />
                   </div>
-                </CollapsibleContent>
-              </motion.div>
-            </Collapsible>
-          );
-        })}
+                )}
+              </div>
+
+              {/* Social proof */}
+              {(program.enrollment_count || 0) > 0 && (
+                <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                  <Users className="h-3.5 w-3.5" />
+                  <span>{program.enrollment_count} {isFr ? 'personnes inscrites' : 'people enrolled'}</span>
+                </div>
+              )}
+
+              {/* Course stats */}
+              <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1"><Layers className="h-3.5 w-3.5" /> {modules.length} {isFr ? 'modules' : 'modules'}</span>
+                <span className="flex items-center gap-1"><FileText className="h-3.5 w-3.5" /> {totalLessons} {isFr ? 'leçons' : 'lessons'}</span>
+              </div>
+
+              {/* CTA */}
+              {isEnrolled ? (
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <Progress value={progressPercent} className="h-2" />
+                    <p className="text-[10px] text-muted-foreground text-center">{progressPercent}% {isFr ? 'terminé' : 'completed'}</p>
+                  </div>
+                  <Button
+                    size="lg"
+                    className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-lg"
+                    onClick={() => navigate('/resources')}
+                  >
+                    <Play className="h-4 w-4" />
+                    {isFr ? 'Continuer le cours' : 'Continue course'}
+                  </Button>
+                </div>
+              ) : (
+                <Button
+                  size="lg"
+                  className="w-full gap-2 font-semibold shadow-lg"
+                  onClick={handleEnroll}
+                  disabled={enrollMutation.isPending}
+                >
+                  {enrollMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Play className="h-4 w-4" />
+                  )}
+                  {program.is_free
+                    ? (isFr ? 'Obtenir gratuitement' : 'Get for free')
+                    : (isFr ? 'S\'inscrire' : 'Enroll now')
+                  }
+                </Button>
+              )}
+
+              {/* Share & actions */}
+              <div className="pt-2 border-t border-border/40 flex items-center gap-2">
+                <div className="flex-1">
+                  <ShareButtons
+                    url={buildShareUrl()}
+                    title={program.title}
+                    description={program.description?.slice(0, 120) || ''}
+                    compact
+                  />
+                </div>
+                {user && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                    title={isFr ? 'Signaler' : 'Report'}
+                    onClick={() => setReportOpen(true)}
+                  >
+                    <Flag className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+
+              <ReportContentDialog
+                open={reportOpen}
+                onOpenChange={setReportOpen}
+                contentId={program.id}
+                contentType="program"
+                contentTitle={program.title}
+                organizationId={program.organization_id}
+              />
+            </div>
+
+            {/* Trust indicators */}
+            <div className="grid grid-cols-3 gap-2">
+              {[
+                { icon: <Shield className="h-4 w-4" style={{ color: orgPrimary || 'hsl(var(--primary))' }} />, label: isFr ? 'Accès sécurisé' : 'Secure access' },
+                { icon: <CheckCircle className="h-4 w-4 text-emerald-500" />, label: isFr ? 'Accès immédiat' : 'Instant access' },
+                { icon: <Star className="h-4 w-4 text-yellow-500" />, label: isFr ? 'Qualité garantie' : 'Quality guaranteed' },
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 + i * 0.08 }}
+                  className="flex flex-col items-center gap-1.5 p-2.5 rounded-xl border border-border/60 bg-muted/30 text-center"
+                >
+                  {item.icon}
+                  <span className="text-[10px] font-medium text-muted-foreground leading-tight">{item.label}</span>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Ambassador features */}
+            <ShareToEarnCTA
+              productId={program.id}
+              organizationId={program.organization_id}
+              organizationSlug={orgSlug}
+            />
+
+            <BecomeAmbassadorCTA
+              organizationId={program.organization_id}
+              orgSlug={orgSlug}
+              orgName={orgName}
+              commissionPercent={org?.affiliation_commission_percent}
+            />
+
+            {/* Seller Trust */}
+            <SellerTrustBadges
+              organizationId={program.organization_id}
+              orgName={orgName}
+              kycStatus={org?.kyc_status}
+            />
+          </motion.div>
+        </div>
       </div>
     </div>
   );
