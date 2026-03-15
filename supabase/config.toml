@@ -220,6 +220,7 @@ verify_jwt = false
 
 [functions.ai-generate-course]
 verify_jwt = false
+wall_clock_limit = 300
 
 [functions.ai-course-help]
 verify_jwt = false

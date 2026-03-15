@@ -4,8 +4,10 @@ import { consumeCreditsWithRefund, consumeCreditsOrThrow, refundCreditsAsBonus, 
 import { aiGenerateImageBase64 } from '../_shared/ai-fallback.ts';
 
 const ACTION_KEY = 'ai_course_structure';
-const IMAGE_GEN_CONCURRENCY = 4;
+const IMAGE_GEN_CONCURRENCY = 6;
 const IMAGE_BUCKET = 'media';
+const FUNCTION_HARD_DEADLINE_MS = 280_000;
+const IMAGE_MIN_REMAINING_MS = 35_000;
 
 function decodeBase64(base64: string): Uint8Array {
   const binary = atob(base64);
@@ -70,11 +72,22 @@ serve(async (req) => {
     const body = await req.json();
     const { title, description, target_audience, language, tier = 'standard', module_count = 5, generate_images = false } = body;
 
+    const functionStartedAt = Date.now();
+    const remainingBudgetMs = () => FUNCTION_HARD_DEADLINE_MS - (Date.now() - functionStartedAt);
+
     if (!title?.trim()) return jsonResp({ error: 'Title is required' }, 400);
 
     const creditTier = normalizeTier(tier);
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) return jsonResp({ error: 'AI not configured' }, 500);
+
+    console.log('[ai-generate-course] Start', {
+      userId,
+      tier: creditTier,
+      module_count,
+      generate_images,
+      title_len: String(title || '').length,
+    });
 
     // ─── Detect language from prompt (not from interface locale) ───
     // Simple heuristic: check for common French patterns in the title/description
@@ -187,9 +200,17 @@ IMPORTANT:
           ? 'google/gemini-2.5-pro'
           : 'google/gemini-2.5-flash';
 
-        const requestCourseCompletion = async (promptText: string, maxTokens: number) => {
+        const requestCourseCompletion = async (promptText: string, maxTokens: number, preferredTimeoutMs: number) => {
+          const budgetMs = remainingBudgetMs();
+          const safeTimeoutMs = Math.min(preferredTimeoutMs, Math.max(15_000, budgetMs - 8_000));
+          if (safeTimeoutMs <= 15_000) {
+            const err = new Error('Server timeout budget reached. Please retry with a shorter prompt.');
+            (err as any).status = 504;
+            throw err;
+          }
+
           const aiController = new AbortController();
-          const aiTimeout = setTimeout(() => aiController.abort(), 95_000);
+          const aiTimeout = setTimeout(() => aiController.abort(), safeTimeoutMs);
 
           try {
             const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -243,7 +264,7 @@ IMPORTANT:
           }
         };
 
-        const aiData = await requestCourseCompletion(userPrompt, 11_000);
+        const aiData = await requestCourseCompletion(userPrompt, 9_000, 70_000);
         const content = aiData.choices?.[0]?.message?.content || '';
 
         let parsed: any = tryParseCourseJson(content);
@@ -251,7 +272,7 @@ IMPORTANT:
         if (!parsed) {
           console.warn('[ai-generate-course] Primary output malformed, retrying with compact constraints');
           const retryPrompt = `${userPrompt}\n\nRETRY MODE (MANDATORY):\n- Return STRICT valid JSON only.\n- Keep response compact to avoid truncation.\n- EXACTLY 2 lessons per module.\n- EXACTLY 2 sections per lesson.\n- EXACTLY 1 quiz comment per lesson.\n- EXACTLY 6 final assessment questions.`;
-          const retryData = await requestCourseCompletion(retryPrompt, 7_000);
+          const retryData = await requestCourseCompletion(retryPrompt, 5_500, 40_000);
           const retryContent = retryData.choices?.[0]?.message?.content || '';
           parsed = tryParseCourseJson(retryContent);
 
@@ -271,6 +292,11 @@ IMPORTANT:
       },
     });
 
+    console.log('[ai-generate-course] Structure generated', {
+      modules: Array.isArray(result?.modules) ? result.modules.length : 0,
+      remaining_budget_ms: remainingBudgetMs(),
+    });
+
     // ─── Image generation (after structure, per lesson) ───
     let imagesGenerated = 0;
     if (generate_images && result?.modules) {
@@ -288,6 +314,11 @@ IMPORTANT:
 
       const worker = async () => {
         while (!creditsExhausted) {
+          if (remainingBudgetMs() <= IMAGE_MIN_REMAINING_MS) {
+            console.warn('[ai-generate-course] Skipping remaining image jobs to avoid edge timeout');
+            return;
+          }
+
           const idx = nextJob++;
           if (idx >= imageJobs.length) return;
 
@@ -314,10 +345,16 @@ IMPORTANT:
           }
 
           try {
+            const budgetMs = remainingBudgetMs();
+            if (budgetMs <= IMAGE_MIN_REMAINING_MS) {
+              throw new Error('Not enough time remaining for image generation');
+            }
+
+            const imageTimeoutMs = Math.min(30_000, Math.max(12_000, budgetMs - 10_000));
             const { base64, mimeType } = await aiGenerateImageBase64({
               geminiKey: GEMINI_API_KEY || '',
               prompt: `Professional educational illustration: ${imagePrompt}. Clean, modern, flat design style. No text in the image.`,
-              timeoutMs: 45_000,
+              timeoutMs: imageTimeoutMs,
             });
 
             const ext = imageExtFromMime(mimeType);
@@ -335,7 +372,25 @@ IMPORTANT:
 
             lesson.content = `<div class="lesson-hero-image"><img src="${imageUrl}" alt="${lesson.title}" loading="lazy" style="width:100%;border-radius:12px;margin-bottom:16px;" /></div>${lesson.content}`;
             imagesGenerated++;
-          } catch (imgErr) {
+          } catch (imgErr: any) {
+            if (String(imgErr?.message || '').includes('Not enough time remaining')) {
+              console.warn('[ai-generate-course] Time budget reached during image generation, returning partial images');
+              if (imgDebited > 0) {
+                try {
+                  await refundCreditsAsBonus({
+                    admin,
+                    userId,
+                    amount: imgDebited,
+                    source: 'ai_course_image',
+                    expiresInDays: 30,
+                  });
+                } catch (_) {
+                  // no-op
+                }
+              }
+              return;
+            }
+
             console.error(`[ai-generate-course] Image gen error for "${lesson.title}":`, imgErr);
             if (imgDebited > 0) {
               try {
@@ -357,6 +412,12 @@ IMPORTANT:
       const workerCount = Math.min(IMAGE_GEN_CONCURRENCY, imageJobs.length || 1);
       await Promise.all(Array.from({ length: workerCount }, () => worker()));
     }
+
+    console.log('[ai-generate-course] Completed', {
+      images_generated: imagesGenerated,
+      elapsed_ms: Date.now() - functionStartedAt,
+      remaining_budget_ms: remainingBudgetMs(),
+    });
 
     return jsonResp({ ok: true, ...result, images_generated: imagesGenerated });
   } catch (err: any) {
