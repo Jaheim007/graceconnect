@@ -230,6 +230,50 @@ export function ProgramForm() {
 
   const totalLessons = modules.reduce((s: number, m: any) => s + (m.lessons?.length || 0), 0);
 
+  const handleAIHelp = async (type: 'title' | 'description') => {
+    const setter = type === 'title' ? setGeneratingTitle : setGeneratingDesc;
+    setter(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error('Not authenticated');
+      const { data, error } = await supabase.functions.invoke('ai-course-help', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: { type, course_title: title, course_description: description?.replace(/<[^>]*>/g, ''), language: isFr ? 'fr' : 'en' },
+      });
+      if (error) throw error;
+      if (data?.result) {
+        if (type === 'title') setTitle(data.result);
+        else setDescription(data.result);
+        toast({ title: isFr ? '✨ Généré par l\'IA' : '✨ AI generated' });
+      }
+    } catch (e: any) {
+      toast({ title: isFr ? 'Erreur' : 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setter(false);
+    }
+  };
+
+  const handleGenerateCover = async () => {
+    setGeneratingCover(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) throw new Error('Not authenticated');
+      const { data, error } = await supabase.functions.invoke('ai-generate-course-cover', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+        body: { title, description: description?.replace(/<[^>]*>/g, '').slice(0, 300), tier: 'standard', org_id: currentOrg?.id },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        setCoverUrl(data.url);
+        toast({ title: isFr ? '✨ Couverture générée !' : '✨ Cover generated!' });
+      }
+    } catch (e: any) {
+      toast({ title: isFr ? 'Erreur' : 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setGeneratingCover(false);
+    }
+  };
+
   // If not in edit mode, redirect to new flow
   if (!isEdit) {
     navigate('/admin/programs', { replace: true });
