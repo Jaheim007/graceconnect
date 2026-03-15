@@ -413,6 +413,12 @@ IMPORTANT:
       await Promise.all(Array.from({ length: workerCount }, () => worker()));
     }
 
+    console.log('[ai-generate-course] Completed', {
+      images_generated: imagesGenerated,
+      elapsed_ms: Date.now() - functionStartedAt,
+      remaining_budget_ms: remainingBudgetMs(),
+    });
+
     return jsonResp({ ok: true, ...result, images_generated: imagesGenerated });
   } catch (err: any) {
     console.error('[ai-generate-course] Error:', err);
