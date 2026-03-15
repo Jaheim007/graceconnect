@@ -335,6 +335,7 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
           orgLogoUrl={orgLogoUrl}
           deviceMode={deviceMode}
           gamificationEnabled={gamificationEnabled}
+          mode={mode}
         />
       );
     }
