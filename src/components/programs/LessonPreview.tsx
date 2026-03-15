@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
   ChevronLeft, ChevronRight,
-  Monitor, Tablet, Smartphone, X, List
+  Monitor, Tablet, Smartphone, X, List, Settings2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { parseContentIntoSlides, ContentSlide } from './lesson-preview/parseContentSlides';
 import { SlideRenderer } from './lesson-preview/SlideRenderer';
+import { SlideCustomizationPanel, DEFAULT_CUSTOMIZATION, type SlideCustomization } from './lesson-preview/SlideCustomizationPanel';
 
 interface LessonPreviewProps {
   programId: string;
@@ -38,17 +39,20 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
   const [deviceMode, setDeviceMode] = useState<DeviceMode>('desktop');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showSidebar, setShowSidebar] = useState(true);
+  const [showCustomizer, setShowCustomizer] = useState(false);
+
+  // Per-slide customizations keyed by slide index
+  const [slideCustomizations, setSlideCustomizations] = useState<Record<number, SlideCustomization>>({});
 
   const orgLogoUrl = (program as any)?.organizations?.logo_url;
 
-  // Build flat slide array: each lesson is split into title-card + content sections
+  // Build flat slide array
   const allSlides: FlatSlide[] = useMemo(() => {
     const slides: FlatSlide[] = [];
     let lessonIdx = 0;
 
     for (const mod of modules) {
       for (const lesson of (mod as any).lessons || []) {
-        // Title card
         slides.push({
           lessonId: lesson.id,
           lessonTitle: lesson.title,
@@ -59,7 +63,6 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
           slideInLesson: 0,
         });
 
-        // Parse content into sub-slides
         const contentSlides = parseContentIntoSlides(lesson.content || '');
         contentSlides.forEach((cs, si) => {
           slides.push({
@@ -79,7 +82,6 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
     return slides;
   }, [modules]);
 
-  // Jump to initial lesson
   useEffect(() => {
     if (initialLessonId && allSlides.length > 0) {
       const idx = allSlides.findIndex(s => s.lessonId === initialLessonId && s.slideInLesson === 0);
@@ -93,7 +95,6 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
   const goNext = () => { if (currentIndex < total - 1) setCurrentIndex(i => i + 1); };
   const goPrev = () => { if (currentIndex > 0) setCurrentIndex(i => i - 1); };
 
-  // Keyboard nav
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') goNext();
@@ -108,6 +109,8 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
     tablet: { w: '768px', maxW: '768px', h: '600px' },
     desktop: { w: '100%', maxW: '960px', h: '560px' },
   };
+
+  const currentCustomization = slideCustomizations[currentIndex] || DEFAULT_CUSTOMIZATION;
 
   if (allSlides.length === 0) {
     return (
@@ -124,7 +127,6 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
     );
   }
 
-  // Build sidebar lesson groups
   const lessonGroups = modules.map((mod: any) => ({
     moduleTitle: mod.title,
     moduleId: mod.id,
@@ -172,6 +174,14 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
         </div>
 
         <div className="flex items-center gap-1">
+          <Button
+            variant={showCustomizer ? 'default' : 'ghost'}
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => setShowCustomizer(!showCustomizer)}
+          >
+            <Settings2 className="h-4 w-4" />
+          </Button>
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowSidebar(!showSidebar)}>
             <List className="h-4 w-4" />
           </Button>
@@ -225,7 +235,6 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
 
         {/* Viewport */}
         <div className="flex-1 flex items-center justify-center p-4 relative overflow-hidden">
-          {/* Nav arrows */}
           {currentIndex > 0 && (
             <button
               onClick={goPrev}
@@ -243,7 +252,6 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
             </button>
           )}
 
-          {/* Device frame */}
           <div
             className={cn(
               'rounded-2xl shadow-2xl border border-border overflow-hidden transition-all duration-300 flex flex-col',
@@ -273,6 +281,7 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
                     moduleTitle={current.moduleTitle}
                     orgLogoUrl={orgLogoUrl}
                     deviceMode={deviceMode}
+                    customization={currentCustomization}
                   />
                 )}
               </motion.div>
@@ -280,7 +289,6 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
 
             {/* Bottom bar */}
             <div className="border-t border-border px-4 py-2.5 flex items-center justify-between shrink-0 bg-card">
-              {/* Progress bar */}
               <div className="flex-1 mr-4">
                 <div className="h-1 bg-muted rounded-full overflow-hidden">
                   <div
@@ -304,6 +312,17 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
             </div>
           </div>
         </div>
+
+        {/* Customization Panel */}
+        {showCustomizer && (
+          <SlideCustomizationPanel
+            customization={currentCustomization}
+            onChange={(c) => setSlideCustomizations(prev => ({ ...prev, [currentIndex]: c }))}
+            onGenerateImage={() => {
+              // TODO: wire AI image generation
+            }}
+          />
+        )}
       </div>
     </div>
   );
