@@ -1,11 +1,15 @@
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { Star, Trophy, Flame, PartyPopper, Target, Share2 } from 'lucide-react';
-import { useState } from 'react';
+import { Star, Trophy, Flame, PartyPopper, Target, Share2, Award, Download } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import type { SlideTheme } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
 import { useI18n } from '@/i18n/I18nContext';
+import { useSaveCertificate, useSaveSlideProgress } from '@/hooks/useLearnerProgress';
+import { useAuth } from '@/contexts/AuthContext';
+import { useOrg } from '@/contexts/OrgContext';
+import { Button } from '@/components/ui/button';
 
 interface CourseCompletionSlideProps {
   theme: SlideTheme;
@@ -18,6 +22,7 @@ interface CourseCompletionSlideProps {
   orgLogoUrl?: string | null;
   deviceMode: 'mobile' | 'tablet' | 'desktop';
   gamificationEnabled?: boolean;
+  mode?: 'creator' | 'learner';
 }
 
 // Animated floating particles
