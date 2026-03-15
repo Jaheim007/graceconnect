@@ -2419,6 +2419,47 @@ export type Database = {
           },
         ]
       }
+      lesson_attachments: {
+        Row: {
+          created_at: string
+          display_order: number | null
+          file_name: string
+          file_size: number | null
+          file_url: string
+          id: string
+          lesson_id: string
+          mime_type: string | null
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number | null
+          file_name: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          lesson_id: string
+          mime_type?: string | null
+        }
+        Update: {
+          created_at?: string
+          display_order?: number | null
+          file_name?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          lesson_id?: string
+          mime_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lesson_attachments_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "program_lessons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lesson_progress: {
         Row: {
           completed: boolean
@@ -4292,7 +4333,10 @@ export type Database = {
       program_lessons: {
         Row: {
           content: string | null
+          content_type: string | null
+          content_url: string | null
           created_at: string
+          display_order: number | null
           duration_minutes: number | null
           id: string
           is_free_preview: boolean | null
@@ -4308,7 +4352,10 @@ export type Database = {
         }
         Insert: {
           content?: string | null
+          content_type?: string | null
+          content_url?: string | null
           created_at?: string
+          display_order?: number | null
           duration_minutes?: number | null
           id?: string
           is_free_preview?: boolean | null
@@ -4324,7 +4371,10 @@ export type Database = {
         }
         Update: {
           content?: string | null
+          content_type?: string | null
+          content_url?: string | null
           created_at?: string
+          display_order?: number | null
           duration_minutes?: number | null
           id?: string
           is_free_preview?: boolean | null
