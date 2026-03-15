@@ -150,6 +150,12 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
           <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
             {currentIndex + 1} / {total}
           </span>
+          {starsEarned > 0 && (
+            <span className="flex items-center gap-1 text-[10px] font-medium bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">
+              <Star className="h-3 w-3 fill-yellow-500 text-yellow-500" />
+              {starsEarned}
+            </span>
+          )}
         </div>
 
         {/* Device toggle */}
