@@ -156,11 +156,14 @@ CRITICAL REQUIREMENTS FOR MICRO-LEARNING:
 - "course_description" should be a marketing description explaining what the learner will gain
 - "image_prompt" for each lesson should be a vivid description in ENGLISH for AI image generation (even if course is in French)
 
-GAMIFICATION & QUIZ RULES:
-- QUIZ QUESTIONS: Embed EXACTLY 1-2 quiz questions PER LESSON using HTML comments: <!-- QUIZ:{"question":"...","options":["A","B","C"],"correctIndex":0,"explanation":"..."} -->
-- Place quizzes AFTER the content they test (between sections)
+GAMIFICATION & INTERACTIVE ELEMENTS:
+- QUIZ QUESTIONS: Embed 1-2 quiz questions PER LESSON using: <!-- QUIZ:{"question":"...","options":["A","B","C"],"correctIndex":0,"explanation":"..."} -->
+- FLASHCARDS: Add 1 flashcard per lesson for key terms: <!-- FLASHCARD:{"front":"Term or question","back":"Definition or answer"} -->
+- MATCHING: Add 1 matching exercise per module (in any lesson): <!-- MATCHING:{"pairs":[{"left":"Term","right":"Definition"},{"left":"Term2","right":"Definition2"}]} --> (minimum 3 pairs)
+- ORDERING: Optionally add 1 ordering exercise: <!-- ORDERING:{"instruction":"Put these steps in order","items":["Step 1","Step 2","Step 3"],"correctOrder":[0,1,2]} -->
+- Place interactive elements AFTER the content they test
 - Each quiz must have 3-4 options with exactly one correct answer (correctIndex is 0-based)
-- Make quizzes FUN and ENGAGING — use real-world scenarios, not boring textbook questions
+- Make all interactions FUN and ENGAGING — use real-world scenarios
 - Include encouraging language in explanations
 
 FINAL ASSESSMENT:
