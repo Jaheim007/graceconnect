@@ -15,6 +15,7 @@ import {
   ArrowLeft, Save, Loader2, FileText, Video, Upload, Trash2,
   HelpCircle, Plus, CheckCircle2, XCircle, Paperclip, Clock, Eye
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface LessonEditorProps {
   lessonId: string;
