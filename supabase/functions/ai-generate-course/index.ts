@@ -4,6 +4,21 @@ import { consumeCreditsWithRefund, consumeCreditsOrThrow, refundCreditsAsBonus, 
 import { aiGenerateImageBase64 } from '../_shared/ai-fallback.ts';
 
 const ACTION_KEY = 'ai_course_structure';
+const IMAGE_GEN_CONCURRENCY = 4;
+const IMAGE_BUCKET = 'media';
+
+function decodeBase64(base64: string): Uint8Array {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+function imageExtFromMime(mimeType: string): string {
+  if (mimeType.includes('jpeg')) return 'jpg';
+  if (mimeType.includes('webp')) return 'webp';
+  return 'png';
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
