@@ -46,14 +46,17 @@ export default function AdminPrograms() {
   const [showAI, setShowAI] = useState(false);
   const [showBlank, setShowBlank] = useState(false);
   const [showConvert, setShowConvert] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
 
-  const handleDelete = async (id: string, title: string) => {
-    if (!confirm(isFr ? `Supprimer "${title}" ?` : `Delete "${title}"?`)) return;
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await deleteProgram.mutateAsync(id);
+      await deleteProgram.mutateAsync(deleteTarget.id);
       toast({ title: isFr ? 'Programme supprimé' : 'Program deleted' });
     } catch (e: any) {
       toast({ title: isFr ? 'Erreur' : 'Error', description: e.message, variant: 'destructive' });
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
