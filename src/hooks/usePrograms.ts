@@ -27,7 +27,7 @@ export function useProgram(programId: string | undefined) {
     queryFn: async () => {
       if (!programId) return null;
       const { data } = await db.from('programs')
-        .select('*, organizations(name, slug, logo_url, currency)')
+        .select('*, organizations(name, slug, logo_url, currency, description, banner_url, is_verified, kyc_status, category, affiliation_enabled, affiliation_commission_percent)')
         .eq('id', programId)
         .maybeSingle();
       return data;
