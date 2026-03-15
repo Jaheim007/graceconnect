@@ -39,7 +39,7 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
   const [deviceMode, setDeviceMode] = useState<DeviceMode>('desktop');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showSidebar, setShowSidebar] = useState(true);
-  const [showCustomizer, setShowCustomizer] = useState(false);
+  const [showCustomizer, setShowCustomizer] = useState(true);
 
   // Per-slide customizations keyed by slide index
   const [slideCustomizations, setSlideCustomizations] = useState<Record<number, SlideCustomization>>({});

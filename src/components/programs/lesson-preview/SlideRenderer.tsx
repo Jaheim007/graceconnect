@@ -26,9 +26,9 @@ const captionClasses: Record<CaptionStyle, string> = {
 };
 
 const captionPositionClasses: Record<CaptionPosition, string> = {
-  top: 'justify-start',
-  middle: 'justify-center',
-  bottom: 'justify-end',
+  top: 'justify-start pt-4',
+  middle: 'justify-center items-center',
+  bottom: 'justify-end pb-4',
 };
 
 const imagePositionClasses: Record<ImagePosition, string> = {
@@ -108,6 +108,9 @@ export function SlideRenderer({
     'prose-li:leading-relaxed',
     'prose-blockquote:border-l-2 prose-blockquote:opacity-75 prose-blockquote:rounded-lg prose-blockquote:px-4 prose-blockquote:py-3',
     'prose-a:text-blue-300',
+    'prose-img:rounded-lg prose-img:max-h-[200px] prose-img:w-auto prose-img:mx-auto prose-img:object-contain',
+    'prose-video:rounded-lg prose-video:max-h-[200px] prose-video:w-full',
+    'prose-iframe:rounded-lg prose-iframe:max-h-[200px] prose-iframe:w-full',
     captionStyle === 'light' || captionStyle === 'transparent-dark'
       ? 'prose-headings:text-slate-900 prose-p:text-slate-700 prose-li:text-slate-700 prose-strong:text-slate-900'
       : 'prose-invert prose-headings:text-white prose-p:text-white/85 prose-li:text-white/85 prose-strong:text-white',
@@ -121,8 +124,8 @@ export function SlideRenderer({
         {hasBgImage && <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} />}
         {hasBgImage && <div className="absolute inset-0 bg-black/50 z-[1]" />}
         <SlideDecoration theme={theme} />
-        <Header />
-        <div className={cn('flex-1 flex flex-col px-6 relative z-10', captionPositionClasses[captionPos])}>
+        <div className="relative z-20"><Header /></div>
+        <div className={cn('absolute inset-0 flex flex-col px-6 z-10', captionPositionClasses[captionPos])}>
           <div className={cn(
             'rounded-xl px-6 py-8 max-w-lg',
             captionStyle === 'transparent-light' || captionStyle === 'transparent-dark'
@@ -209,11 +212,11 @@ export function SlideRenderer({
       {hasBgImage && <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} />}
       {hasBgImage && <div className="absolute inset-0 bg-black/50 z-[1]" />}
       <SlideDecoration theme={theme} />
-      <Header />
+      <div className="relative z-20"><Header /></div>
 
-      <div className={cn('flex-1 flex flex-col relative z-10', isMobile ? 'px-5 py-4' : 'px-8 py-6', captionPositionClasses[captionPos])}>
+      <div className={cn('absolute inset-0 flex flex-col z-10', isMobile ? 'px-5' : 'px-8', captionPositionClasses[captionPos])}>
         <div className={cn(
-          'rounded-xl max-w-2xl w-full',
+          'rounded-xl max-w-2xl w-full overflow-y-auto max-h-[70%]',
           captionStyle === 'transparent-light' || captionStyle === 'transparent-dark'
             ? cn(captionClasses[captionStyle], 'px-1 py-1')
             : cn(captionClasses[captionStyle], 'px-6 py-5 shadow-xl', theme.captionGlow)
