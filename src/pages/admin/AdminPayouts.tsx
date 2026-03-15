@@ -321,7 +321,9 @@ export default function AdminPayouts() {
             {/* How it works mini-guide */}
             <div className="bg-muted/30 border-t border-border px-5 py-3">
               <p className="text-[10px] text-muted-foreground">
-                <strong>Comment ça marche :</strong> Ventes disponibles après 72h · Commissions ambassadeur après 15 jours · Demandez un retrait → L'équipe vérifie et traite sous 3-8 jours.
+                <strong>{isFr ? 'Comment ça marche :' : 'How it works:'}</strong> {isFr
+                  ? 'Ventes disponibles après 72h · Commissions ambassadeur après 15 jours · Demandez un retrait → L\'équipe vérifie et traite sous 3-8 jours.'
+                  : 'Sales available after 72h · Ambassador commissions after 15 days · Request a withdrawal → The team verifies and processes within 3-8 days.'}
               </p>
             </div>
           </div>
