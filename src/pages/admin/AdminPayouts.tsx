@@ -406,7 +406,7 @@ export default function AdminPayouts() {
                       </p>
                     )}
                     {p.reject_reason && (
-                      <p className="text-[10px] text-destructive mt-0.5">Motif : {p.reject_reason}</p>
+                      <p className="text-[10px] text-destructive mt-0.5">{isFr ? 'Motif' : 'Reason'}: {p.reject_reason}</p>
                     )}
                   </div>
                 </motion.div>
