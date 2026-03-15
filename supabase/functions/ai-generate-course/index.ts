@@ -81,6 +81,14 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) return jsonResp({ error: 'AI not configured' }, 500);
 
+    console.log('[ai-generate-course] Start', {
+      userId,
+      tier: creditTier,
+      module_count,
+      generate_images,
+      title_len: String(title || '').length,
+    });
+
     // ─── Detect language from prompt (not from interface locale) ───
     // Simple heuristic: check for common French patterns in the title/description
     const textToAnalyze = `${title} ${description || ''}`.toLowerCase();
