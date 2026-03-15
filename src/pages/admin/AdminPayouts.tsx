@@ -201,13 +201,13 @@ export default function AdminPayouts() {
         {/* ═══ Revenue Breakdown – Ambassador Earnings ═══ */}
         {fundSummary && (
           <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Gains Ambassadeur (Earn by Sharing)</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{isFr ? 'Gains Ambassadeur (Earn by Sharing)' : 'Ambassador Earnings (Earn by Sharing)'}</p>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {[
-                { label: 'Total gagné', value: fmt(fundSummary.totalAmbassadorEarned, currency), icon: ArrowUpRight, colorClass: 'from-purple-500/15 to-purple-500/5 border-purple-500/20', sub: 'Commissions cumulées' },
-                { label: 'Disponible', value: fmt(fundSummary.ambassadorPayable, currency), icon: CheckCircle, colorClass: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/20', sub: 'Après 15 jours' },
-                { label: 'En attente (15j)', value: fmt(fundSummary.ambassadorPending, currency), icon: TimerReset, colorClass: 'from-amber-500/15 to-amber-500/5 border-amber-500/20', sub: 'Période de rétention' },
-                { label: 'Déjà versé', value: fmt(fundSummary.ambassadorPaid, currency), icon: CheckCircle, colorClass: 'from-muted/60 to-muted/30 border-border', sub: 'Retraits effectués' },
+                { label: isFr ? 'Total gagné' : 'Total earned', value: fmt(fundSummary.totalAmbassadorEarned, currency), icon: ArrowUpRight, colorClass: 'from-purple-500/15 to-purple-500/5 border-purple-500/20', sub: isFr ? 'Commissions cumulées' : 'Cumulative commissions' },
+                { label: isFr ? 'Disponible' : 'Available', value: fmt(fundSummary.ambassadorPayable, currency), icon: CheckCircle, colorClass: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/20', sub: isFr ? 'Après 15 jours' : 'After 15 days' },
+                { label: isFr ? 'En attente (15j)' : 'Pending (15d)', value: fmt(fundSummary.ambassadorPending, currency), icon: TimerReset, colorClass: 'from-amber-500/15 to-amber-500/5 border-amber-500/20', sub: isFr ? 'Période de rétention' : 'Holding period' },
+                { label: isFr ? 'Déjà versé' : 'Already paid', value: fmt(fundSummary.ambassadorPaid, currency), icon: CheckCircle, colorClass: 'from-muted/60 to-muted/30 border-border', sub: isFr ? 'Retraits effectués' : 'Completed withdrawals' },
               ].map(c => (
                 <motion.div key={c.label} variants={fadeUp} className={cn('rounded-2xl border p-4 bg-gradient-to-br', c.colorClass)}>
                   <c.icon className="h-4 w-4 text-muted-foreground mb-1" />
