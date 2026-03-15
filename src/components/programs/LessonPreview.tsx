@@ -24,6 +24,13 @@ interface LessonPreviewProps {
 
 type DeviceMode = 'mobile' | 'tablet' | 'desktop';
 
+/** Extract the first <img src="…"> URL from HTML */
+function extractFirstImageUrl(html: string | null): string | undefined {
+  if (!html) return undefined;
+  const m = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  return m?.[1] || undefined;
+}
+
 interface FlatSlide {
   lessonId: string;
   lessonTitle: string;
@@ -32,6 +39,7 @@ interface FlatSlide {
   slide: ContentSlide;
   lessonIndex: number;
   slideInLesson: number;
+  lessonImageUrl?: string;
 }
 
 export function LessonPreview({ programId, initialLessonId, onClose }: LessonPreviewProps) {
