@@ -1,8 +1,11 @@
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { Star, Trophy, Flame, PartyPopper, Target } from 'lucide-react';
+import { Star, Trophy, Flame, PartyPopper, Target, Share2 } from 'lucide-react';
+import { useState } from 'react';
 import type { SlideTheme } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
+import { SocialShareKit } from '@/components/sharing/SocialShareKit';
+import { useI18n } from '@/i18n/I18nContext';
 
 interface CourseCompletionSlideProps {
   theme: SlideTheme;
@@ -11,6 +14,7 @@ interface CourseCompletionSlideProps {
   assessmentScore?: number;
   assessmentTotal?: number;
   courseTitle: string;
+  programId?: string;
   orgLogoUrl?: string | null;
   deviceMode: 'mobile' | 'tablet' | 'desktop';
   gamificationEnabled?: boolean;
@@ -55,11 +59,16 @@ export function CourseCompletionSlide({
   assessmentScore,
   assessmentTotal,
   courseTitle,
+  programId,
   orgLogoUrl,
   deviceMode,
   gamificationEnabled = true,
 }: CourseCompletionSlideProps) {
   const isMobile = deviceMode === 'mobile';
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+  const [showShare, setShowShare] = useState(false);
+  
   const hasAssessment = assessmentScore !== undefined && assessmentTotal !== undefined;
   const assessmentPct = hasAssessment ? Math.round((assessmentScore! / assessmentTotal!) * 100) : 0;
   const overallStarRating = hasAssessment 
@@ -67,6 +76,11 @@ export function CourseCompletionSlide({
     : totalQuizzes > 0 
       ? Math.min(5, Math.round((starsEarned / totalQuizzes) * 5))
       : 5;
+
+  const shareUrl = programId ? `/program/${programId}` : '/my-programs';
+  const shareDescription = isFr
+    ? `🎓 Je viens de terminer le cours « ${courseTitle} » et j'ai obtenu ${overallStarRating}/5 étoiles ! Découvre ce cours 👉`
+    : `🎓 I just completed the course "${courseTitle}" and got ${overallStarRating}/5 stars! Check out this course 👉`;
 
   return (
     <div className={cn('h-full flex flex-col text-white relative overflow-hidden bg-gradient-to-br', theme.gradient)}>
@@ -86,106 +100,144 @@ export function CourseCompletionSlide({
       </div>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 relative z-10 gap-5">
-        {/* Trophy */}
-        <motion.div
-          initial={{ scale: 0, rotate: -20 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: 'spring', damping: 8, delay: 0.3 }}
-        >
-          <div className="relative">
-            <Trophy className="h-20 w-20 text-yellow-400 drop-shadow-[0_0_20px_rgba(250,204,21,0.4)]" />
+      <div className="flex-1 flex flex-col items-center justify-center px-6 relative z-10 gap-4 overflow-y-auto scrollbar-none [&::-webkit-scrollbar]:hidden">
+        {!showShare ? (
+          <>
+            {/* Trophy */}
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: [1, 1.3, 1] }}
-              transition={{ delay: 0.8, duration: 0.5 }}
-              className="absolute -top-2 -right-2"
+              initial={{ scale: 0, rotate: -20 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ type: 'spring', damping: 8, delay: 0.3 }}
             >
-              <Flame className="h-8 w-8 text-orange-400" />
+              <div className="relative">
+                <Trophy className="h-16 w-16 text-yellow-400 drop-shadow-[0_0_20px_rgba(250,204,21,0.4)]" />
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: [1, 1.3, 1] }}
+                  transition={{ delay: 0.8, duration: 0.5 }}
+                  className="absolute -top-2 -right-2"
+                >
+                  <Flame className="h-7 w-7 text-orange-400" />
+                </motion.div>
+              </div>
             </motion.div>
-          </div>
-        </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="text-center"
-        >
-          <h1 className={cn('font-bold mb-1', isMobile ? 'text-2xl' : 'text-3xl')}>
-            🎉 Cours terminé !
-          </h1>
-          <p className="text-white/60 text-sm">Félicitations pour avoir complété ce cours</p>
-        </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+              className="text-center"
+            >
+              <h1 className={cn('font-bold mb-1', isMobile ? 'text-xl' : 'text-2xl')}>
+                🎉 {isFr ? 'Cours terminé !' : 'Course completed!'}
+              </h1>
+              <p className="text-white/60 text-xs">{isFr ? 'Félicitations pour avoir complété ce cours' : 'Congratulations on completing this course'}</p>
+            </motion.div>
 
-        {/* Star rating */}
-        {gamificationEnabled && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7 }}
-            className="flex items-center gap-2"
-          >
-            {[1, 2, 3, 4, 5].map((s) => (
+            {/* Star rating */}
+            {gamificationEnabled && (
               <motion.div
-                key={s}
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ delay: 0.8 + s * 0.12, type: 'spring', damping: 10 }}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7 }}
+                className="flex items-center gap-1.5"
               >
-                <Star
-                  className={cn(
-                    'h-9 w-9',
-                    s <= overallStarRating
-                      ? 'text-yellow-400 fill-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]'
-                      : 'text-white/20'
-                  )}
-                />
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <motion.div
+                    key={s}
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.8 + s * 0.12, type: 'spring', damping: 10 }}
+                  >
+                    <Star
+                      className={cn(
+                        'h-8 w-8',
+                        s <= overallStarRating
+                          ? 'text-yellow-400 fill-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]'
+                          : 'text-white/20'
+                      )}
+                    />
+                  </motion.div>
+                ))}
               </motion.div>
-            ))}
+            )}
+
+            {/* Stats */}
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.4 }}
+              className={cn('grid gap-2 w-full max-w-sm', hasAssessment ? 'grid-cols-2' : 'grid-cols-1')}
+            >
+              {gamificationEnabled && totalQuizzes > 0 && (
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/10">
+                  <div className="flex items-center justify-center gap-1.5 mb-0.5">
+                    <Star className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400" />
+                    <span className="text-base font-bold">{starsEarned}</span>
+                  </div>
+                  <p className="text-[9px] text-white/50 uppercase tracking-wider">{isFr ? 'Étoiles gagnées' : 'Stars earned'}</p>
+                </div>
+              )}
+              
+              {hasAssessment && (
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/10">
+                  <div className="flex items-center justify-center gap-1.5 mb-0.5">
+                    <Target className="h-3.5 w-3.5 text-emerald-400" />
+                    <span className="text-base font-bold">{assessmentPct}%</span>
+                  </div>
+                  <p className="text-[9px] text-white/50 uppercase tracking-wider">{isFr ? 'Score final' : 'Final score'}</p>
+                </div>
+              )}
+            </motion.div>
+
+            {/* Share CTA */}
+            <motion.button
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.8 }}
+              onClick={() => setShowShare(true)}
+              className="flex items-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-sm rounded-full px-5 py-2.5 border border-white/20 transition-all hover:scale-105 active:scale-95"
+            >
+              <Share2 className="h-4 w-4" />
+              <span className="text-sm font-medium">{isFr ? 'Partager mon résultat' : 'Share my result'}</span>
+            </motion.button>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 2.0 }}
+              className="text-[10px] text-white/40 text-center max-w-xs"
+            >
+              {overallStarRating >= 4 
+                ? (isFr ? '🔥 Performance exceptionnelle ! Vous maîtrisez ce sujet.' : '🔥 Exceptional performance! You mastered this topic.')
+                : overallStarRating >= 3
+                  ? (isFr ? '👏 Bon travail ! Vous progressez bien.' : '👏 Good job! You are progressing well.')
+                  : (isFr ? '💪 Continuez à apprendre ! La pratique mène à la perfection.' : '💪 Keep learning! Practice leads to perfection.')}
+            </motion.p>
+          </>
+        ) : (
+          /* Share panel */
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-sm space-y-3"
+          >
+            <button
+              onClick={() => setShowShare(false)}
+              className="text-xs text-white/50 hover:text-white/80 transition-colors mb-2"
+            >
+              ← {isFr ? 'Retour' : 'Back'}
+            </button>
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/15">
+              <SocialShareKit
+                url={shareUrl}
+                title={courseTitle}
+                description={shareDescription}
+                context="post-purchase"
+              />
+            </div>
           </motion.div>
         )}
-
-        {/* Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.4 }}
-          className={cn('grid gap-3 w-full max-w-sm', hasAssessment ? 'grid-cols-2' : 'grid-cols-1')}
-        >
-          {gamificationEnabled && totalQuizzes > 0 && (
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/10">
-              <div className="flex items-center justify-center gap-1.5 mb-1">
-                <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                <span className="text-lg font-bold">{starsEarned}</span>
-              </div>
-              <p className="text-[10px] text-white/50 uppercase tracking-wider">Étoiles gagnées</p>
-            </div>
-          )}
-          
-          {hasAssessment && (
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center border border-white/10">
-              <div className="flex items-center justify-center gap-1.5 mb-1">
-                <Target className="h-4 w-4 text-emerald-400" />
-                <span className="text-lg font-bold">{assessmentPct}%</span>
-              </div>
-              <p className="text-[10px] text-white/50 uppercase tracking-wider">Score final</p>
-            </div>
-          )}
-        </motion.div>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.8 }}
-          className="text-xs text-white/40 text-center max-w-xs"
-        >
-          {overallStarRating >= 4 
-            ? '🔥 Performance exceptionnelle ! Vous maîtrisez ce sujet.'
-            : overallStarRating >= 3
-              ? '👏 Bon travail ! Vous progressez bien.'
-              : '💪 Continuez à apprendre ! La pratique mène à la perfection.'}
-        </motion.p>
       </div>
     </div>
   );

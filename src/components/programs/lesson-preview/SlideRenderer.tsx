@@ -157,8 +157,13 @@ export function SlideRenderer({
           {moduleTitle?.[0] || 'C'}
         </div>
       )}
-      <span className="text-xs text-white/60 flex-1 truncate">{lessonTitle}</span>
-      <span className="text-[10px] bg-white/15 rounded-full px-2.5 py-0.5 text-white/80 font-medium">
+      <div className="flex-1 min-w-0">
+        <span className="text-xs text-white/60 block truncate">{lessonTitle}</span>
+        {moduleTitle && (
+          <span className="text-[9px] text-white/40 block truncate">{moduleTitle}</span>
+        )}
+      </div>
+      <span className="text-[10px] bg-white/15 rounded-full px-2.5 py-0.5 text-white/80 font-medium shrink-0">
         {slideIndex + 1} / {totalSlides}
       </span>
     </div>
@@ -178,9 +183,9 @@ export function SlideRenderer({
     'prose-li:leading-relaxed',
     'prose-blockquote:border-l-2 prose-blockquote:opacity-75 prose-blockquote:rounded-lg prose-blockquote:px-4 prose-blockquote:py-3',
     'prose-a:text-blue-300',
-    'prose-img:rounded-lg prose-img:max-h-[200px] prose-img:w-auto prose-img:mx-auto prose-img:object-contain',
-    'prose-video:rounded-lg prose-video:max-h-[200px] prose-video:w-full',
-    'prose-iframe:rounded-lg prose-iframe:max-h-[200px] prose-iframe:w-full',
+    'prose-img:rounded-lg prose-img:max-h-[140px] prose-img:w-auto prose-img:mx-auto prose-img:object-contain',
+    'prose-video:rounded-lg prose-video:max-h-[160px] prose-video:w-full',
+    'prose-iframe:rounded-lg prose-iframe:max-h-[160px] prose-iframe:w-full',
     captionStyle === 'light' || captionStyle === 'transparent-dark'
       ? 'prose-headings:text-slate-900 prose-p:text-slate-700 prose-li:text-slate-700 prose-strong:text-slate-900'
       : 'prose-invert prose-headings:text-white prose-p:text-white/85 prose-li:text-white/85 prose-strong:text-white',
@@ -202,6 +207,9 @@ export function SlideRenderer({
               ? captionClasses[captionStyle]
               : cn(captionClasses[captionStyle], 'shadow-2xl', theme.captionGlow)
           )}>
+            {moduleTitle && (
+              <p className="text-[10px] uppercase tracking-widest text-white/40 mb-2">{moduleTitle}</p>
+            )}
             <AccentLine />
             <h1 className={cn('font-bold leading-tight mb-2', isMobile ? 'text-2xl' : 'text-3xl')}>
               {lessonTitle}
