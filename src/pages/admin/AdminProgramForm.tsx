@@ -73,6 +73,9 @@ export function ProgramForm() {
   const [newLessonTitle, setNewLessonTitle] = useState('');
   const [showAIGenerator, setShowAIGenerator] = useState(false);
   const [applyingAI, setApplyingAI] = useState(false);
+  const [generatingTitle, setGeneratingTitle] = useState(false);
+  const [generatingDesc, setGeneratingDesc] = useState(false);
+  const [generatingCover, setGeneratingCover] = useState(false);
 
   const updateProgram = useUpdateProgram();
   const createModule = useCreateModule();
