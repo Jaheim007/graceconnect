@@ -411,6 +411,14 @@ export function ProgramForm() {
                   </Collapsible>
                 ))}
 
+                {/* AI Generator */}
+                {showAIGenerator && (
+                  <AICourseGenerator
+                    onGenerated={handleAIGenerated}
+                    onCancel={() => setShowAIGenerator(false)}
+                  />
+                )}
+
                 {/* Add module */}
                 <div className="flex items-center gap-2">
                   <Input
@@ -423,13 +431,21 @@ export function ProgramForm() {
                   <Button onClick={handleAddModule} disabled={!newModuleTitle.trim() || createModule.isPending} className="gap-1.5 shrink-0">
                     <Plus className="h-3.5 w-3.5" /> {isFr ? 'Module' : 'Module'}
                   </Button>
+                  {!showAIGenerator && (
+                    <Button variant="outline" onClick={() => setShowAIGenerator(true)} className="gap-1.5 shrink-0" disabled={applyingAI}>
+                      <Sparkles className="h-3.5 w-3.5" /> IA
+                    </Button>
+                  )}
                 </div>
 
-                {modules.length === 0 && (
+                {modules.length === 0 && !showAIGenerator && (
                   <div className="text-center py-12 text-muted-foreground">
                     <Layers className="h-10 w-10 mx-auto mb-3 opacity-30" />
                     <p className="text-sm font-medium">{isFr ? 'Aucun module' : 'No modules yet'}</p>
-                    <p className="text-xs mt-1">{isFr ? 'Ajoutez un module pour structurer votre cours' : 'Add a module to structure your course'}</p>
+                    <p className="text-xs mt-1">{isFr ? 'Ajoutez un module manuellement ou générez avec l\'IA' : 'Add a module manually or generate with AI'}</p>
+                    <Button variant="outline" className="mt-3 gap-1.5" onClick={() => setShowAIGenerator(true)}>
+                      <Sparkles className="h-3.5 w-3.5" /> {isFr ? 'Générer avec l\'IA' : 'Generate with AI'}
+                    </Button>
                   </div>
                 )}
               </>
