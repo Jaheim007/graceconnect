@@ -127,8 +127,8 @@ export default function ProgramDetailPage() {
         </div>
       </div>
 
-      {/* Certificate */}
-      {isEnrolled && (
+      {/* Certificate — only if creator enabled it */}
+      {isEnrolled && (program as any).certificate_enabled !== false && (
         <div className="container max-w-4xl px-4 pt-4">
           <ProgramCertificate
             programId={programId!}
