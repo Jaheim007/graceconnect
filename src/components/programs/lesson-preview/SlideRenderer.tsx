@@ -116,6 +116,7 @@ export function SlideRenderer({
   deviceMode,
   customization,
   onStarEarned,
+  gamificationEnabled,
 }: SlideRendererProps) {
   const theme = getSlideTheme(slideIndex);
   const isMobile = deviceMode === 'mobile';
@@ -133,6 +134,7 @@ export function SlideRenderer({
         orgLogoUrl={orgLogoUrl}
         deviceMode={deviceMode}
         onStarEarned={onStarEarned}
+        gamificationEnabled={gamificationEnabled}
       />
     );
   }
