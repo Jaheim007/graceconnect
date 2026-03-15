@@ -307,12 +307,12 @@ export default function AdminPayouts() {
               <div className="bg-destructive/5 border-t border-destructive/20 px-5 py-3 flex items-center gap-3">
                 <Lock className="h-4 w-4 text-destructive shrink-0" />
                 <div className="flex-1">
-                  <p className="text-xs font-semibold text-destructive">Vérification d'identité requise</p>
-                  <p className="text-[10px] text-muted-foreground">Vous devez vérifier votre identité avant de pouvoir demander un retrait.</p>
+                  <p className="text-xs font-semibold text-destructive">{isFr ? "Vérification d'identité requise" : 'Identity verification required'}</p>
+                  <p className="text-[10px] text-muted-foreground">{isFr ? "Vous devez vérifier votre identité avant de pouvoir demander un retrait." : 'You must verify your identity before requesting a withdrawal.'}</p>
                 </div>
                 <a href="/admin/verification">
                   <Button variant="outline" size="sm" className="text-xs gap-1 border-destructive/30 text-destructive hover:bg-destructive/10">
-                    <Shield className="h-3 w-3" /> Vérifier
+                    <Shield className="h-3 w-3" /> {isFr ? 'Vérifier' : 'Verify'}
                   </Button>
                 </a>
               </div>
