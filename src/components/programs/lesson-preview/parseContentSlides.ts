@@ -148,6 +148,22 @@ export function parseContentIntoSlides(html: string): ContentSlide[] {
     }
   }
 
+  // Filter out slides that are image-only with no meaningful text
+  // Merge their content into the previous slide instead of dropping
+  const filtered: ContentSlide[] = [];
+  for (const slide of slides) {
+    if (isImageOnlyBlock(slide.bodyHtml) && !slide.heading) {
+      // Merge image into previous slide if possible
+      if (filtered.length > 0) {
+        filtered[filtered.length - 1].bodyHtml += slide.bodyHtml;
+      }
+      // Otherwise just skip it
+    } else {
+      filtered.push(slide);
+    }
+  }
+  const finalSlides = filtered.length > 0 ? filtered : slides;
+
   // Insert quiz slides after content slides (distributed evenly)
   if (quizzes.length > 0) {
     const result: ContentSlide[] = [];
