@@ -28,6 +28,7 @@ export default function ProgramDetailPage() {
   const { programId } = useParams();
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const { data: program, isLoading } = useProgram(programId);
