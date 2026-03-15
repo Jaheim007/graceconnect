@@ -246,35 +246,19 @@ IMPORTANT:
         const aiData = await requestCourseCompletion(userPrompt, 11_000);
         const content = aiData.choices?.[0]?.message?.content || '';
 
-        // Parse JSON from response (handle markdown code blocks + repair)
-        let jsonStr = content;
-        const codeBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
-        if (codeBlockMatch) jsonStr = codeBlockMatch[1];
-        jsonStr = jsonStr.trim();
+        let parsed: any = tryParseCourseJson(content);
 
-        // Attempt direct parse first
-        let parsed: any;
-        try {
-          parsed = JSON.parse(jsonStr);
-        } catch (_firstErr) {
-          // Repair common AI JSON issues
-          let repaired = jsonStr;
-          // Remove trailing commas before } or ]
-          repaired = repaired.replace(/,\s*([}\]])/g, '$1');
-          // Fix unescaped newlines inside strings
-          repaired = repaired.replace(/(?<=":[ ]*"[^"]*)\n/g, '\\n');
-          // Truncated JSON: try to close open braces/brackets
-          const opens = (repaired.match(/{/g) || []).length;
-          const closes = (repaired.match(/}/g) || []).length;
-          const openBrackets = (repaired.match(/\[/g) || []).length;
-          const closeBrackets = (repaired.match(/\]/g) || []).length;
-          for (let i = 0; i < openBrackets - closeBrackets; i++) repaired += ']';
-          for (let i = 0; i < opens - closes; i++) repaired += '}';
-          try {
-            parsed = JSON.parse(repaired);
-          } catch (secondErr) {
-            console.error('[ai-generate-course] JSON repair failed. First 500 chars:', jsonStr.slice(0, 500));
-            console.error('[ai-generate-course] Last 500 chars:', jsonStr.slice(-500));
+        if (!parsed) {
+          console.warn('[ai-generate-course] Primary output malformed, retrying with compact constraints');
+          const retryPrompt = `${userPrompt}\n\nRETRY MODE (MANDATORY):\n- Return STRICT valid JSON only.\n- Keep response compact to avoid truncation.\n- EXACTLY 2 lessons per module.\n- EXACTLY 2 sections per lesson.\n- EXACTLY 1 quiz comment per lesson.\n- EXACTLY 6 final assessment questions.`;
+          const retryData = await requestCourseCompletion(retryPrompt, 7_000);
+          const retryContent = retryData.choices?.[0]?.message?.content || '';
+          parsed = tryParseCourseJson(retryContent);
+
+          if (!parsed) {
+            const jsonPreview = (retryContent || content || '').trim();
+            console.error('[ai-generate-course] JSON repair failed. First 500 chars:', jsonPreview.slice(0, 500));
+            console.error('[ai-generate-course] Last 500 chars:', jsonPreview.slice(-500));
             throw new Error('AI returned malformed JSON that could not be repaired');
           }
         }
