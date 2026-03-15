@@ -116,6 +116,7 @@ export function SlideRenderer({
   orgLogoUrl,
   deviceMode,
   customization,
+  lessonImageUrl,
   onStarEarned,
   gamificationEnabled,
 }: SlideRendererProps) {
