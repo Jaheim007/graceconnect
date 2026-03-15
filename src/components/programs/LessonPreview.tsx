@@ -353,53 +353,57 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
           )}
         </div>
 
-        {/* Device toggle + gamification toggle */}
-        <div className="flex items-center gap-3">
-          {/* Gamification toggle */}
-          <div className="flex items-center gap-1.5">
-            <Sparkles className="h-3.5 w-3.5 text-yellow-500" />
-            <span className="text-[10px] text-muted-foreground hidden sm:inline">
-              {isFr ? 'Étoiles' : 'Stars'}
-            </span>
-            <Switch 
-              checked={gamificationEnabled} 
-              onCheckedChange={setGamificationEnabled}
-              className="scale-75"
-            />
-          </div>
+        {/* Creator-only: Device toggle + gamification toggle */}
+        {!isLearner && (
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="h-3.5 w-3.5 text-yellow-500" />
+              <span className="text-[10px] text-muted-foreground hidden sm:inline">
+                {isFr ? 'Étoiles' : 'Stars'}
+              </span>
+              <Switch 
+                checked={gamificationEnabled} 
+                onCheckedChange={setGamificationEnabled}
+                className="scale-75"
+              />
+            </div>
 
-          <div className="flex items-center gap-0.5 bg-muted rounded-lg p-0.5">
-            {([
-              { key: 'mobile' as DeviceMode, Icon: Smartphone },
-              { key: 'tablet' as DeviceMode, Icon: Tablet },
-              { key: 'desktop' as DeviceMode, Icon: Monitor },
-            ]).map(({ key, Icon }) => (
-              <button
-                key={key}
-                onClick={() => setDeviceMode(key)}
-                className={cn(
-                  'p-1.5 rounded-md transition-colors',
-                  deviceMode === key
-                    ? 'bg-background shadow-sm text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                <Icon className="h-4 w-4" />
-              </button>
-            ))}
+            <div className="flex items-center gap-0.5 bg-muted rounded-lg p-0.5">
+              {([
+                { key: 'mobile' as DeviceMode, Icon: Smartphone },
+                { key: 'tablet' as DeviceMode, Icon: Tablet },
+                { key: 'desktop' as DeviceMode, Icon: Monitor },
+              ]).map(({ key, Icon }) => (
+                <button
+                  key={key}
+                  onClick={() => setDeviceMode(key)}
+                  className={cn(
+                    'p-1.5 rounded-md transition-colors',
+                    deviceMode === key
+                      ? 'bg-background shadow-sm text-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  <Icon className="h-4 w-4" />
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="flex items-center gap-1">
           {headerActions}
-          <Button
-            variant={showCustomizer ? 'default' : 'ghost'}
-            size="icon"
-            className="h-8 w-8"
-            onClick={() => setShowCustomizer(!showCustomizer)}
-          >
-            <Settings2 className="h-4 w-4" />
-          </Button>
+          {/* Creator-only: Customizer toggle */}
+          {!isLearner && (
+            <Button
+              variant={showCustomizer ? 'default' : 'ghost'}
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setShowCustomizer(!showCustomizer)}
+            >
+              <Settings2 className="h-4 w-4" />
+            </Button>
+          )}
           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowSidebar(!showSidebar)}>
             <List className="h-4 w-4" />
           </Button>
