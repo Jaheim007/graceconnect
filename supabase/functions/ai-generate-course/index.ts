@@ -4,6 +4,21 @@ import { consumeCreditsWithRefund, consumeCreditsOrThrow, refundCreditsAsBonus, 
 import { aiGenerateImageBase64 } from '../_shared/ai-fallback.ts';
 
 const ACTION_KEY = 'ai_course_structure';
+const IMAGE_GEN_CONCURRENCY = 4;
+const IMAGE_BUCKET = 'media';
+
+function decodeBase64(base64: string): Uint8Array {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+
+function imageExtFromMime(mimeType: string): string {
+  if (mimeType.includes('jpeg')) return 'jpg';
+  if (mimeType.includes('webp')) return 'webp';
+  return 'png';
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
@@ -131,20 +146,41 @@ IMPORTANT:
 - Include a final_assessment with 8-12 comprehensive questions covering the entire course.
 - Make it feel interactive, engaging, and gamified like Duolingo or EdApp.`;
 
-        const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: creditTier === 'premium' ? 'google/gemini-2.5-pro' : 'google/gemini-2.5-flash',
-            messages: [
-              { role: 'system', content: systemPrompt },
-              { role: 'user', content: userPrompt },
-            ],
-          }),
-        });
+        const model = creditTier === 'premium' && !generate_images
+          ? 'google/gemini-2.5-pro'
+          : 'google/gemini-2.5-flash';
+
+        const aiController = new AbortController();
+        const aiTimeout = setTimeout(() => aiController.abort(), 95_000);
+
+        let aiResponse: Response;
+        try {
+          aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${LOVABLE_API_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model,
+              max_tokens: 7000,
+              messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: userPrompt },
+              ],
+            }),
+            signal: aiController.signal,
+          });
+        } catch (fetchErr: any) {
+          if (fetchErr?.name === 'AbortError') {
+            const err = new Error('AI generation timed out. Please retry.');
+            (err as any).status = 504;
+            throw err;
+          }
+          throw fetchErr;
+        } finally {
+          clearTimeout(aiTimeout);
+        }
 
         if (!aiResponse.ok) {
           const errText = await aiResponse.text();
@@ -157,6 +193,11 @@ IMPORTANT:
           if (aiResponse.status === 402) {
             const err = new Error('AI credits exhausted');
             (err as any).status = 402;
+            throw err;
+          }
+          if (aiResponse.status >= 500) {
+            const err = new Error('AI provider temporarily unavailable. Please retry.');
+            (err as any).status = 502;
             throw err;
           }
           throw new Error('AI generation failed');
@@ -210,17 +251,30 @@ IMPORTANT:
     let imagesGenerated = 0;
     if (generate_images && result?.modules) {
       const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
-      
+
+      const imageJobs: Array<{ lesson: any; imagePrompt: string }> = [];
       for (const mod of result.modules) {
         for (const lesson of (mod.lessons || [])) {
-          const imagePrompt = lesson.image_prompt;
-          if (!imagePrompt) continue;
+          if (lesson?.image_prompt) imageJobs.push({ lesson, imagePrompt: lesson.image_prompt });
+        }
+      }
+
+      let nextJob = 0;
+      let creditsExhausted = false;
+
+      const worker = async () => {
+        while (!creditsExhausted) {
+          const idx = nextJob++;
+          if (idx >= imageJobs.length) return;
+
+          const { lesson, imagePrompt } = imageJobs[idx];
 
           // Debit credits per image
           let imgDebited = 0;
           try {
             const debitResult = await consumeCreditsOrThrow({
-              admin, userId,
+              admin,
+              userId,
               actionKey: 'ai_course_image',
               tier: creditTier,
               metadata: { lesson_title: lesson.title },
@@ -228,8 +282,9 @@ IMPORTANT:
             if (!('skipped' in debitResult)) imgDebited = debitResult.debited;
           } catch (e: any) {
             if (e?.status === 402) {
+              creditsExhausted = true;
               console.warn(`[ai-generate-course] Credits exhausted for images at lesson "${lesson.title}"`);
-              break;
+              return;
             }
             throw e;
           }
@@ -238,28 +293,45 @@ IMPORTANT:
             const { base64, mimeType } = await aiGenerateImageBase64({
               geminiKey: GEMINI_API_KEY || '',
               prompt: `Professional educational illustration: ${imagePrompt}. Clean, modern, flat design style. No text in the image.`,
-              timeoutMs: 60_000,
+              timeoutMs: 45_000,
             });
 
-            // Convert to data URL for inline use (stored in lesson content)
-            const ext = mimeType.includes('jpeg') ? 'jpg' : 'png';
-            const dataUrl = `data:${mimeType};base64,${base64}`;
-            
-            // Prepend image to lesson content
-            lesson.content = `<div class="lesson-hero-image"><img src="${dataUrl}" alt="${lesson.title}" style="width:100%;border-radius:12px;margin-bottom:16px;" /></div>${lesson.content}`;
-            imagesGenerated++;
+            const ext = imageExtFromMime(mimeType);
+            const imagePath = `ai/courses/${userId}/${crypto.randomUUID()}.${ext}`;
+            const bytes = decodeBase64(base64);
 
-            // Rate limit protection
-            await new Promise(r => setTimeout(r, 2000));
+            const { error: uploadErr } = await admin.storage
+              .from(IMAGE_BUCKET)
+              .upload(imagePath, bytes, { contentType: mimeType, upsert: false });
+            if (uploadErr) throw uploadErr;
+
+            const { data: publicUrlData } = admin.storage.from(IMAGE_BUCKET).getPublicUrl(imagePath);
+            const imageUrl = publicUrlData?.publicUrl;
+            if (!imageUrl) throw new Error('Image upload succeeded but no public URL was returned');
+
+            lesson.content = `<div class="lesson-hero-image"><img src="${imageUrl}" alt="${lesson.title}" loading="lazy" style="width:100%;border-radius:12px;margin-bottom:16px;" /></div>${lesson.content}`;
+            imagesGenerated++;
           } catch (imgErr) {
             console.error(`[ai-generate-course] Image gen error for "${lesson.title}":`, imgErr);
             if (imgDebited > 0) {
-              try { await refundCreditsAsBonus({ admin, userId, amount: imgDebited, source: 'ai_course_image', expiresInDays: 30 }); } catch (_) {}
+              try {
+                await refundCreditsAsBonus({
+                  admin,
+                  userId,
+                  amount: imgDebited,
+                  source: 'ai_course_image',
+                  expiresInDays: 30,
+                });
+              } catch (_) {
+                // no-op
+              }
             }
-            continue;
           }
         }
-      }
+      };
+
+      const workerCount = Math.min(IMAGE_GEN_CONCURRENCY, imageJobs.length || 1);
+      await Promise.all(Array.from({ length: workerCount }, () => worker()));
     }
 
     return jsonResp({ ok: true, ...result, images_generated: imagesGenerated });
