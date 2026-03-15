@@ -333,29 +333,33 @@ export default function AdminPayouts() {
         <Dialog open={showWithdrawDialog} onOpenChange={setShowWithdrawDialog}>
           <DialogContent className="max-w-sm">
             <DialogHeader>
-              <DialogTitle>Confirmer le retrait</DialogTitle>
+              <DialogTitle>{isFr ? 'Confirmer le retrait' : 'Confirm withdrawal'}</DialogTitle>
               <DialogDescription>
-                L'intégralité de votre solde disponible sera demandée en retrait. Le traitement prend 3 à 8 jours ouvrés.
+                {isFr
+                  ? "L'intégralité de votre solde disponible sera demandée en retrait. Le traitement prend 3 à 8 jours ouvrés."
+                  : 'Your entire available balance will be requested for withdrawal. Processing takes 3 to 8 business days.'}
               </DialogDescription>
             </DialogHeader>
             <div className="p-4 rounded-xl bg-muted/50 border border-border text-center">
-              <p className="text-xs text-muted-foreground">Montant du retrait</p>
+              <p className="text-xs text-muted-foreground">{isFr ? 'Montant du retrait' : 'Withdrawal amount'}</p>
               <p className="text-2xl font-bold text-primary mt-1">
                 {fmt(Math.max(0, fundSummary?.availableBalance || 0), currency)}
               </p>
             </div>
             <p className="text-xs text-muted-foreground text-center">
-              Le versement sera effectué sur les coordonnées indiquées dans votre vérification KYC.
+              {isFr
+                ? 'Le versement sera effectué sur les coordonnées indiquées dans votre vérification KYC.'
+                : 'Payment will be sent to the details provided in your KYC verification.'}
             </p>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowWithdrawDialog(false)}>Annuler</Button>
+              <Button variant="outline" onClick={() => setShowWithdrawDialog(false)}>{isFr ? 'Annuler' : 'Cancel'}</Button>
               <Button
                 onClick={() => withdrawMutation.mutate()}
                 disabled={withdrawMutation.isPending}
                 className="gap-1.5"
               >
                 {withdrawMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                Confirmer
+                {isFr ? 'Confirmer' : 'Confirm'}
               </Button>
             </DialogFooter>
           </DialogContent>
