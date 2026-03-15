@@ -89,23 +89,9 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
     }
   }, [isLearner, enrollmentProgress?.last_slide_index]);
 
-  // Debounced progress save
+  // Debounced progress save - refs only, effect is after allSlides
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const lastSavedRef = useRef<number>(-1);
-
-  useEffect(() => {
-    if (!isLearner || currentIndex === lastSavedRef.current) return;
-    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-    saveTimeoutRef.current = setTimeout(() => {
-      lastSavedRef.current = currentIndex;
-      saveProgress.mutate({
-        slideIndex: currentIndex,
-        totalSlides: total || 1,
-        starsEarned,
-      });
-    }, 1500);
-    return () => { if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current); };
-  }, [isLearner, currentIndex, starsEarned]);
   useEffect(() => {
     if (!isLearner) return;
     const updateDevice = () => {
