@@ -43,6 +43,7 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
 
   // Per-slide customizations keyed by slide index
   const [slideCustomizations, setSlideCustomizations] = useState<Record<number, SlideCustomization>>({});
+  const [starsEarned, setStarsEarned] = useState(0);
 
   const orgLogoUrl = (program as any)?.organizations?.logo_url;
 
