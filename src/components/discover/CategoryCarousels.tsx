@@ -126,7 +126,35 @@ export function CategoryCarousels() {
                 transition={{ delay: i * 0.03 }}
                 className="shrink-0 w-[220px] sm:w-[260px]"
               >
-                <ProductCard product={p} hideCommission hideShare />
+                {p._isProgram ? (
+                  <Link
+                    to={`/program/${p.id}`}
+                    className="group block rounded-xl border border-border bg-card overflow-hidden hover:shadow-md transition-shadow"
+                  >
+                    <div className="relative aspect-video bg-muted">
+                      {p.cover_image_url ? (
+                        <img src={p.cover_image_url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-primary/5">
+                          <BookOpen className="h-8 w-8 text-primary/30" />
+                        </div>
+                      )}
+                      <Badge className="absolute top-2 left-2 text-[10px] bg-primary/90 text-primary-foreground">
+                        <BookOpen className="h-2.5 w-2.5 mr-1" />
+                        {isFr ? 'Formation' : 'Course'}
+                      </Badge>
+                    </div>
+                    <div className="p-3 space-y-1">
+                      <p className="text-sm font-semibold line-clamp-2 group-hover:text-primary transition-colors">{p.title}</p>
+                      {p.organization_name && (
+                        <p className="text-[10px] text-muted-foreground">{p.organization_name}</p>
+                      )}
+                      <p className="text-[10px] text-primary font-medium">{isFr ? 'Gratuit • S\'inscrire' : 'Free • Enroll'}</p>
+                    </div>
+                  </Link>
+                ) : (
+                  <ProductCard product={p} hideCommission hideShare />
+                )}
               </motion.div>
             ))}
           </div>
