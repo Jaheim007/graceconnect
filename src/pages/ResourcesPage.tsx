@@ -66,9 +66,9 @@ export default function ResourcesPage() {
       if (!user) return [];
       const { data, error } = await db
         .from('program_enrollments')
-        .select('id, program_id, enrolled_at, programs(id, title, description, cover_image_url, organization_id, is_free, price)')
+        .select('id, program_id, created_at, programs(id, title, description, cover_image_url, organization_id, is_free, price)')
         .eq('user_id', user.id)
-        .order('enrolled_at', { ascending: false });
+        .order('created_at', { ascending: false });
       if (error) throw error;
       return (data || []).map((row: any) => ({
         ...row,
