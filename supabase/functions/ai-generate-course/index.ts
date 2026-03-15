@@ -256,7 +256,7 @@ IMPORTANT:
           }
         };
 
-        const aiData = await requestCourseCompletion(userPrompt, 11_000);
+        const aiData = await requestCourseCompletion(userPrompt, 9_000, 70_000);
         const content = aiData.choices?.[0]?.message?.content || '';
 
         let parsed: any = tryParseCourseJson(content);
