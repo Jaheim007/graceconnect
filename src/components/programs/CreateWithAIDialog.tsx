@@ -71,11 +71,12 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
         throw new Error(isFr ? 'Session expirée. Reconnectez-vous.' : 'Session expired. Please log in again.');
       }
 
+      // Don't force language from interface — let the edge function detect from prompt
       const { data, error } = await supabase.functions.invoke('ai-generate-course', {
         headers: { Authorization: `Bearer ${session.access_token}` },
         body: {
           title: prompt.trim(),
-          language: isFr ? 'fr' : 'en',
+          language: isFr ? 'fr' : 'en', // fallback only — edge function detects from prompt
           tier,
           module_count: 5,
           generate_images: generateImages,
