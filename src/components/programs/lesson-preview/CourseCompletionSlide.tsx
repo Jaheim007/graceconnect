@@ -215,17 +215,30 @@ export function CourseCompletionSlide({
               )}
             </motion.div>
 
-            {/* Share CTA */}
-            <motion.button
+            {/* Certificate & Share CTAs */}
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.8 }}
-              onClick={() => setShowShare(true)}
-              className="flex items-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-sm rounded-full px-5 py-2.5 border border-white/20 transition-all hover:scale-105 active:scale-95"
+              className="flex items-center gap-3"
             >
-              <Share2 className="h-4 w-4" />
-              <span className="text-sm font-medium">{isFr ? 'Partager mon résultat' : 'Share my result'}</span>
-            </motion.button>
+              {mode === 'learner' && certificateSaved && (
+                <button
+                  onClick={() => setShowShare(true)}
+                  className="flex items-center gap-2 bg-yellow-500/20 hover:bg-yellow-500/30 backdrop-blur-sm rounded-full px-5 py-2.5 border border-yellow-400/30 transition-all hover:scale-105 active:scale-95"
+                >
+                  <Award className="h-4 w-4 text-yellow-400" />
+                  <span className="text-sm font-medium text-yellow-200">{isFr ? 'Certificat' : 'Certificate'}</span>
+                </button>
+              )}
+              <button
+                onClick={() => setShowShare(true)}
+                className="flex items-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-sm rounded-full px-5 py-2.5 border border-white/20 transition-all hover:scale-105 active:scale-95"
+              >
+                <Share2 className="h-4 w-4" />
+                <span className="text-sm font-medium">{isFr ? 'Partager' : 'Share'}</span>
+              </button>
+            </motion.div>
 
             <motion.p
               initial={{ opacity: 0 }}
