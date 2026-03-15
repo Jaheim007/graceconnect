@@ -20,6 +20,43 @@ function imageExtFromMime(mimeType: string): string {
   return 'png';
 }
 
+function tryParseCourseJson(rawContent: string): any | null {
+  if (!rawContent) return null;
+
+  const codeBlockMatch = rawContent.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  let candidate = codeBlockMatch ? codeBlockMatch[1] : rawContent;
+  candidate = candidate
+    .replace(/[\u0000-\u0019\u007F]/g, '')
+    .trim();
+
+  const start = candidate.indexOf('{');
+  const end = candidate.lastIndexOf('}');
+  if (start >= 0 && end > start) {
+    candidate = candidate.slice(start, end + 1);
+  }
+
+  try {
+    return JSON.parse(candidate);
+  } catch {
+    let repaired = candidate;
+    repaired = repaired.replace(/,\s*([}\]])/g, '$1');
+    repaired = repaired.replace(/\r?\n/g, '\\n');
+
+    const opens = (repaired.match(/{/g) || []).length;
+    const closes = (repaired.match(/}/g) || []).length;
+    const openBrackets = (repaired.match(/\[/g) || []).length;
+    const closeBrackets = (repaired.match(/\]/g) || []).length;
+    for (let i = 0; i < openBrackets - closeBrackets; i++) repaired += ']';
+    for (let i = 0; i < opens - closes; i++) repaired += '}';
+
+    try {
+      return JSON.parse(repaired);
+    } catch {
+      return null;
+    }
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
 
@@ -99,23 +136,22 @@ Return ONLY valid JSON with this exact structure:
 }
 
 CRITICAL REQUIREMENTS FOR MICRO-LEARNING:
-- Create ${module_count} modules with 3-5 lessons each
-- KEEP EACH SECTION SHORT: max 2-3 short paragraphs per <h2> or <h3> section (50-100 words per section)
-- Each lesson should have 3-5 short sections separated by <h2> or <h3> headings
+- Create ${module_count} modules with EXACTLY 2-3 lessons each (keep output concise)
+- KEEP EACH SECTION SHORT: max 1 short paragraph per <h2> or <h3> section (35-70 words per section)
+- Each lesson should have EXACTLY 2-3 short sections separated by <h2> or <h3> headings
 - "course_title" should be a MARKETING-READY title (compelling, concise, professional) — NOT the raw prompt
 - "course_description" should be a marketing description explaining what the learner will gain
 - "image_prompt" for each lesson should be a vivid description in ENGLISH for AI image generation (even if course is in French)
 
 GAMIFICATION & QUIZ RULES:
-- QUIZ QUESTIONS: Embed 2-3 quiz questions PER LESSON using HTML comments: <!-- QUIZ:{"question":"...","options":["A","B","C"],"correctIndex":0,"explanation":"..."} -->
+- QUIZ QUESTIONS: Embed EXACTLY 1-2 quiz questions PER LESSON using HTML comments: <!-- QUIZ:{"question":"...","options":["A","B","C"],"correctIndex":0,"explanation":"..."} -->
 - Place quizzes AFTER the content they test (between sections)
 - Each quiz must have 3-4 options with exactly one correct answer (correctIndex is 0-based)
 - Make quizzes FUN and ENGAGING — use real-world scenarios, not boring textbook questions
 - Include encouraging language in explanations
-- Vary question types: true/false style, scenario-based, fill-in-the-blank style, "which of the following"
 
 FINAL ASSESSMENT:
-- Generate 8-12 comprehensive multiple-choice questions covering ALL modules
+- Generate 6-8 comprehensive multiple-choice questions covering ALL modules
 - Questions should test understanding, not just memorization
 - Each question MUST have exactly 4 options
 - Mix difficulty levels: 40% easy, 40% medium, 20% hard
@@ -141,100 +177,88 @@ IMPORTANT:
 - Write ALL content in ${isFr ? 'FRENCH (Français)' : 'ENGLISH'} — the user's prompt is in ${isFr ? 'French' : 'English'}.
 - Generate a compelling "course_title" (marketing-ready, not the raw prompt) and a "course_description" (2-3 sentences explaining what they'll learn).
 - For each lesson, include an "image_prompt" in English describing a relevant illustration.
-- Keep each section very short (2-3 sentences). Users read this on mobile slides — one section per screen.
-- Include 2-3 quiz questions per lesson embedded as <!-- QUIZ:{...} --> HTML comments between sections.
-- Include a final_assessment with 8-12 comprehensive questions covering the entire course.
+- Keep each section very short (1 short paragraph). Users read this on mobile slides — one section per screen.
+- Keep response compact to avoid truncation: 2-3 lessons/module, 2-3 sections/lesson, 1-2 quiz comments/lesson.
+- Include a final_assessment with 6-8 comprehensive questions covering the entire course.
+- Return only valid JSON with no markdown fences.
 - Make it feel interactive, engaging, and gamified like Duolingo or EdApp.`;
 
         const model = creditTier === 'premium' && !generate_images
           ? 'google/gemini-2.5-pro'
           : 'google/gemini-2.5-flash';
 
-        const aiController = new AbortController();
-        const aiTimeout = setTimeout(() => aiController.abort(), 95_000);
+        const requestCourseCompletion = async (promptText: string, maxTokens: number) => {
+          const aiController = new AbortController();
+          const aiTimeout = setTimeout(() => aiController.abort(), 95_000);
 
-        let aiResponse: Response;
-        try {
-          aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${LOVABLE_API_KEY}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              model,
-              max_tokens: 7000,
-              messages: [
-                { role: 'system', content: systemPrompt },
-                { role: 'user', content: userPrompt },
-              ],
-            }),
-            signal: aiController.signal,
-          });
-        } catch (fetchErr: any) {
-          if (fetchErr?.name === 'AbortError') {
-            const err = new Error('AI generation timed out. Please retry.');
-            (err as any).status = 504;
-            throw err;
-          }
-          throw fetchErr;
-        } finally {
-          clearTimeout(aiTimeout);
-        }
+          try {
+            const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${LOVABLE_API_KEY}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model,
+                max_tokens: maxTokens,
+                messages: [
+                  { role: 'system', content: systemPrompt },
+                  { role: 'user', content: promptText },
+                ],
+              }),
+              signal: aiController.signal,
+            });
 
-        if (!aiResponse.ok) {
-          const errText = await aiResponse.text();
-          console.error('[ai-generate-course] AI error:', aiResponse.status, errText);
-          if (aiResponse.status === 429) {
-            const err = new Error('Rate limit exceeded, please try again later');
-            (err as any).status = 429;
-            throw err;
-          }
-          if (aiResponse.status === 402) {
-            const err = new Error('AI credits exhausted');
-            (err as any).status = 402;
-            throw err;
-          }
-          if (aiResponse.status >= 500) {
-            const err = new Error('AI provider temporarily unavailable. Please retry.');
-            (err as any).status = 502;
-            throw err;
-          }
-          throw new Error('AI generation failed');
-        }
+            if (!aiResponse.ok) {
+              const errText = await aiResponse.text();
+              console.error('[ai-generate-course] AI error:', aiResponse.status, errText);
+              if (aiResponse.status === 429) {
+                const err = new Error('Rate limit exceeded, please try again later');
+                (err as any).status = 429;
+                throw err;
+              }
+              if (aiResponse.status === 402) {
+                const err = new Error('AI credits exhausted');
+                (err as any).status = 402;
+                throw err;
+              }
+              if (aiResponse.status >= 500) {
+                const err = new Error('AI provider temporarily unavailable. Please retry.');
+                (err as any).status = 502;
+                throw err;
+              }
+              throw new Error('AI generation failed');
+            }
 
-        const aiData = await aiResponse.json();
+            return await aiResponse.json();
+          } catch (fetchErr: any) {
+            if (fetchErr?.name === 'AbortError') {
+              const err = new Error('AI generation timed out. Please retry.');
+              (err as any).status = 504;
+              throw err;
+            }
+            throw fetchErr;
+          } finally {
+            clearTimeout(aiTimeout);
+          }
+        };
+
+        const aiData = await requestCourseCompletion(userPrompt, 11_000);
         const content = aiData.choices?.[0]?.message?.content || '';
 
-        // Parse JSON from response (handle markdown code blocks + repair)
-        let jsonStr = content;
-        const codeBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
-        if (codeBlockMatch) jsonStr = codeBlockMatch[1];
-        jsonStr = jsonStr.trim();
+        let parsed: any = tryParseCourseJson(content);
 
-        // Attempt direct parse first
-        let parsed: any;
-        try {
-          parsed = JSON.parse(jsonStr);
-        } catch (_firstErr) {
-          // Repair common AI JSON issues
-          let repaired = jsonStr;
-          // Remove trailing commas before } or ]
-          repaired = repaired.replace(/,\s*([}\]])/g, '$1');
-          // Fix unescaped newlines inside strings
-          repaired = repaired.replace(/(?<=":[ ]*"[^"]*)\n/g, '\\n');
-          // Truncated JSON: try to close open braces/brackets
-          const opens = (repaired.match(/{/g) || []).length;
-          const closes = (repaired.match(/}/g) || []).length;
-          const openBrackets = (repaired.match(/\[/g) || []).length;
-          const closeBrackets = (repaired.match(/\]/g) || []).length;
-          for (let i = 0; i < openBrackets - closeBrackets; i++) repaired += ']';
-          for (let i = 0; i < opens - closes; i++) repaired += '}';
-          try {
-            parsed = JSON.parse(repaired);
-          } catch (secondErr) {
-            console.error('[ai-generate-course] JSON repair failed. First 500 chars:', jsonStr.slice(0, 500));
-            console.error('[ai-generate-course] Last 500 chars:', jsonStr.slice(-500));
+        if (!parsed) {
+          console.warn('[ai-generate-course] Primary output malformed, retrying with compact constraints');
+          const retryPrompt = `${userPrompt}\n\nRETRY MODE (MANDATORY):\n- Return STRICT valid JSON only.\n- Keep response compact to avoid truncation.\n- EXACTLY 2 lessons per module.\n- EXACTLY 2 sections per lesson.\n- EXACTLY 1 quiz comment per lesson.\n- EXACTLY 6 final assessment questions.`;
+          const retryData = await requestCourseCompletion(retryPrompt, 7_000);
+          const retryContent = retryData.choices?.[0]?.message?.content || '';
+          parsed = tryParseCourseJson(retryContent);
+
+          if (!parsed) {
+            const jsonPreview = (retryContent || content || '').trim();
+            console.error('[ai-generate-course] JSON repair failed. First 500 chars:', jsonPreview.slice(0, 500));
+            console.error('[ai-generate-course] Last 500 chars:', jsonPreview.slice(-500));
             throw new Error('AI returned malformed JSON that could not be repaired');
           }
         }
