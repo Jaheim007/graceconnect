@@ -17,6 +17,7 @@ interface SlideRendererProps {
   deviceMode: 'mobile' | 'tablet' | 'desktop';
   customization?: SlideCustomization;
   onStarEarned?: () => void;
+  gamificationEnabled?: boolean;
 }
 
 const captionClasses: Record<CaptionStyle, string> = {
