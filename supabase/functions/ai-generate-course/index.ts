@@ -72,6 +72,9 @@ serve(async (req) => {
     const body = await req.json();
     const { title, description, target_audience, language, tier = 'standard', module_count = 5, generate_images = false } = body;
 
+    const functionStartedAt = Date.now();
+    const remainingBudgetMs = () => FUNCTION_HARD_DEADLINE_MS - (Date.now() - functionStartedAt);
+
     if (!title?.trim()) return jsonResp({ error: 'Title is required' }, 400);
 
     const creditTier = normalizeTier(tier);
