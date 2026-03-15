@@ -289,7 +289,7 @@ export default function AdminPayouts() {
                 </div>
                 {fundSummary.pendingClearanceOrg > 0 && (
                   <div className="space-y-0.5">
-                    <p className="text-[10px] text-muted-foreground flex items-center gap-1"><TimerReset className="h-3 w-3 text-amber-500" /> Ventes en attente (72h)</p>
+                    <p className="text-[10px] text-muted-foreground flex items-center gap-1"><TimerReset className="h-3 w-3 text-amber-500" /> {isFr ? 'Ventes en attente (72h)' : 'Sales pending (72h)'}</p>
                     <p className="text-sm font-semibold text-amber-600">{fmt(fundSummary.pendingClearanceOrg, currency)}</p>
                   </div>
                 )}
