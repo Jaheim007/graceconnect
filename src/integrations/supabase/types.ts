@@ -4297,27 +4297,45 @@ export type Database = {
       }
       program_enrollments: {
         Row: {
+          assessment_score: number | null
+          assessment_total: number | null
           completed_at: string | null
           created_at: string
           id: string
+          last_slide_index: number
           program_id: string
+          progress_percent: number
+          quiz_score: number | null
           status: string
+          total_stars: number
           user_id: string
         }
         Insert: {
+          assessment_score?: number | null
+          assessment_total?: number | null
           completed_at?: string | null
           created_at?: string
           id?: string
+          last_slide_index?: number
           program_id: string
+          progress_percent?: number
+          quiz_score?: number | null
           status?: string
+          total_stars?: number
           user_id: string
         }
         Update: {
+          assessment_score?: number | null
+          assessment_total?: number | null
           completed_at?: string | null
           created_at?: string
           id?: string
+          last_slide_index?: number
           program_id?: string
+          progress_percent?: number
+          quiz_score?: number | null
           status?: string
+          total_stars?: number
           user_id?: string
         }
         Relationships: [
