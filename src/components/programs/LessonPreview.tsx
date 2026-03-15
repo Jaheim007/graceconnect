@@ -31,6 +31,15 @@ function extractFirstImageUrl(html: string | null): string | undefined {
   return m?.[1] || undefined;
 }
 
+/** Extract the first image found across all lessons in a module */
+function extractModuleImageUrl(lessons: any[]): string | undefined {
+  for (const lesson of lessons) {
+    const url = extractFirstImageUrl(lesson.content);
+    if (url) return url;
+  }
+  return undefined;
+}
+
 interface FlatSlide {
   lessonId: string;
   lessonTitle: string;
@@ -39,7 +48,7 @@ interface FlatSlide {
   slide: ContentSlide;
   lessonIndex: number;
   slideInLesson: number;
-  lessonImageUrl?: string;
+  moduleImageUrl?: string;
 }
 
 export function LessonPreview({ programId, initialLessonId, onClose }: LessonPreviewProps) {
@@ -86,8 +95,10 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
     let lessonIdx = 0;
 
     for (const mod of modules) {
-      for (const lesson of (mod as any).lessons || []) {
-        const lessonImage = extractFirstImageUrl(lesson.content);
+      const modLessons = (mod as any).lessons || [];
+      const moduleImage = extractModuleImageUrl(modLessons);
+
+      for (const lesson of modLessons) {
         slides.push({
           lessonId: lesson.id,
           lessonTitle: lesson.title,
@@ -96,7 +107,7 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
           slide: { type: 'title-card', bodyHtml: lesson.description || '' },
           lessonIndex: lessonIdx,
           slideInLesson: 0,
-          lessonImageUrl: lessonImage,
+          moduleImageUrl: moduleImage,
         });
 
         const contentSlides = parseContentIntoSlides(lesson.content || '');
@@ -109,7 +120,7 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
             slide: cs,
             lessonIndex: lessonIdx,
             slideInLesson: si + 1,
-            lessonImageUrl: lessonImage,
+            moduleImageUrl: moduleImage,
           });
         });
 
@@ -265,7 +276,7 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
         orgLogoUrl={orgLogoUrl}
         deviceMode={deviceMode}
         customization={currentCustomization}
-        lessonImageUrl={current.lessonImageUrl}
+        lessonImageUrl={current.moduleImageUrl}
         onStarEarned={() => {
           if (gamificationEnabled) {
             setStarsEarned(s => s + 1);

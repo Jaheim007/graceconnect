@@ -26,9 +26,21 @@ export interface AssessmentData {
 
 /** Max characters of plain text per slide before splitting */
 const MAX_CHARS_PER_SLIDE = 350;
+/** Minimum characters of plain text – slides below this get merged */
+const MIN_CHARS_PER_SLIDE = 40;
 
 function stripHtml(html: string): string {
   return html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+/** Check if HTML block is essentially just an image with no meaningful text */
+function isImageOnlyBlock(html: string): boolean {
+  // Strip all img/video/iframe tags, then check if remaining text is negligible
+  const withoutMedia = html
+    .replace(/<img[^>]*>/gi, '')
+    .replace(/<video[^>]*>[\s\S]*?<\/video>/gi, '')
+    .replace(/<iframe[^>]*>[\s\S]*?<\/iframe>/gi, '');
+  return stripHtml(withoutMedia).length < 10;
 }
 
 function splitLongBody(bodyHtml: string): string[] {
@@ -56,7 +68,25 @@ function splitLongBody(bodyHtml: string): string[] {
   }
   
   if (current.trim()) chunks.push(current.trim());
-  return chunks.length > 0 ? chunks : [bodyHtml];
+
+  // Post-process: merge chunks that are too small into adjacent chunks
+  const merged: string[] = [];
+  for (const chunk of chunks) {
+    const chunkText = stripHtml(chunk);
+    if (merged.length > 0 && chunkText.length < MIN_CHARS_PER_SLIDE) {
+      // Merge with previous chunk
+      merged[merged.length - 1] += chunk;
+    } else {
+      merged.push(chunk);
+    }
+  }
+  // If the last chunk ended up too small, merge it back
+  if (merged.length > 1 && stripHtml(merged[merged.length - 1]).length < MIN_CHARS_PER_SLIDE) {
+    const last = merged.pop()!;
+    merged[merged.length - 1] += last;
+  }
+
+  return merged.length > 0 ? merged : [bodyHtml];
 }
 
 /**
@@ -118,14 +148,30 @@ export function parseContentIntoSlides(html: string): ContentSlide[] {
     }
   }
 
+  // Filter out slides that are image-only with no meaningful text
+  // Merge their content into the previous slide instead of dropping
+  const filtered: ContentSlide[] = [];
+  for (const slide of slides) {
+    if (isImageOnlyBlock(slide.bodyHtml) && !slide.heading) {
+      // Merge image into previous slide if possible
+      if (filtered.length > 0) {
+        filtered[filtered.length - 1].bodyHtml += slide.bodyHtml;
+      }
+      // Otherwise just skip it
+    } else {
+      filtered.push(slide);
+    }
+  }
+  const finalSlides = filtered.length > 0 ? filtered : slides;
+
   // Insert quiz slides after content slides (distributed evenly)
   if (quizzes.length > 0) {
     const result: ContentSlide[] = [];
-    const interval = Math.max(1, Math.floor(slides.length / (quizzes.length + 1)));
+    const interval = Math.max(1, Math.floor(finalSlides.length / (quizzes.length + 1)));
     let quizIdx = 0;
 
-    for (let i = 0; i < slides.length; i++) {
-      result.push(slides[i]);
+    for (let i = 0; i < finalSlides.length; i++) {
+      result.push(finalSlides[i]);
       if (quizIdx < quizzes.length && (i + 1) % interval === 0 && i > 0) {
         result.push({
           type: 'quiz',
@@ -135,7 +181,6 @@ export function parseContentIntoSlides(html: string): ContentSlide[] {
         quizIdx++;
       }
     }
-    // Append remaining quizzes at the end
     while (quizIdx < quizzes.length) {
       result.push({
         type: 'quiz',
@@ -148,7 +193,7 @@ export function parseContentIntoSlides(html: string): ContentSlide[] {
     return result;
   }
 
-  return slides;
+  return finalSlides;
 }
 
 // Gradient palettes for slide backgrounds
