@@ -167,11 +167,11 @@ export function parseContentIntoSlides(html: string): ContentSlide[] {
   // Insert quiz slides after content slides (distributed evenly)
   if (quizzes.length > 0) {
     const result: ContentSlide[] = [];
-    const interval = Math.max(1, Math.floor(slides.length / (quizzes.length + 1)));
+    const interval = Math.max(1, Math.floor(finalSlides.length / (quizzes.length + 1)));
     let quizIdx = 0;
 
-    for (let i = 0; i < slides.length; i++) {
-      result.push(slides[i]);
+    for (let i = 0; i < finalSlides.length; i++) {
+      result.push(finalSlides[i]);
       if (quizIdx < quizzes.length && (i + 1) % interval === 0 && i > 0) {
         result.push({
           type: 'quiz',
@@ -181,7 +181,6 @@ export function parseContentIntoSlides(html: string): ContentSlide[] {
         quizIdx++;
       }
     }
-    // Append remaining quizzes at the end
     while (quizIdx < quizzes.length) {
       result.push({
         type: 'quiz',
@@ -194,7 +193,7 @@ export function parseContentIntoSlides(html: string): ContentSlide[] {
     return result;
   }
 
-  return slides;
+  return finalSlides;
 }
 
 // Gradient palettes for slide backgrounds
