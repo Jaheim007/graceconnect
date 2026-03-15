@@ -501,16 +501,48 @@ export function ProgramForm() {
               </h3>
               <div className="space-y-3">
                 <div>
-                  <Label className="text-xs">{isFr ? 'Titre *' : 'Title *'}</Label>
+                  <div className="flex items-center justify-between mb-1">
+                    <Label className="text-xs">{isFr ? 'Titre *' : 'Title *'}</Label>
+                    <Button
+                      type="button" variant="ghost" size="sm"
+                      className="h-6 gap-1 text-[10px] text-primary hover:text-primary"
+                      onClick={() => handleAIHelp('title')}
+                      disabled={generatingTitle}
+                    >
+                      {generatingTitle ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3 w-3" />}
+                      {isFr ? 'IA' : 'AI'}
+                    </Button>
+                  </div>
                   <Input value={title} onChange={e => setTitle(e.target.value)} className="h-9" />
                 </div>
                 <div>
-                  <Label className="text-xs">Description</Label>
+                  <div className="flex items-center justify-between mb-1">
+                    <Label className="text-xs">Description</Label>
+                    <Button
+                      type="button" variant="ghost" size="sm"
+                      className="h-6 gap-1 text-[10px] text-primary hover:text-primary"
+                      onClick={() => handleAIHelp('description')}
+                      disabled={generatingDesc}
+                    >
+                      {generatingDesc ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3 w-3" />}
+                      {isFr ? 'IA' : 'AI'}
+                    </Button>
+                  </div>
                   <RichTextEditor value={description} onChange={setDescription} placeholder={isFr ? "Décrivez le contenu..." : "Describe the content..."} />
                 </div>
                 <div>
                   <Label className="text-xs">{isFr ? 'Image de couverture' : 'Cover image'}</Label>
                   <ImageUploader value={coverUrl} onChange={setCoverUrl} folder={`programs/${currentOrg?.id}`} label="" aspectRatio="video" />
+                  <Button
+                    type="button" variant="outline" size="sm"
+                    className="mt-2 gap-1.5 text-xs w-full"
+                    onClick={handleGenerateCover}
+                    disabled={generatingCover || !title.trim()}
+                  >
+                    {generatingCover ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ImageIcon className="h-3.5 w-3.5" />}
+                    {isFr ? 'Générer avec l\'IA' : 'Generate with AI'}
+                    <span className="text-[9px] text-muted-foreground ml-1">({isFr ? '~7.5 crédits' : '~7.5 credits'})</span>
+                  </Button>
                 </div>
               </div>
             </div>
