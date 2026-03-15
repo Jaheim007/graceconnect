@@ -87,6 +87,21 @@ export function CourseCompletionSlide({
       ? Math.min(5, Math.round((starsEarned / totalQuizzes) * 5))
       : 5;
 
+  // Auto-save certificate for learners
+  useEffect(() => {
+    if (mode !== 'learner' || !user || !programId || !currentOrg || certificateSaved) return;
+    saveCertificate.mutate({
+      programId,
+      organizationId: currentOrg.id,
+      learnerName: (user as any).user_metadata?.display_name || user.email || 'Learner',
+      courseTitle,
+      starsEarned,
+      assessmentScore,
+      assessmentTotal,
+    });
+    setCertificateSaved(true);
+  }, [mode, user, programId, currentOrg]);
+
   const shareUrl = programId ? `/program/${programId}` : '/my-programs';
   const shareDescription = isFr
     ? `🎓 Je viens de terminer le cours « ${courseTitle} » et j'ai obtenu ${overallStarRating}/5 étoiles ! Découvre ce cours 👉`
