@@ -432,6 +432,17 @@ export function ProgramForm() {
         </div>
       )}
 
+      {/* ─── PREVIEW TAB ─── */}
+      {activeTab === 'preview' && id && (
+        <div className="flex-1 min-h-0">
+          <LessonPreview
+            programId={id}
+            initialLessonId={selectedLessonId || undefined}
+            onClose={() => setActiveTab('edit')}
+          />
+        </div>
+      )}
+
       {/* ─── SETTINGS TAB ─── */}
       {activeTab === 'settings' && (
         <div className="flex-1 overflow-y-auto p-6">
