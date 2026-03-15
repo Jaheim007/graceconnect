@@ -208,6 +208,29 @@ export default function AdminPrograms() {
       <CreateWithAIDialog open={showAI} onOpenChange={setShowAI} onCreated={handleAICreated} />
       <CreateBlankDialog open={showBlank} onOpenChange={setShowBlank} onCreate={handleCreateBlank} />
       <ConvertDocumentDialog open={showConvert} onOpenChange={setShowConvert} onCreated={handleAICreated} />
+
+      {/* Delete confirmation dialog */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Trash2 className="h-5 w-5 text-destructive" />
+              {isFr ? 'Supprimer ce cours' : 'Delete this course'}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {isFr
+                ? `Êtes-vous sûr de vouloir supprimer "${deleteTarget?.title}" ? Cette action est irréversible.`
+                : `Are you sure you want to delete "${deleteTarget?.title}"? This action cannot be undone.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{isFr ? 'Annuler' : 'Cancel'}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {isFr ? 'Supprimer' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminPageShell>
   );
 }
