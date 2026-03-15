@@ -363,9 +363,9 @@ export function LessonEditor({ lessonId, programId, onBack }: LessonEditorProps)
                           <button
                             type="button"
                             onClick={() => setNewCorrectIndex(i)}
-                            className={`h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${i === newCorrectIndex ? 'border-emerald-500 bg-emerald-500/20' : 'border-muted-foreground/30'}`}
+                            className={`h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${i === newCorrectIndex ? 'border-primary bg-primary/20' : 'border-muted-foreground/30'}`}
                           >
-                            {i === newCorrectIndex && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
+                            {i === newCorrectIndex && <CheckCircle2 className="h-3 w-3 text-primary" />}
                           </button>
                           <Input
                             value={opt}
