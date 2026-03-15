@@ -54,7 +54,7 @@ Return ONLY valid JSON with this exact structure:
   ],
   "final_assessment": {
     "title": "${isFr ? 'Évaluation finale' : 'Final Assessment'}",
-    "description": "${isFr ? 'Testez vos connaissances sur l\\'ensemble du cours' : 'Test your knowledge of the entire course'}",
+    "description": "${isFr ? 'Testez vos connaissances sur le cours' : 'Test your knowledge of the entire course'}",
     "questions": [
       {
         "question": "Comprehensive question about the course material?",
