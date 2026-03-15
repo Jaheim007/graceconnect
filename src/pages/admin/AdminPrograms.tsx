@@ -192,7 +192,7 @@ export default function AdminPrograms() {
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); navigate(`/admin/programs/${prog.id}/edit`); }}>
                         <Edit className="h-3 w-3" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={(e) => { e.stopPropagation(); handleDelete(prog.id, prog.title); }}>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={(e) => { e.stopPropagation(); setDeleteTarget({ id: prog.id, title: prog.title }); }}>
                         <Trash2 className="h-3 w-3" />
                       </Button>
                     </div>
