@@ -42,15 +42,67 @@ export function useProgramModules(programId: string | undefined) {
     queryFn: async () => {
       if (!programId) return [];
       const { data } = await db.from('program_modules')
-        .select('*, program_lessons(id, title, content_type, duration_minutes, display_order, content_url)')
+        .select('*, program_lessons(id, title, content_type, content, video_url, duration_minutes, display_order, content_url, is_free_preview, order_index)')
         .eq('program_id', programId)
-        .order('display_order', { ascending: true });
+        .order('order_index', { ascending: true });
       return (data || []).map((m: any) => ({
         ...m,
-        lessons: (m.program_lessons || []).sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0)),
+        lessons: (m.program_lessons || []).sort((a: any, b: any) => (a.display_order || a.order_index || 0) - (b.display_order || b.order_index || 0)),
       }));
     },
     enabled: !!programId,
+  });
+}
+
+// ─── Single Lesson ───
+export function useLesson(lessonId: string | undefined) {
+  return useQuery({
+    queryKey: ['lesson', lessonId],
+    queryFn: async () => {
+      if (!lessonId) return null;
+      const { data } = await db.from('program_lessons')
+        .select('*')
+        .eq('id', lessonId)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!lessonId,
+  });
+}
+
+// ─── Lesson Attachments ───
+export function useLessonAttachments(lessonId: string | undefined) {
+  return useQuery({
+    queryKey: ['lesson-attachments', lessonId],
+    queryFn: async () => {
+      if (!lessonId) return [];
+      const { data } = await (db as any).from('lesson_attachments')
+        .select('*')
+        .eq('lesson_id', lessonId)
+        .order('display_order', { ascending: true });
+      return data || [];
+    },
+    enabled: !!lessonId,
+  });
+}
+
+// ─── Lesson Quiz ───
+export function useLessonQuiz(lessonId: string | undefined) {
+  return useQuery({
+    queryKey: ['lesson-quiz', lessonId],
+    queryFn: async () => {
+      if (!lessonId) return null;
+      const { data } = await db.from('program_quizzes')
+        .select('*, quiz_questions(*)')
+        .eq('lesson_id', lessonId)
+        .maybeSingle();
+      if (!data) return null;
+      return {
+        ...data,
+        questions: ((data as any).quiz_questions || []).sort((a: any, b: any) => (a.display_order || 0) - (b.display_order || 0)),
+      };
+    },
+    enabled: !!lessonId,
   });
 }
 
@@ -78,7 +130,6 @@ export function useLessonProgress(programId: string | undefined) {
     queryKey: ['lesson-progress', programId, user?.id],
     queryFn: async () => {
       if (!programId || !user) return {};
-      // Get all lesson IDs for this program
       const { data: modules } = await db.from('program_modules')
         .select('program_lessons(id)')
         .eq('program_id', programId);
@@ -147,8 +198,8 @@ export function useToggleLessonComplete() {
 export function useCreateProgram() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { organization_id: string; title: string; description?: string; cover_image_url?: string; is_published?: boolean; created_by: string }) => {
-      const { data, error } = await db.from('programs').insert(payload).select('id').single();
+    mutationFn: async (payload: { organization_id: string; title: string; description?: string; cover_image_url?: string; is_published?: boolean; created_by: string; price?: number; currency?: string; is_free?: boolean }) => {
+      const { data, error } = await db.from('programs').insert(payload as any).select('id').single();
       if (error) throw error;
       return data;
     },
@@ -161,8 +212,8 @@ export function useCreateProgram() {
 export function useUpdateProgram() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, ...payload }: { id: string; title?: string; description?: string; cover_image_url?: string; is_published?: boolean }) => {
-      const { error } = await db.from('programs').update(payload).eq('id', id);
+    mutationFn: async ({ id, ...payload }: { id: string; title?: string; description?: string; cover_image_url?: string; is_published?: boolean; price?: number; currency?: string; is_free?: boolean; certificate_enabled?: boolean }) => {
+      const { error } = await db.from('programs').update(payload as any).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -176,7 +227,6 @@ export function useDeleteProgram() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      // Delete lessons, modules, enrollments first
       const { data: modules } = await db.from('program_modules').select('id').eq('program_id', id);
       const moduleIds = (modules || []).map((m: any) => m.id);
       if (moduleIds.length > 0) {
@@ -184,6 +234,7 @@ export function useDeleteProgram() {
         const lessonIds = (lessons || []).map((l: any) => l.id);
         if (lessonIds.length > 0) {
           await db.from('lesson_progress').delete().in('lesson_id', lessonIds);
+          await (db as any).from('lesson_attachments').delete().in('lesson_id', lessonIds);
         }
         await db.from('program_lessons').delete().in('module_id', moduleIds);
       }
@@ -198,17 +249,37 @@ export function useDeleteProgram() {
   });
 }
 
-// Module CRUD
+// ─── Module CRUD ───
 export function useCreateModule() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { program_id: string; title: string; display_order?: number }) => {
-      const { data, error } = await db.from('program_modules').insert(payload).select('id').single();
+    mutationFn: async (payload: { program_id: string; title: string; description?: string; display_order?: number }) => {
+      const insertPayload: any = {
+        program_id: payload.program_id,
+        title: payload.title,
+        description: payload.description,
+        order_index: payload.display_order ?? 0,
+      };
+      const { data, error } = await db.from('program_modules').insert(insertPayload).select('id').single();
       if (error) throw error;
       return data;
     },
     onSuccess: (_, vars) => {
       qc.invalidateQueries({ queryKey: ['program-modules', vars.program_id] });
+    },
+  });
+}
+
+export function useUpdateModule() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, programId, ...payload }: { id: string; programId: string; title?: string; description?: string; order_index?: number }) => {
+      const { error } = await db.from('program_modules').update(payload).eq('id', id);
+      if (error) throw error;
+      return programId;
+    },
+    onSuccess: (programId) => {
+      qc.invalidateQueries({ queryKey: ['program-modules', programId] });
     },
   });
 }
@@ -221,6 +292,7 @@ export function useDeleteModule() {
       const lessonIds = (lessons || []).map((l: any) => l.id);
       if (lessonIds.length > 0) {
         await db.from('lesson_progress').delete().in('lesson_id', lessonIds);
+        await (db as any).from('lesson_attachments').delete().in('lesson_id', lessonIds);
       }
       await db.from('program_lessons').delete().eq('module_id', moduleId);
       const { error } = await db.from('program_modules').delete().eq('id', moduleId);
@@ -233,13 +305,14 @@ export function useDeleteModule() {
   });
 }
 
-// Lesson CRUD
+// ─── Lesson CRUD ───
 export function useCreateLesson() {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { module_id: string; title: string; content_type?: string; content_url?: string; duration_minutes?: number; display_order?: number; programId: string }) => {
-      const { programId, ...rest } = payload;
-      const { data, error } = await db.from('program_lessons').insert(rest).select('id').single();
+    mutationFn: async (payload: { module_id: string; title: string; content_type?: string; content_url?: string; video_url?: string; content?: string; duration_minutes?: number; display_order?: number; programId: string }) => {
+      const { programId, display_order, ...rest } = payload;
+      const insertPayload: any = { ...rest, order_index: display_order ?? 0 };
+      const { data, error } = await db.from('program_lessons').insert(insertPayload).select('id').single();
       if (error) throw error;
       return { data, programId };
     },
@@ -249,11 +322,27 @@ export function useCreateLesson() {
   });
 }
 
+export function useUpdateLesson() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, programId, ...payload }: { id: string; programId: string; title?: string; content?: string; video_url?: string; content_type?: string; content_url?: string; duration_minutes?: number; is_free_preview?: boolean; order_index?: number }) => {
+      const { error } = await db.from('program_lessons').update(payload as any).eq('id', id);
+      if (error) throw error;
+      return programId;
+    },
+    onSuccess: (programId) => {
+      qc.invalidateQueries({ queryKey: ['program-modules', programId] });
+      qc.invalidateQueries({ queryKey: ['lesson'] });
+    },
+  });
+}
+
 export function useDeleteLesson() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ lessonId, programId }: { lessonId: string; programId: string }) => {
       await db.from('lesson_progress').delete().eq('lesson_id', lessonId);
+      await (db as any).from('lesson_attachments').delete().eq('lesson_id', lessonId);
       const { error } = await db.from('program_lessons').delete().eq('id', lessonId);
       if (error) throw error;
       return programId;
@@ -264,7 +353,92 @@ export function useDeleteLesson() {
   });
 }
 
-// Public: list published programs for an org
+// ─── Attachment CRUD ───
+export function useCreateAttachment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: { lesson_id: string; file_url: string; file_name: string; file_size?: number; mime_type?: string }) => {
+      const { data, error } = await (db as any).from('lesson_attachments').insert(payload).select('id').single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({ queryKey: ['lesson-attachments', vars.lesson_id] });
+    },
+  });
+}
+
+export function useDeleteAttachment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, lessonId }: { id: string; lessonId: string }) => {
+      const { error } = await (db as any).from('lesson_attachments').delete().eq('id', id);
+      if (error) throw error;
+      return lessonId;
+    },
+    onSuccess: (lessonId) => {
+      qc.invalidateQueries({ queryKey: ['lesson-attachments', lessonId] });
+    },
+  });
+}
+
+// ─── Quiz CRUD ───
+export function useCreateQuiz() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: { lesson_id: string; title: string; passing_score?: number }) => {
+      const { data, error } = await db.from('program_quizzes').insert(payload).select('id').single();
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({ queryKey: ['lesson-quiz', vars.lesson_id] });
+    },
+  });
+}
+
+export function useCreateQuizQuestion() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: { quiz_id: string; question: string; options: any; correct_index: number; display_order?: number; lessonId: string }) => {
+      const { lessonId, ...rest } = payload;
+      const { data, error } = await db.from('quiz_questions').insert(rest).select('id').single();
+      if (error) throw error;
+      return { data, lessonId };
+    },
+    onSuccess: (result) => {
+      qc.invalidateQueries({ queryKey: ['lesson-quiz'] });
+    },
+  });
+}
+
+export function useUpdateQuizQuestion() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...payload }: { id: string; question?: string; options?: any; correct_index?: number }) => {
+      const { error } = await db.from('quiz_questions').update(payload).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['lesson-quiz'] });
+    },
+  });
+}
+
+export function useDeleteQuizQuestion() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await db.from('quiz_questions').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['lesson-quiz'] });
+    },
+  });
+}
+
+// ─── Public: list published programs for an org ───
 export function usePublicPrograms(orgId: string | undefined) {
   return useQuery({
     queryKey: ['public-programs', orgId],
