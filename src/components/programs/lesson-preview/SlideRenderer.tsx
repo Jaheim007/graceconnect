@@ -16,6 +16,7 @@ interface SlideRendererProps {
   orgLogoUrl?: string | null;
   deviceMode: 'mobile' | 'tablet' | 'desktop';
   customization?: SlideCustomization;
+  lessonImageUrl?: string;
   onStarEarned?: () => void;
   gamificationEnabled?: boolean;
 }
@@ -115,6 +116,7 @@ export function SlideRenderer({
   orgLogoUrl,
   deviceMode,
   customization,
+  lessonImageUrl,
   onStarEarned,
   gamificationEnabled,
 }: SlideRendererProps) {
@@ -194,10 +196,19 @@ export function SlideRenderer({
 
   // ── Title Card ──
   if (slide.type === 'title-card') {
+    // Use lesson's first image as background if available, fall back to customization bg
+    const titleBgImage = lessonImageUrl || c?.bgImageUrl;
+    const hasTitleBg = !!titleBgImage;
+
+    // Determine module title text class based on caption style for proper contrast
+    const moduleTextClass = captionStyle === 'light' || captionStyle === 'transparent-dark'
+      ? 'text-slate-500'
+      : 'text-white/70';
+
     return (
       <div className={cn('h-full flex flex-col text-white relative overflow-hidden', gradientClass)} style={bgStyle}>
-        {hasBgImage && <img src={c!.bgImageUrl} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} />}
-        {hasBgImage && <div className="absolute inset-0 bg-black/50 z-[1]" />}
+        {hasTitleBg && <img src={titleBgImage} alt="" className={cn('absolute inset-0 w-full h-full object-cover z-0', imagePositionClasses[imgPos])} />}
+        {hasTitleBg && <div className="absolute inset-0 bg-black/50 z-[1]" />}
         <SlideDecoration theme={theme} />
         <div className="relative z-20"><Header /></div>
         <div className={cn('absolute inset-0 flex flex-col px-6 z-10', captionPositionClasses[captionPos])}>
@@ -208,7 +219,7 @@ export function SlideRenderer({
               : cn(captionClasses[captionStyle], 'shadow-2xl', theme.captionGlow)
           )}>
             {moduleTitle && (
-              <p className="text-[10px] uppercase tracking-widest text-white/40 mb-2">{moduleTitle}</p>
+              <p className={cn('text-[10px] uppercase tracking-widest mb-2 font-semibold', moduleTextClass)}>{moduleTitle}</p>
             )}
             <AccentLine />
             <h1 className={cn('font-bold leading-tight mb-2', isMobile ? 'text-2xl' : 'text-3xl')}>

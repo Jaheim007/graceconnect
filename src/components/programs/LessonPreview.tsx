@@ -24,6 +24,13 @@ interface LessonPreviewProps {
 
 type DeviceMode = 'mobile' | 'tablet' | 'desktop';
 
+/** Extract the first <img src="…"> URL from HTML */
+function extractFirstImageUrl(html: string | null): string | undefined {
+  if (!html) return undefined;
+  const m = html.match(/<img[^>]+src=["']([^"']+)["']/i);
+  return m?.[1] || undefined;
+}
+
 interface FlatSlide {
   lessonId: string;
   lessonTitle: string;
@@ -32,6 +39,7 @@ interface FlatSlide {
   slide: ContentSlide;
   lessonIndex: number;
   slideInLesson: number;
+  lessonImageUrl?: string;
 }
 
 export function LessonPreview({ programId, initialLessonId, onClose }: LessonPreviewProps) {
@@ -79,6 +87,7 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
 
     for (const mod of modules) {
       for (const lesson of (mod as any).lessons || []) {
+        const lessonImage = extractFirstImageUrl(lesson.content);
         slides.push({
           lessonId: lesson.id,
           lessonTitle: lesson.title,
@@ -87,6 +96,7 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
           slide: { type: 'title-card', bodyHtml: lesson.description || '' },
           lessonIndex: lessonIdx,
           slideInLesson: 0,
+          lessonImageUrl: lessonImage,
         });
 
         const contentSlides = parseContentIntoSlides(lesson.content || '');
@@ -99,6 +109,7 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
             slide: cs,
             lessonIndex: lessonIdx,
             slideInLesson: si + 1,
+            lessonImageUrl: lessonImage,
           });
         });
 
@@ -254,6 +265,7 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
         orgLogoUrl={orgLogoUrl}
         deviceMode={deviceMode}
         customization={currentCustomization}
+        lessonImageUrl={current.lessonImageUrl}
         onStarEarned={() => {
           if (gamificationEnabled) {
             setStarsEarned(s => s + 1);
