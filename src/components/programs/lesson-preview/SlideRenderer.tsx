@@ -127,19 +127,46 @@ export function SlideRenderer({
   const isMobile = deviceMode === 'mobile';
   const c = customization;
 
-  // Quiz slides have their own renderer
+  // Quiz slides
   if (slide.type === 'quiz' && slide.quiz) {
     return (
       <QuizSlide
-        quiz={slide.quiz}
-        theme={theme}
-        slideIndex={slideIndex}
-        totalSlides={totalSlides}
-        lessonTitle={lessonTitle}
-        orgLogoUrl={orgLogoUrl}
-        deviceMode={deviceMode}
-        onStarEarned={onStarEarned}
-        gamificationEnabled={gamificationEnabled}
+        quiz={slide.quiz} theme={theme} slideIndex={slideIndex} totalSlides={totalSlides}
+        lessonTitle={lessonTitle} orgLogoUrl={orgLogoUrl} deviceMode={deviceMode}
+        onStarEarned={onStarEarned} gamificationEnabled={gamificationEnabled}
+      />
+    );
+  }
+
+  // Flashcard slides
+  if (slide.type === 'flashcard' && slide.flashcard) {
+    return (
+      <FlashcardSlide
+        flashcard={slide.flashcard} theme={theme} slideIndex={slideIndex} totalSlides={totalSlides}
+        lessonTitle={lessonTitle} orgLogoUrl={orgLogoUrl} deviceMode={deviceMode}
+        onStarEarned={onStarEarned} gamificationEnabled={gamificationEnabled}
+      />
+    );
+  }
+
+  // Matching slides
+  if (slide.type === 'matching' && slide.matching) {
+    return (
+      <MatchingSlide
+        matching={slide.matching} theme={theme} slideIndex={slideIndex} totalSlides={totalSlides}
+        lessonTitle={lessonTitle} orgLogoUrl={orgLogoUrl} deviceMode={deviceMode}
+        onStarEarned={onStarEarned} gamificationEnabled={gamificationEnabled}
+      />
+    );
+  }
+
+  // Ordering slides
+  if (slide.type === 'ordering' && slide.ordering) {
+    return (
+      <OrderingSlide
+        ordering={slide.ordering} theme={theme} slideIndex={slideIndex} totalSlides={totalSlides}
+        lessonTitle={lessonTitle} orgLogoUrl={orgLogoUrl} deviceMode={deviceMode}
+        onStarEarned={onStarEarned} gamificationEnabled={gamificationEnabled}
       />
     );
   }
