@@ -20,6 +20,8 @@ interface LessonEditorProps {
   lessonId: string;
   programId: string;
   onBack: () => void;
+  /** When true, renders inline without AdminPageShell wrapper */
+  embedded?: boolean;
 }
 
 export function LessonEditor({ lessonId, programId, onBack }: LessonEditorProps) {
