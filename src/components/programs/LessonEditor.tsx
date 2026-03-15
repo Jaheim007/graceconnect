@@ -306,7 +306,7 @@ export function LessonEditor({ lessonId, programId, onBack }: LessonEditorProps)
                         <Trash2 className="h-2.5 w-2.5" />
                       </Button>
                     </div>
-                  )))}
+                  ))}
                 </div>
               )}
             </div>
