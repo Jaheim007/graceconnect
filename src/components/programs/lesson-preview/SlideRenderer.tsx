@@ -217,12 +217,11 @@ export function SlideRenderer({
       <div className="relative z-20"><Header /></div>
 
       <div className={cn('absolute inset-0 flex flex-col z-10', isMobile ? 'px-5' : 'px-8', captionPositionClasses[captionPos])}>
-        <div className={cn(
-          'rounded-xl max-w-2xl w-full overflow-y-auto max-h-[70%]',
-          captionStyle === 'transparent-light' || captionStyle === 'transparent-dark'
-            ? cn(captionClasses[captionStyle], 'px-1 py-1')
-            : cn(captionClasses[captionStyle], 'px-6 py-5 shadow-xl', theme.captionGlow)
-        )}>
+        <ScrollableContent
+          captionStyle={captionStyle}
+          captionClasses={captionClasses}
+          theme={theme}
+        >
           {slide.heading && (
             <div className="mb-4">
               <AccentLine />
@@ -232,7 +231,7 @@ export function SlideRenderer({
           {slide.bodyHtml && (
             <div className={proseClasses} dangerouslySetInnerHTML={{ __html: slide.bodyHtml }} />
           )}
-        </div>
+        </ScrollableContent>
       </div>
     </div>
   );
