@@ -208,6 +208,21 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
     [allSlides]
   );
 
+  // Save progress as learner navigates (debounced)
+  useEffect(() => {
+    if (!isLearner || currentIndex === lastSavedRef.current) return;
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => {
+      lastSavedRef.current = currentIndex;
+      saveProgress.mutate({
+        slideIndex: currentIndex,
+        totalSlides: total,
+        starsEarned,
+      });
+    }, 1500);
+    return () => { if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current); };
+  }, [isLearner, currentIndex, starsEarned, total]);
+
   const canGoTo = (idx: number) => {
     if (!isLearner) return true;
     return idx <= maxReachedIndex + 1;
