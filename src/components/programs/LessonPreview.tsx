@@ -75,7 +75,37 @@ export function LessonPreview({ programId, initialLessonId, onClose, headerActio
   // Track the highest slide index the learner has reached (for slide locking)
   const [maxReachedIndex, setMaxReachedIndex] = useState(0);
 
-  // Auto-detect device mode for learners based on actual viewport
+  // Progress saving hooks (only active for learners)
+  const saveProgress = useSaveSlideProgress(programId);
+  const saveLessonCompletion = useSaveLessonCompletion();
+  const { data: enrollmentProgress } = useEnrollmentProgress(isLearner ? programId : undefined);
+
+  // Restore progress from DB on mount
+  useEffect(() => {
+    if (isLearner && enrollmentProgress?.last_slide_index && enrollmentProgress.last_slide_index > 0) {
+      setMaxReachedIndex(enrollmentProgress.last_slide_index);
+      setCurrentIndex(enrollmentProgress.last_slide_index);
+      if (enrollmentProgress.total_stars) setStarsEarned(enrollmentProgress.total_stars);
+    }
+  }, [isLearner, enrollmentProgress?.last_slide_index]);
+
+  // Debounced progress save
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const lastSavedRef = useRef<number>(-1);
+
+  useEffect(() => {
+    if (!isLearner || currentIndex === lastSavedRef.current) return;
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = setTimeout(() => {
+      lastSavedRef.current = currentIndex;
+      saveProgress.mutate({
+        slideIndex: currentIndex,
+        totalSlides: total || 1,
+        starsEarned,
+      });
+    }, 1500);
+    return () => { if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current); };
+  }, [isLearner, currentIndex, starsEarned]);
   useEffect(() => {
     if (!isLearner) return;
     const updateDevice = () => {
