@@ -2,11 +2,13 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { ProductCard } from '@/components/products/ProductCard';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Loader2 } from 'lucide-react';
+import { BookOpen, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useI18n } from '@/i18n/I18nContext';
+import { Link } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
 
 const CATEGORY_META = [
   { value: '', emoji: '✨' },
@@ -33,9 +35,29 @@ export function CategoryCarousels() {
     link: isFr ? 'Liens' : 'Links',
   };
 
+  const isCourseCategory = activeCategory === 'course';
+
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['category-carousel', activeCategory],
     queryFn: async () => {
+      // For "course" category, query the programs table instead
+      if (isCourseCategory) {
+        const { data } = await db
+          .from('programs')
+          .select('*, organizations(name, slug, logo_url, currency, is_verified)')
+          .eq('is_published', true)
+          .order('created_at', { ascending: false })
+          .limit(12);
+        return (data || []).map((p: any) => ({
+          ...p,
+          _isProgram: true,
+          organization_name: p.organizations?.name,
+          organization_slug: p.organizations?.slug,
+          organization_logo: p.organizations?.logo_url,
+          is_org_verified: p.organizations?.is_verified,
+        }));
+      }
+
       let q = db
         .from('digital_products')
         .select('*, organizations(name, slug, logo_url, currency, is_verified)')
@@ -104,7 +126,35 @@ export function CategoryCarousels() {
                 transition={{ delay: i * 0.03 }}
                 className="shrink-0 w-[220px] sm:w-[260px]"
               >
-                <ProductCard product={p} hideCommission hideShare />
+                {p._isProgram ? (
+                  <Link
+                    to={`/program/${p.id}`}
+                    className="group block rounded-xl border border-border bg-card overflow-hidden hover:shadow-md transition-shadow"
+                  >
+                    <div className="relative aspect-video bg-muted">
+                      {p.cover_image_url ? (
+                        <img src={p.cover_image_url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-primary/5">
+                          <BookOpen className="h-8 w-8 text-primary/30" />
+                        </div>
+                      )}
+                      <Badge className="absolute top-2 left-2 text-[10px] bg-primary/90 text-primary-foreground">
+                        <BookOpen className="h-2.5 w-2.5 mr-1" />
+                        {isFr ? 'Formation' : 'Course'}
+                      </Badge>
+                    </div>
+                    <div className="p-3 space-y-1">
+                      <p className="text-sm font-semibold line-clamp-2 group-hover:text-primary transition-colors">{p.title}</p>
+                      {p.organization_name && (
+                        <p className="text-[10px] text-muted-foreground">{p.organization_name}</p>
+                      )}
+                      <p className="text-[10px] text-primary font-medium">{isFr ? 'Gratuit • S\'inscrire' : 'Free • Enroll'}</p>
+                    </div>
+                  </Link>
+                ) : (
+                  <ProductCard product={p} hideCommission hideShare />
+                )}
               </motion.div>
             ))}
           </div>

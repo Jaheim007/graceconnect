@@ -128,6 +128,7 @@ export function Sidebar() {
       defaultOpen: true,
       items: [
         { to: '/admin/products', icon: ShoppingBag, label: t('sidebar.products') },
+        { to: '/admin/programs', icon: GraduationCap, label: t('sidebar.programs') },
         { to: '/admin/media', icon: Play, label: t('sidebar.media') },
         { to: '/admin/announcements', icon: Megaphone, label: t('sidebar.announcements') },
         { to: '/admin/events', icon: CalendarDays, label: t('sidebar.events') },
