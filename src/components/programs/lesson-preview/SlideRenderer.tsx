@@ -207,6 +207,9 @@ export function SlideRenderer({
               ? captionClasses[captionStyle]
               : cn(captionClasses[captionStyle], 'shadow-2xl', theme.captionGlow)
           )}>
+            {moduleTitle && (
+              <p className="text-[10px] uppercase tracking-widest text-white/40 mb-2">{moduleTitle}</p>
+            )}
             <AccentLine />
             <h1 className={cn('font-bold leading-tight mb-2', isMobile ? 'text-2xl' : 'text-3xl')}>
               {lessonTitle}
