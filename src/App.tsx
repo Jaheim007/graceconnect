@@ -464,6 +464,7 @@ const App = () => (
                   <Route path="programs" element={<AdminPrograms />} />
                   <Route path="programs/new" element={<AdminProgramForm />} />
                   <Route path="programs/:id/edit" element={<AdminProgramForm />} />
+                  <Route path="learner-progress" element={<AdminLearnerProgress />} />
                   {/* AI Studio */}
                   <Route path="studio" element={<StudioHome />} />
                   <Route path="studio/projects" element={<StudioProjectsList />} />
