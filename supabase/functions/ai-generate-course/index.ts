@@ -69,13 +69,13 @@ CRITICAL REQUIREMENTS FOR MICRO-LEARNING:
 - DO NOT use markdown, only HTML tags
 - The quiz JSON must be valid JSON inside the HTML comment`;
 
-        const userPrompt = `Create a COMPLETE professional course with FULL detailed lesson content for:
+        const userPrompt = `Create a micro-learning course with SHORT digestible sections and EMBEDDED QUIZ questions for:
 Title: ${title}
 ${description ? `Description/Context: ${description}` : ''}
 ${target_audience ? `Target audience: ${target_audience}` : ''}
 Number of modules: ${module_count}
 
-Remember: Each lesson must have complete, educational HTML content (not just a title). Write as if you're authoring a real online course textbook.`;
+IMPORTANT: Keep each section very short (2-3 sentences). Users read this on mobile slides — one section per screen. Include 2-3 quiz questions per lesson embedded as <!-- QUIZ:{...} --> HTML comments between sections. Make it feel interactive and engaging like a mobile learning app.`;
 
         const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
           method: 'POST',
