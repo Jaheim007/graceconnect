@@ -161,6 +161,13 @@ export function LessonEditor({ lessonId, programId, onBack, embedded = false }: 
   };
 
   if (isLoading) {
+    if (embedded) {
+      return (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      );
+    }
     return (
       <AdminPageShell title="" backRoute="/admin/programs">
         <div className="flex items-center justify-center py-20">
