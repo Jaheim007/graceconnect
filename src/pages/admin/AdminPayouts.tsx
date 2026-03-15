@@ -179,10 +179,10 @@ export default function AdminPayouts() {
         {/* ═══ Revenue Breakdown – Sales ═══ */}
         {fundSummary && (
           <motion.div variants={stagger} initial="hidden" animate="visible" className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Revenus des ventes</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{isFr ? 'Revenus des ventes' : 'Sales Revenue'}</p>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {[
-                { label: "Chiffre d'affaires", value: fmt(fundSummary.totalGMV, currency), icon: DollarSign, colorClass: 'from-muted/60 to-muted/30 border-border', sub: 'Total brut' },
+                { label: isFr ? "Chiffre d'affaires" : 'Gross Revenue', value: fmt(fundSummary.totalGMV, currency), icon: DollarSign, colorClass: 'from-muted/60 to-muted/30 border-border', sub: isFr ? 'Total brut' : 'Gross total' },
                 { label: t('payouts.org_share'), value: fmt(fundSummary.totalOrgReceived, currency), icon: Wallet, colorClass: 'from-emerald-500/15 to-emerald-500/5 border-emerald-500/20', sub: t('payouts.after_platform_fees') },
                 { label: t('payouts.platform_fees'), value: fmt(fundSummary.totalPlatformFees, currency), icon: Shield, colorClass: 'from-primary/15 to-primary/5 border-primary/20', sub: `${currentOrg?.platform_fee_percent ?? 10}% ${t('payouts.deducted')}` },
                 { label: t('payouts.affiliate_commissions'), value: fmt(fundSummary.totalAffiliateCommissionsPaid, currency), icon: ArrowUpRight, colorClass: 'from-amber-500/15 to-amber-500/5 border-amber-500/20', sub: t('payouts.paid_to_affiliates') },
