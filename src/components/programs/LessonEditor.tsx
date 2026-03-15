@@ -401,7 +401,24 @@ export function LessonEditor({ lessonId, programId, onBack, embedded = false }: 
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Save button for embedded mode */}
+        {embedded && (
+          <div className="flex justify-end pt-2">
+            <Button onClick={handleSave} disabled={saving || !title.trim()} size="sm" className="gap-1.5">
+              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+              {isFr ? 'Enregistrer' : 'Save'}
+            </Button>
+          </div>
+        )}
       </div>
+  );
+
+  if (embedded) return editorContent;
+
+  return (
+    <AdminPageShell title={isFr ? 'Éditeur de leçon' : 'Lesson editor'} backRoute="/admin/programs">
+      {editorContent}
     </AdminPageShell>
   );
 }
