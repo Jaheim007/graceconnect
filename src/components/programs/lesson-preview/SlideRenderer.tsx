@@ -40,6 +40,71 @@ const imagePositionClasses: Record<ImagePosition, string> = {
   cover: 'object-cover',
 };
 
+// Scrollable container with hidden scrollbar + scroll-down indicator
+function ScrollableContent({
+  captionStyle,
+  captionClasses: captionClassMap,
+  theme,
+  children,
+}: {
+  captionStyle: CaptionStyle;
+  captionClasses: Record<CaptionStyle, string>;
+  theme: ReturnType<typeof getSlideTheme>;
+  children: React.ReactNode;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScroll, setCanScroll] = useState(false);
+  const [isAtBottom, setIsAtBottom] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const hasOverflow = el.scrollHeight > el.clientHeight + 4;
+    setCanScroll(hasOverflow);
+    setIsAtBottom(el.scrollTop + el.clientHeight >= el.scrollHeight - 8);
+  }, []);
+
+  useEffect(() => {
+    checkScroll();
+    const el = scrollRef.current;
+    if (!el) return;
+    el.addEventListener('scroll', checkScroll, { passive: true });
+    const ro = new ResizeObserver(checkScroll);
+    ro.observe(el);
+    return () => { el.removeEventListener('scroll', checkScroll); ro.disconnect(); };
+  }, [checkScroll, children]);
+
+  const isTransparent = captionStyle === 'transparent-light' || captionStyle === 'transparent-dark';
+
+  return (
+    <div className="relative max-w-2xl w-full max-h-[70%]">
+      <div
+        ref={scrollRef}
+        className={cn(
+          'rounded-xl w-full overflow-y-auto h-full',
+          // Hide scrollbar across browsers
+          'scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
+          isTransparent
+            ? cn(captionClassMap[captionStyle], 'px-1 py-1')
+            : cn(captionClassMap[captionStyle], 'px-6 py-5 shadow-xl', theme.captionGlow)
+        )}
+      >
+        {children}
+      </div>
+      {/* Scroll-down indicator */}
+      {canScroll && !isAtBottom && (
+        <button
+          onClick={() => scrollRef.current?.scrollBy({ top: 120, behavior: 'smooth' })}
+          className="absolute bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center animate-bounce z-20"
+        >
+          <ChevronDown className="h-5 w-5 text-white/70 drop-shadow-md" />
+          <ChevronDown className="h-5 w-5 -mt-3 text-white/40 drop-shadow-md" />
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function SlideRenderer({
   slide,
   slideIndex,
