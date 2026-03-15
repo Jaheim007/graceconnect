@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, type ReactNode } from 'react';
 import { useProgramModules, useProgram } from '@/hooks/usePrograms';
 import { useI18n } from '@/i18n/I18nContext';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,7 @@ interface LessonPreviewProps {
   programId: string;
   initialLessonId?: string;
   onClose?: () => void;
+  headerActions?: ReactNode;
 }
 
 type DeviceMode = 'mobile' | 'tablet' | 'desktop';
@@ -51,7 +52,7 @@ interface FlatSlide {
   moduleImageUrl?: string;
 }
 
-export function LessonPreview({ programId, initialLessonId, onClose }: LessonPreviewProps) {
+export function LessonPreview({ programId, initialLessonId, onClose, headerActions }: LessonPreviewProps) {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const { data: program } = useProgram(programId);
@@ -349,6 +350,7 @@ export function LessonPreview({ programId, initialLessonId, onClose }: LessonPre
         </div>
 
         <div className="flex items-center gap-1">
+          {headerActions}
           <Button
             variant={showCustomizer ? 'default' : 'ghost'}
             size="icon"
