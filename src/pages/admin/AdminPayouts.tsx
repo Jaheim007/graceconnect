@@ -36,6 +36,7 @@ export default function AdminPayouts() {
   const { currentOrg } = useOrg();
   const { user } = useAuth();
   const { t, locale } = useI18n();
+  const isFr = locale === 'fr';
   const queryClient = useQueryClient();
   const orgId = currentOrg?.id;
   const currency = currentOrg?.currency || 'XOF';
@@ -50,8 +51,8 @@ export default function AdminPayouts() {
     mutationFn: async () => {
       if (!user || !orgId || !fundSummary) throw new Error('Missing data');
       const available = Math.max(0, fundSummary.availableBalance);
-      if (available < MIN_WITHDRAWAL) throw new Error(`Solde insuffisant (minimum ${MIN_WITHDRAWAL} ${currency})`);
-      if (!kycApproved) throw new Error('KYC requis avant tout retrait');
+      if (available < MIN_WITHDRAWAL) throw new Error(isFr ? `Solde insuffisant (minimum ${MIN_WITHDRAWAL} ${currency})` : `Insufficient balance (minimum ${MIN_WITHDRAWAL} ${currency})`);
+      if (!kycApproved) throw new Error(isFr ? 'KYC requis avant tout retrait' : 'KYC required before withdrawal');
 
       const { error } = await db.from('payout_requests').insert({
         user_id: user.id,
@@ -63,11 +64,11 @@ export default function AdminPayouts() {
       });
       if (error) throw error;
 
-      // Fire notifications
+      // Fire notifications (org owner + superadmins)
       onPayoutRequested(orgId, currentOrg?.name || '', available, currency);
     },
     onSuccess: () => {
-      toast.success('Demande de retrait envoyée ! Traitement sous 3-8 jours ouvrés.');
+      toast.success(isFr ? 'Demande de retrait envoyée ! Traitement sous 3-8 jours ouvrés.' : 'Withdrawal request sent! Processing within 3-8 business days.');
       setShowWithdrawDialog(false);
       queryClient.invalidateQueries({ queryKey: ['admin-payouts', orgId] });
       queryClient.invalidateQueries({ queryKey: ['admin-fund-summary', orgId] });
