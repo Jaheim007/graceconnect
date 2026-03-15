@@ -181,8 +181,8 @@ function extractInteractives(html: string): {
 export function parseContentIntoSlides(html: string): ContentSlide[] {
   if (!html?.trim()) return [];
 
-  // Extract quizzes first
-  const { cleanHtml, quizzes } = extractQuizzes(html);
+  // Extract all interactive elements
+  const { cleanHtml, quizzes, flashcards, matchings, orderings } = extractInteractives(html);
 
   // Split at <h2> or <h3> tags
   const parts = cleanHtml.split(/(?=<h[23][^>]*>)/i);
@@ -197,7 +197,6 @@ export function parseContentIntoSlides(html: string): ContentSlide[] {
       const heading = headingMatch[1].replace(/<[^>]+>/g, '').trim();
       const body = trimmed.replace(/^<h[23][^>]*>.*?<\/h[23]>/i, '').trim();
       
-      // Split long bodies into multiple slides
       const bodyChunks = splitLongBody(body);
       bodyChunks.forEach((chunk, i) => {
         slides.push({
@@ -214,46 +213,42 @@ export function parseContentIntoSlides(html: string): ContentSlide[] {
     }
   }
 
-  // Filter out slides that are image-only with no meaningful text
-  // Merge their content into the previous slide instead of dropping
+  // Filter out image-only slides
   const filtered: ContentSlide[] = [];
   for (const slide of slides) {
     if (isImageOnlyBlock(slide.bodyHtml) && !slide.heading) {
-      // Merge image into previous slide if possible
       if (filtered.length > 0) {
         filtered[filtered.length - 1].bodyHtml += slide.bodyHtml;
       }
-      // Otherwise just skip it
     } else {
       filtered.push(slide);
     }
   }
   const finalSlides = filtered.length > 0 ? filtered : slides;
 
-  // Insert quiz slides after content slides (distributed evenly)
-  if (quizzes.length > 0) {
+  // Collect all interactive slides to distribute
+  const interactives: ContentSlide[] = [];
+  for (const q of quizzes) interactives.push({ type: 'quiz', bodyHtml: '', quiz: q });
+  for (const fc of flashcards) interactives.push({ type: 'flashcard', bodyHtml: '', flashcard: fc });
+  for (const m of matchings) interactives.push({ type: 'matching', bodyHtml: '', matching: m });
+  for (const o of orderings) interactives.push({ type: 'ordering', bodyHtml: '', ordering: o });
+
+  // Insert interactive slides distributed evenly among content
+  if (interactives.length > 0) {
     const result: ContentSlide[] = [];
-    const interval = Math.max(1, Math.floor(finalSlides.length / (quizzes.length + 1)));
-    let quizIdx = 0;
+    const interval = Math.max(1, Math.floor(finalSlides.length / (interactives.length + 1)));
+    let intIdx = 0;
 
     for (let i = 0; i < finalSlides.length; i++) {
       result.push(finalSlides[i]);
-      if (quizIdx < quizzes.length && (i + 1) % interval === 0 && i > 0) {
-        result.push({
-          type: 'quiz',
-          bodyHtml: '',
-          quiz: quizzes[quizIdx],
-        });
-        quizIdx++;
+      if (intIdx < interactives.length && (i + 1) % interval === 0 && i > 0) {
+        result.push(interactives[intIdx]);
+        intIdx++;
       }
     }
-    while (quizIdx < quizzes.length) {
-      result.push({
-        type: 'quiz',
-        bodyHtml: '',
-        quiz: quizzes[quizIdx],
-      });
-      quizIdx++;
+    while (intIdx < interactives.length) {
+      result.push(interactives[intIdx]);
+      intIdx++;
     }
 
     return result;
