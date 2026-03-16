@@ -253,6 +253,7 @@ export function parseContentIntoSlides(html: string): ContentSlide[] {
   for (const fc of flashcards) interactives.push({ type: 'flashcard', bodyHtml: '', flashcard: fc });
   for (const m of matchings) interactives.push({ type: 'matching', bodyHtml: '', matching: m });
   for (const o of orderings) interactives.push({ type: 'ordering', bodyHtml: '', ordering: o });
+  for (const fb of fillInBlanks) interactives.push({ type: 'fill-in-blank', bodyHtml: '', fillInBlank: fb });
 
   // Insert interactive slides distributed evenly among content
   if (interactives.length > 0) {
