@@ -462,3 +462,70 @@ export function usePublicPrograms(orgId: string | undefined) {
     enabled: !!orgId,
   });
 }
+
+// ─── Clone / Duplicate Course ───
+export function useCloneProgram() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ programId, organizationId, createdBy }: { programId: string; organizationId: string; createdBy: string }) => {
+      // 1. Fetch original program
+      const { data: original } = await db.from('programs')
+        .select('*')
+        .eq('id', programId)
+        .single();
+      if (!original) throw new Error('Program not found');
+
+      // 2. Create clone (draft, unpublished)
+      const { data: newProgram, error: pErr } = await db.from('programs').insert({
+        organization_id: organizationId,
+        title: `${(original as any).title} (Copy)`,
+        description: (original as any).description,
+        cover_image_url: (original as any).cover_image_url,
+        is_published: false,
+        created_by: createdBy,
+        price: (original as any).price,
+        currency: (original as any).currency,
+        is_free: (original as any).is_free,
+        certificate_enabled: (original as any).certificate_enabled,
+      } as any).select('id').single();
+      if (pErr) throw pErr;
+
+      // 3. Fetch modules & lessons
+      const { data: modules } = await db.from('program_modules')
+        .select('*, program_lessons(*)')
+        .eq('program_id', programId)
+        .order('order_index', { ascending: true });
+
+      // 4. Clone modules and lessons
+      for (const mod of (modules || [])) {
+        const { data: newMod, error: mErr } = await db.from('program_modules').insert({
+          program_id: (newProgram as any).id,
+          title: (mod as any).title,
+          description: (mod as any).description,
+          order_index: (mod as any).order_index,
+        } as any).select('id').single();
+        if (mErr) continue;
+
+        const lessons = ((mod as any).program_lessons || []).sort((a: any, b: any) => (a.order_index || 0) - (b.order_index || 0));
+        for (const lesson of lessons) {
+          await db.from('program_lessons').insert({
+            module_id: (newMod as any).id,
+            title: lesson.title,
+            content: lesson.content,
+            content_type: lesson.content_type,
+            content_url: lesson.content_url,
+            video_url: lesson.video_url,
+            duration_minutes: lesson.duration_minutes,
+            order_index: lesson.order_index,
+            is_free_preview: lesson.is_free_preview,
+          } as any);
+        }
+      }
+
+      return newProgram;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['org-programs'] });
+    },
+  });
+}
