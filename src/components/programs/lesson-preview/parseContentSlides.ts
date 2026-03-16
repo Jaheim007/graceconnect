@@ -126,11 +126,13 @@ function extractInteractives(html: string): {
   flashcards: FlashcardData[];
   matchings: MatchingData[];
   orderings: OrderingData[];
+  fillInBlanks: FillInBlankData[];
 } {
   const quizzes: QuizData[] = [];
   const flashcards: FlashcardData[] = [];
   const matchings: MatchingData[] = [];
   const orderings: OrderingData[] = [];
+  const fillInBlanks: FillInBlankData[] = [];
 
   let cleanHtml = html;
 
