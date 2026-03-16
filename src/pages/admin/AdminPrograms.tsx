@@ -190,6 +190,15 @@ export default function AdminPrograms() {
                       <span className="flex items-center gap-0.5"><Layers className="h-3 w-3" /> {prog.module_count} module{prog.module_count !== 1 ? 's' : ''}</span>
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button variant="ghost" size="icon" className="h-7 w-7" title={isFr ? 'Dupliquer' : 'Duplicate'} onClick={(e) => {
+                        e.stopPropagation();
+                        if (!currentOrg || !user) return;
+                        cloneProgram.mutateAsync({ programId: prog.id, organizationId: currentOrg.id, createdBy: user.id })
+                          .then(r => { toast({ title: isFr ? '✅ Cours dupliqué' : '✅ Course duplicated' }); navigate(`/admin/programs/${(r as any).id}/edit`); })
+                          .catch(e => toast({ title: 'Error', description: e.message, variant: 'destructive' }));
+                      }}>
+                        <Copy className="h-3 w-3" />
+                      </Button>
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); navigate(`/admin/programs/${prog.id}/edit`); }}>
                         <Edit className="h-3 w-3" />
                       </Button>
