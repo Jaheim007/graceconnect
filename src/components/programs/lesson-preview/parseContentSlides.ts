@@ -185,7 +185,18 @@ function extractInteractives(html: string): {
     return '';
   });
 
-  return { cleanHtml, quizzes, flashcards, matchings, orderings };
+  // Extract fill-in-the-blank: <!-- FILLINBLANK:{"sentence":"...","answer":"..."} -->
+  cleanHtml = cleanHtml.replace(/<!--\s*FILLINBLANK:([\s\S]*?)-->/gi, (_, json) => {
+    try {
+      const fb = JSON.parse(json.trim());
+      if (fb.sentence && fb.answer) {
+        fillInBlanks.push({ sentence: fb.sentence, answer: fb.answer, hint: fb.hint, acceptableAnswers: fb.acceptableAnswers });
+      }
+    } catch { /* skip */ }
+    return '';
+  });
+
+  return { cleanHtml, quizzes, flashcards, matchings, orderings, fillInBlanks };
 }
 
 export function parseContentIntoSlides(html: string): ContentSlide[] {
