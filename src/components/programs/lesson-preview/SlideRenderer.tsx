@@ -172,6 +172,17 @@ export function SlideRenderer({
     );
   }
 
+  // Fill-in-the-blank slides
+  if (slide.type === 'fill-in-blank' && slide.fillInBlank) {
+    return (
+      <FillInBlankSlide
+        fillInBlank={slide.fillInBlank} theme={theme} slideIndex={slideIndex} totalSlides={totalSlides}
+        lessonTitle={lessonTitle} orgLogoUrl={orgLogoUrl} deviceMode={deviceMode}
+        onStarEarned={onStarEarned} gamificationEnabled={gamificationEnabled}
+      />
+    );
+  }
+
   const bgStyle: React.CSSProperties = c?.bgColor ? { background: c.bgColor } : {};
   const hasBgImage = !!c?.bgImageUrl;
   const layout = c?.layout || 'text-only';
