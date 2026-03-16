@@ -203,7 +203,7 @@ export function parseContentIntoSlides(html: string): ContentSlide[] {
   if (!html?.trim()) return [];
 
   // Extract all interactive elements
-  const { cleanHtml, quizzes, flashcards, matchings, orderings } = extractInteractives(html);
+  const { cleanHtml, quizzes, flashcards, matchings, orderings, fillInBlanks } = extractInteractives(html);
 
   // Split at <h2> or <h3> tags
   const parts = cleanHtml.split(/(?=<h[23][^>]*>)/i);
