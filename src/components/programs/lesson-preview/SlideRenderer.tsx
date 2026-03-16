@@ -7,6 +7,7 @@ import { QuizSlide } from './QuizSlide';
 import { FlashcardSlide } from './FlashcardSlide';
 import { MatchingSlide } from './MatchingSlide';
 import { OrderingSlide } from './OrderingSlide';
+import { FillInBlankSlide } from './FillInBlankSlide';
 import { ChevronDown } from 'lucide-react';
 import type { SlideCustomization, CaptionStyle, CaptionPosition, ImagePosition } from './SlideCustomizationPanel';
 
