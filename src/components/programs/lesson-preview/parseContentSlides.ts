@@ -4,7 +4,7 @@
  * Also extracts quiz blocks embedded in content.
  */
 export interface ContentSlide {
-  type: 'title-card' | 'section' | 'quiz' | 'quiz-result' | 'final-assessment' | 'course-completion' | 'flashcard' | 'matching' | 'ordering';
+  type: 'title-card' | 'section' | 'quiz' | 'quiz-result' | 'final-assessment' | 'course-completion' | 'flashcard' | 'matching' | 'ordering' | 'fill-in-blank';
   heading?: string;
   bodyHtml: string;
   quiz?: QuizData;
@@ -12,6 +12,7 @@ export interface ContentSlide {
   flashcard?: FlashcardData;
   matching?: MatchingData;
   ordering?: OrderingData;
+  fillInBlank?: FillInBlankData;
 }
 
 export interface FlashcardData {
