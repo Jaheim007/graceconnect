@@ -31,6 +31,13 @@ export interface OrderingData {
   correctOrder: number[];
 }
 
+export interface FillInBlankData {
+  sentence: string;
+  answer: string;
+  hint?: string;
+  acceptableAnswers?: string[];
+}
+
 export interface QuizData {
   question: string;
   options: string[];
