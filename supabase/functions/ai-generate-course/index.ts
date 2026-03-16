@@ -161,6 +161,7 @@ GAMIFICATION & INTERACTIVE ELEMENTS:
 - FLASHCARDS: Add 1 flashcard per lesson for key terms: <!-- FLASHCARD:{"front":"Term or question","back":"Definition or answer"} -->
 - MATCHING: Add 1 matching exercise per module (in any lesson): <!-- MATCHING:{"pairs":[{"left":"Term","right":"Definition"},{"left":"Term2","right":"Definition2"}]} --> (minimum 3 pairs)
 - ORDERING: Optionally add 1 ordering exercise: <!-- ORDERING:{"instruction":"Put these steps in order","items":["Step 1","Step 2","Step 3"],"correctOrder":[0,1,2]} -->
+- FILL-IN-THE-BLANK: Add 1 per module: <!-- FILLINBLANK:{"sentence":"The ___ is the key concept here","answer":"correct word","hint":"Optional hint","acceptableAnswers":["alt answer"]} -->
 - Place interactive elements AFTER the content they test
 - Each quiz must have 3-4 options with exactly one correct answer (correctIndex is 0-based)
 - Make all interactions FUN and ENGAGING — use real-world scenarios
