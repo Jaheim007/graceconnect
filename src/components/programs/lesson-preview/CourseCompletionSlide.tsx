@@ -1,16 +1,17 @@
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { Star, Trophy, Flame, PartyPopper, Target, Share2, Award, Download } from 'lucide-react';
+import { Star, Trophy, Flame, PartyPopper, Target, Share2, Award, Download, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import type { SlideTheme } from './slideThemes';
 import { SlideDecoration } from './SlideDecorations';
 import { SocialShareKit } from '@/components/sharing/SocialShareKit';
 import { useI18n } from '@/i18n/I18nContext';
-import { useSaveCertificate, useSaveSlideProgress } from '@/hooks/useLearnerProgress';
+import { useSaveCertificate, useSaveSlideProgress, useCertificate } from '@/hooks/useLearnerProgress';
 import { useAuth } from '@/contexts/AuthContext';
 import { useOrg } from '@/contexts/OrgContext';
 import { Button } from '@/components/ui/button';
-
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 interface CourseCompletionSlideProps {
   theme: SlideTheme;
   starsEarned: number;
