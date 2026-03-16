@@ -129,7 +129,7 @@ Return ONLY valid JSON with this exact structure:
           "duration_minutes": 10,
           "description": "Brief lesson description",
           "image_prompt": "A vivid English description for AI image generation: professional illustration showing [specific scene related to lesson content], modern flat design style, educational context",
-          "content": "<h2>Section Title</h2><p>Short paragraph (2-3 sentences max).</p><!-- QUIZ:{\\"question\\":\\"...\\",\\"options\\":[\\"A\\",\\"B\\",\\"C\\"],\\"correctIndex\\":1,\\"explanation\\":\\"...\\"} --><h3>Key Concept</h3><p>Brief explanation.</p><!-- FLASHCARD:{\\"front\\":\\"Key term or question\\",\\"back\\":\\"Definition or answer\\"} --><!-- MATCHING:{\\"pairs\\":[{\\"left\\":\\"Term A\\",\\"right\\":\\"Definition A\\"},{\\"left\\":\\"Term B\\",\\"right\\":\\"Definition B\\"}]} -->"
+          "content": "<h2>Section Title</h2><p>Short paragraph (2-3 sentences max).</p><!-- QUIZ:{\\"question\\":\\"...\\",\\"options\\":[\\"A\\",\\"B\\",\\"C\\"],\\"correctIndex\\":1,\\"explanation\\":\\"...\\"} --><h3>Key Concept</h3><p>Brief explanation.</p><!-- FLASHCARD:{\\"front\\":\\"Key term or question\\",\\"back\\":\\"Definition or answer\\"} --><!-- MATCHING:{\\"pairs\\":[{\\"left\\":\\"Term A\\",\\"right\\":\\"Definition A\\"},{\\"left\\":\\"Term B\\",\\"right\\":\\"Definition B\\"}]} --><!-- FILLINBLANK:{\\"sentence\\":\\"The ___ is important for learning\\",\\"answer\\":\\"practice\\",\\"hint\\":\\"Think about repetition\\"} -->"
         }
       ]
     }
@@ -161,6 +161,7 @@ GAMIFICATION & INTERACTIVE ELEMENTS:
 - FLASHCARDS: Add 1 flashcard per lesson for key terms: <!-- FLASHCARD:{"front":"Term or question","back":"Definition or answer"} -->
 - MATCHING: Add 1 matching exercise per module (in any lesson): <!-- MATCHING:{"pairs":[{"left":"Term","right":"Definition"},{"left":"Term2","right":"Definition2"}]} --> (minimum 3 pairs)
 - ORDERING: Optionally add 1 ordering exercise: <!-- ORDERING:{"instruction":"Put these steps in order","items":["Step 1","Step 2","Step 3"],"correctOrder":[0,1,2]} -->
+- FILL-IN-THE-BLANK: Add 1 per module: <!-- FILLINBLANK:{"sentence":"The ___ is the key concept here","answer":"correct word","hint":"Optional hint","acceptableAnswers":["alt answer"]} -->
 - Place interactive elements AFTER the content they test
 - Each quiz must have 3-4 options with exactly one correct answer (correctIndex is 0-based)
 - Make all interactions FUN and ENGAGING — use real-world scenarios

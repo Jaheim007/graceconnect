@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { useOrgPrograms, useDeleteProgram, useCreateProgram } from '@/hooks/usePrograms';
+import { useOrgPrograms, useDeleteProgram, useCreateProgram, useCloneProgram } from '@/hooks/usePrograms';
 import { AdminPageShell } from './AdminPageShell';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Plus, BookOpen, Edit, Trash2, Eye, EyeOff, Layers, ChevronRight,
-  Sparkles, FileUp, PenLine, ChevronDown
+  Sparkles, FileUp, PenLine, ChevronDown, Copy
 } from 'lucide-react';
 import { useI18n } from '@/i18n/I18nContext';
 import { CreateWithAIDialog } from '@/components/programs/CreateWithAIDialog';
@@ -42,6 +42,7 @@ export default function AdminPrograms() {
   const { data: programs = [], isLoading } = useOrgPrograms(currentOrg?.id);
   const deleteProgram = useDeleteProgram();
   const createProgram = useCreateProgram();
+  const cloneProgram = useCloneProgram();
 
   const [showAI, setShowAI] = useState(false);
   const [showBlank, setShowBlank] = useState(false);
@@ -189,6 +190,15 @@ export default function AdminPrograms() {
                       <span className="flex items-center gap-0.5"><Layers className="h-3 w-3" /> {prog.module_count} module{prog.module_count !== 1 ? 's' : ''}</span>
                     </div>
                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button variant="ghost" size="icon" className="h-7 w-7" title={isFr ? 'Dupliquer' : 'Duplicate'} onClick={(e) => {
+                        e.stopPropagation();
+                        if (!currentOrg || !user) return;
+                        cloneProgram.mutateAsync({ programId: prog.id, organizationId: currentOrg.id, createdBy: user.id })
+                          .then(r => { toast({ title: isFr ? '✅ Cours dupliqué' : '✅ Course duplicated' }); navigate(`/admin/programs/${(r as any).id}/edit`); })
+                          .catch(e => toast({ title: 'Error', description: e.message, variant: 'destructive' }));
+                      }}>
+                        <Copy className="h-3 w-3" />
+                      </Button>
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); navigate(`/admin/programs/${prog.id}/edit`); }}>
                         <Edit className="h-3 w-3" />
                       </Button>

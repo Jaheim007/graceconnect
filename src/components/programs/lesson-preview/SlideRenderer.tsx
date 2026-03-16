@@ -7,6 +7,7 @@ import { QuizSlide } from './QuizSlide';
 import { FlashcardSlide } from './FlashcardSlide';
 import { MatchingSlide } from './MatchingSlide';
 import { OrderingSlide } from './OrderingSlide';
+import { FillInBlankSlide } from './FillInBlankSlide';
 import { ChevronDown } from 'lucide-react';
 import type { SlideCustomization, CaptionStyle, CaptionPosition, ImagePosition } from './SlideCustomizationPanel';
 
@@ -165,6 +166,17 @@ export function SlideRenderer({
     return (
       <OrderingSlide
         ordering={slide.ordering} theme={theme} slideIndex={slideIndex} totalSlides={totalSlides}
+        lessonTitle={lessonTitle} orgLogoUrl={orgLogoUrl} deviceMode={deviceMode}
+        onStarEarned={onStarEarned} gamificationEnabled={gamificationEnabled}
+      />
+    );
+  }
+
+  // Fill-in-the-blank slides
+  if (slide.type === 'fill-in-blank' && slide.fillInBlank) {
+    return (
+      <FillInBlankSlide
+        fillInBlank={slide.fillInBlank} theme={theme} slideIndex={slideIndex} totalSlides={totalSlides}
         lessonTitle={lessonTitle} orgLogoUrl={orgLogoUrl} deviceMode={deviceMode}
         onStarEarned={onStarEarned} gamificationEnabled={gamificationEnabled}
       />

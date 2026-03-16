@@ -4,7 +4,7 @@
  * Also extracts quiz blocks embedded in content.
  */
 export interface ContentSlide {
-  type: 'title-card' | 'section' | 'quiz' | 'quiz-result' | 'final-assessment' | 'course-completion' | 'flashcard' | 'matching' | 'ordering';
+  type: 'title-card' | 'section' | 'quiz' | 'quiz-result' | 'final-assessment' | 'course-completion' | 'flashcard' | 'matching' | 'ordering' | 'fill-in-blank';
   heading?: string;
   bodyHtml: string;
   quiz?: QuizData;
@@ -12,6 +12,7 @@ export interface ContentSlide {
   flashcard?: FlashcardData;
   matching?: MatchingData;
   ordering?: OrderingData;
+  fillInBlank?: FillInBlankData;
 }
 
 export interface FlashcardData {
@@ -28,6 +29,13 @@ export interface OrderingData {
   instruction?: string;
   items: string[];
   correctOrder: number[];
+}
+
+export interface FillInBlankData {
+  sentence: string;
+  answer: string;
+  hint?: string;
+  acceptableAnswers?: string[];
 }
 
 export interface QuizData {
@@ -118,11 +126,13 @@ function extractInteractives(html: string): {
   flashcards: FlashcardData[];
   matchings: MatchingData[];
   orderings: OrderingData[];
+  fillInBlanks: FillInBlankData[];
 } {
   const quizzes: QuizData[] = [];
   const flashcards: FlashcardData[] = [];
   const matchings: MatchingData[] = [];
   const orderings: OrderingData[] = [];
+  const fillInBlanks: FillInBlankData[] = [];
 
   let cleanHtml = html;
 
@@ -175,14 +185,25 @@ function extractInteractives(html: string): {
     return '';
   });
 
-  return { cleanHtml, quizzes, flashcards, matchings, orderings };
+  // Extract fill-in-the-blank: <!-- FILLINBLANK:{"sentence":"...","answer":"..."} -->
+  cleanHtml = cleanHtml.replace(/<!--\s*FILLINBLANK:([\s\S]*?)-->/gi, (_, json) => {
+    try {
+      const fb = JSON.parse(json.trim());
+      if (fb.sentence && fb.answer) {
+        fillInBlanks.push({ sentence: fb.sentence, answer: fb.answer, hint: fb.hint, acceptableAnswers: fb.acceptableAnswers });
+      }
+    } catch { /* skip */ }
+    return '';
+  });
+
+  return { cleanHtml, quizzes, flashcards, matchings, orderings, fillInBlanks };
 }
 
 export function parseContentIntoSlides(html: string): ContentSlide[] {
   if (!html?.trim()) return [];
 
   // Extract all interactive elements
-  const { cleanHtml, quizzes, flashcards, matchings, orderings } = extractInteractives(html);
+  const { cleanHtml, quizzes, flashcards, matchings, orderings, fillInBlanks } = extractInteractives(html);
 
   // Split at <h2> or <h3> tags
   const parts = cleanHtml.split(/(?=<h[23][^>]*>)/i);
@@ -232,6 +253,7 @@ export function parseContentIntoSlides(html: string): ContentSlide[] {
   for (const fc of flashcards) interactives.push({ type: 'flashcard', bodyHtml: '', flashcard: fc });
   for (const m of matchings) interactives.push({ type: 'matching', bodyHtml: '', matching: m });
   for (const o of orderings) interactives.push({ type: 'ordering', bodyHtml: '', ordering: o });
+  for (const fb of fillInBlanks) interactives.push({ type: 'fill-in-blank', bodyHtml: '', fillInBlank: fb });
 
   // Insert interactive slides distributed evenly among content
   if (interactives.length > 0) {
