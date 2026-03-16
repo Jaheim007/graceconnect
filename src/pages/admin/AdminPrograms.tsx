@@ -42,6 +42,7 @@ export default function AdminPrograms() {
   const { data: programs = [], isLoading } = useOrgPrograms(currentOrg?.id);
   const deleteProgram = useDeleteProgram();
   const createProgram = useCreateProgram();
+  const cloneProgram = useCloneProgram();
 
   const [showAI, setShowAI] = useState(false);
   const [showBlank, setShowBlank] = useState(false);
