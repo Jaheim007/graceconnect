@@ -79,6 +79,8 @@ export function CourseCompletionSlide({
   const { currentOrg } = useOrg();
   const saveCertificate = useSaveCertificate();
   const [certificateSaved, setCertificateSaved] = useState(false);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
+  const { data: existingCert } = useCertificate(mode === 'learner' ? programId : undefined);
   
   const hasAssessment = assessmentScore !== undefined && assessmentTotal !== undefined;
   const assessmentPct = hasAssessment ? Math.round((assessmentScore! / assessmentTotal!) * 100) : 0;
