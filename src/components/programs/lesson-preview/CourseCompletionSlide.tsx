@@ -225,13 +225,50 @@ export function CourseCompletionSlide({
               transition={{ delay: 1.8 }}
               className="flex items-center gap-3"
             >
-              {mode === 'learner' && certificateSaved && (
+              {mode === 'learner' && (certificateSaved || existingCert) && (
                 <button
-                  onClick={() => setShowShare(true)}
-                  className="flex items-center gap-2 bg-yellow-500/20 hover:bg-yellow-500/30 backdrop-blur-sm rounded-full px-5 py-2.5 border border-yellow-400/30 transition-all hover:scale-105 active:scale-95"
+                  onClick={async () => {
+                    const certId = existingCert?.id || saveCertificate.data?.id;
+                    if (!certId) return;
+                    setDownloadingPdf(true);
+                    try {
+                      const { data: { session } } = await supabase.auth.getSession();
+                      const res = await fetch(
+                        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-certificate-pdf`,
+                        {
+                          method: 'POST',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${session?.access_token}`,
+                          },
+                          body: JSON.stringify({ certificateId: certId }),
+                        }
+                      );
+                      if (!res.ok) throw new Error('Failed to generate PDF');
+                      const blob = await res.blob();
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = `certificate-${courseTitle.replace(/\s+/g, '-').toLowerCase()}.pdf`;
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    } catch (err) {
+                      toast.error(isFr ? 'Erreur lors du téléchargement' : 'Download failed');
+                    } finally {
+                      setDownloadingPdf(false);
+                    }
+                  }}
+                  disabled={downloadingPdf}
+                  className="flex items-center gap-2 bg-yellow-500/20 hover:bg-yellow-500/30 backdrop-blur-sm rounded-full px-5 py-2.5 border border-yellow-400/30 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
                 >
-                  <Award className="h-4 w-4 text-yellow-400" />
-                  <span className="text-sm font-medium text-yellow-200">{isFr ? 'Certificat' : 'Certificate'}</span>
+                  {downloadingPdf ? (
+                    <Loader2 className="h-4 w-4 text-yellow-400 animate-spin" />
+                  ) : (
+                    <Download className="h-4 w-4 text-yellow-400" />
+                  )}
+                  <span className="text-sm font-medium text-yellow-200">
+                    {isFr ? 'Télécharger PDF' : 'Download PDF'}
+                  </span>
                 </button>
               )}
               <button
