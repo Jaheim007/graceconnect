@@ -54,15 +54,34 @@ export function StepIllustrations({ state, update, onNext, onBack }: Props) {
   const parseInvokeError = async (error: any): Promise<{ message: string; status?: number }> => {
     try {
       const ctx = error?.context;
-      const status = ctx?.status;
+      const status = ctx?.status || (typeof error?.status === 'number' ? error.status : undefined);
+      
+      // Try to parse JSON body from the response context
       if (ctx && typeof ctx.json === 'function') {
         const details = await ctx.json().catch(() => null);
         if (details?.error) return { message: details.error, status };
       }
+      // Also try .text() as fallback
+      if (ctx && typeof ctx.text === 'function' && !ctx.bodyUsed) {
+        const txt = await ctx.text().catch(() => '');
+        try {
+          const parsed = JSON.parse(txt);
+          if (parsed?.error) return { message: parsed.error, status };
+        } catch { /* not JSON */ }
+      }
+
       if (status === 402) return { message: 'Crédits insuffisants', status: 402 };
       if (status === 401) return { message: 'Session expirée. Reconnecte-toi.', status: 401 };
       if (status === 429) return { message: 'Trop de requêtes. Réessaie dans un instant.', status: 429 };
-      return { message: error?.message || 'Erreur de connexion au serveur', status };
+      
+      // Detect 402 from generic Supabase error message
+      const msg = error?.message || '';
+      if (msg.includes('non-2xx') || msg.includes('Edge Function')) {
+        // If we have the status from context, use it
+        if (status) return { message: status === 402 ? 'Crédits insuffisants' : `Erreur serveur (${status})`, status };
+      }
+      
+      return { message: msg || 'Erreur de connexion au serveur', status };
     } catch {
       return { message: error?.message || 'Erreur inconnue' };
     }
