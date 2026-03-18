@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle, Users, Plus, PenLine, Upload, ChevronDown, Eye, EyeOff, Megaphone, CalendarDays } from 'lucide-react';
+import { Pencil, Trash2, Link2, Copy, CheckCircle, UserPlus, AlertTriangle, Users, Plus, PenLine, Upload, ChevronDown, Eye, EyeOff, Megaphone, CalendarDays, PackageOpen } from 'lucide-react';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -41,6 +41,7 @@ import { BulkActionsToolbar, useBulkSelect } from '@/components/admin/BulkAction
 import { ImageCropDialog } from '@/components/ui/ImageCropDialog';
 import { useI18n } from '@/i18n/I18nContext';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
+import { ChariowImportDialog } from '@/components/chariow/ChariowImportDialog';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
@@ -306,6 +307,7 @@ export function AdminProducts() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const { fmtPrice } = useDisplayCurrency();
+  const [chariowOpen, setChariowOpen] = useState(false);
 
   const handleBulkPublish = async (ids: string[]) => {
     await db.from('digital_products').update({ is_published: true }).in('id', ids);
@@ -344,6 +346,7 @@ export function AdminProducts() {
   };
 
   return (
+    <>
     <AdminPageShell
       title={isFr ? 'Boutique digitale' : 'Digital shop'}
       backRoute="/admin"
@@ -367,6 +370,13 @@ export function AdminProducts() {
               <div>
                 <p className="text-xs font-semibold">{isFr ? 'Importer / Créer' : 'Import / Create'}</p>
                 <p className="text-[10px] text-muted-foreground">{isFr ? 'PDF, vidéo, formation…' : 'PDF, video, course…'}</p>
+              </div>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setChariowOpen(true)} className="gap-2 py-2.5">
+              <PackageOpen className="h-4 w-4 text-amber-500" />
+              <div>
+                <p className="text-xs font-semibold">{isFr ? 'Importer depuis Chariow' : 'Import from Chariow'}</p>
+                <p className="text-[10px] text-muted-foreground">{isFr ? 'Transférez vos produits existants' : 'Transfer your existing products'}</p>
               </div>
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -461,6 +471,8 @@ export function AdminProducts() {
         </div>
       )}
     </AdminPageShell>
+    <ChariowImportDialog open={chariowOpen} onOpenChange={setChariowOpen} />
+    </>
   );
 }
 
