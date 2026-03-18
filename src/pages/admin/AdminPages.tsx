@@ -307,6 +307,7 @@ export function AdminProducts() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const { fmtPrice } = useDisplayCurrency();
+  const [chariowOpen, setChariowOpen] = useState(false);
 
   const handleBulkPublish = async (ids: string[]) => {
     await db.from('digital_products').update({ is_published: true }).in('id', ids);
