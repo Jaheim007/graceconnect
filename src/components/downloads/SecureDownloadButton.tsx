@@ -64,6 +64,7 @@ export function SecureDownloadButton({
       });
     } catch (err: any) {
       console.error('[SecureDownload]', err);
+      if (preWindow && !preWindow.closed) preWindow.close();
       toast({
         title: isFr ? 'Erreur' : 'Error',
         description: err?.message || (isFr ? 'Impossible de récupérer le fichier sécurisé.' : 'Unable to retrieve the secure file.'),
