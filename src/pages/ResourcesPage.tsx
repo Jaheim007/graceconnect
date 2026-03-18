@@ -11,7 +11,7 @@ import {
 import { downloadInvoice } from '@/lib/invoice';
 import { format } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
-import { fetchWatermarkedFile, isPdfLikeFile, openFileInline, triggerBrowserDownload } from '@/lib/secureDownload';
+import { fetchWatermarkedFile, isPdfLikeFile, openFileInline, triggerBrowserDownload, preOpenWindow } from '@/lib/secureDownload';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { useI18n } from '@/i18n/I18nContext';
