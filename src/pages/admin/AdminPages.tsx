@@ -346,6 +346,7 @@ export function AdminProducts() {
   };
 
   return (
+    <>
     <AdminPageShell
       title={isFr ? 'Boutique digitale' : 'Digital shop'}
       backRoute="/admin"
