@@ -177,7 +177,7 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
         </div>
         <div className="h-8 w-px bg-border" />
         <div>
-          <p className="text-2xl font-extrabold text-accent">0 FCFA</p>
+          <p className="text-xl sm:text-2xl font-extrabold text-accent">0 FCFA</p>
           <p className="text-[10px] text-muted-foreground">{t('dash.to_start')}</p>
         </div>
         <div className="h-8 w-px bg-border" />
