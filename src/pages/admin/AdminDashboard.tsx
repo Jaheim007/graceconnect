@@ -11,13 +11,17 @@ import { db } from '@/lib/db';
 import { Button } from '@/components/ui/button';
 import {
   Play, Megaphone, CalendarDays, Heart, ShoppingBag,
-  Users, ExternalLink, AlertTriangle, ChevronRight, ChevronDown,
-  TrendingUp, DollarSign, Percent, ArrowUpRight, Rocket, Download
+  Users, ExternalLink, AlertTriangle, ChevronRight,
+  TrendingUp, DollarSign, Percent, Rocket, Download,
+  BarChart3, Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
-import { CreatorHeroBanner } from '@/components/admin/CreatorHeroBanner';
+import { PremiumCard } from '@/components/ui/PremiumCard';
+import { StatCard } from '@/components/ui/StatCard';
+import { DashboardSection } from '@/components/ui/DashboardSection';
+
 import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist';
 import { SmartNextAction } from '@/components/admin/SmartNextAction';
 import { VideoImportButton } from '@/components/admin/VideoImportButton';
@@ -54,17 +58,7 @@ import { downloadCSV } from '@/lib/csvExport';
 import { downloadDashboardPDF } from '@/lib/pdfExport';
 
 import { formatCurrency } from '@/lib/currency';
-import { ContextTip } from '@/components/admin/ContextualTooltips';
 const fmt = (n: number, currency?: string) => formatCurrency(n, currency);
-
-const stagger = {
-  hidden: {},
-  visible: { transition: { staggerChildren: 0.06 } },
-};
-const fadeUp = {
-  hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 26 } },
-};
 
 export default function AdminDashboard() {
   const { currentOrg } = useOrg();
@@ -180,302 +174,251 @@ export default function AdminDashboard() {
     });
   };
 
-  const stats = [
-    { label: t('admin.media'), value: media.length, published: media.filter(m => m.is_published).length, icon: Play, to: '/admin/media', colorClass: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
-    { label: t('admin.announcements'), value: announcements.length, published: announcements.filter(a => a.is_published).length, icon: Megaphone, to: '/admin/announcements', colorClass: 'text-primary bg-primary/10 border-primary/20' },
-    { label: t('admin.events'), value: events.length, published: events.filter(e => e.is_published).length, icon: CalendarDays, to: '/admin/events', colorClass: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' },
-    { label: t('admin.members'), value: members.length, published: members.length, icon: Users, to: '/admin/members', colorClass: 'text-violet-400 bg-violet-500/10 border-violet-500/20', tipKey: 'dashboard_members' as const },
-    { label: t('admin.campaigns'), value: campaigns.length, published: campaigns.filter(c => c.is_published).length, icon: Heart, to: '/admin/campaigns', colorClass: 'text-rose-400 bg-rose-500/10 border-rose-500/20', tipKey: 'dashboard_campaigns' as const },
-    { label: t('admin.products'), value: products.length, published: products.filter(p => p.is_published).length, icon: ShoppingBag, to: '/admin/products', colorClass: 'text-amber-400 bg-amber-500/10 border-amber-500/20', tipKey: 'dashboard_products' as const },
-  ];
-
-  const quickActions = [
-    { label: t('admin.new_media'), to: '/admin/media/new', icon: Play },
-    { label: t('admin.new_announcement'), to: '/admin/announcements/new', icon: Megaphone },
-    { label: t('admin.new_event'), to: '/admin/events/new', icon: CalendarDays },
-    { label: t('admin.new_campaign'), to: '/admin/campaigns/new', icon: Heart },
-    { label: t('admin.new_product'), to: '/admin/products/new', icon: ShoppingBag },
-    { label: t('admin.manage_members'), to: '/admin/members', icon: Users },
-  ];
-
-  const revenueCards = [
-    { label: t('admin.total_sales'), value: fmt(totalRevenue, orgCurrency), sub: `${txCount} ${txCount > 1 ? t('admin.transactions') : t('admin.transaction')}`, icon: DollarSign, colorClass: 'from-primary/20 to-primary/5 border-primary/20' },
-    { label: t('admin.org_received'), value: fmt(totalOrgReceived, orgCurrency), sub: t('admin.after_fees'), icon: TrendingUp, colorClass: 'from-emerald-500/20 to-emerald-500/5 border-emerald-500/20' },
-    { label: t('admin.affiliate_commissions'), value: fmt(totalAffiliateCommission, orgCurrency), sub: `${t('admin.rate')} : ${commissionRate}%`, icon: Percent, colorClass: 'from-amber-500/20 to-amber-500/5 border-amber-500/20' },
-    { label: t('admin.platform_fees'), value: fmt(totalPlatformFee, orgCurrency), sub: `${currentOrg?.platform_fee_percent ?? 10}%`, icon: DollarSign, colorClass: 'from-muted to-muted/50 border-border' },
+  const contentStats = [
+    { label: t('admin.media'), value: media.length, published: media.filter(m => m.is_published).length, icon: Play, to: '/admin/media', color: 'blue' as const },
+    { label: t('admin.announcements'), value: announcements.length, published: announcements.filter(a => a.is_published).length, icon: Megaphone, to: '/admin/announcements', color: 'primary' as const },
+    { label: t('admin.events'), value: events.length, published: events.filter(e => e.is_published).length, icon: CalendarDays, to: '/admin/events', color: 'emerald' as const },
+    { label: t('admin.members'), value: members.length, published: members.length, icon: Users, to: '/admin/members', color: 'blue' as const },
+    { label: t('admin.campaigns'), value: campaigns.length, published: campaigns.filter(c => c.is_published).length, icon: Heart, to: '/admin/campaigns', color: 'rose' as const },
+    { label: t('admin.products'), value: products.length, published: products.filter(p => p.is_published).length, icon: ShoppingBag, to: '/admin/products', color: 'amber' as const },
   ];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <QuickStartWizard open={showQuickStart} onClose={() => setShowQuickStart(false)} />
 
-      {/* ═══════════════════════════════════════════
-          ZONE 1 — EN-TÊTE + IDENTITÉ
-      ═══════════════════════════════════════════ */}
+      {/* ═══ HEADER — compact, one line ═══ */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold">{t('admin.dashboard')}</h1>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+          <h1 className="text-xl font-bold">{t('admin.dashboard')}</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">
             {t('admin.overview_of')} <span className="font-medium text-foreground">{currentOrg?.name}</span>
           </p>
         </div>
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-none -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
-          <Button size="sm" variant="outline" onClick={handleExportCSV} className="gap-1.5 text-xs h-8 sm:h-9 shrink-0">
-            <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> CSV
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button size="sm" variant="outline" onClick={handleExportCSV} className="gap-1.5 text-xs h-8 shrink-0">
+            <Download className="h-3.5 w-3.5" /> CSV
           </Button>
-          <Button size="sm" variant="outline" onClick={handleExportPDF} className="gap-1.5 text-xs h-8 sm:h-9 shrink-0">
-            <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> PDF
+          <Button size="sm" variant="outline" onClick={handleExportPDF} className="gap-1.5 text-xs h-8 shrink-0">
+            <Download className="h-3.5 w-3.5" /> PDF
           </Button>
           <VideoImportButton />
-          <Button size="sm" variant="outline" onClick={() => setShowQuickStart(true)} className="gap-1.5 text-xs h-8 sm:h-9 shrink-0">
-            <Rocket className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> {t('admin.quickstart')}
+          <Button size="sm" variant="outline" onClick={() => setShowQuickStart(true)} className="gap-1.5 text-xs h-8 shrink-0">
+            <Rocket className="h-3.5 w-3.5" /> {t('admin.quickstart')}
           </Button>
-          <Button size="sm" asChild variant="outline" className="gap-1.5 text-xs h-8 sm:h-9 shrink-0">
+          <Button size="sm" asChild variant="outline" className="gap-1.5 text-xs h-8 shrink-0">
             <a href={`https://siteviral.com/org/${currentOrg?.slug}`} target="_blank" rel="noreferrer">
-              <ExternalLink className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> {t('admin.public_page')}
+              <ExternalLink className="h-3.5 w-3.5" /> {t('admin.public_page')}
             </a>
           </Button>
         </div>
       </div>
 
-      {/* Verification Banner — urgent */}
+      {/* ═══ VERIFICATION BANNER — urgent ═══ */}
       {currentOrg?.kyc_status !== 'level1' && currentOrg?.kyc_status !== 'level2' && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col sm:flex-row items-start gap-3 p-4 rounded-2xl bg-destructive/10 border border-destructive/30"
-        >
-          <div className="flex items-start gap-3 flex-1 min-w-0">
-            <div className="h-10 w-10 rounded-xl bg-destructive/15 flex items-center justify-center shrink-0">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
+        <PremiumCard variant="default" className="!p-4 border-destructive/30 bg-destructive/5">
+          <div className="flex flex-col sm:flex-row items-start gap-3">
+            <div className="flex items-start gap-3 flex-1 min-w-0">
+              <div className="h-9 w-9 rounded-xl bg-destructive/15 flex items-center justify-center shrink-0">
+                <AlertTriangle className="h-4 w-4 text-destructive" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-semibold text-sm">{t('admin.complete_verification')}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {t('admin.accept_payments')} — {isFr ? 'Les fonds sont retenus jusqu\'à la vérification.' : 'Funds are held until verification.'}
+                </p>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-sm">{t('admin.complete_verification')}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {t('admin.accept_payments')} — {isFr ? 'Les fonds sont retenus jusqu\'à la vérification d\'identité.' : 'Funds are held until identity verification.'}
-              </p>
-            </div>
+            <Button size="sm" variant="destructive" onClick={() => navigate('/admin/kyc')} className="h-8 text-xs shrink-0 gap-1.5">
+              <AlertTriangle className="h-3.5 w-3.5" /> {t('admin.verify_account')}
+            </Button>
           </div>
-          <Button size="sm" variant="destructive" onClick={() => navigate('/admin/kyc')} className="h-8 text-xs shrink-0 w-full sm:w-auto gap-1.5">
-            <AlertTriangle className="h-3.5 w-3.5" /> {t('admin.verify_account')}
-          </Button>
-        </motion.div>
+        </PremiumCard>
       )}
 
-      {/* ═══════════════════════════════════════════
-          ZONE 2 — HERO "Écris · Vends · Gagne"
-      ═══════════════════════════════════════════ */}
-      <CreatorHeroBanner />
+      {/* ═══ ZONE 1 — REVENUE KPIs (the most important) ═══ */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <StatCard
+          icon={DollarSign} label={t('admin.total_sales')}
+          value={fmt(totalRevenue, orgCurrency)}
+          sub={`${txCount} ${txCount > 1 ? t('admin.transactions') : t('admin.transaction')}`}
+          color="primary" delay={0}
+        />
+        <StatCard
+          icon={TrendingUp} label={t('admin.org_received')}
+          value={fmt(totalOrgReceived, orgCurrency)}
+          sub={t('admin.after_fees')}
+          color="emerald" delay={0.05}
+        />
+        <StatCard
+          icon={Percent} label={t('admin.affiliate_commissions')}
+          value={fmt(totalAffiliateCommission, orgCurrency)}
+          sub={`${t('admin.rate')} : ${commissionRate}%`}
+          color="amber" delay={0.1}
+        />
+        <StatCard
+          icon={DollarSign} label={t('admin.platform_fees')}
+          value={fmt(totalPlatformFee, orgCurrency)}
+          sub={`${currentOrg?.platform_fee_percent ?? 10}%`}
+          color="muted" delay={0.15}
+        />
+      </div>
 
-      {/* ═══════════════════════════════════════════
-          ZONE 3 — REVENUS (ce qui compte le plus)
-      ═══════════════════════════════════════════ */}
-      <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        {revenueCards.map((card) => (
-          <motion.div key={card.label} variants={fadeUp} className={cn('rounded-2xl border p-4 bg-gradient-to-br backdrop-blur-sm', card.colorClass)}>
-            <div className="flex items-center justify-between mb-3">
-              <card.icon className="h-4 w-4 text-muted-foreground" />
-              <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground/60" />
+      {/* ═══ ZONE 2 — CHART + TOP PRODUCTS (side by side) ═══ */}
+      <div className="grid lg:grid-cols-5 gap-4">
+        {/* Revenue chart — takes 3/5 */}
+        <PremiumCard variant="default" delay={0.1} className="lg:col-span-3">
+          <h2 className="font-semibold text-sm mb-4">{t('admin.total_sales')} — {isFr ? '30 jours' : '30 days'}</h2>
+          {chartData.length > 1 ? (
+            <div className="h-48">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartData}>
+                  <defs>
+                    <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                      <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="date" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+                  <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+                  <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 12, fontSize: 12 }} />
+                  <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fill="url(#revGrad)" strokeWidth={2} />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{card.label}</p>
-            <p className="text-xl font-bold mt-1">{card.value}</p>
-            <p className="text-[10px] text-muted-foreground mt-1">{card.sub}</p>
-          </motion.div>
-        ))}
-      </motion.div>
+          ) : (
+            <div className="h-48 flex items-center justify-center text-sm text-muted-foreground">
+              {isFr ? 'Les données apparaîtront après vos premières ventes' : 'Data will appear after your first sales'}
+            </div>
+          )}
+        </PremiumCard>
 
-      {/* ═══════════════════════════════════════════
-          ZONE 4 — GUIDE DE DÉMARRAGE + PROCHAINE ACTION
-      ═══════════════════════════════════════════ */}
-      <OnboardingChecklist />
-      <TimeSinceLastSale />
-      <SmartCoach />
-      <SmartNextAction />
-      <AdminGrowthSuggestions />
-
-      {/* ═══════════════════════════════════════════
-          ZONE 5 — ACTIONS RAPIDES + APERÇU CONTENU
-      ═══════════════════════════════════════════ */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-card border border-border rounded-2xl p-5"
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-semibold text-sm">{t('admin.quick_actions')}</h2>
-          <span className="text-[10px] text-muted-foreground">{quickActions.length} actions</span>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {quickActions.map((a) => (
-            <Button
-              key={a.label}
-              variant="outline"
-              size="sm"
-              onClick={() => navigate(a.to)}
-              className="gap-2 text-xs h-12 justify-start hover:bg-primary/5 hover:border-primary/30 transition-all hover:-translate-y-0.5 group"
-            >
-              <div className="h-7 w-7 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors shrink-0">
-                <a.icon className="h-3.5 w-3.5 text-primary group-hover:text-primary-foreground transition-colors" />
+        {/* Top products + conversion — takes 2/5 */}
+        <div className="lg:col-span-2 space-y-4">
+          <PremiumCard variant="default" delay={0.15}>
+            <h2 className="font-semibold text-sm mb-3">{t('admin.top_products')}</h2>
+            {topProducts.length > 0 ? (
+              <div className="space-y-2.5">
+                {topProducts.map((p: any, i: number) => (
+                  <div key={p.id} className="flex items-center gap-3 text-xs">
+                    <span className="h-6 w-6 rounded-lg bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground shrink-0">{i + 1}</span>
+                    <span className="flex-1 truncate font-medium">{p.title}</span>
+                    <span className="text-primary font-semibold whitespace-nowrap">{p.sales_count || 0}</span>
+                  </div>
+                ))}
               </div>
-              <span className="truncate">{a.label}</span>
-            </Button>
+            ) : (
+              <p className="text-xs text-muted-foreground py-4 text-center">
+                {isFr ? 'Aucun produit publié' : 'No published products'}
+              </p>
+            )}
+          </PremiumCard>
+
+          <PremiumCard variant="default" delay={0.2}>
+            <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wide">{t('admin.conversion_rate')}</p>
+            <p className="text-3xl font-bold text-primary mt-1">{conversionRate}%</p>
+            <p className="text-[10px] text-muted-foreground mt-1">{t('admin.members_to_buyers')}</p>
+          </PremiumCard>
+        </div>
+      </div>
+
+      {/* ═══ ZONE 3 — SMART ACTIONS (compact) ═══ */}
+      <SmartNextAction />
+      <TimeSinceLastSale />
+
+      {/* ═══ ZONE 4 — ONBOARDING (collapsible) ═══ */}
+      <DashboardSection
+        title={isFr ? 'Guide de démarrage' : 'Getting started'}
+        icon={Rocket}
+        collapsible
+        defaultCollapsed={txCount > 0}
+      >
+        <OnboardingChecklist />
+        <SmartCoach />
+        <AdminGrowthSuggestions />
+      </DashboardSection>
+
+      {/* ═══ ZONE 5 — CONTENT OVERVIEW (collapsible) ═══ */}
+      <DashboardSection
+        title={isFr ? 'Aperçu du contenu' : 'Content overview'}
+        icon={BarChart3}
+        collapsible
+        defaultCollapsed={false}
+        actions={
+          <div className="flex gap-1.5">
+            {[
+              { label: isFr ? 'Nouveau média' : 'New media', to: '/admin/media/new', icon: Play },
+              { label: isFr ? 'Nouveau produit' : 'New product', to: '/admin/products/new', icon: ShoppingBag },
+            ].map(a => (
+              <Button key={a.to} size="sm" variant="ghost" onClick={() => navigate(a.to)} className="h-7 text-xs gap-1 px-2">
+                <a.icon className="h-3 w-3" /> {a.label}
+              </Button>
+            ))}
+          </div>
+        }
+      >
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {contentStats.map((s, i) => (
+            <StatCard
+              key={s.label}
+              icon={s.icon}
+              label={s.label}
+              value={s.value}
+              sub={`${s.published} ${t('admin.published')}${s.published !== 1 ? 's' : ''}`}
+              color={s.color}
+              onClick={() => navigate(s.to)}
+              delay={i * 0.04}
+            />
           ))}
         </div>
-      </motion.div>
+      </DashboardSection>
 
-      {/* Stats grid */}
-      <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-        {stats.map((s) => (
-          <motion.button
-            key={s.label}
-            variants={fadeUp}
-            onClick={() => navigate(s.to)}
-            className="group bg-card border border-border rounded-2xl p-4 shadow-card text-left hover:shadow-elevated transition-all hover:-translate-y-0.5 hover:border-primary/30"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className={cn('h-10 w-10 rounded-xl flex items-center justify-center border', s.colorClass)}>
-                <s.icon className="h-5 w-5" />
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-            <p className="text-3xl font-bold tracking-tight">{s.value}</p>
-            <div className="flex items-center gap-1 mt-0.5">
-              <p className="text-sm text-muted-foreground">{s.label}</p>
-              {'tipKey' in s && s.tipKey && <ContextTip tipKey={s.tipKey} side="bottom" />}
-            </div>
-            <p className="text-xs text-primary font-medium mt-1">{s.published} {t('admin.published')}{s.published !== 1 ? 's' : ''}</p>
-          </motion.button>
-        ))}
-      </motion.div>
-
-      {/* ═══════════════════════════════════════════
-          ZONE 6 — PRODUITS + CONVERSION + GRAPHIQUE
-      ═══════════════════════════════════════════ */}
-      <div className="grid lg:grid-cols-2 gap-3">
-        {topProducts.length > 0 && (
-          <div className="bg-card border border-border rounded-2xl p-5">
-            <h2 className="font-semibold text-sm mb-3">{t('admin.top_products')}</h2>
-            <div className="space-y-2">
-              {topProducts.map((p: any, i: number) => (
-                <div key={p.id} className="flex items-center gap-3 text-xs">
-                  <span className="font-bold text-muted-foreground w-4">{i + 1}</span>
-                  <span className="flex-1 truncate font-medium">{p.title}</span>
-                  <span className="text-primary font-semibold">{p.sales_count || 0} {t('admin.sales')}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-        <div className="bg-card border border-border rounded-2xl p-5">
-          <h2 className="font-semibold text-sm mb-2">{t('admin.conversion_rate')}</h2>
-          <p className="text-3xl font-bold text-primary">{conversionRate}%</p>
-          <p className="text-xs text-muted-foreground mt-1">{t('admin.members_to_buyers')}</p>
-        </div>
-      </div>
-
-      {/* Revenue chart */}
-      {chartData.length > 1 && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-2xl p-5">
-          <h2 className="font-semibold text-sm mb-4">{t('admin.total_sales')} — {isFr ? '30 derniers jours' : 'Last 30 days'}</h2>
-          <div className="h-48">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData}>
-                <defs>
-                  <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
-                <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
-                <Tooltip contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: 12, fontSize: 12 }} labelStyle={{ color: 'hsl(var(--foreground))' }} />
-                <Area type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" fill="url(#revGrad)" strokeWidth={2} />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Paniers abandonnés — actionable */}
+      {/* ═══ ZONE 6 — ABANDONED CARTS ═══ */}
       <AbandonedCartRecovery />
 
-      {/* ═══════════════════════════════════════════
-          ZONE 7 — OUTILS AVANCÉS (collapsible)
-      ═══════════════════════════════════════════ */}
-      <div className="border border-border rounded-2xl overflow-hidden">
-        <button
-          onClick={() => setShowAdvanced(!showAdvanced)}
-          className="w-full flex items-center justify-between p-4 bg-card hover:bg-muted/50 transition-colors text-left"
-        >
-          <div>
-            <h2 className="font-semibold text-sm">{isFr ? 'Outils de croissance avancés' : 'Advanced growth tools'}</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {isFr ? 'Objectifs, simulations, idées, analytics et CRM' : 'Goals, simulations, ideas, analytics and CRM'}
-            </p>
+      {/* ═══ ZONE 7 — ADVANCED GROWTH TOOLS (collapsible) ═══ */}
+      <DashboardSection
+        title={isFr ? 'Outils de croissance avancés' : 'Advanced growth tools'}
+        subtitle={isFr ? 'Objectifs, simulations, analytics et CRM' : 'Goals, simulations, analytics and CRM'}
+        icon={Zap}
+        collapsible
+        defaultCollapsed={!showAdvanced}
+      >
+        <div className="space-y-4 pt-2">
+          <div className="grid lg:grid-cols-2 gap-3">
+            <AdminRevenueGoals />
+            <RevenueForecast />
           </div>
-          <ChevronDown className={cn('h-5 w-5 text-muted-foreground transition-transform', showAdvanced && 'rotate-180')} />
-        </button>
-
-        {showAdvanced && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="p-4 pt-0 space-y-4"
-          >
-            {/* 1. Objectifs + Prévisions — savoir où on va */}
-            <div className="grid lg:grid-cols-2 gap-3">
-              <AdminRevenueGoals />
-              <RevenueForecast />
-            </div>
-
-            {/* 2. Actions concrètes — que faire maintenant */}
-            <div className="grid lg:grid-cols-2 gap-3">
-              <WeeklyMissions />
-              <WhatsAppShareNudge />
-            </div>
-
-            {/* 3. Promotions intelligentes */}
-            <SmartPromotionSuggestions />
-
-            {/* 4. Bundles */}
-            <BundleManager />
-
-            {/* 5. Simulateur + Funnel — comprendre le flux */}
-            <div className="grid lg:grid-cols-2 gap-3">
-              <RevenueSimulator />
-              <ConversionFunnel />
-            </div>
-
-            {/* 6. Idées + Contenu — grandir */}
-            <div className="grid lg:grid-cols-2 gap-3">
-              <SmartProductIdeas />
-              <ContentSuggestionEngine />
-            </div>
-
-            {/* 7. Prix + Benchmark — se positionner */}
-            <div className="grid lg:grid-cols-2 gap-3">
-              <SmartPricingHelper />
-              <OrgBenchmark />
-            </div>
-
-            {/* 8. Défis + Engagement — gamifier */}
-            <div className="grid lg:grid-cols-2 gap-3">
-              <MonthlyChallenges />
-              <EngagementHeatmap />
-            </div>
-
-            {/* 9. CLV + Attribution — analyser */}
-            <div className="grid lg:grid-cols-2 gap-3">
-              <CustomerLifetimeValue />
-              <RevenueAttribution />
-            </div>
-
-            {/* 10. Ré-engagement + CRM — retenir */}
-            <SmartReEngagement />
-            <SmartCRMInsights />
-          </motion.div>
-        )}
-      </div>
+          <div className="grid lg:grid-cols-2 gap-3">
+            <WeeklyMissions />
+            <WhatsAppShareNudge />
+          </div>
+          <SmartPromotionSuggestions />
+          <BundleManager />
+          <div className="grid lg:grid-cols-2 gap-3">
+            <RevenueSimulator />
+            <ConversionFunnel />
+          </div>
+          <div className="grid lg:grid-cols-2 gap-3">
+            <SmartProductIdeas />
+            <ContentSuggestionEngine />
+          </div>
+          <div className="grid lg:grid-cols-2 gap-3">
+            <SmartPricingHelper />
+            <OrgBenchmark />
+          </div>
+          <div className="grid lg:grid-cols-2 gap-3">
+            <MonthlyChallenges />
+            <EngagementHeatmap />
+          </div>
+          <div className="grid lg:grid-cols-2 gap-3">
+            <CustomerLifetimeValue />
+            <RevenueAttribution />
+          </div>
+          <SmartReEngagement />
+          <SmartCRMInsights />
+        </div>
+      </DashboardSection>
     </div>
   );
 }
