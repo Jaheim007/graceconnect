@@ -126,7 +126,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
           user_id: user?.id || null,
           affiliate_code: affiliateCode || null,
         },
-        onClose: () => {},
+        onClose: () => { setIsSubmitting(false); },
         onSuccess: async (reference, gateway) => {
           if (gateway === 'stripe') return;
           setStep('processing');
