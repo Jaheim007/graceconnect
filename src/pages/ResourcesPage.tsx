@@ -140,6 +140,8 @@ export default function ResourcesPage() {
       });
     } catch (error) {
       console.error('[ResourcesPage] secure file action error:', error);
+      // Close pre-opened window on error
+      if (preWindow && !preWindow.closed) preWindow.close();
       toast({
         title: t('common.error'),
         description: mode === 'inline'
