@@ -3,8 +3,8 @@ import { useOrg } from '@/contexts/OrgContext';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import {
-  Package, Store, Share2, Link2, Trophy, Wallet, Building2, ArrowRight,
-  BookOpen, Rocket, Sparkles, GraduationCap, Heart, Shield
+  Package, Store, Share2, ArrowRight,
+  BookOpen, Rocket, Sparkles, GraduationCap, Heart, Shield, Building2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -15,16 +15,12 @@ import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 
+import { PremiumCard } from '@/components/ui/PremiumCard';
+import { DashboardSection } from '@/components/ui/DashboardSection';
+
 import PartnerPendingPopup from '@/components/partner/PartnerPendingPopup';
 import { QuickStartPaths } from '@/components/growth/QuickStartPaths';
 import { SmartNudge } from '@/components/growth/SmartNudge';
-
-
-const fadeUp = (delay = 0) => ({
-  initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0 },
-  transition: { delay, duration: 0.25 },
-});
 
 export default function UserDashboard() {
   const { user, profile, isSuperadmin } = useAuth();
@@ -32,6 +28,7 @@ export default function UserDashboard() {
   const navigate = useNavigate();
   const { locale } = useI18n();
   const hasOrgs = userOrgs.length > 0;
+  const isFr = locale === 'fr';
 
   const primaryCurrency = userOrgs[0]?.currency || DEFAULT_CURRENCY;
   const fmt = (n: number, currency?: string | null) => formatCurrency(n, currency || primaryCurrency, locale);
@@ -96,19 +93,23 @@ export default function UserDashboard() {
 
   // ── Greeting ──
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir';
-  const displayName = profile?.display_name?.split(' ')[0] || 'là';
+  const greeting = isFr
+    ? (hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir')
+    : (hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening');
+  const displayName = profile?.display_name?.split(' ')[0] || (isFr ? 'là' : 'there');
 
   return (
     <div className="bg-background min-h-screen">
       <div className="container max-w-2xl px-4 py-5 sm:py-6 space-y-5">
         <SEOHead title="Mon espace — Siteviral" noindex />
 
-        {/* ═══════════════════════════════════════
-            ZONE 1 — EN-TÊTE
-        ═══════════════════════════════════════ */}
-        <motion.div {...fadeUp()} className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-primary/15 flex items-center justify-center">
+        {/* ═══ HEADER ═══ */}
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center gap-3"
+        >
+          <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center ring-2 ring-primary/20">
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} alt="" className="h-full w-full rounded-full object-cover" />
             ) : (
@@ -116,222 +117,218 @@ export default function UserDashboard() {
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-lg font-bold">{greeting}, {displayName} 👋</h1>
-            <p className="text-xs text-muted-foreground">Voici ton espace personnel</p>
+            <h1 className="text-lg font-bold tracking-tight">{greeting}, {displayName} 👋</h1>
+            <p className="text-xs text-muted-foreground">{isFr ? 'Voici ton espace personnel' : 'Your personal space'}</p>
           </div>
         </motion.div>
 
-        {/* ═══════════════════════════════════════
-            ZONE 2 — NAVIGATION RAPIDE (Écris · Vends · Partage · Gagne)
-        ═══════════════════════════════════════ */}
-        <motion.div {...fadeUp(0.02)}>
+        {/* ═══ QUICK START PATHS ═══ */}
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.02 }}>
           <QuickStartPaths />
         </motion.div>
 
-        {/* ═══ SMART NUDGE (contextual, one-line) ═══ */}
+        {/* ═══ SMART NUDGE ═══ */}
         <SmartNudge />
 
-        {/* ═══════════════════════════════════════
-            ZONE 3 — MES ACHATS (le plus pertinent pour un acheteur)
-        ═══════════════════════════════════════ */}
-        <motion.div {...fadeUp(0.05)} className="bg-card border border-border rounded-2xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-sm flex items-center gap-2">
-              <Package className="h-4 w-4 text-primary" /> Mes achats
-            </h2>
-            {purchases.length > 0 && (
-              <button onClick={() => navigate('/resources')} className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
-                Tout voir <ArrowRight className="h-3 w-3" />
-              </button>
+        {/* ═══ MY PURCHASES ═══ */}
+        <DashboardSection
+          title={isFr ? 'Mes achats' : 'My purchases'}
+          icon={Package}
+          actions={purchases.length > 0 ? (
+            <button onClick={() => navigate('/resources')} className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
+              {isFr ? 'Tout voir' : 'View all'} <ArrowRight className="h-3 w-3" />
+            </button>
+          ) : undefined}
+        >
+          <PremiumCard variant="default" delay={0.05} noPadding className="p-4">
+            {purchases.length === 0 ? (
+              <div className="text-center py-6">
+                <div className="h-12 w-12 rounded-xl bg-muted/50 flex items-center justify-center mx-auto mb-3">
+                  <Package className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <p className="text-sm text-muted-foreground mb-3">{isFr ? "Tu n'as pas encore d'achat" : 'No purchases yet'}</p>
+                <Button size="sm" className="gap-2" onClick={() => navigate('/marketplace')}>
+                  <Store className="h-3.5 w-3.5" /> {isFr ? 'Découvrir les produits' : 'Discover products'}
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-3 gap-3">
+                {purchases.slice(0, 6).map((purchase: any) => {
+                  const product = purchase.digital_products;
+                  return (
+                    <button key={purchase.id} onClick={() => navigate('/resources')} className="group text-left">
+                      <div className="aspect-[3/4] rounded-xl bg-muted overflow-hidden mb-1.5 ring-1 ring-border">
+                        {product?.cover_image_url ? (
+                          <img src={product.cover_image_url} alt="" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center">
+                            <BookOpen className="h-6 w-6 text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                      <p className="text-[11px] font-medium truncate">{product?.title || 'Produit'}</p>
+                    </button>
+                  );
+                })}
+              </div>
             )}
-          </div>
+          </PremiumCard>
+        </DashboardSection>
 
-          {purchases.length === 0 ? (
-            <div className="text-center py-6">
-              <Package className="h-8 w-8 text-muted-foreground mx-auto mb-3 opacity-50" />
-              <p className="text-sm text-muted-foreground mb-3">Tu n'as pas encore d'achat</p>
-              <Button size="sm" className="gap-2" onClick={() => navigate('/marketplace')}>
-                <Store className="h-3.5 w-3.5" /> Découvrir les produits
-              </Button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-3 gap-3">
-              {purchases.slice(0, 6).map((purchase: any) => {
-                const product = purchase.digital_products;
-                return (
-                  <button key={purchase.id} onClick={() => navigate('/resources')} className="group text-left">
-                    <div className="aspect-[3/4] rounded-lg bg-muted overflow-hidden mb-1.5">
-                      {product?.cover_image_url ? (
-                        <img src={product.cover_image_url} alt="" className="h-full w-full object-cover group-hover:scale-105 transition-transform" />
-                      ) : (
-                        <div className="h-full w-full flex items-center justify-center">
-                          <BookOpen className="h-6 w-6 text-muted-foreground" />
-                        </div>
-                      )}
-                    </div>
-                    <p className="text-[11px] font-medium truncate">{product?.title || 'Produit'}</p>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-        </motion.div>
-
-        {/* ═══════════════════════════════════════
-            ZONE 4 — FORMATIONS EN COURS
-        ═══════════════════════════════════════ */}
+        {/* ═══ MY PROGRAMS ═══ */}
         {programProgress.length > 0 && (
-          <motion.div {...fadeUp(0.08)} className="bg-card border border-border rounded-2xl p-5">
-            <h2 className="font-bold text-sm flex items-center gap-2 mb-4">
-              <GraduationCap className="h-4 w-4 text-amber-500" /> Mes formations
-            </h2>
-            <div className="space-y-3">
+          <DashboardSection
+            title={isFr ? 'Mes formations' : 'My courses'}
+            icon={GraduationCap}
+          >
+            <div className="space-y-2">
               {programProgress.map((prog: any) => {
                 const pct = prog.totalLessons > 0 ? Math.round((prog.completedLessons / prog.totalLessons) * 100) : 0;
                 return (
-                  <div key={prog.id} className="p-3 rounded-xl bg-muted/30 border border-border/50">
+                  <PremiumCard key={prog.id} variant="default" noPadding className="p-3.5">
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-sm font-medium truncate">{prog.programs?.title || 'Formation'}</p>
-                      <span className="text-xs font-semibold text-primary">{pct}%</span>
+                      <span className={cn(
+                        'text-xs font-bold px-2 py-0.5 rounded-full',
+                        pct >= 80 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-primary/10 text-primary'
+                      )}>{pct}%</span>
                     </div>
                     <Progress value={pct} className="h-1.5" />
-                    <p className="text-[10px] text-muted-foreground mt-1">{prog.completedLessons}/{prog.totalLessons} leçons</p>
-                  </div>
+                    <p className="text-[10px] text-muted-foreground mt-1.5">{prog.completedLessons}/{prog.totalLessons} {isFr ? 'leçons' : 'lessons'}</p>
+                  </PremiumCard>
                 );
               })}
             </div>
-          </motion.div>
+          </DashboardSection>
         )}
 
-        {/* ═══════════════════════════════════════
-            ZONE 5 — MES DONS
-        ═══════════════════════════════════════ */}
-        <motion.div {...fadeUp(0.1)} className="bg-card border border-border rounded-2xl p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-sm flex items-center gap-2">
-              <Heart className="h-4 w-4 text-rose-500" /> Mes dons
-            </h2>
-            {donations.length > 0 && (
+        {/* ═══ MY DONATIONS ═══ */}
+        {donations.length > 0 && (
+          <DashboardSection
+            title={isFr ? 'Mes dons' : 'My donations'}
+            icon={Heart}
+            collapsible
+            defaultCollapsed={false}
+            actions={
               <button onClick={() => navigate('/my-donations')} className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
-                Tout voir <ArrowRight className="h-3 w-3" />
+                {isFr ? 'Tout voir' : 'View all'} <ArrowRight className="h-3 w-3" />
               </button>
-            )}
-          </div>
-
-          {donations.length === 0 ? (
-            <div className="text-center py-6">
-              <Heart className="h-8 w-8 text-muted-foreground mx-auto mb-3 opacity-50" />
-              <p className="text-sm text-muted-foreground mb-3">Tu n'as pas encore fait de don</p>
-              <Button size="sm" variant="outline" className="gap-2" onClick={() => navigate('/marketplace?tab=campaigns')}>
-                <Heart className="h-3.5 w-3.5" /> Voir les campagnes
-              </Button>
-            </div>
-          ) : (
+            }
+          >
             <div className="space-y-2">
               {donations.slice(0, 3).map((don: any) => (
-                <div key={don.id} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border/50">
-                  <div className="h-8 w-8 rounded-lg bg-rose-500/10 flex items-center justify-center shrink-0">
-                    <Heart className="h-4 w-4 text-rose-500" />
+                <PremiumCard key={don.id} variant="default" noPadding className="p-3.5">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-xl bg-rose-500/10 flex items-center justify-center shrink-0">
+                      <Heart className="h-4 w-4 text-rose-500" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium truncate">
+                        {don.donation_campaigns?.title || don.organizations?.name || 'Don'}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {new Date(don.completed_at || don.created_at).toLocaleDateString(isFr ? 'fr-FR' : 'en-US')}
+                      </p>
+                    </div>
+                    <span className="text-xs font-bold text-rose-500">{fmt(don.amount, don.currency)}</span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium truncate">
-                      {don.donation_campaigns?.title || don.organizations?.name || 'Don'}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">
-                      {new Date(don.completed_at || don.created_at).toLocaleDateString(locale === 'fr' ? 'fr-FR' : 'en-US')}
-                    </p>
-                  </div>
-                  <span className="text-xs font-bold text-rose-500">{fmt(don.amount, don.currency)}</span>
-                </div>
+                </PremiumCard>
               ))}
             </div>
-          )}
-        </motion.div>
-
-        {/* ═══════════════════════════════════════
-            ZONE 6 — ACTIONS CLÉS
-        ═══════════════════════════════════════ */}
-
-        {/* Découvrir */}
-        <motion.div {...fadeUp(0.12)} className="bg-card border border-border rounded-2xl p-5">
-          <h2 className="font-bold text-sm flex items-center gap-2 mb-3">
-            <Sparkles className="h-4 w-4 text-amber-500" /> Découvrir
-          </h2>
-          <p className="text-xs text-muted-foreground mb-4">
-            Explore des eBooks, formations, templates et plus encore.
-          </p>
-          <Button className="w-full gap-2" variant="outline" onClick={() => navigate('/marketplace')}>
-            <Store className="h-4 w-4" /> Explorer le catalogue
-          </Button>
-        </motion.div>
-
-        {/* Gagner de l'argent */}
-        <motion.div {...fadeUp(0.15)} className="bg-card border border-emerald-500/20 rounded-2xl p-5">
-          <h2 className="font-bold text-sm flex items-center gap-2 mb-3">
-            <Share2 className="h-4 w-4 text-emerald-500" /> Gagner de l'argent
-          </h2>
-          <p className="text-xs text-muted-foreground mb-4">
-            Partage des produits et gagne une commission sur chaque vente. Aucun investissement requis.
-          </p>
-          <Button className="w-full gap-2" onClick={() => navigate('/gagner')}>
-            <Rocket className="h-4 w-4" /> Partage et gagne
-          </Button>
-        </motion.div>
-
-        {/* Mon espace créateur */}
-        {hasOrgs && (
-          <motion.div {...fadeUp(0.18)} className="bg-card border border-primary/20 rounded-2xl p-5">
-            <h2 className="font-bold text-sm flex items-center gap-2 mb-3">
-              <Building2 className="h-4 w-4 text-primary" /> Mon espace
-            </h2>
-            <p className="text-xs text-muted-foreground mb-4">
-              Gère tes produits, tes ventes et tes ambassadeurs.
-            </p>
-            <Button className="w-full gap-2" onClick={() => navigate('/admin')}>
-              <Building2 className="h-4 w-4" /> Accéder à mon espace
-            </Button>
-          </motion.div>
+          </DashboardSection>
         )}
 
-        {/* ═══════════════════════════════════════
-            ZONE 7 — ACCÈS RAPIDE
-        ═══════════════════════════════════════ */}
-        <motion.div {...fadeUp(0.2)} className="space-y-2">
-          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold px-1">Accès rapide</p>
+        {/* ═══ DISCOVER & EARN — compact action cards ═══ */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <PremiumCard variant="glass" delay={0.12} className="space-y-3">
+            <div className="flex items-center gap-2">
+              <div className="h-9 w-9 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                <Sparkles className="h-4 w-4 text-amber-500" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm">{isFr ? 'Découvrir' : 'Discover'}</h3>
+                <p className="text-[10px] text-muted-foreground">{isFr ? 'eBooks, formations, templates' : 'eBooks, courses, templates'}</p>
+              </div>
+            </div>
+            <Button className="w-full gap-2" variant="outline" size="sm" onClick={() => navigate('/marketplace')}>
+              <Store className="h-3.5 w-3.5" /> {isFr ? 'Explorer' : 'Browse'}
+            </Button>
+          </PremiumCard>
+
+          <PremiumCard variant="glass" delay={0.15} className="space-y-3 border-emerald-500/20">
+            <div className="flex items-center gap-2">
+              <div className="h-9 w-9 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                <Share2 className="h-4 w-4 text-emerald-500" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm">{isFr ? 'Gagner' : 'Earn'}</h3>
+                <p className="text-[10px] text-muted-foreground">{isFr ? 'Partage et gagne des commissions' : 'Share & earn commissions'}</p>
+              </div>
+            </div>
+            <Button className="w-full gap-2" size="sm" onClick={() => navigate('/gagner')}>
+              <Rocket className="h-3.5 w-3.5" /> {isFr ? 'Commencer' : 'Start'}
+            </Button>
+          </PremiumCard>
+        </div>
+
+        {/* ═══ QUICK ACCESS ═══ */}
+        <div className="space-y-2">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-bold px-1">{isFr ? 'Accès rapide' : 'Quick access'}</p>
+
+          {hasOrgs && (
+            <PremiumCard variant="default" noPadding animate={false} className="p-0">
+              <button
+                onClick={() => navigate('/admin')}
+                className="w-full flex items-center gap-3 p-3.5 text-left group"
+              >
+                <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Building2 className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold">{isFr ? 'Mon espace créateur' : 'Creator space'}</p>
+                  <p className="text-[10px] text-muted-foreground">{isFr ? 'Produits, ventes, ambassadeurs' : 'Products, sales, ambassadors'}</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+              </button>
+            </PremiumCard>
+          )}
 
           {!hasOrgs && (
-            <button
-              onClick={() => navigate('/ecrire')}
-              className="w-full flex items-center gap-3 p-3.5 rounded-xl border border-border hover:border-primary/40 bg-card text-left transition-all group"
-            >
-              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <BookOpen className="h-4 w-4 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold">Écrire mon premier livre</p>
-                <p className="text-[10px] text-muted-foreground">L'IA écrit, tu publies, tu gagnes</p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-            </button>
+            <PremiumCard variant="default" noPadding animate={false} className="p-0">
+              <button
+                onClick={() => navigate('/ecrire')}
+                className="w-full flex items-center gap-3 p-3.5 text-left group"
+              >
+                <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <BookOpen className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold">{isFr ? 'Écrire mon premier livre' : 'Write my first book'}</p>
+                  <p className="text-[10px] text-muted-foreground">{isFr ? "L'IA écrit, tu publies, tu gagnes" : 'AI writes, you publish, you earn'}</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+              </button>
+            </PremiumCard>
           )}
 
           {isSuperadmin && (
-            <button
-              onClick={() => navigate('/superadmin')}
-              className="w-full flex items-center gap-3 p-3.5 rounded-xl border border-border hover:border-destructive/40 bg-card text-left transition-all group"
-            >
-              <div className="h-8 w-8 rounded-lg bg-destructive/10 flex items-center justify-center shrink-0">
-                <Shield className="h-4 w-4 text-destructive" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs font-semibold">Super admin</p>
-                <p className="text-[10px] text-muted-foreground">Panneau d'administration global</p>
-              </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-            </button>
+            <PremiumCard variant="default" noPadding animate={false} className="p-0">
+              <button
+                onClick={() => navigate('/superadmin')}
+                className="w-full flex items-center gap-3 p-3.5 text-left group"
+              >
+                <div className="h-9 w-9 rounded-xl bg-destructive/10 flex items-center justify-center shrink-0">
+                  <Shield className="h-4 w-4 text-destructive" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-semibold">Super admin</p>
+                  <p className="text-[10px] text-muted-foreground">{isFr ? "Panneau d'administration global" : 'Global admin panel'}</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+              </button>
+            </PremiumCard>
           )}
-        </motion.div>
-
+        </div>
       </div>
       <PartnerPendingPopup />
     </div>

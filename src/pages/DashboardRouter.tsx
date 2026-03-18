@@ -5,14 +5,15 @@ import { db } from '@/lib/db';
 import { Navigate, Link } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PenLine, Share2, Upload, Store, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { FirstWinChecklist } from '@/components/dashboard/FirstWinChecklist';
+import { PremiumCard } from '@/components/ui/PremiumCard';
 
 import { TrendingProducts } from '@/components/discover/TrendingProducts';
 import { GrowthTipsWidget } from '@/components/growth/GrowthTipsWidget';
 import AmbassadorDashboard from '@/pages/AmbassadorDashboard';
 import UserDashboard from '@/pages/UserDashboard';
 import { useI18n } from '@/i18n/I18nContext';
+import { motion } from 'framer-motion';
 
 /**
  * Smart dashboard router — shows the right dashboard based on user state:
@@ -50,8 +51,8 @@ export default function DashboardRouter() {
     return (
       <div className="container max-w-2xl px-4 py-8 space-y-4">
         <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-24 w-full" />
+        <Skeleton className="h-24 w-full rounded-2xl" />
+        <Skeleton className="h-24 w-full rounded-2xl" />
       </div>
     );
   }
@@ -89,7 +90,7 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
       title: t('dash.write_first'),
       desc: t('dash.write_first_desc'),
       to: '/ecrire',
-      color: 'border-primary/30 hover:border-primary bg-primary/5',
+      color: 'border-primary/20 hover:border-primary/50',
       iconColor: 'text-primary bg-primary/10',
     },
     {
@@ -97,7 +98,7 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
       title: t('dash.earn_sharing'),
       desc: t('dash.earn_sharing_desc'),
       to: '/gagner',
-      color: 'border-emerald-500/30 hover:border-emerald-500 bg-emerald-500/5',
+      color: 'border-emerald-500/20 hover:border-emerald-500/50',
       iconColor: 'text-emerald-500 bg-emerald-500/10',
     },
     {
@@ -105,7 +106,7 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
       title: t('dash.import_content'),
       desc: t('dash.import_content_desc'),
       to: '/migrer',
-      color: 'border-accent/30 hover:border-accent bg-accent/5',
+      color: 'border-accent/20 hover:border-accent/50',
       iconColor: 'text-accent bg-accent/10',
     },
     {
@@ -120,15 +121,15 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
 
   return (
     <div className="container max-w-2xl px-4 py-8 space-y-6">
-      {/* ═══ ZONE 1 — Bienvenue ═══ */}
-      <div>
-        <h1 className="text-2xl font-extrabold">
+      {/* ═══ WELCOME ═══ */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+        <h1 className="text-2xl font-extrabold tracking-tight">
           {t('dash.welcome')}{name ? ` ${name}` : ''} ! 🎉
         </h1>
         <p className="text-muted-foreground text-sm mt-1">{t('dash.what_today')}</p>
-      </div>
+      </motion.div>
 
-      {/* ═══ ZONE 2 — Checklist premier succès ═══ */}
+      {/* ═══ FIRST WIN CHECKLIST ═══ */}
       <FirstWinChecklist
         hasBook={hasBook}
         hasAffiliateLink={false}
@@ -136,35 +137,40 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
         hasOrg={userOrgs.length > 0}
       />
 
-      {/* ═══ ZONE 3 — Actions principales ═══ */}
+      {/* ═══ ACTION CARDS ═══ */}
       <div className="grid gap-3">
-        {actions.map(a => (
-          <Link
-            key={a.to}
-            to={a.to}
-            className={`flex items-center gap-4 p-5 rounded-2xl border-2 ${a.color} transition-all hover:shadow-sm group`}
-          >
-            <div className={`h-11 w-11 rounded-xl ${a.iconColor} flex items-center justify-center shrink-0`}>
-              <a.icon className="h-5 w-5" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-sm">{a.title}</h3>
-              <p className="text-xs text-muted-foreground mt-0.5">{a.desc}</p>
-            </div>
-            <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:translate-x-1 transition-transform" />
-          </Link>
+        {actions.map((a, i) => (
+          <PremiumCard key={a.to} variant="default" delay={i * 0.04} noPadding className="p-0">
+            <Link
+              to={a.to}
+              className={`flex items-center gap-4 p-4 rounded-2xl border ${a.color} transition-all hover:shadow-elevated group`}
+            >
+              <div className={`h-11 w-11 rounded-xl ${a.iconColor} flex items-center justify-center shrink-0`}>
+                <a.icon className="h-5 w-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-sm">{a.title}</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">{a.desc}</p>
+              </div>
+              <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </PremiumCard>
         ))}
       </div>
 
-      {/* ═══ ZONE 4 — Produits tendance (preuve sociale) ═══ */}
+      {/* ═══ TRENDING PRODUCTS ═══ */}
       <TrendingProducts limit={4} />
 
-
-      {/* ═══ ZONE 6 — Tips ═══ */}
+      {/* ═══ GROWTH TIPS ═══ */}
       <GrowthTipsWidget category="all" />
 
-      {/* ═══ ZONE 7 — Stats rapides ═══ */}
-      <div className="flex items-center justify-center gap-6 pt-4 text-center">
+      {/* ═══ QUICK STATS ═══ */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="flex items-center justify-center gap-6 pt-4 text-center"
+      >
         <div>
           <p className="text-2xl font-extrabold text-primary">5 min</p>
           <p className="text-[10px] text-muted-foreground">{t('dash.time_to_write')}</p>
@@ -179,7 +185,7 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
           <p className="text-2xl font-extrabold text-emerald-500">5-50%</p>
           <p className="text-[10px] text-muted-foreground">{t('dash.ambassador_commission')}</p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

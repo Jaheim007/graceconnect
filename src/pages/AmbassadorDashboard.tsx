@@ -2,7 +2,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getEffectivePrice } from '@/lib/effectivePrice';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
-import { AffiliateLink } from '@/types/database';
 import {
   Wallet, Link2, Share2, Trophy, CheckCircle, Target, ArrowRight, Rocket, Store
 } from 'lucide-react';
@@ -21,6 +20,10 @@ import { cn } from '@/lib/utils';
 import { EarningsCard } from '@/components/ambassador/EarningsCard';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { DailyTip } from '@/components/ambassador/DailyTip';
+
+import { PremiumCard } from '@/components/ui/PremiumCard';
+import { StatCard } from '@/components/ui/StatCard';
+import { DashboardSection } from '@/components/ui/DashboardSection';
 
 export default function AmbassadorDashboard() {
   const { user, profile } = useAuth();
@@ -79,10 +82,10 @@ export default function AmbassadorDashboard() {
   const totalEarned = affiliateLinks.reduce((s, l) => s + (l.total_earned || 0), 0);
   const payableCommission = affiliateSales.filter((s: any) => s.status === 'payable').reduce((sum: number, s: any) => sum + s.commission_amount, 0);
   const totalClicks = affiliateLinks.reduce((s, l) => s + (l.clicks || 0), 0);
+  const totalConversions = affiliateSales.length;
 
   const hasShared = affiliateLinks.length > 0;
   const hasClick = totalClicks > 0;
-  const hasConversion = affiliateSales.length > 0;
 
   const missionItems = [
     { done: hasShared, label: isFr ? 'Choisir un produit à partager' : 'Choose a product to share', icon: Store },
@@ -114,197 +117,196 @@ export default function AmbassadorDashboard() {
 
         {/* ═══ HEADER ═══ */}
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-emerald-500/15 flex items-center justify-center">
+          <div className="h-11 w-11 rounded-full bg-emerald-500/10 flex items-center justify-center ring-2 ring-emerald-500/20">
             <Share2 className="h-5 w-5 text-emerald-500" />
           </div>
           <div>
-            <h1 className="text-lg font-bold">{greeting}, {displayName}</h1>
+            <h1 className="text-lg font-bold tracking-tight">{greeting}, {displayName}</h1>
             <p className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">{isFr ? 'Espace Ambassadeur' : 'Ambassador Dashboard'}</p>
           </div>
         </motion.div>
 
-        {/* ═══ SECTION 1: GAINS ═══ */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-          className="bg-card border border-emerald-500/20 rounded-2xl p-5"
-        >
-          <h2 className="font-bold text-sm flex items-center gap-2 mb-4">
-            <Wallet className="h-4 w-4 text-emerald-500" /> {isFr ? 'Mes gains' : 'My earnings'}
-          </h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center">
-              <p className="text-2xl font-extrabold text-emerald-500">{fmt(totalEarned)}</p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{isFr ? 'Total gagné' : 'Total earned'}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-extrabold text-foreground">{fmt(payableCommission)}</p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{isFr ? 'À retirer' : 'Available'}</p>
-            </div>
-          </div>
-          {payableCommission > 0 && (
-            <Button className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => {
-              const firstOrg = affiliateSales.find((s: any) => s.status === 'payable');
-              if (firstOrg) handleRequestPayout((firstOrg as any).organization_id);
-            }} disabled={!!requestingPayout}>
-              {requestingPayout ? (isFr ? 'En cours…' : 'Processing…') : (isFr ? 'Retirer mes gains' : 'Withdraw earnings')}
-            </Button>
-          )}
-        </motion.div>
+        {/* ═══ EARNINGS KPIs ═══ */}
+        <div className="grid grid-cols-2 gap-3">
+          <StatCard
+            icon={Wallet}
+            label={isFr ? 'Total gagné' : 'Total earned'}
+            value={fmt(totalEarned)}
+            color="emerald"
+            delay={0.05}
+          />
+          <StatCard
+            icon={Wallet}
+            label={isFr ? 'À retirer' : 'Available'}
+            value={fmt(payableCommission)}
+            color="primary"
+            delay={0.1}
+          />
+        </div>
+
+        {payableCommission > 0 && (
+          <Button className="w-full bg-emerald-600 hover:bg-emerald-700 text-white gap-2" onClick={() => {
+            const firstOrg = affiliateSales.find((s: any) => s.status === 'payable');
+            if (firstOrg) handleRequestPayout((firstOrg as any).organization_id);
+          }} disabled={!!requestingPayout}>
+            <Wallet className="h-4 w-4" />
+            {requestingPayout ? (isFr ? 'En cours…' : 'Processing…') : (isFr ? 'Retirer mes gains' : 'Withdraw earnings')}
+          </Button>
+        )}
 
         {/* ═══ DAILY TIP ═══ */}
         <DailyTip />
 
-        {/* ═══ SECTION 2: MISSION ═══ */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="bg-card border border-border rounded-2xl p-5"
+        {/* ═══ TODAY'S MISSION ═══ */}
+        <DashboardSection
+          title={isFr ? "🎯 Ta mission aujourd'hui" : "🎯 Today's mission"}
+          icon={Target}
+          subtitle={isFr ? 'Complète ces étapes pour débloquer tes premiers gains.' : 'Complete these steps to unlock your first earnings.'}
         >
-          <h2 className="font-bold text-sm flex items-center gap-2 mb-1">
-            <Target className="h-4 w-4 text-amber-500" /> 🎯 {isFr ? "Ta mission aujourd'hui" : "Today's mission"}
-          </h2>
-          <p className="text-xs text-muted-foreground mb-4">{isFr ? 'Complète ces étapes pour débloquer tes premiers gains.' : 'Complete these steps to unlock your first earnings.'}</p>
-
-          <div className="space-y-3">
+          <div className="space-y-2">
             {missionItems.map((item, i) => (
-              <div key={i} className={cn(
-                'flex items-center gap-3 p-3 rounded-xl border transition-all',
-                item.done ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-muted/30 border-border'
+              <PremiumCard key={i} variant="default" noPadding animate={false} className={cn(
+                'p-3',
+                item.done ? 'border-emerald-500/20 bg-emerald-500/5' : ''
               )}>
-                <div className={cn(
-                  'h-8 w-8 rounded-full flex items-center justify-center shrink-0',
-                  item.done ? 'bg-emerald-500 text-white' : 'bg-muted text-muted-foreground'
-                )}>
-                  {item.done ? <CheckCircle className="h-4 w-4" /> : <item.icon className="h-4 w-4" />}
+                <div className="flex items-center gap-3">
+                  <div className={cn(
+                    'h-8 w-8 rounded-full flex items-center justify-center shrink-0',
+                    item.done ? 'bg-emerald-500 text-white' : 'bg-muted text-muted-foreground'
+                  )}>
+                    {item.done ? <CheckCircle className="h-4 w-4" /> : <item.icon className="h-4 w-4" />}
+                  </div>
+                  <span className={cn('text-sm font-medium flex-1', item.done && 'line-through text-muted-foreground')}>{item.label}</span>
+                  {item.done && <span className="text-xs text-emerald-500 font-semibold">✓</span>}
                 </div>
-                <span className={cn('text-sm font-medium flex-1', item.done && 'line-through text-muted-foreground')}>{item.label}</span>
-                {item.done && <span className="text-xs text-emerald-500 font-semibold">✓</span>}
-              </div>
+              </PremiumCard>
             ))}
           </div>
 
           {completedMissions >= 2 && (
-            <div className="mt-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
+            <PremiumCard variant="default" delay={0.1} className="!p-3 border-amber-500/20 bg-amber-500/5 text-center mt-3">
               <p className="text-sm font-bold">{isFr ? '🔥 Premier partage effectué !' : '🔥 First share done!'}</p>
               <p className="text-xs text-muted-foreground mt-0.5">{isFr ? 'Ta 1ère vente peut tomber aujourd\'hui.' : 'Your first sale could come today.'}</p>
-            </div>
+            </PremiumCard>
           )}
 
           {!hasShared && (
-            <Button className="w-full mt-4 gap-2" onClick={() => navigate('/marketplace')}>
+            <Button className="w-full mt-3 gap-2" onClick={() => navigate('/marketplace')}>
               <Rocket className="h-4 w-4" /> {isFr ? 'Choisir un produit à partager' : 'Choose a product to share'}
             </Button>
           )}
-        </motion.div>
+        </DashboardSection>
 
-        {/* ═══ SECTION 3: TOP COMMISSIONS ═══ */}
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-          className="bg-card border border-border rounded-2xl p-5"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-bold text-sm flex items-center gap-2">
-              <Trophy className="h-4 w-4 text-amber-500" /> Top commissions
-            </h2>
+        {/* ═══ TOP COMMISSIONS ═══ */}
+        <DashboardSection
+          title="Top commissions"
+          icon={Trophy}
+          actions={
             <button onClick={() => navigate('/marketplace')} className="text-xs text-primary font-medium hover:underline flex items-center gap-1">
               {isFr ? 'Tout voir' : 'View all'} <ArrowRight className="h-3 w-3" />
             </button>
-          </div>
+          }
+        >
+          {topProducts.length === 0 ? (
+            <PremiumCard variant="default" className="text-center">
+              <p className="text-sm text-muted-foreground mb-3">{isFr ? 'Aucun produit disponible.' : 'No products available yet.'}</p>
+              <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate('/marketplace')}>
+                <Store className="h-3.5 w-3.5" /> {isFr ? 'Explorer' : 'Browse'}
+              </Button>
+            </PremiumCard>
+          ) : (
+            <div className="space-y-2">
+              {topProducts.map((product: any) => {
+                const commission = product.organizations?.commission_percent || 10;
+                const estimatedGain = Math.round(getEffectivePrice(product) * commission / 100);
+                const orgSlug = product.organizations?.slug;
+                const shareUrl = orgSlug ? `${window.location.origin}/org/${orgSlug}/p/${product.slug || product.id}` : '';
 
-          <div className="space-y-3">
-            {topProducts.length === 0 ? (
-              <div className="text-center py-6">
-                <p className="text-sm text-muted-foreground mb-3">{isFr ? 'Aucun produit disponible pour le moment.' : 'No products available yet.'}</p>
-                <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate('/marketplace')}>
-                  <Store className="h-3.5 w-3.5" /> {isFr ? 'Explorer la marketplace' : 'Explore marketplace'}
-                </Button>
-              </div>
-            ) : topProducts.map((product: any) => {
-              const commission = product.organizations?.commission_percent || 10;
-              const estimatedGain = Math.round(getEffectivePrice(product) * commission / 100);
-              const orgSlug = product.organizations?.slug;
-              const shareUrl = orgSlug ? `${window.location.origin}/org/${orgSlug}/p/${product.slug || product.id}` : '';
-
-              return (
-                <div key={product.id} className="flex items-center gap-3 p-3 rounded-xl bg-muted/30 border border-border/50">
-                  <div className="h-12 w-12 rounded-lg bg-muted overflow-hidden shrink-0">
-                    {product.cover_image_url ? (
-                      <img src={product.cover_image_url} alt="" className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="h-full w-full flex items-center justify-center text-muted-foreground"><Store className="h-5 w-5" /></div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold truncate">{product.title}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      <span className="text-xs font-bold text-emerald-500">{commission}% commission</span>
-                      {estimatedGain > 0 && (
-                        <span className="text-[10px] text-muted-foreground">≈ {fmt(estimatedGain, product.currency)} / {isFr ? 'vente' : 'sale'}</span>
+                return (
+                  <PremiumCard key={product.id} variant="default" noPadding className="p-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-12 w-12 rounded-xl bg-muted overflow-hidden shrink-0 ring-1 ring-border">
+                        {product.cover_image_url ? (
+                          <img src={product.cover_image_url} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center text-muted-foreground"><Store className="h-5 w-5" /></div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold truncate">{product.title}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-xs font-bold text-emerald-500">{commission}%</span>
+                          {estimatedGain > 0 && (
+                            <span className="text-[10px] text-muted-foreground">≈ {fmt(estimatedGain, product.currency)} / {isFr ? 'vente' : 'sale'}</span>
+                          )}
+                        </div>
+                      </div>
+                      {shareUrl && (
+                        <AffiliateShareTools shareUrl={shareUrl} orgName={product.organizations?.name || ''} affiliateCode="" />
                       )}
                     </div>
-                  </div>
-                  {shareUrl && (
-                    <AffiliateShareTools
-                      shareUrl={shareUrl}
-                      orgName={product.organizations?.name || ''}
-                      affiliateCode=""
-                    />
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </motion.div>
+                  </PremiumCard>
+                );
+              })}
+            </div>
+          )}
+        </DashboardSection>
 
         {/* ═══ SHAREABLE EARNINGS CARD ═══ */}
         {totalEarned > 0 && (
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.18 }}
-            className="bg-card border border-border rounded-2xl p-5"
+          <DashboardSection
+            title={isFr ? '🎉 Partager mes gains' : '🎉 Share my earnings'}
+            icon={Trophy}
+            collapsible
           >
-            <h2 className="font-bold text-sm flex items-center gap-2 mb-4">
-              <Trophy className="h-4 w-4 text-amber-500" /> 🎉 {isFr ? 'Partager mes gains' : 'Share my earnings'}
-            </h2>
-            <p className="text-xs text-muted-foreground mb-4">
+            <p className="text-xs text-muted-foreground mb-3">
               {isFr
-                ? "Partage ta carte de gains sur les réseaux sociaux et inspire d'autres personnes à rejoindre le mouvement !"
-                : 'Share your earnings card on social media and inspire others to join the movement!'}
+                ? "Partage ta carte de gains et inspire d'autres à rejoindre le mouvement !"
+                : 'Share your earnings card and inspire others to join!'}
             </p>
             <EarningsCard
               totalEarned={totalEarned}
               currency={primaryCurrency}
-              salesCount={affiliateSales.length}
+              salesCount={totalConversions}
               clicksCount={totalClicks}
               topOrgName={affiliateLinks[0]?.organizations?.name}
             />
-          </motion.div>
+          </DashboardSection>
         )}
 
         {/* ═══ ACTIVE LINKS ═══ */}
         {affiliateLinks.length > 0 && (
-          <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-            className="bg-card border border-border rounded-2xl p-5"
+          <DashboardSection
+            title={isFr ? 'Mes liens actifs' : 'My active links'}
+            icon={Link2}
+            collapsible
+            actions={
+              <button onClick={() => navigate('/affiliation')} className="text-xs text-primary font-medium hover:underline">
+                {isFr ? 'Tout voir' : 'View all'}
+              </button>
+            }
           >
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="font-bold text-sm flex items-center gap-2">
-                <Link2 className="h-4 w-4 text-primary" /> {isFr ? 'Mes liens actifs' : 'My active links'}
-              </h2>
-              <button onClick={() => navigate('/affiliation')} className="text-xs text-primary font-medium hover:underline">{isFr ? 'Tout voir' : 'View all'}</button>
-            </div>
             <div className="space-y-2">
               {affiliateLinks.slice(0, 3).map((link) => (
-                <div key={link.id} className="flex items-center gap-3 p-2.5 rounded-lg bg-muted/30">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate flex items-center gap-1">
-                      {link.organizations?.name || (isFr ? 'Organisation' : 'Organization')}
-                      {((link.organizations as any)?.is_verified || (link.organizations as any)?.kyc_status === 'level1' || (link.organizations as any)?.kyc_status === 'level2') && <VerifiedBadge size="xs" />}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">{link.clicks || 0} {isFr ? 'clics' : 'clicks'} · {link.conversions || 0} {isFr ? 'ventes' : 'sales'}</p>
+                <PremiumCard key={link.id} variant="default" noPadding className="p-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate flex items-center gap-1">
+                        {link.organizations?.name || (isFr ? 'Organisation' : 'Organization')}
+                        {((link.organizations as any)?.is_verified || (link.organizations as any)?.kyc_status === 'level1' || (link.organizations as any)?.kyc_status === 'level2') && <VerifiedBadge size="xs" />}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">{link.clicks || 0} {isFr ? 'clics' : 'clicks'} · {link.conversions || 0} {isFr ? 'ventes' : 'sales'}</p>
+                    </div>
+                    <AffiliateShareTools
+                      shareUrl={`${window.location.origin}/org/${link.organizations?.slug}?ref=${link.code}`}
+                      orgName={link.organizations?.name || ''}
+                      affiliateCode={link.code}
+                    />
                   </div>
-                  <AffiliateShareTools
-                    shareUrl={`${window.location.origin}/org/${link.organizations?.slug}?ref=${link.code}`}
-                    orgName={link.organizations?.name || ''}
-                    affiliateCode={link.code}
-                  />
-                </div>
+                </PremiumCard>
               ))}
             </div>
-          </motion.div>
+          </DashboardSection>
         )}
       </div>
     </div>
