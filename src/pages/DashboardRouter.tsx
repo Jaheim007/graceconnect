@@ -172,7 +172,7 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
         className="flex items-center justify-center gap-4 sm:gap-6 pt-4 text-center"
       >
         <div>
-          <p className="text-2xl font-extrabold text-primary">5 min</p>
+          <p className="text-xl sm:text-2xl font-extrabold text-primary">5 min</p>
           <p className="text-[10px] text-muted-foreground">{t('dash.time_to_write')}</p>
         </div>
         <div className="h-8 w-px bg-border" />
