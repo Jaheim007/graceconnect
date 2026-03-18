@@ -47,15 +47,16 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Invalid product_title" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    // Verify purchase
-    const { data: purchase } = await adminClient
+    // Verify purchase — use maybeSingle to avoid errors when user has duplicate purchases
+    const { data: purchases } = await adminClient
       .from("product_purchases")
       .select("id, organization_id")
       .eq("user_id", user.id)
       .eq("product_id", product_id)
       .eq("status", "completed")
-      .limit(1)
-      .single();
+      .limit(1);
+
+    const purchase = purchases?.[0] || null;
 
     if (!purchase) {
       return new Response(JSON.stringify({ error: "Purchase not found" }), {

@@ -11,7 +11,7 @@ import {
 import { downloadInvoice } from '@/lib/invoice';
 import { format } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
-import { fetchWatermarkedFile, isPdfLikeFile, openFileInline, triggerBrowserDownload } from '@/lib/secureDownload';
+import { fetchWatermarkedFile, isPdfLikeFile, openFileInline, triggerBrowserDownload, preOpenWindow } from '@/lib/secureDownload';
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { useI18n } from '@/i18n/I18nContext';
@@ -117,6 +117,9 @@ export default function ResourcesPage() {
     if (!purchase.product.file_url || !user) return;
     setDownloading(purchase.id);
 
+    // Pre-open window synchronously (in click handler) to avoid popup blockers on mobile
+    const preWindow = mode === 'inline' ? preOpenWindow() : null;
+
     try {
       const file = await fetchWatermarkedFile({
         fileUrl: purchase.product.file_url,
@@ -126,7 +129,7 @@ export default function ResourcesPage() {
       });
 
       if (mode === 'inline') {
-        openFileInline(file);
+        openFileInline(file, preWindow);
       } else {
         triggerBrowserDownload(file);
       }
@@ -137,6 +140,8 @@ export default function ResourcesPage() {
       });
     } catch (error) {
       console.error('[ResourcesPage] secure file action error:', error);
+      // Close pre-opened window on error
+      if (preWindow && !preWindow.closed) preWindow.close();
       toast({
         title: t('common.error'),
         description: mode === 'inline'

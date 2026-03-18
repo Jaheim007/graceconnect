@@ -116,12 +116,36 @@ export function triggerBrowserDownload({ blob, fileName }: Pick<WatermarkedFileR
   setTimeout(() => URL.revokeObjectURL(url), 30_000);
 }
 
-export function openFileInline(file: WatermarkedFileResult) {
+/**
+ * Open a PDF inline in a new tab.
+ * If a pre-opened window handle is provided (recommended for mobile),
+ * it will be reused to avoid popup-blocker issues.
+ */
+export function openFileInline(file: WatermarkedFileResult, preOpenedWindow?: Window | null) {
   if (!file.isPdf) {
     throw new Error('La lecture en ligne est disponible uniquement pour les PDF.');
   }
 
   const url = URL.createObjectURL(file.blob);
-  window.open(url, '_blank', 'noopener,noreferrer');
-  setTimeout(() => URL.revokeObjectURL(url), 30_000);
+
+  if (preOpenedWindow && !preOpenedWindow.closed) {
+    preOpenedWindow.location.href = url;
+  } else {
+    // Fallback — may be blocked on mobile
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
+/**
+ * Pre-open a blank window synchronously (in a user-click handler)
+ * so the async fetch doesn't get popup-blocked on mobile.
+ */
+export function preOpenWindow(): Window | null {
+  const w = window.open('about:blank', '_blank');
+  if (w) {
+    // Show a loading message while we fetch
+    w.document.write('<html><head><title>Chargement…</title></head><body style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:system-ui;color:#666"><p>Chargement du document…</p></body></html>');
+  }
+  return w;
 }

@@ -9,6 +9,7 @@ import {
   isPdfLikeFile,
   openFileInline,
   triggerBrowserDownload,
+  preOpenWindow,
 } from '@/lib/secureDownload';
 
 interface SecureDownloadButtonProps {
@@ -40,6 +41,9 @@ export function SecureDownloadButton({
     const setter = inline ? setPreviewing : setDownloading;
     setter(true);
 
+    // Pre-open window synchronously to avoid popup blockers on mobile
+    const preWindow = inline ? preOpenWindow() : null;
+
     try {
       const file = await fetchWatermarkedFile({
         fileUrl,
@@ -49,7 +53,7 @@ export function SecureDownloadButton({
       });
 
       if (inline) {
-        openFileInline(file);
+        openFileInline(file, preWindow);
       } else {
         triggerBrowserDownload(file);
       }
@@ -60,6 +64,7 @@ export function SecureDownloadButton({
       });
     } catch (err: any) {
       console.error('[SecureDownload]', err);
+      if (preWindow && !preWindow.closed) preWindow.close();
       toast({
         title: isFr ? 'Erreur' : 'Error',
         description: err?.message || (isFr ? 'Impossible de récupérer le fichier sécurisé.' : 'Unable to retrieve the secure file.'),

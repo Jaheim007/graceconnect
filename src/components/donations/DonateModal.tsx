@@ -126,7 +126,7 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
           user_id: user?.id || null,
           affiliate_code: affiliateCode || null,
         },
-        onClose: () => {},
+        onClose: () => { setIsSubmitting(false); },
         onSuccess: async (reference, gateway) => {
           if (gateway === 'stripe') return;
           setStep('processing');
@@ -165,7 +165,9 @@ export function DonateModal({ campaign, organizationId, open, onClose, onSuccess
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : (isFr ? "Impossible d'ouvrir le paiement." : 'Unable to open payment.');
       console.error('[DonateModal] openPayment error:', err);
-      toast({ title: isFr ? 'Erreur de paiement' : 'Payment error', description: message, variant: 'destructive' });
+      const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+      const hint = isMobile ? (isFr ? ' Vérifiez que les pop-ups ne sont pas bloqués.' : ' Check that popups are not blocked.') : '';
+      toast({ title: isFr ? 'Erreur de paiement' : 'Payment error', description: message + hint, variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
