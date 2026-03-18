@@ -134,7 +134,7 @@ export function useOrgEnrollmentStats(orgId: string | undefined) {
       const programIds = programs.map(p => p.id);
       const { data: enrollments } = await supabase
         .from('program_enrollments')
-        .select('*')
+        .select('*, profiles:user_id(display_name, avatar_url)')
         .in('program_id', programIds);
 
       return { programs, enrollments: enrollments || [] };
