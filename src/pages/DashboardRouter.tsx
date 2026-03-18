@@ -169,7 +169,7 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="flex items-center justify-center gap-6 pt-4 text-center"
+        className="flex items-center justify-center gap-4 sm:gap-6 pt-4 text-center"
       >
         <div>
           <p className="text-2xl font-extrabold text-primary">5 min</p>
