@@ -182,7 +182,7 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
         </div>
         <div className="h-8 w-px bg-border" />
         <div>
-          <p className="text-2xl font-extrabold text-emerald-500">5-50%</p>
+          <p className="text-xl sm:text-2xl font-extrabold text-emerald-500">5-50%</p>
           <p className="text-[10px] text-muted-foreground">{t('dash.ambassador_commission')}</p>
         </div>
       </motion.div>
