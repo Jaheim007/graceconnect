@@ -9,6 +9,7 @@ import {
   isPdfLikeFile,
   openFileInline,
   triggerBrowserDownload,
+  preOpenWindow,
 } from '@/lib/secureDownload';
 
 interface SecureDownloadButtonProps {
