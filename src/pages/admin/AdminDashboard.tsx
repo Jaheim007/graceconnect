@@ -237,7 +237,7 @@ export default function AdminDashboard() {
       )}
 
       {/* ═══ ZONE 1 — REVENUE KPIs (the most important) ═══ */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
         <StatCard
           icon={DollarSign} label={t('admin.total_sales')}
           value={fmt(totalRevenue, orgCurrency)}
