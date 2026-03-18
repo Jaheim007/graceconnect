@@ -265,7 +265,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ═══ ZONE 2 — CHART + TOP PRODUCTS (side by side) ═══ */}
-      <div className="grid lg:grid-cols-5 gap-4">
+      <div className="grid lg:grid-cols-5 gap-3 sm:gap-4">
         {/* Revenue chart — takes 3/5 */}
         <PremiumCard variant="default" delay={0.1} className="lg:col-span-3">
           <h2 className="font-semibold text-sm mb-4">{t('admin.total_sales')} — {isFr ? '30 jours' : '30 days'}</h2>

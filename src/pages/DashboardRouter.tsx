@@ -143,7 +143,7 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
           <PremiumCard key={a.to} variant="default" delay={i * 0.04} noPadding className="p-0">
             <Link
               to={a.to}
-              className={`flex items-center gap-4 p-4 rounded-2xl border ${a.color} transition-all hover:shadow-elevated group`}
+              className={`flex items-center gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-2xl border ${a.color} transition-all hover:shadow-elevated group`}
             >
               <div className={`h-11 w-11 rounded-xl ${a.iconColor} flex items-center justify-center shrink-0`}>
                 <a.icon className="h-5 w-5" />

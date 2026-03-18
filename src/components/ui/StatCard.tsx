@@ -35,7 +35,7 @@ export function StatCard({ label, value, sub, icon: Icon, color = 'primary', onC
       transition={{ delay, type: 'spring', stiffness: 300, damping: 28 }}
       onClick={onClick}
       className={cn(
-        'stat-gradient rounded-2xl border p-4 text-left transition-all group',
+        'stat-gradient rounded-2xl border p-3 sm:p-4 text-left transition-all group overflow-hidden',
         c.border,
         onClick && 'hover:shadow-elevated hover:-translate-y-0.5 cursor-pointer',
         className
