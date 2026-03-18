@@ -88,7 +88,7 @@ export function UserProgressDashboard({ className }: UserProgressDashboardProps)
         <TrendingUp className="h-4 w-4 text-primary" />
         <h3 className="text-sm font-bold">{isFr ? 'Ma progression' : 'My progress'}</h3>
       </div>
-      <div className={cn('grid gap-3', 'grid-cols-2')}>
+      <div className={cn('grid gap-2 sm:gap-3', 'grid-cols-2')}>
         {sections.map((s, i) => {
           const Icon = s.icon;
           return (
