@@ -340,9 +340,13 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
         },
       });
     } catch (err: unknown) {
+      setIsSubmitting(false);
       const message = err instanceof Error ? err.message : (isFr ? 'Impossible d\'ouvrir le paiement.' : 'Unable to open payment.');
       console.error('[ProductPurchaseModal] openPayment error:', err);
-      toast({ title: isFr ? 'Erreur de paiement' : 'Payment error', description: message, variant: 'destructive' });
+      // Provide user-friendly guidance for common mobile issues
+      const isMobile = /iPhone|iPad|Android/i.test(navigator.userAgent);
+      const hint = isMobile ? (isFr ? ' Vérifiez que les pop-ups ne sont pas bloqués.' : ' Check that popups are not blocked.') : '';
+      toast({ title: isFr ? 'Erreur de paiement' : 'Payment error', description: message + hint, variant: 'destructive' });
     } finally {
       setIsSubmitting(false);
     }
