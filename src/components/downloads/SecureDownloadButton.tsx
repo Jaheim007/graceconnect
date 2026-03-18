@@ -41,6 +41,9 @@ export function SecureDownloadButton({
     const setter = inline ? setPreviewing : setDownloading;
     setter(true);
 
+    // Pre-open window synchronously to avoid popup blockers on mobile
+    const preWindow = inline ? preOpenWindow() : null;
+
     try {
       const file = await fetchWatermarkedFile({
         fileUrl,
@@ -50,7 +53,7 @@ export function SecureDownloadButton({
       });
 
       if (inline) {
-        openFileInline(file);
+        openFileInline(file, preWindow);
       } else {
         triggerBrowserDownload(file);
       }
