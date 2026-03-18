@@ -93,7 +93,7 @@ export function UserProgressDashboard({ className }: UserProgressDashboardProps)
           const Icon = s.icon;
           return (
             <motion.div key={s.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-              className="bg-card border border-border rounded-xl p-3.5 space-y-1"
+              className="bg-card border border-border rounded-xl p-3 sm:p-3.5 space-y-1"
             >
               <div className="flex items-center gap-2">
                 <div className={cn('h-7 w-7 rounded-lg flex items-center justify-center', s.color)}>
