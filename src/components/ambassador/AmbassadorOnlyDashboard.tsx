@@ -88,7 +88,7 @@ export function AmbassadorOnlyDashboard() {
       </motion.div>
 
       {/* Stats */}
-      <motion.div initial="hidden" animate="visible" variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <motion.div initial="hidden" animate="visible" variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
         {[
           { label: 'Gains totaux', value: formatCurrency(totalEarnings, 'XOF'), icon: DollarSign, color: 'text-green-500 bg-green-500/10' },
           { label: 'En attente', value: formatCurrency(pendingEarnings, 'XOF'), icon: TrendingUp, color: 'text-amber-500 bg-amber-500/10' },
