@@ -216,6 +216,11 @@
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
+  .glass-premium {
+    background: var(--glass-premium);
+    backdrop-filter: blur(16px) saturate(1.2);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  }
   .gold-gradient {
     background: var(--gold-gradient);
   }
@@ -225,17 +230,54 @@
   .card-gradient {
     background: var(--card-gradient);
   }
+  .premium-gradient {
+    background: var(--premium-gradient);
+  }
+  .stat-gradient {
+    background: var(--stat-gradient);
+  }
   .shadow-card {
     box-shadow: var(--shadow-card);
   }
   .shadow-elevated {
     box-shadow: var(--shadow-elevated);
   }
+  .shadow-premium {
+    box-shadow: var(--shadow-premium);
+  }
+  .glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+  .glow-accent {
+    box-shadow: var(--glow-accent);
+  }
+  .glow-emerald {
+    box-shadow: var(--glow-emerald);
+  }
   .text-gold {
     color: hsl(var(--gold));
   }
   .bg-gold {
     background-color: hsl(var(--gold));
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .line-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  .line-clamp-3 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
   }
   .scrollbar-hide {
     -ms-overflow-style: none;
