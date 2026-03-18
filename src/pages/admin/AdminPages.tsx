@@ -41,6 +41,7 @@ import { BulkActionsToolbar, useBulkSelect } from '@/components/admin/BulkAction
 import { ImageCropDialog } from '@/components/ui/ImageCropDialog';
 import { useI18n } from '@/i18n/I18nContext';
 import { useDisplayCurrency } from '@/hooks/useDisplayCurrency';
+import { ChariowImportDialog } from '@/components/chariow/ChariowImportDialog';
 
 const stagger = { hidden: {}, visible: { transition: { staggerChildren: 0.04 } } };
 const fadeUp = {
