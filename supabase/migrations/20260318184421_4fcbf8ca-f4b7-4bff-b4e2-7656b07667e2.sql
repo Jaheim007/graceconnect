@@ -1,0 +1,1 @@
+SELECT grant_bonus_credits('53cc405b-8169-4c9f-ab14-960faaec2163'::uuid, 500, 'admin_gift_boss', 365);
