@@ -95,12 +95,12 @@ export function AmbassadorOnlyDashboard() {
           { label: 'Clics totaux', value: totalClicks.toString(), icon: MousePointerClick, color: 'text-blue-500 bg-blue-500/10' },
           { label: 'Conversions', value: totalConversions.toString(), icon: Eye, color: 'text-purple-500 bg-purple-500/10' },
         ].map((stat) => (
-          <div key={stat.label} className="bg-card border border-border rounded-xl p-4 text-center">
-            <div className={`h-8 w-8 rounded-lg ${stat.color} flex items-center justify-center mx-auto mb-2`}>
-              <stat.icon className="h-4 w-4" />
+          <div key={stat.label} className="bg-card border border-border rounded-xl p-3 sm:p-4 text-center">
+            <div className={`h-7 w-7 sm:h-8 sm:w-8 rounded-lg ${stat.color} flex items-center justify-center mx-auto mb-1.5 sm:mb-2`}>
+              <stat.icon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
             </div>
-            <p className="text-lg font-bold">{stat.value}</p>
-            <p className="text-[10px] text-muted-foreground">{stat.label}</p>
+            <p className="text-base sm:text-lg font-bold truncate">{stat.value}</p>
+            <p className="text-[10px] text-muted-foreground truncate">{stat.label}</p>
           </div>
         ))}
       </motion.div>

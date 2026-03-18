@@ -101,7 +101,7 @@ export function UserProgressDashboard({ className }: UserProgressDashboardProps)
                 </div>
                 <span className="text-[10px] text-muted-foreground font-medium">{s.label}</span>
               </div>
-              <p className="text-lg font-extrabold">{s.value}</p>
+              <p className="text-base sm:text-lg font-extrabold truncate">{s.value}</p>
               <p className="text-[10px] text-muted-foreground">{s.sub}</p>
             </motion.div>
           );
