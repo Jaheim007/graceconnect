@@ -371,6 +371,13 @@ export function AdminProducts() {
                 <p className="text-[10px] text-muted-foreground">{isFr ? 'PDF, vidéo, formation…' : 'PDF, video, course…'}</p>
               </div>
             </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setChariowOpen(true)} className="gap-2 py-2.5">
+              <PackageOpen className="h-4 w-4 text-amber-500" />
+              <div>
+                <p className="text-xs font-semibold">{isFr ? 'Importer depuis Chariow' : 'Import from Chariow'}</p>
+                <p className="text-[10px] text-muted-foreground">{isFr ? 'Transférez vos produits existants' : 'Transfer your existing products'}</p>
+              </div>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       }
