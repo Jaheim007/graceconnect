@@ -143,7 +143,7 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
           <PremiumCard key={a.to} variant="default" delay={i * 0.04} noPadding className="p-0">
             <Link
               to={a.to}
-              className={`flex items-center gap-4 p-4 rounded-2xl border ${a.color} transition-all hover:shadow-elevated group`}
+              className={`flex items-center gap-3 sm:gap-4 p-3.5 sm:p-4 rounded-2xl border ${a.color} transition-all hover:shadow-elevated group`}
             >
               <div className={`h-11 w-11 rounded-xl ${a.iconColor} flex items-center justify-center shrink-0`}>
                 <a.icon className="h-5 w-5" />
@@ -169,20 +169,20 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="flex items-center justify-center gap-6 pt-4 text-center"
+        className="flex items-center justify-center gap-4 sm:gap-6 pt-4 text-center"
       >
         <div>
-          <p className="text-2xl font-extrabold text-primary">5 min</p>
+          <p className="text-xl sm:text-2xl font-extrabold text-primary">5 min</p>
           <p className="text-[10px] text-muted-foreground">{t('dash.time_to_write')}</p>
         </div>
         <div className="h-8 w-px bg-border" />
         <div>
-          <p className="text-2xl font-extrabold text-accent">0 FCFA</p>
+          <p className="text-xl sm:text-2xl font-extrabold text-accent">0 FCFA</p>
           <p className="text-[10px] text-muted-foreground">{t('dash.to_start')}</p>
         </div>
         <div className="h-8 w-px bg-border" />
         <div>
-          <p className="text-2xl font-extrabold text-emerald-500">5-50%</p>
+          <p className="text-xl sm:text-2xl font-extrabold text-emerald-500">5-50%</p>
           <p className="text-[10px] text-muted-foreground">{t('dash.ambassador_commission')}</p>
         </div>
       </motion.div>

@@ -127,7 +127,7 @@ export default function AmbassadorDashboard() {
         </motion.div>
 
         {/* ═══ EARNINGS KPIs ═══ */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-2 sm:gap-3">
           <StatCard
             icon={Wallet}
             label={isFr ? 'Total gagné' : 'Total earned'}

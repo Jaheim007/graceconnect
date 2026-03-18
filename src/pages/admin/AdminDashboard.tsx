@@ -195,20 +195,20 @@ export default function AdminDashboard() {
             {t('admin.overview_of')} <span className="font-medium text-foreground">{currentOrg?.name}</span>
           </p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <Button size="sm" variant="outline" onClick={handleExportCSV} className="gap-1.5 text-xs h-8 shrink-0">
-            <Download className="h-3.5 w-3.5" /> CSV
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+          <Button size="sm" variant="outline" onClick={handleExportCSV} className="gap-1 text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3 shrink-0">
+            <Download className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> CSV
           </Button>
-          <Button size="sm" variant="outline" onClick={handleExportPDF} className="gap-1.5 text-xs h-8 shrink-0">
-            <Download className="h-3.5 w-3.5" /> PDF
+          <Button size="sm" variant="outline" onClick={handleExportPDF} className="gap-1 text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3 shrink-0">
+            <Download className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> PDF
           </Button>
           <VideoImportButton />
-          <Button size="sm" variant="outline" onClick={() => setShowQuickStart(true)} className="gap-1.5 text-xs h-8 shrink-0">
-            <Rocket className="h-3.5 w-3.5" /> {t('admin.quickstart')}
+          <Button size="sm" variant="outline" onClick={() => setShowQuickStart(true)} className="gap-1 text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3 shrink-0">
+            <Rocket className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> <span className="hidden xs:inline">{t('admin.quickstart')}</span><span className="xs:hidden">Start</span>
           </Button>
-          <Button size="sm" asChild variant="outline" className="gap-1.5 text-xs h-8 shrink-0">
+          <Button size="sm" asChild variant="outline" className="gap-1 text-[10px] sm:text-xs h-7 sm:h-8 px-2 sm:px-3 shrink-0">
             <a href={`https://siteviral.com/org/${currentOrg?.slug}`} target="_blank" rel="noreferrer">
-              <ExternalLink className="h-3.5 w-3.5" /> {t('admin.public_page')}
+              <ExternalLink className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> <span className="hidden sm:inline">{t('admin.public_page')}</span><span className="sm:hidden">Page</span>
             </a>
           </Button>
         </div>
@@ -237,7 +237,7 @@ export default function AdminDashboard() {
       )}
 
       {/* ═══ ZONE 1 — REVENUE KPIs (the most important) ═══ */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
         <StatCard
           icon={DollarSign} label={t('admin.total_sales')}
           value={fmt(totalRevenue, orgCurrency)}
@@ -265,7 +265,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* ═══ ZONE 2 — CHART + TOP PRODUCTS (side by side) ═══ */}
-      <div className="grid lg:grid-cols-5 gap-4">
+      <div className="grid lg:grid-cols-5 gap-3 sm:gap-4">
         {/* Revenue chart — takes 3/5 */}
         <PremiumCard variant="default" delay={0.1} className="lg:col-span-3">
           <h2 className="font-semibold text-sm mb-4">{t('admin.total_sales')} — {isFr ? '30 jours' : '30 days'}</h2>

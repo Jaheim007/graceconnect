@@ -35,18 +35,18 @@ export function StatCard({ label, value, sub, icon: Icon, color = 'primary', onC
       transition={{ delay, type: 'spring', stiffness: 300, damping: 28 }}
       onClick={onClick}
       className={cn(
-        'stat-gradient rounded-2xl border p-4 text-left transition-all group',
+        'stat-gradient rounded-2xl border p-3 sm:p-4 text-left transition-all group overflow-hidden',
         c.border,
         onClick && 'hover:shadow-elevated hover:-translate-y-0.5 cursor-pointer',
         className
       )}
     >
-      <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center mb-3', c.bg)}>
-        <Icon className={cn('h-4.5 w-4.5', c.icon)} />
+      <div className={cn('h-8 w-8 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center mb-2 sm:mb-3', c.bg)}>
+        <Icon className={cn('h-4 w-4', c.icon)} />
       </div>
-      <p className="text-[11px] text-muted-foreground font-medium uppercase tracking-wide">{label}</p>
-      <p className="text-2xl font-bold mt-0.5 tracking-tight">{value}</p>
-      {sub && <p className="text-[10px] text-muted-foreground mt-1">{sub}</p>}
+      <p className="text-[10px] sm:text-[11px] text-muted-foreground font-medium uppercase tracking-wide truncate">{label}</p>
+      <p className="text-lg sm:text-2xl font-bold mt-0.5 tracking-tight truncate">{value}</p>
+      {sub && <p className="text-[10px] text-muted-foreground mt-1 truncate">{sub}</p>}
     </Component>
   );
 }

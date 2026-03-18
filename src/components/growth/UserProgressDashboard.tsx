@@ -88,12 +88,12 @@ export function UserProgressDashboard({ className }: UserProgressDashboardProps)
         <TrendingUp className="h-4 w-4 text-primary" />
         <h3 className="text-sm font-bold">{isFr ? 'Ma progression' : 'My progress'}</h3>
       </div>
-      <div className={cn('grid gap-3', 'grid-cols-2')}>
+      <div className={cn('grid gap-2 sm:gap-3', 'grid-cols-2')}>
         {sections.map((s, i) => {
           const Icon = s.icon;
           return (
             <motion.div key={s.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-              className="bg-card border border-border rounded-xl p-3.5 space-y-1"
+              className="bg-card border border-border rounded-xl p-3 sm:p-3.5 space-y-1"
             >
               <div className="flex items-center gap-2">
                 <div className={cn('h-7 w-7 rounded-lg flex items-center justify-center', s.color)}>
@@ -101,7 +101,7 @@ export function UserProgressDashboard({ className }: UserProgressDashboardProps)
                 </div>
                 <span className="text-[10px] text-muted-foreground font-medium">{s.label}</span>
               </div>
-              <p className="text-lg font-extrabold">{s.value}</p>
+              <p className="text-base sm:text-lg font-extrabold truncate">{s.value}</p>
               <p className="text-[10px] text-muted-foreground">{s.sub}</p>
             </motion.div>
           );
