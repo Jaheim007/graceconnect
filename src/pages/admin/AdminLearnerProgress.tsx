@@ -112,24 +112,33 @@ export default function AdminLearnerProgress() {
                         <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                           {isFr ? 'Apprenants' : 'Learners'}
                         </span>
-                        {prog.enrollments.slice(0, 10).map((enrollment: any) => (
-                          <div key={enrollment.id} className="flex items-center gap-3">
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium truncate">
-                                {enrollment.user_id?.slice(0, 8)}...
-                              </p>
+                        {prog.enrollments.slice(0, 10).map((enrollment: any) => {
+                          const profile = enrollment.profiles;
+                          const displayName = profile?.display_name || enrollment.user_id?.slice(0, 8) + '...';
+                          return (
+                            <div key={enrollment.id} className="flex items-center gap-3">
+                              {profile?.avatar_url ? (
+                                <img src={profile.avatar_url} alt="" className="h-6 w-6 rounded-full object-cover shrink-0" />
+                              ) : (
+                                <div className="h-6 w-6 rounded-full bg-muted flex items-center justify-center shrink-0">
+                                  <Users className="h-3 w-3 text-muted-foreground" />
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium truncate">{displayName}</p>
+                              </div>
+                              <div className="w-24 shrink-0">
+                                <Progress value={enrollment.progress_percent || 0} className="h-1.5" />
+                              </div>
+                              <span className="text-[10px] text-muted-foreground w-10 text-right">
+                                {enrollment.progress_percent || 0}%
+                              </span>
+                              {enrollment.status === 'completed' && (
+                                <Trophy className="h-3 w-3 text-yellow-500 shrink-0" />
+                              )}
                             </div>
-                            <div className="w-24 shrink-0">
-                              <Progress value={enrollment.progress_percent || 0} className="h-1.5" />
-                            </div>
-                            <span className="text-[10px] text-muted-foreground w-10 text-right">
-                              {enrollment.progress_percent || 0}%
-                            </span>
-                            {enrollment.status === 'completed' && (
-                              <Trophy className="h-3 w-3 text-yellow-500 shrink-0" />
-                            )}
-                          </div>
-                        ))}
+                          );
+                        })}
                         {prog.enrollments.length > 10 && (
                           <p className="text-[10px] text-muted-foreground">
                             +{prog.enrollments.length - 10} {isFr ? 'de plus' : 'more'}
