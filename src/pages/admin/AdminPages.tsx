@@ -470,6 +470,8 @@ export function AdminProducts() {
         </div>
       )}
     </AdminPageShell>
+    <ChariowImportDialog open={chariowOpen} onOpenChange={setChariowOpen} />
+    </>
   );
 }
 
