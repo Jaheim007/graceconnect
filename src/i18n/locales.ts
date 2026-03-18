@@ -2974,6 +2974,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'sidebar.ambassadors': 'Ambassadeurs',
     'sidebar.sales': 'Ventes',
     'sidebar.programs': 'Programmes',
+    'sidebar.learnerProgress': 'Suivi des apprenants',
     // ─── Bottom Nav ───
     'bottom.write': 'Écrire',
     'bottom.earn': 'Gagner',
