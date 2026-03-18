@@ -302,7 +302,9 @@ export function ProductPurchaseModal({ product, organizationId, open, onClose, o
           affiliate_code: affiliateCode || null,
           promo_code: promo.applied ? promo.code.trim().toUpperCase() : null,
         },
-        onClose: () => {},
+        onClose: () => {
+          setIsSubmitting(false);
+        },
         onSuccess: async (reference, gateway) => {
           if (gateway === 'stripe') return;
           setStep('processing');
