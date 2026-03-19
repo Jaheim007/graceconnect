@@ -60,6 +60,8 @@ export function RichTextEditor({
   const [uploading, setUploading] = useState(false);
   const isSyncing = useRef(false);
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
 
   const editor = useEditor({
     extensions: [
