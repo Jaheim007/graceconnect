@@ -72,19 +72,29 @@ export function ChariowImportDialog({ open, onOpenChange }: { open: boolean; onO
     setStep('loading');
     setError(null);
     try {
-      const { data, error: fnErr } = await supabase.functions.invoke('chariow-import', {
-        body: { action: 'list', per_page: 100, api_key: apiKey.trim() },
-      });
-      if (fnErr) throw new Error(fnErr.message);
-      if (data?.error) throw new Error(data.error);
-      const items = data?.data?.data || data?.data || [];
-      if (items.length === 0) {
+      let allItems: ChariowProduct[] = [];
+      let cursor: string | undefined;
+      let hasMore = true;
+
+      while (hasMore) {
+        const { data, error: fnErr } = await supabase.functions.invoke('chariow-import', {
+          body: { action: 'list', per_page: 100, cursor, api_key: apiKey.trim() },
+        });
+        if (fnErr) throw new Error(fnErr.message);
+        if (data?.error) throw new Error(data.error);
+        const items = data?.data?.data || data?.data || [];
+        allItems = [...allItems, ...items];
+        cursor = data?.data?.next_cursor || data?.next_cursor;
+        hasMore = !!cursor && items.length > 0;
+      }
+
+      if (allItems.length === 0) {
         setError(isFr ? 'Aucun produit trouvé sur votre boutique Chariow.' : 'No products found in your Chariow store.');
         setStep('intro');
         return;
       }
-      setProducts(items);
-      setSelected(new Set(items.map((p: ChariowProduct) => p.id)));
+      setProducts(allItems);
+      setSelected(new Set());
       setStep('select');
     } catch (err: any) {
       console.error('Chariow fetch error:', err);
