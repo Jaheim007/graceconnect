@@ -374,14 +374,14 @@ MANDATORY REQUIREMENTS:
           }
         };
 
-        const aiData = await requestCourseCompletion(userPrompt, 9_000, 70_000);
+        const aiData = await requestCourseCompletion(userPrompt, 16_000, 90_000);
         const content = aiData.choices?.[0]?.message?.content || '';
 
         let parsed: any = tryParseCourseJson(content);
 
         if (!parsed) {
           console.warn('[ai-generate-course] Primary output malformed, retrying with compact constraints');
-          const retryPrompt = `${userPrompt}\n\nRETRY MODE (MANDATORY):\n- Return STRICT valid JSON only.\n- Keep response compact to avoid truncation.\n- EXACTLY 2 lessons per module.\n- EXACTLY 2 sections per lesson.\n- EXACTLY 1 quiz comment per lesson.\n- EXACTLY 6 final assessment questions.`;
+          const retryPrompt = `${userPrompt}\n\nRETRY MODE (MANDATORY):\n- Return STRICT valid JSON only.\n- Keep response compact to avoid truncation.\n- EXACTLY 2 lessons per module.\n- EXACTLY 3 sections per lesson (Introduction, Core Content, Key Takeaways).\n- EXACTLY 1 quiz comment per lesson.\n- EXACTLY 6 final assessment questions.\n- Still include domain-appropriate references where relevant.`;
           const retryData = await requestCourseCompletion(retryPrompt, 5_500, 40_000);
           const retryContent = retryData.choices?.[0]?.message?.content || '';
           parsed = tryParseCourseJson(retryContent);
