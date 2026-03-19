@@ -54,21 +54,10 @@ export function Sidebar() {
 
   const kycIncomplete = !kycStatus || kycStatus === 'none' || kycStatus === 'pending';
 
-  // Build "My Pages" items
-  const myPageItems: NavItem[] = (() => {
-    const managedOrgs = userOrgs.filter((o) => {
-      const role = getRoleFor(o.id);
-      return role === 'owner' || role === 'admin';
-    });
-    if (managedOrgs.length === 1) {
-      return [{ to: `/org/${managedOrgs[0].slug}/store`, icon: Eye, label: t('sidebar.my_page'), desc: t('sidebar.my_page_desc') }];
-    }
-    return managedOrgs.map((o) => ({
-      to: `/org/${o.slug}/store`,
-      icon: Eye,
-      label: o.name,
-      desc: t('sidebar.my_page_desc'),
-    }));
+  // Single "My Page" link for the current org
+  const myPageItem: NavItem | null = (() => {
+    if (!currentOrg || !canManageCurrentOrg) return null;
+    return { to: `/org/${currentOrg.slug}/store`, icon: Eye, label: t('sidebar.my_page'), desc: t('sidebar.my_page_desc') };
   })();
 
   const isSA = location.pathname.startsWith('/superadmin');
