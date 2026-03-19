@@ -1565,6 +1565,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'dash.import_content_desc': 'Have an ebook or a PDF? Sell it here.',
     'dash.discover_resources': 'Discover resources',
     'dash.discover_resources_desc': 'Books, courses, guides and more.',
+    'dash.create_platform': 'Create your platform',
+    'dash.create_platform_desc': 'Launch your store and start selling in minutes.',
     'dash.time_to_write': 'to write your book',
     'dash.to_start': 'to start',
     'dash.ambassador_commission': 'ambassador commission',
