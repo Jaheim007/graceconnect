@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
@@ -13,6 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Download, CheckCircle2, AlertTriangle, Image, FileText,
   DollarSign, Tag, Loader2, ArrowRight, Info, Upload, PackageOpen,
+  Key, ExternalLink, Settings, Code2,
 } from 'lucide-react';
 
 interface ChariowProduct {
@@ -37,6 +39,7 @@ type Step = 'intro' | 'loading' | 'select' | 'importing' | 'done';
 
 export function ChariowImportDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
   const [step, setStep] = useState<Step>('intro');
+  const [apiKey, setApiKey] = useState('');
   const [products, setProducts] = useState<ChariowProduct[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [importedCount, setImportedCount] = useState(0);
@@ -49,6 +52,7 @@ export function ChariowImportDialog({ open, onOpenChange }: { open: boolean; onO
 
   const resetState = () => {
     setStep('intro');
+    setApiKey('');
     setProducts([]);
     setSelected(new Set());
     setImportedCount(0);
@@ -61,11 +65,15 @@ export function ChariowImportDialog({ open, onOpenChange }: { open: boolean; onO
   };
 
   const fetchProducts = async () => {
+    if (!apiKey.trim()) {
+      setError(isFr ? 'Veuillez entrer votre clé API Chariow.' : 'Please enter your Chariow API key.');
+      return;
+    }
     setStep('loading');
     setError(null);
     try {
       const { data, error: fnErr } = await supabase.functions.invoke('chariow-import', {
-        body: { action: 'list', per_page: 100 },
+        body: { action: 'list', per_page: 100, api_key: apiKey.trim() },
       });
       if (fnErr) throw new Error(fnErr.message);
       if (data?.error) throw new Error(data.error);
@@ -103,13 +111,11 @@ export function ChariowImportDialog({ open, onOpenChange }: { open: boolean; onO
       try {
         const priceValue = product.pricing?.current_price?.value || product.pricing?.price?.value || 0;
         const currency = product.pricing?.current_price?.currency || product.pricing?.price?.currency || 'XOF';
-        // Zero-decimal currencies (XOF, XAF, JPY…) store values as-is; others need ×100
         const zeroDecimalCurrencies = ['XOF', 'XAF', 'GNF', 'KMF', 'BIF', 'CLP', 'DJF', 'JPY', 'KRW', 'MGA', 'PYG', 'RWF', 'UGX', 'VND', 'VUV'];
         const priceMinor = zeroDecimalCurrencies.includes(currency.toUpperCase())
           ? Math.round(priceValue)
           : Math.round(priceValue * 100);
 
-        // Use highest quality image: prefer cover, upgrade CDN quality params
         const rawImageUrl = product.pictures?.cover || product.pictures?.thumbnail || null;
         const coverUrl = rawImageUrl
           ? rawImageUrl.replace(/quality=[^,&]+/, 'quality=high').replace(/slow-connection=[^,&/]+/, '')
@@ -122,7 +128,7 @@ export function ChariowImportDialog({ open, onOpenChange }: { open: boolean; onO
           price: product.is_free ? 0 : priceMinor,
           is_free: product.is_free,
           cover_image_url: coverUrl,
-          is_published: false, // Draft so user can add files
+          is_published: false,
           product_type: mapProductType(product.type),
           currency: product.pricing?.current_price?.currency || product.pricing?.price?.currency || 'XOF',
         });
@@ -169,12 +175,70 @@ export function ChariowImportDialog({ open, onOpenChange }: { open: boolean; onO
                 </DialogTitle>
                 <DialogDescription>
                   {isFr
-                    ? 'Transférez vos produits Chariow vers votre boutique Siteviral.'
-                    : 'Transfer your Chariow products to your Siteviral store.'}
+                    ? 'Connectez votre boutique Chariow avec votre clé API pour transférer vos produits.'
+                    : 'Connect your Chariow store with your API key to transfer your products.'}
                 </DialogDescription>
               </DialogHeader>
 
               <div className="mt-4 space-y-3">
+                {/* How to find API key */}
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+                  <h4 className="text-sm font-semibold flex items-center gap-2 text-primary mb-2">
+                    <Key className="h-4 w-4" />
+                    {isFr ? 'Où trouver votre clé API ?' : 'Where to find your API key?'}
+                  </h4>
+                  <ol className="text-xs text-muted-foreground space-y-2">
+                    <li className="flex items-start gap-2">
+                      <span className="font-bold text-primary shrink-0">1.</span>
+                      <span>
+                        {isFr
+                          ? <>Connectez-vous à <a href="https://app.chariow.com" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-0.5">Chariow <ExternalLink className="h-3 w-3" /></a> et allez dans <strong>Settings</strong> (Paramètres)</>
+                          : <>Log in to <a href="https://app.chariow.com" target="_blank" rel="noopener noreferrer" className="text-primary underline inline-flex items-center gap-0.5">Chariow <ExternalLink className="h-3 w-3" /></a> and go to <strong>Settings</strong></>}
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="font-bold text-primary shrink-0">2.</span>
+                      <span className="flex items-center gap-1">
+                        <Settings className="h-3 w-3 text-muted-foreground shrink-0" />
+                        {isFr
+                          ? <>Descendez jusqu'à la section <strong>Developer</strong></>
+                          : <>Scroll down to the <strong>Developer</strong> section</>}
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="font-bold text-primary shrink-0">3.</span>
+                      <span className="flex items-center gap-1">
+                        <Code2 className="h-3 w-3 text-muted-foreground shrink-0" />
+                        {isFr
+                          ? <>Cliquez sur <strong>API Keys</strong>, puis <strong>Create API Key</strong></>
+                          : <>Click <strong>API Keys</strong>, then <strong>Create API Key</strong></>}
+                      </span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="font-bold text-primary shrink-0">4.</span>
+                      <span>
+                        {isFr
+                          ? <>Donnez un nom (ex: <code className="bg-muted px-1 rounded text-[10px]">SiteViral</code>) et copiez la clé</>
+                          : <>Give it a name (e.g. <code className="bg-muted px-1 rounded text-[10px]">SiteViral</code>) and copy the key</>}
+                      </span>
+                    </li>
+                  </ol>
+                </div>
+
+                {/* API Key input */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    {isFr ? 'Votre clé API Chariow' : 'Your Chariow API key'}
+                  </label>
+                  <Input
+                    type="password"
+                    placeholder={isFr ? 'Collez votre clé API ici…' : 'Paste your API key here…'}
+                    value={apiKey}
+                    onChange={e => setApiKey(e.target.value)}
+                    className="font-mono text-sm"
+                  />
+                </div>
+
                 {/* What gets imported */}
                 <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
                   <h4 className="text-sm font-semibold flex items-center gap-2 text-emerald-600 dark:text-emerald-400 mb-2">
@@ -219,8 +283,8 @@ export function ChariowImportDialog({ open, onOpenChange }: { open: boolean; onO
                   <Info className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
                   <p className="text-[11px] text-muted-foreground">
                     {isFr
-                      ? 'Les produits importés seront créés en mode brouillon. Vous pourrez ajouter vos fichiers et publier ensuite.'
-                      : 'Imported products will be created as drafts. You can add your files and publish afterwards.'}
+                      ? 'Votre clé API n\'est pas stockée sur nos serveurs. Elle est utilisée uniquement pour cette session d\'importation.'
+                      : 'Your API key is not stored on our servers. It is only used for this import session.'}
                   </p>
                 </div>
 
@@ -230,7 +294,7 @@ export function ChariowImportDialog({ open, onOpenChange }: { open: boolean; onO
                   </div>
                 )}
 
-                <Button onClick={fetchProducts} className="w-full gap-2">
+                <Button onClick={fetchProducts} disabled={!apiKey.trim()} className="w-full gap-2">
                   <Download className="h-4 w-4" />
                   {isFr ? 'Récupérer mes produits Chariow' : 'Fetch my Chariow products'}
                   <ArrowRight className="h-4 w-4" />

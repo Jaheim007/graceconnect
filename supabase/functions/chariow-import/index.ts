@@ -11,15 +11,15 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const apiKey = Deno.env.get('CHARIOW_API_KEY');
-    if (!apiKey) {
+    const { action, cursor, per_page, product_id, api_key } = await req.json();
+
+    // API key is now provided by the user, not stored server-side
+    if (!api_key) {
       return new Response(
-        JSON.stringify({ error: 'CHARIOW_API_KEY not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'API key is required. Please provide your Chariow API key.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    const { action, cursor, per_page, product_id } = await req.json();
 
     let url: string;
     if (action === 'list') {
@@ -39,7 +39,7 @@ Deno.serve(async (req) => {
 
     const res = await fetch(url, {
       headers: {
-        'Authorization': `Bearer ${apiKey}`,
+        'Authorization': `Bearer ${api_key}`,
         'Content-Type': 'application/json',
       },
     });
