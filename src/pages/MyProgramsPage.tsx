@@ -77,14 +77,14 @@ export default function MyProgramsPage() {
 
   return (
     <div className="container max-w-4xl py-6 space-y-6">
-      <SEOHead title={isFr ? "Mes Programmes — Siteviral" : "My Programs — Siteviral"} description={isFr ? "Retrouvez vos cours et programmes en ligne." : "Find your online courses and programs."} />
+      <SEOHead title={isFr ? "Mes Cours — Siteviral" : "My Courses — Siteviral"} description={isFr ? "Retrouvez vos cours en ligne." : "Find your online courses."} />
       
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
           <GraduationCap className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <h1 className="text-xl font-bold">{isFr ? 'Mes Programmes' : 'My Programs'}</h1>
+          <h1 className="text-xl font-bold">{isFr ? 'Mes Cours' : 'My Courses'}</h1>
           <p className="text-xs text-muted-foreground">{isFr ? 'Vos cours et formations en ligne' : 'Your online courses and training'}</p>
         </div>
       </div>
