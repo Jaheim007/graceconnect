@@ -20,6 +20,42 @@ const FALLBACK_RATES: Record<string, number> = {
   ZAR: 18.5,
   MAD: 10,
   TND: 3.1,
+  GNF: 8600,
+  CDF: 2850,
+  RWF: 1350,
+  BIF: 2850,
+  MGA: 4600,
+  MZN: 64,
+  AOA: 830,
+  UGX: 3800,
+  TZS: 2550,
+  ETB: 57,
+  EGP: 49,
+  DZD: 135,
+  INR: 83,
+  CAD: 1.36,
+  AUD: 1.54,
+  CHF: 0.88,
+  JPY: 150,
+  CNY: 7.25,
+  BRL: 5,
+  MXN: 17.2,
+  AED: 3.67,
+  SAR: 3.75,
+  KMF: 460,
+  DJF: 178,
+  SCR: 14.5,
+  MUR: 46,
+  CVE: 103,
+  GMD: 67,
+  SLL: 22000,
+  LRD: 192,
+  MWK: 1720,
+  ZMW: 26,
+  BWP: 13.7,
+  SZL: 18.5,
+  LSL: 18.5,
+  NAD: 18.5,
 };
 
 interface CachedRates {
@@ -63,7 +99,7 @@ async function fetchRates(): Promise<Record<string, number>> {
   fetchPromise = (async () => {
     try {
       const res = await fetch(
-        'https://api.exchangerate.host/latest?base=USD&symbols=EUR,GBP,XOF,XAF,NGN,GHS,KES,ZAR,MAD,TND',
+        'https://api.exchangerate.host/latest?base=USD',
         { signal: AbortSignal.timeout(5000) }
       );
       if (!res.ok) throw new Error('API error');

@@ -38,6 +38,7 @@ export default function AdminCRM() {
   const [showAddContact, setShowAddContact] = useState(false);
   const [newEmail, setNewEmail] = useState('');
   const [newName, setNewName] = useState('');
+  const [newPhone, setNewPhone] = useState('');
   const [newTags, setNewTags] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterTag, setFilterTag] = useState<string>('all');
@@ -76,6 +77,7 @@ export default function AdminCRM() {
         organization_id: orgId,
         email: newEmail.trim().toLowerCase(),
         name: newName.trim() || null,
+        phone: newPhone.trim() || null,
         tags,
         source: 'manual',
       });
@@ -83,7 +85,7 @@ export default function AdminCRM() {
     },
     onSuccess: () => {
       toast({ title: `✅ ${t('crm.contact_added')}` });
-      setNewEmail(''); setNewName(''); setNewTags('');
+      setNewEmail(''); setNewName(''); setNewPhone(''); setNewTags('');
       setShowAddContact(false);
       qc.invalidateQueries({ queryKey: ['crm-contacts', orgId] });
     },
@@ -246,7 +248,7 @@ export default function AdminCRM() {
             <motion.div variants={fadeUp} initial="hidden" animate="visible"
               className="bg-card border border-border rounded-2xl p-4 space-y-3">
               <h3 className="font-semibold text-sm">{t('crm.new_contact')}</h3>
-              <div className="grid sm:grid-cols-3 gap-3">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs">{t('crm.email')} *</Label>
                   <Input value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="email@exemple.com" className="h-8 text-xs" />
@@ -254,6 +256,10 @@ export default function AdminCRM() {
                 <div className="space-y-1">
                   <Label className="text-xs">{t('crm.name')}</Label>
                   <Input value={newName} onChange={e => setNewName(e.target.value)} placeholder="Jean Dupont" className="h-8 text-xs" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">{locale === 'fr' ? 'Téléphone' : 'Phone'}</Label>
+                  <Input value={newPhone} onChange={e => setNewPhone(e.target.value)} placeholder="+225 07 00 00 00" className="h-8 text-xs" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">{t('crm.tags_label')}</Label>
@@ -286,7 +292,10 @@ export default function AdminCRM() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{c.name || c.email}</p>
-                      <p className="text-xs text-muted-foreground truncate">{c.email}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs text-muted-foreground truncate">{c.email}</p>
+                        {c.phone && <p className="text-xs text-muted-foreground">· {c.phone}</p>}
+                      </div>
                     </div>
                     <div className="flex gap-1 flex-wrap items-center">
                       {scoreBadge && (
