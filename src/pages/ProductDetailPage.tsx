@@ -660,11 +660,13 @@ export default function ProductDetailPage() {
             )}
 
             {/* Reviews section */}
-            <ProductReviews
-              productId={product.id}
-              organizationId={product.organization_id}
-              isPurchased={isPurchased}
-            />
+            <div id="reviews">
+              <ProductReviews
+                productId={product.id}
+                organizationId={product.organization_id}
+                isPurchased={isPurchased}
+              />
+            </div>
 
             {/* Viral Snippets — shareable excerpts */}
             <ViralSnippets
