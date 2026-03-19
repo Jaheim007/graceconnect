@@ -398,58 +398,62 @@ export function ProgramForm() {
                     </Button>
                   </div>
 
-                  {/* Lessons */}
-                  {(mod.lessons || []).map((lesson: any, li: number) => (
-                    <button
-                      key={lesson.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedLessonId(lesson.id);
-                        setSelectedModuleId(mod.id);
-                      }}
-                      className={cn(
-                        'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors group/lesson',
-                        selectedLessonId === lesson.id
-                          ? 'bg-primary/10 text-primary'
-                          : 'hover:bg-muted/50 text-foreground'
-                      )}
-                    >
-                      <span className="text-[10px] text-muted-foreground font-mono w-4 shrink-0">{li + 1}</span>
-                      <span className="text-xs flex-1 truncate">{lesson.title}</span>
-                      {lesson.duration_minutes && (
-                        <span className="text-[9px] text-muted-foreground">{lesson.duration_minutes}m</span>
-                      )}
-                      <Button
-                        variant="ghost" size="icon"
-                        className="h-5 w-5 opacity-0 group-hover/lesson:opacity-100 text-destructive shrink-0"
-                        onClick={(e) => handleDeleteLesson(lesson.id, e)}
-                      >
-                        <Trash2 className="h-2.5 w-2.5" />
-                      </Button>
-                    </button>
-                  ))}
+                  {/* Lessons — collapsible */}
+                  {!collapsedModules.has(mod.id) && (
+                    <>
+                      {(mod.lessons || []).map((lesson: any, li: number) => (
+                        <button
+                          key={lesson.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedLessonId(lesson.id);
+                            setSelectedModuleId(mod.id);
+                          }}
+                          className={cn(
+                            'w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors group/lesson',
+                            selectedLessonId === lesson.id
+                              ? 'bg-primary/10 text-primary'
+                              : 'hover:bg-muted/50 text-foreground'
+                          )}
+                        >
+                          <span className="text-[10px] text-muted-foreground font-mono w-4 shrink-0">{li + 1}</span>
+                          <span className="text-xs flex-1 truncate">{lesson.title}</span>
+                          {lesson.duration_minutes && (
+                            <span className="text-[9px] text-muted-foreground">{lesson.duration_minutes}m</span>
+                          )}
+                          <Button
+                            variant="ghost" size="icon"
+                            className="h-5 w-5 opacity-0 group-hover/lesson:opacity-100 text-destructive shrink-0"
+                            onClick={(e) => handleDeleteLesson(lesson.id, e)}
+                          >
+                            <Trash2 className="h-2.5 w-2.5" />
+                          </Button>
+                        </button>
+                      ))}
 
-                  {/* Add slide/lesson button */}
-                  <div className="px-3 py-1">
-                    <div className="flex items-center gap-1">
-                      <Input
-                        value={selectedModuleId === mod.id ? newLessonTitle : ''}
-                        onChange={e => {
-                          setSelectedModuleId(mod.id);
-                          setNewLessonTitle(e.target.value);
-                        }}
-                        onFocus={() => setSelectedModuleId(mod.id)}
-                        onKeyDown={e => e.key === 'Enter' && handleAddLesson(mod.id)}
-                        placeholder={isFr ? '+ Nouvelle leçon' : '+ New lesson'}
-                        className="h-7 text-[11px] border-none bg-transparent hover:bg-muted/30 focus:bg-muted/50 px-2"
-                      />
-                      {selectedModuleId === mod.id && newLessonTitle.trim() && (
-                        <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0" onClick={() => handleAddLesson(mod.id)}>
-                          <Plus className="h-3 w-3" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
+                      {/* Add slide/lesson button */}
+                      <div className="px-3 py-1">
+                        <div className="flex items-center gap-1">
+                          <Input
+                            value={selectedModuleId === mod.id ? newLessonTitle : ''}
+                            onChange={e => {
+                              setSelectedModuleId(mod.id);
+                              setNewLessonTitle(e.target.value);
+                            }}
+                            onFocus={() => setSelectedModuleId(mod.id)}
+                            onKeyDown={e => e.key === 'Enter' && handleAddLesson(mod.id)}
+                            placeholder={isFr ? '+ Nouvelle leçon' : '+ New lesson'}
+                            className="h-7 text-[11px] border-none bg-transparent hover:bg-muted/30 focus:bg-muted/50 px-2"
+                          />
+                          {selectedModuleId === mod.id && newLessonTitle.trim() && (
+                            <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0" onClick={() => handleAddLesson(mod.id)}>
+                              <Plus className="h-3 w-3" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
 
