@@ -64,19 +64,32 @@ export default function AdminCreateHub() {
         </div>
       </div>
 
-      {/* AI Writer CTA */}
+      {/* AI Writer CTA — eye-catching animated card */}
       <Link
         to="/ecrire"
-        className="flex items-center gap-4 p-4 rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10 hover:border-primary/40 transition-all group"
+        className="relative flex items-center gap-4 p-5 rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/5 hover:border-primary/50 transition-all group overflow-hidden"
       >
-        <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center shrink-0 shadow-lg shadow-primary/20">
-          <Sparkles className="h-6 w-6 text-primary-foreground" />
+        {/* Animated shimmer overlay */}
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent"
+          animate={{ x: ['-100%', '200%'] }}
+          transition={{ duration: 3, repeat: Infinity, ease: 'linear', repeatDelay: 2 }}
+        />
+        <motion.div
+          className="relative h-14 w-14 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center shrink-0 shadow-lg shadow-primary/30"
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <Sparkles className="h-7 w-7 text-primary-foreground" />
+        </motion.div>
+        <div className="relative flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h3 className="font-bold text-base">{t('create_hub.ai_writer')}</h3>
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/20 text-primary">AI</span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">{t('create_hub.ai_writer_desc')}</p>
         </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-sm">{t('create_hub.ai_writer')}</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">{t('create_hub.ai_writer_desc')}</p>
-        </div>
-        <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:translate-x-1 transition-transform" />
+        <ArrowRight className="relative h-5 w-5 text-primary shrink-0 group-hover:translate-x-1.5 transition-transform" />
       </Link>
 
       {/* Grid of content types */}

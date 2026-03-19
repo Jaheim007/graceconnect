@@ -151,7 +151,7 @@ export function Sidebar() {
               <>
                 {renderSectionLabel(t('sidebar.creator_space'), 'text-primary')}
                 <OrgSwitcher variant="sidebar" collapsed={collapsed} />
-                <div className="space-y-0.5">
+                <div className="mt-3 space-y-0.5">
                   {renderNavItem({ to: '/dashboard', icon: Home, label: t('sidebar.home'), desc: t('sidebar.home_desc') })}
                   {myPageItem && renderNavItem(myPageItem)}
                   {renderNavItem({ to: '/admin/create', icon: Plus, label: t('sidebar.create'), desc: t('sidebar.create_desc') })}

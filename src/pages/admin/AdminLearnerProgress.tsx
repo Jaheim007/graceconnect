@@ -43,7 +43,7 @@ export default function AdminLearnerProgress() {
     <AdminPageShell
       title={isFr ? "Suivi des apprenants" : "Learner Progress"}
       subtitle={isFr ? "Suivez la progression de vos apprenants sur vos cours." : "Track your learners' progress across your courses."}
-      backRoute="/admin"
+      backRoute="/admin/create"
     >
       {isLoading ? <SkeletonRow count={3} /> : (
         <div className="space-y-6">

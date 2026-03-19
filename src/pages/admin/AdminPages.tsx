@@ -79,7 +79,7 @@ export function AdminAnnouncements() {
     toast({ title: a.is_published ? (isFr ? 'Annonce dépubliée' : 'Announcement unpublished') : (isFr ? 'Annonce publiée' : 'Announcement published') });
   };
   return (
-    <AdminPageShell title={isFr ? 'Annonces' : 'Announcements'} newRoute="/admin/announcements/new" newLabel={isFr ? 'Nouvelle annonce' : 'New announcement'} backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Annonces' : 'Announcements'} newRoute="/admin/announcements/new" newLabel={isFr ? 'Nouvelle annonce' : 'New announcement'} backRoute="/admin/create">
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
         <EmptyState variant="generic" title={isFr ? 'Aucune annonce' : 'No announcements'} action={{ label: isFr ? 'Créer une annonce' : 'Create announcement', onClick: () => navigate('/admin/announcements/new') }} />
       ) : (
@@ -143,7 +143,7 @@ export function AdminEvents() {
     toast({ title: ev.is_published ? (isFr ? 'Événement dépublié' : 'Event unpublished') : (isFr ? 'Événement publié' : 'Event published') });
   };
   return (
-    <AdminPageShell title={isFr ? 'Événements' : 'Events'} newRoute="/admin/events/new" newLabel={isFr ? 'Nouvel événement' : 'New event'} backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Événements' : 'Events'} newRoute="/admin/events/new" newLabel={isFr ? 'Nouvel événement' : 'New event'} backRoute="/admin/create">
       {isLoading ? <SkeletonRow /> : items.length === 0 ? (
         <EmptyState variant="generic" title={isFr ? 'Aucun événement' : 'No events'} action={{ label: isFr ? 'Créer un événement' : 'Create event', onClick: () => navigate('/admin/events/new') }} />
       ) : (
@@ -224,7 +224,7 @@ export function AdminCampaigns() {
   };
 
   return (
-    <AdminPageShell title={isFr ? 'Campagnes de dons' : 'Donation campaigns'} newRoute="/admin/campaigns/new" newLabel={isFr ? 'Nouvelle campagne' : 'New campaign'} backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Campagnes de dons' : 'Donation campaigns'} newRoute="/admin/campaigns/new" newLabel={isFr ? 'Nouvelle campagne' : 'New campaign'} backRoute="/admin/create">
       {currentOrg?.kyc_status === 'none' && (
         <div className="p-3 rounded-xl bg-primary/8 border border-primary/20 text-xs text-foreground mb-3 flex items-center gap-2">
           <span>💡</span>
@@ -349,7 +349,7 @@ export function AdminProducts() {
     <>
     <AdminPageShell
       title={isFr ? 'Boutique digitale' : 'Digital shop'}
-      backRoute="/admin"
+      backRoute="/admin/create"
       actions={
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -494,7 +494,7 @@ export function AdminMembers() {
   };
 
   return (
-    <AdminPageShell title={isFr ? 'Membres' : 'Members'} backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Membres' : 'Members'} backRoute="/admin/create">
       <div className="space-y-4">
         <div className="bg-card border border-border rounded-2xl p-4 space-y-3">
           <div className="flex items-start gap-3">
@@ -576,7 +576,7 @@ export function AdminAffiliation() {
 
   if (!currentOrg?.affiliation_enabled) {
     return (
-      <AdminPageShell title={isFr ? 'Mes affiliés' : 'My affiliates'} backRoute="/admin">
+      <AdminPageShell title={isFr ? 'Mes affiliés' : 'My affiliates'} backRoute="/admin/create">
         <div className="p-8 rounded-2xl border border-border bg-card text-center space-y-3">
           <div className="h-12 w-12 rounded-2xl bg-muted flex items-center justify-center mx-auto">
             <Link2 className="h-6 w-6 text-muted-foreground" />
@@ -599,7 +599,7 @@ export function AdminAffiliation() {
   const totalEarned = activeLinks.reduce((s, l) => s + (l.total_earned || 0), 0);
 
   return (
-    <AdminPageShell title={isFr ? 'Mes affiliés' : 'My affiliates'} backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Mes affiliés' : 'My affiliates'} backRoute="/admin/create">
       <div className="space-y-4">
         <div className="bg-primary/8 border border-primary/20 rounded-2xl p-4 space-y-2">
           <p className="font-semibold text-sm">{isFr ? '💡 Comment fonctionne l\'affiliation' : '💡 How affiliation works'}</p>
@@ -695,7 +695,7 @@ export function AdminAnalytics() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   return (
-    <AdminPageShell title={isFr ? 'Analytiques' : 'Analytics'} backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Analytiques' : 'Analytics'} backRoute="/admin/create">
       <div className="grid grid-cols-2 gap-3">
         {(isFr ? ['Vues totales', 'Total des dons', 'Revenus totaux', 'Membres actifs'] : ['Total views', 'Total donations', 'Total revenue', 'Active members']).map((label) => (
           <motion.div key={label} variants={fadeUp} initial="hidden" animate="visible" className="bg-card border border-border rounded-2xl p-5 shadow-card">
@@ -714,7 +714,7 @@ export function AdminKYC() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   return (
-    <AdminPageShell title={isFr ? 'Vérification de compte' : 'Account verification'} backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Vérification de compte' : 'Account verification'} backRoute="/admin/create">
       <div className="space-y-4">
         <div className="p-4 rounded-2xl border border-primary/20 bg-primary/8">
           <p className="font-semibold text-sm mb-1">{isFr ? '💡 La vérification est requise uniquement pour les retraits' : '💡 Verification is only required for withdrawals'}</p>
@@ -1210,7 +1210,7 @@ export function AdminSettings() {
   };
 
   return (
-    <AdminPageShell title={isFr ? 'Paramètres' : 'Settings'} backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Paramètres' : 'Settings'} backRoute="/admin/create">
       <div className="space-y-4">
 
         {/* ── PROFILE ── */}

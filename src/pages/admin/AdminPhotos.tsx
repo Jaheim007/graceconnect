@@ -97,7 +97,7 @@ export default function AdminPhotos() {
   });
 
   return (
-    <AdminPageShell title={t('admin_photos.title')} backRoute="/admin">
+    <AdminPageShell title={t('admin_photos.title')} backRoute="/admin/create">
       {/* Add new photo */}
       <div className="bg-card border border-border rounded-2xl p-5 space-y-4 mb-6">
         <h2 className="font-semibold text-sm flex items-center gap-2">

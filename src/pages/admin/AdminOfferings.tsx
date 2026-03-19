@@ -111,7 +111,7 @@ export default function AdminOfferings() {
   };
 
   return (
-    <AdminPageShell title={isFr ? 'Dons' : 'Donations'} backRoute="/admin">
+    <AdminPageShell title={isFr ? 'Dons' : 'Donations'} backRoute="/admin/create">
       <div className="space-y-4">
         <div className="flex justify-end">
           <Button size="sm" onClick={openNew} className="gap-1.5 text-xs h-9">
