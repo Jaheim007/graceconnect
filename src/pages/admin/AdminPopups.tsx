@@ -269,8 +269,6 @@ export default function AdminPopups() {
                     <p className="text-sm font-semibold truncate">{p.title}</p>
                     <p className="text-xs text-muted-foreground truncate">
                       {POPUP_TYPES.find(t => t.value === p.popup_type)?.label || p.popup_type} · {TRIGGERS.find(t => t.value === p.trigger_type)?.label || p.trigger_type}
-                      {p.views_count > 0 && ` · ${p.views_count} vues`}
-                      {p.clicks_count > 0 && ` · ${p.clicks_count} clics`}
                     </p>
                   </div>
                   <Switch checked={p.is_active} onCheckedChange={v => toggleActive.mutate({ id: p.id, is_active: v })} />
