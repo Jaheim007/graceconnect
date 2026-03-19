@@ -437,8 +437,8 @@ export default function AdminSales() {
             <p className="text-sm text-muted-foreground mt-1">{isFr ? 'Les ventes et dons apparaîtront ici' : 'Sales and donations will appear here'}</p>
           </div>
         ) : (
-          <div className="rounded-2xl border border-border overflow-hidden bg-card">
-            <Table>
+          <div className="rounded-2xl border border-border overflow-hidden bg-card overflow-x-auto">
+            <Table className="w-full table-fixed">
               <TableHeader>
                 <TableRow className="bg-muted/40 hover:bg-muted/40">
                   <TableHead className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Type</TableHead>
