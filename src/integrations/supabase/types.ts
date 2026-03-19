@@ -3995,6 +3995,7 @@ export type Database = {
           platform_fee: number | null
           product_id: string
           promo_code_id: string | null
+          review_reminder_count: number | null
           review_request_sent: boolean | null
           settlement_released_at: string | null
           settlement_status: string | null
@@ -4024,6 +4025,7 @@ export type Database = {
           platform_fee?: number | null
           product_id: string
           promo_code_id?: string | null
+          review_reminder_count?: number | null
           review_request_sent?: boolean | null
           settlement_released_at?: string | null
           settlement_status?: string | null
@@ -4053,6 +4055,7 @@ export type Database = {
           platform_fee?: number | null
           product_id?: string
           promo_code_id?: string | null
+          review_reminder_count?: number | null
           review_request_sent?: boolean | null
           settlement_released_at?: string | null
           settlement_status?: string | null
@@ -4124,11 +4127,14 @@ export type Database = {
           created_at: string
           helpful_count: number
           id: string
+          image_urls: string[] | null
           is_published: boolean
           is_verified_purchase: boolean
           organization_id: string
           product_id: string
           rating: number
+          seller_reply: string | null
+          seller_reply_at: string | null
           title: string | null
           updated_at: string
           user_id: string
@@ -4138,11 +4144,14 @@ export type Database = {
           created_at?: string
           helpful_count?: number
           id?: string
+          image_urls?: string[] | null
           is_published?: boolean
           is_verified_purchase?: boolean
           organization_id: string
           product_id: string
           rating: number
+          seller_reply?: string | null
+          seller_reply_at?: string | null
           title?: string | null
           updated_at?: string
           user_id: string
@@ -4152,11 +4161,14 @@ export type Database = {
           created_at?: string
           helpful_count?: number
           id?: string
+          image_urls?: string[] | null
           is_published?: boolean
           is_verified_purchase?: boolean
           organization_id?: string
           product_id?: string
           rating?: number
+          seller_reply?: string | null
+          seller_reply_at?: string | null
           title?: string | null
           updated_at?: string
           user_id?: string
