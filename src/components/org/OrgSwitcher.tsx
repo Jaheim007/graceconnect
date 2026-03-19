@@ -46,13 +46,10 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
 
   if (!currentOrg || userOrgs.length === 0) return null;
 
+  // OrgSwitcher only shows platforms the user manages (owner/admin)
   const managedOrgs = userOrgs.filter((o) => {
     const role = getRoleFor(o.id);
     return role === 'owner' || role === 'admin';
-  });
-  const memberOrgs = userOrgs.filter((o) => {
-    const role = getRoleFor(o.id);
-    return role !== 'owner' && role !== 'admin';
   });
 
   const handleSelect = (org: Organization) => {
