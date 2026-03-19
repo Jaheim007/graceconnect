@@ -471,7 +471,7 @@ export default function AdminAnalyticsPage() {
             </h2>
             <div className="space-y-3">
               {[
-                { label: locale === 'fr' ? 'Vues de page' : 'Page views', value: funnelData.totalViews, pct: 100 },
+                { label: locale === 'fr' ? 'Vues de page' : 'Page views', value: funnelData.totalViews, pct: funnelData.totalViews > 0 ? 100 : 0 },
                 { label: locale === 'fr' ? 'Paniers ouverts' : 'Carts opened', value: funnelData.totalCarts, pct: funnelData.totalViews > 0 ? (funnelData.totalCarts / funnelData.totalViews * 100) : 0 },
                 { label: locale === 'fr' ? 'Achats complétés' : 'Purchases completed', value: funnelData.totalPurchases, pct: funnelData.totalCarts > 0 ? (funnelData.totalPurchases / funnelData.totalCarts * 100) : 0 },
               ].map((step, i) => (
