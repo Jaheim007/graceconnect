@@ -1569,6 +1569,8 @@ export type Database = {
           sale_price: number | null
           sales_count: number | null
           scheduled_at: string | null
+          seo_description: string | null
+          seo_title: string | null
           slug: string | null
           social_snippets_json: Json | null
           submitted_for_review_at: string | null
@@ -1621,6 +1623,8 @@ export type Database = {
           sale_price?: number | null
           sales_count?: number | null
           scheduled_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
           slug?: string | null
           social_snippets_json?: Json | null
           submitted_for_review_at?: string | null
@@ -1673,6 +1677,8 @@ export type Database = {
           sale_price?: number | null
           sales_count?: number | null
           scheduled_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
           slug?: string | null
           social_snippets_json?: Json | null
           submitted_for_review_at?: string | null
@@ -2129,6 +2135,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      exchange_rates: {
+        Row: {
+          base_currency: string
+          id: string
+          rate: number
+          target_currency: string
+          updated_at: string
+        }
+        Insert: {
+          base_currency?: string
+          id?: string
+          rate: number
+          target_currency: string
+          updated_at?: string
+        }
+        Update: {
+          base_currency?: string
+          id?: string
+          rate?: number
+          target_currency?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       experiments: {
         Row: {
@@ -3031,6 +3061,50 @@ export type Database = {
         }
         Relationships: []
       }
+      org_banners: {
+        Row: {
+          bg_color: string
+          created_at: string
+          id: string
+          is_active: boolean
+          link: string | null
+          org_id: string
+          position: string
+          text: string
+          text_color: string
+        }
+        Insert: {
+          bg_color?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          link?: string | null
+          org_id: string
+          position?: string
+          text: string
+          text_color?: string
+        }
+        Update: {
+          bg_color?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          link?: string | null
+          org_id?: string
+          position?: string
+          text?: string
+          text_color?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_banners_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       org_daily_metrics: {
         Row: {
           affiliate_commission_total: number | null
@@ -3178,6 +3252,112 @@ export type Database = {
           },
         ]
       }
+      org_popups: {
+        Row: {
+          bg_color: string | null
+          body: string | null
+          created_at: string
+          cta_link: string | null
+          cta_text: string | null
+          delay_seconds: number
+          id: string
+          image_url: string | null
+          is_active: boolean
+          org_id: string
+          popup_type: string
+          show_once: boolean
+          text_color: string | null
+          title: string
+          trigger_type: string
+        }
+        Insert: {
+          bg_color?: string | null
+          body?: string | null
+          created_at?: string
+          cta_link?: string | null
+          cta_text?: string | null
+          delay_seconds?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          org_id: string
+          popup_type?: string
+          show_once?: boolean
+          text_color?: string | null
+          title: string
+          trigger_type?: string
+        }
+        Update: {
+          bg_color?: string | null
+          body?: string | null
+          created_at?: string
+          cta_link?: string | null
+          cta_text?: string | null
+          delay_seconds?: number
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          org_id?: string
+          popup_type?: string
+          show_once?: boolean
+          text_color?: string | null
+          title?: string
+          trigger_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_popups_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      org_webhooks: {
+        Row: {
+          created_at: string
+          events: string[]
+          id: string
+          is_active: boolean
+          name: string
+          org_id: string
+          secret: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          events?: string[]
+          id?: string
+          is_active?: boolean
+          name?: string
+          org_id: string
+          secret?: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          events?: string[]
+          id?: string
+          is_active?: boolean
+          name?: string
+          org_id?: string
+          secret?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_webhooks_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_members: {
         Row: {
           id: string
@@ -3249,6 +3429,9 @@ export type Database = {
           paystack_subaccount_code: string | null
           plan_type: Database["public"]["Enums"]["org_plan"] | null
           platform_fee_percent: number | null
+          seo_description: string | null
+          seo_image: string | null
+          seo_title: string | null
           settlement_released: boolean | null
           slug: string
           stripe_account_id: string | null
@@ -3296,6 +3479,9 @@ export type Database = {
           paystack_subaccount_code?: string | null
           plan_type?: Database["public"]["Enums"]["org_plan"] | null
           platform_fee_percent?: number | null
+          seo_description?: string | null
+          seo_image?: string | null
+          seo_title?: string | null
           settlement_released?: boolean | null
           slug: string
           stripe_account_id?: string | null
@@ -3343,6 +3529,9 @@ export type Database = {
           paystack_subaccount_code?: string | null
           plan_type?: Database["public"]["Enums"]["org_plan"] | null
           platform_fee_percent?: number | null
+          seo_description?: string | null
+          seo_image?: string | null
+          seo_title?: string | null
           settlement_released?: boolean | null
           slug?: string
           stripe_account_id?: string | null
@@ -3971,6 +4160,44 @@ export type Database = {
           },
         ]
       }
+      product_page_sections: {
+        Row: {
+          content_json: Json
+          created_at: string
+          display_order: number
+          id: string
+          is_visible: boolean
+          product_id: string
+          section_type: string
+        }
+        Insert: {
+          content_json?: Json
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_visible?: boolean
+          product_id: string
+          section_type: string
+        }
+        Update: {
+          content_json?: Json
+          created_at?: string
+          display_order?: number
+          id?: string
+          is_visible?: boolean
+          product_id?: string
+          section_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_page_sections_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "digital_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_purchases: {
         Row: {
           affiliate_commission: number | null
@@ -4585,11 +4812,14 @@ export type Database = {
           discount_percent: number
           discount_type: string
           expires_at: string | null
+          first_purchase_only: boolean | null
           id: string
           is_active: boolean
           max_uses: number | null
+          min_amount: number | null
           organization_id: string
           product_id: string | null
+          product_ids: string[] | null
           updated_at: string
         }
         Insert: {
@@ -4601,11 +4831,14 @@ export type Database = {
           discount_percent?: number
           discount_type?: string
           expires_at?: string | null
+          first_purchase_only?: boolean | null
           id?: string
           is_active?: boolean
           max_uses?: number | null
+          min_amount?: number | null
           organization_id: string
           product_id?: string | null
+          product_ids?: string[] | null
           updated_at?: string
         }
         Update: {
@@ -4617,11 +4850,14 @@ export type Database = {
           discount_percent?: number
           discount_type?: string
           expires_at?: string | null
+          first_purchase_only?: boolean | null
           id?: string
           is_active?: boolean
           max_uses?: number | null
+          min_amount?: number | null
           organization_id?: string
           product_id?: string | null
+          product_ids?: string[] | null
           updated_at?: string
         }
         Relationships: [
@@ -5642,6 +5878,59 @@ export type Database = {
             columns: ["media_id"]
             isOneToOne: false
             referencedRelation: "media_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webhook_deliveries: {
+        Row: {
+          attempts: number
+          completed_at: string | null
+          created_at: string
+          event: string
+          id: string
+          max_attempts: number
+          next_retry_at: string | null
+          payload: Json
+          response_body: string | null
+          response_code: number | null
+          status: string
+          webhook_id: string
+        }
+        Insert: {
+          attempts?: number
+          completed_at?: string | null
+          created_at?: string
+          event: string
+          id?: string
+          max_attempts?: number
+          next_retry_at?: string | null
+          payload?: Json
+          response_body?: string | null
+          response_code?: number | null
+          status?: string
+          webhook_id: string
+        }
+        Update: {
+          attempts?: number
+          completed_at?: string | null
+          created_at?: string
+          event?: string
+          id?: string
+          max_attempts?: number
+          next_retry_at?: string | null
+          payload?: Json
+          response_body?: string | null
+          response_code?: number | null
+          status?: string
+          webhook_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_deliveries_webhook_id_fkey"
+            columns: ["webhook_id"]
+            isOneToOne: false
+            referencedRelation: "org_webhooks"
             referencedColumns: ["id"]
           },
         ]
