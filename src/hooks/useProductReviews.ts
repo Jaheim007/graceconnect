@@ -133,6 +133,7 @@ export function useSubmitReview() {
             rating,
             title: normalizedTitle,
             comment: normalizedComment,
+            image_urls: imageUrls || [],
             is_published: true,
             updated_at: new Date().toISOString(),
           } as any)
@@ -148,6 +149,7 @@ export function useSubmitReview() {
             rating,
             title: normalizedTitle,
             comment: normalizedComment,
+            image_urls: imageUrls || [],
             is_verified_purchase: isVerifiedPurchase,
             is_published: true,
           } as any);
