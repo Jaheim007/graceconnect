@@ -11,7 +11,6 @@ export function ConversionFunnel() {
   const { currentOrg } = useOrg();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
-  const { data: members = [] } = useOrgMembers(currentOrg?.id);
 
   const { data: stats } = useQuery({
     queryKey: ['conversion-funnel', currentOrg?.id],
