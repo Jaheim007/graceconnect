@@ -169,11 +169,11 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
     )
   );
 
-  // If only 1 org, just show the card, no switching
-  if (userOrgs.length <= 1 && variant === 'sidebar') {
+  // If only 1 managed platform or none, just show the card, no switching
+  if (managedOrgs.length <= 1 && variant === 'sidebar') {
     return <div className={cn(collapsed ? 'px-1 mt-3' : 'mx-3 mt-3')}>{TriggerButton}</div>;
   }
-  if (userOrgs.length <= 1) return null;
+  if (managedOrgs.length <= 1) return null;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
