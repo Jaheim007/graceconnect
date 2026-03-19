@@ -221,7 +221,89 @@ export default function ManualPayoutsDashboard() {
       toast.error(err.message);
     }
   };
-...
+
+  const formatAmount = (amount: number, currency: string) => {
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: currency || 'XOF',
+      minimumFractionDigits: 0,
+    }).format(amount);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-xl font-bold flex items-center gap-2">
+          <DollarSign className="h-5 w-5 text-primary" />
+          Versements manuels
+        </h1>
+        <p className="text-sm text-muted-foreground">Gérez les payouts manuels après vérification d'identité</p>
+      </div>
+
+      <Tabs defaultValue="queue" className="w-full">
+        <TabsList className="grid grid-cols-3 w-full">
+          <TabsTrigger value="requests">
+            Demandes ({pendingRequests.length})
+          </TabsTrigger>
+          <TabsTrigger value="queue">
+            File d'attente ({pendingPayouts.length})
+          </TabsTrigger>
+          <TabsTrigger value="history">
+            Historique
+          </TabsTrigger>
+        </TabsList>
+
+        {/* ── Payout Requests ── */}
+        <TabsContent value="requests" className="space-y-3 mt-4">
+          {loadingRequests ? (
+            <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
+          ) : pendingRequests.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground text-sm">Aucune demande en attente 🎉</div>
+          ) : (
+            pendingRequests.map((req: any) => (
+              <Card key={req.id}>
+                <CardContent className="pt-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-sm flex items-center gap-1.5">
+                        <Building className="h-3.5 w-3.5 text-muted-foreground" />
+                        {req.organizations?.name || 'Organisation'}
+                      </p>
+                      {req.profile?.display_name && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                          <User className="h-3 w-3" /> Demandeur : <strong>{req.profile.display_name}</strong>
+                        </p>
+                      )}
+                      <p className="text-lg font-bold text-primary mt-1">{formatAmount(req.amount, req.currency)}</p>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
+                        <Badge variant="outline" className="text-[10px]">{req.payout_type}</Badge>
+                        <Badge
+                          variant={req.organizations?.kyc_status === 'level1' || req.organizations?.kyc_status === 'level2' ? 'default' : 'destructive'}
+                          className="text-[10px]"
+                        >
+                          KYC: {req.organizations?.kyc_status || 'none'}
+                        </Badge>
+                        {req.requested_at && (
+                          <span className="text-[10px] text-muted-foreground">
+                            {new Date(req.requested_at).toLocaleDateString()}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={() => handleCreateManualPayout(req)}
+                      disabled={
+                        (req.organizations?.kyc_status !== 'level1' && req.organizations?.kyc_status !== 'level2') ||
+                        !hasPayoutDestination(req.kyc)
+                      }
+                    >
+                      <ArrowRight className="h-3.5 w-3.5 mr-1" />
+                      Traiter
+                    </Button>
+                  </div>
+
+                  {/* Payment / identity details from KYC */}
                   {req.kyc && (
                     <div className="p-3 rounded-xl bg-muted/50 border border-border space-y-1.5 text-xs">
                       <p className="font-semibold text-[10px] uppercase tracking-wide text-muted-foreground">Infos de paiement (KYC)</p>
@@ -254,8 +336,8 @@ export default function ManualPayoutsDashboard() {
                           <p><span className="text-muted-foreground">N° compte :</span> <strong className="font-mono">{req.kyc.bank_account_number}</strong></p>
                         )}
                       </div>
-                      {!req.kyc.payout_method && !req.kyc.bank_name && (
-                        <p className="text-destructive text-[10px]">⚠️ Aucune méthode de paiement configurée dans le KYC</p>
+                      {!hasPayoutDestination(req.kyc) && (
+                        <p className="text-destructive text-[10px]">⚠️ Méthode de paiement KYC incomplète</p>
                       )}
                     </div>
                   )}
