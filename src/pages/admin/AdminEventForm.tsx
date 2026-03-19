@@ -38,6 +38,8 @@ export function EventForm() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const isEdit = !!id;
   const [loading, setLoading] = useState(false);
   const [showAI, setShowAI] = useState(false);
@@ -58,7 +60,7 @@ export function EventForm() {
   }, [item, reset]);
 
   const onSubmit = async (data: FormData) => {
-    if (!currentOrg || !user) { toast({ title: 'Error', variant: 'destructive' }); return; }
+    if (!currentOrg || !user) { toast({ title: isFr ? 'Erreur' : 'Error', variant: 'destructive' }); return; }
     setLoading(true);
     try {
       const payload = { ...data, organization_id: currentOrg.id, created_by: user.id, image_url: data.image_url || null, video_url: data.video_url || null, map_url: data.map_url || null, event_date: data.event_date ? new Date(data.event_date).toISOString() : null };
@@ -67,20 +69,20 @@ export function EventForm() {
       else { ({ error } = await db.from('events').insert(payload as any)); }
       if (error) throw error;
       await queryClient.invalidateQueries({ queryKey: ['org-events'] });
-      toast({ title: isEdit ? 'Mis à jour ✅' : 'Créé ✅' });
+      toast({ title: isEdit ? (isFr ? 'Mis à jour ✅' : 'Updated ✅') : (isFr ? 'Créé ✅' : 'Created ✅') });
       navigate('/admin/events');
-    } catch (err: any) { toast({ title: 'Erreur', description: err.message, variant: 'destructive' }); }
+    } catch (err: any) { toast({ title: isFr ? 'Erreur' : 'Error', description: err.message, variant: 'destructive' }); }
     finally { setLoading(false); }
   };
 
   return (
-    <AdminPageShell title={isEdit ? 'Modifier l\'événement' : 'Nouvel événement'} backRoute="/admin/events">
-      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html, { shouldDirty: true, shouldTouch: true })} context="description d'événement" />
+    <AdminPageShell title={isEdit ? (isFr ? 'Modifier l\'événement' : 'Edit Event') : (isFr ? 'Nouvel événement' : 'New Event')} backRoute="/admin/events">
+      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html, { shouldDirty: true, shouldTouch: true })} context={isFr ? 'description d\'événement' : 'event description'} />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
-          <Label>Titre *</Label>
-          <Input {...register('title')} placeholder="Nom de l'événement..." />
+          <Label>{isFr ? 'Titre *' : 'Title *'}</Label>
+          <Input {...register('title')} placeholder={isFr ? 'Nom de l\'événement...' : 'Event name...'} />
           {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
         </div>
         <div className="space-y-1.5">
@@ -88,30 +90,30 @@ export function EventForm() {
           <RichTextEditor
             value={watch('description') || ''}
             onChange={(html) => setValue('description', html)}
-            placeholder="Détails de l'événement..."
+            placeholder={isFr ? 'Détails de l\'événement...' : 'Event details...'}
             onAIAssist={() => setShowAI(true)}
           />
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1.5"><Label>Date & Heure</Label><Input type="datetime-local" {...register('event_date')} /></div>
-          <div className="space-y-1.5"><Label>Lieu</Label><Input {...register('location')} placeholder="Ville ou adresse..." /></div>
+          <div className="space-y-1.5"><Label>{isFr ? 'Date & Heure' : 'Date & Time'}</Label><Input type="datetime-local" {...register('event_date')} /></div>
+          <div className="space-y-1.5"><Label>{isFr ? 'Lieu' : 'Location'}</Label><Input {...register('location')} placeholder={isFr ? 'Ville ou adresse...' : 'City or address...'} /></div>
         </div>
         <div className="space-y-1.5">
-          <Label>Lien Google Maps (optionnel)</Label>
-          <Input {...register('map_url')} placeholder="https://maps.app.goo.gl/... ou https://maps.google.com/..." />
+          <Label>{isFr ? 'Lien Google Maps (optionnel)' : 'Google Maps link (optional)'}</Label>
+          <Input {...register('map_url')} placeholder={isFr ? 'https://maps.app.goo.gl/... ou https://maps.google.com/...' : 'https://maps.app.goo.gl/... or https://maps.google.com/...'} />
           {errors.map_url && <p className="text-xs text-destructive">{errors.map_url.message}</p>}
-          <p className="text-[11px] text-muted-foreground">Collez un lien de partage Google Maps (ex: maps.app.goo.gl/...) pour afficher une carte interactive</p>
+          <p className="text-[11px] text-muted-foreground">{isFr ? 'Collez un lien de partage Google Maps (ex: maps.app.goo.gl/...) pour afficher une carte interactive' : 'Paste a Google Maps share link (e.g., maps.app.goo.gl/...) to display an interactive map'}</p>
         </div>
-        <ImageUploader value={watch('image_url') || ''} onChange={(url) => setValue('image_url', url)} folder="events" label="Bannière" hint="Recommandé: 1200×400px" aspectRatio="banner" />
+        <ImageUploader value={watch('image_url') || ''} onChange={(url) => setValue('image_url', url)} folder="events" label={isFr ? 'Bannière' : 'Banner'} hint={isFr ? 'Recommandé: 1200×400px' : 'Recommended: 1200×400px'} aspectRatio="banner" />
         <div className="space-y-1.5">
-          <Label>URL vidéo (optionnel)</Label>
+          <Label>{isFr ? 'URL vidéo (optionnel)' : 'Video URL (optional)'}</Label>
           <Input {...register('video_url')} placeholder="https://youtube.com/..." />
           {errors.video_url && <p className="text-xs text-destructive">{errors.video_url.message}</p>}
         </div>
-        <div className="flex items-center gap-2"><Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} /><Label className="text-sm cursor-pointer">Publié</Label></div>
+        <div className="flex items-center gap-2"><Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} /><Label className="text-sm cursor-pointer">{isFr ? 'Publié' : 'Published'}</Label></div>
         <div className="flex gap-3 pt-2">
-          <Button type="button" variant="outline" onClick={() => navigate('/admin/events')}>Annuler</Button>
-          <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>{loading ? 'Enregistrement...' : isEdit ? 'Mettre à jour' : 'Créer'}</Button>
+          <Button type="button" variant="outline" onClick={() => navigate('/admin/events')}>{isFr ? 'Annuler' : 'Cancel'}</Button>
+          <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>{loading ? (isFr ? 'Enregistrement...' : 'Saving...') : isEdit ? (isFr ? 'Mettre à jour' : 'Update') : (isFr ? 'Créer' : 'Create')}</Button>
         </div>
       </form>
     </AdminPageShell>
