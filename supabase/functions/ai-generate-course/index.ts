@@ -554,11 +554,31 @@ MANDATORY REQUIREMENTS:
         let parsed: any = tryParseCourseJson(content);
 
         if (!parsed) {
-          console.warn('[ai-generate-course] Primary output malformed, retrying with compact constraints');
+          console.warn('[ai-generate-course] Primary output malformed, attempting AI JSON repair');
+          parsed = await repairCourseJsonWithAi({
+            apiKey: GEMINI_API_KEY || undefined,
+            rawContent: content,
+            moduleCount: module_count,
+            language: isFr ? 'fr' : 'en',
+          });
+        }
+
+        if (!parsed) {
+          console.warn('[ai-generate-course] Primary output still invalid, retrying with compact constraints');
           const retryPrompt = `${userPrompt}\n\nRETRY MODE (MANDATORY):\n- Return STRICT valid JSON only.\n- Keep response compact to avoid truncation.\n- EXACTLY 2 lessons per module.\n- EXACTLY 3 sections per lesson (Introduction, Core Content, Key Takeaways).\n- EXACTLY 1 quiz comment per lesson.\n- EXACTLY 6 final assessment questions.\n- Still include domain-appropriate references where relevant.`;
           const retryData = await requestCourseCompletion(retryPrompt, 8_000, 50_000);
           const retryContent = retryData.choices?.[0]?.message?.content || '';
           parsed = tryParseCourseJson(retryContent);
+
+          if (!parsed) {
+            console.warn('[ai-generate-course] Compact retry malformed, attempting AI JSON repair');
+            parsed = await repairCourseJsonWithAi({
+              apiKey: GEMINI_API_KEY || undefined,
+              rawContent: retryContent || content,
+              moduleCount: module_count,
+              language: isFr ? 'fr' : 'en',
+            });
+          }
 
           if (!parsed) {
             const jsonPreview = (retryContent || content || '').trim();
