@@ -70,7 +70,7 @@ serve(async (req) => {
     const admin = adminClient(supabaseUrl, serviceKey);
 
     const body = await req.json();
-    const { title, description, target_audience, language, tier = 'standard', module_count = 5, generate_images = false } = body;
+    const { title, description, target_audience, language, tier = 'standard', module_count = 5, generate_images = false, audience_level = 'intermediate' } = body;
 
     const functionStartedAt = Date.now();
     const remainingBudgetMs = () => FUNCTION_HARD_DEADLINE_MS - (Date.now() - functionStartedAt);
