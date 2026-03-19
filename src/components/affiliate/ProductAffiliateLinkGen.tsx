@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Copy, CheckCircle, ChevronDown, ChevronUp, Link2, ShoppingBag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
 
