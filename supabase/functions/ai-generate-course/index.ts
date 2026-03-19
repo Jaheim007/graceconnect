@@ -307,8 +307,8 @@ MANDATORY REQUIREMENTS:
 - Make it feel like a professional training program — deep, structured, and actionable.`;
 
         const model = creditTier === 'premium' && !generate_images
-          ? 'google/gemini-2.5-pro'
-          : 'google/gemini-2.5-flash';
+          ? 'gpt-4o'
+          : 'gpt-4o-mini';
 
         const requestCourseCompletion = async (promptText: string, maxTokens: number, preferredTimeoutMs: number) => {
           const budgetMs = remainingBudgetMs();
