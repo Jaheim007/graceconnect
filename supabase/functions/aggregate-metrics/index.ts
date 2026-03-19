@@ -90,6 +90,7 @@ Deno.serve(async (req) => {
         affiliate_commission_total: affiliateCommission,
         products_sold: purchases?.length || 0,
         donations_count: donations?.length || 0,
+        page_views: pageViewCount || 0,
       }, { onConflict: 'organization_id,metric_date' });
 
       orgMetricsInserted++;
