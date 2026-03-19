@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useOrg } from '@/contexts/OrgContext';
-import { useOrgMembers } from '@/hooks/useOrgRole';
 import { Filter } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
@@ -12,7 +11,6 @@ export function ConversionFunnel() {
   const { currentOrg } = useOrg();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
-  const { data: members = [] } = useOrgMembers(currentOrg?.id);
 
   const { data: stats } = useQuery({
     queryKey: ['conversion-funnel', currentOrg?.id],
@@ -22,11 +20,19 @@ export function ConversionFunnel() {
         { count: cartCount },
         { count: purchaseCount },
         { data: purchases },
+        metricsQ,
+        liveViewsQ,
       ] = await Promise.all([
         db.from('abandoned_carts').select('id', { count: 'exact', head: true }).eq('organization_id', currentOrg.id),
         db.from('product_purchases').select('id', { count: 'exact', head: true }).eq('organization_id', currentOrg.id).eq('status', 'completed'),
         db.from('product_purchases').select('user_id').eq('organization_id', currentOrg.id).eq('status', 'completed'),
+        db.from('org_daily_metrics').select('page_views').eq('organization_id', currentOrg.id),
+        db.from('client_events').select('id', { count: 'exact', head: true }).eq('event_name', 'page_view'),
       ]);
+
+      const aggregatedViews = (metricsQ.data || []).reduce((s: number, m: any) => s + (m.page_views || 0), 0);
+      const liveViews = liveViewsQ.count || 0;
+      const pageViews = Math.max(aggregatedViews, liveViews);
 
       // Count unique buyers vs repeat buyers
       const uniqueBuyers = new Set((purchases || []).map((p: any) => p.user_id)).size;
@@ -34,7 +40,7 @@ export function ConversionFunnel() {
       const repeatBuyers = totalPurchases > uniqueBuyers ? totalPurchases - uniqueBuyers : 0;
 
       return {
-        visitors: members.length + (cartCount || 0),
+        visitors: pageViews,
         carts: cartCount || 0,
         purchases: totalPurchases,
         uniqueBuyers,

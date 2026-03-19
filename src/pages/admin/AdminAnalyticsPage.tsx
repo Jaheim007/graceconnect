@@ -301,12 +301,16 @@ export default function AdminAnalyticsPage() {
     queryKey: ['org-conversion-funnel', orgId],
     queryFn: async () => {
       if (!orgId) return null;
-      const [visitors, carts, purchasesQ] = await Promise.all([
+      const [metricsQ, carts, purchasesQ, liveViewsQ] = await Promise.all([
         db.from('org_daily_metrics').select('page_views').eq('organization_id', orgId),
         db.from('abandoned_carts').select('id, converted').eq('organization_id', orgId),
         db.from('product_purchases').select('id').eq('organization_id', orgId).eq('status', 'completed'),
+        // Live fallback: count page_view events from client_events
+        db.from('client_events').select('id', { count: 'exact', head: true }).eq('event_name', 'page_view'),
       ]);
-      const totalViews = (visitors.data || []).reduce((s: number, m: any) => s + (m.page_views || 0), 0);
+      const aggregatedViews = (metricsQ.data || []).reduce((s: number, m: any) => s + (m.page_views || 0), 0);
+      const liveViews = liveViewsQ.count || 0;
+      const totalViews = Math.max(aggregatedViews, liveViews);
       const totalCarts = carts.data?.length || 0;
       const convertedCarts = (carts.data || []).filter((c: any) => c.converted).length;
       const totalPurchases = purchasesQ.data?.length || 0;
@@ -467,7 +471,7 @@ export default function AdminAnalyticsPage() {
             </h2>
             <div className="space-y-3">
               {[
-                { label: locale === 'fr' ? 'Vues de page' : 'Page views', value: funnelData.totalViews, pct: 100 },
+                { label: locale === 'fr' ? 'Vues de page' : 'Page views', value: funnelData.totalViews, pct: funnelData.totalViews > 0 ? 100 : 0 },
                 { label: locale === 'fr' ? 'Paniers ouverts' : 'Carts opened', value: funnelData.totalCarts, pct: funnelData.totalViews > 0 ? (funnelData.totalCarts / funnelData.totalViews * 100) : 0 },
                 { label: locale === 'fr' ? 'Achats complétés' : 'Purchases completed', value: funnelData.totalPurchases, pct: funnelData.totalCarts > 0 ? (funnelData.totalPurchases / funnelData.totalCarts * 100) : 0 },
               ].map((step, i) => (

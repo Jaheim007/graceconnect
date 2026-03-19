@@ -65,6 +65,14 @@ Deno.serve(async (req) => {
         .gte('created_at', dayStart)
         .lte('created_at', dayEnd);
 
+      // Page views from client_events
+      const { count: pageViewCount } = await supabase
+        .from('client_events')
+        .select('*', { count: 'exact', head: true })
+        .eq('event_name', 'page_view')
+        .gte('created_at', dayStart)
+        .lte('created_at', dayEnd);
+
       const donationRevenue = (donations || []).reduce((s, d) => s + (d.amount || 0), 0);
       const purchaseRevenue = (purchases || []).reduce((s, p) => s + (p.amount || 0), 0);
       const totalRevenue = donationRevenue + purchaseRevenue;
@@ -82,6 +90,7 @@ Deno.serve(async (req) => {
         affiliate_commission_total: affiliateCommission,
         products_sold: purchases?.length || 0,
         donations_count: donations?.length || 0,
+        page_views: pageViewCount || 0,
       }, { onConflict: 'organization_id,metric_date' });
 
       orgMetricsInserted++;
