@@ -286,21 +286,25 @@ Quiz, Flashcard, Matching, etc. (see gamification rules below)
 - The quiz JSON must be valid JSON inside the HTML comment`;
 
 
-        const userPrompt = `Create a micro-learning course with SHORT digestible sections, EMBEDDED QUIZ questions, and a FINAL ASSESSMENT for:
-Prompt: ${title}
-${description ? `Additional context: ${description}` : ''}
-${target_audience ? `Target audience: ${target_audience}` : ''}
-Number of modules: ${module_count}
+        const userPrompt = `Design a PROFESSIONAL, IN-DEPTH course as an expert instructional designer:
 
-IMPORTANT: 
+COURSE TOPIC: ${title}
+${description ? `ADDITIONAL CONTEXT: ${description}` : ''}
+${target_audience ? `TARGET AUDIENCE: ${target_audience}` : ''}
+AUDIENCE LEVEL: ${audience_level}
+NUMBER OF MODULES: ${module_count}
+
+MANDATORY REQUIREMENTS:
 - Write ALL content in ${isFr ? 'FRENCH (Français)' : 'ENGLISH'} — the user's prompt is in ${isFr ? 'French' : 'English'}.
-- Generate a compelling "course_title" (marketing-ready, not the raw prompt) and a "course_description" (2-3 sentences explaining what they'll learn).
-- For each lesson, include an "image_prompt" in English describing a relevant illustration.
-- Keep each section very short (1 short paragraph). Users read this on mobile slides — one section per screen.
-- Keep response compact to avoid truncation: 2-3 lessons/module, 2-3 sections/lesson, 1-2 quiz comments/lesson.
-- Include a final_assessment with 6-8 comprehensive questions covering the entire course.
-- Return only valid JSON with no markdown fences.
-- Make it feel interactive, engaging, and gamified like Duolingo or EdApp.`;
+- Generate a compelling "course_title" (marketing-ready) and "course_description" (2-3 sentences).
+- For each lesson include an "image_prompt" in English for AI image generation.
+- Each lesson MUST follow the full structure: Introduction → Detailed Explanation → Example/Case Study → Key Takeaways → Reflection Question → Interactive elements.
+- DETECT THE DOMAIN and include appropriate references (Bible verses for Christian topics, Qur'an for Islamic topics, expert citations for academic topics, frameworks for business topics).
+- Include a final_assessment with 8-10 comprehensive questions.
+- Each lesson should have 4-6 sections with substantive content (50-120 words per section).
+- Return ONLY valid JSON with no markdown fences.
+- 2-3 lessons per module, each with rich pedagogical content.
+- Make it feel like a professional training program — deep, structured, and actionable.`;
 
         const model = creditTier === 'premium' && !generate_images
           ? 'google/gemini-2.5-pro'
