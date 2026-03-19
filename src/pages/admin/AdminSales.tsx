@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useOrg } from '@/contexts/OrgContext';
@@ -22,6 +23,7 @@ type PeriodKey = 'all' | 'today' | '7d' | '30d' | '90d' | 'this_month' | 'this_w
 
 export default function AdminSales() {
   const { currentOrg } = useOrg();
+  const navigate = useNavigate();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const dateFnsLocale = isFr ? fr : enUS;
@@ -262,9 +264,14 @@ export default function AdminSales() {
           <h1 className="text-2xl font-extrabold tracking-tight">{isFr ? 'Mes Ventes' : 'My Sales'}</h1>
           <p className="text-sm text-muted-foreground mt-1">{isFr ? 'Historique complet des transactions de votre boutique' : 'Complete transaction history for your store'}</p>
         </div>
-        <Button onClick={handleExport} className="gap-2 shadow-lg shadow-primary/20">
-          <Download className="h-4 w-4" /> Export CSV
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => navigate('/admin/payouts')} className="gap-2">
+            <ArrowUpRight className="h-4 w-4" /> {isFr ? 'Retraits' : 'Payouts'}
+          </Button>
+          <Button onClick={handleExport} className="gap-2 shadow-lg shadow-primary/20">
+            <Download className="h-4 w-4" /> Export CSV
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
