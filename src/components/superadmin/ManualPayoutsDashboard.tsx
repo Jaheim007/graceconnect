@@ -23,6 +23,12 @@ export default function ManualPayoutsDashboard() {
   const [adminNotes, setAdminNotes] = useState('');
   const [processing, setProcessing] = useState(false);
 
+  const approvedKycStatuses = ['level1', 'level2', 'approved'];
+  const hasPayoutDestination = (kyc?: any) => Boolean(
+    (kyc?.payout_phone && kyc?.payout_provider) ||
+    (kyc?.bank_name && kyc?.bank_account_name && kyc?.bank_account_number)
+  );
+
   // ── Fetch pending payouts ──
   const { data: pendingPayouts = [], isLoading: loadingPending } = useQuery({
     queryKey: ['sa-manual-payouts', 'pending'],
@@ -57,15 +63,20 @@ export default function ManualPayoutsDashboard() {
       const { data } = await db
         .from('payout_requests')
         .select('*, organizations(name, kyc_status, slug)')
-        .eq('status', 'pending')
+        .in('status', ['pending', 'requested'])
         .order('requested_at', { ascending: true });
       if (!data?.length) return [];
 
-      // Enrich each request with user profile + KYC payment info
       const enriched = await Promise.all(data.map(async (req: any) => {
         const [{ data: profile }, { data: kyc }] = await Promise.all([
           db.from('profiles').select('display_name, avatar_url').eq('id', req.user_id).maybeSingle(),
-          db.from('kyc_submissions').select('id_document_type, verification_type, payout_method, payout_phone, payout_provider, bank_account_name, bank_account_number, bank_name, kyc_level').eq('organization_id', req.organization_id).maybeSingle(),
+          db.from('kyc_submissions')
+            .select('id_document_type, verification_type, payout_method, payout_phone, payout_provider, bank_account_name, bank_account_number, bank_name, kyc_level, status, submitted_at')
+            .eq('organization_id', req.organization_id)
+            .in('status', approvedKycStatuses)
+            .order('submitted_at', { ascending: false })
+            .limit(1)
+            .maybeSingle(),
         ]);
         return { ...req, profile, kyc };
       }));
@@ -74,12 +85,19 @@ export default function ManualPayoutsDashboard() {
   });
 
   const handleCreateManualPayout = async (request: any) => {
-    // Get org's KYC submission for payout details
     const { data: kyc } = await db
       .from('kyc_submissions')
-      .select('*')
+      .select('payout_method, payout_phone, payout_provider, bank_account_name, bank_account_number, bank_name, status, submitted_at')
       .eq('organization_id', request.organization_id)
+      .in('status', approvedKycStatuses)
+      .order('submitted_at', { ascending: false })
+      .limit(1)
       .maybeSingle();
+
+    if (!hasPayoutDestination(kyc)) {
+      toast.error('Informations de paiement KYC incomplètes — traitement bloqué');
+      return;
+    }
 
     const recipientMethod = kyc?.payout_method || 'mobile_money';
     const recipientAccount = kyc?.payout_phone || kyc?.bank_account_number || 'N/A';
@@ -103,7 +121,6 @@ export default function ManualPayoutsDashboard() {
     if (error) {
       toast.error(error.message);
     } else {
-      // Update source request to 'processing'
       await db.from('payout_requests').update({ status: 'processing' }).eq('id', request.id);
       toast.success('Payout créé en file d\'attente');
       qc.invalidateQueries({ queryKey: ['sa-manual-payouts'] });
@@ -127,7 +144,6 @@ export default function ManualPayoutsDashboard() {
 
       if (error) throw error;
 
-      // Update source request if linked
       if (selectedPayout.source_request_id) {
         await db.from('payout_requests').update({
           status: 'completed',
@@ -135,10 +151,8 @@ export default function ManualPayoutsDashboard() {
         }).eq('id', selectedPayout.source_request_id);
       }
 
-      // Send notifications
       if (selectedPayout.organization_id) {
         const { onPayoutApproved } = await import('@/lib/notifications');
-        // Get org name
         const { data: org } = await db.from('organizations').select('name').eq('id', selectedPayout.organization_id).maybeSingle();
         onPayoutApproved(selectedPayout.organization_id, org?.name || '', selectedPayout.amount, selectedPayout.currency || 'XOF');
       }
@@ -148,6 +162,7 @@ export default function ManualPayoutsDashboard() {
       setProofUrl('');
       setAdminNotes('');
       qc.invalidateQueries({ queryKey: ['sa-manual-payouts'] });
+      qc.invalidateQueries({ queryKey: ['sa-payout-requests-pending'] });
     } catch (err: any) {
       toast.error(err.message);
     } finally {
@@ -160,107 +175,53 @@ export default function ManualPayoutsDashboard() {
     const reason = prompt('Raison de l\'échec :');
     if (!reason) return;
 
-    await db.from('manual_payouts').update({
-      status: 'failed',
-      processed_at: new Date().toISOString(),
-      admin_notes: reason,
-    }).eq('id', selectedPayout.id);
+    try {
+      const { error: payoutError } = await db.from('manual_payouts').update({
+        status: 'failed',
+        processed_at: new Date().toISOString(),
+        admin_notes: reason,
+      }).eq('id', selectedPayout.id);
+      if (payoutError) throw payoutError;
 
-    if (selectedPayout.source_request_id) {
-      await db.from('payout_requests').update({ status: 'rejected', reject_reason: reason } as any).eq('id', selectedPayout.source_request_id);
+      if (selectedPayout.source_request_id) {
+        const { data: sourceRequest, error: sourceRequestError } = await db.from('payout_requests')
+          .select('payout_type, metadata')
+          .eq('id', selectedPayout.source_request_id)
+          .maybeSingle();
+        if (sourceRequestError) throw sourceRequestError;
+
+        const { error: requestError } = await db.from('payout_requests')
+          .update({ status: 'rejected', reject_reason: reason } as any)
+          .eq('id', selectedPayout.source_request_id);
+        if (requestError) throw requestError;
+
+        const saleIds = Array.isArray((sourceRequest as any)?.metadata?.sale_ids)
+          ? (sourceRequest as any).metadata.sale_ids.filter((id: unknown): id is string => typeof id === 'string')
+          : [];
+
+        if (sourceRequest?.payout_type === 'affiliate' && saleIds.length) {
+          const { error: rollbackError } = await db.from('affiliate_sales')
+            .update({ status: 'payable', paid_at: null })
+            .in('id', saleIds);
+          if (rollbackError) throw rollbackError;
+        }
+      }
+
+      if (selectedPayout.organization_id) {
+        const { onPayoutRejected } = await import('@/lib/notifications');
+        const { data: org } = await db.from('organizations').select('name').eq('id', selectedPayout.organization_id).maybeSingle();
+        onPayoutRejected(selectedPayout.organization_id, org?.name || '', reason);
+      }
+
+      toast.success('Payout marqué comme échoué');
+      setSelectedPayout(null);
+      qc.invalidateQueries({ queryKey: ['sa-manual-payouts'] });
+      qc.invalidateQueries({ queryKey: ['sa-payout-requests-pending'] });
+    } catch (err: any) {
+      toast.error(err.message);
     }
-
-    // Send rejection notification
-    if (selectedPayout.organization_id) {
-      const { onPayoutRejected } = await import('@/lib/notifications');
-      const { data: org } = await db.from('organizations').select('name').eq('id', selectedPayout.organization_id).maybeSingle();
-      onPayoutRejected(selectedPayout.organization_id, org?.name || '', reason);
-    }
-
-    toast.success('Payout marqué comme échoué');
-    setSelectedPayout(null);
-    qc.invalidateQueries({ queryKey: ['sa-manual-payouts'] });
   };
-
-  const formatAmount = (amount: number, currency: string) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: currency || 'XOF',
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-xl font-bold flex items-center gap-2">
-          <DollarSign className="h-5 w-5 text-primary" />
-          Versements manuels
-        </h1>
-        <p className="text-sm text-muted-foreground">Gérez les payouts manuels après vérification d'identité</p>
-      </div>
-
-      <Tabs defaultValue="queue" className="w-full">
-        <TabsList className="grid grid-cols-3 w-full">
-          <TabsTrigger value="requests">
-            Demandes ({pendingRequests.length})
-          </TabsTrigger>
-          <TabsTrigger value="queue">
-            File d'attente ({pendingPayouts.length})
-          </TabsTrigger>
-          <TabsTrigger value="history">
-            Historique
-          </TabsTrigger>
-        </TabsList>
-
-        {/* ── Payout Requests ── */}
-        <TabsContent value="requests" className="space-y-3 mt-4">
-          {loadingRequests ? (
-            <div className="flex justify-center py-8"><Loader2 className="h-6 w-6 animate-spin" /></div>
-          ) : pendingRequests.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground text-sm">Aucune demande en attente 🎉</div>
-          ) : (
-            pendingRequests.map((req: any) => (
-              <Card key={req.id}>
-                <CardContent className="pt-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="font-medium text-sm flex items-center gap-1.5">
-                        <Building className="h-3.5 w-3.5 text-muted-foreground" />
-                        {req.organizations?.name || 'Organisation'}
-                      </p>
-                      {req.profile?.display_name && (
-                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                          <User className="h-3 w-3" /> Demandeur : <strong>{req.profile.display_name}</strong>
-                        </p>
-                      )}
-                      <p className="text-lg font-bold text-primary mt-1">{formatAmount(req.amount, req.currency)}</p>
-                      <div className="flex items-center gap-2 mt-1 flex-wrap">
-                        <Badge variant="outline" className="text-[10px]">{req.payout_type}</Badge>
-                        <Badge
-                          variant={req.organizations?.kyc_status === 'level1' || req.organizations?.kyc_status === 'level2' ? 'default' : 'destructive'}
-                          className="text-[10px]"
-                        >
-                          KYC: {req.organizations?.kyc_status || 'none'}
-                        </Badge>
-                        {req.requested_at && (
-                          <span className="text-[10px] text-muted-foreground">
-                            {new Date(req.requested_at).toLocaleDateString()}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <Button
-                      size="sm"
-                      onClick={() => handleCreateManualPayout(req)}
-                      disabled={req.organizations?.kyc_status !== 'level1' && req.organizations?.kyc_status !== 'level2'}
-                    >
-                      <ArrowRight className="h-3.5 w-3.5 mr-1" />
-                      Traiter
-                    </Button>
-                  </div>
-
-                  {/* Payment / identity details from KYC */}
+...
                   {req.kyc && (
                     <div className="p-3 rounded-xl bg-muted/50 border border-border space-y-1.5 text-xs">
                       <p className="font-semibold text-[10px] uppercase tracking-wide text-muted-foreground">Infos de paiement (KYC)</p>
