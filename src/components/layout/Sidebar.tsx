@@ -175,9 +175,13 @@ export function Sidebar() {
                 {/* ═══ CONSUMER ZONE ═══ */}
                 {renderSeparator()}
                 <div className="space-y-0.5">
-                  {renderNavItem({ to: '/marketplace', icon: Store, label: t('sidebar.discover'), desc: t('sidebar.discover_desc') })}
+                  {renderNavItem({ to: '/discover', icon: Store, label: t('sidebar.discover'), desc: t('sidebar.discover_desc') })}
+                  {renderNavItem({ to: '/spotlight', icon: Star, label: t('sidebar.spotlight'), desc: t('sidebar.spotlight_desc') })}
                   {renderNavItem({ to: user ? '/affiliation' : '/gagner', icon: Share2, label: t('sidebar.earn_sharing'), desc: t('sidebar.earn_sharing_desc') })}
                   {renderNavItem({ to: '/resources', icon: Package, label: t('sidebar.purchases'), desc: t('sidebar.purchases_desc') })}
+                  {renderNavItem({ to: '/my-programs', icon: GraduationCap, label: t('sidebar.my_programs'), desc: t('sidebar.my_programs_desc') })}
+                  {renderNavItem({ to: '/credits', icon: Coins, label: t('sidebar.credits'), desc: t('sidebar.credits_desc') })}
+                  {renderNavItem({ to: '/bookmarks', icon: Bookmark, label: t('sidebar.bookmarks'), desc: t('sidebar.bookmarks_desc') })}
                   {renderNavItem({ to: '/profile', icon: User, label: t('sidebar.profile'), desc: t('sidebar.profile_desc') })}
                 </div>
               </>
