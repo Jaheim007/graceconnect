@@ -26,6 +26,7 @@ import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist
 import { SmartNextAction } from '@/components/admin/SmartNextAction';
 import { VideoImportButton } from '@/components/admin/VideoImportButton';
 import { QuickStartWizard } from '@/components/onboarding/QuickStartWizard';
+import { AIAnalyticsInsights } from '@/components/admin/AIAnalyticsInsights';
 
 // Advanced tools — lazy-loaded section
 import { WeeklyMissions } from '@/components/admin/WeeklyMissions';
