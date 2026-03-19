@@ -23,40 +23,151 @@ function imageExtFromMime(mimeType: string): string {
   return 'png';
 }
 
-function tryParseCourseJson(rawContent: string): any | null {
-  if (!rawContent) return null;
+function extractCourseJsonCandidate(rawContent: string): string {
+  if (!rawContent) return '';
 
   const codeBlockMatch = rawContent.match(/```(?:json)?\s*([\s\S]*?)```/i);
   let candidate = codeBlockMatch ? codeBlockMatch[1] : rawContent;
   candidate = candidate
-    .replace(/[\u0000-\u0019\u007F]/g, '')
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u0019\u007F]/g, '')
     .trim();
 
   const start = candidate.indexOf('{');
+  if (start >= 0) candidate = candidate.slice(start);
+
   const end = candidate.lastIndexOf('}');
-  if (start >= 0 && end > start) {
-    candidate = candidate.slice(start, end + 1);
+  if (end > start) candidate = candidate.slice(0, end + 1);
+
+  return candidate.trim();
+}
+
+function escapeRawNewlinesInStrings(input: string): { value: string; openString: boolean } {
+  let out = '';
+  let inString = false;
+  let escaped = false;
+
+  for (let i = 0; i < input.length; i++) {
+    const ch = input[i];
+
+    if (escaped) {
+      out += ch;
+      escaped = false;
+      continue;
+    }
+
+    if (ch === '\\') {
+      out += ch;
+      escaped = true;
+      continue;
+    }
+
+    if (ch === '"') {
+      out += ch;
+      inString = !inString;
+      continue;
+    }
+
+    if (inString && (ch === '\n' || ch === '\r')) {
+      out += '\\n';
+      if (ch === '\r' && input[i + 1] === '\n') i++;
+      continue;
+    }
+
+    out += ch;
   }
+
+  return { value: out, openString: inString };
+}
+
+function closeOpenJsonStructures(input: string): string {
+  const stack: string[] = [];
+  let inString = false;
+  let escaped = false;
+
+  for (let i = 0; i < input.length; i++) {
+    const ch = input[i];
+
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+
+    if (ch === '\\') {
+      escaped = true;
+      continue;
+    }
+
+    if (ch === '"') {
+      inString = !inString;
+      continue;
+    }
+
+    if (inString) continue;
+
+    if (ch === '{' || ch === '[') {
+      stack.push(ch);
+      continue;
+    }
+
+    if (ch === '}' && stack[stack.length - 1] === '{') {
+      stack.pop();
+      continue;
+    }
+
+    if (ch === ']' && stack[stack.length - 1] === '[') {
+      stack.pop();
+    }
+  }
+
+  return input + stack.reverse().map((token) => (token === '{' ? '}' : ']')).join('');
+}
+
+function tryParseCourseJson(rawContent: string): any | null {
+  const candidate = extractCourseJsonCandidate(rawContent);
+  if (!candidate) return null;
 
   try {
     return JSON.parse(candidate);
   } catch {
-    let repaired = candidate;
-    repaired = repaired.replace(/,\s*([}\]])/g, '$1');
-    repaired = repaired.replace(/\r?\n/g, '\\n');
+    let repaired = candidate.replace(/,\s*([}\]])/g, '$1').trimEnd();
+    const escaped = escapeRawNewlinesInStrings(repaired);
+    repaired = escaped.value;
 
-    const opens = (repaired.match(/{/g) || []).length;
-    const closes = (repaired.match(/}/g) || []).length;
-    const openBrackets = (repaired.match(/\[/g) || []).length;
-    const closeBrackets = (repaired.match(/\]/g) || []).length;
-    for (let i = 0; i < openBrackets - closeBrackets; i++) repaired += ']';
-    for (let i = 0; i < opens - closes; i++) repaired += '}';
+    if (escaped.openString) repaired += '"';
+    if (repaired.endsWith('\\')) repaired += '\\';
+
+    repaired = closeOpenJsonStructures(repaired);
 
     try {
       return JSON.parse(repaired);
     } catch {
       return null;
     }
+  }
+}
+
+async function repairCourseJsonWithAi(opts: {
+  apiKey?: string;
+  rawContent: string;
+  moduleCount: number;
+  language: 'fr' | 'en';
+}): Promise<any | null> {
+  if (!opts.apiKey || !opts.rawContent?.trim()) return null;
+
+  try {
+    const repairedRaw = await geminiGenerateText({
+      apiKey: opts.apiKey,
+      model: 'gemini-2.5-flash',
+      system: `You repair malformed course JSON only. Return ONLY valid JSON. Preserve existing lesson HTML and text whenever possible. If the payload was truncated, complete the unfinished JSON minimally without adding extra fluff. All visible text must stay in ${opts.language === 'fr' ? 'French' : 'English'}. image_prompt fields must stay in English.`,
+      prompt: `Repair this malformed course JSON into a valid object with this exact top-level shape: {"course_title":"...","course_description":"...","modules":[{"title":"...","description":"...","emoji":"🎯","lessons":[{"title":"...","content_type":"text","duration_minutes":10,"description":"...","image_prompt":"...","content":"<h2>...</h2>"}]}],"final_assessment":{"title":"...","description":"...","questions":[{"question":"...","options":["...","...","...","..."],"correctIndex":0,"explanation":"..."}]}}. Target up to ${opts.moduleCount} modules. Keep all valid content you can recover, close unfinished HTML tags when obvious, and do not wrap the answer in markdown fences.\n\n${opts.rawContent.slice(0, 120000)}`,
+      maxOutputTokens: 12000,
+      jsonMode: true,
+    });
+
+    return tryParseCourseJson(repairedRaw);
+  } catch (error) {
+    console.warn('[ai-generate-course] AI JSON repair failed:', error);
+    return null;
   }
 }
 
@@ -443,11 +554,31 @@ MANDATORY REQUIREMENTS:
         let parsed: any = tryParseCourseJson(content);
 
         if (!parsed) {
-          console.warn('[ai-generate-course] Primary output malformed, retrying with compact constraints');
+          console.warn('[ai-generate-course] Primary output malformed, attempting AI JSON repair');
+          parsed = await repairCourseJsonWithAi({
+            apiKey: GEMINI_API_KEY || undefined,
+            rawContent: content,
+            moduleCount: module_count,
+            language: isFr ? 'fr' : 'en',
+          });
+        }
+
+        if (!parsed) {
+          console.warn('[ai-generate-course] Primary output still invalid, retrying with compact constraints');
           const retryPrompt = `${userPrompt}\n\nRETRY MODE (MANDATORY):\n- Return STRICT valid JSON only.\n- Keep response compact to avoid truncation.\n- EXACTLY 2 lessons per module.\n- EXACTLY 3 sections per lesson (Introduction, Core Content, Key Takeaways).\n- EXACTLY 1 quiz comment per lesson.\n- EXACTLY 6 final assessment questions.\n- Still include domain-appropriate references where relevant.`;
           const retryData = await requestCourseCompletion(retryPrompt, 8_000, 50_000);
           const retryContent = retryData.choices?.[0]?.message?.content || '';
           parsed = tryParseCourseJson(retryContent);
+
+          if (!parsed) {
+            console.warn('[ai-generate-course] Compact retry malformed, attempting AI JSON repair');
+            parsed = await repairCourseJsonWithAi({
+              apiKey: GEMINI_API_KEY || undefined,
+              rawContent: retryContent || content,
+              moduleCount: module_count,
+              language: isFr ? 'fr' : 'en',
+            });
+          }
 
           if (!parsed) {
             const jsonPreview = (retryContent || content || '').trim();
