@@ -1632,6 +1632,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'nudge.ambassador_cta': 'Become ambassador',
     'nudge.publish': 'You have a space — publish your first product!',
     'nudge.publish_cta': 'Publish',
+    'nudge.create_platform': 'Create your platform to sell your products',
+    'nudge.create_platform_cta': 'Create now',
     // ─── Ambassador Marketplace ───
     'amb.title': 'Products to promote',
     'amb.subtitle': 'Choose, share, earn. That\'s it.',
@@ -3291,6 +3293,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'nudge.ambassador_cta': 'Devenir ambassadeur',
     'nudge.publish': 'Tu as un espace — publie ton premier produit !',
     'nudge.publish_cta': 'Publier',
+    'nudge.create_platform': 'Crée ta plateforme pour vendre tes produits',
+    'nudge.create_platform_cta': 'Créer maintenant',
     // ─── Ambassador Marketplace ───
     'amb.title': 'Produits à promouvoir',
     'amb.subtitle': 'Choisis, partage, gagne. C\'est tout.',

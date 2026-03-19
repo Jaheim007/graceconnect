@@ -2,56 +2,70 @@ import { motion } from 'framer-motion';
 import { BookOpen, Store, Share2, Wallet } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-
-const paths = [
-  {
-    id: 'write',
-    icon: BookOpen,
-    emoji: '✏️',
-    title: 'Écrire',
-    subtitle: "L'IA écrit ton livre",
-    route: '/ecrire',
-    accent: 'border-primary/30 hover:border-primary/60',
-    iconColor: 'text-primary',
-    bgColor: 'bg-primary/10',
-  },
-  {
-    id: 'sell',
-    icon: Store,
-    emoji: '🛒',
-    title: 'Vendre',
-    subtitle: 'Publie et monétise',
-    route: '/admin',
-    accent: 'border-amber-500/30 hover:border-amber-500/60',
-    iconColor: 'text-amber-500',
-    bgColor: 'bg-amber-500/10',
-  },
-  {
-    id: 'share',
-    icon: Share2,
-    emoji: '📲',
-    title: 'Partager',
-    subtitle: 'Deviens ambassadeur',
-    route: '/gagner',
-    accent: 'border-emerald-500/30 hover:border-emerald-500/60',
-    iconColor: 'text-emerald-500',
-    bgColor: 'bg-emerald-500/10',
-  },
-  {
-    id: 'earn',
-    icon: Wallet,
-    emoji: '💰',
-    title: 'Gagner',
-    subtitle: 'Suis tes revenus',
-    route: '/gagner',
-    accent: 'border-violet-500/30 hover:border-violet-500/60',
-    iconColor: 'text-violet-500',
-    bgColor: 'bg-violet-500/10',
-  },
-];
+import { useAuth } from '@/contexts/AuthContext';
+import { useOrg } from '@/contexts/OrgContext';
+import { useI18n } from '@/i18n/I18nContext';
 
 export function QuickStartPaths() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { userOrgs, canManage } = useOrg();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+
+  const hasManageableOrg = userOrgs.some(o => canManage(o.id));
+
+  // Smart routing: logged-in users go to functional pages, not marketing
+  const sellRoute = hasManageableOrg ? '/admin/products' : '/create-org';
+  const shareRoute = user ? '/affiliation' : '/gagner';
+  const earnRoute = user ? '/affiliation' : '/gagner';
+
+  const paths = [
+    {
+      id: 'write',
+      icon: BookOpen,
+      emoji: '✏️',
+      title: isFr ? 'Écrire' : 'Write',
+      subtitle: isFr ? "L'IA écrit ton livre" : 'AI writes your book',
+      route: '/ecrire',
+      accent: 'border-primary/30 hover:border-primary/60',
+      iconColor: 'text-primary',
+      bgColor: 'bg-primary/10',
+    },
+    {
+      id: 'sell',
+      icon: Store,
+      emoji: '🛒',
+      title: isFr ? 'Vendre' : 'Sell',
+      subtitle: isFr ? 'Publie et monétise' : 'Publish & monetize',
+      route: sellRoute,
+      accent: 'border-amber-500/30 hover:border-amber-500/60',
+      iconColor: 'text-amber-500',
+      bgColor: 'bg-amber-500/10',
+    },
+    {
+      id: 'share',
+      icon: Share2,
+      emoji: '📲',
+      title: isFr ? 'Partager' : 'Share',
+      subtitle: isFr ? 'Deviens ambassadeur' : 'Become ambassador',
+      route: shareRoute,
+      accent: 'border-emerald-500/30 hover:border-emerald-500/60',
+      iconColor: 'text-emerald-500',
+      bgColor: 'bg-emerald-500/10',
+    },
+    {
+      id: 'earn',
+      icon: Wallet,
+      emoji: '💰',
+      title: isFr ? 'Gagner' : 'Earn',
+      subtitle: isFr ? 'Suis tes revenus' : 'Track your earnings',
+      route: earnRoute,
+      accent: 'border-violet-500/30 hover:border-violet-500/60',
+      iconColor: 'text-violet-500',
+      bgColor: 'bg-violet-500/10',
+    },
+  ];
 
   return (
     <div className="grid grid-cols-4 gap-2">

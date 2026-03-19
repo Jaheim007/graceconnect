@@ -97,7 +97,7 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
       icon: Share2,
       title: t('dash.earn_sharing'),
       desc: t('dash.earn_sharing_desc'),
-      to: '/gagner',
+      to: '/affiliation',
       color: 'border-emerald-500/20 hover:border-emerald-500/50',
       iconColor: 'text-emerald-500 bg-emerald-500/10',
     },

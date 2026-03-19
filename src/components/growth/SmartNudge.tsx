@@ -60,6 +60,10 @@ export function SmartNudge() {
     }
     if (!state.hasOrg) {
       all.push({
+        id: 'create-platform', emoji: '🏪', priority: 1, bg: 'bg-amber-500/5 border-amber-500/20',
+        text: t('nudge.create_platform'), cta: t('nudge.create_platform_cta'), action: () => navigate('/create-org'),
+      });
+      all.push({
         id: 'write', emoji: '✏️', priority: 2, bg: 'bg-primary/5 border-primary/20',
         text: t('nudge.write'), cta: t('nudge.write_cta'), action: () => navigate('/ecrire'),
       });
@@ -67,7 +71,7 @@ export function SmartNudge() {
     if (!state.hasLinks) {
       all.push({
         id: 'ambassador', emoji: '💰', priority: 3, bg: 'bg-emerald-500/5 border-emerald-500/20',
-        text: t('nudge.ambassador'), cta: t('nudge.ambassador_cta'), action: () => navigate('/gagner'),
+        text: t('nudge.ambassador'), cta: t('nudge.ambassador_cta'), action: () => navigate('/affiliation'),
       });
     }
     if (state.hasOrg && !state.hasProducts) {
