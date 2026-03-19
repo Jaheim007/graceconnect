@@ -19,6 +19,7 @@ const createItems = [
   { to: '/admin/events', icon: CalendarDays, labelKey: 'create_hub.events', descKey: 'create_hub.events_desc', color: 'text-purple-500 bg-purple-500/10 border-purple-500/20' },
   { to: '/admin/promo-codes', icon: Tag, labelKey: 'create_hub.promos', descKey: 'create_hub.promos_desc', color: 'text-teal-500 bg-teal-500/10 border-teal-500/20' },
   { to: '/admin/offerings', icon: Heart, labelKey: 'create_hub.donations', descKey: 'create_hub.donations_desc', color: 'text-pink-500 bg-pink-500/10 border-pink-500/20' },
+  { to: '/admin/popups', icon: MessageSquare, labelKey: 'create_hub.popups', descKey: 'create_hub.popups_desc', color: 'text-orange-500 bg-orange-500/10 border-orange-500/20' },
 ];
 
 export default function AdminCreateHub() {
