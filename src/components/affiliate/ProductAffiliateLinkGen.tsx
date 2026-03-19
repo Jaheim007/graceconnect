@@ -81,7 +81,7 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
     }
     await navigator.clipboard.writeText(url);
     setCopiedId(id);
-    toast({ title: 'Lien copié !' });
+    toast({ title: isFr ? 'Lien copié !' : 'Link copied!' });
     setTimeout(() => setCopiedId(null), 2000);
   };
 
