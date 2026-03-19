@@ -191,9 +191,13 @@ export function Sidebar() {
                 {renderSectionLabel(t('sidebar.my_space'))}
                 <div className="space-y-0.5">
                   {renderNavItem({ to: '/dashboard', icon: Home, label: t('sidebar.home'), desc: t('sidebar.home_desc') })}
-                  {renderNavItem({ to: '/marketplace', icon: Store, label: t('sidebar.discover'), desc: t('sidebar.discover_desc') })}
+                  {renderNavItem({ to: '/discover', icon: Store, label: t('sidebar.discover'), desc: t('sidebar.discover_desc') })}
+                  {renderNavItem({ to: '/spotlight', icon: Star, label: t('sidebar.spotlight'), desc: t('sidebar.spotlight_desc') })}
                   {renderNavItem({ to: '/resources', icon: Package, label: t('sidebar.purchases'), desc: t('sidebar.purchases_desc') })}
+                  {renderNavItem({ to: '/my-programs', icon: GraduationCap, label: t('sidebar.my_programs'), desc: t('sidebar.my_programs_desc') })}
                   {renderNavItem({ to: '/my-donations', icon: Heart, label: t('sidebar.my_donations'), desc: t('sidebar.my_donations_desc') })}
+                  {renderNavItem({ to: '/credits', icon: Coins, label: t('sidebar.credits'), desc: t('sidebar.credits_desc') })}
+                  {renderNavItem({ to: '/bookmarks', icon: Bookmark, label: t('sidebar.bookmarks'), desc: t('sidebar.bookmarks_desc') })}
                   {renderNavItem({ to: '/profile', icon: User, label: t('sidebar.profile'), desc: t('sidebar.profile_desc') })}
                 </div>
 
