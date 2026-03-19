@@ -106,9 +106,9 @@ export function useSubmitReview() {
 
   return useMutation({
     mutationFn: async ({
-      productId, organizationId, rating, title, comment, isVerifiedPurchase,
+      productId, organizationId, rating, title, comment, isVerifiedPurchase, imageUrls,
     }: {
-      productId: string; organizationId: string; rating: number; title: string; comment: string; isVerifiedPurchase: boolean;
+      productId: string; organizationId: string; rating: number; title: string; comment: string; isVerifiedPurchase: boolean; imageUrls?: string[];
     }) => {
       if (!user) throw new Error('Not authenticated');
 
