@@ -23,6 +23,7 @@ type PeriodKey = 'all' | 'today' | '7d' | '30d' | '90d' | 'this_month' | 'this_w
 
 export default function AdminSales() {
   const { currentOrg } = useOrg();
+  const navigate = useNavigate();
   const { locale } = useI18n();
   const isFr = locale === 'fr';
   const dateFnsLocale = isFr ? fr : enUS;
