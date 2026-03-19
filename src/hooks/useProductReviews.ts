@@ -232,3 +232,22 @@ export function useDeleteReview() {
     },
   });
 }
+
+export function useSellerReply() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ reviewId, productId, reply }: { reviewId: string; productId: string; reply: string }) => {
+      const { error } = await db
+        .from('product_reviews')
+        .update({
+          seller_reply: reply.trim(),
+          seller_reply_at: new Date().toISOString(),
+        } as any)
+        .eq('id', reviewId);
+      if (error) throw error;
+    },
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({ queryKey: ['product-reviews', vars.productId] });
+    },
+  });
+}
