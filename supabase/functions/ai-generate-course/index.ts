@@ -35,9 +35,8 @@ function extractCourseJsonCandidate(rawContent: string): string {
   const start = candidate.indexOf('{');
   if (start >= 0) candidate = candidate.slice(start);
 
-  const end = candidate.lastIndexOf('}');
-  if (end > start) candidate = candidate.slice(0, end + 1);
-
+  // DON'T trim at lastIndexOf('}') — truncated payloads need the full tail
+  // so closeOpenJsonStructures can properly close them.
   return candidate.trim();
 }
 
@@ -548,7 +547,7 @@ MANDATORY REQUIREMENTS:
           throw new Error('No AI provider available');
         };
 
-        const aiData = await requestCourseCompletion(userPrompt, 16_000, 90_000);
+        const aiData = await requestCourseCompletion(userPrompt, 30_000, 120_000);
         const content = aiData.choices?.[0]?.message?.content || '';
 
         let parsed: any = tryParseCourseJson(content);
