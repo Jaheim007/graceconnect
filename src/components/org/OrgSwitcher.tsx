@@ -46,13 +46,10 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
 
   if (!currentOrg || userOrgs.length === 0) return null;
 
+  // OrgSwitcher only shows platforms the user manages (owner/admin)
   const managedOrgs = userOrgs.filter((o) => {
     const role = getRoleFor(o.id);
     return role === 'owner' || role === 'admin';
-  });
-  const memberOrgs = userOrgs.filter((o) => {
-    const role = getRoleFor(o.id);
-    return role !== 'owner' && role !== 'admin';
   });
 
   const handleSelect = (org: Organization) => {
@@ -164,7 +161,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
               )}
             </div>
           </div>
-          {userOrgs.length > 1 && (
+          {managedOrgs.length > 1 && (
             <ChevronDown className="h-3.5 w-3.5 text-primary/60 shrink-0 group-hover:text-primary transition-colors" />
           )}
         </div>
@@ -172,11 +169,11 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
     )
   );
 
-  // If only 1 org, just show the card, no switching
-  if (userOrgs.length <= 1 && variant === 'sidebar') {
+  // If only 1 managed platform or none, just show the card, no switching
+  if (managedOrgs.length <= 1 && variant === 'sidebar') {
     return <div className={cn(collapsed ? 'px-1 mt-3' : 'mx-3 mt-3')}>{TriggerButton}</div>;
   }
-  if (userOrgs.length <= 1) return null;
+  if (managedOrgs.length <= 1) return null;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -195,45 +192,25 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
               {t('sidebar.switch_platform')}
             </DialogTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              {managedOrgs.length} {managedOrgs.length > 1 ? 'platforms' : 'platform'} · {memberOrgs.length > 0 ? `${memberOrgs.length} ${memberOrgs.length > 1 ? 'communities' : 'community'}` : ''}
+              {managedOrgs.length} {managedOrgs.length > 1 ? 'platforms' : 'platform'}
             </p>
           </DialogHeader>
         </div>
 
-        {/* Org list */}
+        {/* Platform list — only managed orgs */}
         <div className="px-3 py-3 max-h-[400px] overflow-y-auto space-y-1">
-          {managedOrgs.length > 0 && (
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-3 py-2">
-                {t('sidebar.my_platforms') || 'My platforms'}
-              </p>
-              <AnimatePresence>
-                {managedOrgs.map((org, i) => (
-                  <motion.div key={org.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-                    <OrgRow org={org} />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          )}
-
-          {memberOrgs.length > 0 && (
-            <div className={managedOrgs.length > 0 ? 'pt-2' : ''}>
-              {managedOrgs.length > 0 && (
-                <div className="mx-3 mb-2 border-t border-border/60" />
-              )}
-              <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-3 py-2">
-                {t('sidebar.member_of') || 'Member of'}
-              </p>
-              <AnimatePresence>
-                {memberOrgs.map((org, i) => (
-                  <motion.div key={org.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: (managedOrgs.length + i) * 0.04 }}>
-                    <OrgRow org={org} />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
-          )}
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-3 py-2">
+              {t('sidebar.my_platforms') || 'My platforms'}
+            </p>
+            <AnimatePresence>
+              {managedOrgs.map((org, i) => (
+                <motion.div key={org.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+                  <OrgRow org={org} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
         </div>
 
         {/* Footer action */}

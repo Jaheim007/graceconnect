@@ -34,6 +34,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { PageTour } from '@/components/onboarding/PageTour';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { SmartSuggestionsBanner } from '@/components/smart/SmartSuggestionsBanner';
+import { MyCommunities } from '@/components/network/MyCommunities';
 import { Home } from 'lucide-react';
 
 type Tab = 'all' | 'media' | 'store' | 'campaigns' | 'events';
@@ -150,6 +151,9 @@ export default function FeedPage() {
             <Input placeholder={t('common.search_placeholder')} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 h-10" />
           </div>
         </motion.div>
+
+        {/* My Communities — orgs user is member of */}
+        <MyCommunities />
 
         {!announcementsLoading && announcements.some((a) => a.is_pinned) && (
           <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="rounded-2xl border border-primary/30 bg-primary/5 p-4 flex gap-3 items-start backdrop-blur-sm">
