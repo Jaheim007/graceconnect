@@ -109,7 +109,7 @@ export function YouTubeImportButton() {
         className="gap-2 text-xs h-8 sm:h-9 border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-500/10"
       >
         <Youtube className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-        Importer YouTube
+        {isFr ? 'Importer YouTube' : 'Import YouTube'}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
@@ -117,16 +117,16 @@ export function YouTubeImportButton() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Youtube className="h-5 w-5 text-red-500" />
-              Importer depuis YouTube
+              {isFr ? 'Importer depuis YouTube' : 'Import from YouTube'}
             </DialogTitle>
             <DialogDescription>
-              Collez un lien YouTube pour ajouter la vidéo à votre médiathèque automatiquement.
+              {isFr ? 'Collez un lien YouTube pour ajouter la vidéo à votre médiathèque automatiquement.' : 'Paste a YouTube link to automatically add the video to your media library.'}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>URL de la vidéo YouTube</Label>
+              <Label>{isFr ? 'URL de la vidéo YouTube' : 'YouTube video URL'}</Label>
               <div className="flex gap-2">
                 <Input
                   value={url}
@@ -135,7 +135,7 @@ export function YouTubeImportButton() {
                   className="flex-1"
                 />
                 <Button onClick={fetchPreview} disabled={loading || !url.trim()} size="sm">
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Aperçu'}
+                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : (isFr ? 'Aperçu' : 'Preview')}
                 </Button>
               </div>
               {error && (
@@ -154,9 +154,9 @@ export function YouTubeImportButton() {
                 />
                 <div className="p-3 space-y-1">
                   <p className="font-semibold text-sm line-clamp-2">{preview.title}</p>
-                  <p className="text-xs text-muted-foreground">Par {preview.author_name}</p>
+                  <p className="text-xs text-muted-foreground">{isFr ? 'Par' : 'By'} {preview.author_name}</p>
                   <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
-                    <CheckCircle className="h-3 w-3" /> Prêt à importer
+                    <CheckCircle className="h-3 w-3" /> {isFr ? 'Prêt à importer' : 'Ready to import'}
                   </div>
                 </div>
               </div>
@@ -165,12 +165,12 @@ export function YouTubeImportButton() {
             {preview && (
               <Button onClick={handleImport} disabled={loading} className="w-full gap-2">
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Youtube className="h-4 w-4" />}
-                {loading ? 'Import en cours…' : 'Ajouter à ma médiathèque'}
+                {loading ? (isFr ? 'Import en cours…' : 'Importing…') : (isFr ? 'Ajouter à ma médiathèque' : 'Add to my media library')}
               </Button>
             )}
 
             <p className="text-[10px] text-muted-foreground text-center">
-              La vidéo reste hébergée sur YouTube. Seules les métadonnées sont importées.
+              {isFr ? 'La vidéo reste hébergée sur YouTube. Seules les métadonnées sont importées.' : 'The video stays hosted on YouTube. Only metadata is imported.'}
             </p>
           </div>
         </DialogContent>
