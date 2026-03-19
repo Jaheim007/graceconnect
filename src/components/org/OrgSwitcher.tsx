@@ -243,7 +243,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
             onClick={() => { setOpen(false); navigate('/create-org'); }}
           >
             <Plus className="h-3.5 w-3.5" />
-            Créer une nouvelle organisation
+            {t('sidebar.create_new_platform') || 'Create a new platform'}
           </Button>
         </div>
       </DialogContent>

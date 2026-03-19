@@ -3032,6 +3032,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'sidebar.my_donations_desc': 'Dons et campagnes',
     'sidebar.discover': 'Découvrir',
     'sidebar.discover_desc': 'Explorer les produits',
+    'sidebar.my_network_desc': 'Contenus de vos communautés',
+    'sidebar.switch_platform': 'Changer de plateforme',
     'sidebar.notifications_desc': 'Mises à jour',
     'sidebar.profile': 'Profil',
     'sidebar.profile_desc': 'Mon compte',

@@ -191,6 +191,7 @@ export function Sidebar() {
                 {renderSectionLabel(t('sidebar.my_space'))}
                 <div className="space-y-0.5">
                   {renderNavItem({ to: '/dashboard', icon: Home, label: t('sidebar.home'), desc: t('sidebar.home_desc') })}
+                  {renderNavItem({ to: '/feed', icon: Rss, label: t('sidebar.my_network'), desc: t('sidebar.my_network_desc') })}
                   {renderNavItem({ to: '/discover', icon: Store, label: t('sidebar.discover'), desc: t('sidebar.discover_desc') })}
                   {renderNavItem({ to: '/spotlight', icon: Star, label: t('sidebar.spotlight'), desc: t('sidebar.spotlight_desc') })}
                   {renderNavItem({ to: '/resources', icon: Package, label: t('sidebar.purchases'), desc: t('sidebar.purchases_desc') })}
