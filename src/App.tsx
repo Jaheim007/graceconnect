@@ -47,6 +47,7 @@ const LandingPage = lazy(() => import("@/pages/LandingPage"));
 const AuthPage = lazy(() => import("@/pages/AuthPage"));
 const AuthCallbackPage = lazy(() => import("@/pages/AuthCallbackPage"));
 const DiscoverPage = lazy(() => import("@/pages/DiscoverPage"));
+const SpotlightPage = lazy(() => import("@/pages/SpotlightPage"));
 const OrgPublicPage = lazy(() => import("@/pages/OrgPublicPage"));
 const ProductDetailPage = lazy(() => import("@/pages/ProductDetailPage"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -383,6 +384,7 @@ const App = () => (
                 {/* Public / Buyer Universe — uses PublicLayout (minimal chrome) */}
                 <Route element={<PublicLayout />}>
                   <Route path="/discover" element={<DiscoverPage />} />
+                  <Route path="/spotlight" element={<SpotlightPage />} />
                   <Route path="/org/:slug" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/content" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/events" element={<OrgPublicPage />} />

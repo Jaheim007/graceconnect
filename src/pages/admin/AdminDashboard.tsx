@@ -26,6 +26,7 @@ import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist
 import { SmartNextAction } from '@/components/admin/SmartNextAction';
 import { VideoImportButton } from '@/components/admin/VideoImportButton';
 import { QuickStartWizard } from '@/components/onboarding/QuickStartWizard';
+import { AIAnalyticsInsights } from '@/components/admin/AIAnalyticsInsights';
 
 // Advanced tools — lazy-loaded section
 import { WeeklyMissions } from '@/components/admin/WeeklyMissions';
@@ -322,8 +323,9 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* ═══ ZONE 3 — SMART ACTIONS (compact) ═══ */}
+      {/* ═══ ZONE 3 — SMART ACTIONS + AI INSIGHTS ═══ */}
       <SmartNextAction />
+      <AIAnalyticsInsights />
       <TimeSinceLastSale />
 
       {/* ═══ ZONE 4 — ONBOARDING (collapsible) ═══ */}
