@@ -245,6 +245,26 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                 </div>
               </div>
 
+              {/* Audience level selection */}
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Users className="h-3 w-3" /> {isFr ? 'Niveau du public' : 'Audience level'}
+                </p>
+                <Select value={audienceLevel} onValueChange={setAudienceLevel}>
+                  <SelectTrigger className="h-9 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="beginner">{isFr ? '🌱 Débutant' : '🌱 Beginner'}</SelectItem>
+                    <SelectItem value="intermediate">{isFr ? '📚 Intermédiaire' : '📚 Intermediate'}</SelectItem>
+                    <SelectItem value="advanced">{isFr ? '🎓 Avancé' : '🎓 Advanced'}</SelectItem>
+                    <SelectItem value="professional">{isFr ? '💼 Professionnel' : '💼 Professional'}</SelectItem>
+                    <SelectItem value="academic">{isFr ? '🔬 Académique' : '🔬 Academic'}</SelectItem>
+                    <SelectItem value="youth">{isFr ? '🧒 Jeune public' : '🧒 Youth'}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               {/* Image generation option */}
               <div className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border">
                 <div className="flex items-center gap-2">
