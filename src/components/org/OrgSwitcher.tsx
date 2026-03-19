@@ -161,7 +161,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
               )}
             </div>
           </div>
-          {userOrgs.length > 1 && (
+          {managedOrgs.length > 1 && (
             <ChevronDown className="h-3.5 w-3.5 text-primary/60 shrink-0 group-hover:text-primary transition-colors" />
           )}
         </div>
