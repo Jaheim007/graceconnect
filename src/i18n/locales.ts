@@ -1380,6 +1380,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'create_hub.promos_desc': 'Discounts for your products',
     'create_hub.donations': 'Donations',
     'create_hub.donations_desc': 'Receive donations from supporters',
+    'create_hub.popups': 'Pop-ups & Banners',
+    'create_hub.popups_desc': 'Engage visitors with targeted pop-ups',
     // ─── People ───
     'people.title': 'People',
     'people.subtitle': 'Members of your community and ambassadors',
