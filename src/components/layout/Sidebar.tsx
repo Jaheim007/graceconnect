@@ -3,7 +3,8 @@ import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
   Home, Eye, Settings, ChevronLeft, ChevronRight, Shield,
   FileCheck, LogOut, BarChart3, Building2, Users, Wallet,
-  PenLine, Store, Package, User, Heart, Handshake, Plus, Share2
+  PenLine, Store, Package, User, Heart, Handshake, Plus, Share2,
+  Sparkles, Coins, GraduationCap, Bookmark, Star
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
