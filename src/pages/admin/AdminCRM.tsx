@@ -85,7 +85,7 @@ export default function AdminCRM() {
     },
     onSuccess: () => {
       toast({ title: `✅ ${t('crm.contact_added')}` });
-      setNewEmail(''); setNewName(''); setNewTags('');
+      setNewEmail(''); setNewName(''); setNewPhone(''); setNewTags('');
       setShowAddContact(false);
       qc.invalidateQueries({ queryKey: ['crm-contacts', orgId] });
     },
