@@ -1227,7 +1227,7 @@ Deno.serve(async (req) => {
     for (const purchase of j3Purchases || []) {
       if (!purchase.user_id) continue;
       const email = await getUserEmail(purchase.user_id);
-      const profile = await getUserProfile(purchase.user_id);
+      const { data: profile } = await db.from('profiles').select('display_name').eq('id', purchase.user_id).maybeSingle();
       const product = (purchase as any).digital_products;
       const org = (purchase as any).organizations;
       if (email && product && org) {
