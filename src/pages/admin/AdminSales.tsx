@@ -265,7 +265,7 @@ export default function AdminSales() {
           <p className="text-sm text-muted-foreground mt-1">{isFr ? 'Historique complet des transactions de votre boutique' : 'Complete transaction history for your store'}</p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => window.location.href = '/admin/payouts'} className="gap-2">
+          <Button variant="outline" onClick={() => navigate('/admin/payouts')} className="gap-2">
             <ArrowUpRight className="h-4 w-4" /> {isFr ? 'Retraits' : 'Payouts'}
           </Button>
           <Button onClick={handleExport} className="gap-2 shadow-lg shadow-primary/20">
