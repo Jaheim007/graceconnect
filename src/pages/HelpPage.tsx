@@ -176,10 +176,15 @@ export default function HelpPage() {
 
         <div className="container max-w-3xl mt-16 text-center space-y-4">
           <h2 className="text-xl font-bold">{isFr ? 'Vous n\'avez pas trouvé votre réponse ?' : 'Didn\'t find your answer?'}</h2>
-          <p className="text-sm text-muted-foreground">{isFr ? 'Notre équipe est là pour vous aider.' : 'Our team is here to help.'}</p>
-          <Button className="gap-2" onClick={() => navigate('/contact')}>
-            <MessageCircle className="h-4 w-4" /> {isFr ? 'Contacter le support' : 'Contact support'}
-          </Button>
+          <p className="text-sm text-muted-foreground">{isFr ? 'Consultez nos tutoriels détaillés ou contactez notre équipe.' : 'Check our detailed tutorials or contact our team.'}</p>
+          <div className="flex gap-3 justify-center flex-wrap">
+            <Button variant="outline" className="gap-2" onClick={() => navigate('/tutoriels')}>
+              <BookOpen className="h-4 w-4" /> {isFr ? 'Tutoriels & Guides' : 'Tutorials & Guides'}
+            </Button>
+            <Button className="gap-2" onClick={() => navigate('/contact')}>
+              <MessageCircle className="h-4 w-4" /> {isFr ? 'Contacter le support' : 'Contact support'}
+            </Button>
+          </div>
         </div>
       </section>
 

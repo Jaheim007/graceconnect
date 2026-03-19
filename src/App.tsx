@@ -139,6 +139,7 @@ const GuideAlternativeGofundmePage = lazy(() => import("@/pages/guides/GuideAlte
 const GuideBoutiqueDigitalePage = lazy(() => import("@/pages/guides/GuideBoutiqueDigitalePage"));
 const GuideMonetiserContenuReligieuxPage = lazy(() => import("@/pages/guides/GuideMonetiserContenuReligieuxPage"));
 const GuideAffiliationSansInvestissementPage = lazy(() => import("@/pages/guides/GuideAffiliationSansInvestissementPage"));
+const TutorialsPage = lazy(() => import("@/pages/TutorialsPage"));
 
 // Authenticated
 const FeedPage = lazy(() => import("@/pages/FeedPage"));
@@ -348,6 +349,7 @@ const App = () => (
                 <Route path="/etudes-de-cas" element={<EtudesDeCasPage />} />
                 <Route path="/status" element={<StatusPage />} />
                 <Route path="/help" element={<HelpPage />} />
+                <Route path="/tutoriels" element={<TutorialsPage />} />
                 <Route path="/partenaires" element={<PartenairesPage />} />
                 <Route path="/guide/vendre-ebook-afrique" element={<GuideVendreEbookPage />} />
                 <Route path="/guide/plateforme-dons-afrique" element={<GuidePlateformeDonsPage />} />

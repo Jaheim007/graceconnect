@@ -405,9 +405,9 @@ export function ChariowImportDialog({ open, onOpenChange }: { open: boolean; onO
           {/* ═══ DONE ═══ */}
           {step === 'done' && (
             <motion.div key="done" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
-              className="flex flex-col items-center justify-center py-6 gap-4 text-center"
+              className="flex flex-col items-center py-6 gap-4 text-center max-h-[70vh] overflow-y-auto"
             >
-              <div className="h-14 w-14 rounded-full bg-emerald-500/10 flex items-center justify-center">
+              <div className="h-14 w-14 rounded-full bg-emerald-500/10 flex items-center justify-center shrink-0">
                 <CheckCircle2 className="h-7 w-7 text-emerald-500" />
               </div>
               <div>
