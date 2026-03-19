@@ -152,7 +152,7 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
                       disabled={createLink.isPending}
                     >
                       <Link2 className="h-3 w-3" />
-                      {createLink.isPending ? '...' : 'Créer lien'}
+                      {createLink.isPending ? '...' : (isFr ? 'Créer lien' : 'Create link')}
                     </Button>
                   )}
                 </div>
