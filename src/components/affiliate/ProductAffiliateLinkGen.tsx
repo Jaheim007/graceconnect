@@ -96,7 +96,7 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
         className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors w-full"
       >
         <ShoppingBag className="h-3.5 w-3.5" />
-        <span>Liens par produit</span>
+        <span>{isFr ? 'Liens par produit' : 'Links per product'}</span>
         {existingLinks.length > 0 && (
           <Badge variant="outline" className="text-[9px] border-0 bg-primary/10 text-primary ml-1">{existingLinks.length}</Badge>
         )}
