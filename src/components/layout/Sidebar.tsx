@@ -195,8 +195,8 @@ export function Sidebar() {
                 {renderSectionLabel(t('sidebar.write_sell_earn'), 'text-emerald-500')}
                 <div className="space-y-0.5">
                   {renderNavItem({ to: '/ecrire', icon: PenLine, label: t('sidebar.write'), desc: t('sidebar.write_desc') })}
-                  {renderNavItem({ to: '/vendre', icon: Store, label: t('sidebar.sell_action'), desc: t('sidebar.sell_action_desc') })}
-                  {renderNavItem({ to: '/affiliation', icon: Wallet, label: t('sidebar.earn_sharing'), desc: t('sidebar.earn_sharing_desc') })}
+                  {renderNavItem({ to: user ? '/create-org' : '/vendre', icon: Store, label: t('sidebar.sell_action'), desc: t('sidebar.sell_action_desc') })}
+                  {renderNavItem({ to: user ? '/affiliation' : '/gagner', icon: Wallet, label: t('sidebar.earn_sharing'), desc: t('sidebar.earn_sharing_desc') })}
                 </div>
 
                 {isApprovedPartner && (
