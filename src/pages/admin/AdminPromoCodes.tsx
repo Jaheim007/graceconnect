@@ -38,6 +38,8 @@ export default function AdminPromoCodes() {
   const [maxUses, setMaxUses] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
   const [selectedProductId, setSelectedProductId] = useState<string>('all');
+  const [minAmount, setMinAmount] = useState('');
+  const [firstPurchaseOnly, setFirstPurchaseOnly] = useState(false);
 
   const { data: products = [] } = useOrgProducts(currentOrg?.id, false);
   const dateFmt = locale === 'fr' ? 'fr-FR' : 'en-US';
@@ -83,6 +85,9 @@ export default function AdminPromoCodes() {
       if (maxUses) payload.max_uses = parseInt(maxUses);
       if (expiresAt) payload.expires_at = new Date(expiresAt).toISOString();
       if (selectedProductId !== 'all') payload.product_id = selectedProductId;
+      if (minAmount) payload.min_amount = parseFloat(minAmount);
+      payload.first_purchase_only = firstPurchaseOnly;
+      if (selectedProductId !== 'all') payload.product_id = selectedProductId;
 
       const { error } = await db.from('promo_codes').insert(payload);
       if (error) {
@@ -94,7 +99,7 @@ export default function AdminPromoCodes() {
     },
     onSuccess: () => {
       toast({ title: `✅ ${t('admin_promo.created')}` });
-      setCode(''); setDiscountType('percent'); setDiscountPercent('10'); setDiscountAmount(''); setMaxUses(''); setExpiresAt(''); setSelectedProductId('all');
+      setCode(''); setDiscountType('percent'); setDiscountPercent('10'); setDiscountAmount(''); setMaxUses(''); setExpiresAt(''); setSelectedProductId('all'); setMinAmount(''); setFirstPurchaseOnly(false);
       setShowForm(false);
       qc.invalidateQueries({ queryKey: ['admin-promo-codes', currentOrg?.id] });
     },
@@ -194,6 +199,14 @@ export default function AdminPromoCodes() {
                 <Label className="text-xs">{t('admin_promo.expires')}</Label>
                 <Input type="date" value={expiresAt} onChange={e => setExpiresAt(e.target.value)} className="h-8 text-xs" />
               </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Montant minimum d'achat</Label>
+                <Input type="number" value={minAmount} onChange={e => setMinAmount(e.target.value)} placeholder="0 (aucun minimum)" className="h-8 text-xs" />
+              </div>
+              <div className="flex items-center gap-2 py-2">
+                <Switch checked={firstPurchaseOnly} onCheckedChange={setFirstPurchaseOnly} />
+                <Label className="text-xs">Premier achat uniquement</Label>
+              </div>
             </div>
             <div className="flex gap-2">
               <Button size="sm" className="bg-primary text-primary-foreground" onClick={() => createCode.mutate()} disabled={createCode.isPending}>
@@ -229,6 +242,8 @@ export default function AdminPromoCodes() {
                     {pc.digital_products?.title && (
                       <p className="text-[10px] text-primary">🏷️ {pc.digital_products.title}</p>
                     )}
+                    {pc.min_amount > 0 && <span className="text-[10px] text-muted-foreground"> · Min: {pc.min_amount}</span>}
+                    {pc.first_purchase_only && <span className="text-[10px] text-amber-600"> · 1er achat</span>}
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch checked={pc.is_active} onCheckedChange={(v) => toggleActive.mutate({ id: pc.id, is_active: v })} />

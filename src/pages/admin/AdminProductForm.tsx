@@ -93,6 +93,8 @@ export function ProductForm() {
   const [fbPixel, setFbPixel] = useState('');
   const [ttPixel, setTtPixel] = useState('');
   const [gTag, setGTag] = useState('');
+  const [seoTitle, setSeoTitle] = useState('');
+  const [seoDescription, setSeoDescription] = useState('');
 
   // Bundle & Recommendation hooks
   const { data: allProducts = [] } = useOrgProducts(currentOrg?.id, false);
@@ -149,6 +151,8 @@ export function ProductForm() {
       setFbPixel((item as any).facebook_pixel_id || '');
       setTtPixel((item as any).tiktok_pixel_id || '');
       setGTag((item as any).google_tag_id || '');
+      setSeoTitle((item as any).seo_title || '');
+      setSeoDescription((item as any).seo_description || '');
     }
   }, [item, reset]);
 
@@ -213,6 +217,8 @@ export function ProductForm() {
         facebook_pixel_id: fbPixel.trim() || null,
         tiktok_pixel_id: ttPixel.trim() || null,
         google_tag_id: gTag.trim() || null,
+        seo_title: seoTitle.trim() || null,
+        seo_description: seoDescription.trim() || null,
       };
       let error;
       let resultData: any;
@@ -597,6 +603,27 @@ export function ProductForm() {
             <div className="space-y-1">
               <Label className="text-xs font-medium">Google Tag ID</Label>
               <Input value={gTag} onChange={e => setGTag(e.target.value)} placeholder="G-XXXXXXXXXX" className="h-8 text-xs font-mono" />
+            </div>
+          </div>
+        </div>
+
+        {/* SEO Settings */}
+        <div className="space-y-3 border border-border rounded-xl p-4">
+          <p className="text-sm font-semibold flex items-center gap-2">🔍 SEO & Référencement</p>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Titre SEO <Badge variant="outline" className={`text-[10px] border-0 ml-1 ${seoTitle.length > 60 ? 'text-amber-600' : 'text-muted-foreground'}`}>{seoTitle.length}/60</Badge></Label>
+              <Input value={seoTitle} onChange={e => setSeoTitle(e.target.value)} placeholder={watch('title') || 'Titre optimisé pour Google'} className="h-8 text-xs" maxLength={70} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Description SEO <Badge variant="outline" className={`text-[10px] border-0 ml-1 ${seoDescription.length > 160 ? 'text-amber-600' : 'text-muted-foreground'}`}>{seoDescription.length}/160</Badge></Label>
+              <Textarea value={seoDescription} onChange={e => setSeoDescription(e.target.value)} placeholder="Décrivez votre produit pour les moteurs de recherche..." className="text-xs min-h-[50px]" maxLength={170} />
+            </div>
+            {/* Google Preview */}
+            <div className="bg-background border border-border rounded-lg p-3 space-y-0.5">
+              <p className="text-[10px] text-muted-foreground">Aperçu Google</p>
+              <p className="text-sm text-blue-600 font-medium truncate">{seoTitle || watch('title') || 'Titre du produit'}</p>
+              <p className="text-xs text-muted-foreground line-clamp-2">{seoDescription || 'Description de votre produit...'}</p>
             </div>
           </div>
         </div>

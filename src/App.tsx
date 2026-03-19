@@ -175,6 +175,7 @@ const AdminAnalyticsPage = lazy(() => import("@/pages/admin/AdminAnalyticsPage")
 const AdminCRM = lazy(() => import("@/pages/admin/AdminCRM"));
 
 const AdminPromoCodes = lazy(() => import("@/pages/admin/AdminPromoCodes"));
+const AdminPopups = lazy(() => import("@/pages/admin/AdminPopups"));
 const AdminPhotos = lazy(() => import("@/pages/admin/AdminPhotos"));
 const AdminSales = lazy(() => import("@/pages/admin/AdminSales"));
 const AdminPayouts = lazy(() => import("@/pages/admin/AdminPayouts"));
@@ -468,6 +469,7 @@ const App = () => (
                   <Route path="notifications" element={<AdminNotifications />} />
                   <Route path="experiments" element={<AdminExperiments />} />
                   <Route path="webhooks" element={<AdminWebhooks />} />
+                  <Route path="popups" element={<AdminPopups />} />
                   <Route path="offerings" element={<AdminOfferings />} />
                   <Route path="programs" element={<AdminPrograms />} />
                   <Route path="programs/new" element={<AdminProgramForm />} />
