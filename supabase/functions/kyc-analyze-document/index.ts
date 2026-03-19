@@ -273,9 +273,9 @@ Respond in French for all human-readable fields (quality_summary, fraud_notes, r
 
       // Get all superadmin user IDs
       const { data: superadmins } = await supabase
-        .from("user_roles")
+        .from("user_platform_roles")
         .select("user_id")
-        .eq("role", "admin");
+        .eq("role", "superadmin");
 
       if (superadmins && superadmins.length > 0) {
         const alerts = superadmins.map((sa: any) => ({

@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
     } catch {}
 
     // Find superadmin users
-    const { data: admins } = await db.from('user_roles')
+    const { data: admins } = await db.from('user_platform_roles')
       .select('user_id')
       .eq('role', 'superadmin');
 
