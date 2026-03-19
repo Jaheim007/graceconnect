@@ -1347,6 +1347,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'sidebar.ambassadors': 'Ambassadors',
     'sidebar.ambassadors_desc': 'Manage your affiliate program',
     'sidebar.ai_studio_desc': 'Create content with AI',
+    'sidebar.viral_tools_desc': 'CRM, notifications & advanced tools',
     'sidebar.spotlight': 'Spotlight',
     'sidebar.spotlight_desc': 'Featured picks & trending',
     'sidebar.my_programs': 'My Programs',
