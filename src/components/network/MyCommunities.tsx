@@ -1,10 +1,10 @@
 /**
- * MyCommunities — Horizontal scrollable cards showing orgs the user is a member of
- * (not owner/admin). Displayed at the top of the My Network / Feed page.
+ * MyCommunities — Premium glassmorphism community cards with fire design.
+ * Horizontal scrollable showcase of orgs the user is a member of (not owner/admin).
  */
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Users, ExternalLink, Shield } from 'lucide-react';
+import { Users, ArrowRight, Shield, Sparkles, Crown } from 'lucide-react';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { Organization } from '@/types/database';
@@ -21,13 +21,11 @@ export function MyCommunities() {
   const { locale } = useI18n();
   const isFr = locale === 'fr';
 
-  // Only show communities where user is NOT owner/admin
   const memberOrgs = userOrgs.filter((o) => {
     const role = getRoleFor(o.id);
     return role !== 'owner' && role !== 'admin';
   });
 
-  // Fetch member counts for all member orgs
   const orgIds = memberOrgs.map((o) => o.id);
   const { data: memberCounts = {} } = useQuery({
     queryKey: ['community-member-counts', orgIds],
@@ -60,20 +58,27 @@ export function MyCommunities() {
   };
 
   return (
-    <section className="space-y-3">
-      <div className="flex items-center gap-2.5">
-        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-          <Users className="h-4 w-4 text-primary" />
-        </div>
-        <div>
-          <h2 className="font-bold text-sm">{isFr ? 'Mes communautés' : 'My Communities'}</h2>
-          <p className="text-[11px] text-muted-foreground">
-            {memberOrgs.length} {memberOrgs.length > 1 ? (isFr ? 'communautés rejointes' : 'communities joined') : (isFr ? 'communauté rejointe' : 'community joined')}
-          </p>
+    <section className="space-y-4">
+      {/* Section header with glow accent */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-[0_0_20px_hsl(var(--primary)/0.3)]">
+              <Sparkles className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <div className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-primary animate-pulse" />
+          </div>
+          <div>
+            <h2 className="font-extrabold text-base tracking-tight">{isFr ? 'Mes communautés' : 'My Communities'}</h2>
+            <p className="text-[11px] text-muted-foreground font-medium">
+              {memberOrgs.length} {memberOrgs.length > 1 ? (isFr ? 'communautés actives' : 'active communities') : (isFr ? 'communauté active' : 'active community')}
+            </p>
+          </div>
         </div>
       </div>
 
-      <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-1 px-1">
+      {/* Scrollable cards with premium glassmorphism */}
+      <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-3 -mx-1 px-1">
         {memberOrgs.map((org, i) => (
           <CommunityCard
             key={org.id}
@@ -109,54 +114,78 @@ function CommunityCard({
 
   return (
     <motion.button
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.06, type: 'spring', stiffness: 300, damping: 24 }}
+      initial={{ opacity: 0, y: 24, scale: 0.92 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ delay: index * 0.08, type: 'spring', stiffness: 260, damping: 22 }}
+      whileHover={{ y: -6, scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
       onClick={onClick}
       className={cn(
-        'shrink-0 w-56 sm:w-64 rounded-2xl border border-border bg-card overflow-hidden',
-        'shadow-card hover:shadow-elevated hover:-translate-y-1 transition-all duration-300',
-        'text-left group focus-visible:ring-2 focus-visible:ring-primary'
+        'shrink-0 w-64 sm:w-72 rounded-2xl overflow-hidden',
+        'bg-card/80 backdrop-blur-xl border border-border/50',
+        'shadow-[0_8px_32px_rgba(0,0,0,0.12)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.2)]',
+        'transition-shadow duration-500',
+        'text-left group focus-visible:ring-2 focus-visible:ring-primary relative'
       )}
     >
-      {/* Cover / gradient header */}
-      <div className="relative h-20 overflow-hidden">
+      {/* Cover with cinematic gradient overlay */}
+      <div className="relative h-28 overflow-hidden">
         {coverUrl ? (
-          <img src={coverUrl} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+          <img
+            src={coverUrl}
+            alt=""
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+          />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-primary/20 via-primary/10 to-accent/10" />
+          <div className="w-full h-full bg-gradient-to-br from-primary/30 via-primary/15 to-accent/20 relative">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(var(--primary)/0.25),transparent_50%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,hsl(var(--accent)/0.2),transparent_50%)]" />
+          </div>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-card/80 to-transparent" />
+        {/* Multi-layer gradient for depth */}
+        <div className="absolute inset-0 bg-gradient-to-t from-card via-card/40 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-        {/* Avatar overlapping cover */}
-        <div className="absolute -bottom-5 left-4">
-          <div className="h-12 w-12 rounded-xl overflow-hidden ring-3 ring-card shadow-md">
-            {logo ? (
-              <img src={logo} alt={org.name} className="h-full w-full object-cover" />
-            ) : (
-              <div className="h-full w-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center text-primary-foreground font-bold text-sm">
-                {initials}
+        {/* Floating member count badge */}
+        <div className="absolute top-3 right-3 flex items-center gap-1 px-2.5 py-1 rounded-full bg-background/70 backdrop-blur-md border border-border/30 shadow-sm">
+          <Users className="h-3 w-3 text-primary" />
+          <span className="text-[11px] font-bold text-foreground">{memberCount}</span>
+        </div>
+
+        {/* Avatar with glowing ring */}
+        <div className="absolute -bottom-6 left-4">
+          <div className="relative">
+            <div className="h-14 w-14 rounded-2xl overflow-hidden ring-[3px] ring-card shadow-[0_4px_16px_rgba(0,0,0,0.15)] group-hover:ring-primary/30 transition-all duration-300">
+              {logo ? (
+                <img src={logo} alt={org.name} className="h-full w-full object-cover" />
+              ) : (
+                <div className="h-full w-full bg-gradient-to-br from-primary via-primary/80 to-primary/60 flex items-center justify-center text-primary-foreground font-bold text-base">
+                  {initials}
+                </div>
+              )}
+            </div>
+            {verified && (
+              <div className="absolute -bottom-1 -right-1">
+                <VerifiedBadge size="xs" showTooltip={false} />
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="pt-7 px-4 pb-4 space-y-2">
-        <div className="flex items-center gap-1.5">
-          <h3 className="font-bold text-sm truncate">{org.name}</h3>
-          {verified && <VerifiedBadge size="xs" showTooltip={false} />}
+      {/* Content area */}
+      <div className="pt-8 px-4 pb-4 space-y-3">
+        <div>
+          <h3 className="font-bold text-sm truncate group-hover:text-primary transition-colors duration-200">
+            {org.name}
+          </h3>
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-            <Shield className="h-2.5 w-2.5" />
+        {/* Role badge with gradient */}
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-primary bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-full">
+            <Shield className="h-3 w-3" />
             {role}
-          </span>
-          <span className="text-[11px] text-muted-foreground flex items-center gap-1">
-            <Users className="h-2.5 w-2.5" />
-            {memberCount}
           </span>
         </div>
 
@@ -166,9 +195,10 @@ function CommunityCard({
           </p>
         )}
 
-        <div className="flex items-center gap-1 text-[11px] text-primary font-semibold opacity-0 group-hover:opacity-100 transition-opacity pt-1">
-          <ExternalLink className="h-3 w-3" />
-          Visit
+        {/* Hover-reveal CTA */}
+        <div className="flex items-center gap-1.5 text-[11px] text-primary font-bold pt-1 opacity-0 group-hover:opacity-100 translate-y-1 group-hover:translate-y-0 transition-all duration-300">
+          <span>Visit</span>
+          <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform duration-200" />
         </div>
       </div>
     </motion.button>

@@ -169,11 +169,28 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
     )
   );
 
-  // If only 1 managed platform or none, just show the card, no switching
-  if (managedOrgs.length <= 1 && variant === 'sidebar') {
-    return <div className={cn(collapsed ? 'px-1 mt-3' : 'mx-3 mt-3')}>{TriggerButton}</div>;
+  // Always allow opening the dialog — even with 0-1 managed orgs, user can create a new one
+  if (managedOrgs.length === 0 && variant === 'topbar') return null;
+  if (managedOrgs.length === 0 && variant === 'sidebar') {
+    // No managed orgs: show a "Create platform" CTA card instead
+    return (
+      <div className={cn(collapsed ? 'px-1 mt-3' : 'mx-3 mt-3')}>
+        <button
+          onClick={() => navigate('/create-org')}
+          className="w-full p-2.5 rounded-xl border border-dashed border-primary/30 hover:border-primary/50 bg-primary/5 hover:bg-primary/10 transition-all text-left group"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <Plus className="h-4 w-4 text-primary" />
+            </div>
+            {!collapsed && (
+              <p className="text-xs font-semibold text-primary">{t('sidebar.create_new_platform') || 'Create a platform'}</p>
+            )}
+          </div>
+        </button>
+      </div>
+    );
   }
-  if (managedOrgs.length <= 1) return null;
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
