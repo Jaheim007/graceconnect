@@ -473,117 +473,121 @@ MANDATORY REQUIREMENTS:
     // ─── Image generation (after structure, per lesson) ───
     let imagesGenerated = 0;
     if (generate_images && result?.modules) {
-      const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
-
-      const imageJobs: Array<{ lesson: any; imagePrompt: string }> = [];
-      for (const mod of result.modules) {
-        for (const lesson of (mod.lessons || [])) {
-          if (lesson?.image_prompt) imageJobs.push({ lesson, imagePrompt: lesson.image_prompt });
-        }
-      }
-
-      let nextJob = 0;
-      let creditsExhausted = false;
-
-      const worker = async () => {
-        while (!creditsExhausted) {
-          if (remainingBudgetMs() <= IMAGE_MIN_REMAINING_MS) {
-            console.warn('[ai-generate-course] Skipping remaining image jobs to avoid edge timeout');
-            return;
+      if (!OPENAI_API_KEY) {
+        console.warn('[ai-generate-course] Skipping lesson images: OPENAI_API_KEY is not configured');
+      } else {
+        const imageJobs: Array<{ lesson: any; imagePrompt: string }> = [];
+        for (const mod of result.modules) {
+          for (const lesson of (mod.lessons || [])) {
+            if (lesson?.image_prompt) imageJobs.push({ lesson, imagePrompt: lesson.image_prompt });
           }
+        }
 
-          const idx = nextJob++;
-          if (idx >= imageJobs.length) return;
+        let nextJob = 0;
+        let creditsExhausted = false;
+        let stopImageGeneration = false;
 
-          const { lesson, imagePrompt } = imageJobs[idx];
-
-          // Debit credits per image
-          let imgDebited = 0;
+        const refundImageCredits = async (amount: number) => {
+          if (amount <= 0) return;
           try {
-            const debitResult = await consumeCreditsOrThrow({
+            await refundCreditsAsBonus({
               admin,
               userId,
-              actionKey: 'ai_course_image',
-              tier: creditTier,
-              metadata: { lesson_title: lesson.title },
+              amount,
+              source: 'ai_course_image',
+              expiresInDays: 30,
             });
-            if (!('skipped' in debitResult)) imgDebited = debitResult.debited;
-          } catch (e: any) {
-            if (e?.status === 402) {
-              creditsExhausted = true;
-              console.warn(`[ai-generate-course] Credits exhausted for images at lesson "${lesson.title}"`);
-              return;
-            }
-            throw e;
+          } catch (_) {
+            // no-op
           }
+        };
 
-          try {
-            const budgetMs = remainingBudgetMs();
-            if (budgetMs <= IMAGE_MIN_REMAINING_MS) {
-              throw new Error('Not enough time remaining for image generation');
-            }
-
-            const imageTimeoutMs = Math.min(30_000, Math.max(12_000, budgetMs - 10_000));
-            const { base64, mimeType } = await aiGenerateImageBase64({
-              geminiKey: GEMINI_API_KEY || '',
-              prompt: `Professional educational illustration: ${imagePrompt}. Clean, modern, flat design style. No text in the image.`,
-              timeoutMs: imageTimeoutMs,
-            });
-
-            const ext = imageExtFromMime(mimeType);
-            const imagePath = `ai/courses/${userId}/${crypto.randomUUID()}.${ext}`;
-            const bytes = decodeBase64(base64);
-
-            const { error: uploadErr } = await admin.storage
-              .from(IMAGE_BUCKET)
-              .upload(imagePath, bytes, { contentType: mimeType, upsert: false });
-            if (uploadErr) throw uploadErr;
-
-            const { data: publicUrlData } = admin.storage.from(IMAGE_BUCKET).getPublicUrl(imagePath);
-            const imageUrl = publicUrlData?.publicUrl;
-            if (!imageUrl) throw new Error('Image upload succeeded but no public URL was returned');
-
-            lesson.content = `<div class="lesson-hero-image"><img src="${imageUrl}" alt="${lesson.title}" loading="lazy" style="width:100%;border-radius:12px;margin-bottom:16px;" /></div>${lesson.content}`;
-            imagesGenerated++;
-          } catch (imgErr: any) {
-            if (String(imgErr?.message || '').includes('Not enough time remaining')) {
-              console.warn('[ai-generate-course] Time budget reached during image generation, returning partial images');
-              if (imgDebited > 0) {
-                try {
-                  await refundCreditsAsBonus({
-                    admin,
-                    userId,
-                    amount: imgDebited,
-                    source: 'ai_course_image',
-                    expiresInDays: 30,
-                  });
-                } catch (_) {
-                  // no-op
-                }
-              }
+        const worker = async () => {
+          while (!creditsExhausted && !stopImageGeneration) {
+            if (remainingBudgetMs() <= IMAGE_MIN_REMAINING_MS) {
+              console.warn('[ai-generate-course] Skipping remaining image jobs to avoid edge timeout');
+              stopImageGeneration = true;
               return;
             }
 
-            console.error(`[ai-generate-course] Image gen error for "${lesson.title}":`, imgErr);
-            if (imgDebited > 0) {
-              try {
-                await refundCreditsAsBonus({
-                  admin,
-                  userId,
-                  amount: imgDebited,
-                  source: 'ai_course_image',
-                  expiresInDays: 30,
-                });
-              } catch (_) {
-                // no-op
+            const idx = nextJob++;
+            if (idx >= imageJobs.length) return;
+
+            const { lesson, imagePrompt } = imageJobs[idx];
+
+            let imgDebited = 0;
+            try {
+              const debitResult = await consumeCreditsOrThrow({
+                admin,
+                userId,
+                actionKey: 'ai_course_image',
+                tier: creditTier,
+                metadata: { lesson_title: lesson.title },
+              });
+              if (!('skipped' in debitResult)) imgDebited = debitResult.debited;
+            } catch (e: any) {
+              if (e?.status === 402) {
+                creditsExhausted = true;
+                console.warn(`[ai-generate-course] Credits exhausted for images at lesson "${lesson.title}"`);
+                return;
+              }
+              throw e;
+            }
+
+            try {
+              const budgetMs = remainingBudgetMs();
+              if (budgetMs <= IMAGE_MIN_REMAINING_MS) {
+                throw new Error('Not enough time remaining for image generation');
+              }
+
+              const imageTimeoutMs = Math.min(20_000, Math.max(10_000, budgetMs - 15_000));
+              const { base64, mimeType } = await openaiGenerateImageBase64({
+                apiKey: OPENAI_API_KEY,
+                prompt: `Professional educational illustration: ${imagePrompt}. Clean, modern, flat design style. No text in the image.`,
+                timeoutMs: imageTimeoutMs,
+              });
+
+              const ext = imageExtFromMime(mimeType);
+              const imagePath = `ai/courses/${userId}/${crypto.randomUUID()}.${ext}`;
+              const bytes = decodeBase64(base64);
+
+              const { error: uploadErr } = await admin.storage
+                .from(IMAGE_BUCKET)
+                .upload(imagePath, bytes, { contentType: mimeType, upsert: false });
+              if (uploadErr) throw uploadErr;
+
+              const { data: publicUrlData } = admin.storage.from(IMAGE_BUCKET).getPublicUrl(imagePath);
+              const imageUrl = publicUrlData?.publicUrl;
+              if (!imageUrl) throw new Error('Image upload succeeded but no public URL was returned');
+
+              lesson.content = `<div class="lesson-hero-image"><img src="${imageUrl}" alt="${lesson.title}" loading="lazy" style="width:100%;border-radius:12px;margin-bottom:16px;" /></div>${lesson.content}`;
+              imagesGenerated++;
+            } catch (imgErr: any) {
+              const message = String(imgErr?.message || '');
+              const status = Number(imgErr?.status || 0);
+
+              if (message.includes('Not enough time remaining') || imgErr?.name === 'AbortError') {
+                console.warn('[ai-generate-course] Time budget reached during image generation, returning partial images');
+                stopImageGeneration = true;
+                await refundImageCredits(imgDebited);
+                return;
+              }
+
+              console.error(`[ai-generate-course] Image gen error for "${lesson.title}":`, imgErr);
+              await refundImageCredits(imgDebited);
+
+              if (status === 429 || status >= 500) {
+                console.warn('[ai-generate-course] Image provider is slow/unavailable, returning partial images');
+                stopImageGeneration = true;
+                return;
               }
             }
           }
-        }
-      };
+        };
 
-      const workerCount = Math.min(IMAGE_GEN_CONCURRENCY, imageJobs.length || 1);
-      await Promise.all(Array.from({ length: workerCount }, () => worker()));
+        const workerCount = Math.min(IMAGE_GEN_CONCURRENCY, imageJobs.length || 1);
+        await Promise.all(Array.from({ length: workerCount }, () => worker()));
+      }
     }
 
     console.log('[ai-generate-course] Completed', {
