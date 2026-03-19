@@ -674,6 +674,7 @@ export default function ProductDetailPage() {
                 productId={product.id}
                 organizationId={product.organization_id}
                 isPurchased={isPurchased}
+                isOrgOwner={!!canManage}
               />
             </div>
 

@@ -13,6 +13,9 @@ export interface ProductReview {
   helpful_count: number;
   is_verified_purchase: boolean;
   is_published: boolean;
+  image_urls: string[];
+  seller_reply: string | null;
+  seller_reply_at: string | null;
   created_at: string;
   updated_at: string;
   profile?: { display_name: string | null; avatar_url: string | null };
@@ -103,9 +106,9 @@ export function useSubmitReview() {
 
   return useMutation({
     mutationFn: async ({
-      productId, organizationId, rating, title, comment, isVerifiedPurchase,
+      productId, organizationId, rating, title, comment, isVerifiedPurchase, imageUrls,
     }: {
-      productId: string; organizationId: string; rating: number; title: string; comment: string; isVerifiedPurchase: boolean;
+      productId: string; organizationId: string; rating: number; title: string; comment: string; isVerifiedPurchase: boolean; imageUrls?: string[];
     }) => {
       if (!user) throw new Error('Not authenticated');
 
@@ -130,6 +133,7 @@ export function useSubmitReview() {
             rating,
             title: normalizedTitle,
             comment: normalizedComment,
+            image_urls: imageUrls || [],
             is_published: true,
             updated_at: new Date().toISOString(),
           } as any)
@@ -145,6 +149,7 @@ export function useSubmitReview() {
             rating,
             title: normalizedTitle,
             comment: normalizedComment,
+            image_urls: imageUrls || [],
             is_verified_purchase: isVerifiedPurchase,
             is_published: true,
           } as any);
@@ -224,6 +229,25 @@ export function useDeleteReview() {
       qc.invalidateQueries({ queryKey: ['product-reviews', vars.productId] });
       qc.invalidateQueries({ queryKey: ['my-review', vars.productId] });
       qc.invalidateQueries({ queryKey: ['product-detail'] });
+    },
+  });
+}
+
+export function useSellerReply() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ reviewId, productId, reply }: { reviewId: string; productId: string; reply: string }) => {
+      const { error } = await db
+        .from('product_reviews')
+        .update({
+          seller_reply: reply.trim(),
+          seller_reply_at: new Date().toISOString(),
+        } as any)
+        .eq('id', reviewId);
+      if (error) throw error;
+    },
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({ queryKey: ['product-reviews', vars.productId] });
     },
   });
 }
