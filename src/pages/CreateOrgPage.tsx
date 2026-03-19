@@ -50,7 +50,8 @@ export default function CreateOrgPage() {
   const { user } = useAuth();
   const { refetchOrgs, setCurrentOrg } = useOrg();
   const { toast } = useToast();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const isFr = locale === 'fr';
   const [step, setStep] = useState(0); // 0=type, 1=name, 2=goal (just visual, not stored)
   const [loading, setLoading] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
