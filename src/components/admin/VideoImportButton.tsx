@@ -117,7 +117,7 @@ export function VideoImportButton() {
 
   return (
     <>
-      <Button variant="outline" size="sm" onClick={() => setOpen(true)} className="gap-2 text-xs h-8 sm:h-9 shrink-0">
+      <Button size="sm" onClick={() => setOpen(true)} className="gap-2 text-xs h-8 sm:h-9 shrink-0 bg-amber-500 hover:bg-amber-600 text-black font-semibold">
         <Video className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> {isFr ? 'Importer' : 'Import'}
       </Button>
 
