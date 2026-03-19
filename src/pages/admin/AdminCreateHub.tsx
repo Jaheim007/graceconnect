@@ -5,19 +5,18 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import {
   ShoppingBag, GraduationCap, Play, Megaphone, CalendarDays,
-  Heart, Tag, ArrowRight, Sparkles, MessageSquare,
-  MailCheck, Bell, CreditCard, Clock, Webhook, FlaskConical
+  Heart, Tag, ArrowRight, Sparkles, MessageSquare, Zap
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
 const createItems = [
   { to: '/admin/products', icon: ShoppingBag, labelKey: 'create_hub.products', descKey: 'create_hub.products_desc', color: 'text-primary bg-primary/10 border-primary/20' },
-  { to: '/admin/programs', icon: GraduationCap, labelKey: 'create_hub.programs', descKey: 'create_hub.programs_desc', color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' },
   { to: '/admin/media', icon: Play, labelKey: 'create_hub.media', descKey: 'create_hub.media_desc', color: 'text-blue-500 bg-blue-500/10 border-blue-500/20' },
+  { to: '/admin/programs', icon: GraduationCap, labelKey: 'create_hub.programs', descKey: 'create_hub.programs_desc', color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' },
   { to: '/admin/campaigns', icon: Heart, labelKey: 'create_hub.campaigns', descKey: 'create_hub.campaigns_desc', color: 'text-rose-500 bg-rose-500/10 border-rose-500/20' },
-  { to: '/admin/announcements', icon: Megaphone, labelKey: 'create_hub.announcements', descKey: 'create_hub.announcements_desc', color: 'text-amber-500 bg-amber-500/10 border-amber-500/20' },
   { to: '/admin/events', icon: CalendarDays, labelKey: 'create_hub.events', descKey: 'create_hub.events_desc', color: 'text-purple-500 bg-purple-500/10 border-purple-500/20' },
+  { to: '/admin/announcements', icon: Megaphone, labelKey: 'create_hub.announcements', descKey: 'create_hub.announcements_desc', color: 'text-amber-500 bg-amber-500/10 border-amber-500/20' },
   { to: '/admin/promo-codes', icon: Tag, labelKey: 'create_hub.promos', descKey: 'create_hub.promos_desc', color: 'text-teal-500 bg-teal-500/10 border-teal-500/20' },
   { to: '/admin/offerings', icon: Heart, labelKey: 'create_hub.donations', descKey: 'create_hub.donations_desc', color: 'text-pink-500 bg-pink-500/10 border-pink-500/20' },
   { to: '/admin/popups', icon: MessageSquare, labelKey: 'create_hub.popups', descKey: 'create_hub.popups_desc', color: 'text-orange-500 bg-orange-500/10 border-orange-500/20' },
@@ -27,7 +26,6 @@ export default function AdminCreateHub() {
   const { currentOrg } = useOrg();
   const { t } = useI18n();
 
-  // Get counts for each section
   const { data: counts } = useQuery({
     queryKey: ['create-hub-counts', currentOrg?.id],
     queryFn: async () => {
@@ -61,17 +59,16 @@ export default function AdminCreateHub() {
           <Sparkles className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <h1 className="text-xl font-bold tracking-tight">{t('create_hub.title')}</h1>
+          <h1 className="text-xl font-bold tracking-tight">Viral AI Studio</h1>
           <p className="text-sm text-muted-foreground">{t('create_hub.subtitle')}</p>
         </div>
       </div>
 
-      {/* AI Writer CTA — eye-catching animated card */}
+      {/* AI Writer CTA — Write a book */}
       <Link
         to="/ecrire"
         className="relative flex items-center gap-4 p-5 rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/5 hover:border-primary/50 transition-all group overflow-hidden"
       >
-        {/* Animated shimmer overlay */}
         <motion.div
           className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent"
           animate={{ x: ['-100%', '200%'] }}
@@ -92,6 +89,33 @@ export default function AdminCreateHub() {
           <p className="text-xs text-muted-foreground mt-1">{t('create_hub.ai_writer_desc')}</p>
         </div>
         <ArrowRight className="relative h-5 w-5 text-primary shrink-0 group-hover:translate-x-1.5 transition-transform" />
+      </Link>
+
+      {/* AI Course CTA — Create a course */}
+      <Link
+        to="/admin/programs/new"
+        className="relative flex items-center gap-4 p-5 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-accent/5 to-emerald-500/5 hover:border-emerald-500/50 transition-all group overflow-hidden"
+      >
+        <motion.div
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-emerald-500/5 to-transparent"
+          animate={{ x: ['-100%', '200%'] }}
+          transition={{ duration: 3.5, repeat: Infinity, ease: 'linear', repeatDelay: 2.5 }}
+        />
+        <motion.div
+          className="relative h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/30"
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <GraduationCap className="h-7 w-7 text-white" />
+        </motion.div>
+        <div className="relative flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h3 className="font-bold text-base">{t('create_hub.ai_course')}</h3>
+            <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-500">AI</span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">{t('create_hub.ai_course_desc')}</p>
+        </div>
+        <ArrowRight className="relative h-5 w-5 text-emerald-500 shrink-0 group-hover:translate-x-1.5 transition-transform" />
       </Link>
 
       {/* Grid of content types */}
@@ -136,35 +160,20 @@ export default function AdminCreateHub() {
         })}
       </div>
 
-      {/* ═══ ADVANCED TOOLS ═══ */}
-      <div>
-        <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3">{t('create_hub.advanced_tools')}</h2>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {[
-            { to: '/admin/crm', icon: MailCheck, label: 'CRM', desc: t('create_hub.crm_desc'), color: 'text-sky-500 bg-sky-500/10' },
-            { to: '/admin/notifications', icon: Bell, label: t('create_hub.notifications'), desc: t('create_hub.notifications_desc'), color: 'text-amber-500 bg-amber-500/10' },
-            { to: '/admin/subscriptions', icon: CreditCard, label: t('create_hub.subscriptions'), desc: t('create_hub.subscriptions_desc'), color: 'text-violet-500 bg-violet-500/10' },
-            { to: '/admin/waitlists', icon: Clock, label: t('create_hub.waitlists'), desc: t('create_hub.waitlists_desc'), color: 'text-slate-500 bg-slate-500/10' },
-            { to: '/admin/webhooks', icon: Webhook, label: 'Webhooks', desc: t('create_hub.webhooks_desc'), color: 'text-gray-500 bg-gray-500/10' },
-            { to: '/admin/experiments', icon: FlaskConical, label: t('create_hub.experiments'), desc: t('create_hub.experiments_desc'), color: 'text-lime-500 bg-lime-500/10' },
-          ].map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className="flex items-center gap-3 p-3 rounded-xl border border-border hover:border-primary/30 transition-all group"
-            >
-              <div className={cn('h-9 w-9 rounded-lg flex items-center justify-center shrink-0', item.color)}>
-                <item.icon className="h-4 w-4" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-xs">{item.label}</h3>
-                <p className="text-[11px] text-muted-foreground line-clamp-1">{item.desc}</p>
-              </div>
-              <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-0 group-hover:opacity-100 transition-all" />
-            </Link>
-          ))}
+      {/* Viral Tools link */}
+      <Link
+        to="/admin/viral-tools"
+        className="flex items-center gap-3 p-4 rounded-xl border border-border bg-muted/30 hover:border-primary/30 hover:shadow-md transition-all group"
+      >
+        <div className="h-10 w-10 rounded-lg flex items-center justify-center shrink-0 bg-primary/10 text-primary">
+          <Zap className="h-5 w-5" />
         </div>
-      </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-sm">Viral Tools</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">{t('create_hub.viral_tools_desc')}</p>
+        </div>
+        <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+      </Link>
     </div>
   );
 }
