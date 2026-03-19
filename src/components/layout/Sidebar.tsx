@@ -3,7 +3,7 @@ import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
   Home, Eye, Settings, ChevronLeft, ChevronRight, Shield,
   FileCheck, LogOut, BarChart3, Building2, Users, Wallet,
-  PenLine, Store, Package, User, Heart, Handshake, Plus
+  PenLine, Store, Package, User, Heart, Handshake, Plus, Share2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -173,6 +173,7 @@ export function Sidebar() {
                 {renderSeparator()}
                 <div className="space-y-0.5">
                   {renderNavItem({ to: '/marketplace', icon: Store, label: t('sidebar.discover'), desc: t('sidebar.discover_desc') })}
+                  {renderNavItem({ to: '/gagner', icon: Share2, label: t('sidebar.earn_sharing'), desc: t('sidebar.earn_sharing_desc') })}
                   {renderNavItem({ to: '/resources', icon: Package, label: t('sidebar.purchases'), desc: t('sidebar.purchases_desc') })}
                   {renderNavItem({ to: '/profile', icon: User, label: t('sidebar.profile'), desc: t('sidebar.profile_desc') })}
                 </div>
