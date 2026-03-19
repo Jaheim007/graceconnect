@@ -8,6 +8,7 @@ import {
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { OrgSwitcher } from '@/components/org/OrgSwitcher';
 import { useOrg } from '@/contexts/OrgContext';
 import { useI18n } from '@/i18n/I18nContext';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -27,7 +28,7 @@ export function Sidebar() {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const { user, isSuperadmin, signOut } = useAuth();
-  const { currentOrg, canManage, userOrgs, getRoleFor } = useOrg();
+  const { currentOrg, canManage, userOrgs } = useOrg();
   const { t } = useI18n();
   const { data: myPartner } = useMyPartner();
   const isApprovedPartner = myPartner?.status === 'approved';
@@ -53,21 +54,10 @@ export function Sidebar() {
 
   const kycIncomplete = !kycStatus || kycStatus === 'none' || kycStatus === 'pending';
 
-  // Build "My Pages" items
-  const myPageItems: NavItem[] = (() => {
-    const managedOrgs = userOrgs.filter((o) => {
-      const role = getRoleFor(o.id);
-      return role === 'owner' || role === 'admin';
-    });
-    if (managedOrgs.length === 1) {
-      return [{ to: `/org/${managedOrgs[0].slug}/store`, icon: Eye, label: t('sidebar.my_page'), desc: t('sidebar.my_page_desc') }];
-    }
-    return managedOrgs.map((o) => ({
-      to: `/org/${o.slug}/store`,
-      icon: Eye,
-      label: o.name,
-      desc: t('sidebar.my_page_desc'),
-    }));
+  // Single "My Page" link for the current org
+  const myPageItem: NavItem | null = (() => {
+    if (!currentOrg || !canManageCurrentOrg) return null;
+    return { to: `/org/${currentOrg.slug}/store`, icon: Eye, label: t('sidebar.my_page'), desc: t('sidebar.my_page_desc') };
   })();
 
   const isSA = location.pathname.startsWith('/superadmin');
@@ -160,9 +150,10 @@ export function Sidebar() {
             {hasOrgs && canManageCurrentOrg ? (
               <>
                 {renderSectionLabel(t('sidebar.creator_space'), 'text-primary')}
+                <OrgSwitcher variant="sidebar" collapsed={collapsed} />
                 <div className="space-y-0.5">
                   {renderNavItem({ to: '/dashboard', icon: Home, label: t('sidebar.home'), desc: t('sidebar.home_desc') })}
-                  {myPageItems.length > 0 && myPageItems.map(renderNavItem)}
+                  {myPageItem && renderNavItem(myPageItem)}
                   {renderNavItem({ to: '/admin/create', icon: Plus, label: t('sidebar.create'), desc: t('sidebar.create_desc') })}
                   {renderNavItem({ to: '/admin/sales', icon: Wallet, label: t('sidebar.sales_payouts'), desc: t('sidebar.sales_payouts_desc') })}
                   {renderNavItem({ to: '/admin/people', icon: Users, label: t('sidebar.people'), desc: t('sidebar.people_desc') })}
