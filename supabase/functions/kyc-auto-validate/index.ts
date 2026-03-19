@@ -97,9 +97,9 @@ Deno.serve(async (req) => {
     // Notify superadmins about the batch results
     if (submissions.length > 0) {
       const { data: superadmins } = await supabase
-        .from('user_roles')
+        .from('user_platform_roles')
         .select('user_id')
-        .eq('role', 'admin');
+        .eq('role', 'superadmin');
 
       if (superadmins && superadmins.length > 0 && flagged > 0) {
         const summary = superadmins.map((sa: any) => ({
