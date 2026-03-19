@@ -35,9 +35,8 @@ function extractCourseJsonCandidate(rawContent: string): string {
   const start = candidate.indexOf('{');
   if (start >= 0) candidate = candidate.slice(start);
 
-  const end = candidate.lastIndexOf('}');
-  if (end > start) candidate = candidate.slice(0, end + 1);
-
+  // DON'T trim at lastIndexOf('}') — truncated payloads need the full tail
+  // so closeOpenJsonStructures can properly close them.
   return candidate.trim();
 }
 
