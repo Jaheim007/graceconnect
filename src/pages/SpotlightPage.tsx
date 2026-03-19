@@ -137,7 +137,7 @@ export default function SpotlightPage() {
                 <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {featuredCampaigns.map((c: any) => (
                     <motion.div key={c.id} variants={fadeUp}>
-                      <CampaignCard campaign={c} org={c.organizations} />
+                      <CampaignCard campaign={c} />
                     </motion.div>
                   ))}
                 </motion.div>
