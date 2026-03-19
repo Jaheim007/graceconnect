@@ -77,6 +77,7 @@ export default function AdminCRM() {
         organization_id: orgId,
         email: newEmail.trim().toLowerCase(),
         name: newName.trim() || null,
+        phone: newPhone.trim() || null,
         tags,
         source: 'manual',
       });
