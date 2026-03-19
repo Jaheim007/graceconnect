@@ -547,7 +547,7 @@ MANDATORY REQUIREMENTS:
           throw new Error('No AI provider available');
         };
 
-        const aiData = await requestCourseCompletion(userPrompt, 16_000, 90_000);
+        const aiData = await requestCourseCompletion(userPrompt, 30_000, 120_000);
         const content = aiData.choices?.[0]?.message?.content || '';
 
         let parsed: any = tryParseCourseJson(content);
