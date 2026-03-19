@@ -152,6 +152,9 @@ export default function FeedPage() {
           </div>
         </motion.div>
 
+        {/* My Communities — orgs user is member of */}
+        <MyCommunities />
+
         {!announcementsLoading && announcements.some((a) => a.is_pinned) && (
           <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="rounded-2xl border border-primary/30 bg-primary/5 p-4 flex gap-3 items-start backdrop-blur-sm">
             <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0"><Megaphone className="h-5 w-5 text-primary" /></div>
