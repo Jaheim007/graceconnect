@@ -49,10 +49,12 @@ export default function EventDetailPage() {
     image: event?.image_url || undefined,
   });
 
+  const isFr = locale === 'fr';
+
   const handleCopyLink = async () => {
     await navigator.clipboard.writeText(socialShareUrl);
     setCopied(true);
-    toast({ title: 'Lien copié !' });
+    toast({ title: isFr ? 'Lien copié !' : 'Link copied!' });
     setTimeout(() => setCopied(false), 2000);
   };
 
