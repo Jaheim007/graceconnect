@@ -246,7 +246,7 @@ export default function AdminCRM() {
             <motion.div variants={fadeUp} initial="hidden" animate="visible"
               className="bg-card border border-border rounded-2xl p-4 space-y-3">
               <h3 className="font-semibold text-sm">{t('crm.new_contact')}</h3>
-              <div className="grid sm:grid-cols-3 gap-3">
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div className="space-y-1">
                   <Label className="text-xs">{t('crm.email')} *</Label>
                   <Input value={newEmail} onChange={e => setNewEmail(e.target.value)} placeholder="email@exemple.com" className="h-8 text-xs" />
@@ -254,6 +254,10 @@ export default function AdminCRM() {
                 <div className="space-y-1">
                   <Label className="text-xs">{t('crm.name')}</Label>
                   <Input value={newName} onChange={e => setNewName(e.target.value)} placeholder="Jean Dupont" className="h-8 text-xs" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">{locale === 'fr' ? 'Téléphone' : 'Phone'}</Label>
+                  <Input value={newPhone} onChange={e => setNewPhone(e.target.value)} placeholder="+225 07 00 00 00" className="h-8 text-xs" />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-xs">{t('crm.tags_label')}</Label>
