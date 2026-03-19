@@ -3,7 +3,8 @@ import { SiteLogo } from '@/components/ui/SiteLogo';
 import {
   Home, Eye, Settings, ChevronLeft, ChevronRight, Shield,
   FileCheck, LogOut, BarChart3, Building2, Users, Wallet,
-  PenLine, Store, Package, User, Heart, Handshake, Plus, Share2
+  PenLine, Store, Package, User, Heart, Handshake, Plus, Share2,
+  Sparkles, Coins, GraduationCap, Bookmark, Star
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -157,6 +158,8 @@ export function Sidebar() {
                   {renderNavItem({ to: '/admin/create', icon: Plus, label: t('sidebar.create'), desc: t('sidebar.create_desc') })}
                   {renderNavItem({ to: '/admin/sales', icon: Wallet, label: t('sidebar.sales_payouts'), desc: t('sidebar.sales_payouts_desc') })}
                   {renderNavItem({ to: '/admin/people', icon: Users, label: t('sidebar.people'), desc: t('sidebar.people_desc') })}
+                  {renderNavItem({ to: '/admin/affiliation', icon: Share2, label: t('sidebar.ambassadors'), desc: t('sidebar.ambassadors_desc') })}
+                  {renderNavItem({ to: '/admin/studio', icon: Sparkles, label: 'AI Studio', desc: t('sidebar.ai_studio_desc') })}
                   {renderNavItem({ to: '/admin/analytics', icon: BarChart3, label: t('sidebar.analytics') })}
                   {renderNavItem({ to: '/admin/kyc', icon: FileCheck, label: t('sidebar.verification'), badge: kycIncomplete })}
                   {renderNavItem({ to: '/admin/settings', icon: Settings, label: t('sidebar.settings') })}
@@ -172,9 +175,13 @@ export function Sidebar() {
                 {/* ═══ CONSUMER ZONE ═══ */}
                 {renderSeparator()}
                 <div className="space-y-0.5">
-                  {renderNavItem({ to: '/marketplace', icon: Store, label: t('sidebar.discover'), desc: t('sidebar.discover_desc') })}
+                  {renderNavItem({ to: '/discover', icon: Store, label: t('sidebar.discover'), desc: t('sidebar.discover_desc') })}
+                  {renderNavItem({ to: '/spotlight', icon: Star, label: t('sidebar.spotlight'), desc: t('sidebar.spotlight_desc') })}
                   {renderNavItem({ to: user ? '/affiliation' : '/gagner', icon: Share2, label: t('sidebar.earn_sharing'), desc: t('sidebar.earn_sharing_desc') })}
                   {renderNavItem({ to: '/resources', icon: Package, label: t('sidebar.purchases'), desc: t('sidebar.purchases_desc') })}
+                  {renderNavItem({ to: '/my-programs', icon: GraduationCap, label: t('sidebar.my_programs'), desc: t('sidebar.my_programs_desc') })}
+                  {renderNavItem({ to: '/credits', icon: Coins, label: t('sidebar.credits'), desc: t('sidebar.credits_desc') })}
+                  {renderNavItem({ to: '/bookmarks', icon: Bookmark, label: t('sidebar.bookmarks'), desc: t('sidebar.bookmarks_desc') })}
                   {renderNavItem({ to: '/profile', icon: User, label: t('sidebar.profile'), desc: t('sidebar.profile_desc') })}
                 </div>
               </>
@@ -184,9 +191,13 @@ export function Sidebar() {
                 {renderSectionLabel(t('sidebar.my_space'))}
                 <div className="space-y-0.5">
                   {renderNavItem({ to: '/dashboard', icon: Home, label: t('sidebar.home'), desc: t('sidebar.home_desc') })}
-                  {renderNavItem({ to: '/marketplace', icon: Store, label: t('sidebar.discover'), desc: t('sidebar.discover_desc') })}
+                  {renderNavItem({ to: '/discover', icon: Store, label: t('sidebar.discover'), desc: t('sidebar.discover_desc') })}
+                  {renderNavItem({ to: '/spotlight', icon: Star, label: t('sidebar.spotlight'), desc: t('sidebar.spotlight_desc') })}
                   {renderNavItem({ to: '/resources', icon: Package, label: t('sidebar.purchases'), desc: t('sidebar.purchases_desc') })}
+                  {renderNavItem({ to: '/my-programs', icon: GraduationCap, label: t('sidebar.my_programs'), desc: t('sidebar.my_programs_desc') })}
                   {renderNavItem({ to: '/my-donations', icon: Heart, label: t('sidebar.my_donations'), desc: t('sidebar.my_donations_desc') })}
+                  {renderNavItem({ to: '/credits', icon: Coins, label: t('sidebar.credits'), desc: t('sidebar.credits_desc') })}
+                  {renderNavItem({ to: '/bookmarks', icon: Bookmark, label: t('sidebar.bookmarks'), desc: t('sidebar.bookmarks_desc') })}
                   {renderNavItem({ to: '/profile', icon: User, label: t('sidebar.profile'), desc: t('sidebar.profile_desc') })}
                 </div>
 
