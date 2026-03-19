@@ -1,14 +1,14 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { corsHeaders, jsonResp, requireAuth, adminClient } from '../_shared/auth.ts';
 import { consumeCreditsWithRefund, consumeCreditsOrThrow, refundCreditsAsBonus, normalizeTier } from '../_shared/credits.ts';
-import { aiGenerateImageBase64 } from '../_shared/ai-fallback.ts';
+import { openaiGenerateImageBase64 } from '../_shared/ai-openai.ts';
 import { geminiGenerateText } from '../_shared/ai-gemini.ts';
 
 const ACTION_KEY = 'ai_course_structure';
-const IMAGE_GEN_CONCURRENCY = 6;
+const IMAGE_GEN_CONCURRENCY = 2;
 const IMAGE_BUCKET = 'media';
 const FUNCTION_HARD_DEADLINE_MS = 280_000;
-const IMAGE_MIN_REMAINING_MS = 35_000;
+const IMAGE_MIN_REMAINING_MS = 60_000;
 
 function decodeBase64(base64: string): Uint8Array {
   const binary = atob(base64);
