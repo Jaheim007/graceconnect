@@ -368,15 +368,31 @@ export function ProgramForm() {
               {modules.map((mod: any, mi: number) => (
                 <div key={mod.id}>
                   {/* Module header */}
-                  <div className="flex items-center gap-1.5 px-2 py-1.5 group">
+                  <div
+                    className="flex items-center gap-1.5 px-2 py-1.5 group cursor-pointer hover:bg-muted/30 rounded-md"
+                    onClick={() => {
+                      setCollapsedModules(prev => {
+                        const next = new Set(prev);
+                        if (next.has(mod.id)) next.delete(mod.id);
+                        else next.add(mod.id);
+                        return next;
+                      });
+                    }}
+                  >
+                    {collapsedModules.has(mod.id) ? (
+                      <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
+                    ) : (
+                      <ChevronDown className="h-3 w-3 text-muted-foreground shrink-0" />
+                    )}
                     <BookOpen className="h-3 w-3 text-muted-foreground shrink-0" />
                     <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide flex-1 truncate">
                       {mod.title}
                     </span>
+                    <span className="text-[9px] text-muted-foreground/60">{(mod.lessons || []).length}</span>
                     <Button
                       variant="ghost" size="icon"
                       className="h-5 w-5 opacity-0 group-hover:opacity-100 text-destructive"
-                      onClick={() => handleDeleteModule(mod.id)}
+                      onClick={(e) => { e.stopPropagation(); handleDeleteModule(mod.id); }}
                     >
                       <Trash2 className="h-2.5 w-2.5" />
                     </Button>
