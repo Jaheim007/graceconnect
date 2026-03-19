@@ -102,11 +102,11 @@ export function CampaignForm() {
   };
 
   return (
-    <AdminPageShell title={isEdit ? 'Modifier la campagne' : 'Nouvelle campagne de dons'} backRoute="/admin/campaigns">
+    <AdminPageShell title={isEdit ? (isFr ? 'Modifier la campagne' : 'Edit Campaign') : (isFr ? 'Nouvelle campagne de dons' : 'New Donation Campaign')} backRoute="/admin/campaigns">
       {!isEdit && <ContentTemplateSelector type="campaign" open={showTemplates} onClose={() => setShowTemplates(false)} onSelect={(tpl) => applyCampaignTemplate(tpl as CampaignTemplate)} />}
-      {!isEdit && !showTemplates && (<div className="mb-4"><Button variant="outline" size="sm" onClick={() => setShowTemplates(true)} className="gap-1.5 text-xs"><Sparkles className="h-3.5 w-3.5" /> Utiliser un modèle</Button></div>)}
+      {!isEdit && !showTemplates && (<div className="mb-4"><Button variant="outline" size="sm" onClick={() => setShowTemplates(true)} className="gap-1.5 text-xs"><Sparkles className="h-3.5 w-3.5" /> {isFr ? 'Utiliser un modèle' : 'Use a template'}</Button></div>)}
 
-      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html, { shouldDirty: true, shouldTouch: true })} context="description de campagne de dons" />
+      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html, { shouldDirty: true, shouldTouch: true })} context={isFr ? 'description de campagne de dons' : 'donation campaign description'} />
       
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
