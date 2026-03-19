@@ -99,7 +99,7 @@ async function fetchRates(): Promise<Record<string, number>> {
   fetchPromise = (async () => {
     try {
       const res = await fetch(
-        'https://api.exchangerate.host/latest?base=USD&symbols=EUR,GBP,XOF,XAF,NGN,GHS,KES,ZAR,MAD,TND',
+        'https://api.exchangerate.host/latest?base=USD',
         { signal: AbortSignal.timeout(5000) }
       );
       if (!res.ok) throw new Error('API error');

@@ -292,7 +292,10 @@ export default function AdminCRM() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{c.name || c.email}</p>
-                      <p className="text-xs text-muted-foreground truncate">{c.email}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs text-muted-foreground truncate">{c.email}</p>
+                        {c.phone && <p className="text-xs text-muted-foreground">· {c.phone}</p>}
+                      </div>
                     </div>
                     <div className="flex gap-1 flex-wrap items-center">
                       {scoreBadge && (
