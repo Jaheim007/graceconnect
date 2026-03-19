@@ -83,9 +83,9 @@ Deno.serve(async (req) => {
     const totalAmount = payableSales.reduce((sum: number, s: { commission_amount: number }) => sum + s.commission_amount, 0);
     const currency = org?.currency || 'XOF';
 
-    // Mark sales as payable
+    // Mark sales as 'paid' (payout requested — will be finalized by superadmin)
     const saleIds = payableSales.map((s: { id: string }) => s.id);
-    await db.from('affiliate_sales').update({ status: 'payable' }).in('id', saleIds);
+    await db.from('affiliate_sales').update({ status: 'paid', paid_at: new Date().toISOString() }).in('id', saleIds);
 
     // Create payout request
     const { data: payoutReq } = await db.from('payout_requests').insert({
