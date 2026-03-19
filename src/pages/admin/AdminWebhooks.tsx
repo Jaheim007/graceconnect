@@ -183,7 +183,7 @@ export default function AdminWebhooks() {
 
           {/* Webhook list */}
           {webhooks.length === 0 && !showAdd ? (
-            <EmptyState icon="webhook" title={isFr ? 'Aucun webhook configuré' : 'No webhooks configured'} description={isFr ? 'Ajoutez un webhook pour recevoir les événements de votre boutique en temps réel.' : 'Add a webhook to receive your store events in real-time.'} />
+            <EmptyState variant="empty" title={isFr ? 'Aucun webhook configuré' : 'No webhooks configured'} description={isFr ? 'Ajoutez un webhook pour recevoir les événements de votre boutique en temps réel.' : 'Add a webhook to receive your store events in real-time.'} />
           ) : (
             <div className="space-y-3">
               {webhooks.map((wh: any) => (
