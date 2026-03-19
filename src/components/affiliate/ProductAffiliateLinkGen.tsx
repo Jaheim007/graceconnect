@@ -141,7 +141,7 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
                       onClick={() => handleCopy(productPath, p.id, p.title, p.cover_image_url)}
                     >
                       {copiedId === p.id ? <CheckCircle className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
-                      {copiedId === p.id ? 'Copié' : 'Copier'}
+                      {copiedId === p.id ? (isFr ? 'Copié' : 'Copied') : (isFr ? 'Copier' : 'Copy')}
                     </Button>
                   ) : (
                     <Button
