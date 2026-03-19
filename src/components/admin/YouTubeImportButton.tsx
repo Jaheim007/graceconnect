@@ -79,7 +79,7 @@ export function YouTubeImportButton() {
         organization_id: currentOrg.id,
         created_by: user.id,
         title: preview.title,
-        description: `Importé depuis YouTube · Par ${preview.author_name}`,
+        description: isFr ? `Importé depuis YouTube · Par ${preview.author_name}` : `Imported from YouTube · By ${preview.author_name}`,
         media_type: 'video',
         media_url: `https://www.youtube.com/watch?v=${videoId}`,
         thumbnail_url: preview.thumbnail_url,
