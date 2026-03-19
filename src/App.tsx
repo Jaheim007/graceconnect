@@ -139,6 +139,7 @@ const GuideAlternativeGofundmePage = lazy(() => import("@/pages/guides/GuideAlte
 const GuideBoutiqueDigitalePage = lazy(() => import("@/pages/guides/GuideBoutiqueDigitalePage"));
 const GuideMonetiserContenuReligieuxPage = lazy(() => import("@/pages/guides/GuideMonetiserContenuReligieuxPage"));
 const GuideAffiliationSansInvestissementPage = lazy(() => import("@/pages/guides/GuideAffiliationSansInvestissementPage"));
+const TutorialsPage = lazy(() => import("@/pages/TutorialsPage"));
 
 // Authenticated
 const FeedPage = lazy(() => import("@/pages/FeedPage"));
