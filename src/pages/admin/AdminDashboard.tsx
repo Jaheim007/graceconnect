@@ -323,8 +323,9 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* ═══ ZONE 3 — SMART ACTIONS (compact) ═══ */}
+      {/* ═══ ZONE 3 — SMART ACTIONS + AI INSIGHTS ═══ */}
       <SmartNextAction />
+      <AIAnalyticsInsights />
       <TimeSinceLastSale />
 
       {/* ═══ ZONE 4 — ONBOARDING (collapsible) ═══ */}
