@@ -50,21 +50,19 @@ export function YouTubeImportButton() {
     setPreview(null);
     const videoId = extractYouTubeId(url.trim());
     if (!videoId) {
-      setError('URL YouTube invalide. Collez un lien comme https://youtube.com/watch?v=...');
+      setError(isFr ? 'URL YouTube invalide. Collez un lien comme https://youtube.com/watch?v=...' : 'Invalid YouTube URL. Paste a link like https://youtube.com/watch?v=...');
       return;
     }
 
     setLoading(true);
     try {
-      // Use YouTube oEmbed (no API key needed)
       const res = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`);
-      if (!res.ok) throw new Error('Vidéo introuvable ou privée');
+      if (!res.ok) throw new Error(isFr ? 'Vidéo introuvable ou privée' : 'Video not found or private');
       const data: YouTubeOEmbed = await res.json();
-      // Get higher quality thumbnail
       data.thumbnail_url = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
       setPreview(data);
     } catch (err: any) {
-      setError(err.message || 'Impossible de récupérer les infos de la vidéo.');
+      setError(err.message || (isFr ? 'Impossible de récupérer les infos de la vidéo.' : 'Unable to fetch video information.'));
     } finally {
       setLoading(false);
     }
