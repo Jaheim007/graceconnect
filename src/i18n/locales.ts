@@ -1361,7 +1361,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'sidebar.ai_projects': 'Projects',
     'sidebar.ai_jobs': 'AI Jobs',
     'sidebar.offerings': 'Donations',
-    'sidebar.ambassadors': 'Ambassadors',
+    'sidebar.ambassadors_old': 'Ambassadors',
     'sidebar.sales': 'Sales',
     'sidebar.programs': 'Programs',
     'sidebar.learnerProgress': 'Learner Progress',
