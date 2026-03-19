@@ -365,17 +365,11 @@ export async function processTransaction(
           payable_at: payableAt,
         });
 
-        // Update affiliate link counters
-        const { data: link } = await db.from('affiliate_links')
-          .select('conversions, total_earned')
-          .eq('id', affiliateLinkId)
-          .single();
-        if (link) {
-          await db.from('affiliate_links').update({
-            conversions: (link.conversions || 0) + 1,
-            total_earned: (link.total_earned || 0) + affiliateCommission,
-          }).eq('id', affiliateLinkId);
-        }
+        // Update affiliate link counters atomically (avoid race conditions)
+        await db.rpc('increment_affiliate_link_stats', {
+          _link_id: affiliateLinkId,
+          _earned: affiliateCommission,
+        });
 
         // Affiliate notification
         const commissionFmt = affiliateCommission.toLocaleString('fr-FR');
