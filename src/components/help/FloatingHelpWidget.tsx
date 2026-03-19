@@ -62,12 +62,12 @@ export function FloatingHelpWidget() {
     {
       icon: <LifeBuoy className="h-4 w-4" />,
       label: isFr ? 'Centre d\'aide' : 'Help Center',
-      onClick: () => { navigate('/support'); setOpen(false); },
+      onClick: () => { navigate('/help'); setOpen(false); },
     },
     {
       icon: <BookOpen className="h-4 w-4" />,
-      label: isFr ? 'Guide de démarrage' : 'Getting Started',
-      onClick: () => { navigate('/support'); setOpen(false); },
+      label: isFr ? 'Tutoriels & Guides' : 'Tutorials & Guides',
+      onClick: () => { navigate('/tutoriels'); setOpen(false); },
     },
     {
       icon: <Keyboard className="h-4 w-4" />,
