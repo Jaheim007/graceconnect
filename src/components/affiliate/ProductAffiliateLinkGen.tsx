@@ -20,6 +20,8 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
   const [expanded, setExpanded] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const qc = useQueryClient();
 
   const { data: products = [] } = useQuery({
