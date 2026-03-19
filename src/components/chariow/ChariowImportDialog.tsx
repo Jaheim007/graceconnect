@@ -102,8 +102,12 @@ export function ChariowImportDialog({ open, onOpenChange }: { open: boolean; onO
     for (const product of products.filter(p => selected.has(p.id))) {
       try {
         const priceValue = product.pricing?.current_price?.value || product.pricing?.price?.value || 0;
-        // Chariow prices are in major units (e.g. 99.00), our DB uses minor units (kobo/cents)
-        const priceMinor = Math.round(priceValue * 100);
+        const currency = product.pricing?.current_price?.currency || product.pricing?.price?.currency || 'XOF';
+        // Zero-decimal currencies (XOF, XAF, JPY…) store values as-is; others need ×100
+        const zeroDecimalCurrencies = ['XOF', 'XAF', 'GNF', 'KMF', 'BIF', 'CLP', 'DJF', 'JPY', 'KRW', 'MGA', 'PYG', 'RWF', 'UGX', 'VND', 'VUV'];
+        const priceMinor = zeroDecimalCurrencies.includes(currency.toUpperCase())
+          ? Math.round(priceValue)
+          : Math.round(priceValue * 100);
 
         // Use highest quality image: prefer cover, upgrade CDN quality params
         const rawImageUrl = product.pictures?.cover || product.pictures?.thumbnail || null;
