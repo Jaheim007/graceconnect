@@ -18,17 +18,16 @@ Deno.serve(async (req) => {
 
     // Extract channel identifier from URL
     let channelId = "";
-    let feedUrl = "";
 
     const channelIdMatch = channelUrl.match(/youtube\.com\/channel\/([a-zA-Z0-9_-]+)/);
     const handleMatch = channelUrl.match(/youtube\.com\/@([a-zA-Z0-9_.-]+)/);
     const cMatch = channelUrl.match(/youtube\.com\/c\/([a-zA-Z0-9_.-]+)/);
 
+    const handle = handleMatch?.[1] || cMatch?.[1] || "";
+
     if (channelIdMatch) {
       channelId = channelIdMatch[1];
-      feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
-    } else if (handleMatch || cMatch) {
-      const handle = handleMatch?.[1] || cMatch?.[1];
+    } else if (handle) {
       // Fetch the channel page to extract the channel ID
       const pageRes = await fetch(`https://www.youtube.com/@${handle}`, {
         headers: {
@@ -39,7 +38,6 @@ Deno.serve(async (req) => {
       });
       const pageText = await pageRes.text();
 
-      // Try multiple patterns to find channel ID
       const patterns = [
         /\"channelId\":\"(UC[a-zA-Z0-9_-]+)\"/,
         /\"externalId\":\"(UC[a-zA-Z0-9_-]+)\"/,
@@ -58,9 +56,8 @@ Deno.serve(async (req) => {
         }
       }
 
-      if (channelId) {
-        feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
-      } else {
+      if (!channelId) {
+        // Try user-based feed as fallback
         const testFeedUrl = `https://www.youtube.com/feeds/videos.xml?user=${handle}`;
         const testRes = await fetch(testFeedUrl, {
           headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
@@ -70,12 +67,10 @@ Deno.serve(async (req) => {
           const testCidMatch = testText.match(/<yt:channelId>([^<]+)<\/yt:channelId>/);
           if (testCidMatch) {
             channelId = testCidMatch[1];
-            feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
           }
         }
 
         if (!channelId) {
-          console.error("Could not find channel ID. Page length:", pageText.length);
           return new Response(JSON.stringify({ error: "Impossible de trouver l'ID de la chaîne. Vérifiez l'URL." }), {
             status: 400,
             headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -89,21 +84,100 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Fetch the RSS feed (returns latest 15 videos)
+    // Strategy: Scrape the channel /videos page to get all video IDs, 
+    // then use RSS for metadata of latest 15, and oembed for the rest.
+    
+    // Step 1: Fetch the channel /videos page to extract all video IDs
+    const videosPageUrl = `https://www.youtube.com/channel/${channelId}/videos`;
+    const videosPageRes = await fetch(videosPageUrl, {
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      },
+    });
+    const videosPageText = await videosPageRes.text();
+
+    // Extract channel name from page
+    const channelNamePageMatch = videosPageText.match(/"channelMetadataRenderer":\{"title":"([^"]+)"/);
+    let channelName = channelNamePageMatch?.[1] || "";
+
+    // Extract all video IDs from the page's initial data (ytInitialData)
+    const allVideoIds: string[] = [];
+    const videoIdRegex = /\"videoId\":\"([a-zA-Z0-9_-]{11})\"/g;
+    let vidMatch;
+    const seenIds = new Set<string>();
+    
+    while ((vidMatch = videoIdRegex.exec(videosPageText)) !== null) {
+      const vid = vidMatch[1];
+      if (!seenIds.has(vid)) {
+        seenIds.add(vid);
+        allVideoIds.push(vid);
+      }
+    }
+
+    // Step 2: Also fetch RSS feed for metadata of latest videos
+    const feedUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
     const feedRes = await fetch(feedUrl, {
       headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" },
     });
 
-    if (!feedRes.ok) {
-      return new Response(JSON.stringify({ error: "Impossible de récupérer le flux de la chaîne." }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+    const rssVideos = new Map<string, { title: string; published: string; description: string }>();
+    
+    if (feedRes.ok) {
+      const feedText = await feedRes.text();
+      
+      // Get channel name from RSS if not found yet
+      if (!channelName) {
+        const nameMatch = feedText.match(/<name>([^<]+)<\/name>/);
+        channelName = nameMatch?.[1] || "YouTube";
+      }
+      
+      const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
+      let entryMatch;
+      while ((entryMatch = entryRegex.exec(feedText)) !== null) {
+        const entry = entryMatch[1];
+        const titleMatch = entry.match(/<title>([^<]+)<\/title>/);
+        const videoIdMatch = entry.match(/<yt:videoId>([^<]+)<\/yt:videoId>/);
+        const publishedMatch = entry.match(/<published>([^<]+)<\/published>/);
+        const descMatch = entry.match(/<media:description>([\s\S]*?)<\/media:description>/);
+        
+        if (titleMatch && videoIdMatch) {
+          rssVideos.set(videoIdMatch[1], {
+            title: titleMatch[1],
+            published: publishedMatch?.[1] || "",
+            description: descMatch?.[1]?.trim() || "",
+          });
+          // Make sure RSS video IDs are in our list
+          if (!seenIds.has(videoIdMatch[1])) {
+            seenIds.add(videoIdMatch[1]);
+            allVideoIds.push(videoIdMatch[1]);
+          }
+        }
+      }
     }
 
-    const feedText = await feedRes.text();
+    if (!channelName) channelName = "YouTube";
 
-    // Parse XML to extract video entries
+    // Step 3: For video IDs not in RSS, try to get titles from the page data
+    // Extract video titles from ytInitialData
+    const titleMap = new Map<string, string>();
+    // Pattern: {"videoId":"XXX",...,"title":{"runs":[{"text":"TITLE"}],...}}
+    const titlePatterns = [
+      /\{"videoId":"([a-zA-Z0-9_-]{11})"[^}]*?"title":\{"runs":\[\{"text":"([^"]+)"\}/g,
+      /\{"videoId":"([a-zA-Z0-9_-]{11})"[^}]*?"title":\{"simpleText":"([^"]+)"\}/g,
+    ];
+    
+    for (const pattern of titlePatterns) {
+      let tMatch;
+      while ((tMatch = pattern.exec(videosPageText)) !== null) {
+        if (!titleMap.has(tMatch[1])) {
+          titleMap.set(tMatch[1], tMatch[2]);
+        }
+      }
+    }
+
+    // Step 4: Build the final video list
     const videos: Array<{
       title: string;
       videoId: string;
@@ -114,33 +188,23 @@ Deno.serve(async (req) => {
       description: string;
     }> = [];
 
-    // Extract channel name
-    const channelNameMatch = feedText.match(/<name>([^<]+)<\/name>/);
-    const channelName = channelNameMatch?.[1] || "YouTube";
+    for (const vid of allVideoIds) {
+      const rssData = rssVideos.get(vid);
+      const pageTitle = titleMap.get(vid);
+      const title = rssData?.title || pageTitle || "";
+      
+      // Skip if we can't determine a title (likely not an actual video)
+      if (!title) continue;
 
-    // Extract entries
-    const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
-    let entryMatch;
-    while ((entryMatch = entryRegex.exec(feedText)) !== null) {
-      const entry = entryMatch[1];
-      const titleMatch = entry.match(/<title>([^<]+)<\/title>/);
-      const videoIdMatch = entry.match(/<yt:videoId>([^<]+)<\/yt:videoId>/);
-      const publishedMatch = entry.match(/<published>([^<]+)<\/published>/);
-      // Extract description from media:group > media:description
-      const descMatch = entry.match(/<media:description>([\s\S]*?)<\/media:description>/);
-
-      if (titleMatch && videoIdMatch) {
-        const vid = videoIdMatch[1];
-        videos.push({
-          title: titleMatch[1],
-          videoId: vid,
-          author: channelName,
-          thumbnail: `https://img.youtube.com/vi/${vid}/hqdefault.jpg`,
-          url: `https://www.youtube.com/watch?v=${vid}`,
-          published: publishedMatch?.[1] || "",
-          description: descMatch?.[1]?.trim() || "",
-        });
-      }
+      videos.push({
+        title,
+        videoId: vid,
+        author: channelName,
+        thumbnail: `https://img.youtube.com/vi/${vid}/hqdefault.jpg`,
+        url: `https://www.youtube.com/watch?v=${vid}`,
+        published: rssData?.published || "",
+        description: rssData?.description || "",
+      });
     }
 
     return new Response(JSON.stringify({ videos, channelName, channelId }), {
