@@ -78,7 +78,7 @@ export function CampaignForm() {
   }, [item, reset]);
 
   const onSubmit = async (data: FormData) => {
-    if (!currentOrg || !user) { toast({ title: 'Error', description: 'No organization selected.', variant: 'destructive' }); return; }
+    if (!currentOrg || !user) { toast({ title: isFr ? 'Erreur' : 'Error', description: isFr ? 'Aucune organisation sélectionnée.' : 'No organization selected.', variant: 'destructive' }); return; }
     setLoading(true);
     try {
       const payload = { ...data, organization_id: currentOrg.id, created_by: user.id, currency: currentOrg.currency || 'XOF', image_url: data.image_url || null, goal_amount: data.goal_amount || null, end_date: data.end_date ? new Date(data.end_date).toISOString() : null, is_express_demo: false };
@@ -88,9 +88,9 @@ export function CampaignForm() {
       if (error) throw error;
       if (!isEdit && payload.is_published) onContentPublished(currentOrg.id, currentOrg.name, 'campaign', payload.title, '', { goal_amount: String(payload.goal_amount || 0), currency: payload.currency }, user.id);
       if (isEdit && item && !item.is_published && payload.is_published) onContentPublished(currentOrg.id, currentOrg.name, 'campaign', payload.title, id!, {}, user.id);
-      toast({ title: isEdit ? 'Mis à jour ✅' : 'Créé ✅' });
+      toast({ title: isEdit ? (isFr ? 'Mis à jour ✅' : 'Updated ✅') : (isFr ? 'Créé ✅' : 'Created ✅') });
       navigate('/admin/campaigns');
-    } catch (err: any) { toast({ title: 'Erreur', description: err.message, variant: 'destructive' }); }
+    } catch (err: any) { toast({ title: isFr ? 'Erreur' : 'Error', description: err.message, variant: 'destructive' }); }
     finally { setLoading(false); }
   };
 
