@@ -2,7 +2,6 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { useOrg } from '@/contexts/OrgContext';
-import { useOrgMembers } from '@/hooks/useOrgRole';
 import { Filter } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useI18n } from '@/i18n/I18nContext';
