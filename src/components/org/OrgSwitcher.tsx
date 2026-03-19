@@ -39,7 +39,9 @@ interface OrgSwitcherProps {
 export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitcherProps) {
   const { currentOrg, userOrgs, setCurrentOrg, getRoleFor } = useOrg();
   const navigate = useNavigate();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const isFr = locale === 'fr';
+  const roleConfig = roleConfigFn(isFr);
   const [open, setOpen] = useState(false);
 
   if (!currentOrg || userOrgs.length === 0) return null;
