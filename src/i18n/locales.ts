@@ -3035,7 +3035,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'sidebar.ai_projects': 'Projets',
     'sidebar.ai_jobs': 'Tâches IA',
     'sidebar.offerings': 'Dons',
-    'sidebar.ambassadors': 'Ambassadeurs',
+    'sidebar.ambassadors_old': 'Ambassadeurs',
     'sidebar.sales': 'Ventes',
     'sidebar.programs': 'Programmes',
     'sidebar.learnerProgress': 'Suivi des apprenants',
