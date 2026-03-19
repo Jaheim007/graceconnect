@@ -72,7 +72,7 @@ export default function AdminPopups() {
       const { data } = await db
         .from('org_popups')
         .select('*')
-        .eq('organization_id', orgId)
+        .eq('org_id', orgId)
         .order('created_at', { ascending: false });
       return data || [];
     },
@@ -85,15 +85,14 @@ export default function AdminPopups() {
       if (!title.trim()) throw new Error('Le titre est requis');
 
       const { error } = await db.from('org_popups').insert({
-        organization_id: orgId,
+        org_id: orgId,
         popup_type: popupType,
         title: title.trim(),
         body: body.trim(),
         cta_text: ctaText.trim() || null,
-        cta_url: ctaUrl.trim() || null,
+        cta_link: ctaUrl.trim() || null,
         trigger_type: trigger,
-        delay_seconds: trigger === 'time_delay' ? parseInt(delaySeconds) || 5 : null,
-        target_pages: [targetPage],
+        delay_seconds: trigger === 'time_delay' ? parseInt(delaySeconds) || 5 : 0,
         bg_color: bgColor,
         text_color: textColor,
         is_active: true,
