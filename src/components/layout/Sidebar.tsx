@@ -158,6 +158,8 @@ export function Sidebar() {
                   {renderNavItem({ to: '/admin/create', icon: Plus, label: t('sidebar.create'), desc: t('sidebar.create_desc') })}
                   {renderNavItem({ to: '/admin/sales', icon: Wallet, label: t('sidebar.sales_payouts'), desc: t('sidebar.sales_payouts_desc') })}
                   {renderNavItem({ to: '/admin/people', icon: Users, label: t('sidebar.people'), desc: t('sidebar.people_desc') })}
+                  {renderNavItem({ to: '/admin/affiliation', icon: Share2, label: t('sidebar.ambassadors'), desc: t('sidebar.ambassadors_desc') })}
+                  {renderNavItem({ to: '/admin/studio', icon: Sparkles, label: 'AI Studio', desc: t('sidebar.ai_studio_desc') })}
                   {renderNavItem({ to: '/admin/analytics', icon: BarChart3, label: t('sidebar.analytics') })}
                   {renderNavItem({ to: '/admin/kyc', icon: FileCheck, label: t('sidebar.verification'), badge: kycIncomplete })}
                   {renderNavItem({ to: '/admin/settings', icon: Settings, label: t('sidebar.settings') })}
