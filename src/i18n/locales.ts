@@ -1340,6 +1340,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'sidebar.my_donations_desc': 'Donations and campaigns',
     'sidebar.discover': 'Discover',
     'sidebar.discover_desc': 'Explore products',
+    'sidebar.my_network_desc': 'Content from your communities',
+    'sidebar.switch_platform': 'Switch platform',
     'sidebar.notifications_desc': 'Updates',
     'sidebar.profile': 'Profile',
     'sidebar.profile_desc': 'My account',
