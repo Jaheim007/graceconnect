@@ -150,9 +150,10 @@ export function Sidebar() {
             {hasOrgs && canManageCurrentOrg ? (
               <>
                 {renderSectionLabel(t('sidebar.creator_space'), 'text-primary')}
+                <OrgSwitcher variant="sidebar" collapsed={collapsed} />
                 <div className="space-y-0.5">
                   {renderNavItem({ to: '/dashboard', icon: Home, label: t('sidebar.home'), desc: t('sidebar.home_desc') })}
-                  {myPageItems.length > 0 && myPageItems.map(renderNavItem)}
+                  {myPageItem && renderNavItem(myPageItem)}
                   {renderNavItem({ to: '/admin/create', icon: Plus, label: t('sidebar.create'), desc: t('sidebar.create_desc') })}
                   {renderNavItem({ to: '/admin/sales', icon: Wallet, label: t('sidebar.sales_payouts'), desc: t('sidebar.sales_payouts_desc') })}
                   {renderNavItem({ to: '/admin/people', icon: Users, label: t('sidebar.people'), desc: t('sidebar.people_desc') })}
