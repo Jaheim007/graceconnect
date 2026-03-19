@@ -49,6 +49,7 @@ type EmailTemplate =
   | 'fraud_alert' | 'new_org_alert'
   | 'flash_sale_alert' | 'promo_code_used' | 'org_verified'
   | 'waitlist_spot_available' | 'referral_reward'
+  | 'review_request'
   | 'org_welcome_j0' | 'org_onboarding_j1' | 'org_onboarding_j3';
 
 type Lang = 'fr' | 'en';
@@ -687,6 +688,36 @@ function buildTemplate(template: EmailTemplate, d: Record<string, string | numbe
         html: wrap(`<h1 style="color:${blue}">${d.title || '🔔 Notification'}</h1><p>${d.body || (isFr ? 'Vous avez une nouvelle notification sur Siteviral.' : 'You have a new notification on Siteviral.')}</p>${d.action_url ? cta(String(d.action_url), ctaText) : cta('https://siteviral.com/notifications', fallbackCta)}<p style="font-size:12px;color:#999">${isFr ? 'Vous recevez cet email car vous avez activé les notifications email.' : 'You receive this email because you enabled email notifications.'} <a href="https://siteviral.com/notification-preferences" style="color:${blue}">${manageText}</a></p>`, lang),
       };
     }
+
+    // ═══ REVIEW REQUEST (J+3 after purchase) ═══
+    case 'review_request':
+      return isFr
+        ? {
+            subject: `⭐ Votre avis sur "${d.product_title}" nous intéresse !`,
+            html: wrap(`
+              <h1 style="color:${blue}">⭐ Partagez votre expérience</h1>
+              <p>Bonjour ${d.buyer_name || ''},</p>
+              <p>Nous espérons que vous profitez pleinement de votre achat <strong>"${d.product_title}"</strong> sur <strong>${d.org_name}</strong> !</p>
+              <p>En tant qu'acheteur récent, votre retour d'expérience est particulièrement précieux. Il aidera non seulement <strong>${d.org_name}</strong> à s'améliorer, mais guidera aussi les futurs acheteurs dans leurs choix.</p>
+              <p style="font-weight:600">Pourriez-vous prendre un instant pour partager votre avis ?</p>
+              ${cta(String(d.review_url || 'https://siteviral.com'), 'Laisser un avis ⭐')}
+              <p style="color:#999;font-size:12px">C'est simple et rapide — 10 secondes suffisent pour faire la différence !</p>
+              <p style="margin-top:24px">À très bientôt,<br/>L'équipe <strong>${d.org_name}</strong></p>
+            `, lang)
+          }
+        : {
+            subject: `⭐ How was "${d.product_title}"? Share your review!`,
+            html: wrap(`
+              <h1 style="color:${blue}">⭐ Share Your Experience</h1>
+              <p>Hello ${d.buyer_name || ''},</p>
+              <p>We hope you're enjoying your purchase of <strong>"${d.product_title}"</strong> from <strong>${d.org_name}</strong>!</p>
+              <p>As a recent buyer, your feedback is incredibly valuable. It will help <strong>${d.org_name}</strong> improve and guide future buyers in their decisions.</p>
+              <p style="font-weight:600">Could you take a moment to share your review?</p>
+              ${cta(String(d.review_url || 'https://siteviral.com'), 'Leave a Review ⭐')}
+              <p style="color:#999;font-size:12px">It's quick and easy — just 10 seconds to make a difference!</p>
+              <p style="margin-top:24px">See you soon,<br/>The <strong>${d.org_name}</strong> team</p>
+            `, lang)
+          };
 
     default:
       throw new Error(`Unknown template: ${template}`);

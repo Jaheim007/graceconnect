@@ -1227,14 +1227,19 @@ Deno.serve(async (req) => {
     for (const purchase of j3Purchases || []) {
       if (!purchase.user_id) continue;
       const email = await getUserEmail(purchase.user_id);
+      const { data: profile } = await db.from('profiles').select('display_name').eq('id', purchase.user_id).maybeSingle();
       const product = (purchase as any).digital_products;
       const org = (purchase as any).organizations;
       if (email && product && org) {
-        const reviewUrl = `https://siteviral.com/org/${org.slug}/product/${purchase.product_id}#reviews`;
+        const pSlug = product.slug;
+        const reviewUrl = pSlug
+          ? `https://siteviral.com/org/${org.slug}/p/${pSlug}#reviews`
+          : `https://siteviral.com/org/${org.slug}/product/${purchase.product_id}#reviews`;
         await sendEmail({
           template: 'review_request' as any,
           to: email,
           data: {
+            buyer_name: profile?.display_name || '',
             product_title: product.title,
             org_name: org.name,
             review_url: reviewUrl,

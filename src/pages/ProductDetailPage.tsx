@@ -187,6 +187,15 @@ export default function ProductDetailPage() {
     }
   }, [user, product, searchParams]);
 
+  // Auto-scroll to reviews section when arriving from email link with #reviews
+  useEffect(() => {
+    if (product && window.location.hash === '#reviews') {
+      setTimeout(() => {
+        document.getElementById('reviews')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 500);
+    }
+  }, [product]);
+
   const buildShareUrl = () => {
     const pSlug = (product as any)?.slug;
     const basePath = pSlug ? `/org/${slug}/p/${pSlug}` : `/org/${slug}/product/${product?.id}`;
@@ -660,11 +669,13 @@ export default function ProductDetailPage() {
             )}
 
             {/* Reviews section */}
-            <ProductReviews
-              productId={product.id}
-              organizationId={product.organization_id}
-              isPurchased={isPurchased}
-            />
+            <div id="reviews">
+              <ProductReviews
+                productId={product.id}
+                organizationId={product.organization_id}
+                isPurchased={isPurchased}
+              />
+            </div>
 
             {/* Viral Snippets — shareable excerpts */}
             <ViralSnippets
