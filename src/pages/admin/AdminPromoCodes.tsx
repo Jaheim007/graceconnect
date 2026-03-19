@@ -99,7 +99,7 @@ export default function AdminPromoCodes() {
     },
     onSuccess: () => {
       toast({ title: `✅ ${t('admin_promo.created')}` });
-      setCode(''); setDiscountType('percent'); setDiscountPercent('10'); setDiscountAmount(''); setMaxUses(''); setExpiresAt(''); setSelectedProductId('all');
+      setCode(''); setDiscountType('percent'); setDiscountPercent('10'); setDiscountAmount(''); setMaxUses(''); setExpiresAt(''); setSelectedProductId('all'); setMinAmount(''); setFirstPurchaseOnly(false);
       setShowForm(false);
       qc.invalidateQueries({ queryKey: ['admin-promo-codes', currentOrg?.id] });
     },
