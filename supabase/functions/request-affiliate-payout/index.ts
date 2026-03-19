@@ -59,13 +59,18 @@ Deno.serve(async (req) => {
     }
 
     // Find payable affiliate sales for this user in this org
+    // Sales start as 'pending' and become 'payable' after 15 days via release_matured_affiliate_sales()
+    // We also include pending sales that have matured (payable_at <= now) in case the cron hasn't run yet
     const now = new Date().toISOString();
+    
+    // First, trigger maturation for this org's sales in case cron hasn't run
+    await db.rpc('release_matured_affiliate_sales');
+    
     const { data: payableSales, error } = await db.from('affiliate_sales')
       .select('id, commission_amount, currency')
       .eq('affiliate_user_id', userId)
       .eq('organization_id', organization_id)
-      .eq('status', 'pending')
-      .lte('payable_at', now);
+      .eq('status', 'payable');
 
     if (error) throw error;
     if (!payableSales?.length) {
