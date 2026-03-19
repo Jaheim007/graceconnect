@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Loader2, Youtube, CheckCircle, AlertCircle } from 'lucide-react';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/i18n/I18nContext';
 import { db } from '@/lib/db';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
