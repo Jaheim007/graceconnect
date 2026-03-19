@@ -4,7 +4,7 @@ import {
   Home, Eye, Settings, ChevronLeft, ChevronRight, Shield,
   FileCheck, LogOut, BarChart3, Building2, Users, Wallet,
   PenLine, Store, Package, User, Heart, Handshake, Plus, Share2,
-  Sparkles, Coins, GraduationCap, Bookmark, Star, Zap
+  Sparkles, Coins, GraduationCap, Bookmark, Star, Zap, Rss
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
