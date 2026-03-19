@@ -22,13 +22,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const roleConfig: Record<string, { label: string; icon: typeof Crown; color: string }> = {
-  owner: { label: 'Propriétaire', icon: Crown, color: 'text-amber-500' },
+const roleConfigFn = (isFr: boolean): Record<string, { label: string; icon: typeof Crown; color: string }> => ({
+  owner: { label: isFr ? 'Propriétaire' : 'Owner', icon: Crown, color: 'text-amber-500' },
   admin: { label: 'Admin', icon: ShieldCheck, color: 'text-blue-500' },
-  editor: { label: 'Éditeur', icon: Pencil, color: 'text-emerald-500' },
-  member: { label: 'Membre', icon: Users2, color: 'text-muted-foreground' },
-  affiliate: { label: 'Ambassadeur', icon: Link2, color: 'text-purple-500' },
-};
+  editor: { label: isFr ? 'Éditeur' : 'Editor', icon: Pencil, color: 'text-emerald-500' },
+  member: { label: isFr ? 'Membre' : 'Member', icon: Users2, color: 'text-muted-foreground' },
+  affiliate: { label: isFr ? 'Ambassadeur' : 'Ambassador', icon: Link2, color: 'text-purple-500' },
+});
 
 interface OrgSwitcherProps {
   /** Render mode — "sidebar" shows full card, "topbar" shows compact pill */
@@ -39,7 +39,9 @@ interface OrgSwitcherProps {
 export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitcherProps) {
   const { currentOrg, userOrgs, setCurrentOrg, getRoleFor } = useOrg();
   const navigate = useNavigate();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const isFr = locale === 'fr';
+  const roleConfig = roleConfigFn(isFr);
   const [open, setOpen] = useState(false);
 
   if (!currentOrg || userOrgs.length === 0) return null;
@@ -190,10 +192,10 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
           <DialogHeader className="relative">
             <DialogTitle className="text-base font-bold flex items-center gap-2">
               <Building2 className="h-4 w-4 text-primary" />
-              Changer d'organisation
+              {t('sidebar.switch_platform')}
             </DialogTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              {userOrgs.length} organisation{userOrgs.length > 1 ? 's' : ''} · Sélectionnez pour basculer
+              {managedOrgs.length} {managedOrgs.length > 1 ? 'platforms' : 'platform'} · {memberOrgs.length > 0 ? `${memberOrgs.length} ${memberOrgs.length > 1 ? 'communities' : 'community'}` : ''}
             </p>
           </DialogHeader>
         </div>
@@ -203,7 +205,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
           {managedOrgs.length > 0 && (
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-3 py-2">
-                Mes organisations
+                {t('sidebar.my_platforms') || 'My platforms'}
               </p>
               <AnimatePresence>
                 {managedOrgs.map((org, i) => (
@@ -221,7 +223,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
                 <div className="mx-3 mb-2 border-t border-border/60" />
               )}
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-3 py-2">
-                Membre de
+                {t('sidebar.member_of') || 'Member of'}
               </p>
               <AnimatePresence>
                 {memberOrgs.map((org, i) => (
@@ -243,7 +245,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
             onClick={() => { setOpen(false); navigate('/create-org'); }}
           >
             <Plus className="h-3.5 w-3.5" />
-            Créer une nouvelle organisation
+            {t('sidebar.create_new_platform') || 'Create a new platform'}
           </Button>
         </div>
       </DialogContent>

@@ -4,7 +4,7 @@ import {
   Home, Eye, Settings, ChevronLeft, ChevronRight, Shield,
   FileCheck, LogOut, BarChart3, Building2, Users, Wallet,
   PenLine, Store, Package, User, Heart, Handshake, Plus, Share2,
-  Sparkles, Coins, GraduationCap, Bookmark, Star, Zap
+  Sparkles, Coins, GraduationCap, Bookmark, Star, Zap, Rss
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -175,6 +175,7 @@ export function Sidebar() {
                 {/* ═══ CONSUMER ZONE ═══ */}
                 {renderSeparator()}
                 <div className="space-y-0.5">
+                  {renderNavItem({ to: '/feed', icon: Rss, label: t('sidebar.my_network'), desc: t('sidebar.my_network_desc') })}
                   {renderNavItem({ to: '/spotlight', icon: Star, label: t('sidebar.spotlight'), desc: t('sidebar.spotlight_desc') })}
                   {renderNavItem({ to: '/discover', icon: Store, label: t('sidebar.discover'), desc: t('sidebar.discover_desc') })}
                   {renderNavItem({ to: user ? '/affiliation' : '/gagner', icon: Share2, label: t('sidebar.earn_sharing'), desc: t('sidebar.earn_sharing_desc') })}
@@ -190,6 +191,7 @@ export function Sidebar() {
                 {renderSectionLabel(t('sidebar.my_space'))}
                 <div className="space-y-0.5">
                   {renderNavItem({ to: '/dashboard', icon: Home, label: t('sidebar.home'), desc: t('sidebar.home_desc') })}
+                  {renderNavItem({ to: '/feed', icon: Rss, label: t('sidebar.my_network'), desc: t('sidebar.my_network_desc') })}
                   {renderNavItem({ to: '/discover', icon: Store, label: t('sidebar.discover'), desc: t('sidebar.discover_desc') })}
                   {renderNavItem({ to: '/spotlight', icon: Star, label: t('sidebar.spotlight'), desc: t('sidebar.spotlight_desc') })}
                   {renderNavItem({ to: '/resources', icon: Package, label: t('sidebar.purchases'), desc: t('sidebar.purchases_desc') })}
