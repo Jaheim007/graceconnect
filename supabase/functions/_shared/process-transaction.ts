@@ -365,17 +365,11 @@ export async function processTransaction(
           payable_at: payableAt,
         });
 
-        // Update affiliate link counters
-        const { data: link } = await db.from('affiliate_links')
-          .select('conversions, total_earned')
-          .eq('id', affiliateLinkId)
-          .single();
-        if (link) {
-          await db.from('affiliate_links').update({
-            conversions: (link.conversions || 0) + 1,
-            total_earned: (link.total_earned || 0) + affiliateCommission,
-          }).eq('id', affiliateLinkId);
-        }
+        // Update affiliate link counters atomically (avoid race conditions)
+        await db.rpc('increment_affiliate_link_stats', {
+          _link_id: affiliateLinkId,
+          _earned: affiliateCommission,
+        });
 
         // Affiliate notification
         const commissionFmt = affiliateCommission.toLocaleString('fr-FR');
@@ -794,7 +788,7 @@ async function ensureAffiliateForExisting(
     if (existingSale) return;
 
     const { data: affLink } = await db.from('affiliate_links')
-      .select('id, user_id, conversions, total_earned')
+      .select('id, user_id')
       .eq('id', tx.affiliate_link_id)
       .single();
     if (!affLink) return;
@@ -817,10 +811,11 @@ async function ensureAffiliateForExisting(
       payable_at: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000).toISOString(),
     });
 
-    await db.from('affiliate_links').update({
-      conversions: (affLink.conversions || 0) + 1,
-      total_earned: (affLink.total_earned || 0) + tx.affiliate_commission,
-    }).eq('id', tx.affiliate_link_id);
+    // Update affiliate link counters atomically
+    await db.rpc('increment_affiliate_link_stats', {
+      _link_id: tx.affiliate_link_id,
+      _earned: tx.affiliate_commission,
+    });
 
     const commissionFmt = tx.affiliate_commission.toLocaleString('fr-FR');
     await db.from('user_notifications').insert({

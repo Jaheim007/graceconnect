@@ -6129,6 +6129,10 @@ export type Database = {
         Args: { _amount?: number; _user_id: string }
         Returns: Json
       }
+      increment_affiliate_link_stats: {
+        Args: { _earned: number; _link_id: string }
+        Returns: undefined
+      }
       increment_campaign_amount: {
         Args: { _amount: number; _campaign_id: string }
         Returns: undefined
