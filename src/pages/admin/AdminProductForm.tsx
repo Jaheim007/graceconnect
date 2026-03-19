@@ -217,6 +217,8 @@ export function ProductForm() {
         facebook_pixel_id: fbPixel.trim() || null,
         tiktok_pixel_id: ttPixel.trim() || null,
         google_tag_id: gTag.trim() || null,
+        seo_title: seoTitle.trim() || null,
+        seo_description: seoDescription.trim() || null,
       };
       let error;
       let resultData: any;
