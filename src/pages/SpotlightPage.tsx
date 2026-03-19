@@ -120,7 +120,7 @@ export default function SpotlightPage() {
                 <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {trendingProducts.map((p: any) => (
                     <motion.div key={p.id} variants={fadeUp}>
-                      <ProductCard product={p} org={p.organizations} />
+                      <ProductCard product={p} />
                     </motion.div>
                   ))}
                 </motion.div>
