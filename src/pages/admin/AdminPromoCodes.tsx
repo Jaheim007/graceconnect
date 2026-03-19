@@ -199,6 +199,14 @@ export default function AdminPromoCodes() {
                 <Label className="text-xs">{t('admin_promo.expires')}</Label>
                 <Input type="date" value={expiresAt} onChange={e => setExpiresAt(e.target.value)} className="h-8 text-xs" />
               </div>
+              <div className="space-y-1.5">
+                <Label className="text-xs">Montant minimum d'achat</Label>
+                <Input type="number" value={minAmount} onChange={e => setMinAmount(e.target.value)} placeholder="0 (aucun minimum)" className="h-8 text-xs" />
+              </div>
+              <div className="flex items-center gap-2 py-2">
+                <Switch checked={firstPurchaseOnly} onCheckedChange={setFirstPurchaseOnly} />
+                <Label className="text-xs">Premier achat uniquement</Label>
+              </div>
             </div>
             <div className="flex gap-2">
               <Button size="sm" className="bg-primary text-primary-foreground" onClick={() => createCode.mutate()} disabled={createCode.isPending}>
