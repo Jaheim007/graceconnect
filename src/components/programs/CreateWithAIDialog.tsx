@@ -196,7 +196,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                 value={prompt}
                 onChange={e => setPrompt(e.target.value)}
                 placeholder={isFr ? 'Décrivez ce que vous souhaitez créer...' : 'Describe what you\'d like to create...'}
-                rows={4}
+                rows={6}
                 className="resize-none"
               />
 
