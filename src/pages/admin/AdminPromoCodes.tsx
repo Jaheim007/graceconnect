@@ -242,6 +242,8 @@ export default function AdminPromoCodes() {
                     {pc.digital_products?.title && (
                       <p className="text-[10px] text-primary">🏷️ {pc.digital_products.title}</p>
                     )}
+                    {pc.min_amount > 0 && <span className="text-[10px] text-muted-foreground"> · Min: {pc.min_amount}</span>}
+                    {pc.first_purchase_only && <span className="text-[10px] text-amber-600"> · 1er achat</span>}
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch checked={pc.is_active} onCheckedChange={(v) => toggleActive.mutate({ id: pc.id, is_active: v })} />
