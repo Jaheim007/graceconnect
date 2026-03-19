@@ -107,7 +107,7 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
       {expanded && (
         <div className="mt-3 space-y-2">
           {products.length === 0 ? (
-            <p className="text-[11px] text-muted-foreground text-center py-3">Aucun produit publié dans cette organisation.</p>
+            <p className="text-[11px] text-muted-foreground text-center py-3">{isFr ? 'Aucun produit publié dans cette organisation.' : 'No published products in this organization.'}</p>
           ) : (
             products.map((p: any) => {
               const hasLink = existingProductIds.has(p.id);
