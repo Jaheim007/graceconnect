@@ -105,13 +105,19 @@ export function ChariowImportDialog({ open, onOpenChange }: { open: boolean; onO
         // Chariow prices are in major units (e.g. 99.00), our DB uses minor units (kobo/cents)
         const priceMinor = Math.round(priceValue * 100);
 
+        // Use highest quality image: prefer cover, upgrade CDN quality params
+        const rawImageUrl = product.pictures?.cover || product.pictures?.thumbnail || null;
+        const coverUrl = rawImageUrl
+          ? rawImageUrl.replace(/quality=[^,&]+/, 'quality=high').replace(/slow-connection=[^,&/]+/, '')
+          : null;
+
         await db.from('digital_products').insert({
           organization_id: currentOrg.id,
           title: product.name,
           description: product.description || '',
           price: product.is_free ? 0 : priceMinor,
           is_free: product.is_free,
-          cover_image_url: product.pictures?.cover || product.pictures?.thumbnail || null,
+          cover_image_url: coverUrl,
           is_published: false, // Draft so user can add files
           product_type: mapProductType(product.type),
           currency: product.pricing?.current_price?.currency || product.pricing?.price?.currency || 'XOF',
