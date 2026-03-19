@@ -1252,6 +1252,54 @@ Deno.serve(async (req) => {
     }
     results['review_requests'] = reviewRequestCount;
 
+    // ═══════════════════════════════════════════
+    // REVIEW REMINDER J+7 (7 days after purchase, if no review left)
+    // ═══════════════════════════════════════════
+    let reviewReminderCount = 0;
+    const j7Start = new Date(now.getTime() - 170 * 3600000).toISOString(); // ~7d + 2h
+    const j7End = new Date(now.getTime() - 166 * 3600000).toISOString();   // ~7d - 2h
+    const { data: j7Purchases } = await db.from('product_purchases')
+      .select('id, user_id, product_id, organization_id, review_reminder_count, digital_products(title, slug), organizations(name, slug)')
+      .eq('status', 'completed')
+      .eq('review_request_sent', true)
+      .lt('review_reminder_count', 1)
+      .gte('completed_at', j7End)
+      .lte('completed_at', j7Start)
+      .limit(50);
+    for (const purchase of j7Purchases || []) {
+      if (!purchase.user_id) continue;
+      // Check if user already left a review
+      const { count: reviewCount } = await db.from('product_reviews')
+        .select('*', { count: 'exact', head: true })
+        .eq('product_id', purchase.product_id)
+        .eq('user_id', purchase.user_id);
+      if ((reviewCount || 0) > 0) continue;
+
+      const email = await getUserEmail(purchase.user_id);
+      const { data: profile } = await db.from('profiles').select('display_name').eq('id', purchase.user_id).maybeSingle();
+      const product = (purchase as any).digital_products;
+      const org = (purchase as any).organizations;
+      if (email && product && org) {
+        const pSlug = product.slug;
+        const reviewUrl = pSlug
+          ? `https://siteviral.com/org/${org.slug}/p/${pSlug}#reviews`
+          : `https://siteviral.com/org/${org.slug}/product/${purchase.product_id}#reviews`;
+        await sendEmail({
+          template: 'review_request' as any,
+          to: email,
+          data: {
+            buyer_name: profile?.display_name || '',
+            product_title: product.title,
+            org_name: org.name,
+            review_url: reviewUrl,
+          },
+          organization_id: purchase.organization_id,
+        });
+        await db.from('product_purchases').update({ review_reminder_count: 1 } as any).eq('id', purchase.id);
+        reviewReminderCount++;
+      }
+    }
+    results['review_reminders_j7'] = reviewReminderCount;
     return new Response(JSON.stringify({ ok: true, results }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
