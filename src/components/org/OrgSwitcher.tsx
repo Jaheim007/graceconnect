@@ -22,13 +22,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const roleConfig: Record<string, { label: string; icon: typeof Crown; color: string }> = {
-  owner: { label: 'Propriétaire', icon: Crown, color: 'text-amber-500' },
+const roleConfigFn = (isFr: boolean): Record<string, { label: string; icon: typeof Crown; color: string }> => ({
+  owner: { label: isFr ? 'Propriétaire' : 'Owner', icon: Crown, color: 'text-amber-500' },
   admin: { label: 'Admin', icon: ShieldCheck, color: 'text-blue-500' },
-  editor: { label: 'Éditeur', icon: Pencil, color: 'text-emerald-500' },
-  member: { label: 'Membre', icon: Users2, color: 'text-muted-foreground' },
-  affiliate: { label: 'Ambassadeur', icon: Link2, color: 'text-purple-500' },
-};
+  editor: { label: isFr ? 'Éditeur' : 'Editor', icon: Pencil, color: 'text-emerald-500' },
+  member: { label: isFr ? 'Membre' : 'Member', icon: Users2, color: 'text-muted-foreground' },
+  affiliate: { label: isFr ? 'Ambassadeur' : 'Ambassador', icon: Link2, color: 'text-purple-500' },
+});
 
 interface OrgSwitcherProps {
   /** Render mode — "sidebar" shows full card, "topbar" shows compact pill */
