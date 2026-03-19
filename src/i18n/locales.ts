@@ -3036,6 +3036,7 @@ const translations: Record<Locale, Record<string, string>> = {
     'sidebar.ambassadors': 'Ambassadeurs',
     'sidebar.ambassadors_desc': 'Gérez votre programme d\'affiliation',
     'sidebar.ai_studio_desc': 'Créez du contenu avec l\'IA',
+    'sidebar.viral_tools_desc': 'CRM, notifications & outils avancés',
     'sidebar.spotlight': 'À la une',
     'sidebar.spotlight_desc': 'Sélections vedettes & tendances',
     'sidebar.my_programs': 'Mes formations',
