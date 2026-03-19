@@ -607,6 +607,27 @@ export function ProductForm() {
           </div>
         </div>
 
+        {/* SEO Settings */}
+        <div className="space-y-3 border border-border rounded-xl p-4">
+          <p className="text-sm font-semibold flex items-center gap-2">🔍 SEO & Référencement</p>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label className="text-xs">Titre SEO <Badge variant="outline" className={`text-[10px] border-0 ml-1 ${seoTitle.length > 60 ? 'text-amber-600' : 'text-muted-foreground'}`}>{seoTitle.length}/60</Badge></Label>
+              <Input value={seoTitle} onChange={e => setSeoTitle(e.target.value)} placeholder={watch('title') || 'Titre optimisé pour Google'} className="h-8 text-xs" maxLength={70} />
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs">Description SEO <Badge variant="outline" className={`text-[10px] border-0 ml-1 ${seoDescription.length > 160 ? 'text-amber-600' : 'text-muted-foreground'}`}>{seoDescription.length}/160</Badge></Label>
+              <Textarea value={seoDescription} onChange={e => setSeoDescription(e.target.value)} placeholder="Décrivez votre produit pour les moteurs de recherche..." className="text-xs min-h-[50px]" maxLength={170} />
+            </div>
+            {/* Google Preview */}
+            <div className="bg-background border border-border rounded-lg p-3 space-y-0.5">
+              <p className="text-[10px] text-muted-foreground">Aperçu Google</p>
+              <p className="text-sm text-blue-600 font-medium truncate">{seoTitle || watch('title') || 'Titre du produit'}</p>
+              <p className="text-xs text-muted-foreground line-clamp-2">{seoDescription || 'Description de votre produit...'}</p>
+            </div>
+          </div>
+        </div>
+
         {/* Order Bump & Upsells */}
         {isEdit && !isFree && (
           <div className="space-y-3 border border-amber-500/20 bg-amber-500/5 rounded-xl p-4">
