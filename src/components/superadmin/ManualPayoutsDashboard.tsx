@@ -56,10 +56,20 @@ export default function ManualPayoutsDashboard() {
     queryFn: async () => {
       const { data } = await db
         .from('payout_requests')
-        .select('*, organizations(name, kyc_status)')
+        .select('*, organizations(name, kyc_status, slug)')
         .eq('status', 'pending')
         .order('requested_at', { ascending: true });
-      return data || [];
+      if (!data?.length) return [];
+
+      // Enrich each request with user profile + KYC payment info
+      const enriched = await Promise.all(data.map(async (req: any) => {
+        const [{ data: profile }, { data: kyc }] = await Promise.all([
+          db.from('profiles').select('display_name, avatar_url').eq('id', req.user_id).maybeSingle(),
+          db.from('kyc_submissions').select('id_document_type, verification_type, payout_method, payout_phone, payout_provider, bank_account_name, bank_account_number, bank_name, kyc_level').eq('organization_id', req.organization_id).maybeSingle(),
+        ]);
+        return { ...req, profile, kyc };
+      }));
+      return enriched;
     },
   });
 
@@ -212,15 +222,20 @@ export default function ManualPayoutsDashboard() {
           ) : (
             pendingRequests.map((req: any) => (
               <Card key={req.id}>
-                <CardContent className="pt-4">
+                <CardContent className="pt-4 space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium text-sm flex items-center gap-1.5">
                         <Building className="h-3.5 w-3.5 text-muted-foreground" />
                         {req.organizations?.name || 'Organisation'}
                       </p>
-                      <p className="text-lg font-bold text-primary">{formatAmount(req.amount, req.currency)}</p>
-                      <div className="flex items-center gap-2 mt-1">
+                      {req.profile?.display_name && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                          <User className="h-3 w-3" /> Demandeur : <strong>{req.profile.display_name}</strong>
+                        </p>
+                      )}
+                      <p className="text-lg font-bold text-primary mt-1">{formatAmount(req.amount, req.currency)}</p>
+                      <div className="flex items-center gap-2 mt-1 flex-wrap">
                         <Badge variant="outline" className="text-[10px]">{req.payout_type}</Badge>
                         <Badge
                           variant={req.organizations?.kyc_status === 'level1' || req.organizations?.kyc_status === 'level2' ? 'default' : 'destructive'}
@@ -228,6 +243,11 @@ export default function ManualPayoutsDashboard() {
                         >
                           KYC: {req.organizations?.kyc_status || 'none'}
                         </Badge>
+                        {req.requested_at && (
+                          <span className="text-[10px] text-muted-foreground">
+                            {new Date(req.requested_at).toLocaleDateString()}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <Button
@@ -239,6 +259,48 @@ export default function ManualPayoutsDashboard() {
                       Traiter
                     </Button>
                   </div>
+
+                  {/* Payment / identity details from KYC */}
+                  {req.kyc && (
+                    <div className="p-3 rounded-xl bg-muted/50 border border-border space-y-1.5 text-xs">
+                      <p className="font-semibold text-[10px] uppercase tracking-wide text-muted-foreground">Infos de paiement (KYC)</p>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                        {req.kyc.verification_type && (
+                          <p><span className="text-muted-foreground">Type :</span> <strong>{req.kyc.verification_type}</strong></p>
+                        )}
+                        {req.kyc.id_document_type && (
+                          <p><span className="text-muted-foreground">Pièce :</span> <strong>{req.kyc.id_document_type}</strong></p>
+                        )}
+                        {req.kyc.payout_method && (
+                          <p className="flex items-center gap-1">
+                            {req.kyc.payout_method === 'mobile_money' ? <Phone className="h-3 w-3" /> : <CreditCard className="h-3 w-3" />}
+                            <span className="text-muted-foreground">Méthode :</span> <strong>{req.kyc.payout_method === 'mobile_money' ? 'Mobile Money' : 'Virement bancaire'}</strong>
+                          </p>
+                        )}
+                        {req.kyc.payout_provider && (
+                          <p><span className="text-muted-foreground">Opérateur :</span> <strong>{req.kyc.payout_provider}</strong></p>
+                        )}
+                        {req.kyc.payout_phone && (
+                          <p><span className="text-muted-foreground">Tél :</span> <strong className="font-mono">{req.kyc.payout_phone}</strong></p>
+                        )}
+                        {req.kyc.bank_name && (
+                          <p><span className="text-muted-foreground">Banque :</span> <strong>{req.kyc.bank_name}</strong></p>
+                        )}
+                        {req.kyc.bank_account_name && (
+                          <p><span className="text-muted-foreground">Nom compte :</span> <strong>{req.kyc.bank_account_name}</strong></p>
+                        )}
+                        {req.kyc.bank_account_number && (
+                          <p><span className="text-muted-foreground">N° compte :</span> <strong className="font-mono">{req.kyc.bank_account_number}</strong></p>
+                        )}
+                      </div>
+                      {!req.kyc.payout_method && !req.kyc.bank_name && (
+                        <p className="text-destructive text-[10px]">⚠️ Aucune méthode de paiement configurée dans le KYC</p>
+                      )}
+                    </div>
+                  )}
+                  {!req.kyc && (
+                    <p className="text-destructive text-[10px]">⚠️ Aucune soumission KYC trouvée pour cette organisation</p>
+                  )}
                 </CardContent>
               </Card>
             ))
