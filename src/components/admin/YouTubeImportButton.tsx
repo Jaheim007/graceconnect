@@ -89,12 +89,12 @@ export function YouTubeImportButton() {
       if (insertError) throw insertError;
 
       qc.invalidateQueries({ queryKey: ['org-media'] });
-      toast({ title: '✅ Vidéo importée !', description: `"${preview.title}" est maintenant dans votre médiathèque.` });
+      toast({ title: isFr ? '✅ Vidéo importée !' : '✅ Video imported!', description: isFr ? `"${preview.title}" est maintenant dans votre médiathèque.` : `"${preview.title}" is now in your media library.` });
       setOpen(false);
       setUrl('');
       setPreview(null);
     } catch (err: any) {
-      toast({ title: 'Erreur', description: err.message, variant: 'destructive' });
+      toast({ title: isFr ? 'Erreur' : 'Error', description: err.message, variant: 'destructive' });
     } finally {
       setLoading(false);
     }
