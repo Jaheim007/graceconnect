@@ -28,7 +28,7 @@ export function Sidebar() {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
   const { user, isSuperadmin, signOut } = useAuth();
-  const { currentOrg, canManage, userOrgs, getRoleFor } = useOrg();
+  const { currentOrg, canManage, userOrgs } = useOrg();
   const { t } = useI18n();
   const { data: myPartner } = useMyPartner();
   const isApprovedPartner = myPartner?.status === 'approved';
