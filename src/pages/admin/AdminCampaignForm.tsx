@@ -45,6 +45,8 @@ export function CampaignForm() {
   const [loading, setLoading] = useState(false);
   const [showTemplates, setShowTemplates] = useState(!isEdit);
   const [showAI, setShowAI] = useState(false);
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   
 
   const { data: item } = useQuery({
