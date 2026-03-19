@@ -65,9 +65,9 @@ Deno.serve(async (req) => {
 
         // Notify all superadmins about the flagged submission
         const { data: superadmins } = await supabase
-          .from('user_roles')
+          .from('user_platform_roles')
           .select('user_id')
-          .eq('role', 'admin');
+          .eq('role', 'superadmin');
 
         if (superadmins && superadmins.length > 0) {
           const alerts = superadmins.map((sa: any) => ({
