@@ -84,6 +84,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
           tier,
           module_count: 5,
           generate_images: generateImages,
+          audience_level: audienceLevel,
         },
       });
 
