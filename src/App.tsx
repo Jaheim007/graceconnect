@@ -384,6 +384,7 @@ const App = () => (
                 {/* Public / Buyer Universe — uses PublicLayout (minimal chrome) */}
                 <Route element={<PublicLayout />}>
                   <Route path="/discover" element={<DiscoverPage />} />
+                  <Route path="/spotlight" element={<SpotlightPage />} />
                   <Route path="/org/:slug" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/content" element={<OrgPublicPage />} />
                   <Route path="/org/:slug/events" element={<OrgPublicPage />} />
