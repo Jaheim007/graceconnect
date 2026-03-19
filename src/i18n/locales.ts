@@ -1632,6 +1632,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'nudge.ambassador_cta': 'Become ambassador',
     'nudge.publish': 'You have a space — publish your first product!',
     'nudge.publish_cta': 'Publish',
+    'nudge.create_platform': 'Create your platform to sell your products',
+    'nudge.create_platform_cta': 'Create now',
     // ─── Ambassador Marketplace ───
     'amb.title': 'Products to promote',
     'amb.subtitle': 'Choose, share, earn. That\'s it.',
