@@ -238,6 +238,24 @@ export default function UserDashboard() {
           </DashboardSection>
         )}
 
+        {/* ═══ CREATE PLATFORM CTA (no-org users) ═══ */}
+        {!hasOrgs && (
+          <PremiumCard variant="glass" delay={0.1} className="space-y-3 border-primary/30 bg-primary/5">
+            <div className="flex items-center gap-3">
+              <div className="h-11 w-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Building2 className="h-5 w-5 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-sm">{isFr ? 'Crée ta plateforme' : 'Create your platform'}</h3>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{isFr ? 'Vends tes produits, reçois des paiements Mobile Money' : 'Sell your products, receive Mobile Money payments'}</p>
+              </div>
+            </div>
+            <Button className="w-full gap-2" size="sm" onClick={() => navigate('/create-org')}>
+              <Store className="h-3.5 w-3.5" /> {isFr ? 'Créer ma boutique' : 'Create my store'}
+            </Button>
+          </PremiumCard>
+        )}
+
         {/* ═══ DISCOVER & EARN — compact action cards ═══ */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <PremiumCard variant="glass" delay={0.12} className="space-y-3">
@@ -250,7 +268,7 @@ export default function UserDashboard() {
                 <p className="text-[10px] text-muted-foreground">{isFr ? 'eBooks, formations, templates' : 'eBooks, courses, templates'}</p>
               </div>
             </div>
-            <Button className="w-full gap-2" variant="outline" size="sm" onClick={() => navigate('/marketplace')}>
+            <Button className="w-full gap-2" variant="outline" size="sm" onClick={() => navigate('/discover')}>
               <Store className="h-3.5 w-3.5" /> {isFr ? 'Explorer' : 'Browse'}
             </Button>
           </PremiumCard>
@@ -265,7 +283,7 @@ export default function UserDashboard() {
                 <p className="text-[10px] text-muted-foreground">{isFr ? 'Partage et gagne des commissions' : 'Share & earn commissions'}</p>
               </div>
             </div>
-            <Button className="w-full gap-2" size="sm" onClick={() => navigate('/gagner')}>
+            <Button className="w-full gap-2" size="sm" onClick={() => navigate('/affiliation')}>
               <Rocket className="h-3.5 w-3.5" /> {isFr ? 'Commencer' : 'Start'}
             </Button>
           </PremiumCard>
