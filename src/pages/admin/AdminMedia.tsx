@@ -53,7 +53,7 @@ export default function AdminMedia() {
   };
 
   return (
-    <AdminPageShell title={t('admin_media.title')} newRoute="/admin/media/new" newLabel={t('admin_media.new')} backRoute="/admin">
+    <AdminPageShell title={t('admin_media.title')} newRoute="/admin/media/new" newLabel={t('admin_media.new')} backRoute="/admin/create">
       {isLoading ? <SkeletonRow count={5} /> : media.length === 0 ? (
         <div className="space-y-4">
           <div className="flex justify-end">
