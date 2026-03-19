@@ -1320,6 +1320,9 @@ const translations: Record<Locale, Record<string, string>> = {
     'write.sug_family': '👶 Children & Family',
     // ─── Sidebar / Nav sections ───
     'sidebar.my_space': 'My space',
+    'sidebar.my_platforms': 'My platforms',
+    'sidebar.member_of': 'Member of',
+    'sidebar.create_new_platform': 'Create a new platform',
     'sidebar.earn': 'Earn',
     'sidebar.write_sell_earn': 'Write · Sell · Earn',
     'sidebar.write': 'Write',
