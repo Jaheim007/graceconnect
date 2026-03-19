@@ -139,7 +139,7 @@ export function RichTextEditor({
   const handleImageUpload = useCallback(async (file: File) => {
     if (!editor) return;
     if (file.size > 5 * 1024 * 1024) {
-      toast({ title: 'Image trop lourde', description: 'Maximum 5 Mo par image.', variant: 'destructive' });
+      toast({ title: isFr ? 'Image trop lourde' : 'Image too large', description: isFr ? 'Maximum 5 Mo par image.' : 'Maximum 5 MB per image.', variant: 'destructive' });
       return;
     }
     setUploading(true);
@@ -148,14 +148,14 @@ export function RichTextEditor({
       if (url) {
         editor.chain().focus().setImage({ src: url }).run();
       } else {
-        toast({ title: 'Erreur', description: "Impossible d'uploader l'image.", variant: 'destructive' });
+        toast({ title: isFr ? 'Erreur' : 'Error', description: isFr ? "Impossible d'uploader l'image." : 'Failed to upload image.', variant: 'destructive' });
       }
     } catch {
-      toast({ title: 'Erreur', description: "Impossible d'uploader l'image.", variant: 'destructive' });
+      toast({ title: isFr ? 'Erreur' : 'Error', description: isFr ? "Impossible d'uploader l'image." : 'Failed to upload image.', variant: 'destructive' });
     } finally {
       setUploading(false);
     }
-  }, [editor, toast]);
+  }, [editor, toast, isFr]);
 
   useEffect(() => {
     if (editor && value !== editor.getHTML()) {
