@@ -135,6 +135,36 @@ export default function AdminCreateHub() {
           );
         })}
       </div>
+
+      {/* ═══ ADVANCED TOOLS ═══ */}
+      <div>
+        <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3">{t('create_hub.advanced_tools')}</h2>
+        <div className="grid gap-2 sm:grid-cols-2">
+          {[
+            { to: '/admin/crm', icon: MailCheck, label: 'CRM', desc: t('create_hub.crm_desc'), color: 'text-sky-500 bg-sky-500/10' },
+            { to: '/admin/notifications', icon: Bell, label: t('create_hub.notifications'), desc: t('create_hub.notifications_desc'), color: 'text-amber-500 bg-amber-500/10' },
+            { to: '/admin/subscriptions', icon: CreditCard, label: t('create_hub.subscriptions'), desc: t('create_hub.subscriptions_desc'), color: 'text-violet-500 bg-violet-500/10' },
+            { to: '/admin/waitlists', icon: Clock, label: t('create_hub.waitlists'), desc: t('create_hub.waitlists_desc'), color: 'text-slate-500 bg-slate-500/10' },
+            { to: '/admin/webhooks', icon: Webhook, label: 'Webhooks', desc: t('create_hub.webhooks_desc'), color: 'text-gray-500 bg-gray-500/10' },
+            { to: '/admin/experiments', icon: FlaskConical, label: t('create_hub.experiments'), desc: t('create_hub.experiments_desc'), color: 'text-lime-500 bg-lime-500/10' },
+          ].map((item) => (
+            <Link
+              key={item.to}
+              to={item.to}
+              className="flex items-center gap-3 p-3 rounded-xl border border-border hover:border-primary/30 transition-all group"
+            >
+              <div className={cn('h-9 w-9 rounded-lg flex items-center justify-center shrink-0', item.color)}>
+                <item.icon className="h-4 w-4" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-xs">{item.label}</h3>
+                <p className="text-[11px] text-muted-foreground line-clamp-1">{item.desc}</p>
+              </div>
+              <ArrowRight className="h-3.5 w-3.5 text-muted-foreground shrink-0 opacity-0 group-hover:opacity-100 transition-all" />
+            </Link>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
