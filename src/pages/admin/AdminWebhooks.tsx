@@ -244,7 +244,7 @@ Header: X-SiteViral-Signature (HMAC-SHA256)`}</pre>
 
         <TabsContent value="logs" className="space-y-3">
           {deliveries.length === 0 ? (
-            <EmptyState icon="list" title={isFr ? 'Aucune livraison' : 'No deliveries'} description={isFr ? 'Les livraisons de webhooks apparaîtront ici.' : 'Webhook deliveries will appear here.'} />
+            <EmptyState variant="empty" title={isFr ? 'Aucune livraison' : 'No deliveries'} description={isFr ? 'Les livraisons de webhooks apparaîtront ici.' : 'Webhook deliveries will appear here.'} />
           ) : (
             <div className="space-y-2">
               {deliveries.map((d: any) => (
