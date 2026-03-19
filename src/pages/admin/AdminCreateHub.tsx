@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import {
   ShoppingBag, GraduationCap, Play, Megaphone, CalendarDays,
-  Heart, Tag, ArrowRight, Sparkles, MessageSquare, Zap
+  Heart, Tag, ArrowRight, Sparkles, MessageSquare
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
