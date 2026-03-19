@@ -151,6 +151,8 @@ export function ProductForm() {
       setFbPixel((item as any).facebook_pixel_id || '');
       setTtPixel((item as any).tiktok_pixel_id || '');
       setGTag((item as any).google_tag_id || '');
+      setSeoTitle((item as any).seo_title || '');
+      setSeoDescription((item as any).seo_description || '');
     }
   }, [item, reset]);
 
