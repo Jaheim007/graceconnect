@@ -38,6 +38,8 @@ export default function AdminPromoCodes() {
   const [maxUses, setMaxUses] = useState('');
   const [expiresAt, setExpiresAt] = useState('');
   const [selectedProductId, setSelectedProductId] = useState<string>('all');
+  const [minAmount, setMinAmount] = useState('');
+  const [firstPurchaseOnly, setFirstPurchaseOnly] = useState(false);
 
   const { data: products = [] } = useOrgProducts(currentOrg?.id, false);
   const dateFmt = locale === 'fr' ? 'fr-FR' : 'en-US';
