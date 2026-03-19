@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Copy, CheckCircle, ChevronDown, ChevronUp, Link2, ShoppingBag } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useI18n } from '@/i18n/I18nContext';
 import { cn } from '@/lib/utils';
 import { getOrCreateShortLink, buildSocialShareUrl } from '@/lib/shareMeta';
 
@@ -19,6 +20,8 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
   const [expanded, setExpanded] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const qc = useQueryClient();
 
   const { data: products = [] } = useQuery({
@@ -61,11 +64,11 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
       if (error) throw error;
     },
     onSuccess: () => {
-      toast({ title: 'Lien créé !', description: 'Votre lien affilié pour ce produit est prêt.' });
+      toast({ title: isFr ? 'Lien créé !' : 'Link created!', description: isFr ? 'Votre lien affilié pour ce produit est prêt.' : 'Your affiliate link for this product is ready.' });
       qc.invalidateQueries({ queryKey: ['affiliate-product-links', orgId, userId] });
     },
     onError: (err: Error) => {
-      toast({ title: 'Erreur', description: err.message, variant: 'destructive' });
+      toast({ title: isFr ? 'Erreur' : 'Error', description: err.message, variant: 'destructive' });
     },
   });
 
@@ -78,7 +81,7 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
     }
     await navigator.clipboard.writeText(url);
     setCopiedId(id);
-    toast({ title: 'Lien copié !' });
+    toast({ title: isFr ? 'Lien copié !' : 'Link copied!' });
     setTimeout(() => setCopiedId(null), 2000);
   };
 
@@ -93,7 +96,7 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
         className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors w-full"
       >
         <ShoppingBag className="h-3.5 w-3.5" />
-        <span>Liens par produit</span>
+        <span>{isFr ? 'Liens par produit' : 'Links per product'}</span>
         {existingLinks.length > 0 && (
           <Badge variant="outline" className="text-[9px] border-0 bg-primary/10 text-primary ml-1">{existingLinks.length}</Badge>
         )}
@@ -104,7 +107,7 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
       {expanded && (
         <div className="mt-3 space-y-2">
           {products.length === 0 ? (
-            <p className="text-[11px] text-muted-foreground text-center py-3">Aucun produit publié dans cette organisation.</p>
+            <p className="text-[11px] text-muted-foreground text-center py-3">{isFr ? 'Aucun produit publié dans cette organisation.' : 'No published products in this organization.'}</p>
           ) : (
             products.map((p: any) => {
               const hasLink = existingProductIds.has(p.id);
@@ -127,7 +130,7 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
                   <div className="flex-1 min-w-0">
                     <p className="text-xs font-medium truncate">{p.title}</p>
                     <p className="text-[10px] text-muted-foreground">
-                      {p.price === 0 ? 'Free' : `${p.price?.toLocaleString()} ${p.currency || 'XOF'}`}
+                      {p.price === 0 ? (isFr ? 'Gratuit' : 'Free') : `${p.price?.toLocaleString()} ${p.currency || 'XOF'}`}
                     </p>
                   </div>
                   {hasLink ? (
@@ -138,7 +141,7 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
                       onClick={() => handleCopy(productPath, p.id, p.title, p.cover_image_url)}
                     >
                       {copiedId === p.id ? <CheckCircle className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
-                      {copiedId === p.id ? 'Copié' : 'Copier'}
+                      {copiedId === p.id ? (isFr ? 'Copié' : 'Copied') : (isFr ? 'Copier' : 'Copy')}
                     </Button>
                   ) : (
                     <Button
@@ -149,7 +152,7 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
                       disabled={createLink.isPending}
                     >
                       <Link2 className="h-3 w-3" />
-                      {createLink.isPending ? '...' : 'Créer lien'}
+                      {createLink.isPending ? '...' : (isFr ? 'Créer lien' : 'Create link')}
                     </Button>
                   )}
                 </div>

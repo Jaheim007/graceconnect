@@ -3,16 +3,11 @@ import { MessageSquarePlus, Send, X, Bug, Lightbulb, ThumbsUp } from 'lucide-rea
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/i18n/I18nContext';
 import { db } from '@/lib/db';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
-
-const TYPES = [
-  { value: 'bug', icon: Bug, label: 'Bug', color: 'text-destructive' },
-  { value: 'idea', icon: Lightbulb, label: 'Idée', color: 'text-accent-foreground' },
-  { value: 'praise', icon: ThumbsUp, label: 'Bravo', color: 'text-primary' },
-] as const;
 
 export function FeedbackWidget() {
   const [open, setOpen] = useState(false);
@@ -21,6 +16,14 @@ export function FeedbackWidget() {
   const [sending, setSending] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
+
+  const TYPES = [
+    { value: 'bug', icon: Bug, label: 'Bug', color: 'text-destructive' },
+    { value: 'idea', icon: Lightbulb, label: isFr ? 'Idée' : 'Idea', color: 'text-accent-foreground' },
+    { value: 'praise', icon: ThumbsUp, label: isFr ? 'Bravo' : 'Kudos', color: 'text-primary' },
+  ] as const;
 
   const handleSend = async () => {
     if (!message.trim() || !user) return;
@@ -32,11 +35,11 @@ export function FeedbackWidget() {
         reason: message.trim(),
         reporter_user_id: user.id,
       });
-      toast({ title: '✅ Merci pour votre feedback !' });
+      toast({ title: isFr ? '✅ Merci pour votre feedback !' : '✅ Thank you for your feedback!' });
       setMessage('');
       setOpen(false);
     } catch {
-      toast({ title: 'Erreur', variant: 'destructive' });
+      toast({ title: isFr ? 'Erreur' : 'Error', variant: 'destructive' });
     } finally {
       setSending(false);
     }
@@ -78,11 +81,11 @@ export function FeedbackWidget() {
             <Textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Décrivez votre retour..."
+              placeholder={isFr ? 'Décrivez votre retour...' : 'Describe your feedback...'}
               className="min-h-[80px] text-sm resize-none"
             />
             <Button onClick={handleSend} disabled={!message.trim() || sending} className="w-full gap-1.5" size="sm">
-              <Send className="h-3.5 w-3.5" /> Envoyer
+              <Send className="h-3.5 w-3.5" /> {isFr ? 'Envoyer' : 'Send'}
             </Button>
           </motion.div>
         )}

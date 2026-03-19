@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useOrg } from '@/contexts/OrgContext';
+import { useI18n } from '@/i18n/I18nContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/db';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -35,6 +36,8 @@ export function AnnouncementForm() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const isEdit = !!id;
   const [loading, setLoading] = useState(false);
   const [showAI, setShowAI] = useState(false);
@@ -60,7 +63,7 @@ export function AnnouncementForm() {
   }, [item, reset]);
 
   const onSubmit = async (data: FormData) => {
-    if (!currentOrg || !user) { toast({ title: 'Error', description: 'No organization selected.', variant: 'destructive' }); return; }
+    if (!currentOrg || !user) { toast({ title: isFr ? 'Erreur' : 'Error', description: isFr ? 'Aucune organisation sélectionnée.' : 'No organization selected.', variant: 'destructive' }); return; }
     setLoading(true);
     try {
       const payload = { ...data, organization_id: currentOrg.id, created_by: user.id, image_url: data.image_url || null, expires_at: data.expires_at ? new Date(data.expires_at).toISOString() : null };
@@ -69,46 +72,46 @@ export function AnnouncementForm() {
       else { ({ error } = await db.from('announcements').insert(payload as any)); }
       if (error) throw error;
       await queryClient.invalidateQueries({ queryKey: ['org-announcements'] });
-      toast({ title: isEdit ? 'Mis à jour ✅' : 'Créé ✅' });
+      toast({ title: isEdit ? (isFr ? 'Mis à jour ✅' : 'Updated ✅') : (isFr ? 'Créé ✅' : 'Created ✅') });
       navigate('/admin/announcements');
-    } catch (err: any) { toast({ title: 'Erreur', description: err.message, variant: 'destructive' }); }
+    } catch (err: any) { toast({ title: isFr ? 'Erreur' : 'Error', description: err.message, variant: 'destructive' }); }
     finally { setLoading(false); }
   };
 
   return (
-    <AdminPageShell title={isEdit ? 'Modifier l\'annonce' : 'Nouvelle annonce'} backRoute="/admin/announcements">
-      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('body', (watch('body') || '') + html, { shouldDirty: true, shouldTouch: true })} context="annonce d'organisation" />
+    <AdminPageShell title={isEdit ? (isFr ? 'Modifier l\'annonce' : 'Edit Announcement') : (isFr ? 'Nouvelle annonce' : 'New Announcement')} backRoute="/admin/announcements">
+      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('body', (watch('body') || '') + html, { shouldDirty: true, shouldTouch: true })} context={isFr ? 'annonce d\'organisation' : 'organization announcement'} />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
-          <Label>Titre *</Label>
-          <Input {...register('title')} placeholder="Titre de l'annonce..." />
+          <Label>{isFr ? 'Titre *' : 'Title *'}</Label>
+          <Input {...register('title')} placeholder={isFr ? 'Titre de l\'annonce...' : 'Announcement title...'} />
           {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
         </div>
         <div className="space-y-1.5">
-          <Label>Contenu *</Label>
+          <Label>{isFr ? 'Contenu *' : 'Content *'}</Label>
           <RichTextEditor
             value={watch('body') || ''}
             onChange={(html) => setValue('body', html)}
-            placeholder="Rédigez le contenu de votre annonce..."
+            placeholder={isFr ? 'Rédigez le contenu de votre annonce...' : 'Write the content of your announcement...'}
             onAIAssist={() => setShowAI(true)}
           />
           {errors.body && <p className="text-xs text-destructive">{errors.body.message}</p>}
         </div>
 
-        <ImageUploader value={watch('image_url') || ''} onChange={(url) => setValue('image_url', url)} folder="announcements" label="Image (optionnel)" hint="Recommandé: 1200×630px" aspectRatio="video" />
+        <ImageUploader value={watch('image_url') || ''} onChange={(url) => setValue('image_url', url)} folder="announcements" label={isFr ? 'Image (optionnel)' : 'Image (optional)'} hint={isFr ? 'Recommandé: 1200×630px' : 'Recommended: 1200×630px'} aspectRatio="video" />
 
         <div className="space-y-1.5">
-          <Label>Expire le (optionnel)</Label>
+          <Label>{isFr ? 'Expire le (optionnel)' : 'Expires on (optional)'}</Label>
           <Input type="date" {...register('expires_at')} />
         </div>
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2"><Switch checked={watch('is_pinned')} onCheckedChange={v => setValue('is_pinned', v)} /><Label className="text-sm cursor-pointer">Épinglé</Label></div>
-          <div className="flex items-center gap-2"><Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} /><Label className="text-sm cursor-pointer">Publié</Label></div>
+          <div className="flex items-center gap-2"><Switch checked={watch('is_pinned')} onCheckedChange={v => setValue('is_pinned', v)} /><Label className="text-sm cursor-pointer">{isFr ? 'Épinglé' : 'Pinned'}</Label></div>
+          <div className="flex items-center gap-2"><Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} /><Label className="text-sm cursor-pointer">{isFr ? 'Publié' : 'Published'}</Label></div>
         </div>
         <div className="flex gap-3 pt-2">
-          <Button type="button" variant="outline" onClick={() => navigate('/admin/announcements')}>Annuler</Button>
-          <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>{loading ? 'Enregistrement...' : isEdit ? 'Mettre à jour' : 'Créer'}</Button>
+          <Button type="button" variant="outline" onClick={() => navigate('/admin/announcements')}>{isFr ? 'Annuler' : 'Cancel'}</Button>
+          <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>{loading ? (isFr ? 'Enregistrement...' : 'Saving...') : isEdit ? (isFr ? 'Mettre à jour' : 'Update') : (isFr ? 'Créer' : 'Create')}</Button>
         </div>
       </form>
     </AdminPageShell>

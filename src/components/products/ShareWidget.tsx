@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Copy, MessageCircle, QrCode, Check, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useI18n } from '@/i18n/I18nContext';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -17,22 +18,24 @@ interface ShareWidgetProps {
   variant?: 'compact' | 'full';
 }
 
-const whatsappMessages = [
-  (title: string, url: string) => `🔥 ${title} — Découvre ça ici : ${url}`,
-  (title: string, url: string) => `Hey ! Je te recommande "${title}" 👉 ${url}`,
-  (title: string, url: string) => `📚 "${title}" — un must-have : ${url}`,
-];
-
 export function ShareWidget({ url, title, description, variant = 'compact' }: ShareWidgetProps) {
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const [copied, setCopied] = useState(false);
   const [showQR, setShowQR] = useState(false);
+
+  const whatsappMessages = [
+    (t: string, u: string) => isFr ? `🔥 ${t} — Découvre ça ici : ${u}` : `🔥 ${t} — Check this out: ${u}`,
+    (t: string, u: string) => isFr ? `Hey ! Je te recommande "${t}" 👉 ${u}` : `Hey! I recommend "${t}" 👉 ${u}`,
+    (t: string, u: string) => isFr ? `📚 "${t}" — un must-have : ${u}` : `📚 "${t}" — a must-have: ${u}`,
+  ];
 
   const handleCopy = (e?: React.MouseEvent) => {
     e?.stopPropagation();
     navigator.clipboard.writeText(url);
     setCopied(true);
-    toast({ title: '✅ Lien copié !' });
+    toast({ title: isFr ? '✅ Lien copié !' : '✅ Link copied!' });
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -50,7 +53,7 @@ export function ShareWidget({ url, title, description, variant = 'compact' }: Sh
         </Button>
         <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={handleCopy}>
           {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-          {copied ? 'Copié' : 'Copier'}
+          {copied ? (isFr ? 'Copié' : 'Copied') : (isFr ? 'Copier' : 'Copy')}
         </Button>
         <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={(e) => { e.stopPropagation(); setShowQR(true); }}>
           <QrCode className="h-3.5 w-3.5" /> QR
@@ -70,7 +73,7 @@ export function ShareWidget({ url, title, description, variant = 'compact' }: Sh
               <p className="text-xs text-muted-foreground text-center break-all">{url}</p>
               <Button size="sm" className="gap-1.5 text-xs w-full" onClick={handleCopy}>
                 {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                Copier le lien
+                {isFr ? 'Copier le lien' : 'Copy link'}
               </Button>
             </div>
           </DialogContent>
@@ -91,7 +94,7 @@ export function ShareWidget({ url, title, description, variant = 'compact' }: Sh
         <DropdownMenuContent align="end" className="w-44">
           <DropdownMenuItem onClick={handleCopy} className="gap-2 text-xs">
             {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-            {copied ? 'Copié !' : 'Copier le lien'}
+            {copied ? (isFr ? 'Copié !' : 'Copied!') : (isFr ? 'Copier le lien' : 'Copy link')}
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleWhatsApp} className="gap-2 text-xs">
             <MessageCircle className="h-3.5 w-3.5 text-green-500" /> WhatsApp
@@ -116,7 +119,7 @@ export function ShareWidget({ url, title, description, variant = 'compact' }: Sh
             <p className="text-xs text-muted-foreground text-center break-all">{url}</p>
             <Button size="sm" className="gap-1.5 text-xs w-full" onClick={handleCopy}>
               {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-              Copier le lien
+              {isFr ? 'Copier le lien' : 'Copy link'}
             </Button>
           </div>
         </DialogContent>

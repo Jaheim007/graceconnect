@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Sparkles } from 'lucide-react';
+import { useI18n } from '@/i18n/I18nContext';
 import { onContentPublished } from '@/lib/notifications';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -44,6 +45,8 @@ export function CampaignForm() {
   const [loading, setLoading] = useState(false);
   const [showTemplates, setShowTemplates] = useState(!isEdit);
   const [showAI, setShowAI] = useState(false);
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   
 
   const { data: item } = useQuery({
@@ -75,7 +78,7 @@ export function CampaignForm() {
   }, [item, reset]);
 
   const onSubmit = async (data: FormData) => {
-    if (!currentOrg || !user) { toast({ title: 'Error', description: 'No organization selected.', variant: 'destructive' }); return; }
+    if (!currentOrg || !user) { toast({ title: isFr ? 'Erreur' : 'Error', description: isFr ? 'Aucune organisation sélectionnée.' : 'No organization selected.', variant: 'destructive' }); return; }
     setLoading(true);
     try {
       const payload = { ...data, organization_id: currentOrg.id, created_by: user.id, currency: currentOrg.currency || 'XOF', image_url: data.image_url || null, goal_amount: data.goal_amount || null, end_date: data.end_date ? new Date(data.end_date).toISOString() : null, is_express_demo: false };
@@ -85,9 +88,9 @@ export function CampaignForm() {
       if (error) throw error;
       if (!isEdit && payload.is_published) onContentPublished(currentOrg.id, currentOrg.name, 'campaign', payload.title, '', { goal_amount: String(payload.goal_amount || 0), currency: payload.currency }, user.id);
       if (isEdit && item && !item.is_published && payload.is_published) onContentPublished(currentOrg.id, currentOrg.name, 'campaign', payload.title, id!, {}, user.id);
-      toast({ title: isEdit ? 'Mis à jour ✅' : 'Créé ✅' });
+      toast({ title: isEdit ? (isFr ? 'Mis à jour ✅' : 'Updated ✅') : (isFr ? 'Créé ✅' : 'Created ✅') });
       navigate('/admin/campaigns');
-    } catch (err: any) { toast({ title: 'Erreur', description: err.message, variant: 'destructive' }); }
+    } catch (err: any) { toast({ title: isFr ? 'Erreur' : 'Error', description: err.message, variant: 'destructive' }); }
     finally { setLoading(false); }
   };
 
@@ -99,17 +102,17 @@ export function CampaignForm() {
   };
 
   return (
-    <AdminPageShell title={isEdit ? 'Modifier la campagne' : 'Nouvelle campagne de dons'} backRoute="/admin/campaigns">
+    <AdminPageShell title={isEdit ? (isFr ? 'Modifier la campagne' : 'Edit Campaign') : (isFr ? 'Nouvelle campagne de dons' : 'New Donation Campaign')} backRoute="/admin/campaigns">
       {!isEdit && <ContentTemplateSelector type="campaign" open={showTemplates} onClose={() => setShowTemplates(false)} onSelect={(tpl) => applyCampaignTemplate(tpl as CampaignTemplate)} />}
-      {!isEdit && !showTemplates && (<div className="mb-4"><Button variant="outline" size="sm" onClick={() => setShowTemplates(true)} className="gap-1.5 text-xs"><Sparkles className="h-3.5 w-3.5" /> Utiliser un modèle</Button></div>)}
+      {!isEdit && !showTemplates && (<div className="mb-4"><Button variant="outline" size="sm" onClick={() => setShowTemplates(true)} className="gap-1.5 text-xs"><Sparkles className="h-3.5 w-3.5" /> {isFr ? 'Utiliser un modèle' : 'Use a template'}</Button></div>)}
 
-      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html, { shouldDirty: true, shouldTouch: true })} context="description de campagne de dons" />
+      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html, { shouldDirty: true, shouldTouch: true })} context={isFr ? 'description de campagne de dons' : 'donation campaign description'} />
       
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
-          <Label>Titre de la campagne *</Label>
-          <Input {...register('title')} placeholder="Ex: Construction d'un nouveau bâtiment..." />
+          <Label>{isFr ? 'Titre de la campagne *' : 'Campaign Title *'}</Label>
+          <Input {...register('title')} placeholder={isFr ? 'Ex: Construction d\'un nouveau bâtiment...' : 'E.g.: Building a new facility...'} />
           {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
         </div>
         <div className="space-y-1.5">
@@ -117,32 +120,32 @@ export function CampaignForm() {
           <RichTextEditor
             value={watch('description') || ''}
             onChange={(html) => setValue('description', html)}
-            placeholder="Décrivez l'objectif de cette campagne..."
+            placeholder={isFr ? 'Décrivez l\'objectif de cette campagne...' : 'Describe the goal of this campaign...'}
             onAIAssist={() => setShowAI(true)}
           />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label>Objectif ({currentOrg?.currency || 'XOF'})</Label>
-            <Input type="number" {...register('goal_amount')} placeholder="Ex: 5000000" />
+            <Label>{isFr ? 'Objectif' : 'Goal'} ({currentOrg?.currency || 'XOF'})</Label>
+            <Input type="number" {...register('goal_amount')} placeholder={isFr ? 'Ex: 5000000' : 'E.g.: 5000000'} />
           </div>
           <div className="space-y-1.5">
-            <Label>Date de fin (optionnel)</Label>
+            <Label>{isFr ? 'Date de fin (optionnel)' : 'End date (optional)'}</Label>
             <Input type="date" {...register('end_date')} />
           </div>
         </div>
 
         <div className="space-y-2">
-          <ImageUploader value={watch('image_url') || ''} onChange={(url) => setValue('image_url', url)} folder="campaigns" label="Image de couverture" hint="Recommandé: 1200×630px" aspectRatio="video" />
+          <ImageUploader value={watch('image_url') || ''} onChange={(url) => setValue('image_url', url)} folder="campaigns" label={isFr ? 'Image de couverture' : 'Cover image'} hint={isFr ? 'Recommandé: 1200×630px' : 'Recommended: 1200×630px'} aspectRatio="video" />
         </div>
 
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2"><Switch checked={watch('is_active')} onCheckedChange={v => setValue('is_active', v)} /><Label className="text-sm cursor-pointer">Active</Label></div>
-          <div className="flex items-center gap-2"><Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} /><Label className="text-sm cursor-pointer">Publié</Label></div>
+          <div className="flex items-center gap-2"><Switch checked={watch('is_active')} onCheckedChange={v => setValue('is_active', v)} /><Label className="text-sm cursor-pointer">{isFr ? 'Active' : 'Active'}</Label></div>
+          <div className="flex items-center gap-2"><Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} /><Label className="text-sm cursor-pointer">{isFr ? 'Publié' : 'Published'}</Label></div>
         </div>
         <div className="flex gap-3 pt-2">
-          <Button type="button" variant="outline" onClick={() => navigate('/admin/campaigns')}>Annuler</Button>
-          <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>{loading ? 'Enregistrement...' : isEdit ? 'Mettre à jour' : 'Créer'}</Button>
+          <Button type="button" variant="outline" onClick={() => navigate('/admin/campaigns')}>{isFr ? 'Annuler' : 'Cancel'}</Button>
+          <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>{loading ? (isFr ? 'Enregistrement...' : 'Saving...') : isEdit ? (isFr ? 'Mettre à jour' : 'Update') : (isFr ? 'Créer' : 'Create')}</Button>
         </div>
       </form>
     </AdminPageShell>

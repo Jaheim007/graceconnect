@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Organization } from '@/types/database';
 import { useOrg } from '@/contexts/OrgContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useI18n } from '@/i18n/I18nContext';
 import { MapPin } from 'lucide-react';
 import { VerifiedBadge } from '@/components/ui/VerifiedBadge';
 import { isOrgVerifiedOrKyc, getVerifiedLabel } from '@/lib/verifiedLabel';
@@ -31,6 +32,8 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
   const { user } = useAuth();
   const { joinOrg, isMemberOf } = useOrg();
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const [joining, setJoining] = useState(false);
   const isMember = isMemberOf(org.id);
 
@@ -42,9 +45,9 @@ export function OrgCard({ org, index = 0 }: OrgCardProps) {
     const { error } = await joinOrg(org.id);
     setJoining(false);
     if (error) {
-      toast({ title: 'Erreur', description: error.message, variant: 'destructive' });
+      toast({ title: isFr ? 'Erreur' : 'Error', description: error.message, variant: 'destructive' });
     } else {
-      toast({ title: `Vous avez rejoint ${org.name} !`, description: 'Bienvenue dans la communauté.' });
+      toast({ title: isFr ? `Vous avez rejoint ${org.name} !` : `You joined ${org.name}!`, description: isFr ? 'Bienvenue dans la communauté.' : 'Welcome to the community.' });
       navigate('/feed');
     }
   };

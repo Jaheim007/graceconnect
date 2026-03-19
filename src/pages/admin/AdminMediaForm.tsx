@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useOrg } from '@/contexts/OrgContext';
+import { useI18n } from '@/i18n/I18nContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { db } from '@/lib/db';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -19,13 +20,6 @@ import { cn } from '@/lib/utils';
 import { Film, Mic, Play, Radio } from 'lucide-react';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { AIWritingAssistant } from '@/components/admin/AIWritingAssistant';
-
-const MEDIA_TYPES = [
-  { value: 'video', label: 'Video', icon: Play, desc: 'Vidéo complète, formation ou événement.', specs: '16:9 (1920×1080)' },
-  { value: 'reel', label: 'Reel', icon: Film, desc: 'Clip vertical court (30s–3min).', specs: '9:16 (1080×1920)' },
-  { value: 'audio', label: 'Audio', icon: Mic, desc: 'Podcast ou contenu audio.', specs: 'MP3/AAC' },
-  { value: 'live_replay', label: 'Live Replay', icon: Radio, desc: 'Replay d\'un livestream.', specs: '16:9' },
-] as const;
 
 const schema = z.object({
   title: z.string().min(2, 'Required'),
@@ -48,10 +42,19 @@ export function MediaForm() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const isEdit = !!id;
   const [loading, setLoading] = useState(false);
   const [showAI, setShowAI] = useState(false);
   const qc = useQueryClient();
+
+  const MEDIA_TYPES = [
+    { value: 'video' as const, label: 'Video', icon: Play, desc: isFr ? 'Vidéo complète, formation ou événement.' : 'Full video, training or event.', specs: '16:9 (1920×1080)' },
+    { value: 'reel' as const, label: 'Reel', icon: Film, desc: isFr ? 'Clip vertical court (30s–3min).' : 'Short vertical clip (30s–3min).', specs: '9:16 (1080×1920)' },
+    { value: 'audio' as const, label: 'Audio', icon: Mic, desc: isFr ? 'Podcast ou contenu audio.' : 'Podcast or audio content.', specs: 'MP3/AAC' },
+    { value: 'live_replay' as const, label: 'Live Replay', icon: Radio, desc: isFr ? 'Replay d\'un livestream.' : 'Livestream replay.', specs: '16:9' },
+  ];
 
   const { data: item } = useQuery({
     queryKey: ['media-item', id],
@@ -72,7 +75,7 @@ export function MediaForm() {
   const selectedTypeMeta = MEDIA_TYPES.find(t => t.value === selectedType);
 
   const onSubmit = async (data: FormData) => {
-    if (!currentOrg || !user) { toast({ title: 'Error', variant: 'destructive' }); return; }
+    if (!currentOrg || !user) { toast({ title: isFr ? 'Erreur' : 'Error', variant: 'destructive' }); return; }
     setLoading(true);
     try {
       const payload = { ...data, organization_id: currentOrg.id, created_by: user.id, tags: data.tags ? data.tags.split(',').map(t => t.trim()).filter(Boolean) : [], media_url: data.media_url || null, thumbnail_url: data.thumbnail_url || null };
@@ -82,19 +85,19 @@ export function MediaForm() {
       if (error) throw error;
       qc.invalidateQueries({ queryKey: ['org-media'] });
       if (isEdit) qc.invalidateQueries({ queryKey: ['media-by-id', id] });
-      toast({ title: isEdit ? 'Mis à jour ✅' : 'Créé ✅' });
+      toast({ title: isEdit ? (isFr ? 'Mis à jour ✅' : 'Updated ✅') : (isFr ? 'Créé ✅' : 'Created ✅') });
       navigate('/admin/media');
-    } catch (err: any) { toast({ title: 'Erreur', description: err.message, variant: 'destructive' }); }
+    } catch (err: any) { toast({ title: isFr ? 'Erreur' : 'Error', description: err.message, variant: 'destructive' }); }
     finally { setLoading(false); }
   };
 
   return (
-    <AdminPageShell title={isEdit ? 'Modifier le média' : 'Nouveau média'} backRoute="/admin/media">
-      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html, { shouldDirty: true, shouldTouch: true })} context="description de contenu média" />
+    <AdminPageShell title={isEdit ? (isFr ? 'Modifier le média' : 'Edit Media') : (isFr ? 'Nouveau média' : 'New Media')} backRoute="/admin/media">
+      <AIWritingAssistant open={showAI} onClose={() => setShowAI(false)} onInsert={(html) => setValue('description', (watch('description') || '') + html, { shouldDirty: true, shouldTouch: true })} context={isFr ? 'description de contenu média' : 'media content description'} />
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 max-w-xl">
         <div className="space-y-2">
-          <Label>Type de contenu *</Label>
+          <Label>{isFr ? 'Type de contenu *' : 'Content type *'}</Label>
           <div className="grid grid-cols-2 gap-2">
             {MEDIA_TYPES.map(({ value, label, icon: Icon, desc, specs }) => (
               <button key={value} type="button" onClick={() => setValue('media_type', value)}
@@ -107,37 +110,37 @@ export function MediaForm() {
           {selectedTypeMeta && <p className="text-[11px] text-primary bg-primary/8 border border-primary/20 rounded-lg px-3 py-1.5">📐 <strong>Specs:</strong> {selectedTypeMeta.specs}</p>}
         </div>
 
-        <div className="space-y-1.5"><Label>Titre *</Label><Input {...register('title')} placeholder="Titre du contenu..." />{errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}</div>
+        <div className="space-y-1.5"><Label>{isFr ? 'Titre *' : 'Title *'}</Label><Input {...register('title')} placeholder={isFr ? 'Titre du contenu...' : 'Content title...'} />{errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}</div>
         <div className="space-y-1.5">
           <Label>Description</Label>
-          <RichTextEditor value={watch('description') || ''} onChange={(html) => setValue('description', html)} placeholder="Description du contenu..." onAIAssist={() => setShowAI(true)} />
+          <RichTextEditor value={watch('description') || ''} onChange={(html) => setValue('description', html)} placeholder={isFr ? 'Description du contenu...' : 'Content description...'} onAIAssist={() => setShowAI(true)} />
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <div className="space-y-1.5"><Label>Intervenant</Label><Input {...register('speaker')} placeholder="Nom..." /></div>
-          <div className="space-y-1.5"><Label>Série</Label><Input {...register('series')} placeholder="Nom de la série..." /></div>
+          <div className="space-y-1.5"><Label>{isFr ? 'Intervenant' : 'Speaker'}</Label><Input {...register('speaker')} placeholder={isFr ? 'Nom...' : 'Name...'} /></div>
+          <div className="space-y-1.5"><Label>{isFr ? 'Série' : 'Series'}</Label><Input {...register('series')} placeholder={isFr ? 'Nom de la série...' : 'Series name...'} /></div>
         </div>
         <div className="space-y-1.5">
-          <Label>Média (upload ou URL) *</Label>
+          <Label>{isFr ? 'Média (upload ou URL) *' : 'Media (upload or URL) *'}</Label>
           <FileUploader
             value={watch('media_url') || ''}
             onChange={(url) => setValue('media_url', url, { shouldDirty: true })}
             folder="media"
-            label="Fichier média"
-            hint={selectedType === 'audio' ? 'MP3, AAC, WAV · Max 50 Mo' : 'MP4, WebM ou lien YouTube/Vimeo'}
+            label={isFr ? 'Fichier média' : 'Media file'}
+            hint={selectedType === 'audio' ? (isFr ? 'MP3, AAC, WAV · Max 50 Mo' : 'MP3, AAC, WAV · Max 50 MB') : (isFr ? 'MP4, WebM ou lien YouTube/Vimeo' : 'MP4, WebM or YouTube/Vimeo link')}
             accept={selectedType === 'audio' ? 'audio/*' : 'video/*'}
             bucket="org-uploads"
           />
           {errors.media_url && <p className="text-xs text-destructive">{errors.media_url.message}</p>}
         </div>
-        <ImageUploader value={watch('thumbnail_url') || ''} onChange={(url) => setValue('thumbnail_url', url)} folder="thumbnails" label="Miniature" hint={selectedType === 'reel' ? '9:16 · 1080×1920px' : '16:9 · 1280×720px'} aspectRatio={selectedType === 'reel' ? 'square' : 'video'} />
-        <div className="space-y-1.5"><Label>Tags (séparés par virgules)</Label><Input {...register('tags')} placeholder="formation, leadership..." /></div>
+        <ImageUploader value={watch('thumbnail_url') || ''} onChange={(url) => setValue('thumbnail_url', url)} folder="thumbnails" label={isFr ? 'Miniature' : 'Thumbnail'} hint={selectedType === 'reel' ? '9:16 · 1080×1920px' : '16:9 · 1280×720px'} aspectRatio={selectedType === 'reel' ? 'square' : 'video'} />
+        <div className="space-y-1.5"><Label>{isFr ? 'Tags (séparés par virgules)' : 'Tags (comma separated)'}</Label><Input {...register('tags')} placeholder={isFr ? 'formation, leadership...' : 'training, leadership...'} /></div>
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2"><Switch checked={watch('is_premium')} onCheckedChange={v => setValue('is_premium', v)} /><Label className="text-sm cursor-pointer">Premium</Label></div>
-          <div className="flex items-center gap-2"><Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} /><Label className="text-sm cursor-pointer">Publié</Label></div>
+          <div className="flex items-center gap-2"><Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} /><Label className="text-sm cursor-pointer">{isFr ? 'Publié' : 'Published'}</Label></div>
         </div>
         <div className="flex gap-3 pt-2">
-          <Button type="button" variant="outline" onClick={() => navigate('/admin/media')}>Annuler</Button>
-          <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>{loading ? 'Enregistrement...' : isEdit ? 'Mettre à jour' : 'Créer'}</Button>
+          <Button type="button" variant="outline" onClick={() => navigate('/admin/media')}>{isFr ? 'Annuler' : 'Cancel'}</Button>
+          <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>{loading ? (isFr ? 'Enregistrement...' : 'Saving...') : isEdit ? (isFr ? 'Mettre à jour' : 'Update') : (isFr ? 'Créer' : 'Create')}</Button>
         </div>
       </form>
     </AdminPageShell>

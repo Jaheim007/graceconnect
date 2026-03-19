@@ -50,7 +50,8 @@ export default function CreateOrgPage() {
   const { user } = useAuth();
   const { refetchOrgs, setCurrentOrg } = useOrg();
   const { toast } = useToast();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const isFr = locale === 'fr';
   const [step, setStep] = useState(0); // 0=type, 1=name, 2=goal (just visual, not stored)
   const [loading, setLoading] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -114,14 +115,14 @@ export default function CreateOrgPage() {
         sendEmailNotification('org_created', user.email, { org_name: data.name }, orgId);
       }
 
-      toast({ title: '🎉 Espace créé !', description: data.name });
+      toast({ title: isFr ? '🎉 Espace créé !' : '🎉 Space created!', description: data.name });
       setShowOnboarding(true);
     } catch (err: any) {
       const msg = err?.message || String(err);
       if (msg.includes('duplicate') || msg.includes('unique') || msg.includes('slug')) {
-        toast({ title: 'Ce nom est déjà pris', description: 'Essaie un nom légèrement différent.', variant: 'destructive' });
+        toast({ title: isFr ? 'Ce nom est déjà pris' : 'This name is already taken', description: isFr ? 'Essaie un nom légèrement différent.' : 'Try a slightly different name.', variant: 'destructive' });
       } else {
-        toast({ title: 'Erreur', description: msg, variant: 'destructive' });
+        toast({ title: isFr ? 'Erreur' : 'Error', description: msg, variant: 'destructive' });
       }
     } finally {
       setLoading(false);
