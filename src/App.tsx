@@ -175,6 +175,7 @@ const AdminMediaForm = lazy(() => import("@/pages/admin/AdminMediaForm").then(m 
 const AdminAnalyticsPage = lazy(() => import("@/pages/admin/AdminAnalyticsPage"));
 const AdminCRM = lazy(() => import("@/pages/admin/AdminCRM"));
 
+const AdminViralTools = lazy(() => import("@/pages/admin/AdminViralTools"));
 const AdminPromoCodes = lazy(() => import("@/pages/admin/AdminPromoCodes"));
 const AdminPopups = lazy(() => import("@/pages/admin/AdminPopups"));
 const AdminPhotos = lazy(() => import("@/pages/admin/AdminPhotos"));
