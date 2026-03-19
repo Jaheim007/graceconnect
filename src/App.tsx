@@ -88,6 +88,7 @@ const MigrerPage = lazy(() => import("@/pages/MigrerPage"));
 const CanvaCallbackPage = lazy(() => import("@/pages/canva/CanvaCallback"));
 const VendreLandingPage = lazy(() => import("@/pages/VendreLandingPage"));
 const ProtectionPage = lazy(() => import("@/pages/ProtectionPage"));
+const EmbedCheckoutPage = lazy(() => import("@/pages/EmbedCheckoutPage"));
 const CertificateVerifyPage = lazy(() => import("@/pages/CertificateVerifyPage"));
 const TemoignagesPage = lazy(() => import("@/pages/TemoignagesPage"));
 const CalculateurPage = lazy(() => import("@/pages/CalculateurPage"));
