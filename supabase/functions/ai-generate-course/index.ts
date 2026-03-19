@@ -2,6 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { corsHeaders, jsonResp, requireAuth, adminClient } from '../_shared/auth.ts';
 import { consumeCreditsWithRefund, consumeCreditsOrThrow, refundCreditsAsBonus, normalizeTier } from '../_shared/credits.ts';
 import { aiGenerateImageBase64 } from '../_shared/ai-fallback.ts';
+import { geminiGenerateText } from '../_shared/ai-gemini.ts';
 
 const ACTION_KEY = 'ai_course_structure';
 const IMAGE_GEN_CONCURRENCY = 6;
@@ -79,7 +80,8 @@ serve(async (req) => {
 
     const creditTier = normalizeTier(tier);
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    if (!OPENAI_API_KEY) return jsonResp({ error: 'OpenAI API key not configured' }, 500);
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    if (!OPENAI_API_KEY && !GEMINI_API_KEY) return jsonResp({ error: 'No AI provider configured' }, 500);
 
     console.log('[ai-generate-course] Start', {
       userId,
@@ -309,11 +311,9 @@ MANDATORY REQUIREMENTS:
         const openaiModel = creditTier === 'premium' && !generate_images
           ? 'gpt-4o'
           : 'gpt-4o-mini';
-
-        // Lovable AI Gateway fallback models
-        const lovableModel = creditTier === 'premium'
-          ? 'openai/gpt-5'
-          : 'openai/gpt-5-mini';
+        const geminiModel = creditTier === 'premium'
+          ? 'gemini-2.5-pro'
+          : 'gemini-2.5-flash';
 
         const requestCourseCompletion = async (promptText: string, maxTokens: number, preferredTimeoutMs: number) => {
           const budgetMs = remainingBudgetMs();
@@ -329,93 +329,109 @@ MANDATORY REQUIREMENTS:
             { role: 'user', content: promptText },
           ];
 
-          // Try OpenAI first, fallback to Lovable AI Gateway
           const providers = [
             {
               name: 'OpenAI',
-              url: 'https://api.openai.com/v1/chat/completions',
-              key: OPENAI_API_KEY!,
-              model: openaiModel,
+              isAvailable: () => Boolean(OPENAI_API_KEY),
+              generate: async () => {
+                const aiController = new AbortController();
+                const aiTimeout = setTimeout(() => aiController.abort(), safeTimeoutMs);
+                try {
+                  const aiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                      Authorization: `Bearer ${OPENAI_API_KEY}`,
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                      model: openaiModel,
+                      max_tokens: maxTokens,
+                      messages,
+                    }),
+                    signal: aiController.signal,
+                  });
+
+                  if (!aiResponse.ok) {
+                    const errText = await aiResponse.text();
+                    const err = new Error('OpenAI request failed');
+                    (err as any).status = aiResponse.status;
+                    (err as any).detail = errText;
+                    throw err;
+                  }
+
+                  return await aiResponse.json();
+                } finally {
+                  clearTimeout(aiTimeout);
+                }
+              },
             },
             {
-              name: 'Lovable AI Gateway',
-              url: 'https://ai.gateway.lovable.dev/v1/chat/completions',
-              key: Deno.env.get('LOVABLE_API_KEY') || '',
-              model: lovableModel,
+              name: 'Gemini',
+              isAvailable: () => Boolean(GEMINI_API_KEY),
+              generate: async () => {
+                const content = await geminiGenerateText({
+                  apiKey: GEMINI_API_KEY!,
+                  model: geminiModel,
+                  system: systemPrompt,
+                  prompt: promptText,
+                  maxOutputTokens: maxTokens,
+                  jsonMode: true,
+                });
+
+                return {
+                  choices: [
+                    {
+                      message: {
+                        content,
+                      },
+                    },
+                  ],
+                };
+              },
             },
           ];
 
           let lastError: any = null;
 
           for (const provider of providers) {
-            if (!provider.key) {
+            if (!provider.isAvailable()) {
               console.warn(`[ai-generate-course] Skipping ${provider.name}: no API key`);
               continue;
             }
 
-            const aiController = new AbortController();
-            const aiTimeout = setTimeout(() => aiController.abort(), safeTimeoutMs);
-
             try {
-              console.log(`[ai-generate-course] Trying ${provider.name} with model ${provider.model}`);
-              const aiResponse = await fetch(provider.url, {
-                method: 'POST',
-                headers: {
-                  Authorization: `Bearer ${provider.key}`,
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  model: provider.model,
-                  max_tokens: maxTokens,
-                  messages,
-                }),
-                signal: aiController.signal,
-              });
-
-              if (!aiResponse.ok) {
-                const errText = await aiResponse.text();
-                console.error(`[ai-generate-course] ${provider.name} error:`, aiResponse.status, errText);
-
-                // If quota/rate limit error, try next provider
-                if (aiResponse.status === 429 || errText.includes('insufficient_quota')) {
-                  console.warn(`[ai-generate-course] ${provider.name} quota/rate limit hit, trying fallback...`);
-                  lastError = new Error(`${provider.name}: quota exceeded`);
-                  (lastError as any).status = 429;
-                  continue;
-                }
-                if (aiResponse.status === 402) {
-                  const err = new Error('AI credits exhausted');
-                  (err as any).status = 402;
-                  throw err;
-                }
-                if (aiResponse.status >= 500) {
-                  console.warn(`[ai-generate-course] ${provider.name} server error, trying fallback...`);
-                  lastError = new Error(`${provider.name} temporarily unavailable`);
-                  (lastError as any).status = 502;
-                  continue;
-                }
-                throw new Error('AI generation failed');
-              }
-
+              console.log(`[ai-generate-course] Trying ${provider.name}`);
+              const aiData = await provider.generate();
               console.log(`[ai-generate-course] Success with ${provider.name}`);
-              return await aiResponse.json();
+              return aiData;
             } catch (fetchErr: any) {
+              const status = Number(fetchErr?.status || 0);
+              const detail = String(fetchErr?.detail || fetchErr?.message || '').toLowerCase();
+              console.error(`[ai-generate-course] ${provider.name} error:`, status, fetchErr?.detail || fetchErr?.message || fetchErr);
+
               if (fetchErr?.name === 'AbortError') {
                 const err = new Error('AI generation timed out. Please retry.');
                 (err as any).status = 504;
                 throw err;
               }
-              // If it's a re-thrown error (402, etc.), propagate it
-              if (fetchErr?.status === 402 || fetchErr?.status === 504) throw fetchErr;
-              lastError = fetchErr;
-              console.warn(`[ai-generate-course] ${provider.name} failed:`, fetchErr.message, '— trying next provider');
-              continue;
-            } finally {
-              clearTimeout(aiTimeout);
+
+              const shouldFallback = status === 429 || status >= 500 || detail.includes('insufficient_quota') || detail.includes('quota');
+              if (shouldFallback) {
+                console.warn(`[ai-generate-course] ${provider.name} unavailable/quota hit, trying fallback...`);
+                lastError = fetchErr;
+                continue;
+              }
+
+              if (status === 402) {
+                const err = new Error('AI credits exhausted');
+                (err as any).status = 402;
+                throw err;
+              }
+
+              throw fetchErr;
             }
           }
 
-          // All providers failed
           if (lastError) throw lastError;
           throw new Error('No AI provider available');
         };
