@@ -221,7 +221,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
                 <div className="mx-3 mb-2 border-t border-border/60" />
               )}
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-3 py-2">
-                Membre de
+                {t('sidebar.member_of') || 'Member of'}
               </p>
               <AnimatePresence>
                 {memberOrgs.map((org, i) => (
