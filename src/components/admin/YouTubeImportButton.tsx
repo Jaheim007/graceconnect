@@ -41,6 +41,8 @@ export function YouTubeImportButton() {
   const { currentOrg } = useOrg();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { locale } = useI18n();
+  const isFr = locale === 'fr';
   const qc = useQueryClient();
 
   const fetchPreview = async () => {
