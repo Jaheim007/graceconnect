@@ -34,6 +34,7 @@ import { useI18n } from '@/i18n/I18nContext';
 import { PageTour } from '@/components/onboarding/PageTour';
 import { SEOHead } from '@/components/seo/SEOHead';
 import { SmartSuggestionsBanner } from '@/components/smart/SmartSuggestionsBanner';
+import { MyCommunities } from '@/components/network/MyCommunities';
 import { Home } from 'lucide-react';
 
 type Tab = 'all' | 'media' | 'store' | 'campaigns' | 'events';
