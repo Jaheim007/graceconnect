@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { useI18n } from '@/i18n/I18nContext';
 import { useOrg } from '@/contexts/OrgContext';
@@ -12,7 +13,7 @@ import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
-import { Sparkles, Loader2, BookOpen, HelpCircle, Plus, ImageIcon } from 'lucide-react';
+import { Sparkles, Loader2, BookOpen, HelpCircle, Plus, ImageIcon, Users } from 'lucide-react';
 import { CourseGenerationLoader } from './CourseGenerationLoader';
 
 const SUGGESTIONS_FR = [
@@ -53,6 +54,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
   const [tier, setTier] = useState<AITier>('standard');
   const [generateImages, setGenerateImages] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [audienceLevel, setAudienceLevel] = useState('intermediate');
 
   const standardCost = useActionCost('ai_course_structure', 'standard');
   const premiumCost = useActionCost('ai_course_structure', 'premium');
@@ -81,6 +83,7 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
           tier,
           module_count: 5,
           generate_images: generateImages,
+          audience_level: audienceLevel,
         },
       });
 
@@ -239,6 +242,26 @@ export function CreateWithAIDialog({ open, onOpenChange, onCreated }: Props) {
                     <span className="ml-1 text-[10px] opacity-90">({premiumCost ?? 15} {isFr ? 'crédits' : 'credits'})</span>
                   </Button>
                 </div>
+              </div>
+
+              {/* Audience level selection */}
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <Users className="h-3 w-3" /> {isFr ? 'Niveau du public' : 'Audience level'}
+                </p>
+                <Select value={audienceLevel} onValueChange={setAudienceLevel}>
+                  <SelectTrigger className="h-9 text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="beginner">{isFr ? '🌱 Débutant' : '🌱 Beginner'}</SelectItem>
+                    <SelectItem value="intermediate">{isFr ? '📚 Intermédiaire' : '📚 Intermediate'}</SelectItem>
+                    <SelectItem value="advanced">{isFr ? '🎓 Avancé' : '🎓 Advanced'}</SelectItem>
+                    <SelectItem value="professional">{isFr ? '💼 Professionnel' : '💼 Professional'}</SelectItem>
+                    <SelectItem value="academic">{isFr ? '🔬 Académique' : '🔬 Academic'}</SelectItem>
+                    <SelectItem value="youth">{isFr ? '🧒 Jeune public' : '🧒 Youth'}</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Image generation option */}
