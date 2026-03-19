@@ -73,6 +73,7 @@ export function ProgramForm() {
   // Module/lesson forms
   const [newLessonTitle, setNewLessonTitle] = useState('');
   const [showAIGenerator, setShowAIGenerator] = useState(false);
+  const [collapsedModules, setCollapsedModules] = useState<Set<string>>(new Set());
   const [applyingAI, setApplyingAI] = useState(false);
   const [generatingTitle, setGeneratingTitle] = useState(false);
   const [generatingDesc, setGeneratingDesc] = useState(false);
