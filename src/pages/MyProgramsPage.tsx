@@ -97,8 +97,8 @@ export default function MyProgramsPage() {
         </div>
       ) : enrollments.length === 0 ? (
         <EmptyState
-          title={isFr ? "Aucun programme" : "No programs"}
-          description={isFr ? "Vous n'êtes inscrit à aucun programme pour le moment. Explorez les organisations pour trouver des formations." : "You're not enrolled in any programs yet. Explore organizations to find courses."}
+          title={isFr ? "Aucun cours" : "No courses"}
+          description={isFr ? "Vous n'êtes inscrit à aucun cours pour le moment. Explorez les organisations pour trouver des formations." : "You're not enrolled in any courses yet. Explore organizations to find courses."}
           action={{ label: isFr ? 'Explorer' : 'Explore', onClick: () => navigate('/discover') }}
         />
       ) : (

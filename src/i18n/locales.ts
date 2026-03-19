@@ -3042,6 +3042,8 @@ const translations: Record<Locale, Record<string, string>> = {
     'sidebar.spotlight_desc': 'Sélections vedettes & tendances',
     'sidebar.my_programs': 'Mes formations',
     'sidebar.my_programs_desc': 'Cours suivis & progression',
+    'sidebar.my_courses': 'Mes Cours',
+    'sidebar.my_courses_desc': 'Cours suivis & progression',
     'sidebar.credits': 'Crédits',
     'sidebar.credits_desc': 'Solde & historique des crédits IA',
     'sidebar.bookmarks': 'Favoris',
