@@ -190,10 +190,10 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
           <DialogHeader className="relative">
             <DialogTitle className="text-base font-bold flex items-center gap-2">
               <Building2 className="h-4 w-4 text-primary" />
-              Changer d'organisation
+              {t('sidebar.switch_platform')}
             </DialogTitle>
             <p className="text-xs text-muted-foreground mt-1">
-              {userOrgs.length} organisation{userOrgs.length > 1 ? 's' : ''} · Sélectionnez pour basculer
+              {managedOrgs.length} {managedOrgs.length > 1 ? 'platforms' : 'platform'} · {memberOrgs.length > 0 ? `${memberOrgs.length} ${memberOrgs.length > 1 ? 'communities' : 'community'}` : ''}
             </p>
           </DialogHeader>
         </div>
