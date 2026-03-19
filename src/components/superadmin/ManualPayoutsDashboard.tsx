@@ -56,10 +56,20 @@ export default function ManualPayoutsDashboard() {
     queryFn: async () => {
       const { data } = await db
         .from('payout_requests')
-        .select('*, organizations(name, kyc_status)')
+        .select('*, organizations(name, kyc_status, slug)')
         .eq('status', 'pending')
         .order('requested_at', { ascending: true });
-      return data || [];
+      if (!data?.length) return [];
+
+      // Enrich each request with user profile + KYC payment info
+      const enriched = await Promise.all(data.map(async (req: any) => {
+        const [{ data: profile }, { data: kyc }] = await Promise.all([
+          db.from('profiles').select('display_name, avatar_url').eq('id', req.user_id).maybeSingle(),
+          db.from('kyc_submissions').select('id_document_type, verification_type, payout_method, payout_phone, payout_provider, bank_account_name, bank_account_number, bank_name, kyc_level').eq('organization_id', req.organization_id).maybeSingle(),
+        ]);
+        return { ...req, profile, kyc };
+      }));
+      return enriched;
     },
   });
 
