@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import {
   ShoppingBag, GraduationCap, Play, Megaphone, CalendarDays,
-  Heart, Tag, ArrowRight, Sparkles, MessageSquare, Zap
+  Heart, Tag, ArrowRight, Sparkles, MessageSquare
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -160,20 +160,6 @@ export default function AdminCreateHub() {
         })}
       </div>
 
-      {/* Viral Tools link */}
-      <Link
-        to="/admin/viral-tools"
-        className="flex items-center gap-3 p-4 rounded-xl border border-border bg-muted/30 hover:border-primary/30 hover:shadow-md transition-all group"
-      >
-        <div className="h-10 w-10 rounded-lg flex items-center justify-center shrink-0 bg-primary/10 text-primary">
-          <Zap className="h-5 w-5" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-sm">Viral Tools</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">{t('create_hub.viral_tools_desc')}</p>
-        </div>
-        <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-      </Link>
     </div>
   );
 }
