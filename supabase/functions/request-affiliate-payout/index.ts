@@ -58,14 +58,30 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'KYC verification required before requesting a payout. Please complete KYC for this organization.' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
+    // Prevent duplicate payout requests while a manual payout is still unresolved
+    const { data: pendingPayout } = await db.from('payout_requests')
+      .select('id')
+      .eq('organization_id', organization_id)
+      .eq('user_id', userId)
+      .eq('payout_type', 'affiliate')
+      .in('status', ['pending', 'requested', 'approved', 'processing'])
+      .limit(1)
+      .maybeSingle();
+    if (pendingPayout) {
+      return new Response(JSON.stringify({ error: 'You already have an affiliate payout request in progress for this organization.' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // Find payable affiliate sales for this user in this org
     // Sales start as 'pending' and become 'payable' after 15 days via release_matured_affiliate_sales()
     // We also include pending sales that have matured (payable_at <= now) in case the cron hasn't run yet
     const now = new Date().toISOString();
-    
+
     // First, trigger maturation for this org's sales in case cron hasn't run
     await db.rpc('release_matured_affiliate_sales');
-    
+
     const { data: payableSales, error } = await db.from('affiliate_sales')
       .select('id, commission_amount, currency')
       .eq('affiliate_user_id', userId)
@@ -82,21 +98,30 @@ Deno.serve(async (req) => {
     // Calculate total payable
     const totalAmount = payableSales.reduce((sum: number, s: { commission_amount: number }) => sum + s.commission_amount, 0);
     const currency = org?.currency || 'XOF';
-
-    // Mark sales as 'paid' (payout requested — will be finalized by superadmin)
     const saleIds = payableSales.map((s: { id: string }) => s.id);
-    await db.from('affiliate_sales').update({ status: 'paid', paid_at: new Date().toISOString() }).in('id', saleIds);
 
-    // Create payout request
-    const { data: payoutReq } = await db.from('payout_requests').insert({
+    // Create payout request first so commissions are never lost if the insert fails
+    const { data: payoutReq, error: payoutReqError } = await db.from('payout_requests').insert({
       organization_id,
       user_id: userId,
       payout_type: 'affiliate',
       amount: totalAmount,
       currency,
-      status: 'requested',
+      status: 'pending',
       metadata: { sale_ids: saleIds },
     }).select('id').single();
+    if (payoutReqError) throw payoutReqError;
+
+    // Reserve the sales so they can't be requested twice while the manual payout is pending
+    const { error: reserveSalesError } = await db.from('affiliate_sales')
+      .update({ status: 'paid', paid_at: new Date().toISOString() })
+      .in('id', saleIds);
+    if (reserveSalesError) {
+      if (payoutReq?.id) {
+        await db.from('payout_requests').delete().eq('id', payoutReq.id);
+      }
+      throw reserveSalesError;
+    }
 
     // Send confirmation email to requester
     const reqEmail = await getUserEmail(userId);
