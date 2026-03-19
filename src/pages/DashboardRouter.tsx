@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { db } from '@/lib/db';
 import { Navigate, Link } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
-import { PenLine, Share2, Upload, Store, ArrowRight } from 'lucide-react';
+import { PenLine, Share2, Upload, Store, ArrowRight, Plus } from 'lucide-react';
 import { FirstWinChecklist } from '@/components/dashboard/FirstWinChecklist';
 import { PremiumCard } from '@/components/ui/PremiumCard';
 
@@ -16,8 +16,8 @@ import { useI18n } from '@/i18n/I18nContext';
 import { motion } from 'framer-motion';
 
 /**
- * Smart dashboard router — shows the right dashboard based on user state:
- * 1. Creator (has orgs with manage role) → redirect to /admin
+ * Smart Dashboard — context-aware home based on user state:
+ * 1. Creator (has orgs with manage role) → redirect to /admin (AdminDashboard = smart creator home)
  * 2. Ambassador (has affiliate links) → AmbassadorDashboard
  * 3. New user (no activity) → Welcome actions + FirstWinChecklist
  * 4. Simple buyer → UserDashboard (purchases, discover)
@@ -57,7 +57,7 @@ export default function DashboardRouter() {
     );
   }
 
-  // 1. Creator → redirect to /admin
+  // 1. Creator → redirect to /admin (AdminDashboard is the smart creator home)
   const manageableOrg = userOrgs.find(o => canManage(o.id));
   if (manageableOrg) {
     return <Navigate to="/admin" replace />;
@@ -108,6 +108,14 @@ function NewUserDashboard({ hasBook }: { hasBook: boolean }) {
       to: '/migrer',
       color: 'border-accent/20 hover:border-accent/50',
       iconColor: 'text-accent bg-accent/10',
+    },
+    {
+      icon: Plus,
+      title: t('dash.create_platform'),
+      desc: t('dash.create_platform_desc'),
+      to: '/create-org',
+      color: 'border-blue-500/20 hover:border-blue-500/50',
+      iconColor: 'text-blue-500 bg-blue-500/10',
     },
     {
       icon: Store,

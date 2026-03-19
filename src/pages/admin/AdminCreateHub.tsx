@@ -1,0 +1,125 @@
+import { Link } from 'react-router-dom';
+import { useOrg } from '@/contexts/OrgContext';
+import { useI18n } from '@/i18n/I18nContext';
+import { useQuery } from '@tanstack/react-query';
+import { db } from '@/lib/db';
+import {
+  ShoppingBag, GraduationCap, Play, Megaphone, CalendarDays,
+  Heart, Tag, ArrowRight, Sparkles
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
+
+const createItems = [
+  { to: '/admin/products', icon: ShoppingBag, labelKey: 'create_hub.products', descKey: 'create_hub.products_desc', color: 'text-primary bg-primary/10 border-primary/20' },
+  { to: '/admin/programs', icon: GraduationCap, labelKey: 'create_hub.programs', descKey: 'create_hub.programs_desc', color: 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20' },
+  { to: '/admin/media', icon: Play, labelKey: 'create_hub.media', descKey: 'create_hub.media_desc', color: 'text-blue-500 bg-blue-500/10 border-blue-500/20' },
+  { to: '/admin/campaigns', icon: Heart, labelKey: 'create_hub.campaigns', descKey: 'create_hub.campaigns_desc', color: 'text-rose-500 bg-rose-500/10 border-rose-500/20' },
+  { to: '/admin/announcements', icon: Megaphone, labelKey: 'create_hub.announcements', descKey: 'create_hub.announcements_desc', color: 'text-amber-500 bg-amber-500/10 border-amber-500/20' },
+  { to: '/admin/events', icon: CalendarDays, labelKey: 'create_hub.events', descKey: 'create_hub.events_desc', color: 'text-purple-500 bg-purple-500/10 border-purple-500/20' },
+  { to: '/admin/promo-codes', icon: Tag, labelKey: 'create_hub.promos', descKey: 'create_hub.promos_desc', color: 'text-teal-500 bg-teal-500/10 border-teal-500/20' },
+  { to: '/admin/offerings', icon: Heart, labelKey: 'create_hub.donations', descKey: 'create_hub.donations_desc', color: 'text-pink-500 bg-pink-500/10 border-pink-500/20' },
+];
+
+export default function AdminCreateHub() {
+  const { currentOrg } = useOrg();
+  const { t } = useI18n();
+
+  // Get counts for each section
+  const { data: counts } = useQuery({
+    queryKey: ['create-hub-counts', currentOrg?.id],
+    queryFn: async () => {
+      if (!currentOrg?.id) return {};
+      const [products, programs, media, campaigns, announcements, events] = await Promise.all([
+        db.from('digital_products').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrg.id),
+        db.from('programs').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrg.id),
+        db.from('media_content').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrg.id),
+        db.from('donation_campaigns').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrg.id),
+        db.from('announcements').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrg.id),
+        db.from('events').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrg.id),
+      ]);
+      return {
+        '/admin/products': products.count || 0,
+        '/admin/programs': programs.count || 0,
+        '/admin/media': media.count || 0,
+        '/admin/campaigns': campaigns.count || 0,
+        '/admin/announcements': announcements.count || 0,
+        '/admin/events': events.count || 0,
+      } as Record<string, number>;
+    },
+    enabled: !!currentOrg?.id,
+    staleTime: 60_000,
+  });
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+          <Sparkles className="h-5 w-5 text-primary" />
+        </div>
+        <div>
+          <h1 className="text-xl font-bold tracking-tight">{t('create_hub.title')}</h1>
+          <p className="text-sm text-muted-foreground">{t('create_hub.subtitle')}</p>
+        </div>
+      </div>
+
+      {/* AI Writer CTA */}
+      <Link
+        to="/ecrire"
+        className="flex items-center gap-4 p-4 rounded-2xl border border-primary/20 bg-gradient-to-r from-primary/5 to-primary/10 hover:border-primary/40 transition-all group"
+      >
+        <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center shrink-0 shadow-lg shadow-primary/20">
+          <Sparkles className="h-6 w-6 text-primary-foreground" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-bold text-sm">{t('create_hub.ai_writer')}</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">{t('create_hub.ai_writer_desc')}</p>
+        </div>
+        <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:translate-x-1 transition-transform" />
+      </Link>
+
+      {/* Grid of content types */}
+      <div className="grid gap-3 sm:grid-cols-2">
+        {createItems.map((item, i) => {
+          const count = counts?.[item.to];
+          const colorParts = item.color.split(' ');
+          const iconColor = colorParts[0] + ' ' + colorParts[1];
+          const borderColor = colorParts[2];
+          
+          return (
+            <motion.div
+              key={item.to}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.03 }}
+            >
+              <Link
+                to={item.to}
+                className={cn(
+                  'flex items-center gap-3 p-4 rounded-xl border transition-all hover:shadow-md group',
+                  borderColor,
+                  'hover:border-primary/30'
+                )}
+              >
+                <div className={cn('h-10 w-10 rounded-lg flex items-center justify-center shrink-0', iconColor)}>
+                  <item.icon className="h-5 w-5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-sm">{t(item.labelKey)}</h3>
+                    {count !== undefined && count > 0 && (
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{count}</span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t(item.descKey)}</p>
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+              </Link>
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
