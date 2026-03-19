@@ -13,6 +13,9 @@ export interface ProductReview {
   helpful_count: number;
   is_verified_purchase: boolean;
   is_published: boolean;
+  image_urls: string[];
+  seller_reply: string | null;
+  seller_reply_at: string | null;
   created_at: string;
   updated_at: string;
   profile?: { display_name: string | null; avatar_url: string | null };
