@@ -85,6 +85,9 @@ export default function AdminPromoCodes() {
       if (maxUses) payload.max_uses = parseInt(maxUses);
       if (expiresAt) payload.expires_at = new Date(expiresAt).toISOString();
       if (selectedProductId !== 'all') payload.product_id = selectedProductId;
+      if (minAmount) payload.min_amount = parseFloat(minAmount);
+      payload.first_purchase_only = firstPurchaseOnly;
+      if (selectedProductId !== 'all') payload.product_id = selectedProductId;
 
       const { error } = await db.from('promo_codes').insert(payload);
       if (error) {
