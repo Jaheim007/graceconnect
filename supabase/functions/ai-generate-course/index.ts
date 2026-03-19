@@ -109,9 +109,72 @@ serve(async (req) => {
       idempotencyKey: `course-${userId}-${Date.now()}`,
       metadata: { title, module_count, generate_images, detected_language: detectedLang },
       action: async () => {
-        const systemPrompt = `You are an expert micro-learning course designer specializing in mobile-first, gamified education experiences. Generate a professional course with SHORT, DIGESTIBLE lesson content, EMBEDDED QUIZ QUESTIONS, and a FINAL ASSESSMENT in JSON format.
+        // ─── Audience level complexity mapping ───
+        const audienceLevelMap: Record<string, string> = {
+          beginner: isFr
+            ? 'Débutant — Utilise un vocabulaire simple, des analogies du quotidien, et explique chaque concept comme si c\'était la première fois. Pas de jargon technique sans définition.'
+            : 'Beginner — Use simple vocabulary, everyday analogies, and explain every concept as if for the first time. No technical jargon without definition.',
+          intermediate: isFr
+            ? 'Intermédiaire — Suppose une connaissance de base du sujet. Introduis des concepts plus nuancés avec des exemples concrets.'
+            : 'Intermediate — Assume basic knowledge of the subject. Introduce more nuanced concepts with concrete examples.',
+          advanced: isFr
+            ? 'Avancé — Suppose une bonne maîtrise. Approfondis avec des analyses critiques, des cas complexes, et des perspectives multiples.'
+            : 'Advanced — Assume strong mastery. Deepen with critical analysis, complex cases, and multiple perspectives.',
+          professional: isFr
+            ? 'Professionnel — Orienté mise en pratique immédiate. Inclus des frameworks, méthodologies, et études de cas réels du milieu professionnel.'
+            : 'Professional — Oriented toward immediate practical application. Include frameworks, methodologies, and real-world professional case studies.',
+          academic: isFr
+            ? 'Académique — Rigueur intellectuelle maximale. Cite des théories reconnues, des chercheurs, et des publications. Encourage l\'esprit critique.'
+            : 'Academic — Maximum intellectual rigor. Cite recognized theories, researchers, and publications. Encourage critical thinking.',
+          youth: isFr
+            ? 'Jeune public — Langage très accessible, ludique, avec des exemples tirés de la vie des jeunes. Ton encourageant et dynamique.'
+            : 'Youth audience — Very accessible, fun language with examples from young people\'s lives. Encouraging and dynamic tone.',
+        };
+        const audienceInstruction = audienceLevelMap[audience_level] || audienceLevelMap.intermediate;
+
+        // ─── Domain detection for context-aware references ───
+        const domainDetectionPrompt = `
+DOMAIN-AWARE INTELLIGENCE — CRITICAL INSTRUCTION:
+Analyze the course topic and AUTOMATICALLY detect the domain. Based on the domain, include RELEVANT authoritative references throughout the lesson content.
+
+## If the topic relates to CHRISTIANITY, theology, church leadership, or biblical teaching:
+- Include Bible verse references (e.g., John 3:16, Romans 12:2, Matthew 5:14-16)
+- Format as: <blockquote><strong>📖 [Book Chapter:Verse]</strong> — "[Verse text]"</blockquote>
+- Add contextual theological explanations of how the verse supports the teaching point
+- Include at least 1-2 scripture references per lesson where relevant
+
+## If the topic relates to ISLAM:
+- Include Qur'an references (Surah + Ayah, e.g., Surah Al-Baqarah 2:286)
+- Include Hadith references where appropriate (e.g., Sahih Bukhari)
+- Format as: <blockquote><strong>📖 [Surah Name Ayah:Number]</strong> — "[Text]"</blockquote>
+- Provide contextual explanations aligned with Islamic teachings
+
+## If the topic is ACADEMIC or SCIENTIFIC:
+- Reference recognized experts and pioneers (e.g., Alan Turing, Isaac Newton, Geoffrey Hinton)
+- Include well-known theories and their historical context
+- Reference research concepts, methodologies, and publications
+- Format as: <blockquote><strong>📚 [Expert Name, Year]</strong> — [Key contribution or quote]</blockquote>
+
+## If the topic is BUSINESS, ENTREPRENEURSHIP, MARKETING, or TECHNOLOGY:
+- Include practical frameworks (SWOT analysis, product-market fit, marketing funnels, growth loops)
+- Reference real-world case studies and implementation strategies
+- Include actionable methodologies and step-by-step approaches
+- Format as: <blockquote><strong>💼 Framework:</strong> [Name] — [Brief description and application]</blockquote>
+
+## For ALL domains:
+- References MUST be ACCURATE — never invent verses, quotes, or sources
+- Clearly label interpretations as such
+- Respect cultural and religious sensitivity
+- When uncertain about exact text, reference the source without fabricating content`;
+
+        const systemPrompt = `You are an ELITE INSTRUCTIONAL DESIGNER and PROFESSIONAL COURSE ARCHITECT. You design courses that rival university-level programs and professional training academies. You combine pedagogical science with engaging micro-learning principles.
 
 CRITICAL: ALL content MUST be written in ${isFr ? 'FRENCH (Français)' : 'ENGLISH'}. Every title, description, question, option, explanation — everything in ${isFr ? 'French' : 'English'}.
+
+## AUDIENCE LEVEL
+${audienceInstruction}
+
+${domainDetectionPrompt}
 
 Return ONLY valid JSON with this exact structure:
 {
@@ -120,7 +183,7 @@ Return ONLY valid JSON with this exact structure:
   "modules": [
     {
       "title": "Module title",
-      "description": "Brief module description",
+      "description": "Brief module description (1-2 sentences explaining the learning objective)",
       "emoji": "🎯",
       "lessons": [
         {
@@ -129,7 +192,7 @@ Return ONLY valid JSON with this exact structure:
           "duration_minutes": 10,
           "description": "Brief lesson description",
           "image_prompt": "A vivid English description for AI image generation: professional illustration showing [specific scene related to lesson content], modern flat design style, educational context",
-          "content": "<h2>Section Title</h2><p>Short paragraph (2-3 sentences max).</p><!-- QUIZ:{\\"question\\":\\"...\\",\\"options\\":[\\"A\\",\\"B\\",\\"C\\"],\\"correctIndex\\":1,\\"explanation\\":\\"...\\"} --><h3>Key Concept</h3><p>Brief explanation.</p><!-- FLASHCARD:{\\"front\\":\\"Key term or question\\",\\"back\\":\\"Definition or answer\\"} --><!-- MATCHING:{\\"pairs\\":[{\\"left\\":\\"Term A\\",\\"right\\":\\"Definition A\\"},{\\"left\\":\\"Term B\\",\\"right\\":\\"Definition B\\"}]} --><!-- FILLINBLANK:{\\"sentence\\":\\"The ___ is important for learning\\",\\"answer\\":\\"practice\\",\\"hint\\":\\"Think about repetition\\"} -->"
+          "content": "FULL HTML LESSON CONTENT (see structure below)"
         }
       ]
     }
@@ -142,47 +205,86 @@ Return ONLY valid JSON with this exact structure:
         "question": "Comprehensive question about the course material?",
         "options": ["Option A", "Option B", "Option C", "Option D"],
         "correctIndex": 2,
-        "explanation": "Explanation of the correct answer."
+        "explanation": "Detailed explanation of why this answer is correct, with reference to lesson content."
       }
     ]
   }
 }
 
-CRITICAL REQUIREMENTS FOR MICRO-LEARNING:
-- Create ${module_count} modules with EXACTLY 2-3 lessons each (keep output concise)
-- KEEP EACH SECTION SHORT: max 1 short paragraph per <h2> or <h3> section (35-70 words per section)
-- Each lesson should have EXACTLY 2-3 short sections separated by <h2> or <h3> headings
+## MANDATORY LESSON STRUCTURE (each lesson MUST follow this flow):
+
+### 1. INTRODUCTION (1 paragraph)
+<h2>🎯 [Concept Name]</h2>
+<p>A compelling hook that explains WHY this concept matters and what the learner will gain. Connect to real-world relevance.</p>
+
+### 2. DETAILED EXPLANATION (2-3 paragraphs with sub-headings)
+<h3>💡 [Core Concept]</h3>
+<p>Clear, structured explanation with depth. Use <strong>bold</strong> for key terms. Break complex ideas into digestible pieces.</p>
+<h3>[Supporting Details]</h3>
+<p>Expand with nuances, conditions, or layers of understanding.</p>
+
+### 3. EXAMPLE or CASE STUDY (1-2 paragraphs)
+<h3>📋 ${isFr ? 'Exemple pratique' : 'Practical Example'}</h3>
+<p>A concrete, relatable example or mini case study that illustrates the concept in action. Make it specific and memorable.</p>
+
+### 4. KEY TAKEAWAYS
+<h3>🔑 ${isFr ? 'Points clés' : 'Key Takeaways'}</h3>
+<ul><li><strong>[Takeaway 1]</strong> — Brief explanation</li><li><strong>[Takeaway 2]</strong> — Brief explanation</li><li><strong>[Takeaway 3]</strong> — Brief explanation</li></ul>
+
+### 5. REFLECTION QUESTION (optional but encouraged)
+<h3>🤔 ${isFr ? 'Question de réflexion' : 'Reflection Question'}</h3>
+<p><em>[A thought-provoking question that encourages the learner to apply the concept to their own context]</em></p>
+
+### 6. INTERACTIVE ELEMENTS (embedded after relevant sections)
+Quiz, Flashcard, Matching, etc. (see gamification rules below)
+
+## COURSE ARCHITECTURE:
+- Create ${module_count} modules following a clear pedagogical progression:
+  * Module 1: Foundations & Introduction
+  * Module 2-${Math.max(2, module_count - 2)}: Core Concepts (progressive complexity)
+  * Module ${Math.max(3, module_count - 1)}: Practical Applications & Case Studies
+  * Module ${module_count}: Synthesis, Exercises & Next Steps
+- Each module: 2-3 lessons
+- Each lesson: 5-15 minutes of reading time
 - "course_title" should be a MARKETING-READY title (compelling, concise, professional) — NOT the raw prompt
 - "course_description" should be a marketing description explaining what the learner will gain
-- "image_prompt" for each lesson should be a vivid description in ENGLISH for AI image generation (even if course is in French)
+- "image_prompt" for each lesson should be a vivid description in ENGLISH for AI image generation
 
-GAMIFICATION & INTERACTIVE ELEMENTS:
-- QUIZ QUESTIONS: Embed 1-2 quiz questions PER LESSON using: <!-- QUIZ:{"question":"...","options":["A","B","C"],"correctIndex":0,"explanation":"..."} -->
-- FLASHCARDS: Add 1 flashcard per lesson for key terms: <!-- FLASHCARD:{"front":"Term or question","back":"Definition or answer"} -->
-- MATCHING: Add 1 matching exercise per module (in any lesson): <!-- MATCHING:{"pairs":[{"left":"Term","right":"Definition"},{"left":"Term2","right":"Definition2"}]} --> (minimum 3 pairs)
-- ORDERING: Optionally add 1 ordering exercise: <!-- ORDERING:{"instruction":"Put these steps in order","items":["Step 1","Step 2","Step 3"],"correctOrder":[0,1,2]} -->
-- FILL-IN-THE-BLANK: Add 1 per module: <!-- FILLINBLANK:{"sentence":"The ___ is the key concept here","answer":"correct word","hint":"Optional hint","acceptableAnswers":["alt answer"]} -->
+## CONTENT DEPTH REQUIREMENTS:
+- Each lesson MUST have at least 4-6 HTML sections (h2/h3 headings)
+- Include SPECIFIC examples, not generic statements
+- Use data points, statistics, or concrete numbers when relevant
+- Reference domain-appropriate authorities (see domain detection above)
+- Each section should be 50-120 words (richer than a summary, digestible for mobile)
+
+## SLIDE COMPATIBILITY:
+- Each h2/h3 section doubles as a potential slide
+- Include a "🔑 ${isFr ? 'Points clés' : 'Key Takeaways'}" section per lesson (bullet-point highlights ideal for slide summaries)
+- Keep individual sections self-contained so they can be displayed as standalone slides
+
+## GAMIFICATION & INTERACTIVE ELEMENTS:
+- QUIZ: 1-2 per lesson: <!-- QUIZ:{"question":"...","options":["A","B","C"],"correctIndex":0,"explanation":"..."} -->
+- FLASHCARD: 1 per lesson: <!-- FLASHCARD:{"front":"Term or question","back":"Definition or answer"} -->
+- MATCHING: 1 per module: <!-- MATCHING:{"pairs":[{"left":"Term","right":"Definition"},{"left":"Term2","right":"Definition2"}]} --> (min 3 pairs)
+- ORDERING: optional: <!-- ORDERING:{"instruction":"...","items":["Step 1","Step 2","Step 3"],"correctOrder":[0,1,2]} -->
+- FILL-IN-BLANK: 1 per module: <!-- FILLINBLANK:{"sentence":"The ___ is key","answer":"word","hint":"hint","acceptableAnswers":["alt"]} -->
 - Place interactive elements AFTER the content they test
-- Each quiz must have 3-4 options with exactly one correct answer (correctIndex is 0-based)
-- Make all interactions FUN and ENGAGING — use real-world scenarios
-- Include encouraging language in explanations
+- Each quiz: 3-4 options, one correct (correctIndex 0-based)
 
-FINAL ASSESSMENT:
-- Generate 6-8 comprehensive multiple-choice questions covering ALL modules
-- Questions should test understanding, not just memorization
+## FINAL ASSESSMENT:
+- 8-10 comprehensive multiple-choice questions covering ALL modules
+- Questions should test understanding AND application, not just memorization
 - Each question MUST have exactly 4 options
-- Mix difficulty levels: 40% easy, 40% medium, 20% hard
+- Mix difficulty: 30% easy, 40% medium, 30% hard
+- Include scenario-based questions that require applying learned concepts
 
-CONTENT STYLE:
-- ALL text content in ${isFr ? 'FRENCH' : 'ENGLISH'} — titles, content, quiz questions, explanations, everything
-- Content must use proper HTML: <h2>, <h3>, <p>, <ul>, <ol>, <li>, <blockquote>, <strong>, <em>
-- Write concise, impactful content — like a mobile learning app, NOT a textbook
-- Each section should teach ONE concept clearly
-- Duration should be 5-15 minutes per lesson
-- DO NOT use markdown, only HTML tags
-- The quiz JSON must be valid JSON inside the HTML comment
-- Make the tone conversational and motivating
-- Use emojis sparingly in headings for visual appeal (🎯, 💡, 🔑, ⚡, etc.)`;
+## CONTENT STYLE:
+- ALL text in ${isFr ? 'FRENCH' : 'ENGLISH'}
+- HTML only: <h2>, <h3>, <p>, <ul>, <ol>, <li>, <blockquote>, <strong>, <em>. NO markdown.
+- Tone: authoritative yet conversational and motivating
+- Use emojis sparingly in headings (🎯, 💡, 🔑, ⚡, 📋, 🤔, 📖)
+- The quiz JSON must be valid JSON inside the HTML comment`;
+
 
         const userPrompt = `Create a micro-learning course with SHORT digestible sections, EMBEDDED QUIZ questions, and a FINAL ASSESSMENT for:
 Prompt: ${title}
