@@ -78,8 +78,8 @@ serve(async (req) => {
     if (!title?.trim()) return jsonResp({ error: 'Title is required' }, 400);
 
     const creditTier = normalizeTier(tier);
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) return jsonResp({ error: 'AI not configured' }, 500);
+    const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+    if (!OPENAI_API_KEY) return jsonResp({ error: 'OpenAI API key not configured' }, 500);
 
     console.log('[ai-generate-course] Start', {
       userId,
