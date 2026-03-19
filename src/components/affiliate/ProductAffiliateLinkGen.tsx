@@ -64,11 +64,11 @@ export function ProductAffiliateLinkGen({ orgId, orgSlug, userId, affiliateCode 
       if (error) throw error;
     },
     onSuccess: () => {
-      toast({ title: 'Lien créé !', description: 'Votre lien affilié pour ce produit est prêt.' });
+      toast({ title: isFr ? 'Lien créé !' : 'Link created!', description: isFr ? 'Votre lien affilié pour ce produit est prêt.' : 'Your affiliate link for this product is ready.' });
       qc.invalidateQueries({ queryKey: ['affiliate-product-links', orgId, userId] });
     },
     onError: (err: Error) => {
-      toast({ title: 'Erreur', description: err.message, variant: 'destructive' });
+      toast({ title: isFr ? 'Erreur' : 'Error', description: err.message, variant: 'destructive' });
     },
   });
 
