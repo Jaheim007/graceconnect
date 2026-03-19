@@ -80,7 +80,8 @@ serve(async (req) => {
 
     const creditTier = normalizeTier(tier);
     const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
-    if (!OPENAI_API_KEY) return jsonResp({ error: 'OpenAI API key not configured' }, 500);
+    const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+    if (!OPENAI_API_KEY && !GEMINI_API_KEY) return jsonResp({ error: 'No AI provider configured' }, 500);
 
     console.log('[ai-generate-course] Start', {
       userId,
