@@ -111,8 +111,8 @@ export function CampaignForm() {
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
         <div className="space-y-1.5">
-          <Label>Titre de la campagne *</Label>
-          <Input {...register('title')} placeholder="Ex: Construction d'un nouveau bâtiment..." />
+          <Label>{isFr ? 'Titre de la campagne *' : 'Campaign Title *'}</Label>
+          <Input {...register('title')} placeholder={isFr ? 'Ex: Construction d\'un nouveau bâtiment...' : 'E.g.: Building a new facility...'} />
           {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
         </div>
         <div className="space-y-1.5">
@@ -120,32 +120,32 @@ export function CampaignForm() {
           <RichTextEditor
             value={watch('description') || ''}
             onChange={(html) => setValue('description', html)}
-            placeholder="Décrivez l'objectif de cette campagne..."
+            placeholder={isFr ? 'Décrivez l\'objectif de cette campagne...' : 'Describe the goal of this campaign...'}
             onAIAssist={() => setShowAI(true)}
           />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label>Objectif ({currentOrg?.currency || 'XOF'})</Label>
-            <Input type="number" {...register('goal_amount')} placeholder="Ex: 5000000" />
+            <Label>{isFr ? 'Objectif' : 'Goal'} ({currentOrg?.currency || 'XOF'})</Label>
+            <Input type="number" {...register('goal_amount')} placeholder={isFr ? 'Ex: 5000000' : 'E.g.: 5000000'} />
           </div>
           <div className="space-y-1.5">
-            <Label>Date de fin (optionnel)</Label>
+            <Label>{isFr ? 'Date de fin (optionnel)' : 'End date (optional)'}</Label>
             <Input type="date" {...register('end_date')} />
           </div>
         </div>
 
         <div className="space-y-2">
-          <ImageUploader value={watch('image_url') || ''} onChange={(url) => setValue('image_url', url)} folder="campaigns" label="Image de couverture" hint="Recommandé: 1200×630px" aspectRatio="video" />
+          <ImageUploader value={watch('image_url') || ''} onChange={(url) => setValue('image_url', url)} folder="campaigns" label={isFr ? 'Image de couverture' : 'Cover image'} hint={isFr ? 'Recommandé: 1200×630px' : 'Recommended: 1200×630px'} aspectRatio="video" />
         </div>
 
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2"><Switch checked={watch('is_active')} onCheckedChange={v => setValue('is_active', v)} /><Label className="text-sm cursor-pointer">Active</Label></div>
-          <div className="flex items-center gap-2"><Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} /><Label className="text-sm cursor-pointer">Publié</Label></div>
+          <div className="flex items-center gap-2"><Switch checked={watch('is_active')} onCheckedChange={v => setValue('is_active', v)} /><Label className="text-sm cursor-pointer">{isFr ? 'Active' : 'Active'}</Label></div>
+          <div className="flex items-center gap-2"><Switch checked={watch('is_published')} onCheckedChange={v => setValue('is_published', v)} /><Label className="text-sm cursor-pointer">{isFr ? 'Publié' : 'Published'}</Label></div>
         </div>
         <div className="flex gap-3 pt-2">
-          <Button type="button" variant="outline" onClick={() => navigate('/admin/campaigns')}>Annuler</Button>
-          <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>{loading ? 'Enregistrement...' : isEdit ? 'Mettre à jour' : 'Créer'}</Button>
+          <Button type="button" variant="outline" onClick={() => navigate('/admin/campaigns')}>{isFr ? 'Annuler' : 'Cancel'}</Button>
+          <Button type="submit" className="bg-primary text-primary-foreground" disabled={loading}>{loading ? (isFr ? 'Enregistrement...' : 'Saving...') : isEdit ? (isFr ? 'Mettre à jour' : 'Update') : (isFr ? 'Créer' : 'Create')}</Button>
         </div>
       </form>
     </AdminPageShell>
