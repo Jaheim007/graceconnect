@@ -93,6 +93,8 @@ export function ProductForm() {
   const [fbPixel, setFbPixel] = useState('');
   const [ttPixel, setTtPixel] = useState('');
   const [gTag, setGTag] = useState('');
+  const [seoTitle, setSeoTitle] = useState('');
+  const [seoDescription, setSeoDescription] = useState('');
 
   // Bundle & Recommendation hooks
   const { data: allProducts = [] } = useOrgProducts(currentOrg?.id, false);
