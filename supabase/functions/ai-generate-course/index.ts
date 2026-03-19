@@ -329,7 +329,32 @@ MANDATORY REQUIREMENTS:
             { role: 'user', content: promptText },
           ];
 
+          // TEXT: Gemini FIRST (cheaper), OpenAI fallback
           const providers = [
+            {
+              name: 'Gemini',
+              isAvailable: () => Boolean(GEMINI_API_KEY),
+              generate: async () => {
+                const content = await geminiGenerateText({
+                  apiKey: GEMINI_API_KEY!,
+                  model: geminiModel,
+                  system: systemPrompt,
+                  prompt: promptText,
+                  maxOutputTokens: maxTokens,
+                  jsonMode: true,
+                });
+
+                return {
+                  choices: [
+                    {
+                      message: {
+                        content,
+                      },
+                    },
+                  ],
+                };
+              },
+            },
             {
               name: 'OpenAI',
               isAvailable: () => Boolean(OPENAI_API_KEY),
@@ -363,30 +388,6 @@ MANDATORY REQUIREMENTS:
                 } finally {
                   clearTimeout(aiTimeout);
                 }
-              },
-            },
-            {
-              name: 'Gemini',
-              isAvailable: () => Boolean(GEMINI_API_KEY),
-              generate: async () => {
-                const content = await geminiGenerateText({
-                  apiKey: GEMINI_API_KEY!,
-                  model: geminiModel,
-                  system: systemPrompt,
-                  prompt: promptText,
-                  maxOutputTokens: maxTokens,
-                  jsonMode: true,
-                });
-
-                return {
-                  choices: [
-                    {
-                      message: {
-                        content,
-                      },
-                    },
-                  ],
-                };
               },
             },
           ];
