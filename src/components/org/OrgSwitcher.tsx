@@ -203,7 +203,7 @@ export function OrgSwitcher({ variant = 'sidebar', collapsed = false }: OrgSwitc
           {managedOrgs.length > 0 && (
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground px-3 py-2">
-                Mes organisations
+                {t('sidebar.my_platforms') || 'My platforms'}
               </p>
               <AnimatePresence>
                 {managedOrgs.map((org, i) => (
