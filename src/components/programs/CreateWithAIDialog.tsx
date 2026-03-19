@@ -13,7 +13,7 @@ import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { useActionCost } from '@/hooks/useCredits';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreateProgram, useCreateModule, useCreateLesson } from '@/hooks/usePrograms';
-import { Sparkles, Loader2, BookOpen, HelpCircle, Plus, ImageIcon } from 'lucide-react';
+import { Sparkles, Loader2, BookOpen, HelpCircle, Plus, ImageIcon, Users } from 'lucide-react';
 import { CourseGenerationLoader } from './CourseGenerationLoader';
 
 const SUGGESTIONS_FR = [
