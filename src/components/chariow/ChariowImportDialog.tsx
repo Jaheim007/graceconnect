@@ -351,7 +351,7 @@ export function ChariowImportDialog({ open, onOpenChange }: { open: boolean; onO
                 </span>
               </div>
 
-              <ScrollArea className="mt-2 max-h-[40vh] pr-2">
+              <ScrollArea className="mt-2 h-[40vh] pr-2">
                 <div className="space-y-2">
                   {products.map(p => (
                     <label
