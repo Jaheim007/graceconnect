@@ -123,37 +123,51 @@ export default function AdminCreateHub() {
         {createItems.map((item, i) => {
           const count = counts?.[item.to];
           const colorParts = item.color.split(' ');
-          const iconColor = colorParts[0] + ' ' + colorParts[1];
+          const textColor = colorParts[0];
+          const bgColor = colorParts[1];
           const borderColor = colorParts[2];
-          
+
           return (
             <motion.div
               key={item.to}
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.03 }}
+              transition={{ delay: i * 0.04, type: 'spring', stiffness: 260, damping: 24 }}
             >
               <Link
                 to={item.to}
                 className={cn(
-                  'flex items-center gap-3 p-4 rounded-xl border transition-all hover:shadow-md group',
+                  'relative flex items-center gap-4 p-5 rounded-2xl border transition-all group overflow-hidden',
+                  'hover:shadow-lg hover:-translate-y-0.5',
                   borderColor,
-                  'hover:border-primary/30'
+                  'hover:border-opacity-60'
                 )}
               >
-                <div className={cn('h-10 w-10 rounded-lg flex items-center justify-center shrink-0', iconColor)}>
-                  <item.icon className="h-5 w-5" />
+                {/* Subtle shimmer on hover */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                <div className={cn(
+                  'relative h-12 w-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm',
+                  bgColor
+                )}>
+                  <item.icon className={cn('h-5 w-5', textColor)} />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="relative flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-sm">{t(item.labelKey)}</h3>
+                    <h3 className="font-bold text-sm">{t(item.labelKey)}</h3>
                     {count !== undefined && count > 0 && (
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted text-muted-foreground">{count}</span>
+                      <span className={cn(
+                        'text-[10px] font-bold px-2 py-0.5 rounded-full',
+                        bgColor, textColor
+                      )}>{count}</span>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{t(item.descKey)}</p>
+                  <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{t(item.descKey)}</p>
                 </div>
-                <ArrowRight className="h-4 w-4 text-muted-foreground shrink-0 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                <ArrowRight className={cn(
+                  'relative h-5 w-5 shrink-0 opacity-0 group-hover:opacity-100 group-hover:translate-x-1.5 transition-all',
+                  textColor
+                )} />
               </Link>
             </motion.div>
           );
