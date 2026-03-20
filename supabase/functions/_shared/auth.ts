@@ -33,8 +33,13 @@ export async function requireAuth(req: Request): Promise<AuthContext | Response>
   }
 
   const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-  const anonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+  const anonKey = Deno.env.get('SUPABASE_ANON_KEY') || Deno.env.get('SUPABASE_PUBLISHABLE_KEY') || '';
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+  if (!anonKey) {
+    console.error('[requireAuth] Missing SUPABASE_ANON_KEY / SUPABASE_PUBLISHABLE_KEY');
+    return jsonResp({ error: 'Unauthorized' }, 401);
+  }
 
   const userClient = createClient(supabaseUrl, anonKey, {
     global: { headers: { Authorization: authHeader } },
@@ -44,6 +49,7 @@ export async function requireAuth(req: Request): Promise<AuthContext | Response>
   const userId = data?.claims?.sub;
 
   if (error || !userId) {
+    console.error('[requireAuth] Claims validation failed', error?.message || 'missing sub');
     return jsonResp({ error: 'Unauthorized' }, 401);
   }
 
