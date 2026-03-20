@@ -123,6 +123,12 @@ const STEP_LABELS_EN = ['Source', 'Details', '🎯 Strategy', 'Creation', 'Previ
 
 type PublishingStage = 'preparing' | 'org' | 'book' | 'pdf' | 'finalizing';
 
+function detectBookLanguage(): BookLanguage {
+  const htmlLang = document.documentElement.lang;
+  if (htmlLang && ['fr', 'en', 'es', 'pt', 'de', 'sw'].includes(htmlLang)) return htmlLang as BookLanguage;
+  return 'fr';
+}
+
 const initialState: WriteState = {
   source: 'idea',
   topic: '',
@@ -139,7 +145,7 @@ const initialState: WriteState = {
   tone: 'professional',
   languageLevel: 'intermediate',
   targetAudience: 'general',
-  language: 'fr',
+  language: detectBookLanguage(),
   styleReference: '',
   bookLength: 'medium',
   chapterCount: 8,
