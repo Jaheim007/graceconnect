@@ -12,7 +12,7 @@ import { useShortLink } from '@/hooks/useShortLink';
 import { useI18n } from '@/i18n/I18nContext';
 import { useMemo } from 'react';
 
-const EASE_OUT: [number, number, number, number] = [0.16, 1, 0.3, 1];
+const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 
 export default function BlogArticlePage() {
   const { slug } = useParams<{ slug: string }>();
@@ -25,7 +25,7 @@ export default function BlogArticlePage() {
   const ogImage = article ? getArticleOgImage(article) : '';
   const currentIndex = article ? blogArticles.findIndex(a => a.slug === article.slug) : -1;
   const prevArticle = currentIndex > 0 ? blogArticles[currentIndex - 1] : null;
-  const nextArticle = currentIndex < blogArticles.length - 1 ? blogArticles[currentIndex + 1] : null;
+  const nextArticle = currentIndex >= 0 && currentIndex < blogArticles.length - 1 ? blogArticles[currentIndex + 1] : null;
 
   const localizedTitle = article ? getLocalizedTitle(article, locale) : '';
   const localizedDesc = article ? getLocalizedDescription(article, locale) : '';
@@ -44,11 +44,7 @@ export default function BlogArticlePage() {
     const seen = new Set<string>();
     return blogArticles
       .filter(a => a.slug !== article.slug)
-      .filter(a => {
-        if (seen.has(a.category)) return false;
-        seen.add(a.category);
-        return true;
-      })
+      .filter(a => { if (seen.has(a.category)) return false; seen.add(a.category); return true; })
       .slice(0, 4);
   }, [article?.slug]);
 
@@ -64,49 +60,13 @@ export default function BlogArticlePage() {
         <LandingNav />
         <div className="container max-w-3xl px-4 pt-32 text-center space-y-4">
           <h1 className="text-2xl font-bold">{isFr ? 'Article non trouvé' : 'Article not found'}</h1>
-          <p className="text-muted-foreground">{isFr ? 'Cet article n\'existe pas ou a été déplacé.' : 'This article doesn\'t exist or has been moved.'}</p>
+          <p className="text-muted-foreground">{isFr ? "Cet article n'existe pas ou a été déplacé." : "This article doesn't exist or has been moved."}</p>
           <Button onClick={() => navigate('/blog')}>{isFr ? 'Voir tous les articles' : 'View all articles'}</Button>
         </div>
         <LandingFooter />
       </div>
     );
   }
-
-  const ogImage = getArticleOgImage(article);
-  const currentIndex = blogArticles.findIndex(a => a.slug === article.slug);
-  const prevArticle = currentIndex > 0 ? blogArticles[currentIndex - 1] : null;
-  const nextArticle = currentIndex < blogArticles.length - 1 ? blogArticles[currentIndex + 1] : null;
-
-  const localizedTitle = getLocalizedTitle(article, locale);
-  const localizedDesc = getLocalizedDescription(article, locale);
-  const localizedContent = getLocalizedContent(article, locale);
-  const localizedCategory = getLocalizedCategory(article.category, locale);
-
-  // Related articles: same category first, then others, excluding current
-  const relatedArticles = useMemo(() => {
-    const sameCat = blogArticles.filter(a => a.slug !== article.slug && a.category === article.category);
-    const others = blogArticles.filter(a => a.slug !== article.slug && a.category !== article.category);
-    return [...sameCat, ...others].slice(0, 5);
-  }, [article.slug, article.category]);
-
-  // Popular / trending (pick from different categories for variety)
-  const trendingArticles = useMemo(() => {
-    const seen = new Set<string>();
-    return blogArticles
-      .filter(a => a.slug !== article.slug)
-      .filter(a => {
-        if (seen.has(a.category)) return false;
-        seen.add(a.category);
-        return true;
-      })
-      .slice(0, 4);
-  }, [article.slug]);
-
-  const { shareUrl: socialShareUrl } = useShortLink({
-    targetPath: `/blog/${article.slug}`,
-    title: localizedTitle,
-    description: localizedDesc,
-  });
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -117,12 +77,6 @@ export default function BlogArticlePage() {
     }
   };
 
-  const fadeUp = {
-    initial: { opacity: 0, y: 16, filter: 'blur(4px)' },
-    animate: { opacity: 1, y: 0, filter: 'blur(0px)' },
-    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
-  };
-
   return (
     <div className="min-h-screen bg-background">
       <SEOHead
@@ -131,17 +85,18 @@ export default function BlogArticlePage() {
         ogImage={ogImage}
         ogType="article"
         canonicalUrl={`https://siteviral.com/blog/${article.slug}`}
-        article={{
-          publishedTime: article.publishedAt,
-          section: localizedCategory,
-          tags: article.personas,
-        }}
+        article={{ publishedTime: article.publishedAt, section: localizedCategory, tags: article.personas }}
       />
       <LandingNav />
 
       <article className="pt-14">
         {/* Hero banner */}
-        <motion.div {...fadeUp} className="w-full pt-20 sm:pt-24">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: EASE }}
+          className="w-full pt-20 sm:pt-24"
+        >
           <div className="container max-w-6xl px-4">
             <div className="rounded-2xl overflow-hidden aspect-[21/9] sm:aspect-[3/1] bg-muted relative">
               <img src={ogImage} alt={localizedTitle} className="w-full h-full object-cover" loading="eager" />
@@ -165,7 +120,12 @@ export default function BlogArticlePage() {
             {/* ── Main column ── */}
             <div className="flex-1 min-w-0 max-w-3xl">
               {/* Meta bar */}
-              <motion.div {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.1 }} className="flex items-center gap-3 flex-wrap pb-6 border-b border-border mb-8">
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: EASE, delay: 0.1 }}
+                className="flex items-center gap-3 flex-wrap pb-6 border-b border-border mb-8"
+              >
                 <Link to="/blog" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
                   <ArrowLeft className="h-3.5 w-3.5" /> {isFr ? 'Tous les articles' : 'All articles'}
                 </Link>
@@ -183,7 +143,12 @@ export default function BlogArticlePage() {
               </motion.div>
 
               {/* Description */}
-              <motion.p {...fadeUp} transition={{ ...fadeUp.transition, delay: 0.15 }} className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-8 font-medium italic border-l-4 border-primary/30 pl-5">
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: EASE, delay: 0.15 }}
+                className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-8 font-medium italic border-l-4 border-primary/30 pl-5"
+              >
                 {localizedDesc}
               </motion.p>
 
@@ -218,11 +183,11 @@ export default function BlogArticlePage() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.3 }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ duration: 0.6, ease: EASE }}
                 className="mt-16 p-6 sm:p-10 rounded-2xl bg-primary text-primary-foreground text-center space-y-4"
               >
                 <h3 className="text-xl sm:text-2xl font-extrabold">{isFr ? 'Prêt à commencer ?' : 'Ready to get started?'}</h3>
-                <p className="text-primary-foreground/80 text-sm sm:text-base max-w-lg mx-auto">{isFr ? 'Créez votre plateforme gratuitement. Pas d\'abonnement, pas de carte requise.' : 'Create your platform for free. No subscription, no credit card required.'}</p>
+                <p className="text-primary-foreground/80 text-sm sm:text-base max-w-lg mx-auto">{isFr ? "Créez votre plateforme gratuitement. Pas d'abonnement, pas de carte requise." : 'Create your platform for free. No subscription, no credit card required.'}</p>
                 <Button size="lg" variant="secondary" className="px-8 gap-2 group" onClick={() => navigate('/auth?mode=signup')}>
                   {isFr ? 'Commencer gratuitement' : 'Get started for free'} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
@@ -253,7 +218,7 @@ export default function BlogArticlePage() {
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ delay: 0.3, duration: 0.6, ease: EASE }}
                 >
                   <h4 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2 mb-5 pb-3 border-b border-border">
                     <BookOpen className="h-4 w-4 text-primary" />
@@ -267,10 +232,7 @@ export default function BlogArticlePage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.35 + i * 0.07, duration: 0.4 }}
                       >
-                        <Link
-                          to={`/blog/${ra.slug}`}
-                          className="flex gap-3 group items-start"
-                        >
+                        <Link to={`/blog/${ra.slug}`} className="flex gap-3 group items-start">
                           <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted shrink-0">
                             <img src={getArticleOgImage(ra)} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                           </div>
@@ -292,7 +254,7 @@ export default function BlogArticlePage() {
                 <motion.div
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                  transition={{ delay: 0.5, duration: 0.6, ease: EASE }}
                 >
                   <h4 className="text-sm font-bold uppercase tracking-wider text-foreground flex items-center gap-2 mb-5 pb-3 border-b border-border">
                     <TrendingUp className="h-4 w-4 text-accent" />
@@ -300,11 +262,7 @@ export default function BlogArticlePage() {
                   </h4>
                   <div className="space-y-3">
                     {trendingArticles.map((ta, i) => (
-                      <Link
-                        key={ta.slug}
-                        to={`/blog/${ta.slug}`}
-                        className="flex items-start gap-3 group"
-                      >
+                      <Link key={ta.slug} to={`/blog/${ta.slug}`} className="flex items-start gap-3 group">
                         <span className="text-2xl font-extrabold text-muted-foreground/30 leading-none mt-0.5 tabular-nums">{i + 1}</span>
                         <div className="flex-1 min-w-0">
                           <p className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug">
