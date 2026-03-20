@@ -1,11 +1,13 @@
-import { useState } from 'react';
-import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, Users, Baby, User, Briefcase, UserCog, Globe, Wand2, Sparkles, Loader2, BookText, Palette, PenTool, ChevronDown, ChevronUp, Tag, UserPen, Brush, Cross, Moon, Flame, BookHeart, Megaphone, ScrollText, Swords, HandHeart } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { ArrowLeft, ArrowRight, BookOpen, FileText, Heart, MessageSquare, GraduationCap, Smile, Church, Feather, Users, Baby, User, Briefcase, UserCog, Globe, Wand2, Sparkles, Loader2, BookText, Palette, PenTool, ChevronDown, ChevronUp, Tag, UserPen, Brush, Cross, Moon, Flame, BookHeart, Megaphone, ScrollText, Swords, HandHeart, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 import { useI18n } from '@/i18n/I18nContext';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useCreditGuard } from '@/hooks/useCreditGuard';
 import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
@@ -23,10 +25,15 @@ interface Props {
 export function StepParams({ state, update, onNext, onBack }: Props) {
   const { t, locale } = useI18n();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [suggestingTitles, setSuggestingTitles] = useState(false);
+  const [suggestingSubtitles, setSuggestingSubtitles] = useState(false);
   const [titleSuggestions, setTitleSuggestions] = useState<string[]>([]);
+  const [subtitleSuggestions, setSubtitleSuggestions] = useState<string[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [keywordInput, setKeywordInput] = useState('');
+  const [orgName, setOrgName] = useState<string | null>(null);
+  const [useOrgName, setUseOrgName] = useState(true);
   const { showCreditDialog, setShowCreditDialog, creditErrorMessage, handleAiError, refreshCredits } = useCreditGuard();
 
   const styles: { type: BookStyle; icon: typeof BookOpen; label: string; desc: string }[] = [
