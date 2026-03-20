@@ -126,16 +126,17 @@ export function ProductForm() {
 
   useEffect(() => {
     if (item) {
+      const resolvedPublished = item.is_published || (item as any).publication_status === 'published';
       reset({
         title: item.title,
         description: item.description || '',
-        product_type: (item.product_type || 'pdf') as any,
+        product_type: (item.product_type as any) || 'pdf',
         price: item.price || 0,
         cover_image_url: item.cover_image_url || '',
         file_url: item.file_url || '',
         external_link: item.external_link || '',
         is_free: item.is_free || false,
-        is_published: item.is_published || false,
+        is_published: resolvedPublished,
         is_bundle: item.is_bundle || false,
         is_pwyw: item.is_pwyw || false,
         min_price: item.min_price || 0,
@@ -202,6 +203,7 @@ export function ProductForm() {
           const floor = floors[cur] || 500;
           return Math.max(data.min_price || 0, floor);
         })(),
+        publication_status: data.is_published ? 'published' : 'draft',
         cover_image_url: data.cover_image_url || null,
         file_url: data.file_url || null,
         external_link: data.external_link || null,
@@ -405,8 +407,8 @@ export function ProductForm() {
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label>Type</Label>
-            <Select value={watch('product_type')} onValueChange={v => setValue('product_type', v as any)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
+            <Select value={watch('product_type') || ''} onValueChange={v => setValue('product_type', v as any)}>
+              <SelectTrigger><SelectValue placeholder={isFr ? 'Choisir un type' : 'Select type'} /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="pdf">PDF</SelectItem>
                 <SelectItem value="ebook">eBook</SelectItem>

@@ -702,13 +702,35 @@ export default function ProductDetailPage() {
               </div>
 
               <div className="text-center py-2">
-                <span className={cn('text-3xl font-bold', product.is_free ? 'text-emerald-500' : 'text-primary')}>
-                  {formatPrice(product.price || 0, product.is_free, product.currency)}
-                </span>
-                {!product.is_free && (product.price ?? 0) > 0 && (
-                  <div className="mt-0.5">
-                    <LocalPriceHint amount={product.price ?? 0} currency={product.currency || 'XOF'} className="text-xs" />
+                {(product as any).is_pwyw && !product.is_free ? (
+                  <div className="space-y-1">
+                    <span className="text-lg font-semibold text-primary">
+                      💰 Pay What You Want
+                    </span>
+                    <p className="text-sm text-muted-foreground">
+                      {locale === 'fr' ? 'À partir de' : 'Starting from'}{' '}
+                      <span className="font-bold text-foreground">
+                        {formatPrice((product as any).min_price || 0, false, product.currency)}
+                      </span>
+                    </p>
+                    {(product.price ?? 0) > 0 && (product.price ?? 0) > ((product as any).min_price || 0) && (
+                      <p className="text-xs text-muted-foreground">
+                        {locale === 'fr' ? 'Prix suggéré :' : 'Suggested price:'}{' '}
+                        <span className="font-semibold">{formatPrice(product.price || 0, false, product.currency)}</span>
+                      </p>
+                    )}
                   </div>
+                ) : (
+                  <>
+                    <span className={cn('text-3xl font-bold', product.is_free ? 'text-emerald-500' : 'text-primary')}>
+                      {formatPrice(product.price || 0, product.is_free, product.currency)}
+                    </span>
+                    {!product.is_free && (product.price ?? 0) > 0 && (
+                      <div className="mt-0.5">
+                        <LocalPriceHint amount={product.price ?? 0} currency={product.currency || 'XOF'} className="text-xs" />
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 

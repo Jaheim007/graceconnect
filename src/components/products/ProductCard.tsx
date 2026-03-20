@@ -264,10 +264,18 @@ export function ProductCard({ product, onPurchase, index = 0, isPurchased, hideC
               : 'bg-background/90 backdrop-blur-sm text-foreground border border-border/50'
           )}>
             <span>
-              {isFlashSale && <span className="text-[10px] line-through text-muted-foreground mr-1">{fmt(product.price)}</span>}
-              {product.is_free ? (isFr ? 'Gratuit' : 'Free') : fmt(displayPrice)}
+              {(product as any).is_pwyw && !product.is_free ? (
+                <>
+                  💰 {isFr ? 'Dès' : 'From'} {fmt((product as any).min_price || 0)}
+                </>
+              ) : (
+                <>
+                  {isFlashSale && <span className="text-[10px] line-through text-muted-foreground mr-1">{fmt(product.price)}</span>}
+                  {product.is_free ? (isFr ? 'Gratuit' : 'Free') : fmt(displayPrice)}
+                </>
+              )}
             </span>
-            {!product.is_free && displayPrice > 0 && (
+            {!product.is_free && !(product as any).is_pwyw && displayPrice > 0 && (
               <LocalPriceHint amount={displayPrice} currency={product.currency || 'XOF'} />
             )}
           </span>
