@@ -733,10 +733,17 @@ function detectEditorialProfile(style: string, tone: string, title: string, topi
     return 'simple_prayers';
   }
 
-  // Non-prayer spiritual content
-  const spiritualSignals = ['prière', 'priere', 'anges', 'ange', 'spirituel', 'combat', 'delivrance', 'foi', 'satan', 'bataille', 'guerre', 'jesus', 'bible', 'miracle'];
-  if (tone === 'spiritual' || spiritualSignals.some((word) => haystack.includes(word))) {
-    return 'spiritual_warfare';
+  // Non-prayer spiritual content — ONLY route to spiritual_warfare if BOTH:
+  // 1) The tone is explicitly 'spiritual' AND
+  // 2) The topic contains strong spiritual signals
+  // This prevents classic ebooks about "faith in yourself" or "spiritual growth" from getting Bible verses
+  if (tone === 'spiritual') {
+    const strongSpiritualSignals = ['prière', 'priere', 'combat spirituel', 'delivrance', 'satan', 'jesus', 'bible', 'anges', 'ange'];
+    if (strongSpiritualSignals.some((word) => haystack.includes(word))) {
+      return 'spiritual_warfare';
+    }
+    // Spiritual tone but no strong signals → personal_growth, not warfare
+    return 'personal_growth';
   }
 
   const leadershipSignals = ['leadership', 'équipe', 'equipe', 'manager', 'travail en équipe', 'collaboration', 'influence', 'lois', 'principes'];
@@ -1039,18 +1046,26 @@ GARDE-FOUS D'AUTHENTICITÉ :
 - Chaque chapitre doit apporter une matière exploitable immédiatement
 - Interdit de générer des titres vagues, lyriques ou décoratifs hors fiction
 - Interdit d'écrire des paragraphes de remplissage
-- Chaque chapitre doit contenir au moins 1 élément concret vérifiable (cadre, étape, cas, référence, verset, checklist)
-
+- Chaque chapitre doit contenir au moins 1 élément concret vérifiable (cadre, étape, cas, référence, checklist)
+${['prayers', 'devotional'].includes(_style) || tone === 'spiritual' ? '' : `
+⚠️ INTERDICTION ABSOLUE — CONTENU RELIGIEUX :
+Ce livre est un ebook LAÏC. Il est STRICTEMENT INTERDIT d'inclure :
+- Des versets bibliques ou coraniques
+- Des références aux Écritures (Bible, Coran, Torah, etc.)
+- Des prières ou invocations
+- Du vocabulaire religieux spécifique (Saint-Esprit, Allah, Seigneur, etc.)
+- Des citations de prédicateurs ou leaders religieux
+Si le sujet touche la spiritualité, traite-le de manière UNIVERSELLE et PHILOSOPHIQUE, sans textes sacrés.
+`}
 HTML — FORMATAGE PROFESSIONNEL (comme un vrai livre édité) :
 - <p> pour les paragraphes de corps de texte (3-5 phrases chacun)
-- <h2> pour les TITRES DE SECTIONS MAJUSCULES (ex: "1. LE PÉCHÉ", "A- CINQ RAISONS MAJEURES")
-- <h3> pour les sous-sections (ex: "1.1. L'orgueil", "4.2. Solution dans l'ancien testament")
-- <blockquote> pour les VERSETS BIBLIQUES complets avec référence en <strong> (ex: <blockquote><strong>Éphésiens 6v12</strong> : <em>"nous n'avons pas à lutter contre la chair et le sang..."</em></blockquote>)
-- <ol><li> pour les listes NUMÉROTÉES (points de prière, étapes, arguments)
+- <h2> pour les TITRES DE SECTIONS MAJUSCULES
+- <h3> pour les sous-sections
+- <blockquote> pour les citations importantes ou principes clés${['prayers', 'devotional'].includes(_style) ? ' et les versets avec référence en <strong>' : ''}
+- <ol><li> pour les listes NUMÉROTÉES (étapes, arguments)
 - <ul><li> pour les listes à puces (thèmes, exemples)
-- <strong> pour les mots-clés, références bibliques et concepts importants
-- <em> pour les citations, les versets en italique, l'emphase
-- <ul><li> ou <ol><li> pour les listes
+- <strong> pour les mots-clés et concepts importants
+- <em> pour les citations et l'emphase
 ${styleRefInstruction}
 FORMAT DE SORTIE : JSON valide uniquement. Pas de markdown, pas de code fences.`
 
@@ -1078,17 +1093,26 @@ AUTHENTICITY GUARDRAILS:
 - Each chapter must deliver immediately usable substance
 - No vague, lyrical, decorative chapter titles outside fiction
 - No filler paragraphs
-- Each chapter must include at least one concrete artifact (framework, step, case, reference, verse, or checklist)
-
+- Each chapter must include at least one concrete artifact (framework, step, case, reference, or checklist)
+${['prayers', 'devotional'].includes(_style) || tone === 'spiritual' ? '' : `
+⚠️ ABSOLUTE BAN — RELIGIOUS CONTENT:
+This is a SECULAR ebook. It is STRICTLY FORBIDDEN to include:
+- Bible verses, Quran verses, or any scripture
+- References to Scripture (Bible, Quran, Torah, etc.)
+- Prayers or invocations
+- Specific religious vocabulary (Holy Spirit, Allah, Lord, etc.)
+- Quotes from preachers or religious leaders
+If the topic touches spirituality, treat it UNIVERSALLY and PHILOSOPHICALLY, without sacred texts.
+`}
 HTML — PROFESSIONAL FORMATTING (like a real published book):
 - <p> for body text paragraphs (3-5 sentences each)
-- <h2> for MAJOR SECTION TITLES (e.g. "1. THE PROBLEM", "A- FIVE MAJOR REASONS")
-- <h3> for sub-sections (e.g. "1.1. Pride", "4.2. Old Testament solution")
-- <blockquote> for FULL SCRIPTURE VERSES with reference in <strong> (e.g. <blockquote><strong>Ephesians 6:12</strong>: <em>"For we wrestle not against flesh..."</em></blockquote>)
-- <ol><li> for NUMBERED lists (prayer points, steps, arguments)
+- <h2> for MAJOR SECTION TITLES
+- <h3> for sub-sections
+- <blockquote> for important quotes or key principles${['prayers', 'devotional'].includes(_style) ? ' and scripture verses with reference in <strong>' : ''}
+- <ol><li> for NUMBERED lists (steps, arguments)
 - <ul><li> for bullet lists (themes, examples)
-- <strong> for key terms, biblical references, important concepts
-- <em> for quotes, verse text in italics, emphasis
+- <strong> for key terms and important concepts
+- <em> for quotes and emphasis
 ${styleRefInstruction}
 OUTPUT FORMAT: Valid JSON only. No markdown, no code fences.`;
 
