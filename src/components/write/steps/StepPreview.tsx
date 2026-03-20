@@ -197,7 +197,7 @@ export function StepPreview({ state, update, onNext, onBack }: Props) {
     try {
       const bookTitle = (state.title || t('write.my_book')).trim();
       const bookTopic = (state.topic || state.title || currentChapter.title || '').trim();
-      const chapterBody = htmlToPlainText(currentChapter.content, 3500);
+      const chapterBody = htmlToPlainText(currentChapter.content, 8000);
 
       const isReligiousStyle = ['prayers', 'devotional'].includes(state.style || '');
       const noReligiousContent = !isReligiousStyle && !state.religiousTradition;
