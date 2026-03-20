@@ -527,7 +527,7 @@ export default function WriteWizard() {
 
         // Reconstruct WriteState from DB project
         const restoredState: WriteState = {
-          ...initialState,
+          ...createInitialState(),
           title: project.title || '',
           topic: project.description || dataJson.topic || '',
           style: dataJson.style || 'ebook',
