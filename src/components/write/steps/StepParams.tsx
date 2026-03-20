@@ -269,26 +269,81 @@ export function StepParams({ state, update, onNext, onBack }: Props) {
 
       {/* Subtitle */}
       <div className="space-y-2">
-        <label className="text-sm font-medium">
-          {t('write.subtitle_label') || 'Sous-titre'} <span className="text-muted-foreground font-normal text-xs">({t('common.optional') || 'optionnel'})</span>
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium">
+            {t('write.subtitle_label') || 'Sous-titre'} <span className="text-muted-foreground font-normal text-xs">({t('common.optional') || 'optionnel'})</span>
+          </label>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="gap-1.5 text-xs h-7 text-primary"
+            disabled={suggestingSubtitles || !state.title?.trim()}
+            onClick={handleSuggestSubtitles}
+          >
+            {suggestingSubtitles ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Sparkles className="h-3 w-3" />
+            )}
+            {t('write.suggest_subtitles') || '✨ Suggest subtitles'}
+          </Button>
+        </div>
         <Input
           value={state.subtitle || ''}
           onChange={e => update({ subtitle: e.target.value })}
-          placeholder={t('write.subtitle_placeholder') || 'Ex: "Découvrir la personne que Dieu a créée"'}
+          placeholder={t('write.subtitle_placeholder') || 'Ex: "Discover the person God created"'}
           className="h-10 text-sm"
         />
+        {subtitleSuggestions.length > 0 && (
+          <div className="space-y-1.5">
+            {subtitleSuggestions.map((suggestion, i) => (
+              <button
+                key={i}
+                onClick={() => { update({ subtitle: suggestion }); setSubtitleSuggestions([]); }}
+                className="w-full text-left px-3 py-2 rounded-lg border border-border hover:border-primary/40 hover:bg-primary/5 transition-colors text-sm"
+              >
+                <span className="text-primary font-bold mr-2">{i + 1}.</span>
+                {suggestion}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Author name */}
       <div className="space-y-2">
-        <label className="text-sm font-medium flex items-center gap-1.5">
-          <UserPen className="h-3.5 w-3.5" /> {t('write.author_label') || "Nom de l'auteur"}
-        </label>
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-medium flex items-center gap-1.5">
+            <UserPen className="h-3.5 w-3.5" /> {t('write.author_label') || "Author name"}
+          </label>
+          {orgName && (
+            <div className="flex items-center gap-2">
+              <label className="text-[10px] text-muted-foreground flex items-center gap-1">
+                <Building2 className="h-3 w-3" />
+                {t('write.use_org_name') || 'Use organization name'}
+              </label>
+              <Switch
+                checked={useOrgName}
+                onCheckedChange={(checked) => {
+                  setUseOrgName(checked);
+                  if (checked && orgName) {
+                    update({ authorName: orgName });
+                  } else {
+                    update({ authorName: '' });
+                  }
+                }}
+              />
+            </div>
+          )}
+        </div>
         <Input
           value={state.authorName || ''}
-          onChange={e => update({ authorName: e.target.value })}
-          placeholder={t('write.author_placeholder') || 'Le nom qui apparaîtra sur votre livre'}
+          onChange={e => {
+            update({ authorName: e.target.value });
+            if (orgName && e.target.value !== orgName) setUseOrgName(false);
+          }}
+          placeholder={t('write.author_placeholder') || 'The name that will appear on your book'}
           className="h-10 text-sm"
         />
       </div>
